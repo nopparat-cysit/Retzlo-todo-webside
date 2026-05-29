@@ -1,0 +1,343 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --background: #080817;
+  --foreground: #f5efe6;
+  --panel: rgba(18, 21, 46, 0.82);
+  --panel-strong: rgba(26, 30, 62, 0.95);
+  --border: rgba(169, 162, 255, 0.18);
+  --muted: #aaa5c7;
+  --accent: #d59ab3;
+  --accent-2: #e5bd72;
+  --cursor-x: 50vw;
+  --cursor-y: 50vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--background);
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+  color: var(--foreground);
+  background:
+    linear-gradient(120deg, rgba(8, 8, 23, 0.96), rgba(13, 15, 40, 0.84)),
+    radial-gradient(circle at 74% 34%, rgba(169, 162, 255, 0.22), transparent 24rem),
+    radial-gradient(circle at 38% 72%, rgba(229, 189, 114, 0.08), transparent 22rem),
+    #080817;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+  opacity: 0.18;
+  background-image:
+    linear-gradient(rgba(169, 162, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(169, 162, 255, 0.1) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent 86%);
+}
+
+body::after {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+  opacity: 0.08;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.5) 0,
+    rgba(255, 255, 255, 0.5) 1px,
+    transparent 1px,
+    transparent 5px
+  );
+  mix-blend-mode: screen;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  color: #080817;
+  background: #e5bd72;
+}
+
+.lofi-panel {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(18px);
+}
+
+.scrollbar-soft {
+  scrollbar-color: rgba(169, 162, 255, 0.35) transparent;
+}
+
+.cursor-aura {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 18rem at var(--cursor-x) var(--cursor-y), rgba(169, 162, 255, 0.16), transparent 62%),
+    radial-gradient(circle 9rem at var(--cursor-x) var(--cursor-y), rgba(229, 189, 114, 0.1), transparent 70%);
+  mix-blend-mode: screen;
+  transition: opacity 180ms ease;
+}
+
+.landing-page {
+  position: relative;
+}
+
+.landing-title {
+  letter-spacing: 0;
+  text-shadow:
+    0 0 28px rgba(169, 162, 255, 0.16),
+    0 10px 36px rgba(0, 0, 0, 0.36);
+  animation: landing-rise 800ms ease-out both;
+}
+
+.landing-cta {
+  box-shadow: 0 0 36px rgba(169, 162, 255, 0.3);
+}
+
+.landing-stat,
+.landing-logo-caption,
+.landing-board-row {
+  animation: landing-rise 900ms ease-out both;
+}
+
+.landing-stat:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+.landing-stat:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.landing-logo-caption {
+  transform-style: preserve-3d;
+  animation:
+    landing-fade 900ms ease-out both,
+    landing-float 5s ease-in-out infinite;
+}
+
+.hero-scene-shell {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.hero-scene-canvas {
+  position: absolute;
+  inset: 0;
+  min-height: 520px;
+}
+
+.hero-scene-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-scene-scanline {
+  position: absolute;
+  inset: 11% 8% 18%;
+  pointer-events: none;
+  border: 1px solid rgba(169, 162, 255, 0.12);
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, transparent, rgba(169, 162, 255, 0.08), transparent),
+    linear-gradient(90deg, transparent, rgba(137, 199, 214, 0.06), transparent);
+  animation: landing-pulse 3.4s ease-in-out infinite;
+}
+
+.landing-logo-stage {
+  overflow: hidden;
+}
+
+.landing-logo-stage::before {
+  position: absolute;
+  width: min(62vw, 30rem);
+  aspect-ratio: 1;
+  content: "";
+  border: 1px solid rgba(169, 162, 255, 0.18);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(169, 162, 255, 0.18), transparent 58%),
+    conic-gradient(from 110deg, transparent, rgba(137, 199, 214, 0.2), transparent, rgba(229, 189, 114, 0.18), transparent);
+  filter: blur(0.2px);
+  animation: landing-spin 18s linear infinite;
+}
+
+.landing-logo-orbit {
+  position: absolute;
+  width: min(52vw, 24rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(169, 162, 255, 0.22);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 0 32px rgba(169, 162, 255, 0.08),
+    0 0 80px rgba(169, 162, 255, 0.12);
+  transform: rotateX(64deg) rotateZ(-18deg);
+}
+
+.landing-logo-orbit::before,
+.landing-logo-orbit::after {
+  position: absolute;
+  width: 0.72rem;
+  height: 0.72rem;
+  content: "";
+  border-radius: 999px;
+  background: #e5bd72;
+  box-shadow: 0 0 24px rgba(229, 189, 114, 0.75);
+}
+
+.landing-logo-orbit::before {
+  left: 14%;
+  top: 18%;
+}
+
+.landing-logo-orbit::after {
+  bottom: 13%;
+  right: 19%;
+  background: #89c7d6;
+  box-shadow: 0 0 24px rgba(137, 199, 214, 0.75);
+}
+
+.landing-logo-image {
+  position: relative;
+  z-index: 1;
+  width: min(60vw, 30rem);
+  height: auto;
+  filter:
+    drop-shadow(0 0 34px rgba(169, 162, 255, 0.28))
+    drop-shadow(0 34px 70px rgba(0, 0, 0, 0.42));
+  animation: landing-logo-float 5.8s ease-in-out infinite;
+}
+
+.landing-logo-caption {
+  z-index: 2;
+}
+
+@media (max-width: 1023px) {
+  .landing-logo-image {
+    width: min(82vw, 26rem);
+  }
+
+  .landing-logo-stage::before {
+    width: min(88vw, 28rem);
+  }
+
+  .landing-logo-orbit {
+    width: min(72vw, 22rem);
+  }
+}
+
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landing-float {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+@keyframes landing-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes landing-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.01);
+  }
+}
+
+@keyframes landing-logo-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg) scale(1);
+  }
+  50% {
+    transform: translateY(-14px) rotate(1.2deg) scale(1.025);
+  }
+}
+
+@keyframes landing-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-title,
+  .landing-stat,
+  .landing-board,
+  .landing-board-row,
+  .hero-scene-scanline,
+  .landing-logo-stage::before,
+  .landing-logo-image {
+    animation: none;
+  }
+
+  .cursor-aura {
+    display: none;
+  }
+}

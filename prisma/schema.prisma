@@ -1,0 +1,141 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String          @id @default(uuid())
+  email           String          @unique
+  username        String?         @unique
+  password        String
+  name            String?
+  createdAt       DateTime        @default(now())
+  memberships     ProjectMember[]
+  invitations     Invitation[]    @relation("InvitedUser")
+  sentInvitations Invitation[]    @relation("InvitationSender")
+  notes           Note[]
+  passwordResetOtps PasswordResetOtp[]
+}
+
+model Project {
+  id          String          @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  members     ProjectMember[]
+  boards      Board[]
+  invitations Invitation[]
+  notes       Note[]
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String
+  role      String   @default("MEMBER")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@index([projectId])
+}
+
+model Invitation {
+  id        String   @id @default(uuid())
+  email     String
+  projectId String
+  token     String   @unique
+  status    String   @default("PENDING")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invitedBy String
+  inviter   User     @relation("InvitationSender", fields: [invitedBy], references: [id], onDelete: Cascade)
+  user      User?    @relation("InvitedUser", fields: [email], references: [email])
+
+  @@index([projectId])
+  @@index([email])
+}
+
+model Board {
+  id        String   @id @default(uuid())
+  name      String
+  projectId String
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  columns   Column[]
+
+  @@index([projectId])
+}
+
+model Column {
+  id        String   @id @default(uuid())
+  name      String
+  position  Int
+  boardId   String
+  createdAt DateTime @default(now())
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards     Card[]
+
+  @@index([boardId, position])
+}
+
+model Card {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  position    Int
+  status      String    @default("TODO")
+  color       String    @default("DEFAULT")
+  checklist   Json?
+  dueDate     DateTime?
+  dueDateAllDay Boolean @default(false)
+  columnId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
+
+  @@index([columnId, position])
+  @@index([dueDate])
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  color     String   @default("DEFAULT")
+  isStarred Boolean  @default(false)
+  dueDate   DateTime?
+  dueDateAllDay Boolean @default(false)
+  projectId String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, updatedAt])
+  @@index([projectId, dueDate])
+  @@index([authorId])
+}
+
+model PasswordResetOtp {
+  id        String    @id @default(uuid())
+  email     String
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  attempts  Int       @default(0)
+  createdAt DateTime  @default(now())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email, createdAt])
+  @@index([userId])
+}
