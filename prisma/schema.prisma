@@ -13,24 +13,40 @@ model User {
   username        String?         @unique
   password        String
   name            String?
+  avatar          String?
+  bio             String?
+  status          String          @default("ONLINE")
+  globalCoins     Int             @default(0)
+  zenGarden       Json?
   createdAt       DateTime        @default(now())
   memberships     ProjectMember[]
   invitations     Invitation[]    @relation("InvitedUser")
   sentInvitations Invitation[]    @relation("InvitationSender")
   notes           Note[]
   passwordResetOtps PasswordResetOtp[]
+  createdRewards  Reward[]        @relation("RewardCreator")
+  redemptions     Redemption[]
+  notifications   Notification[]
+  createdCassettes Cassette[]     @relation("CassetteCreator")
+  pet             UserPet?
+  coffeeBrews     CoffeeBrew[]
 }
 
 model Project {
   id          String          @id @default(uuid())
   name        String
   description String?
+  coverImage  String?
+  coinName    String          @default("Project Coin")
+  coinSymbol  String          @default("🪙")
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   members     ProjectMember[]
   boards      Board[]
   invitations Invitation[]
   notes       Note[]
+  rewards     Reward[]
+  cassettes   Cassette[]
 }
 
 model ProjectMember {
@@ -38,6 +54,7 @@ model ProjectMember {
   userId    String
   projectId String
   role      String   @default("MEMBER")
+  coins     Int      @default(0)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -87,19 +104,24 @@ model Column {
 }
 
 model Card {
-  id          String    @id @default(uuid())
-  title       String
-  description String?
-  position    Int
-  status      String    @default("TODO")
-  color       String    @default("DEFAULT")
-  checklist   Json?
-  dueDate     DateTime?
-  dueDateAllDay Boolean @default(false)
-  columnId    String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  position      Int
+  status        String    @default("TODO")
+  color         String    @default("DEFAULT")
+  checklist     Json?
+  dueDate       DateTime?
+  dueDateAllDay Boolean   @default(false)
+  priority      String    @default("MEDIUM")
+  isStarred     Boolean   @default(false)
+  rewardCoins   Int       @default(0)
+  privateCoins  Json?
+  stickers      Json?
+  columnId      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  column        Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
 
   @@index([columnId, position])
   @@index([dueDate])
@@ -137,5 +159,101 @@ model PasswordResetOtp {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([email, createdAt])
+  @@index([userId])
+}
+
+model Reward {
+  id            String       @id @default(uuid())
+  name          String
+  description   String?
+  image         String?
+  price         Int
+  hasQuantity   Boolean      @default(false)
+  quantity      Int?
+  duration      String?      // e.g. cooldown duration
+  projectId     String?      // null = Global Reward
+  creatorId     String
+  createdAt     DateTime     @default(now())
+  creator       User         @relation("RewardCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  project       Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  redemptions   Redemption[]
+
+  @@index([projectId])
+  @@index([creatorId])
+}
+
+model Redemption {
+  id              String   @id @default(uuid())
+  userId          String
+  rewardId        String
+  projectId       String?
+  cost            Int
+  quantity        Int      @default(1)
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reward          Reward   @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([rewardId])
+  @@index([projectId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String?
+  type      String   // e.g. REDEMPTION_PENDING, REDEMPTION_STATUS
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model Cassette {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  tapeColor   String   @default("DEFAULT")
+  tracks      Json     // e.g. [{ "title": "Track 1", "url": "..." }]
+  projectId   String?  // null = Global/Private Cassette
+  creatorId   String
+  createdAt   DateTime @default(now())
+  creator     User     @relation("CassetteCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([creatorId])
+}
+
+model UserPet {
+  id           String    @id @default(uuid())
+  userId       String    @unique
+  name         String    @default("Lofi Cat")
+  type         String    @default("CAT") // CAT, DOG
+  blanketColor String    @default("indigo")
+  level        Int       @default(1)
+  lastFedAt    DateTime?
+  coinsSpent   Int       @default(0)
+  toysUnlocked Json?     // List of cosmetics/toys e.g. ["PILLOW", "BALL"]
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CoffeeBrew {
+  id             String   @id @default(uuid())
+  userId         String
+  brewType       String   // ESPRESSO, MATCHA, CHAMOMILE
+  diaryNotes     String
+  buffExpiresAt  DateTime
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }

@@ -6,6 +6,7 @@ export interface DiaryTask {
   description: string | null;
   color: CardColor;
   dueDate: string;
+  stickers?: string[];
   column: {
     name: string;
     boardId: string;

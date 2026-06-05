@@ -101,6 +101,186 @@ textarea {
 
 .scrollbar-soft {
   scrollbar-color: rgba(169, 162, 255, 0.35) transparent;
+  scrollbar-width: thin;
+}
+
+/* ── Skeleton shimmer ──────────────────────────────────────── */
+.skeleton-base {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  background: rgba(169, 162, 255, 0.05);
+}
+
+.skeleton-base::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(169, 162, 255, 0.08) 40%,
+    rgba(229, 189, 114, 0.04) 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Toast notifications ───────────────────────────────────── */
+.toast-enter {
+  animation: toast-slide-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.toast-exit {
+  animation: toast-slide-out 250ms ease-in both;
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(110%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    max-height: 120px;
+    margin-bottom: 0.5rem;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(110%) scale(0.9);
+    max-height: 0;
+    margin-bottom: 0;
+  }
+}
+
+/* ── Command palette ───────────────────────────────────────── */
+.cmd-backdrop {
+  animation: cmd-backdrop-in 180ms ease both;
+}
+
+.cmd-panel {
+  animation: cmd-panel-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cmd-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes cmd-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Card celebration particles ────────────────────────────── */
+.celebrate-particle {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 9999;
+  animation: celebrate-burst 800ms ease-out both;
+}
+
+@keyframes celebrate-burst {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0);
+  }
+}
+
+/* ── Column progress bar ───────────────────────────────────── */
+.column-progress-fill {
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Sidebar active nav item ───────────────────────────────── */
+.nav-item-active {
+  border-color: rgba(169, 162, 255, 0.5) !important;
+  background: rgba(169, 162, 255, 0.1) !important;
+  color: #a9a2ff !important;
+}
+
+.nav-item-active svg {
+  color: #a9a2ff;
+}
+
+/* ── Quick-add card inline ─────────────────────────────────── */
+.quick-add-enter {
+  animation: quick-add-in 180ms ease both;
+}
+
+@keyframes quick-add-in {
+  from {
+    opacity: 0;
+    transform: scaleY(0.8);
+    transform-origin: top;
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+/* ── Drag overlay tilt ─────────────────────────────────────── */
+.drag-tilt {
+  transform: rotate(2deg);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.4),
+    0 0 32px rgba(169, 162, 255, 0.2);
+}
+
+/* ── Drop zone glow ────────────────────────────────────────── */
+.drop-zone-active {
+  animation: drop-glow 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes drop-glow {
+  from { box-shadow: 0 0 0 0 rgba(169, 162, 255, 0); }
+  to   { box-shadow: 0 0 20px 2px rgba(169, 162, 255, 0.2); }
+}
+
+/* ── Greeting fade-in ──────────────────────────────────────── */
+.greeting-appear {
+  animation: greeting-fade 600ms ease both;
+}
+
+@keyframes greeting-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Empty state float ─────────────────────────────────────── */
+.empty-float {
+  animation: empty-float 4s ease-in-out infinite;
+}
+
+@keyframes empty-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
 }
 
 .cursor-aura {
@@ -340,4 +520,98 @@ textarea {
   .cursor-aura {
     display: none;
   }
+
+  .skeleton-base::after,
+  .toast-enter,
+  .toast-exit,
+  .cmd-backdrop,
+  .cmd-panel,
+  .celebrate-particle,
+  .quick-add-enter,
+  .drop-zone-active,
+  .greeting-appear,
+  .empty-float {
+    animation: none;
+  }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   11 Premium Productivity Features Styling
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Focus Mode */
+body.focus-mode aside {
+  display: none !important;
+}
+body.focus-mode main > div.grid {
+  grid-template-columns: 1fr !important;
+}
+
+/* Completed Card Fading */
+.card-completed {
+  opacity: 0.55;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-completed:hover {
+  opacity: 1;
+}
+
+/* Column Collapse Styles */
+.column-collapsed-rail {
+  width: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  height: 100%;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 1rem;
+}
+.column-collapsed-title {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* WIP Limit Pulsing Warning */
+@keyframes wip-pulse {
+  0%, 100% {
+    border-color: rgba(229, 189, 114, 0.2);
+    box-shadow: 0 0 0 rgba(229, 189, 114, 0);
+  }
+  50% {
+    border-color: rgba(229, 189, 114, 0.6);
+    box-shadow: 0 0 8px rgba(229, 189, 114, 0.2);
+  }
+}
+.wip-exceeded {
+  animation: wip-pulse 2s infinite ease-in-out;
+}
+
+/* Lofi visualizer bar keyframes */
+@keyframes audio-bar-1 {
+  0%, 100% { transform: scaleY(0.2); }
+  50% { transform: scaleY(1); }
+}
+@keyframes audio-bar-2 {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(0.9); }
+}
+@keyframes audio-bar-3 {
+  0%, 100% { transform: scaleY(0.15); }
+  50% { transform: scaleY(0.85); }
+}
+.audio-bar-1 {
+  animation: audio-bar-1 0.8s ease-in-out infinite;
+}
+.audio-bar-2 {
+  animation: audio-bar-2 0.6s ease-in-out infinite;
+}
+.audio-bar-3 {
+  animation: audio-bar-3 0.7s ease-in-out infinite;
+}
+

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
+import { processCardDonePayouts } from "@/lib/kanban/payout";
 
 const reorderCardsSchema = z.object({
   cardId: z.string().uuid(),
@@ -47,6 +48,30 @@ export async function PATCH(request: Request) {
         throw new Error("Invalid reorder columns.");
       }
 
+      // Check if destination column is a DONE column
+      const destColumn = await tx.column.findUnique({
+        where: { id: payload.destinationColumnId },
+        select: { name: true, boardId: true }
+      });
+
+      if (!destColumn) {
+        throw new Error("Destination column not found.");
+      }
+
+      const boardCols = await tx.column.findMany({
+        where: { boardId: destColumn.boardId },
+        orderBy: { position: "asc" },
+        select: { id: true }
+      });
+
+      const isLastCol = boardCols[boardCols.length - 1]?.id === payload.destinationColumnId;
+      const isDoneStatus = destColumn.name.toLowerCase().includes("done") || isLastCol;
+
+      if (isDoneStatus) {
+        // Trigger coin payouts!
+        await processCardDonePayouts(tx, payload.cardId, userId, projectId);
+      }
+
       const updates =
         payload.sourceColumnId === payload.destinationColumnId
           ? payload.destinationOrderedCardIds.map((id, position) => ({
@@ -71,9 +96,11 @@ export async function PATCH(request: Request) {
         updates.map((update) =>
           tx.card.update({
             where: { id: update.id },
+            // If it is a done status, we also force the card status to DONE in database
             data: {
               columnId: update.columnId,
-              position: update.position
+              position: update.position,
+              ...(isDoneStatus && update.id === payload.cardId && { status: "DONE" })
             }
           })
         )

@@ -4,7 +4,8 @@ import { getServerSession } from "next-auth";
 import {
   ProjectsDashboard,
   type GlobalCalendarCard,
-  type ProjectDashboardItem
+  type ProjectDashboardItem,
+  type UserProfile,
 } from "@/components/project/projects-dashboard";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -17,12 +18,16 @@ export default async function ProjectsPage() {
     redirect("/login");
   }
 
-  const [projects, calendarCards] = await Promise.all([
+  const [projects, calendarCards, userRecord] = await Promise.all([
     prisma.project.findMany({
       where: {
         members: { some: { userId: session.user.id } }
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        coverImage: true,
         _count: {
           select: {
             boards: true,
@@ -83,13 +88,25 @@ export default async function ProjectsPage() {
       },
       orderBy: [{ dueDate: "asc" }, { position: "asc" }],
       take: 24
-    })
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { name: true, avatar: true, status: true, email: true },
+    }),
   ]);
+
+  const userProfile: UserProfile = {
+    name: userRecord?.name ?? null,
+    avatar: userRecord?.avatar ?? null,
+    status: userRecord?.status ?? "ONLINE",
+    email: userRecord?.email ?? session.user.email ?? "",
+  };
 
   return (
     <ProjectsDashboard
       projects={projects.map(toProjectDashboardItem)}
       calendarCards={calendarCards.map(toGlobalCalendarCard)}
+      userProfile={userProfile}
     />
   );
 }
@@ -98,6 +115,7 @@ function toProjectDashboardItem(project: {
   id: string;
   name: string;
   description: string | null;
+  coverImage: string | null;
   _count: {
     boards: number;
     members: number;
@@ -122,6 +140,7 @@ function toProjectDashboardItem(project: {
     id: project.id,
     name: project.name,
     description: project.description,
+    coverImage: project.coverImage,
     counts: {
       boards: project._count.boards,
       members: project._count.members,

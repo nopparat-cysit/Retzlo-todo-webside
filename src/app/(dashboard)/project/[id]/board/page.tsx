@@ -21,7 +21,12 @@ function toColumns(columns: Array<{
     checklist: unknown;
     dueDate: Date | null;
     dueDateAllDay: boolean;
+    priority: string;
+    isStarred: boolean;
     columnId: string;
+    rewardCoins: number;
+    privateCoins: unknown;
+    stickers: unknown;
   }>;
 }>): ColumnWithCards[] {
   return columns.map((column) => ({
@@ -34,10 +39,16 @@ function toColumns(columns: Array<{
       color: normalizeCardColor(card.color),
       checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
       dueDate: card.dueDate ? card.dueDate.toISOString() : null,
-      dueDateAllDay: card.dueDateAllDay
+      dueDateAllDay: card.dueDateAllDay,
+      priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
+      isStarred: card.isStarred,
+      rewardCoins: card.rewardCoins,
+      privateCoins: card.privateCoins,
+      stickers: Array.isArray(card.stickers) ? (card.stickers as string[]) : [],
     }))
   }));
 }
+
 
 function toProjectNotes(notes: Array<{
   id: string;

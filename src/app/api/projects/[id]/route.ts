@@ -6,8 +6,9 @@ import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 
 const updateProjectSchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  description: z.string().trim().max(500).nullable().optional()
+  name: z.string().trim().min(1).max(120).optional(),
+  description: z.string().trim().max(500).nullable().optional(),
+  coverImage: z.string().max(500).nullable().optional(),
 });
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
@@ -63,12 +64,39 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const project = await prisma.project.update({
       where: { id: params.id },
       data: {
-        name: payload.name,
-        description: payload.description
+        ...(payload.name !== undefined && { name: payload.name }),
+        ...(payload.description !== undefined && { description: payload.description }),
+        ...(payload.coverImage !== undefined && { coverImage: payload.coverImage }),
       }
     });
 
     return NextResponse.json({ project });
+  } catch (error) {
+    return parseError(error);
+  }
+}
+
+export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+  try {
+    const userId = await requireUserId();
+
+    if (!userId) {
+      return jsonError("Please sign in to continue.", 401);
+    }
+
+    const membership = await assertProjectMember(params.id, userId);
+
+    if (!membership) {
+      return jsonError("You do not have access to this project.", 403);
+    }
+
+    if (membership.role !== "OWNER") {
+      return jsonError("Only the project owner can delete this project.", 403);
+    }
+
+    await prisma.project.delete({ where: { id: params.id } });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
     return parseError(error);
   }

@@ -23,6 +23,7 @@ function toDiaryTasks(tasks: Array<{
   description: string | null;
   color: string;
   dueDate: Date | null;
+  stickers: unknown;
   column: {
     name: string;
     boardId: string;
@@ -33,7 +34,8 @@ function toDiaryTasks(tasks: Array<{
     .map((task) => ({
       ...task,
       color: normalizeCardColor(task.color),
-      dueDate: task.dueDate.toISOString()
+      dueDate: task.dueDate.toISOString(),
+      stickers: Array.isArray(task.stickers) ? (task.stickers as string[]) : []
     }));
 }
 

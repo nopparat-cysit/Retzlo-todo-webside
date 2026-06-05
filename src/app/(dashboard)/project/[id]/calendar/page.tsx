@@ -42,6 +42,8 @@ function toCalendarCard(card: {
   checklist: unknown;
   dueDate: Date | null;
   dueDateAllDay: boolean;
+  priority: string;
+  isStarred: boolean;
   columnId: string;
   column: {
     name: string;
@@ -58,6 +60,8 @@ function toCalendarCard(card: {
     checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
     dueDate: card.dueDate ? card.dueDate.toISOString() : null,
     dueDateAllDay: card.dueDateAllDay,
+    priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
+    isStarred: card.isStarred,
     columnId: card.columnId,
     column: card.column
   };

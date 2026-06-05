@@ -86,6 +86,13 @@ export function DiaryTodo({ projectId, selectedDate, tasks, days = 5 }: DiaryTod
                     return (
                       <article key={task.id} className={cn("rounded-md border p-3", colorMeta.softClass)}>
                         <p className="font-medium text-stone-100">{task.title}</p>
+                        {Array.isArray(task.stickers) && task.stickers.length > 0 && (
+                          <div className="flex gap-1.5 mt-1 select-none text-base">
+                            {task.stickers.map((st, i) => (
+                              <span key={i} title="Sticker stamp">{st}</span>
+                            ))}
+                          </div>
+                        )}
                         {task.description ? (
                           <p className="mt-2 line-clamp-2 text-sm text-stone-400">{task.description}</p>
                         ) : null}

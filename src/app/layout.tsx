@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CursorAura } from "@/components/ui/cursor-aura";
+import { ToastProvider } from "@/components/ui/toast";
 
 import "./globals.css";
 
@@ -14,7 +15,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         <CursorAura />
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

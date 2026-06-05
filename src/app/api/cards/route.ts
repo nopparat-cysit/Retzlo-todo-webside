@@ -11,9 +11,11 @@ import {
   getProjectIdForColumn,
   requireUserId
 } from "@/lib/project-auth";
+import { processCardDonePayouts } from "@/lib/kanban/payout";
 
 const cardStatusSchema = z.enum(["TODO", "DOING", "WAITING", "DONE"]);
 const cardColorSchema = z.enum(cardColorValues).default("DEFAULT");
+const cardPrioritySchema = z.enum(["LOW", "MEDIUM", "HIGH"]).default("MEDIUM");
 const checklistItemSchema = z.object({
   id: z.string().min(1),
   label: z.string().trim().min(1).max(160),
@@ -28,7 +30,12 @@ const createCardSchema = z.object({
   color: cardColorSchema,
   checklist: z.array(checklistItemSchema).default([]),
   dueDate: z.string().datetime().nullable().optional(),
-  dueDateAllDay: z.boolean().default(false)
+  dueDateAllDay: z.boolean().default(false),
+  priority: cardPrioritySchema,
+  isStarred: z.boolean().default(false),
+  rewardCoins: z.number().int().nonnegative().default(0),
+  privateCoins: z.any().optional(),
+  stickers: z.array(z.string()).default([]),
 });
 
 const updateCardSchema = z.object({
@@ -39,7 +46,12 @@ const updateCardSchema = z.object({
   color: z.enum(cardColorValues).optional(),
   checklist: z.array(checklistItemSchema).optional(),
   dueDate: z.string().datetime().nullable().optional(),
-  dueDateAllDay: z.boolean().optional()
+  dueDateAllDay: z.boolean().optional(),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
+  isStarred: z.boolean().optional(),
+  rewardCoins: z.number().int().nonnegative().optional(),
+  privateCoins: z.any().optional(),
+  stickers: z.array(z.string()).optional(),
 });
 
 function serializeCard<T extends {
@@ -48,6 +60,11 @@ function serializeCard<T extends {
   checklist: unknown;
   dueDate: Date | null;
   dueDateAllDay: boolean;
+  priority: string;
+  isStarred: boolean;
+  rewardCoins: number;
+  privateCoins: unknown;
+  stickers: unknown;
 }>(card: T) {
   return {
     ...card,
@@ -55,7 +72,12 @@ function serializeCard<T extends {
     color: normalizeCardColor(card.color),
     checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
     dueDate: card.dueDate ? card.dueDate.toISOString() : null,
-    dueDateAllDay: card.dueDateAllDay
+    dueDateAllDay: card.dueDateAllDay,
+    priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
+    isStarred: card.isStarred,
+    rewardCoins: card.rewardCoins,
+    privateCoins: card.privateCoins,
+    stickers: Array.isArray(card.stickers) ? (card.stickers as string[]) : [],
   };
 }
 
@@ -93,6 +115,11 @@ export async function POST(request: Request) {
         checklist: payload.checklist,
         dueDate: payload.dueDate ? new Date(payload.dueDate) : null,
         dueDateAllDay: payload.dueDateAllDay,
+        priority: payload.priority,
+        isStarred: payload.isStarred ?? false,
+        rewardCoins: payload.rewardCoins,
+        privateCoins: payload.privateCoins,
+        stickers: payload.stickers,
         position
       }
     });
@@ -124,17 +151,28 @@ export async function PATCH(request: Request) {
       return jsonError("You do not have access to this project.", 403);
     }
 
-    const card = await prisma.card.update({
-      where: { id: payload.cardId },
-      data: {
-        title: payload.title,
-        description: payload.description,
-        status: payload.status,
-        color: payload.color,
-        checklist: payload.checklist,
-        dueDate: payload.dueDate ? new Date(payload.dueDate) : payload.dueDate,
-        dueDateAllDay: payload.dueDateAllDay
+    const card = await prisma.$transaction(async (tx) => {
+      if (payload.status === "DONE") {
+        await processCardDonePayouts(tx, payload.cardId, userId, projectId);
       }
+
+      return tx.card.update({
+        where: { id: payload.cardId },
+        data: {
+          title: payload.title,
+          description: payload.description,
+          status: payload.status,
+          color: payload.color,
+          checklist: payload.checklist,
+          dueDate: payload.dueDate ? new Date(payload.dueDate) : payload.dueDate,
+          dueDateAllDay: payload.dueDateAllDay,
+          priority: payload.priority,
+          rewardCoins: payload.rewardCoins,
+          privateCoins: payload.privateCoins,
+          stickers: payload.stickers,
+          ...(payload.isStarred !== undefined && { isStarred: payload.isStarred }),
+        }
+      });
     });
 
     return NextResponse.json({ card: serializeCard(card) });

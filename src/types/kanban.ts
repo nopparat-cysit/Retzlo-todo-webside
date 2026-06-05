@@ -1,5 +1,7 @@
 import type { CardColor } from "@/lib/theme/card-colors";
 
+export type CardPriority = "LOW" | "MEDIUM" | "HIGH";
+
 export interface Card {
   id: string;
   title: string;
@@ -10,7 +12,12 @@ export interface Card {
   checklist: ChecklistItem[];
   dueDate: string | null;
   dueDateAllDay: boolean;
+  priority: CardPriority;
+  isStarred: boolean;
   columnId: string;
+  rewardCoins?: number;
+  privateCoins?: any;
+  stickers?: string[];
 }
 
 export type CardStatus = "TODO" | "DOING" | "WAITING" | "DONE";

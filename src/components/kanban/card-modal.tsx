@@ -11,11 +11,12 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState } from "react";
-import { CalendarClock, CheckSquare, GripVertical, Plus, Trash2, X } from "lucide-react";
+import { CalendarClock, CheckSquare, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { applyDueShortcut, composeDueDate } from "@/lib/kanban/due-date";
+import { getPrivateCoinEntry, setPrivateCoinAmount } from "@/lib/kanban/private-coins";
 import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,11 @@ interface CardModalProps {
     checklist: ChecklistItem[];
     dueDate: string | null;
     dueDateAllDay: boolean;
+    priority: "LOW" | "MEDIUM" | "HIGH";
+    isStarred: boolean;
+    rewardCoins?: number;
+    privateCoins?: any;
+    stickers?: string[];
   }) => Promise<void>;
 }
 
@@ -57,9 +63,18 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   const [time, setTime] = useState(timeValue(card));
   const [selectedStatus, setSelectedStatus] = useState<CardStatus>(card?.status ?? "TODO");
   const [selectedColor, setSelectedColor] = useState<CardColor>(normalizeCardColor(card?.color));
+  const [selectedPriority, setSelectedPriority] = useState<"LOW" | "MEDIUM" | "HIGH">(card?.priority ?? "MEDIUM");
+  const [isStarred, setIsStarred] = useState(card?.isStarred ?? false);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(card?.checklist ?? []);
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  // Gamification fields
+  const [activeUserId, setActiveUserId] = useState<string | null>(null);
+  const [privateGlobalCoins, setPrivateGlobalCoins] = useState(0);
+  const [rewardCoins, setRewardCoins] = useState(card?.rewardCoins ?? 0);
+  const [stickers, setStickers] = useState<string[]>([]);
+
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   useEffect(() => {
@@ -71,8 +86,25 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     setTime(timeValue(card));
     setSelectedStatus(card?.status ?? "TODO");
     setSelectedColor(normalizeCardColor(card?.color));
+    setSelectedPriority(card?.priority ?? "MEDIUM");
+    setIsStarred(card?.isStarred ?? false);
     setChecklist(card?.checklist ?? []);
     setNewChecklistItem("");
+
+    setRewardCoins(card?.rewardCoins ?? 0);
+    setStickers(Array.isArray(card?.stickers) ? (card.stickers as string[]) : []);
+
+    async function fetchUser() {
+      try {
+        const res = await fetch("/api/profile");
+        if (res.ok) {
+          const d = await res.json() as { user: { id: string } };
+          setActiveUserId(d.user.id);
+          setPrivateGlobalCoins(getPrivateCoinEntry(card?.privateCoins, d.user.id).coins);
+        }
+      } catch {}
+    }
+    void fetchUser();
   }, [card, open]);
 
   if (!open) {
@@ -127,7 +159,12 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
       color: selectedColor,
       checklist,
       dueDate: due.dueDate,
-      dueDateAllDay: due.dueDateAllDay
+      dueDateAllDay: due.dueDateAllDay,
+      priority: selectedPriority,
+      isStarred,
+      rewardCoins,
+      privateCoins: activeUserId ? setPrivateCoinAmount(card?.privateCoins, activeUserId, privateGlobalCoins) : undefined,
+      stickers
     });
     setIsSaving(false);
   }
@@ -140,9 +177,24 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">{mode === "create" ? "New card" : "Edit card"}</p>
             <h2 className="mt-1 text-2xl font-semibold">{mode === "create" ? "Create card" : "Card details"}</h2>
           </div>
-          <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label={isStarred ? "Unstar card" : "Star card"}
+              className={cn(
+                "grid h-9 w-9 place-items-center rounded-md border transition hover:scale-105",
+                isStarred
+                  ? "border-dusk-amber/60 bg-dusk-amber/15 text-dusk-amber"
+                  : "border-white/10 text-stone-500 hover:border-dusk-amber/40 hover:text-dusk-amber"
+              )}
+              onClick={() => setIsStarred((v) => !v)}
+            >
+              <Star className={cn("h-4 w-4", isStarred && "fill-dusk-amber")} />
+            </button>
+            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-4">
@@ -159,6 +211,33 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
                   onClick={() => setSelectedStatus(option.value)}
                 />
               ))}
+            </div>
+          </div>
+
+          <div className="space-y-2 text-sm text-stone-300">
+            <span>Priority</span>
+            <div className="flex gap-2">
+              {(["LOW", "MEDIUM", "HIGH"] as const).map((p) => {
+                const isSelected = selectedPriority === p;
+                let activeClass = "";
+                if (p === "HIGH") activeClass = isSelected ? "border-red-400 bg-red-400/20 text-red-200" : "border-white/10 text-stone-400 hover:text-stone-200";
+                else if (p === "MEDIUM") activeClass = isSelected ? "border-dusk-amber bg-dusk-amber/20 text-dusk-amber" : "border-white/10 text-stone-400 hover:text-stone-200";
+                else activeClass = isSelected ? "border-dusk-lavender bg-dusk-lavender/20 text-dusk-lavender" : "border-white/10 text-stone-400 hover:text-stone-200";
+
+                return (
+                  <button
+                    key={p}
+                    className={cn(
+                      "flex-1 h-10 rounded-md border text-sm font-medium transition",
+                      activeClass
+                    )}
+                    type="button"
+                    onClick={() => setSelectedPriority(p)}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -195,6 +274,81 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
               <Input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
             </div>
             <p className="mt-2 text-xs text-stone-500">No time means all day.</p>
+          </div>
+
+          {/* ── Coin Rewards & Stickers ── */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {/* Coins */}
+            <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
+              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
+                <span className="text-xs uppercase tracking-wider text-dusk-amber font-bold">Coin Rewards</span>
+              </div>
+              <div className="space-y-3">
+                <label className="block space-y-1 text-xs text-stone-400">
+                  <span className="text-stone-300 font-medium">Project Coins (🪙 ของทีม)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="1000"
+                    value={rewardCoins}
+                    onChange={(e) => setRewardCoins(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="h-10 w-full rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
+                  />
+                  <span>Awarded to assignee upon completion.</span>
+                </label>
+
+                <label className="block space-y-1 text-xs text-stone-400">
+                  <span className="text-stone-300 font-medium">My Private Coins (🪙 ส่วนตัว)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="1000"
+                    value={privateGlobalCoins}
+                    onChange={(e) => setPrivateGlobalCoins(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="h-10 w-full rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
+                  />
+                  <span>Your private reward (only you can see this).</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Stickers */}
+            <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
+              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
+                <span className="text-xs uppercase tracking-wider text-dusk-lavender font-bold">Retro Stickers</span>
+              </div>
+              <p className="text-xs text-stone-500 mb-2.5">Stamp your card to reflect the mood:</p>
+              <div className="flex flex-wrap gap-2.5">
+                {[
+                  { value: "🐱", label: "Cat" },
+                  { value: "☕", label: "Coffee" },
+                  { value: "🌟", label: "Star" },
+                  { value: "🎵", label: "Music" }
+                ].map((st) => {
+                  const active = stickers.includes(st.value);
+                  return (
+                    <button
+                      key={st.value}
+                      type="button"
+                      onClick={() => {
+                        setStickers((prev) =>
+                          active ? prev.filter((s) => s !== st.value) : [...prev, st.value]
+                        );
+                      }}
+                      className={cn(
+                        "flex items-center justify-center h-10 w-10 text-xl rounded-md border transition hover:scale-105 select-none",
+                        active 
+                          ? "border-dusk-lavender bg-dusk-lavender/15 ring-2 ring-dusk-lavender/25 text-shadow-[0_0_8px_rgba(169,162,255,0.6)] font-bold" 
+                          : "border-white/5 bg-ink-950/30 text-stone-500 hover:border-white/10"
+                      )}
+                      title={st.label}
+                    >
+                      {st.value}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">

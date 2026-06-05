@@ -4,13 +4,16 @@ import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "ghost" | "danger";
+  size?: "sm" | "md";
 }
 
-export function Button({ className, variant = "primary", ...props }: ButtonProps) {
+export function Button({ className, variant = "primary", size = "md", ...props }: ButtonProps) {
   return (
     <button
       className={cn(
-        "inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-55",
+        "inline-flex items-center justify-center gap-2 rounded-md font-medium transition disabled:cursor-not-allowed disabled:opacity-55",
+        size === "md" && "h-10 px-4 text-sm",
+        size === "sm" && "h-7 px-3 text-xs",
         variant === "primary" &&
           "bg-dusk-lavender text-ink-950 shadow-glow hover:bg-dusk-amber",
         variant === "ghost" &&

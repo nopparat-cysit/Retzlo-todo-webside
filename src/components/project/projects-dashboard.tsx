@@ -1,22 +1,28 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarDays,
-  CheckCircle2,
   Clock,
   FolderKanban,
+  Gift,
+  Image as ImageIcon,
   KanbanSquare,
   Layers3,
+  MoreHorizontal,
+  Pencil,
   Plus,
   Sparkles,
+  Trash2,
   X
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input, Textarea } from "@/components/ui/input";
 import { defaultCalendarFilters, filterCalendarItems } from "@/lib/calendar/view";
 import { formatShortDue } from "@/lib/date-format";
@@ -28,6 +34,7 @@ export interface ProjectDashboardItem {
   id: string;
   name: string;
   description: string | null;
+  coverImage: string | null;
   counts: {
     boards: number;
     members: number;
@@ -67,12 +74,21 @@ export interface GlobalCalendarCard {
   };
 }
 
+export interface UserProfile {
+  name: string | null;
+  avatar: string | null;
+  status: string;
+  email: string;
+}
+
 export function ProjectsDashboard({
   projects,
-  calendarCards
+  calendarCards,
+  userProfile,
 }: {
   projects: ProjectDashboardItem[];
   calendarCards: GlobalCalendarCard[];
+  userProfile?: UserProfile;
 }) {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -110,14 +126,53 @@ export function ProjectsDashboard({
     <main className="min-h-screen w-screen overflow-x-hidden px-4 py-4 sm:px-5 lg:px-6">
       <div className="grid min-h-[calc(100vh-2rem)] gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="lofi-panel flex flex-col rounded-lg p-5">
-          <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-md border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender">
-              <Sparkles className="h-5 w-5" />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-md border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-dusk-amber">RETROD</p>
+                <h1 className="text-xl font-semibold">Workspaces</h1>
+              </div>
             </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-dusk-amber">RETROD</p>
-              <h1 className="text-xl font-semibold">Workspaces</h1>
-            </div>
+            {/* Profile avatar button */}
+            {userProfile && (
+              <Link href="/profile" className="group relative shrink-0" title="My profile">
+                <div className="h-9 w-9 overflow-hidden rounded-full border border-white/20 transition group-hover:border-dusk-lavender/60">
+                  {userProfile.avatar ? (
+                    <Image
+                      src={userProfile.avatar}
+                      alt="Avatar"
+                      width={36}
+                      height={36}
+                      className="h-full w-full object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center bg-dusk-lavender/15 text-xs font-bold text-dusk-lavender">
+                      {(userProfile.name ?? userProfile.email)
+                        .split(" ")
+                        .map((w) => w[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2)}
+                    </div>
+                  )}
+                </div>
+                {/* Status dot */}
+                <span
+                  className={cn(
+                    "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-ink-950",
+                    userProfile.status === "ONLINE"
+                      ? "bg-emerald-400"
+                      : userProfile.status === "BUSY"
+                      ? "bg-dusk-amber"
+                      : "bg-stone-500"
+                  )}
+                />
+              </Link>
+            )}
           </div>
 
           <div className="mt-6">
@@ -145,6 +200,17 @@ export function ProjectsDashboard({
             <StatTile icon={KanbanSquare} label="Boards" value={boardCount} />
             <StatTile icon={Layers3} label="Members" value={memberCount} />
           </div>
+
+          <Link
+            href="/projects/rewards"
+            className="mt-4 flex items-center justify-between rounded-md border border-dusk-amber/30 bg-dusk-amber/5 px-4 py-3 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/60 hover:bg-dusk-amber/10 shadow-glow"
+          >
+            <div className="flex items-center gap-2">
+              <Gift className="h-4 w-4 text-dusk-amber" />
+              <span>Redeem Rewards (แลกรางวัล)</span>
+            </div>
+            <ArrowRight className="h-4 w-4 text-dusk-amber" />
+          </Link>
 
           <div className="mt-5 flex-1 rounded-md border border-white/10 bg-ink-950/35 p-4">
             <div className="mb-3 flex items-center justify-between gap-2">
@@ -266,93 +332,254 @@ export function ProjectsDashboard({
 }
 
 function ProjectCard({ project }: { project: ProjectDashboardItem }) {
+  const router = useRouter();
   const cards = project.board?.columns.flatMap((column) => column.cards) ?? [];
-  const done = cards.filter((card) => card.status === "DONE").length;
-  const completion = cards.length ? Math.round((done / cards.length) * 100) : 0;
-  const statusCounts = countStatuses(cards);
+  const columnCount = project.board?.columns.length ?? 0;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
-    <article className="lofi-panel flex min-h-[370px] flex-col overflow-hidden rounded-lg p-5">
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h3 className="truncate text-xl font-semibold">{project.name}</h3>
-          <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-stone-400">
-            {project.description ?? "No description yet."}
+    <>
+      <article className="lofi-panel group relative flex min-h-[390px] flex-col overflow-hidden rounded-lg transition duration-200 hover:-translate-y-0.5 hover:border-dusk-lavender/40 hover:shadow-2xl hover:shadow-dusk-lavender/10">
+        <div className="relative h-36 overflow-hidden border-b border-white/10">
+          {project.coverImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={project.coverImage} alt="cover" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          ) : (
+            <div className="h-full w-full bg-[radial-gradient(circle_at_22%_20%,rgba(169,162,255,0.28),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(132,220,235,0.18),transparent_32%),linear-gradient(135deg,rgba(14,15,38,0.85),rgba(35,29,64,0.82)_48%,rgba(11,13,31,0.94))]" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-14">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-ink-950/55 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-dusk-amber backdrop-blur">
+              <Sparkles className="h-3 w-3" />
+              Workspace
+            </div>
+            <h3 className="truncate text-2xl font-semibold text-stone-50">{project.name}</h3>
+          </div>
+        </div>
+
+        <div className="absolute right-3 top-3">
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            className="grid h-8 w-8 place-items-center rounded-md border border-white/10 bg-ink-950/70 text-stone-300 backdrop-blur-sm transition hover:border-dusk-lavender/50 hover:text-dusk-lavender"
+            aria-label="Project options"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 top-9 z-50 w-40 overflow-hidden rounded-lg border border-white/10 bg-ink-950/95 shadow-xl backdrop-blur-md">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-stone-300 transition hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
+                  onClick={() => { setMenuOpen(false); setEditOpen(true); }}
+                >
+                  <Pencil className="h-3.5 w-3.5" /> Edit project
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-red-400 transition hover:bg-red-400/10"
+                  onClick={() => { setMenuOpen(false); setDeleteOpen(true); }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Delete project
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col p-5">
+          <p className="line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-stone-400">
+            {project.description ?? "A quiet project workspace for tasks, notes, due dates, and rewards."}
           </p>
+
+          <div className="mt-5 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4">
+            <ProjectMetric icon={KanbanSquare} label="Boards" value={project.counts.boards} />
+            <ProjectMetric icon={Layers3} label="Members" value={project.counts.members} />
+            <ProjectMetric icon={Pencil} label="Notes" value={project.counts.notes} />
+            <ProjectMetric icon={FolderKanban} label="Cards" value={cards.length} />
+          </div>
+
+          <div className="mt-5 flex items-center justify-between rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500">
+            <span>{columnCount} columns</span>
+            <span>{project.board ? "Board ready" : "No board yet"}</span>
+          </div>
+
+          <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-[1fr_auto]">
+            <Link
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-dusk-lavender px-4 text-sm font-semibold text-ink-950 shadow-glow transition hover:bg-dusk-amber"
+              href={`/project/${project.id}/board`}
+            >
+              Open board
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-dusk-amber/25 bg-dusk-amber/5 px-4 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/55 hover:bg-dusk-amber/10"
+              href={`/project/${project.id}/rewards`}
+            >
+              <Gift className="h-4 w-4" />
+              Rewards
+            </Link>
+          </div>
         </div>
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-dusk-lavender/30 bg-dusk-lavender/10">
-          <KanbanSquare className="h-5 w-5 text-dusk-lavender" />
-        </div>
-      </div>
+      </article>
 
-      <div className="mb-4 grid grid-cols-3 gap-2 text-xs">
-        <ProjectMetric label="Members" value={project.counts.members} />
-        <ProjectMetric label="Notes" value={project.counts.notes} />
-        <ProjectMetric label="Cards" value={cards.length} />
-      </div>
+      {/* Edit modal */}
+      {editOpen && (
+        <EditProjectModal
+          project={project}
+          onClose={() => setEditOpen(false)}
+          onSaved={() => { setEditOpen(false); router.refresh(); }}
+        />
+      )}
 
-      <GraphicPreview completion={completion} statusCounts={statusCounts} columns={project.board?.columns.length ?? 0} />
-
-      <Link
-        className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-dusk-lavender px-4 text-sm font-medium text-ink-950 shadow-glow transition hover:bg-dusk-amber"
-        href={`/project/${project.id}/board`}
-      >
-        Go to board
-        <ArrowRight className="h-4 w-4" />
-      </Link>
-    </article>
+      {/* Delete modal */}
+      <ConfirmModal
+        open={deleteOpen}
+        title="Delete project"
+        message={`This will permanently delete "${project.name}" and all its boards, columns, and cards. This action cannot be undone.`}
+        confirmLabel="Delete project"
+        variant="danger"
+        validateText={project.name}
+        validatePlaceholder={`Type "${project.name}" to confirm`}
+        onConfirm={async () => {
+          const res = await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
+          if (res.ok) {
+            setDeleteOpen(false);
+            router.refresh();
+          }
+        }}
+        onClose={() => setDeleteOpen(false)}
+      />
+    </>
   );
 }
 
-function GraphicPreview({
-  completion,
-  statusCounts,
-  columns
+// ── Edit Project Modal ──────────────────────────────────────────────────────
+
+function EditProjectModal({
+  project,
+  onClose,
+  onSaved,
 }: {
-  completion: number;
-  statusCounts: Record<CardStatus, number>;
-  columns: number;
+  project: ProjectDashboardItem;
+  onClose: () => void;
+  onSaved: () => void;
 }) {
-  const total = Object.values(statusCounts).reduce((sum, count) => sum + count, 0);
+  const [name, setName] = useState(project.name);
+  const [description, setDescription] = useState(project.description ?? "");
+  const [coverPreview, setCoverPreview] = useState<string | null>(project.coverImage ?? null);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleCoverUpload(file: File) {
+    setIsUploadingCover(true);
+    // Local preview
+    const reader = new FileReader();
+    reader.onload = (e) => setCoverPreview(e.target?.result as string);
+    reader.readAsDataURL(file);
+
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(`/api/projects/${project.id}/cover`, { method: "POST", body: fd });
+    const data = (await res.json()) as { coverImage?: string; error?: string };
+    setIsUploadingCover(false);
+    if (!res.ok) setError(data.error ?? "Cover upload failed.");
+  }
+
+  async function handleSave(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setIsSaving(true);
+    const res = await fetch(`/api/projects/${project.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name.trim(), description: description.trim() || null }),
+    });
+    setIsSaving(false);
+    if (!res.ok) {
+      const d = (await res.json()) as { error?: string };
+      setError(d.error ?? "Could not save.");
+      return;
+    }
+    onSaved();
+  }
 
   return (
-    <div className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-md border border-white/10 bg-ink-950/35 p-4">
-      <div className="absolute right-4 top-4 h-24 w-24 rounded-full border border-dusk-lavender/20 bg-dusk-lavender/10 blur-sm" />
-      <div className="relative flex items-center justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-stone-500">Flow</p>
-          <p className="mt-1 text-3xl font-semibold">{completion}%</p>
+    <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+      <form className="lofi-panel w-full max-w-lg rounded-lg" onSubmit={handleSave}>
+        {/* Cover area */}
+        <div
+          className="relative h-28 cursor-pointer overflow-hidden rounded-t-lg"
+          onClick={() => coverInputRef.current?.click()}
+          title="Click to change cover"
+        >
+          {coverPreview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={coverPreview} alt="cover" className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full bg-gradient-to-br from-dusk-lavender/20 via-dusk-rose/10 to-dusk-cyan/10" />
+          )}
+          <div className="absolute inset-0 grid place-items-center bg-ink-950/50 opacity-0 transition hover:opacity-100">
+            {isUploadingCover ? (
+              <svg className="h-6 w-6 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-white">
+                <ImageIcon className="h-4 w-4" /> Change cover
+              </div>
+            )}
+          </div>
         </div>
-        <div className="grid h-20 w-20 place-items-center rounded-full border border-dusk-lavender/30 bg-white/[0.04]">
-          <CheckCircle2 className="h-8 w-8 text-emerald-200" />
-        </div>
-      </div>
+        <input
+          ref={coverInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverUpload(f); }}
+        />
 
-      <div className="relative mt-5 grid grid-cols-4 items-end gap-2">
-        {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status, index) => {
-          const meta = getStatusMeta(status);
-          const height = total ? Math.max(18, Math.round((statusCounts[status] / total) * 112)) : 18 + index * 14;
-
-          return (
-            <div key={status} className="flex min-h-32 flex-col justify-end gap-2">
-              <div
-                className={cn("rounded-t-md border transition", meta.badgeClass)}
-                style={{ height }}
-                title={meta.label}
-              />
-              <p className="truncate text-center text-[10px] text-stone-500">{meta.label}</p>
+        {/* Form body */}
+        <div className="p-5">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Workspace</p>
+              <h2 className="mt-1 text-2xl font-semibold">Edit Project</h2>
             </div>
-          );
-        })}
-      </div>
+            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-      <div className="relative mt-4 flex items-center justify-between rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-400">
-        <span>{columns} columns</span>
-        <span>{total} cards</span>
-      </div>
+          <div className="space-y-3">
+            <label className="block space-y-1.5 text-sm text-stone-300">
+              <span className="text-xs uppercase tracking-[0.15em] text-stone-500">Project name</span>
+              <Input value={name} onChange={(e) => setName(e.target.value)} required maxLength={120} />
+            </label>
+            <label className="block space-y-1.5 text-sm text-stone-300">
+              <span className="text-xs uppercase tracking-[0.15em] text-stone-500">Description</span>
+              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="resize-none" maxLength={500} />
+            </label>
+            {error && <p className="text-sm text-red-300">{error}</p>}
+          </div>
+
+          <div className="mt-5 flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+            <Button disabled={isSaving || !name.trim()}>{isSaving ? "Saving..." : "Save changes"}</Button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
+
 
 function CreateProjectModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
@@ -434,27 +661,23 @@ function StatTile({
   );
 }
 
-function ProjectMetric({ label, value }: { label: string; value: number }) {
+function ProjectMetric({
+  icon: Icon,
+  label,
+  value
+}: {
+  icon: typeof FolderKanban;
+  label: string;
+  value: number;
+}) {
   return (
-    <div className="rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
-      <p className="text-base font-semibold leading-none text-stone-100">{value}</p>
-      <p className="mt-1 text-[11px] text-stone-500">{label}</p>
+    <div className="rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 transition group-hover:border-white/15">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <Icon className="h-3.5 w-3.5 text-dusk-lavender" />
+        <p className="text-base font-semibold leading-none text-stone-100">{value}</p>
+      </div>
+      <p className="truncate text-[11px] text-stone-500">{label}</p>
     </div>
-  );
-}
-
-function countStatuses(cards: Array<{ status: CardStatus }>) {
-  return cards.reduce<Record<CardStatus, number>>(
-    (acc, card) => ({
-      ...acc,
-      [card.status]: acc[card.status] + 1
-    }),
-    {
-      TODO: 0,
-      DOING: 0,
-      WAITING: 0,
-      DONE: 0
-    }
   );
 }
 
