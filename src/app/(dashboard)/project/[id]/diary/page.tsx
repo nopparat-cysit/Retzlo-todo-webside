@@ -28,6 +28,7 @@ function toProjectDiaryItems(
     color: string;
     intervalDays: number;
     startDate: Date;
+    isStarred: boolean;
     isHidden: boolean;
     projectId: string;
     authorId: string;

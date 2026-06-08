@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, SlidersHorizontal } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, SlidersHorizontal } from "lucide-react";
 
 import { CardModal } from "@/components/kanban/card-modal";
 import { Panel } from "@/components/ui/panel";
@@ -52,6 +52,7 @@ export function ProjectCalendar({
   const [cards, setCards] = useState(initialCards);
   const [notes] = useState(initialNotes);
   const [filters, setFilters] = useState<CalendarFilterState>(defaultCalendarFilters);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(true);
   const [viewMode, setViewMode] = useState<CalendarViewMode>("month");
   const [customDays, setCustomDays] = useState(5);
   const [anchorDate, setAnchorDate] = useState(() => toDateKey(new Date()));
@@ -125,15 +126,23 @@ export function ProjectCalendar({
     <>
       <div className="grid h-full min-h-0 gap-4 overflow-y-auto pr-1 scrollbar-soft xl:grid-cols-[280px_minmax(0,1fr)_340px]">
         <Panel className="p-5">
-          <div className="mb-5 flex items-center gap-2">
-            <SlidersHorizontal className="h-5 w-5 text-dusk-lavender" />
-            <div>
-              <h3 className="font-semibold">Calendar Filters</h3>
-              <p className="text-xs text-stone-500">Choose what appears.</p>
+          <button
+            aria-expanded={isFiltersOpen}
+            className="flex w-full items-center justify-between gap-3 text-left"
+            type="button"
+            onClick={() => setIsFiltersOpen((current) => !current)}
+          >
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="h-5 w-5 text-dusk-lavender" />
+              <div>
+                <h3 className="font-semibold">Calendar Filters</h3>
+                <p className="text-xs text-stone-500">Choose what appears.</p>
+              </div>
             </div>
-          </div>
+            <ChevronDown className={cn("h-4 w-4 text-stone-500 transition", !isFiltersOpen && "-rotate-90")} />
+          </button>
 
-          <div className="space-y-5">
+          {isFiltersOpen ? <div className="mt-5 space-y-5">
             <div>
               <p className="mb-2 text-xs uppercase tracking-[0.18em] text-stone-500">Sources</p>
               <FilterCheckbox label="Cards" checked={filters.showCards} onChange={(checked) => setFilters((current) => ({ ...current, showCards: checked }))} />
@@ -187,7 +196,7 @@ export function ProjectCalendar({
                 <option value="timed">Timed only</option>
               </select>
             </div>
-          </div>
+          </div> : null}
         </Panel>
 
         <Panel className="p-5">

@@ -160,6 +160,7 @@ model DiaryItem {
   color        String   @default("DEFAULT")
   intervalDays Int
   startDate    DateTime
+  isStarred    Boolean  @default(false)
   isHidden     Boolean  @default(false)
   projectId    String
   authorId     String
@@ -169,6 +170,7 @@ model DiaryItem {
   author       User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([projectId, startDate])
+  @@index([projectId, isStarred])
   @@index([projectId, isHidden])
   @@index([authorId])
 }

@@ -7,6 +7,7 @@ export interface ProjectDiaryItem {
   color: CardColor;
   intervalDays: number;
   startDate: string;
+  isStarred: boolean;
   isHidden: boolean;
   projectId: string;
   authorId: string;

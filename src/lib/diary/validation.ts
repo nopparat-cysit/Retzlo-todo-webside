@@ -8,6 +8,7 @@ export const createDiaryItemSchema = z.object({
   color: z.enum(cardColorValues).default("DEFAULT"),
   intervalDays: z.coerce.number().int().min(1).max(365),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  isStarred: z.boolean().default(false),
   isHidden: z.boolean().default(false)
 });
 

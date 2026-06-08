@@ -14,6 +14,7 @@ function toDiaryItemResponse(
     color: string;
     intervalDays: number;
     startDate: Date;
+    isStarred: boolean;
     isHidden: boolean;
     projectId: string;
     authorId: string;
@@ -132,6 +133,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         color: payload.color,
         intervalDays: payload.intervalDays,
         startDate: new Date(`${payload.startDate}T00:00:00.000Z`),
+        isStarred: payload.isStarred,
         isHidden: payload.isHidden,
         projectId: params.id,
         authorId: userId

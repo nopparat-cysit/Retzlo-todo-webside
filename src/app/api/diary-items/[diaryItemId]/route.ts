@@ -19,6 +19,7 @@ function toDiaryItemResponse(
     color: string;
     intervalDays: number;
     startDate: Date;
+    isStarred: boolean;
     isHidden: boolean;
     projectId: string;
     authorId: string;
@@ -118,6 +119,7 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
         color: payload.color,
         intervalDays: payload.intervalDays,
         startDate: payload.startDate ? new Date(`${payload.startDate}T00:00:00.000Z`) : undefined,
+        isStarred: payload.isStarred,
         isHidden: payload.isHidden
       },
       include: {
