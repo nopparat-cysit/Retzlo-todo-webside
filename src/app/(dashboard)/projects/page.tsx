@@ -27,6 +27,7 @@ export default async function ProjectsPage() {
         id: true,
         name: true,
         description: true,
+        type: true,
         coverImage: true,
         _count: {
           select: {
@@ -116,6 +117,7 @@ function toProjectDashboardItem(project: {
   name: string;
   description: string | null;
   coverImage: string | null;
+  type: string;
   _count: {
     boards: number;
     members: number;
@@ -140,6 +142,7 @@ function toProjectDashboardItem(project: {
     id: project.id,
     name: project.name,
     description: project.description,
+    type: project.type,
     coverImage: project.coverImage,
     counts: {
       boards: project._count.boards,

@@ -141,7 +141,7 @@ export function KanbanColumn({
   if (isCollapsed) {
     return (
       <div
-        className="column-collapsed-rail group lofi-panel shrink-0 rounded-lg border border-white/10 bg-white/[0.035] hover:border-dusk-lavender/50 cursor-pointer flex flex-col items-center py-4"
+        className="column-collapsed-rail group lofi-panel shrink-0 rounded-2xl border border-white/10 bg-white/[0.035] hover:border-dusk-lavender/50 cursor-pointer flex flex-col items-center py-4"
         onClick={toggleCollapse}
         title={`Expand ${column.name}`}
       >
@@ -171,7 +171,7 @@ export function KanbanColumn({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group flex h-full min-h-0 w-80 shrink-0 flex-col rounded-lg border border-white/10 bg-white/[0.045] transition",
+        "group flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
         isDropTarget &&
           "border-dusk-lavender/60 bg-dusk-lavender/[0.08] shadow-lg shadow-dusk-lavender/10 ring-2 ring-dusk-lavender/20",
@@ -191,7 +191,7 @@ export function KanbanColumn({
         <h2 className="flex-1 text-sm font-semibold text-stone-100">{column.name}</h2>
         {wipLimit && (
           <span className={cn(
-            "text-[10px] px-1.5 py-0.5 rounded border select-none font-mono font-semibold",
+            "text-[10px] px-1.5 py-0.5 rounded-full border select-none font-mono font-semibold",
             isWipExceeded 
               ? "border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber animate-pulse" 
               : "border-white/5 bg-white/5 text-stone-500"
@@ -204,7 +204,7 @@ export function KanbanColumn({
             {doneCount}/{totalCards}
           </span>
         )}
-        <span className="rounded bg-white/5 px-2 py-1 text-xs text-stone-400">{totalCards}</span>
+        <span className="rounded-lg bg-white/5 px-2 py-1 text-xs text-stone-400">{totalCards}</span>
         
         {/* Collapse Button */}
         <button
@@ -249,7 +249,7 @@ export function KanbanColumn({
         {totalCards === 0 && (
           <div
             className={cn(
-              "rounded-md border border-dashed border-white/10 p-4 text-center text-sm text-stone-500 transition-all duration-300",
+              "rounded-2xl border border-dashed border-white/10 p-4 text-center text-sm text-stone-500 transition-all duration-300",
               isDropTarget &&
                 "animate-pulse border-dusk-lavender/60 bg-dusk-lavender/10 text-dusk-lavender shadow-[0_0_18px_2px_rgba(169,162,255,0.15)]"
             )}
@@ -262,7 +262,7 @@ export function KanbanColumn({
       {/* ── Quick-Add Form ── */}
       <div className="border-t border-white/10 px-3 pb-3 pt-2">
         {isQuickAddOpen ? (
-          <div className="rounded-md border border-white/10 bg-white/5 p-2 transition-all duration-200 focus-within:border-dusk-lavender/40 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_12px_rgba(169,162,255,0.06)]">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-2 transition-all duration-200 focus-within:border-dusk-lavender/40 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_12px_rgba(169,162,255,0.06)]">
             <textarea
               ref={quickInputRef}
               rows={1}
@@ -306,7 +306,7 @@ export function KanbanColumn({
               type="button"
               onClick={openQuickAdd}
               className={cn(
-                "flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-stone-500",
+                "flex w-full items-center gap-1.5 rounded-full px-2 py-1.5 text-xs text-stone-500",
                 "transition-colors hover:bg-white/5 hover:text-stone-300"
               )}
               aria-label="Quick add card"

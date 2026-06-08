@@ -5,9 +5,22 @@ import { Play, Pause, RotateCcw, Timer } from "lucide-react";
 import { playCardDoneSound, playCardCreateSound } from "@/lib/sound";
 import { cn } from "@/lib/utils";
 
+const timerPresets = [
+  { id: "classic", label: "25 / 5", focus: 25, break: 5 },
+  { id: "deep", label: "50 / 10", focus: 50, break: 10 },
+  { id: "long", label: "90 / 15", focus: 90, break: 15 }
+] as const;
+
+function minutesToSeconds(minutes: number) {
+  return Math.max(1, Math.min(99, minutes)) * 60;
+}
+
 export function NixiePomodoro() {
   const [mounted, setMounted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes initial
+  const [selectedPreset, setSelectedPreset] = useState<string>("classic");
+  const [focusMinutes, setFocusMinutes] = useState(25);
+  const [breakMinutes, setBreakMinutes] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(minutesToSeconds(25));
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState<"focus" | "break">("focus");
 
@@ -51,10 +64,10 @@ export function NixiePomodoro() {
     // Switch modes automatically
     if (mode === "focus") {
       setMode("break");
-      setTimeLeft(5 * 60); // 5 mins break
+      setTimeLeft(minutesToSeconds(breakMinutes));
     } else {
       setMode("focus");
-      setTimeLeft(25 * 60); // 25 mins focus
+      setTimeLeft(minutesToSeconds(focusMinutes));
     }
   }
 
@@ -66,14 +79,44 @@ export function NixiePomodoro() {
   function handleReset() {
     playCardCreateSound();
     setIsRunning(false);
-    setTimeLeft(mode === "focus" ? 25 * 60 : 5 * 60);
+    setTimeLeft(mode === "focus" ? minutesToSeconds(focusMinutes) : minutesToSeconds(breakMinutes));
   }
 
   function switchMode(newMode: "focus" | "break") {
     playCardCreateSound();
     setIsRunning(false);
     setMode(newMode);
-    setTimeLeft(newMode === "focus" ? 25 * 60 : 5 * 60);
+    setTimeLeft(newMode === "focus" ? minutesToSeconds(focusMinutes) : minutesToSeconds(breakMinutes));
+  }
+
+  function updateDuration(nextMode: "focus" | "break", value: string) {
+    const minutes = Math.max(1, Math.min(99, Number(value) || 1));
+
+    if (nextMode === "focus") {
+      setFocusMinutes(minutes);
+    } else {
+      setBreakMinutes(minutes);
+    }
+
+    if (!isRunning && mode === nextMode) {
+      setTimeLeft(minutesToSeconds(minutes));
+    }
+  }
+
+  function applyPreset(preset: (typeof timerPresets)[number]) {
+    playCardCreateSound();
+    setSelectedPreset(preset.id);
+    setIsRunning(false);
+    setFocusMinutes(preset.focus);
+    setBreakMinutes(preset.break);
+    setTimeLeft(mode === "focus" ? minutesToSeconds(preset.focus) : minutesToSeconds(preset.break));
+  }
+
+  function enableCustom() {
+    playCardCreateSound();
+    setSelectedPreset("custom");
+    setIsRunning(false);
+    setTimeLeft(mode === "focus" ? minutesToSeconds(focusMinutes) : minutesToSeconds(breakMinutes));
   }
 
   if (!mounted) return null;
@@ -119,6 +162,69 @@ export function NixiePomodoro() {
             REST
           </button>
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-1.5">
+          {timerPresets.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              disabled={isRunning}
+              onClick={() => applyPreset(preset)}
+              className={cn(
+                "h-7 rounded border px-2 text-[10px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-45",
+                selectedPreset === preset.id
+                  ? "border-dusk-amber/45 bg-dusk-amber/15 text-dusk-amber"
+                  : "border-white/10 bg-white/[0.045] text-stone-400 hover:border-white/20 hover:text-stone-200"
+              )}
+            >
+              {preset.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            disabled={isRunning}
+            onClick={enableCustom}
+            className={cn(
+              "h-7 rounded border px-2 text-[10px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-45",
+              selectedPreset === "custom"
+                ? "border-dusk-cyan/45 bg-dusk-cyan/15 text-dusk-cyan"
+                : "border-white/10 bg-white/[0.045] text-stone-400 hover:border-white/20 hover:text-stone-200"
+            )}
+          >
+            Custom
+          </button>
+        </div>
+
+        {selectedPreset === "custom" ? (
+          <div className="grid grid-cols-2 gap-2">
+            <label className="space-y-1 text-[10px] uppercase tracking-[0.14em] text-stone-500">
+              <span>Focus</span>
+              <input
+                type="number"
+                min={1}
+                max={99}
+                disabled={isRunning}
+                value={focusMinutes}
+                onChange={(event) => updateDuration("focus", event.target.value)}
+                className="h-8 w-full rounded-lg border border-white/10 bg-ink-950/70 px-2 text-center font-mono text-xs text-dusk-amber outline-none transition focus:border-dusk-amber/60 disabled:cursor-not-allowed disabled:opacity-45"
+              />
+            </label>
+            <label className="space-y-1 text-[10px] uppercase tracking-[0.14em] text-stone-500">
+              <span>Rest</span>
+              <input
+                type="number"
+                min={1}
+                max={99}
+                disabled={isRunning}
+                value={breakMinutes}
+                onChange={(event) => updateDuration("break", event.target.value)}
+                className="h-8 w-full rounded-lg border border-white/10 bg-ink-950/70 px-2 text-center font-mono text-xs text-dusk-cyan outline-none transition focus:border-dusk-cyan/60 disabled:cursor-not-allowed disabled:opacity-45"
+              />
+            </label>
+          </div>
+        ) : null}
       </div>
 
       {/* Nixie tube panel container */}

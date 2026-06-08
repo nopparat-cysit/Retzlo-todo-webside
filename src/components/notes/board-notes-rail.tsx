@@ -160,14 +160,18 @@ export function BoardNotesRail({
             <article key={note.id} className={cn("rounded-md border p-3", colorMeta.softClass)}>
               <div className="flex items-start gap-2">
                 <button
-                  className={cn("mt-0.5 text-stone-600 hover:text-dusk-amber", note.isStarred && "text-dusk-amber")}
+                  className={cn(
+                    "mt-0.5 text-stone-600 hover:text-dusk-amber disabled:cursor-not-allowed disabled:opacity-40",
+                    note.isStarred && "text-dusk-amber"
+                  )}
+                  disabled={!note.canManage}
                   type="button"
                   aria-label={note.isStarred ? "Unstar note" : "Star note"}
                   onClick={() => updateNote(note.id, { isStarred: !note.isStarred })}
                 >
                   <Star className="h-4 w-4" />
                 </button>
-                <button className="min-w-0 flex-1 text-left" type="button" onClick={() => setSelectedNote(note)}>
+                <button className="min-w-0 flex-1 text-left" type="button" onClick={() => note.canManage && setSelectedNote(note)}>
                   <h3 className="truncate text-sm font-medium text-stone-100">{note.title}</h3>
                   <p className="mt-1 line-clamp-3 text-xs leading-5 text-stone-500">{note.content || "No content."}</p>
                 </button>
@@ -289,7 +293,7 @@ function ColorPicker({ selectedColor }: { selectedColor: CardColor }) {
   return (
     <div className="space-y-2 text-sm text-stone-300">
       <span>Note color</span>
-      <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+      <div className="flex flex-wrap gap-2">
         {cardColorOptions.map((option) => {
           const meta = getCardColorMeta(option.value);
 
@@ -297,8 +301,10 @@ function ColorPicker({ selectedColor }: { selectedColor: CardColor }) {
             <label
               key={option.value}
               className={cn(
-                "grid h-10 cursor-pointer place-items-center rounded-md border transition hover:scale-[1.03]",
-                selectedColor === option.value ? "border-dusk-amber bg-white/10 ring-2 ring-dusk-amber/40" : "border-white/10 bg-white/[0.035]"
+                "grid h-8 w-8 cursor-pointer place-items-center rounded-full border bg-white/[0.035] transition hover:scale-105 hover:border-white/25",
+                selectedColor === option.value
+                  ? "border-dusk-amber ring-2 ring-dusk-amber/45 ring-offset-2 ring-offset-ink-950"
+                  : "border-white/10"
               )}
               title={option.label}
             >
@@ -317,7 +323,10 @@ function normalizeNote(note: ProjectNote): ProjectNote {
     ...note,
     color: normalizeCardColor(note.color),
     isStarred: note.isStarred ?? false,
+    isHidden: note.isHidden ?? false,
     createdAt: new Date(note.createdAt).toISOString(),
-    updatedAt: new Date(note.updatedAt).toISOString()
+    updatedAt: new Date(note.updatedAt).toISOString(),
+    canManage: note.canManage ?? false,
+    canToggleHidden: note.canToggleHidden ?? false
   };
 }

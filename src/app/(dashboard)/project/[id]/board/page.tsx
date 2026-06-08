@@ -3,6 +3,13 @@ import { notFound } from "next/navigation";
 import { KanbanBoard } from "@/components/kanban/board";
 import { BoardNotesRail } from "@/components/notes/board-notes-rail";
 import { prisma } from "@/lib/prisma";
+import {
+  canManageAuthoredItem,
+  canToggleHiddenItem,
+  getProjectMembership,
+  isOwnerRole,
+  requireUserId
+} from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import type { CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 import type { ProjectNote } from "@/types/note";
@@ -56,6 +63,7 @@ function toProjectNotes(notes: Array<{
   content: string;
   color: string;
   isStarred: boolean;
+  isHidden: boolean;
   dueDate: Date | null;
   dueDateAllDay: boolean;
   projectId: string;
@@ -66,18 +74,42 @@ function toProjectNotes(notes: Array<{
     name: string | null;
     email: string;
   };
-}>): ProjectNote[] {
+}>,
+context: {
+  membership: { role: string };
+  userId: string;
+  allowMemberPrivateItems: boolean;
+}): ProjectNote[] {
   return notes.map((note) => ({
     ...note,
     color: normalizeCardColor(note.color),
     dueDate: note.dueDate ? note.dueDate.toISOString() : null,
     createdAt: note.createdAt.toISOString(),
-    updatedAt: note.updatedAt.toISOString()
+    updatedAt: note.updatedAt.toISOString(),
+    canManage: canManageAuthoredItem(context.membership, context.userId, note.authorId),
+    canToggleHidden: canToggleHiddenItem(
+      context.membership,
+      context.userId,
+      note.authorId,
+      context.allowMemberPrivateItems
+    )
   }));
 }
 
 export default async function BoardPage({ params }: { params: { id: string } }) {
-  const [board, notes] = await Promise.all([
+  const userId = await requireUserId();
+
+  if (!userId) {
+    notFound();
+  }
+
+  const membership = await getProjectMembership(params.id, userId);
+
+  if (!membership) {
+    notFound();
+  }
+
+  const [board, notes, project] = await Promise.all([
     prisma.board.findFirst({
       where: { projectId: params.id },
       orderBy: { createdAt: "asc" },
@@ -91,7 +123,12 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
       }
     }),
     prisma.note.findMany({
-      where: { projectId: params.id },
+      where: isOwnerRole(membership.role)
+        ? { projectId: params.id }
+        : {
+            projectId: params.id,
+            OR: [{ isHidden: false }, { authorId: userId }]
+          },
       include: {
         author: {
           select: {
@@ -102,15 +139,19 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
       },
       orderBy: [{ isStarred: "desc" }, { updatedAt: "desc" }],
       take: 40
+    }),
+    prisma.project.findUnique({
+      where: { id: params.id },
+      select: { allowMemberPrivateItems: true }
     })
   ]);
 
-  if (!board) {
+  if (!board || !project) {
     notFound();
   }
 
   return (
-    <div className="grid h-[calc(100vh-1.5rem)] min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <div className="grid h-full min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]">
       <KanbanBoard
         board={{
           id: board.id,
@@ -118,7 +159,14 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
           columns: toColumns(board.columns)
         }}
       />
-      <BoardNotesRail projectId={params.id} initialNotes={toProjectNotes(notes)} />
+      <BoardNotesRail
+        projectId={params.id}
+        initialNotes={toProjectNotes(notes, {
+          membership,
+          userId,
+          allowMemberPrivateItems: project.allowMemberPrivateItems
+        })}
+      />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { BackButton } from "@/components/ui/back-button";
+
 interface AuthSceneProps {
   children: ReactNode;
   description: string;
@@ -10,6 +12,9 @@ interface AuthSceneProps {
 export function AuthScene({ children, description, eyebrow, title }: AuthSceneProps) {
   return (
     <main className="auth-scene">
+      <div className="absolute left-5 top-5 z-20 sm:left-8 sm:top-8">
+        <BackButton className="bg-ink-950/45 backdrop-blur-md" />
+      </div>
       <div className="auth-stars" aria-hidden="true" />
       <div className="auth-planet" aria-hidden="true">
         <span className="auth-planet-ring auth-planet-ring-back" />

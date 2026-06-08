@@ -4,11 +4,24 @@ import { SettingsForm } from "@/components/project/settings-form";
 import { SoundToggle } from "@/components/project/sound-toggle";
 import { Panel } from "@/components/ui/panel";
 import { prisma } from "@/lib/prisma";
+import { isOwnerRole, requireUserId } from "@/lib/project-auth";
 
 export default async function SettingsPage({ params }: { params: { id: string } }) {
+  const userId = await requireUserId();
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { id: true, name: true, description: true, coverImage: true }
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      coverImage: true,
+      allowMemberPrivateItems: true,
+      members: {
+        where: { userId: userId ?? "" },
+        select: { role: true },
+        take: 1
+      }
+    }
   });
 
   if (!project) {
@@ -21,7 +34,7 @@ export default async function SettingsPage({ params }: { params: { id: string } 
       <Panel className="max-w-2xl p-5">
         <h2 className="mb-1 text-2xl font-semibold">Project settings</h2>
         <p className="mb-5 text-sm text-stone-500">Manage this workspace&apos;s name, cover and description.</p>
-        <SettingsForm project={project} />
+        <SettingsForm project={project} canManagePrivacy={isOwnerRole(project.members[0]?.role)} />
       </Panel>
 
       {/* Preferences */}

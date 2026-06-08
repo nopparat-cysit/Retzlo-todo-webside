@@ -446,9 +446,10 @@ export function KanbanBoard({ board }: { board: BoardData }) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* ── Header ── */}
-      <div className="lofi-panel flex flex-col justify-between gap-4 rounded-lg p-4 md:flex-row md:items-center">
+      <div className="lofi-panel flex flex-col justify-between gap-4 rounded-2xl p-4 md:flex-row md:items-center">
         <div>
-          <h2 className="text-xl font-semibold flex items-center gap-2">
+          <p className="text-xs uppercase tracking-[0.22em] text-dusk-amber">Board Channel</p>
+          <h2 className="mt-1 flex items-center gap-2 text-xl font-semibold">
             {board.name}
             {isFocusMode && (
               <span className="rounded bg-dusk-amber/15 border border-dusk-amber/30 px-1.5 py-0.5 text-[10px] text-dusk-amber font-mono font-medium animate-pulse">
@@ -456,8 +457,8 @@ export function KanbanBoard({ board }: { board: BoardData }) {
               </span>
             )}
           </h2>
-          <p className="text-sm text-stone-400">
-            Drag cards across columns · Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> for focus · <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">Ctrl+Z</kbd> to undo
+          <p className="text-sm text-stone-500">
+            Drag cards across columns. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> for focus.
           </p>
         </div>
 
@@ -471,7 +472,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search cards..."
-              className="h-9 w-44 rounded-md border border-white/10 bg-white/[0.035] pl-9 pr-8 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/5"
+              className="h-9 w-44 rounded-xl border border-white/10 bg-white/[0.045] pl-9 pr-8 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/5"
             />
             {searchQuery && (
               <button
@@ -488,7 +489,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
             type="button"
             onClick={() => setIsTodayFilterActive(!isTodayFilterActive)}
             className={cn(
-              "flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-medium transition select-none",
+              "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
               isTodayFilterActive
                 ? "border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber font-semibold"
                 : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
@@ -503,7 +504,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
             type="button"
             onClick={toggleFocusMode}
             className={cn(
-              "flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-medium transition select-none",
+              "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
               isFocusMode
                 ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
                 : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
@@ -519,7 +520,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
             disabled={moveHistory.length === 0}
             onClick={undoLastMove}
             className={cn(
-              "flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-medium transition select-none",
+              "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
               moveHistory.length > 0
                 ? "border-dusk-cyan/40 bg-dusk-cyan/15 text-dusk-cyan hover:bg-dusk-cyan/20"
                 : "border-white/5 bg-white/[0.01] text-stone-600 cursor-not-allowed"
@@ -547,20 +548,20 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       </div>
 
       {/* ── Stats Bar Panel ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 mt-3">
-        <div className="lofi-panel flex flex-col justify-center rounded-lg p-3 bg-white/[0.015]">
+      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="lofi-panel flex flex-col justify-center rounded-2xl bg-white/[0.015] p-3">
           <span className="text-[10px] uppercase tracking-wider text-stone-500 select-none">Total Cards</span>
           <span className="text-xl font-bold text-stone-200 mt-1">{totalCards}</span>
         </div>
-        <div className="lofi-panel flex flex-col justify-center rounded-lg p-3 bg-white/[0.015] border-l-2 border-l-dusk-lavender">
+        <div className="lofi-panel flex flex-col justify-center rounded-2xl border-l-2 border-l-dusk-lavender bg-white/[0.015] p-3">
           <span className="text-[10px] uppercase tracking-wider text-dusk-lavender select-none">In Progress</span>
           <span className="text-xl font-bold text-dusk-lavender mt-1">{doingCards}</span>
         </div>
-        <div className="lofi-panel flex flex-col justify-center rounded-lg p-3 bg-white/[0.015] border-l-2 border-l-dusk-amber">
+        <div className="lofi-panel flex flex-col justify-center rounded-2xl border-l-2 border-l-dusk-amber bg-white/[0.015] p-3">
           <span className="text-[10px] uppercase tracking-wider text-dusk-amber select-none">Completed</span>
           <span className="text-xl font-bold text-dusk-amber mt-1">{doneCards}</span>
         </div>
-        <div className="lofi-panel flex flex-col justify-center rounded-lg p-3 bg-white/[0.015] border-l-2 border-l-dusk-rose">
+        <div className="lofi-panel flex flex-col justify-center rounded-2xl border-l-2 border-l-dusk-rose bg-white/[0.015] p-3">
           <span className="text-[10px] uppercase tracking-wider text-dusk-rose flex items-center gap-1 select-none">
             {overdueCards > 0 && <span className="h-1.5 w-1.5 rounded-full bg-dusk-rose animate-pulse" />}
             Overdue
@@ -579,7 +580,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
       >
-        <div className="scrollbar-soft mt-4 flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1">
+        <div className="scrollbar-soft mt-4 grid min-h-0 flex-1 auto-cols-[minmax(320px,1fr)] grid-flow-col gap-4 overflow-x-auto pb-1">
           <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
             {filteredColumns.map((column, index) => (
               <KanbanColumn

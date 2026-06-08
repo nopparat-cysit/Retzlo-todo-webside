@@ -103,7 +103,7 @@ export function KanbanCard({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "scroll-mt-24 cursor-grab rounded-md border p-3 text-sm shadow-sm transition active:cursor-grabbing",
+        "scroll-mt-24 cursor-grab rounded-xl border p-3 text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg",
         colorMeta.cardClass,
         card.status === "DONE" && "card-completed",
         isDragging && "opacity-60",
@@ -142,9 +142,9 @@ export function KanbanCard({
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          <span className={cn("rounded border px-2 py-1 text-xs", statusMeta.badgeClass)}>{statusMeta.label}</span>
+          <span className={cn("rounded-full border px-2 py-1 text-xs", statusMeta.badgeClass)}>{statusMeta.label}</span>
           <span className={cn(
-            "rounded border px-2 py-1 text-xs uppercase tracking-wide",
+            "rounded-full border px-2 py-1 text-xs uppercase tracking-wide",
             card.priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400 font-semibold",
             card.priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber",
             card.priority === "LOW" && "border-white/5 bg-white/5 text-stone-400"
@@ -152,12 +152,12 @@ export function KanbanCard({
             {card.priority ?? "MEDIUM"}
           </span>
           {isOverdue ? (
-            <span className="inline-flex items-center gap-1 rounded border border-red-500/20 bg-red-400/10 px-2 py-1 text-xs text-red-400 font-semibold animate-pulse">
+            <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-400/10 px-2 py-1 text-xs text-red-400 font-semibold animate-pulse">
               ⚠️ Overdue
             </span>
           ) : null}
           {card.checklist.length > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded bg-dusk-cyan/10 px-2 py-1 text-xs text-dusk-cyan">
+            <span className="inline-flex items-center gap-1 rounded-full bg-dusk-cyan/10 px-2 py-1 text-xs text-dusk-cyan">
               <CheckSquare className="h-3 w-3" />
               {completedChecklist}/{card.checklist.length}
             </span>
@@ -165,7 +165,7 @@ export function KanbanCard({
         </div>
         {card.description ? <p className="line-clamp-3 text-stone-400">{card.description}</p> : null}
         {card.dueDate ? (
-          <p className="inline-flex items-center gap-1 rounded bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber">
+          <p className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber">
             <CalendarClock className="h-3 w-3" />
             {formatMediumDateTime(card.dueDate, card.dueDateAllDay)}
           </p>

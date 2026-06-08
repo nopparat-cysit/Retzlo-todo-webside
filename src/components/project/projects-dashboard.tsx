@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
+  BookOpenCheck,
   CalendarDays,
   Clock,
   FolderKanban,
@@ -22,8 +23,10 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input, Textarea } from "@/components/ui/input";
+import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { defaultCalendarFilters, filterCalendarItems } from "@/lib/calendar/view";
 import { formatShortDue } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
@@ -34,6 +37,7 @@ export interface ProjectDashboardItem {
   id: string;
   name: string;
   description: string | null;
+  type: string;
   coverImage: string | null;
   counts: {
     boards: number;
@@ -123,12 +127,12 @@ export function ProjectsDashboard({
   }, [calendarCards, calendarRange, calendarStatusFilters, calendarTimeScope]);
 
   return (
-    <main className="min-h-screen w-screen overflow-x-hidden px-4 py-4 sm:px-5 lg:px-6">
+    <main className="soft-grid-bg min-h-screen w-full overflow-x-hidden px-4 py-4 sm:px-5 lg:px-6">
       <div className="grid min-h-[calc(100vh-2rem)] gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <aside className="lofi-panel flex flex-col rounded-lg p-5">
+        <aside className="lofi-panel relative flex flex-col overflow-hidden rounded-2xl p-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-md border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender">
+              <div className="grid h-10 w-10 place-items-center rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/10 text-dusk-lavender">
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
@@ -136,49 +140,34 @@ export function ProjectsDashboard({
                 <h1 className="text-xl font-semibold">Workspaces</h1>
               </div>
             </div>
-            {/* Profile avatar button */}
             {userProfile && (
-              <Link href="/profile" className="group relative shrink-0" title="My profile">
-                <div className="h-9 w-9 overflow-hidden rounded-full border border-white/20 transition group-hover:border-dusk-lavender/60">
-                  {userProfile.avatar ? (
-                    <Image
-                      src={userProfile.avatar}
-                      alt="Avatar"
-                      width={36}
-                      height={36}
-                      className="h-full w-full object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="grid h-full w-full place-items-center bg-dusk-lavender/15 text-xs font-bold text-dusk-lavender">
-                      {(userProfile.name ?? userProfile.email)
-                        .split(" ")
-                        .map((w) => w[0])
-                        .join("")
-                        .toUpperCase()
-                        .slice(0, 2)}
-                    </div>
-                  )}
-                </div>
-                {/* Status dot */}
-                <span
-                  className={cn(
-                    "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-ink-950",
-                    userProfile.status === "ONLINE"
-                      ? "bg-emerald-400"
-                      : userProfile.status === "BUSY"
-                      ? "bg-dusk-amber"
-                      : "bg-stone-500"
-                  )}
-                />
-              </Link>
+              <UserProfilePopover
+                avatar={userProfile.avatar}
+                email={userProfile.email}
+                initials={(userProfile.name ?? userProfile.email)
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)}
+                name={userProfile.name ?? userProfile.email}
+                status={userProfile.status}
+                statusColor={
+                  userProfile.status === "ONLINE"
+                    ? "bg-emerald-400"
+                    : userProfile.status === "BUSY"
+                    ? "bg-dusk-amber"
+                    : "bg-stone-500"
+                }
+                variant="avatar"
+              />
             )}
           </div>
 
           <div className="mt-6">
             <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">Project</label>
             <select
-              className="h-10 w-full rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none transition focus:border-dusk-lavender/70 focus:ring-2 focus:ring-dusk-lavender/20"
+              className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.065] px-3 text-sm text-stone-100 outline-none transition focus:border-dusk-lavender/70 focus:ring-4 focus:ring-dusk-lavender/20"
               value={selectedProjectId}
               onChange={(event) => {
                 if (event.target.value) {
@@ -203,7 +192,7 @@ export function ProjectsDashboard({
 
           <Link
             href="/projects/rewards"
-            className="mt-4 flex items-center justify-between rounded-md border border-dusk-amber/30 bg-dusk-amber/5 px-4 py-3 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/60 hover:bg-dusk-amber/10 shadow-glow"
+            className="mt-4 flex items-center justify-between rounded-xl border border-dusk-amber/20 bg-dusk-amber/5 px-4 py-3 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/45 hover:bg-dusk-amber/10"
           >
             <div className="flex items-center gap-2">
               <Gift className="h-4 w-4 text-dusk-amber" />
@@ -212,7 +201,7 @@ export function ProjectsDashboard({
             <ArrowRight className="h-4 w-4 text-dusk-amber" />
           </Link>
 
-          <div className="mt-5 flex-1 rounded-md border border-white/10 bg-ink-950/35 p-4">
+          <div className="mt-5 flex-1 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
             <div className="mb-3 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-sm font-semibold text-stone-100">
                 <CalendarDays className="h-4 w-4 text-dusk-cyan" />
@@ -222,7 +211,7 @@ export function ProjectsDashboard({
             </div>
             <div className="mb-3 grid gap-2">
               <select
-                className="h-9 rounded-md border border-white/10 bg-ink-950/60 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/70"
+                className="h-9 rounded-xl border border-white/10 bg-white/[0.065] px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/70"
                 value={calendarRange}
                 onChange={(event) => setCalendarRange(event.target.value as "7" | "30" | "all")}
               >
@@ -231,7 +220,7 @@ export function ProjectsDashboard({
                 <option value="all">All dates</option>
               </select>
               <select
-                className="h-9 rounded-md border border-white/10 bg-ink-950/60 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/70"
+                className="h-9 rounded-xl border border-white/10 bg-white/[0.065] px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/70"
                 value={calendarTimeScope}
                 onChange={(event) => setCalendarTimeScope(event.target.value as typeof calendarTimeScope)}
               >
@@ -244,7 +233,7 @@ export function ProjectsDashboard({
                   const meta = getStatusMeta(status);
 
                   return (
-                    <label key={status} className="flex cursor-pointer items-center gap-1.5 rounded border border-white/10 bg-white/[0.03] px-2 py-1 text-[11px] text-stone-300">
+                    <label key={status} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-2 py-1 text-[11px] text-stone-300">
                       <input
                         checked={calendarStatusFilters[status]}
                         className="h-3.5 w-3.5 accent-dusk-lavender"
@@ -270,7 +259,7 @@ export function ProjectsDashboard({
                 return (
                   <Link
                     key={card.id}
-                    className="block rounded-md border border-white/10 bg-white/[0.04] p-3 transition hover:border-dusk-lavender/50 hover:bg-white/[0.07]"
+                    className="block rounded-xl border border-white/10 bg-white/[0.04] p-3 transition hover:border-dusk-lavender/45 hover:bg-white/[0.065]"
                     href={`/project/${card.project.id}/calendar`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -288,7 +277,7 @@ export function ProjectsDashboard({
                 );
               })}
               {filteredCalendarCards.length === 0 ? (
-                <div className="rounded-md border border-dashed border-white/10 p-4 text-sm text-stone-500">
+                <div className="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-stone-500">
                   No cards match the calendar filters.
                 </div>
               ) : null}
@@ -297,10 +286,13 @@ export function ProjectsDashboard({
         </aside>
 
         <section className="min-w-0">
-          <div className="mb-4 flex flex-col justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.035] p-5 sm:flex-row sm:items-center">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-dusk-amber">Project Index</p>
-              <h2 className="mt-2 text-3xl font-semibold sm:text-4xl">Choose your board</h2>
+          <div className="lofi-panel relative mb-4 flex flex-col justify-between gap-3 overflow-hidden rounded-2xl p-5 sm:flex-row sm:items-center">
+            <div className="flex min-w-0 items-start gap-3">
+              <BackButton className="mt-1" />
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.35em] text-dusk-amber">Project Index</p>
+                <h2 className="mt-2 text-3xl font-semibold sm:text-4xl">Choose your board</h2>
+              </div>
             </div>
             <Button type="button" onClick={() => setIsCreateOpen(true)}>
               <Plus className="h-4 w-4" />
@@ -309,9 +301,9 @@ export function ProjectsDashboard({
           </div>
 
           {projects.length === 0 ? (
-            <div className="lofi-panel grid min-h-[420px] place-items-center rounded-lg p-8 text-center">
+            <div className="lofi-panel grid min-h-[420px] place-items-center overflow-hidden rounded-2xl p-8 text-center">
               <div className="max-w-md">
-                <FolderKanban className="mx-auto h-10 w-10 text-dusk-lavender" />
+                <div className="asset-sticker-peek mx-auto mb-2 h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-white/5 opacity-90" />
                 <h3 className="mt-4 text-2xl font-semibold">No projects yet</h3>
                 <p className="mt-2 text-sm text-stone-400">Create the first workspace and RETROD will open its board for you.</p>
               </div>
@@ -335,25 +327,26 @@ function ProjectCard({ project }: { project: ProjectDashboardItem }) {
   const router = useRouter();
   const cards = project.board?.columns.flatMap((column) => column.cards) ?? [];
   const columnCount = project.board?.columns.length ?? 0;
+  const isDiaryProject = project.type === "DIARY";
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
     <>
-      <article className="lofi-panel group relative flex min-h-[390px] flex-col overflow-hidden rounded-lg transition duration-200 hover:-translate-y-0.5 hover:border-dusk-lavender/40 hover:shadow-2xl hover:shadow-dusk-lavender/10">
+      <article className="lofi-panel group relative flex min-h-[390px] flex-col overflow-hidden rounded-2xl transition duration-200 hover:-translate-y-0.5 hover:border-dusk-lavender/35 hover:shadow-xl hover:shadow-dusk-lavender/10">
         <div className="relative h-36 overflow-hidden border-b border-white/10">
           {project.coverImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={project.coverImage} alt="cover" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
           ) : (
-            <div className="h-full w-full bg-[radial-gradient(circle_at_22%_20%,rgba(169,162,255,0.28),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(132,220,235,0.18),transparent_32%),linear-gradient(135deg,rgba(14,15,38,0.85),rgba(35,29,64,0.82)_48%,rgba(11,13,31,0.94))]" />
+            <div className="h-full w-full bg-[radial-gradient(circle_at_22%_20%,rgba(229,189,114,0.22),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(213,154,179,0.22),transparent_32%),linear-gradient(135deg,rgba(35,31,68,0.86),rgba(63,46,86,0.78)_48%,rgba(11,13,31,0.94))]" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent" />
           <div className="absolute bottom-4 left-4 right-14">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-ink-950/55 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-dusk-amber backdrop-blur">
-              <Sparkles className="h-3 w-3" />
-              Workspace
+              {isDiaryProject ? <BookOpenCheck className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
+              {isDiaryProject ? "Diary First" : "Workspace"}
             </div>
             <h3 className="truncate text-2xl font-semibold text-stone-50">{project.name}</h3>
           </div>
@@ -363,7 +356,7 @@ function ProjectCard({ project }: { project: ProjectDashboardItem }) {
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            className="grid h-8 w-8 place-items-center rounded-md border border-white/10 bg-ink-950/70 text-stone-300 backdrop-blur-sm transition hover:border-dusk-lavender/50 hover:text-dusk-lavender"
+            className="grid h-8 w-8 place-items-center rounded-xl border border-white/10 bg-ink-950/70 text-stone-300 backdrop-blur-sm transition hover:border-dusk-lavender/50 hover:text-dusk-lavender"
             aria-label="Project options"
           >
             <MoreHorizontal className="h-4 w-4" />
@@ -371,7 +364,7 @@ function ProjectCard({ project }: { project: ProjectDashboardItem }) {
           {menuOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-9 z-50 w-40 overflow-hidden rounded-lg border border-white/10 bg-ink-950/95 shadow-xl backdrop-blur-md">
+              <div className="absolute right-0 top-9 z-50 w-40 overflow-hidden rounded-lg border border-white/15 bg-[#020208] shadow-[0_22px_58px_rgba(0,0,0,0.78),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md">
                 <button
                   type="button"
                   className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-stone-300 transition hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
@@ -403,21 +396,21 @@ function ProjectCard({ project }: { project: ProjectDashboardItem }) {
             <ProjectMetric icon={FolderKanban} label="Cards" value={cards.length} />
           </div>
 
-          <div className="mt-5 flex items-center justify-between rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500">
+          <div className="mt-5 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-400">
             <span>{columnCount} columns</span>
             <span>{project.board ? "Board ready" : "No board yet"}</span>
           </div>
 
           <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-[1fr_auto]">
             <Link
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-dusk-lavender px-4 text-sm font-semibold text-ink-950 shadow-glow transition hover:bg-dusk-amber"
-              href={`/project/${project.id}/board`}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-dusk-lavender px-4 text-sm font-semibold text-ink-950 shadow-[0_10px_24px_rgba(169,162,255,0.18)] transition hover:-translate-y-0.5 hover:bg-dusk-amber"
+              href={`/project/${project.id}/${isDiaryProject ? "diary" : "board"}`}
             >
-              Open board
+              {isDiaryProject ? "Open diary" : "Open board"}
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-dusk-amber/25 bg-dusk-amber/5 px-4 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/55 hover:bg-dusk-amber/10"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-dusk-amber/25 bg-dusk-amber/5 px-4 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/55 hover:bg-dusk-amber/10"
               href={`/project/${project.id}/rewards`}
             >
               <Gift className="h-4 w-4" />
@@ -585,6 +578,7 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [projectType, setProjectType] = useState<"WORK" | "DIARY">("WORK");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -597,7 +591,8 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: formData.get("name"),
-        description: formData.get("description")
+        description: formData.get("description"),
+        type: projectType
       })
     });
     const data = (await response.json()) as { project?: { id: string }; error?: string };
@@ -609,7 +604,7 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
       return;
     }
 
-    router.push(`/project/${data.project.id}/board`);
+    router.push(`/project/${data.project.id}/${projectType === "DIARY" ? "diary" : "board"}`);
     router.refresh();
   }
 
@@ -628,6 +623,32 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
         <div className="space-y-3">
           <Input name="name" placeholder="Project name" required />
           <Textarea name="description" placeholder="Description" />
+          <div className="grid gap-2 sm:grid-cols-2">
+            {[
+              { value: "WORK", label: "Work board", icon: KanbanSquare },
+              { value: "DIARY", label: "Diary only", icon: BookOpenCheck }
+            ].map((option) => {
+              const Icon = option.icon;
+              const selected = projectType === option.value;
+
+              return (
+                <button
+                  key={option.value}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl border px-3 py-3 text-left text-sm transition",
+                    selected
+                      ? "border-dusk-lavender bg-dusk-lavender/15 text-dusk-lavender"
+                      : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/45"
+                  )}
+                  type="button"
+                  onClick={() => setProjectType(option.value as "WORK" | "DIARY")}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
           {error ? <p className="text-sm text-red-300">{error}</p> : null}
         </div>
         <div className="mt-5 flex justify-end gap-2">
@@ -651,7 +672,7 @@ function StatTile({
   value: number;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-md border border-white/10 bg-white/[0.035] p-3">
+    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3">
       <Icon className="h-4 w-4 text-dusk-lavender" />
       <div>
         <p className="text-lg font-semibold leading-none">{value}</p>
@@ -671,7 +692,7 @@ function ProjectMetric({
   value: number;
 }) {
   return (
-    <div className="rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 transition group-hover:border-white/15">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2 transition group-hover:border-white/20">
       <div className="mb-2 flex items-center justify-between gap-2">
         <Icon className="h-3.5 w-3.5 text-dusk-lavender" />
         <p className="text-base font-semibold leading-none text-stone-100">{value}</p>

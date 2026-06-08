@@ -1,17 +1,18 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
+import { Bell, PanelLeftClose } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { BackButton } from "@/components/ui/back-button";
 import { CommandPalette } from "@/components/ui/command-palette";
-import { ProjectNavLink } from "@/components/project/project-nav-link";
 import { ProjectSidebarGreeting } from "@/components/project/project-sidebar-greeting";
-import { LofiPlayer } from "@/components/project/lofi-player";
-import { NixiePomodoro } from "@/components/project/nixie-pomodoro";
-import { PixelMoon } from "@/components/project/pixel-moon";
-import { ZenGarden } from "@/components/project/zen-garden";
+import { ProjectNavLink } from "@/components/project/project-nav-link";
+import { ProjectSortableNav, type ProjectNavItem } from "@/components/project/project-sortable-nav";
+import { ProjectTopbarTools } from "@/components/project/project-topbar-tools";
+import { ProjectQuickHub } from "@/components/project/project-quick-hub";
+import { UserProfilePopover } from "@/components/project/user-profile-popover";
 
 // ---------------------------------------------------------------------------
 // Nav items — Boards & Members removed per user request
@@ -23,8 +24,9 @@ const navItems = [
   { href: "diary", label: "Diary", iconName: "diary" },
   { href: "notes", label: "Notes", iconName: "notes" },
   { href: "rewards", label: "Rewards Store", iconName: "rewards" },
-  { href: "settings", label: "Settings", iconName: "settings" },
 ] as const;
+
+const settingsNavItem = { href: "settings", label: "Settings", iconName: "settings" } as const;
 
 // ---------------------------------------------------------------------------
 // Project color dot
@@ -76,6 +78,11 @@ export async function ProjectShell({
       },
       include: {
         boards: { select: { id: true }, take: 1, orderBy: { createdAt: "asc" } },
+        members: {
+          where: { userId: session.user.id },
+          select: { role: true },
+          take: 1,
+        },
       },
     }),
     prisma.user.findUnique({
@@ -94,6 +101,18 @@ export async function ProjectShell({
 
   const dotColor = projectDotColor(project.name);
   const statusColor = STATUS_COLORS[userRecord?.status ?? "ONLINE"] ?? "bg-stone-500";
+  const isProjectOwner = project.members[0]?.role === "OWNER";
+  const sortableNavItems: ProjectNavItem[] = navItems.map((item) => ({
+    ...item,
+    href: `/project/${projectId}/${item.href}`,
+    iconName: item.iconName,
+    segment: item.href,
+  }));
+  const settingsLink = {
+    ...settingsNavItem,
+    href: `/project/${projectId}/${settingsNavItem.href}`,
+    segment: settingsNavItem.href,
+  };
 
   // Initials for avatar fallback
   const initials = userName
@@ -104,18 +123,29 @@ export async function ProjectShell({
     .slice(0, 2);
 
   return (
-    <main className="min-h-screen w-screen overflow-hidden p-3">
-      <div className="grid h-[calc(100vh-1.5rem)] min-h-0 gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
+    <main className="soft-grid-bg min-h-screen w-full overflow-hidden p-3">
+      <input id="project-sidebar-toggle" className="peer sr-only" type="checkbox" />
+      <div className="project-shell-grid grid h-[calc(100vh-1.5rem)] min-h-0 gap-3 transition-[grid-template-columns] duration-200 lg:grid-cols-[280px_minmax(0,1fr)]">
         {/* ── Sidebar ──────────────────────────────────────────────────────── */}
-        <aside className="lofi-panel flex min-h-0 flex-col rounded-lg p-4">
+        <aside className="project-sidebar lofi-panel relative flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 transition-all duration-200">
           {/* Breadcrumb + project identity */}
           <div>
-            <Link
-              href="/projects"
-              className="text-xs uppercase tracking-[0.3em] text-dusk-amber transition-opacity hover:opacity-70"
-            >
-              Projects
-            </Link>
+            <div className="flex items-center justify-between gap-2">
+              <Link
+                href="/projects"
+                className="sidebar-expanded-only text-xs uppercase tracking-[0.3em] text-dusk-amber transition-opacity hover:opacity-70"
+              >
+                Projects
+              </Link>
+              <label
+                htmlFor="project-sidebar-toggle"
+                className="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.055] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender"
+                title="Toggle sidebar"
+                aria-label="Toggle sidebar"
+              >
+                <PanelLeftClose className="project-sidebar-toggle-icon h-4 w-4 transition-transform duration-200" />
+              </label>
+            </div>
 
             {/* Project name with color dot */}
             <div className="mt-2 flex items-center gap-2">
@@ -123,102 +153,85 @@ export async function ProjectShell({
                 aria-hidden="true"
                 className={`inline-block h-2 w-2 shrink-0 rounded-full ${dotColor}`}
               />
-              <h1 className="text-2xl font-semibold leading-tight text-stone-100">
+              <h1 className="sidebar-expanded-only text-2xl font-semibold leading-tight text-stone-100">
                 {project.name}
               </h1>
             </div>
 
-            <p className="mt-1 text-sm text-stone-400">
+            <p className="sidebar-expanded-only mt-1 text-sm text-stone-400">
               {project.description ?? "No description yet."}
             </p>
 
             {/* Time-based greeting */}
-            <div className="mt-3">
+            <div className="sidebar-expanded-only mt-3">
               <ProjectSidebarGreeting userName={userName} />
             </div>
           </div>
 
           {/* Scrollable sidebar widgets section */}
           <div className="flex-1 overflow-y-auto scrollbar-soft pr-1 space-y-4 my-3 min-h-0">
-            {/* Navigation */}
-            <nav className="grid gap-2" aria-label="Project navigation">
-              {navItems.map((item) => (
-                <ProjectNavLink
-                  key={item.href}
-                  href={`/project/${projectId}/${item.href}`}
-                  label={item.label}
-                  iconName={item.iconName}
-                  segment={item.href}
-                />
-              ))}
-            </nav>
-
-            <LofiPlayer />
-            <NixiePomodoro />
-            <PixelMoon />
-            <ZenGarden />
+            <ProjectSortableNav canSort={isProjectOwner} items={sortableNavItems} projectId={projectId} />
           </div>
 
           {/* ── User profile card — bottom of sidebar ─────────────────── */}
           <div className="mt-auto space-y-3 border-t border-white/5 pt-4">
+            <ProjectNavLink {...settingsLink} />
             {/* Cmd+K hint */}
-            <p className="flex items-center gap-1.5 text-[10px] text-stone-600">
+            <p className="sidebar-expanded-only flex items-center gap-1.5 text-[10px] text-stone-600">
               <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd>
               Command palette
             </p>
-
-            {/* User card */}
-            <Link
-              href="/profile"
-              className="group flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.03] p-2.5 transition hover:border-dusk-lavender/40 hover:bg-dusk-lavender/5"
-            >
-              {/* Avatar */}
-              <div className="relative h-8 w-8 shrink-0">
-                <div className="h-8 w-8 overflow-hidden rounded-full border border-white/20">
-                  {userRecord?.avatar ? (
-                    <Image
-                      src={userRecord.avatar}
-                      alt={userName}
-                      width={32}
-                      height={32}
-                      className="h-full w-full object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="grid h-full w-full place-items-center bg-dusk-lavender/20 text-[11px] font-bold text-dusk-lavender">
-                      {initials}
-                    </div>
-                  )}
-                </div>
-                {/* Status dot */}
-                <span
-                  className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-ink-950 ${statusColor}`}
-                />
-              </div>
-
-              {/* Name + status */}
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-medium text-stone-200 group-hover:text-dusk-lavender">
-                  {userName}
-                </p>
-                <p className="text-[10px] text-stone-600">
-                  {userRecord?.status === "ONLINE"
-                    ? "Online"
-                    : userRecord?.status === "BUSY"
-                    ? "Busy"
-                    : "Offline"}
-                </p>
-              </div>
-            </Link>
           </div>
         </aside>
 
         {/* ── Main content ─────────────────────────────────────────────────── */}
-        <section className="min-h-0 min-w-0">{children}</section>
+        <section className="flex min-h-0 min-w-0 flex-col rounded-2xl">
+          <header className="lofi-panel relative z-[120] mb-3 flex min-h-14 items-center justify-between gap-3 rounded-2xl px-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <BackButton />
+              <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.05] text-dusk-lavender">
+                <span className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-stone-500">
+                  <span>Workspace</span>
+                  <span className="text-stone-700">/</span>
+                  <span className="text-dusk-amber">RETROD</span>
+                </div>
+                <h2 className="truncate text-base font-semibold text-stone-100">{project.name}</h2>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <ProjectTopbarTools />
+              <div className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 md:flex">
+                <span className="text-stone-400">Command</span>
+                <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
+              </div>
+              <button
+                type="button"
+                className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender"
+                aria-label="Notifications"
+              >
+                <Bell className="h-4 w-4" />
+              </button>
+              <UserProfilePopover
+                avatar={userRecord?.avatar}
+                email={userEmail}
+                initials={initials}
+                name={userName}
+                status={userRecord?.status}
+                statusColor={statusColor}
+                variant="avatar"
+              />
+            </div>
+          </header>
+          <div className="relative z-10 min-h-0 flex-1 overflow-hidden">{children}</div>
+        </section>
       </div>
 
       {/* Command palette — self-manages open/close via keyboard shortcut */}
       <CommandPalette projectId={projectId} projectName={project.name} />
+      <ProjectQuickHub projectId={projectId} allowMemberPrivateItems={project.allowMemberPrivateItems} />
     </main>
   );
 }

@@ -9,9 +9,17 @@ import { Input, Textarea } from "@/components/ui/input";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 export function SettingsForm({
-  project
+  project,
+  canManagePrivacy
 }: {
-  project: { id: string; name: string; description: string | null; coverImage: string | null };
+  project: {
+    id: string;
+    name: string;
+    description: string | null;
+    coverImage: string | null;
+    allowMemberPrivateItems: boolean;
+  };
+  canManagePrivacy: boolean;
 }) {
   const router = useRouter();
 
@@ -22,6 +30,8 @@ export function SettingsForm({
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [saveMsg, setSaveMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [allowMemberPrivateItems, setAllowMemberPrivateItems] = useState(project.allowMemberPrivateItems);
+  const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   // ── Delete state ──────────────────────────────────────────────────────────
@@ -80,6 +90,28 @@ export function SettingsForm({
       router.push("/projects");
       router.refresh();
     }
+  }
+
+  async function toggleMemberPrivacy(value: boolean) {
+    setAllowMemberPrivateItems(value);
+    setIsSavingPrivacy(true);
+    setSaveMsg(null);
+    const res = await fetch(`/api/projects/${project.id}/settings`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ allowMemberPrivateItems: value })
+    });
+    setIsSavingPrivacy(false);
+
+    if (res.ok) {
+      setSaveMsg({ text: "Privacy setting saved.", ok: true });
+      router.refresh();
+      return;
+    }
+
+    const data = (await res.json()) as { error?: string };
+    setAllowMemberPrivateItems(project.allowMemberPrivateItems);
+    setSaveMsg({ text: data.error ?? "Could not save privacy setting.", ok: false });
   }
 
   return (
@@ -151,6 +183,30 @@ export function SettingsForm({
           {isSaving ? "Saving..." : "Save changes"}
         </Button>
       </form>
+
+      <div className="rounded-lg border border-white/10 bg-white/[0.035] p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-stone-100">Member private items</h3>
+            <p className="mt-1 text-sm text-stone-500">
+              Allow members to hide their own diary items and notes from other members. Owners can always see everything.
+            </p>
+          </div>
+          <label className="inline-flex cursor-pointer items-center gap-3 rounded-full border border-white/10 bg-ink-950/45 px-3 py-2 text-sm text-stone-300">
+            <span>{allowMemberPrivateItems ? "On" : "Off"}</span>
+            <input
+              checked={allowMemberPrivateItems}
+              className="h-4 w-4 accent-dusk-lavender disabled:cursor-not-allowed"
+              disabled={!canManagePrivacy || isSavingPrivacy}
+              type="checkbox"
+              onChange={(event) => toggleMemberPrivacy(event.target.checked)}
+            />
+          </label>
+        </div>
+        {!canManagePrivacy ? (
+          <p className="mt-3 text-xs text-stone-600">Only the project owner can change this setting.</p>
+        ) : null}
+      </div>
 
       {/* ── Danger zone ───────────────────────────────────────────────────── */}
       <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-5">

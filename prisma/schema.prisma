@@ -23,6 +23,7 @@ model User {
   invitations     Invitation[]    @relation("InvitedUser")
   sentInvitations Invitation[]    @relation("InvitationSender")
   notes           Note[]
+  diaryItems      DiaryItem[]
   passwordResetOtps PasswordResetOtp[]
   createdRewards  Reward[]        @relation("RewardCreator")
   redemptions     Redemption[]
@@ -36,6 +37,8 @@ model Project {
   id          String          @id @default(uuid())
   name        String
   description String?
+  type        String          @default("WORK")
+  allowMemberPrivateItems Boolean @default(false)
   coverImage  String?
   coinName    String          @default("Project Coin")
   coinSymbol  String          @default("🪙")
@@ -45,6 +48,7 @@ model Project {
   boards      Board[]
   invitations Invitation[]
   notes       Note[]
+  diaryItems  DiaryItem[]
   rewards     Reward[]
   cassettes   Cassette[]
 }
@@ -133,6 +137,7 @@ model Note {
   content   String
   color     String   @default("DEFAULT")
   isStarred Boolean  @default(false)
+  isHidden  Boolean  @default(false)
   dueDate   DateTime?
   dueDateAllDay Boolean @default(false)
   projectId String
@@ -144,6 +149,27 @@ model Note {
 
   @@index([projectId, updatedAt])
   @@index([projectId, dueDate])
+  @@index([projectId, isHidden])
+  @@index([authorId])
+}
+
+model DiaryItem {
+  id           String   @id @default(uuid())
+  title        String
+  description  String?
+  color        String   @default("DEFAULT")
+  intervalDays Int
+  startDate    DateTime
+  isHidden     Boolean  @default(false)
+  projectId    String
+  authorId     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author       User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, startDate])
+  @@index([projectId, isHidden])
   @@index([authorId])
 }
 

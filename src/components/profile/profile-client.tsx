@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, User } from "lucide-react";
-import Link from "next/link";
+import { User } from "lucide-react";
 
+import { BackButton } from "@/components/ui/back-button";
 import { Panel } from "@/components/ui/panel";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { ProfileForm } from "@/components/profile/profile-form";
@@ -28,20 +28,10 @@ export function ProfileClient({ user }: ProfileClientProps) {
 
   return (
     <main className="min-h-screen w-screen overflow-x-hidden px-4 py-6 sm:px-6">
-      {/* Back nav */}
-      <div className="mb-6">
-        <Link
-          href="/projects"
-          className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.25em] text-dusk-amber transition-opacity hover:opacity-70"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to projects
-        </Link>
-      </div>
-
       <div className="mx-auto max-w-2xl space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
+          <BackButton />
           <div className="grid h-10 w-10 place-items-center rounded-md border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender">
             <User className="h-5 w-5" />
           </div>

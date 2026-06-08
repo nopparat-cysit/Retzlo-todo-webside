@@ -7,7 +7,8 @@ import { requireUserId } from "@/lib/project-auth";
 
 const createProjectSchema = z.object({
   name: z.string().trim().min(1).max(120),
-  description: z.string().trim().max(500).optional()
+  description: z.string().trim().max(500).optional(),
+  type: z.enum(["WORK", "DIARY"]).default("WORK")
 });
 
 const defaultColumns = ["Backlog", "In Progress", "Done"];
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
       data: {
         name: payload.name,
         description: payload.description,
+        type: payload.type,
         members: {
           create: {
             userId,

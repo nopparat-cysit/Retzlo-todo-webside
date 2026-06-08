@@ -24,6 +24,23 @@ export async function getProjectMembership(projectId: string, userId: string) {
   });
 }
 
+export function isOwnerRole(role: string | null | undefined) {
+  return role === "OWNER";
+}
+
+export function canManageAuthoredItem(membership: { role: string }, userId: string, authorId: string) {
+  return isOwnerRole(membership.role) || userId === authorId;
+}
+
+export function canToggleHiddenItem(
+  membership: { role: string },
+  userId: string,
+  authorId: string,
+  allowMemberPrivateItems: boolean
+) {
+  return isOwnerRole(membership.role) || (userId === authorId && allowMemberPrivateItems);
+}
+
 export async function assertProjectMember(projectId: string, userId: string) {
   const membership = await getProjectMembership(projectId, userId);
 
@@ -68,4 +85,13 @@ export async function getProjectIdForNote(noteId: string) {
   });
 
   return note?.projectId ?? null;
+}
+
+export async function getProjectIdForDiaryItem(diaryItemId: string) {
+  const diaryItem = await prisma.diaryItem.findUnique({
+    where: { id: diaryItemId },
+    select: { projectId: true }
+  });
+
+  return diaryItem?.projectId ?? null;
 }

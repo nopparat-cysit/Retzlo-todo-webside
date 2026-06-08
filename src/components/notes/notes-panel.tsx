@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { CalendarClock, FileText, Plus, Save, Star, Trash2, X } from "lucide-react";
+import { CalendarClock, Eye, EyeOff, FileText, Plus, Save, Star, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -17,10 +17,12 @@ type NoteSort = "updated" | "created" | "due" | "title";
 interface NotesPanelProps {
   projectId: string;
   initialNotes: ProjectNote[];
+  allowMemberPrivateItems: boolean;
+  isOwner: boolean;
   compact?: boolean;
 }
 
-export function NotesPanel({ projectId, initialNotes }: NotesPanelProps) {
+export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, isOwner }: NotesPanelProps) {
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes);
   const [filter, setFilter] = useState<NoteFilter>("all");
   const [sortBy, setSortBy] = useState<NoteSort>("updated");
@@ -58,7 +60,7 @@ export function NotesPanel({ projectId, initialNotes }: NotesPanelProps) {
     setIsCreateOpen(false);
   }
 
-  async function updateNote(noteId: string, payload: Partial<NotePayload & { isStarred: boolean }>) {
+  async function updateNote(noteId: string, payload: Partial<NotePayload & { isStarred: boolean; isHidden: boolean }>) {
     const note = await saveNote(`/api/notes/${noteId}`, "PATCH", payload);
 
     if (!note) return;
@@ -67,7 +69,11 @@ export function NotesPanel({ projectId, initialNotes }: NotesPanelProps) {
     setSelectedNote((current) => (current?.id === note.id ? note : current));
   }
 
-  async function saveNote(url: string, method: "POST" | "PATCH", payload: Partial<NotePayload & { isStarred: boolean }>) {
+  async function saveNote(
+    url: string,
+    method: "POST" | "PATCH",
+    payload: Partial<NotePayload & { isStarred: boolean; isHidden: boolean }>
+  ) {
     setError(null);
     const response = await fetch(url, {
       method,
@@ -114,6 +120,12 @@ export function NotesPanel({ projectId, initialNotes }: NotesPanelProps) {
         </Button>
       </div>
 
+      {!allowMemberPrivateItems && !isOwner ? (
+        <div className="rounded-lg border border-dusk-amber/20 bg-dusk-amber/10 px-4 py-3 text-sm text-dusk-amber">
+          This project does not allow members to hide their own notes.
+        </div>
+      ) : null}
+
       <div className="lofi-panel flex flex-col gap-3 rounded-lg p-4 md:flex-row md:items-center md:justify-between">
         <div className="grid grid-cols-2 gap-2 sm:flex">
           {(["all", "starred", "dated", "undated"] as const).map((value) => (
@@ -157,13 +169,25 @@ export function NotesPanel({ projectId, initialNotes }: NotesPanelProps) {
               <article key={note.id} className={cn("lofi-panel flex min-h-56 flex-col rounded-lg p-4", colorMeta.softClass)}>
                 <div className="mb-3 flex items-start gap-3">
                   <button
-                    className={cn("mt-1 text-stone-600 hover:text-dusk-amber", note.isStarred && "text-dusk-amber")}
+                    className={cn(
+                      "mt-1 text-stone-600 hover:text-dusk-amber disabled:cursor-not-allowed disabled:opacity-40",
+                      note.isStarred && "text-dusk-amber"
+                    )}
+                    disabled={!note.canManage}
                     type="button"
                     onClick={() => updateNote(note.id, { isStarred: !note.isStarred })}
                   >
                     <Star className="h-4 w-4" />
                   </button>
-                  <button className="min-w-0 flex-1 text-left" type="button" onClick={() => setSelectedNote(note)}>
+                  <button className="min-w-0 flex-1 text-left" type="button" onClick={() => note.canManage && setSelectedNote(note)}>
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      {note.isHidden ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-rose/25 bg-dusk-rose/10 px-2 py-1 text-[11px] text-dusk-rose">
+                          <EyeOff className="h-3 w-3" />
+                          Hidden
+                        </span>
+                      ) : null}
+                    </div>
                     <h3 className="truncate text-lg font-semibold text-stone-100">{note.title}</h3>
                     <p className="mt-2 line-clamp-5 text-sm leading-6 text-stone-400">{note.content || "No content."}</p>
                   </button>
@@ -177,6 +201,17 @@ export function NotesPanel({ projectId, initialNotes }: NotesPanelProps) {
                     </span>
                   ) : null}
                 </div>
+                {note.canToggleHidden ? (
+                  <Button
+                    className="mt-3 w-full"
+                    type="button"
+                    variant="ghost"
+                    onClick={() => updateNote(note.id, { isHidden: !note.isHidden })}
+                  >
+                    {note.isHidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                    {note.isHidden ? "Show note" : "Hide note"}
+                  </Button>
+                ) : null}
               </article>
             );
           })}
@@ -184,7 +219,12 @@ export function NotesPanel({ projectId, initialNotes }: NotesPanelProps) {
       )}
 
       {isCreateOpen ? (
-        <NoteEditorModal title="Add note" onClose={() => setIsCreateOpen(false)} onSubmit={createNote} />
+        <NoteEditorModal
+          allowMemberPrivateItems={allowMemberPrivateItems}
+          title="Add note"
+          onClose={() => setIsCreateOpen(false)}
+          onSubmit={createNote}
+        />
       ) : null}
       {selectedNote ? (
         <NoteEditorModal
@@ -193,6 +233,7 @@ export function NotesPanel({ projectId, initialNotes }: NotesPanelProps) {
           onClose={() => setSelectedNote(null)}
           onDelete={() => deleteNote(selectedNote.id)}
           onSubmit={(payload) => updateNote(selectedNote.id, payload)}
+          allowMemberPrivateItems={allowMemberPrivateItems}
         />
       ) : null}
     </section>
@@ -205,6 +246,7 @@ interface NotePayload {
   color: CardColor;
   dueDate: string | null;
   dueDateAllDay: boolean;
+  isHidden: boolean;
 }
 
 function NoteEditorModal({
@@ -212,17 +254,20 @@ function NoteEditorModal({
   title,
   onClose,
   onDelete,
-  onSubmit
+  onSubmit,
+  allowMemberPrivateItems = false
 }: {
   note?: ProjectNote;
   title: string;
   onClose: () => void;
   onDelete?: () => void;
   onSubmit: (payload: NotePayload) => void;
+  allowMemberPrivateItems?: boolean;
 }) {
   const [date, setDate] = useState(note?.dueDate ? note.dueDate.slice(0, 10) : "");
   const [time, setTime] = useState(note?.dueDate && !note.dueDateAllDay ? timeValue(note.dueDate) : "");
   const [color, setColor] = useState<CardColor>(normalizeCardColor(note?.color));
+  const [isHidden, setIsHidden] = useState(note?.isHidden ?? false);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -234,7 +279,8 @@ function NoteEditorModal({
       content: String(formData.get("content") ?? ""),
       color,
       dueDate: due.dueDate,
-      dueDateAllDay: due.dueDateAllDay
+      dueDateAllDay: due.dueDateAllDay,
+      isHidden
     });
   }
 
@@ -255,6 +301,21 @@ function NoteEditorModal({
           <Input name="title" defaultValue={note?.title ?? ""} placeholder="Note title" required />
           <Textarea className="min-h-44" name="content" defaultValue={note?.content ?? ""} placeholder="Write a note..." />
           <ColorPicker selectedColor={color} onChange={setColor} />
+          <label
+            className={cn(
+              "flex items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-stone-300",
+              !allowMemberPrivateItems && !note?.canToggleHidden && "opacity-60"
+            )}
+          >
+            <span>Hide from other members</span>
+            <input
+              checked={isHidden}
+              className="h-4 w-4 accent-dusk-lavender"
+              disabled={!allowMemberPrivateItems && !note?.canToggleHidden}
+              type="checkbox"
+              onChange={(event) => setIsHidden(event.target.checked)}
+            />
+          </label>
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
             <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
               <CalendarClock className="h-4 w-4 text-dusk-cyan" />
@@ -330,7 +391,7 @@ function ColorPicker({
   return (
     <div className="space-y-2 text-sm text-stone-300">
       <span>Note color</span>
-      <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+      <div className="flex flex-wrap gap-2">
         {cardColorOptions.map((option) => {
           const meta = getCardColorMeta(option.value);
 
@@ -338,8 +399,10 @@ function ColorPicker({
             <button
               key={option.value}
               className={cn(
-                "grid h-10 place-items-center rounded-md border transition hover:scale-[1.03]",
-                selectedColor === option.value ? "border-dusk-amber bg-white/10 ring-2 ring-dusk-amber/40" : "border-white/10 bg-white/[0.035]"
+                "grid h-8 w-8 place-items-center rounded-full border bg-white/[0.035] transition hover:scale-105 hover:border-white/25",
+                selectedColor === option.value
+                  ? "border-dusk-amber ring-2 ring-dusk-amber/45 ring-offset-2 ring-offset-ink-950"
+                  : "border-white/10"
               )}
               title={option.label}
               type="button"
@@ -359,9 +422,12 @@ function normalizeNote(note: ProjectNote): ProjectNote {
     ...note,
     color: normalizeCardColor(note.color),
     isStarred: note.isStarred ?? false,
+    isHidden: note.isHidden ?? false,
     dueDate: note.dueDate ? new Date(note.dueDate).toISOString() : null,
     dueDateAllDay: note.dueDateAllDay ?? false,
     createdAt: new Date(note.createdAt).toISOString(),
-    updatedAt: new Date(note.updatedAt).toISOString()
+    updatedAt: new Date(note.updatedAt).toISOString(),
+    canManage: note.canManage ?? false,
+    canToggleHidden: note.canToggleHidden ?? false
   };
 }

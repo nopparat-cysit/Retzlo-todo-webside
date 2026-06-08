@@ -1,22 +1,21 @@
 import type { CardColor } from "@/lib/theme/card-colors";
 
-export interface ProjectNote {
+export interface ProjectDiaryItem {
   id: string;
   title: string;
-  content: string;
+  description: string | null;
   color: CardColor;
-  isStarred: boolean;
+  intervalDays: number;
+  startDate: string;
   isHidden: boolean;
-  dueDate: string | null;
-  dueDateAllDay: boolean;
   projectId: string;
   authorId: string;
   createdAt: string;
   updatedAt: string;
+  canManage: boolean;
+  canToggleHidden: boolean;
   author: {
     name: string | null;
     email: string;
   };
-  canManage: boolean;
-  canToggleHidden: boolean;
 }

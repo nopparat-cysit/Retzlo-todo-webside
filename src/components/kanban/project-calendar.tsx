@@ -123,7 +123,7 @@ export function ProjectCalendar({
 
   return (
     <>
-      <div className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
+      <div className="grid h-full min-h-0 gap-4 overflow-y-auto pr-1 scrollbar-soft xl:grid-cols-[280px_minmax(0,1fr)_340px]">
         <Panel className="p-5">
           <div className="mb-5 flex items-center gap-2">
             <SlidersHorizontal className="h-5 w-5 text-dusk-lavender" />

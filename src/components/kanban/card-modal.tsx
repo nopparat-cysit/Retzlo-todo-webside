@@ -417,7 +417,7 @@ function ColorPicker({
   return (
     <div className="space-y-2 text-sm text-stone-300">
       <span>Card color</span>
-      <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+      <div className="flex flex-wrap gap-2">
         {cardColorOptions.map((option) => {
           const meta = getCardColorMeta(option.value);
 
@@ -425,8 +425,10 @@ function ColorPicker({
             <button
               key={option.value}
               className={cn(
-                "grid h-10 place-items-center rounded-md border transition hover:scale-[1.03]",
-                selectedColor === option.value ? "border-dusk-amber bg-white/10 ring-2 ring-dusk-amber/40" : "border-white/10 bg-white/[0.035]"
+                "grid h-8 w-8 place-items-center rounded-full border bg-white/[0.035] transition hover:scale-105 hover:border-white/25",
+                selectedColor === option.value
+                  ? "border-dusk-amber ring-2 ring-dusk-amber/45 ring-offset-2 ring-offset-ink-950"
+                  : "border-white/10"
               )}
               title={option.label}
               type="button"

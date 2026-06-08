@@ -4,11 +4,13 @@
 
 :root {
   color-scheme: dark;
-  --background: #080817;
+  --background: #090817;
   --foreground: #f5efe6;
-  --panel: rgba(18, 21, 46, 0.82);
-  --panel-strong: rgba(26, 30, 62, 0.95);
-  --border: rgba(169, 162, 255, 0.18);
+  --panel: rgba(29, 26, 55, 0.78);
+  --panel-strong: rgba(37, 33, 70, 0.95);
+  --paper: rgba(255, 244, 232, 0.08);
+  --paper-strong: rgba(255, 244, 232, 0.14);
+  --border: rgba(245, 239, 230, 0.16);
   --muted: #aaa5c7;
   --accent: #d59ab3;
   --accent-2: #e5bd72;
@@ -31,10 +33,10 @@ body {
   margin: 0;
   color: var(--foreground);
   background:
-    linear-gradient(120deg, rgba(8, 8, 23, 0.96), rgba(13, 15, 40, 0.84)),
-    radial-gradient(circle at 74% 34%, rgba(169, 162, 255, 0.22), transparent 24rem),
-    radial-gradient(circle at 38% 72%, rgba(229, 189, 114, 0.08), transparent 22rem),
-    #080817;
+    radial-gradient(circle at 18% 10%, rgba(229, 189, 114, 0.07), transparent 24rem),
+    radial-gradient(circle at 78% 16%, rgba(213, 154, 179, 0.08), transparent 26rem),
+    linear-gradient(135deg, rgba(8, 8, 23, 0.98), rgba(19, 18, 44, 0.96) 46%, rgba(10, 12, 30, 0.98)),
+    #090817;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -46,11 +48,11 @@ body::before {
   z-index: 0;
   pointer-events: none;
   content: "";
-  opacity: 0.18;
+  opacity: 0.055;
   background-image:
-    linear-gradient(rgba(169, 162, 255, 0.14) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(169, 162, 255, 0.1) 1px, transparent 1px);
-  background-size: 72px 72px;
+    linear-gradient(rgba(245, 239, 230, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 239, 230, 0.08) 1px, transparent 1px);
+  background-size: 56px 56px;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent 86%);
 }
 
@@ -60,7 +62,7 @@ body::after {
   z-index: 0;
   pointer-events: none;
   content: "";
-  opacity: 0.08;
+  opacity: 0.015;
   background-image: repeating-linear-gradient(
     to bottom,
     rgba(255, 255, 255, 0.5) 0,
@@ -94,14 +96,99 @@ textarea {
 
 .lofi-panel {
   border: 1px solid var(--border);
-  background: var(--panel);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+  background:
+    linear-gradient(145deg, rgba(255, 244, 232, 0.055), rgba(255, 244, 232, 0.018)),
+    var(--panel);
+  box-shadow:
+    0 18px 54px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 244, 232, 0.08);
   backdrop-filter: blur(18px);
+}
+
+.asset-sticker-peek {
+  background-image: url("/assets/relox-sticker-ui-assets.png");
+  background-position: 8% 6%;
+  background-repeat: no-repeat;
+  background-size: 410%;
+}
+
+.soft-grid-bg {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(229, 189, 114, 0.055), transparent 22rem),
+    radial-gradient(circle at 88% 10%, rgba(213, 154, 179, 0.065), transparent 24rem),
+    linear-gradient(135deg, rgba(8, 8, 23, 0.16), rgba(255, 244, 232, 0.018)),
+    transparent;
 }
 
 .scrollbar-soft {
   scrollbar-color: rgba(169, 162, 255, 0.35) transparent;
   scrollbar-width: thin;
+}
+
+@media (min-width: 1024px) {
+  #project-sidebar-toggle:checked ~ .project-shell-grid {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar {
+    align-items: center;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar > div:first-child {
+    width: 100%;
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar > div:first-child > div:first-child {
+    justify-content: center;
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .sidebar-expanded-only {
+    display: none;
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar-toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar nav {
+    width: 100%;
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar nav a {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar .project-nav-link {
+    width: 2.75rem;
+    border-color: rgba(245, 239, 230, 0.1);
+    background: rgba(255, 244, 232, 0.035);
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar .project-nav-link-active {
+    border-color: rgba(169, 162, 255, 0.58);
+    background: rgba(169, 162, 255, 0.18);
+    box-shadow:
+      inset 0 0 0 1px rgba(245, 239, 230, 0.04),
+      0 10px 26px rgba(169, 162, 255, 0.16);
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar .project-nav-active-marker {
+    left: 50%;
+    top: auto;
+    bottom: -0.18rem;
+    width: 1.15rem;
+    height: 0.18rem;
+    transform: translateX(-50%);
+    border-radius: 999px;
+  }
+
+  #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar .project-sidebar-icon {
+    margin: 0;
+  }
 }
 
 /* ── Skeleton shimmer ──────────────────────────────────────── */
@@ -302,13 +389,15 @@ textarea {
   position: relative;
   display: grid;
   min-height: 100vh;
-  place-items: center;
+  align-items: center;
+  justify-items: center;
   overflow: hidden;
   padding: 2rem 1rem;
   background:
-    radial-gradient(circle at 16% 18%, rgba(169, 162, 255, 0.22), transparent 16rem),
-    radial-gradient(circle at 76% 28%, rgba(213, 154, 179, 0.14), transparent 18rem),
-    linear-gradient(180deg, #050511 0%, #111431 42%, #1b1640 68%, #070711 100%);
+    radial-gradient(circle at 16% 18%, rgba(229, 189, 114, 0.11), transparent 18rem),
+    radial-gradient(circle at 78% 24%, rgba(213, 154, 179, 0.2), transparent 24rem),
+    radial-gradient(circle at 66% 74%, rgba(137, 199, 214, 0.08), transparent 22rem),
+    linear-gradient(180deg, #070713 0%, #141735 45%, #1a173b 72%, #090916 100%);
 }
 
 .auth-scene::before {
@@ -316,15 +405,9 @@ textarea {
   inset: 0;
   content: "";
   background:
-    linear-gradient(115deg, transparent 0 38%, rgba(229, 189, 114, 0.08) 45%, transparent 52%),
-    repeating-linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.08) 0,
-      rgba(255, 255, 255, 0.08) 1px,
-      transparent 1px,
-      transparent 7px
-    );
-  opacity: 0.28;
+    linear-gradient(115deg, transparent 0 38%, rgba(229, 189, 114, 0.055) 45%, transparent 52%),
+    radial-gradient(circle at 78% 50%, rgba(255, 244, 232, 0.055), transparent 24rem);
+  opacity: 0.55;
   mix-blend-mode: screen;
   pointer-events: none;
 }
@@ -346,11 +429,12 @@ textarea {
 
 .auth-planet {
   position: absolute;
-  left: max(1rem, 6vw);
-  top: clamp(2rem, 9vh, 5rem);
-  width: clamp(9rem, 23vw, 18rem);
+  left: max(1rem, 5vw);
+  top: clamp(2rem, 8vh, 4.5rem);
+  width: clamp(8rem, 19vw, 15.5rem);
   aspect-ratio: 1;
-  filter: drop-shadow(0 0 50px rgba(169, 162, 255, 0.22));
+  opacity: 0.88;
+  filter: drop-shadow(0 0 44px rgba(169, 162, 255, 0.16));
 }
 
 .auth-planet-core,
@@ -397,7 +481,7 @@ textarea {
   border-radius: 999px;
   background: linear-gradient(90deg, transparent, rgba(245, 239, 230, 0.42), transparent);
   box-shadow: 0 0 18px rgba(169, 162, 255, 0.18);
-  opacity: 0.58;
+  opacity: 0.32;
   transform: rotate(-7deg);
 }
 
@@ -448,19 +532,19 @@ textarea {
   bottom: 18%;
   background: linear-gradient(180deg, rgba(169, 162, 255, 0.34), rgba(57, 48, 105, 0.62));
   filter: blur(0.4px);
-  opacity: 0.78;
+  opacity: 0.56;
 }
 
 .auth-mountain-mid {
   bottom: 8%;
   height: 58vh;
-  background: linear-gradient(180deg, rgba(72, 57, 123, 0.94), rgba(26, 22, 71, 0.96));
+  background: linear-gradient(180deg, rgba(72, 57, 123, 0.72), rgba(26, 22, 71, 0.86));
   transform: scaleX(1.08);
 }
 
 .auth-mountain-near {
   height: 46vh;
-  background: linear-gradient(180deg, rgba(38, 29, 79, 0.98), rgba(8, 8, 23, 1));
+  background: linear-gradient(180deg, rgba(38, 29, 79, 0.86), rgba(8, 8, 23, 0.98));
   clip-path: polygon(
     0 70%,
     10% 58%,
@@ -511,18 +595,38 @@ textarea {
 .auth-card {
   position: relative;
   z-index: 2;
-  width: min(100%, 26rem);
-  border: 1px solid rgba(245, 239, 230, 0.14);
-  border-radius: 1rem;
+  width: min(100%, 28rem);
+  margin-left: min(28vw, 26rem);
+  border: 1px solid rgba(245, 239, 230, 0.18);
+  border-radius: 1.5rem;
   background:
-    linear-gradient(180deg, rgba(27, 22, 64, 0.72), rgba(11, 10, 31, 0.82)),
-    rgba(18, 21, 46, 0.66);
+    linear-gradient(180deg, rgba(255, 244, 232, 0.105), rgba(255, 244, 232, 0.035)),
+    rgba(17, 16, 39, 0.74);
   box-shadow:
-    0 28px 90px rgba(0, 0, 0, 0.48),
-    inset 0 1px 0 rgba(245, 239, 230, 0.08),
-    0 0 70px rgba(169, 162, 255, 0.12);
-  padding: 1.5rem;
-  backdrop-filter: blur(22px);
+    0 26px 72px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(245, 239, 230, 0.1),
+    0 0 48px rgba(169, 162, 255, 0.08);
+  padding: 1.75rem;
+  backdrop-filter: blur(28px);
+}
+
+.auth-card::before {
+  position: absolute;
+  inset: 0.55rem;
+  border: 1px solid rgba(245, 239, 230, 0.055);
+  border-radius: 1.15rem;
+  pointer-events: none;
+  content: "";
+}
+
+@media (max-width: 900px) {
+  .auth-card {
+    margin-left: 0;
+  }
+
+  .auth-planet {
+    opacity: 0.5;
+  }
 }
 
 @keyframes auth-twinkle {
