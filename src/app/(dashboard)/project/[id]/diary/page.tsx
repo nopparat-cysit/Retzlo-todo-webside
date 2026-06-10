@@ -30,7 +30,8 @@ function toProjectDiaryItems(
     startDate: Date;
     isStarred: boolean;
     isHidden: boolean;
-    projectId: string;
+    dueTime: string | null;
+    projectId: string | null;
     authorId: string;
     createdAt: Date;
     updatedAt: Date;

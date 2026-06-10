@@ -171,7 +171,7 @@ export function KanbanColumn({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
+        "group flex h-full min-h-0 w-72 sm:w-80 shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
         isDropTarget &&
           "border-dusk-lavender/60 bg-dusk-lavender/[0.08] shadow-lg shadow-dusk-lavender/10 ring-2 ring-dusk-lavender/20",

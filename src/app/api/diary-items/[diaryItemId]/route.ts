@@ -21,7 +21,8 @@ function toDiaryItemResponse(
     startDate: Date;
     isStarred: boolean;
     isHidden: boolean;
-    projectId: string;
+    dueTime: string | null;
+    projectId: string | null;
     authorId: string;
     createdAt: Date;
     updatedAt: Date;
@@ -71,13 +72,23 @@ async function getDiaryItemContext(diaryItemId: string, userId: string) {
     return null;
   }
 
+  // Personal diary — no project membership needed
+  if (!item.projectId) {
+    const isOwner = item.authorId === userId;
+    return {
+      item,
+      membership: isOwner ? { role: "OWNER" } : null,
+      isPersonal: true
+    };
+  }
+
   const membership = await assertProjectMember(item.projectId, userId);
 
   if (!membership) {
-    return { item, membership: null };
+    return { item, membership: null, isPersonal: false };
   }
 
-  return { item, membership };
+  return { item, membership, isPersonal: false };
 }
 
 export async function PATCH(request: Request, { params }: { params: { diaryItemId: string } }) {
@@ -95,7 +106,7 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
     }
 
     if (!context.membership) {
-      return jsonError("You do not have access to this project.", 403);
+      return jsonError("You do not have access to this item.", 403);
     }
 
     if (!canManageAuthoredItem(context.membership, userId, context.item.authorId)) {
@@ -104,9 +115,11 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
 
     const payload = parseUpdateDiaryItemPayload(await request.json());
 
+    const allowMemberPrivateItems = context.item.project?.allowMemberPrivateItems ?? false;
     if (
       typeof payload.isHidden === "boolean" &&
-      !canToggleHiddenItem(context.membership, userId, context.item.authorId, context.item.project.allowMemberPrivateItems)
+      !context.isPersonal &&
+      !canToggleHiddenItem(context.membership, userId, context.item.authorId, allowMemberPrivateItems)
     ) {
       return jsonError("This project does not allow members to hide their own items.", 403);
     }
@@ -120,7 +133,8 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
         intervalDays: payload.intervalDays,
         startDate: payload.startDate ? new Date(`${payload.startDate}T00:00:00.000Z`) : undefined,
         isStarred: payload.isStarred,
-        isHidden: payload.isHidden
+        isHidden: payload.isHidden,
+        dueTime: payload.dueTime !== undefined ? payload.dueTime : undefined
       },
       include: {
         author: {
@@ -136,7 +150,7 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
       diaryItem: toDiaryItemResponse(item, {
         membership: context.membership,
         userId,
-        allowMemberPrivateItems: context.item.project.allowMemberPrivateItems
+        allowMemberPrivateItems
       })
     });
   } catch (error) {
@@ -159,7 +173,7 @@ export async function DELETE(_request: Request, { params }: { params: { diaryIte
     }
 
     if (!context.membership) {
-      return jsonError("You do not have access to this project.", 403);
+      return jsonError("You do not have access to this item.", 403);
     }
 
     if (!canManageAuthoredItem(context.membership, userId, context.item.authorId)) {

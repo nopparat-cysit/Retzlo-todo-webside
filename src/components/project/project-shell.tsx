@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { Bell, PanelLeftClose } from "lucide-react";
+import { Bell, PanelLeftClose, Menu } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -11,7 +11,6 @@ import { ProjectSidebarGreeting } from "@/components/project/project-sidebar-gre
 import { ProjectNavLink } from "@/components/project/project-nav-link";
 import { ProjectSortableNav, type ProjectNavItem } from "@/components/project/project-sortable-nav";
 import { ProjectTopbarTools } from "@/components/project/project-topbar-tools";
-import { ProjectQuickHub } from "@/components/project/project-quick-hub";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 
 // ---------------------------------------------------------------------------
@@ -125,9 +124,15 @@ export async function ProjectShell({
   return (
     <main className="soft-grid-bg min-h-screen w-full overflow-hidden p-3">
       <input id="project-sidebar-toggle" className="peer sr-only" type="checkbox" />
+      {/* Mobile sidebar backdrop overlay */}
+      <label
+        htmlFor="project-sidebar-toggle"
+        className="fixed inset-0 z-[240] bg-ink-950/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 peer-checked:opacity-100 peer-checked:pointer-events-auto lg:hidden"
+        aria-hidden="true"
+      />
       <div className="project-shell-grid grid h-[calc(100vh-1.5rem)] min-h-0 gap-3 transition-[grid-template-columns] duration-200 lg:grid-cols-[280px_minmax(0,1fr)]">
         {/* ── Sidebar ──────────────────────────────────────────────────────── */}
-        <aside className="project-sidebar lofi-panel relative flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 transition-all duration-200">
+        <aside className="project-sidebar lofi-panel flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 transition-all duration-300 fixed top-3 left-3 bottom-3 z-[250] w-[280px] -translate-x-[calc(100%+1rem)] peer-checked:translate-x-0 lg:relative lg:top-0 lg:left-0 lg:bottom-0 lg:w-auto lg:translate-x-0 lg:z-10 bg-ink-950/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none shadow-2xl lg:shadow-none">
           {/* Breadcrumb + project identity */}
           <div>
             <div className="flex items-center justify-between gap-2">
@@ -188,6 +193,14 @@ export async function ProjectShell({
         <section className="flex min-h-0 min-w-0 flex-col rounded-2xl">
           <header className="lofi-panel relative z-[120] mb-3 flex min-h-14 items-center justify-between gap-3 rounded-2xl px-4">
             <div className="flex min-w-0 items-center gap-3">
+              <label
+                htmlFor="project-sidebar-toggle"
+                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender lg:hidden"
+                title="Open navigation"
+                aria-label="Open navigation"
+              >
+                <Menu className="h-4.5 w-4.5" />
+              </label>
               <BackButton />
               <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.05] text-dusk-lavender">
                 <span className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
@@ -231,7 +244,6 @@ export async function ProjectShell({
 
       {/* Command palette — self-manages open/close via keyboard shortcut */}
       <CommandPalette projectId={projectId} projectName={project.name} />
-      <ProjectQuickHub projectId={projectId} allowMemberPrivateItems={project.allowMemberPrivateItems} />
     </main>
   );
 }

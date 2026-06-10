@@ -27,6 +27,7 @@ interface DiaryPayload {
   startDate: string;
   isStarred: boolean;
   isHidden: boolean;
+  dueTime: string | null;
 }
 
 type DiaryFilter = "all" | "today" | "upcoming" | "starred" | "hidden";
@@ -193,6 +194,11 @@ export function DiaryListPanel({
                         <Repeat className="h-3 w-3" />
                         Every {item.intervalDays} day{item.intervalDays > 1 ? "s" : ""}
                       </span>
+                      {item.dueTime ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/25 bg-dusk-amber/10 px-2 py-1 text-[11px] text-dusk-amber font-mono">
+                          ⏰ {item.dueTime}
+                        </span>
+                      ) : null}
                     </div>
                     <h3 className="truncate text-lg font-semibold text-stone-100">{item.title}</h3>
                     <p className="mt-2 line-clamp-4 text-sm leading-6 text-stone-400">{item.description || "No description."}</p>
@@ -279,6 +285,15 @@ function DiaryItemModal({
 }) {
   const [color, setColor] = useState<CardColor>(normalizeCardColor(item?.color));
   const [isHidden, setIsHidden] = useState(item?.isHidden ?? false);
+  const [intervalDays, setIntervalDays] = useState(item?.intervalDays ?? 1);
+
+  const PRESETS = [
+    { label: "Daily", days: 1 },
+    { label: "3 days", days: 3 },
+    { label: "Weekly", days: 7 },
+    { label: "2 weeks", days: 14 },
+    { label: "Monthly", days: 30 }
+  ];
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -291,7 +306,8 @@ function DiaryItemModal({
       intervalDays: Number(formData.get("intervalDays") ?? 1),
       startDate: String(formData.get("startDate") ?? new Date().toISOString().slice(0, 10)),
       isStarred: item?.isStarred ?? false,
-      isHidden
+      isHidden,
+      dueTime: formData.get("dueTime") ? String(formData.get("dueTime")) : null
     });
   }
 
@@ -312,15 +328,49 @@ function DiaryItemModal({
           <Input name="title" defaultValue={item?.title ?? ""} placeholder="Diary title" required />
           <Textarea className="min-h-32" name="description" defaultValue={item?.description ?? ""} placeholder="What should repeat?" />
           <ColorPicker selectedColor={color} onChange={setColor} />
+          
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-2 text-sm text-stone-300">
               <span>Start date</span>
               <Input name="startDate" type="date" defaultValue={item?.startDate.slice(0, 10) ?? new Date().toISOString().slice(0, 10)} required />
             </label>
             <label className="space-y-2 text-sm text-stone-300">
-              <span>Show every</span>
-              <Input name="intervalDays" type="number" min={1} max={365} defaultValue={item?.intervalDays ?? 1} required />
+              <span>Due time (optional)</span>
+              <Input name="dueTime" type="time" defaultValue={item?.dueTime ?? ""} />
             </label>
+          </div>
+
+          <div className="space-y-2 text-sm text-stone-300">
+            <span>Show every (days)</span>
+            <div className="flex flex-wrap gap-1.5">
+              {PRESETS.map((p) => (
+                <button
+                  key={p.days}
+                  type="button"
+                  className={cn(
+                    "h-7 rounded-md border px-2.5 text-xs transition",
+                    intervalDays === p.days
+                      ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber"
+                      : "border-white/10 bg-white/5 text-stone-400 hover:border-dusk-amber/40"
+                  )}
+                  onClick={() => setIntervalDays(p.days)}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <Input
+              name="intervalDays"
+              type="number"
+              min={1}
+              max={365}
+              value={intervalDays}
+              onChange={(e) => setIntervalDays(Number(e.target.value))}
+              required
+            />
+            <p className="text-[11px] text-stone-500">
+              Shows every {intervalDays} day{intervalDays > 1 ? "s" : ""}
+            </p>
           </div>
           <label
             className={cn(

@@ -7,6 +7,7 @@ import {
   type ProjectDashboardItem,
   type UserProfile,
 } from "@/components/project/projects-dashboard";
+import { FabHub } from "@/components/hub/fab-hub";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { CardStatus } from "@/types/kanban";
@@ -104,11 +105,14 @@ export default async function ProjectsPage() {
   };
 
   return (
-    <ProjectsDashboard
-      projects={projects.map(toProjectDashboardItem)}
-      calendarCards={calendarCards.map(toGlobalCalendarCard)}
-      userProfile={userProfile}
-    />
+    <>
+      <ProjectsDashboard
+        projects={projects.map(toProjectDashboardItem)}
+        calendarCards={calendarCards.map(toGlobalCalendarCard)}
+        userProfile={userProfile}
+      />
+      <FabHub />
+    </>
   );
 }
 

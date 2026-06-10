@@ -16,6 +16,7 @@ model User {
   avatar          String?
   bio             String?
   status          String          @default("ONLINE")
+  globalRole      String          @default("USER")
   globalCoins     Int             @default(0)
   zenGarden       Json?
   createdAt       DateTime        @default(now())
@@ -162,11 +163,12 @@ model DiaryItem {
   startDate    DateTime
   isStarred    Boolean  @default(false)
   isHidden     Boolean  @default(false)
-  projectId    String
+  dueTime      String?  // e.g. "09:00" time of day
+  projectId    String?  // null = personal My Diary
   authorId     String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project      Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   author       User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([projectId, startDate])

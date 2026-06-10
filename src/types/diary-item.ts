@@ -9,7 +9,8 @@ export interface ProjectDiaryItem {
   startDate: string;
   isStarred: boolean;
   isHidden: boolean;
-  projectId: string;
+  dueTime: string | null;
+  projectId: string | null;
   authorId: string;
   createdAt: string;
   updatedAt: string;

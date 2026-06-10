@@ -504,7 +504,7 @@ function EditProjectModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
       <form className="lofi-panel w-full max-w-lg rounded-lg" onSubmit={handleSave}>
         {/* Cover area */}
         <div
@@ -609,7 +609,7 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
       <form className="lofi-panel w-full max-w-lg rounded-lg p-5" onSubmit={handleSubmit}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>

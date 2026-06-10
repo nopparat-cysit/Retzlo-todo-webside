@@ -331,7 +331,7 @@ export function ProjectCalendar({
         />
       ) : null}
       {selectedNote ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
           <div className="lofi-panel w-full max-w-lg rounded-lg p-5">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>

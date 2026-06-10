@@ -956,3 +956,65 @@ body.focus-mode main > div.grid {
 .audio-bar-3 {
   animation: audio-bar-3 0.7s ease-in-out infinite;
 }
+
+/* ── Module Selector ────────────────────────────────────────────────────── */
+
+.module-selector-container {
+  animation: landing-rise 500ms ease-out both;
+}
+
+.module-card {
+  transform-style: preserve-3d;
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease,
+    border-color 250ms ease,
+    background-color 250ms ease;
+}
+
+.module-card:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(139, 92, 246, 0.15),
+    0 0 32px rgba(139, 92, 246, 0.08);
+}
+
+.module-card:nth-child(1) { animation: landing-rise 400ms 0ms ease-out both; }
+.module-card:nth-child(2) { animation: landing-rise 400ms 80ms ease-out both; }
+.module-card:nth-child(3) { animation: landing-rise 400ms 160ms ease-out both; }
+.module-card:nth-child(4) { animation: landing-rise 400ms 240ms ease-out both; }
+
+/* ── FAB Hub ────────────────────────────────────────────────────────────── */
+
+.fab-main {
+  transition:
+    background-color 250ms ease,
+    border-color 250ms ease,
+    box-shadow 250ms ease,
+    transform 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fab-main:hover {
+  transform: scale(1.06);
+}
+
+.fab-action-btn {
+  animation: fab-item-in 200ms ease-out both;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+@keyframes fab-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+

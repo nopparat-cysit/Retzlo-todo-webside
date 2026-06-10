@@ -218,7 +218,7 @@ function NoteModal({
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
       <form className="lofi-panel w-full max-w-lg rounded-lg p-5" onSubmit={onSubmit}>
         <ModalHeader title={title} onClose={onClose} />
         <div className="space-y-3">
@@ -249,7 +249,7 @@ function EditNoteModal({
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
       <form className="lofi-panel w-full max-w-lg rounded-lg p-5" onSubmit={onSubmit}>
         <ModalHeader title="Edit note" onClose={onClose} />
         <div className="space-y-3">

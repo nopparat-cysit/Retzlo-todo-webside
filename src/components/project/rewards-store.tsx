@@ -774,7 +774,7 @@ export function RewardsStore({
 
       {/* CREATE REWARD SIDE-PANEL / MODAL */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
           <div className="lofi-panel w-full max-w-xl rounded-lg p-5 bg-ink-950 border-white/10 max-h-[90vh] overflow-y-auto animate-scaleUp">
             <div className="mb-4 flex items-center justify-between border-b border-white/5 pb-3">
               <div>
@@ -909,7 +909,7 @@ export function RewardsStore({
 
       {/* REJECT WITH COMMENT MODAL */}
       {rejectingRedemptionId && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
           <form
             onSubmit={handleReject}
             className="lofi-panel w-full max-w-md rounded-lg p-5 bg-ink-950 border-red-500/20"

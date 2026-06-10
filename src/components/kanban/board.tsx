@@ -11,7 +11,7 @@ import {
   useSensor,
   useSensors
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles } from "lucide-react";
 import { FormEvent, useState, useEffect } from "react";
 
@@ -580,8 +580,8 @@ export function KanbanBoard({ board }: { board: BoardData }) {
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
       >
-        <div className="scrollbar-soft mt-4 grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto pb-1">
-          <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={verticalListSortingStrategy}>
+        <div className="scrollbar-soft mt-4 flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1">
+          <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
             {filteredColumns.map((column, index) => (
               <KanbanColumn
                 key={column.id}

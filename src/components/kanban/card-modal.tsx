@@ -170,7 +170,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
       <form className="lofi-panel max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-lg p-5" onSubmit={handleSubmit}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
