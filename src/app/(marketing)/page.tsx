@@ -26,7 +26,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/projects">
+            <Link href="/select-module">
               <Button className="landing-cta">
                 Enter workspace
                 <ArrowRight className="h-4 w-4" />

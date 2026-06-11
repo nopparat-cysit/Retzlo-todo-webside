@@ -49,13 +49,8 @@ export function LoginForm() {
 
     setRememberedAccount(window.localStorage, submittedIdentifier, rememberAccount);
 
-    // Reload session to get globalRole, then redirect
-    const updatedSession = await import("next-auth/react").then((m) =>
-      m.getSession()
-    );
-    const isSuperAdmin = updatedSession?.user?.globalRole === "SUPERADMIN";
     const callbackUrl = searchParams.get("callbackUrl");
-    router.push(callbackUrl ?? (isSuperAdmin ? "/select-module" : "/projects"));
+    router.push(callbackUrl ?? "/select-module");
     router.refresh();
   }
 

@@ -19,6 +19,21 @@ The first production module is the Work module:
 - Follow the existing docs before adding abstractions.
 - Use TDD for behavior-heavy code such as reorder logic, authorization helpers, and payload validation.
 
+## Change Notes
+
+- For every work session that creates, deletes, edits, renames, moves, or materially changes files, write a Markdown note for that work.
+- Store notes in `docs/agent-notes/`.
+- Use the filename format `YYYY-MM-DD-short-topic.md`.
+- Each note should include:
+  - Date and short objective.
+  - Files created, modified, deleted, or moved.
+  - Important behavior changes.
+  - Database/schema changes, if any.
+  - Verification commands run and their result.
+  - Known follow-ups, blockers, or deployment notes.
+- Keep the note factual and concise, but update it whenever additional changes happen in the same work session.
+- Do not include secrets, real tokens, private URLs with credentials, or full environment variable values in notes.
+
 ## Expected Structure
 
 ```text

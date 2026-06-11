@@ -16,11 +16,6 @@ export default async function SelectModulePage() {
     redirect("/login");
   }
 
-  // Only SuperAdmin can access this page
-  if (session.user.globalRole !== "SUPERADMIN") {
-    redirect("/projects");
-  }
-
   return (
     <main className="min-h-screen bg-ink-950 px-4 py-16 sm:px-6">
       <div className="mx-auto max-w-5xl">

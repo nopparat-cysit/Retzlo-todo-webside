@@ -50,7 +50,7 @@ export function RegisterForm() {
     }
 
     await signIn("credentials", { email, identifier: email, password, redirect: false });
-    router.push(searchParams.get("callbackUrl") ?? "/projects");
+    router.push(searchParams.get("callbackUrl") ?? "/select-module");
     router.refresh();
   }
 
