@@ -142,7 +142,7 @@ export function NixiePomodoro() {
           <button
             onClick={() => switchMode("focus")}
             className={cn(
-              "text-[9px] px-1.5 py-0.5 rounded font-mono font-medium transition",
+              "text-[9px] px-1.5 py-0.5 rounded font-mono font-medium transition active:scale-[0.98] transition-transform",
               mode === "focus" 
                 ? "bg-dusk-amber/15 text-dusk-amber border border-dusk-amber/30" 
                 : "bg-white/5 text-stone-500 hover:text-stone-300"
@@ -153,7 +153,7 @@ export function NixiePomodoro() {
           <button
             onClick={() => switchMode("break")}
             className={cn(
-              "text-[9px] px-1.5 py-0.5 rounded font-mono font-medium transition",
+              "text-[9px] px-1.5 py-0.5 rounded font-mono font-medium transition active:scale-[0.98] transition-transform",
               mode === "break" 
                 ? "bg-dusk-cyan/15 text-dusk-cyan border border-dusk-cyan/30" 
                 : "bg-white/5 text-stone-500 hover:text-stone-300"
@@ -173,7 +173,7 @@ export function NixiePomodoro() {
               disabled={isRunning}
               onClick={() => applyPreset(preset)}
               className={cn(
-                "h-7 rounded border px-2 text-[10px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-45",
+                "h-7 rounded border px-2 text-[10px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-45 active:scale-[0.98] transition-transform",
                 selectedPreset === preset.id
                   ? "border-dusk-amber/45 bg-dusk-amber/15 text-dusk-amber"
                   : "border-white/10 bg-white/[0.045] text-stone-400 hover:border-white/20 hover:text-stone-200"
@@ -187,7 +187,7 @@ export function NixiePomodoro() {
             disabled={isRunning}
             onClick={enableCustom}
             className={cn(
-              "h-7 rounded border px-2 text-[10px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-45",
+              "h-7 rounded border px-2 text-[10px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-45 active:scale-[0.98] transition-transform",
               selectedPreset === "custom"
                 ? "border-dusk-cyan/45 bg-dusk-cyan/15 text-dusk-cyan"
                 : "border-white/10 bg-white/[0.045] text-stone-400 hover:border-white/20 hover:text-stone-200"
@@ -197,34 +197,39 @@ export function NixiePomodoro() {
           </button>
         </div>
 
-        {selectedPreset === "custom" ? (
-          <div className="grid grid-cols-2 gap-2">
-            <label className="space-y-1 text-[10px] uppercase tracking-[0.14em] text-stone-500">
-              <span>Focus</span>
-              <input
-                type="number"
-                min={1}
-                max={99}
-                disabled={isRunning}
-                value={focusMinutes}
-                onChange={(event) => updateDuration("focus", event.target.value)}
-                className="h-8 w-full rounded-lg border border-white/10 bg-ink-950/70 px-2 text-center font-mono text-xs text-dusk-amber outline-none transition focus:border-dusk-amber/60 disabled:cursor-not-allowed disabled:opacity-45"
-              />
-            </label>
-            <label className="space-y-1 text-[10px] uppercase tracking-[0.14em] text-stone-500">
-              <span>Rest</span>
-              <input
-                type="number"
-                min={1}
-                max={99}
-                disabled={isRunning}
-                value={breakMinutes}
-                onChange={(event) => updateDuration("break", event.target.value)}
-                className="h-8 w-full rounded-lg border border-white/10 bg-ink-950/70 px-2 text-center font-mono text-xs text-dusk-cyan outline-none transition focus:border-dusk-cyan/60 disabled:cursor-not-allowed disabled:opacity-45"
-              />
-            </label>
+        <div className={cn(
+          "grid transition-all duration-300 ease-in-out",
+          selectedPreset === "custom" ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0 overflow-hidden"
+        )}>
+          <div className="overflow-hidden">
+            <div className="grid grid-cols-2 gap-2 pb-0.5">
+              <label className="space-y-1 text-[10px] uppercase tracking-[0.14em] text-stone-500">
+                <span>Focus</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={99}
+                  disabled={isRunning}
+                  value={focusMinutes}
+                  onChange={(event) => updateDuration("focus", event.target.value)}
+                  className="h-8 w-full rounded-lg border border-white/10 bg-ink-950/70 px-2 text-center font-mono text-xs text-dusk-amber outline-none transition focus:border-dusk-amber/60 disabled:cursor-not-allowed disabled:opacity-45"
+                />
+              </label>
+              <label className="space-y-1 text-[10px] uppercase tracking-[0.14em] text-stone-500">
+                <span>Rest</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={99}
+                  disabled={isRunning}
+                  value={breakMinutes}
+                  onChange={(event) => updateDuration("break", event.target.value)}
+                  className="h-8 w-full rounded-lg border border-white/10 bg-ink-950/70 px-2 text-center font-mono text-xs text-dusk-cyan outline-none transition focus:border-dusk-cyan/60 disabled:cursor-not-allowed disabled:opacity-45"
+                />
+              </label>
+            </div>
           </div>
-        ) : null}
+        </div>
       </div>
 
       {/* Nixie tube panel container */}
@@ -254,7 +259,7 @@ export function NixiePomodoro() {
         <button
           onClick={handleToggle}
           className={cn(
-            "flex items-center justify-center gap-1.5 h-7 w-20 rounded border text-xs font-semibold shadow transition-all",
+            "flex items-center justify-center gap-1.5 h-7 w-20 rounded border text-xs font-semibold shadow transition-all active:scale-[0.98] transition-transform",
             isRunning
               ? "bg-dusk-rose/10 border-dusk-rose/30 text-dusk-rose hover:bg-dusk-rose/20"
               : mode === "focus"
@@ -277,7 +282,7 @@ export function NixiePomodoro() {
         
         <button
           onClick={handleReset}
-          className="flex items-center justify-center h-7 w-10 rounded border border-white/10 bg-white/5 text-stone-400 hover:text-stone-200 hover:border-white/20 transition-all"
+          className="flex items-center justify-center h-7 w-10 rounded border border-white/10 bg-white/5 text-stone-400 hover:text-stone-200 hover:border-white/20 transition-all active:scale-[0.98] transition-transform"
           title="Reset Timer"
         >
           <RotateCcw className="h-3 w-3" />

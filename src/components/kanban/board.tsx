@@ -553,17 +553,23 @@ export function KanbanBoard({ board }: { board: BoardData }) {
           <span className="text-[10px] uppercase tracking-wider text-stone-500 select-none">Total Cards</span>
           <span className="text-xl font-bold text-stone-200 mt-1">{totalCards}</span>
         </div>
-        <div className="lofi-panel flex flex-col justify-center rounded-2xl border-l-2 border-l-dusk-lavender bg-white/[0.015] p-3">
-          <span className="text-[10px] uppercase tracking-wider text-dusk-lavender select-none">In Progress</span>
+        <div className="lofi-panel flex flex-col justify-center rounded-2xl bg-white/[0.015] p-3">
+          <span className="text-[10px] uppercase tracking-wider text-dusk-lavender select-none flex items-center">
+            <span className="h-1.5 w-1.5 rounded-full bg-dusk-lavender mr-1.5" />
+            In Progress
+          </span>
           <span className="text-xl font-bold text-dusk-lavender mt-1">{doingCards}</span>
         </div>
-        <div className="lofi-panel flex flex-col justify-center rounded-2xl border-l-2 border-l-dusk-amber bg-white/[0.015] p-3">
-          <span className="text-[10px] uppercase tracking-wider text-dusk-amber select-none">Completed</span>
+        <div className="lofi-panel flex flex-col justify-center rounded-2xl bg-white/[0.015] p-3">
+          <span className="text-[10px] uppercase tracking-wider text-dusk-amber select-none flex items-center">
+            <span className="h-1.5 w-1.5 rounded-full bg-dusk-amber mr-1.5" />
+            Completed
+          </span>
           <span className="text-xl font-bold text-dusk-amber mt-1">{doneCards}</span>
         </div>
-        <div className="lofi-panel flex flex-col justify-center rounded-2xl border-l-2 border-l-dusk-rose bg-white/[0.015] p-3">
-          <span className="text-[10px] uppercase tracking-wider text-dusk-rose flex items-center gap-1 select-none">
-            {overdueCards > 0 && <span className="h-1.5 w-1.5 rounded-full bg-dusk-rose animate-pulse" />}
+        <div className="lofi-panel flex flex-col justify-center rounded-2xl bg-white/[0.015] p-3">
+          <span className="text-[10px] uppercase tracking-wider text-dusk-rose flex items-center select-none">
+            <span className={cn("h-1.5 w-1.5 rounded-full bg-dusk-rose mr-1.5", overdueCards > 0 ? "animate-pulse" : "")} />
             Overdue
           </span>
           <span className="text-xl font-bold text-dusk-rose mt-1">{overdueCards}</span>

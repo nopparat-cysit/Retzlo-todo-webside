@@ -100,7 +100,7 @@ export function ZenGarden() {
         <div className="flex flex-col items-center justify-end z-10 w-8 transition-transform duration-300 hover:-translate-y-1">
           {showAloe ? (
             <>
-              <span className="text-xl leading-none animate-bounce" title="Golden Aloe (Unlocked at 100 Coins)" style={{ animationDuration: "3s" }}>🌵</span>
+              <span className="text-xl leading-none animate-soft-float" title="Golden Aloe (Unlocked at 100 Coins)" style={{ animationDuration: "3s" }}>🌵</span>
               <span className="text-[9px] text-yellow-300 font-mono font-semibold mt-1">100c</span>
             </>
           ) : (

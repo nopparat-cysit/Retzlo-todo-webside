@@ -1,13 +1,15 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
+import { FinanceCategoryIcon } from "@/lib/finance/category-icons";
 import { cn } from "@/lib/utils";
 import type { SerializedFinanceTransaction } from "@/types/finance";
 
 interface TransactionListProps {
+  limit?: number;
   transactions: SerializedFinanceTransaction[];
 }
 
-export function TransactionList({ transactions }: TransactionListProps) {
+export function TransactionList({ limit = 5, transactions }: TransactionListProps) {
   return (
     <section className="lofi-panel rounded-lg p-5">
       <div className="mb-4">
@@ -20,7 +22,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
         </div>
       ) : (
         <div className="space-y-2">
-          {transactions.slice(0, 12).map((transaction) => {
+          {transactions.slice(0, limit).map((transaction) => {
             const income = transaction.type === "INCOME";
             const Icon = income ? ArrowUpRight : ArrowDownRight;
 
@@ -30,6 +32,11 @@ export function TransactionList({ transactions }: TransactionListProps) {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <Icon className={cn("h-4 w-4", income ? "text-emerald-300" : "text-dusk-rose")} />
+                      <FinanceCategoryIcon
+                        className="text-dusk-lavender"
+                        icon={transaction.category?.icon}
+                        label={transaction.category?.name}
+                      />
                       <h3 className="truncate text-sm font-semibold text-stone-100">{transaction.title}</h3>
                     </div>
                     <p className="mt-1 text-xs text-stone-500">

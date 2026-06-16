@@ -15,6 +15,7 @@ export const createFinanceTransactionSchema = z.object({
   amount: z.coerce.number().positive(),
   categoryId: optionalId,
   accountId: optionalId,
+  ledgerId: optionalId,
   transactionDate: requiredDate,
   paymentMethod: z.string().trim().max(80).nullable().optional(),
   note: optionalText.optional()
@@ -36,6 +37,8 @@ export const createFinanceAccountSchema = z.object({
   color: z.string().trim().max(40).nullable().optional()
 });
 
+export const updateFinanceAccountSchema = createFinanceAccountSchema.partial();
+
 export const createSubscriptionSchema = z.object({
   name: z.string().trim().min(1).max(120),
   amount: z.coerce.number().positive(),
@@ -43,8 +46,29 @@ export const createSubscriptionSchema = z.object({
   nextBillingDate: requiredDate,
   categoryId: optionalId,
   accountId: optionalId,
+  ledgerId: optionalId,
   isActive: z.boolean().default(true),
   note: optionalText.optional()
 });
 
 export const updateSubscriptionSchema = createSubscriptionSchema.partial();
+
+export const createRecurringIncomeSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  amount: z.coerce.number().positive(),
+  incomeCycle: billingCycleSchema,
+  nextIncomeDate: requiredDate,
+  categoryId: optionalId,
+  accountId: optionalId,
+  ledgerId: optionalId,
+  isActive: z.boolean().default(true),
+  note: optionalText.optional()
+});
+
+export const updateRecurringIncomeSchema = createRecurringIncomeSchema.partial();
+
+export const upsertBudgetSchema = z.object({
+  amount: z.coerce.number().positive("Budget must be greater than zero"),
+  categoryId: optionalId,
+  ledgerId: optionalId
+});

@@ -14,6 +14,13 @@ export type FinanceSubscriptionWithRelations = Prisma.SubscriptionGetPayload<{
   };
 }>;
 
+export type RecurringIncomeWithRelations = Prisma.RecurringIncomeGetPayload<{
+  include: {
+    category: true;
+    account: true;
+  };
+}>;
+
 export function serializeFinanceCategory(category: {
   id: string;
   name: string;
@@ -74,5 +81,50 @@ export function serializeFinanceSubscription(subscription: FinanceSubscriptionWi
     updatedAt: subscription.updatedAt.toISOString(),
     category: subscription.category ? serializeFinanceCategory(subscription.category) : null,
     account: subscription.account ? serializeFinanceAccount(subscription.account) : null
+  };
+}
+
+export function serializeRecurringIncome(income: RecurringIncomeWithRelations) {
+  return {
+    ...income,
+    incomeCycle: income.incomeCycle as "WEEKLY" | "MONTHLY" | "YEARLY" | "CUSTOM",
+    amount: Number(income.amount),
+    nextIncomeDate: income.nextIncomeDate.toISOString(),
+    createdAt: income.createdAt.toISOString(),
+    updatedAt: income.updatedAt.toISOString(),
+    category: income.category ? serializeFinanceCategory(income.category) : null,
+    account: income.account ? serializeFinanceAccount(income.account) : null
+  };
+}
+
+export function serializeFinanceLedger(ledger: {
+  id: string;
+  name: string;
+  color: string | null;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return {
+    ...ledger,
+    createdAt: ledger.createdAt.toISOString(),
+    updatedAt: ledger.updatedAt.toISOString()
+  };
+}
+
+export function serializeFinanceBudget(budget: {
+  id: string;
+  amount: unknown;
+  categoryId: string | null;
+  ledgerId: string | null;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return {
+    ...budget,
+    amount: Number(budget.amount),
+    createdAt: budget.createdAt.toISOString(),
+    updatedAt: budget.updatedAt.toISOString()
   };
 }

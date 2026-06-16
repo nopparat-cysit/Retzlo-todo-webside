@@ -7,25 +7,35 @@ import { createFinanceTransactionSchema } from "@/lib/finance/validation";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 
-export async function GET() {
-  const userId = await requireUserId();
+export async function GET(request: Request) {
+  try {
+    const userId = await requireUserId();
 
-  if (!userId) {
-    return jsonError("Please sign in to continue.", 401);
+    if (!userId) {
+      return jsonError("Please sign in to continue.", 401);
+    }
+
+    const { searchParams } = new URL(request.url);
+    const ledgerId = searchParams.get("ledgerId");
+
+    const transactions = await prisma.financeTransaction.findMany({
+      where: {
+        createdById: userId,
+        ...(ledgerId ? { ledgerId } : {})
+      },
+      include: {
+        category: true,
+        account: true
+      },
+      orderBy: [{ transactionDate: "desc" }, { createdAt: "desc" }]
+    });
+
+    return NextResponse.json({
+      transactions: transactions.map(serializeFinanceTransaction)
+    });
+  } catch (error) {
+    return parseError(error);
   }
-
-  const transactions = await prisma.financeTransaction.findMany({
-    where: { createdById: userId },
-    include: {
-      category: true,
-      account: true
-    },
-    orderBy: [{ transactionDate: "desc" }, { createdAt: "desc" }]
-  });
-
-  return NextResponse.json({
-    transactions: transactions.map(serializeFinanceTransaction)
-  });
 }
 
 export async function POST(request: Request) {
@@ -51,6 +61,7 @@ export async function POST(request: Request) {
         amount: payload.amount,
         categoryId: payload.categoryId ?? null,
         accountId: payload.accountId ?? null,
+        ledgerId: payload.ledgerId ?? null,
         transactionDate: new Date(payload.transactionDate),
         paymentMethod: payload.paymentMethod,
         note: payload.note,

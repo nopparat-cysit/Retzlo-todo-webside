@@ -9,9 +9,9 @@ export const defaultFinanceCategories = [
   { name: "Transport", type: "EXPENSE", color: "cyan", icon: "car" },
   { name: "AI", type: "EXPENSE", color: "lavender", icon: "bot" },
   { name: "Subscription", type: "EXPENSE", color: "pink", icon: "repeat" },
-  { name: "Pet", type: "EXPENSE", color: "emerald", icon: "heart" },
-  { name: "Health", type: "EXPENSE", color: "red", icon: "cross" },
-  { name: "Entertainment", type: "EXPENSE", color: "purple", icon: "music" },
+  { name: "Pet", type: "EXPENSE", color: "emerald", icon: "paw" },
+  { name: "Health", type: "EXPENSE", color: "red", icon: "health" },
+  { name: "Entertainment", type: "EXPENSE", color: "purple", icon: "film" },
   { name: "Other", type: "EXPENSE", color: "stone", icon: "circle" }
 ] as const;
 

@@ -8,3 +8,7 @@ dist
 *.tsbuildinfo
 .vercel
 .worktrees
+.agents/
+.cursor/
+.gemini/
+.impeccable/

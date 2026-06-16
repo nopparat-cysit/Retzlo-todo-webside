@@ -1,4 +1,4 @@
-import type { SerializedFinanceSubscription, SerializedFinanceTransaction } from "@/types/finance";
+import type { SerializedFinanceSubscription, SerializedFinanceTransaction, SerializedRecurringIncome } from "@/types/finance";
 
 export function getMonthWindow(date = new Date()) {
   const from = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -12,6 +12,13 @@ export function getSubscriptionMonthlyCost(subscription: Pick<SerializedFinanceS
   if (subscription.billingCycle === "WEEKLY") return subscription.amount * 4;
 
   return subscription.amount;
+}
+
+export function getRecurringIncomeMonthlyAmount(income: Pick<SerializedRecurringIncome, "amount" | "incomeCycle">) {
+  if (income.incomeCycle === "YEARLY") return income.amount / 12;
+  if (income.incomeCycle === "WEEKLY") return income.amount * 4;
+
+  return income.amount;
 }
 
 export function calculateFinanceSummary(

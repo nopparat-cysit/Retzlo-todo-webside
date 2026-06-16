@@ -7,25 +7,35 @@ import { createSubscriptionSchema } from "@/lib/finance/validation";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 
-export async function GET() {
-  const userId = await requireUserId();
+export async function GET(request: Request) {
+  try {
+    const userId = await requireUserId();
 
-  if (!userId) {
-    return jsonError("Please sign in to continue.", 401);
+    if (!userId) {
+      return jsonError("Please sign in to continue.", 401);
+    }
+
+    const { searchParams } = new URL(request.url);
+    const ledgerId = searchParams.get("ledgerId");
+
+    const subscriptions = await prisma.subscription.findMany({
+      where: {
+        userId,
+        ...(ledgerId ? { ledgerId } : {})
+      },
+      include: {
+        category: true,
+        account: true
+      },
+      orderBy: [{ isActive: "desc" }, { nextBillingDate: "asc" }]
+    });
+
+    return NextResponse.json({
+      subscriptions: subscriptions.map(serializeFinanceSubscription)
+    });
+  } catch (error) {
+    return parseError(error);
   }
-
-  const subscriptions = await prisma.subscription.findMany({
-    where: { userId },
-    include: {
-      category: true,
-      account: true
-    },
-    orderBy: [{ isActive: "desc" }, { nextBillingDate: "asc" }]
-  });
-
-  return NextResponse.json({
-    subscriptions: subscriptions.map(serializeFinanceSubscription)
-  });
 }
 
 export async function POST(request: Request) {
@@ -51,6 +61,7 @@ export async function POST(request: Request) {
         nextBillingDate: new Date(payload.nextBillingDate),
         categoryId: payload.categoryId ?? null,
         accountId: payload.accountId ?? null,
+        ledgerId: payload.ledgerId ?? null,
         isActive: payload.isActive,
         note: payload.note,
         userId

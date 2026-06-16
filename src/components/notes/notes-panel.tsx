@@ -286,7 +286,7 @@ function NoteEditorModal({
 
   return (
     <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
-      <form className="lofi-panel max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-lg p-5" onSubmit={handleSubmit}>
+      <form className="lofi-panel max-h-[92vh] w-full max-w-2xl overflow-y-auto scrollbar-soft rounded-lg p-5" onSubmit={handleSubmit}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Note Card</p>

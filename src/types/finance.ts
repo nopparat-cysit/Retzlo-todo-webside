@@ -32,6 +32,7 @@ export interface SerializedFinanceTransaction {
   amount: number;
   categoryId: string | null;
   accountId: string | null;
+  ledgerId: string | null;
   transactionDate: string;
   paymentMethod: string | null;
   note: string | null;
@@ -50,6 +51,7 @@ export interface SerializedFinanceSubscription {
   nextBillingDate: string;
   categoryId: string | null;
   accountId: string | null;
+  ledgerId: string | null;
   isActive: boolean;
   note: string | null;
   userId: string;
@@ -57,4 +59,41 @@ export interface SerializedFinanceSubscription {
   updatedAt: string;
   category: SerializedFinanceCategory | null;
   account: SerializedFinanceAccount | null;
+}
+
+export interface SerializedRecurringIncome {
+  id: string;
+  name: string;
+  amount: number;
+  incomeCycle: BillingCycle;
+  nextIncomeDate: string;
+  categoryId: string | null;
+  accountId: string | null;
+  ledgerId: string | null;
+  isActive: boolean;
+  note: string | null;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  category: SerializedFinanceCategory | null;
+  account: SerializedFinanceAccount | null;
+}
+
+export interface SerializedFinanceLedger {
+  id: string;
+  name: string;
+  color: string | null;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SerializedFinanceBudget {
+  id: string;
+  amount: number;
+  categoryId: string | null;
+  ledgerId: string | null;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -387,7 +387,7 @@ export function LofiPlayer() {
             <button
               onClick={() => setRainOn(!rainOn)}
               className={cn(
-                "flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded transition select-none",
+                "flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded transition select-none active:scale-[0.98] transition-transform",
                 rainOn 
                   ? "bg-dusk-amber/15 text-dusk-amber border border-dusk-amber/30" 
                   : "bg-white/5 text-stone-400 border border-transparent hover:bg-white/10"
@@ -410,7 +410,7 @@ export function LofiPlayer() {
                 step="0.05"
                 value={rainVol}
                 onChange={(e) => setRainVol(parseFloat(e.target.value))}
-                className="h-0.5 w-full cursor-pointer appearance-none rounded-lg bg-white/10 accent-dusk-amber outline-none transition hover:bg-white/15 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-2 [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dusk-amber [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:h-2 [&::-moz-range-thumb]:w-2 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-dusk-amber"
+                className="retro-slider accent-amber w-full cursor-pointer outline-none transition"
               />
               <Volume2 className="h-3 w-3 text-dusk-amber shrink-0" />
             </div>
@@ -423,7 +423,7 @@ export function LofiPlayer() {
             <button
               onClick={() => setVinylOn(!vinylOn)}
               className={cn(
-                "flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded transition select-none",
+                "flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded transition select-none active:scale-[0.98] transition-transform",
                 vinylOn 
                   ? "bg-dusk-lavender/15 text-dusk-lavender border border-dusk-lavender/30" 
                   : "bg-white/5 text-stone-400 border border-transparent hover:bg-white/10"
@@ -446,7 +446,7 @@ export function LofiPlayer() {
                 step="0.05"
                 value={vinylVol}
                 onChange={(e) => setVinylVol(parseFloat(e.target.value))}
-                className="h-0.5 w-full cursor-pointer appearance-none rounded-lg bg-white/10 accent-dusk-lavender outline-none transition hover:bg-white/15 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-2 [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dusk-lavender [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:h-2 [&::-moz-range-thumb]:w-2 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-dusk-lavender"
+                className="retro-slider accent-lavender w-full cursor-pointer outline-none transition"
               />
               <Volume2 className="h-3 w-3 text-dusk-lavender shrink-0" />
             </div>
@@ -459,7 +459,7 @@ export function LofiPlayer() {
             <button
               onClick={() => setFireOn(!fireOn)}
               className={cn(
-                "flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded transition select-none",
+                "flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded transition select-none active:scale-[0.98] transition-transform",
                 fireOn 
                   ? "bg-dusk-rose/15 text-dusk-rose border border-dusk-rose/30" 
                   : "bg-white/5 text-stone-400 border border-transparent hover:bg-white/10"
@@ -482,7 +482,7 @@ export function LofiPlayer() {
                 step="0.05"
                 value={fireVol}
                 onChange={(e) => setFireVol(parseFloat(e.target.value))}
-                className="h-0.5 w-full cursor-pointer appearance-none rounded-lg bg-white/10 accent-dusk-rose outline-none transition hover:bg-white/15 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-2 [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dusk-rose [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:h-2 [&::-moz-range-thumb]:w-2 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-dusk-rose"
+                className="retro-slider accent-rose w-full cursor-pointer outline-none transition"
               />
               <Volume2 className="h-3 w-3 text-dusk-rose shrink-0" />
             </div>
@@ -495,7 +495,7 @@ export function LofiPlayer() {
             <button
               onClick={() => setCricketsOn(!cricketsOn)}
               className={cn(
-                "flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded transition select-none",
+                "flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded transition select-none active:scale-[0.98] transition-transform",
                 cricketsOn 
                   ? "bg-dusk-cyan/15 text-dusk-cyan border border-dusk-cyan/30" 
                   : "bg-white/5 text-stone-400 border border-transparent hover:bg-white/10"
@@ -518,7 +518,7 @@ export function LofiPlayer() {
                 step="0.05"
                 value={cricketsVol}
                 onChange={(e) => setCricketsVol(parseFloat(e.target.value))}
-                className="h-0.5 w-full cursor-pointer appearance-none rounded-lg bg-white/10 accent-dusk-cyan outline-none transition hover:bg-white/15 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-2 [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dusk-cyan [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:h-2 [&::-moz-range-thumb]:w-2 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-dusk-cyan"
+                className="retro-slider accent-cyan w-full cursor-pointer outline-none transition"
               />
               <Volume2 className="h-3 w-3 text-dusk-cyan shrink-0" />
             </div>

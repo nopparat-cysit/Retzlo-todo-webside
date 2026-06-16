@@ -220,9 +220,19 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
               {(["LOW", "MEDIUM", "HIGH"] as const).map((p) => {
                 const isSelected = selectedPriority === p;
                 let activeClass = "";
-                if (p === "HIGH") activeClass = isSelected ? "border-red-400 bg-red-400/20 text-red-200" : "border-white/10 text-stone-400 hover:text-stone-200";
-                else if (p === "MEDIUM") activeClass = isSelected ? "border-dusk-amber bg-dusk-amber/20 text-dusk-amber" : "border-white/10 text-stone-400 hover:text-stone-200";
-                else activeClass = isSelected ? "border-dusk-lavender bg-dusk-lavender/20 text-dusk-lavender" : "border-white/10 text-stone-400 hover:text-stone-200";
+                if (p === "HIGH") {
+                  activeClass = isSelected
+                    ? "border-red-400 bg-red-400/20 text-red-200"
+                    : "border-white/10 text-stone-400 hover:text-stone-200";
+                } else if (p === "MEDIUM") {
+                  activeClass = isSelected
+                    ? "border-dusk-amber bg-dusk-amber/20 text-dusk-amber"
+                    : "border-white/10 text-stone-400 hover:text-stone-200";
+                } else {
+                  activeClass = isSelected
+                    ? "border-dusk-lavender bg-dusk-lavender/20 text-dusk-lavender"
+                    : "border-white/10 text-stone-400 hover:text-stone-200";
+                }
 
                 return (
                   <button
