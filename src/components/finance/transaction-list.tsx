@@ -1,5 +1,6 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { FinanceCategoryIcon } from "@/lib/finance/category-icons";
 import { cn } from "@/lib/utils";
 import type { SerializedFinanceTransaction } from "@/types/finance";
@@ -17,7 +18,7 @@ export function TransactionList({ limit = 5, transactions }: TransactionListProp
         <h2 className="mt-1 text-xl font-semibold text-stone-100">Recent Transactions</h2>
       </div>
       {transactions.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-white/10 p-6 text-sm text-stone-500">
+        <div className="rounded-lg border border-dashed border-white/10 p-6 text-sm text-stone-400">
           No transactions yet.
         </div>
       ) : (
@@ -39,10 +40,11 @@ export function TransactionList({ limit = 5, transactions }: TransactionListProp
                       />
                       <h3 className="truncate text-sm font-semibold text-stone-100">{transaction.title}</h3>
                     </div>
-                    <p className="mt-1 text-xs text-stone-500">
-                      {transaction.category?.name ?? "Uncategorized"} / {transaction.account?.name ?? "No account"} /{" "}
-                      {new Date(transaction.transactionDate).toLocaleDateString()}
-                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <Badge variant="muted">{transaction.category?.name ?? "Uncategorized"}</Badge>
+                      <Badge variant="muted">{transaction.account?.name ?? "No account"}</Badge>
+                      <Badge variant={income ? "cyan" : "rose"}>{new Date(transaction.transactionDate).toLocaleDateString()}</Badge>
+                    </div>
                   </div>
                   <p className={cn("shrink-0 text-sm font-semibold", income ? "text-emerald-300" : "text-dusk-rose")}>
                     {income ? "+" : "-"}

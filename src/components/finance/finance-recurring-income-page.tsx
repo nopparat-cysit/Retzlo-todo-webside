@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 import { CalendarClock, CheckCircle2, CircleOff, Edit3, Plus, Search, Trash2, TrendingUp } from "lucide-react";
 
 import { RecurringIncomeForm } from "@/components/finance/recurring-income-form";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FinanceEmptyState } from "./finance-empty-state";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FinanceCategoryIcon } from "@/lib/finance/category-icons";
 import { getRecurringIncomeMonthlyAmount } from "@/lib/finance/calculations";
-import { cn } from "@/lib/utils";
 import type {
   SerializedFinanceAccount,
   SerializedFinanceCategory,
@@ -33,6 +34,7 @@ export function FinanceRecurringIncomePage({
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState({ cycle: "", query: "", status: "active" });
+
   const filteredIncomes = useMemo(() => {
     const query = filters.query.trim().toLowerCase();
 
@@ -52,6 +54,7 @@ export function FinanceRecurringIncomePage({
       })
       .sort((a, b) => new Date(a.nextIncomeDate).getTime() - new Date(b.nextIncomeDate).getTime());
   }, [filters, recurringIncomes]);
+
   const activeMonthlyTotal = recurringIncomes
     .filter((income) => income.isActive)
     .reduce((sum, income) => sum + getRecurringIncomeMonthlyAmount(income), 0);
@@ -104,9 +107,9 @@ export function FinanceRecurringIncomePage({
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
           <div>
             <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Recurring Income</p>
-            <h1 className="mt-2 text-3xl font-semibold text-stone-100">รายได้ประจำ</h1>
+            <h1 className="mt-2 text-3xl font-semibold text-stone-100">Recurring Income</h1>
             <p className="mt-2 text-sm text-stone-400">
-              ใส่รายรับที่เข้าซ้ำ เช่น เงินเดือน ค่าจ้างรายเดือน ค่าเช่า หรือรายได้ประจำอื่นๆ
+              Track repeated money coming in, such as salary, retainers, rent, allowance, or other recurring income.
             </p>
           </div>
           <Button type="button" onClick={() => setShowCreate(true)}>
@@ -129,19 +132,29 @@ export function FinanceRecurringIncomePage({
               onChange={(event) => updateFilter("query", event.target.value)}
             />
           </label>
-          <select className="h-11 rounded-md border border-white/10 bg-ink-950/70 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70" value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>
-            <option value="active">Active</option>
-            <option value="paused">Paused</option>
-            <option value="all">All</option>
-          </select>
-          <select className="h-11 rounded-md border border-white/10 bg-ink-950/70 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70" value={filters.cycle} onChange={(event) => updateFilter("cycle", event.target.value)}>
-            <option value="">All cycles</option>
-            <option value="WEEKLY">Weekly</option>
-            <option value="MONTHLY">Monthly</option>
-            <option value="YEARLY">Yearly</option>
-            <option value="CUSTOM">Custom</option>
-          </select>
-          <div className="rounded-md border border-white/10 bg-white/[0.04] px-3 py-2">
+          <Select value={filters.status} onValueChange={(value) => updateFilter("status", value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="paused">Paused</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filters.cycle || "all"} onValueChange={(value) => updateFilter("cycle", value === "all" ? "" : value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Cycle" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All cycles</SelectItem>
+              <SelectItem value="WEEKLY">Weekly</SelectItem>
+              <SelectItem value="MONTHLY">Monthly</SelectItem>
+              <SelectItem value="YEARLY">Yearly</SelectItem>
+              <SelectItem value="CUSTOM">Custom</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">
             <p className="text-[10px] uppercase tracking-[0.18em] text-stone-500">Monthly income</p>
             <p className="text-sm font-semibold text-emerald-300">{formatMoney(activeMonthlyTotal)}</p>
           </div>
@@ -166,24 +179,16 @@ export function FinanceRecurringIncomePage({
                     <TrendingUp className="h-4 w-4 text-emerald-300" />
                     <FinanceCategoryIcon className="text-dusk-lavender" icon={income.category?.icon} label={income.category?.name ?? income.name} />
                     <h2 className="truncate text-base font-semibold text-stone-100">{income.name}</h2>
-                    <span
-                      className={cn(
-                        "rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.14em]",
-                        income.isActive
-                          ? "border-emerald-300/25 bg-emerald-300/10 text-emerald-300"
-                          : "border-white/10 bg-white/5 text-stone-400"
-                      )}
-                    >
-                      {income.isActive ? "Active" : "Paused"}
-                    </span>
+                    <Badge variant={income.isActive ? "cyan" : "muted"}>{income.isActive ? "Active" : "Paused"}</Badge>
                   </div>
                   <p className="mt-1 flex items-center gap-1 text-xs text-dusk-cyan">
                     <CalendarClock className="h-3 w-3" />
                     {getDueLabel(income.nextIncomeDate)} / {income.incomeCycle.toLowerCase()}
                   </p>
-                  <p className="mt-1 text-xs text-stone-500">
-                    {income.category?.name ?? "Uncategorized"} / {income.account?.name ?? "No account"}
-                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <Badge variant="muted">{income.category?.name ?? "Uncategorized"}</Badge>
+                    <Badge variant="muted">{income.account?.name ?? "No account"}</Badge>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between gap-3 md:justify-end">
                   <div className="text-right">
@@ -191,13 +196,19 @@ export function FinanceRecurringIncomePage({
                     <p className="text-[11px] text-stone-500">{formatMoney(getRecurringIncomeMonthlyAmount(income))}/mo</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button type="button" variant="ghost" onClick={() => void toggleIncome(income)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => void toggleIncome(income)}
+                      aria-label={income.isActive ? "Pause recurring income" : "Activate recurring income"}
+                    >
                       {income.isActive ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <CircleOff className="h-4 w-4" />}
                     </Button>
-                    <Button type="button" variant="ghost" onClick={() => setEditingIncome(income)}>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => setEditingIncome(income)} aria-label="Edit recurring income">
                       <Edit3 className="h-4 w-4" />
                     </Button>
-                    <Button type="button" variant="ghost" onClick={() => void deleteIncome(income.id)}>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => void deleteIncome(income.id)} aria-label="Delete recurring income">
                       <Trash2 className="h-4 w-4 text-red-300" />
                     </Button>
                   </div>

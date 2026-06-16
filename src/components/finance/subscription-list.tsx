@@ -1,7 +1,8 @@
 import { CalendarClock, CheckCircle2, CircleOff } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getSubscriptionMonthlyCost } from "@/lib/finance/calculations";
-import { cn } from "@/lib/utils";
 import type { SerializedFinanceSubscription } from "@/types/finance";
 
 interface SubscriptionListProps {
@@ -22,7 +23,7 @@ export function SubscriptionList({ subscriptions, onDelete, onToggle }: Subscrip
         <h2 className="mt-1 text-xl font-semibold text-stone-100">Active Recurring Bills</h2>
       </div>
       {activeSubscriptions.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-white/10 p-6 text-sm text-stone-500">
+        <div className="rounded-lg border border-dashed border-white/10 p-6 text-sm text-stone-400">
           No active recurring bills.
         </div>
       ) : (
@@ -36,9 +37,11 @@ export function SubscriptionList({ subscriptions, onDelete, onToggle }: Subscrip
                     <CalendarClock className="h-3 w-3" />
                     {getDueLabel(subscription.nextBillingDate)} / {subscription.billingCycle.toLowerCase()}
                   </p>
-                  <p className="mt-1 text-xs text-stone-500">
-                    {subscription.category?.name ?? "Uncategorized"} / {subscription.account?.name ?? "No account"}
-                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <Badge variant="muted">{subscription.category?.name ?? "Uncategorized"}</Badge>
+                    <Badge variant="muted">{subscription.account?.name ?? "No account"}</Badge>
+                    <Badge variant="rose">{subscription.isActive ? "Active" : "Paused"}</Badge>
+                  </div>
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="text-sm font-semibold text-dusk-amber">{formatMoney(subscription.amount)}</p>
@@ -46,26 +49,23 @@ export function SubscriptionList({ subscriptions, onDelete, onToggle }: Subscrip
                 </div>
               </div>
               <div className="mt-3 flex justify-end gap-2">
-                <button
-                  className={cn(
-                    "inline-flex h-8 items-center gap-1 rounded-md border px-2 text-xs transition",
-                    subscription.isActive
-                      ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-300"
-                      : "border-white/10 bg-white/5 text-stone-400"
-                  )}
+                <Button
+                  size="sm"
+                  variant="ghost"
                   type="button"
                   onClick={() => onToggle(subscription)}
                 >
                   {subscription.isActive ? <CheckCircle2 className="h-3 w-3" /> : <CircleOff className="h-3 w-3" />}
                   {subscription.isActive ? "Active" : "Paused"}
-                </button>
-                <button
-                  className="h-8 rounded-md border border-red-300/20 bg-red-400/10 px-2 text-xs text-red-200 transition hover:bg-red-400/20"
+                </Button>
+                <Button
+                  size="sm"
+                  variant="danger"
                   type="button"
                   onClick={() => onDelete(subscription.id)}
                 >
                   Delete
-                </button>
+                </Button>
               </div>
             </article>
           ))}

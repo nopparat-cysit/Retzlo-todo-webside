@@ -1,12 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpen, Edit, Plus, Search, Trash2, X } from "lucide-react";
-import type { SerializedFinanceLedger, SerializedFinanceTransaction } from "@/types/finance";
+import { BookOpen, Edit, Plus, Search, Trash2 } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { FinanceEmptyState } from "./finance-empty-state";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { SerializedFinanceLedger, SerializedFinanceTransaction } from "@/types/finance";
 
 interface FinanceBooksPageProps {
   initialLedgers: SerializedFinanceLedger[];
@@ -17,48 +29,37 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
   const router = useRouter();
   const [ledgers, setLedgers] = useState(initialLedgers);
   const [searchQuery, setSearchQuery] = useState("");
-  
-  // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingLedger, setEditingLedger] = useState<SerializedFinanceLedger | null>(null);
   const [deletingLedger, setDeletingLedger] = useState<SerializedFinanceLedger | null>(null);
-  
-  // Form values
   const [ledgerName, setLedgerName] = useState("");
   const [ledgerColor, setLedgerColor] = useState("indigo");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Filter ledgers
   const filteredLedgers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return ledgers.filter((ledger) => ledger.name.toLowerCase().includes(query));
   }, [searchQuery, ledgers]);
 
-  // Compute transaction counts and net balance for each ledger
   const ledgerStats = useMemo(() => {
     const stats: Record<string, { count: number; balance: number }> = {};
-    
-    // Initialize stats
     ledgers.forEach((ledger) => {
-      stats[ledger.id] = { count: 0, balance: 0 };
+      stats[ledger.id] = { balance: 0, count: 0 };
     });
 
-    transactions.forEach((t) => {
-      // Legacy transactions without ledgerId are assigned to the first ledger (default)
-      const ledgerId = t.ledgerId || (ledgers[0]?.id ?? "");
-      if (stats[ledgerId]) {
-        stats[ledgerId].count += 1;
-        const amount = Number(t.amount);
-        stats[ledgerId].balance += t.type === "INCOME" ? amount : -amount;
-      }
+    transactions.forEach((transaction) => {
+      const ledgerId = transaction.ledgerId || (ledgers[0]?.id ?? "");
+      if (!stats[ledgerId]) return;
+      stats[ledgerId].count += 1;
+      stats[ledgerId].balance += transaction.type === "INCOME" ? transaction.amount : -transaction.amount;
     });
 
     return stats;
   }, [transactions, ledgers]);
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleCreate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     if (!ledgerName.trim()) return;
     setLoading(true);
     setError(null);
@@ -67,7 +68,7 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
       const response = await fetch("/api/finance/ledgers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: ledgerName, color: ledgerColor })
+        body: JSON.stringify({ color: ledgerColor, name: ledgerName })
       });
       const data = (await response.json()) as { ledger?: SerializedFinanceLedger; error?: string };
 
@@ -76,18 +77,16 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
       }
 
       setLedgers((current) => [...current, data.ledger!].sort((a, b) => a.name.localeCompare(b.name)));
-      setShowCreateModal(false);
-      setLedgerName("");
-      setLedgerColor("indigo");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
+      closeEditor();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleEdit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleEdit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     if (!editingLedger || !ledgerName.trim()) return;
     setLoading(true);
     setError(null);
@@ -96,7 +95,7 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
       const response = await fetch(`/api/finance/ledgers/${editingLedger.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: ledgerName, color: ledgerColor })
+        body: JSON.stringify({ color: ledgerColor, name: ledgerName })
       });
       const data = (await response.json()) as { ledger?: SerializedFinanceLedger; error?: string };
 
@@ -105,13 +104,11 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
       }
 
       setLedgers((current) =>
-        current.map((l) => (l.id === editingLedger.id ? data.ledger! : l)).sort((a, b) => a.name.localeCompare(b.name))
+        current.map((ledger) => (ledger.id === editingLedger.id ? data.ledger! : ledger)).sort((a, b) => a.name.localeCompare(b.name))
       );
-      setEditingLedger(null);
-      setLedgerName("");
-      setLedgerColor("indigo");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
+      closeEditor();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -132,10 +129,10 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
         throw new Error(data.error || "Could not delete book.");
       }
 
-      setLedgers((current) => current.filter((l) => l.id !== deletingLedger.id));
+      setLedgers((current) => current.filter((ledger) => ledger.id !== deletingLedger.id));
       setDeletingLedger(null);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -155,111 +152,91 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
     setError(null);
   }
 
+  function closeEditor() {
+    setShowCreateModal(false);
+    setEditingLedger(null);
+    setLedgerName("");
+    setLedgerColor("indigo");
+  }
+
+  const editorOpen = showCreateModal || Boolean(editingLedger);
+
   return (
     <div className="flex flex-col gap-5 py-4">
-      {/* Header Panel */}
       <section className="lofi-panel rounded-2xl p-6">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Accounting Finance</p>
             <h1 className="mt-2 text-3xl font-semibold text-stone-100 sm:text-4xl">Finance Books</h1>
             <p className="mt-2 text-sm leading-6 text-stone-400">
-              เลือกสมุดบัญชีเพื่อจดบันทึกรายรับ-รายจ่าย คุมงบประมาณ หรือจัดการเงินแยกตามโครงการ
+              Choose a finance book to separate personal money, trips, freelance work, or project budgets.
             </p>
           </div>
-          <Button type="button" onClick={openCreate} className="h-11">
-            <Plus className="h-5 w-5 mr-1" />
-            สร้างเล่มใหม่
+          <Button type="button" onClick={openCreate}>
+            <Plus className="h-5 w-5" />
+            Create Book
           </Button>
         </div>
       </section>
 
-      {/* Filter and Search */}
-      <section className="lofi-panel rounded-lg p-4 flex items-center gap-3">
+      <section className="lofi-panel flex items-center gap-3 rounded-lg p-4">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
           <Input
             className="pl-9"
-            placeholder="ค้นหาชื่อสมุดบัญชี..."
+            placeholder="Search finance books..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(event) => setSearchQuery(event.target.value)}
           />
         </div>
       </section>
 
-      {/* Grid of books */}
       {filteredLedgers.length === 0 ? (
         <FinanceEmptyState
           icon={BookOpen}
-          title="ไม่พบสมุดบัญชีที่ค้นหา"
-          description="สร้างสมุดบัญชีแยกตามประเภทการใช้งาน เช่น บัญชีส่วนตัว รายจ่ายบริษัท หรือทริปท่องเที่ยว"
-          actionLabel="สร้างสมุดบัญชีเล่มแรก"
+          title="No finance books found"
+          description="Create a finance book for personal money, work budgets, travel, or any separate money context."
+          actionLabel="Create First Book"
           onAction={openCreate}
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredLedgers.map((ledger) => {
-            const stats = ledgerStats[ledger.id] || { count: 0, balance: 0 };
-            const colorClass = 
-              ledger.color === "emerald" ? "border-emerald-500/20 bg-emerald-500/5 hover:border-emerald-500/40" :
-              ledger.color === "rose" ? "border-rose-500/20 bg-rose-500/5 hover:border-rose-500/40" :
-              ledger.color === "amber" ? "border-amber-500/20 bg-amber-500/5 hover:border-amber-500/40" :
-              "border-dusk-lavender/20 bg-dusk-lavender/5 hover:border-dusk-lavender/40";
-            
-            const badgeClass =
-              ledger.color === "emerald" ? "bg-emerald-500/10 text-emerald-300" :
-              ledger.color === "rose" ? "bg-rose-500/10 text-rose-300" :
-              ledger.color === "amber" ? "bg-amber-500/10 text-amber-300" :
-              "bg-dusk-lavender/10 text-dusk-lavender";
+            const stats = ledgerStats[ledger.id] || { balance: 0, count: 0 };
+            const color = getBookColor(ledger.color);
 
             return (
               <article
                 key={ledger.id}
-                className={`lofi-panel rounded-xl p-5 flex flex-col justify-between gap-4 border transition-all cursor-pointer active:scale-[0.99] transition-transform ${colorClass}`}
+                className={`lofi-panel flex cursor-pointer flex-col justify-between gap-4 rounded-xl border p-5 transition active:scale-[0.99] ${color.card}`}
                 onClick={() => router.push(`/finance?ledgerId=${ledger.id}`)}
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <span className={`rounded-lg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${badgeClass}`}>
-                      Book
-                    </span>
-                    
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
-                        onClick={() => openEdit(ledger)}
-                        className="rounded p-1 text-stone-400 hover:bg-white/10 hover:text-stone-100 transition-all active:scale-[0.9] transition-transform"
-                        title="แก้ไขข้อมูลเล่ม"
-                      >
+                    <Badge variant={color.badge}>Book</Badge>
+                    <div className="flex items-center gap-1.5" onClick={(event) => event.stopPropagation()}>
+                      <Button type="button" variant="subtle" size="icon" onClick={() => openEdit(ledger)} aria-label="Edit finance book">
                         <Edit className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeletingLedger(ledger)}
-                        className="rounded p-1 text-stone-400 hover:bg-red-500/15 hover:text-red-300 transition-all active:scale-[0.9] transition-transform"
-                        title="ลบเล่มบัญชี"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      </Button>
+                      <Button type="button" variant="subtle" size="icon" onClick={() => setDeletingLedger(ledger)} aria-label="Delete finance book">
+                        <Trash2 className="h-3.5 w-3.5 text-red-300" />
+                      </Button>
                     </div>
                   </div>
-                  
-                  <h3 className="mt-3 text-lg font-semibold text-stone-100 truncate">{ledger.name}</h3>
-                  <p className="mt-1 text-xs text-stone-500">
-                    มีรายการบันทึก {stats.count} รายการ
-                  </p>
+
+                  <h3 className="mt-3 truncate text-lg font-semibold text-stone-100">{ledger.name}</h3>
+                  <p className="mt-1 text-xs text-stone-500">{stats.count} transaction records</p>
                 </div>
 
                 <div className="flex items-end justify-between border-t border-white/5 pt-3">
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-stone-500">ยอดคงเหลือสุทธิ</p>
+                    <p className="text-[10px] uppercase tracking-wider text-stone-500">Net balance</p>
                     <p className={`mt-1 font-bold ${stats.balance >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      {stats.balance.toLocaleString("en-US", { minimumFractionDigits: 2 })} THB
+                      {formatMoney(stats.balance)} THB
                     </p>
                   </div>
-                  <span className="flex items-center gap-1 text-xs text-dusk-lavender font-medium hover:underline">
-                    เปิดสมุด <BookOpen className="h-3.5 w-3.5" />
+                  <span className="flex items-center gap-1 text-xs font-medium text-dusk-lavender">
+                    Open <BookOpen className="h-3.5 w-3.5" />
                   </span>
                 </div>
               </article>
@@ -268,132 +245,115 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
         </div>
       )}
 
-      {/* Modal - Create/Edit */}
-      {(showCreateModal || editingLedger) && (
-        <div className="fixed inset-0 z-[200] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+      <Dialog open={editorOpen} onOpenChange={(open) => {
+        if (!open && !loading) closeEditor();
+      }}>
+        <DialogContent className="max-w-md">
           <form
-            onSubmit={(e) => {
-              void (editingLedger ? handleEdit(e) : handleCreate(e));
+            onSubmit={(event) => {
+              void (editingLedger ? handleEdit(event) : handleCreate(event));
             }}
-            className="lofi-panel w-full max-w-md rounded-lg p-5"
           >
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-dusk-amber">
-                  {editingLedger ? "Edit Book" : "New Book"}
-                </p>
-                <h3 className="text-xl font-semibold text-stone-100">
-                  {editingLedger ? "แก้ไขสมุดบัญชี" : "สร้างสมุดบัญชีใหม่"}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowCreateModal(false);
-                  setEditingLedger(null);
-                }}
-                className="rounded-md p-1.5 text-stone-400 hover:bg-white/10 hover:text-stone-100"
-                disabled={loading}
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+            <DialogHeader className="mb-4">
+              <p className="text-xs uppercase tracking-wider text-dusk-amber">{editingLedger ? "Edit Book" : "New Book"}</p>
+              <DialogTitle>{editingLedger ? "Edit Finance Book" : "Create Finance Book"}</DialogTitle>
+              <DialogDescription>Name and color-code this money context.</DialogDescription>
+            </DialogHeader>
 
-            {error && (
-              <p className="mb-3 rounded bg-red-500/10 border border-red-500/20 p-2.5 text-xs text-red-200">
+            {error ? (
+              <p className="mb-3 rounded-lg border border-red-500/20 bg-red-500/10 p-2.5 text-xs text-red-200">
                 {error}
               </p>
-            )}
+            ) : null}
 
             <div className="grid gap-4">
               <label className="grid gap-1.5">
-                <span className="text-xs font-medium text-stone-400">ชื่อสมุดบัญชี</span>
+                <Label className="text-xs text-stone-400">Book name</Label>
                 <Input
-                  placeholder="เช่น บัญชีส่วนตัว, กองกลางออฟฟิศ, เที่ยวเชียงใหม่"
-                  value={ledgerName}
-                  onChange={(e) => setLedgerName(e.target.value)}
-                  required
-                  disabled={loading}
                   autoFocus
+                  disabled={loading}
+                  onChange={(event) => setLedgerName(event.target.value)}
+                  placeholder="Personal, Office budget, Japan trip"
+                  required
+                  value={ledgerName}
                 />
               </label>
 
               <label className="grid gap-1.5">
-                <span className="text-xs font-medium text-stone-400">ป้ายสีกำกับ (Color Theme)</span>
-                <select
-                  value={ledgerColor}
-                  onChange={(e) => setLedgerColor(e.target.value)}
-                  className="h-11 rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
-                  disabled={loading}
-                >
-                  <option value="indigo">Indigo (สีม่วงคราม)</option>
-                  <option value="emerald">Emerald (สีเขียวมรกต)</option>
-                  <option value="rose">Rose (สีชมพูกุหลาบ)</option>
-                  <option value="amber">Amber (สีส้มอำพัน)</option>
-                </select>
+                <Label className="text-xs text-stone-400">Color theme</Label>
+                <Select value={ledgerColor} onValueChange={setLedgerColor} disabled={loading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose color" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="indigo">Indigo</SelectItem>
+                    <SelectItem value="emerald">Emerald</SelectItem>
+                    <SelectItem value="rose">Rose</SelectItem>
+                    <SelectItem value="amber">Amber</SelectItem>
+                  </SelectContent>
+                </Select>
               </label>
 
-              <div className="flex justify-end gap-2 mt-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setEditingLedger(null);
-                  }}
-                  disabled={loading}
-                >
+              <DialogFooter className="mt-2">
+                <Button type="button" variant="ghost" onClick={closeEditor} disabled={loading}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
                   {loading ? "Saving..." : editingLedger ? "Save Changes" : "Create Book"}
                 </Button>
-              </div>
+              </DialogFooter>
             </div>
           </form>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
-      {/* Modal - Confirm Delete */}
-      {deletingLedger && (
-        <div className="fixed inset-0 z-[200] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
-          <div className="lofi-panel w-full max-w-md rounded-lg p-5">
-            <h3 className="text-xl font-bold text-stone-100">ยืนยันการลบสมุดบัญชี?</h3>
-            <p className="mt-2 text-sm text-stone-400 leading-normal">
-              คุณกำลังลบสมุดบัญชี <strong className="text-red-300">&quot;{deletingLedger.name}&quot;</strong>
-              <br />
-              การลบเล่มนี้จะ**ลบรายการธุรกรรมการเงิน รายจ่ายประจำ งบประมาณ ทั้งหมด** ที่เชื่อมกับเล่มนี้ด้วยโดยถาวรและไม่สามารถกู้คืนได้!
+      <Dialog open={Boolean(deletingLedger)} onOpenChange={(open) => {
+        if (!open && !loading) setDeletingLedger(null);
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Finance Book?</DialogTitle>
+            <DialogDescription>
+              This will permanently delete &quot;{deletingLedger?.name}&quot; and all finance data connected to it.
+            </DialogDescription>
+          </DialogHeader>
+
+          {error ? (
+            <p className="mt-3 rounded-lg border border-red-500/20 bg-red-500/10 p-2.5 text-xs text-red-200">
+              {error}
             </p>
+          ) : null}
 
-            {error && (
-              <p className="mt-3 rounded bg-red-500/10 border border-red-500/20 p-2.5 text-xs text-red-200">
-                {error}
-              </p>
-            )}
-
-            <div className="mt-5 flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setDeletingLedger(null)}
-                disabled={loading}
-              >
-                ยกเลิก
-              </Button>
-              <Button
-                type="button"
-                className="bg-red-500 hover:bg-red-600 text-white active:scale-[0.98] transition-transform"
-                onClick={() => {
-                  void handleDelete();
-                }}
-                disabled={loading}
-              >
-                {loading ? "Deleting..." : "ใช่, ฉันต้องการลบ"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+          <DialogFooter className="mt-5">
+            <Button type="button" variant="ghost" onClick={() => setDeletingLedger(null)} disabled={loading}>
+              Cancel
+            </Button>
+            <Button type="button" variant="danger" onClick={() => void handleDelete()} disabled={loading}>
+              {loading ? "Deleting..." : "Delete Book"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+}
+
+function formatMoney(value: number) {
+  return value.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function getBookColor(color?: string | null): { card: string; badge: "default" | "amber" | "rose" | "cyan" } {
+  if (color === "emerald") {
+    return { badge: "cyan", card: "border-emerald-500/20 bg-emerald-500/5 hover:border-emerald-500/40" };
+  }
+  if (color === "rose") {
+    return { badge: "rose", card: "border-rose-500/20 bg-rose-500/5 hover:border-rose-500/40" };
+  }
+  if (color === "amber") {
+    return { badge: "amber", card: "border-amber-500/20 bg-amber-500/5 hover:border-amber-500/40" };
+  }
+  return { badge: "default", card: "border-dusk-lavender/20 bg-dusk-lavender/5 hover:border-dusk-lavender/40" };
 }

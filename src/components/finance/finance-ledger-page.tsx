@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Edit3, Search, Trash2 } from "lucide-react";
 
 import { TransactionForm } from "@/components/finance/transaction-form";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FinanceEmptyState } from "./finance-empty-state";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FinanceCategoryIcon } from "@/lib/finance/category-icons";
 import { cn } from "@/lib/utils";
 import type {
@@ -148,22 +150,32 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
             />
           </label>
           <Input value={filters.month} type="month" onChange={(event) => updateFilter("month", event.target.value)} />
-          <select className="h-11 rounded-md border border-white/10 bg-ink-950/70 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70" value={filters.categoryId} onChange={(event) => updateFilter("categoryId", event.target.value)}>
-            <option value="">All categories</option>
+          <Select value={filters.categoryId || "all"} onValueChange={(value) => updateFilter("categoryId", value === "all" ? "" : value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="All categories" />
+            </SelectTrigger>
+            <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
             {visibleCategories.map((category) => (
-              <option key={category.id} value={category.id}>
+              <SelectItem key={category.id} value={category.id}>
                 {category.name}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-          <select className="h-11 rounded-md border border-white/10 bg-ink-950/70 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70" value={filters.accountId} onChange={(event) => updateFilter("accountId", event.target.value)}>
-            <option value="">All accounts</option>
+            </SelectContent>
+          </Select>
+          <Select value={filters.accountId || "all"} onValueChange={(value) => updateFilter("accountId", value === "all" ? "" : value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="All accounts" />
+            </SelectTrigger>
+            <SelectContent>
+            <SelectItem value="all">All accounts</SelectItem>
             {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
+              <SelectItem key={account.id} value={account.id}>
                 {account.name}
-              </option>
+              </SelectItem>
             ))}
-          </select>
+            </SelectContent>
+          </Select>
           <Button
             type="button"
             variant="ghost"
@@ -199,10 +211,11 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
                         <FinanceCategoryIcon className="text-dusk-lavender" icon={transaction.category?.icon} label={transaction.category?.name} />
                         <h3 className="truncate text-sm font-semibold text-stone-100">{transaction.title}</h3>
                       </div>
-                      <p className="mt-1 text-xs text-stone-500">
-                        {transaction.category?.name ?? "Uncategorized"} / {transaction.account?.name ?? "No account"} /{" "}
-                        {new Date(transaction.transactionDate).toLocaleDateString()}
-                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        <Badge variant="muted">{transaction.category?.name ?? "Uncategorized"}</Badge>
+                        <Badge variant="muted">{transaction.account?.name ?? "No account"}</Badge>
+                        <Badge variant={isIncome ? "cyan" : "rose"}>{new Date(transaction.transactionDate).toLocaleDateString()}</Badge>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between gap-3 md:justify-end">
                       <p className={cn("text-sm font-semibold", isIncome ? "text-emerald-300" : "text-dusk-rose")}>
@@ -210,10 +223,10 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
                         {formatMoney(transaction.amount)}
                       </p>
                       <div className="flex gap-2">
-                        <Button type="button" variant="ghost" onClick={() => setEditingTransaction(transaction)}>
+                        <Button type="button" variant="ghost" size="icon" onClick={() => setEditingTransaction(transaction)} aria-label="Edit transaction">
                           <Edit3 className="h-4 w-4" />
                         </Button>
-                        <Button type="button" variant="ghost" onClick={() => void deleteTransaction(transaction.id)}>
+                        <Button type="button" variant="ghost" size="icon" onClick={() => void deleteTransaction(transaction.id)} aria-label="Delete transaction">
                           <Trash2 className="h-4 w-4 text-red-300" />
                         </Button>
                       </div>

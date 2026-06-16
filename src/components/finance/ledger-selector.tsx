@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Book, Plus, X } from "lucide-react";
-import type { SerializedFinanceLedger } from "@/types/finance";
+import { Book, Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { SerializedFinanceLedger } from "@/types/finance";
 
 interface LedgerSelectorProps {
   ledgers: SerializedFinanceLedger[];
@@ -26,8 +36,8 @@ export function LedgerSelector({ ledgers, activeLedgerId }: LedgerSelectorProps)
     router.push(`?${params.toString()}`);
   }
 
-  async function handleAddLedger(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleAddLedger(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     if (!newLedgerName.trim()) return;
 
     setLoading(true);
@@ -42,15 +52,15 @@ export function LedgerSelector({ ledgers, activeLedgerId }: LedgerSelectorProps)
       const data = (await response.json()) as { ledger?: SerializedFinanceLedger; error?: string };
 
       if (!response.ok || !data.ledger) {
-        throw new Error(data.error || "Failed to create ledger");
+        throw new Error(data.error || "Failed to create ledger.");
       }
 
       setNewLedgerName("");
       setShowAddModal(false);
       handleSwitch(data.ledger.id);
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -60,83 +70,67 @@ export function LedgerSelector({ ledgers, activeLedgerId }: LedgerSelectorProps)
     <div className="flex flex-wrap items-center gap-3">
       <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-1.5">
         <Book className="h-4 w-4 text-dusk-lavender" />
-        <span className="text-xs uppercase tracking-wider text-stone-400">Active Book:</span>
-        <select
-          value={activeLedgerId || ""}
-          onChange={(e) => handleSwitch(e.target.value)}
-          className="bg-transparent text-sm font-semibold text-stone-100 outline-none cursor-pointer"
-        >
-          {ledgers.map((ledger) => (
-            <option key={ledger.id} value={ledger.id} className="bg-ink-950 text-stone-100">
-              {ledger.name}
-            </option>
-          ))}
-        </select>
+        <span className="text-xs uppercase tracking-wider text-stone-400">Active Book</span>
+        <Select value={activeLedgerId || ledgers[0]?.id} onValueChange={handleSwitch}>
+          <SelectTrigger className="h-8 min-w-40 border-transparent bg-transparent px-1 font-semibold">
+            <SelectValue placeholder="Choose book" />
+          </SelectTrigger>
+          <SelectContent align="start">
+            {ledgers.map((ledger) => (
+              <SelectItem key={ledger.id} value={ledger.id}>
+                {ledger.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setShowAddModal(true)}
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.02] text-stone-400 hover:bg-white/10 hover:text-stone-100 transition-all"
-        title="Create New Ledger Book"
-      >
+      <Button type="button" variant="ghost" size="icon" onClick={() => setShowAddModal(true)} aria-label="Create ledger book">
         <Plus className="h-4 w-4" />
-      </button>
+      </Button>
 
-      {showAddModal && (
-        <div className="fixed inset-0 z-[200] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+      <Dialog open={showAddModal} onOpenChange={(open) => {
+        if (!open && !loading) setShowAddModal(false);
+      }}>
+        <DialogContent className="max-w-md">
           <form
-            onSubmit={(e) => {
-              void handleAddLedger(e);
+            onSubmit={(event) => {
+              void handleAddLedger(event);
             }}
-            className="lofi-panel w-full max-w-md rounded-lg p-5"
           >
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-dusk-amber">New Book</p>
-                <h3 className="text-xl font-semibold text-stone-100">Create Ledger Book</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="rounded-md p-1.5 text-stone-400 hover:bg-white/10 hover:text-stone-100"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+            <DialogHeader className="mb-4">
+              <p className="text-xs uppercase tracking-wider text-dusk-amber">New Book</p>
+              <DialogTitle>Create Ledger Book</DialogTitle>
+              <DialogDescription>Create a separate finance book for personal money, trips, freelance work, or other contexts.</DialogDescription>
+            </DialogHeader>
 
-            {error && (
-              <p className="mb-3 rounded bg-red-500/10 border border-red-500/20 p-2.5 text-xs text-red-200">
+            {error ? (
+              <p className="mb-3 rounded-lg border border-red-500/20 bg-red-500/10 p-2.5 text-xs text-red-200">
                 {error}
               </p>
-            )}
+            ) : null}
 
             <div className="grid gap-3">
               <Input
-                placeholder="เช่น เงินส่วนตัว, ทริปญี่ปุ่น, Freelance"
-                value={newLedgerName}
-                onChange={(e) => setNewLedgerName(e.target.value)}
-                required
-                disabled={loading}
                 autoFocus
+                disabled={loading}
+                onChange={(event) => setNewLedgerName(event.target.value)}
+                placeholder="Personal, Japan trip, Freelance"
+                required
+                value={newLedgerName}
               />
-              <div className="flex justify-end gap-2 mt-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setShowAddModal(false)}
-                  disabled={loading}
-                >
+              <DialogFooter className="mt-2">
+                <Button type="button" variant="ghost" onClick={() => setShowAddModal(false)} disabled={loading}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
                   {loading ? "Creating..." : "Create Book"}
                 </Button>
-              </div>
+              </DialogFooter>
             </div>
           </form>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
