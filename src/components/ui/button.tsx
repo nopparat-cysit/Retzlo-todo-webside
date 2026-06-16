@@ -1,26 +1,48 @@
 import type { ButtonHTMLAttributes } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "ghost" | "danger";
-  size?: "sm" | "md";
-}
+export const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/55 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  {
+    variants: {
+      variant: {
+        primary:
+          "border border-dusk-lavender/25 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber",
+        secondary:
+          "border border-white/10 bg-white/[0.075] text-stone-100 hover:border-dusk-lavender/35 hover:bg-white/[0.11]",
+        ghost:
+          "border border-white/10 bg-white/[0.045] text-stone-100 hover:border-dusk-lavender/45 hover:bg-white/[0.09]",
+        outline:
+          "border border-white/14 bg-transparent text-stone-100 hover:border-dusk-lavender/45 hover:bg-white/[0.055]",
+        danger:
+          "border border-red-300/25 bg-red-400/90 text-ink-950 hover:bg-red-300",
+        subtle:
+          "border border-transparent bg-transparent text-stone-300 hover:bg-white/[0.06] hover:text-stone-100"
+      },
+      size: {
+        sm: "h-8 px-3 text-xs",
+        md: "h-10 px-4",
+        lg: "h-11 px-5",
+        icon: "h-9 w-9 p-0"
+      }
+    },
+    defaultVariants: {
+      variant: "primary",
+      size: "md"
+    }
+  }
+);
+
+interface ButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
 
 export function Button({ className, variant = "primary", size = "md", ...props }: ButtonProps) {
   return (
     <button
-      className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full font-medium transition duration-200 disabled:cursor-not-allowed disabled:opacity-55",
-        size === "md" && "h-10 px-4 text-sm",
-        size === "sm" && "h-7 px-3 text-xs",
-        variant === "primary" &&
-          "bg-gradient-to-r from-dusk-lavender to-dusk-rose text-ink-950 shadow-[0_12px_30px_rgba(169,162,255,0.22)] hover:from-dusk-amber hover:to-dusk-rose hover:-translate-y-0.5",
-        variant === "ghost" &&
-          "border border-white/10 bg-white/5 text-stone-100 hover:border-dusk-lavender/50 hover:bg-white/10",
-        variant === "danger" && "bg-red-400/90 text-ink-950 hover:bg-red-300",
-        className
-      )}
+      className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />
   );

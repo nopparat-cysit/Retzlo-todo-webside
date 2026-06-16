@@ -6,6 +6,9 @@ import { X } from "lucide-react";
 import { FinanceStickerIcon, financeStickerIcons } from "@/components/finance/finance-sticker-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { StickerButton } from "@/components/ui/sticker-surface";
 import type { FinanceTransactionType, SerializedFinanceCategory } from "@/types/finance";
 
 const iconOptions = [
@@ -84,36 +87,34 @@ export function CategoryForm({ defaultType, onClose, onError, onSubmit }: Catego
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs uppercase tracking-[0.2em] text-stone-400">Category Type</label>
-              <select
-                className="mt-1 h-11 w-full rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
-                defaultValue={defaultType}
-                name="type"
-              >
-                <option value="INCOME">Income category</option>
-                <option value="EXPENSE">Expense category</option>
-              </select>
+              <Label className="text-xs uppercase tracking-[0.2em] text-stone-400">Category Type</Label>
+              <Select defaultValue={defaultType} name="type">
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Choose type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="INCOME">Income category</SelectItem>
+                  <SelectItem value="EXPENSE">Expense category</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-[0.2em] text-stone-400">Color Tag</label>
+              <Label className="text-xs uppercase tracking-[0.2em] text-stone-400">Color Tag</Label>
               <Input className="mt-1" name="color" placeholder="amber, cyan, rose" />
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs uppercase tracking-[0.2em] text-stone-400">Select Icon</label>
+            <Label className="text-xs uppercase tracking-[0.2em] text-stone-400">Select Icon</Label>
             <div className="grid max-h-56 grid-cols-5 gap-2 overflow-y-auto rounded-md border border-white/10 bg-ink-950/60 p-3">
               {iconOptions.map((option) => {
                 const isSelected = selectedIcon === option.value;
 
                 return (
-                  <button
+                  <StickerButton
                     key={option.value}
-                    className={`flex flex-col items-center justify-center gap-1 rounded-md border p-2 text-stone-300 transition-all hover:bg-white/10 ${
-                      isSelected
-                        ? "scale-105 border-dusk-lavender bg-dusk-lavender/20 font-semibold text-stone-100"
-                        : "border-transparent"
-                    }`}
+                    className="h-auto min-h-[4.5rem] w-full gap-1 p-2 text-stone-300"
+                    selected={isSelected}
                     title={option.label}
                     type="button"
                     onClick={() => setSelectedIcon(option.value)}
@@ -123,7 +124,7 @@ export function CategoryForm({ defaultType, onClose, onError, onSubmit }: Catego
                       iconKey={(option.value in financeStickerIcons ? option.value : "circle") as keyof typeof financeStickerIcons}
                     />
                     <span className="max-w-full truncate text-[10px]">{option.label}</span>
-                  </button>
+                  </StickerButton>
                 );
               })}
             </div>
