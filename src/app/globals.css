@@ -230,6 +230,7 @@ textarea {
     width: 2.75rem;
     border-color: rgba(245, 239, 230, 0.1);
     background: rgba(255, 244, 232, 0.035);
+    border-radius: 0.5rem;
   }
 
   #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar .project-nav-link-active {
@@ -244,8 +245,8 @@ textarea {
     left: 50%;
     top: auto;
     bottom: -0.18rem;
-    width: 1.15rem;
-    height: 0.18rem;
+    width: 1rem;
+    height: 0.16rem;
     transform: translateX(-50%);
     border-radius: 999px;
   }
@@ -1081,4 +1082,3 @@ body.focus-mode main > div.grid {
     transform: translateY(0) scale(1);
   }
 }
-

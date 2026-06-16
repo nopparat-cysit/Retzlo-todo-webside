@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { Bell, PanelLeftClose, Menu } from "lucide-react";
+import { Bell, Menu, PanelLeftClose } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -13,10 +13,7 @@ import { ProjectSortableNav, type ProjectNavItem } from "@/components/project/pr
 import { ProjectTopbarTools } from "@/components/project/project-topbar-tools";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 
-// ---------------------------------------------------------------------------
-// Nav items — Boards & Members removed per user request
-// ---------------------------------------------------------------------------
-
+// Nav items: Boards and Members removed per user request.
 const navItems = [
   { href: "board", label: "Board", iconName: "board" },
   { href: "calendar", label: "Calendar", iconName: "calendar" },
@@ -26,11 +23,6 @@ const navItems = [
 ] as const;
 
 const settingsNavItem = { href: "settings", label: "Settings", iconName: "settings" } as const;
-
-// ---------------------------------------------------------------------------
-// Project color dot
-// Derives a stable color from the project name (first char code mod 5).
-// ---------------------------------------------------------------------------
 
 const PROJECT_DOT_COLORS = [
   "bg-dusk-lavender",
@@ -45,16 +37,11 @@ function projectDotColor(name: string): string {
   return PROJECT_DOT_COLORS[code % PROJECT_DOT_COLORS.length];
 }
 
-// Status dot colors
 const STATUS_COLORS: Record<string, string> = {
   ONLINE: "bg-emerald-400",
   BUSY: "bg-dusk-amber",
   OFFLINE: "bg-stone-500",
 };
-
-// ---------------------------------------------------------------------------
-// Server Component
-// ---------------------------------------------------------------------------
 
 export async function ProjectShell({
   projectId,
@@ -92,7 +79,6 @@ export async function ProjectShell({
 
   if (!project) notFound();
 
-  // Derive display name
   const userEmail = userRecord?.email ?? session.user.email ?? "";
   const userName =
     userRecord?.name ??
@@ -113,10 +99,9 @@ export async function ProjectShell({
     segment: settingsNavItem.href,
   };
 
-  // Initials for avatar fallback
   const initials = userName
     .split(" ")
-    .map((w) => w[0])
+    .map((word) => word[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
@@ -124,16 +109,13 @@ export async function ProjectShell({
   return (
     <main className="soft-grid-bg min-h-screen w-full overflow-hidden p-3">
       <input id="project-sidebar-toggle" className="peer sr-only" type="checkbox" />
-      {/* Mobile sidebar backdrop overlay */}
       <label
         htmlFor="project-sidebar-toggle"
-        className="fixed inset-0 z-[240] bg-ink-950/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 peer-checked:opacity-100 peer-checked:pointer-events-auto lg:hidden"
+        className="pointer-events-none fixed inset-0 z-[240] bg-ink-950/60 opacity-0 backdrop-blur-sm transition-opacity duration-300 peer-checked:pointer-events-auto peer-checked:opacity-100 lg:hidden"
         aria-hidden="true"
       />
       <div className="project-shell-grid grid h-[calc(100vh-1.5rem)] min-h-0 gap-3 transition-[grid-template-columns] duration-200 lg:grid-cols-[280px_minmax(0,1fr)]">
-        {/* ── Sidebar ──────────────────────────────────────────────────────── */}
-        <aside className="project-sidebar lofi-panel flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 transition-all duration-300 fixed top-3 left-3 bottom-3 z-[250] w-[280px] -translate-x-[calc(100%+1rem)] peer-checked:translate-x-0 lg:relative lg:top-0 lg:left-0 lg:bottom-0 lg:w-auto lg:translate-x-0 lg:z-10 bg-ink-950/95 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none shadow-2xl lg:shadow-none">
-          {/* Breadcrumb + project identity */}
+        <aside className="project-sidebar lofi-panel fixed bottom-3 left-3 top-3 z-[250] flex min-h-0 w-[280px] -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 peer-checked:translate-x-0 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
           <div>
             <div className="flex items-center justify-between gap-2">
               <Link
@@ -152,12 +134,8 @@ export async function ProjectShell({
               </label>
             </div>
 
-            {/* Project name with color dot */}
             <div className="mt-2 flex items-center gap-2">
-              <span
-                aria-hidden="true"
-                className={`inline-block h-2 w-2 shrink-0 rounded-full ${dotColor}`}
-              />
+              <span aria-hidden="true" className={`inline-block h-2 w-2 shrink-0 rounded-full ${dotColor}`} />
               <h1 className="sidebar-expanded-only text-2xl font-semibold leading-tight text-stone-100">
                 {project.name}
               </h1>
@@ -167,45 +145,40 @@ export async function ProjectShell({
               {project.description ?? "No description yet."}
             </p>
 
-            {/* Time-based greeting */}
             <div className="sidebar-expanded-only mt-3">
               <ProjectSidebarGreeting userName={userName} />
             </div>
           </div>
 
-          {/* Scrollable sidebar widgets section */}
-          <div className="flex-1 overflow-y-auto scrollbar-soft pr-1 space-y-4 my-3 min-h-0">
+          <div className="my-3 min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 scrollbar-soft">
             <ProjectSortableNav canSort={isProjectOwner} items={sortableNavItems} projectId={projectId} />
           </div>
 
-          {/* ── User profile card — bottom of sidebar ─────────────────── */}
           <div className="mt-auto space-y-3 border-t border-white/5 pt-4">
             <ProjectNavLink {...settingsLink} />
-            {/* Cmd+K hint */}
             <p className="sidebar-expanded-only flex items-center gap-1.5 text-[10px] text-stone-600">
-              <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd>
+              <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">Ctrl K</kbd>
               Command palette
             </p>
           </div>
         </aside>
 
-        {/* ── Main content ─────────────────────────────────────────────────── */}
         <section className="flex min-h-0 min-w-0 flex-col rounded-2xl">
-          <header className="lofi-panel relative z-[120] mb-3 flex min-h-14 items-center justify-between gap-3 rounded-2xl px-4">
-            <div className="flex min-w-0 items-center gap-3">
+          <header className="lofi-panel relative z-[120] mb-3 flex min-h-14 items-center justify-between gap-3 rounded-2xl px-3 sm:px-4">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
               <label
                 htmlFor="project-sidebar-toggle"
-                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender lg:hidden"
+                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender lg:hidden"
                 title="Open navigation"
                 aria-label="Open navigation"
               >
-                <Menu className="h-4.5 w-4.5" />
+                <Menu className="h-4 w-4" />
               </label>
               <BackButton />
-              <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.05] text-dusk-lavender">
+              <div className="hidden h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.05] text-dusk-lavender sm:grid">
                 <span className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
               </div>
-              <div className="min-w-0">
+              <div className="hidden min-w-0 min-[560px]:block">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-stone-500">
                   <span>Workspace</span>
                   <span className="text-stone-700">/</span>
@@ -214,15 +187,15 @@ export async function ProjectShell({
                 <h2 className="truncate text-base font-semibold text-stone-100">{project.name}</h2>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <ProjectTopbarTools />
-              <div className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 md:flex">
+              <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 md:flex">
                 <span className="text-stone-400">Command</span>
                 <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
               </div>
               <button
                 type="button"
-                className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender"
                 aria-label="Notifications"
               >
                 <Bell className="h-4 w-4" />
@@ -242,7 +215,6 @@ export async function ProjectShell({
         </section>
       </div>
 
-      {/* Command palette — self-manages open/close via keyboard shortcut */}
       <CommandPalette projectId={projectId} projectName={project.name} />
     </main>
   );
