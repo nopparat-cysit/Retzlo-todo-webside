@@ -1,10 +1,17 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { X } from "lucide-react";
 
 import { FinanceStickerIcon, financeStickerIcons } from "@/components/finance/finance-sticker-icons";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -64,23 +71,20 @@ export function CategoryForm({ defaultType, onClose, onError, onSubmit }: Catego
   }
 
   return (
-    <div className="fixed inset-0 z-[190] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <Dialog open onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
+      <DialogContent className="max-h-[92vh] max-w-lg overflow-y-auto">
       <form
-        className="lofi-panel w-full max-w-lg rounded-lg p-5"
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
       >
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <div>
+        <DialogHeader className="mb-5">
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Category</p>
-            <h2 className="mt-1 text-2xl font-semibold">Add Category</h2>
-            <p className="mt-1 text-sm text-stone-500">Use it to group items like food, transport, salary, or AI tools.</p>
-          </div>
-          <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+            <DialogTitle>Add Category</DialogTitle>
+            <DialogDescription>Group items like food, transport, salary, or AI tools.</DialogDescription>
+        </DialogHeader>
 
         <div className="grid gap-4">
           <Input name="name" placeholder="Food, Transport, Water, Salary" required />
@@ -131,13 +135,14 @@ export function CategoryForm({ defaultType, onClose, onError, onSubmit }: Catego
           </div>
         </div>
 
-        <div className="mt-5 flex justify-end gap-2">
+        <DialogFooter className="mt-5">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
           <Button>Save category</Button>
-        </div>
+        </DialogFooter>
       </form>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -1,11 +1,22 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { CategoryForm } from "@/components/finance/category-form";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Input, Textarea } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type {
   SerializedFinanceAccount,
   SerializedFinanceCategory,
@@ -40,6 +51,7 @@ export function RecurringIncomeForm({
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [amount, setAmount] = useState(recurringIncome?.amount ? String(recurringIncome.amount) : "");
   const [incomeCycle, setIncomeCycle] = useState(recurringIncome?.incomeCycle ?? "MONTHLY");
+
   const monthlyPreview = useMemo(() => {
     const numericAmount = Number(amount);
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) return 0;
@@ -51,19 +63,22 @@ export function RecurringIncomeForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const categoryId = formData.get("categoryId");
+    const accountId = formData.get("accountId");
+
     const response = await fetch(
       recurringIncome ? `/api/finance/recurring-income/${recurringIncome.id}` : "/api/finance/recurring-income",
       {
         method: recurringIncome ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: formData.get("name"),
+          accountId: accountId && accountId !== "none" ? accountId : null,
           amount: formData.get("amount"),
+          categoryId: categoryId && categoryId !== "none" ? categoryId : null,
           incomeCycle: formData.get("incomeCycle"),
-          nextIncomeDate: formData.get("nextIncomeDate"),
-          categoryId: formData.get("categoryId") || null,
-          accountId: formData.get("accountId") || null,
           isActive: recurringIncome?.isActive ?? true,
+          name: formData.get("name"),
+          nextIncomeDate: formData.get("nextIncomeDate"),
           note: formData.get("note")
         })
       }
@@ -80,144 +95,162 @@ export function RecurringIncomeForm({
   }
 
   return (
-    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
-      <form
-        className="lofi-panel max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-lg p-5"
-        onSubmit={(event) => {
-          void handleSubmit(event);
-        }}
-      >
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Recurring Income</p>
-            <h2 className="mt-1 text-2xl font-semibold">{isEditing ? "Edit Recurring Income" : "Add Recurring Income"}</h2>
-            <p className="mt-1 text-sm text-stone-500">รายรับที่เข้าซ้ำ เช่น เงินเดือน ค่าจ้างรายเดือน หรือค่าเช่า</p>
-          </div>
-          <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="grid gap-4">
-          {!isEditing ? (
-            <div className="flex flex-wrap gap-2">
-              {templates.map((template) => (
-                <button
-                  key={template}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-stone-300 transition hover:border-dusk-lavender/40 hover:text-stone-100"
-                  type="button"
-                  onClick={(event) => {
-                    const form = event.currentTarget.closest("form");
-                    const input = form?.elements.namedItem("name") as HTMLInputElement | null;
-                    if (input) input.value = template;
-                  }}
-                >
-                  {template}
-                </button>
-              ))}
-            </div>
-          ) : null}
-
-          <label className="grid gap-1.5">
-            <span className="text-xs font-medium text-stone-400">ชื่อรายได้ประจำ</span>
-            <Input defaultValue={recurringIncome?.name} name="name" placeholder="เช่น Salary, Freelance Retainer" required />
-          </label>
-          <label className="grid gap-1.5">
-            <span className="text-xs font-medium text-stone-400">ยอดที่ได้รับต่อรอบ</span>
-            <Input
-              defaultValue={recurringIncome?.amount}
-              min={0.01}
-              name="amount"
-              placeholder="เช่น 30000"
-              required
-              step="0.01"
-              type="number"
-              onChange={(event) => setAmount(event.target.value)}
-            />
-          </label>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-1.5">
-              <span className="text-xs font-medium text-stone-400">รับซ้ำทุก</span>
-              <select
-                className="h-11 rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
-                defaultValue={recurringIncome?.incomeCycle ?? "MONTHLY"}
-                name="incomeCycle"
-                onChange={(event) => setIncomeCycle(event.target.value as SerializedRecurringIncome["incomeCycle"])}
-              >
-                <option value="WEEKLY">ทุกสัปดาห์</option>
-                <option value="MONTHLY">ทุกเดือน</option>
-                <option value="YEARLY">ทุกปี</option>
-                <option value="CUSTOM">กำหนดเอง</option>
-              </select>
-            </label>
-            <label className="grid gap-1.5">
-              <span className="text-xs font-medium text-stone-400">วันรับเงินครั้งถัดไป</span>
-              <Input defaultValue={(recurringIncome?.nextIncomeDate ?? new Date().toISOString()).slice(0, 10)} name="nextIncomeDate" required type="date" />
-            </label>
-          </div>
-
-          <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-3 text-sm text-emerald-200">
-            <p className="font-medium text-stone-100">ประมาณ {formatMoney(monthlyPreview)} / เดือน</p>
-            <p className="mt-1 text-xs text-stone-500">วันรับเงินครั้งถัดไปคือวันที่รายได้นี้คาดว่าจะเข้าอีกครั้ง</p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <select className="h-11 rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70" defaultValue={recurringIncome?.category?.id ?? ""} name="categoryId">
-                <option value="">No category</option>
-                {availableCategories
-                  .filter((category) => category.type === "INCOME")
-                  .map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-              </select>
-              <button
-                className="inline-flex items-center gap-1 text-xs font-medium text-dusk-lavender hover:text-stone-100"
-                type="button"
-                onClick={() => setShowCategoryForm(true)}
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Add category
-              </button>
-            </div>
-            <select className="h-11 rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70" defaultValue={recurringIncome?.account?.id ?? ""} name="accountId">
-              <option value="">No account</option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <Textarea defaultValue={recurringIncome?.note ?? ""} name="note" placeholder="Note เช่น เงินเดือนเข้าบัญชีไหน หรือเงื่อนไขรายรับนี้" />
-          {error ? <p className="text-sm text-red-300">{error}</p> : null}
-        </div>
-
-        <div className="mt-5 flex justify-end gap-2">
-          <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button>{isEditing ? "Save changes" : "Save recurring income"}</Button>
-        </div>
-      </form>
-
-      {showCategoryForm ? (
-        <CategoryForm
-          defaultType="INCOME"
-          onClose={() => setShowCategoryForm(false)}
-          onError={onError}
-          onSubmit={(category) => {
-            setAvailableCategories((current) => [...current, category].sort((a, b) => a.name.localeCompare(b.name)));
-            onCategoryCreated?.(category);
-            setShowCategoryForm(false);
+    <Dialog open onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
+      <DialogContent className="max-h-[92vh] max-w-2xl overflow-y-auto">
+        <form
+          onSubmit={(event) => {
+            void handleSubmit(event);
           }}
-        />
-      ) : null}
-    </div>
+        >
+          <DialogHeader className="mb-5">
+            <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Recurring Income</p>
+            <DialogTitle>{isEditing ? "Edit Recurring Income" : "Add Recurring Income"}</DialogTitle>
+            <DialogDescription>Track recurring money coming in, such as salary, retainers, rent, or allowance.</DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4">
+            {!isEditing ? (
+              <div className="flex flex-wrap gap-2">
+                {templates.map((template) => (
+                  <button
+                    key={template}
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-stone-300 transition hover:border-dusk-lavender/40 hover:text-stone-100"
+                    type="button"
+                    onClick={(event) => {
+                      const form = event.currentTarget.closest("form");
+                      const input = form?.elements.namedItem("name") as HTMLInputElement | null;
+                      if (input) input.value = template;
+                    }}
+                  >
+                    {template}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            <label className="grid gap-1.5">
+              <Label className="text-xs text-stone-400">Income name</Label>
+              <Input defaultValue={recurringIncome?.name} name="name" placeholder="Example: Salary, Freelance Retainer" required />
+            </label>
+
+            <label className="grid gap-1.5">
+              <Label className="text-xs text-stone-400">Amount per cycle</Label>
+              <Input
+                defaultValue={recurringIncome?.amount}
+                min={0.01}
+                name="amount"
+                onChange={(event) => setAmount(event.target.value)}
+                placeholder="Example: 30000"
+                required
+                step="0.01"
+                type="number"
+              />
+            </label>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="grid gap-1.5">
+                <Label className="text-xs text-stone-400">Repeats every</Label>
+                <Select
+                  defaultValue={recurringIncome?.incomeCycle ?? "MONTHLY"}
+                  name="incomeCycle"
+                  onValueChange={(value) => setIncomeCycle(value as SerializedRecurringIncome["incomeCycle"])}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Income cycle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="WEEKLY">Weekly</SelectItem>
+                    <SelectItem value="MONTHLY">Monthly</SelectItem>
+                    <SelectItem value="YEARLY">Yearly</SelectItem>
+                    <SelectItem value="CUSTOM">Custom</SelectItem>
+                  </SelectContent>
+                </Select>
+              </label>
+              <label className="grid gap-1.5">
+                <Label className="text-xs text-stone-400">Next income date</Label>
+                <Input defaultValue={(recurringIncome?.nextIncomeDate ?? new Date().toISOString()).slice(0, 10)} name="nextIncomeDate" required type="date" />
+              </label>
+            </div>
+
+            <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-3 text-sm text-emerald-200">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-medium text-stone-100">Estimated monthly income</span>
+                <Badge variant="cyan">{formatMoney(monthlyPreview)} THB</Badge>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-stone-400">
+                Next income date means the next time this income is expected to arrive.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-2">
+                <Select defaultValue={recurringIncome?.category?.id ?? "none"} name="categoryId">
+                  <SelectTrigger>
+                    <SelectValue placeholder="No category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No category</SelectItem>
+                    {availableCategories
+                      .filter((category) => category.type === "INCOME")
+                      .map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <button
+                  className="inline-flex items-center gap-1 text-xs font-medium text-dusk-lavender hover:text-stone-100"
+                  onClick={() => setShowCategoryForm(true)}
+                  type="button"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add category
+                </button>
+              </div>
+              <Select defaultValue={recurringIncome?.account?.id ?? "none"} name="accountId">
+                <SelectTrigger>
+                  <SelectValue placeholder="No account" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No account</SelectItem>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Textarea defaultValue={recurringIncome?.note ?? ""} name="note" placeholder="Note, account details, or income conditions" />
+            {error ? <p className="text-sm text-red-300">{error}</p> : null}
+          </div>
+
+          <DialogFooter className="mt-5">
+            <Button onClick={onClose} type="button" variant="ghost">
+              Cancel
+            </Button>
+            <Button>{isEditing ? "Save changes" : "Save recurring income"}</Button>
+          </DialogFooter>
+        </form>
+
+        {showCategoryForm ? (
+          <CategoryForm
+            defaultType="INCOME"
+            onClose={() => setShowCategoryForm(false)}
+            onError={onError}
+            onSubmit={(category) => {
+              setAvailableCategories((current) => [...current, category].sort((a, b) => a.name.localeCompare(b.name)));
+              onCategoryCreated?.(category);
+              setShowCategoryForm(false);
+            }}
+          />
+        ) : null}
+      </DialogContent>
+    </Dialog>
   );
 }
 

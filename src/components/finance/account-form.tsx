@@ -1,10 +1,19 @@
 "use client";
 
 import { FormEvent } from "react";
-import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { SerializedFinanceAccount } from "@/types/finance";
 
 interface AccountFormProps {
@@ -43,50 +52,53 @@ export function AccountForm({ account, error, onClose, onError, onSubmit }: Acco
   }
 
   return (
-    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <Dialog open onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
+      <DialogContent className="max-w-xl">
       <form
-        className="lofi-panel w-full max-w-xl rounded-lg p-5"
         onSubmit={(event) => {
           void handleSubmit(event);
         }}
       >
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <div>
+        <DialogHeader className="mb-5">
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Finance Account</p>
-            <h2 className="mt-1 text-2xl font-semibold">{isEditing ? "Edit Account" : "Add Account"}</h2>
-          </div>
-          <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+            <DialogTitle>{isEditing ? "Edit Account" : "Add Account"}</DialogTitle>
+            <DialogDescription>Track where money is held or paid from.</DialogDescription>
+        </DialogHeader>
 
         <div className="grid gap-4">
           <Input defaultValue={account?.name} name="name" placeholder="Cash, Bank, Wallet..." required />
           <div className="grid gap-3 sm:grid-cols-2">
-            <select
-              className="h-11 rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
-              defaultValue={account?.type ?? "BANK"}
-              name="type"
-            >
-              <option value="CASH">Cash</option>
-              <option value="BANK">Bank</option>
-              <option value="WALLET">Wallet</option>
-              <option value="CREDIT">Credit</option>
-              <option value="OTHER">Other</option>
-            </select>
+            <div className="grid gap-1.5">
+              <Label className="text-xs text-stone-400">Account type</Label>
+              <Select defaultValue={account?.type ?? "BANK"} name="type">
+                <SelectTrigger>
+                  <SelectValue placeholder="Account type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CASH">Cash</SelectItem>
+                  <SelectItem value="BANK">Bank</SelectItem>
+                  <SelectItem value="WALLET">Wallet</SelectItem>
+                  <SelectItem value="CREDIT">Credit</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Input defaultValue={account?.balance ?? 0} name="balance" placeholder="Balance" step="0.01" type="number" />
           </div>
           <Input defaultValue={account?.color ?? ""} name="color" placeholder="Color label, e.g. amber" />
           {error ? <p className="text-sm text-red-300">{error}</p> : null}
         </div>
 
-        <div className="mt-5 flex justify-end gap-2">
+        <DialogFooter className="mt-5">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
           <Button>{isEditing ? "Save changes" : "Save account"}</Button>
-        </div>
+        </DialogFooter>
       </form>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

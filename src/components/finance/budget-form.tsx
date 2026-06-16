@@ -1,10 +1,18 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { SerializedFinanceBudget } from "@/types/finance";
 
 interface BudgetFormProps {
@@ -19,8 +27,8 @@ export function BudgetForm({ ledgerId, currentBudget, onClose, onSubmit, onError
   const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState(currentBudget ? String(currentBudget.amount) : "");
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     if (!amount || Number(amount) <= 0) return;
 
     setLoading(true);
@@ -32,21 +40,21 @@ export function BudgetForm({ ledgerId, currentBudget, onClose, onSubmit, onError
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: Number(amount),
-          ledgerId,
-          categoryId: null // Overall budget
+          categoryId: null,
+          ledgerId
         })
       });
 
       const data = (await response.json()) as { budget?: SerializedFinanceBudget; error?: string };
 
       if (!response.ok || !data.budget) {
-        throw new Error(data.error || "Failed to save budget");
+        throw new Error(data.error || "Failed to save budget.");
       }
 
       onSubmit(data.budget);
       onClose();
-    } catch (err: any) {
-      onError(err.message || "Something went wrong.");
+    } catch (error) {
+      onError(error instanceof Error ? error.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -54,6 +62,7 @@ export function BudgetForm({ ledgerId, currentBudget, onClose, onSubmit, onError
 
   async function handleDelete() {
     if (!currentBudget) return;
+
     setLoading(true);
     onError(null);
 
@@ -64,10 +73,9 @@ export function BudgetForm({ ledgerId, currentBudget, onClose, onSubmit, onError
 
       if (!response.ok) {
         const data = (await response.json()) as { error?: string };
-        throw new Error(data.error || "Failed to delete budget");
+        throw new Error(data.error || "Failed to delete budget.");
       }
 
-      // Propose delete output by passing null equivalent
       onSubmit({
         id: "",
         amount: 0,
@@ -78,79 +86,71 @@ export function BudgetForm({ ledgerId, currentBudget, onClose, onSubmit, onError
         updatedAt: ""
       });
       onClose();
-    } catch (err: any) {
-      onError(err.message || "Failed to delete budget.");
+    } catch (error) {
+      onError(error instanceof Error ? error.message : "Failed to delete budget.");
+    } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-[190] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
-      <form
-        className="lofi-panel w-full max-w-md rounded-lg p-5"
-        onSubmit={(e) => {
-          void handleSubmit(e);
-        }}
-      >
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <div>
+    <Dialog open onOpenChange={(open) => {
+      if (!open && !loading) onClose();
+    }}>
+      <DialogContent className="max-w-md">
+        <form
+          onSubmit={(event) => {
+            void handleSubmit(event);
+          }}
+        >
+          <DialogHeader className="mb-5">
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Budget Setting</p>
-            <h2 className="mt-1 text-2xl font-semibold">ตั้งงบประมาณรายเดือน</h2>
-            <p className="mt-1 text-sm text-stone-500">กำหนดเป้าหมายวงเงินควบคุมค่าใช้จ่ายในแต่ละเดือน</p>
-          </div>
-          <button
-            className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100"
-            type="button"
-            onClick={onClose}
-            disabled={loading}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+            <DialogTitle>Set Monthly Budget</DialogTitle>
+            <DialogDescription>Set a spending limit for this finance book.</DialogDescription>
+          </DialogHeader>
 
-        <div className="grid gap-4">
-          <label className="grid gap-1.5">
-            <span className="text-xs font-medium text-stone-400">จำนวนเงินงบประมาณ (บาท)</span>
-            <Input
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="เช่น 10000"
-              required
-              type="number"
-              min="1"
-              step="any"
-              disabled={loading}
-              autoFocus
-            />
-          </label>
-        </div>
-
-        <div className="mt-6 flex justify-between gap-2">
-          {currentBudget ? (
-            <Button
-              type="button"
-              variant="ghost"
-              className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
-              onClick={() => {
-                void handleDelete();
-              }}
-              disabled={loading}
-            >
-              ยกเลิกงบประมาณ
-            </Button>
-          ) : (
-            <div />
-          )}
-          <div className="flex gap-2">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>
-              Cancel
-            </Button>
-            <Button disabled={loading}>
-              {loading ? "Saving..." : "Save Budget"}
-            </Button>
+          <div className="grid gap-4">
+            <label className="grid gap-1.5">
+              <Label className="text-xs text-stone-400">Budget amount (THB)</Label>
+              <Input
+                autoFocus
+                disabled={loading}
+                min="1"
+                onChange={(event) => setAmount(event.target.value)}
+                placeholder="Example: 10000"
+                required
+                step="any"
+                type="number"
+                value={amount}
+              />
+            </label>
           </div>
-        </div>
-      </form>
-    </div>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {currentBudget ? (
+              <Button
+                className="text-red-300 hover:bg-red-500/10 hover:text-red-200"
+                disabled={loading}
+                onClick={() => {
+                  void handleDelete();
+                }}
+                type="button"
+                variant="ghost"
+              >
+                Remove budget
+              </Button>
+            ) : (
+              <span />
+            )}
+            <DialogFooter>
+              <Button disabled={loading} onClick={onClose} type="button" variant="ghost">
+                Cancel
+              </Button>
+              <Button disabled={loading}>{loading ? "Saving..." : "Save Budget"}</Button>
+            </DialogFooter>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
