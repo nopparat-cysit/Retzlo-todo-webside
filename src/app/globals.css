@@ -1082,3 +1082,40 @@ body.focus-mode main > div.grid {
     transform: translateY(0) scale(1);
   }
 }
+
+/* ── Lofi Panel (Updated for better Retro Lofi Mood) ───────────────────── */
+.lofi-panel {
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(145deg, var(--paper), rgba(255, 244, 232, 0.025)),
+    var(--panel);
+  box-shadow: var(--lofi);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.lofi-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(145deg, rgba(245, 239, 230, 0.035), transparent 50%),
+    radial-gradient(circle at 25% 15%, rgba(169, 162, 255, 0.08), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+.lofi-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Enhanced Retro Feel */
+.retro-grid {
+  background-image: 
+    linear-gradient(rgba(245, 239, 230, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 239, 230, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
