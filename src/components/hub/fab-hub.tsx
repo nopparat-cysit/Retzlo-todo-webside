@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState, FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { BookOpen, FileText, Plus, Star, X, CalendarClock, Repeat, Save } from "lucide-react";
+import { BookOpen, FileText, Pin, Plus, Save, Star, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input, Textarea } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { composeDueDate } from "@/lib/kanban/due-date";
-import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
+import { cardColorOptions, getCardColorMeta, type CardColor } from "@/lib/theme/card-colors";
 
 const RED_STAR_KEY = "retrod:redStar";
 
@@ -24,6 +24,24 @@ interface ProjectItem {
   allowMemberPrivateItems: boolean;
 }
 
+interface DisplayDiaryItem {
+  id: string;
+  title: string;
+  description: string | null;
+  intervalDays: number;
+  dueTime: string | null;
+  projectId: string | null;
+  projectName: string | null;
+}
+
+interface DisplayNote {
+  id: string;
+  title: string;
+  content: string;
+  projectId: string;
+  projectName: string;
+}
+
 function getRedStar(): RedStar | null {
   try {
     const raw = localStorage.getItem(RED_STAR_KEY);
@@ -37,6 +55,8 @@ export function FabHub() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<"diary" | "note" | null>(null);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [pinAfterCreate, setPinAfterCreate] = useState(false);
   const [redStar, setRedStar] = useState<RedStar | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -75,9 +95,15 @@ export function FabHub() {
     router.push(href);
   }
 
-  function openCreateModal(mode: "diary" | "note") {
+  function openCreateModal(mode: "diary" | "note", shouldPin = false) {
     setIsOpen(false);
+    setPinAfterCreate(shouldPin);
     setActiveModal(mode);
+  }
+
+  function openPicker() {
+    setIsOpen(false);
+    setIsPickerOpen(true);
   }
 
   return (
@@ -101,6 +127,20 @@ export function FabHub() {
               <Star className="h-4 w-4 shrink-0 fill-red-400 text-red-400" />
             </button>
           )}
+
+          <button
+            type="button"
+            className={cn(
+              "fab-action-btn flex items-center gap-3 rounded-2xl border px-4 py-2.5 text-sm font-medium shadow-lg backdrop-blur-md transition",
+              redStar
+                ? "border-red-400/20 bg-red-500/10 text-red-200 hover:border-red-400/50 hover:bg-red-500/15"
+                : "border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber hover:border-dusk-amber/55 hover:bg-dusk-amber/20"
+            )}
+            onClick={openPicker}
+          >
+            <span>{redStar ? "Change display" : "Choose display"}</span>
+            <Pin className="h-4 w-4 shrink-0" />
+          </button>
 
           {/* Note Quick Create Modal Button */}
           <button
@@ -144,18 +184,280 @@ export function FabHub() {
 
       {/* Centered Modal */}
       {activeModal && (
-        <FabCreateModal mode={activeModal} onClose={() => setActiveModal(null)} />
+        <FabCreateModal
+          mode={activeModal}
+          pinAfterCreate={pinAfterCreate}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {isPickerOpen && (
+        <FabDisplayPicker
+          activeItem={redStar}
+          onClose={() => setIsPickerOpen(false)}
+          onCreate={(mode) => {
+            setIsPickerOpen(false);
+            openCreateModal(mode, true);
+          }}
+        />
       )}
     </>
   );
 }
 
+function FabDisplayPicker({
+  activeItem,
+  onClose,
+  onCreate
+}: {
+  activeItem: RedStar | null;
+  onClose: () => void;
+  onCreate: (mode: "diary" | "note") => void;
+}) {
+  const [tab, setTab] = useState<"diary" | "note">(activeItem?.type ?? "diary");
+  const [diaryItems, setDiaryItems] = useState<DisplayDiaryItem[]>([]);
+  const [notes, setNotes] = useState<DisplayNote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadItems() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const [diaryResponse, notesResponse] = await Promise.all([
+          fetch("/api/hub/diary"),
+          fetch("/api/hub/notes")
+        ]);
+
+        const diaryData = (await diaryResponse.json()) as { items?: DisplayDiaryItem[]; error?: string };
+        const notesData = (await notesResponse.json()) as { notes?: DisplayNote[]; error?: string };
+
+        if (!diaryResponse.ok) {
+          throw new Error(diaryData.error ?? "Could not load diary lists.");
+        }
+
+        if (!notesResponse.ok) {
+          throw new Error(notesData.error ?? "Could not load notes.");
+        }
+
+        if (!alive) return;
+        setDiaryItems(diaryData.items ?? []);
+        setNotes(notesData.notes ?? []);
+      } catch (err) {
+        if (!alive) return;
+        setError(err instanceof Error ? err.message : "Could not load display choices.");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+
+    void loadItems();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  function chooseDiary(item: DisplayDiaryItem) {
+    setRedStarItem({
+      type: "diary",
+      id: item.id,
+      title: item.title,
+      href: item.projectId ? `/project/${item.projectId}/diary` : "/hub/diary"
+    });
+    onClose();
+  }
+
+  function chooseNote(note: DisplayNote) {
+    setRedStarItem({
+      type: "note",
+      id: note.id,
+      title: note.title,
+      href: `/project/${note.projectId}/notes`
+    });
+    onClose();
+  }
+
+  function clearDisplay() {
+    setRedStarItem(null);
+    onClose();
+  }
+
+  const activeList = tab === "diary" ? diaryItems : notes;
+
+  return (
+    <div className="fixed inset-0 z-[300] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+      <div className="lofi-panel max-h-[88vh] w-full max-w-2xl overflow-hidden rounded-xl">
+        <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">FAB Display</p>
+            <h2 className="mt-1 text-2xl font-semibold">Choose what stays visible</h2>
+            <p className="mt-1 max-w-xl text-sm leading-6 text-stone-400">
+              Pick one diary list or note to keep on the bottom-right button. It stays there until you change it.
+            </p>
+          </div>
+          <button className="rounded-md p-2 text-stone-400 hover:bg-white/10" type="button" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className={cn(
+                "rounded-lg border px-3 py-2 text-sm transition",
+                tab === "diary"
+                  ? "border-dusk-lavender bg-dusk-lavender/15 text-dusk-lavender"
+                  : "border-white/10 bg-white/5 text-stone-300 hover:border-dusk-lavender/40"
+              )}
+              onClick={() => setTab("diary")}
+            >
+              Diary list
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "rounded-lg border px-3 py-2 text-sm transition",
+                tab === "note"
+                  ? "border-dusk-cyan bg-dusk-cyan/15 text-dusk-cyan"
+                  : "border-white/10 bg-white/5 text-stone-300 hover:border-dusk-cyan/40"
+              )}
+              onClick={() => setTab("note")}
+            >
+              Note
+            </button>
+          </div>
+
+          {activeItem ? (
+            <Button type="button" variant="ghost" onClick={clearDisplay}>
+              Clear display
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="max-h-[54vh] overflow-y-auto p-4 scrollbar-soft">
+          {loading ? (
+            <div className="rounded-lg border border-white/10 bg-white/[0.035] p-6 text-center text-sm text-stone-400">
+              Loading display choices...
+            </div>
+          ) : error ? (
+            <div className="rounded-lg border border-red-300/20 bg-red-400/10 p-4 text-sm text-red-200">
+              {error}
+            </div>
+          ) : activeList.length === 0 ? (
+            <div className="rounded-lg border border-white/10 bg-white/[0.035] p-6 text-center">
+              <p className="text-sm text-stone-300">
+                No {tab === "diary" ? "diary lists" : "notes"} yet.
+              </p>
+              <p className="mt-1 text-xs text-stone-500">
+                Create one now, then choose it for the bottom-right display.
+              </p>
+              <Button className="mt-4" type="button" onClick={() => onCreate(tab)}>
+                <Plus className="h-4 w-4" />
+                Create {tab === "diary" ? "diary" : "note"}
+              </Button>
+            </div>
+          ) : tab === "diary" ? (
+            <div className="grid gap-2">
+              {diaryItems.map((item) => {
+                const isActive = activeItem?.type === "diary" && activeItem.id === item.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={cn(
+                      "flex items-start justify-between gap-4 rounded-lg border p-3 text-left transition",
+                      isActive
+                        ? "border-red-400/35 bg-red-500/10"
+                        : "border-white/10 bg-white/[0.035] hover:border-dusk-lavender/40 hover:bg-dusk-lavender/10"
+                    )}
+                    onClick={() => chooseDiary(item)}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-stone-100">{item.title}</span>
+                      <span className="mt-1 line-clamp-2 block text-xs leading-5 text-stone-400">
+                        {item.description || "No description."}
+                      </span>
+                      <span className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-stone-500">
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
+                          {item.projectName ?? "My Diary"}
+                        </span>
+                        <span className="rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-dusk-cyan">
+                          Every {item.intervalDays}d
+                        </span>
+                        {item.dueTime ? (
+                          <span className="rounded-full border border-dusk-amber/20 bg-dusk-amber/10 px-2 py-0.5 text-dusk-amber">
+                            {item.dueTime}
+                          </span>
+                        ) : null}
+                      </span>
+                    </span>
+                    <Star className={cn("mt-1 h-4 w-4 shrink-0", isActive ? "fill-red-400 text-red-400" : "text-stone-600")} />
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="grid gap-2">
+              {notes.map((note) => {
+                const isActive = activeItem?.type === "note" && activeItem.id === note.id;
+
+                return (
+                  <button
+                    key={note.id}
+                    type="button"
+                    className={cn(
+                      "flex items-start justify-between gap-4 rounded-lg border p-3 text-left transition",
+                      isActive
+                        ? "border-red-400/35 bg-red-500/10"
+                        : "border-white/10 bg-white/[0.035] hover:border-dusk-cyan/40 hover:bg-dusk-cyan/10"
+                    )}
+                    onClick={() => chooseNote(note)}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-stone-100">{note.title}</span>
+                      <span className="mt-1 line-clamp-2 block text-xs leading-5 text-stone-400">
+                        {note.content || "No content."}
+                      </span>
+                      <span className="mt-2 inline-flex rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-stone-500">
+                        {note.projectName}
+                      </span>
+                    </span>
+                    <Star className={cn("mt-1 h-4 w-4 shrink-0", isActive ? "fill-red-400 text-red-400" : "text-stone-600")} />
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-wrap justify-end gap-2 border-t border-white/10 p-4">
+          <Button type="button" variant="ghost" onClick={() => onCreate(tab)}>
+            <Plus className="h-4 w-4" />
+            Create {tab === "diary" ? "diary" : "note"}
+          </Button>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FabCreateModal({
   mode,
-  onClose
+  onClose,
+  pinAfterCreate
 }: {
   mode: "diary" | "note";
   onClose: () => void;
+  pinAfterCreate: boolean;
 }) {
   const params = useParams();
   const projectIdFromUrl = params.id as string | undefined;
@@ -256,10 +558,19 @@ function FabCreateModal({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
+        const data = (await response.json()) as { note?: { id: string; title: string; projectId: string }; error?: string };
 
         if (!response.ok) {
-          const data = await response.json();
           throw new Error(data.error ?? "Failed to create note.");
+        }
+
+        if (pinAfterCreate && data.note) {
+          setRedStarItem({
+            type: "note",
+            id: data.note.id,
+            title: data.note.title,
+            href: `/project/${data.note.projectId}/notes`
+          });
         }
       } else {
         // Diary mode
@@ -284,10 +595,22 @@ function FabCreateModal({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
+        const data = (await response.json()) as {
+          diaryItem?: { id: string; title: string; projectId: string | null };
+          error?: string;
+        };
 
         if (!response.ok) {
-          const data = await response.json();
           throw new Error(data.error ?? "Failed to create diary checklist.");
+        }
+
+        if (pinAfterCreate && data.diaryItem) {
+          setRedStarItem({
+            type: "diary",
+            id: data.diaryItem.id,
+            title: data.diaryItem.title,
+            href: data.diaryItem.projectId ? `/project/${data.diaryItem.projectId}/diary` : "/hub/diary"
+          });
         }
       }
 
