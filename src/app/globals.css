@@ -1217,3 +1217,81 @@ body.focus-mode main > div.grid {
     linear-gradient(90deg, rgba(245, 239, 230, 0.035) 1px, transparent 1px);
   background-size: 48px 48px;
 }
+
+/* ── Lofi Toggle Switch (Improved for Retro Lofi Mood) ───────────────────── */
+.lofi-toggle {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+}
+
+.lofi-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.lofi-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(245, 239, 230, 0.1);
+  transition: .4s;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 239, 230, 0.2);
+}
+
+.lofi-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 2px;
+  background-color: #f5efe6;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .lofi-slider {
+  background-color: #a9a2ff;
+  border-color: #a9a2ff;
+}
+
+input:checked + .lofi-slider:before {
+  transform: translateX(18px);
+  background-color: #090817;
+}
+
+/* ── Enhanced Lofi Sidebar ─────────────────────────────────────────────── */
+.project-sidebar {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: var(--lofi);
+  backdrop-filter: blur(20px);
+}
+
+.project-sidebar .lofi-panel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* ── Improved Toggle Labels and 50% Progress ───────────────────────────── */
+.toggle-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+
+.progress-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #a9a2ff, #e5bd72);
+  border-radius: 999px;
+  margin-top: 4px;
+}
