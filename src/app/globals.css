@@ -106,7 +106,7 @@ textarea {
 }
 
 .asset-sticker-peek {
-  background-image: url("/assets/relox-sticker-ui-assets.png");
+  background-image: url("/stickers/retro/retro-sticker-sheet.png");
   background-position: 8% 6%;
   background-repeat: no-repeat;
   background-size: 410%;
@@ -146,6 +146,99 @@ textarea {
 }
 .animate-soft-float {
   animation: soft-float 3.2s ease-in-out infinite;
+}
+
+/* Retrod motion primitives */
+.motion-interactive {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+.motion-interactive:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.motion-panel-in {
+  animation: retrod-panel-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.motion-floating-in {
+  animation: retrod-floating-in 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: var(--radix-popover-content-transform-origin, var(--radix-dropdown-menu-content-transform-origin, var(--radix-select-content-transform-origin, center top)));
+}
+
+.motion-dialog-overlay[data-state="open"] {
+  animation: retrod-overlay-in 160ms ease both;
+}
+
+.motion-dialog-overlay[data-state="closed"] {
+  animation: retrod-overlay-out 120ms ease both;
+}
+
+.motion-dialog-content[data-state="open"] {
+  animation: retrod-dialog-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.motion-dialog-content[data-state="closed"] {
+  animation: retrod-dialog-out 130ms ease both;
+}
+
+@keyframes retrod-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes retrod-floating-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes retrod-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes retrod-overlay-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes retrod-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 10px)) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes retrod-dialog-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 6px)) scale(0.985);
+  }
 }
 
 .retro-slider {
@@ -928,12 +1021,22 @@ textarea {
   .toast-exit,
   .cmd-backdrop,
   .cmd-panel,
+  .motion-panel-in,
+  .motion-floating-in,
+  .motion-dialog-overlay,
+  .motion-dialog-content,
   .celebrate-particle,
   .quick-add-enter,
   .drop-zone-active,
   .greeting-appear,
   .empty-float {
     animation: none;
+  }
+
+  .motion-interactive,
+  .motion-interactive:not(:disabled):hover {
+    transition: none;
+    transform: none;
   }
 }
 

@@ -33,7 +33,7 @@ export default async function ProjectRewardsPage({
   const isProjectAdmin = ["OWNER", "ADMIN"].includes(membership.role);
 
   return (
-    <div className="lofi-panel h-full overflow-y-auto rounded-lg p-6 bg-ink-950/20 scrollbar-soft">
+    <div className="h-full overflow-y-auto pr-1 scrollbar-soft">
       <RewardsStore
         projectId={params.id}
         projectName={project.name}

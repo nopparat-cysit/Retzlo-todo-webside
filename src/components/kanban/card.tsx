@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { CalendarClock, CheckSquare, Star } from "lucide-react";
@@ -9,6 +10,7 @@ import { CardModal } from "@/components/kanban/card-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { formatMediumDateTime } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
+import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import type { Card } from "@/types/kanban";
@@ -47,6 +49,7 @@ export function KanbanCard({
   const completedChecklist = card.checklist.filter((item) => item.checked).length;
   const statusMeta = getStatusMeta(card.status);
   const colorMeta = getCardColorMeta(card.color);
+  const visibleStickers = normalizeRetroStickerSelection(card.stickers);
   const isOverdue = mounted && card.dueDate && new Date(card.dueDate) < new Date() && card.status !== "DONE";
 
   async function saveCard(payload: {
@@ -59,6 +62,9 @@ export function KanbanCard({
     dueDateAllDay: boolean;
     priority: "LOW" | "MEDIUM" | "HIGH";
     isStarred: boolean;
+    rewardCoins?: number;
+    privateCoins?: unknown;
+    stickers?: string[];
   }) {
     const response = await fetch("/api/cards", {
       method: "PATCH",
@@ -129,10 +135,16 @@ export function KanbanCard({
         <div className="flex items-start justify-between gap-1">
           <div className="flex-1">
             <p className="font-medium text-stone-100">{card.title}</p>
-            {Array.isArray(card.stickers) && card.stickers.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-1 select-none text-[1.15rem] leading-none">
-                {card.stickers.map((st, i) => (
-                  <span key={i} className="inline-block hover:scale-125 transition-transform duration-200 cursor-default" title="Sticker stamp">{st}</span>
+            {visibleStickers.length > 0 && (
+              <div className="mt-1 flex flex-wrap gap-1.5 select-none leading-none">
+                {visibleStickers.map((st, i) => (
+                  <span
+                    key={`${st}-${i}`}
+                    className="inline-grid h-7 w-7 cursor-default place-items-center transition-transform duration-200 hover:scale-110"
+                    title="Retro sticker"
+                  >
+                    <Image alt="Retro sticker" className="h-full w-full object-contain" height={28} src={`${st}?v=20260621-clean`} width={28} />
+                  </span>
                 ))}
               </div>
             )}

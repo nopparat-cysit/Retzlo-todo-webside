@@ -10,6 +10,7 @@ import {
   isOwnerRole,
   requireUserId
 } from "@/lib/project-auth";
+import { getColumnIconOption, getColumnThemeOption } from "@/lib/kanban/column-settings";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import type { CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 import type { ProjectNote } from "@/types/note";
@@ -18,6 +19,8 @@ function toColumns(columns: Array<{
   id: string;
   name: string;
   position: number;
+  color?: string | null;
+  icon?: string | null;
   cards: Array<{
     id: string;
     title: string;
@@ -40,6 +43,8 @@ function toColumns(columns: Array<{
     id: column.id,
     name: column.name,
     position: column.position,
+    color: getColumnThemeOption(column.color).id,
+    icon: getColumnIconOption(column.icon).id,
     cards: column.cards.map((card) => ({
       ...card,
       status: card.status as CardStatus,
@@ -109,7 +114,19 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
     notFound();
   }
 
-  const [board, notes, project] = await Promise.all([
+  const project = await prisma.project.findUnique({
+    where: { id: params.id },
+    select: {
+      allowMemberPrivateItems: true,
+      notesEnabled: true
+    }
+  });
+
+  if (!project) {
+    notFound();
+  }
+
+  const [board, notes] = await Promise.all([
     prisma.board.findFirst({
       where: { projectId: params.id },
       orderBy: { createdAt: "asc" },
@@ -122,36 +139,34 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
         }
       }
     }),
-    prisma.note.findMany({
-      where: isOwnerRole(membership.role)
-        ? { projectId: params.id }
-        : {
-            projectId: params.id,
-            OR: [{ isHidden: false }, { authorId: userId }]
+    project.notesEnabled
+      ? prisma.note.findMany({
+          where: isOwnerRole(membership.role)
+            ? { projectId: params.id }
+            : {
+                projectId: params.id,
+                OR: [{ isHidden: false }, { authorId: userId }]
+              },
+          include: {
+            author: {
+              select: {
+                name: true,
+                email: true
+              }
+            }
           },
-      include: {
-        author: {
-          select: {
-            name: true,
-            email: true
-          }
-        }
-      },
-      orderBy: [{ isStarred: "desc" }, { updatedAt: "desc" }],
-      take: 40
-    }),
-    prisma.project.findUnique({
-      where: { id: params.id },
-      select: { allowMemberPrivateItems: true }
-    })
+          orderBy: [{ isStarred: "desc" }, { updatedAt: "desc" }],
+          take: 40
+        })
+      : Promise.resolve([]),
   ]);
 
-  if (!board || !project) {
+  if (!board) {
     notFound();
   }
 
   return (
-    <div className="grid h-full min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <div className={project.notesEnabled ? "grid h-full min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]" : "h-full min-h-0"}>
       <KanbanBoard
         board={{
           id: board.id,
@@ -159,14 +174,16 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
           columns: toColumns(board.columns)
         }}
       />
-      <BoardNotesRail
-        projectId={params.id}
-        initialNotes={toProjectNotes(notes, {
-          membership,
-          userId,
-          allowMemberPrivateItems: project.allowMemberPrivateItems
-        })}
-      />
+      {project.notesEnabled ? (
+        <BoardNotesRail
+          projectId={params.id}
+          initialNotes={toProjectNotes(notes, {
+            membership,
+            userId,
+            allowMemberPrivateItems: project.allowMemberPrivateItems
+          })}
+        />
+      ) : null}
     </div>
   );
 }

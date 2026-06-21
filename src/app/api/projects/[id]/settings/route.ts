@@ -6,7 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { assertProjectMember, isOwnerRole, requireUserId } from "@/lib/project-auth";
 
 const updateProjectSettingsSchema = z.object({
-  allowMemberPrivateItems: z.boolean().optional()
+  allowMemberPrivateItems: z.boolean().optional(),
+  notesEnabled: z.boolean().optional()
 });
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
@@ -31,11 +32,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const project = await prisma.project.update({
       where: { id: params.id },
       data: {
-        allowMemberPrivateItems: payload.allowMemberPrivateItems
+        allowMemberPrivateItems: payload.allowMemberPrivateItems,
+        notesEnabled: payload.notesEnabled
       },
       select: {
         id: true,
-        allowMemberPrivateItems: true
+        allowMemberPrivateItems: true,
+        notesEnabled: true
       }
     });
 

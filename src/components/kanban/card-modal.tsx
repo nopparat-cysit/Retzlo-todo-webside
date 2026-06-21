@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   closestCenter,
   DndContext,
@@ -11,13 +12,15 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState } from "react";
-import { CalendarClock, CheckSquare, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
+import { createPortal } from "react-dom";
+import { CalendarClock, CheckSquare, Coins, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { applyDueShortcut, composeDueDate } from "@/lib/kanban/due-date";
 import { getPrivateCoinEntry, setPrivateCoinAmount } from "@/lib/kanban/private-coins";
 import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
+import { normalizeRetroStickerSelection, retroStickerOptions } from "@/lib/stickers/retro-stickers";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import type { Card, CardStatus, ChecklistItem } from "@/types/kanban";
@@ -73,9 +76,15 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const [privateGlobalCoins, setPrivateGlobalCoins] = useState(0);
   const [rewardCoins, setRewardCoins] = useState(card?.rewardCoins ?? 0);
+  const [showCoinRewards, setShowCoinRewards] = useState(Boolean(card?.rewardCoins));
   const [stickers, setStickers] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) {
@@ -92,22 +101,27 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     setNewChecklistItem("");
 
     setRewardCoins(card?.rewardCoins ?? 0);
-    setStickers(Array.isArray(card?.stickers) ? (card.stickers as string[]) : []);
+    setShowCoinRewards(Boolean(card?.rewardCoins));
+    setStickers(normalizeRetroStickerSelection(card?.stickers));
 
     async function fetchUser() {
       try {
         const res = await fetch("/api/profile");
         if (res.ok) {
           const d = await res.json() as { user: { id: string } };
+          const privateCoins = getPrivateCoinEntry(card?.privateCoins, d.user.id).coins;
           setActiveUserId(d.user.id);
-          setPrivateGlobalCoins(getPrivateCoinEntry(card?.privateCoins, d.user.id).coins);
+          setPrivateGlobalCoins(privateCoins);
+          if (privateCoins > 0) {
+            setShowCoinRewards(true);
+          }
         }
       } catch {}
     }
     void fetchUser();
   }, [card, open]);
 
-  if (!open) {
+  if (!open || !mounted) {
     return null;
   }
 
@@ -164,20 +178,39 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
       isStarred,
       rewardCoins,
       privateCoins: activeUserId ? setPrivateCoinAmount(card?.privateCoins, activeUserId, privateGlobalCoins) : undefined,
-      stickers
+      stickers: normalizeRetroStickerSelection(stickers)
     });
     setIsSaving(false);
   }
 
-  return (
-    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
-      <form className="lofi-panel max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-lg p-5" onSubmit={handleSubmit}>
-        <div className="mb-5 flex items-center justify-between gap-3">
+  const modal = (
+    <div
+      className="fixed inset-0 z-[1000] grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm"
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
+    >
+      <form className="lofi-panel flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg" onSubmit={handleSubmit}>
+        <div className="shrink-0 border-b border-white/10 p-5">
+        <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">{mode === "create" ? "New card" : "Edit card"}</p>
             <h2 className="mt-1 text-2xl font-semibold">{mode === "create" ? "Create card" : "Card details"}</h2>
           </div>
           <div className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label={showCoinRewards ? "Hide coin rewards" : "Show coin rewards"}
+              className={cn(
+                "grid h-9 w-9 place-items-center rounded-md border transition hover:scale-105",
+                showCoinRewards
+                  ? "border-dusk-amber/60 bg-dusk-amber/15 text-dusk-amber"
+                  : "border-white/10 text-stone-500 hover:border-dusk-amber/40 hover:text-dusk-amber"
+              )}
+              onClick={() => setShowCoinRewards((value) => !value)}
+              title={showCoinRewards ? "Hide Coin Rewards" : "Show Coin Rewards"}
+            >
+              <Coins className="h-4 w-4" />
+            </button>
             <button
               type="button"
               aria-label={isStarred ? "Unstar card" : "Star card"}
@@ -196,10 +229,52 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
             </button>
           </div>
         </div>
+        </div>
 
-        <div className="grid gap-4">
+        <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] lg:items-start">
+          <div className="grid gap-4">
           <Input name="title" defaultValue={card?.title ?? ""} placeholder="Card title" required />
           <Textarea name="description" defaultValue={card?.description ?? ""} placeholder="Details, links, context..." />
+          <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
+            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
+              <CheckSquare className="h-4 w-4 text-dusk-cyan" />
+              Checklist
+            </div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={reorderChecklist}>
+              <SortableContext items={checklist.map((item) => item.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-2">
+                  {checklist.map((item) => (
+                    <SortableChecklistItem
+                      key={item.id}
+                      item={item}
+                      onCheckedChange={(checked) =>
+                        setChecklist((current) =>
+                          current.map((currentItem) =>
+                            currentItem.id === item.id ? { ...currentItem, checked } : currentItem
+                          )
+                        )
+                      }
+                      onDelete={() => setChecklist((current) => current.filter((currentItem) => currentItem.id !== item.id))}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+            <div className="mt-3 flex gap-2">
+              <Input
+                value={newChecklistItem}
+                onChange={(event) => setNewChecklistItem(event.target.value)}
+                placeholder="Checklist item"
+              />
+              <Button className="h-10 w-10 shrink-0 px-0" type="button" onClick={addChecklistItem}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          </div>
+
+          <div className="grid gap-4 lg:sticky lg:top-0">
           <div className="space-y-2 text-sm text-stone-300">
             <span>Status</span>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -287,10 +362,12 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
           </div>
 
           {/* ── Coin Rewards & Stickers ── */}
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3">
             {/* Coins */}
+            {showCoinRewards ? (
             <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
               <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
+                <Coins className="h-4 w-4 text-dusk-amber" />
                 <span className="text-xs uppercase tracking-wider text-dusk-amber font-bold">Coin Rewards</span>
               </div>
               <div className="space-y-3">
@@ -321,6 +398,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
                 </label>
               </div>
             </div>
+            ) : null}
 
             {/* Stickers */}
             <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
@@ -328,32 +406,33 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
                 <span className="text-xs uppercase tracking-wider text-dusk-lavender font-bold">Retro Stickers</span>
               </div>
               <p className="text-xs text-stone-500 mb-2.5">Stamp your card to reflect the mood:</p>
-              <div className="flex flex-wrap gap-2.5">
-                {[
-                  { value: "🐱", label: "Cat" },
-                  { value: "☕", label: "Coffee" },
-                  { value: "🌟", label: "Star" },
-                  { value: "🎵", label: "Music" }
-                ].map((st) => {
-                  const active = stickers.includes(st.value);
+              <div className="grid grid-cols-5 gap-2.5">
+                {retroStickerOptions.map((st) => {
+                  const active = stickers.includes(st.src);
                   return (
                     <button
-                      key={st.value}
+                      key={st.id}
                       type="button"
                       onClick={() => {
                         setStickers((prev) =>
-                          active ? prev.filter((s) => s !== st.value) : [...prev, st.value]
+                          active ? prev.filter((s) => s !== st.src) : [...prev, st.src]
                         );
                       }}
                       className={cn(
-                        "flex items-center justify-center h-10 w-10 text-xl rounded-md border transition hover:scale-105 select-none",
-                        active 
-                          ? "border-dusk-lavender bg-dusk-lavender/15 ring-2 ring-dusk-lavender/25 text-shadow-[0_0_8px_rgba(169,162,255,0.6)] font-bold" 
+                        "flex h-12 w-12 items-center justify-center overflow-visible rounded-lg border bg-ink-950/30 p-1 transition hover:scale-105 select-none",
+                        active
+                          ? "border-dusk-lavender bg-dusk-lavender/15 ring-2 ring-dusk-lavender/25"
                           : "border-white/5 bg-ink-950/30 text-stone-500 hover:border-white/10"
                       )}
                       title={st.label}
                     >
-                      {st.value}
+                      <Image
+                        alt={st.label}
+                        className="h-9 w-9 object-contain"
+                        height={44}
+                        src={`${st.src}?v=20260621-clean`}
+                        width={44}
+                      />
                     </button>
                   );
                 })}
@@ -361,45 +440,11 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
             </div>
           </div>
 
-          <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
-            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
-              <CheckSquare className="h-4 w-4 text-dusk-cyan" />
-              Checklist
-            </div>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={reorderChecklist}>
-              <SortableContext items={checklist.map((item) => item.id)} strategy={verticalListSortingStrategy}>
-                <div className="space-y-2">
-                  {checklist.map((item) => (
-                    <SortableChecklistItem
-                      key={item.id}
-                      item={item}
-                      onCheckedChange={(checked) =>
-                        setChecklist((current) =>
-                          current.map((currentItem) =>
-                            currentItem.id === item.id ? { ...currentItem, checked } : currentItem
-                          )
-                        )
-                      }
-                      onDelete={() => setChecklist((current) => current.filter((currentItem) => currentItem.id !== item.id))}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-            <div className="mt-3 flex gap-2">
-              <Input
-                value={newChecklistItem}
-                onChange={(event) => setNewChecklistItem(event.target.value)}
-                placeholder="Checklist item"
-              />
-              <Button className="h-10 w-10 shrink-0 px-0" type="button" onClick={addChecklistItem}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
+        </div>
 
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="flex shrink-0 justify-end gap-2 border-t border-white/10 p-5">
           {footerAction}
           {mode === "edit" && onDelete ? (
             <Button type="button" variant="danger" onClick={onDelete}>
@@ -415,6 +460,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
       </form>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }
 
 function ColorPicker({

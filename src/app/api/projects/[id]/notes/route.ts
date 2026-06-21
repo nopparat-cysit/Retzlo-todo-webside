@@ -61,11 +61,15 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
-    select: { allowMemberPrivateItems: true }
+    select: { allowMemberPrivateItems: true, notesEnabled: true }
   });
 
   if (!project) {
     return jsonError("Project not found.", 404);
+  }
+
+  if (!project.notesEnabled) {
+    return jsonError("Notes are disabled for this project.", 403);
   }
 
   const notes = await prisma.note.findMany({
@@ -114,11 +118,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const payload = parseCreateNotePayload(await request.json());
     const project = await prisma.project.findUnique({
       where: { id: params.id },
-      select: { allowMemberPrivateItems: true }
+      select: { allowMemberPrivateItems: true, notesEnabled: true }
     });
 
     if (!project) {
       return jsonError("Project not found.", 404);
+    }
+
+    if (!project.notesEnabled) {
+      return jsonError("Notes are disabled for this project.", 403);
     }
 
     if (payload.isHidden && !canToggleHiddenItem(membership, userId, userId, project.allowMemberPrivateItems)) {

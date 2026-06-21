@@ -1,4 +1,5 @@
 import type { CardColor } from "@/lib/theme/card-colors";
+import type { ColumnIconId, ColumnThemeId } from "@/lib/kanban/column-settings";
 
 export type CardPriority = "LOW" | "MEDIUM" | "HIGH";
 
@@ -32,5 +33,7 @@ export interface ColumnWithCards {
   id: string;
   name: string;
   position: number;
+  color: ColumnThemeId;
+  icon: ColumnIconId;
   cards: Card[];
 }

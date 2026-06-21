@@ -19,6 +19,8 @@ export default async function ProjectsPage() {
     redirect("/login");
   }
 
+  let databaseWarning: string | undefined;
+
   const [projects, calendarCards, userRecord] = await Promise.all([
     prisma.project.findMany({
       where: {
@@ -95,7 +97,21 @@ export default async function ProjectsPage() {
       where: { id: session.user.id },
       select: { name: true, avatar: true, status: true, email: true },
     }),
-  ]);
+  ]).catch((error) => {
+    console.error("Failed to load projects dashboard data", error);
+    databaseWarning = "Cannot reach the database right now. Your workspace will appear here again when the connection is back.";
+
+    return [
+      [],
+      [],
+      {
+        name: session.user.name ?? null,
+        avatar: null,
+        status: "ONLINE",
+        email: session.user.email ?? "",
+      },
+    ] as const;
+  });
 
   const userProfile: UserProfile = {
     name: userRecord?.name ?? null,
@@ -110,6 +126,7 @@ export default async function ProjectsPage() {
         projects={projects.map(toProjectDashboardItem)}
         calendarCards={calendarCards.map(toGlobalCalendarCard)}
         userProfile={userProfile}
+        databaseWarning={databaseWarning}
       />
       <FabHub />
     </>

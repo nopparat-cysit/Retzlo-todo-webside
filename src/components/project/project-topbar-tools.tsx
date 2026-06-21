@@ -31,7 +31,7 @@ export function ProjectTopbarTools() {
 
   return (
     <TooltipProvider delayDuration={250}>
-      <div className="relative z-[220] flex items-center gap-1.5">
+      <div className="relative flex items-center gap-1.5">
         {tools.map((tool) => {
           const Icon = tool.icon;
           const isActive = activeTool === tool.id;

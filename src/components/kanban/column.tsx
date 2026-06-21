@@ -2,12 +2,20 @@
 
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Plus, X, Minus } from "lucide-react";
+import { AlertTriangle, GripVertical, Minus, Plus, Settings, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
 import { KanbanCard } from "@/components/kanban/card";
+import { ColumnIconGlyph, ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  columnThemeOptions,
+  getColumnThemeOption,
+  type ColumnIconId,
+  type ColumnThemeId
+} from "@/lib/kanban/column-settings";
 import { cn } from "@/lib/utils";
 import type { Card, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 
@@ -18,6 +26,8 @@ export function KanbanColumn({
   onCreateCard,
   onCardDeleted,
   onCardSaved,
+  onColumnDeleted,
+  onColumnSaved,
   isFirst = false
 }: {
   column: ColumnWithCards;
@@ -39,19 +49,41 @@ export function KanbanColumn({
   ) => Promise<void>;
   onCardDeleted: (cardId: string) => void;
   onCardSaved: (card: Card) => void;
+  onColumnDeleted: (columnId: string) => Promise<void>;
+  onColumnSaved: (
+    columnId: string,
+    payload: {
+      name: string;
+      color: ColumnThemeId;
+      icon: ColumnIconId;
+    }
+  ) => Promise<void>;
   isFirst?: boolean;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [quickTitle, setQuickTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [settingsName, setSettingsName] = useState(column.name);
+  const [settingsColor, setSettingsColor] = useState<ColumnThemeId>(column.color);
+  const [settingsIcon, setSettingsIcon] = useState<ColumnIconId>(column.icon);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
   const quickInputRef = useRef<HTMLTextAreaElement>(null);
+  const theme = getColumnThemeOption(column.color);
 
   useEffect(() => {
     const collapsed = localStorage.getItem(`column-collapsed-${column.id}`) === "true";
     setIsCollapsed(collapsed);
   }, [column.id]);
+
+  useEffect(() => {
+    setSettingsName(column.name);
+    setSettingsColor(column.color);
+    setSettingsIcon(column.icon);
+  }, [column.color, column.icon, column.name]);
 
   const toggleCollapse = () => {
     const newState = !isCollapsed;
@@ -108,6 +140,52 @@ export function KanbanColumn({
     setQuickTitle("");
   }
 
+  function closeSettings() {
+    setSettingsName(column.name);
+    setSettingsColor(column.color);
+    setSettingsIcon(column.icon);
+    setSettingsError(null);
+    setIsSettingsOpen(false);
+  }
+
+  async function handleSaveSettings(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!settingsName.trim() || isSavingSettings) return;
+
+    setIsSavingSettings(true);
+    setSettingsError(null);
+
+    try {
+      await onColumnSaved(column.id, {
+        name: settingsName.trim(),
+        color: settingsColor,
+        icon: settingsIcon
+      });
+      setIsSettingsOpen(false);
+    } catch (error) {
+      setSettingsError(error instanceof Error ? error.message : "Column did not sync. Try again.");
+    } finally {
+      setIsSavingSettings(false);
+    }
+  }
+
+  async function handleDeleteColumn() {
+    if (isSavingSettings) return;
+
+    setIsSavingSettings(true);
+    setSettingsError(null);
+
+    try {
+      await onColumnDeleted(column.id);
+      setIsSettingsOpen(false);
+    } catch (error) {
+      setSettingsError(error instanceof Error ? error.message : "Column could not be deleted.");
+    } finally {
+      setIsSavingSettings(false);
+    }
+  }
+
   async function handleQuickSubmit() {
     const title = quickTitle.trim();
     if (!title || isSubmitting) return;
@@ -156,6 +234,7 @@ export function KanbanColumn({
         >
           <Plus className="h-4 w-4" />
         </button>
+        <ColumnIconGlyph className="mb-3 text-dusk-amber" icon={column.icon} />
         <h2 className="column-collapsed-title text-sm text-stone-300 truncate w-32 text-center select-none mb-4">
           {column.name}
         </h2>
@@ -172,6 +251,7 @@ export function KanbanColumn({
       style={style}
       className={cn(
         "group flex h-full min-h-0 w-72 sm:w-80 shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
+        theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
         isDropTarget &&
           "border-dusk-lavender/60 bg-dusk-lavender/[0.08] shadow-lg shadow-dusk-lavender/10 ring-2 ring-dusk-lavender/20",
@@ -179,7 +259,7 @@ export function KanbanColumn({
       )}
     >
       {/* ── Header ── */}
-      <header className="flex items-center gap-2 border-b border-white/10 px-3 py-3">
+      <header className={cn("flex items-center gap-2 border-b border-white/10 px-3 py-3", theme.headerClass)}>
         <button
           className="text-stone-600 transition-colors hover:text-dusk-lavender group-hover:text-stone-400"
           aria-label="Drag column"
@@ -188,7 +268,8 @@ export function KanbanColumn({
         >
           <GripVertical className="h-4 w-4" />
         </button>
-        <h2 className="flex-1 text-sm font-semibold text-stone-100">{column.name}</h2>
+        <ColumnIconGlyph className="shrink-0 text-dusk-amber" icon={column.icon} />
+        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-100">{column.name}</h2>
         {wipLimit && (
           <span className={cn(
             "text-[10px] px-1.5 py-0.5 rounded-full border select-none font-mono font-semibold",
@@ -208,7 +289,18 @@ export function KanbanColumn({
         
         {/* Collapse Button */}
         <button
-          className="text-stone-500 hover:text-stone-300 ml-1"
+          className="ml-1 rounded-md p-1 text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
+          type="button"
+          aria-label="Column settings"
+          onClick={() => {
+            setSettingsError(null);
+            setIsSettingsOpen(true);
+          }}
+        >
+          <Settings className="h-4 w-4" />
+        </button>
+        <button
+          className="text-stone-500 hover:text-stone-300"
           type="button"
           aria-label="Collapse column"
           onClick={toggleCollapse}
@@ -323,6 +415,81 @@ export function KanbanColumn({
       </div>
 
       {/* ── Full Card Modal ── */}
+      {isSettingsOpen ? (
+        <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/78 px-4 py-6 backdrop-blur-sm">
+          <form
+            className="lofi-panel motion-dialog-content w-full max-w-lg rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
+            onSubmit={handleSaveSettings}
+          >
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Column settings</p>
+                <h3 className="mt-1 text-2xl font-semibold text-stone-100">Edit column</h3>
+                <p className="mt-1 text-sm leading-6 text-stone-400">
+                  Adjust the lane name, color, and icon shown on the board.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-rose/35 hover:bg-dusk-rose/10 hover:text-dusk-rose"
+                aria-label="Close column settings"
+                onClick={closeSettings}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <label className="space-y-2 text-sm text-stone-300">
+              <span>Column name</span>
+              <Input
+                autoFocus
+                maxLength={80}
+                placeholder="Backlog, Review, Done..."
+                required
+                value={settingsName}
+                onChange={(event) => setSettingsName(event.target.value)}
+              />
+            </label>
+
+            <div className="mt-4 space-y-4">
+              <ColumnThemePicker value={settingsColor} onChange={setSettingsColor} />
+              <ColumnIconPicker value={settingsIcon} onChange={setSettingsIcon} />
+            </div>
+
+            {totalCards > 0 ? (
+              <p className="mt-4 flex items-start gap-2 rounded-xl border border-dusk-amber/25 bg-dusk-amber/10 px-3 py-2 text-sm text-dusk-amber">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                Move or delete all cards before deleting this column.
+              </p>
+            ) : null}
+
+            {settingsError ? (
+              <p className="mt-4 rounded-xl border border-dusk-rose/25 bg-dusk-rose/10 px-3 py-2 text-sm text-dusk-rose">
+                {settingsError}
+              </p>
+            ) : null}
+
+            <div className="mt-5 flex flex-col gap-2 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <Button
+                type="button"
+                variant="danger"
+                disabled={totalCards > 0 || isSavingSettings}
+                onClick={() => void handleDeleteColumn()}
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </Button>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="ghost" onClick={closeSettings}>
+                  Cancel
+                </Button>
+                <Button disabled={!settingsName.trim() || isSavingSettings}>Save column</Button>
+              </div>
+            </div>
+          </form>
+        </div>
+      ) : null}
+
       <CardModal
         mode="create"
         open={isModalOpen}
@@ -333,5 +500,41 @@ export function KanbanColumn({
         }}
       />
     </section>
+  );
+}
+
+function ColumnThemePicker({
+  onChange,
+  value
+}: {
+  onChange: (value: ColumnThemeId) => void;
+  value: ColumnThemeId;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Color</span>
+        <span className="text-xs text-stone-500">{getColumnThemeOption(value).label}</span>
+      </div>
+      <div className="grid grid-cols-6 gap-2">
+        {columnThemeOptions.map((option) => (
+          <button
+            key={option.id}
+            aria-label={`Use ${option.label} column color`}
+            className={cn(
+              "grid h-9 place-items-center rounded-lg border bg-white/[0.035] transition hover:-translate-y-0.5 hover:border-dusk-lavender/40",
+              option.id === value
+                ? "border-dusk-amber shadow-[0_0_0_2px_rgba(249,199,132,0.16)]"
+                : "border-white/10"
+            )}
+            title={option.label}
+            type="button"
+            onClick={() => onChange(option.id)}
+          >
+            <span className={cn("h-4 w-4 rounded-full", option.swatchClass)} />
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

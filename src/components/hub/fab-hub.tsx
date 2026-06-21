@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { BookOpen, FileText, Pin, Plus, Save, Star, X } from "lucide-react";
+import { BookOpen, ExternalLink, FileText, Pin, Plus, Save, Star, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input, Textarea } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,10 @@ interface DisplayNote {
   projectName: string;
 }
 
+type ActiveDisplayItem =
+  | ({ type: "diary" } & DisplayDiaryItem)
+  | ({ type: "note" } & DisplayNote);
+
 function getRedStar(): RedStar | null {
   try {
     const raw = localStorage.getItem(RED_STAR_KEY);
@@ -58,6 +62,9 @@ export function FabHub() {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [pinAfterCreate, setPinAfterCreate] = useState(false);
   const [redStar, setRedStar] = useState<RedStar | null>(null);
+  const [activeDisplayItem, setActiveDisplayItem] = useState<ActiveDisplayItem | null>(null);
+  const [displayLoading, setDisplayLoading] = useState(false);
+  const [displayError, setDisplayError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Load red star on mount
@@ -90,6 +97,61 @@ export function FabHub() {
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen || !redStar) {
+      setActiveDisplayItem(null);
+      setDisplayError(null);
+      setDisplayLoading(false);
+      return;
+    }
+
+    let alive = true;
+
+    async function loadSelectedDisplay() {
+      setDisplayLoading(true);
+      setDisplayError(null);
+
+      try {
+        if (redStar?.type === "diary") {
+          const response = await fetch("/api/hub/diary");
+          const data = (await response.json()) as { items?: DisplayDiaryItem[]; error?: string };
+
+          if (!response.ok) {
+            throw new Error(data.error ?? "Could not load diary display.");
+          }
+
+          const item = data.items?.find((entry) => entry.id === redStar.id) ?? null;
+          if (!alive) return;
+          setActiveDisplayItem(item ? { ...item, type: "diary" } : null);
+          setDisplayError(item ? null : "This diary list is no longer available. Choose another one.");
+        } else if (redStar?.type === "note") {
+          const response = await fetch("/api/hub/notes");
+          const data = (await response.json()) as { notes?: DisplayNote[]; error?: string };
+
+          if (!response.ok) {
+            throw new Error(data.error ?? "Could not load note display.");
+          }
+
+          const note = data.notes?.find((entry) => entry.id === redStar.id) ?? null;
+          if (!alive) return;
+          setActiveDisplayItem(note ? { ...note, type: "note" } : null);
+          setDisplayError(note ? null : "This note is no longer available. Choose another one.");
+        }
+      } catch (err) {
+        if (!alive) return;
+        setActiveDisplayItem(null);
+        setDisplayError(err instanceof Error ? err.message : "Could not load the selected display.");
+      } finally {
+        if (alive) setDisplayLoading(false);
+      }
+    }
+
+    void loadSelectedDisplay();
+    return () => {
+      alive = false;
+    };
+  }, [isOpen, redStar]);
+
   function navigateTo(href: string) {
     setIsOpen(false);
     router.push(href);
@@ -106,6 +168,20 @@ export function FabHub() {
     setIsPickerOpen(true);
   }
 
+  function toggleHub() {
+    if (!redStar) {
+      openPicker();
+      return;
+    }
+
+    setIsOpen((prev) => !prev);
+  }
+
+  function clearDisplay() {
+    setRedStarItem(null);
+    setIsOpen(false);
+  }
+
   return (
     <>
       <div ref={containerRef} className="fixed bottom-6 right-6 z-[120] flex flex-col items-end gap-3">
@@ -116,69 +192,34 @@ export function FabHub() {
             isOpen ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
           )}
         >
-          {/* Pinned Red Star */}
-          {redStar && (
-            <button
-              type="button"
-              className="fab-action-btn group flex items-center gap-3 rounded-2xl border border-red-400/30 bg-red-500/15 px-4 py-2.5 text-sm font-medium text-red-300 shadow-lg backdrop-blur-md transition hover:border-red-400/60 hover:bg-red-500/25"
-              onClick={() => navigateTo(redStar.href)}
-            >
-              <span className="max-w-[160px] truncate text-xs text-red-200">{redStar.title}</span>
-              <Star className="h-4 w-4 shrink-0 fill-red-400 text-red-400" />
-            </button>
-          )}
-
-          <button
-            type="button"
-            className={cn(
-              "fab-action-btn flex items-center gap-3 rounded-2xl border px-4 py-2.5 text-sm font-medium shadow-lg backdrop-blur-md transition",
-              redStar
-                ? "border-red-400/20 bg-red-500/10 text-red-200 hover:border-red-400/50 hover:bg-red-500/15"
-                : "border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber hover:border-dusk-amber/55 hover:bg-dusk-amber/20"
-            )}
-            onClick={openPicker}
-          >
-            <span>{redStar ? "Change display" : "Choose display"}</span>
-            <Pin className="h-4 w-4 shrink-0" />
-          </button>
-
-          {/* Note Quick Create Modal Button */}
-          <button
-            type="button"
-            id="fab-note-btn"
-            className="fab-action-btn flex items-center gap-3 rounded-2xl border border-white/10 bg-ink-950/80 px-4 py-2.5 text-sm font-medium text-stone-200 shadow-lg backdrop-blur-md transition hover:border-dusk-cyan/40 hover:bg-dusk-cyan/10 hover:text-dusk-cyan"
-            onClick={() => openCreateModal("note")}
-          >
-            <span>Notes</span>
-            <FileText className="h-4 w-4 shrink-0" />
-          </button>
-
-          {/* Diary Quick Create Modal Button */}
-          <button
-            type="button"
-            id="fab-diary-btn"
-            className="fab-action-btn flex items-center gap-3 rounded-2xl border border-white/10 bg-ink-950/80 px-4 py-2.5 text-sm font-medium text-stone-200 shadow-lg backdrop-blur-md transition hover:border-dusk-lavender/40 hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
-            onClick={() => openCreateModal("diary")}
-          >
-            <span>Diary</span>
-            <BookOpen className="h-4 w-4 shrink-0" />
-          </button>
+          {redStar ? (
+            <PinnedDisplayPanel
+              activeItem={activeDisplayItem}
+              fallbackItem={redStar}
+              isLoading={displayLoading}
+              error={displayError}
+              onOpen={() => navigateTo(redStar.href)}
+              onChange={openPicker}
+              onClear={clearDisplay}
+              onCreate={openCreateModal}
+            />
+          ) : null}
         </div>
 
         {/* Main Floating Button */}
         <button
           type="button"
           id="fab-hub-btn"
-          aria-label={isOpen ? "Close hub menu" : "Open hub menu"}
+          aria-label={redStar ? (isOpen ? "Close display panel" : "Open display panel") : "Choose display"}
           className={cn(
             "fab-main grid h-14 w-14 place-items-center rounded-full border shadow-[0_4px_24px_rgba(0,0,0,0.35)] transition-all duration-300",
             isOpen
               ? "border-dusk-rose/40 bg-dusk-rose/20 text-dusk-rose hover:bg-dusk-rose/30 rotate-45"
               : "border-dusk-lavender/30 bg-dusk-lavender/15 text-dusk-lavender hover:border-dusk-lavender/60 hover:bg-dusk-lavender/25"
           )}
-          onClick={() => setIsOpen((prev) => !prev)}
+          onClick={toggleHub}
         >
-          {isOpen ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
+          {isOpen ? <X className="h-6 w-6" /> : redStar ? <Star className="h-6 w-6 fill-current" /> : <Plus className="h-6 w-6" />}
         </button>
       </div>
 
@@ -202,6 +243,134 @@ export function FabHub() {
         />
       )}
     </>
+  );
+}
+
+function PinnedDisplayPanel({
+  activeItem,
+  fallbackItem,
+  isLoading,
+  error,
+  onOpen,
+  onChange,
+  onClear,
+  onCreate
+}: {
+  activeItem: ActiveDisplayItem | null;
+  fallbackItem: RedStar;
+  isLoading: boolean;
+  error: string | null;
+  onOpen: () => void;
+  onChange: () => void;
+  onClear: () => void;
+  onCreate: (mode: "diary" | "note") => void;
+}) {
+  const isDiary = fallbackItem.type === "diary";
+  const title = activeItem?.title ?? fallbackItem.title;
+  const body =
+    activeItem?.type === "diary"
+      ? activeItem.description || "No diary detail yet."
+      : activeItem?.type === "note"
+        ? activeItem.content || "No note content yet."
+        : "Loading the selected display...";
+  const projectName =
+    activeItem?.type === "diary"
+      ? activeItem.projectName ?? "My Diary"
+      : activeItem?.type === "note"
+        ? activeItem.projectName
+        : isDiary
+          ? "Diary"
+          : "Note";
+
+  return (
+    <div className="motion-floating-in w-[min(calc(100vw-2rem),24rem)] overflow-hidden rounded-2xl border border-white/12 bg-ink-950/92 text-left text-stone-100 shadow-[0_18px_54px_rgba(0,0,0,0.42)] backdrop-blur-xl">
+      <div className="border-b border-white/10 bg-white/[0.035] p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className={cn("text-xs uppercase tracking-[0.22em]", isDiary ? "text-dusk-lavender" : "text-dusk-cyan")}>
+              {isDiary ? "Pinned diary list" : "Pinned note"}
+            </p>
+            <h3 className="mt-1 truncate text-base font-semibold">{title}</h3>
+          </div>
+          <Star className="mt-0.5 h-4 w-4 shrink-0 fill-red-400 text-red-400" />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] text-stone-400">
+          <span className="rounded-full border border-white/10 bg-white/[0.055] px-2 py-0.5">
+            {projectName}
+          </span>
+          {activeItem?.type === "diary" ? (
+            <>
+              <span className="rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-dusk-cyan">
+                Every {activeItem.intervalDays}d
+              </span>
+              {activeItem.dueTime ? (
+                <span className="rounded-full border border-dusk-amber/20 bg-dusk-amber/10 px-2 py-0.5 text-dusk-amber">
+                  {activeItem.dueTime}
+                </span>
+              ) : null}
+            </>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="p-4">
+        {isLoading ? (
+          <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm text-stone-400">
+            Loading selected display...
+          </div>
+        ) : error ? (
+          <div className="rounded-xl border border-dusk-rose/25 bg-dusk-rose/10 p-4 text-sm leading-6 text-dusk-rose">
+            {error}
+          </div>
+        ) : (
+          <p className="max-h-32 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-stone-300 scrollbar-soft">
+            {body}
+          </p>
+        )}
+
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/15 px-3 py-2 text-xs font-medium text-dusk-lavender transition hover:border-dusk-lavender/50 hover:bg-dusk-lavender/20"
+            onClick={onOpen}
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Open
+          </button>
+          <button
+            type="button"
+            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-dusk-amber/25 bg-dusk-amber/10 px-3 py-2 text-xs font-medium text-dusk-amber transition hover:border-dusk-amber/45 hover:bg-dusk-amber/15"
+            onClick={onChange}
+          >
+            <Pin className="h-3.5 w-3.5" />
+            Change
+          </button>
+          <button
+            type="button"
+            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2 text-xs font-medium text-stone-300 transition hover:border-dusk-lavender/35 hover:bg-white/[0.075] hover:text-stone-100"
+            onClick={() => onCreate("diary")}
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            Diary
+          </button>
+          <button
+            type="button"
+            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2 text-xs font-medium text-stone-300 transition hover:border-dusk-cyan/35 hover:bg-white/[0.075] hover:text-stone-100"
+            onClick={() => onCreate("note")}
+          >
+            <FileText className="h-3.5 w-3.5" />
+            Note
+          </button>
+        </div>
+        <button
+          type="button"
+          className="mt-2 w-full rounded-xl border border-red-300/15 bg-red-400/5 px-3 py-2 text-xs text-red-200 transition hover:border-red-300/30 hover:bg-red-400/10"
+          onClick={onClear}
+        >
+          Clear display
+        </button>
+      </div>
+    </div>
   );
 }
 

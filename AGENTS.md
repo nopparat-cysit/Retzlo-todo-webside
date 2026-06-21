@@ -18,6 +18,7 @@ The first production module is the Work module:
 - Keep future modules in mind, but implement only what the Work module needs now.
 - Follow the existing docs before adding abstractions.
 - Use TDD for behavior-heavy code such as reorder logic, authorization helpers, and payload validation.
+- Do not commit generated files such as `.next/`, local logs, local caches, temporary dev-server output, or other machine-only artifacts.
 
 ## Change Notes
 
@@ -33,6 +34,7 @@ The first production module is the Work module:
   - Known follow-ups, blockers, or deployment notes.
 - Keep the note factual and concise, but update it whenever additional changes happen in the same work session.
 - Do not include secrets, real tokens, private URLs with credentials, or full environment variable values in notes.
+- If a verification command times out, record it as a timeout or blocker. Do not describe timed-out verification as passing.
 
 ## Expected Structure
 
@@ -61,6 +63,7 @@ docs/
 - Use membership checks for every project-scoped API.
 - Use optimistic UI for Kanban drag-and-drop.
 - Keep theme decisions aligned with the retro lofi indigo design direction.
+- When changing shared design-system components or tokens, document the expected impact on pages/components that consume those shared primitives.
 
 ## Verification
 

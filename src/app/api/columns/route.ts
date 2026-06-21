@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
+import { columnSettingsSchema } from "@/lib/kanban/column-settings";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, getProjectIdForBoard, requireUserId } from "@/lib/project-auth";
 
-const createColumnSchema = z.object({
-  boardId: z.string().uuid(),
-  name: z.string().trim().min(1).max(80)
+const createColumnSchema = columnSettingsSchema.extend({
+  boardId: z.string().uuid()
 });
 
 export async function POST(request: Request) {
@@ -38,6 +38,8 @@ export async function POST(request: Request) {
       data: {
         boardId: payload.boardId,
         name: payload.name,
+        color: payload.color,
+        icon: payload.icon,
         position
       },
       include: { cards: true }

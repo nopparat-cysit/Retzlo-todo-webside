@@ -47,6 +47,7 @@ model Project {
   description String?
   type        String          @default("WORK")
   allowMemberPrivateItems Boolean @default(false)
+  notesEnabled Boolean        @default(true)
   coverImage  String?
   coinName    String          @default("Project Coin")
   coinSymbol  String          @default("🪙")
@@ -107,6 +108,8 @@ model Column {
   id        String   @id @default(uuid())
   name      String
   position  Int
+  color     String   @default("default")
+  icon      String   @default("kanban")
   boardId   String
   createdAt DateTime @default(now())
   board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)

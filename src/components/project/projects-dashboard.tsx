@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import {
   ArrowRight,
   BookOpenCheck,
@@ -89,18 +89,18 @@ export function ProjectsDashboard({
   projects,
   calendarCards,
   userProfile,
+  databaseWarning,
 }: {
   projects: ProjectDashboardItem[];
   calendarCards: GlobalCalendarCard[];
   userProfile?: UserProfile;
+  databaseWarning?: string;
 }) {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [calendarStatusFilters, setCalendarStatusFilters] = useState(defaultCalendarFilters.statuses);
   const [calendarTimeScope, setCalendarTimeScope] = useState(defaultCalendarFilters.timeScope);
   const [calendarRange, setCalendarRange] = useState<"7" | "30" | "all">("30");
-  const boardCount = projects.reduce((total, project) => total + project.counts.boards, 0);
-  const memberCount = projects.reduce((total, project) => total + project.counts.members, 0);
   const selectedProjectId = projects[0]?.id ?? "";
   const filteredCalendarCards = useMemo(() => {
     const filtered = filterCalendarItems(
@@ -184,15 +184,9 @@ export function ProjectsDashboard({
             </select>
           </div>
 
-          <div className="mt-5 grid gap-3">
-            <StatTile icon={FolderKanban} label="Projects" value={projects.length} />
-            <StatTile icon={KanbanSquare} label="Boards" value={boardCount} />
-            <StatTile icon={Layers3} label="Members" value={memberCount} />
-          </div>
-
           <Link
             href="/projects/rewards"
-            className="mt-4 flex items-center justify-between rounded-xl border border-dusk-amber/20 bg-dusk-amber/5 px-4 py-3 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/45 hover:bg-dusk-amber/10"
+            className="mt-5 flex items-center justify-between rounded-xl border border-dusk-amber/20 bg-dusk-amber/5 px-4 py-3 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/45 hover:bg-dusk-amber/10"
           >
             <div className="flex items-center gap-2">
               <Gift className="h-4 w-4 text-dusk-amber" />
@@ -286,6 +280,12 @@ export function ProjectsDashboard({
         </aside>
 
         <section className="min-w-0">
+          {databaseWarning ? (
+            <div className="mb-4 rounded-2xl border border-dusk-rose/25 bg-dusk-rose/10 px-4 py-3 text-sm leading-6 text-dusk-rose">
+              {databaseWarning}
+            </div>
+          ) : null}
+
           <div className="lofi-panel relative mb-4 flex flex-col justify-between gap-3 overflow-hidden rounded-2xl p-5 sm:flex-row sm:items-center">
             <div className="flex min-w-0 items-start gap-3">
               <BackButton className="mt-1" />
@@ -329,8 +329,19 @@ function ProjectCard({ project }: { project: ProjectDashboardItem }) {
   const columnCount = project.board?.columns.length ?? 0;
   const isDiaryProject = project.type === "DIARY";
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+  function toggleProjectMenu(event: MouseEvent<HTMLButtonElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+
+    setMenuPosition({
+      top: rect.bottom + 8,
+      left: Math.max(16, rect.right - 184)
+    });
+    setMenuOpen((value) => !value);
+  }
 
   return (
     <>
@@ -350,38 +361,21 @@ function ProjectCard({ project }: { project: ProjectDashboardItem }) {
             </div>
             <h3 className="truncate text-2xl font-semibold text-stone-50">{project.name}</h3>
           </div>
-        </div>
 
-        <div className="absolute right-3 top-3">
           <button
             type="button"
-            onClick={() => setMenuOpen((v) => !v)}
-            className="grid h-8 w-8 place-items-center rounded-xl border border-white/10 bg-ink-950/70 text-stone-300 backdrop-blur-sm transition hover:border-dusk-lavender/50 hover:text-dusk-lavender"
+            onClick={toggleProjectMenu}
+            className={cn(
+              "absolute right-3 top-3 z-20 grid h-9 w-9 place-items-center rounded-xl border backdrop-blur-md transition",
+              menuOpen
+                ? "border-dusk-amber/55 bg-ink-950/90 text-dusk-amber shadow-[0_10px_26px_rgba(0,0,0,0.35)]"
+                : "border-white/15 bg-ink-950/60 text-stone-200 hover:border-dusk-lavender/55 hover:bg-ink-950/80 hover:text-dusk-lavender"
+            )}
             aria-label="Project options"
+            aria-expanded={menuOpen}
           >
             <MoreHorizontal className="h-4 w-4" />
           </button>
-          {menuOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-9 z-50 w-40 overflow-hidden rounded-lg border border-white/15 bg-[#020208] shadow-[0_22px_58px_rgba(0,0,0,0.78),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md">
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-stone-300 transition hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
-                  onClick={() => { setMenuOpen(false); setEditOpen(true); }}
-                >
-                  <Pencil className="h-3.5 w-3.5" /> Edit project
-                </button>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-red-400 transition hover:bg-red-400/10"
-                  onClick={() => { setMenuOpen(false); setDeleteOpen(true); }}
-                >
-                  <Trash2 className="h-3.5 w-3.5" /> Delete project
-                </button>
-              </div>
-            </>
-          )}
         </div>
 
         <div className="flex flex-1 flex-col p-5">
@@ -401,24 +395,56 @@ function ProjectCard({ project }: { project: ProjectDashboardItem }) {
             <span>{project.board ? "Board ready" : "No board yet"}</span>
           </div>
 
-          <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-[1fr_auto]">
+          <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
             <Link
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-dusk-lavender px-4 text-sm font-semibold text-ink-950 shadow-[0_10px_24px_rgba(169,162,255,0.18)] transition hover:-translate-y-0.5 hover:bg-dusk-amber"
+              className="motion-interactive inline-flex h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-dusk-lavender/25 bg-dusk-lavender px-3 text-sm font-semibold text-ink-950 shadow-[0_10px_24px_rgba(169,162,255,0.18)] hover:bg-dusk-amber"
               href={`/project/${project.id}/${isDiaryProject ? "diary" : "board"}`}
             >
-              {isDiaryProject ? "Open diary" : "Open board"}
+              <span className="truncate">{isDiaryProject ? "Open diary" : "Open board"}</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-dusk-amber/25 bg-dusk-amber/5 px-4 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/55 hover:bg-dusk-amber/10"
+              className="motion-interactive inline-flex h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-dusk-amber/25 bg-dusk-amber/8 px-3 text-sm font-semibold text-dusk-amber hover:border-dusk-amber/55 hover:bg-dusk-amber/14"
               href={`/project/${project.id}/rewards`}
             >
               <Gift className="h-4 w-4" />
-              Rewards
+              <span className="truncate">Rewards</span>
             </Link>
           </div>
         </div>
       </article>
+
+      {menuOpen && (
+        <>
+          <button
+            aria-label="Close project options"
+            className="fixed inset-0 z-[150] cursor-default"
+            type="button"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div
+            className="fixed z-[151] w-44 overflow-hidden rounded-xl border border-dusk-lavender/18 bg-[#080714]/95 p-1.5 shadow-[0_24px_70px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl"
+            style={(menuPosition
+              ? { top: menuPosition.top, left: menuPosition.left }
+              : { top: 16, right: 16 }) as CSSProperties}
+          >
+            <button
+              type="button"
+              className="flex h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-medium text-stone-200 transition hover:bg-dusk-lavender/12 hover:text-dusk-lavender"
+              onClick={() => { setMenuOpen(false); setEditOpen(true); }}
+            >
+              <Pencil className="h-3.5 w-3.5" /> Edit project
+            </button>
+            <button
+              type="button"
+              className="flex h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-medium text-dusk-rose transition hover:bg-dusk-rose/12"
+              onClick={() => { setMenuOpen(false); setDeleteOpen(true); }}
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Delete project
+            </button>
+          </div>
+        </>
+      )}
 
       {/* Edit modal */}
       {editOpen && (
@@ -658,26 +684,6 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
           <Button disabled={isPending}>{isPending ? "Creating..." : "Create Project"}</Button>
         </div>
       </form>
-    </div>
-  );
-}
-
-function StatTile({
-  icon: Icon,
-  label,
-  value
-}: {
-  icon: typeof FolderKanban;
-  label: string;
-  value: number;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3">
-      <Icon className="h-4 w-4 text-dusk-lavender" />
-      <div>
-        <p className="text-lg font-semibold leading-none">{value}</p>
-        <p className="mt-1 text-xs text-stone-500">{label}</p>
-      </div>
     </div>
   );
 }

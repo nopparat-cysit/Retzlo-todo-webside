@@ -12,15 +12,23 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles } from "lucide-react";
+import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles, X } from "lucide-react";
 import { FormEvent, useState, useEffect } from "react";
 
 import { KanbanColumn } from "@/components/kanban/column";
+import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import { triggerCelebration } from "@/components/kanban/card-celebration";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime } from "@/lib/date-format";
+import {
+  columnThemeOptions,
+  getColumnIconOption,
+  getColumnThemeOption,
+  type ColumnIconId,
+  type ColumnThemeId
+} from "@/lib/kanban/column-settings";
 import { moveCard, reorderColumns } from "@/lib/kanban/reorder";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
@@ -43,13 +51,25 @@ interface MoveAction {
   destinationIndex: number;
 }
 
+function normalizeColumn(column: ColumnWithCards): ColumnWithCards {
+  return {
+    ...column,
+    color: getColumnThemeOption(column.color).id,
+    icon: getColumnIconOption(column.icon).id,
+    cards: column.cards.map(normalizeCard)
+  };
+}
+
 export function KanbanBoard({ board }: { board: BoardData }) {
-  const [columns, setColumns] = useState(board.columns);
+  const [columns, setColumns] = useState(() => board.columns.map(normalizeColumn));
   const [dragSnapshot, setDragSnapshot] = useState<ColumnWithCards[] | null>(null);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [activeDropColumnId, setActiveDropColumnId] = useState<string | null>(null);
   const [columnName, setColumnName] = useState("");
+  const [columnColor, setColumnColor] = useState<ColumnThemeId>("default");
+  const [columnIcon, setColumnIcon] = useState<ColumnIconId>("kanban");
+  const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
@@ -155,6 +175,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
 
   async function createColumn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSyncError(null);
 
     if (!columnName.trim()) {
       return;
@@ -163,17 +184,77 @@ export function KanbanBoard({ board }: { board: BoardData }) {
     const response = await fetch("/api/columns", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ boardId: board.id, name: columnName.trim() })
+      body: JSON.stringify({ boardId: board.id, name: columnName.trim(), color: columnColor, icon: columnIcon })
     });
     const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
 
     if (data.column) {
-      const column: ColumnWithCards = { ...data.column, cards: [] };
+      const column = normalizeColumn({ ...data.column, cards: [] });
       setColumns((current) => [...current, column]);
       setColumnName("");
+      setColumnColor("default");
+      setColumnIcon("kanban");
+      setIsColumnModalOpen(false);
     } else {
       setSyncError(data.error ?? "Something did not sync. Try again.");
     }
+  }
+
+  async function updateColumn(
+    columnId: string,
+    payload: {
+      name: string;
+      color: ColumnThemeId;
+      icon: ColumnIconId;
+    }
+  ) {
+    setSyncError(null);
+
+    const response = await fetch(`/api/columns/${columnId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
+
+    if (data.column) {
+      const nextColumn = normalizeColumn(data.column);
+      setColumns((current) => current.map((column) => (column.id === columnId ? nextColumn : column)));
+      toast({ message: "Column updated.", type: "success" });
+      return;
+    }
+
+    const message = data.error ?? "Column did not sync. Try again.";
+    setSyncError(message);
+    toast({ message, type: "error" });
+    throw new Error(message);
+  }
+
+  async function deleteColumn(columnId: string) {
+    setSyncError(null);
+
+    const response = await fetch(`/api/columns/${columnId}`, {
+      method: "DELETE"
+    });
+    const data = (await response.json()) as { ok?: boolean; error?: string };
+
+    if (data.ok) {
+      setColumns((current) =>
+        current
+          .filter((column) => column.id !== columnId)
+          .map((column, position) => ({
+            ...column,
+            position
+          }))
+      );
+      toast({ message: "Column deleted.", type: "success" });
+      return;
+    }
+
+    const message = data.error ?? "Column could not be deleted.";
+    setSyncError(message);
+    toast({ message, type: "error" });
+    throw new Error(message);
   }
 
   async function createCard(
@@ -446,10 +527,11 @@ export function KanbanBoard({ board }: { board: BoardData }) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* ── Header ── */}
-      <div className="lofi-panel flex flex-col justify-between gap-4 rounded-2xl p-4 md:flex-row md:items-center">
-        <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-dusk-amber">Board Channel</p>
-          <h2 className="mt-1 flex items-center gap-2 text-xl font-semibold">
+      <div className="lofi-panel grid gap-2 rounded-2xl p-3">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-dusk-amber">Board Channel</p>
+          <h2 className="mt-0.5 flex flex-wrap items-center gap-2 text-lg font-semibold">
             {board.name}
             {isFocusMode && (
               <span className="rounded bg-dusk-amber/15 border border-dusk-amber/30 px-1.5 py-0.5 text-[10px] text-dusk-amber font-mono font-medium animate-pulse">
@@ -457,13 +539,43 @@ export function KanbanBoard({ board }: { board: BoardData }) {
               </span>
             )}
           </h2>
-          <p className="text-sm text-stone-500">
+          <p className="text-xs text-stone-500">
             Drag cards across columns. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> for focus.
           </p>
         </div>
 
         {/* ── Premium Control Bar ── */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center justify-start gap-2 xl:justify-end">
+          <div className="flex h-11 w-[8.25rem] shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+            <span className="text-[9px] uppercase tracking-wider text-stone-500 select-none">Total</span>
+            <span className="text-base font-bold leading-none text-stone-200">{totalCards}</span>
+          </div>
+          <div className="flex h-11 w-[8.25rem] shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+            <span className="flex items-center text-[9px] uppercase tracking-wider text-dusk-lavender select-none">
+              <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-dusk-lavender" />
+              Progress
+            </span>
+            <span className="text-base font-bold leading-none text-dusk-lavender">{doingCards}</span>
+          </div>
+          <div className="flex h-11 w-[8.25rem] shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+            <span className="flex items-center text-[9px] uppercase tracking-wider text-dusk-amber select-none">
+              <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-dusk-amber" />
+              Done
+            </span>
+            <span className="text-base font-bold leading-none text-dusk-amber">{doneCards}</span>
+          </div>
+          <div className="flex h-11 w-[8.25rem] shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+            <span className="flex items-center text-[9px] uppercase tracking-wider text-dusk-rose select-none">
+              <span className={cn("mr-1.5 h-1.5 w-1.5 rounded-full bg-dusk-rose", overdueCards > 0 ? "animate-pulse" : "")} />
+              Overdue
+            </span>
+            <span className="text-base font-bold leading-none text-dusk-rose">{overdueCards}</span>
+          </div>
+        </div>
+        </div>
+
+        {/* â”€â”€ Premium Control Bar â”€â”€ */}
+          <div className="flex flex-wrap items-center justify-start gap-2">
           {/* Live Search */}
           <div className="relative">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-stone-500" />
@@ -532,49 +644,92 @@ export function KanbanBoard({ board }: { board: BoardData }) {
           </button>
 
           {/* Add Column Form */}
-          <form className="flex gap-2" onSubmit={createColumn}>
-            <Input
-              className="h-9 w-36 text-xs"
-              value={columnName}
-              onChange={(event) => setColumnName(event.target.value)}
-              placeholder="Column name"
-            />
-            <Button className="h-9 text-xs" aria-label="Add column">
-              <Plus className="h-3.5 w-3.5" />
-              Column
-            </Button>
-          </form>
+          <Button
+            className="h-9 text-xs"
+            type="button"
+            aria-label="Add column"
+            onClick={() => {
+              setSyncError(null);
+              setIsColumnModalOpen(true);
+            }}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Column
+          </Button>
         </div>
       </div>
 
       {/* ── Stats Bar Panel ── */}
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="lofi-panel flex flex-col justify-center rounded-2xl bg-white/[0.015] p-3">
-          <span className="text-[10px] uppercase tracking-wider text-stone-500 select-none">Total Cards</span>
-          <span className="text-xl font-bold text-stone-200 mt-1">{totalCards}</span>
+      {isColumnModalOpen ? (
+        <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/78 px-4 py-6 backdrop-blur-sm">
+          <form
+            className="lofi-panel motion-dialog-content w-full max-w-md rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
+            onSubmit={createColumn}
+          >
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Board column</p>
+                <h3 className="mt-1 text-2xl font-semibold text-stone-100">Create column</h3>
+                <p className="mt-1 text-sm leading-6 text-stone-400">Name the new lane for this board.</p>
+              </div>
+              <button
+                type="button"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-rose/35 hover:bg-dusk-rose/10 hover:text-dusk-rose"
+                aria-label="Close column modal"
+                onClick={() => {
+                  setColumnName("");
+                  setColumnColor("default");
+                  setColumnIcon("kanban");
+                  setIsColumnModalOpen(false);
+                }}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <label className="space-y-2 text-sm text-stone-300">
+              <span>Column name</span>
+              <Input
+                autoFocus
+                value={columnName}
+                onChange={(event) => setColumnName(event.target.value)}
+                placeholder="Backlog, Review, Done..."
+                required
+              />
+            </label>
+
+            <div className="mt-4 space-y-4">
+              <ColumnThemePicker value={columnColor} onChange={setColumnColor} />
+              <ColumnIconPicker value={columnIcon} onChange={setColumnIcon} />
+            </div>
+
+            {syncError ? (
+              <p className="mt-3 rounded-xl border border-dusk-rose/25 bg-dusk-rose/10 px-3 py-2 text-sm text-dusk-rose">
+                {syncError}
+              </p>
+            ) : null}
+
+            <div className="mt-5 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setColumnName("");
+                  setColumnColor("default");
+                  setColumnIcon("kanban");
+                  setIsColumnModalOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button disabled={!columnName.trim()}>
+                <Plus className="h-4 w-4" />
+                Add column
+              </Button>
+            </div>
+          </form>
         </div>
-        <div className="lofi-panel flex flex-col justify-center rounded-2xl bg-white/[0.015] p-3">
-          <span className="text-[10px] uppercase tracking-wider text-dusk-lavender select-none flex items-center">
-            <span className="h-1.5 w-1.5 rounded-full bg-dusk-lavender mr-1.5" />
-            In Progress
-          </span>
-          <span className="text-xl font-bold text-dusk-lavender mt-1">{doingCards}</span>
-        </div>
-        <div className="lofi-panel flex flex-col justify-center rounded-2xl bg-white/[0.015] p-3">
-          <span className="text-[10px] uppercase tracking-wider text-dusk-amber select-none flex items-center">
-            <span className="h-1.5 w-1.5 rounded-full bg-dusk-amber mr-1.5" />
-            Completed
-          </span>
-          <span className="text-xl font-bold text-dusk-amber mt-1">{doneCards}</span>
-        </div>
-        <div className="lofi-panel flex flex-col justify-center rounded-2xl bg-white/[0.015] p-3">
-          <span className="text-[10px] uppercase tracking-wider text-dusk-rose flex items-center select-none">
-            <span className={cn("h-1.5 w-1.5 rounded-full bg-dusk-rose mr-1.5", overdueCards > 0 ? "animate-pulse" : "")} />
-            Overdue
-          </span>
-          <span className="text-xl font-bold text-dusk-rose mt-1">{overdueCards}</span>
-        </div>
-      </div>
+      ) : null}
 
       {/* ── Board Columns Grid ── */}
       {syncError ? <p className="mt-4 rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{syncError}</p> : null}
@@ -597,6 +752,8 @@ export function KanbanBoard({ board }: { board: BoardData }) {
                 onCreateCard={createCard}
                 onCardDeleted={deleteCard}
                 onCardSaved={saveCard}
+                onColumnDeleted={deleteColumn}
+                onColumnSaved={updateColumn}
                 isFirst={index === 0}
               />
             ))}
@@ -606,6 +763,42 @@ export function KanbanBoard({ board }: { board: BoardData }) {
           {activeCard ? <KanbanCardDragPreview card={activeCard} /> : null}
         </DragOverlay>
       </DndContext>
+    </div>
+  );
+}
+
+function ColumnThemePicker({
+  onChange,
+  value
+}: {
+  onChange: (value: ColumnThemeId) => void;
+  value: ColumnThemeId;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Color</span>
+        <span className="text-xs text-stone-500">{getColumnThemeOption(value).label}</span>
+      </div>
+      <div className="grid grid-cols-6 gap-2">
+        {columnThemeOptions.map((option) => (
+          <button
+            key={option.id}
+            aria-label={`Use ${option.label} column color`}
+            className={cn(
+              "grid h-9 place-items-center rounded-lg border bg-white/[0.035] transition hover:-translate-y-0.5 hover:border-dusk-lavender/40",
+              option.id === value
+                ? "border-dusk-amber shadow-[0_0_0_2px_rgba(249,199,132,0.16)]"
+                : "border-white/10"
+            )}
+            title={option.label}
+            type="button"
+            onClick={() => onChange(option.id)}
+          >
+            <span className={cn("h-4 w-4 rounded-full", option.swatchClass)} />
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

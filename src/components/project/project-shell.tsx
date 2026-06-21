@@ -92,7 +92,7 @@ export async function ProjectShell({
     href: `/project/${projectId}/${item.href}`,
     iconName: item.iconName,
     segment: item.href,
-  }));
+  })).filter((item) => project.notesEnabled || item.segment !== "notes");
   const settingsLink = {
     ...settingsNavItem,
     href: `/project/${projectId}/${settingsNavItem.href}`,
@@ -164,7 +164,7 @@ export async function ProjectShell({
         </aside>
 
         <section className="flex min-h-0 min-w-0 flex-col rounded-2xl">
-          <header className="lofi-panel relative z-[120] mb-3 flex min-h-14 items-center justify-between gap-3 rounded-2xl px-3 sm:px-4">
+          <header className="lofi-panel relative z-40 mb-3 flex min-h-14 items-center justify-between gap-3 overflow-visible rounded-2xl px-3 sm:px-4">
             <div className="flex min-w-0 items-center gap-2 sm:gap-3">
               <label
                 htmlFor="project-sidebar-toggle"

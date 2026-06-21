@@ -12,6 +12,7 @@ import {
   requireUserId
 } from "@/lib/project-auth";
 import { processCardDonePayouts } from "@/lib/kanban/payout";
+import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 
 const cardStatusSchema = z.enum(["TODO", "DOING", "WAITING", "DONE"]);
 const cardColorSchema = z.enum(cardColorValues).default("DEFAULT");
@@ -21,6 +22,7 @@ const checklistItemSchema = z.object({
   label: z.string().trim().min(1).max(160),
   checked: z.boolean()
 });
+const retroStickersSchema = z.array(z.string()).default([]).transform(normalizeRetroStickerSelection);
 
 const createCardSchema = z.object({
   columnId: z.string().uuid(),
@@ -35,7 +37,7 @@ const createCardSchema = z.object({
   isStarred: z.boolean().default(false),
   rewardCoins: z.number().int().nonnegative().default(0),
   privateCoins: z.any().optional(),
-  stickers: z.array(z.string()).default([]),
+  stickers: retroStickersSchema,
 });
 
 const updateCardSchema = z.object({
@@ -51,7 +53,7 @@ const updateCardSchema = z.object({
   isStarred: z.boolean().optional(),
   rewardCoins: z.number().int().nonnegative().optional(),
   privateCoins: z.any().optional(),
-  stickers: z.array(z.string()).optional(),
+  stickers: retroStickersSchema.optional(),
 });
 
 function serializeCard<T extends {
@@ -77,7 +79,7 @@ function serializeCard<T extends {
     isStarred: card.isStarred,
     rewardCoins: card.rewardCoins,
     privateCoins: card.privateCoins,
-    stickers: Array.isArray(card.stickers) ? (card.stickers as string[]) : [],
+    stickers: normalizeRetroStickerSelection(card.stickers),
   };
 }
 
