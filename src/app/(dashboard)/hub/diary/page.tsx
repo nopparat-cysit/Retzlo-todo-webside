@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { DiaryHubPanel } from "@/components/hub/diary-hub-panel";
 import { FabHub } from "@/components/hub/fab-hub";
 import { authOptions } from "@/lib/auth";
+import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
 import { prisma } from "@/lib/prisma";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 
@@ -62,6 +63,7 @@ export default async function DiaryHubPage() {
       color: normalizeCardColor(item.color),
       intervalDays: item.intervalDays,
       startDate: item.startDate.toISOString(),
+      checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
       isStarred: item.isStarred,
       isHidden: item.isHidden,
       projectId: item.projectId,

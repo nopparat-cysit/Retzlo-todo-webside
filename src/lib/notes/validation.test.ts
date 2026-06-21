@@ -8,6 +8,7 @@ describe("note validation", () => {
       title: "Night notes",
       content: "keep this",
       color: "DEFAULT",
+      isHidden: false,
       dueDate: undefined,
       dueDateAllDay: false
     });
@@ -30,6 +31,7 @@ describe("note validation", () => {
       title: "test",
       content: "",
       color: "DEFAULT",
+      isHidden: false,
       dueDate: undefined,
       dueDateAllDay: false
     });
@@ -48,6 +50,7 @@ describe("note validation", () => {
       title: "Calendar note",
       content: "Remember this",
       color: "CYAN",
+      isHidden: false,
       dueDate: "2026-05-26T10:00:00.000Z",
       dueDateAllDay: false
     });

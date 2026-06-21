@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 
 import { jsonError, parseError } from "@/lib/api";
+import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
@@ -57,6 +59,7 @@ export async function GET() {
         ...item,
         color: normalizeCardColor(item.color),
         startDate: item.startDate.toISOString(),
+        checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
         createdAt: item.createdAt.toISOString(),
         updatedAt: item.updatedAt.toISOString(),
         projectName: item.project?.name ?? null,
@@ -91,6 +94,7 @@ export async function POST(request: Request) {
         color: payload.color,
         intervalDays: payload.intervalDays,
         startDate: new Date(`${payload.startDate}T00:00:00.000Z`),
+        checklist: payload.checklist as unknown as Prisma.InputJsonValue,
         isStarred: payload.isStarred,
         isHidden: false,
         dueTime: payload.dueTime ?? null,
@@ -108,6 +112,7 @@ export async function POST(request: Request) {
           ...item,
           color: normalizeCardColor(item.color),
           startDate: item.startDate.toISOString(),
+          checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
           createdAt: item.createdAt.toISOString(),
           updatedAt: item.updatedAt.toISOString(),
           projectName: null,

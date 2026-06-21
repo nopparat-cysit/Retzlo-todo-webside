@@ -41,6 +41,30 @@ export function setPrivateCoinAmount(privateCoins: unknown, userId: string, amou
   return next;
 }
 
+export function resolveCardRewardPayload({
+  activeUserId,
+  enabled,
+  privateCoins,
+  privateGlobalCoins,
+  rewardCoins
+}: {
+  activeUserId: string | null;
+  enabled: boolean;
+  privateCoins: unknown;
+  privateGlobalCoins: number;
+  rewardCoins: number;
+}) {
+  const nextRewardCoins = enabled ? sanitizeCoinAmount(rewardCoins) : 0;
+  const nextPrivateGlobalCoins = enabled ? sanitizeCoinAmount(privateGlobalCoins) : 0;
+
+  return {
+    rewardCoins: nextRewardCoins,
+    privateCoins: activeUserId
+      ? setPrivateCoinAmount(privateCoins, activeUserId, nextPrivateGlobalCoins)
+      : undefined
+  };
+}
+
 export function markPrivateCoinClaimed(privateCoins: unknown, userId: string): CardPrivateCoins {
   const next = { ...(isRecord(privateCoins) ? privateCoins : {}) } as CardPrivateCoins;
   const current = getPrivateCoinEntry(next, userId);

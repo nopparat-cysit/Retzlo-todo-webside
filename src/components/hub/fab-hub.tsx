@@ -2,10 +2,13 @@
 
 import { useEffect, useRef, useState, FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { BookOpen, ExternalLink, FileText, Pin, Plus, Save, Star, X } from "lucide-react";
+import { BookOpen, ExternalLink, FileText, Pin, Plus, Save, SlidersHorizontal, Star, X } from "lucide-react";
+import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
 import { cn } from "@/lib/utils";
 import { Input, Textarea } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ModalPortal } from "@/components/ui/modal-portal";
+import { normalizeDiaryChecklist, type DiaryChecklistItem } from "@/lib/diary/checklist";
 import { composeDueDate } from "@/lib/kanban/due-date";
 import { cardColorOptions, getCardColorMeta, type CardColor } from "@/lib/theme/card-colors";
 
@@ -25,6 +28,8 @@ interface ProjectItem {
 }
 
 interface DisplayDiaryItem {
+  canManage: boolean;
+  checklist: DiaryChecklistItem[];
   id: string;
   title: string;
   description: string | null;
@@ -32,6 +37,7 @@ interface DisplayDiaryItem {
   dueTime: string | null;
   projectId: string | null;
   projectName: string | null;
+  startDate: string;
 }
 
 interface DisplayNote {
@@ -182,6 +188,33 @@ export function FabHub() {
     setIsOpen(false);
   }
 
+  async function updatePinnedDiaryChecklist(item: DisplayDiaryItem, checklist: DiaryChecklistItem[]) {
+    setDisplayError(null);
+    const normalizedChecklist = normalizeDiaryChecklist(checklist, item.startDate);
+    const response = await fetch(`/api/diary-items/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checklist: normalizedChecklist })
+    });
+    const data = (await response.json()) as { diaryItem?: { checklist?: unknown }; error?: string };
+
+    if (!response.ok) {
+      setDisplayError(data.error ?? "Could not update this diary checklist.");
+      return;
+    }
+
+    setActiveDisplayItem((current) => {
+      if (current?.type !== "diary" || current.id !== item.id) {
+        return current;
+      }
+
+      return {
+        ...current,
+        checklist: normalizeDiaryChecklist(data.diaryItem?.checklist ?? normalizedChecklist, item.startDate)
+      };
+    });
+  }
+
   return (
     <>
       <div ref={containerRef} className="fixed bottom-6 right-6 z-[120] flex flex-col items-end gap-3">
@@ -202,6 +235,7 @@ export function FabHub() {
               onChange={openPicker}
               onClear={clearDisplay}
               onCreate={openCreateModal}
+              onDiaryChecklistChange={updatePinnedDiaryChecklist}
             />
           ) : null}
         </div>
@@ -254,7 +288,8 @@ function PinnedDisplayPanel({
   onOpen,
   onChange,
   onClear,
-  onCreate
+  onCreate,
+  onDiaryChecklistChange
 }: {
   activeItem: ActiveDisplayItem | null;
   fallbackItem: RedStar;
@@ -264,15 +299,11 @@ function PinnedDisplayPanel({
   onChange: () => void;
   onClear: () => void;
   onCreate: (mode: "diary" | "note") => void;
+  onDiaryChecklistChange: (item: DisplayDiaryItem, checklist: DiaryChecklistItem[]) => void;
 }) {
   const isDiary = fallbackItem.type === "diary";
   const title = activeItem?.title ?? fallbackItem.title;
-  const body =
-    activeItem?.type === "diary"
-      ? activeItem.description || "No diary detail yet."
-      : activeItem?.type === "note"
-        ? activeItem.content || "No note content yet."
-        : "Loading the selected display...";
+  const body = activeItem?.type === "note" ? activeItem.content || "No note content yet." : "Loading the selected display...";
   const projectName =
     activeItem?.type === "diary"
       ? activeItem.projectName ?? "My Diary"
@@ -321,6 +352,24 @@ function PinnedDisplayPanel({
         ) : error ? (
           <div className="rounded-xl border border-dusk-rose/25 bg-dusk-rose/10 p-4 text-sm leading-6 text-dusk-rose">
             {error}
+          </div>
+        ) : activeItem?.type === "diary" ? (
+          <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3">
+            {activeItem.description ? (
+              <p className="mb-3 whitespace-pre-wrap text-sm leading-6 text-stone-300">{activeItem.description}</p>
+            ) : null}
+            {activeItem.checklist.length > 0 ? (
+              <DiaryChecklistPreview
+                canManage={activeItem.canManage}
+                selectedDate={new Date().toISOString().slice(0, 10)}
+                value={activeItem.checklist}
+                onChange={(checklist) => onDiaryChecklistChange(activeItem, checklist)}
+              />
+            ) : (
+              <div className="rounded-lg border border-dashed border-white/10 p-4 text-sm text-stone-500">
+                No checklist task yet.
+              </div>
+            )}
           </div>
         ) : (
           <p className="max-h-32 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-stone-300 scrollbar-soft">
@@ -458,6 +507,7 @@ function FabDisplayPicker({
   const activeList = tab === "diary" ? diaryItems : notes;
 
   return (
+    <ModalPortal>
     <div className="fixed inset-0 z-[300] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
       <div className="lofi-panel max-h-[88vh] w-full max-w-2xl overflow-hidden rounded-xl">
         <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
@@ -616,6 +666,7 @@ function FabDisplayPicker({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -646,17 +697,10 @@ function FabCreateModal({
   
   // Diary specific states
   const [diaryStartDate, setDiaryStartDate] = useState(new Date().toISOString().slice(0, 10));
-  const [diaryDueTime, setDiaryDueTime] = useState("");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const [diaryIntervalDays, setDiaryIntervalDays] = useState(1);
+  const [diaryChecklist, setDiaryChecklist] = useState<DiaryChecklistItem[]>([]);
   const [isHidden, setIsHidden] = useState(false);
-
-  const DIARY_PRESETS = [
-    { label: "Daily", days: 1 },
-    { label: "3 days", days: 3 },
-    { label: "Weekly", days: 7 },
-    { label: "2 weeks", days: 14 },
-    { label: "Monthly", days: 30 }
-  ];
 
   // Fetch projects on mount to allow select option
   useEffect(() => {
@@ -750,7 +794,8 @@ function FabCreateModal({
           color,
           intervalDays: diaryIntervalDays,
           startDate: diaryStartDate,
-          dueTime: diaryDueTime || null,
+          dueTime: null,
+          checklist: normalizeDiaryChecklist(diaryChecklist, diaryStartDate),
           isStarred: false,
           isHidden: isPersonal ? false : isHidden
         };
@@ -793,9 +838,10 @@ function FabCreateModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[300] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <ModalPortal>
+    <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/85 px-4 py-4 backdrop-blur-sm">
       <form
-        className="lofi-panel max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-xl p-5"
+        className={cn("lofi-panel flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-xl p-5", mode === "diary" ? "max-w-4xl" : "max-w-xl")}
         onSubmit={handleSubmit}
       >
         {/* Modal Header */}
@@ -808,20 +854,37 @@ function FabCreateModal({
               {mode === "note" ? "Create Note" : "Create Diary"}
             </h2>
           </div>
-          <button
-            className="rounded-md p-2 text-stone-400 hover:bg-white/10"
-            type="button"
-            onClick={onClose}
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {mode === "diary" ? (
+              <button
+                className={cn(
+                  "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs transition",
+                  isSettingsOpen
+                    ? "border-dusk-amber/40 bg-dusk-amber/10 text-dusk-amber"
+                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-amber/35"
+                )}
+                type="button"
+                onClick={() => setIsSettingsOpen((current) => !current)}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Settings
+              </button>
+            ) : null}
+            <button
+              className="rounded-md p-2 text-stone-400 hover:bg-white/10"
+              type="button"
+              onClick={onClose}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {loading && (
           <div className="py-6 text-center text-sm text-stone-400 font-mono">Loading workspaces...</div>
         )}
 
-        {!loading && (
+        {!loading && mode === "note" && (
           <div className="grid gap-4">
             {/* Project / Workspace Selector */}
             <div className="space-y-2 text-sm text-stone-300">
@@ -886,83 +949,25 @@ function FabCreateModal({
             {/* Color Selector */}
             <ColorPicker selectedColor={color} onChange={setColor} />
 
-            {/* Date & Time settings */}
-            {mode === "note" ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="space-y-2 text-sm text-stone-300">
-                  <span>Due date (optional)</span>
-                  <Input
-                    type="date"
-                    value={noteDate}
-                    onChange={(e) => setNoteDate(e.target.value)}
-                  />
-                </label>
-                <label className="space-y-2 text-sm text-stone-300">
-                  <span>Due time (optional)</span>
-                  <Input
-                    type="time"
-                    value={noteTime}
-                    disabled={!noteDate}
-                    onChange={(e) => setNoteTime(e.target.value)}
-                  />
-                </label>
-              </div>
-            ) : (
-              <>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="space-y-2 text-sm text-stone-300">
-                    <span>Start date</span>
-                    <Input
-                      type="date"
-                      value={diaryStartDate}
-                      onChange={(e) => setDiaryStartDate(e.target.value)}
-                      required
-                    />
-                  </label>
-                  <label className="space-y-2 text-sm text-stone-300">
-                    <span>Due time (optional)</span>
-                    <Input
-                      type="time"
-                      value={diaryDueTime}
-                      onChange={(e) => setDiaryDueTime(e.target.value)}
-                    />
-                  </label>
-                </div>
-
-                {/* Show every presets & custom count */}
-                <div className="space-y-2 text-sm text-stone-300">
-                  <span>Show every (days)</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {DIARY_PRESETS.map((p) => (
-                      <button
-                        key={p.days}
-                        type="button"
-                        className={cn(
-                          "h-7 rounded-md border px-2.5 text-xs transition",
-                          diaryIntervalDays === p.days
-                            ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber"
-                            : "border-white/10 bg-white/5 text-stone-400 hover:border-dusk-amber/40"
-                        )}
-                        onClick={() => setDiaryIntervalDays(p.days)}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                  <Input
-                    type="number"
-                    min={1}
-                    max={365}
-                    value={diaryIntervalDays}
-                    onChange={(e) => setDiaryIntervalDays(Number(e.target.value))}
-                    required
-                  />
-                  <p className="text-[11px] text-stone-500">
-                    Shows every {diaryIntervalDays} day{diaryIntervalDays > 1 ? "s" : ""}
-                  </p>
-                </div>
-              </>
-            )}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="space-y-2 text-sm text-stone-300">
+                <span>Due date (optional)</span>
+                <Input
+                  type="date"
+                  value={noteDate}
+                  onChange={(e) => setNoteDate(e.target.value)}
+                />
+              </label>
+              <label className="space-y-2 text-sm text-stone-300">
+                <span>Due time (optional)</span>
+                <Input
+                  type="time"
+                  value={noteTime}
+                  disabled={!noteDate}
+                  onChange={(e) => setNoteTime(e.target.value)}
+                />
+              </label>
+            </div>
 
             {/* Privacy Checkbox */}
             {(mode === "note" || selectedProjectId !== "") && allowMemberPrivateItems && (
@@ -985,6 +990,73 @@ function FabCreateModal({
           </div>
         )}
 
+        {!loading && mode === "diary" && (
+          <div className={cn("grid min-h-0 flex-1 gap-5 overflow-hidden", isSettingsOpen && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
+            <section className="flex min-h-0 flex-col gap-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender">Details</p>
+              <div className="space-y-2 text-sm text-stone-300">
+                <span>Workspace / Target</span>
+                <select
+                  className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.065] px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70 focus:bg-white/[0.09] focus:ring-4 focus:ring-dusk-lavender/20"
+                  value={selectedProjectId}
+                  onChange={(e) => setSelectedProjectId(e.target.value)}
+                >
+                  <option value="">My Diary (Personal)</option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Input name="title" placeholder="Diary title" required />
+              <Textarea
+                className="min-h-24"
+                name="description"
+                placeholder="What checklist items should repeat?"
+              />
+              <ColorPicker selectedColor={color} onChange={setColor} />
+              <DiaryChecklistEditor
+                defaultRepeatDays={diaryIntervalDays}
+                defaultStartDate={diaryStartDate}
+                onDefaultRepeatDaysChange={setDiaryIntervalDays}
+                value={diaryChecklist}
+                onChange={setDiaryChecklist}
+              />
+            </section>
+
+            <aside className={cn("space-y-4 self-start rounded-xl border border-white/10 bg-white/[0.025] p-4", !isSettingsOpen && "hidden")}>
+              <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Settings</p>
+              <label className="space-y-2 text-sm text-stone-300">
+                <span>Start date</span>
+                <Input
+                  type="date"
+                  value={diaryStartDate}
+                  onChange={(e) => setDiaryStartDate(e.target.value)}
+                  required
+                />
+              </label>
+              {selectedProjectId !== "" && allowMemberPrivateItems ? (
+                <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-stone-300">
+                  <span>Hide from other members</span>
+                  <input
+                    checked={isHidden}
+                    className="h-4 w-4 accent-dusk-lavender"
+                    type="checkbox"
+                    onChange={(e) => setIsHidden(e.target.checked)}
+                  />
+                </label>
+              ) : null}
+
+              {error && (
+                <p className="text-xs text-red-300 border border-red-300/20 bg-red-400/10 p-3 rounded-xl">
+                  {error}
+                </p>
+              )}
+            </aside>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="mt-5 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
@@ -997,6 +1069,7 @@ function FabCreateModal({
         </div>
       </form>
     </div>
+    </ModalPortal>
   );
 }
 

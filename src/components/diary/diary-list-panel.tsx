@@ -1,11 +1,13 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { CalendarDays, Eye, EyeOff, Pencil, Plus, Repeat, Save, Star, Trash2, X } from "lucide-react";
+import { CalendarDays, Eye, EyeOff, Pencil, Plus, Repeat, Save, SlidersHorizontal, Star, Trash2, X } from "lucide-react";
 
+import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
-import { isDiaryItemDueOnDate } from "@/lib/diary/recurrence";
+import { ModalPortal } from "@/components/ui/modal-portal";
+import { getDiaryChecklistSummary, normalizeDiaryChecklist, type DiaryChecklistItem } from "@/lib/diary/checklist";
 import { formatMediumDate } from "@/lib/date-format";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
@@ -25,6 +27,7 @@ interface DiaryPayload {
   color: CardColor;
   intervalDays: number;
   startDate: string;
+  checklist: DiaryChecklistItem[];
   isStarred: boolean;
   isHidden: boolean;
   dueTime: string | null;
@@ -46,10 +49,15 @@ export function DiaryListPanel({
   const [error, setError] = useState<string | null>(null);
   const visibleItems = useMemo(() => {
     return [...items]
-      .map((item) => ({
-        ...item,
-        isDueToday: isDiaryItemDueOnDate(item.startDate, selectedDate, item.intervalDays)
-      }))
+      .map((item) => {
+        const checklistSummary = getDiaryChecklistSummary(item, selectedDate);
+
+        return {
+          ...item,
+          checklistSummary,
+          isDueToday: checklistSummary.isDue
+        };
+      })
       .filter((item) => {
         if (filter === "today") return item.isDueToday;
         if (filter === "upcoming") return !item.isDueToday;
@@ -94,10 +102,15 @@ export function DiaryListPanel({
   async function updateItem(itemId: string, payload: Partial<DiaryPayload>) {
     const item = await saveItem(`/api/diary-items/${itemId}`, "PATCH", payload);
 
-    if (!item) return;
+    if (!item) return false;
 
     setItems((current) => current.map((entry) => (entry.id === item.id ? item : entry)));
     setSelectedItem((current) => (current?.id === item.id ? item : current));
+    return true;
+  }
+
+  async function updateChecklist(item: ProjectDiaryItem, checklist: DiaryChecklistItem[]) {
+    await updateItem(item.id, { checklist: normalizeDiaryChecklist(checklist, item.startDate) });
   }
 
   async function deleteItem(itemId: string) {
@@ -171,13 +184,13 @@ export function DiaryListPanel({
               <article
                 key={item.id}
                 className={cn(
-                  "lofi-panel flex min-h-48 flex-col rounded-lg p-4 transition",
+                  "lofi-panel flex min-h-48 flex-col rounded-lg p-4 transition shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
                   colorMeta.softClass,
                   !item.isDueToday && "opacity-50 grayscale-[0.35]"
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
                       {!item.isDueToday ? (
                         <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-stone-500">
@@ -190,10 +203,19 @@ export function DiaryListPanel({
                           Hidden
                         </span>
                       ) : null}
-                      <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-1 text-[11px] text-dusk-cyan">
-                        <Repeat className="h-3 w-3" />
-                        Every {item.intervalDays} day{item.intervalDays > 1 ? "s" : ""}
-                      </span>
+                      {item.checklistSummary.hasChecklist ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-1 text-[11px] text-dusk-cyan">
+                          <Repeat className="h-3 w-3" />
+                          {item.checklistSummary.isDue
+                            ? `Due ${item.checklistSummary.completedCount}/${item.checklistSummary.dueCount} today`
+                            : `Checklist ${item.checklistSummary.totalCount}`}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-1 text-[11px] text-dusk-cyan">
+                          <Repeat className="h-3 w-3" />
+                          Every {item.intervalDays} day{item.intervalDays > 1 ? "s" : ""}
+                        </span>
+                      )}
                       {item.dueTime ? (
                         <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/25 bg-dusk-amber/10 px-2 py-1 text-[11px] text-dusk-amber font-mono">
                           ⏰ {item.dueTime}
@@ -202,20 +224,27 @@ export function DiaryListPanel({
                     </div>
                     <h3 className="truncate text-lg font-semibold text-stone-100">{item.title}</h3>
                     <p className="mt-2 line-clamp-4 text-sm leading-6 text-stone-400">{item.description || "No description."}</p>
+                    <DiaryChecklistPreview
+                      canManage={item.canManage}
+                      selectedDate={selectedDate}
+                      value={item.checklist}
+                      onChange={(checklist) => updateChecklist(item, checklist)}
+                    />
                   </div>
-                  <button
-                    className={cn(
-                      "grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-500 transition hover:border-dusk-amber/45 hover:text-dusk-amber",
-                      item.isStarred && "border-dusk-amber/35 text-dusk-amber"
-                    )}
-                    type="button"
-                    disabled={!item.canManage}
-                    aria-label={item.isStarred ? "Unstar diary checklist" : "Star diary checklist"}
-                    onClick={() => updateItem(item.id, { isStarred: !item.isStarred })}
-                  >
-                    <Star className="h-4 w-4" />
-                  </button>
-                  {item.canManage ? (
+                  <div className="flex shrink-0 flex-col gap-2">
+                    <button
+                      className={cn(
+                        "grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-500 transition hover:border-dusk-amber/45 hover:text-dusk-amber",
+                        item.isStarred && "border-dusk-amber/35 bg-dusk-amber/10 text-dusk-amber"
+                      )}
+                      type="button"
+                      disabled={!item.canManage}
+                      aria-label={item.isStarred ? "Unstar diary checklist" : "Star diary checklist"}
+                      onClick={() => updateItem(item.id, { isStarred: !item.isStarred })}
+                    >
+                      <Star className={cn("h-4 w-4", item.isStarred && "fill-dusk-amber")} />
+                    </button>
+                    {item.canManage ? (
                     <button
                       className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender"
                       type="button"
@@ -223,7 +252,8 @@ export function DiaryListPanel({
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
-                  ) : null}
+                    ) : null}
+                  </div>
                 </div>
                 <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3 text-xs text-stone-500">
                   <span>{item.author.name ?? item.author.email}</span>
@@ -249,6 +279,7 @@ export function DiaryListPanel({
       {isCreateOpen ? (
         <DiaryItemModal
           allowMemberPrivateItems={allowMemberPrivateItems}
+          selectedDate={selectedDate}
           title="Add diary"
           onClose={() => setIsCreateOpen(false)}
           onSubmit={createItem}
@@ -258,10 +289,14 @@ export function DiaryListPanel({
         <DiaryItemModal
           allowMemberPrivateItems={allowMemberPrivateItems}
           item={selectedItem}
+          selectedDate={selectedDate}
           title="Edit diary"
           onClose={() => setSelectedItem(null)}
           onDelete={() => deleteItem(selectedItem.id)}
-          onSubmit={(payload) => updateItem(selectedItem.id, payload)}
+          onSubmit={async (payload) => {
+            const didSave = await updateItem(selectedItem.id, payload);
+            if (didSave) setSelectedItem(null);
+          }}
         />
       ) : null}
     </section>
@@ -274,10 +309,12 @@ function DiaryItemModal({
   title,
   onClose,
   onDelete,
+  selectedDate,
   onSubmit
 }: {
   allowMemberPrivateItems: boolean;
   item?: ProjectDiaryItem;
+  selectedDate: string;
   title: string;
   onClose: () => void;
   onDelete?: () => void;
@@ -286,14 +323,10 @@ function DiaryItemModal({
   const [color, setColor] = useState<CardColor>(normalizeCardColor(item?.color));
   const [isHidden, setIsHidden] = useState(item?.isHidden ?? false);
   const [intervalDays, setIntervalDays] = useState(item?.intervalDays ?? 1);
-
-  const PRESETS = [
-    { label: "Daily", days: 1 },
-    { label: "3 days", days: 3 },
-    { label: "Weekly", days: 7 },
-    { label: "2 weeks", days: 14 },
-    { label: "Monthly", days: 30 }
-  ];
+  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [checklist, setChecklist] = useState<DiaryChecklistItem[]>(
+    normalizeDiaryChecklist(item?.checklist, item?.startDate ?? selectedDate)
+  );
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -303,90 +336,82 @@ function DiaryItemModal({
       title: String(formData.get("title") ?? ""),
       description: String(formData.get("description") ?? ""),
       color,
-      intervalDays: Number(formData.get("intervalDays") ?? 1),
+      intervalDays,
       startDate: String(formData.get("startDate") ?? new Date().toISOString().slice(0, 10)),
+      checklist: normalizeDiaryChecklist(checklist, String(formData.get("startDate") ?? selectedDate)),
       isStarred: item?.isStarred ?? false,
       isHidden,
-      dueTime: formData.get("dueTime") ? String(formData.get("dueTime")) : null
+      dueTime: null
     });
   }
 
   return (
-    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
-      <form className="lofi-panel max-h-[92vh] w-full max-w-2xl overflow-y-auto scrollbar-soft rounded-lg p-5" onSubmit={handleSubmit}>
+    <ModalPortal>
+    <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/85 px-4 py-4 backdrop-blur-sm">
+      <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-lg p-5" onSubmit={handleSubmit}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Recurring Diary</p>
             <h2 className="mt-1 text-2xl font-semibold">{title}</h2>
           </div>
-          <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              className={cn(
+                "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs transition",
+                isSettingsOpen
+                  ? "border-dusk-amber/40 bg-dusk-amber/10 text-dusk-amber"
+                  : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-amber/35"
+              )}
+              type="button"
+              onClick={() => setIsSettingsOpen((current) => !current)}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Settings
+            </button>
+            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
-        <div className="grid gap-4">
-          <Input name="title" defaultValue={item?.title ?? ""} placeholder="Diary title" required />
-          <Textarea className="min-h-32" name="description" defaultValue={item?.description ?? ""} placeholder="What should repeat?" />
-          <ColorPicker selectedColor={color} onChange={setColor} />
-          
-          <div className="grid gap-3 sm:grid-cols-2">
+        <div className={cn("grid min-h-0 flex-1 gap-5 overflow-hidden", isSettingsOpen && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
+          <section className="flex min-h-0 flex-col gap-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender">Details</p>
+            <Input name="title" defaultValue={item?.title ?? ""} placeholder="Diary title" required />
+            <Textarea className="min-h-32" name="description" defaultValue={item?.description ?? ""} placeholder="What should repeat?" />
+            <ColorPicker selectedColor={color} onChange={setColor} />
+            <DiaryChecklistEditor
+              defaultRepeatDays={intervalDays}
+              defaultStartDate={item?.startDate.slice(0, 10) ?? selectedDate}
+              onDefaultRepeatDaysChange={setIntervalDays}
+              value={checklist}
+              onChange={setChecklist}
+            />
+          </section>
+
+          <aside className={cn("space-y-4 self-start rounded-lg border border-white/10 bg-white/[0.025] p-4", !isSettingsOpen && "hidden")}>
+            <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Settings</p>
             <label className="space-y-2 text-sm text-stone-300">
               <span>Start date</span>
               <Input name="startDate" type="date" defaultValue={item?.startDate.slice(0, 10) ?? new Date().toISOString().slice(0, 10)} required />
             </label>
-            <label className="space-y-2 text-sm text-stone-300">
-              <span>Due time (optional)</span>
-              <Input name="dueTime" type="time" defaultValue={item?.dueTime ?? ""} />
-            </label>
-          </div>
 
-          <div className="space-y-2 text-sm text-stone-300">
-            <span>Show every (days)</span>
-            <div className="flex flex-wrap gap-1.5">
-              {PRESETS.map((p) => (
-                <button
-                  key={p.days}
-                  type="button"
-                  className={cn(
-                    "h-7 rounded-md border px-2.5 text-xs transition",
-                    intervalDays === p.days
-                      ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber"
-                      : "border-white/10 bg-white/5 text-stone-400 hover:border-dusk-amber/40"
-                  )}
-                  onClick={() => setIntervalDays(p.days)}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-            <Input
-              name="intervalDays"
-              type="number"
-              min={1}
-              max={365}
-              value={intervalDays}
-              onChange={(e) => setIntervalDays(Number(e.target.value))}
-              required
-            />
-            <p className="text-[11px] text-stone-500">
-              Shows every {intervalDays} day{intervalDays > 1 ? "s" : ""}
-            </p>
-          </div>
-          <label
-            className={cn(
-              "flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-stone-300",
-              !allowMemberPrivateItems && "opacity-60"
-            )}
-          >
-            <span>Hide from other members</span>
-            <input
-              checked={isHidden}
-              className="h-4 w-4 accent-dusk-lavender"
-              disabled={!allowMemberPrivateItems && !item?.canToggleHidden}
-              type="checkbox"
-              onChange={(event) => setIsHidden(event.target.checked)}
-            />
-          </label>
+            <label
+              className={cn(
+                "flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-stone-300",
+                !allowMemberPrivateItems && "opacity-60"
+              )}
+            >
+              <span>Hide from other members</span>
+              <input
+                checked={isHidden}
+                className="h-4 w-4 accent-dusk-lavender"
+                disabled={!allowMemberPrivateItems && !item?.canToggleHidden}
+                type="checkbox"
+                onChange={(event) => setIsHidden(event.target.checked)}
+              />
+            </label>
+          </aside>
         </div>
 
         <div className="mt-5 flex flex-wrap justify-end gap-2">
@@ -406,6 +431,7 @@ function DiaryItemModal({
         </div>
       </form>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -452,6 +478,7 @@ function normalizeDiaryItem(item: ProjectDiaryItem): ProjectDiaryItem {
     startDate: new Date(item.startDate).toISOString(),
     createdAt: new Date(item.createdAt).toISOString(),
     updatedAt: new Date(item.updatedAt).toISOString(),
+    checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
     isStarred: item.isStarred ?? false,
     canManage: item.canManage ?? false,
     canToggleHidden: item.canToggleHidden ?? false

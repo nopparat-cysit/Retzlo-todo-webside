@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  resolveCardRewardPayload,
   getPrivateCoinEntry,
   setPrivateCoinAmount,
   type CardPrivateCoins
@@ -29,6 +30,28 @@ describe("card private coin helpers", () => {
     expect(getPrivateCoinEntry({ user_1: { coins: -2, claimed: false } }, "user_1")).toEqual({
       coins: 0,
       claimed: false
+    });
+  });
+
+  it("clears all card reward payload values when coin rewards are disabled", () => {
+    const current: CardPrivateCoins = {
+      user_1: { coins: 25, claimed: false },
+      user_2: { coins: 15, claimed: true }
+    };
+
+    expect(
+      resolveCardRewardPayload({
+        activeUserId: "user_1",
+        enabled: false,
+        privateCoins: current,
+        privateGlobalCoins: 25,
+        rewardCoins: 50
+      })
+    ).toEqual({
+      privateCoins: {
+        user_2: { coins: 15, claimed: true }
+      },
+      rewardCoins: 0
     });
   });
 });

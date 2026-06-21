@@ -1,12 +1,14 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { BookOpen, Eye, EyeOff, Pencil, Plus, Repeat, Save, Star, Trash2, X } from "lucide-react";
+import { BookOpen, Eye, EyeOff, Pencil, Plus, Repeat, Save, SlidersHorizontal, Star, Trash2, X } from "lucide-react";
 
+import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import { setRedStarItem } from "@/components/hub/fab-hub";
-import { isDiaryItemDueOnDate } from "@/lib/diary/recurrence";
+import { getDiaryChecklistSummary, normalizeDiaryChecklist, type DiaryChecklistItem } from "@/lib/diary/checklist";
 import { formatMediumDate } from "@/lib/date-format";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
@@ -32,6 +34,7 @@ interface DiaryPayload {
   color: CardColor;
   intervalDays: number;
   startDate: string;
+  checklist: DiaryChecklistItem[];
   isStarred: boolean;
   isHidden: boolean;
   dueTime: string | null;
@@ -79,10 +82,15 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
 
   const visibleItems = useMemo(() => {
     return [...items]
-      .map((item) => ({
-        ...item,
-        isDueToday: isDiaryItemDueOnDate(item.startDate, today, item.intervalDays)
-      }))
+      .map((item) => {
+        const checklistSummary = getDiaryChecklistSummary(item, today);
+
+        return {
+          ...item,
+          checklistSummary,
+          isDueToday: checklistSummary.isDue
+        };
+      })
       .filter((item) => {
         if (projectFilter !== "all") {
           if (projectFilter === "personal") {
@@ -128,9 +136,14 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
 
   async function updateItem(itemId: string, payload: Partial<DiaryPayload>) {
     const item = await saveItem(`/api/diary-items/${itemId}`, "PATCH", payload);
-    if (!item) return;
+    if (!item) return false;
     setItems((cur) => cur.map((i) => (i.id === item.id ? item : i)));
     setSelectedItem((cur) => (cur?.id === item.id ? item : cur));
+    return true;
+  }
+
+  async function updateChecklist(item: HubDiaryItem, checklist: DiaryChecklistItem[]) {
+    await updateItem(item.id, { checklist: normalizeDiaryChecklist(checklist, item.startDate) });
   }
 
   async function deleteItem(itemId: string) {
@@ -235,7 +248,7 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
               <article
                 key={item.id}
                 className={cn(
-                  "lofi-panel flex min-h-44 flex-col rounded-xl p-4 transition",
+                  "lofi-panel flex min-h-44 flex-col rounded-xl p-4 transition shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
                   colorMeta.softClass,
                   !item.isDueToday && "opacity-55 grayscale-[0.3]"
                 )}
@@ -257,10 +270,19 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
                           <EyeOff className="h-3 w-3" /> Hidden
                         </span>
                       )}
-                      <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] text-dusk-cyan">
-                        <Repeat className="h-3 w-3" />
-                        Every {item.intervalDays}d
-                      </span>
+                      {item.checklistSummary.hasChecklist ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] text-dusk-cyan">
+                          <Repeat className="h-3 w-3" />
+                          {item.checklistSummary.isDue
+                            ? `Due ${item.checklistSummary.completedCount}/${item.checklistSummary.dueCount}`
+                            : `Checklist ${item.checklistSummary.totalCount}`}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] text-dusk-cyan">
+                          <Repeat className="h-3 w-3" />
+                          Every {item.intervalDays}d
+                        </span>
+                      )}
                       {item.dueTime && (
                         <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/25 bg-dusk-amber/10 px-2 py-0.5 text-[10px] text-dusk-amber font-mono">
                           ⏰ {item.dueTime}
@@ -271,6 +293,12 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
                     <p className="mt-1.5 line-clamp-3 text-sm leading-6 text-stone-400">
                       {item.description || "No description."}
                     </p>
+                    <DiaryChecklistPreview
+                      canManage={item.canManage}
+                      selectedDate={today}
+                      value={item.checklist}
+                      onChange={(checklist) => updateChecklist(item, checklist)}
+                    />
                   </div>
 
                   <div className="flex shrink-0 flex-col gap-1.5">
@@ -317,6 +345,7 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
         <DiaryItemModal
           title="New My Diary"
           isPersonal
+          selectedDate={today}
           onClose={() => setIsCreateOpen(false)}
           onSubmit={createItem}
         />
@@ -327,9 +356,13 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
           item={selectedItem}
           title="Edit diary"
           isPersonal={selectedItem.projectId === null}
+          selectedDate={today}
           onClose={() => setSelectedItem(null)}
           onDelete={() => deleteItem(selectedItem.id)}
-          onSubmit={(p) => updateItem(selectedItem.id, p)}
+          onSubmit={async (p) => {
+            const didSave = await updateItem(selectedItem.id, p);
+            if (didSave) setSelectedItem(null);
+          }}
         />
       )}
     </section>
@@ -346,25 +379,23 @@ function DiaryItemModal({
   isPersonal,
   onClose,
   onDelete,
+  selectedDate,
   onSubmit
 }: {
   item?: HubDiaryItem;
   title: string;
   isPersonal: boolean;
+  selectedDate: string;
   onClose: () => void;
   onDelete?: () => void;
   onSubmit: (payload: DiaryPayload) => void;
 }) {
   const [color, setColor] = useState<CardColor>(normalizeCardColor(item?.color));
   const [intervalDays, setIntervalDays] = useState(item?.intervalDays ?? 1);
-
-  const PRESETS = [
-    { label: "Daily", days: 1 },
-    { label: "3 days", days: 3 },
-    { label: "Weekly", days: 7 },
-    { label: "2 weeks", days: 14 },
-    { label: "Monthly", days: 30 }
-  ];
+  const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [checklist, setChecklist] = useState<DiaryChecklistItem[]>(
+    normalizeDiaryChecklist(item?.checklist, item?.startDate ?? selectedDate)
+  );
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -375,15 +406,17 @@ function DiaryItemModal({
       color,
       intervalDays,
       startDate: String(formData.get("startDate") ?? new Date().toISOString().slice(0, 10)),
+      checklist: normalizeDiaryChecklist(checklist, String(formData.get("startDate") ?? selectedDate)),
       isStarred: item?.isStarred ?? false,
       isHidden: false,
-      dueTime: formData.get("dueTime") ? String(formData.get("dueTime")) : null
+      dueTime: null
     });
   }
 
   return (
-    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
-      <form className="lofi-panel max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-xl p-5" onSubmit={handleSubmit}>
+    <ModalPortal>
+    <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/85 px-4 py-4 backdrop-blur-sm">
+      <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-xl p-5" onSubmit={handleSubmit}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">
@@ -391,17 +424,43 @@ function DiaryItemModal({
             </p>
             <h2 className="mt-1 text-2xl font-semibold">{title}</h2>
           </div>
-          <button className="rounded-md p-2 text-stone-400 hover:bg-white/10" type="button" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              className={cn(
+                "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs transition",
+                isSettingsOpen
+                  ? "border-dusk-amber/40 bg-dusk-amber/10 text-dusk-amber"
+                  : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-amber/35"
+              )}
+              type="button"
+              onClick={() => setIsSettingsOpen((current) => !current)}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Settings
+            </button>
+            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10" type="button" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
-        <div className="grid gap-4">
-          <Input name="title" defaultValue={item?.title ?? ""} placeholder="Diary title" required />
-          <Textarea className="min-h-28" name="description" defaultValue={item?.description ?? ""} placeholder="What should repeat?" />
-          <ColorPicker selectedColor={color} onChange={setColor} />
+        <div className={cn("grid min-h-0 flex-1 gap-5 overflow-hidden", isSettingsOpen && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
+          <section className="flex min-h-0 flex-col gap-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender">Details</p>
+            <Input name="title" defaultValue={item?.title ?? ""} placeholder="Diary title" required />
+            <Textarea className="min-h-28" name="description" defaultValue={item?.description ?? ""} placeholder="What should repeat?" />
+            <ColorPicker selectedColor={color} onChange={setColor} />
+            <DiaryChecklistEditor
+              defaultRepeatDays={intervalDays}
+              defaultStartDate={item?.startDate.slice(0, 10) ?? selectedDate}
+              onDefaultRepeatDaysChange={setIntervalDays}
+              value={checklist}
+              onChange={setChecklist}
+            />
+          </section>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <aside className={cn("space-y-4 self-start rounded-lg border border-white/10 bg-white/[0.025] p-4", !isSettingsOpen && "hidden")}>
+            <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Settings</p>
             <label className="space-y-2 text-sm text-stone-300">
               <span>Start date</span>
               <Input
@@ -411,45 +470,7 @@ function DiaryItemModal({
                 required
               />
             </label>
-            <label className="space-y-2 text-sm text-stone-300">
-              <span>Due time (optional)</span>
-              <Input name="dueTime" type="time" defaultValue={item?.dueTime ?? ""} />
-            </label>
-          </div>
-
-          <div className="space-y-2 text-sm text-stone-300">
-            <span>Show every (days)</span>
-            {/* Presets */}
-            <div className="flex flex-wrap gap-1.5">
-              {PRESETS.map((p) => (
-                <button
-                  key={p.days}
-                  type="button"
-                  className={cn(
-                    "h-7 rounded-md border px-2.5 text-xs transition",
-                    intervalDays === p.days
-                      ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber"
-                      : "border-white/10 bg-white/5 text-stone-400 hover:border-dusk-amber/40"
-                  )}
-                  onClick={() => setIntervalDays(p.days)}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-            <Input
-              name="intervalDays"
-              type="number"
-              min={1}
-              max={365}
-              value={intervalDays}
-              onChange={(e) => setIntervalDays(Number(e.target.value))}
-              required
-            />
-            <p className="text-[11px] text-stone-500">
-              Shows every {intervalDays} day{intervalDays > 1 ? "s" : ""}
-            </p>
-          </div>
+          </aside>
         </div>
 
         <div className="mt-5 flex flex-wrap justify-end gap-2">
@@ -469,6 +490,7 @@ function DiaryItemModal({
         </div>
       </form>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -510,6 +532,7 @@ function normalizeItem(item: HubDiaryItem): HubDiaryItem {
     ...item,
     color: normalizeCardColor(item.color),
     startDate: new Date(item.startDate).toISOString(),
+    checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
     createdAt: new Date(item.createdAt).toISOString(),
     updatedAt: new Date(item.updatedAt).toISOString()
   };

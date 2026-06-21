@@ -76,8 +76,7 @@ export async function PATCH(request: Request, { params }: { params: { noteId: st
         authorId: true,
         project: {
           select: {
-            allowMemberPrivateItems: true,
-            notesEnabled: true
+            allowMemberPrivateItems: true
           }
         }
       }
@@ -85,10 +84,6 @@ export async function PATCH(request: Request, { params }: { params: { noteId: st
 
     if (!existingNote) {
       return jsonError("Note not found.", 404);
-    }
-
-    if (!existingNote.project.notesEnabled) {
-      return jsonError("Notes are disabled for this project.", 403);
     }
 
     if (!canManageAuthoredItem(membership, userId, existingNote.authorId)) {
@@ -155,21 +150,12 @@ export async function DELETE(_request: Request, { params }: { params: { noteId: 
     const existingNote = await prisma.note.findUnique({
       where: { id: params.noteId },
       select: {
-        authorId: true,
-        project: {
-          select: {
-            notesEnabled: true
-          }
-        }
+        authorId: true
       }
     });
 
     if (!existingNote) {
       return jsonError("Note not found.", 404);
-    }
-
-    if (!existingNote.project.notesEnabled) {
-      return jsonError("Notes are disabled for this project.", 403);
     }
 
     if (!canManageAuthoredItem(membership, userId, existingNote.authorId)) {

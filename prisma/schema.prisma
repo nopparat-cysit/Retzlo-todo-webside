@@ -171,6 +171,7 @@ model DiaryItem {
   color        String   @default("DEFAULT")
   intervalDays Int
   startDate    DateTime
+  checklist    Json?
   isStarred    Boolean  @default(false)
   isHidden     Boolean  @default(false)
   dueTime      String?  // e.g. "09:00" time of day

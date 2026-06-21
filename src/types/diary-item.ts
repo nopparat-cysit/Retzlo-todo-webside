@@ -1,4 +1,5 @@
 import type { CardColor } from "@/lib/theme/card-colors";
+import type { DiaryChecklistItem } from "@/lib/diary/checklist";
 
 export interface ProjectDiaryItem {
   id: string;
@@ -7,6 +8,7 @@ export interface ProjectDiaryItem {
   color: CardColor;
   intervalDays: number;
   startDate: string;
+  checklist: DiaryChecklistItem[];
   isStarred: boolean;
   isHidden: boolean;
   dueTime: string | null;

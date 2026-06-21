@@ -4,11 +4,6 @@ import { normalizeCardColor } from "@/lib/theme/card-colors";
 import type { CardStatus, ChecklistItem } from "@/types/kanban";
 
 export default async function CalendarPage({ params }: { params: { id: string } }) {
-  const project = await prisma.project.findUnique({
-    where: { id: params.id },
-    select: { notesEnabled: true }
-  });
-
   const [cards, notes] = await Promise.all([
     prisma.card.findMany({
       where: {
@@ -25,15 +20,13 @@ export default async function CalendarPage({ params }: { params: { id: string } 
       },
       orderBy: [{ dueDate: "asc" }, { position: "asc" }]
     }),
-    project?.notesEnabled
-      ? prisma.note.findMany({
-          where: {
-            projectId: params.id,
-            dueDate: { not: null }
-          },
-          orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }]
-        })
-      : Promise.resolve([])
+    prisma.note.findMany({
+      where: {
+        projectId: params.id,
+        dueDate: { not: null }
+      },
+      orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }]
+    })
   ]);
 
   return <ProjectCalendar projectId={params.id} initialCards={cards.map(toCalendarCard)} initialNotes={notes.map(toCalendarNote)} />;

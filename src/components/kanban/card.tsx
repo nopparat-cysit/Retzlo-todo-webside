@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { CalendarClock, CheckSquare, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
+import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { formatMediumDateTime } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
@@ -143,7 +143,7 @@ export function KanbanCard({
                     className="inline-grid h-7 w-7 cursor-default place-items-center transition-transform duration-200 hover:scale-110"
                     title="Retro sticker"
                   >
-                    <Image alt="Retro sticker" className="h-full w-full object-contain" height={28} src={`${st}?v=20260621-clean`} width={28} />
+                    <RetroStickerImage size={28} src={st} />
                   </span>
                 ))}
               </div>

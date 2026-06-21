@@ -159,14 +159,14 @@ export function SettingsForm({
     setIsSavingPrivacy(false);
 
     if (response.ok) {
-      setStatusMessage({ ok: true, text: value ? "Notes enabled." : "Notes disabled." });
+      setStatusMessage({ ok: true, text: value ? "Board notes rail enabled." : "Board notes rail hidden." });
       router.refresh();
       return;
     }
 
     const data = (await response.json()) as { error?: string };
     setNotesEnabled(project.notesEnabled);
-    setStatusMessage({ ok: false, text: data.error ?? "Could not save Notes setting." });
+    setStatusMessage({ ok: false, text: data.error ?? "Could not save board notes rail setting." });
   }
 
   return (
@@ -271,10 +271,10 @@ export function SettingsForm({
           <div className="mt-4 space-y-3">
             <SettingsToggleRow
               checked={notesEnabled}
-              description="Show Notes in navigation, board side panel, and project note pages."
+              description="Show or hide only the notes panel on the right side of the Board page."
               disabled={!canManagePrivacy || isSavingPrivacy}
               icon={<FileText className="h-4 w-4 text-dusk-cyan" />}
-              label="Notes module"
+              label="Board notes rail"
               onToggle={() => void toggleNotesEnabled(!notesEnabled)}
             />
             <SettingsToggleRow

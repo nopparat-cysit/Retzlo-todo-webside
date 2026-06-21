@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { DiaryListPanel } from "@/components/diary/diary-list-panel";
+import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
 import { prisma } from "@/lib/prisma";
 import {
   canManageAuthoredItem,
@@ -20,6 +22,41 @@ function normalizeDate(date: string | string[] | undefined) {
   return new Date().toISOString().slice(0, 10);
 }
 
+function isDatabaseConnectionError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return error.message.includes("Can't reach database server") || error.message.includes("P1001");
+}
+
+function DiaryDatabaseUnavailable({ projectId, selectedDate }: { projectId: string; selectedDate: string }) {
+  return (
+    <section className="lofi-panel mx-auto max-w-3xl rounded-xl p-6">
+      <p className="text-xs uppercase tracking-[0.25em] text-dusk-rose">Database offline</p>
+      <h2 className="mt-2 text-2xl font-semibold text-stone-100">Diary data could not load</h2>
+      <p className="mt-3 text-sm leading-6 text-stone-400">
+        The app cannot reach the configured Neon database right now. Check that the Neon project is active,
+        the database URL is still valid, and your network allows PostgreSQL connections on port 5432.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-2">
+        <Link
+          className="inline-flex h-10 items-center justify-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/15 px-4 text-sm font-medium text-dusk-lavender transition hover:border-dusk-lavender/60 hover:bg-dusk-lavender/20"
+          href={`/project/${projectId}/diary?date=${selectedDate}`}
+        >
+          Retry diary
+        </Link>
+        <Link
+          className="inline-flex h-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] px-4 text-sm font-medium text-stone-300 transition hover:border-white/20 hover:bg-white/[0.075]"
+          href="/projects"
+        >
+          Back to projects
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 function toProjectDiaryItems(
   items: Array<{
     id: string;
@@ -28,6 +65,7 @@ function toProjectDiaryItems(
     color: string;
     intervalDays: number;
     startDate: Date;
+    checklist: unknown;
     isStarred: boolean;
     isHidden: boolean;
     dueTime: string | null;
@@ -50,6 +88,7 @@ function toProjectDiaryItems(
     ...item,
     color: normalizeCardColor(item.color),
     startDate: item.startDate.toISOString(),
+    checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
     createdAt: item.createdAt.toISOString(),
     updatedAt: item.updatedAt.toISOString(),
     canManage: canManageAuthoredItem(context.membership, context.userId, item.authorId),
@@ -76,40 +115,52 @@ export default async function DiaryPage({
   }
 
   const selectedDate = normalizeDate(searchParams.date);
-  const membership = await getProjectMembership(params.id, userId);
+  let membership: Awaited<ReturnType<typeof getProjectMembership>>;
+  let project: { allowMemberPrivateItems: boolean } | null;
+  let items: Parameters<typeof toProjectDiaryItems>[0];
 
-  if (!membership) {
-    redirect("/projects");
-  }
+  try {
+    membership = await getProjectMembership(params.id, userId);
 
-  const project = await prisma.project.findUnique({
-    where: { id: params.id },
-    select: {
-      allowMemberPrivateItems: true
+    if (!membership) {
+      redirect("/projects");
     }
-  });
 
-  if (!project) {
-    redirect("/projects");
-  }
-
-  const items = await prisma.diaryItem.findMany({
-    where: isOwnerRole(membership.role)
-      ? { projectId: params.id }
-      : {
-          projectId: params.id,
-          OR: [{ isHidden: false }, { authorId: userId }]
-        },
-    include: {
-      author: {
-        select: {
-          name: true,
-          email: true
-        }
+    project = await prisma.project.findUnique({
+      where: { id: params.id },
+      select: {
+        allowMemberPrivateItems: true
       }
-    },
-    orderBy: [{ startDate: "asc" }, { updatedAt: "desc" }]
-  });
+    });
+
+    if (!project) {
+      redirect("/projects");
+    }
+
+    items = await prisma.diaryItem.findMany({
+      where: isOwnerRole(membership.role)
+        ? { projectId: params.id }
+        : {
+            projectId: params.id,
+            OR: [{ isHidden: false }, { authorId: userId }]
+          },
+      include: {
+        author: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: [{ startDate: "asc" }, { updatedAt: "desc" }]
+    });
+  } catch (error) {
+    if (isDatabaseConnectionError(error)) {
+      return <DiaryDatabaseUnavailable projectId={params.id} selectedDate={selectedDate} />;
+    }
+
+    throw error;
+  }
 
   return (
     <DiaryListPanel

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 
 import { jsonError, parseError } from "@/lib/api";
+import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
 import { parseCreateDiaryItemPayload } from "@/lib/diary/validation";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canToggleHiddenItem, isOwnerRole, requireUserId } from "@/lib/project-auth";
@@ -14,6 +16,7 @@ function toDiaryItemResponse(
     color: string;
     intervalDays: number;
     startDate: Date;
+    checklist: unknown;
     isStarred: boolean;
     isHidden: boolean;
     dueTime: string | null;
@@ -35,6 +38,7 @@ function toDiaryItemResponse(
     ...item,
     color: normalizeCardColor(item.color),
     startDate: item.startDate.toISOString(),
+    checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
     createdAt: item.createdAt.toISOString(),
     updatedAt: item.updatedAt.toISOString(),
     canManage,
@@ -134,6 +138,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         color: payload.color,
         intervalDays: payload.intervalDays,
         startDate: new Date(`${payload.startDate}T00:00:00.000Z`),
+        checklist: payload.checklist as unknown as Prisma.InputJsonValue,
         isStarred: payload.isStarred,
         isHidden: payload.isHidden,
         dueTime: payload.dueTime ?? null,

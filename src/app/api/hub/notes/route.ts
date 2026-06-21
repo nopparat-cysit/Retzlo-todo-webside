@@ -19,12 +19,11 @@ export async function GET() {
       select: {
         projectId: true,
         role: true,
-        project: { select: { id: true, name: true, allowMemberPrivateItems: true, notesEnabled: true } }
+        project: { select: { id: true, name: true, allowMemberPrivateItems: true } }
       }
     });
 
-    const noteMemberships = memberships.filter((membership) => membership.project.notesEnabled);
-    const projectIds = noteMemberships.map((m) => m.projectId);
+    const projectIds = memberships.map((m) => m.projectId);
     const membershipMap = new Map(memberships.map((m) => [m.projectId, m]));
 
     // Fetch notes visible to user
@@ -59,7 +58,7 @@ export async function GET() {
       };
     });
 
-    const projects = noteMemberships.map((m) => ({ id: m.project.id, name: m.project.name }));
+    const projects = memberships.map((m) => ({ id: m.project.id, name: m.project.name }));
 
     return NextResponse.json({ notes: normalized, projects });
   } catch (error) {

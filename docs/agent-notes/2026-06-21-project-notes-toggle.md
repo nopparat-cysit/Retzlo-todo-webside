@@ -2,34 +2,24 @@
 
 ## Objective
 
-Add a project-level setting to turn the Notes module on or off and improve the settings UX around project feature controls.
+Add a project-level setting to show or hide only the Board page Notes rail and improve the settings UX around project feature controls.
 
 ## Files Modified
 
 - `prisma/schema.prisma`
 - `src/app/(dashboard)/project/[id]/board/page.tsx`
-- `src/app/(dashboard)/project/[id]/calendar/page.tsx`
-- `src/app/(dashboard)/project/[id]/notes/page.tsx`
 - `src/app/(dashboard)/project/[id]/settings/page.tsx`
-- `src/app/api/hub/notes/route.ts`
-- `src/app/api/notes/[noteId]/route.ts`
-- `src/app/api/projects/[id]/notes/route.ts`
 - `src/app/api/projects/[id]/settings/route.ts`
 - `src/components/project/project-shell.tsx`
 - `src/components/project/settings-form.tsx`
 
 ## Behavior Changes
 
-- Project owners can now turn the Notes module on or off from Project settings.
+- Project owners can now show or hide only the Notes rail on the right side of the Board page.
 - Settings now groups feature controls under a clearer "Workspace features" section.
-- When Notes is disabled:
-  - Notes is hidden from the project sidebar navigation.
-  - The Board page hides the Notes side rail and uses the full board width.
-  - The Project Notes page redirects back to Project settings.
-  - The project calendar no longer loads dated notes.
-  - Project notes API list/create/update/delete returns a disabled-module error.
-  - Hub notes excludes projects where Notes is disabled.
-- Existing notes are not deleted; turning Notes back on restores access.
+- When the Board notes rail is hidden, the Board page uses the full board width.
+- The project sidebar Notes link, Project Notes page, Hub notes, Calendar notes, and Notes APIs remain normal and are not controlled by this toggle.
+- Existing notes are not deleted or disabled.
 
 ## Database Changes
 
@@ -49,6 +39,7 @@ Add a project-level setting to turn the Notes module on or off and improve the s
 - Stopped the local Next dev server processes for this workspace.
 - `npx prisma generate` passed after the lock was released.
 - `npm run build` passed.
+- After clarification, removed the broader Notes module restrictions and reran `npm run lint` and `npm run build`; both passed.
 
 ## Follow-ups
 

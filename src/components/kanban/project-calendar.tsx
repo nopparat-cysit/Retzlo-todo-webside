@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, SlidersHorizontal } from "lucide-react";
 
@@ -124,22 +124,32 @@ export function ProjectCalendar({
 
   return (
     <>
-      <div className="grid h-full min-h-0 gap-4 overflow-y-auto pr-1 scrollbar-soft xl:grid-cols-[280px_minmax(0,1fr)_340px]">
-        <Panel className="p-5">
+      <div
+        className="grid h-full min-h-0 gap-4 overflow-y-auto pr-1 scrollbar-soft xl:grid-cols-[var(--calendar-filter-width)_minmax(0,1fr)_340px]"
+        style={{
+          "--calendar-filter-width": isFiltersOpen ? "280px" : "64px"
+        } as CSSProperties}
+      >
+        <Panel className={cn("overflow-hidden transition-[padding] duration-200", isFiltersOpen ? "p-5" : "p-2")}>
           <button
             aria-expanded={isFiltersOpen}
-            className="flex w-full items-center justify-between gap-3 text-left"
+            aria-label={isFiltersOpen ? "Collapse calendar filters" : "Expand calendar filters"}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-lg text-left transition hover:bg-white/[0.04]",
+              isFiltersOpen ? "justify-between p-0" : "h-12 justify-center"
+            )}
             type="button"
             onClick={() => setIsFiltersOpen((current) => !current)}
+            title={isFiltersOpen ? "Collapse filters" : "Expand filters"}
           >
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal className="h-5 w-5 text-dusk-lavender" />
+            <div className={cn("flex items-center gap-2", !isFiltersOpen && "justify-center")}>
+              <SlidersHorizontal className="h-5 w-5 shrink-0 text-dusk-lavender" />
               <div>
-                <h3 className="font-semibold">Calendar Filters</h3>
-                <p className="text-xs text-stone-500">Choose what appears.</p>
+                <h3 className={cn("font-semibold", !isFiltersOpen && "sr-only")}>Calendar Filters</h3>
+                <p className={cn("text-xs text-stone-500", !isFiltersOpen && "sr-only")}>Choose what appears.</p>
               </div>
             </div>
-            <ChevronDown className={cn("h-4 w-4 text-stone-500 transition", !isFiltersOpen && "-rotate-90")} />
+            <ChevronDown className={cn("h-4 w-4 shrink-0 text-stone-500 transition", !isFiltersOpen && "-rotate-90")} />
           </button>
 
           {isFiltersOpen ? <div className="mt-5 space-y-5">

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   closestCenter,
   DndContext,
@@ -17,10 +16,11 @@ import { CalendarClock, CheckSquare, Coins, GripVertical, Plus, Star, Trash2, X 
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
+import { RetroStickerPicker } from "@/components/stickers/retro-sticker-picker";
 import { applyDueShortcut, composeDueDate } from "@/lib/kanban/due-date";
-import { getPrivateCoinEntry, setPrivateCoinAmount } from "@/lib/kanban/private-coins";
+import { getPrivateCoinEntry, resolveCardRewardPayload } from "@/lib/kanban/private-coins";
 import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
-import { normalizeRetroStickerSelection, retroStickerOptions } from "@/lib/stickers/retro-stickers";
+import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import type { Card, CardStatus, ChecklistItem } from "@/types/kanban";
@@ -165,6 +165,13 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     setIsSaving(true);
     const formData = new FormData(event.currentTarget);
     const due = composeDueDate(date, time);
+    const rewardPayload = resolveCardRewardPayload({
+      activeUserId,
+      enabled: showCoinRewards,
+      privateCoins: card?.privateCoins,
+      privateGlobalCoins,
+      rewardCoins
+    });
 
     await onSubmit({
       title: String(formData.get("title") ?? ""),
@@ -176,8 +183,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
       dueDateAllDay: due.dueDateAllDay,
       priority: selectedPriority,
       isStarred,
-      rewardCoins,
-      privateCoins: activeUserId ? setPrivateCoinAmount(card?.privateCoins, activeUserId, privateGlobalCoins) : undefined,
+      rewardCoins: rewardPayload.rewardCoins,
+      privateCoins: rewardPayload.privateCoins,
       stickers: normalizeRetroStickerSelection(stickers)
     });
     setIsSaving(false);
@@ -400,44 +407,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
             </div>
             ) : null}
 
-            {/* Stickers */}
-            <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
-              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
-                <span className="text-xs uppercase tracking-wider text-dusk-lavender font-bold">Retro Stickers</span>
-              </div>
-              <p className="text-xs text-stone-500 mb-2.5">Stamp your card to reflect the mood:</p>
-              <div className="grid grid-cols-5 gap-2.5">
-                {retroStickerOptions.map((st) => {
-                  const active = stickers.includes(st.src);
-                  return (
-                    <button
-                      key={st.id}
-                      type="button"
-                      onClick={() => {
-                        setStickers((prev) =>
-                          active ? prev.filter((s) => s !== st.src) : [...prev, st.src]
-                        );
-                      }}
-                      className={cn(
-                        "flex h-12 w-12 items-center justify-center overflow-visible rounded-lg border bg-ink-950/30 p-1 transition hover:scale-105 select-none",
-                        active
-                          ? "border-dusk-lavender bg-dusk-lavender/15 ring-2 ring-dusk-lavender/25"
-                          : "border-white/5 bg-ink-950/30 text-stone-500 hover:border-white/10"
-                      )}
-                      title={st.label}
-                    >
-                      <Image
-                        alt={st.label}
-                        className="h-9 w-9 object-contain"
-                        height={44}
-                        src={`${st.src}?v=20260621-clean`}
-                        width={44}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <RetroStickerPicker value={stickers} onChange={(nextValue) => setStickers(normalizeRetroStickerSelection(nextValue))} />
           </div>
 
           </div>

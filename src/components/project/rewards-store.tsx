@@ -23,15 +23,20 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
-import { getRewardIconForName, rewardIconOptions } from "@/lib/rewards/reward-icons";
+import { getRewardIconForName, getRewardIconOption, rewardIconOptions } from "@/lib/rewards/reward-icons";
 import { cn } from "@/lib/utils";
+
+const defaultRewardIcon = getRewardIconOption("gift");
+const coinRewardIcon = getRewardIconOption("coin-reward");
+const walletRewardIcon = getRewardIconOption("reward-wallet");
+const emptyRewardIcon = getRewardIconOption("reward-treasure");
 
 const REWARD_PRESETS = [
   {
     name: "Coffee Break",
     description: "A warm drink break to recharge after finishing focused work.",
     price: 10,
-    iconSrc: rewardIconOptions[2].src,
+    iconSrc: getRewardIconOption("coffee-cup").src,
     hasQuantity: false,
     quantity: null
   },
@@ -39,7 +44,7 @@ const REWARD_PRESETS = [
     name: "Gaming Session",
     description: "Unwind with 30 minutes of cozy games after a productive run.",
     price: 50,
-    iconSrc: rewardIconOptions[3].src,
+    iconSrc: getRewardIconOption("reward-game").src,
     hasQuantity: true,
     quantity: 5
   },
@@ -47,7 +52,7 @@ const REWARD_PRESETS = [
     name: "Movie Ticket",
     description: "Trade coins for a movie night or a streaming watch pass.",
     price: 100,
-    iconSrc: rewardIconOptions[4].src,
+    iconSrc: getRewardIconOption("reward-ticket").src,
     hasQuantity: true,
     quantity: 3
   },
@@ -55,7 +60,7 @@ const REWARD_PRESETS = [
     name: "Pocket Cash",
     description: "A small cash or gift-card reward for a strong week.",
     price: 200,
-    iconSrc: rewardIconOptions[15].src,
+    iconSrc: walletRewardIcon.src,
     hasQuantity: true,
     quantity: 2
   },
@@ -63,7 +68,7 @@ const REWARD_PRESETS = [
     name: "Rest Pass",
     description: "A calm recovery window for chores, sleep, or quiet time.",
     price: 80,
-    iconSrc: rewardIconOptions[21].src,
+    iconSrc: getRewardIconOption("reward-rest-pillow").src,
     hasQuantity: false,
     quantity: null
   }
@@ -149,7 +154,7 @@ export function RewardsStore({
   const [rewardHasQuantity, setRewardHasQuantity] = useState(false);
   const [rewardQuantity, setRewardQuantity] = useState(5);
   const [rewardDuration, setRewardDuration] = useState("");
-  const [rewardIconSrc, setRewardIconSrc] = useState<string>(rewardIconOptions[1].src);
+  const [rewardIconSrc, setRewardIconSrc] = useState<string>(defaultRewardIcon.src);
 
   const [rejectingRedemptionId, setRejectingRedemptionId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -296,7 +301,7 @@ export function RewardsStore({
         setRewardHasQuantity(false);
         setRewardQuantity(5);
         setRewardDuration("");
-        setRewardIconSrc(rewardIconOptions[1].src);
+        setRewardIconSrc(defaultRewardIcon.src);
         await loadData();
       } else {
         const err = (await res.json()) as { error?: string };
@@ -493,7 +498,7 @@ export function RewardsStore({
                 <p className="text-xs text-stone-500">{balanceLabel}</p>
               </div>
               <div className="grid h-16 w-16 place-items-center rounded-xl border border-dusk-amber/20 bg-dusk-amber/10">
-                <RewardIcon src={coinSymbol === "coin" ? rewardIconOptions[0].src : rewardIconOptions[17].src} label="Balance" size="lg" />
+                <RewardIcon src={coinSymbol === "coin" ? coinRewardIcon.src : walletRewardIcon.src} label="Balance" size="lg" />
               </div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
@@ -592,7 +597,7 @@ export function RewardsStore({
           ) : filteredRewards.length === 0 ? (
             <div className="mt-5 grid min-h-[22rem] place-items-center rounded-xl border border-dashed border-white/12 bg-white/[0.02] p-8 text-center">
               <div>
-                <RewardIcon src={rewardIconOptions[24].src} label="Empty catalog" size="xl" />
+                <RewardIcon src={emptyRewardIcon.src} label="Empty catalog" size="xl" />
                 <h4 className="mt-3 text-base font-semibold text-stone-200">No rewards here yet</h4>
                 <p className="mt-1 max-w-sm text-sm text-stone-500">
                   {canManageRewards ? "Create a reward or choose a preset to seed the catalog." : "The owner has not added rewards in this scope yet."}
@@ -940,7 +945,7 @@ function CreateRewardModal({
   rewardPrice: number;
   rewardQuantity: number;
 }) {
-  const selectedIcon = rewardIconOptions.find((icon) => icon.src === rewardIconSrc) ?? rewardIconOptions[1];
+  const selectedIcon = rewardIconOptions.find((icon) => icon.src === rewardIconSrc) ?? defaultRewardIcon;
 
   return (
     <div className="fixed inset-0 z-[1000] grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm">

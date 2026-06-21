@@ -67,17 +67,12 @@ export default async function NotesPage({ params }: { params: { id: string } }) 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     select: {
-      allowMemberPrivateItems: true,
-      notesEnabled: true
+      allowMemberPrivateItems: true
     }
   });
 
   if (!project) {
     redirect("/projects");
-  }
-
-  if (!project.notesEnabled) {
-    redirect(`/project/${params.id}/settings`);
   }
 
   const notes = await prisma.note.findMany({
