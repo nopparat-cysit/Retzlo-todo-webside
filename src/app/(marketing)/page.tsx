@@ -35,11 +35,401 @@ interface Particle {
   opacity: number;
 }
 
+// ── 3D Projection Helpers for LofiCassette3D ──────────────────────────
+interface Point3D {
+  x: number;
+  y: number;
+  z: number;
+}
+
+function rotateX(p: Point3D, angle: number): Point3D {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return {
+    x: p.x,
+    y: p.y * cos - p.z * sin,
+    z: p.y * sin + p.z * cos
+  };
+}
+
+function rotateY(p: Point3D, angle: number): Point3D {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return {
+    x: p.x * cos + p.z * sin,
+    y: p.y,
+    z: -p.x * sin + p.z * cos
+  };
+}
+
+function project(
+  p: Point3D, 
+  width: number, 
+  height: number, 
+  scale: number, 
+  distance: number
+): { x: number; y: number; z: number } {
+  const factor = scale / (distance + p.z);
+  return {
+    x: width / 2 + p.x * factor,
+    y: height / 2 + p.y * factor,
+    z: p.z
+  };
+}
+
+// ── Interactive 3D Spinning Cassette Deck Component ──────────────────
+function LofiCassette3D({ isPlaying, onClick }: { isPlaying: boolean; onClick: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ targetX: 0.25, targetY: 0.5 });
+  const isDraggingRef = useRef(false);
+  const prevMouseRef = useRef({ x: 0, y: 0 });
+
+  // Update target rotation based on hover tilt
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDraggingRef.current) return;
+      const x = (e.clientX / window.innerWidth - 0.5) * 1.5;
+      const y = (e.clientY / window.innerHeight - 0.5) * 1.5;
+      mouseRef.current.targetX = y * 0.5 + 0.25; // tilt x
+      mouseRef.current.targetY = x * 0.5 + 0.5;  // tilt y
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Set up 3D render loop inside canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let autoAngle = 0;
+
+    // Define 3D vertices of the cassette case (120 x 76 x 10)
+    const halfW = 60;
+    const halfH = 38;
+    const halfD = 6;
+
+    const vertices: Point3D[] = [
+      { x: -halfW, y: -halfH, z: -halfD }, // 0: back top left
+      { x: halfW, y: -halfH, z: -halfD },  // 1: back top right
+      { x: halfW, y: halfH, z: -halfD },   // 2: back bottom right
+      { x: -halfW, y: halfH, z: -halfD },  // 3: back bottom left
+      { x: -halfW, y: -halfH, z: halfD },  // 4: front top left
+      { x: halfW, y: -halfH, z: halfD },   // 5: front top right
+      { x: halfW, y: halfH, z: halfD },    // 6: front bottom right
+      { x: -halfW, y: halfH, z: halfD }     // 7: front bottom left
+    ];
+
+    // Label coordinates
+    const labelW = 44;
+    const labelH = 22;
+    const labelVertices: Point3D[] = [
+      { x: -labelW, y: -labelH, z: halfD + 0.2 },
+      { x: labelW, y: -labelH, z: halfD + 0.2 },
+      { x: labelW, y: labelH, z: halfD + 0.2 },
+      { x: -labelW, y: labelH, z: halfD + 0.2 }
+    ];
+
+    // Spools (left & right centers)
+    const spoolRadius = 11;
+    const leftSpoolCenter: Point3D = { x: -22, y: 0, z: halfD + 0.2 };
+    const rightSpoolCenter: Point3D = { x: 22, y: 0, z: halfD + 0.2 };
+
+    // Orbit particles data
+    const particleCount = 45;
+    const particles: { angle: number; radius: number; speed: number; yOffset: number; size: number; color: string }[] = [];
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        angle: Math.random() * Math.PI * 2,
+        radius: 80 + Math.random() * 40,
+        speed: 0.003 + Math.random() * 0.007,
+        yOffset: (Math.random() - 0.5) * 35,
+        size: Math.random() * 1.5 + 0.5,
+        color: Math.random() > 0.45 ? "#a9a2ff" : "#e5bd72"
+      });
+    }
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Spin variables
+      if (!isDraggingRef.current) {
+        if (isPlaying) {
+          mouseRef.current.targetY += 0.008; // slow spin
+        }
+        autoAngle += 0.006;
+      }
+
+      const rx = mouseRef.current.targetX + Math.sin(autoAngle) * 0.03; // idle sway
+      const ry = mouseRef.current.targetY;
+
+      const scale = 2.0;
+      const distance = 250;
+      const w = canvas.width;
+      const h = canvas.height;
+
+      const projectPoint = (p: Point3D) => {
+        let rotated = rotateX(p, rx);
+        rotated = rotateY(rotated, ry);
+        return project(rotated, w, h, scale * 100, distance);
+      };
+
+      // Draw background dust particles (z < 0)
+      ctx.shadowBlur = 6;
+      particles.forEach(p => {
+        if (!isDraggingRef.current) {
+          p.angle += p.speed * (isPlaying ? 2.5 : 1);
+        }
+        const px = Math.cos(p.angle) * p.radius;
+        const pz = Math.sin(p.angle) * p.radius;
+        const pt: Point3D = { x: px, y: p.yOffset, z: pz };
+        let rotated = rotateX(pt, rx);
+        rotated = rotateY(rotated, ry);
+
+        if (rotated.z < 0) {
+          const projP = project(rotated, w, h, scale * 100, distance);
+          ctx.beginPath();
+          ctx.arc(projP.x, projP.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+        }
+      });
+      ctx.shadowBlur = 0;
+
+      // Project casing
+      const proj = vertices.map(projectPoint);
+
+      // Draw Casing transparent solid backs
+      ctx.fillStyle = "rgba(10, 8, 30, 0.7)";
+      ctx.beginPath();
+      ctx.moveTo(proj[0].x, proj[0].y);
+      for (let i = 1; i < 4; i++) ctx.lineTo(proj[i].x, proj[i].y);
+      ctx.closePath();
+      ctx.fill();
+
+      const drawEdge = (i: number, j: number, color: string, width = 1) => {
+        ctx.beginPath();
+        ctx.moveTo(proj[i].x, proj[i].y);
+        ctx.lineTo(proj[j].x, proj[j].y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.stroke();
+      };
+
+      // Back frame edges (dim)
+      drawEdge(0, 1, "rgba(169, 162, 255, 0.15)");
+      drawEdge(1, 2, "rgba(169, 162, 255, 0.15)");
+      drawEdge(2, 3, "rgba(169, 162, 255, 0.15)");
+      drawEdge(3, 0, "rgba(169, 162, 255, 0.15)");
+
+      // Thickness edges
+      drawEdge(0, 4, "rgba(169, 162, 255, 0.2)");
+      drawEdge(1, 5, "rgba(169, 162, 255, 0.2)");
+      drawEdge(2, 6, "rgba(169, 162, 255, 0.2)");
+      drawEdge(3, 7, "rgba(169, 162, 255, 0.2)");
+
+      // Front Face
+      ctx.fillStyle = "rgba(15, 14, 40, 0.85)";
+      ctx.beginPath();
+      ctx.moveTo(proj[4].x, proj[4].y);
+      for (let i = 5; i < 8; i++) ctx.lineTo(proj[i].x, proj[i].y);
+      ctx.closePath();
+      ctx.fill();
+
+      // Front edges (glowing purple)
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#a9a2ff";
+      drawEdge(4, 5, "#a9a2ff", 1.5);
+      drawEdge(5, 6, "#a9a2ff", 1.5);
+      drawEdge(6, 7, "#a9a2ff", 1.5);
+      drawEdge(7, 4, "#a9a2ff", 1.5);
+      ctx.shadowBlur = 0;
+
+      // Project & Draw Label
+      const projLabel = labelVertices.map(projectPoint);
+      ctx.fillStyle = "rgba(229, 189, 114, 0.08)";
+      ctx.beginPath();
+      ctx.moveTo(projLabel[0].x, projLabel[0].y);
+      for (let i = 1; i < 4; i++) ctx.lineTo(projLabel[i].x, projLabel[i].y);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(229, 189, 114, 0.35)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Draw spool reels
+      const spoolAngle = autoAngle * (isPlaying ? 3.5 : 0.8);
+      const drawSpool = (center: Point3D) => {
+        const projCenter = projectPoint(center);
+        
+        ctx.beginPath();
+        ctx.strokeStyle = "#e5bd72";
+        ctx.lineWidth = 1;
+        const numPoints = 12;
+        for (let i = 0; i <= numPoints; i++) {
+          const a = (i / numPoints) * Math.PI * 2;
+          const px = center.x + Math.cos(a) * spoolRadius;
+          const py = center.y + Math.sin(a) * spoolRadius;
+          const projP = projectPoint({ x: px, y: py, z: center.z });
+          if (i === 0) ctx.moveTo(projP.x, projP.y);
+          else ctx.lineTo(projP.x, projP.y);
+        }
+        ctx.stroke();
+
+        // Spoke lines
+        ctx.strokeStyle = "rgba(229, 189, 114, 0.5)";
+        for (let i = 0; i < 4; i++) {
+          const a = spoolAngle + (i * Math.PI / 2);
+          const px = center.x + Math.cos(a) * spoolRadius;
+          const py = center.y + Math.sin(a) * spoolRadius;
+          const projP = projectPoint({ x: px, y: py, z: center.z });
+          ctx.beginPath();
+          ctx.moveTo(projCenter.x, projCenter.y);
+          ctx.lineTo(projP.x, projP.y);
+          ctx.stroke();
+        }
+      };
+
+      drawSpool(leftSpoolCenter);
+      drawSpool(rightSpoolCenter);
+
+      // Draw foreground dust particles (z >= 0)
+      ctx.shadowBlur = 6;
+      particles.forEach(p => {
+        const px = Math.cos(p.angle) * p.radius;
+        const pz = Math.sin(p.angle) * p.radius;
+        const pt: Point3D = { x: px, y: p.yOffset, z: pz };
+        let rotated = rotateX(pt, rx);
+        rotated = rotateY(rotated, ry);
+
+        if (rotated.z >= 0) {
+          const projP = project(rotated, w, h, scale * 100, distance);
+          ctx.beginPath();
+          ctx.arc(projP.x, projP.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+        }
+      });
+      ctx.shadowBlur = 0;
+
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => cancelAnimationFrame(animId);
+  }, [isPlaying]);
+
+  // Handle Drag-to-spin handlers
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    isDraggingRef.current = true;
+    prevMouseRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDraggingRef.current) return;
+    const deltaX = e.clientX - prevMouseRef.current.x;
+    const deltaY = e.clientY - prevMouseRef.current.y;
+    mouseRef.current.targetY += deltaX * 0.008;
+    mouseRef.current.targetX += deltaY * 0.008;
+    prevMouseRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isDraggingRef.current = false;
+  };
+
+  return (
+    <canvas 
+      ref={canvasRef} 
+      width={240} 
+      height={180} 
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUpOrLeave}
+      onMouseLeave={handleMouseUpOrLeave}
+      onClick={(e) => {
+        // Prevent toggling if it was a dragging motion
+        if (Math.abs(e.clientX - prevMouseRef.current.x) < 2) {
+          onClick();
+        }
+      }}
+      className="max-w-full h-auto cursor-grab active:cursor-grabbing select-none pointer-events-auto"
+    />
+  );
+}
+
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [crtMode, setCrtMode] = useState(true); // Default CRT mode ON for lofi vibes
   const [steamHovered, setSteamHovered] = useState(false);
+  
+  // Scroll and Bento reveal states
+  const [scrollPercent, setScrollPercent] = useState(0);
+  const [bentoVisible, setBentoVisible] = useState(false);
+  const bentoRef = useRef<HTMLDivElement>(null);
+
+  // Calculate scroll progress percentage
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = docHeight > 0 ? scrollTop / docHeight : 0;
+      setScrollPercent(pct);
+    };
+    window.addEventListener("scroll", handleScroll);
+    // Initial run
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Intersection observer for Bento Grid staggered reveal
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setBentoVisible(true);
+        }
+      },
+      { threshold: 0.05 }
+    );
+    if (bentoRef.current) {
+      observer.observe(bentoRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  // VU Needle Wakeup State and Observer
+  const [wiggleActive, setWiggleActive] = useState(false);
+  const focusSectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isPlaying) {
+          setWiggleActive(true);
+          timer = setTimeout(() => {
+            setWiggleActive(false);
+          }, 1500);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (focusSectionRef.current) {
+      observer.observe(focusSectionRef.current);
+    }
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+  }, [isPlaying]);
 
   // Parallax tilt states for elements
   const [heroTilt, setHeroTilt] = useState({ rx: 0, ry: 0 });
@@ -327,12 +717,17 @@ export default function LandingPage() {
         setVuLevelL(Math.floor(Math.random() * 45) + 12);
         setVuLevelR(Math.floor(Math.random() * 50) + 15);
       }, 100);
+    } else if (wiggleActive) {
+      interval = setInterval(() => {
+        setVuLevelL(Math.floor(Math.random() * 32) + 8);
+        setVuLevelR(Math.floor(Math.random() * 36) + 10);
+      }, 100);
     } else {
       setVuLevelL(5);
       setVuLevelR(5);
     }
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, wiggleActive]);
 
   return (
     <main className="min-h-screen bg-[#080817] text-stone-100 font-sans relative overflow-hidden selection:bg-[#a9a2ff]/30 selection:text-white">
@@ -351,6 +746,69 @@ export default function LandingPage() {
         <div className="retzlo-grid-beam-x top-[60%] w-[150px]" style={{ animationDelay: "3s", animationDuration: "11s" }} />
         <div className="retzlo-grid-beam-y left-[30%] h-[180px]" style={{ animationDelay: "1s", animationDuration: "10s" }} />
         <div className="retzlo-grid-beam-y left-[75%] h-[220px]" style={{ animationDelay: "5s", animationDuration: "13s" }} />
+      </div>
+      
+      {/* ── Scroll-Drawn Connecting Neon Wire ────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <svg 
+          className="absolute left-1/2 -translate-x-1/2 w-[1000px] h-[6600px] opacity-[0.12] overflow-visible"
+          viewBox="0 0 1000 6600" 
+          preserveAspectRatio="xMidYMin slice"
+        >
+          <defs>
+            <linearGradient id="neon-wire-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#a9a2ff" />
+              <stop offset="45%" stopColor="#e5bd72" />
+              <stop offset="75%" stopColor="#d59ab3" />
+              <stop offset="100%" stopColor="#89c7d6" />
+            </linearGradient>
+            <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <path
+            d="M 500,450 C 700,1200 300,2000 500,2800 C 700,3600 300,4400 500,5200 C 650,5800 450,6200 500,6600"
+            fill="none"
+            stroke="url(#neon-wire-grad)"
+            strokeWidth="3.5"
+            filter="url(#neon-glow)"
+            strokeDasharray="10000"
+            strokeDashoffset={10000 - Math.min(scrollPercent * 1.5, 1) * 10000}
+            className="transition-[stroke-dashoffset] duration-150 ease-out"
+          />
+        </svg>
+      </div>
+
+      {/* ── Parallax Side Margin Stickers ──────────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden hidden xl:block">
+        <div 
+          className="absolute left-[7%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
+          style={{ transform: `translateY(${scrollPercent * -320}px) rotate(12deg)`, top: "1350px" }}
+        >
+          <Image src="/stickers/retro/retro-sticker-47-sleepy-cloud.png" alt="Sleepy Cloud Sticker" fill className="object-contain" />
+        </div>
+        <div 
+          className="absolute right-[7%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
+          style={{ transform: `translateY(${scrollPercent * -420}px) rotate(-15deg)`, top: "2500px" }}
+        >
+          <Image src="/stickers/retro/retro-sticker-49-cozy-flame.png" alt="Cozy Flame Sticker" fill className="object-contain" />
+        </div>
+        <div 
+          className="absolute left-[5%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
+          style={{ transform: `translateY(${scrollPercent * -280}px) rotate(8deg)`, top: "3700px" }}
+        >
+          <Image src="/stickers/retro/retro-sticker-27-ramen-bowl.png" alt="Ramen Bowl Sticker" fill className="object-contain" />
+        </div>
+        <div 
+          className="absolute right-[6%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
+          style={{ transform: `translateY(${scrollPercent * -360}px) rotate(-10deg)`, top: "4800px" }}
+        >
+          <Image src="/stickers/retro/retro-sticker-33-magic-wand.png" alt="Magic Wand Sticker" fill className="object-contain" />
+        </div>
       </div>
 
       {/* ── Floating Cursor Sparkle Trail Elements ────────────────────── */}
@@ -378,10 +836,15 @@ export default function LandingPage() {
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2 group">
               <div 
-                className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#a9a2ff] to-[#e5bd72] flex items-center justify-center font-bold text-[#080817] text-sm shadow-md transition-transform duration-300 group-hover:rotate-[360deg] group-hover:scale-110"
-                style={{ transformStyle: "preserve-3d" }}
+                className="w-8 h-8 rounded-lg overflow-hidden border border-white/10 shadow-md transition-transform duration-300 group-hover:rotate-[15deg] group-hover:scale-110 relative flex items-center justify-center bg-ink-950"
               >
-                R
+                <Image
+                  src="/brand/retzlo-logo.png"
+                  alt="Retzlo Logo"
+                  fill
+                  sizes="32px"
+                  className="object-contain p-0.5"
+                />
               </div>
               <span className="font-bold text-xl tracking-wider text-white relative">
                 Retzlo
@@ -517,18 +980,19 @@ export default function LandingPage() {
           onMouseLeave={() => resetTilt(setHeroTilt)}
         >
           <div 
-            className="perspective-3d-card border-beam-wrapper rounded-2xl"
+            className="perspective-3d-card border-beam-wrapper rounded-2xl relative"
             style={{
               transform: `perspective(1000px) rotateX(${heroTilt.rx}deg) rotateY(${heroTilt.ry}deg) scale3d(1.008, 1.008, 1.008)`,
               boxShadow: isPlaying 
                 ? "0 45px 120px rgba(169, 162, 255, 0.22), 0 0 100px rgba(229, 189, 114, 0.08)"
-                : "0 35px 100px rgba(0,0,0,0.6)"
+                : "0 35px 100px rgba(0,0,0,0.6)",
+              transformStyle: "preserve-3d"
             }}
           >
             {/* Shimmer Border Beam */}
             <div className="absolute inset-0 bg-[#080817] z-[-1] rounded-2xl" />
             
-            <div className={`crt-screen-overlay rounded-2xl ${crtMode ? "active" : ""}`}>
+            <div className={`crt-screen-overlay rounded-2xl ${crtMode ? "active" : ""}`} style={{ transformStyle: "preserve-3d" }}>
               <div className="bg-[#111029]/90 px-4 py-3 border-b border-white/5 flex items-center gap-2 select-none">
                 <div className="flex gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-rose-500/80" />
@@ -539,14 +1003,82 @@ export default function LandingPage() {
                   retzlo-dashboard-v1.0.exe {crtMode ? "[CRT Mode Active]" : ""}
                 </div>
               </div>
-              <div className={`relative aspect-[16/9] w-full bg-[#0a091a] crt-screen-chromatic ${crtMode ? "active" : ""}`}>
+              <div className={`relative aspect-[16/9] w-full bg-[#0a091a] crt-screen-chromatic ${crtMode ? "active" : ""}`} style={{ transformStyle: "preserve-3d" }}>
+                {/* Layer 1: Base Mockup Image (Dimmed slightly to make layers pop) */}
                 <Image
                   src="/brand/retzlo-hero-mockup.png"
                   alt="Retzlo Platform Dashboard Mockup"
                   fill
                   priority
-                  className="object-cover"
+                  className="object-cover opacity-[0.72]"
                 />
+
+                {/* Layer 2: Exploded 3D Floating Cassette Radio Player */}
+                <div 
+                  className="absolute bottom-[6%] right-[5%] z-10 w-[240px] bg-ink-950/85 backdrop-blur-md border border-white/10 rounded-xl p-3 shadow-2xl transition-transform duration-300 pointer-events-auto"
+                  style={{
+                    transform: `translateZ(65px) translateY(${scrollPercent * -30}px)`,
+                    boxShadow: "0 25px 50px rgba(0,0,0,0.5)"
+                  }}
+                >
+                  <div className="flex items-center justify-between pb-1.5 border-b border-white/5 mb-1.5">
+                    <span className="text-[9px] font-mono tracking-widest text-[#e5bd72] uppercase">3D Cassette Deck</span>
+                    <span className={`w-1.5 h-1.5 rounded-full transition-all ${isPlaying ? "bg-emerald-400 animate-pulse" : "bg-stone-600"}`} />
+                  </div>
+                  <div className="flex justify-center bg-[#090817] rounded-lg p-1.5 overflow-hidden border border-white/5">
+                    <LofiCassette3D isPlaying={isPlaying} onClick={handlePlayToggle} />
+                  </div>
+                  <p className="text-[8px] font-mono text-center text-stone-500 mt-1.5">
+                    DRAG TO SPIN • CLICK TAPE TO PLAY
+                  </p>
+                </div>
+
+                {/* Layer 3: Exploded 3D Floating Kanban Card */}
+                <div 
+                  className="absolute top-[15%] left-[8%] z-10 w-[190px] bg-ink-950/90 backdrop-blur-md border border-[#a9a2ff]/20 rounded-lg p-3 shadow-2xl transition-transform duration-300 select-none pointer-events-none"
+                  style={{
+                    transform: `translateZ(105px) translateY(${scrollPercent * 40}px) rotate(-3deg)`,
+                    boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
+                  }}
+                >
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-[8px] font-mono uppercase text-[#a9a2ff] tracking-wider bg-[#a9a2ff]/10 px-1.5 py-0.5 rounded">WORK TASK</span>
+                    <Sparkles className="w-3 h-3 text-[#e5bd72]" />
+                  </div>
+                  <h4 className="text-[11px] font-semibold text-stone-200">🚀 Build Lofi Visuals</h4>
+                  <div className="mt-2.5 flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      <span className="text-[8px] font-mono text-stone-400">High priority</span>
+                    </div>
+                    <span className="text-[8px] font-mono text-[#e5bd72]">🪙 +12 coins</span>
+                  </div>
+                </div>
+
+                {/* Layer 4: Exploded 3D Floating Double-Entry Ledger Widget */}
+                <div 
+                  className="absolute bottom-[10%] left-[8%] z-10 w-[210px] bg-ink-950/90 backdrop-blur-md border border-[#89c7d6]/20 rounded-lg p-3 shadow-2xl transition-transform duration-300 select-none pointer-events-none"
+                  style={{
+                    transform: `translateZ(50px) translateY(${scrollPercent * -20}px) rotate(2deg)`,
+                    boxShadow: "0 15px 35px rgba(0,0,0,0.4)"
+                  }}
+                >
+                  <div className="flex justify-between items-center mb-1.5 border-b border-white/5 pb-1">
+                    <span className="text-[8px] font-mono uppercase text-[#89c7d6] tracking-wider">Double-Entry Ledger</span>
+                    <span className="text-[8px] font-mono text-[#89c7d6] bg-[#89c7d6]/10 px-1.5 py-0.5 rounded">ACTIVE</span>
+                  </div>
+                  <div className="space-y-1 mt-1.5">
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-stone-400">Cassette Ad Share</span>
+                      <span className="text-emerald-400 font-mono">+$240.00</span>
+                    </div>
+                    <div className="flex justify-between text-[9px]">
+                      <span className="text-stone-400">Cozy Espresso Shot</span>
+                      <span className="text-rose-400 font-mono">-$4.50</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -592,7 +1124,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Features Bento Grid with 3D Tilt and Border Beams ────────── */}
-      <section id="features" className="max-w-7xl mx-auto px-6 py-24 md:py-32 space-y-16">
+      <section ref={bentoRef} id="features" className="max-w-7xl mx-auto px-6 py-24 md:py-32 space-y-16">
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white">
             Designed for the <span className="text-[#a9a2ff]">late-night builder</span>
@@ -606,10 +1138,15 @@ export default function LandingPage() {
           
           {/* Card 1: Kanban Board */}
           <div 
-            className="border-beam-wrapper rounded-2xl md:col-span-2"
+            className={`border-beam-wrapper rounded-2xl md:col-span-2 transition-all duration-[800ms] ease-out ${
+              bentoVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+            }`}
             onMouseMove={(e) => handleTilt(e, setBentoTilt1)}
             onMouseLeave={() => resetTilt(setBentoTilt1)}
-            style={{ transform: `perspective(800px) rotateX(${bentoTilt1.rx}deg) rotateY(${bentoTilt1.ry}deg)` }}
+            style={{ 
+              transform: `perspective(800px) rotateX(${bentoTilt1.rx}deg) rotateY(${bentoTilt1.ry}deg)`,
+              transitionDelay: "0ms"
+            }}
           >
             <div className="bg-[#111029]/80 h-full p-8 flex flex-col justify-between min-h-[320px] rounded-2xl border border-white/5 relative z-10">
               <div className="space-y-4">
@@ -630,10 +1167,15 @@ export default function LandingPage() {
 
           {/* Card 2: Calendar Engine */}
           <div 
-            className="border-beam-wrapper rounded-2xl"
+            className={`border-beam-wrapper rounded-2xl transition-all duration-[800ms] ease-out ${
+              bentoVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+            }`}
             onMouseMove={(e) => handleTilt(e, setBentoTilt2)}
             onMouseLeave={() => resetTilt(setBentoTilt2)}
-            style={{ transform: `perspective(800px) rotateX(${bentoTilt2.rx}deg) rotateY(${bentoTilt2.ry}deg)` }}
+            style={{ 
+              transform: `perspective(800px) rotateX(${bentoTilt2.rx}deg) rotateY(${bentoTilt2.ry}deg)`,
+              transitionDelay: "150ms"
+            }}
           >
             <div className="bg-[#111029]/80 h-full p-8 flex flex-col justify-between min-h-[320px] rounded-2xl border border-white/5 relative z-10">
               <div className="space-y-4">
@@ -654,10 +1196,15 @@ export default function LandingPage() {
 
           {/* Card 3: Personal Finance */}
           <div 
-            className="border-beam-wrapper rounded-2xl"
+            className={`border-beam-wrapper rounded-2xl transition-all duration-[800ms] ease-out ${
+              bentoVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+            }`}
             onMouseMove={(e) => handleTilt(e, setBentoTilt3)}
             onMouseLeave={() => resetTilt(setBentoTilt3)}
-            style={{ transform: `perspective(800px) rotateX(${bentoTilt3.rx}deg) rotateY(${bentoTilt3.ry}deg)` }}
+            style={{ 
+              transform: `perspective(800px) rotateX(${bentoTilt3.rx}deg) rotateY(${bentoTilt3.ry}deg)`,
+              transitionDelay: "300ms"
+            }}
           >
             <div className="bg-[#111029]/80 h-full p-8 flex flex-col justify-between min-h-[320px] rounded-2xl border border-white/5 relative z-10">
               <div className="space-y-4">
@@ -678,10 +1225,15 @@ export default function LandingPage() {
 
           {/* Card 4: Retro Aesthetics / Customizations */}
           <div 
-            className="border-beam-wrapper rounded-2xl md:col-span-2"
+            className={`border-beam-wrapper rounded-2xl md:col-span-2 transition-all duration-[800ms] ease-out ${
+              bentoVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+            }`}
             onMouseMove={(e) => handleTilt(e, setBentoTilt4)}
             onMouseLeave={() => resetTilt(setBentoTilt4)}
-            style={{ transform: `perspective(800px) rotateX(${bentoTilt4.rx}deg) rotateY(${bentoTilt4.ry}deg)` }}
+            style={{ 
+              transform: `perspective(800px) rotateX(${bentoTilt4.rx}deg) rotateY(${bentoTilt4.ry}deg)`,
+              transitionDelay: "450ms"
+            }}
           >
             <div className="bg-[#111029]/80 h-full p-8 flex flex-col justify-between min-h-[320px] rounded-2xl border border-white/5 relative z-10">
               <div className="space-y-4">
@@ -706,7 +1258,7 @@ export default function LandingPage() {
       <div className="retzlo-section-line" />
 
       {/* ── Focus Station Interactive Cassette Player ─────────────────── */}
-      <section id="lofi-focus" className="max-w-7xl mx-auto px-6 py-24 md:py-32">
+      <section ref={focusSectionRef} id="lofi-focus" className="max-w-7xl mx-auto px-6 py-24 md:py-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
           <div className="space-y-6">
