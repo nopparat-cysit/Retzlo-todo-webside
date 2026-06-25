@@ -32,6 +32,8 @@ export default async function ProjectsPage() {
         description: true,
         type: true,
         coverImage: true,
+        themeColor: true,
+        sticker: true,
         _count: {
           select: {
             boards: true,
@@ -138,6 +140,8 @@ function toProjectDashboardItem(project: {
   name: string;
   description: string | null;
   coverImage: string | null;
+  themeColor: string;
+  sticker: string;
   type: string;
   _count: {
     boards: number;
@@ -165,6 +169,8 @@ function toProjectDashboardItem(project: {
     description: project.description,
     type: project.type,
     coverImage: project.coverImage,
+    themeColor: project.themeColor,
+    sticker: project.sticker,
     counts: {
       boards: project._count.boards,
       members: project._count.members,

@@ -8,7 +8,7 @@ export default function RegisterPage() {
   return (
     <AuthScene
       description="Start with one project. Let the system grow around it."
-      eyebrow="RETROD"
+      eyebrow="Retzlo"
       title="Create your workspace"
     >
       <Suspense fallback={<p className="text-sm text-stone-400">Loading account form...</p>}>

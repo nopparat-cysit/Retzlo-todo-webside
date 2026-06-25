@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 
 import { jsonError, parseError } from "@/lib/api";
 import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
+import { serializeDiaryRewardClaimedDates } from "@/lib/diary/payout";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
@@ -60,6 +61,9 @@ export async function GET() {
         color: normalizeCardColor(item.color),
         startDate: item.startDate.toISOString(),
         checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
+        rewardCoins: item.rewardCoins,
+        rewardCoinType: item.rewardCoinType === "GLOBAL" || !item.projectId ? "GLOBAL" : "PROJECT",
+        rewardClaimedDates: serializeDiaryRewardClaimedDates(item.rewardClaimedDates),
         createdAt: item.createdAt.toISOString(),
         updatedAt: item.updatedAt.toISOString(),
         projectName: item.project?.name ?? null,
@@ -84,7 +88,7 @@ export async function POST(request: Request) {
       return jsonError("Please sign in to continue.", 401);
     }
 
-    const payload = parseCreateDiaryItemPayload(await request.json());
+    const payload = parseCreateDiaryItemPayload(await request.json(), false);
 
     // Create personal diary item (no project)
     const item = await prisma.diaryItem.create({
@@ -95,6 +99,9 @@ export async function POST(request: Request) {
         intervalDays: payload.intervalDays,
         startDate: new Date(`${payload.startDate}T00:00:00.000Z`),
         checklist: payload.checklist as unknown as Prisma.InputJsonValue,
+        rewardCoins: payload.rewardCoins,
+        rewardCoinType: payload.rewardCoinType,
+        rewardClaimedDates: payload.rewardClaimedDates as unknown as Prisma.InputJsonValue,
         isStarred: payload.isStarred,
         isHidden: false,
         dueTime: payload.dueTime ?? null,
@@ -113,6 +120,9 @@ export async function POST(request: Request) {
           color: normalizeCardColor(item.color),
           startDate: item.startDate.toISOString(),
           checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
+          rewardCoins: item.rewardCoins,
+          rewardCoinType: "GLOBAL",
+          rewardClaimedDates: serializeDiaryRewardClaimedDates(item.rewardClaimedDates),
           createdAt: item.createdAt.toISOString(),
           updatedAt: item.updatedAt.toISOString(),
           projectName: null,

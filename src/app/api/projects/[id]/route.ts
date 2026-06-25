@@ -3,13 +3,14 @@ import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+import { projectAppearanceUpdateSchema } from "@/lib/projects/appearance";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 
 const updateProjectSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
   description: z.string().trim().max(500).nullable().optional(),
   coverImage: z.string().max(500).nullable().optional(),
-});
+}).merge(projectAppearanceUpdateSchema);
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const userId = await requireUserId();
@@ -67,6 +68,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         ...(payload.name !== undefined && { name: payload.name }),
         ...(payload.description !== undefined && { description: payload.description }),
         ...(payload.coverImage !== undefined && { coverImage: payload.coverImage }),
+        ...(payload.themeColor !== undefined && { themeColor: payload.themeColor }),
+        ...(payload.sticker !== undefined && { sticker: payload.sticker }),
       }
     });
 

@@ -49,6 +49,8 @@ model Project {
   allowMemberPrivateItems Boolean @default(false)
   notesEnabled Boolean        @default(true)
   coverImage  String?
+  themeColor  String          @default("DEFAULT")
+  sticker     String          @default("/stickers/retro/retro-sticker-13-project-folder.png")
   coinName    String          @default("Project Coin")
   coinSymbol  String          @default("🪙")
   createdAt   DateTime        @default(now())
@@ -146,9 +148,11 @@ model Note {
   id        String   @id @default(uuid())
   title     String
   content   String
+  emoji     String   @default("📝")
   color     String   @default("DEFAULT")
   isStarred Boolean  @default(false)
   isHidden  Boolean  @default(false)
+  completedAt DateTime?
   dueDate   DateTime?
   dueDateAllDay Boolean @default(false)
   projectId String
@@ -161,6 +165,7 @@ model Note {
   @@index([projectId, updatedAt])
   @@index([projectId, dueDate])
   @@index([projectId, isHidden])
+  @@index([projectId, completedAt])
   @@index([authorId])
 }
 
@@ -172,6 +177,9 @@ model DiaryItem {
   intervalDays Int
   startDate    DateTime
   checklist    Json?
+  rewardCoins  Int      @default(0)
+  rewardCoinType String @default("PROJECT")
+  rewardClaimedDates Json?
   isStarred    Boolean  @default(false)
   isHidden     Boolean  @default(false)
   dueTime      String?  // e.g. "09:00" time of day

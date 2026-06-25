@@ -24,6 +24,8 @@ export interface DiaryChecklistSummary {
   totalCount: number;
 }
 
+export type DiaryRewardCoinType = "PROJECT" | "GLOBAL";
+
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 const timePattern = /^\d{2}:\d{2}$/;
 
@@ -163,7 +165,38 @@ function toDateKey(value: string | Date) {
     return value.slice(0, 10);
   }
 
-  return value.toISOString().slice(0, 10);
+  return [
+    value.getFullYear(),
+    String(value.getMonth() + 1).padStart(2, "0"),
+    String(value.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+export function isDiaryChecklistCompleteForReward(items: DiaryChecklistItem[], selectedDate: string | Date) {
+  const normalized = normalizeDiaryChecklist(items, selectedDate);
+  const dueItems = normalized.filter((item) => isDiaryChecklistItemDueOnDate(item, selectedDate));
+
+  return dueItems.length > 0 && dueItems.every((item) => isDiaryChecklistItemCompletedOnDate(item, selectedDate));
+}
+
+export function normalizeDiaryRewardCoinType(value: unknown, hasProject: boolean): DiaryRewardCoinType {
+  if (value === "GLOBAL") {
+    return "GLOBAL";
+  }
+
+  return hasProject ? "PROJECT" : "GLOBAL";
+}
+
+export function normalizeDiaryRewardClaimedDates(value: unknown) {
+  return normalizeCompletedDates(value);
+}
+
+export function hasDiaryRewardBeenClaimed(value: unknown, selectedDate: string | Date) {
+  return normalizeDiaryRewardClaimedDates(value).includes(toDateKey(selectedDate));
+}
+
+export function markDiaryRewardClaimed(value: unknown, selectedDate: string | Date) {
+  return [...new Set([...normalizeDiaryRewardClaimedDates(value), toDateKey(selectedDate)])].sort();
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

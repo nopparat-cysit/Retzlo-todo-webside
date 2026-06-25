@@ -198,7 +198,13 @@ export async function DELETE(request: Request) {
       return jsonError("Card id is required.", 422);
     }
 
-    const projectId = await getProjectIdForCard(cardId);
+    const parsedCardId = z.string().uuid().safeParse(cardId);
+
+    if (!parsedCardId.success) {
+      return jsonError("Invalid card id.", 422);
+    }
+
+    const projectId = await getProjectIdForCard(parsedCardId.data);
 
     if (!projectId) {
       return jsonError("Card not found.", 404);
@@ -211,7 +217,7 @@ export async function DELETE(request: Request) {
     }
 
     const card = await prisma.card.delete({
-      where: { id: cardId },
+      where: { id: parsedCardId.data },
       select: {
         columnId: true
       }

@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { CalendarClock, CheckCircle2, CircleOff, Edit3, Plus, Search, Trash2 } from "lucide-react";
+import Image from "next/image";
 
 import { SubscriptionForm } from "@/components/finance/subscription-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import { FinanceEmptyState } from "./finance-empty-state";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -29,8 +32,11 @@ export function FinanceSubscriptionsPage({
   initialSubscriptions
 }: FinanceSubscriptionsPageProps) {
   const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
+  const { toast } = useToast();
   const [availableCategories, setAvailableCategories] = useState(categories);
   const [editingSubscription, setEditingSubscription] = useState<SerializedFinanceSubscription | null>(null);
+  const [deletingSubscriptionId, setDeletingSubscriptionId] = useState<string | null>(null);
+  const [isDeletingSubscription, setIsDeletingSubscription] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState({ cycle: "", query: "", status: "active" });
@@ -65,9 +71,13 @@ export function FinanceSubscriptionsPage({
   }
 
   function upsertSubscription(subscription: SerializedFinanceSubscription) {
+    const exists = subscriptions.some((item) => item.id === subscription.id);
     setSubscriptions((current) => {
-      const exists = current.some((item) => item.id === subscription.id);
       return exists ? current.map((item) => (item.id === subscription.id ? subscription : item)) : [subscription, ...current];
+    });
+    toast({
+      message: exists ? `Recurring bill "${subscription.name}" updated.` : `Recurring bill "${subscription.name}" created.`,
+      type: "success"
     });
     setEditingSubscription(null);
     setShowCreate(false);
@@ -83,40 +93,67 @@ export function FinanceSubscriptionsPage({
     const data = (await response.json()) as { subscription?: SerializedFinanceSubscription; error?: string };
 
     if (!response.ok || !data.subscription) {
-      setError(data.error ?? "Could not update subscription.");
+      const msg = data.error ?? "Could not update subscription.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
       return;
     }
 
-    upsertSubscription(data.subscription);
+    setSubscriptions((current) =>
+      current.map((item) => (item.id === data.subscription!.id ? data.subscription! : item))
+    );
+    toast({
+      message: data.subscription.isActive
+        ? `Recurring bill "${data.subscription.name}" activated.`
+        : `Recurring bill "${data.subscription.name}" paused.`,
+      type: "success"
+    });
   }
 
   async function deleteSubscription(subscriptionId: string) {
+    const subName = subscriptions.find((s) => s.id === subscriptionId)?.name || "";
+    setIsDeletingSubscription(true);
     const response = await fetch(`/api/finance/subscriptions/${subscriptionId}`, { method: "DELETE" });
+    setIsDeletingSubscription(false);
 
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
       setError(data.error ?? "Could not delete subscription.");
+      toast({ message: data.error ?? "Could not delete subscription.", type: "error" });
       return;
     }
 
     setSubscriptions((current) => current.filter((subscription) => subscription.id !== subscriptionId));
+    toast({ message: `Recurring bill "${subName}" deleted.`, type: "success" });
   }
 
   return (
     <div className="grid gap-4">
       <section className="lofi-panel rounded-2xl p-5">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Recurring Bills</p>
-            <h1 className="mt-2 text-3xl font-semibold text-stone-100">Recurring Bills</h1>
-            <p className="mt-2 text-sm text-stone-400">
-              Track repeated expenses such as AI tools, internet, hosting, domains, and streaming.
-            </p>
+          <div className="flex flex-1 items-start gap-4">
+            <div className="flex-1">
+              <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Recurring Bills</p>
+              <h1 className="mt-2 text-3xl font-semibold text-stone-100">Recurring Bills</h1>
+              <p className="mt-2 text-sm text-stone-400">
+                Track repeated expenses such as AI tools, internet, hosting, domains, and streaming.
+              </p>
+            </div>
+            <Image
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_10px_14px_rgba(8,8,23,0.5)] sm:block xl:h-20 xl:w-20 transition-transform duration-300 hover:scale-105 hover:rotate-3 cursor-default"
+              height={96}
+              src="/stickers/retro/retro-sticker-42-hourglass.png"
+              width={96}
+            />
           </div>
-          <Button type="button" onClick={() => setShowCreate(true)}>
-            <Plus className="h-4 w-4" />
-            Add Recurring Bill
-          </Button>
+          <div className="flex shrink-0 items-center">
+            <Button type="button" onClick={() => setShowCreate(true)}>
+              <Plus className="h-4 w-4" />
+              Add Recurring Bill
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -165,7 +202,7 @@ export function FinanceSubscriptionsPage({
       <section className="grid gap-3">
         {filteredSubscriptions.length === 0 ? (
           <FinanceEmptyState
-            icon={Search}
+            stickerSrc="/stickers/retro/retro-sticker-28-transit-card.png"
             title="No recurring bills found"
             description="You don't have any active subscriptions or recurring bills matching these filters."
             actionLabel="Add Recurring Bill"
@@ -203,12 +240,12 @@ export function FinanceSubscriptionsPage({
                       onClick={() => void toggleSubscription(subscription)}
                       aria-label={subscription.isActive ? "Pause subscription" : "Activate subscription"}
                     >
-                      {subscription.isActive ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <CircleOff className="h-4 w-4" />}
+                      {subscription.isActive ? <CheckCircle2 className="h-4 w-4 text-dusk-cyan" /> : <CircleOff className="h-4 w-4" />}
                     </Button>
                     <Button type="button" variant="ghost" size="icon" onClick={() => setEditingSubscription(subscription)} aria-label="Edit recurring bill">
                       <Edit3 className="h-4 w-4" />
                     </Button>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => void deleteSubscription(subscription.id)} aria-label="Delete recurring bill">
+                    <Button type="button" variant="ghost" size="icon" onClick={() => setDeletingSubscriptionId(subscription.id)} aria-label="Delete recurring bill">
                       <Trash2 className="h-4 w-4 text-red-300" />
                     </Button>
                   </div>
@@ -225,15 +262,33 @@ export function FinanceSubscriptionsPage({
           categories={availableCategories}
           error={error}
           subscription={editingSubscription}
+          onCategoryCreated={(category) => setAvailableCategories((current) => [...current, category])}
           onClose={() => {
             setShowCreate(false);
             setEditingSubscription(null);
           }}
-          onCategoryCreated={(category) => setAvailableCategories((current) => [...current, category])}
           onError={setError}
           onSubmit={upsertSubscription}
         />
       ) : null}
+
+      <ConfirmModal
+        open={Boolean(deletingSubscriptionId)}
+        title="Delete Recurring Bill?"
+        message="Are you sure you want to delete this recurring bill? This will stop future automatic bill generation."
+        variant="danger"
+        confirmLabel="Delete Bill"
+        isLoading={isDeletingSubscription}
+        onConfirm={async () => {
+          if (deletingSubscriptionId) {
+            await deleteSubscription(deletingSubscriptionId);
+            setDeletingSubscriptionId(null);
+          }
+        }}
+        onClose={() => {
+          if (!isDeletingSubscription) setDeletingSubscriptionId(null);
+        }}
+      />
     </div>
   );
 }
@@ -251,7 +306,7 @@ function getDueLabel(nextBillingDate: string) {
   dueDate.setHours(0, 0, 0, 0);
 
   const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / 86_400_000);
-  const dateText = dueDate.toLocaleDateString();
+  const dateText = dueDate.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
   if (diffDays < 0) return `Overdue ${Math.abs(diffDays)}d (${dateText})`;
   if (diffDays === 0) return `Due today (${dateText})`;

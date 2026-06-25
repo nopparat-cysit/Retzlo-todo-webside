@@ -1,0 +1,23 @@
+# Diary List reward-style layout
+
+- Date: 2026-06-23
+- Objective: Apply the approved Reward-style Diary List preview to the real project Diary List UI.
+- Modified:
+  - `src/components/diary/diary-list-panel.tsx`
+- Created:
+  - `src/components/diary/diary-list-panel.test.ts`
+- Behavior changes:
+  - Diary List now uses a compact one-viewport workspace layout.
+  - Header shows filters, summary metrics, add action, and one diary sticker in a single compact area.
+  - Main content is split into pinned lists, today's checklist focus panel, and a right-side next-moments queue.
+  - Page-level scrolling is reduced; long diary lists, checklist content, and queue content scroll inside their own panels.
+  - Existing create, edit, delete, star, hide/show, and checklist completion flows are preserved.
+- Shared design-system impact: None. The layout uses existing utility classes and shared UI components without changing shared tokens or primitives.
+- Database/schema changes: None.
+- Verification:
+  - `npm test -- src/components/diary/diary-list-panel.test.ts`: passed (2/2).
+  - `npm run lint`: passed with no warnings or errors.
+  - `npx prisma validate`: passed.
+  - `npm run build`: blocked by `EPERM` while `prisma generate` tried to rename the Prisma query engine DLL, likely because a running dev server or Node process is holding the file. This is not recorded as a pass.
+  - `git -c safe.directory=C:/Users/Nopparat/Documents/Todo diff --check`: no whitespace errors; Git reported LF-to-CRLF warnings for existing working-copy files.
+  - `git -c safe.directory=C:/Users/Nopparat/Documents/Todo status --short --branch`: branch is ahead of origin by 2 and the worktree contains pre-existing dirty files plus the Diary List files from this session.

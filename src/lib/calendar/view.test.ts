@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildCalendarDays,
   filterCalendarItems,
+  getCalendarSummary,
   type CalendarFilterState,
   type CalendarViewMode,
   type UnifiedCalendarItem
@@ -114,5 +115,17 @@ describe("filterCalendarItems", () => {
     });
 
     expect(filtered.map((item) => item.id)).toEqual(["note-1"]);
+  });
+});
+
+describe("getCalendarSummary", () => {
+  it("counts visible items, unique focus days, and completed cards", () => {
+    const summary = getCalendarSummary(items, [
+      { key: "2026-05-19" },
+      { key: "2026-05-20" },
+      { key: "2026-05-21" }
+    ]);
+
+    expect(summary).toEqual({ total: 4, focusDays: 3, completed: 1 });
   });
 });

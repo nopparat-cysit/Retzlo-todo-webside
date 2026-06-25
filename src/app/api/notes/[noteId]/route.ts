@@ -17,9 +17,11 @@ function toNoteResponse(
     id: string;
     title: string;
     content: string;
+    emoji: string;
     color: string;
     isStarred: boolean;
     isHidden: boolean;
+    completedAt: Date | null;
     dueDate: Date | null;
     dueDateAllDay: boolean;
     projectId: string;
@@ -37,6 +39,7 @@ function toNoteResponse(
   return {
     ...note,
     color: normalizeCardColor(note.color),
+    completedAt: note.completedAt ? note.completedAt.toISOString() : null,
     dueDate: note.dueDate ? note.dueDate.toISOString() : null,
     createdAt: note.createdAt.toISOString(),
     updatedAt: note.updatedAt.toISOString(),
@@ -99,11 +102,16 @@ export async function PATCH(request: Request, { params }: { params: { noteId: st
       return jsonError("This project does not allow members to hide their own notes.", 403);
     }
 
+    const { isCompleted, ...notePayload } = payload;
+    const completionData =
+      typeof isCompleted === "boolean" ? { completedAt: isCompleted ? new Date() : null } : {};
+
     const note = await prisma.note.update({
       where: { id: params.noteId },
       data: {
-        ...payload,
-        dueDate: payload.dueDate ? new Date(payload.dueDate) : payload.dueDate
+        ...notePayload,
+        ...completionData,
+        dueDate: notePayload.dueDate ? new Date(notePayload.dueDate) : notePayload.dueDate
       },
       include: {
         author: {

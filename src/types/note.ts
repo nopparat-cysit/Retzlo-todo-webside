@@ -4,9 +4,11 @@ export interface ProjectNote {
   id: string;
   title: string;
   content: string;
+  emoji: string;
   color: CardColor;
   isStarred: boolean;
   isHidden: boolean;
+  completedAt: string | null;
   dueDate: string | null;
   dueDateAllDay: boolean;
   projectId: string;

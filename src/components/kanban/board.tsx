@@ -195,8 +195,11 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       setColumnColor("default");
       setColumnIcon("kanban");
       setIsColumnModalOpen(false);
+      toast({ message: "Column created.", type: "success" });
     } else {
-      setSyncError(data.error ?? "Something did not sync. Try again.");
+      const msg = data.error ?? "Something did not sync. Try again.";
+      setSyncError(msg);
+      toast({ message: msg, type: "error" });
     }
   }
 

@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { CalendarClock, CheckCircle2, CircleOff, Edit3, Plus, Search, Trash2, TrendingUp } from "lucide-react";
+import Image from "next/image";
 
 import { RecurringIncomeForm } from "@/components/finance/recurring-income-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import { FinanceEmptyState } from "./finance-empty-state";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -29,8 +32,11 @@ export function FinanceRecurringIncomePage({
   initialRecurringIncomes
 }: FinanceRecurringIncomePageProps) {
   const [recurringIncomes, setRecurringIncomes] = useState(initialRecurringIncomes);
+  const { toast } = useToast();
   const [availableCategories, setAvailableCategories] = useState(categories);
   const [editingIncome, setEditingIncome] = useState<SerializedRecurringIncome | null>(null);
+  const [deletingIncomeId, setDeletingIncomeId] = useState<string | null>(null);
+  const [isDeletingIncome, setIsDeletingIncome] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState({ cycle: "", query: "", status: "active" });
@@ -64,9 +70,13 @@ export function FinanceRecurringIncomePage({
   }
 
   function upsertIncome(income: SerializedRecurringIncome) {
+    const exists = recurringIncomes.some((item) => item.id === income.id);
     setRecurringIncomes((current) => {
-      const exists = current.some((item) => item.id === income.id);
       return exists ? current.map((item) => (item.id === income.id ? income : item)) : [income, ...current];
+    });
+    toast({
+      message: exists ? `Recurring income "${income.name}" updated.` : `Recurring income "${income.name}" created.`,
+      type: "success"
     });
     setEditingIncome(null);
     setShowCreate(false);
@@ -82,40 +92,67 @@ export function FinanceRecurringIncomePage({
     const data = (await response.json()) as { recurringIncome?: SerializedRecurringIncome; error?: string };
 
     if (!response.ok || !data.recurringIncome) {
-      setError(data.error ?? "Could not update recurring income.");
+      const msg = data.error ?? "Could not update recurring income.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
       return;
     }
 
-    upsertIncome(data.recurringIncome);
+    setRecurringIncomes((current) =>
+      current.map((item) => (item.id === data.recurringIncome!.id ? data.recurringIncome! : item))
+    );
+    toast({
+      message: data.recurringIncome.isActive
+        ? `Recurring income "${data.recurringIncome.name}" activated.`
+        : `Recurring income "${data.recurringIncome.name}" paused.`,
+      type: "success"
+    });
   }
 
   async function deleteIncome(incomeId: string) {
+    const incomeName = recurringIncomes.find((i) => i.id === incomeId)?.name || "";
+    setIsDeletingIncome(true);
     const response = await fetch(`/api/finance/recurring-income/${incomeId}`, { method: "DELETE" });
+    setIsDeletingIncome(false);
 
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
       setError(data.error ?? "Could not delete recurring income.");
+      toast({ message: data.error ?? "Could not delete recurring income.", type: "error" });
       return;
     }
 
     setRecurringIncomes((current) => current.filter((income) => income.id !== incomeId));
+    toast({ message: `Recurring income "${incomeName}" deleted.`, type: "success" });
   }
 
   return (
     <div className="grid gap-4">
       <section className="lofi-panel rounded-2xl p-5">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Recurring Income</p>
-            <h1 className="mt-2 text-3xl font-semibold text-stone-100">Recurring Income</h1>
-            <p className="mt-2 text-sm text-stone-400">
-              Track repeated money coming in, such as salary, retainers, rent, allowance, or other recurring income.
-            </p>
+          <div className="flex flex-1 items-start gap-4">
+            <div className="flex-1">
+              <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Recurring Income</p>
+              <h1 className="mt-2 text-3xl font-semibold text-stone-100">Recurring Income</h1>
+              <p className="mt-2 text-sm text-stone-400">
+                Track repeated money coming in, such as salary, retainers, rent, allowance, or other recurring income.
+              </p>
+            </div>
+            <Image
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_10px_14px_rgba(8,8,23,0.5)] sm:block xl:h-20 xl:w-20 transition-transform duration-300 hover:scale-105 hover:rotate-3 cursor-default"
+              height={96}
+              src="/stickers/retro/retro-sticker-50-battery-charge.png"
+              width={96}
+            />
           </div>
-          <Button type="button" onClick={() => setShowCreate(true)}>
-            <Plus className="h-4 w-4" />
-            Add Recurring Income
-          </Button>
+          <div className="flex shrink-0 items-center">
+            <Button type="button" onClick={() => setShowCreate(true)}>
+              <Plus className="h-4 w-4" />
+              Add Recurring Income
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -164,7 +201,7 @@ export function FinanceRecurringIncomePage({
       <section className="grid gap-3">
         {filteredIncomes.length === 0 ? (
           <FinanceEmptyState
-            icon={Search}
+            stickerSrc="/stickers/retro/retro-sticker-50-battery-charge.png"
             title="No recurring income found"
             description="You don't have any recurring income sources matching these filters."
             actionLabel="Add Recurring Income"
@@ -208,7 +245,7 @@ export function FinanceRecurringIncomePage({
                     <Button type="button" variant="ghost" size="icon" onClick={() => setEditingIncome(income)} aria-label="Edit recurring income">
                       <Edit3 className="h-4 w-4" />
                     </Button>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => void deleteIncome(income.id)} aria-label="Delete recurring income">
+                    <Button type="button" variant="ghost" size="icon" onClick={() => setDeletingIncomeId(income.id)} aria-label="Delete recurring income">
                       <Trash2 className="h-4 w-4 text-red-300" />
                     </Button>
                   </div>
@@ -234,6 +271,24 @@ export function FinanceRecurringIncomePage({
           onSubmit={upsertIncome}
         />
       ) : null}
+
+      <ConfirmModal
+        open={Boolean(deletingIncomeId)}
+        title="Delete Recurring Income?"
+        message="Are you sure you want to delete this recurring income stream? This will stop future automatic income generation."
+        variant="danger"
+        confirmLabel="Delete Income"
+        isLoading={isDeletingIncome}
+        onConfirm={async () => {
+          if (deletingIncomeId) {
+            await deleteIncome(deletingIncomeId);
+            setDeletingIncomeId(null);
+          }
+        }}
+        onClose={() => {
+          if (!isDeletingIncome) setDeletingIncomeId(null);
+        }}
+      />
     </div>
   );
 }
@@ -251,7 +306,7 @@ function getDueLabel(nextIncomeDate: string) {
   dueDate.setHours(0, 0, 0, 0);
 
   const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / 86_400_000);
-  const dateText = dueDate.toLocaleDateString();
+  const dateText = dueDate.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
   if (diffDays < 0) return `Overdue ${Math.abs(diffDays)}d (${dateText})`;
   if (diffDays === 0) return `Expected today (${dateText})`;

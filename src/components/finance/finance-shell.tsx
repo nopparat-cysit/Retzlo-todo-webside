@@ -2,17 +2,41 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { BarChart3, CreditCard, Landmark, LayoutDashboard, Repeat, TrendingDown, TrendingUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const financeNav = [
-  { href: "/finance", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/finance/income", label: "Income", icon: TrendingUp },
-  { href: "/finance/recurring-income", label: "Recurring Income", icon: Repeat },
-  { href: "/finance/expenses", label: "Expenses", icon: TrendingDown },
-  { href: "/finance/accounts", label: "Accounts", icon: Landmark },
-  { href: "/finance/subscriptions", label: "Recurring Bills", icon: CreditCard }
+interface NavGroup {
+  label?: string;
+  items: {
+    href: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }[];
+}
+
+const financeNavGroups: NavGroup[] = [
+  {
+    items: [
+      { href: "/finance", label: "Dashboard", icon: LayoutDashboard },
+    ]
+  },
+  {
+    label: "Transactions",
+    items: [
+      { href: "/finance/income", label: "Income", icon: TrendingUp },
+      { href: "/finance/recurring-income", label: "Recurring Income", icon: Repeat },
+      { href: "/finance/expenses", label: "Expenses", icon: TrendingDown },
+      { href: "/finance/subscriptions", label: "Recurring Bills", icon: CreditCard },
+    ]
+  },
+  {
+    label: "Money Places",
+    items: [
+      { href: "/finance/accounts", label: "Accounts", icon: Landmark },
+    ]
+  },
 ];
 
 interface FinanceShellProps {
@@ -23,6 +47,22 @@ export function FinanceShell({ children }: FinanceShellProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const ledgerId = searchParams.get("ledgerId");
+  const [activeLedgerName, setActiveLedgerName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!ledgerId) {
+      setActiveLedgerName(null);
+      return;
+    }
+
+    fetch("/api/finance/ledgers")
+      .then((res) => res.json())
+      .then((data: { ledgers?: { id: string; name: string }[] }) => {
+        const found = data.ledgers?.find((l) => l.id === ledgerId);
+        setActiveLedgerName(found?.name ?? null);
+      })
+      .catch(() => {});
+  }, [ledgerId]);
 
   const isSelectionPage = pathname === "/finance" && !ledgerId;
 
@@ -44,30 +84,53 @@ export function FinanceShell({ children }: FinanceShellProps) {
             </span>
             <div className="min-w-0">
               <p className="text-[10px] uppercase tracking-[0.24em] text-dusk-amber">Finance</p>
-              <p className="truncate text-sm font-semibold text-stone-100">Personal Ledger</p>
+              <p className="truncate text-sm font-semibold text-stone-100">
+                {activeLedgerName ?? "Personal Ledger"}
+              </p>
             </div>
           </div>
 
-          <nav className="grid gap-1">
-            {financeNav.map((item) => {
-              const active = pathname === item.href;
-              const Icon = item.icon;
-              const href = ledgerId ? `${item.href}?ledgerId=${ledgerId}` : item.href;
+          <nav className="grid gap-3">
+            {financeNavGroups.map((group, groupIndex) => {
+              const href = ledgerId
+                ? `${group.items[0]?.href}?ledgerId=${ledgerId}`
+                : group.items[0]?.href;
+              void href;
 
               return (
-                <Link
-                  key={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition",
-                    active
-                      ? "border-dusk-lavender/35 bg-dusk-lavender/15 text-stone-100 shadow-[0_0_18px_rgba(196,167,231,0.12)]"
-                      : "border-transparent text-stone-400 hover:border-white/10 hover:bg-white/[0.04] hover:text-stone-100"
+                <div key={groupIndex}>
+                  {group.label && (
+                    <p className="mb-1 px-3 text-[9px] uppercase tracking-[0.28em] text-stone-600 select-none">
+                      {group.label}
+                    </p>
                   )}
-                  href={href}
-                >
-                  <Icon className={cn("h-4 w-4", active ? "text-dusk-lavender" : "text-stone-500")} />
-                  <span className="truncate">{item.label}</span>
-                </Link>
+                  <div className="grid gap-0.5">
+                    {group.items.map((item) => {
+                      const active = pathname === item.href;
+                      const Icon = item.icon;
+                      const itemHref = ledgerId ? `${item.href}?ledgerId=${ledgerId}` : item.href;
+
+                      return (
+                        <Link
+                          key={item.href}
+                          className={cn(
+                            "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition",
+                            active
+                              ? "border-dusk-lavender/35 bg-dusk-lavender/15 text-stone-100 shadow-[0_0_18px_rgba(196,167,231,0.12)]"
+                              : "border-transparent text-stone-400 hover:border-white/10 hover:bg-white/[0.04] hover:text-stone-100"
+                          )}
+                          href={itemHref}
+                        >
+                          <Icon className={cn("h-4 w-4 shrink-0", active ? "text-dusk-lavender" : "text-stone-500")} />
+                          <span className="truncate">{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  {groupIndex < financeNavGroups.length - 1 && (
+                    <div className="mt-2 border-t border-white/5" />
+                  )}
+                </div>
               );
             })}
           </nav>

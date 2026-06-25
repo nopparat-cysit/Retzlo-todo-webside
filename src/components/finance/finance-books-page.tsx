@@ -14,10 +14,13 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
+import Image from "next/image";
 import { FinanceEmptyState } from "./finance-empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import type { SerializedFinanceLedger, SerializedFinanceTransaction } from "@/types/finance";
 
 interface FinanceBooksPageProps {
@@ -27,6 +30,7 @@ interface FinanceBooksPageProps {
 
 export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksPageProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [ledgers, setLedgers] = useState(initialLedgers);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -77,9 +81,12 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
       }
 
       setLedgers((current) => [...current, data.ledger!].sort((a, b) => a.name.localeCompare(b.name)));
+      toast({ message: `Finance book "${data.ledger.name}" created.`, type: "success" });
       closeEditor();
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong.");
+      const msg = error instanceof Error ? error.message : "Something went wrong.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -106,9 +113,12 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
       setLedgers((current) =>
         current.map((ledger) => (ledger.id === editingLedger.id ? data.ledger! : ledger)).sort((a, b) => a.name.localeCompare(b.name))
       );
+      toast({ message: `Finance book "${data.ledger.name}" updated.`, type: "success" });
       closeEditor();
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong.");
+      const msg = error instanceof Error ? error.message : "Something went wrong.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -129,10 +139,14 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
         throw new Error(data.error || "Could not delete book.");
       }
 
+      const deletedName = deletingLedger.name;
       setLedgers((current) => current.filter((ledger) => ledger.id !== deletingLedger.id));
+      toast({ message: `Finance book "${deletedName}" deleted.`, type: "success" });
       setDeletingLedger(null);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong.");
+      const msg = error instanceof Error ? error.message : "Something went wrong.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -165,17 +179,29 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
     <div className="flex flex-col gap-5 py-4">
       <section className="lofi-panel rounded-2xl p-6">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Accounting Finance</p>
-            <h1 className="mt-2 text-3xl font-semibold text-stone-100 sm:text-4xl">Finance Books</h1>
-            <p className="mt-2 text-sm leading-6 text-stone-400">
-              Choose a finance book to separate personal money, trips, freelance work, or project budgets.
-            </p>
+          <div className="flex flex-1 items-start gap-4">
+            <div className="flex-1">
+              <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Accounting Finance</p>
+              <h1 className="mt-2 text-3xl font-semibold text-stone-100 sm:text-4xl">Finance Books</h1>
+              <p className="mt-2 text-sm leading-6 text-stone-400">
+                Choose a finance book to separate personal money, trips, freelance work, or project budgets.
+              </p>
+            </div>
+            <Image
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_10px_14px_rgba(8,8,23,0.5)] sm:block xl:h-20 xl:w-20 transition-transform duration-300 hover:scale-105 hover:rotate-3 cursor-default"
+              height={96}
+              src="/stickers/retro/retro-sticker-13-project-folder.png"
+              width={96}
+            />
           </div>
-          <Button type="button" onClick={openCreate}>
-            <Plus className="h-5 w-5" />
-            Create Book
-          </Button>
+          <div className="flex shrink-0 items-center">
+            <Button type="button" onClick={openCreate}>
+              <Plus className="h-5 w-5" />
+              Create Book
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -193,7 +219,7 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
 
       {filteredLedgers.length === 0 ? (
         <FinanceEmptyState
-          icon={BookOpen}
+          stickerSrc="/stickers/retro/retro-sticker-13-project-folder.png"
           title="No finance books found"
           description="Create a finance book for personal money, work budgets, travel, or any separate money context."
           actionLabel="Create First Book"
@@ -307,33 +333,18 @@ export function FinanceBooksPage({ initialLedgers, transactions }: FinanceBooksP
         </DialogContent>
       </Dialog>
 
-      <Dialog open={Boolean(deletingLedger)} onOpenChange={(open) => {
-        if (!open && !loading) setDeletingLedger(null);
-      }}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Delete Finance Book?</DialogTitle>
-            <DialogDescription>
-              This will permanently delete &quot;{deletingLedger?.name}&quot; and all finance data connected to it.
-            </DialogDescription>
-          </DialogHeader>
-
-          {error ? (
-            <p className="mt-3 rounded-lg border border-red-500/20 bg-red-500/10 p-2.5 text-xs text-red-200">
-              {error}
-            </p>
-          ) : null}
-
-          <DialogFooter className="mt-5">
-            <Button type="button" variant="ghost" onClick={() => setDeletingLedger(null)} disabled={loading}>
-              Cancel
-            </Button>
-            <Button type="button" variant="danger" onClick={() => void handleDelete()} disabled={loading}>
-              {loading ? "Deleting..." : "Delete Book"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmModal
+        open={Boolean(deletingLedger)}
+        title="Delete Finance Book?"
+        message={`This will permanently delete "${deletingLedger?.name}" and all finance data connected to it.`}
+        variant="danger"
+        confirmLabel={loading ? "Deleting..." : "Delete Book"}
+        isLoading={loading}
+        onConfirm={handleDelete}
+        onClose={() => {
+          if (!loading) setDeletingLedger(null);
+        }}
+      />
     </div>
   );
 }

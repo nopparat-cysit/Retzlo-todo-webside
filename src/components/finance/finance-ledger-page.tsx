@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Edit3, Search, Trash2 } from "lucide-react";
+import Image from "next/image";
 
 import { TransactionForm } from "@/components/finance/transaction-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import { FinanceEmptyState } from "./finance-empty-state";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -27,8 +30,11 @@ interface FinanceLedgerPageProps {
 
 export function FinanceLedgerPage({ accounts, categories, initialTransactions, type }: FinanceLedgerPageProps) {
   const [transactions, setTransactions] = useState(initialTransactions);
+  const { toast } = useToast();
   const [availableCategories, setAvailableCategories] = useState(categories);
   const [editingTransaction, setEditingTransaction] = useState<SerializedFinanceTransaction | null>(null);
+  const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
+  const [isDeletingTransaction, setIsDeletingTransaction] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState({
@@ -65,9 +71,13 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
   }
 
   function upsertTransaction(transaction: SerializedFinanceTransaction) {
+    const exists = transactions.some((item) => item.id === transaction.id);
     setTransactions((current) => {
-      const exists = current.some((item) => item.id === transaction.id);
       return exists ? current.map((item) => (item.id === transaction.id ? transaction : item)) : [transaction, ...current];
+    });
+    toast({
+      message: exists ? `Transaction "${transaction.title}" updated.` : `Transaction "${transaction.title}" recorded.`,
+      type: "success"
     });
     setEditingTransaction(null);
     setShowCreate(false);
@@ -75,15 +85,20 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
   }
 
   async function deleteTransaction(transactionId: string) {
+    const txTitle = transactions.find((t) => t.id === transactionId)?.title || "";
+    setIsDeletingTransaction(true);
     const response = await fetch(`/api/finance/transactions/${transactionId}`, { method: "DELETE" });
+    setIsDeletingTransaction(false);
 
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
       setError(data.error ?? "Could not delete transaction.");
+      toast({ message: data.error ?? "Could not delete transaction.", type: "error" });
       return;
     }
 
     setTransactions((current) => current.filter((transaction) => transaction.id !== transactionId));
+    toast({ message: `Transaction "${txTitle}" deleted.`, type: "success" });
   }
 
   function handleExportCSV() {
@@ -116,23 +131,35 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
     <div className="grid gap-4">
       <section className="lofi-panel rounded-2xl p-5">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">{isIncome ? "Income" : "Expense"} History</p>
-            <h1 className="mt-2 text-3xl font-semibold text-stone-100">{isIncome ? "Income" : "Expenses"}</h1>
-            <p className="mt-2 text-sm text-stone-400">
-              View, filter, edit, and clean up your {isIncome ? "income" : "expense"} records.
-            </p>
+          <div className="flex flex-1 items-start gap-4">
+            <div className="flex-1">
+              <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">{isIncome ? "Income" : "Expense"} History</p>
+              <h1 className="mt-2 text-3xl font-semibold text-stone-100">{isIncome ? "Income" : "Expenses"}</h1>
+              <p className="mt-2 text-sm text-stone-400">
+                View, filter, edit, and clean up your {isIncome ? "income" : "expense"} records.
+              </p>
+            </div>
+            <Image
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_10px_14px_rgba(8,8,23,0.5)] sm:block xl:h-20 xl:w-20 transition-transform duration-300 hover:scale-105 hover:rotate-3 cursor-default"
+              height={96}
+              src={isIncome ? "/stickers/retro/retro-sticker-01-coin-reward.png" : "/stickers/retro/retro-sticker-16-tape.png"}
+              width={96}
+            />
           </div>
-          <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500">Filtered total</p>
-            <p className={cn("mt-1 text-2xl font-semibold", isIncome ? "text-emerald-300" : "text-dusk-rose")}>
-              {formatMoney(total)}
-            </p>
+          <div className="flex shrink-0 gap-4 items-center">
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500">Filtered total</p>
+              <p className={cn("mt-1 text-2xl font-semibold", isIncome ? "text-emerald-300" : "text-dusk-rose")}>
+                {formatMoney(total)}
+              </p>
+            </div>
+            <Button type="button" onClick={() => setShowCreate(true)}>
+              {isIncome ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+              Add {isIncome ? "Income" : "Expense"}
+            </Button>
           </div>
-          <Button type="button" onClick={() => setShowCreate(true)}>
-            {isIncome ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
-            Add {isIncome ? "Income" : "Expense"}
-          </Button>
         </div>
       </section>
 
@@ -176,22 +203,35 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
             ))}
             </SelectContent>
           </Select>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleExportCSV}
-            className="h-11 border border-white/10 text-stone-300 hover:text-stone-100"
-            disabled={filteredTransactions.length === 0}
-          >
-            Export CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handleExportCSV}
+              className="h-11 flex-1 border border-white/10 text-stone-300 hover:text-stone-100"
+              disabled={filteredTransactions.length === 0}
+            >
+              Export CSV
+            </Button>
+            {(filters.query || filters.categoryId || filters.accountId || filters.month !== new Date().toISOString().slice(0, 7)) && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setFilters({ accountId: "", categoryId: "", month: new Date().toISOString().slice(0, 7), query: "" })}
+                className="h-11 border border-white/10 text-stone-400 hover:border-dusk-rose/30 hover:text-dusk-rose"
+                title="Clear all filters"
+              >
+                Clear
+              </Button>
+            )}
+          </div>
         </div>
       </section>
 
       <section className="lofi-panel rounded-lg p-5">
         {filteredTransactions.length === 0 ? (
           <FinanceEmptyState
-            icon={isIncome ? ArrowUpRight : ArrowDownRight}
+            stickerSrc="/stickers/retro/retro-sticker-12-paper-note.png"
             title={isIncome ? "No income records" : "No expense records"}
             description={isIncome ? "You haven't recorded any income matching these filters yet." : "You haven't recorded any expenses matching these filters yet."}
             actionLabel={isIncome ? "Add Income" : "Add Expense"}
@@ -207,18 +247,18 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
                   <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <Icon className={cn("h-4 w-4", isIncome ? "text-emerald-300" : "text-dusk-rose")} />
+                        <Icon className={cn("h-4 w-4", isIncome ? "text-dusk-cyan" : "text-dusk-rose")} />
                         <FinanceCategoryIcon className="text-dusk-lavender" icon={transaction.category?.icon} label={transaction.category?.name} />
                         <h3 className="truncate text-sm font-semibold text-stone-100">{transaction.title}</h3>
                       </div>
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         <Badge variant="muted">{transaction.category?.name ?? "Uncategorized"}</Badge>
                         <Badge variant="muted">{transaction.account?.name ?? "No account"}</Badge>
-                        <Badge variant={isIncome ? "cyan" : "rose"}>{new Date(transaction.transactionDate).toLocaleDateString()}</Badge>
+                        <Badge variant={isIncome ? "cyan" : "rose"}>{new Date(transaction.transactionDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</Badge>
                       </div>
                     </div>
                     <div className="flex items-center justify-between gap-3 md:justify-end">
-                      <p className={cn("text-sm font-semibold", isIncome ? "text-emerald-300" : "text-dusk-rose")}>
+                      <p className={cn("text-sm font-semibold", isIncome ? "text-dusk-cyan" : "text-dusk-rose")}>
                         {isIncome ? "+" : "-"}
                         {formatMoney(transaction.amount)}
                       </p>
@@ -226,7 +266,7 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
                         <Button type="button" variant="ghost" size="icon" onClick={() => setEditingTransaction(transaction)} aria-label="Edit transaction">
                           <Edit3 className="h-4 w-4" />
                         </Button>
-                        <Button type="button" variant="ghost" size="icon" onClick={() => void deleteTransaction(transaction.id)} aria-label="Delete transaction">
+                        <Button type="button" variant="ghost" size="icon" onClick={() => setDeletingTransactionId(transaction.id)} aria-label="Delete transaction">
                           <Trash2 className="h-4 w-4 text-red-300" />
                         </Button>
                       </div>
@@ -255,6 +295,24 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
           onSubmit={upsertTransaction}
         />
       ) : null}
+
+      <ConfirmModal
+        open={Boolean(deletingTransactionId)}
+        title="Delete Transaction?"
+        message="Are you sure you want to delete this transaction record? This cannot be undone."
+        variant="danger"
+        confirmLabel="Delete Transaction"
+        isLoading={isDeletingTransaction}
+        onConfirm={async () => {
+          if (deletingTransactionId) {
+            await deleteTransaction(deletingTransactionId);
+            setDeletingTransactionId(null);
+          }
+        }}
+        onClose={() => {
+          if (!isDeletingTransaction) setDeletingTransactionId(null);
+        }}
+      />
     </div>
   );
 }

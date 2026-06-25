@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 
 export const metadata = {
-  title: "Notes Hub — RETROD",
+  title: "Notes Hub — Retzlo",
   description: "All notes across every project."
 };
 
@@ -56,9 +56,11 @@ export default async function NotesHubPage() {
       id: note.id,
       title: note.title,
       content: note.content,
+      emoji: note.emoji,
       color: normalizeCardColor(note.color),
       isStarred: note.isStarred,
       isHidden: note.isHidden,
+      completedAt: note.completedAt?.toISOString() ?? null,
       dueDate: note.dueDate?.toISOString() ?? null,
       dueDateAllDay: note.dueDateAllDay,
       projectId: note.projectId,

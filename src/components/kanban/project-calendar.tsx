@@ -3,10 +3,14 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { useMemo, useState } from "react";
-import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, SlidersHorizontal } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, SlidersHorizontal, X } from "lucide-react";
 
 import { CardModal } from "@/components/kanban/card-modal";
 import { Panel } from "@/components/ui/panel";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
+import { ModalPortal } from "@/components/ui/modal-portal";
+import { Button } from "@/components/ui/button";
 import {
   buildCalendarDays,
   defaultCalendarFilters,
@@ -58,6 +62,14 @@ export function ProjectCalendar({
   const [anchorDate, setAnchorDate] = useState(() => toDateKey(new Date()));
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const { toast } = useToast();
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
+  const [dayTypeFilter, setDayTypeFilter] = useState<"all" | "tasks" | "notes">("all");
+  const [dayStatusFilter, setDayStatusFilter] = useState<"all" | "pending" | "done">("all");
+  const [daySortBy, setDaySortBy] = useState<"time" | "title" | "priority">("time");
+  const [isUpdateConfirmOpen, setIsUpdateConfirmOpen] = useState(false);
+  const [pendingUpdatePayload, setPendingUpdatePayload] = useState<any>(null);
   const selectedCard = cards.find((card) => card.id === selectedCardId) ?? null;
   const selectedNote = notes.find((note) => note.id === selectedNoteId) ?? null;
   const todayKey = useMemo(() => toDateKey(new Date()), []);
@@ -76,49 +88,98 @@ export function ProjectCalendar({
   );
   const filteredItems = useMemo(() => filterCalendarItems(allItems, filters), [allItems, filters]);
   const groups = useMemo(() => groupCalendarItems(filteredItems), [filteredItems]);
+  const selectedDateLabel = selectedDayKey
+    ? formatMediumDate(new Date(selectedDayKey + "T00:00:00.000Z"))
+    : "";
+
+  const selectedDayItems = useMemo(() => {
+    if (!selectedDayKey) return [];
+    const items = groups[selectedDayKey] ?? [];
+    return [...items]
+      .filter((item) => {
+        if (dayTypeFilter === "tasks" && item.type !== "card") return false;
+        if (dayTypeFilter === "notes" && item.type !== "note") return false;
+        if (dayStatusFilter === "pending") {
+          if (item.type === "card" && item.status === "DONE") return false;
+          if (item.type === "note" && (item as any).completedAt) return false;
+        }
+        if (dayStatusFilter === "done") {
+          if (item.type === "card" && item.status !== "DONE") return false;
+          if (item.type === "note" && !(item as any).completedAt) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        if (daySortBy === "title") {
+          return a.title.localeCompare(b.title);
+        }
+        if (daySortBy === "priority") {
+          const getPriorityVal = (item: any) => {
+            if (item.type === "card") {
+              if (item.priority === "HIGH") return 3;
+              if (item.priority === "MEDIUM") return 2;
+              if (item.priority === "LOW") return 1;
+            }
+            return 0;
+          };
+          return getPriorityVal(b) - getPriorityVal(a);
+        }
+        const getAmPmTime = (item: any) => {
+          if (item.dueDateAllDay) return -1;
+          return item.dueDate ? new Date(item.dueDate).getTime() : 0;
+        };
+        return getAmPmTime(a) - getAmPmTime(b);
+      });
+  }, [selectedDayKey, groups, dayTypeFilter, dayStatusFilter, daySortBy]);
   const rangeLabel = formatRangeLabel(calendarDays);
   const dayColumnCount = viewMode === "month" ? 7 : calendarDays.length;
 
-  async function saveCard(
-    card: CalendarCard,
-    payload: {
-      title: string;
-      description: string | null;
-      status: Card["status"];
-      color: Card["color"];
-      checklist: Card["checklist"];
-      dueDate: string | null;
-      dueDateAllDay: boolean;
-    }
-  ) {
+  async function handleSaveIntent(payload: any) {
+    setPendingUpdatePayload(payload);
+    setIsUpdateConfirmOpen(true);
+  }
+
+  async function executeSaveCard() {
+    if (!selectedCard || !pendingUpdatePayload) return;
     const response = await fetch("/api/cards", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        cardId: card.id,
-        ...payload
+        cardId: selectedCard.id,
+        ...pendingUpdatePayload
       })
     });
-    const data = (await response.json()) as { card?: Card };
+    const data = (await response.json()) as { card?: Card; error?: string };
+
+    setIsUpdateConfirmOpen(false);
 
     if (data.card) {
       const nextCard = normalizeCalendarCard({
-        ...card,
+        ...selectedCard,
         ...data.card
       });
       setCards((current) => current.map((item) => (item.id === nextCard.id ? nextCard : item)));
       setSelectedCardId(null);
+      toast({ message: "Card updated.", type: "success" });
+    } else {
+      toast({ message: data.error ?? "Could not save card.", type: "error" });
     }
   }
 
-  async function deleteCard(cardId: string) {
-    const response = await fetch(`/api/cards?cardId=${cardId}`, {
+  async function executeDeleteCard() {
+    if (!selectedCard) return;
+    setIsDeleteConfirmOpen(false);
+    const response = await fetch(`/api/cards?cardId=${selectedCard.id}`, {
       method: "DELETE"
     });
 
     if (response.ok) {
-      setCards((current) => current.filter((card) => card.id !== cardId));
+      setCards((current) => current.filter((card) => card.id !== selectedCard.id));
       setSelectedCardId(null);
+      toast({ message: "Card deleted.", type: "success" });
+    } else {
+      const data = await response.json().catch(() => ({}));
+      toast({ message: data.error ?? "Could not delete card.", type: "error" });
     }
   }
 
@@ -280,13 +341,30 @@ export function ProjectCalendar({
                   return (
                     <section
                       key={key}
+                      onClick={() => setSelectedDayKey(key)}
                       className={cn(
-                        "min-h-36 rounded-md border p-2",
+                        "min-h-36 rounded-md border p-2 cursor-pointer transition hover:border-dusk-lavender/40 hover:bg-white/[0.02]",
                         current ? "border-dusk-amber/50 bg-dusk-amber/10" : "border-white/10 bg-ink-950/45",
                         muted && "opacity-55"
                       )}
                     >
-                      <h3 className="mb-2 text-sm font-semibold text-stone-200">{day.date.getDate()}</h3>
+                      <div className="mb-2 flex items-center justify-between">
+                        {datedItems.length > 0 ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedDayKey(key);
+                            }}
+                            className="text-xs font-semibold text-dusk-lavender hover:text-dusk-lavender/80 underline decoration-dotted"
+                          >
+                            all
+                          </button>
+                        ) : (
+                          <div />
+                        )}
+                        <span className="text-sm font-semibold text-stone-200">{day.date.getDate()}</span>
+                      </div>
                       <div className="space-y-1.5">
                         {datedItems.slice(0, 3).map((entry) => (
                           entry.type === "card" ? (
@@ -327,8 +405,10 @@ export function ProjectCalendar({
           mode="edit"
           open={Boolean(selectedCard)}
           onClose={() => setSelectedCardId(null)}
-          onDelete={() => deleteCard(selectedCard.id)}
-          onSubmit={(payload) => saveCard(selectedCard, payload)}
+          onDelete={async () => {
+            setIsDeleteConfirmOpen(true);
+          }}
+          onSubmit={handleSaveIntent}
           footerAction={
             <Link
               className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/5 px-4 text-sm font-medium text-stone-100 transition hover:border-dusk-lavender/50 hover:bg-white/10"
@@ -340,6 +420,27 @@ export function ProjectCalendar({
           }
         />
       ) : null}
+
+      <ConfirmModal
+        open={isDeleteConfirmOpen}
+        title="Delete card"
+        message={`Are you sure you want to delete "${selectedCard?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete card"
+        variant="danger"
+        isLoading={false}
+        onConfirm={executeDeleteCard}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+      />
+
+      <ConfirmModal
+        open={isUpdateConfirmOpen}
+        title="Save card changes"
+        message={`Are you sure you want to save changes to this card?`}
+        confirmLabel="Save"
+        isLoading={false}
+        onConfirm={executeSaveCard}
+        onClose={() => setIsUpdateConfirmOpen(false)}
+      />
       {selectedNote ? (
         <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
           <div className="lofi-panel w-full max-w-lg rounded-lg p-5">
@@ -365,6 +466,171 @@ export function ProjectCalendar({
           </div>
         </div>
       ) : null}
+
+      {selectedDayKey && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[900] grid place-items-center bg-ink-950/80 px-4 py-4 backdrop-blur-sm">
+            <div className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl">
+              <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Day View</p>
+                  <h2 className="mt-1 text-2xl font-semibold">Items on {selectedDateLabel}</h2>
+                </div>
+                <button
+                  className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100"
+                  type="button"
+                  onClick={() => setSelectedDayKey(null)}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Filters & Sorting controls */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.015] px-5 py-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Type Filter */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-stone-500 uppercase tracking-wide">Type:</span>
+                    <select
+                      className="h-8 rounded-lg border border-white/10 bg-ink-950/50 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50"
+                      value={dayTypeFilter}
+                      onChange={(e) => setDayTypeFilter(e.target.value as any)}
+                    >
+                      <option value="all">All</option>
+                      <option value="tasks">Tasks</option>
+                      <option value="notes">Notes</option>
+                    </select>
+                  </div>
+
+                  {/* Status Filter */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-stone-500 uppercase tracking-wide">Status:</span>
+                    <select
+                      className="h-8 rounded-lg border border-white/10 bg-ink-950/50 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50"
+                      value={dayStatusFilter}
+                      onChange={(e) => setDayStatusFilter(e.target.value as any)}
+                    >
+                      <option value="all">All</option>
+                      <option value="pending">Pending</option>
+                      <option value="done">Done</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Sort control */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-stone-500 uppercase tracking-wide">Sort:</span>
+                  <select
+                    className="h-8 rounded-lg border border-white/10 bg-ink-950/50 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50"
+                    value={daySortBy}
+                    onChange={(e) => setDaySortBy(e.target.value as any)}
+                  >
+                    <option value="time">Time</option>
+                    <option value="title">Title</option>
+                    <option value="priority">Priority</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Main List */}
+              <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5">
+                {selectedDayItems.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.01] py-12 text-center text-sm text-stone-500">
+                    No items match the selected filters for this day.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {selectedDayItems.map((item) => {
+                      const colorMeta = getCardColorMeta(item.color);
+                      const isCard = item.type === "card";
+                      const isCompleted = isCard ? (item as CalendarCard).status === "DONE" : false;
+
+                      return (
+                        <div
+                          key={`${item.type}-${item.id}`}
+                          onClick={() => {
+                            if (isCard) {
+                              setSelectedCardId(item.id);
+                            } else {
+                              setSelectedNoteId(item.id);
+                            }
+                          }}
+                          className={cn(
+                            "relative flex cursor-pointer items-start justify-between rounded-xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+                            colorMeta.softClass ?? "border-white/10 bg-white/5",
+                            isCompleted && "opacity-75"
+                          )}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              {isCard ? (
+                                <span className={cn("rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold", getStatusMeta((item as CalendarCard).status).badgeClass)}>
+                                  {getStatusMeta((item as CalendarCard).status).label}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-0.5 rounded-full border border-dusk-amber/25 bg-dusk-amber/10 px-2 py-0.5 text-[10px] text-dusk-amber font-semibold">
+                                  <FileText className="h-2.5 w-2.5" /> Note
+                                </span>
+                              )}
+
+                              {isCard && (item as CalendarCard).priority && (
+                                <span className={cn(
+                                  "rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold",
+                                  (item as CalendarCard).priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400",
+                                  (item as CalendarCard).priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber",
+                                  (item as CalendarCard).priority === "LOW" && "border-white/5 bg-white/5 text-stone-400"
+                                )}>
+                                  {(item as CalendarCard).priority}
+                                </span>
+                              )}
+                            </div>
+
+                            <h3 className={cn(
+                              "mt-2 text-base font-semibold text-stone-100 truncate",
+                              isCompleted && "line-through text-stone-500"
+                            )}>
+                              {item.title}
+                            </h3>
+
+                            {!isCard && (item as CalendarNote).content && (
+                              <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
+                                {(item as CalendarNote).content}
+                              </p>
+                            )}
+                            {isCard && (item as CalendarCard).description && (
+                              <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
+                                {(item as CalendarCard).description}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="ml-4 flex flex-col items-end gap-1.5 text-xs text-stone-500 shrink-0">
+                            {item.dueDate && !item.dueDateAllDay && (
+                              <span className="inline-flex items-center gap-1 text-dusk-cyan">
+                                <Clock className="h-3.5 w-3.5" />
+                                {formatTime(item.dueDate)}
+                              </span>
+                            )}
+                            {item.dueDateAllDay && (
+                              <span className="text-dusk-cyan font-medium">All day</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
+                <Button type="button" variant="ghost" onClick={() => setSelectedDayKey(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
     </>
   );
 }
@@ -378,7 +644,10 @@ function CalendarCardButton({ card, onClick }: { card: CalendarCard; onClick: ()
     <button
       className={cn("block w-full rounded border px-2 py-1.5 text-left text-xs hover:border-dusk-lavender/60", colorMeta.softClass)}
       type="button"
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
     >
       <span className="block truncate font-medium text-stone-100">{card.title}</span>
       <span className="mt-1 flex items-center gap-1 text-[11px] text-dusk-cyan">
@@ -403,7 +672,10 @@ function CalendarNoteButton({ note, onClick }: { note: CalendarNote; onClick: ()
     <button
       className={cn("block w-full rounded border px-2 py-1.5 text-left text-xs hover:border-dusk-amber/60", colorMeta.softClass)}
       type="button"
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
     >
       <span className="flex items-center gap-1 truncate font-medium text-stone-100">
         <FileText className="h-3 w-3 text-dusk-amber" />

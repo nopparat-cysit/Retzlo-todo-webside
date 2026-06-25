@@ -100,6 +100,20 @@ export function groupCalendarItems<T extends UnifiedCalendarItem>(items: T[]): R
   }, {});
 }
 
+export function getCalendarSummary(
+  items: UnifiedCalendarItem[],
+  days: Array<{ key: string }>
+) {
+  const visibleKeys = new Set(days.map((day) => day.key));
+  const visibleItems = items.filter((item) => visibleKeys.has(toDateKey(item.dueDate)));
+
+  return {
+    total: visibleItems.length,
+    focusDays: new Set(visibleItems.map((item) => toDateKey(item.dueDate))).size,
+    completed: visibleItems.filter((item) => item.type === "card" && item.status === "DONE").length
+  };
+}
+
 export function toDateKey(value: string | Date): string {
   const date = value instanceof Date ? value : new Date(value);
   const month = String(date.getMonth() + 1).padStart(2, "0");

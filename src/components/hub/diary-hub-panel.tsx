@@ -1,14 +1,19 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { BookOpen, Eye, EyeOff, Pencil, Plus, Repeat, Save, SlidersHorizontal, Star, Trash2, X } from "lucide-react";
+import { BookOpen, CheckCircle2, Coins, Eye, EyeOff, Pencil, Plus, Repeat, Save, SlidersHorizontal, Star, Trash2, X } from "lucide-react";
 
 import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { ModalPortal } from "@/components/ui/modal-portal";
 import { setRedStarItem } from "@/components/hub/fab-hub";
-import { getDiaryChecklistSummary, normalizeDiaryChecklist, type DiaryChecklistItem } from "@/lib/diary/checklist";
+import {
+  getDiaryChecklistSummary,
+  normalizeDiaryChecklist,
+  type DiaryChecklistItem,
+  type DiaryRewardCoinType
+} from "@/lib/diary/checklist";
 import { formatMediumDate } from "@/lib/date-format";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
@@ -35,6 +40,10 @@ interface DiaryPayload {
   intervalDays: number;
   startDate: string;
   checklist: DiaryChecklistItem[];
+  rewardCoins: number;
+  rewardCoinType: DiaryRewardCoinType;
+  rewardClaimedDates?: string[];
+  selectedDate?: string;
   isStarred: boolean;
   isHidden: boolean;
   dueTime: string | null;
@@ -143,7 +152,7 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
   }
 
   async function updateChecklist(item: HubDiaryItem, checklist: DiaryChecklistItem[]) {
-    await updateItem(item.id, { checklist: normalizeDiaryChecklist(checklist, item.startDate) });
+    await updateItem(item.id, { checklist: normalizeDiaryChecklist(checklist, item.startDate), selectedDate: today });
   }
 
   async function deleteItem(itemId: string) {
@@ -159,13 +168,8 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
   }
 
   function toggleRedStar(item: HubDiaryItem) {
-    if (redStarId === item.id) {
-      setRedStarIdState(null);
-      setRedStarItem(null);
-    } else {
-      setRedStarIdState(item.id);
-      setRedStarItem({ type: "diary", id: item.id, title: item.title, href: "/hub/diary" });
-    }
+    setRedStarIdState(item.id);
+    setRedStarItem({ type: "diary", id: item.id, title: item.title, href: "/hub/diary" });
   }
 
   const FILTER_TABS: { value: DiaryFilter; label: string }[] = [
@@ -295,6 +299,9 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
                     </p>
                     <DiaryChecklistPreview
                       canManage={item.canManage}
+                      rewardClaimedDates={item.rewardClaimedDates}
+                      rewardCoins={item.rewardCoins}
+                      rewardCoinType={item.rewardCoinType}
                       selectedDate={today}
                       value={item.checklist}
                       onChange={(checklist) => updateChecklist(item, checklist)}
@@ -312,7 +319,7 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
                             ? "border-red-400/40 bg-red-500/10 text-red-400"
                             : "border-white/10 bg-white/[0.04]"
                         )}
-                        aria-label={isRedStarred ? "Unpin from FAB" : "Pin to FAB (red star)"}
+                        aria-label={isRedStarred ? "Pinned to FAB" : "Pin to FAB (red star)"}
                         onClick={() => toggleRedStar(item)}
                       >
                         <Star className={cn("h-3.5 w-3.5", isRedStarred && "fill-red-400")} />
@@ -392,7 +399,11 @@ function DiaryItemModal({
 }) {
   const [color, setColor] = useState<CardColor>(normalizeCardColor(item?.color));
   const [intervalDays, setIntervalDays] = useState(item?.intervalDays ?? 1);
+  const [startDate, setStartDate] = useState(item?.startDate.slice(0, 10) ?? selectedDate);
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+  const [isRewardOpen, setIsRewardOpen] = useState((item?.rewardCoins ?? 0) > 0);
+  const [rewardCoins, setRewardCoins] = useState(item?.rewardCoins ?? 0);
+  const [rewardCoinType, setRewardCoinType] = useState<DiaryRewardCoinType>(isPersonal ? "GLOBAL" : item?.rewardCoinType ?? "PROJECT");
   const [checklist, setChecklist] = useState<DiaryChecklistItem[]>(
     normalizeDiaryChecklist(item?.checklist, item?.startDate ?? selectedDate)
   );
@@ -405,8 +416,11 @@ function DiaryItemModal({
       description: String(formData.get("description") ?? ""),
       color,
       intervalDays,
-      startDate: String(formData.get("startDate") ?? new Date().toISOString().slice(0, 10)),
-      checklist: normalizeDiaryChecklist(checklist, String(formData.get("startDate") ?? selectedDate)),
+      startDate,
+      checklist: normalizeDiaryChecklist(checklist, startDate),
+      rewardCoins: isRewardOpen ? rewardCoins : 0,
+      rewardCoinType: isPersonal ? "GLOBAL" : rewardCoinType,
+      rewardClaimedDates: item?.rewardClaimedDates ?? [],
       isStarred: item?.isStarred ?? false,
       isHidden: false,
       dueTime: null
@@ -428,6 +442,19 @@ function DiaryItemModal({
             <button
               className={cn(
                 "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs transition",
+                isRewardOpen
+                  ? "border-dusk-amber/40 bg-dusk-amber/10 text-dusk-amber"
+                  : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-amber/35"
+              )}
+              type="button"
+              onClick={() => setIsRewardOpen((current) => !current)}
+            >
+              <Coins className="h-4 w-4" />
+              Reward
+            </button>
+            <button
+              className={cn(
+                "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs transition",
                 isSettingsOpen
                   ? "border-dusk-amber/40 bg-dusk-amber/10 text-dusk-amber"
                   : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-amber/35"
@@ -444,7 +471,7 @@ function DiaryItemModal({
           </div>
         </div>
 
-        <div className={cn("grid min-h-0 flex-1 gap-5 overflow-hidden", isSettingsOpen && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
+        <div className={cn("grid min-h-0 flex-1 gap-5 overflow-hidden", (isSettingsOpen || isRewardOpen) && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
           <section className="flex min-h-0 flex-col gap-4">
             <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender">Details</p>
             <Input name="title" defaultValue={item?.title ?? ""} placeholder="Diary title" required />
@@ -452,24 +479,79 @@ function DiaryItemModal({
             <ColorPicker selectedColor={color} onChange={setColor} />
             <DiaryChecklistEditor
               defaultRepeatDays={intervalDays}
-              defaultStartDate={item?.startDate.slice(0, 10) ?? selectedDate}
+              defaultStartDate={startDate}
               onDefaultRepeatDaysChange={setIntervalDays}
               value={checklist}
               onChange={setChecklist}
             />
           </section>
 
-          <aside className={cn("space-y-4 self-start rounded-lg border border-white/10 bg-white/[0.025] p-4", !isSettingsOpen && "hidden")}>
-            <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Settings</p>
-            <label className="space-y-2 text-sm text-stone-300">
-              <span>Start date</span>
-              <Input
-                name="startDate"
-                type="date"
-                defaultValue={item?.startDate.slice(0, 10) ?? new Date().toISOString().slice(0, 10)}
-                required
-              />
-            </label>
+          <aside className={cn("space-y-4 overflow-y-auto self-start rounded-lg border border-white/10 bg-white/[0.025] p-4 scrollbar-soft", !isSettingsOpen && !isRewardOpen && "hidden")}>
+            {isSettingsOpen ? (
+              <div className="space-y-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Settings</p>
+                <label className="space-y-2 text-sm text-stone-300">
+                  <span>Start date</span>
+                  <Input
+                    name="startDate"
+                    type="date"
+                    value={startDate}
+                    onChange={(event) => setStartDate(event.target.value)}
+                    required
+                  />
+                </label>
+              </div>
+            ) : null}
+
+            {isRewardOpen ? (
+              <div className="space-y-4 rounded-lg border border-dusk-amber/20 bg-dusk-amber/[0.045] p-3">
+                <div className="flex items-start gap-2">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-dusk-amber/25 bg-dusk-amber/10 text-dusk-amber">
+                    <Coins className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Checklist reward</p>
+                    <p className="mt-1 text-[11px] leading-5 text-stone-500">Awarded once per day after every due checklist item is complete.</p>
+                  </div>
+                </div>
+                <label className="space-y-2 text-sm text-stone-300">
+                  <span>Coins to award</span>
+                  <Input
+                    max={100000}
+                    min={0}
+                    type="number"
+                    value={rewardCoins}
+                    onChange={(event) => setRewardCoins(Math.max(0, Number(event.target.value) || 0))}
+                  />
+                </label>
+                <div className="space-y-2 text-sm text-stone-300">
+                  <span>Coin type</span>
+                  <div className="grid gap-2">
+                    {[
+                      { value: "GLOBAL" as const, label: "Global coins", disabled: false },
+                      { value: "PROJECT" as const, label: "Project coins", disabled: isPersonal }
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        className={cn(
+                          "flex h-10 items-center justify-between rounded-lg border px-3 text-left text-xs transition",
+                          rewardCoinType === option.value
+                            ? "border-dusk-amber/45 bg-dusk-amber/12 text-dusk-amber"
+                            : "border-white/10 bg-white/[0.035] text-stone-400 hover:border-dusk-amber/35",
+                          option.disabled && "cursor-not-allowed opacity-45"
+                        )}
+                        disabled={option.disabled}
+                        type="button"
+                        onClick={() => setRewardCoinType(option.value)}
+                      >
+                        <span>{option.label}</span>
+                        {rewardCoinType === option.value ? <CheckCircle2 className="h-4 w-4" /> : null}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </aside>
         </div>
 
@@ -533,6 +615,9 @@ function normalizeItem(item: HubDiaryItem): HubDiaryItem {
     color: normalizeCardColor(item.color),
     startDate: new Date(item.startDate).toISOString(),
     checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
+    rewardCoins: item.rewardCoins ?? 0,
+    rewardCoinType: item.projectId ? item.rewardCoinType ?? "PROJECT" : "GLOBAL",
+    rewardClaimedDates: Array.isArray(item.rewardClaimedDates) ? item.rewardClaimedDates : [],
     createdAt: new Date(item.createdAt).toISOString(),
     updatedAt: new Date(item.updatedAt).toISOString()
   };

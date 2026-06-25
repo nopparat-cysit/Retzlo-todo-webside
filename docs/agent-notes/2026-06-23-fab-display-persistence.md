@@ -1,0 +1,24 @@
+# FAB display persistence
+
+- Date: 2026-06-23
+- Objective: Keep the selected FAB display pinned after the user clicks the active red star again.
+- Modified:
+  - `src/components/hub/diary-hub-panel.tsx`
+  - `src/components/hub/notes-hub-panel.tsx`
+- Created:
+  - `src/components/hub/fab-display-persistence.test.ts`
+- Behavior changes:
+  - Red-star actions in Diary Hub and Notes Hub are now idempotent pin actions.
+  - Clicking the currently pinned item again keeps it pinned instead of clearing `retrod:redStar`.
+  - Clearing the FAB display remains available through the dedicated Clear display action.
+  - Active red-star aria labels now say `Pinned to FAB` instead of `Unpin from FAB`.
+- Root cause:
+  - `toggleRedStar` treated a second click on the active item as an unpin command and called `setRedStarItem(null)`.
+- Database/schema changes: None.
+- Verification:
+  - `npm test -- src/components/hub/fab-display-persistence.test.ts`: passed (2/2).
+  - `npm run lint`: passed with no warnings or errors.
+  - `npx prisma validate`: passed.
+  - `npm run build`: blocked by `EPERM` while `prisma generate` tried to rename the Prisma query engine DLL, likely because a running dev server or Node process is holding the file. This is not recorded as a pass.
+  - `git -c safe.directory=C:/Users/Nopparat/Documents/Todo diff --check`: no whitespace errors; Git reported LF-to-CRLF warnings for existing working-copy files.
+  - `git -c safe.directory=C:/Users/Nopparat/Documents/Todo status --short --branch`: branch is ahead of origin by 2 and the worktree contains pre-existing dirty files plus the FAB persistence files from this session.

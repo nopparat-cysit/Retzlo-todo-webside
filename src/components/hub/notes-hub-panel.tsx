@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CalendarClock, Eye, EyeOff, FileText, Star } from "lucide-react";
+import { CalendarClock, CheckCircle2, Eye, EyeOff, FileText, RotateCcw, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { setRedStarItem } from "@/components/hub/fab-hub";
@@ -14,7 +14,7 @@ const FILTER_KEY = "retrod:hub:notes:filter";
 const PROJECT_KEY = "retrod:hub:notes:project";
 const SORT_KEY = "retrod:hub:notes:sort";
 
-type NoteFilter = "all" | "starred" | "dated" | "undated";
+type NoteFilter = "all" | "starred" | "dated" | "undated" | "completed";
 type NoteSort = "updated" | "created" | "due" | "title";
 
 interface HubNote extends ProjectNote {
@@ -72,6 +72,9 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
   const visibleNotes = useMemo(() => {
     const filtered = notes.filter((note) => {
       if (projectFilter !== "all" && note.projectId !== projectFilter) return false;
+      const isCompleted = Boolean(note.completedAt);
+      if (filter === "completed") return isCompleted;
+      if (isCompleted) return false;
       if (filter === "starred") return note.isStarred;
       if (filter === "dated") return Boolean(note.dueDate);
       if (filter === "undated") return !note.dueDate;
@@ -90,7 +93,7 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
     });
   }, [filter, projectFilter, sortBy, notes]);
 
-  async function updateNote(noteId: string, payload: { isStarred?: boolean; isHidden?: boolean }) {
+  async function updateNote(noteId: string, payload: { isStarred?: boolean; isHidden?: boolean; isCompleted?: boolean }) {
     setError(null);
     const response = await fetch(`/api/notes/${noteId}`, {
       method: "PATCH",
@@ -106,20 +109,16 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
   }
 
   function toggleRedStar(note: HubNote) {
-    if (redStarId === note.id) {
-      setRedStarIdState(null);
-      setRedStarItem(null);
-    } else {
-      setRedStarIdState(note.id);
-      setRedStarItem({ type: "note", id: note.id, title: note.title, href: "/hub/notes" });
-    }
+    setRedStarIdState(note.id);
+    setRedStarItem({ type: "note", id: note.id, title: note.title, href: "/hub/notes" });
   }
 
   const FILTER_TABS: { value: NoteFilter; label: string }[] = [
     { value: "all", label: "All" },
     { value: "starred", label: "Starred" },
     { value: "dated", label: "Dated" },
-    { value: "undated", label: "Undated" }
+    { value: "undated", label: "Undated" },
+    { value: "completed", label: "Completed" }
   ];
 
   return (
@@ -195,28 +194,25 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
             const isRedStarred = redStarId === note.id;
 
             return (
-              <article key={note.id} className={cn("lofi-panel flex min-h-52 flex-col rounded-xl p-4", colorMeta.softClass)}>
-                <div className="mb-3 flex items-start gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    {/* Red star button */}
-                    {note.canManage && (
-                      <button
-                        type="button"
-                        className={cn(
-                          "mt-1 grid h-7 w-7 place-items-center rounded-lg border text-stone-500 transition hover:border-red-400/50 hover:text-red-400",
-                          isRedStarred
-                            ? "border-red-400/40 bg-red-500/10 text-red-400"
-                            : "border-white/10 bg-white/[0.04]"
-                        )}
-                        aria-label={isRedStarred ? "Unpin from FAB" : "Pin to FAB"}
-                        onClick={() => toggleRedStar(note)}
-                      >
-                        <Star className={cn("h-3.5 w-3.5", isRedStarred && "fill-red-400")} />
-                      </button>
+              <article key={note.id} className={cn("relative lofi-panel flex min-h-52 flex-col rounded-xl p-4", colorMeta.softClass)}>
+                {/* Red star button */}
+                {note.canManage && (
+                  <button
+                    type="button"
+                    className={cn(
+                      "absolute right-3.5 top-3.5 z-10 grid h-7 w-7 place-items-center rounded-lg border text-stone-500 transition hover:border-red-400/50 hover:text-red-400",
+                      isRedStarred
+                        ? "border-red-400/40 bg-red-500/10 text-red-400"
+                        : "border-white/10 bg-white/[0.04]"
                     )}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
+                    aria-label={isRedStarred ? "Pinned to FAB" : "Pin to FAB"}
+                    onClick={() => toggleRedStar(note)}
+                  >
+                    <Star className={cn("h-3.5 w-3.5", isRedStarred && "fill-red-400")} />
+                  </button>
+                )}
+                <div className="mb-3 flex items-start gap-3">
+                  <div className="min-w-0 flex-1 pr-8">
                     {/* Project badge */}
                     <span className="mb-2 inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-stone-400">
                       {note.projectName}
@@ -226,7 +222,17 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
                         <EyeOff className="h-3 w-3" /> Hidden
                       </span>
                     )}
-                    <h3 className="mt-1 truncate text-base font-semibold text-stone-100">{note.title}</h3>
+                    {note.completedAt && (
+                      <span className="ml-1.5 inline-flex items-center gap-1 rounded-full border border-dusk-mint/25 bg-dusk-mint/10 px-2 py-0.5 text-[10px] text-dusk-mint">
+                        <CheckCircle2 className="h-3 w-3" /> Completed {formatMediumDate(note.completedAt)}
+                      </span>
+                    )}
+                    <h3 className="mt-1 flex items-center gap-2 truncate text-base font-semibold text-stone-100">
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.05] text-base">
+                        {note.emoji}
+                      </span>
+                      <span className="truncate">{note.title}</span>
+                    </h3>
                     <p className="mt-1.5 line-clamp-4 text-sm leading-6 text-stone-400">{note.content || "No content."}</p>
                   </div>
                 </div>
@@ -250,6 +256,17 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
                   >
                     {note.isHidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                     {note.isHidden ? "Show note" : "Hide note"}
+                  </Button>
+                )}
+                {note.canManage && (
+                  <Button
+                    className="mt-3 w-full"
+                    type="button"
+                    variant={note.completedAt ? "ghost" : "secondary"}
+                    onClick={() => updateNote(note.id, { isCompleted: !note.completedAt })}
+                  >
+                    {note.completedAt ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                    {note.completedAt ? "Restore note" : "Mark complete"}
                   </Button>
                 )}
               </article>

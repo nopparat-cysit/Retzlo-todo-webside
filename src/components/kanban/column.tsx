@@ -9,6 +9,7 @@ import { CardModal } from "@/components/kanban/card-modal";
 import { KanbanCard } from "@/components/kanban/card";
 import { ColumnIconGlyph, ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import {
   columnThemeOptions,
@@ -71,6 +72,8 @@ export function KanbanColumn({
   const [settingsIcon, setSettingsIcon] = useState<ColumnIconId>(column.icon);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isSaveConfirmOpen, setIsSaveConfirmOpen] = useState(false);
   const quickInputRef = useRef<HTMLTextAreaElement>(null);
   const theme = getColumnThemeOption(column.color);
 
@@ -148,13 +151,16 @@ export function KanbanColumn({
     setIsSettingsOpen(false);
   }
 
-  async function handleSaveSettings(event: React.FormEvent<HTMLFormElement>) {
+  function handleSaveIntent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     if (!settingsName.trim() || isSavingSettings) return;
+    setIsSaveConfirmOpen(true);
+  }
 
+  async function executeSaveSettings() {
     setIsSavingSettings(true);
     setSettingsError(null);
+    setIsSaveConfirmOpen(false);
 
     try {
       await onColumnSaved(column.id, {
@@ -170,11 +176,10 @@ export function KanbanColumn({
     }
   }
 
-  async function handleDeleteColumn() {
-    if (isSavingSettings) return;
-
+  async function executeDeleteColumn() {
     setIsSavingSettings(true);
     setSettingsError(null);
+    setIsDeleteConfirmOpen(false);
 
     try {
       await onColumnDeleted(column.id);
@@ -419,7 +424,7 @@ export function KanbanColumn({
         <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/78 px-4 py-6 backdrop-blur-sm">
           <form
             className="lofi-panel motion-dialog-content w-full max-w-lg rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
-            onSubmit={handleSaveSettings}
+            onSubmit={handleSaveIntent}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
@@ -474,7 +479,7 @@ export function KanbanColumn({
                 type="button"
                 variant="danger"
                 disabled={totalCards > 0 || isSavingSettings}
-                onClick={() => void handleDeleteColumn()}
+                onClick={() => setIsDeleteConfirmOpen(true)}
               >
                 <Trash2 className="h-4 w-4" />
                 Delete
@@ -498,6 +503,27 @@ export function KanbanColumn({
           await onCreateCard(column.id, payload);
           setIsModalOpen(false);
         }}
+      />
+
+      <ConfirmModal
+        open={isDeleteConfirmOpen}
+        title="Delete column"
+        message={`Are you sure you want to delete "${column.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        isLoading={isSavingSettings}
+        onConfirm={executeDeleteColumn}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+      />
+
+      <ConfirmModal
+        open={isSaveConfirmOpen}
+        title="Save column changes"
+        message={`Are you sure you want to save changes to "${settingsName}"?`}
+        confirmLabel="Save"
+        isLoading={isSavingSettings}
+        onConfirm={executeSaveSettings}
+        onClose={() => setIsSaveConfirmOpen(false)}
       />
     </section>
   );

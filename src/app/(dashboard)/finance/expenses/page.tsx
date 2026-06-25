@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 
 export const metadata = {
-  title: "Expenses - RETROD Finance",
+  title: "Expenses - Retzlo Finance",
   description: "Personal finance expense history."
 };
 

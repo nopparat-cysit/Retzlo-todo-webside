@@ -1,0 +1,276 @@
+﻿<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#090816"/>
+      <stop offset="0.48" stop-color="#151329"/>
+      <stop offset="1" stop-color="#0b0a18"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#332d4d"/>
+      <stop offset="1" stop-color="#211d37"/>
+    </linearGradient>
+    <linearGradient id="softPanel" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#302b48"/>
+      <stop offset="1" stop-color="#1c1930"/>
+    </linearGradient>
+    <linearGradient id="cover" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6f5daf"/>
+      <stop offset="0.46" stop-color="#a8678f"/>
+      <stop offset="1" stop-color="#19172b"/>
+    </linearGradient>
+    <linearGradient id="cover2" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#31506b"/>
+      <stop offset="0.52" stop-color="#6a5ca9"/>
+      <stop offset="1" stop-color="#19172b"/>
+    </linearGradient>
+    <linearGradient id="cover3" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#4d6a55"/>
+      <stop offset="0.55" stop-color="#8b6a8f"/>
+      <stop offset="1" stop-color="#19172b"/>
+    </linearGradient>
+    <linearGradient id="cta" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#a59cff"/>
+      <stop offset="1" stop-color="#e7a4c7"/>
+    </linearGradient>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M20 0H0V20" stroke="#ffffff" stroke-opacity="0.024"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#05050d" flood-opacity="0.42"/>
+    </filter>
+    <filter id="smallShadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#05050d" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#page)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+
+  <!-- Left workspace control rail, based on ProjectsDashboard -->
+  <rect x="24" y="22" width="320" height="856" rx="22" fill="url(#panel)" stroke="#6a6086" stroke-opacity="0.58" filter="url(#shadow)"/>
+  <g transform="translate(48 48)">
+    <rect width="40" height="40" rx="12" fill="#a59cff" fill-opacity="0.12" stroke="#a59cff" stroke-opacity="0.28"/>
+    <path d="M20 9l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#a59cff"/>
+    <text x="56" y="14" fill="#e7bd72" font-family="Inter, Arial" font-size="11" letter-spacing="5">RETROD</text>
+    <text x="56" y="36" fill="#f5f0f8" font-family="Inter, Arial" font-size="22" font-weight="760">Workspaces</text>
+    <circle cx="246" cy="20" r="19" fill="#d8c5b4"/>
+    <circle cx="260" cy="34" r="5" fill="#66e4a5"/>
+  </g>
+
+  <g transform="translate(48 126)" font-family="Inter, Arial">
+    <text fill="#8f879b" font-size="11" letter-spacing="2.2">PROJECT</text>
+    <rect y="18" width="272" height="42" rx="13" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="16" y="45" fill="#f2edf7" font-size="14">CapitalOneRealEstate</text>
+    <path d="M246 35l6 6 6-6" stroke="#bdb4ca" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <g transform="translate(48 202)" font-family="Inter, Arial">
+    <rect width="272" height="48" rx="15" fill="#e7bd72" fill-opacity="0.07" stroke="#e7bd72" stroke-opacity="0.26"/>
+    <path d="M23 16h18v18H23zM23 22h18M29 12v8M35 12v8" stroke="#e7bd72" stroke-width="1.7"/>
+    <text x="54" y="30" fill="#e7bd72" font-size="14" font-weight="700">Redeem Rewards</text>
+    <path d="M242 18l8 8-8 8" stroke="#e7bd72" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <g transform="translate(48 278)">
+    <rect width="272" height="478" rx="18" fill="#ffffff" fill-opacity="0.035" stroke="#ffffff" stroke-opacity="0.11"/>
+    <g transform="translate(18 18)" font-family="Inter, Arial">
+      <path d="M0 0h15v15H0zM0 5h15M4-3v7M11-3v7" stroke="#8dd3e9" stroke-width="1.5"/>
+      <text x="28" y="13" fill="#f5f0f8" font-size="15" font-weight="740">Calendar</text>
+      <rect x="222" y="-3" width="30" height="22" rx="7" fill="#ffffff" fill-opacity="0.06"/>
+      <text x="232" y="12" fill="#bdb4ca" font-size="11">4</text>
+    </g>
+    <rect x="18" y="58" width="236" height="36" rx="12" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.1"/>
+    <text x="34" y="81" fill="#d8d0ea" font-family="Inter, Arial" font-size="12">Next 30 days</text>
+    <rect x="18" y="104" width="236" height="36" rx="12" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.1"/>
+    <text x="34" y="127" fill="#d8d0ea" font-family="Inter, Arial" font-size="12">All times</text>
+    <g transform="translate(18 154)" font-family="Inter, Arial" font-size="11">
+      <rect width="108" height="28" rx="14" fill="#a59cff" fill-opacity="0.12" stroke="#a59cff" stroke-opacity="0.28"/>
+      <circle cx="18" cy="14" r="4" fill="#a59cff"/>
+      <text x="30" y="18" fill="#d8d0ea">Todo</text>
+      <rect x="128" width="108" height="28" rx="14" fill="#8dd3e9" fill-opacity="0.1" stroke="#8dd3e9" stroke-opacity="0.22"/>
+      <circle cx="146" cy="14" r="4" fill="#8dd3e9"/>
+      <text x="158" y="18" fill="#d8d0ea">Doing</text>
+      <rect y="38" width="108" height="28" rx="14" fill="#e7bd72" fill-opacity="0.1" stroke="#e7bd72" stroke-opacity="0.22"/>
+      <circle cx="18" cy="52" r="4" fill="#e7bd72"/>
+      <text x="30" y="56" fill="#d8d0ea">Waiting</text>
+      <rect x="128" y="38" width="108" height="28" rx="14" fill="#72e0b0" fill-opacity="0.1" stroke="#72e0b0" stroke-opacity="0.22"/>
+      <circle cx="146" cy="52" r="4" fill="#72e0b0"/>
+      <text x="158" y="56" fill="#d8d0ea">Done</text>
+    </g>
+    <g transform="translate(18 248)" font-family="Inter, Arial">
+      <rect width="236" height="64" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.1"/>
+      <text x="14" y="25" fill="#f4f0f8" font-size="13" font-weight="700">Board header refresh</text>
+      <text x="14" y="46" fill="#8dd3e9" font-size="11">Today Â· CapitalOneRealEstate</text>
+      <rect y="78" width="236" height="64" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.1"/>
+      <text x="14" y="103" fill="#f4f0f8" font-size="13" font-weight="700">Diary checklist pass</text>
+      <text x="14" y="124" fill="#e7bd72" font-size="11">Jun 24 Â· Work Todo</text>
+    </g>
+  </g>
+
+  <!-- Sidebar sticker accent only, not inside project cards -->
+  <g transform="translate(238 770) rotate(-9)" filter="url(#smallShadow)">
+    <path d="M10 8h42l8 8v43H10z" fill="#fff1cf" stroke="#8e6d84" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M52 8v12h12" fill="#e7a4c7" stroke="#8e6d84" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M19 25h28M19 35h31M19 45h22" stroke="#b98f83" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="27" y="0" width="24" height="12" rx="4" fill="#e7a4c7" stroke="#8e6d84" stroke-width="2.5"/>
+  </g>
+
+  <!-- Main project index -->
+  <g transform="translate(368 22)">
+    <rect width="1208" height="126" rx="20" fill="url(#softPanel)" stroke="#6a6086" stroke-opacity="0.58" filter="url(#shadow)"/>
+    <rect x="24" y="28" width="38" height="38" rx="11" fill="#ffffff" fill-opacity="0.055" stroke="#ffffff" stroke-opacity="0.14"/>
+    <path d="M45 36l-9 9 9 9" stroke="#d8d0ea" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="80" y="39" fill="#e7bd72" font-family="Inter, Arial" font-size="12" letter-spacing="6">PROJECT INDEX</text>
+    <text x="80" y="78" fill="#f5f0f8" font-family="Inter, Arial" font-size="40" font-weight="760">Choose your board</text>
+    <rect x="1028" y="40" width="142" height="46" rx="14" fill="url(#cta)"/>
+    <path d="M1054 55v16M1046 63h16" stroke="#151225" stroke-width="2" stroke-linecap="round"/>
+    <text x="1076" y="68" fill="#151225" font-family="Inter, Arial" font-size="14" font-weight="760">New Project</text>
+
+    <!-- Header sticker accent outside cards -->
+    <g transform="translate(880 24) rotate(8)" filter="url(#smallShadow)">
+      <path d="M19 3l5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2z" fill="#f5d877" stroke="#8e6d84" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M42 22l4 7 8 3-8 3-4 8-4-8-8-3 8-3z" fill="#fff3c6" stroke="#8e6d84" stroke-width="2"/>
+    </g>
+  </g>
+
+  <g transform="translate(368 172)">
+    <!-- Project card 1 -->
+    <rect width="374" height="330" rx="20" fill="url(#panel)" stroke="#6a6086" stroke-opacity="0.58" filter="url(#shadow)"/>
+    <rect width="374" height="112" rx="20" fill="url(#cover)"/>
+    <rect y="58" width="374" height="54" fill="url(#page)" opacity="0.42"/>
+    <rect x="24" y="26" width="118" height="28" rx="14" fill="#090816" fill-opacity="0.58" stroke="#ffffff" stroke-opacity="0.13"/>
+    <path d="M43 34l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" fill="#e7bd72"/>
+    <text x="61" y="45" fill="#e7bd72" font-family="Inter, Arial" font-size="10" letter-spacing="3">WORKSPACE</text>
+    <text x="24" y="92" fill="#f8f3fb" font-family="Inter, Arial" font-size="25" font-weight="760">WORK TODO</text>
+    <rect x="326" y="18" width="34" height="34" rx="10" fill="#090816" fill-opacity="0.62" stroke="#ffffff" stroke-opacity="0.15"/>
+    <circle cx="343" cy="35" r="2.5" fill="#d8d0ea"/>
+    <circle cx="343" cy="42" r="2.5" fill="#d8d0ea"/>
+    <circle cx="343" cy="28" r="2.5" fill="#d8d0ea"/>
+    <text x="24" y="148" fill="#c7bdca" font-family="Inter, Arial" font-size="13">For Work CapitalOne</text>
+    <g transform="translate(24 182)" font-family="Inter, Arial">
+      <rect width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="16" y="24" fill="#f5f0f8" font-size="17" font-weight="760">1</text>
+      <text x="16" y="43" fill="#8f879b" font-size="11">Boards</text>
+      <rect x="84" width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="100" y="24" fill="#f5f0f8" font-size="17" font-weight="760">1</text>
+      <text x="100" y="43" fill="#8f879b" font-size="11">Members</text>
+      <rect x="168" width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="184" y="24" fill="#f5f0f8" font-size="17" font-weight="760">2</text>
+      <text x="184" y="43" fill="#8f879b" font-size="11">Notes</text>
+      <rect x="252" width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="268" y="24" fill="#f5f0f8" font-size="17" font-weight="760">8</text>
+      <text x="268" y="43" fill="#8f879b" font-size="11">Cards</text>
+    </g>
+    <rect x="24" y="250" width="326" height="34" rx="12" fill="#ffffff" fill-opacity="0.035" stroke="#ffffff" stroke-opacity="0.1"/>
+    <text x="42" y="272" fill="#c9c0cf" font-family="Inter, Arial" font-size="12">3 columns</text>
+    <text x="270" y="272" fill="#c9c0cf" font-family="Inter, Arial" font-size="12">Board ready</text>
+    <rect x="24" y="300" width="208" height="44" rx="13" fill="url(#cta)"/>
+    <text x="76" y="328" fill="#151225" font-family="Inter, Arial" font-size="14" font-weight="760">Open board</text>
+    <path d="M166 316l8 7-8 7" stroke="#151225" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="246" y="300" width="104" height="44" rx="13" fill="#e7bd72" fill-opacity="0.08" stroke="#e7bd72" stroke-opacity="0.28"/>
+    <text x="280" y="328" fill="#e7bd72" font-family="Inter, Arial" font-size="13" font-weight="740">Rewards</text>
+
+    <!-- Project card 2 -->
+    <g transform="translate(402 0)">
+      <rect width="374" height="330" rx="20" fill="url(#panel)" stroke="#6a6086" stroke-opacity="0.58" filter="url(#shadow)"/>
+      <rect width="374" height="112" rx="20" fill="url(#cover2)"/>
+      <rect y="58" width="374" height="54" fill="url(#page)" opacity="0.42"/>
+      <rect x="24" y="26" width="112" height="28" rx="14" fill="#090816" fill-opacity="0.58" stroke="#ffffff" stroke-opacity="0.13"/>
+      <text x="42" y="45" fill="#e7bd72" font-family="Inter, Arial" font-size="10" letter-spacing="3">DIARY FIRST</text>
+      <text x="24" y="92" fill="#f8f3fb" font-family="Inter, Arial" font-size="25" font-weight="760">Daily Routine</text>
+      <text x="24" y="148" fill="#c7bdca" font-family="Inter, Arial" font-size="13">Recurring diary and checklist flow.</text>
+      <g transform="translate(24 182)" font-family="Inter, Arial">
+        <rect width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+        <text x="16" y="24" fill="#f5f0f8" font-size="17" font-weight="760">0</text>
+        <text x="16" y="43" fill="#8f879b" font-size="11">Boards</text>
+        <rect x="84" width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+        <text x="100" y="24" fill="#f5f0f8" font-size="17" font-weight="760">1</text>
+        <text x="100" y="43" fill="#8f879b" font-size="11">Members</text>
+        <rect x="168" width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+        <text x="184" y="24" fill="#f5f0f8" font-size="17" font-weight="760">5</text>
+        <text x="184" y="43" fill="#8f879b" font-size="11">Notes</text>
+        <rect x="252" width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+        <text x="268" y="24" fill="#f5f0f8" font-size="17" font-weight="760">0</text>
+        <text x="268" y="43" fill="#8f879b" font-size="11">Cards</text>
+      </g>
+      <rect x="24" y="250" width="326" height="34" rx="12" fill="#ffffff" fill-opacity="0.035" stroke="#ffffff" stroke-opacity="0.1"/>
+      <text x="42" y="272" fill="#c9c0cf" font-family="Inter, Arial" font-size="12">Diary workspace</text>
+      <text x="264" y="272" fill="#c9c0cf" font-family="Inter, Arial" font-size="12">Ready</text>
+      <rect x="24" y="300" width="208" height="44" rx="13" fill="url(#cta)"/>
+      <text x="78" y="328" fill="#151225" font-family="Inter, Arial" font-size="14" font-weight="760">Open diary</text>
+      <rect x="246" y="300" width="104" height="44" rx="13" fill="#e7bd72" fill-opacity="0.08" stroke="#e7bd72" stroke-opacity="0.28"/>
+      <text x="280" y="328" fill="#e7bd72" font-family="Inter, Arial" font-size="13" font-weight="740">Rewards</text>
+    </g>
+
+    <!-- Project card 3 -->
+    <g transform="translate(0 362)">
+      <rect width="374" height="330" rx="20" fill="url(#panel)" stroke="#6a6086" stroke-opacity="0.58" filter="url(#shadow)"/>
+      <rect width="374" height="112" rx="20" fill="url(#cover3)"/>
+      <rect y="58" width="374" height="54" fill="url(#page)" opacity="0.42"/>
+      <rect x="24" y="26" width="118" height="28" rx="14" fill="#090816" fill-opacity="0.58" stroke="#ffffff" stroke-opacity="0.13"/>
+      <text x="42" y="45" fill="#e7bd72" font-family="Inter, Arial" font-size="10" letter-spacing="3">WORKSPACE</text>
+      <text x="24" y="92" fill="#f8f3fb" font-family="Inter, Arial" font-size="25" font-weight="760">Design Sprint</text>
+      <text x="24" y="148" fill="#c7bdca" font-family="Inter, Arial" font-size="13">UI polish queue and layout decisions.</text>
+      <g transform="translate(24 182)" font-family="Inter, Arial">
+        <rect width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+        <text x="16" y="24" fill="#f5f0f8" font-size="17" font-weight="760">2</text>
+        <text x="16" y="43" fill="#8f879b" font-size="11">Boards</text>
+        <rect x="84" width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+        <text x="100" y="24" fill="#f5f0f8" font-size="17" font-weight="760">3</text>
+        <text x="100" y="43" fill="#8f879b" font-size="11">Members</text>
+        <rect x="168" width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+        <text x="184" y="24" fill="#f5f0f8" font-size="17" font-weight="760">4</text>
+        <text x="184" y="43" fill="#8f879b" font-size="11">Notes</text>
+        <rect x="252" width="72" height="54" rx="13" fill="#ffffff" fill-opacity="0.045" stroke="#ffffff" stroke-opacity="0.12"/>
+        <text x="268" y="24" fill="#f5f0f8" font-size="17" font-weight="760">12</text>
+        <text x="268" y="43" fill="#8f879b" font-size="11">Cards</text>
+      </g>
+      <rect x="24" y="250" width="326" height="34" rx="12" fill="#ffffff" fill-opacity="0.035" stroke="#ffffff" stroke-opacity="0.1"/>
+      <text x="42" y="272" fill="#c9c0cf" font-family="Inter, Arial" font-size="12">5 columns</text>
+      <text x="270" y="272" fill="#c9c0cf" font-family="Inter, Arial" font-size="12">Board ready</text>
+      <rect x="24" y="300" width="208" height="44" rx="13" fill="url(#cta)"/>
+      <text x="76" y="328" fill="#151225" font-family="Inter, Arial" font-size="14" font-weight="760">Open board</text>
+      <rect x="246" y="300" width="104" height="44" rx="13" fill="#e7bd72" fill-opacity="0.08" stroke="#e7bd72" stroke-opacity="0.28"/>
+      <text x="280" y="328" fill="#e7bd72" font-family="Inter, Arial" font-size="13" font-weight="740">Rewards</text>
+    </g>
+  </g>
+
+  <g transform="translate(1174 172)">
+    <rect width="402" height="330" rx="20" fill="url(#softPanel)" stroke="#6a6086" stroke-opacity="0.45" filter="url(#shadow)"/>
+    <text x="28" y="40" fill="#e7bd72" font-family="Inter, Arial" font-size="12" letter-spacing="5">RECENT RHYTHM</text>
+    <text x="28" y="72" fill="#f5f0f8" font-family="Inter, Arial" font-size="23" font-weight="760">Latest workspace moves</text>
+    <g transform="translate(28 108)" font-family="Inter, Arial">
+      <rect width="346" height="58" rx="14" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.1"/>
+      <circle cx="24" cy="29" r="8" fill="#a59cff"/>
+      <text x="48" y="26" fill="#f5f0f8" font-size="13" font-weight="700">Board header refresh</text>
+      <text x="48" y="44" fill="#9d94a7" font-size="11">Moved to In Progress</text>
+      <rect y="74" width="346" height="58" rx="14" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.1"/>
+      <circle cx="24" cy="103" r="8" fill="#e7bd72"/>
+      <text x="48" y="100" fill="#f5f0f8" font-size="13" font-weight="700">Diary checklist reset</text>
+      <text x="48" y="118" fill="#9d94a7" font-size="11">Scheduled for midnight</text>
+      <rect y="148" width="346" height="58" rx="14" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.1"/>
+      <circle cx="24" cy="177" r="8" fill="#8dd3e9"/>
+      <text x="48" y="174" fill="#f5f0f8" font-size="13" font-weight="700">Note Studio updated</text>
+      <text x="48" y="192" fill="#9d94a7" font-size="11">Grid view feels cleaner</text>
+    </g>
+  </g>
+
+  <g transform="translate(1174 526)">
+    <rect width="402" height="324" rx="20" fill="url(#panel)" stroke="#6a6086" stroke-opacity="0.45"/>
+    <text x="28" y="40" fill="#e7bd72" font-family="Inter, Arial" font-size="12" letter-spacing="5">COZY STATUS</text>
+    <text x="28" y="72" fill="#f5f0f8" font-family="Inter, Arial" font-size="23" font-weight="760">Workspace mood</text>
+    <text x="28" y="100" fill="#a69eb1" font-family="Inter, Arial" font-size="13">Soft context stays on the side, while project cards remain the main action.</text>
+    <g transform="translate(270 138) rotate(-8)" filter="url(#smallShadow)">
+      <path d="M8 34c8-17 32-24 49-10 13 10 12 28-2 37-18 12-46 4-51-12-2-5 0-10 4-15z" fill="#fff3c6" stroke="#8e6d84" stroke-width="3" stroke-linejoin="round"/>
+      <ellipse cx="32" cy="39" rx="29" ry="7" fill="#e7a4c7" stroke="#8e6d84" stroke-width="3"/>
+      <circle cx="34" cy="35" r="17" fill="#7f72d8" stroke="#5e529f" stroke-width="3"/>
+      <path d="M21 31c8-6 18-8 28-5" stroke="#c4b9ff" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="19" r="3" fill="#fff0a0"/>
+    </g>
+    <rect x="28" y="220" width="156" height="42" rx="13" fill="#ffffff" fill-opacity="0.055" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="48" y="246" fill="#f5f0f8" font-family="Inter, Arial" font-size="13" font-weight="700">3 workspaces</text>
+    <rect x="198" y="220" width="156" height="42" rx="13" fill="#ffffff" fill-opacity="0.055" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="218" y="246" fill="#f5f0f8" font-family="Inter, Arial" font-size="13" font-weight="700">24 active cards</text>
+  </g>
+
+</svg>

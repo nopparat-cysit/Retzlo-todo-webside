@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { BookOpen, ExternalLink, FileText, Pin, Plus, Save, SlidersHorizontal, Star, X } from "lucide-react";
+import { BookOpen, CheckCircle2, ExternalLink, FileText, Pin, Plus, Save, SlidersHorizontal, Star, X } from "lucide-react";
 import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
 import { cn } from "@/lib/utils";
 import { Input, Textarea } from "@/components/ui/input";
@@ -44,6 +44,7 @@ interface DisplayNote {
   id: string;
   title: string;
   content: string;
+  completedAt: string | null;
   projectId: string;
   projectName: string;
 }
@@ -340,6 +341,11 @@ function PinnedDisplayPanel({
                 </span>
               ) : null}
             </>
+          ) : activeItem?.type === "note" && activeItem.completedAt ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-dusk-mint/25 bg-dusk-mint/10 px-2 py-0.5 text-dusk-mint">
+              <CheckCircle2 className="h-3 w-3" />
+              Completed
+            </span>
           ) : null}
         </div>
       </div>
@@ -504,7 +510,8 @@ function FabDisplayPicker({
     onClose();
   }
 
-  const activeList = tab === "diary" ? diaryItems : notes;
+  const activeNotes = notes.filter((note) => !note.completedAt);
+  const activeList = tab === "diary" ? diaryItems : activeNotes;
 
   return (
     <ModalPortal>
@@ -623,7 +630,7 @@ function FabDisplayPicker({
             </div>
           ) : (
             <div className="grid gap-2">
-              {notes.map((note) => {
+              {activeNotes.map((note) => {
                 const isActive = activeItem?.type === "note" && activeItem.id === note.id;
 
                 return (

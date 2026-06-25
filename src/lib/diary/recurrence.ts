@@ -1,5 +1,8 @@
 function toUtcDay(value: string | Date) {
-  const date = typeof value === "string" ? new Date(`${value.slice(0, 10)}T00:00:00.000Z`) : value;
+  const date =
+    typeof value === "string"
+      ? new Date(`${value.slice(0, 10)}T00:00:00.000Z`)
+      : new Date(Date.UTC(value.getFullYear(), value.getMonth(), value.getDate()));
 
   return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }

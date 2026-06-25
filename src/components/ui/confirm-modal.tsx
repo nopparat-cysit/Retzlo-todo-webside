@@ -4,6 +4,7 @@ import { useRef, useState, useEffect, KeyboardEvent } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface ConfirmModalProps {
   open: boolean;
@@ -51,21 +52,30 @@ export function ConfirmModal({
   const isValid = !validateText || typed === validateText;
 
   function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
-    if (e.key === "Escape") onClose();
+    e.stopPropagation();
+    if (e.key === "Escape" && !isLoading) onClose();
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[300] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-modal-title"
-      onKeyDown={handleKeyDown}
-    >
-      {/* Backdrop click to close */}
-      <div className="absolute inset-0" onClick={onClose} />
+    <ModalPortal>
+      <div
+        className="fixed inset-0 z-[1100] grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={handleKeyDown}
+      >
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          onClick={() => {
+            if (!isLoading) onClose();
+          }}
+        />
 
-      <div className="lofi-panel relative w-full max-w-md rounded-xl p-6 shadow-2xl">
+        <div className="lofi-panel relative w-full max-w-md rounded-xl p-6 shadow-2xl">
         {/* Header */}
         <div className="mb-4 flex items-start gap-3">
           {variant === "danger" && (
@@ -88,6 +98,7 @@ export function ConfirmModal({
             className="shrink-0 rounded-md p-1.5 text-stone-500 transition hover:bg-white/10 hover:text-stone-200"
             type="button"
             aria-label="Close"
+            disabled={isLoading}
             onClick={onClose}
           >
             <X className="h-4 w-4" />
@@ -136,7 +147,8 @@ export function ConfirmModal({
             {isLoading ? "Please wait..." : confirmLabel}
           </Button>
         </div>
+        </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

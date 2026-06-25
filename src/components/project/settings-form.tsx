@@ -8,6 +8,7 @@ import { EyeOff, FileText, Image as ImageIcon, Lock, Save, Shield, Trash2, Uploa
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input, Textarea } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 export function SettingsForm({
@@ -25,6 +26,7 @@ export function SettingsForm({
   };
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const coverInputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(project.name);
@@ -40,6 +42,10 @@ export function SettingsForm({
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [pendingPayload, setPendingPayload] = useState<{ name: string; description: string | null } | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const [pendingToggleType, setPendingToggleType] = useState<"privacy" | "notes" | null>(null);
+  const [pendingToggleValue, setPendingToggleValue] = useState<boolean>(false);
+  const [confirmToggleOpen, setConfirmToggleOpen] = useState(false);
 
   async function handleCoverUpload(file: File) {
     setIsUploadingCover(true);
@@ -62,6 +68,7 @@ export function SettingsForm({
 
     if (!response.ok) {
       setStatusMessage({ ok: false, text: data.error ?? "Cover upload failed." });
+      toast({ message: data.error ?? "Cover upload failed.", type: "error" });
       return;
     }
 
@@ -69,6 +76,7 @@ export function SettingsForm({
       setCoverPreview(data.coverImage);
     }
     setStatusMessage({ ok: true, text: "Cover updated." });
+    toast({ message: "Cover image updated.", type: "success" });
     router.refresh();
   }
 
@@ -98,12 +106,14 @@ export function SettingsForm({
 
     if (response.ok) {
       setStatusMessage({ ok: true, text: "Project details saved." });
+      toast({ message: "Project details saved.", type: "success" });
       router.refresh();
       return;
     }
 
     const data = (await response.json()) as { error?: string };
     setStatusMessage({ ok: false, text: data.error ?? "Could not save project details." });
+    toast({ message: data.error ?? "Could not save project details.", type: "error" });
   }
 
   async function doDelete() {
@@ -116,8 +126,21 @@ export function SettingsForm({
     setIsDeleting(false);
 
     if (response.ok) {
+      toast({ message: "Project deleted.", type: "success" });
       router.push("/projects");
       router.refresh();
+    } else {
+      const data = (await response.json().catch(() => ({}))) as { error?: string };
+      toast({ message: data.error ?? "Could not delete project.", type: "error" });
+    }
+  }
+
+  async function handleToggleConfirm() {
+    setConfirmToggleOpen(false);
+    if (pendingToggleType === "notes") {
+      await toggleNotesEnabled(pendingToggleValue);
+    } else if (pendingToggleType === "privacy") {
+      await toggleMemberPrivacy(pendingToggleValue);
     }
   }
 
@@ -136,6 +159,7 @@ export function SettingsForm({
 
     if (response.ok) {
       setStatusMessage({ ok: true, text: "Privacy setting saved." });
+      toast({ message: "Privacy setting updated.", type: "success" });
       router.refresh();
       return;
     }
@@ -143,6 +167,7 @@ export function SettingsForm({
     const data = (await response.json()) as { error?: string };
     setAllowMemberPrivateItems(project.allowMemberPrivateItems);
     setStatusMessage({ ok: false, text: data.error ?? "Could not save privacy setting." });
+    toast({ message: data.error ?? "Could not save privacy setting.", type: "error" });
   }
 
   async function toggleNotesEnabled(value: boolean) {
@@ -160,6 +185,7 @@ export function SettingsForm({
 
     if (response.ok) {
       setStatusMessage({ ok: true, text: value ? "Board notes rail enabled." : "Board notes rail hidden." });
+      toast({ message: value ? "Board notes rail enabled." : "Board notes rail hidden.", type: "success" });
       router.refresh();
       return;
     }
@@ -167,6 +193,7 @@ export function SettingsForm({
     const data = (await response.json()) as { error?: string };
     setNotesEnabled(project.notesEnabled);
     setStatusMessage({ ok: false, text: data.error ?? "Could not save board notes rail setting." });
+    toast({ message: data.error ?? "Could not save board notes rail setting.", type: "error" });
   }
 
   return (
@@ -275,7 +302,11 @@ export function SettingsForm({
               disabled={!canManagePrivacy || isSavingPrivacy}
               icon={<FileText className="h-4 w-4 text-dusk-cyan" />}
               label="Board notes rail"
-              onToggle={() => void toggleNotesEnabled(!notesEnabled)}
+              onToggle={() => {
+                setPendingToggleType("notes");
+                setPendingToggleValue(!notesEnabled);
+                setConfirmToggleOpen(true);
+              }}
             />
             <SettingsToggleRow
               checked={allowMemberPrivateItems}
@@ -283,7 +314,11 @@ export function SettingsForm({
               disabled={!canManagePrivacy || isSavingPrivacy}
               icon={<EyeOff className="h-4 w-4 text-dusk-lavender" />}
               label="Private item hiding"
-              onToggle={() => void toggleMemberPrivacy(!allowMemberPrivateItems)}
+              onToggle={() => {
+                setPendingToggleType("privacy");
+                setPendingToggleValue(!allowMemberPrivateItems);
+                setConfirmToggleOpen(true);
+              }}
             />
           </div>
 
@@ -330,6 +365,17 @@ export function SettingsForm({
         variant="danger"
         onClose={() => setDeleteOpen(false)}
         onConfirm={doDelete}
+      />
+
+      <ConfirmModal
+        open={confirmToggleOpen}
+        title="Change workspace setting"
+        message={`Are you sure you want to change this workspace setting?`}
+        confirmLabel="Confirm"
+        isLoading={isSavingPrivacy}
+        variant="default"
+        onClose={() => setConfirmToggleOpen(false)}
+        onConfirm={handleToggleConfirm}
       />
     </div>
   );

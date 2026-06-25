@@ -14,6 +14,8 @@ export default async function SettingsPage({ params }: { params: { id: string } 
       name: true,
       description: true,
       coverImage: true,
+      themeColor: true,
+      sticker: true,
       allowMemberPrivateItems: true,
       notesEnabled: true,
       members: {

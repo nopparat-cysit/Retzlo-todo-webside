@@ -11,9 +11,11 @@ function toNoteResponse(
     id: string;
     title: string;
     content: string;
+    emoji: string;
     color: string;
     isStarred: boolean;
     isHidden: boolean;
+    completedAt: Date | null;
     dueDate: Date | null;
     dueDateAllDay: boolean;
     projectId: string;
@@ -33,6 +35,7 @@ function toNoteResponse(
   return {
     ...note,
     color: normalizeCardColor(note.color),
+    completedAt: note.completedAt ? note.completedAt.toISOString() : null,
     dueDate: note.dueDate ? note.dueDate.toISOString() : null,
     createdAt: note.createdAt.toISOString(),
     updatedAt: note.updatedAt.toISOString(),
@@ -129,6 +132,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       data: {
         title: payload.title,
         content: payload.content,
+        emoji: payload.emoji,
         color: payload.color,
         isHidden: payload.isHidden,
         dueDate: payload.dueDate ? new Date(payload.dueDate) : null,

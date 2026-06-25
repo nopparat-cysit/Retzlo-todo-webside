@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { ProfileClient } from "@/components/profile/profile-client";
 
 export const metadata = {
-  title: "Profile Settings · RETROD",
+  title: "Profile Settings · Retzlo",
 };
 
 export default async function ProfilePage() {

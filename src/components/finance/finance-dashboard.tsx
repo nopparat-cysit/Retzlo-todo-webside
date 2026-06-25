@@ -3,6 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowDownRight, ArrowUpRight, CreditCard } from "lucide-react";
+import Image from "next/image";
+
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 
 import { CategoryBreakdown } from "@/components/finance/category-breakdown";
 import { SubscriptionForm } from "@/components/finance/subscription-form";
@@ -49,11 +53,14 @@ export function FinanceDashboard({
   activeLedgerId
 }: FinanceDashboardProps) {
   const [transactions, setTransactions] = useState(initialTransactions);
+  const { toast } = useToast();
   const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
   const [categories, setCategories] = useState(initialCategories);
   const [budgets, setBudgets] = useState(initialBudgets);
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const [deletingSubId, setDeletingSubId] = useState<string | null>(null);
+  const [isDeletingDashboardSub, setIsDeletingDashboardSub] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const summary = useMemo(() => calculateFinanceSummary(transactions, subscriptions), [subscriptions, transactions]);
@@ -103,18 +110,21 @@ export function FinanceDashboard({
     setTransactions((current) => [transaction, ...current]);
     setModalMode(null);
     setError(null);
+    toast({ message: `Transaction "${transaction.title}" recorded.`, type: "success" });
   }
 
   function addSubscription(subscription: SerializedFinanceSubscription) {
     setSubscriptions((current) => [subscription, ...current]);
     setModalMode(null);
     setError(null);
+    toast({ message: `Recurring bill "${subscription.name}" added.`, type: "success" });
   }
 
   function handleBudgetSubmit(newBudget: SerializedFinanceBudget) {
     if (newBudget.id === "") {
       // Deleted
       setBudgets((current) => current.filter((b) => b.id !== activeBudget?.id));
+      toast({ message: "Budget limit removed.", type: "success" });
     } else {
       setBudgets((current) => {
         const index = current.findIndex((b) => b.id === newBudget.id);
@@ -123,6 +133,7 @@ export function FinanceDashboard({
         }
         return [...current, newBudget];
       });
+      toast({ message: "Budget limit saved.", type: "success" });
     }
   }
 
@@ -135,23 +146,36 @@ export function FinanceDashboard({
     const data = (await response.json()) as { subscription?: SerializedFinanceSubscription; error?: string };
 
     if (!response.ok || !data.subscription) {
-      setError(data.error ?? "Could not update subscription.");
+      const msg = data.error ?? "Could not update subscription.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
       return;
     }
 
-    setSubscriptions((current) => current.map((item) => (item.id === data.subscription?.id ? data.subscription : item)));
+    setSubscriptions((current) => current.map((item) => (item.id === data.subscription?.id ? data.subscription! : item)));
+    toast({
+      message: data.subscription.isActive
+        ? `Recurring bill "${data.subscription.name}" activated.`
+        : `Recurring bill "${data.subscription.name}" paused.`,
+      type: "success"
+    });
   }
 
   async function deleteSubscription(subscriptionId: string) {
+    const subName = subscriptions.find((s) => s.id === subscriptionId)?.name || "";
+    setIsDeletingDashboardSub(true);
     const response = await fetch(`/api/finance/subscriptions/${subscriptionId}`, { method: "DELETE" });
+    setIsDeletingDashboardSub(false);
 
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
       setError(data.error ?? "Could not delete subscription.");
+      toast({ message: data.error ?? "Could not delete subscription.", type: "error" });
       return;
     }
 
     setSubscriptions((current) => current.filter((item) => item.id !== subscriptionId));
+    toast({ message: `Recurring bill "${subName}" deleted.`, type: "success" });
   }
 
   function formType(): FinanceTransactionType {
@@ -162,19 +186,29 @@ export function FinanceDashboard({
     <div className="flex flex-col gap-4">
       <section className="lofi-panel rounded-2xl p-5">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Accounting Finance</p>
-            <h1 className="mt-2 text-3xl font-semibold text-stone-100 sm:text-4xl">Personal Finance</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-400">
-              Track income, expenses, accounts, and recurring subscriptions in one calm monthly workspace.
-            </p>
-            
-            {/* Active Ledger Selector */}
-            <div className="mt-4">
-              <LedgerSelector ledgers={initialLedgers} activeLedgerId={activeLedgerId} />
+          <div className="flex flex-1 items-start gap-4">
+            <div className="flex-1">
+              <p className="text-xs uppercase tracking-[0.32em] text-dusk-amber">Accounting Finance</p>
+              <h1 className="mt-2 text-3xl font-semibold text-stone-100 sm:text-4xl">Personal Finance</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-400">
+                Track income, expenses, accounts, and recurring subscriptions in one calm monthly workspace.
+              </p>
+              
+              {/* Active Ledger Selector */}
+              <div className="mt-4">
+                <LedgerSelector ledgers={initialLedgers} activeLedgerId={activeLedgerId} />
+              </div>
             </div>
+            <Image
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_10px_14px_rgba(8,8,23,0.5)] sm:block xl:h-20 xl:w-20 transition-transform duration-300 hover:scale-105 hover:rotate-3 cursor-default"
+              height={96}
+              src="/stickers/retro/retro-sticker-31-calculator.png"
+              width={96}
+            />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 shrink-0">
             <Button type="button" onClick={() => setModalMode("income")}>
               <ArrowUpRight className="h-4 w-4" />
               Add Income
@@ -211,7 +245,7 @@ export function FinanceDashboard({
           <div className="flex flex-col justify-between py-4 md:py-0 md:pl-4 lg:px-4">
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] text-stone-500">Income this month</p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-emerald-300">
+              <p className="mt-2 text-2xl font-bold tracking-tight text-dusk-cyan">
                 {formatMoney(summary.income)} <span className="text-xs font-normal text-stone-500">THB</span>
               </p>
             </div>
@@ -336,7 +370,7 @@ export function FinanceDashboard({
                       </span>
                     </div>
                     <p className="text-[10px] text-stone-500 mt-0.5">
-                      Due on {new Date(nextSubscription.nextBillingDate).toLocaleDateString()}
+                      Due on {new Date(nextSubscription.nextBillingDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                     </p>
                   </div>
                 ) : (
@@ -350,7 +384,7 @@ export function FinanceDashboard({
 
           <CategoryBreakdown items={breakdown} />
           
-          <SubscriptionList subscriptions={subscriptions} onDelete={deleteSubscription} onToggle={toggleSubscription} />
+          <SubscriptionList subscriptions={subscriptions} onDelete={(id) => setDeletingSubId(id)} onToggle={toggleSubscription} />
         </div>
       </div>
 
@@ -390,6 +424,24 @@ export function FinanceDashboard({
           onSubmit={handleBudgetSubmit}
         />
       ) : null}
+
+      <ConfirmModal
+        open={Boolean(deletingSubId)}
+        title="Delete Recurring Bill?"
+        message="Are you sure you want to delete this recurring bill? This will stop future automatic bill generation."
+        variant="danger"
+        confirmLabel="Delete Bill"
+        isLoading={isDeletingDashboardSub}
+        onConfirm={async () => {
+          if (deletingSubId) {
+            await deleteSubscription(deletingSubId);
+            setDeletingSubId(null);
+          }
+        }}
+        onClose={() => {
+          if (!isDeletingDashboardSub) setDeletingSubId(null);
+        }}
+      />
     </div>
   );
 }

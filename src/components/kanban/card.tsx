@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { CardModal } from "@/components/kanban/card-modal";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
@@ -32,6 +33,7 @@ export function KanbanCard({
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { toast } = useToast();
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -55,9 +57,9 @@ export function KanbanCard({
   async function saveCard(payload: {
     title: string;
     description: string | null;
-    status: Card["status"];
-    color: Card["color"];
-    checklist: Card["checklist"];
+    status: import("@/types/kanban").CardStatus;
+    color: import("@/lib/theme/card-colors").CardColor;
+    checklist: import("@/types/kanban").ChecklistItem[];
     dueDate: string | null;
     dueDateAllDay: boolean;
     priority: "LOW" | "MEDIUM" | "HIGH";
@@ -74,7 +76,7 @@ export function KanbanCard({
         ...payload
       })
     });
-    const data = (await response.json()) as { card?: Card };
+    const data = (await response.json()) as { card?: Card; error?: string };
 
     if (data.card) {
       onSaved({
@@ -86,6 +88,9 @@ export function KanbanCard({
         isStarred: data.card.isStarred ?? false,
       });
       setIsEditing(false);
+      toast({ message: "Card updated.", type: "success" });
+    } else {
+      toast({ message: data.error ?? "Could not save card.", type: "error" });
     }
   }
 
@@ -100,6 +105,10 @@ export function KanbanCard({
       onDeleted(card.id);
       setIsEditing(false);
       setIsDeleteConfirmOpen(false);
+      toast({ message: "Card deleted.", type: "success" });
+    } else {
+      const data = await response.json().catch(() => ({}));
+      toast({ message: data.error ?? "Could not delete card.", type: "error" });
     }
   }
 

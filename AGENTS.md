@@ -64,6 +64,8 @@ docs/
 - Use optimistic UI for Kanban drag-and-drop.
 - Keep theme decisions aligned with the retro lofi indigo design direction.
 - When changing shared design-system components or tokens, document the expected impact on pages/components that consume those shared primitives.
+- All delete and update operations triggered by user action must present a `ConfirmModal` to verify the user's intent.
+- All CUD (Create, Update, Delete) operations must trigger a success or error Toast notification upon completion to provide immediate visual feedback.
 
 ## Verification
 

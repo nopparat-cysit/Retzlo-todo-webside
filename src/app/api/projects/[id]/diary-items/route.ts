@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 
 import { jsonError, parseError } from "@/lib/api";
 import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
+import { serializeDiaryRewardClaimedDates } from "@/lib/diary/payout";
 import { parseCreateDiaryItemPayload } from "@/lib/diary/validation";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canToggleHiddenItem, isOwnerRole, requireUserId } from "@/lib/project-auth";
@@ -17,6 +18,9 @@ function toDiaryItemResponse(
     intervalDays: number;
     startDate: Date;
     checklist: unknown;
+    rewardCoins: number;
+    rewardCoinType: string;
+    rewardClaimedDates: unknown;
     isStarred: boolean;
     isHidden: boolean;
     dueTime: string | null;
@@ -39,6 +43,9 @@ function toDiaryItemResponse(
     color: normalizeCardColor(item.color),
     startDate: item.startDate.toISOString(),
     checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
+    rewardCoins: item.rewardCoins,
+    rewardCoinType: item.rewardCoinType === "GLOBAL" || !item.projectId ? "GLOBAL" : "PROJECT",
+    rewardClaimedDates: serializeDiaryRewardClaimedDates(item.rewardClaimedDates),
     createdAt: item.createdAt.toISOString(),
     updatedAt: item.updatedAt.toISOString(),
     canManage,
@@ -139,6 +146,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
         intervalDays: payload.intervalDays,
         startDate: new Date(`${payload.startDate}T00:00:00.000Z`),
         checklist: payload.checklist as unknown as Prisma.InputJsonValue,
+        rewardCoins: payload.rewardCoins,
+        rewardCoinType: payload.rewardCoinType,
+        rewardClaimedDates: payload.rewardClaimedDates as unknown as Prisma.InputJsonValue,
         isStarred: payload.isStarred,
         isHidden: payload.isHidden,
         dueTime: payload.dueTime ?? null,

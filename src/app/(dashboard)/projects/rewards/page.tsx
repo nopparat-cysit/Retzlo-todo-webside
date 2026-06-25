@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { RewardsStore } from "@/components/project/rewards-store";
 
 export const metadata = {
-  title: "Rewards Shop · RETROD",
+  title: "Rewards Shop · Retzlo",
 };
 
 export default async function GlobalRewardsPage() {

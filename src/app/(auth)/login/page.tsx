@@ -8,7 +8,7 @@ export default function LoginPage() {
   return (
     <AuthScene
       description="Pick up where the board left off."
-      eyebrow="RETROD"
+      eyebrow="Retzlo"
       title="Welcome back"
     >
       <Suspense fallback={<p className="text-sm text-stone-400">Loading sign in...</p>}>

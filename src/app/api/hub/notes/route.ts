@@ -49,6 +49,7 @@ export async function GET() {
       return {
         ...note,
         color: normalizeCardColor(note.color),
+        completedAt: note.completedAt?.toISOString() ?? null,
         dueDate: note.dueDate?.toISOString() ?? null,
         createdAt: note.createdAt.toISOString(),
         updatedAt: note.updatedAt.toISOString(),

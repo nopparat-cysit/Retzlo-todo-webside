@@ -5,9 +5,11 @@ import { FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 
 export function CreateProjectForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
@@ -30,10 +32,13 @@ export function CreateProjectForm() {
     setIsPending(false);
 
     if (!response.ok || !data.project) {
-      setError(data.error ?? "Could not create project.");
+      const msg = data.error ?? "Could not create project.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
       return;
     }
 
+    toast({ message: "Project created successfully!", type: "success" });
     router.push(`/project/${data.project.id}/board`);
     router.refresh();
   }

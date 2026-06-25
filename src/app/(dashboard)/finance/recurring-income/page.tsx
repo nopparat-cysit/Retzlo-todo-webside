@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 
 export const metadata = {
-  title: "Recurring Income - RETROD Finance",
+  title: "Recurring Income - Retzlo Finance",
   description: "Personal finance recurring income management."
 };
 

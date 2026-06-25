@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { DiaryListPanel } from "@/components/diary/diary-list-panel";
 import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
+import { serializeDiaryRewardClaimedDates } from "@/lib/diary/payout";
 import { prisma } from "@/lib/prisma";
 import {
   canManageAuthoredItem,
@@ -66,6 +67,9 @@ function toProjectDiaryItems(
     intervalDays: number;
     startDate: Date;
     checklist: unknown;
+    rewardCoins: number;
+    rewardCoinType: string;
+    rewardClaimedDates: unknown;
     isStarred: boolean;
     isHidden: boolean;
     dueTime: string | null;
@@ -89,6 +93,9 @@ function toProjectDiaryItems(
     color: normalizeCardColor(item.color),
     startDate: item.startDate.toISOString(),
     checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
+    rewardCoins: item.rewardCoins,
+    rewardCoinType: item.rewardCoinType === "GLOBAL" || !item.projectId ? "GLOBAL" : "PROJECT",
+    rewardClaimedDates: serializeDiaryRewardClaimedDates(item.rewardClaimedDates),
     createdAt: item.createdAt.toISOString(),
     updatedAt: item.updatedAt.toISOString(),
     canManage: canManageAuthoredItem(context.membership, context.userId, item.authorId),

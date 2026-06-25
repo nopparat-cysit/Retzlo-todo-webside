@@ -3,13 +3,14 @@ import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+import { projectAppearanceSchema } from "@/lib/projects/appearance";
 import { requireUserId } from "@/lib/project-auth";
 
 const createProjectSchema = z.object({
   name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(500).optional(),
   type: z.enum(["WORK", "DIARY"]).default("WORK")
-});
+}).merge(projectAppearanceSchema);
 
 const defaultColumns = ["Backlog", "In Progress", "Done"];
 
@@ -58,6 +59,8 @@ export async function POST(request: Request) {
         name: payload.name,
         description: payload.description,
         type: payload.type,
+        themeColor: payload.themeColor,
+        sticker: payload.sticker,
         members: {
           create: {
             userId,
@@ -66,7 +69,7 @@ export async function POST(request: Request) {
         },
         boards: {
           create: {
-            name: "RETROD Board",
+            name: "Retzlo Board",
             columns: {
               create: defaultColumns.map((name, position) => ({ name, position }))
             }

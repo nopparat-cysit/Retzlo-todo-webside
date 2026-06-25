@@ -4,12 +4,13 @@ import { getServerSession } from "next-auth";
 import { DiaryHubPanel } from "@/components/hub/diary-hub-panel";
 import { FabHub } from "@/components/hub/fab-hub";
 import { authOptions } from "@/lib/auth";
-import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
+import { normalizeDiaryChecklist, type DiaryRewardCoinType } from "@/lib/diary/checklist";
+import { serializeDiaryRewardClaimedDates } from "@/lib/diary/payout";
 import { prisma } from "@/lib/prisma";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 
 export const metadata = {
-  title: "Diary Hub — RETROD",
+  title: "Diary Hub — Retzlo",
   description: "All diary checklists across every project."
 };
 
@@ -64,6 +65,9 @@ export default async function DiaryHubPage() {
       intervalDays: item.intervalDays,
       startDate: item.startDate.toISOString(),
       checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
+      rewardCoins: item.rewardCoins,
+      rewardCoinType: (item.rewardCoinType === "GLOBAL" || !item.projectId ? "GLOBAL" : "PROJECT") as DiaryRewardCoinType,
+      rewardClaimedDates: serializeDiaryRewardClaimedDates(item.rewardClaimedDates),
       isStarred: item.isStarred,
       isHidden: item.isHidden,
       projectId: item.projectId,

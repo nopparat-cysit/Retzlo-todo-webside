@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 
 import { jsonError, parseError } from "@/lib/api";
 import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
+import { processDiaryChecklistReward, serializeDiaryRewardClaimedDates } from "@/lib/diary/payout";
 import { parseUpdateDiaryItemPayload } from "@/lib/diary/validation";
 import { prisma } from "@/lib/prisma";
 import {
@@ -22,6 +23,9 @@ function toDiaryItemResponse(
     intervalDays: number;
     startDate: Date;
     checklist: unknown;
+    rewardCoins: number;
+    rewardCoinType: string;
+    rewardClaimedDates: unknown;
     isStarred: boolean;
     isHidden: boolean;
     dueTime: string | null;
@@ -42,6 +46,9 @@ function toDiaryItemResponse(
     color: normalizeCardColor(item.color),
     startDate: item.startDate.toISOString(),
     checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
+    rewardCoins: item.rewardCoins,
+    rewardCoinType: item.rewardCoinType === "GLOBAL" || !item.projectId ? "GLOBAL" : "PROJECT",
+    rewardClaimedDates: serializeDiaryRewardClaimedDates(item.rewardClaimedDates),
     createdAt: item.createdAt.toISOString(),
     updatedAt: item.updatedAt.toISOString(),
     canManage: canManageAuthoredItem(context.membership, context.userId, item.authorId),
@@ -117,7 +124,7 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
       return jsonError("You can only update your own diary items.", 403);
     }
 
-    const payload = parseUpdateDiaryItemPayload(await request.json(), context.item.startDate);
+    const payload = parseUpdateDiaryItemPayload(await request.json(), context.item.startDate, Boolean(context.item.projectId));
 
     const allowMemberPrivateItems = context.item.project?.allowMemberPrivateItems ?? false;
     if (
@@ -128,27 +135,48 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
       return jsonError("This project does not allow members to hide their own items.", 403);
     }
 
-    const item = await prisma.diaryItem.update({
-      where: { id: params.diaryItemId },
-      data: {
-        title: payload.title,
-        description: payload.description,
-        color: payload.color,
-        intervalDays: payload.intervalDays,
-        startDate: payload.startDate ? new Date(`${payload.startDate}T00:00:00.000Z`) : undefined,
-        checklist: payload.checklist as unknown as Prisma.InputJsonValue | undefined,
-        isStarred: payload.isStarred,
-        isHidden: payload.isHidden,
-        dueTime: payload.dueTime !== undefined ? payload.dueTime : undefined
-      },
-      include: {
-        author: {
-          select: {
-            name: true,
-            email: true
+    const item = await prisma.$transaction(async (tx) => {
+      await tx.diaryItem.update({
+        where: { id: params.diaryItemId },
+        data: {
+          title: payload.title,
+          description: payload.description,
+          color: payload.color,
+          intervalDays: payload.intervalDays,
+          startDate: payload.startDate ? new Date(`${payload.startDate}T00:00:00.000Z`) : undefined,
+          checklist: payload.checklist as unknown as Prisma.InputJsonValue | undefined,
+          rewardCoins: payload.rewardCoins,
+          rewardCoinType: payload.rewardCoinType,
+          rewardClaimedDates: payload.rewardClaimedDates as unknown as Prisma.InputJsonValue | undefined,
+          isStarred: payload.isStarred,
+          isHidden: payload.isHidden,
+          dueTime: payload.dueTime !== undefined ? payload.dueTime : undefined
+        },
+        include: {
+          author: {
+            select: {
+              name: true,
+              email: true
+            }
           }
         }
+      });
+
+      if (payload.checklist && payload.selectedDate) {
+        await processDiaryChecklistReward(tx, params.diaryItemId, userId, payload.selectedDate);
       }
+
+      return tx.diaryItem.findUniqueOrThrow({
+        where: { id: params.diaryItemId },
+        include: {
+          author: {
+            select: {
+              name: true,
+              email: true
+            }
+          }
+        }
+      });
     });
 
     return NextResponse.json({

@@ -13,7 +13,7 @@ export default function ResetPasswordPage({
         <div className="mb-6 flex items-start gap-3">
           <BackButton />
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-dusk-amber">RETROD</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-dusk-amber">Retzlo</p>
             <h1 className="mt-2 text-3xl font-semibold">Verify OTP</h1>
             <p className="mt-2 text-sm text-stone-400">Enter the OTP from your email and choose a new password.</p>
           </div>

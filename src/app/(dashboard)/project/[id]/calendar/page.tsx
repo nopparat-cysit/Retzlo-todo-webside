@@ -23,6 +23,7 @@ export default async function CalendarPage({ params }: { params: { id: string } 
     prisma.note.findMany({
       where: {
         projectId: params.id,
+        completedAt: null,
         dueDate: { not: null }
       },
       orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }]

@@ -32,6 +32,34 @@ const retroIconOptions = [
   { id: "mascot-blob", src: "/stickers/retro/retro-sticker-25-mascot-blob.png", label: "Mascot blob" }
 ] as const satisfies readonly SharedIconOption[];
 
+const extendedRetroIconOptions = [
+  { id: "water-bottle", src: "/stickers/retro/retro-sticker-26-water-bottle.png", label: "Water bottle" },
+  { id: "ramen-bowl", src: "/stickers/retro/retro-sticker-27-ramen-bowl.png", label: "Ramen bowl" },
+  { id: "transit-card", src: "/stickers/retro/retro-sticker-28-transit-card.png", label: "Transit card" },
+  { id: "scooter", src: "/stickers/retro/retro-sticker-29-scooter.png", label: "Scooter" },
+  { id: "first-aid", src: "/stickers/retro/retro-sticker-30-first-aid.png", label: "First aid" },
+  { id: "calculator", src: "/stickers/retro/retro-sticker-31-calculator.png", label: "Calculator" },
+  { id: "idea-lamp", src: "/stickers/retro/retro-sticker-32-idea-lamp.png", label: "Idea lamp" },
+  { id: "magic-wand", src: "/stickers/retro/retro-sticker-33-magic-wand.png", label: "Magic wand" },
+  { id: "paint-palette", src: "/stickers/retro/retro-sticker-34-paint-palette.png", label: "Paint palette" },
+  { id: "camera", src: "/stickers/retro/retro-sticker-35-camera.png", label: "Camera" },
+  { id: "map-pin", src: "/stickers/retro/retro-sticker-36-map-pin.png", label: "Map pin" },
+  { id: "tiny-house", src: "/stickers/retro/retro-sticker-37-tiny-house.png", label: "Tiny house" },
+  { id: "laptop", src: "/stickers/retro/retro-sticker-38-laptop.png", label: "Laptop" },
+  { id: "phone-chat", src: "/stickers/retro/retro-sticker-39-phone-chat.png", label: "Phone chat" },
+  { id: "mail-stamp", src: "/stickers/retro/retro-sticker-40-mail-stamp.png", label: "Mail stamp" },
+  { id: "paper-plane", src: "/stickers/retro/retro-sticker-41-paper-plane.png", label: "Paper plane" },
+  { id: "hourglass", src: "/stickers/retro/retro-sticker-42-hourglass.png", label: "Hourglass" },
+  { id: "rain-umbrella", src: "/stickers/retro/retro-sticker-43-rain-umbrella.png", label: "Rain umbrella" },
+  { id: "leaf-sprout", src: "/stickers/retro/retro-sticker-44-leaf-sprout.png", label: "Leaf sprout" },
+  { id: "mountain-sun", src: "/stickers/retro/retro-sticker-45-mountain-sun.png", label: "Mountain sun" },
+  { id: "planet-rocket", src: "/stickers/retro/retro-sticker-46-planet-rocket.png", label: "Planet rocket" },
+  { id: "sleepy-cloud", src: "/stickers/retro/retro-sticker-47-sleepy-cloud.png", label: "Sleepy cloud" },
+  { id: "gem", src: "/stickers/retro/retro-sticker-48-gem.png", label: "Gem" },
+  { id: "cozy-flame", src: "/stickers/retro/retro-sticker-49-cozy-flame.png", label: "Cozy flame" },
+  { id: "battery-charge", src: "/stickers/retro/retro-sticker-50-battery-charge.png", label: "Battery charge" }
+] as const satisfies readonly SharedIconOption[];
+
 const uniqueRewardIconOptions = [
   { id: "reward-game", src: "/stickers/rewards/reward-icon-04-game.png", label: "Game" },
   { id: "reward-ticket", src: "/stickers/rewards/reward-icon-05-ticket.png", label: "Ticket" },
@@ -52,6 +80,7 @@ const uniqueRewardIconOptions = [
 
 export const sharedIconOptions = [
   ...retroIconOptions,
+  ...extendedRetroIconOptions,
   ...uniqueRewardIconOptions
 ] as const satisfies readonly SharedIconOption[];
 
@@ -59,6 +88,37 @@ const sharedIconSrcSet: Set<string> = new Set(sharedIconOptions.map((icon) => ic
 
 const sharedIconKeywordMap = [
   ["coffee", "coffee-cup"],
+  ["water", "water-bottle"],
+  ["drink", "water-bottle"],
+  ["ramen", "ramen-bowl"],
+  ["noodle", "ramen-bowl"],
+  ["transport", "transit-card"],
+  ["bus", "transit-card"],
+  ["scooter", "scooter"],
+  ["health", "first-aid"],
+  ["medical", "first-aid"],
+  ["calculate", "calculator"],
+  ["idea", "idea-lamp"],
+  ["magic", "magic-wand"],
+  ["paint", "paint-palette"],
+  ["camera", "camera"],
+  ["map", "map-pin"],
+  ["home", "tiny-house"],
+  ["house", "tiny-house"],
+  ["laptop", "laptop"],
+  ["phone", "phone-chat"],
+  ["chat", "phone-chat"],
+  ["mail", "mail-stamp"],
+  ["plane", "paper-plane"],
+  ["time", "hourglass"],
+  ["rain", "rain-umbrella"],
+  ["leaf", "leaf-sprout"],
+  ["mountain", "mountain-sun"],
+  ["rocket", "planet-rocket"],
+  ["sleepy", "sleepy-cloud"],
+  ["gem", "gem"],
+  ["flame", "cozy-flame"],
+  ["battery", "battery-charge"],
   ["tea", "reward-tea"],
   ["game", "reward-game"],
   ["gaming", "reward-game"],

@@ -3,12 +3,13 @@ import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+import { projectAppearanceUpdateSchema } from "@/lib/projects/appearance";
 import { assertProjectMember, isOwnerRole, requireUserId } from "@/lib/project-auth";
 
 const updateProjectSettingsSchema = z.object({
   allowMemberPrivateItems: z.boolean().optional(),
   notesEnabled: z.boolean().optional()
-});
+}).merge(projectAppearanceUpdateSchema);
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -33,12 +34,16 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       where: { id: params.id },
       data: {
         allowMemberPrivateItems: payload.allowMemberPrivateItems,
-        notesEnabled: payload.notesEnabled
+        notesEnabled: payload.notesEnabled,
+        ...(payload.themeColor !== undefined && { themeColor: payload.themeColor }),
+        ...(payload.sticker !== undefined && { sticker: payload.sticker })
       },
       select: {
         id: true,
         allowMemberPrivateItems: true,
-        notesEnabled: true
+        notesEnabled: true,
+        themeColor: true,
+        sticker: true
       }
     });
 

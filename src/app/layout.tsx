@@ -6,7 +6,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "RETROD",
+  title: "Retzlo",
   description: "A quiet project workspace for boards, due dates, and the work you keep returning to."
 };
 

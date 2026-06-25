@@ -5,7 +5,7 @@ import { ModuleSelector } from "@/components/modules/module-selector";
 import { authOptions } from "@/lib/auth";
 
 export const metadata = {
-  title: "Select Module — RETROD",
+  title: "Select Module — Retzlo",
   description: "Choose a workspace module to enter."
 };
 

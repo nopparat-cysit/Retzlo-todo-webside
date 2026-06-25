@@ -16,7 +16,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 
 export const metadata = {
-  title: "Accounting Finance - RETROD",
+  title: "Accounting Finance - Retzlo",
   description: "Personal finance workspace for income, expense, subscriptions, and monthly balance."
 };
 
