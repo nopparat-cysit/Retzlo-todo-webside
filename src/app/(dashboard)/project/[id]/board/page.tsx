@@ -125,6 +125,8 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
     }
   });
 
+  const notesRailEnabled = project?.notesEnabled ?? false;
+
   if (!project) {
     notFound();
   }
