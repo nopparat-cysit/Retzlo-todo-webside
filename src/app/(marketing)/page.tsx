@@ -364,6 +364,288 @@ function LofiCassette3D({ isPlaying, onClick }: { isPlaying: boolean; onClick: (
   );
 }
 
+// ── Retro Synthwave Visual Hero (HTML/CSS) ────────────────────────────
+function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlayToggle: () => void }) {
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ rx: y * -8, ry: x * 10 });
+  };
+  const handleMouseLeave = () => setTilt({ rx: 0, ry: 0 });
+
+  return (
+    <div
+      ref={heroRef}
+      className="relative w-full h-full overflow-hidden select-none cursor-pointer"
+      style={{ perspective: "1200px" }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onPlayToggle}
+    >
+      {/* ── Sky gradient background ── */}
+      <div className="absolute inset-0" style={{
+        background: "linear-gradient(to bottom, #06040f 0%, #0e0728 38%, #1a0a3c 55%, #2d0d52 62%, #3d0f5a 65%, #1a0530 80%, #07061a 100%)"
+      }} />
+
+      {/* ── Stars ── */}
+      <div className="absolute inset-0 overflow-hidden">
+        {Array.from({ length: 55 }).map((_, i) => (
+          <div key={i} className="absolute rounded-full bg-white synth-star"
+            style={{
+              width: Math.random() > 0.85 ? 2 : 1,
+              height: Math.random() > 0.85 ? 2 : 1,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 58}%`,
+              opacity: 0.3 + Math.random() * 0.6,
+              animationDelay: `${Math.random() * 4}s`,
+              animationDuration: `${2 + Math.random() * 3}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* ── Retro synthwave sun (right-center) ── */}
+      <div className="absolute" style={{ bottom: "40%", left: "62%", transform: "translateX(-50%)" }}>
+        <div className="relative" style={{ width: 220, height: 110, overflow: "hidden" }}>
+          {/* Sun body */}
+          <div className="absolute inset-0 rounded-t-full" style={{
+            background: "linear-gradient(to bottom, #ff6ec7 0%, #ff9a3c 40%, #e5bd72 70%, #ffd700 100%)",
+            boxShadow: "0 0 80px 30px rgba(255,110,199,0.35), 0 0 160px 60px rgba(229,189,114,0.18)",
+          }} />
+          {/* Horizontal scan lines over sun */}
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="absolute left-0 right-0 bg-[#06040f]"
+              style={{ height: 3, top: `${15 + i * 8.5}%`, opacity: 0.55 }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Horizon neon glow (full width) ── */}
+      <div className="absolute" style={{
+        bottom: "40%",
+        left: 0,
+        right: 0,
+        height: 3,
+        background: "linear-gradient(90deg, transparent, #ff6ec7 20%, #a9a2ff 50%, #ff6ec7 80%, transparent)",
+        boxShadow: "0 0 24px 8px rgba(255,110,199,0.55), 0 0 60px 20px rgba(169,162,255,0.3)",
+        animation: "synth-pulse 3s ease-in-out infinite"
+      }} />
+
+      {/* ── Perspective grid floor (full width) ── */}
+      <div className="absolute bottom-0" style={{ left: 0, right: 0, height: "43%", perspective: "300px", perspectiveOrigin: "50% 0%" }}>
+        <div className="absolute inset-0" style={{
+          backgroundImage:
+            "linear-gradient(to bottom, rgba(169,162,255,0.55) 1px, transparent 1px), linear-gradient(to right, rgba(169,162,255,0.35) 1px, transparent 1px)",
+          backgroundSize: "10% 22%",
+          transform: "rotateX(55deg)",
+          transformOrigin: "top center",
+          maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%)",
+        }} />
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(to top, rgba(169,162,255,0.05) 0%, transparent 60%)"
+        }} />
+      </div>
+
+        {/* ── Kanban card — top-left of right zone ── */}
+        <div className="hidden lg:block lg:absolute synth-float-a" style={{
+          left: "58%", top: "30%",
+          transform: "translateZ(60px) rotate(-3deg)",
+          width: 180,
+        }}>
+          <div className="rounded-xl p-3 border border-[#a9a2ff]/25 backdrop-blur-md"
+            style={{ background: "rgba(18,14,50,0.88)", boxShadow: "0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(169,162,255,0.12)" }}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[8px] font-mono uppercase tracking-widest text-[#a9a2ff]">Kanban Board</span>
+              <Kanban className="w-3 h-3 text-[#a9a2ff]/60" />
+            </div>
+            <div className="flex gap-1.5">
+              {[["Todo",2,"#a9a2ff"],["Doing",1,"#e5bd72"],["Done",3,"#89c7d6"]].map(([col, n, c]) => (
+                <div key={col as string} className="flex-1">
+                  <div className="text-[7px] font-mono mb-1" style={{ color: c as string }}>{col as string}</div>
+                  {Array.from({ length: n as number }).map((_, i) => (
+                    <div key={i} className="h-3 rounded mb-1" style={{ background: `${c as string}22`, borderLeft: `2px solid ${c as string}` }} />
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[7px] font-mono text-stone-500">3 tasks active</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Main dashboard mockup — center-right ── */}
+        <div className="hidden lg:block lg:absolute synth-float-b" style={{
+          left: "70%", top: "42%",
+          transform: "translateX(-50%) translateZ(20px)",
+          width: 290,
+        }}>
+          <div className="rounded-xl border border-white/10 overflow-hidden"
+            style={{ background: "rgba(12,10,32,0.92)", boxShadow: "0 30px 80px rgba(0,0,0,0.65), 0 0 60px rgba(169,162,255,0.14)" }}>
+            <div className="px-3 py-2 flex items-center gap-2 border-b border-white/5" style={{ background: "rgba(169,162,255,0.05)" }}>
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-rose-500/70" />
+                <div className="w-2 h-2 rounded-full bg-amber-400/70" />
+                <div className="w-2 h-2 rounded-full bg-emerald-400/70" />
+              </div>
+              <span className="flex-1 text-center text-[8px] font-mono text-stone-500 tracking-wider">retzlo — workspace</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? "bg-emerald-400 animate-pulse" : "bg-stone-600"}`} />
+            </div>
+            <div className="p-3 grid grid-cols-3 gap-2">
+              {[
+                { label: "Tasks", val: "12", color: "#a9a2ff" },
+                { label: "Done", val: "8", color: "#89c7d6" },
+                { label: "Coins", val: "240", color: "#e5bd72" },
+              ].map(s => (
+                <div key={s.label} className="rounded-lg p-2 border border-white/5" style={{ background: "rgba(255,255,255,0.03)" }}>
+                  <div className="text-[8px] font-mono" style={{ color: s.color }}>{s.label}</div>
+                  <div className="text-base font-bold text-white mt-0.5">{s.val}</div>
+                </div>
+              ))}
+            </div>
+            <div className="px-3 pb-3">
+              <div className="flex items-end gap-1 h-10">
+                {[0.4, 0.65, 0.5, 0.8, 0.6, 0.9, 0.55].map((h, i) => (
+                  <div key={i} className="flex-1 rounded-sm"
+                    style={{ height: `${h * 100}%`, background: i === 5 ? "#a9a2ff" : "rgba(169,162,255,0.22)" }}
+                  />
+                ))}
+              </div>
+              <div className="text-[7px] font-mono text-stone-600 mt-1">Weekly activity</div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Finance card — far right ── */}
+        <div className="hidden lg:block lg:absolute synth-float-c" style={{
+          left: "80%", top: "34%",
+          transform: "translateZ(55px) rotate(2.5deg)",
+          width: 170,
+        }}>
+          <div className="rounded-xl p-3 border border-[#89c7d6]/20 backdrop-blur-md"
+            style={{ background: "rgba(10,16,40,0.9)", boxShadow: "0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(137,199,214,0.1)" }}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[8px] font-mono uppercase tracking-widest text-[#89c7d6]">Finance</span>
+              <DollarSign className="w-3 h-3 text-[#89c7d6]/60" />
+            </div>
+            <div className="text-xl font-bold text-white mb-1">$4,820</div>
+            <div className="text-[7px] font-mono text-emerald-400 mb-3">▲ +12.4% this month</div>
+            <div className="space-y-1.5">
+              {[
+                { name: "Freelance", amt: "+$1,200", c: "text-emerald-400" },
+                { name: "Software", amt: "-$89", c: "text-rose-400" },
+                { name: "Savings", amt: "+$540", c: "text-emerald-400" },
+              ].map(r => (
+                <div key={r.name} className="flex justify-between text-[8px]">
+                  <span className="text-stone-500">{r.name}</span>
+                  <span className={`font-mono ${r.c}`}>{r.amt}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Lofi Focus — bottom center-left of right zone ── */}
+        <div className="hidden lg:block lg:absolute synth-float-a" style={{
+          left: "57%", top: "60%",
+          transform: "translateZ(80px) rotate(-1.5deg)",
+          width: 165,
+        }}>
+          <div className="rounded-xl p-2.5 border border-[#e5bd72]/20"
+            style={{ background: "rgba(20,15,40,0.92)", boxShadow: "0 16px 40px rgba(0,0,0,0.5)" }}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[7px] font-mono uppercase text-[#e5bd72] tracking-widest">Lofi Focus</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); onPlayToggle(); }}
+                className="w-6 h-6 rounded-full flex items-center justify-center transition-all"
+                style={{ background: isPlaying ? "rgba(100,255,160,0.2)" : "rgba(169,162,255,0.15)", border: `1px solid ${isPlaying ? "#60ffa0" : "#a9a2ff"}40` }}
+              >
+                {isPlaying
+                  ? <Pause className="w-3 h-3 text-emerald-400" />
+                  : <Play className="w-3 h-3 text-[#a9a2ff]" />
+                }
+              </button>
+            </div>
+            <div className="flex items-end gap-0.5 h-6">
+              {Array.from({ length: 16 }).map((_, i) => (
+                <div key={i}
+                  className="flex-1 rounded-sm transition-all"
+                  style={{
+                    height: `${isPlaying ? (30 + Math.sin(i * 0.9) * 50 + Math.random() * 20) : 10}%`,
+                    background: i > 11 ? "rgba(255,100,100,0.7)" : i > 8 ? "rgba(229,189,114,0.7)" : "rgba(100,220,160,0.7)",
+                    animation: isPlaying ? `synth-vu-${i % 4} ${0.4 + (i % 3) * 0.15}s ease-in-out infinite alternate` : "none"
+                  }}
+                />
+              ))}
+            </div>
+            <div className="text-[7px] font-mono text-stone-600 mt-1.5 text-center">
+              {isPlaying ? "♪ Lo-fi Cmaj7 ♪" : "[ paused ]"}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Calendar — bottom far right ── */}
+        <div className="hidden lg:block lg:absolute synth-float-c" style={{
+          left: "76%", top: "64%",
+          transform: "translateZ(50px) rotate(2deg)",
+          width: 155,
+        }}>
+          <div className="rounded-xl p-2.5 border border-[#d59ab3]/20"
+            style={{ background: "rgba(18,10,36,0.9)", boxShadow: "0 16px 40px rgba(0,0,0,0.5)" }}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[7px] font-mono uppercase text-[#d59ab3] tracking-widest">Calendar</span>
+              <Calendar className="w-3 h-3 text-[#d59ab3]/60" />
+            </div>
+            <div className="grid grid-cols-7 gap-0.5">
+              {["M","T","W","T","F","S","S"].map((d,i) => (
+                <div key={i} className="text-center text-[6px] font-mono text-stone-600">{d}</div>
+              ))}
+              {Array.from({ length: 28 }).map((_, i) => {
+                const hasEvent = [3,7,12,18,21,25].includes(i);
+                const today = i === 14;
+                return (
+                  <div key={i} className="text-center text-[7px] font-mono rounded-sm py-px"
+                    style={{
+                      color: today ? "#080817" : hasEvent ? "#d59ab3" : "rgba(255,255,255,0.3)",
+                      background: today ? "#d59ab3" : hasEvent ? "rgba(213,154,179,0.15)" : "transparent"
+                    }}
+                  >{i + 1}</div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+      {/* ── Scan line overlay ── */}
+      <div className="absolute inset-0 pointer-events-none rounded-2xl" style={{
+        backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)",
+      }} />
+
+      {/* ── Bottom fade ── */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none" style={{
+        background: "linear-gradient(to top, rgba(8,6,23,0.7), transparent)"
+      }} />
+
+      {/* ── Play hint overlay ── */}
+      <div className="absolute top-3 right-3 pointer-events-none">
+        <span className={`text-[8px] font-mono tracking-widest uppercase px-2 py-1 rounded border ${
+          isPlaying
+            ? "text-emerald-400 border-emerald-400/30 bg-emerald-400/10"
+            : "text-stone-500 border-white/10 bg-white/5"
+        }`}>
+          {isPlaying ? "▶ PLAYING" : "⏸ CLICK TO PLAY"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -834,22 +1116,16 @@ export default function LandingPage() {
       <nav className="retzlo-nav px-6 py-4 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div 
-                className="w-8 h-8 rounded-lg overflow-hidden border border-white/10 shadow-md transition-transform duration-300 group-hover:rotate-[15deg] group-hover:scale-110 relative flex items-center justify-center bg-ink-950"
-              >
+            <Link href="/" className="flex items-center group">
+              <div className="relative h-10 w-24 transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/brand/retzlo-logo.png"
-                  alt="Retzlo Logo"
+                  alt="Retzlo"
                   fill
-                  sizes="32px"
-                  className="object-contain p-0.5"
+                  priority
+                  className="object-contain object-left select-none pointer-events-none"
                 />
               </div>
-              <span className="font-bold text-xl tracking-wider text-white relative">
-                Retzlo
-                <span className="absolute -top-1 -right-2 w-1.5 h-1.5 rounded-full bg-[#e5bd72] animate-pulse" />
-              </span>
             </Link>
             
             <div className="hidden md:flex items-center gap-6 text-sm text-stone-300 font-medium">
@@ -919,16 +1195,26 @@ export default function LandingPage() {
         )}
       </nav>
 
-      {/* ── Hero Section ──────────────────────────────────────────────── */}
-      <section className="relative max-w-7xl mx-auto px-6 pt-32 pb-20 md:pt-40 md:pb-28">
-        
-        {/* Floating CRT Toggle Button */}
-        <div className="absolute top-28 right-6 z-20 hidden sm:block">
-          <button 
+      {/* ── Hero Section — Synthwave Fullscreen BG ──────────────────── */}
+      <section className="relative min-h-screen overflow-hidden flex flex-col">
+
+        {/* ── Synthwave scene fills entire section as background ── */}
+        <div className="absolute inset-0 z-0">
+          <SynthwaveHero isPlaying={isPlaying} onPlayToggle={handlePlayToggle} />
+        </div>
+
+        {/* ── Dark gradient mask — heavy left, fades to transparent right ── */}
+        <div className="absolute inset-0 z-10 pointer-events-none" style={{
+          background: "linear-gradient(to right, rgba(6,4,15,0.80) 0%, rgba(6,4,15,0.65) 25%, rgba(6,4,15,0.30) 50%, transparent 75%)"
+        }} />
+
+        {/* ── Floating CRT Toggle ── */}
+        <div className="absolute top-6 right-6 z-30 hidden sm:block">
+          <button
             onClick={() => setCrtMode(!crtMode)}
             className={`px-4 py-2 text-xs font-mono rounded-lg border flex items-center gap-2 backdrop-blur-md transition-all ${
-              crtMode 
-                ? "bg-emerald-500/10 border-emerald-500/35 text-emerald-400" 
+              crtMode
+                ? "bg-emerald-500/10 border-emerald-500/35 text-emerald-400"
                 : "bg-white/5 border-white/10 text-stone-400"
             }`}
           >
@@ -937,149 +1223,59 @@ export default function LandingPage() {
           </button>
         </div>
 
-        <div className="text-center max-w-3xl mx-auto space-y-6">
-          {/* Badge */}
-          <div className="inline-flex justify-center">
-            <div className="retzlo-badge">
-              <span className="retzlo-badge-dot" />
-              <span>Introducing Retzlo 1.0</span>
+        {/* ── Left-column text content ── */}
+        <div className="relative z-20 w-full max-w-7xl mx-auto flex-1 flex items-center px-6">
+          <div className="w-full max-w-lg space-y-7 pt-28 pb-16">
+            {/* Badge */}
+            <div>
+              <div className="retzlo-badge inline-flex">
+                <span className="retzlo-badge-dot" />
+                <span>Introducing Retzlo 1.0</span>
+              </div>
             </div>
-          </div>
 
-          {/* Heading */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-tight retzlo-fade-up-d1">
-            The calm workspace for <br className="hidden sm:inline" />
-            <span className="retzlo-gradient-text py-1 inline-block">work &amp; finance.</span>
-          </h1>
+            {/* Heading */}
+            <h1
+              className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-[1.1] retzlo-fade-up-d1"
+              style={{ textShadow: "0 2px 30px rgba(0,0,0,0.9)" }}
+            >
+              The calm workspace for{" "}
+              <span className="retzlo-gradient-text">work &amp; finance.</span>
+            </h1>
 
-          {/* Subtitle */}
-          <p className="text-base sm:text-lg text-stone-300 max-w-xl mx-auto leading-relaxed retzlo-fade-up-d2">
-            A nostalgic retro-lofi command center. Manage project tasks in Kanban boards, sync key dates in Calendar, and budget ledger records in one harmonized interface.
-          </p>
+            {/* Subtitle */}
+            <p
+              className="text-sm sm:text-base text-stone-300 leading-relaxed retzlo-fade-up-d2"
+              style={{ textShadow: "0 1px 12px rgba(0,0,0,0.9)" }}
+            >
+              A nostalgic retro-lofi command center. Manage project tasks, sync key dates in Calendar, and budget ledger records — all in one cozy interface.
+            </p>
 
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4 retzlo-fade-up-d3">
-            <Link href="/select-module">
-              <button className="retzlo-cta-primary px-8 py-3.5 flex items-center gap-2 group text-sm">
-                Enter Workspace
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </Link>
-            <Link href="/register">
-              <button className="retzlo-cta-ghost px-6 py-3.5 text-sm">
-                Create Free Account
-              </button>
-            </Link>
-          </div>
-        </div>
+            {/* Actions */}
+            <div className="flex flex-wrap gap-3 retzlo-fade-up-d3">
+              <Link href="/select-module">
+                <button className="retzlo-cta-primary px-7 py-3 flex items-center gap-2 group text-sm">
+                  Enter Workspace
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+              <Link href="/register">
+                <button className="retzlo-cta-ghost px-6 py-3 text-sm">
+                  Create Free Account
+                </button>
+              </Link>
+            </div>
 
-        {/* Dashboard Mockup 3D Perspective Preview */}
-        <div 
-          className="mt-16 md:mt-24 max-w-5xl mx-auto px-4 retzlo-fade-up-d4"
-          onMouseMove={(e) => handleTilt(e, setHeroTilt)}
-          onMouseLeave={() => resetTilt(setHeroTilt)}
-        >
-          <div 
-            className="perspective-3d-card border-beam-wrapper rounded-2xl relative"
-            style={{
-              transform: `perspective(1000px) rotateX(${heroTilt.rx}deg) rotateY(${heroTilt.ry}deg) scale3d(1.008, 1.008, 1.008)`,
-              boxShadow: isPlaying 
-                ? "0 45px 120px rgba(169, 162, 255, 0.22), 0 0 100px rgba(229, 189, 114, 0.08)"
-                : "0 35px 100px rgba(0,0,0,0.6)",
-              transformStyle: "preserve-3d"
-            }}
-          >
-            {/* Shimmer Border Beam */}
-            <div className="absolute inset-0 bg-[#080817] z-[-1] rounded-2xl" />
-            
-            <div className={`crt-screen-overlay rounded-2xl ${crtMode ? "active" : ""}`} style={{ transformStyle: "preserve-3d" }}>
-              <div className="bg-[#111029]/90 px-4 py-3 border-b border-white/5 flex items-center gap-2 select-none">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-rose-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                </div>
-                <div className="mx-auto text-xs text-stone-500 font-mono tracking-wider">
-                  retzlo-dashboard-v1.0.exe {crtMode ? "[CRT Mode Active]" : ""}
-                </div>
+            {/* Social proof micro-row */}
+            <div className="flex items-center gap-3 pt-1 retzlo-fade-up-d4">
+              <div className="flex -space-x-2">
+                {["#a9a2ff","#e5bd72","#89c7d6","#d59ab3"].map((c,i) => (
+                  <div key={i} className="w-7 h-7 rounded-full border-2 border-[#07061a]" style={{ background: `${c}55` }} />
+                ))}
               </div>
-              <div className={`relative aspect-[16/9] w-full bg-[#0a091a] crt-screen-chromatic ${crtMode ? "active" : ""}`} style={{ transformStyle: "preserve-3d" }}>
-                {/* Layer 1: Base Mockup Image (Dimmed slightly to make layers pop) */}
-                <Image
-                  src="/brand/retzlo-hero-mockup.png"
-                  alt="Retzlo Platform Dashboard Mockup"
-                  fill
-                  priority
-                  className="object-cover opacity-[0.72]"
-                />
-
-                {/* Layer 2: Exploded 3D Floating Cassette Radio Player */}
-                <div 
-                  className="absolute bottom-[6%] right-[5%] z-10 w-[240px] bg-ink-950/85 backdrop-blur-md border border-white/10 rounded-xl p-3 shadow-2xl transition-transform duration-300 pointer-events-auto"
-                  style={{
-                    transform: `translateZ(65px) translateY(${scrollPercent * -30}px)`,
-                    boxShadow: "0 25px 50px rgba(0,0,0,0.5)"
-                  }}
-                >
-                  <div className="flex items-center justify-between pb-1.5 border-b border-white/5 mb-1.5">
-                    <span className="text-[9px] font-mono tracking-widest text-[#e5bd72] uppercase">3D Cassette Deck</span>
-                    <span className={`w-1.5 h-1.5 rounded-full transition-all ${isPlaying ? "bg-emerald-400 animate-pulse" : "bg-stone-600"}`} />
-                  </div>
-                  <div className="flex justify-center bg-[#090817] rounded-lg p-1.5 overflow-hidden border border-white/5">
-                    <LofiCassette3D isPlaying={isPlaying} onClick={handlePlayToggle} />
-                  </div>
-                  <p className="text-[8px] font-mono text-center text-stone-500 mt-1.5">
-                    DRAG TO SPIN • CLICK TAPE TO PLAY
-                  </p>
-                </div>
-
-                {/* Layer 3: Exploded 3D Floating Kanban Card */}
-                <div 
-                  className="absolute top-[15%] left-[8%] z-10 w-[190px] bg-ink-950/90 backdrop-blur-md border border-[#a9a2ff]/20 rounded-lg p-3 shadow-2xl transition-transform duration-300 select-none pointer-events-none"
-                  style={{
-                    transform: `translateZ(105px) translateY(${scrollPercent * 40}px) rotate(-3deg)`,
-                    boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
-                  }}
-                >
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-[8px] font-mono uppercase text-[#a9a2ff] tracking-wider bg-[#a9a2ff]/10 px-1.5 py-0.5 rounded">WORK TASK</span>
-                    <Sparkles className="w-3 h-3 text-[#e5bd72]" />
-                  </div>
-                  <h4 className="text-[11px] font-semibold text-stone-200">🚀 Build Lofi Visuals</h4>
-                  <div className="mt-2.5 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      <span className="text-[8px] font-mono text-stone-400">High priority</span>
-                    </div>
-                    <span className="text-[8px] font-mono text-[#e5bd72]">🪙 +12 coins</span>
-                  </div>
-                </div>
-
-                {/* Layer 4: Exploded 3D Floating Double-Entry Ledger Widget */}
-                <div 
-                  className="absolute bottom-[10%] left-[8%] z-10 w-[210px] bg-ink-950/90 backdrop-blur-md border border-[#89c7d6]/20 rounded-lg p-3 shadow-2xl transition-transform duration-300 select-none pointer-events-none"
-                  style={{
-                    transform: `translateZ(50px) translateY(${scrollPercent * -20}px) rotate(2deg)`,
-                    boxShadow: "0 15px 35px rgba(0,0,0,0.4)"
-                  }}
-                >
-                  <div className="flex justify-between items-center mb-1.5 border-b border-white/5 pb-1">
-                    <span className="text-[8px] font-mono uppercase text-[#89c7d6] tracking-wider">Double-Entry Ledger</span>
-                    <span className="text-[8px] font-mono text-[#89c7d6] bg-[#89c7d6]/10 px-1.5 py-0.5 rounded">ACTIVE</span>
-                  </div>
-                  <div className="space-y-1 mt-1.5">
-                    <div className="flex justify-between text-[9px]">
-                      <span className="text-stone-400">Cassette Ad Share</span>
-                      <span className="text-emerald-400 font-mono">+$240.00</span>
-                    </div>
-                    <div className="flex justify-between text-[9px]">
-                      <span className="text-stone-400">Cozy Espresso Shot</span>
-                      <span className="text-rose-400 font-mono">-$4.50</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
+              <p className="text-xs text-stone-400">
+                <span className="text-white font-semibold">200+</span> workspaces running
+              </p>
             </div>
           </div>
         </div>

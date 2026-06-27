@@ -1583,3 +1583,61 @@ input:checked + .lofi-slider:before {
   transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms ease;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   SYNTHWAVE HERO ANIMATIONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Star twinkle */
+.synth-star {
+  animation: synth-twinkle 3s ease-in-out infinite;
+}
+@keyframes synth-twinkle {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 0.2; transform: scale(0.6); }
+}
+
+/* Floating cards — 3 independent rhythms */
+.synth-float-a {
+  animation: synth-float-a 6s ease-in-out infinite;
+}
+@keyframes synth-float-a {
+  0%, 100% { transform: translateY(0) rotate(-4deg) translateZ(60px); }
+  50% { transform: translateY(-10px) rotate(-3deg) translateZ(60px); }
+}
+
+.synth-float-b {
+  animation: synth-float-b 8s ease-in-out infinite;
+}
+@keyframes synth-float-b {
+  0%, 100% { transform: translateX(-50%) translateY(0) translateZ(30px); }
+  50% { transform: translateX(-50%) translateY(-8px) translateZ(30px); }
+}
+
+.synth-float-c {
+  animation: synth-float-c 7s ease-in-out infinite;
+}
+@keyframes synth-float-c {
+  0%, 100% { transform: translateY(0) rotate(3deg) translateZ(55px); }
+  50% { transform: translateY(-12px) rotate(4deg) translateZ(55px); }
+}
+
+/* VU bar bounce — 4 variants */
+@keyframes synth-vu-0 {
+  0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); }
+}
+@keyframes synth-vu-1 {
+  0% { transform: scaleY(0.5); } 100% { transform: scaleY(0.9); }
+}
+@keyframes synth-vu-2 {
+  0% { transform: scaleY(0.2); } 100% { transform: scaleY(0.85); }
+}
+@keyframes synth-vu-3 {
+  0% { transform: scaleY(0.6); } 100% { transform: scaleY(1); }
+}
+
+/* Horizon neon pulse */
+@keyframes synth-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 24px 8px rgba(255,110,199,0.55), 0 0 60px 20px rgba(169,162,255,0.3); }
+  50% { opacity: 0.7; box-shadow: 0 0 40px 14px rgba(255,110,199,0.7), 0 0 90px 30px rgba(169,162,255,0.45); }
+}
+
