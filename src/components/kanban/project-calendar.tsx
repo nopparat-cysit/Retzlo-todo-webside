@@ -104,6 +104,9 @@ export function ProjectCalendar({
   const diaryChecklistEntries = useMemo(() => {
     const entries: CalendarDiaryChecklist[] = [];
     for (const day of calendarDays) {
+      if (day.key > todayKey) {
+        continue;
+      }
       for (const diary of diaryItems) {
         const checklist = normalizeDiaryChecklist(diary.checklist, diary.startDate);
         for (const cli of checklist) {
@@ -125,7 +128,7 @@ export function ProjectCalendar({
       }
     }
     return entries;
-  }, [diaryItems, calendarDays]);
+  }, [diaryItems, calendarDays, todayKey]);
 
   const allItems = useMemo<CalendarEntry[]>(
     () => [
