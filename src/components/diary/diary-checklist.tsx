@@ -209,6 +209,11 @@ export function DiaryChecklistPreview({
     const aDue = isDiaryChecklistItemDueOnDate(a, selectedDate);
     const bDue = isDiaryChecklistItemDueOnDate(b, selectedDate);
     if (aDue !== bDue) return aDue ? -1 : 1;
+
+    const aComp = isDiaryChecklistItemCompletedOnDate(a, selectedDate);
+    const bComp = isDiaryChecklistItemCompletedOnDate(b, selectedDate);
+    if (aComp !== bComp) return aComp ? 1 : -1;
+
     return a.label.localeCompare(b.label);
   });
 

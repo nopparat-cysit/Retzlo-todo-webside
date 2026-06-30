@@ -441,6 +441,34 @@ function DiaryMetric({
   );
 }
 
+function getDiaryStatusColor(item: DiaryItemWithSummary) {
+  if (!item.isDueToday) {
+    return "default";
+  }
+
+  const isCompleted = item.checklistSummary.dueCount > 0 && item.checklistSummary.completedCount === item.checklistSummary.dueCount;
+  if (isCompleted) {
+    return "completed";
+  }
+
+  if (item.dueTime) {
+    const now = new Date();
+    const [hours, minutes] = item.dueTime.split(":").map(Number);
+    const dueDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+
+    if (now > dueDateTime) {
+      return "overdue";
+    }
+
+    const diffMs = dueDateTime.getTime() - now.getTime();
+    if (diffMs > 0 && diffMs <= 60 * 60 * 1000) {
+      return "close";
+    }
+  }
+
+  return "due";
+}
+
 function DiaryListButton({
   item,
   onClick,
@@ -450,13 +478,25 @@ function DiaryListButton({
   onClick: () => void;
   selected: boolean;
 }) {
+  const status = getDiaryStatusColor(item);
+  let borderClass = "";
+  if (status === "completed") {
+    borderClass = selected ? "border-emerald-500 bg-emerald-500/10" : "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/50";
+  } else if (status === "overdue") {
+    borderClass = selected ? "border-red-500 bg-red-500/10" : "border-red-500/30 bg-red-500/5 hover:border-red-500/50";
+  } else if (status === "close") {
+    borderClass = selected ? "border-amber-500 bg-amber-500/10 animate-pulse" : "border-amber-500/30 bg-amber-500/5 hover:border-amber-500/50";
+  } else {
+    borderClass = selected
+      ? "border-dusk-lavender/55 bg-dusk-lavender/12"
+      : "border-white/10 bg-white/[0.035] hover:border-dusk-lavender/35 hover:bg-white/[0.055]";
+  }
+
   return (
     <button
       className={cn(
         "w-full rounded-lg border p-3 text-left transition",
-        selected
-          ? "border-dusk-lavender/55 bg-dusk-lavender/12"
-          : "border-white/10 bg-white/[0.035] hover:border-dusk-lavender/35 hover:bg-white/[0.055]",
+        borderClass,
         !item.isDueToday && "opacity-65"
       )}
       type="button"

@@ -167,6 +167,22 @@ export function ProjectCalendar({
         return true;
       })
       .sort((a, b) => {
+        const aCompleted = a.type === "card"
+          ? a.status === "DONE"
+          : a.type === "diary_checklist"
+            ? a.completed
+            : Boolean((a as any).completedAt);
+
+        const bCompleted = b.type === "card"
+          ? b.status === "DONE"
+          : b.type === "diary_checklist"
+            ? b.completed
+            : Boolean((b as any).completedAt);
+
+        if (aCompleted !== bCompleted) {
+          return aCompleted ? 1 : -1;
+        }
+
         if (daySortBy === "title") {
           return a.title.localeCompare(b.title);
         }
@@ -442,6 +458,33 @@ export function ProjectCalendar({
                   const muted = !day.isCurrentMonth && viewMode === "month";
                   const current = key === todayKey;
 
+                  const cardsAndNotes = datedItems.filter((i) => i.type === "card" || i.type === "note");
+                  const diaryChecklists = datedItems.filter((i): i is CalendarDiaryChecklist => i.type === "diary_checklist");
+
+                  const groupedDiariesMap = new Map<string, CalendarDiaryChecklist[]>();
+                  for (const d of diaryChecklists) {
+                    const existing = groupedDiariesMap.get(d.diaryId) ?? [];
+                    existing.push(d);
+                    groupedDiariesMap.set(d.diaryId, existing);
+                  }
+
+                  const diarySummaries = Array.from(groupedDiariesMap.entries()).map(([diaryId, items]) => {
+                    const completedCount = items.filter((i) => i.completed).length;
+                    const totalCount = items.length;
+                    return {
+                      type: "diary_summary" as const,
+                      id: `${diaryId}-${items[0].dueDate}`,
+                      diaryId,
+                      diaryTitle: items[0].diaryTitle,
+                      completedCount,
+                      totalCount,
+                      color: items[0].color,
+                      dueDate: items[0].dueDate
+                    };
+                  });
+
+                  const cellRenderItems = [...cardsAndNotes, ...diarySummaries];
+
                   return (
                     <section
                       key={key}
@@ -453,7 +496,7 @@ export function ProjectCalendar({
                       )}
                     >
                       <div className="mb-2 flex items-center justify-between">
-                        {datedItems.length > 0 ? (
+                        {cellRenderItems.length > 0 ? (
                           <button
                             type="button"
                             onClick={(e) => {
@@ -470,23 +513,23 @@ export function ProjectCalendar({
                         <span className="text-sm font-semibold text-stone-200">{day.date.getDate()}</span>
                       </div>
                       <div className="space-y-1.5">
-                        {datedItems.slice(0, 3).map((entry) => {
+                        {cellRenderItems.slice(0, 3).map((entry) => {
                           if (entry.type === "card") {
                             return <CalendarCardButton key={`card-${entry.id}`} card={entry} onClick={() => setSelectedCardId(entry.id)} />;
                           } else if (entry.type === "note") {
                             return <CalendarNoteButton key={`note-${entry.id}`} note={entry} onClick={() => setSelectedNoteId(entry.id)} />;
                           } else {
                             return (
-                              <CalendarDiaryChecklistButton
-                                key={`diary-${entry.id}`}
+                              <CalendarDiarySummaryButton
+                                key={`diary-summary-${entry.id}`}
                                 item={entry}
-                                onToggle={(checked) => handleToggleDiaryChecklist(entry.diaryId, entry.checklistItemId, entry.dueDate, checked)}
+                                onClick={() => setSelectedDayKey(key)}
                               />
                             );
                           }
                         })}
-                        {datedItems.length > 3 ? (
-                          <p className="text-xs text-stone-500">+{datedItems.length - 3} more</p>
+                        {cellRenderItems.length > 3 ? (
+                          <p className="text-xs text-stone-500">+{cellRenderItems.length - 3} more</p>
                         ) : null}
                       </div>
                     </section>
@@ -812,6 +855,41 @@ function CalendarCardButton({ card, onClick }: { card: CalendarCard; onClick: ()
       </span>
       <span className="mt-1 inline-flex">
         <StatusBadge status={card.status} />
+      </span>
+    </button>
+  );
+}
+
+function CalendarDiarySummaryButton({
+  item,
+  onClick
+}: {
+  item: {
+    diaryId: string;
+    diaryTitle: string;
+    completedCount: number;
+    totalCount: number;
+    color: string;
+  };
+  onClick: () => void;
+}) {
+  const colorMeta = getCardColorMeta(item.color);
+
+  return (
+    <button
+      className={cn(
+        "flex w-full items-center gap-1.5 rounded border px-2 py-1.5 text-left text-xs transition font-medium text-stone-200 hover:border-white/20",
+        colorMeta.softClass
+      )}
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+    >
+      <span className="truncate flex-1">📖 {item.diaryTitle}</span>
+      <span className="text-[10px] text-stone-400 shrink-0 font-semibold">
+        ({item.completedCount}/{item.totalCount})
       </span>
     </button>
   );
