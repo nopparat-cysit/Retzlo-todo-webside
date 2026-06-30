@@ -27,11 +27,32 @@ import { getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/them
 import { cn } from "@/lib/utils";
 import type { Card } from "@/types/kanban";
 
+import {
+  toggleDiaryChecklistCompletion,
+  normalizeDiaryChecklist,
+  isDiaryChecklistItemDueOnDate,
+  isDiaryChecklistItemCompletedOnDate
+} from "@/lib/diary/checklist";
+import type { ProjectDiaryItem } from "@/types/diary-item";
+
 export interface CalendarCard extends Card {
   column: {
     name: string;
     boardId: string;
   };
+}
+
+export interface CalendarDiaryChecklist {
+  id: string;
+  diaryId: string;
+  diaryTitle: string;
+  checklistItemId: string;
+  type: "diary_checklist";
+  title: string;
+  dueDate: string;
+  dueDateAllDay: boolean;
+  completed: boolean;
+  color: string;
 }
 
 export interface CalendarNote {
@@ -47,14 +68,17 @@ export interface CalendarNote {
 export function ProjectCalendar({
   projectId,
   initialCards,
-  initialNotes = []
+  initialNotes = [],
+  initialDiaryItems = []
 }: {
   projectId: string;
   initialCards: CalendarCard[];
   initialNotes?: CalendarNote[];
+  initialDiaryItems?: ProjectDiaryItem[];
 }) {
   const [cards, setCards] = useState(initialCards);
   const [notes] = useState(initialNotes);
+  const [diaryItems, setDiaryItems] = useState(initialDiaryItems);
   const [filters, setFilters] = useState<CalendarFilterState>(defaultCalendarFilters);
   const [isFiltersOpen, setIsFiltersOpen] = useState(true);
   const [viewMode, setViewMode] = useState<CalendarViewMode>("month");
@@ -65,7 +89,7 @@ export function ProjectCalendar({
   const { toast } = useToast();
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
-  const [dayTypeFilter, setDayTypeFilter] = useState<"all" | "tasks" | "notes">("all");
+  const [dayTypeFilter, setDayTypeFilter] = useState<"all" | "tasks" | "notes" | "diaries">("all");
   const [dayStatusFilter, setDayStatusFilter] = useState<"all" | "pending" | "done">("all");
   const [daySortBy, setDaySortBy] = useState<"time" | "title" | "priority">("time");
   const [isUpdateConfirmOpen, setIsUpdateConfirmOpen] = useState(false);
@@ -77,14 +101,41 @@ export function ProjectCalendar({
     () => buildCalendarDays({ anchorDate, mode: viewMode, customDays }),
     [anchorDate, customDays, viewMode]
   );
+  const diaryChecklistEntries = useMemo(() => {
+    const entries: CalendarDiaryChecklist[] = [];
+    for (const day of calendarDays) {
+      for (const diary of diaryItems) {
+        const checklist = normalizeDiaryChecklist(diary.checklist, diary.startDate);
+        for (const cli of checklist) {
+          if (isDiaryChecklistItemDueOnDate(cli, day.key)) {
+            entries.push({
+              id: `${diary.id}:${cli.id}:${day.key}`,
+              diaryId: diary.id,
+              diaryTitle: diary.title,
+              checklistItemId: cli.id,
+              type: "diary_checklist" as const,
+              title: cli.label,
+              dueDate: day.key + (cli.dueTime ? `T${cli.dueTime}:00` : ""),
+              dueDateAllDay: !cli.dueTime,
+              completed: isDiaryChecklistItemCompletedOnDate(cli, day.key),
+              color: diary.color
+            });
+          }
+        }
+      }
+    }
+    return entries;
+  }, [diaryItems, calendarDays]);
+
   const allItems = useMemo<CalendarEntry[]>(
     () => [
       ...cards
         .filter((card): card is CalendarCard & { dueDate: string } => Boolean(card.dueDate))
         .map((card) => ({ ...card, type: "card" as const })),
-      ...notes.map((note) => ({ ...note, type: "note" as const }))
+      ...notes.map((note) => ({ ...note, type: "note" as const })),
+      ...diaryChecklistEntries
     ],
-    [cards, notes]
+    [cards, notes, diaryChecklistEntries]
   );
   const filteredItems = useMemo(() => filterCalendarItems(allItems, filters), [allItems, filters]);
   const groups = useMemo(() => groupCalendarItems(filteredItems), [filteredItems]);
@@ -99,13 +150,16 @@ export function ProjectCalendar({
       .filter((item) => {
         if (dayTypeFilter === "tasks" && item.type !== "card") return false;
         if (dayTypeFilter === "notes" && item.type !== "note") return false;
+        if (dayTypeFilter === "diaries" && item.type !== "diary_checklist") return false;
         if (dayStatusFilter === "pending") {
           if (item.type === "card" && item.status === "DONE") return false;
           if (item.type === "note" && (item as any).completedAt) return false;
+          if (item.type === "diary_checklist" && (item as any).completed) return false;
         }
         if (dayStatusFilter === "done") {
           if (item.type === "card" && item.status !== "DONE") return false;
           if (item.type === "note" && !(item as any).completedAt) return false;
+          if (item.type === "diary_checklist" && !(item as any).completed) return false;
         }
         return true;
       })
@@ -166,6 +220,52 @@ export function ProjectCalendar({
     }
   }
 
+  async function handleToggleDiaryChecklist(diaryId: string, checklistItemId: string, dateKey: string, checked: boolean) {
+    const targetDate = dateKey.slice(0, 10);
+    const diary = diaryItems.find((d) => d.id === diaryId);
+    if (!diary) return;
+
+    const checklist = normalizeDiaryChecklist(diary.checklist, diary.startDate);
+    const updatedChecklist = toggleDiaryChecklistCompletion(checklist, checklistItemId, targetDate, checked);
+
+    const updatedDiaryItems = diaryItems.map((d) => {
+      if (d.id === diaryId) {
+        return {
+          ...d,
+          checklist: updatedChecklist
+        };
+      }
+      return d;
+    });
+    setDiaryItems(updatedDiaryItems);
+
+    try {
+      const response = await fetch(`/api/diary-items/${diaryId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          checklist: updatedChecklist,
+          selectedDate: targetDate
+        })
+      });
+      const data = await response.json();
+      if (response.ok && data.diaryItem) {
+        const normalized = {
+          ...data.diaryItem,
+          checklist: normalizeDiaryChecklist(data.diaryItem.checklist, data.diaryItem.startDate)
+        };
+        setDiaryItems((current) => current.map((d) => (d.id === diaryId ? normalized : d)));
+        toast({ message: "Diary checklist updated.", type: "success" });
+      } else {
+        setDiaryItems(diaryItems);
+        toast({ message: data.error ?? "Failed to update checklist item.", type: "error" });
+      }
+    } catch (e) {
+      setDiaryItems(diaryItems);
+      toast({ message: "Failed to update checklist item.", type: "error" });
+    }
+  }
+
   async function executeDeleteCard() {
     if (!selectedCard) return;
     setIsDeleteConfirmOpen(false);
@@ -218,6 +318,7 @@ export function ProjectCalendar({
               <p className="mb-2 text-xs uppercase tracking-[0.18em] text-stone-500">Sources</p>
               <FilterCheckbox label="Cards" checked={filters.showCards} onChange={(checked) => setFilters((current) => ({ ...current, showCards: checked }))} />
               <FilterCheckbox label="Notes" checked={filters.showNotes} onChange={(checked) => setFilters((current) => ({ ...current, showNotes: checked }))} />
+              <FilterCheckbox label="Diary Checklist" checked={filters.showDiaryChecklist} onChange={(checked) => setFilters((current) => ({ ...current, showDiaryChecklist: checked }))} />
             </div>
 
             <div>
@@ -366,13 +467,21 @@ export function ProjectCalendar({
                         <span className="text-sm font-semibold text-stone-200">{day.date.getDate()}</span>
                       </div>
                       <div className="space-y-1.5">
-                        {datedItems.slice(0, 3).map((entry) => (
-                          entry.type === "card" ? (
-                            <CalendarCardButton key={`card-${entry.id}`} card={entry} onClick={() => setSelectedCardId(entry.id)} />
-                          ) : (
-                            <CalendarNoteButton key={`note-${entry.id}`} note={entry} onClick={() => setSelectedNoteId(entry.id)} />
-                          )
-                        ))}
+                        {datedItems.slice(0, 3).map((entry) => {
+                          if (entry.type === "card") {
+                            return <CalendarCardButton key={`card-${entry.id}`} card={entry} onClick={() => setSelectedCardId(entry.id)} />;
+                          } else if (entry.type === "note") {
+                            return <CalendarNoteButton key={`note-${entry.id}`} note={entry} onClick={() => setSelectedNoteId(entry.id)} />;
+                          } else {
+                            return (
+                              <CalendarDiaryChecklistButton
+                                key={`diary-${entry.id}`}
+                                item={entry}
+                                onToggle={(checked) => handleToggleDiaryChecklist(entry.diaryId, entry.checklistItemId, entry.dueDate, checked)}
+                              />
+                            );
+                          }
+                        })}
                         {datedItems.length > 3 ? (
                           <p className="text-xs text-stone-500">+{datedItems.length - 3} more</p>
                         ) : null}
@@ -387,13 +496,21 @@ export function ProjectCalendar({
         <Panel className="p-5">
           <h3 className="mb-3 text-lg font-semibold">Upcoming</h3>
           <div className="space-y-2">
-            {filteredItems.slice(0, 10).map((item) =>
-              item.type === "card" ? (
-                <UpcomingCard key={`upcoming-card-${item.id}`} card={item} onClick={() => setSelectedCardId(item.id)} />
-              ) : (
-                <UpcomingNote key={`upcoming-note-${item.id}`} note={item} onClick={() => setSelectedNoteId(item.id)} />
-              )
-            )}
+            {filteredItems.slice(0, 10).map((item) => {
+              if (item.type === "card") {
+                return <UpcomingCard key={`upcoming-card-${item.id}`} card={item} onClick={() => setSelectedCardId(item.id)} />;
+              } else if (item.type === "note") {
+                return <UpcomingNote key={`upcoming-note-${item.id}`} note={item} onClick={() => setSelectedNoteId(item.id)} />;
+              } else {
+                return (
+                  <UpcomingDiaryChecklist
+                    key={`upcoming-diary-${item.id}`}
+                    item={item}
+                    onToggle={(checked) => handleToggleDiaryChecklist(item.diaryId, item.checklistItemId, item.dueDate, checked)}
+                  />
+                );
+              }
+            })}
             {filteredItems.length === 0 ? <p className="text-sm text-stone-500">No upcoming matching items.</p> : null}
           </div>
         </Panel>
@@ -543,7 +660,13 @@ export function ProjectCalendar({
                     {selectedDayItems.map((item) => {
                       const colorMeta = getCardColorMeta(item.color);
                       const isCard = item.type === "card";
-                      const isCompleted = isCard ? (item as CalendarCard).status === "DONE" : false;
+                      const isNote = item.type === "note";
+                      const isDiaryChecklist = item.type === "diary_checklist";
+                      const isCompleted = isCard
+                        ? (item as CalendarCard).status === "DONE"
+                        : isDiaryChecklist
+                          ? (item as CalendarDiaryChecklist).completed
+                          : false;
 
                       return (
                         <div
@@ -551,57 +674,83 @@ export function ProjectCalendar({
                           onClick={() => {
                             if (isCard) {
                               setSelectedCardId(item.id);
-                            } else {
+                            } else if (isNote) {
                               setSelectedNoteId(item.id);
                             }
                           }}
                           className={cn(
-                            "relative flex cursor-pointer items-start justify-between rounded-xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+                            "relative flex items-start justify-between rounded-xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+                            isCard || isNote ? "cursor-pointer" : "cursor-default",
                             colorMeta.softClass ?? "border-white/10 bg-white/5",
                             isCompleted && "opacity-75"
                           )}
                         >
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              {isCard ? (
-                                <span className={cn("rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold", getStatusMeta((item as CalendarCard).status).badgeClass)}>
-                                  {getStatusMeta((item as CalendarCard).status).label}
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-0.5 rounded-full border border-dusk-amber/25 bg-dusk-amber/10 px-2 py-0.5 text-[10px] text-dusk-amber font-semibold">
-                                  <FileText className="h-2.5 w-2.5" /> Note
-                                </span>
-                              )}
+                          <div className="flex min-w-0 flex-1 items-start gap-3">
+                            {isDiaryChecklist && (
+                              <input
+                                type="checkbox"
+                                checked={isCompleted}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  const dc = item as CalendarDiaryChecklist;
+                                  handleToggleDiaryChecklist(dc.diaryId, dc.checklistItemId, dc.dueDate, e.target.checked);
+                                }}
+                                className="mt-1.5 h-4 w-4 shrink-0 accent-dusk-lavender cursor-pointer"
+                              />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                {isCard && (
+                                  <span className={cn("rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold", getStatusMeta((item as CalendarCard).status).badgeClass)}>
+                                    {getStatusMeta((item as CalendarCard).status).label}
+                                  </span>
+                                )}
+                                {isNote && (
+                                  <span className="inline-flex items-center gap-0.5 rounded-full border border-dusk-amber/25 bg-dusk-amber/10 px-2 py-0.5 text-[10px] text-dusk-amber font-semibold">
+                                    <FileText className="h-2.5 w-2.5" /> Note
+                                  </span>
+                                )}
+                                {isDiaryChecklist && (
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/25 bg-dusk-lavender/10 px-2 py-0.5 text-[10px] text-dusk-lavender font-semibold">
+                                    📖 Diary Checklist
+                                  </span>
+                                )}
 
-                              {isCard && (item as CalendarCard).priority && (
-                                <span className={cn(
-                                  "rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold",
-                                  (item as CalendarCard).priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400",
-                                  (item as CalendarCard).priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber",
-                                  (item as CalendarCard).priority === "LOW" && "border-white/5 bg-white/5 text-stone-400"
-                                )}>
-                                  {(item as CalendarCard).priority}
-                                </span>
+                                {isCard && (item as CalendarCard).priority && (
+                                  <span className={cn(
+                                    "rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold",
+                                    (item as CalendarCard).priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400",
+                                    (item as CalendarCard).priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber",
+                                    (item as CalendarCard).priority === "LOW" && "border-white/5 bg-white/5 text-stone-400"
+                                  )}>
+                                    {(item as CalendarCard).priority}
+                                  </span>
+                                )}
+                              </div>
+
+                              <h3 className={cn(
+                                "mt-2 text-base font-semibold text-stone-100 truncate",
+                                isCompleted && "line-through text-stone-500"
+                              )}>
+                                {item.title}
+                              </h3>
+
+                              {isNote && (item as CalendarNote).content && (
+                                <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
+                                  {(item as CalendarNote).content}
+                                </p>
+                              )}
+                              {isCard && (item as CalendarCard).description && (
+                                <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
+                                  {(item as CalendarCard).description}
+                                </p>
+                              )}
+                              {isDiaryChecklist && (
+                                <p className="mt-1 text-xs text-stone-500 font-medium">
+                                  From diary: {(item as CalendarDiaryChecklist).diaryTitle}
+                                </p>
                               )}
                             </div>
-
-                            <h3 className={cn(
-                              "mt-2 text-base font-semibold text-stone-100 truncate",
-                              isCompleted && "line-through text-stone-500"
-                            )}>
-                              {item.title}
-                            </h3>
-
-                            {!isCard && (item as CalendarNote).content && (
-                              <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
-                                {(item as CalendarNote).content}
-                              </p>
-                            )}
-                            {isCard && (item as CalendarCard).description && (
-                              <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
-                                {(item as CalendarCard).description}
-                              </p>
-                            )}
                           </div>
 
                           <div className="ml-4 flex flex-col items-end gap-1.5 text-xs text-stone-500 shrink-0">
@@ -635,7 +784,7 @@ export function ProjectCalendar({
   );
 }
 
-type CalendarEntry = (CalendarCard & { type: "card"; dueDate: string }) | (CalendarNote & { type: "note" });
+type CalendarEntry = (CalendarCard & { type: "card"; dueDate: string }) | (CalendarNote & { type: "note" }) | CalendarDiaryChecklist;
 
 function CalendarCardButton({ card, onClick }: { card: CalendarCard; onClick: () => void }) {
   const colorMeta = getCardColorMeta(card.color);
@@ -662,6 +811,80 @@ function CalendarCardButton({ card, onClick }: { card: CalendarCard; onClick: ()
         <StatusBadge status={card.status} />
       </span>
     </button>
+  );
+}
+
+function CalendarDiaryChecklistButton({
+  item,
+  onToggle
+}: {
+  item: CalendarDiaryChecklist;
+  onToggle: (checked: boolean) => void;
+}) {
+  const colorMeta = getCardColorMeta(item.color);
+
+  return (
+    <div
+      className={cn(
+        "flex w-full items-start gap-2 rounded border px-2 py-1.5 text-left text-xs",
+        colorMeta.softClass
+      )}
+    >
+      <input
+        type="checkbox"
+        checked={item.completed}
+        onChange={(e) => {
+          e.stopPropagation();
+          onToggle(e.target.checked);
+        }}
+        className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-dusk-lavender cursor-pointer"
+      />
+      <div className="min-w-0 flex-1">
+        <span
+          className={cn(
+            "block truncate font-medium text-stone-100",
+            item.completed && "line-through text-stone-500"
+          )}
+          title={item.title}
+        >
+          {item.title}
+        </span>
+        <span className="mt-0.5 block truncate text-[9px] text-stone-400" title={`Diary: ${item.diaryTitle}`}>
+          📖 {item.diaryTitle}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function UpcomingDiaryChecklist({
+  item,
+  onToggle
+}: {
+  item: CalendarDiaryChecklist;
+  onToggle: (checked: boolean) => void;
+}) {
+  const colorMeta = getCardColorMeta(item.color);
+
+  return (
+    <div
+      className={cn(
+        "w-full rounded-md border p-3 text-left text-sm transition hover:border-dusk-lavender/60 flex items-start gap-2",
+        colorMeta.softClass
+      )}
+    >
+      <input
+        type="checkbox"
+        checked={item.completed}
+        onChange={(e) => onToggle(e.target.checked)}
+        className="mt-1 h-4 w-4 shrink-0 accent-dusk-lavender cursor-pointer"
+      />
+      <div className="min-w-0 flex-1">
+        <p className={cn("font-medium", item.completed && "line-through text-stone-500")}>{item.title}</p>
+        <p className="mt-1 text-xs text-dusk-cyan">{formatDue(item)}</p>
+        <p className="mt-1 text-xs text-stone-500">📖 {item.diaryTitle}</p>
+      </div>
+    </div>
   );
 }
 

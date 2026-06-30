@@ -12,7 +12,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { CalendarClock, CheckSquare, Coins, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
+import { CalendarClock, CheckSquare, Coins, FileText, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -35,6 +35,7 @@ interface CardModalProps {
   onSubmit: (payload: {
     title: string;
     description: string | null;
+    note: string | null;
     status: CardStatus;
     color: CardColor;
     checklist: ChecklistItem[];
@@ -70,6 +71,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   const [isStarred, setIsStarred] = useState(card?.isStarred ?? false);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(card?.checklist ?? []);
   const [newChecklistItem, setNewChecklistItem] = useState("");
+  const [note, setNote] = useState(card?.note ?? "");
   const [isSaving, setIsSaving] = useState(false);
 
   // Gamification fields
@@ -99,6 +101,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     setIsStarred(card?.isStarred ?? false);
     setChecklist(card?.checklist ?? []);
     setNewChecklistItem("");
+    setNote(card?.note ?? "");
 
     setRewardCoins(card?.rewardCoins ?? 0);
     setShowCoinRewards(Boolean(card?.rewardCoins));
@@ -176,6 +179,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     await onSubmit({
       title: String(formData.get("title") ?? ""),
       description: String(formData.get("description") ?? "") || null,
+      note: note || null,
       status: selectedStatus,
       color: selectedColor,
       checklist,
@@ -243,6 +247,18 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
           <div className="grid gap-4">
           <Input name="title" defaultValue={card?.title ?? ""} placeholder="Card title" required />
           <Textarea name="description" defaultValue={card?.description ?? ""} placeholder="Details, links, context..." />
+          <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-stone-200">
+              <FileText className="h-4 w-4 text-dusk-lavender" />
+              Note (บันทึกข้อความ)
+            </div>
+            <Textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Write custom card notes here..."
+              rows={4}
+            />
+          </div>
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
             <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
               <CheckSquare className="h-4 w-4 text-dusk-cyan" />

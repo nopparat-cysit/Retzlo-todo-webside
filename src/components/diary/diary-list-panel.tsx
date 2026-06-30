@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import {
   BookOpenCheck,
+  CalendarDays,
   CheckCircle2,
   Clock,
   Coins,
@@ -61,6 +63,8 @@ interface DiaryPayload {
 }
 
 type DiaryFilter = "all" | "today" | "upcoming" | "starred" | "hidden";
+type DiarySort = "due" | "title" | "starred" | "date";
+
 type DiaryItemWithSummary = ProjectDiaryItem & {
   checklistSummary: ReturnType<typeof getDiaryChecklistSummary>;
   isDueToday: boolean;
@@ -78,6 +82,7 @@ export function DiaryListPanel({
   const [selectedItem, setSelectedItem] = useState<ProjectDiaryItem | null>(null);
   const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
   const [filter, setFilter] = useState<DiaryFilter>("all");
+  const [sortBy, setSortBy] = useState<DiarySort>("due");
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -85,22 +90,32 @@ export function DiaryListPanel({
   const [pendingUpdatePayload, setPendingUpdatePayload] = useState<any>(null);
 
   const itemsWithSummary = useMemo<DiaryItemWithSummary[]>(() => {
-    return [...items]
-      .map((item) => {
-        const checklistSummary = getDiaryChecklistSummary(item, selectedDate);
+    const list = [...items].map((item) => {
+      const checklistSummary = getDiaryChecklistSummary(item, selectedDate);
 
-        return {
-          ...item,
-          checklistSummary,
-          isDueToday: checklistSummary.isDue
-        };
-      })
-      .sort((a, b) => {
-        if (a.isDueToday !== b.isDueToday) return a.isDueToday ? -1 : 1;
+      return {
+        ...item,
+        checklistSummary,
+        isDueToday: checklistSummary.isDue
+      };
+    });
+
+    return list.sort((a, b) => {
+      if (sortBy === "title") {
+        return a.title.localeCompare(b.title);
+      }
+      if (sortBy === "starred") {
         if (a.isStarred !== b.isStarred) return a.isStarred ? -1 : 1;
-        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-      });
-  }, [items, selectedDate]);
+      }
+      if (sortBy === "date") {
+        return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+      }
+      // default "due"
+      if (a.isDueToday !== b.isDueToday) return a.isDueToday ? -1 : 1;
+      if (a.isStarred !== b.isStarred) return a.isStarred ? -1 : 1;
+      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+    });
+  }, [items, selectedDate, sortBy]);
 
   const visibleItems = useMemo(() => {
     return itemsWithSummary.filter((item) => {
@@ -119,7 +134,7 @@ export function DiaryListPanel({
     if (item.checklistSummary.hasChecklist) return total + item.checklistSummary.dueCount;
     return total + (item.checklistSummary.isDue ? 1 : 0);
   }, 0);
-  const queueItems = itemsWithSummary.filter((item) => !item.isDueToday).slice(0, 5);
+
 
   async function saveItem(url: string, method: "POST" | "PATCH", payload: Partial<DiaryPayload>) {
     setError(null);
@@ -188,7 +203,7 @@ export function DiaryListPanel({
   }
 
   return (
-    <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] gap-3">
+    <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3">
       <div className="lofi-panel rounded-lg p-4">
         <div data-diary-hero-layout="single-row" className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
@@ -207,6 +222,13 @@ export function DiaryListPanel({
 
           <div className="flex shrink-0 items-center gap-3 xl:ml-auto">
             <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/project/${projectId}/calendar`}
+                className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-sm font-medium text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/[0.08]"
+              >
+                <CalendarDays className="h-4 w-4 text-dusk-lavender" />
+                <span>View in Calendar</span>
+              </Link>
               <DiaryMetric label="Due today" value={dueTodayCount} tone="lavender" />
               <DiaryMetric label="Done" value={completedTodayCount} tone="cyan" />
               <DiaryMetric label="Starred" value={itemsWithSummary.filter((item) => item.isStarred).length} tone="amber" />
@@ -227,36 +249,85 @@ export function DiaryListPanel({
         </div>
       </div>
 
-      <div data-diary-filter-toolbar="open-air" className="flex flex-wrap items-center gap-2 px-1">
-        {(["all", "today", "upcoming", "starred", "hidden"] as const).map((value) => (
-          <button
-            key={value}
-            className={cn(
-              "h-9 rounded-md border px-3 text-xs font-medium capitalize shadow-[0_10px_24px_rgba(0,0,0,0.12)] transition",
-              filter === value
-                ? "border-dusk-lavender bg-dusk-lavender text-ink-950"
-                : "border-white/10 bg-ink-950/35 text-stone-300 hover:border-dusk-lavender/55 hover:bg-white/[0.055]"
-            )}
-            type="button"
-            onClick={() => setFilter(value)}
-          >
-            {value}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid min-h-0 gap-3 xl:grid-cols-[20rem_minmax(0,1fr)_20rem]">
+      <div className="grid min-h-0 gap-3 lg:grid-cols-[22rem_minmax(0,1fr)]">
         <aside data-diary-list-rail="pinned-lists" className="lofi-panel flex min-h-0 flex-col rounded-lg p-4">
-          <div className="mb-3 flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Pinned lists</p>
-              <h3 className="mt-1 text-lg font-semibold text-stone-100">Pick your ritual</h3>
+          <div className="mb-3 flex flex-col gap-2 border-b border-white/10 pb-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Diary Shelf</p>
+                <h3 className="mt-1 text-lg font-semibold text-stone-100">Rituals</h3>
+              </div>
+              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-stone-400">
+                {visibleItems.length}
+              </span>
             </div>
-            <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-stone-400">{visibleItems.length}</span>
+
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              <select
+                className="h-9 w-full rounded-md border border-white/10 bg-ink-950/60 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50 cursor-pointer"
+                value={filter}
+                onChange={(event) => setFilter(event.target.value as DiaryFilter)}
+              >
+                <option value="all">All Rituals</option>
+                <option value="today">Due Today</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="starred">Starred</option>
+                <option value="hidden">Hidden</option>
+              </select>
+
+              <select
+                className="h-9 w-full rounded-md border border-white/10 bg-ink-950/60 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50 cursor-pointer"
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as DiarySort)}
+              >
+                <option value="due">Sort: Due status</option>
+                <option value="title">Sort: Title</option>
+                <option value="starred">Sort: Starred</option>
+                <option value="date">Sort: Start date</option>
+              </select>
+            </div>
           </div>
+
           <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
             {visibleItems.length === 0 ? (
               <DiaryEmptyState label="No diary checklist item in this filter." />
+            ) : filter === "all" ? (
+              <div className="space-y-4">
+                {visibleItems.filter((i) => i.isDueToday).length > 0 && (
+                  <div>
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500">Due Today</h4>
+                    <div className="space-y-2">
+                      {visibleItems
+                        .filter((i) => i.isDueToday)
+                        .map((item) => (
+                          <DiaryListButton
+                            key={item.id}
+                            item={item}
+                            selected={focusedItem?.id === item.id}
+                            onClick={() => setFocusedItemId(item.id)}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                )}
+                {visibleItems.filter((i) => !i.isDueToday).length > 0 && (
+                  <div>
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500">Upcoming</h4>
+                    <div className="space-y-2">
+                      {visibleItems
+                        .filter((i) => !i.isDueToday)
+                        .map((item) => (
+                          <DiaryListButton
+                            key={item.id}
+                            item={item}
+                            selected={focusedItem?.id === item.id}
+                            onClick={() => setFocusedItemId(item.id)}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               visibleItems.map((item) => (
                 <DiaryListButton
@@ -308,38 +379,6 @@ export function DiaryListPanel({
             </div>
           )}
         </main>
-
-        <aside data-diary-queue="next-moments" className="lofi-panel flex min-h-0 flex-col rounded-lg p-4">
-          <div className="mb-3 flex items-start justify-between gap-3 border-b border-white/10 pb-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Ritual queue</p>
-              <h3 className="mt-1 text-lg font-semibold text-stone-100">Next moments</h3>
-            </div>
-            <Image
-              alt=""
-              aria-hidden="true"
-              className="h-12 w-12 object-contain"
-              height={56}
-              src="/stickers/retro/retro-sticker-25-mascot-blob.png"
-              width={56}
-            />
-          </div>
-          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
-            {queueItems.length > 0 ? (
-              queueItems.map((item) => (
-                <DiaryQueueItem key={item.id} item={item} onClick={() => setFocusedItemId(item.id)} />
-              ))
-            ) : (
-              <DiaryEmptyState label="Nothing waiting in the queue." />
-            )}
-          </div>
-          <div className="mt-3 rounded-lg border border-white/10 bg-ink-950/35 p-3">
-            <p className="text-sm font-medium text-stone-200">Pinned bottom-right</p>
-            <p className="mt-1 text-xs leading-5 text-stone-500">
-              Starred diary lists can stay visible from the floating quick hub.
-            </p>
-          </div>
-        </aside>
       </div>
 
       {isCreateOpen ? (
@@ -512,23 +551,7 @@ function DiaryFocusCard({
   );
 }
 
-function DiaryQueueItem({ item, onClick }: { item: DiaryItemWithSummary; onClick: () => void }) {
-  return (
-    <button
-      className="w-full rounded-lg border border-white/10 bg-white/[0.035] p-3 text-left transition hover:border-dusk-lavender/35 hover:bg-white/[0.055]"
-      type="button"
-      onClick={onClick}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <p className="truncate text-sm font-semibold text-stone-100">{item.title}</p>
-        <span className="rounded-full border border-dusk-amber/20 bg-dusk-amber/10 px-2 py-0.5 text-[10px] text-dusk-amber">
-          {item.intervalDays}d
-        </span>
-      </div>
-      <p className="mt-1 text-xs text-stone-500">{getDiarySummaryLabel(item)}</p>
-    </button>
-  );
-}
+
 
 function DiaryStatusBadges({ item }: { item: DiaryItemWithSummary }) {
   return (

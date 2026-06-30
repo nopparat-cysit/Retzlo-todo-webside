@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { getRememberedAccount, setRememberedAccount } from "@/lib/auth/remember-account";
 
 export function LoginForm() {
@@ -43,7 +44,7 @@ export function LoginForm() {
     setIsPending(false);
 
     if (!result || result.error) {
-      setError("Email, username, or password is not right.");
+      setError("The quiet night holds many paths. Try again with your details.");
       return;
     }
 
@@ -55,28 +56,54 @@ export function LoginForm() {
   }
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <Input
-        name="email"
-        type="text"
-        placeholder="Email or username"
-        required
-        value={identifier}
-        onChange={(event) => setIdentifier(event.target.value)}
-      />
-      <Input name="password" type="password" placeholder="Password" required />
-      <label className="flex items-center gap-2 text-sm text-stone-300">
+    <form className="space-y-5" onSubmit={handleSubmit}>
+      <div className="space-y-1.5">
+        <Label htmlFor="identifier" className="text-dusk-cyan/90 text-xs tracking-widest">IDENTIFIER</Label>
+        <Input
+          id="identifier"
+          name="email"
+          type="text"
+          placeholder="yourname or you@email.com"
+          required
+          value={identifier}
+          onChange={(event) => setIdentifier(event.target.value)}
+          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]"
+        />
+      </div>
+      
+      <div className="space-y-1.5">
+        <Label htmlFor="password" className="text-dusk-cyan/90 text-xs tracking-widest">PASSWORD</Label>
+        <Input 
+          id="password" 
+          name="password" 
+          type="password" 
+          placeholder="••••••••" 
+          required 
+          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]"
+        />
+      </div>
+
+      <label className="flex items-center gap-2 text-sm text-[#f5efe6]/70 cursor-pointer hover:text-[#f5efe6] transition-colors">
         <input
-          className="h-4 w-4 accent-dusk-lavender"
+          className="h-4 w-4 accent-dusk-lavender rounded-sm"
           type="checkbox"
           checked={rememberAccount}
           onChange={(event) => setRememberAccount(event.target.checked)}
         />
-        Remember account
+        Remember me in this cozy corner
       </label>
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
-      <Button className="w-full" disabled={isPending}>
-        {isPending ? "Entering..." : "Sign in"}
+
+      {error ? (
+        <p className="text-sm text-dusk-rose/90 bg-ink-900/50 border border-dusk-rose/20 p-3 rounded-xl text-center">
+          {error}
+        </p>
+      ) : null}
+
+      <Button 
+        className="w-full h-12 text-base font-medium motion-interactive bg-dusk-lavender hover:bg-dusk-amber text-ink-950 shadow-glow" 
+        disabled={isPending}
+      >
+        {isPending ? "Walking the path..." : "Enter the workspace"}
       </Button>
     </form>
   );

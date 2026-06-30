@@ -1071,25 +1071,33 @@ export default function LandingPage() {
           className="absolute left-[7%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
           style={{ transform: `translateY(${scrollPercent * -320}px) rotate(12deg)`, top: "1350px" }}
         >
-          <Image src="/stickers/retro/retro-sticker-47-sleepy-cloud.png" alt="Sleepy Cloud Sticker" fill className="object-contain" />
+          <div className="w-full h-full sticker-float-slow">
+            <Image src="/stickers/retro/retro-sticker-47-sleepy-cloud.png" alt="Sleepy Cloud Sticker" fill className="object-contain select-none pointer-events-none" />
+          </div>
         </div>
         <div 
           className="absolute right-[7%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
           style={{ transform: `translateY(${scrollPercent * -420}px) rotate(-15deg)`, top: "2500px" }}
         >
-          <Image src="/stickers/retro/retro-sticker-49-cozy-flame.png" alt="Cozy Flame Sticker" fill className="object-contain" />
+          <div className="w-full h-full sticker-float-medium">
+            <Image src="/stickers/retro/retro-sticker-21-music-note.png" alt="Music Note Sticker" fill className="object-contain select-none pointer-events-none" />
+          </div>
         </div>
         <div 
           className="absolute left-[5%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
           style={{ transform: `translateY(${scrollPercent * -280}px) rotate(8deg)`, top: "3700px" }}
         >
-          <Image src="/stickers/retro/retro-sticker-27-ramen-bowl.png" alt="Ramen Bowl Sticker" fill className="object-contain" />
+          <div className="w-full h-full sticker-float-fast">
+            <Image src="/stickers/retro/retro-sticker-27-ramen-bowl.png" alt="Ramen Bowl Sticker" fill className="object-contain select-none pointer-events-none" />
+          </div>
         </div>
         <div 
           className="absolute right-[6%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
           style={{ transform: `translateY(${scrollPercent * -360}px) rotate(-10deg)`, top: "4800px" }}
         >
-          <Image src="/stickers/retro/retro-sticker-33-magic-wand.png" alt="Magic Wand Sticker" fill className="object-contain" />
+          <div className="w-full h-full sticker-float-slow">
+            <Image src="/stickers/retro/retro-sticker-33-magic-wand.png" alt="Magic Wand Sticker" fill className="object-contain select-none pointer-events-none" />
+          </div>
         </div>
       </div>
 

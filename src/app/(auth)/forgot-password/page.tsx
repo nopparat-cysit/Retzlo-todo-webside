@@ -1,29 +1,29 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
+import { AuthScene } from "@/components/auth/auth-scene";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
-import { BackButton } from "@/components/ui/back-button";
-import { Panel, PageShell } from "@/components/ui/panel";
 
 export default function ForgotPasswordPage() {
   return (
-    <PageShell className="grid max-w-lg items-center">
-      <Panel className="p-6">
-        <div className="mb-6 flex items-start gap-3">
-          <BackButton />
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-dusk-amber">Retzlo</p>
-            <h1 className="mt-2 text-3xl font-semibold">Forgot password</h1>
-            <p className="mt-2 text-sm text-stone-400">We will send a 6-digit OTP to your email.</p>
-          </div>
-        </div>
+    <AuthScene
+      eyebrow="Retzlo"
+      title="Lost your key?"
+      description="Don't worry. The night is long. We'll send a quiet signal to your old journal."
+    >
+      <Suspense fallback={<p className="text-sm text-[#f5efe6]/40">Lighting a match...</p>}>
         <ForgotPasswordForm />
-        <p className="mt-5 text-sm text-stone-400">
-          Remembered it?{" "}
-          <Link className="text-dusk-lavender" href="/login">
-            Sign in
-          </Link>
-        </p>
-      </Panel>
-    </PageShell>
+      </Suspense>
+
+      <p className="mt-8 text-center text-sm text-[#f5efe6]/50">
+        Remembered it?{" "}
+        <Link 
+          href="/login"
+          className="text-dusk-lavender hover:text-dusk-amber transition-colors duration-200 underline-offset-4 hover:underline"
+        >
+          Return to the desk
+        </Link>
+      </p>
+    </AuthScene>
   );
 }

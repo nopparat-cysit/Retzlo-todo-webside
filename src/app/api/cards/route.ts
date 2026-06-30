@@ -28,6 +28,7 @@ const createCardSchema = z.object({
   columnId: z.string().uuid(),
   title: z.string().trim().min(1).max(160),
   description: z.string().trim().max(2000).nullable().optional(),
+  note: z.string().trim().max(5000).nullable().optional(),
   status: cardStatusSchema.default("TODO"),
   color: cardColorSchema,
   checklist: z.array(checklistItemSchema).default([]),
@@ -44,6 +45,7 @@ const updateCardSchema = z.object({
   cardId: z.string().uuid(),
   title: z.string().trim().min(1).max(160).optional(),
   description: z.string().trim().max(2000).nullable().optional(),
+  note: z.string().trim().max(5000).nullable().optional(),
   status: cardStatusSchema.optional(),
   color: z.enum(cardColorValues).optional(),
   checklist: z.array(checklistItemSchema).optional(),
@@ -67,6 +69,7 @@ function serializeCard<T extends {
   rewardCoins: number;
   privateCoins: unknown;
   stickers: unknown;
+  note: string | null;
 }>(card: T) {
   return {
     ...card,
@@ -112,6 +115,7 @@ export async function POST(request: Request) {
         columnId: payload.columnId,
         title: payload.title,
         description: payload.description,
+        note: payload.note,
         status: payload.status,
         color: payload.color,
         checklist: payload.checklist,
@@ -163,6 +167,7 @@ export async function PATCH(request: Request) {
         data: {
           title: payload.title,
           description: payload.description,
+          note: payload.note,
           status: payload.status,
           color: payload.color,
           checklist: payload.checklist,

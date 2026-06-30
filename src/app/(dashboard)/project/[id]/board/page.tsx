@@ -25,6 +25,7 @@ function toColumns(columns: Array<{
     id: string;
     title: string;
     description: string | null;
+    note: string | null;
     position: number;
     status: string;
     color: string;

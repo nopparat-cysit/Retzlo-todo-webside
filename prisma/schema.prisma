@@ -124,6 +124,7 @@ model Card {
   id            String    @id @default(uuid())
   title         String
   description   String?
+  note          String?
   position      Int
   status        String    @default("TODO")
   color         String    @default("DEFAULT")

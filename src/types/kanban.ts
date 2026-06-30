@@ -7,6 +7,7 @@ export interface Card {
   id: string;
   title: string;
   description: string | null;
+  note: string | null;
   position: number;
   status: CardStatus;
   color: CardColor;

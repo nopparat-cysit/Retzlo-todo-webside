@@ -7,6 +7,7 @@ export type CalendarTimeScope = "all" | "allDay" | "timed";
 export interface CalendarFilterState {
   showCards: boolean;
   showNotes: boolean;
+  showDiaryChecklist: boolean;
   statuses: Record<CardStatus, boolean>;
   noteScope: CalendarNoteScope;
   timeScope: CalendarTimeScope;
@@ -34,11 +35,20 @@ export type UnifiedCalendarItem =
       dueDate: string;
       dueDateAllDay: boolean;
       isStarred: boolean;
+    }
+  | {
+      id: string;
+      type: "diary_checklist";
+      title: string;
+      dueDate: string;
+      dueDateAllDay: boolean;
+      completed: boolean;
     };
 
 export const defaultCalendarFilters: CalendarFilterState = {
   showCards: true,
   showNotes: true,
+  showDiaryChecklist: true,
   statuses: {
     TODO: true,
     DOING: true,
@@ -83,6 +93,10 @@ export function filterCalendarItems<T extends UnifiedCalendarItem>(items: T[], f
       if (!filters.showNotes) return false;
       if (filters.noteScope === "starred" && !item.isStarred) return false;
       if (filters.noteScope === "plain" && item.isStarred) return false;
+    }
+
+    if (item.type === "diary_checklist") {
+      if (!filters.showDiaryChecklist) return false;
     }
 
     if (filters.timeScope === "allDay" && !item.dueDateAllDay) return false;

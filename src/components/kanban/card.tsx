@@ -2,7 +2,7 @@
 
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Star } from "lucide-react";
+import { CalendarClock, CheckSquare, FileText, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
@@ -181,6 +181,12 @@ export function KanbanCard({
             <span className="inline-flex items-center gap-1 rounded-full bg-dusk-cyan/10 px-2 py-1 text-xs text-dusk-cyan">
               <CheckSquare className="h-3 w-3" />
               {completedChecklist}/{card.checklist.length}
+            </span>
+          ) : null}
+          {card.note ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-dusk-lavender/10 px-2 py-1 text-xs text-dusk-lavender" title="This card has a note">
+              <FileText className="h-3 w-3" />
+              Note
             </span>
           ) : null}
         </div>

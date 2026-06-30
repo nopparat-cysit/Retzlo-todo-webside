@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight, BarChart3, CheckSquare, Lock, Sparkles, Users, WalletCards } from "lucide-react";
+import { ArrowRight, BarChart3, CheckSquare, Dumbbell, Heart, Lock, Sparkles, Users, WalletCards } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Module {
@@ -26,12 +26,21 @@ const MODULES: Module[] = [
   },
   {
     id: "finance",
-    label: "Accounting Finance",
+    label: "FINANCE",
     description: "Personal income, expenses, accounts, categories, and recurring bills.",
     icon: <WalletCards className="h-8 w-8" />,
     href: "/finance",
     available: true,
     tag: "Phase 1"
+  },
+  {
+    id: "vital",
+    label: "VITAL",
+    description: "Calorie tracking, macro logging, workout planner, weight progress, and calm recovery system.",
+    icon: <Dumbbell className="h-8 w-8" />,
+    href: "/vital",
+    available: true,
+    tag: "New"
   },
   {
     id: "hr",
@@ -44,7 +53,7 @@ const MODULES: Module[] = [
   },
   {
     id: "analytics",
-    label: "Analytics",
+    label: "ANALYTICS",
     description: "Insights, dashboards, and performance metrics across all modules.",
     icon: <BarChart3 className="h-8 w-8" />,
     href: "#",
@@ -72,7 +81,7 @@ export function ModuleSelector() {
         <p className="mt-3 text-stone-400">Choose a workspace module to enter.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {MODULES.map((mod) => (
           <button
             key={mod.id}
@@ -82,13 +91,13 @@ export function ModuleSelector() {
             className={cn(
               "module-card group relative flex flex-col gap-4 rounded-2xl border p-6 text-left transition-all duration-300",
               mod.available
-                ? "cursor-pointer border-white/10 bg-white/[0.04] hover:border-dusk-lavender/40 hover:bg-white/[0.07] hover:shadow-[0_0_32px_rgba(139,92,246,0.12)]"
+                ? "cursor-pointer border-white/10 bg-white/[0.04] hover:border-dusk-lavender/40 hover:bg-white/[0.07] hover:shadow-[0_0_32px_rgba(139,92,246,0.15)]"
                 : "cursor-not-allowed border-white/5 bg-white/[0.02] opacity-50"
             )}
           >
             <span
               className={cn(
-                "absolute right-3 top-3 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-widest",
+                "absolute right-3 top-3 rounded-full px-2.5 py-1 text-[10px] uppercase tracking-widest",
                 mod.available
                   ? "bg-dusk-lavender/20 text-dusk-lavender"
                   : "bg-white/5 text-stone-600"
@@ -99,9 +108,9 @@ export function ModuleSelector() {
 
             <div
               className={cn(
-                "grid h-14 w-14 place-items-center rounded-xl border",
+                "grid h-14 w-14 place-items-center rounded-2xl border",
                 mod.available
-                  ? "border-dusk-lavender/20 bg-dusk-lavender/10 text-dusk-lavender group-hover:border-dusk-lavender/40"
+                  ? "border-dusk-lavender/30 bg-gradient-to-br from-dusk-lavender/10 to-transparent text-dusk-lavender group-hover:border-dusk-lavender/60"
                   : "border-white/5 bg-white/[0.03] text-stone-600"
               )}
             >
