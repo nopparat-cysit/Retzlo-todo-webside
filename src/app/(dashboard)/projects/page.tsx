@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import {
   ProjectsDashboard,
   type GlobalCalendarCard,
+  type GlobalCalendarDiary,
   type ProjectDashboardItem,
   type UserProfile,
 } from "@/components/project/projects-dashboard";
@@ -21,7 +22,7 @@ export default async function ProjectsPage() {
 
   let databaseWarning: string | undefined;
 
-  const [projects, calendarCards, userRecord] = await Promise.all([
+  const [projects, calendarCards, userRecord, diaryItems] = await Promise.all([
     prisma.project.findMany({
       where: {
         members: { some: { userId: session.user.id } }
@@ -99,6 +100,28 @@ export default async function ProjectsPage() {
       where: { id: session.user.id },
       select: { name: true, avatar: true, status: true, email: true },
     }),
+    prisma.diaryItem.findMany({
+      where: {
+        OR: [
+          { authorId: session.user.id, projectId: null },
+          {
+            projectId: { not: null },
+            project: {
+              members: { some: { userId: session.user.id } }
+            }
+          }
+        ]
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    })
   ]).catch((error) => {
     console.error("Failed to load projects dashboard data", error);
     databaseWarning = "Cannot reach the database right now. Your workspace will appear here again when the connection is back.";
@@ -112,6 +135,7 @@ export default async function ProjectsPage() {
         status: "ONLINE",
         email: session.user.email ?? "",
       },
+      []
     ] as const;
   });
 
@@ -127,6 +151,7 @@ export default async function ProjectsPage() {
       <ProjectsDashboard
         projects={projects.map(toProjectDashboardItem)}
         calendarCards={calendarCards.map(toGlobalCalendarCard)}
+        calendarDiaries={(diaryItems ?? []).map(toGlobalCalendarDiary)}
         userProfile={userProfile}
         databaseWarning={databaseWarning}
       />
@@ -215,5 +240,31 @@ function toGlobalCalendarCard(card: {
     dueDate: card.dueDate?.toISOString() ?? new Date().toISOString(),
     dueDateAllDay: card.dueDateAllDay,
     project: card.column.board.project
+  };
+}
+
+function toGlobalCalendarDiary(diary: any): GlobalCalendarDiary {
+  return {
+    id: diary.id,
+    diaryId: diary.id,
+    title: diary.title,
+    description: diary.description ?? "",
+    color: diary.color,
+    intervalDays: diary.intervalDays,
+    startDate: diary.startDate.toISOString(),
+    checklist: diary.checklist ?? [],
+    rewardCoins: diary.rewardCoins,
+    rewardCoinType: diary.rewardCoinType,
+    rewardClaimedDates: diary.rewardClaimedDates ?? [],
+    isStarred: diary.isStarred,
+    isHidden: diary.isHidden,
+    dueTime: diary.dueTime,
+    projectId: diary.projectId,
+    project: diary.project
+      ? {
+          id: diary.project.id,
+          name: diary.project.name
+        }
+      : null
   };
 }

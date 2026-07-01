@@ -28,6 +28,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input, Textarea } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { DiaryItemModal, type DiaryPayload } from "@/components/hub/diary-hub-panel";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ProjectAppearanceControls } from "@/components/project/project-appearance-controls";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
@@ -36,6 +37,8 @@ import { formatShortDue } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { DEFAULT_PROJECT_STICKER } from "@/lib/projects/appearance";
 import { sortProjectsByStarred } from "@/lib/projects/sort";
+import { getDiaryChecklistSummary } from "@/lib/diary/checklist";
+import { isDiaryItemDueOnDate } from "@/lib/diary/recurrence";
 import { getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import type { CardStatus } from "@/types/kanban";
@@ -87,6 +90,37 @@ export interface GlobalCalendarCard {
   };
 }
 
+export interface GlobalCalendarDiary {
+  id: string;
+  diaryId: string;
+  title: string;
+  description: string;
+  color: string;
+  intervalDays: number;
+  startDate: string;
+  checklist: any[];
+  rewardCoins: number;
+  rewardCoinType: string;
+  rewardClaimedDates: string[];
+  isStarred: boolean;
+  isHidden: boolean;
+  dueTime: string | null;
+  projectId: string | null;
+  project: {
+    id: string;
+    name: string;
+  } | null;
+  dueDate?: string;
+  checklistSummary?: {
+    completedCount: number;
+    dueCount: number;
+    hasChecklist: boolean;
+    isDue: boolean;
+    totalCount: number;
+  };
+  rawItem?: any;
+}
+
 export interface UserProfile {
   name: string | null;
   avatar: string | null;
@@ -97,16 +131,20 @@ export interface UserProfile {
 export function ProjectsDashboard({
   projects,
   calendarCards,
+  calendarDiaries = [],
   userProfile,
   databaseWarning,
 }: {
   projects: ProjectDashboardItem[];
   calendarCards: GlobalCalendarCard[];
+  calendarDiaries?: GlobalCalendarDiary[];
   userProfile?: UserProfile;
   databaseWarning?: string;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [selectedDiary, setSelectedDiary] = useState<any | null>(null);
   const [calendarStatusFilters, setCalendarStatusFilters] = useState(defaultCalendarFilters.statuses);
   const [calendarTimeScope, setCalendarTimeScope] = useState(defaultCalendarFilters.timeScope);
   const [calendarRange, setCalendarRange] = useState<"7" | "30" | "all">("30");
@@ -165,6 +203,123 @@ export function ProjectsDashboard({
       return due >= startOfDay(now) && due <= endOfDay(end);
     });
   }, [calendarCards, calendarRange, calendarStatusFilters, calendarTimeScope]);
+
+  const filteredCalendarItems = useMemo(() => {
+    const cardItems = filteredCalendarCards.map((card) => ({
+      ...card,
+      type: "card" as const
+    }));
+
+    const limit = calendarRange === "all" ? 30 : Number(calendarRange);
+    const now = new Date();
+    const diariesList: Array<GlobalCalendarDiary & { type: "diary" }> = [];
+    const todayKey = now.toISOString().slice(0, 10);
+
+    for (let offset = 0; offset <= limit; offset++) {
+      const date = new Date(now);
+      date.setDate(now.getDate() + offset);
+      const dateStr = date.toISOString().slice(0, 10);
+
+      // diaries list in calendar will only generate when that date has arrived, not in advance!
+      if (dateStr > todayKey) {
+        continue;
+      }
+
+      for (const diary of calendarDiaries) {
+        const isDue = isDiaryItemDueOnDate(diary.startDate, dateStr, diary.intervalDays);
+        if (isDue) {
+          const checklistSummary = getDiaryChecklistSummary(diary, dateStr);
+          diariesList.push({
+            ...diary,
+            type: "diary",
+            id: `diary-${diary.id}-${dateStr}`,
+            diaryId: diary.id,
+            dueDate: dateStr,
+            checklistSummary,
+            rawItem: diary
+          });
+        }
+      }
+    }
+
+    const merged = [...cardItems, ...diariesList];
+
+    merged.sort((a, b) => {
+      const dateA = new Date(a.dueDate ?? "");
+      const dateB = new Date(b.dueDate ?? "");
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    merged.sort((a, b) => {
+      const aDone = a.type === "card"
+        ? a.status === "DONE"
+        : !!(a.checklistSummary && a.checklistSummary.dueCount > 0 && a.checklistSummary.completedCount === a.checklistSummary.dueCount);
+      const bDone = b.type === "card"
+        ? b.status === "DONE"
+        : !!(b.checklistSummary && b.checklistSummary.dueCount > 0 && b.checklistSummary.completedCount === b.checklistSummary.dueCount);
+      if (aDone && !bDone) return 1;
+      if (!aDone && bDone) return -1;
+      return 0;
+    });
+
+    return merged;
+  }, [filteredCalendarCards, calendarDiaries, calendarRange]);
+
+  async function handleSaveDiary(payload: DiaryPayload) {
+    if (!selectedDiary) return;
+    try {
+      const response = await fetch(`/api/diary-items/${selectedDiary.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (response.ok) {
+        toast({
+          message: "Diary updated successfully.",
+          type: "success"
+        });
+        setSelectedDiary(null);
+        router.refresh();
+      } else {
+        toast({
+          message: "Failed to update the diary item.",
+          type: "error"
+        });
+      }
+    } catch {
+      toast({
+        message: "An unexpected error occurred.",
+        type: "error"
+      });
+    }
+  }
+
+  async function handleDeleteDiary() {
+    if (!selectedDiary) return;
+    try {
+      const response = await fetch(`/api/diary-items/${selectedDiary.id}`, {
+        method: "DELETE"
+      });
+      if (response.ok) {
+        toast({
+          message: "Diary deleted successfully.",
+          type: "success"
+        });
+        setSelectedDiary(null);
+        router.refresh();
+      } else {
+        toast({
+          message: "Failed to delete the diary.",
+          type: "error"
+        });
+      }
+    } catch {
+      toast({
+        message: "An unexpected error occurred.",
+        type: "error"
+      });
+    }
+  }
 
   return (
     <main className="soft-grid-bg h-screen w-full overflow-hidden p-3 sm:p-4 lg:p-5">
@@ -287,32 +442,70 @@ export function ProjectsDashboard({
               </div>
             </div>
             <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
-              {filteredCalendarCards.slice(0, 8).map((card) => {
-                const status = getStatusMeta(card.status);
+              {filteredCalendarItems.slice(0, 8).map((item) => {
+                if (item.type === "card") {
+                  const status = getStatusMeta(item.status);
+                  return (
+                    <Link
+                      key={item.id}
+                      className="block rounded-xl border border-white/10 bg-white/[0.04] p-3 transition hover:border-dusk-lavender/45 hover:bg-white/[0.065]"
+                      href={`/project/${item.project.id}/calendar`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="line-clamp-2 text-sm font-medium text-stone-100">{item.title}</p>
+                        <span className={cn("shrink-0 rounded border px-1.5 py-0.5 text-[10px]", status.badgeClass)}>
+                          {status.label}
+                        </span>
+                      </div>
+                      <p className="mt-2 flex items-center gap-1 text-xs text-dusk-cyan">
+                        <Clock className="h-3 w-3" />
+                        {formatDue(item)}
+                      </p>
+                      <p className="mt-1 truncate text-xs text-stone-500">{item.project.name}</p>
+                    </Link>
+                  );
+                } else {
+                  const diaryItem = item as Required<Pick<GlobalCalendarDiary, "checklistSummary" | "dueDate" | "dueTime" | "title" | "id" | "rawItem">> & { project: GlobalCalendarDiary["project"] };
+                  const highlight = getDiaryHighlightStatus(diaryItem);
+                  let borderClass = "border-white/10 bg-white/[0.04] hover:border-dusk-lavender/45 hover:bg-white/[0.065]";
+                  if (highlight === "warn-red") {
+                    borderClass = "border-red-500/40 bg-red-500/5 hover:border-red-500/60";
+                  } else if (highlight === "completed") {
+                    borderClass = "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/50";
+                  }
 
-                return (
-                  <Link
-                    key={card.id}
-                    className="block rounded-xl border border-white/10 bg-white/[0.04] p-3 transition hover:border-dusk-lavender/45 hover:bg-white/[0.065]"
-                    href={`/project/${card.project.id}/calendar`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="line-clamp-2 text-sm font-medium text-stone-100">{card.title}</p>
-                      <span className={cn("shrink-0 rounded border px-1.5 py-0.5 text-[10px]", status.badgeClass)}>
-                        {status.label}
-                      </span>
-                    </div>
-                    <p className="mt-2 flex items-center gap-1 text-xs text-dusk-cyan">
-                      <Clock className="h-3 w-3" />
-                      {formatDue(card)}
-                    </p>
-                    <p className="mt-1 truncate text-xs text-stone-500">{card.project.name}</p>
-                  </Link>
-                );
+                  return (
+                    <button
+                      key={diaryItem.id}
+                      type="button"
+                      className={cn("block w-full text-left rounded-xl border p-3 transition", borderClass)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedDiary(diaryItem.rawItem);
+                      }}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="line-clamp-2 text-sm font-medium text-stone-100">📖 {diaryItem.title}</p>
+                        {diaryItem.checklistSummary.dueCount > 0 ? (
+                          <span className="shrink-0 rounded border border-dusk-cyan/20 bg-dusk-cyan/10 px-1.5 py-0.5 text-[10px] text-dusk-cyan font-mono">
+                            {diaryItem.checklistSummary.completedCount}/{diaryItem.checklistSummary.dueCount}
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="mt-2 flex items-center gap-1 text-xs text-dusk-cyan">
+                        <Clock className="h-3 w-3" />
+                        {diaryItem.dueTime ? `${diaryItem.dueDate} ${diaryItem.dueTime}` : `${diaryItem.dueDate}`}
+                      </p>
+                      <p className="mt-1 truncate text-xs text-stone-500">
+                        {diaryItem.project ? diaryItem.project.name : "Personal Diary"}
+                      </p>
+                    </button>
+                  );
+                }
               })}
-              {filteredCalendarCards.length === 0 ? (
+              {filteredCalendarItems.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-stone-500">
-                  No cards match the calendar filters.
+                  No cards or diaries match the calendar filters.
                 </div>
               ) : null}
             </div>
@@ -370,6 +563,17 @@ export function ProjectsDashboard({
       </div>
 
       {isCreateOpen ? <CreateProjectModal onClose={() => setIsCreateOpen(false)} /> : null}
+      {selectedDiary ? (
+        <DiaryItemModal
+          item={selectedDiary}
+          title="Edit Diary"
+          isPersonal={!selectedDiary.projectId}
+          selectedDate={new Date().toISOString().slice(0, 10)}
+          onClose={() => setSelectedDiary(null)}
+          onDelete={handleDeleteDiary}
+          onSubmit={handleSaveDiary}
+        />
+      ) : null}
     </main>
   );
 }
@@ -978,4 +1182,36 @@ function ProjectMetric({
 
 function formatDue(card: GlobalCalendarCard) {
   return formatShortDue(card.dueDate, card.dueDateAllDay);
+}
+
+function getDiaryHighlightStatus(item: {
+  checklistSummary: { dueCount: number; completedCount: number };
+  dueTime: string | null;
+  dueDate: string;
+}) {
+  if (item.checklistSummary.dueCount === 0) {
+    return "default";
+  }
+  const isCompleted = item.checklistSummary.completedCount === item.checklistSummary.dueCount;
+  if (isCompleted) {
+    return "completed";
+  }
+
+  if (item.dueTime) {
+    const now = new Date();
+    const dateParts = item.dueDate.split("-").map(Number); // [YYYY, MM, DD]
+    const [hours, minutes] = item.dueTime.split(":").map(Number);
+    const dueDateTime = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], hours, minutes);
+
+    if (now > dueDateTime) {
+      return "warn-red";
+    }
+
+    const diffMs = dueDateTime.getTime() - now.getTime();
+    if (diffMs > 0 && diffMs <= 60 * 60 * 1000) {
+      return "warn-red";
+    }
+  }
+
+  return "default";
 }

@@ -10,12 +10,13 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { FormEvent, ReactNode, useEffect, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { CalendarClock, CheckSquare, Coins, FileText, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { RetroStickerPicker } from "@/components/stickers/retro-sticker-picker";
 import { applyDueShortcut, composeDueDate } from "@/lib/kanban/due-date";
 import { getPrivateCoinEntry, resolveCardRewardPayload } from "@/lib/kanban/private-coins";
@@ -72,7 +73,11 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   const [checklist, setChecklist] = useState<ChecklistItem[]>(card?.checklist ?? []);
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [note, setNote] = useState(card?.note ?? "");
+  const [title, setTitle] = useState(card?.title ?? "");
+  const [description, setDescription] = useState(card?.description ?? "");
   const [isSaving, setIsSaving] = useState(false);
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
+  const backdropRef = useRef<HTMLDivElement>(null);
 
   // Gamification fields
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
@@ -102,6 +107,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     setChecklist(card?.checklist ?? []);
     setNewChecklistItem("");
     setNote(card?.note ?? "");
+    setTitle(card?.title ?? "");
+    setDescription(card?.description ?? "");
 
     setRewardCoins(card?.rewardCoins ?? 0);
     setShowCoinRewards(Boolean(card?.rewardCoins));
@@ -123,6 +130,98 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     }
     void fetchUser();
   }, [card, open]);
+
+  const hasChanges = useMemo(() => {
+    if (mode === "create") {
+      return (
+        title.trim() !== "" ||
+        description.trim() !== "" ||
+        note.trim() !== "" ||
+        checklist.length > 0 ||
+        selectedStatus !== "TODO" ||
+        selectedPriority !== "MEDIUM" ||
+        isStarred ||
+        rewardCoins > 0 ||
+        stickers.length > 0 ||
+        date !== "" ||
+        time !== ""
+      );
+    }
+
+    if (!card) return false;
+
+    const initialTitle = card.title ?? "";
+    const initialDesc = card.description ?? "";
+    const initialNote = card.note ?? "";
+    const initialStatus = card.status ?? "TODO";
+    const initialColor = normalizeCardColor(card.color);
+    const initialPriority = card.priority ?? "MEDIUM";
+    const initialStarred = card.isStarred ?? false;
+    const initialReward = card.rewardCoins ?? 0;
+    const initialStickers = normalizeRetroStickerSelection(card.stickers);
+    const initialDate = dateValue(card);
+    const initialTime = timeValue(card);
+
+    const checklistChanged =
+      checklist.length !== (card.checklist?.length ?? 0) ||
+      checklist.some((item, idx) => {
+        const initialItem = card.checklist?.[idx];
+        return !initialItem || item.label !== initialItem.label || item.checked !== initialItem.checked;
+      });
+
+    const stickersChanged =
+      stickers.length !== initialStickers.length ||
+      stickers.some((s, idx) => s !== initialStickers[idx]);
+
+    return (
+      title !== initialTitle ||
+      description !== initialDesc ||
+      note !== initialNote ||
+      selectedStatus !== initialStatus ||
+      selectedColor !== initialColor ||
+      selectedPriority !== initialPriority ||
+      isStarred !== initialStarred ||
+      rewardCoins !== initialReward ||
+      date !== initialDate ||
+      time !== initialTime ||
+      checklistChanged ||
+      stickersChanged
+    );
+  }, [
+    mode,
+    card,
+    title,
+    description,
+    note,
+    selectedStatus,
+    selectedColor,
+    selectedPriority,
+    isStarred,
+    rewardCoins,
+    stickers,
+    date,
+    time,
+    checklist
+  ]);
+
+  const handleCloseRequest = useCallback(() => {
+    if (hasChanges) {
+      setShowConfirmClose(true);
+    } else {
+      onClose();
+    }
+  }, [hasChanges, onClose]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        handleCloseRequest();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [hasChanges, handleCloseRequest]);
 
   if (!open || !mounted) {
     return null;
@@ -194,10 +293,18 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     setIsSaving(false);
   }
 
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === backdropRef.current) {
+      handleCloseRequest();
+    }
+  };
+
   const modal = (
-    <div
-      className="fixed inset-0 z-[1000] grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm"
-      onClick={(event) => event.stopPropagation()}
+    <>
+      <div
+        ref={backdropRef}
+        className="fixed inset-0 z-[1000] grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm"
+        onClick={handleBackdropClick}
       onKeyDown={(event) => event.stopPropagation()}
     >
       <form className="lofi-panel flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg" onSubmit={handleSubmit}>
@@ -235,7 +342,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
             >
               <Star className={cn("h-4 w-4", isStarred && "fill-dusk-amber")} />
             </button>
-            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
+            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={handleCloseRequest}>
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -245,8 +352,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
         <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] lg:items-start">
           <div className="grid gap-4">
-          <Input name="title" defaultValue={card?.title ?? ""} placeholder="Card title" required />
-          <Textarea name="description" defaultValue={card?.description ?? ""} placeholder="Details, links, context..." />
+          <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Card title" required />
+          <Textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Details, links, context..." />
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-stone-200">
               <FileText className="h-4 w-4 text-dusk-lavender" />
@@ -438,13 +545,26 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
               Delete card
             </Button>
           ) : null}
-          <Button type="button" variant="ghost" onClick={onClose}>
+          <Button type="button" variant="ghost" onClick={handleCloseRequest}>
             Cancel
           </Button>
           <Button disabled={isSaving}>{isSaving ? "Saving..." : "Save card"}</Button>
         </div>
       </form>
-    </div>
+      </div>
+      <ConfirmModal
+        open={showConfirmClose}
+        title="Discard changes?"
+        message="You have unsaved changes. Are you sure you want to discard them?"
+        confirmLabel="Discard changes"
+        variant="danger"
+        onConfirm={() => {
+          setShowConfirmClose(false);
+          onClose();
+        }}
+        onClose={() => setShowConfirmClose(false)}
+      />
+    </>
   );
 
   return createPortal(modal, document.body);

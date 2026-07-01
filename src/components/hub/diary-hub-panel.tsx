@@ -1,12 +1,13 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { BookOpen, CheckCircle2, Coins, Eye, EyeOff, Pencil, Plus, Repeat, Save, SlidersHorizontal, Star, Trash2, X } from "lucide-react";
 
 import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { setRedStarItem } from "@/components/hub/fab-hub";
 import {
   getDiaryChecklistSummary,
@@ -33,7 +34,7 @@ interface DiaryHubPanelProps {
   projects: { id: string; name: string }[];
 }
 
-interface DiaryPayload {
+export interface DiaryPayload {
   title: string;
   description: string;
   color: CardColor;
@@ -380,7 +381,7 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
 // Modal
 // ---------------------------------------------------------------------------
 
-function DiaryItemModal({
+export function DiaryItemModal({
   item,
   title,
   isPersonal,
@@ -407,13 +408,92 @@ function DiaryItemModal({
   const [checklist, setChecklist] = useState<DiaryChecklistItem[]>(
     normalizeDiaryChecklist(item?.checklist, item?.startDate ?? selectedDate)
   );
+  const [titleVal, setTitleVal] = useState(item?.title ?? "");
+  const [descriptionVal, setDescriptionVal] = useState(item?.description ?? "");
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
+  const backdropRef = useRef<HTMLDivElement>(null);
+
+  const hasChanges = useMemo(() => {
+    const isNew = !item;
+    if (isNew) {
+      return (
+        titleVal.trim() !== "" ||
+        descriptionVal.trim() !== "" ||
+        intervalDays !== 1 ||
+        startDate !== selectedDate ||
+        rewardCoins > 0 ||
+        checklist.length > 0
+      );
+    }
+
+    const initialTitle = item.title ?? "";
+    const initialDesc = item.description ?? "";
+    const initialColor = normalizeCardColor(item.color);
+    const initialInterval = item.intervalDays ?? 1;
+    const initialStart = item.startDate.slice(0, 10);
+    const initialReward = item.rewardCoins ?? 0;
+    const initialRewardType = item.rewardCoinType ?? (isPersonal ? "GLOBAL" : "PROJECT");
+
+    const checklistChanged =
+      checklist.length !== (item.checklist?.length ?? 0) ||
+      checklist.some((checklistItem, idx) => {
+        const initialItem = item.checklist?.[idx];
+        return (
+          !initialItem ||
+          checklistItem.label !== initialItem.label ||
+          checklistItem.intervalDays !== initialItem.intervalDays ||
+          checklistItem.startDate.slice(0, 10) !== initialItem.startDate.slice(0, 10)
+        );
+      });
+
+    return (
+      titleVal !== initialTitle ||
+      descriptionVal !== initialDesc ||
+      color !== initialColor ||
+      intervalDays !== initialInterval ||
+      startDate !== initialStart ||
+      rewardCoins !== initialReward ||
+      rewardCoinType !== initialRewardType ||
+      checklistChanged
+    );
+  }, [
+    item,
+    titleVal,
+    descriptionVal,
+    color,
+    intervalDays,
+    startDate,
+    selectedDate,
+    rewardCoins,
+    rewardCoinType,
+    checklist,
+    isPersonal
+  ]);
+
+  const handleCloseRequest = useCallback(() => {
+    if (hasChanges) {
+      setShowConfirmClose(true);
+    } else {
+      onClose();
+    }
+  }, [hasChanges, onClose]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        handleCloseRequest();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [hasChanges, handleCloseRequest]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
     onSubmit({
-      title: String(formData.get("title") ?? ""),
-      description: String(formData.get("description") ?? ""),
+      title: titleVal,
+      description: descriptionVal,
       color,
       intervalDays,
       startDate,
@@ -427,9 +507,19 @@ function DiaryItemModal({
     });
   }
 
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === backdropRef.current) {
+      handleCloseRequest();
+    }
+  };
+
   return (
     <ModalPortal>
-    <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/85 px-4 py-4 backdrop-blur-sm">
+    <div
+      ref={backdropRef}
+      className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/85 px-4 py-4 backdrop-blur-sm"
+      onClick={handleBackdropClick}
+    >
       <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-xl p-5" onSubmit={handleSubmit}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
@@ -465,7 +555,7 @@ function DiaryItemModal({
               <SlidersHorizontal className="h-4 w-4" />
               Settings
             </button>
-            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10" type="button" onClick={onClose}>
+            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10" type="button" onClick={handleCloseRequest}>
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -474,8 +564,8 @@ function DiaryItemModal({
         <div className={cn("grid min-h-0 flex-1 gap-5 overflow-hidden", (isSettingsOpen || isRewardOpen) && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
           <section className="flex min-h-0 flex-col gap-4">
             <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender">Details</p>
-            <Input name="title" defaultValue={item?.title ?? ""} placeholder="Diary title" required />
-            <Textarea className="min-h-28" name="description" defaultValue={item?.description ?? ""} placeholder="What should repeat?" />
+            <Input name="title" value={titleVal} onChange={(e) => setTitleVal(e.target.value)} placeholder="Diary title" required />
+            <Textarea className="min-h-28" name="description" value={descriptionVal} onChange={(e) => setDescriptionVal(e.target.value)} placeholder="What should repeat?" />
             <ColorPicker selectedColor={color} onChange={setColor} />
             <DiaryChecklistEditor
               defaultRepeatDays={intervalDays}
@@ -562,7 +652,7 @@ function DiaryItemModal({
               Delete
             </Button>
           )}
-          <Button type="button" variant="ghost" onClick={onClose}>
+          <Button type="button" variant="ghost" onClick={handleCloseRequest}>
             Cancel
           </Button>
           <Button>
@@ -571,6 +661,18 @@ function DiaryItemModal({
           </Button>
         </div>
       </form>
+      <ConfirmModal
+        open={showConfirmClose}
+        title="Discard changes?"
+        message="You have unsaved changes. Are you sure you want to discard them?"
+        confirmLabel="Discard changes"
+        variant="danger"
+        onConfirm={() => {
+          setShowConfirmClose(false);
+          onClose();
+        }}
+        onClose={() => setShowConfirmClose(false)}
+      />
     </div>
     </ModalPortal>
   );
