@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { CardModal } from "@/components/kanban/card-modal";
 import { KanbanCard } from "@/components/kanban/card";
 import { ColumnIconGlyph, ColumnIconPicker } from "@/components/kanban/column-icon-picker";
+import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
@@ -266,6 +267,7 @@ export function KanbanColumn({
       {/* ── Header ── */}
       <header className={cn("flex items-center gap-2 border-b border-white/10 px-3 py-3", theme.headerClass)}>
         <button
+          suppressHydrationWarning
           className="text-stone-600 transition-colors hover:text-dusk-lavender group-hover:text-stone-400"
           aria-label="Drag column"
           {...attributes}
@@ -421,15 +423,24 @@ export function KanbanColumn({
 
       {/* ── Full Card Modal ── */}
       {isSettingsOpen ? (
-        <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/78 px-4 py-6 backdrop-blur-sm">
+        <AppModal
+          open={isSettingsOpen}
+          onClose={closeSettings}
+          hasUnsavedChanges={
+            settingsName !== column.name ||
+            settingsColor !== column.color ||
+            settingsIcon !== column.icon
+          }
+          labelledBy="column-settings-title"
+          contentClassName="lofi-panel w-full max-w-lg rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
+        >
           <form
-            className="lofi-panel motion-dialog-content w-full max-w-lg rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
             onSubmit={handleSaveIntent}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Column settings</p>
-                <h3 className="mt-1 text-2xl font-semibold text-stone-100">Edit column</h3>
+                <h3 id="column-settings-title" className="mt-1 text-2xl font-semibold text-stone-100">Edit column</h3>
                 <p className="mt-1 text-sm leading-6 text-stone-400">
                   Adjust the lane name, color, and icon shown on the board.
                 </p>
@@ -492,7 +503,7 @@ export function KanbanColumn({
               </div>
             </div>
           </form>
-        </div>
+        </AppModal>
       ) : null}
 
       <CardModal

@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import { ProjectCalendar, type CalendarCard, type CalendarNote } from "@/components/kanban/project-calendar";
+import { ErrorState } from "@/components/ui/state";
 import { prisma } from "@/lib/prisma";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { getProjectMembership, requireUserId, canManageAuthoredItem, canToggleHiddenItem } from "@/lib/project-auth";
 import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
 import { serializeDiaryRewardClaimedDates } from "@/lib/diary/payout";
+import { isDatabaseConnectionError } from "@/lib/safe-db";
 import type { CardStatus, ChecklistItem } from "@/types/kanban";
 import type { ProjectDiaryItem } from "@/types/diary-item";
 
@@ -14,59 +16,73 @@ export default async function CalendarPage({ params }: { params: { id: string } 
     notFound();
   }
 
-  const membership = await getProjectMembership(params.id, userId);
-  if (!membership) {
-    notFound();
-  }
+  let membership: Awaited<ReturnType<typeof getProjectMembership>>;
+  let project: { allowMemberPrivateItems: boolean } | null;
+  let cards: any[] = [];
+  let notes: any[] = [];
+  let diaryItems: any[] = [];
 
-  const project = await prisma.project.findUnique({
-    where: { id: params.id },
-    select: { allowMemberPrivateItems: true }
-  });
+  try {
+    membership = await getProjectMembership(params.id, userId);
+    if (!membership) {
+      notFound();
+    }
 
-  if (!project) {
-    notFound();
-  }
+    project = await prisma.project.findUnique({
+      where: { id: params.id },
+      select: { allowMemberPrivateItems: true }
+    });
 
-  const [cards, notes, diaryItems] = await Promise.all([
-    prisma.card.findMany({
-      where: {
-        dueDate: { not: null },
-        column: { board: { projectId: params.id } }
-      },
-      include: {
-        column: {
-          select: {
-            name: true,
-            boardId: true
+    if (!project) {
+      notFound();
+    }
+
+    [cards, notes, diaryItems] = await Promise.all([
+      prisma.card.findMany({
+        where: {
+          dueDate: { not: null },
+          column: { board: { projectId: params.id } }
+        },
+        include: {
+          column: {
+            select: {
+              name: true,
+              boardId: true
+            }
+          }
+        },
+        orderBy: [{ dueDate: "asc" }, { position: "asc" }]
+      }),
+      prisma.note.findMany({
+        where: {
+          projectId: params.id,
+          completedAt: null,
+          dueDate: { not: null }
+        },
+        orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }]
+      }),
+      prisma.diaryItem.findMany({
+        where: {
+          projectId: params.id,
+          isHidden: false
+        },
+        include: {
+          author: {
+            select: {
+              name: true,
+              email: true
+            }
           }
         }
-      },
-      orderBy: [{ dueDate: "asc" }, { position: "asc" }]
-    }),
-    prisma.note.findMany({
-      where: {
-        projectId: params.id,
-        completedAt: null,
-        dueDate: { not: null }
-      },
-      orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }]
-    }),
-    prisma.diaryItem.findMany({
-      where: {
-        projectId: params.id,
-        isHidden: false
-      },
-      include: {
-        author: {
-          select: {
-            name: true,
-            email: true
-          }
-        }
-      }
-    })
-  ]);
+      })
+    ]);
+  } catch (error) {
+    if (isDatabaseConnectionError(error)) {
+      return <ProjectDataUnavailable title="Calendar is waiting for the database" />;
+    }
+
+    throw error;
+  }
 
   const initialDiaryItems = toProjectDiaryItems(diaryItems, {
     membership,
@@ -81,6 +97,18 @@ export default async function CalendarPage({ params }: { params: { id: string } 
       initialNotes={notes.map(toCalendarNote)}
       initialDiaryItems={initialDiaryItems}
     />
+  );
+}
+
+function ProjectDataUnavailable({ title }: { title: string }) {
+  return (
+    <div className="grid h-full min-h-0 place-items-center p-4">
+      <ErrorState
+        className="w-full max-w-xl"
+        title={title}
+        message="The database connection is unavailable right now. Try refreshing once Supabase is reachable again."
+      />
+    </div>
   );
 }
 

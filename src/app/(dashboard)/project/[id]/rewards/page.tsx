@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember } from "@/lib/project-auth";
 import { RewardsStore } from "@/components/project/rewards-store";
+import { ErrorState } from "@/components/ui/state";
+import { getDatabaseErrorMessage } from "@/lib/safe-db";
 
 export default async function ProjectRewardsPage({
   params,
@@ -16,15 +18,26 @@ export default async function ProjectRewardsPage({
     redirect("/login");
   }
 
-  const membership = await assertProjectMember(params.id, session.user.id);
+  let membership;
+  try {
+    membership = await assertProjectMember(params.id, session.user.id);
+  } catch (error) {
+    return <ErrorState title="Rewards could not load" message={getDatabaseErrorMessage(error)} />;
+  }
+
   if (!membership) {
     notFound();
   }
 
-  const project = await prisma.project.findUnique({
-    where: { id: params.id },
-    select: { name: true, coinName: true, coinSymbol: true },
-  });
+  let project;
+  try {
+    project = await prisma.project.findUnique({
+      where: { id: params.id },
+      select: { name: true, coinName: true, coinSymbol: true },
+    });
+  } catch (error) {
+    return <ErrorState title="Rewards could not load" message={getDatabaseErrorMessage(error)} />;
+  }
 
   if (!project) {
     notFound();

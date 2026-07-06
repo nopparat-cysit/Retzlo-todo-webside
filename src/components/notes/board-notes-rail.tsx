@@ -3,9 +3,10 @@
 import { FormEvent, useMemo, useState } from "react";
 import { CheckCircle2, FileText, Plus, RotateCcw, Save, Star, Trash2, X } from "lucide-react";
 
+import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
-import { ModalPortal } from "@/components/ui/modal-portal";
 import { formatMediumDateTime } from "@/lib/date-format";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
@@ -131,25 +132,25 @@ export function BoardNotesRail({
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <select
-          className="h-9 rounded-md border border-white/10 bg-ink-950/50 px-2 text-xs text-stone-100 outline-none"
+        <FilterSelect
           value={filter}
-          onChange={(event) => setFilter(event.target.value as NoteFilter)}
-        >
-          <option value="starred">Starred</option>
-          <option value="recent">Recent</option>
-          <option value="all">All notes</option>
-          <option value="completed">Completed</option>
-        </select>
-        <select
-          className="h-9 rounded-md border border-white/10 bg-ink-950/50 px-2 text-xs text-stone-100 outline-none"
+          options={[
+            { value: "starred", label: "Starred" },
+            { value: "recent", label: "Recent" },
+            { value: "all", label: "All notes" },
+            { value: "completed", label: "Completed" }
+          ]}
+          onValueChange={setFilter}
+        />
+        <FilterSelect
           value={sortBy}
-          onChange={(event) => setSortBy(event.target.value as NoteSort)}
-        >
-          <option value="updated">Updated</option>
-          <option value="created">Created</option>
-          <option value="title">Title</option>
-        </select>
+          options={[
+            { value: "updated", label: "Updated" },
+            { value: "created", label: "Created" },
+            { value: "title", label: "Title" }
+          ]}
+          onValueChange={setSortBy}
+        />
       </div>
 
       {error ? <p className="mt-3 rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p> : null}
@@ -250,9 +251,13 @@ function NoteModal({
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
   return (
-    <ModalPortal>
-      <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/80 px-4 py-4 backdrop-blur-sm">
-        <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl" onSubmit={onSubmit}>
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="board-note-modal-title"
+      contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-4xl flex-col overflow-hidden rounded-2xl"
+    >
+        <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
           <ModalHeader title={title} onClose={onClose} />
           <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
             <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
@@ -271,8 +276,7 @@ function NoteModal({
             <Button>{submitLabel}</Button>
           </div>
         </form>
-      </div>
-    </ModalPortal>
+    </AppModal>
   );
 }
 
@@ -290,9 +294,13 @@ function EditNoteModal({
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
   return (
-    <ModalPortal>
-      <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/80 px-4 py-4 backdrop-blur-sm">
-        <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl" onSubmit={onSubmit}>
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="board-note-modal-title"
+      contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-4xl flex-col overflow-hidden rounded-2xl"
+    >
+        <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
           <ModalHeader title="Edit note" onClose={onClose} />
           <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
             <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
@@ -322,8 +330,7 @@ function EditNoteModal({
             </Button>
           </div>
         </form>
-      </div>
-    </ModalPortal>
+    </AppModal>
   );
 }
 
@@ -332,7 +339,7 @@ function ModalHeader({ title, onClose }: { title: string; onClose: () => void })
     <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
       <div>
         <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Board Note</p>
-        <h2 className="mt-1 text-2xl font-semibold">{title}</h2>
+        <h2 id="board-note-modal-title" className="mt-1 text-2xl font-semibold">{title}</h2>
       </div>
       <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
         <X className="h-5 w-5" />

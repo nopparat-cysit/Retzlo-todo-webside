@@ -6,8 +6,9 @@ import { BookOpen, CheckCircle2, ExternalLink, FileText, Pin, Plus, Save, Slider
 import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
 import { cn } from "@/lib/utils";
 import { Input, Textarea } from "@/components/ui/input";
+import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
-import { ModalPortal } from "@/components/ui/modal-portal";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { normalizeDiaryChecklist, type DiaryChecklistItem } from "@/lib/diary/checklist";
 import { composeDueDate } from "@/lib/kanban/due-date";
 import { cardColorOptions, getCardColorMeta, type CardColor } from "@/lib/theme/card-colors";
@@ -514,13 +515,17 @@ function FabDisplayPicker({
   const activeList = tab === "diary" ? diaryItems : activeNotes;
 
   return (
-    <ModalPortal>
-    <div className="fixed inset-0 z-[300] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="fab-display-title"
+      contentClassName="max-w-2xl"
+    >
       <div className="lofi-panel max-h-[88vh] w-full max-w-2xl overflow-hidden rounded-xl">
         <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">FAB Display</p>
-            <h2 className="mt-1 text-2xl font-semibold">Choose what stays visible</h2>
+            <h2 id="fab-display-title" className="mt-1 text-2xl font-semibold">Choose what stays visible</h2>
             <p className="mt-1 max-w-xl text-sm leading-6 text-stone-400">
               Pick one diary list or note to keep on the bottom-right button. It stays there until you change it.
             </p>
@@ -672,8 +677,7 @@ function FabDisplayPicker({
           </Button>
         </div>
       </div>
-    </div>
-    </ModalPortal>
+    </AppModal>
   );
 }
 
@@ -845,8 +849,12 @@ function FabCreateModal({
   }
 
   return (
-    <ModalPortal>
-    <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/85 px-4 py-4 backdrop-blur-sm">
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="fab-create-title"
+      contentClassName={cn("max-w-xl", mode === "diary" && "max-w-4xl")}
+    >
       <form
         className={cn("lofi-panel flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-xl p-5", mode === "diary" ? "max-w-4xl" : "max-w-xl")}
         onSubmit={handleSubmit}
@@ -857,7 +865,7 @@ function FabCreateModal({
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">
               {mode === "note" ? "Add Project Note" : "Add Recurring Diary"}
             </p>
-            <h2 className="mt-1 text-2xl font-semibold">
+            <h2 id="fab-create-title" className="mt-1 text-2xl font-semibold">
               {mode === "note" ? "Create Note" : "Create Diary"}
             </h2>
           </div>
@@ -902,32 +910,21 @@ function FabCreateModal({
                     You have no projects joined. Please create a project first.
                   </p>
                 ) : (
-                  <select
-                    className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.065] px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70 focus:bg-white/[0.09] focus:ring-4 focus:ring-dusk-lavender/20"
+                  <FilterSelect
                     value={selectedProjectId}
-                    onChange={(e) => setSelectedProjectId(e.target.value)}
-                    required
-                  >
-                    {projects.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
+                    options={projects.map((p) => ({ value: p.id, label: p.name }))}
+                    onValueChange={setSelectedProjectId}
+                  />
                 )
               ) : (
-                <select
-                  className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.065] px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70 focus:bg-white/[0.09] focus:ring-4 focus:ring-dusk-lavender/20"
+                <FilterSelect
                   value={selectedProjectId}
-                  onChange={(e) => setSelectedProjectId(e.target.value)}
-                >
-                  <option value="">My Diary (Personal)</option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { value: "", label: "My Diary (Personal)" },
+                    ...projects.map((p) => ({ value: p.id, label: p.name }))
+                  ]}
+                  onValueChange={setSelectedProjectId}
+                />
               )}
             </div>
 
@@ -1003,18 +1000,14 @@ function FabCreateModal({
               <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender">Details</p>
               <div className="space-y-2 text-sm text-stone-300">
                 <span>Workspace / Target</span>
-                <select
-                  className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.065] px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70 focus:bg-white/[0.09] focus:ring-4 focus:ring-dusk-lavender/20"
+                <FilterSelect
                   value={selectedProjectId}
-                  onChange={(e) => setSelectedProjectId(e.target.value)}
-                >
-                  <option value="">My Diary (Personal)</option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { value: "", label: "My Diary (Personal)" },
+                    ...projects.map((p) => ({ value: p.id, label: p.name }))
+                  ]}
+                  onValueChange={setSelectedProjectId}
+                />
               </div>
               <Input name="title" placeholder="Diary title" required />
               <Textarea
@@ -1075,8 +1068,7 @@ function FabCreateModal({
           </Button>
         </div>
       </form>
-    </div>
-    </ModalPortal>
+    </AppModal>
   );
 }
 

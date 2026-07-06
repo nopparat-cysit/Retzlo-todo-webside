@@ -9,6 +9,7 @@ import { Panel } from "@/components/ui/panel";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { ChangePasswordForm } from "@/components/profile/change-password-form";
+import { formatMediumDate } from "@/lib/date-format";
 
 interface ProfileClientProps {
   user: {
@@ -87,11 +88,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
           <p className="text-xs text-stone-600">
             Member since{" "}
             <span className="text-stone-400">
-              {new Date(user.createdAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {formatMediumDate(user.createdAt)}
             </span>
           </p>
         </Panel>

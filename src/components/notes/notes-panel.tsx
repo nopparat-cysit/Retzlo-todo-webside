@@ -21,8 +21,9 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { AppModal } from "@/components/ui/app-modal";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
-import { ModalPortal } from "@/components/ui/modal-portal";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { formatMediumDate, formatMediumDateTime } from "@/lib/date-format";
 import { applyDueShortcut, composeDueDate } from "@/lib/kanban/due-date";
@@ -246,20 +247,17 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
             ))}
           </div>
           <div className="mt-3 rounded-lg border border-white/10 bg-ink-950/35 p-3">
-            <label className="text-xs uppercase tracking-[0.22em] text-stone-500" htmlFor="note-sort">
-              Sort
-            </label>
-            <select
-              className="mt-2 h-10 w-full rounded-md border border-white/10 bg-ink-950/70 px-3 text-sm text-stone-100 outline-none"
-              id="note-sort"
+            <FilterSelect
+              label="Sort"
               value={sortBy}
-              onChange={(event) => setSortBy(event.target.value as NoteSort)}
-            >
-              <option value="updated">Updated</option>
-              <option value="created">Created</option>
-              <option value="due">Due date</option>
-              <option value="title">Title</option>
-            </select>
+              options={[
+                { value: "updated", label: "Updated" },
+                { value: "created", label: "Created" },
+                { value: "due", label: "Due date" },
+                { value: "title", label: "Title" }
+              ]}
+              onValueChange={setSortBy}
+            />
           </div>
           {!allowMemberPrivateItems && !isOwner ? (
             <div className="mt-3 rounded-lg border border-dusk-amber/20 bg-dusk-amber/10 p-3 text-xs leading-5 text-dusk-amber">
@@ -576,13 +574,17 @@ function NoteEditorModal({
   }
 
   return (
-    <ModalPortal>
-      <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/80 px-4 py-4 backdrop-blur-sm">
-        <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl" onSubmit={handleSubmit}>
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="note-card-title"
+      contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
+    >
+        <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={handleSubmit}>
           <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Note Card</p>
-              <h2 className="mt-1 text-2xl font-semibold">{title}</h2>
+              <h2 id="note-card-title" className="mt-1 text-2xl font-semibold">{title}</h2>
             </div>
             <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
               <X className="h-5 w-5" />
@@ -675,8 +677,7 @@ function NoteEditorModal({
             </Button>
           </div>
         </form>
-      </div>
-    </ModalPortal>
+    </AppModal>
   );
 }
 

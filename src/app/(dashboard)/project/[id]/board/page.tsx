@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { KanbanBoard } from "@/components/kanban/board";
 import { BoardNotesRail } from "@/components/notes/board-notes-rail";
+import { ErrorState } from "@/components/ui/state";
 import { prisma } from "@/lib/prisma";
 import {
   canManageAuthoredItem,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/project-auth";
 import { getColumnIconOption, getColumnThemeOption } from "@/lib/kanban/column-settings";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
+import { isDatabaseConnectionError } from "@/lib/safe-db";
 import type { CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 import type { ProjectNote } from "@/types/note";
 
@@ -112,60 +114,71 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
     notFound();
   }
 
-  const membership = await getProjectMembership(params.id, userId);
+  let membership: Awaited<ReturnType<typeof getProjectMembership>>;
+  let project: { allowMemberPrivateItems: boolean; notesEnabled: boolean } | null;
+  let board: any = null;
+  let notes: any[] = [];
 
-  if (!membership) {
-    notFound();
-  }
+  try {
+    membership = await getProjectMembership(params.id, userId);
 
-  const project = await prisma.project.findUnique({
-    where: { id: params.id },
-    select: {
-      allowMemberPrivateItems: true,
-      notesEnabled: true
+    if (!membership) {
+      notFound();
     }
-  });
 
-  const notesRailEnabled = project?.notesEnabled ?? false;
+    project = await prisma.project.findUnique({
+      where: { id: params.id },
+      select: {
+        allowMemberPrivateItems: true,
+        notesEnabled: true
+      }
+    });
 
-  if (!project) {
-    notFound();
-  }
+    if (!project) {
+      notFound();
+    }
 
-  const [board, notes] = await Promise.all([
-    prisma.board.findFirst({
-      where: { projectId: params.id },
-      orderBy: { createdAt: "asc" },
-      include: {
-        columns: {
-          orderBy: { position: "asc" },
-          include: {
-            cards: { orderBy: { position: "asc" } }
+    [board, notes] = await Promise.all([
+      prisma.board.findFirst({
+        where: { projectId: params.id },
+        orderBy: { createdAt: "asc" },
+        include: {
+          columns: {
+            orderBy: { position: "asc" },
+            include: {
+              cards: { orderBy: { position: "asc" } }
+            }
           }
         }
-      }
-    }),
-    project.notesEnabled
-      ? prisma.note.findMany({
-          where: isOwnerRole(membership.role)
-            ? { projectId: params.id }
-            : {
-                projectId: params.id,
-                OR: [{ isHidden: false }, { authorId: userId }]
-              },
-          include: {
-            author: {
-              select: {
-                name: true,
-                email: true
+      }),
+      project.notesEnabled
+        ? prisma.note.findMany({
+            where: isOwnerRole(membership.role)
+              ? { projectId: params.id }
+              : {
+                  projectId: params.id,
+                  OR: [{ isHidden: false }, { authorId: userId }]
+                },
+            include: {
+              author: {
+                select: {
+                  name: true,
+                  email: true
+                }
               }
-            }
-          },
-          orderBy: [{ isStarred: "desc" }, { updatedAt: "desc" }],
-          take: 40
-        })
-      : Promise.resolve([]),
-  ]);
+            },
+            orderBy: [{ isStarred: "desc" }, { updatedAt: "desc" }],
+            take: 40
+          })
+        : Promise.resolve([]),
+    ]);
+  } catch (error) {
+    if (isDatabaseConnectionError(error)) {
+      return <ProjectDataUnavailable title="Board is waiting for the database" />;
+    }
+
+    throw error;
+  }
 
   if (!board) {
     notFound();
@@ -190,6 +203,18 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
           })}
         />
       ) : null}
+    </div>
+  );
+}
+
+function ProjectDataUnavailable({ title }: { title: string }) {
+  return (
+    <div className="grid h-full min-h-0 place-items-center p-4">
+      <ErrorState
+        className="w-full max-w-xl"
+        title={title}
+        message="The database connection is unavailable right now. Try refreshing once Supabase is reachable again."
+      />
     </div>
   );
 }

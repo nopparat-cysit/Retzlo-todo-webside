@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useMemo, useState, useRef, useEffect, useCallback } from "react";
+import { FormEvent, useMemo, useState, useEffect, useCallback } from "react";
 import {
   BookOpenCheck,
   CalendarDays,
@@ -22,9 +22,10 @@ import {
 } from "lucide-react";
 
 import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
+import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
-import { ModalPortal } from "@/components/ui/modal-portal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -263,28 +264,28 @@ export function DiaryListPanel({
             </div>
 
             <div className="grid grid-cols-2 gap-2 mt-1">
-              <select
-                className="h-9 w-full rounded-md border border-white/10 bg-ink-950/60 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50 cursor-pointer"
+              <FilterSelect
                 value={filter}
-                onChange={(event) => setFilter(event.target.value as DiaryFilter)}
-              >
-                <option value="all">All Rituals</option>
-                <option value="today">Due Today</option>
-                <option value="upcoming">Upcoming</option>
-                <option value="starred">Starred</option>
-                <option value="hidden">Hidden</option>
-              </select>
+                options={[
+                  { value: "all", label: "All rituals" },
+                  { value: "today", label: "Due today" },
+                  { value: "upcoming", label: "Upcoming" },
+                  { value: "starred", label: "Starred" },
+                  { value: "hidden", label: "Hidden" }
+                ]}
+                onValueChange={setFilter}
+              />
 
-              <select
-                className="h-9 w-full rounded-md border border-white/10 bg-ink-950/60 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50 cursor-pointer"
+              <FilterSelect
                 value={sortBy}
-                onChange={(event) => setSortBy(event.target.value as DiarySort)}
-              >
-                <option value="due">Sort: Due status</option>
-                <option value="title">Sort: Title</option>
-                <option value="starred">Sort: Starred</option>
-                <option value="date">Sort: Start date</option>
-              </select>
+                options={[
+                  { value: "due", label: "Sort: Due status" },
+                  { value: "title", label: "Sort: Title" },
+                  { value: "starred", label: "Sort: Starred" },
+                  { value: "date", label: "Sort: Start date" }
+                ]}
+                onValueChange={setSortBy}
+              />
             </div>
           </div>
 
@@ -670,7 +671,6 @@ function DiaryItemModal({
   const [titleVal, setTitleVal] = useState(item?.title ?? "");
   const [descriptionVal, setDescriptionVal] = useState(item?.description ?? "");
   const [showConfirmClose, setShowConfirmClose] = useState(false);
-  const backdropRef = useRef<HTMLDivElement>(null);
 
   const hasChanges = useMemo(() => {
     const isNew = !item;
@@ -770,24 +770,18 @@ function DiaryItemModal({
     });
   }
 
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === backdropRef.current) {
-      handleCloseRequest();
-    }
-  };
-
   return (
-    <ModalPortal>
-      <div
-        ref={backdropRef}
-        className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/85 px-4 py-4 backdrop-blur-sm"
-        onClick={handleBackdropClick}
-      >
+    <AppModal
+      open
+      onClose={handleCloseRequest}
+      labelledBy="diary-item-modal-title"
+      contentClassName="max-w-4xl"
+    >
         <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-lg p-5" onSubmit={handleSubmit}>
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Recurring Diary</p>
-              <h2 className="mt-1 text-2xl font-semibold">{title}</h2>
+              <h2 id="diary-item-modal-title" className="mt-1 text-2xl font-semibold">{title}</h2>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -944,8 +938,7 @@ function DiaryItemModal({
           }}
           onClose={() => setShowConfirmClose(false)}
         />
-      </div>
-    </ModalPortal>
+    </AppModal>
   );
 }
 

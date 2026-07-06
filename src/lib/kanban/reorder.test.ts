@@ -1,71 +1,49 @@
 import { describe, expect, it } from "vitest";
 
 import { moveCard } from "./reorder";
-import type { ColumnWithCards } from "@/types/kanban";
+import type { Card, ColumnWithCards } from "@/types/kanban";
+
+function card(id: string, columnId: string, position: number): Card {
+  return {
+    id,
+    title: id.toUpperCase(),
+    description: null,
+    note: null,
+    position,
+    status: "TODO",
+    color: "DEFAULT",
+    checklist: [],
+    dueDate: null,
+    dueDateAllDay: false,
+    priority: "MEDIUM",
+    isStarred: false,
+    columnId
+  };
+}
 
 const baseColumns = (): ColumnWithCards[] => [
   {
     id: "todo",
     name: "Todo",
     position: 0,
-    cards: [
-      {
-        id: "a",
-        title: "A",
-        description: null,
-        position: 0,
-        status: "TODO",
-        checklist: [],
-        dueDate: null,
-        dueDateAllDay: false,
-        columnId: "todo"
-      },
-      {
-        id: "b",
-        title: "B",
-        description: null,
-        position: 1,
-        status: "TODO",
-        checklist: [],
-        dueDate: null,
-        dueDateAllDay: false,
-        columnId: "todo"
-      },
-      {
-        id: "c",
-        title: "C",
-        description: null,
-        position: 2,
-        status: "TODO",
-        checklist: [],
-        dueDate: null,
-        dueDateAllDay: false,
-        columnId: "todo"
-      }
-    ]
+    color: "default",
+    icon: "kanban",
+    cards: [card("a", "todo", 0), card("b", "todo", 1), card("c", "todo", 2)]
   },
   {
     id: "done",
     name: "Done",
     position: 1,
-    cards: [
-      {
-        id: "d",
-        title: "D",
-        description: null,
-        position: 0,
-        status: "TODO",
-        checklist: [],
-        dueDate: null,
-        dueDateAllDay: false,
-        columnId: "done"
-      }
-    ]
+    color: "default",
+    icon: "kanban",
+    cards: [card("d", "done", 0)]
   },
   {
     id: "empty",
     name: "Empty",
     position: 2,
+    color: "default",
+    icon: "kanban",
     cards: []
   }
 ];
@@ -119,11 +97,15 @@ describe("moveCard", () => {
         id: "c",
         title: "C",
         description: null,
+        note: null,
         position: 0,
         status: "TODO",
+        color: "DEFAULT",
         checklist: [],
         dueDate: null,
         dueDateAllDay: false,
+        priority: "MEDIUM",
+        isStarred: false,
         columnId: "empty"
       }
     ]);

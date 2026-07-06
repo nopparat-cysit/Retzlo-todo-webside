@@ -12,6 +12,8 @@ import { ProjectNavLink } from "@/components/project/project-nav-link";
 import { ProjectSortableNav, type ProjectNavItem } from "@/components/project/project-sortable-nav";
 import { ProjectTopbarTools } from "@/components/project/project-topbar-tools";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
+import { ErrorState } from "@/components/ui/state";
+import { isDatabaseConnectionError } from "@/lib/safe-db";
 
 // Nav items: Boards and Members removed per user request.
 const navItems = [
@@ -69,16 +71,6 @@ async function loadProjectShellData(projectId: string, userId: string) {
 type ProjectShellData = Awaited<ReturnType<typeof loadProjectShellData>>;
 type ProjectShellProject = ProjectShellData[0];
 type ProjectShellUser = ProjectShellData[1];
-
-function isDatabaseConnectionError(error: unknown) {
-  if (!(error instanceof Error)) return false;
-
-  return (
-    error.message.includes("Can't reach database server") ||
-    error.message.includes("P1001") ||
-    error.name === "PrismaClientInitializationError"
-  );
-}
 
 export async function ProjectShell({
   projectId,
@@ -252,17 +244,12 @@ export async function ProjectShell({
 function ProjectDatabaseUnavailable() {
   return (
     <main className="soft-grid-bg grid min-h-screen place-items-center px-4 py-8">
-      <section className="lofi-panel relative isolate w-full max-w-xl overflow-hidden rounded-2xl p-6 text-center">
-        <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-dusk-lavender/15 blur-3xl" />
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-dusk-amber/25 bg-dusk-amber/10 text-dusk-amber">
-          <Bell className="h-5 w-5" />
-        </div>
-        <p className="mt-5 text-xs uppercase tracking-[0.28em] text-dusk-amber">Connection paused</p>
-        <h1 className="mt-2 text-2xl font-semibold text-stone-100">Database is taking a quiet break</h1>
-        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-stone-400">
-          We could not reach the project database right now. Your workspace is safe, but this page needs the database before it can load.
-        </p>
-        <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
+      <section className="w-full max-w-xl">
+        <ErrorState
+          title="Database is taking a quiet break"
+          message="We could not reach the project database right now. Your workspace is safe, but this page needs the database before it can load."
+          action={(
+            <div className="flex flex-col justify-center gap-2 sm:flex-row">
           <a
             className="motion-interactive inline-flex h-10 items-center justify-center rounded-lg border border-dusk-lavender/25 bg-dusk-lavender px-4 text-sm font-medium text-ink-950 hover:bg-dusk-amber"
             href=""
@@ -275,7 +262,9 @@ function ProjectDatabaseUnavailable() {
           >
             Back to projects
           </Link>
-        </div>
+            </div>
+          )}
+        />
       </section>
     </main>
   );

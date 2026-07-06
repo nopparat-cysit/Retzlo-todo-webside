@@ -1,6 +1,7 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { formatMediumDate } from "@/lib/date-format";
 import { FinanceCategoryIcon } from "@/lib/finance/category-icons";
 import { cn } from "@/lib/utils";
 import type { SerializedFinanceTransaction } from "@/types/finance";
@@ -43,7 +44,7 @@ export function TransactionList({ limit = 5, transactions }: TransactionListProp
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       <Badge variant="muted">{transaction.category?.name ?? "Uncategorized"}</Badge>
                       <Badge variant="muted">{transaction.account?.name ?? "No account"}</Badge>
-                      <Badge variant={income ? "cyan" : "rose"}>{new Date(transaction.transactionDate).toLocaleDateString()}</Badge>
+                      <Badge variant={income ? "cyan" : "rose"}>{formatMediumDate(transaction.transactionDate)}</Badge>
                     </div>
                   </div>
                   <p className={cn("shrink-0 text-sm font-semibold", income ? "text-emerald-300" : "text-dusk-rose")}>

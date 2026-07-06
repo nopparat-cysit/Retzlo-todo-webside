@@ -1,9 +1,18 @@
 "use client";
 
 import { Dumbbell, Apple, Heart, TrendingUp, Droplet } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { formatMediumDate } from "@/lib/date-format";
 import { VitalPanel } from "./vital-panel";
 
 export function VitalHub() {
+  const [todayLabel, setTodayLabel] = useState("Today");
+
+  useEffect(() => {
+    setTodayLabel(formatMediumDate(new Date()));
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#090817] p-6">
       <div className="mx-auto max-w-6xl">
@@ -22,7 +31,7 @@ export function VitalHub() {
           </div>
           <div className="text-right">
             <div className="text-sm text-dusk-lavender">Today</div>
-            <div className="text-2xl font-medium text-[#f5efe6]">June 16, 2026</div>
+            <div className="text-2xl font-medium text-[#f5efe6]">{todayLabel}</div>
           </div>
         </div>
 
@@ -31,13 +40,13 @@ export function VitalHub() {
           <div className="lg:col-span-8 space-y-6">
             <VitalPanel title="Today's Energy" icon={<Apple className="h-5 w-5" />}>
               <div className="text-6xl font-light text-[#f5efe6]">1842</div>
-              <div className="text-dusk-lavender">kcal • 67% of daily target</div>
+              <div className="text-dusk-lavender">kcal · 67% of daily target</div>
             </VitalPanel>
 
             <div className="grid grid-cols-2 gap-6">
               <VitalPanel title="Current Weight" icon={<TrendingUp className="h-5 w-5" />}>
                 <div className="text-5xl font-light text-[#f5efe6]">68.4</div>
-                <div className="text-emerald-400 text-sm">↓ 0.8kg this week</div>
+                <div className="text-emerald-400 text-sm">Down 0.8kg this week</div>
               </VitalPanel>
 
               <VitalPanel title="Water Intake" icon={<Droplet className="h-5 w-5" />}>
@@ -52,14 +61,14 @@ export function VitalHub() {
             <VitalPanel title="Today's Movement" icon={<Dumbbell className="h-5 w-5" />} className="h-full">
               <div className="space-y-6">
                 <div>
-                  <div className="text-sm text-[#f5efe6]/60 mb-1">Push • Pull • Legs</div>
+                  <div className="text-sm text-[#f5efe6]/60 mb-1">Push · Pull · Legs</div>
                   <div className="h-2.5 rounded-full bg-white/10">
                     <div className="h-2.5 w-[65%] rounded-full bg-gradient-to-r from-dusk-lavender to-dusk-rose"></div>
                   </div>
                 </div>
                 <div className="text-xs text-[#f5efe6]/50 leading-relaxed">
                   45 min strength training<br />
-                  8,240 steps • 412 kcal burned
+                  8,240 steps · 412 kcal burned
                 </div>
               </div>
             </VitalPanel>
@@ -67,7 +76,7 @@ export function VitalHub() {
         </div>
 
         <div className="mt-8 text-center text-xs text-[#f5efe6]/30">
-          Vital Hub • Phase 1 — More features coming soon
+          Vital Hub · Phase 1 - More features coming soon
         </div>
       </div>
     </div>

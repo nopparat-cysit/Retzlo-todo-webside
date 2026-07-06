@@ -18,6 +18,7 @@ import { FormEvent, useState, useEffect } from "react";
 import { KanbanColumn } from "@/components/kanban/column";
 import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import { triggerCelebration } from "@/components/kanban/card-celebration";
+import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -72,7 +73,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   // Premium Features States
   const [searchQuery, setSearchQuery] = useState("");
@@ -664,15 +665,25 @@ export function KanbanBoard({ board }: { board: BoardData }) {
 
       {/* ── Stats Bar Panel ── */}
       {isColumnModalOpen ? (
-        <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/78 px-4 py-6 backdrop-blur-sm">
+        <AppModal
+          open={isColumnModalOpen}
+          onClose={() => {
+            setColumnName("");
+            setColumnColor("default");
+            setColumnIcon("kanban");
+            setIsColumnModalOpen(false);
+          }}
+          hasUnsavedChanges={columnName.trim() !== "" || columnColor !== "default" || columnIcon !== "kanban"}
+          labelledBy="create-column-title"
+          contentClassName="lofi-panel w-full max-w-md rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
+        >
           <form
-            className="lofi-panel motion-dialog-content w-full max-w-md rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
             onSubmit={createColumn}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Board column</p>
-                <h3 className="mt-1 text-2xl font-semibold text-stone-100">Create column</h3>
+                <h3 id="create-column-title" className="mt-1 text-2xl font-semibold text-stone-100">Create column</h3>
                 <p className="mt-1 text-sm leading-6 text-stone-400">Name the new lane for this board.</p>
               </div>
               <button
@@ -731,7 +742,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
               </Button>
             </div>
           </form>
-        </div>
+        </AppModal>
       ) : null}
 
       {/* ── Board Columns Grid ── */}

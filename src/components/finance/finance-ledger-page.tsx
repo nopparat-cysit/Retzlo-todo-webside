@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/toast";
 import { FinanceEmptyState } from "./finance-empty-state";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatMediumDate } from "@/lib/date-format";
 import { FinanceCategoryIcon } from "@/lib/finance/category-icons";
 import { cn } from "@/lib/utils";
 import type {
@@ -106,7 +107,7 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
 
     const headers = ["Date", "Title", "Category", "Account", "Payment Method", "Amount", "Note", "Description"];
     const rows = filteredTransactions.map((t) => [
-      new Date(t.transactionDate).toLocaleDateString("en-US"),
+      formatMediumDate(t.transactionDate),
       `"${t.title.replace(/"/g, '""')}"`,
       `"${(t.category?.name || "Uncategorized").replace(/"/g, '""')}"`,
       `"${(t.account?.name || "No Account").replace(/"/g, '""')}"`,
@@ -254,7 +255,7 @@ export function FinanceLedgerPage({ accounts, categories, initialTransactions, t
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         <Badge variant="muted">{transaction.category?.name ?? "Uncategorized"}</Badge>
                         <Badge variant="muted">{transaction.account?.name ?? "No account"}</Badge>
-                        <Badge variant={isIncome ? "cyan" : "rose"}>{new Date(transaction.transactionDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</Badge>
+                        <Badge variant={isIncome ? "cyan" : "rose"}>{formatMediumDate(transaction.transactionDate)}</Badge>
                       </div>
                     </div>
                     <div className="flex items-center justify-between gap-3 md:justify-end">

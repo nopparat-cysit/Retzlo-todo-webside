@@ -4,9 +4,10 @@ import { FormEvent, useEffect, useMemo, useRef, useState, useCallback } from "re
 import { BookOpen, CheckCircle2, Coins, Eye, EyeOff, Pencil, Plus, Repeat, Save, SlidersHorizontal, Star, Trash2, X } from "lucide-react";
 
 import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
+import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
-import { ModalPortal } from "@/components/ui/modal-portal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { setRedStarItem } from "@/components/hub/fab-hub";
 import {
@@ -219,19 +220,16 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
         </div>
 
         {/* Project filter */}
-        <select
-          className="h-8 rounded-lg border border-white/10 bg-ink-950/50 px-3 text-xs text-stone-100 outline-none"
+        <FilterSelect
+          triggerClassName="h-8"
           value={projectFilter}
-          onChange={(e) => setProjectFilter(e.target.value)}
-        >
-          <option value="all">All projects</option>
-          <option value="personal">My Diary only</option>
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+          options={[
+            { value: "all", label: "All projects" },
+            { value: "personal", label: "My Diary only" },
+            ...projects.map((p) => ({ value: p.id, label: p.name }))
+          ]}
+          onValueChange={setProjectFilter}
+        />
       </div>
 
       {error && (
@@ -411,7 +409,6 @@ export function DiaryItemModal({
   const [titleVal, setTitleVal] = useState(item?.title ?? "");
   const [descriptionVal, setDescriptionVal] = useState(item?.description ?? "");
   const [showConfirmClose, setShowConfirmClose] = useState(false);
-  const backdropRef = useRef<HTMLDivElement>(null);
 
   const hasChanges = useMemo(() => {
     const isNew = !item;
@@ -507,18 +504,12 @@ export function DiaryItemModal({
     });
   }
 
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === backdropRef.current) {
-      handleCloseRequest();
-    }
-  };
-
   return (
-    <ModalPortal>
-    <div
-      ref={backdropRef}
-      className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/85 px-4 py-4 backdrop-blur-sm"
-      onClick={handleBackdropClick}
+    <AppModal
+      open
+      onClose={handleCloseRequest}
+      labelledBy="hub-diary-modal-title"
+      contentClassName="max-w-4xl"
     >
       <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-xl p-5" onSubmit={handleSubmit}>
         <div className="mb-5 flex items-center justify-between gap-3">
@@ -526,7 +517,7 @@ export function DiaryItemModal({
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">
               {isPersonal ? "Personal" : "Project"} · Recurring
             </p>
-            <h2 className="mt-1 text-2xl font-semibold">{title}</h2>
+            <h2 id="hub-diary-modal-title" className="mt-1 text-2xl font-semibold">{title}</h2>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -673,8 +664,7 @@ export function DiaryItemModal({
         }}
         onClose={() => setShowConfirmClose(false)}
       />
-    </div>
-    </ModalPortal>
+    </AppModal>
   );
 }
 

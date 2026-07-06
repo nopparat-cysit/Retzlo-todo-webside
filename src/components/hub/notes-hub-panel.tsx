@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarClock, CheckCircle2, Eye, EyeOff, FileText, RotateCcw, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { setRedStarItem } from "@/components/hub/fab-hub";
 import { formatMediumDate, formatMediumDateTime } from "@/lib/date-format";
 import { getCardColorMeta } from "@/lib/theme/card-colors";
@@ -153,28 +154,26 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <select
-            className="h-8 rounded-lg border border-white/10 bg-ink-950/50 px-3 text-xs text-stone-100 outline-none"
+          <FilterSelect
+            triggerClassName="h-8"
             value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-          >
-            <option value="all">All projects</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          <select
-            className="h-8 rounded-lg border border-white/10 bg-ink-950/50 px-3 text-xs text-stone-100 outline-none"
+            options={[
+              { value: "all", label: "All projects" },
+              ...projects.map((p) => ({ value: p.id, label: p.name }))
+            ]}
+            onValueChange={setProjectFilter}
+          />
+          <FilterSelect
+            triggerClassName="h-8"
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as NoteSort)}
-          >
-            <option value="updated">Updated</option>
-            <option value="created">Created</option>
-            <option value="due">Due date</option>
-            <option value="title">Title</option>
-          </select>
+            options={[
+              { value: "updated", label: "Updated" },
+              { value: "created", label: "Created" },
+              { value: "due", label: "Due date" },
+              { value: "title", label: "Title" }
+            ]}
+            onValueChange={setSortBy}
+          />
         </div>
       </div>
 

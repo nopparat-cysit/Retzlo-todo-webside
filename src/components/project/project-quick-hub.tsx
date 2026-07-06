@@ -4,9 +4,9 @@ import { FormEvent, useState } from "react";
 import { BookOpenCheck, FileText, Plus, Save, SlidersHorizontal, X } from "lucide-react";
 
 import { DiaryChecklistEditor } from "@/components/diary/diary-checklist";
+import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
-import { ModalPortal } from "@/components/ui/modal-portal";
 import { normalizeDiaryChecklist, type DiaryChecklistItem } from "@/lib/diary/checklist";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
@@ -138,13 +138,17 @@ function QuickCreateModal({
   }
 
   return (
-    <ModalPortal>
-    <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/85 px-4 py-4 backdrop-blur-sm">
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="project-quick-create-title"
+      contentClassName={cn("max-w-xl", isDiary && "max-w-4xl")}
+    >
       <form className={cn("lofi-panel flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-lg p-5", isDiary ? "max-w-4xl" : "max-w-xl")} onSubmit={handleSubmit}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">{isDiary ? "Recurring Diary" : "Project Note"}</p>
-            <h2 className="mt-1 text-2xl font-semibold">{isDiary ? "Add diary list" : "Add note"}</h2>
+            <h2 id="project-quick-create-title" className="mt-1 text-2xl font-semibold">{isDiary ? "Add diary list" : "Add note"}</h2>
           </div>
           <div className="flex items-center gap-2">
             {isDiary ? (
@@ -215,8 +219,7 @@ function QuickCreateModal({
           </Button>
         </div>
       </form>
-    </div>
-    </ModalPortal>
+    </AppModal>
   );
 }
 

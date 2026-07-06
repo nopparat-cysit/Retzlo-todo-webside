@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/toast";
 import { FinanceEmptyState } from "./finance-empty-state";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatMediumDate } from "@/lib/date-format";
 import { FinanceCategoryIcon } from "@/lib/finance/category-icons";
 import { getRecurringIncomeMonthlyAmount } from "@/lib/finance/calculations";
 import type {
@@ -306,7 +307,7 @@ function getDueLabel(nextIncomeDate: string) {
   dueDate.setHours(0, 0, 0, 0);
 
   const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / 86_400_000);
-  const dateText = dueDate.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  const dateText = formatMediumDate(dueDate);
 
   if (diffDays < 0) return `Overdue ${Math.abs(diffDays)}d (${dateText})`;
   if (diffDays === 0) return `Expected today (${dateText})`;

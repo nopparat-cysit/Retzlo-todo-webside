@@ -6,11 +6,14 @@ import { useMemo, useState } from "react";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, SlidersHorizontal, X } from "lucide-react";
 
 import { CardModal } from "@/components/kanban/card-modal";
+import { AppModal } from "@/components/ui/app-modal";
 import { Panel } from "@/components/ui/panel";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
-import { ModalPortal } from "@/components/ui/modal-portal";
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
+import { Input } from "@/components/ui/input";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   buildCalendarDays,
   defaultCalendarFilters,
@@ -364,28 +367,28 @@ export function ProjectCalendar({
 
             <div>
               <p className="mb-2 text-xs uppercase tracking-[0.18em] text-stone-500">Notes</p>
-              <select
-                className="h-10 w-full rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
+              <FilterSelect
                 value={filters.noteScope}
-                onChange={(event) => setFilters((current) => ({ ...current, noteScope: event.target.value as CalendarFilterState["noteScope"] }))}
-              >
-                <option value="all">All notes</option>
-                <option value="starred">Starred only</option>
-                <option value="plain">Not starred</option>
-              </select>
+                options={[
+                  { value: "all", label: "All notes" },
+                  { value: "starred", label: "Starred only" },
+                  { value: "plain", label: "Not starred" }
+                ]}
+                onValueChange={(noteScope) => setFilters((current) => ({ ...current, noteScope }))}
+              />
             </div>
 
             <div>
               <p className="mb-2 text-xs uppercase tracking-[0.18em] text-stone-500">Time</p>
-              <select
-                className="h-10 w-full rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
+              <FilterSelect
                 value={filters.timeScope}
-                onChange={(event) => setFilters((current) => ({ ...current, timeScope: event.target.value as CalendarFilterState["timeScope"] }))}
-              >
-                <option value="all">All times</option>
-                <option value="allDay">All-day only</option>
-                <option value="timed">Timed only</option>
-              </select>
+                options={[
+                  { value: "all", label: "All times" },
+                  { value: "allDay", label: "All-day only" },
+                  { value: "timed", label: "Timed only" }
+                ]}
+                onValueChange={(timeScope) => setFilters((current) => ({ ...current, timeScope }))}
+              />
             </div>
           </div> : null}
         </Panel>
@@ -410,26 +413,27 @@ export function ProjectCalendar({
               <IconButton label="Next" onClick={() => setAnchorDate((value) => shiftDateKey(value, viewMode === "month" ? 30 : calendarDays.length))}>
                 <ChevronRight className="h-4 w-4" />
               </IconButton>
-              <input
-                className="h-10 rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
+              <Input
+                className="w-auto min-w-40"
                 type="date"
                 value={anchorDate}
                 onChange={(event) => setAnchorDate(event.target.value)}
               />
-              <select
-                className="h-10 rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
+              <SegmentedControl
+                aria-label="Calendar view"
                 value={viewMode}
-                onChange={(event) => setViewMode(event.target.value as CalendarViewMode)}
-              >
-                <option value="month">Month</option>
-                <option value="day3">3 days</option>
-                <option value="day5">5 days</option>
-                <option value="week">7 days</option>
-                <option value="custom">Custom</option>
-              </select>
+                items={[
+                  { value: "month", label: "Month" },
+                  { value: "day3", label: "3 days" },
+                  { value: "day5", label: "5 days" },
+                  { value: "week", label: "7 days" },
+                  { value: "custom", label: "Custom" }
+                ]}
+                onValueChange={setViewMode}
+              />
               {viewMode === "custom" ? (
-                <input
-                  className="h-10 w-20 rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
+                <Input
+                  className="w-20"
                   max={14}
                   min={1}
                   type="number"
@@ -605,12 +609,16 @@ export function ProjectCalendar({
         onClose={() => setIsUpdateConfirmOpen(false)}
       />
       {selectedNote ? (
-        <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
-          <div className="lofi-panel w-full max-w-lg rounded-lg p-5">
+        <AppModal
+          open
+          onClose={() => setSelectedNoteId(null)}
+          labelledBy="calendar-note-title"
+          contentClassName="lofi-panel max-w-lg rounded-lg p-5"
+        >
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Calendar Note</p>
-                <h2 className="mt-1 text-2xl font-semibold">{selectedNote.title}</h2>
+                <h2 id="calendar-note-title" className="mt-1 text-2xl font-semibold">{selectedNote.title}</h2>
               </div>
               <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={() => setSelectedNoteId(null)}>
                 X
@@ -626,18 +634,20 @@ export function ProjectCalendar({
                 Go to notes
               </Link>
             </div>
-          </div>
-        </div>
+        </AppModal>
       ) : null}
 
       {selectedDayKey && (
-        <ModalPortal>
-          <div className="fixed inset-0 z-[900] grid place-items-center bg-ink-950/80 px-4 py-4 backdrop-blur-sm">
-            <div className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl">
+        <AppModal
+          open
+          onClose={() => setSelectedDayKey(null)}
+          labelledBy="calendar-day-title"
+          contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-2xl flex-col overflow-hidden rounded-2xl"
+        >
               <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Day View</p>
-                  <h2 className="mt-1 text-2xl font-semibold">Items on {selectedDateLabel}</h2>
+                  <h2 id="calendar-day-title" className="mt-1 text-2xl font-semibold">Items on {selectedDateLabel}</h2>
                 </div>
                 <button
                   className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100"
@@ -654,44 +664,48 @@ export function ProjectCalendar({
                   {/* Type Filter */}
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-stone-500 uppercase tracking-wide">Type:</span>
-                    <select
-                      className="h-8 rounded-lg border border-white/10 bg-ink-950/50 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50"
+                    <FilterSelect
+                      triggerClassName="h-8"
                       value={dayTypeFilter}
-                      onChange={(e) => setDayTypeFilter(e.target.value as any)}
-                    >
-                      <option value="all">All</option>
-                      <option value="tasks">Tasks</option>
-                      <option value="notes">Notes</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All" },
+                        { value: "tasks", label: "Tasks" },
+                        { value: "notes", label: "Notes" },
+                        { value: "diaries", label: "Diaries" }
+                      ]}
+                      onValueChange={setDayTypeFilter}
+                    />
                   </div>
 
                   {/* Status Filter */}
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-stone-500 uppercase tracking-wide">Status:</span>
-                    <select
-                      className="h-8 rounded-lg border border-white/10 bg-ink-950/50 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50"
+                    <FilterSelect
+                      triggerClassName="h-8"
                       value={dayStatusFilter}
-                      onChange={(e) => setDayStatusFilter(e.target.value as any)}
-                    >
-                      <option value="all">All</option>
-                      <option value="pending">Pending</option>
-                      <option value="done">Done</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All" },
+                        { value: "pending", label: "Pending" },
+                        { value: "done", label: "Done" }
+                      ]}
+                      onValueChange={setDayStatusFilter}
+                    />
                   </div>
                 </div>
 
                 {/* Sort control */}
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-stone-500 uppercase tracking-wide">Sort:</span>
-                  <select
-                    className="h-8 rounded-lg border border-white/10 bg-ink-950/50 px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/50"
+                  <FilterSelect
+                    triggerClassName="h-8"
                     value={daySortBy}
-                    onChange={(e) => setDaySortBy(e.target.value as any)}
-                  >
-                    <option value="time">Time</option>
-                    <option value="title">Title</option>
-                    <option value="priority">Priority</option>
-                  </select>
+                    options={[
+                      { value: "time", label: "Time" },
+                      { value: "title", label: "Title" },
+                      { value: "priority", label: "Priority" }
+                    ]}
+                    onValueChange={setDaySortBy}
+                  />
                 </div>
               </div>
 
@@ -822,9 +836,7 @@ export function ProjectCalendar({
                   Close
                 </Button>
               </div>
-            </div>
-          </div>
-        </ModalPortal>
+        </AppModal>
       )}
     </>
   );

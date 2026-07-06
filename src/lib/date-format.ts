@@ -62,9 +62,9 @@ export function formatMediumDateTime(value: string | Date, allDay = false): stri
 export function formatShortDue(value: string | Date | null, allDay: boolean): string {
   if (!value) return "";
 
-  if (allDay) return `${formatShortDate(value)} · All day`;
+  if (allDay) return `${formatShortDate(value)} - All day`;
 
-  return `${formatShortDate(value)} · ${formatTime(value)}`;
+  return `${formatShortDate(value)} - ${formatTime(value)}`;
 }
 
 function toDate(value: string | Date): Date {

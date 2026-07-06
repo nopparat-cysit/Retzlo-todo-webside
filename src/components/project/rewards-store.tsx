@@ -8,7 +8,6 @@ import {
   Bell,
   Check,
   CheckCircle2,
-  ChevronDown,
   Clock,
   Coins,
   Gift,
@@ -21,8 +20,11 @@ import {
   X
 } from "lucide-react";
 
+import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
+import { formatMediumDate } from "@/lib/date-format";
 import { getRewardIconForName, getRewardIconOption, rewardIconOptions } from "@/lib/rewards/reward-icons";
 import { cn } from "@/lib/utils";
 
@@ -453,26 +455,22 @@ export function RewardsStore({
             </div>
 
             {storeMode === "project" ? (
-              <label className="relative block w-full max-w-sm">
-                <select
+              <div className="w-full max-w-sm">
+                <FilterSelect
                   value={activeProjectId || ""}
-                  onChange={(event) => {
-                    const project = userProjects.find((item) => item.id === event.target.value);
+                  options={userProjects.map((project) => ({
+                    value: project.id,
+                    label: `${project.name}${project.isProjectAdmin ? " (Admin)" : ""}`
+                  }))}
+                  onValueChange={(projectId) => {
+                    const project = userProjects.find((item) => item.id === projectId);
                     if (!project) return;
                     setActiveProjectId(project.id);
                     setActiveProjectName(project.name);
                     setActiveIsProjectAdmin(project.isProjectAdmin);
                   }}
-                  className="h-10 w-full appearance-none rounded-lg border border-white/10 bg-ink-950/60 px-3 pr-9 text-sm text-stone-100 outline-none transition focus:border-dusk-lavender/70"
-                >
-                  {userProjects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.name}{project.isProjectAdmin ? " (Admin)" : ""}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
-              </label>
+                />
+              </div>
             ) : null}
           </div>
         ) : null}
@@ -879,7 +877,7 @@ function HistoryItem({ redemption }: { redemption: Redemption }) {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="line-clamp-1 text-sm font-medium text-stone-200">{redemption.reward.name}</p>
-          <p className="mt-1 text-[11px] text-stone-500">{new Date(redemption.createdAt).toLocaleDateString()}</p>
+          <p className="mt-1 text-[11px] text-stone-500">{formatMediumDate(redemption.createdAt)}</p>
         </div>
         <span
           className={cn(
@@ -948,12 +946,17 @@ function CreateRewardModal({
   const selectedIcon = rewardIconOptions.find((icon) => icon.src === rewardIconSrc) ?? defaultRewardIcon;
 
   return (
-    <div className="fixed inset-0 z-[1000] grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm">
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="create-reward-title"
+      contentClassName="max-w-3xl"
+    >
       <form className="lofi-panel w-full max-w-3xl rounded-xl p-5" onSubmit={onSubmit}>
         <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Catalog editor</p>
-            <h2 className="mt-1 text-xl font-semibold text-stone-100">Create reward</h2>
+            <h2 id="create-reward-title" className="mt-1 text-xl font-semibold text-stone-100">Create reward</h2>
           </div>
           <button className="rounded-lg p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -1095,7 +1098,7 @@ function CreateRewardModal({
           <Button disabled={!rewardName.trim()}>Save Reward</Button>
         </div>
       </form>
-    </div>
+    </AppModal>
   );
 }
 
@@ -1111,12 +1114,17 @@ function RejectRewardModal({
   rejectionReason: string;
 }) {
   return (
-    <div className="fixed inset-0 z-[1000] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="reject-reward-title"
+      contentClassName="max-w-md"
+    >
       <form className="lofi-panel w-full max-w-md rounded-xl p-5" onSubmit={onSubmit}>
         <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-red-300">Reject request</p>
-            <h2 className="mt-1 text-lg font-semibold text-stone-100">Add a reason</h2>
+            <h2 id="reject-reward-title" className="mt-1 text-lg font-semibold text-stone-100">Add a reason</h2>
           </div>
           <button className="rounded-lg p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -1142,6 +1150,6 @@ function RejectRewardModal({
           </Button>
         </div>
       </form>
-    </div>
+    </AppModal>
   );
 }

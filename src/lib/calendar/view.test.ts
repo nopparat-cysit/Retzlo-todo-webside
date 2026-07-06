@@ -12,6 +12,7 @@ import {
 const baseFilters: CalendarFilterState = {
   showCards: true,
   showNotes: true,
+  showDiaryChecklist: true,
   statuses: {
     TODO: true,
     DOING: true,

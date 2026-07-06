@@ -11,6 +11,7 @@ import {
 import { FabHub } from "@/components/hub/fab-hub";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getDatabaseErrorMessage } from "@/lib/safe-db";
 import type { CardStatus } from "@/types/kanban";
 
 export default async function ProjectsPage() {
@@ -124,7 +125,7 @@ export default async function ProjectsPage() {
     })
   ]).catch((error) => {
     console.error("Failed to load projects dashboard data", error);
-    databaseWarning = "Cannot reach the database right now. Your workspace will appear here again when the connection is back.";
+    databaseWarning = getDatabaseErrorMessage(error);
 
     return [
       [],

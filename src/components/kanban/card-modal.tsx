@@ -10,15 +10,16 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { FormEvent, ReactNode, useEffect, useState, useRef, useMemo, useCallback } from "react";
-import { createPortal } from "react-dom";
-import { CalendarClock, CheckSquare, Coins, FileText, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
+import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback } from "react";
+import { CheckSquare, Coins, FileText, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { AppModal } from "@/components/ui/app-modal";
+import { DateTimeField } from "@/components/ui/date-time-field";
 import { Input, Textarea } from "@/components/ui/input";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { RetroStickerPicker } from "@/components/stickers/retro-sticker-picker";
-import { applyDueShortcut, composeDueDate } from "@/lib/kanban/due-date";
+import { composeDueDate } from "@/lib/kanban/due-date";
 import { getPrivateCoinEntry, resolveCardRewardPayload } from "@/lib/kanban/private-coins";
 import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
@@ -77,7 +78,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   const [description, setDescription] = useState(card?.description ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
-  const backdropRef = useRef<HTMLDivElement>(null);
 
   // Gamification fields
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
@@ -293,26 +293,25 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     setIsSaving(false);
   }
 
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === backdropRef.current) {
-      handleCloseRequest();
-    }
-  };
-
   const modal = (
     <>
-      <div
-        ref={backdropRef}
-        className="fixed inset-0 z-[1000] grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm"
-        onClick={handleBackdropClick}
-      onKeyDown={(event) => event.stopPropagation()}
-    >
-      <form className="lofi-panel flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg" onSubmit={handleSubmit}>
+      <AppModal
+        open={open && mounted}
+        onClose={onClose}
+        hasUnsavedChanges={hasChanges}
+        onDiscard={onClose}
+        labelledBy="card-modal-title"
+        contentClassName="lofi-panel flex max-h-[92vh] max-w-5xl flex-col overflow-hidden rounded-lg"
+      >
+      <form
+        className="flex max-h-[92vh] w-full flex-col overflow-hidden"
+        onSubmit={handleSubmit}
+      >
         <div className="shrink-0 border-b border-white/10 p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">{mode === "create" ? "New card" : "Edit card"}</p>
-            <h2 className="mt-1 text-2xl font-semibold">{mode === "create" ? "Create card" : "Card details"}</h2>
+            <h2 id="card-modal-title" className="mt-1 text-2xl font-semibold">{mode === "create" ? "Create card" : "Card details"}</h2>
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -458,38 +457,13 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
 
           <ColorPicker selectedColor={selectedColor} onChange={setSelectedColor} />
 
-          <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
-            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
-              <CalendarClock className="h-4 w-4 text-dusk-amber" />
-              Due date
-            </div>
-            <div className="mb-3 flex flex-wrap gap-2">
-              {[
-                ["today", "Today"],
-                ["tomorrow", "Tomorrow"],
-                ["next-week", "Next week"],
-                ["clear", "Clear date"]
-              ].map(([value, label]) => (
-                <Button
-                  className="h-8 px-3"
-                  key={value}
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setDate(applyDueShortcut(value as "today" | "tomorrow" | "next-week" | "clear"));
-                    if (value === "clear") setTime("");
-                  }}
-                >
-                  {label}
-                </Button>
-              ))}
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-              <Input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
-            </div>
-            <p className="mt-2 text-xs text-stone-500">No time means all day.</p>
-          </div>
+          <DateTimeField
+            value={{ date, time }}
+            onChange={(nextValue) => {
+              setDate(nextValue.date);
+              setTime(nextValue.time);
+            }}
+          />
 
           {/* ── Coin Rewards & Stickers ── */}
           <div className="grid gap-3">
@@ -551,7 +525,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
           <Button disabled={isSaving}>{isSaving ? "Saving..." : "Save card"}</Button>
         </div>
       </form>
-      </div>
+      </AppModal>
       <ConfirmModal
         open={showConfirmClose}
         title="Discard changes?"
@@ -567,7 +541,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     </>
   );
 
-  return createPortal(modal, document.body);
+  return modal;
 }
 
 function ColorPicker({

@@ -16,6 +16,7 @@ import { TransactionList } from "@/components/finance/transaction-list";
 import { LedgerSelector } from "@/components/finance/ledger-selector";
 import { BudgetForm } from "@/components/finance/budget-form";
 import { Button } from "@/components/ui/button";
+import { formatMediumDate } from "@/lib/date-format";
 import { cn } from "@/lib/utils";
 import { calculateExpenseBreakdown, calculateFinanceSummary, getRecurringIncomeMonthlyAmount } from "@/lib/finance/calculations";
 import type {
@@ -370,7 +371,7 @@ export function FinanceDashboard({
                       </span>
                     </div>
                     <p className="text-[10px] text-stone-500 mt-0.5">
-                      Due on {new Date(nextSubscription.nextBillingDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                      Due on {formatMediumDate(nextSubscription.nextBillingDate)}
                     </p>
                   </div>
                 ) : (

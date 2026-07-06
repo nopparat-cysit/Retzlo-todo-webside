@@ -25,7 +25,10 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
+import { AppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { EntityCard } from "@/components/ui/entity-card";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { DiaryItemModal, type DiaryPayload } from "@/components/hub/diary-hub-panel";
@@ -359,25 +362,20 @@ export function ProjectsDashboard({
             )}
           </div>
 
-          <div className="mt-6">
-            <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-stone-500">Project</label>
-            <select
-              className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.065] px-3 text-sm text-stone-100 outline-none transition focus:border-dusk-lavender/70 focus:ring-4 focus:ring-dusk-lavender/20"
-              value={selectedProjectId}
-              onChange={(event) => {
-                if (event.target.value) {
-                  router.push(`/project/${event.target.value}/board`);
-                }
-              }}
-            >
-              {projects.length === 0 ? <option value="">No projects</option> : null}
-              {sortedProjects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterSelect
+            className="mt-6"
+            label="Project"
+            value={selectedProjectId}
+            options={[
+              ...(projects.length === 0 ? [{ value: "", label: "No projects" }] : []),
+              ...sortedProjects.map((project) => ({ value: project.id, label: project.name }))
+            ]}
+            onValueChange={(value) => {
+              if (value) {
+                router.push(`/project/${value}/board`);
+              }
+            }}
+          />
 
           <Link
             href="/projects/rewards"
@@ -399,24 +397,24 @@ export function ProjectsDashboard({
               <span className="rounded bg-white/5 px-2 py-1 text-[11px] text-stone-500">{filteredCalendarCards.length}</span>
             </div>
             <div className="mb-3 grid gap-2">
-              <select
-                className="h-9 rounded-xl border border-white/10 bg-white/[0.065] px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/70"
+              <FilterSelect
                 value={calendarRange}
-                onChange={(event) => setCalendarRange(event.target.value as "7" | "30" | "all")}
-              >
-                <option value="7">Next 7 days</option>
-                <option value="30">Next 30 days</option>
-                <option value="all">All dates</option>
-              </select>
-              <select
-                className="h-9 rounded-xl border border-white/10 bg-white/[0.065] px-2 text-xs text-stone-100 outline-none focus:border-dusk-lavender/70"
+                options={[
+                  { value: "7", label: "Next 7 days" },
+                  { value: "30", label: "Next 30 days" },
+                  { value: "all", label: "All dates" }
+                ]}
+                onValueChange={setCalendarRange}
+              />
+              <FilterSelect
                 value={calendarTimeScope}
-                onChange={(event) => setCalendarTimeScope(event.target.value as typeof calendarTimeScope)}
-              >
-                <option value="all">All times</option>
-                <option value="allDay">All-day only</option>
-                <option value="timed">Timed only</option>
-              </select>
+                options={[
+                  { value: "all", label: "All times" },
+                  { value: "allDay", label: "All-day only" },
+                  { value: "timed", label: "Timed only" }
+                ]}
+                onValueChange={setCalendarTimeScope}
+              />
               <div className="grid grid-cols-2 gap-1.5">
                 {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
                   const meta = getStatusMeta(status);
@@ -728,7 +726,11 @@ function ProjectCard({
 
   return (
     <>
-      <article className={cn("lofi-panel group relative flex min-h-[390px] flex-col overflow-hidden rounded-2xl transition duration-200 hover:-translate-y-0.5 hover:border-dusk-lavender/35 hover:shadow-xl hover:shadow-dusk-lavender/10", colorMeta.softClass)}>
+      <EntityCard
+        tone={project.themeColor}
+        title={<span className="sr-only">{project.name}</span>}
+        className={cn("lofi-panel group flex min-h-[390px] flex-col p-0 hover:shadow-xl hover:shadow-dusk-lavender/10", colorMeta.softClass)}
+      >
         <div className="relative h-36 overflow-hidden border-b border-white/10">
           {project.coverImage ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -807,7 +809,7 @@ function ProjectCard({
             </Link>
           </div>
         </div>
-      </article>
+      </EntityCard>
 
       {menuOpen && (
         <>
@@ -946,12 +948,17 @@ function EditProjectModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 py-4 backdrop-blur-sm">
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="project-settings-title"
+      contentClassName="max-w-5xl"
+    >
       <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl" onSubmit={handleSaveIntent}>
         <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Project settings</p>
-            <h2 className="mt-1 text-2xl font-semibold">Edit project</h2>
+            <h2 id="project-settings-title" className="mt-1 text-2xl font-semibold">Edit project</h2>
           </div>
           <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -1053,7 +1060,7 @@ function EditProjectModal({
           <Button disabled={isSaving || !name.trim()}>{isSaving ? "Saving..." : "Save changes"}</Button>
         </div>
       </form>
-    </div>
+    </AppModal>
   );
 }
 
@@ -1101,12 +1108,17 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[180] grid place-items-center bg-ink-950/80 px-4 backdrop-blur-sm">
+    <AppModal
+      open
+      onClose={onClose}
+      labelledBy="create-project-title"
+      contentClassName="max-w-lg"
+    >
       <form className="lofi-panel w-full max-w-lg rounded-lg p-5" onSubmit={handleSubmit}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Workspace</p>
-            <h2 className="mt-1 text-2xl font-semibold">New Project</h2>
+            <h2 id="create-project-title" className="mt-1 text-2xl font-semibold">New Project</h2>
           </div>
           <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
@@ -1156,7 +1168,7 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
           <Button disabled={isPending}>{isPending ? "Creating..." : "Create Project"}</Button>
         </div>
       </form>
-    </div>
+    </AppModal>
   );
 }
 

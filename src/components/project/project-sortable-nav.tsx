@@ -108,6 +108,7 @@ function SortableNavItem({ item }: { item: ProjectNavItem }) {
     >
       <ProjectNavLink {...item} />
       <button
+        suppressHydrationWarning
         type="button"
         aria-label={`Reorder ${item.label}`}
         title={`Reorder ${item.label}`}

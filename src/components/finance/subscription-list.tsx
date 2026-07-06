@@ -2,6 +2,7 @@ import { CalendarClock, CheckCircle2, CircleOff } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatMediumDate } from "@/lib/date-format";
 import { getSubscriptionMonthlyCost } from "@/lib/finance/calculations";
 import type { SerializedFinanceSubscription } from "@/types/finance";
 
@@ -88,7 +89,7 @@ function getDueLabel(nextBillingDate: string) {
   dueDate.setHours(0, 0, 0, 0);
 
   const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / 86_400_000);
-  const dateText = dueDate.toLocaleDateString();
+  const dateText = formatMediumDate(dueDate);
 
   if (diffDays < 0) return `Overdue ${Math.abs(diffDays)}d (${dateText})`;
   if (diffDays === 0) return `Due today (${dateText})`;

@@ -35,10 +35,10 @@ const MODULES: Module[] = [
   },
   {
     id: "vital",
-    label: "VITAL",
+    label: "VITAL HUB",
     description: "Calorie tracking, macro logging, workout planner, weight progress, and calm recovery system.",
     icon: <Dumbbell className="h-8 w-8" />,
-    href: "/vital",
+    href: "/hub",
     available: true,
     tag: "New"
   },
