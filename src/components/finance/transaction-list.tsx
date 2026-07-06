@@ -1,6 +1,7 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/state";
 import { formatMediumDate } from "@/lib/date-format";
 import { FinanceCategoryIcon } from "@/lib/finance/category-icons";
 import { cn } from "@/lib/utils";
@@ -19,9 +20,11 @@ export function TransactionList({ limit = 5, transactions }: TransactionListProp
         <h2 className="mt-1 text-xl font-semibold text-stone-100">Recent Transactions</h2>
       </div>
       {transactions.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-white/10 p-6 text-sm text-stone-400">
-          No transactions yet.
-        </div>
+        <EmptyState
+          className="border-dashed bg-white/[0.015] p-6"
+          title="Ledger is quiet"
+          message="Recorded income and expenses will appear here."
+        />
       ) : (
         <div className="space-y-2">
           {transactions.slice(0, limit).map((transaction) => {

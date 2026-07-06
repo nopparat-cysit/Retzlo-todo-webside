@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { EmptyState } from "@/components/ui/state";
 import {
   buildCalendarDays,
   defaultCalendarFilters,
@@ -444,10 +445,11 @@ export function ProjectCalendar({
             </div>
           </div>
           {filteredItems.length === 0 ? (
-            <div className="rounded-md border border-dashed border-white/10 p-8 text-center">
-              <h3 className="text-lg font-semibold">No matching calendar items</h3>
-              <p className="mt-2 text-sm text-stone-400">Try widening the filters or changing the date range.</p>
-            </div>
+            <EmptyState
+              className="border-dashed bg-white/[0.015] p-8"
+              title="No calendar items match"
+              message="Try widening the filters or changing the date range."
+            />
           ) : (
             <div>
               <div className="mb-2 grid gap-2 text-center text-xs uppercase tracking-[0.2em] text-stone-500" style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}>
@@ -561,7 +563,13 @@ export function ProjectCalendar({
                 );
               }
             })}
-            {filteredItems.length === 0 ? <p className="text-sm text-stone-500">No upcoming matching items.</p> : null}
+            {filteredItems.length === 0 ? (
+              <EmptyState
+                className="border-dashed bg-white/[0.015] p-4 text-left"
+                title="No upcoming matches"
+                message="Adjust the filters or add due dates to cards, notes, and diary items."
+              />
+            ) : null}
           </div>
         </Panel>
       </div>
@@ -712,9 +720,11 @@ export function ProjectCalendar({
               {/* Main List */}
               <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5">
                 {selectedDayItems.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.01] py-12 text-center text-sm text-stone-500">
-                    No items match the selected filters for this day.
-                  </div>
+                  <EmptyState
+                    className="border-dashed bg-white/[0.01] py-12"
+                    title="No day matches"
+                    message="This day has no visible cards, notes, or diary checklist items for the current filters."
+                  />
                 ) : (
                   <div className="space-y-3">
                     {selectedDayItems.map((item) => {

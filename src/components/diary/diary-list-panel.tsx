@@ -26,6 +26,7 @@ import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/state";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -624,9 +625,11 @@ function DiaryStatusBadges({ item }: { item: DiaryItemWithSummary }) {
 
 function DiaryEmptyState({ label }: { label: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-white/12 bg-ink-950/25 p-5 text-center text-sm text-stone-500">
-      {label}
-    </div>
+    <EmptyState
+      className="border-dashed bg-ink-950/25 p-5"
+      title="No diary items"
+      message={label}
+    />
   );
 }
 

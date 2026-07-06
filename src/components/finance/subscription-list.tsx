@@ -2,6 +2,7 @@ import { CalendarClock, CheckCircle2, CircleOff } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/state";
 import { formatMediumDate } from "@/lib/date-format";
 import { getSubscriptionMonthlyCost } from "@/lib/finance/calculations";
 import type { SerializedFinanceSubscription } from "@/types/finance";
@@ -24,9 +25,11 @@ export function SubscriptionList({ subscriptions, onDelete, onToggle }: Subscrip
         <h2 className="mt-1 text-xl font-semibold text-stone-100">Active Recurring Bills</h2>
       </div>
       {activeSubscriptions.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-white/10 p-6 text-sm text-stone-400">
-          No active recurring bills.
-        </div>
+        <EmptyState
+          className="border-dashed bg-white/[0.015] p-6"
+          title="No active recurring bills"
+          message="Active subscriptions and scheduled bills will appear here."
+        />
       ) : (
         <div className="space-y-2">
           {activeSubscriptions.map((subscription) => (

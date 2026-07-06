@@ -30,6 +30,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { EntityCard } from "@/components/ui/entity-card";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/state";
 import { useToast } from "@/components/ui/toast";
 import { DiaryItemModal, type DiaryPayload } from "@/components/hub/diary-hub-panel";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
@@ -383,7 +384,7 @@ export function ProjectsDashboard({
           >
             <div className="flex items-center gap-2">
               <Gift className="h-4 w-4 text-dusk-amber" />
-              <span>Redeem Rewards (แลกรางวัล)</span>
+              <span>Redeem Rewards</span>
             </div>
             <ArrowRight className="h-4 w-4 text-dusk-amber" />
           </Link>
@@ -483,7 +484,7 @@ export function ProjectsDashboard({
                       }}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="line-clamp-2 text-sm font-medium text-stone-100">📖 {diaryItem.title}</p>
+                        <p className="line-clamp-2 text-sm font-medium text-stone-100">{diaryItem.title}</p>
                         {diaryItem.checklistSummary.dueCount > 0 ? (
                           <span className="shrink-0 rounded border border-dusk-cyan/20 bg-dusk-cyan/10 px-1.5 py-0.5 text-[10px] text-dusk-cyan font-mono">
                             {diaryItem.checklistSummary.completedCount}/{diaryItem.checklistSummary.dueCount}
@@ -502,9 +503,11 @@ export function ProjectsDashboard({
                 }
               })}
               {filteredCalendarItems.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-stone-500">
-                  No cards or diaries match the calendar filters.
-                </div>
+                <EmptyState
+                  className="border-dashed bg-white/[0.02] p-4 text-left"
+                  title="No calendar matches"
+                  message="No cards or diaries match the selected filters."
+                />
               ) : null}
             </div>
           </div>
@@ -630,9 +633,11 @@ function ProjectSupportColumn({
                 );
               })
             ) : (
-              <div className="rounded-2xl border border-dashed border-white/10 bg-ink-950/20 p-4 text-sm leading-6 text-stone-500">
-                No upcoming due dates yet. Add dates to cards and the next moves will appear here.
-              </div>
+              <EmptyState
+                className="border-dashed bg-ink-950/20 p-4 text-left"
+                title="No due dates queued"
+                message="Add dates to cards and the next moves will appear here."
+              />
             )}
           </div>
         </div>

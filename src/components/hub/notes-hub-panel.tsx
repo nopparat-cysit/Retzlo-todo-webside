@@ -5,6 +5,7 @@ import { CalendarClock, CheckCircle2, Eye, EyeOff, FileText, RotateCcw, Star } f
 
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
+import { EmptyState } from "@/components/ui/state";
 import { setRedStarItem } from "@/components/hub/fab-hub";
 import { formatMediumDate, formatMediumDateTime } from "@/lib/date-format";
 import { getCardColorMeta } from "@/lib/theme/card-colors";
@@ -183,9 +184,11 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
 
       {/* Notes grid */}
       {visibleNotes.length === 0 ? (
-        <div className="lofi-panel rounded-xl p-10 text-center text-sm text-stone-500">
-          No notes in this filter.
-        </div>
+        <EmptyState
+          className="lofi-panel border-dashed bg-white/[0.015] p-10"
+          title="No notes match"
+          message="Change the filters or add a note from a project board."
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
           {visibleNotes.map((note) => {

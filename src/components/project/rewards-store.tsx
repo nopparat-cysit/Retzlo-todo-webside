@@ -24,6 +24,7 @@ import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/state";
 import { formatMediumDate } from "@/lib/date-format";
 import { getRewardIconForName, getRewardIconOption, rewardIconOptions } from "@/lib/rewards/reward-icons";
 import { cn } from "@/lib/utils";
@@ -593,20 +594,21 @@ export function RewardsStore({
               Syncing rewards...
             </div>
           ) : filteredRewards.length === 0 ? (
-            <div className="mt-5 grid min-h-[22rem] place-items-center rounded-xl border border-dashed border-white/12 bg-white/[0.02] p-8 text-center">
-              <div>
-                <RewardIcon src={emptyRewardIcon.src} label="Empty catalog" size="xl" />
-                <h4 className="mt-3 text-base font-semibold text-stone-200">No rewards here yet</h4>
-                <p className="mt-1 max-w-sm text-sm text-stone-500">
-                  {canManageRewards ? "Create a reward or choose a preset to seed the catalog." : "The owner has not added rewards in this scope yet."}
-                </p>
-                {canManageRewards ? (
-                  <Button className="mt-4" onClick={() => setIsCreateOpen(true)}>
-                    <Plus className="h-4 w-4" />
-                    New Reward
-                  </Button>
-                ) : null}
-              </div>
+            <div className="mt-5 grid min-h-[22rem] place-items-center">
+              <EmptyState
+                className="w-full max-w-lg border-dashed bg-white/[0.02] p-8"
+                visual={<RewardIcon src={emptyRewardIcon.src} label="Empty catalog" size="xl" />}
+                title="No rewards here yet"
+                message={canManageRewards ? "Create a reward or choose a preset to seed the catalog." : "The owner has not added rewards in this scope yet."}
+                action={
+                  canManageRewards ? (
+                    <Button size="sm" onClick={() => setIsCreateOpen(true)}>
+                      <Plus className="h-4 w-4" />
+                      Create reward
+                    </Button>
+                  ) : null
+                }
+              />
             </div>
           ) : (
             <div className="mt-5 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">

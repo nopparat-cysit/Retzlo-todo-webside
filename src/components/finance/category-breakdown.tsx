@@ -1,3 +1,5 @@
+import { EmptyState } from "@/components/ui/state";
+
 interface CategoryBreakdownProps {
   items: Array<{
     name: string;
@@ -15,9 +17,11 @@ export function CategoryBreakdown({ items }: CategoryBreakdownProps) {
         <h2 className="mt-1 text-xl font-semibold text-stone-100">Category Breakdown</h2>
       </div>
       {items.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-white/10 p-6 text-sm text-stone-500">
-          No expense data this month.
-        </div>
+        <EmptyState
+          className="border-dashed bg-white/[0.015] p-6"
+          title="No expense map"
+          message="Expenses will be grouped by category once transactions are recorded."
+        />
       ) : (
         <div className="space-y-3">
           {items.map((item) => {

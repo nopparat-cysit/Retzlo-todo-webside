@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/ui/app-modal";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/state";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { formatMediumDate, formatMediumDateTime } from "@/lib/date-format";
 import { applyDueShortcut, composeDueDate } from "@/lib/kanban/due-date";
@@ -305,9 +306,12 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
           </div>
           {error ? <p className="mb-3 rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p> : null}
           {visibleNotes.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-white/15 bg-white/[0.025] p-8 text-center text-sm text-stone-500">
-              No notes in this view.
-            </div>
+            <EmptyState
+              className="border-dashed bg-white/[0.025] p-8"
+              title="No notes in this view"
+              message="Adjust the filters or capture a new note."
+              action={<Button size="sm" onClick={() => setIsCreateOpen(true)}>Add note</Button>}
+            />
           ) : null}
           <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto pr-1">
             <div
@@ -377,7 +381,7 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
                   </button>
                 ))
               ) : (
-                <div className="p-4 text-center text-xs text-stone-500">No recent notes yet.</div>
+                <EmptyState className="border-0 bg-transparent p-4" title="No recent notes yet" message="Updated notes will appear here." />
               )}
             </div>
           </div>
@@ -763,7 +767,7 @@ function renderNoteSticker(value: string, className?: string) {
     return <RetroStickerImage alt="" className={className} size={44} src={value} />;
   }
 
-  return <span>{value || "📝"}</span>;
+  return <span>{value || "Note"}</span>;
 }
 
 function normalizeNote(note: ProjectNote): ProjectNote {

@@ -8,6 +8,7 @@ import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/state";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { setRedStarItem } from "@/components/hub/fab-hub";
 import {
@@ -239,9 +240,17 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
       {/* Items grid */}
       <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
         {visibleItems.length === 0 ? (
-          <div className="lofi-panel rounded-xl p-10 text-center text-sm text-stone-500 md:col-span-2 2xl:col-span-3">
-            No diary items in this filter.
-          </div>
+          <EmptyState
+            className="lofi-panel border-dashed bg-white/[0.015] p-10 md:col-span-2 2xl:col-span-3"
+            title="No diary items match"
+            message="Adjust the filters or create a personal diary checklist."
+            action={
+              <Button size="sm" type="button" onClick={() => setIsCreateOpen(true)}>
+                <Plus className="h-4 w-4" />
+                My Diary
+              </Button>
+            }
+          />
         ) : (
           visibleItems.map((item) => {
             const colorMeta = getCardColorMeta(item.color);
