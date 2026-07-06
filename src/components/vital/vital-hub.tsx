@@ -8,6 +8,7 @@ import { VitalPanel } from "./vital-panel";
 
 export function VitalHub() {
   const [todayLabel, setTodayLabel] = useState("Today");
+  const [testAccount, setTestAccount] = useState("losstary");
 
   useEffect(() => {
     setTodayLabel(formatMediumDate(new Date()));
@@ -25,7 +26,7 @@ export function VitalHub() {
               </div>
               <div>
                 <h1 className="text-4xl font-semibold text-[#f5efe6]">Vital Hub</h1>
-                <p className="text-[#f5efe6]/60">Your calm body archive</p>
+                <p className="text-[#f5efe6]/60">Your calm body archive • Test Account: {testAccount}</p>
               </div>
             </div>
           </div>
@@ -76,7 +77,7 @@ export function VitalHub() {
         </div>
 
         <div className="mt-8 text-center text-xs text-[#f5efe6]/30">
-          Vital Hub · Phase 1 - More features coming soon
+          Vital Hub · Phase 1 - More features coming soon • Test Account: losstary added
         </div>
       </div>
     </div>

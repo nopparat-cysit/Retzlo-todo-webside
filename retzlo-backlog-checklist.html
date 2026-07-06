@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retzlo / Capital One — Backlog Checklist</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .title { font-family: 'Space Grotesk', sans-serif; }
+    .card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200 p-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="w-9 h-9 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold">R</div>
+      <div>
+        <h1 class="title text-4xl font-semibold tracking-tighter text-white">Retzlo / Capital One</h1>
+        <p class="text-emerald-400 text-sm font-medium">BACKLOG CHECKLIST — SINGLE PAGE</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Filter & View -->
+      <div class="card bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="px-3 py-1 bg-blue-500/10 text-blue-400 text-xs font-medium rounded-full">FILTER & VIEW</div>
+        </div>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">Filter เวอร์ชั่นใหม่ เปิดหน้า</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">ต้องการให้ save ได้ใน custom view</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">Custom View Bug</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">Sort Table เวอร์ชั่นใหม่ เปิดหน้า</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Lead Menu -->
+      <div class="card bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="px-3 py-1 bg-amber-500/10 text-amber-400 text-xs font-medium rounded-full">LEAD MENU & SORTING</div>
+        </div>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">เมนู Lead แบบ sorting</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">เมนู Lead อันใหม่ให้ตรง</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">แก้ sort date ใน Between (date all check)</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Checkbox & User -->
+      <div class="card bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="px-3 py-1 bg-rose-500/10 text-rose-400 text-xs font-medium rounded-full">CHECKBOX & USER ACTION</div>
+        </div>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">แก้ user หลังจาก update checkbox (message update, delete, edit)</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">Dropdown checkbox ให้เลือกหลายตัว</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">ปุ่มสลับกับ pagination</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Badge, Export, Timeline -->
+      <div class="card bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="px-3 py-1 bg-teal-500/10 text-teal-400 text-xs font-medium rounded-full">BADGE, EXPORT, TIMELINE</div>
+        </div>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">101 note badge 000</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">101 Export type มากขึ้น (CSV + Excel)</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">Timeline / Audit Log — Only Lead?</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <input type="checkbox" class="mt-1.5 accent-violet-500">
+            <span class="text-zinc-300">Hunk line 9 7 6 0</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-10 text-center text-zinc-500 text-sm">
+      Retzlo / Capital One Backlog • Single Page Checklist • Updated 16 June 2026
+    </div>
+  </div>
+</body>
+</html>
