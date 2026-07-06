@@ -13,7 +13,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles, X } from "lucide-react";
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect, useRef } from "react";
 
 import { KanbanColumn } from "@/components/kanban/column";
 import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
@@ -52,6 +52,13 @@ interface MoveAction {
   destinationIndex: number;
 }
 
+interface CardDropTarget {
+  cardId: string;
+  sourceColumnId: string;
+  destinationColumnId: string;
+  destinationIndex: number;
+}
+
 function normalizeColumn(column: ColumnWithCards): ColumnWithCards {
   return {
     ...column,
@@ -64,6 +71,7 @@ function normalizeColumn(column: ColumnWithCards): ColumnWithCards {
 export function KanbanBoard({ board }: { board: BoardData }) {
   const [columns, setColumns] = useState(() => board.columns.map(normalizeColumn));
   const [dragSnapshot, setDragSnapshot] = useState<ColumnWithCards[] | null>(null);
+  const lastCardDropTargetRef = useRef<CardDropTarget | null>(null);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [activeDropColumnId, setActiveDropColumnId] = useState<string | null>(null);
@@ -321,7 +329,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
     );
   }
 
-  function getCardDropTarget(event: DragOverEvent | DragEndEvent, currentColumns: ColumnWithCards[]) {
+  function getCardDropTarget(event: DragOverEvent | DragEndEvent, currentColumns: ColumnWithCards[]): CardDropTarget | null {
     const { active, over } = event;
 
     if (!over || active.id === over.id) {
@@ -359,6 +367,8 @@ export function KanbanBoard({ board }: { board: BoardData }) {
   }
 
   function handleDragStart(event: DragStartEvent) {
+    lastCardDropTargetRef.current = null;
+
     if (event.active.data.current?.type === "card") {
       setDragSnapshot(columns);
       const cardId = event.active.data.current.cardId as string;
@@ -373,6 +383,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       setColumns(dragSnapshot);
     }
 
+    lastCardDropTargetRef.current = null;
     setDragSnapshot(null);
     setActiveCardId(null);
     setActiveDropColumnId(null);
@@ -388,6 +399,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       return;
     }
 
+    lastCardDropTargetRef.current = target;
     setActiveDropColumnId(target.destinationColumnId);
     setColumns(moveCard(baseColumns, target).columns);
   }
@@ -400,16 +412,24 @@ export function KanbanBoard({ board }: { board: BoardData }) {
     setActiveDropColumnId(null);
     setActiveCard(null);
 
-    if (!over || active.id === over.id) {
+    const activeData = active.data.current;
+
+    if (!over && activeData?.type !== "card") {
+      lastCardDropTargetRef.current = null;
       return;
     }
 
-    const activeData = active.data.current;
-    const overData = over.data.current;
+    if (active.id === over?.id && activeData?.type !== "card") {
+      lastCardDropTargetRef.current = null;
+      return;
+    }
+
+    const overData = over?.data.current;
 
     if (activeData?.type === "column" && overData?.type === "column") {
       const previous = columns;
       const next = reorderColumns(columns, activeData.columnId, overData.columnId);
+      lastCardDropTargetRef.current = null;
       setColumns(next);
 
       const response = await fetch("/api/columns/reorder", {
@@ -427,12 +447,15 @@ export function KanbanBoard({ board }: { board: BoardData }) {
     }
 
     if (activeData?.type !== "card") {
+      lastCardDropTargetRef.current = null;
       return;
     }
 
-    const target = getCardDropTarget(event, previous);
+    const target = getCardDropTarget(event, previous) ?? lastCardDropTargetRef.current;
+    lastCardDropTargetRef.current = null;
 
     if (!target) {
+      setColumns(previous);
       return;
     }
 

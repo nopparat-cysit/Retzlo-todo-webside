@@ -19,4 +19,11 @@ describe("kanban card interactions", () => {
   it("keeps board card dragging responsive from short pointer movement", () => {
     expect(boardSource).toContain("activationConstraint: { distance: 4 }");
   });
+
+  it("does not leave unsynced optimistic drag-over state when drag end loses the target", () => {
+    expect(boardSource).toContain("lastCardDropTargetRef");
+    expect(boardSource).toContain("lastCardDropTargetRef.current = target");
+    expect(boardSource).toMatch(/const target = getCardDropTarget\(event, previous\) \?\? lastCardDropTargetRef\.current/);
+    expect(boardSource).toMatch(/if \(!target\)[\s\S]*setColumns\(previous\)/);
+  });
 });

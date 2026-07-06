@@ -36,3 +36,40 @@ Fix intermittent kanban card drag activation and card modal close behavior.
 ## Follow-ups
 
 - The browser still shows dnd-kit live-region text after dragging. It is harmless for screen readers but visually present in `innerText`; consider making the live region visually hidden if it appears in the UI.
+
+## 2026-07-06 Update - Drag persistence
+
+### Objective
+
+Fix a kanban drag/drop persistence bug where the card could visually move during drag-over but not sync to the database, causing it to return to the old column after refresh.
+
+### Files Changed
+
+- `src/components/kanban/board.tsx`
+- `src/components/kanban/card-interaction.test.ts`
+- `docs/agent-notes/2026-07-06-kanban-card-interactions.md`
+
+### Behavior Changes
+
+- The board now remembers the last valid card drop target during drag-over.
+- Drag-end uses that saved target when dnd-kit reports a missing or self-referential `over` target, so the reorder API still receives the intended move.
+- If drag-end has no reliable target, the board rolls back to the drag snapshot instead of leaving an unsynced optimistic UI state.
+
+### Database Changes
+
+- No schema or migration changes.
+
+### Verification
+
+- `npm test -- src/components/kanban/card-interaction.test.ts --reporter=dot` - failed before the fix because `lastCardDropTargetRef` was missing.
+- `npm test -- src/components/kanban/card-interaction.test.ts --reporter=dot` - passed after the fix.
+- `npm test -- src/components/kanban/card-interaction.test.ts src/lib/kanban/reorder.test.ts --reporter=dot` - passed.
+- `npx prisma validate` - passed.
+- `npm run lint` - passed.
+- `.\node_modules\.bin\tsc.cmd --noEmit` - initially failed on a nullable `over` access in the drag-end guard, then passed after tightening the guard.
+- `npm run build` - passed.
+- `git diff --check` - passed with line-ending warnings only.
+
+### Follow-ups
+
+- Manual browser drag verification is still recommended against a live board after deployment because this bug depends on dnd-kit pointer timing.
