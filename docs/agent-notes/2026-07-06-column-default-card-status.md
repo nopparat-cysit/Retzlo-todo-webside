@@ -31,11 +31,13 @@ Use an explicit column-level default card status as the source of truth for kanb
 - Quick-add cards inherit the column default status.
 - Dragging a card into a column optimistically updates the moved card status to the destination column default status.
 - `/api/cards/reorder` updates the moved card status from `destinationColumn.defaultCardStatus` and no longer infers Done from column name or last position.
-- Done payout and completion celebration now trigger only when the destination column default status is `DONE`.
+- Done payout and completion celebration now trigger only when moving into a destination column whose default status is `DONE`.
 
 ## Database/schema changes
 - Added `Column.defaultCardStatus String @default("TODO")`.
 - Added migration SQL to add the column and backfill existing default lane names; custom/other columns default to `TODO`.
+- Applied the migration SQL to the configured database with `prisma db execute` after `prisma migrate deploy` returned an empty `Schema engine error`.
+- Marked `20260706180000_add_column_default_card_status` as applied with `prisma migrate resolve`.
 
 ## Verification
 - `npm test -- src/lib/kanban/column-settings.test.ts` - passed (4 tests).
@@ -46,6 +48,10 @@ Use an explicit column-level default card status as the source of truth for kanb
 - `.\node_modules\.bin\tsc.cmd --noEmit` - passed.
 - `npm run lint` - passed with no ESLint warnings or errors.
 - `npm run build` - passed; production build completed successfully.
+- `npx prisma migrate deploy` - failed with `Schema engine error` and no additional detail.
+- `npx prisma db execute --file prisma/migrations/20260706180000_add_column_default_card_status/migration.sql --schema prisma/schema.prisma` - passed; script executed successfully.
+- `npx prisma migrate resolve --applied 20260706180000_add_column_default_card_status` - passed.
+- `npx prisma migrate status` - passed; database schema is up to date.
 
 ## Known follow-ups
-- Apply the Prisma migration to deployed databases before relying on column default statuses in shared environments.
+- None for the configured database; future environments should run the checked-in migration normally.
