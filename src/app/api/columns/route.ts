@@ -40,6 +40,7 @@ export async function POST(request: Request) {
         name: payload.name,
         color: payload.color,
         icon: payload.icon,
+        defaultCardStatus: payload.defaultCardStatus,
         position
       },
       include: { cards: true }

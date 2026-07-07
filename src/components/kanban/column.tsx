@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { CardModal } from "@/components/kanban/card-modal";
 import { KanbanCard } from "@/components/kanban/card";
 import { ColumnIconGlyph, ColumnIconPicker } from "@/components/kanban/column-icon-picker";
+import { ColumnStatusPicker } from "@/components/kanban/column-status-picker";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -58,6 +59,7 @@ export function KanbanColumn({
       name: string;
       color: ColumnThemeId;
       icon: ColumnIconId;
+      defaultCardStatus: CardStatus;
     }
   ) => Promise<void>;
   isFirst?: boolean;
@@ -71,6 +73,7 @@ export function KanbanColumn({
   const [settingsName, setSettingsName] = useState(column.name);
   const [settingsColor, setSettingsColor] = useState<ColumnThemeId>(column.color);
   const [settingsIcon, setSettingsIcon] = useState<ColumnIconId>(column.icon);
+  const [settingsDefaultCardStatus, setSettingsDefaultCardStatus] = useState<CardStatus>(column.defaultCardStatus);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -87,7 +90,8 @@ export function KanbanColumn({
     setSettingsName(column.name);
     setSettingsColor(column.color);
     setSettingsIcon(column.icon);
-  }, [column.color, column.icon, column.name]);
+    setSettingsDefaultCardStatus(column.defaultCardStatus);
+  }, [column.color, column.defaultCardStatus, column.icon, column.name]);
 
   const toggleCollapse = () => {
     const newState = !isCollapsed;
@@ -148,6 +152,7 @@ export function KanbanColumn({
     setSettingsName(column.name);
     setSettingsColor(column.color);
     setSettingsIcon(column.icon);
+    setSettingsDefaultCardStatus(column.defaultCardStatus);
     setSettingsError(null);
     setIsSettingsOpen(false);
   }
@@ -167,7 +172,8 @@ export function KanbanColumn({
       await onColumnSaved(column.id, {
         name: settingsName.trim(),
         color: settingsColor,
-        icon: settingsIcon
+        icon: settingsIcon,
+        defaultCardStatus: settingsDefaultCardStatus
       });
       setIsSettingsOpen(false);
     } catch (error) {
@@ -200,7 +206,7 @@ export function KanbanColumn({
       await onCreateCard(column.id, {
         title,
         description: null,
-        status: "TODO",
+        status: column.defaultCardStatus,
         color: "DEFAULT",
         checklist: [],
         dueDate: null,
@@ -470,6 +476,7 @@ export function KanbanColumn({
             <div className="mt-4 space-y-4">
               <ColumnThemePicker value={settingsColor} onChange={setSettingsColor} />
               <ColumnIconPicker value={settingsIcon} onChange={setSettingsIcon} />
+              <ColumnStatusPicker value={settingsDefaultCardStatus} onChange={setSettingsDefaultCardStatus} />
             </div>
 
             {totalCards > 0 ? (

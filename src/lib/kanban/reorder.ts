@@ -51,7 +51,8 @@ export function moveCard(columns: ColumnWithCards[], input: MoveCardInput): Move
     const cards = [...column.cards];
     cards.splice(destinationIndex, 0, {
       ...movedCard,
-      columnId: input.destinationColumnId
+      columnId: input.destinationColumnId,
+      status: destinationColumn.defaultCardStatus
     });
 
     return {

@@ -12,7 +12,11 @@ const createProjectSchema = z.object({
   type: z.enum(["WORK", "DIARY"]).default("WORK")
 }).merge(projectAppearanceSchema);
 
-const defaultColumns = ["Backlog", "In Progress", "Done"];
+const defaultColumns = [
+  { name: "Backlog", defaultCardStatus: "TODO" },
+  { name: "In Progress", defaultCardStatus: "DOING" },
+  { name: "Done", defaultCardStatus: "DONE" }
+];
 
 export async function GET() {
   const userId = await requireUserId();
@@ -71,7 +75,7 @@ export async function POST(request: Request) {
           create: {
             name: "Retzlo Board",
             columns: {
-              create: defaultColumns.map((name, position) => ({ name, position }))
+              create: defaultColumns.map((column, position) => ({ ...column, position }))
             }
           }
         }

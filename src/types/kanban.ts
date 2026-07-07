@@ -36,5 +36,6 @@ export interface ColumnWithCards {
   position: number;
   color: ColumnThemeId;
   icon: ColumnIconId;
+  defaultCardStatus: CardStatus;
   cards: Card[];
 }

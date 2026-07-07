@@ -112,6 +112,7 @@ model Column {
   position  Int
   color     String   @default("default")
   icon      String   @default("kanban")
+  defaultCardStatus String @default("TODO")
   boardId   String
   createdAt DateTime @default(now())
   board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)

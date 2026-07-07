@@ -17,6 +17,7 @@ import { FormEvent, useState, useEffect, useRef } from "react";
 
 import { KanbanColumn } from "@/components/kanban/column";
 import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
+import { ColumnStatusPicker } from "@/components/kanban/column-status-picker";
 import { triggerCelebration } from "@/components/kanban/card-celebration";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
@@ -64,6 +65,7 @@ function normalizeColumn(column: ColumnWithCards): ColumnWithCards {
     ...column,
     color: getColumnThemeOption(column.color).id,
     icon: getColumnIconOption(column.icon).id,
+    defaultCardStatus: column.defaultCardStatus ?? "TODO",
     cards: column.cards.map(normalizeCard)
   };
 }
@@ -78,6 +80,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
   const [columnName, setColumnName] = useState("");
   const [columnColor, setColumnColor] = useState<ColumnThemeId>("default");
   const [columnIcon, setColumnIcon] = useState<ColumnIconId>("kanban");
+  const [columnDefaultCardStatus, setColumnDefaultCardStatus] = useState<CardStatus>("TODO");
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -193,7 +196,13 @@ export function KanbanBoard({ board }: { board: BoardData }) {
     const response = await fetch("/api/columns", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ boardId: board.id, name: columnName.trim(), color: columnColor, icon: columnIcon })
+      body: JSON.stringify({
+        boardId: board.id,
+        name: columnName.trim(),
+        color: columnColor,
+        icon: columnIcon,
+        defaultCardStatus: columnDefaultCardStatus
+      })
     });
     const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
 
@@ -203,6 +212,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       setColumnName("");
       setColumnColor("default");
       setColumnIcon("kanban");
+      setColumnDefaultCardStatus("TODO");
       setIsColumnModalOpen(false);
       toast({ message: "Column created.", type: "success" });
     } else {
@@ -218,6 +228,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       name: string;
       color: ColumnThemeId;
       icon: ColumnIconId;
+      defaultCardStatus: CardStatus;
     }
   ) {
     setSyncError(null);
@@ -479,11 +490,9 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       setMoveHistory((current) => [...current, newMove]);
     }
 
-    // Celebration: detect if card moved into the last column
     const destinationColumn = next.find((col) => col.id === target.destinationColumnId);
-    const isLastColumn = destinationColumn?.id === next[next.length - 1]?.id;
     const movedFromDifferentColumn = target.sourceColumnId !== target.destinationColumnId;
-    if (isLastColumn && movedFromDifferentColumn) {
+    if (destinationColumn?.defaultCardStatus === "DONE" && movedFromDifferentColumn) {
       const cardEl = document.getElementById(`card-${target.cardId}`);
       if (cardEl) {
         const rect = cardEl.getBoundingClientRect();
@@ -696,7 +705,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
             setColumnIcon("kanban");
             setIsColumnModalOpen(false);
           }}
-          hasUnsavedChanges={columnName.trim() !== "" || columnColor !== "default" || columnIcon !== "kanban"}
+          hasUnsavedChanges={columnName.trim() !== "" || columnColor !== "default" || columnIcon !== "kanban" || columnDefaultCardStatus !== "TODO"}
           labelledBy="create-column-title"
           contentClassName="lofi-panel w-full max-w-md rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
         >
@@ -717,6 +726,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
                   setColumnName("");
                   setColumnColor("default");
                   setColumnIcon("kanban");
+                  setColumnDefaultCardStatus("TODO");
                   setIsColumnModalOpen(false);
                 }}
               >
@@ -738,6 +748,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
             <div className="mt-4 space-y-4">
               <ColumnThemePicker value={columnColor} onChange={setColumnColor} />
               <ColumnIconPicker value={columnIcon} onChange={setColumnIcon} />
+              <ColumnStatusPicker value={columnDefaultCardStatus} onChange={setColumnDefaultCardStatus} />
             </div>
 
             {syncError ? (
@@ -754,6 +765,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
                   setColumnName("");
                   setColumnColor("default");
                   setColumnIcon("kanban");
+                  setColumnDefaultCardStatus("TODO");
                   setIsColumnModalOpen(false);
                 }}
               >

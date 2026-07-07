@@ -50,7 +50,8 @@ export async function PATCH(request: Request, { params }: { params: { columnId: 
       data: {
         name: payload.name,
         color: payload.color,
-        icon: payload.icon
+        icon: payload.icon,
+        defaultCardStatus: payload.defaultCardStatus
       },
       include: {
         cards: {

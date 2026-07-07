@@ -28,6 +28,7 @@ const baseColumns = (): ColumnWithCards[] => [
     position: 0,
     color: "default",
     icon: "kanban",
+    defaultCardStatus: "TODO",
     cards: [card("a", "todo", 0), card("b", "todo", 1), card("c", "todo", 2)]
   },
   {
@@ -36,14 +37,16 @@ const baseColumns = (): ColumnWithCards[] => [
     position: 1,
     color: "default",
     icon: "kanban",
+    defaultCardStatus: "DONE",
     cards: [card("d", "done", 0)]
   },
   {
     id: "empty",
-    name: "Empty",
+    name: "??????? custom",
     position: 2,
     color: "default",
     icon: "kanban",
+    defaultCardStatus: "WAITING",
     cards: []
   }
 ];
@@ -65,7 +68,7 @@ describe("moveCard", () => {
     expect(result.affectedColumnIds).toEqual(["todo"]);
   });
 
-  it("moves a card to a different column and updates its column id", () => {
+  it("moves a card to a different column and updates its column id and status", () => {
     const result = moveCard(baseColumns(), {
       cardId: "b",
       sourceColumnId: "todo",
@@ -77,14 +80,14 @@ describe("moveCard", () => {
       "a:0:todo",
       "c:1:todo"
     ]);
-    expect(result.columns[1].cards.map((card) => `${card.id}:${card.position}:${card.columnId}`)).toEqual([
-      "d:0:done",
-      "b:1:done"
+    expect(result.columns[1].cards.map((card) => `${card.id}:${card.position}:${card.columnId}:${card.status}`)).toEqual([
+      "d:0:done:TODO",
+      "b:1:done:DONE"
     ]);
     expect(result.affectedColumnIds).toEqual(["todo", "done"]);
   });
 
-  it("moves a card into an empty column at position zero", () => {
+  it("moves a card into a custom waiting column and applies that column status", () => {
     const result = moveCard(baseColumns(), {
       cardId: "c",
       sourceColumnId: "todo",
@@ -99,7 +102,7 @@ describe("moveCard", () => {
         description: null,
         note: null,
         position: 0,
-        status: "TODO",
+        status: "WAITING",
         color: "DEFAULT",
         checklist: [],
         dueDate: null,

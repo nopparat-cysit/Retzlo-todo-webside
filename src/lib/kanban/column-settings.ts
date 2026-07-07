@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { CardStatus } from "@/types/kanban";
+
 export const columnThemeOptions = [
   {
     id: "default",
@@ -72,16 +74,25 @@ export const columnIconOptions = [
   { id: "coin", label: "Coin" }
 ] as const;
 
+export const columnStatusOptions: Array<{ value: CardStatus; label: string }> = [
+  { value: "TODO", label: "Todo" },
+  { value: "DOING", label: "Doing" },
+  { value: "WAITING", label: "Waiting" },
+  { value: "DONE", label: "Done" }
+];
+
 export type ColumnThemeId = (typeof columnThemeOptions)[number]["id"];
 export type ColumnIconId = (typeof columnIconOptions)[number]["id"];
 
 const columnThemeIds = columnThemeOptions.map((option) => option.id) as [ColumnThemeId, ...ColumnThemeId[]];
 const columnIconIds = columnIconOptions.map((option) => option.id) as [ColumnIconId, ...ColumnIconId[]];
+const columnStatusIds = columnStatusOptions.map((option) => option.value) as [CardStatus, ...CardStatus[]];
 
 export const columnSettingsSchema = z.object({
   name: z.string().trim().min(1).max(80),
   color: z.enum(columnThemeIds).default("default"),
-  icon: z.enum(columnIconIds).default("kanban")
+  icon: z.enum(columnIconIds).default("kanban"),
+  defaultCardStatus: z.enum(columnStatusIds).default("TODO")
 });
 
 export type ColumnSettingsInput = z.infer<typeof columnSettingsSchema>;

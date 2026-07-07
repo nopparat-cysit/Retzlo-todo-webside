@@ -23,6 +23,7 @@ function toColumns(columns: Array<{
   position: number;
   color?: string | null;
   icon?: string | null;
+  defaultCardStatus?: string | null;
   cards: Array<{
     id: string;
     title: string;
@@ -48,6 +49,7 @@ function toColumns(columns: Array<{
     position: column.position,
     color: getColumnThemeOption(column.color).id,
     icon: getColumnIconOption(column.icon).id,
+    defaultCardStatus: (column.defaultCardStatus ?? "TODO") as CardStatus,
     cards: column.cards.map((card) => ({
       ...card,
       status: card.status as CardStatus,
