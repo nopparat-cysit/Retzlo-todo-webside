@@ -35,7 +35,12 @@ interface Particle {
   opacity: number;
 }
 
-// ── 3D Projection Helpers for LofiCassette3D ──────────────────────────
+interface MarketingSessionUser {
+  name?: string | null;
+  email?: string | null;
+}
+
+// â”€â”€ 3D Projection Helpers for LofiCassette3D â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 interface Point3D {
   x: number;
   y: number;
@@ -77,7 +82,7 @@ function project(
   };
 }
 
-// ── Interactive 3D Spinning Cassette Deck Component ──────────────────
+// â”€â”€ Interactive 3D Spinning Cassette Deck Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function LofiCassette3D({ isPlaying, onClick }: { isPlaying: boolean; onClick: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ targetX: 0.25, targetY: 0.5 });
@@ -364,7 +369,7 @@ function LofiCassette3D({ isPlaying, onClick }: { isPlaying: boolean; onClick: (
   );
 }
 
-// ── Retro Synthwave Visual Hero (HTML/CSS) ────────────────────────────
+// â”€â”€ Retro Synthwave Visual Hero (HTML/CSS) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlayToggle: () => void }) {
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
   const heroRef = useRef<HTMLDivElement>(null);
@@ -386,12 +391,12 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
       onMouseLeave={handleMouseLeave}
       onClick={onPlayToggle}
     >
-      {/* ── Sky gradient background ── */}
+      {/* â”€â”€ Sky gradient background â”€â”€ */}
       <div className="absolute inset-0" style={{
         background: "linear-gradient(to bottom, #06040f 0%, #0e0728 38%, #1a0a3c 55%, #2d0d52 62%, #3d0f5a 65%, #1a0530 80%, #07061a 100%)"
       }} />
 
-      {/* ── Stars ── */}
+      {/* â”€â”€ Stars â”€â”€ */}
       <div className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 55 }).map((_, i) => (
           <div key={i} className="absolute rounded-full bg-white synth-star"
@@ -408,7 +413,7 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
         ))}
       </div>
 
-      {/* ── Retro synthwave sun (right-center) ── */}
+      {/* â”€â”€ Retro synthwave sun (right-center) â”€â”€ */}
       <div className="absolute" style={{ bottom: "40%", left: "62%", transform: "translateX(-50%)" }}>
         <div className="relative" style={{ width: 220, height: 110, overflow: "hidden" }}>
           {/* Sun body */}
@@ -425,7 +430,7 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
         </div>
       </div>
 
-      {/* ── Horizon neon glow (full width) ── */}
+      {/* â”€â”€ Horizon neon glow (full width) â”€â”€ */}
       <div className="absolute" style={{
         bottom: "40%",
         left: 0,
@@ -436,7 +441,7 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
         animation: "synth-pulse 3s ease-in-out infinite"
       }} />
 
-      {/* ── Perspective grid floor (full width) ── */}
+      {/* â”€â”€ Perspective grid floor (full width) â”€â”€ */}
       <div className="absolute bottom-0" style={{ left: 0, right: 0, height: "43%", perspective: "300px", perspectiveOrigin: "50% 0%" }}>
         <div className="absolute inset-0" style={{
           backgroundImage:
@@ -451,195 +456,174 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
         }} />
       </div>
 
-        {/* ── Kanban card — top-left of right zone ── */}
-        <div className="hidden lg:block lg:absolute synth-float-a" style={{
-          left: "58%", top: "30%",
-          transform: "translateZ(60px) rotate(-3deg)",
-          width: 180,
-        }}>
-          <div className="rounded-xl p-3 border border-[#a9a2ff]/25 backdrop-blur-md"
-            style={{ background: "rgba(18,14,50,0.88)", boxShadow: "0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(169,162,255,0.12)" }}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[8px] font-mono uppercase tracking-widest text-[#a9a2ff]">Kanban Board</span>
-              <Kanban className="w-3 h-3 text-[#a9a2ff]/60" />
-            </div>
-            <div className="flex gap-1.5">
-              {[["Todo",2,"#a9a2ff"],["Doing",1,"#e5bd72"],["Done",3,"#89c7d6"]].map(([col, n, c]) => (
-                <div key={col as string} className="flex-1">
-                  <div className="text-[7px] font-mono mb-1" style={{ color: c as string }}>{col as string}</div>
-                  {Array.from({ length: n as number }).map((_, i) => (
-                    <div key={i} className="h-3 rounded mb-1" style={{ background: `${c as string}22`, borderLeft: `2px solid ${c as string}` }} />
-                  ))}
-                </div>
-              ))}
-            </div>
-            <div className="mt-2 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[7px] font-mono text-stone-500">3 tasks active</span>
-            </div>
-          </div>
-        </div>
+      {/* Cinematic mascot command scene */}
+      <div className="absolute inset-0 z-[1] hidden lg:block pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#06040f] via-[#06040f]/35 to-transparent" />
+        <div
+          className="absolute right-[6%] top-[12%] h-[510px] w-[580px] max-w-[45vw] transition-transform duration-200 ease-out"
+          style={{
+            transform: `perspective(1200px) rotateX(${tilt.rx * 0.2}deg) rotateY(${tilt.ry * 0.24}deg) translate3d(${tilt.ry * 0.45}px, ${tilt.rx * -0.4}px, 0)`,
+            transformStyle: "preserve-3d",
+          }}
+        >
+          <div className="absolute left-[46%] top-[52%] h-[330px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#a9a2ff]/18 blur-[76px]" />
+          <div className="absolute left-[28%] top-[23%] h-40 w-40 rounded-full bg-[#e5bd72]/14 blur-[46px]" />
+          <div className="absolute right-[12%] top-[26%] h-52 w-52 rounded-full bg-[#89c7d6]/13 blur-[62px]" />
 
-        {/* ── Main dashboard mockup — center-right ── */}
-        <div className="hidden lg:block lg:absolute synth-float-b" style={{
-          left: "70%", top: "42%",
-          transform: "translateX(-50%) translateZ(20px)",
-          width: 290,
-        }}>
-          <div className="rounded-xl border border-white/10 overflow-hidden"
-            style={{ background: "rgba(12,10,32,0.92)", boxShadow: "0 30px 80px rgba(0,0,0,0.65), 0 0 60px rgba(169,162,255,0.14)" }}>
-            <div className="px-3 py-2 flex items-center gap-2 border-b border-white/5" style={{ background: "rgba(169,162,255,0.05)" }}>
-              <div className="flex gap-1">
-                <div className="w-2 h-2 rounded-full bg-rose-500/70" />
-                <div className="w-2 h-2 rounded-full bg-amber-400/70" />
-                <div className="w-2 h-2 rounded-full bg-emerald-400/70" />
-              </div>
-              <span className="flex-1 text-center text-[8px] font-mono text-stone-500 tracking-wider">retzlo — workspace</span>
-              <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? "bg-emerald-400 animate-pulse" : "bg-stone-600"}`} />
-            </div>
-            <div className="p-3 grid grid-cols-3 gap-2">
-              {[
-                { label: "Tasks", val: "12", color: "#a9a2ff" },
-                { label: "Done", val: "8", color: "#89c7d6" },
-                { label: "Coins", val: "240", color: "#e5bd72" },
-              ].map(s => (
-                <div key={s.label} className="rounded-lg p-2 border border-white/5" style={{ background: "rgba(255,255,255,0.03)" }}>
-                  <div className="text-[8px] font-mono" style={{ color: s.color }}>{s.label}</div>
-                  <div className="text-base font-bold text-white mt-0.5">{s.val}</div>
+          <div
+            className="retzlo-hero-board-float absolute left-[8%] top-[18%] h-[345px] w-[405px] rounded-[28px] border border-[#d8d4ff]/22 bg-[#050511]/58 p-4 backdrop-blur-md"
+            style={{
+              clipPath: "polygon(5% 0, 100% 8%, 94% 100%, 0 90%)",
+              transform: "translateZ(48px) rotateY(-13deg) rotateX(4deg)",
+              boxShadow: "0 42px 110px rgba(0,0,0,0.68), 0 0 80px rgba(169,162,255,0.2), inset 0 1px 0 rgba(255,255,255,0.12)",
+            }}
+          >
+            <div className="absolute -inset-px rounded-[26px] bg-[linear-gradient(135deg,rgba(229,189,114,0.38),transparent_28%,rgba(137,199,214,0.32)_72%,transparent)] opacity-60" />
+            <div className="relative h-full overflow-hidden rounded-[18px] border border-white/10 bg-[#050511]/86">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_16%,rgba(137,199,214,0.24),transparent_34%),radial-gradient(circle_at_18%_86%,rgba(229,189,114,0.16),transparent_32%)]" />
+              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 7px, rgba(255,255,255,0.09) 8px)" }} />
+
+              <div className="absolute left-5 right-5 top-4 flex items-center justify-between">
+                <div>
+                  <div className="text-[9px] font-mono uppercase tracking-[0.32em] text-[#e5bd72]">Retzlo cockpit</div>
+                  <div className="mt-1 text-xl font-semibold text-white">Mission board</div>
                 </div>
-              ))}
-            </div>
-            <div className="px-3 pb-3">
-              <div className="flex items-end gap-1 h-10">
-                {[0.4, 0.65, 0.5, 0.8, 0.6, 0.9, 0.55].map((h, i) => (
-                  <div key={i} className="flex-1 rounded-sm"
-                    style={{ height: `${h * 100}%`, background: i === 5 ? "#a9a2ff" : "rgba(169,162,255,0.22)" }}
-                  />
+                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1.5">
+                  <span className={`h-2 w-2 rounded-full ${isPlaying ? "bg-emerald-300" : "bg-[#a9a2ff]"}`} style={{ boxShadow: isPlaying ? "0 0 16px rgba(110,231,183,0.85)" : "0 0 14px rgba(169,162,255,0.62)" }} />
+                  <span className="text-[9px] font-mono uppercase tracking-widest text-stone-300">{isPlaying ? "live" : "ready"}</span>
+                </div>
+              </div>
+
+              <div className="absolute left-5 right-5 top-[86px] grid grid-cols-3 gap-3">
+                {[
+                  { label: "Todo", color: "#a9a2ff", cards: ["Map idea", "Invite team"] },
+                  { label: "Doing", color: "#e5bd72", cards: ["Tune flow", "Ship UI"] },
+                  { label: "Done", color: "#89c7d6", cards: ["Payout +24", "Focus loop"] },
+                ].map((column, columnIndex) => (
+                  <div key={column.label} className="min-h-[178px] rounded-[16px] border border-white/10 bg-white/[0.045] p-2.5">
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="text-[9px] font-mono uppercase tracking-[0.22em]" style={{ color: column.color }}>{column.label}</span>
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: column.color, boxShadow: `0 0 12px ${column.color}` }} />
+                    </div>
+                    {column.cards.map((card, cardIndex) => (
+                      <div
+                        key={card}
+                        className="retzlo-hero-card-glow mb-2 rounded-[10px] border border-white/10 bg-[#08081a]/88 px-2.5 py-2 shadow-[0_12px_22px_rgba(0,0,0,0.22)] transition-transform duration-500"
+                        style={{
+                          transform: isPlaying && columnIndex === 1 && cardIndex === 1 ? "translateY(-5px)" : "translateY(0)",
+                          boxShadow: isPlaying && columnIndex === 2 && cardIndex === 0 ? `0 0 24px ${column.color}55` : "0 12px 22px rgba(0,0,0,0.22)",
+                        }}
+                      >
+                        <div className="mb-2 h-1.5 w-10 rounded-full" style={{ background: `${column.color}88` }} />
+                        <div className="text-[11px] font-medium text-stone-100">{card}</div>
+                      </div>
+                    ))}
+                  </div>
                 ))}
               </div>
-              <div className="text-[7px] font-mono text-stone-600 mt-1">Weekly activity</div>
-            </div>
-          </div>
-        </div>
 
-        {/* ── Finance card — far right ── */}
-        <div className="hidden lg:block lg:absolute synth-float-c" style={{
-          left: "80%", top: "34%",
-          transform: "translateZ(55px) rotate(2.5deg)",
-          width: 170,
-        }}>
-          <div className="rounded-xl p-3 border border-[#89c7d6]/20 backdrop-blur-md"
-            style={{ background: "rgba(10,16,40,0.9)", boxShadow: "0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(137,199,214,0.1)" }}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[8px] font-mono uppercase tracking-widest text-[#89c7d6]">Finance</span>
-              <DollarSign className="w-3 h-3 text-[#89c7d6]/60" />
-            </div>
-            <div className="text-xl font-bold text-white mb-1">$4,820</div>
-            <div className="text-[7px] font-mono text-emerald-400 mb-3">▲ +12.4% this month</div>
-            <div className="space-y-1.5">
-              {[
-                { name: "Freelance", amt: "+$1,200", c: "text-emerald-400" },
-                { name: "Software", amt: "-$89", c: "text-rose-400" },
-                { name: "Savings", amt: "+$540", c: "text-emerald-400" },
-              ].map(r => (
-                <div key={r.name} className="flex justify-between text-[8px]">
-                  <span className="text-stone-500">{r.name}</span>
-                  <span className={`font-mono ${r.c}`}>{r.amt}</span>
+              <div className="absolute bottom-4 left-5 right-5 flex items-center justify-between rounded-[14px] border border-white/10 bg-[#03030c]/76 px-3 py-2">
+                <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-stone-400">
+                  <Music className="h-3.5 w-3.5 text-[#e5bd72]" />
+                  {isPlaying ? "cards moving" : "click to animate"}
                 </div>
-              ))}
+                <div className="flex items-end gap-1">
+                  {Array.from({ length: 14 }).map((_, i) => (
+                    <span
+                      key={i}
+                      className="retzlo-hero-vu-bar w-1 rounded-full transition-all duration-300"
+                      style={{
+                        height: isPlaying ? `${9 + ((i * 9) % 26)}px` : `${5 + (i % 5) * 2}px`,
+                        background: i > 9 ? "#e5bd72" : i > 5 ? "#89c7d6" : "#a9a2ff",
+                        opacity: isPlaying ? 0.9 : 0.38,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* ── Lofi Focus — bottom center-left of right zone ── */}
-        <div className="hidden lg:block lg:absolute synth-float-a" style={{
-          left: "57%", top: "60%",
-          transform: "translateZ(80px) rotate(-1.5deg)",
-          width: 165,
-        }}>
-          <div className="rounded-xl p-2.5 border border-[#e5bd72]/20"
-            style={{ background: "rgba(20,15,40,0.92)", boxShadow: "0 16px 40px rgba(0,0,0,0.5)" }}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[7px] font-mono uppercase text-[#e5bd72] tracking-widest">Lofi Focus</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); onPlayToggle(); }}
-                className="w-6 h-6 rounded-full flex items-center justify-center transition-all"
-                style={{ background: isPlaying ? "rgba(100,255,160,0.2)" : "rgba(169,162,255,0.15)", border: `1px solid ${isPlaying ? "#60ffa0" : "#a9a2ff"}40` }}
-              >
-                {isPlaying
-                  ? <Pause className="w-3 h-3 text-emerald-400" />
-                  : <Play className="w-3 h-3 text-[#a9a2ff]" />
-                }
-              </button>
-            </div>
-            <div className="flex items-end gap-0.5 h-6">
-              {Array.from({ length: 16 }).map((_, i) => (
-                <div key={i}
-                  className="flex-1 rounded-sm transition-all"
-                  style={{
-                    height: `${isPlaying ? (30 + Math.sin(i * 0.9) * 50 + Math.random() * 20) : 10}%`,
-                    background: i > 11 ? "rgba(255,100,100,0.7)" : i > 8 ? "rgba(229,189,114,0.7)" : "rgba(100,220,160,0.7)",
-                    animation: isPlaying ? `synth-vu-${i % 4} ${0.4 + (i % 3) * 0.15}s ease-in-out infinite alternate` : "none"
-                  }}
-                />
-              ))}
-            </div>
-            <div className="text-[7px] font-mono text-stone-600 mt-1.5 text-center">
-              {isPlaying ? "♪ Lo-fi Cmaj7 ♪" : "[ paused ]"}
+          <div
+            className="retzlo-hero-beam-pulse absolute left-[45%] top-[33%] h-[150px] w-[220px] opacity-70"
+            style={{
+              transform: "translateZ(82px) rotate(-10deg)",
+              background: "linear-gradient(100deg, rgba(229,189,114,0.42), rgba(137,199,214,0.15) 55%, transparent 78%)",
+              clipPath: "polygon(0 40%, 100% 0, 100% 100%, 0 60%)",
+              filter: "blur(0.5px) drop-shadow(0 0 24px rgba(229,189,114,0.28))",
+            }}
+          />
+          <div
+            className="retzlo-hero-beam-pulse retzlo-hero-beam-delay absolute left-[50%] top-[48%] h-[108px] w-[190px] opacity-55"
+            style={{
+              transform: "translateZ(76px) rotate(8deg)",
+              background: "linear-gradient(100deg, rgba(169,162,255,0.38), rgba(137,199,214,0.14) 54%, transparent 76%)",
+              clipPath: "polygon(0 42%, 100% 4%, 100% 92%, 0 62%)",
+              filter: "drop-shadow(0 0 22px rgba(169,162,255,0.26))",
+            }}
+          />
+          <div
+            className="absolute right-[11%] top-[56%] h-[104px] w-[104px] rounded-full border border-[#e5bd72]/35 bg-[#07030d]/54 p-0 backdrop-blur"
+            style={{
+              transform: "translateZ(118px)",
+              boxShadow: "0 0 42px rgba(229,189,114,0.22), inset 0 0 28px rgba(229,189,114,0.1)",
+            }}
+          >
+            <div className="retzlo-hero-coin-ring absolute inset-3 rounded-full border border-[#e5bd72]/30" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-xl font-semibold text-white">+24</div>
+              <div className="text-[8px] font-mono uppercase tracking-widest text-[#e5bd72]">coins</div>
             </div>
           </div>
-        </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onPlayToggle(); }}
+            className="pointer-events-auto absolute bottom-[17%] right-[26%] flex h-14 w-14 items-center justify-center rounded-full border transition-transform hover:scale-105"
+            style={{
+              transform: "translateZ(145px)",
+              background: isPlaying ? "rgba(52,211,153,0.2)" : "rgba(169,162,255,0.18)",
+              borderColor: isPlaying ? "rgba(52,211,153,0.5)" : "rgba(169,162,255,0.48)",
+              boxShadow: isPlaying ? "0 0 34px rgba(52,211,153,0.42)" : "0 0 30px rgba(169,162,255,0.32)",
+            }}
+            aria-label={isPlaying ? "Pause Retzlo scene" : "Play Retzlo scene"}
+          >
+            {isPlaying ? <Pause className="h-5 w-5 text-emerald-200" /> : <Play className="h-5 w-5 text-[#ebe8ff]" />}
+          </button>
 
-        {/* ── Calendar — bottom far right ── */}
-        <div className="hidden lg:block lg:absolute synth-float-c" style={{
-          left: "76%", top: "64%",
-          transform: "translateZ(50px) rotate(2deg)",
-          width: 155,
-        }}>
-          <div className="rounded-xl p-2.5 border border-[#d59ab3]/20"
-            style={{ background: "rgba(18,10,36,0.9)", boxShadow: "0 16px 40px rgba(0,0,0,0.5)" }}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[7px] font-mono uppercase text-[#d59ab3] tracking-widest">Calendar</span>
-              <Calendar className="w-3 h-3 text-[#d59ab3]/60" />
-            </div>
-            <div className="grid grid-cols-7 gap-0.5">
-              {["M","T","W","T","F","S","S"].map((d,i) => (
-                <div key={i} className="text-center text-[6px] font-mono text-stone-600">{d}</div>
-              ))}
-              {Array.from({ length: 28 }).map((_, i) => {
-                const hasEvent = [3,7,12,18,21,25].includes(i);
-                const today = i === 14;
-                return (
-                  <div key={i} className="text-center text-[7px] font-mono rounded-sm py-px"
-                    style={{
-                      color: today ? "#080817" : hasEvent ? "#d59ab3" : "rgba(255,255,255,0.3)",
-                      background: today ? "#d59ab3" : hasEvent ? "rgba(213,154,179,0.15)" : "transparent"
-                    }}
-                  >{i + 1}</div>
-                );
-              })}
-            </div>
-          </div>
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="absolute rounded-full border border-[#a9a2ff]/22"
+              style={{
+                left: `${56 + i * 6}%`,
+                top: `${22 + i * 11}%`,
+                width: `${48 + i * 13}px`,
+                height: `${48 + i * 13}px`,
+                transform: `translateZ(${30 + i * 22}px) translate(${tilt.ry * (i + 1) * 0.7}px, ${tilt.rx * -(i + 1) * 0.7}px)`,
+                boxShadow: "0 0 26px rgba(169,162,255,0.18)",
+              }}
+            />
+          ))}
         </div>
+      </div>
 
-      {/* ── Scan line overlay ── */}
+      {/* â”€â”€ Scan line overlay â”€â”€ */}
       <div className="absolute inset-0 pointer-events-none rounded-2xl" style={{
         backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)",
       }} />
 
-      {/* ── Bottom fade ── */}
+      {/* â”€â”€ Bottom fade â”€â”€ */}
       <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none" style={{
         background: "linear-gradient(to top, rgba(8,6,23,0.7), transparent)"
       }} />
 
-      {/* ── Play hint overlay ── */}
+      {/* â”€â”€ Play hint overlay â”€â”€ */}
       <div className="absolute top-3 right-3 pointer-events-none">
         <span className={`text-[8px] font-mono tracking-widest uppercase px-2 py-1 rounded border ${
           isPlaying
             ? "text-emerald-400 border-emerald-400/30 bg-emerald-400/10"
             : "text-stone-500 border-white/10 bg-white/5"
         }`}>
-          {isPlaying ? "▶ PLAYING" : "⏸ CLICK TO PLAY"}
+          {isPlaying ? "â–¶ PLAYING" : "â¸ CLICK TO PLAY"}
         </span>
       </div>
     </div>
@@ -648,9 +632,35 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<MarketingSessionUser | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [crtMode, setCrtMode] = useState(true); // Default CRT mode ON for lofi vibes
   const [steamHovered, setSteamHovered] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSession() {
+      try {
+        const response = await fetch("/api/auth/session", { cache: "no-store" });
+        const session = (await response.json()) as { user?: MarketingSessionUser };
+
+        if (isMounted) {
+          setCurrentUser(session.user ?? null);
+        }
+      } catch {
+        if (isMounted) {
+          setCurrentUser(null);
+        }
+      }
+    }
+
+    void loadSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   
   // Scroll and Bento reveal states
   const [scrollPercent, setScrollPercent] = useState(0);
@@ -742,7 +752,7 @@ export default function LandingPage() {
     const handleMouseMove = (e: MouseEvent) => {
       if (Math.random() > 0.35) return; // Limit particles density
 
-      const stars = ["✦", "✧", "★", "•"];
+      const stars = ["âœ¦", "âœ§", "â˜…", "â€¢"];
       const colors = ["#a9a2ff", "#e5bd72", "#89c7d6", "#d59ab3"];
       const newParticle: Particle = {
         id: particleIdCounter.current++,
@@ -1014,15 +1024,15 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen bg-[#080817] text-stone-100 font-sans relative overflow-hidden selection:bg-[#a9a2ff]/30 selection:text-white">
       
-      {/* ── Background Glow Orbs ────────────────────────────────────────── */}
+      {/* â”€â”€ Background Glow Orbs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="retzlo-hero-orb-1" />
       <div className="retzlo-hero-orb-2" />
       <div className="retzlo-hero-orb-3" />
       
-      {/* ── Grid Pattern Overlay ────────────────────────────────────────── */}
+      {/* â”€â”€ Grid Pattern Overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
 
-      {/* ── Background Shooting Grid Beams ─────────────────────────────── */}
+      {/* â”€â”€ Background Shooting Grid Beams â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div className="retzlo-grid-beam-x top-[20%] w-[200px]" style={{ animationDelay: "0s", animationDuration: "8s" }} />
         <div className="retzlo-grid-beam-x top-[60%] w-[150px]" style={{ animationDelay: "3s", animationDuration: "11s" }} />
@@ -1030,7 +1040,7 @@ export default function LandingPage() {
         <div className="retzlo-grid-beam-y left-[75%] h-[220px]" style={{ animationDelay: "5s", animationDuration: "13s" }} />
       </div>
       
-      {/* ── Scroll-Drawn Connecting Neon Wire ────────────────────────── */}
+      {/* â”€â”€ Scroll-Drawn Connecting Neon Wire â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <svg 
           className="absolute left-1/2 -translate-x-1/2 w-[1000px] h-[6600px] opacity-[0.12] overflow-visible"
@@ -1065,7 +1075,7 @@ export default function LandingPage() {
         </svg>
       </div>
 
-      {/* ── Parallax Side Margin Stickers ──────────────────────────────── */}
+      {/* â”€â”€ Parallax Side Margin Stickers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden hidden xl:block">
         <div 
           className="absolute left-[7%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
@@ -1101,7 +1111,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ── Floating Cursor Sparkle Trail Elements ────────────────────── */}
+      {/* â”€â”€ Floating Cursor Sparkle Trail Elements â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {particles.map((p) => (
         <span
           key={p.id}
@@ -1120,7 +1130,7 @@ export default function LandingPage() {
         </span>
       ))}
 
-      {/* ── Navigation Bar ────────────────────────────────────────────── */}
+      {/* â”€â”€ Navigation Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <nav className="retzlo-nav px-6 py-4 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
@@ -1137,21 +1147,36 @@ export default function LandingPage() {
             </Link>
             
             <div className="hidden md:flex items-center gap-6 text-sm text-stone-300 font-medium">
-              <a href="#features" className="hover:text-[#a9a2ff] transition-colors">Features</a>
-              <a href="#lofi-focus" className="hover:text-[#a9a2ff] transition-colors">Focus Station</a>
-              <a href="#tech" className="hover:text-[#a9a2ff] transition-colors">Stack</a>
+              <a href="#features" className="hover:text-[#a9a2ff] transition-colors">Product</a>
+              <a href="#workflow" className="hover:text-[#a9a2ff] transition-colors">Workflow</a>
+              <a href="#lofi-focus" className="hover:text-[#a9a2ff] transition-colors">Focus</a>
             </div>
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/login" className="px-4 py-2 text-sm text-stone-300 hover:text-white font-medium transition-colors">
-              Sign In
-            </Link>
-            <Link href="/select-module">
-              <button className="retzlo-cta-ghost px-5 py-2.5 text-xs font-semibold uppercase tracking-wider">
-                Enter Workspace
-              </button>
-            </Link>
+            {currentUser ? (
+              <div className="flex items-center gap-3">
+                <Link href="/profile" className="max-w-[180px] truncate px-3 py-2 text-sm font-medium text-stone-300 transition-colors hover:text-white">
+                  {currentUser.name || currentUser.email || "Workspace user"}
+                </Link>
+                <Link href="/select-module">
+                  <button className="retzlo-cta-ghost px-5 py-2.5 text-xs font-semibold uppercase tracking-wider">
+                    Enter Workspace
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <>
+                <Link href="/login" className="px-4 py-2 text-sm text-stone-300 hover:text-white font-medium transition-colors">
+                  Sign In
+                </Link>
+                <Link href="/select-module">
+                  <button className="retzlo-cta-ghost px-5 py-2.5 text-xs font-semibold uppercase tracking-wider">
+                    Enter Workspace
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -1171,52 +1196,69 @@ export default function LandingPage() {
               className="block text-stone-200 hover:text-[#a9a2ff] py-2 border-b border-white/5"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Features
+              Product
             </a>
             <a 
               href="#lofi-focus" 
               className="block text-stone-200 hover:text-[#a9a2ff] py-2 border-b border-white/5"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Focus Station
+              Workflow
             </a>
             <a 
               href="#tech" 
               className="block text-stone-200 hover:text-[#a9a2ff] py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Stack
+              Focus
             </a>
             <div className="pt-4 flex flex-col gap-2">
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                <button className="w-full text-center py-2.5 text-sm text-stone-300 hover:text-white transition-colors">
-                  Sign In
-                </button>
-              </Link>
-              <Link href="/select-module" onClick={() => setMobileMenuOpen(false)}>
-                <button className="w-full text-center bg-[#a9a2ff] text-[#080817] font-semibold py-2.5 rounded-lg text-sm">
-                  Enter Workspace
-                </button>
-              </Link>
+              {currentUser ? (
+                <>
+                  <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
+                    <button className="w-full truncate text-center py-2.5 text-sm text-stone-300 hover:text-white transition-colors">
+                      {currentUser.name || currentUser.email || "Workspace user"}
+                    </button>
+                  </Link>
+                  <Link href="/select-module" onClick={() => setMobileMenuOpen(false)}>
+                    <button className="w-full text-center bg-[#a9a2ff] text-[#080817] font-semibold py-2.5 rounded-lg text-sm">
+                      Enter workspace
+                    </button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <button className="w-full text-center py-2.5 text-sm text-stone-300 hover:text-white transition-colors">
+                      Sign In
+                    </button>
+                  </Link>
+                  <Link href="/select-module" onClick={() => setMobileMenuOpen(false)}>
+                    <button className="w-full text-center bg-[#a9a2ff] text-[#080817] font-semibold py-2.5 rounded-lg text-sm">
+                      Start planning
+                    </button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}
       </nav>
 
-      {/* ── Hero Section — Synthwave Fullscreen BG ──────────────────── */}
-      <section className="relative min-h-screen overflow-hidden flex flex-col">
+      {/* â”€â”€ Hero Section â€” Synthwave Fullscreen BG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <section className="relative min-h-[92vh] overflow-hidden flex flex-col">
 
-        {/* ── Synthwave scene fills entire section as background ── */}
+        {/* â”€â”€ Synthwave scene fills entire section as background â”€â”€ */}
         <div className="absolute inset-0 z-0">
           <SynthwaveHero isPlaying={isPlaying} onPlayToggle={handlePlayToggle} />
         </div>
 
-        {/* ── Dark gradient mask — heavy left, fades to transparent right ── */}
+        {/* â”€â”€ Dark gradient mask â€” heavy left, fades to transparent right â”€â”€ */}
         <div className="absolute inset-0 z-10 pointer-events-none" style={{
           background: "linear-gradient(to right, rgba(6,4,15,0.80) 0%, rgba(6,4,15,0.65) 25%, rgba(6,4,15,0.30) 50%, transparent 75%)"
         }} />
 
-        {/* ── Floating CRT Toggle ── */}
+        {/* â”€â”€ Floating CRT Toggle â”€â”€ */}
         <div className="absolute top-6 right-6 z-30 hidden sm:block">
           <button
             onClick={() => setCrtMode(!crtMode)}
@@ -1231,14 +1273,14 @@ export default function LandingPage() {
           </button>
         </div>
 
-        {/* ── Left-column text content ── */}
+        {/* â”€â”€ Left-column text content â”€â”€ */}
         <div className="relative z-20 w-full max-w-7xl mx-auto flex-1 flex items-center px-6">
-          <div className="w-full max-w-lg space-y-7 pt-28 pb-16">
+          <div className="w-full max-w-xl space-y-7 pt-28 pb-16">
             {/* Badge */}
             <div>
               <div className="retzlo-badge inline-flex">
                 <span className="retzlo-badge-dot" />
-                <span>Introducing Retzlo 1.0</span>
+                <span>Retzlo Work Module</span>
               </div>
             </div>
 
@@ -1247,8 +1289,8 @@ export default function LandingPage() {
               className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-[1.1] retzlo-fade-up-d1"
               style={{ textShadow: "0 2px 30px rgba(0,0,0,0.9)" }}
             >
-              The calm workspace for{" "}
-              <span className="retzlo-gradient-text">work &amp; finance.</span>
+              Retzlo
+              <span className="block retzlo-gradient-text">calm project workspaces.</span>
             </h1>
 
             {/* Subtitle */}
@@ -1256,20 +1298,20 @@ export default function LandingPage() {
               className="text-sm sm:text-base text-stone-300 leading-relaxed retzlo-fade-up-d2"
               style={{ textShadow: "0 1px 12px rgba(0,0,0,0.9)" }}
             >
-              A nostalgic retro-lofi command center. Manage project tasks, sync key dates in Calendar, and budget ledger records — all in one cozy interface.
+              Plan projects, move cards across status lanes, and see due dates in one quiet retro-lofi workspace built for focused teams.
             </p>
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3 retzlo-fade-up-d3">
               <Link href="/select-module">
                 <button className="retzlo-cta-primary px-7 py-3 flex items-center gap-2 group text-sm">
-                  Enter Workspace
+                  Start planning
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </Link>
               <Link href="/register">
                 <button className="retzlo-cta-ghost px-6 py-3 text-sm">
-                  Create Free Account
+                  Create account
                 </button>
               </Link>
             </div>
@@ -1282,52 +1324,52 @@ export default function LandingPage() {
                 ))}
               </div>
               <p className="text-xs text-stone-400">
-                <span className="text-white font-semibold">200+</span> workspaces running
+                <span className="text-white font-semibold">Board, calendar, and members</span> ready from the first project
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Tech Stack Infinite Marquee ───────────────────────────────── */}
-      <section id="tech" className="border-y border-white/[0.04] bg-white/[0.01] py-8 overflow-hidden select-none">
+{/* Workflow Proof Strip */}
+      <section id="workflow" className="border-y border-white/[0.04] bg-white/[0.018] py-8 overflow-hidden select-none">
         <div className="max-w-7xl mx-auto px-6">
           <div className="retzlo-marquee-track">
             {/* Slide block 1 */}
             <div className="flex items-center gap-12 text-xs font-mono tracking-widest text-stone-500 uppercase">
-              <span>Next.js 14 App Router</span>
+              <span>Create project</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
-              <span>Prisma ORM Database Schema</span>
+              <span>Add backlog cards</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#e5bd72]" />
-              <span>Supabase PostgreSQL Engine</span>
+              <span>Move through status lanes</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#89c7d6]" />
-              <span>Tailwind CSS Styling</span>
+              <span>Check calendar due dates</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#d59ab3]" />
-              <span>NextAuth Credentials</span>
+              <span>Invite members</span>
               <span className="w-1.5 h-1.5 rounded-full bg-stone-700" />
-              <span>Cozy Lofi Customizations</span>
+              <span>Finish work calmly</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
             </div>
             {/* Duplicate slide block for infinite animation */}
             <div className="flex items-center gap-12 text-xs font-mono tracking-widest text-stone-500 uppercase pl-12">
-              <span>Next.js 14 App Router</span>
+              <span>Create project</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
-              <span>Prisma ORM Database Schema</span>
+              <span>Add backlog cards</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#e5bd72]" />
-              <span>Supabase PostgreSQL Engine</span>
+              <span>Move through status lanes</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#89c7d6]" />
-              <span>Tailwind CSS Styling</span>
+              <span>Check calendar due dates</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#d59ab3]" />
-              <span>NextAuth Credentials</span>
+              <span>Invite members</span>
               <span className="w-1.5 h-1.5 rounded-full bg-stone-700" />
-              <span>Cozy Lofi Customizations</span>
+              <span>Finish work calmly</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Features Bento Grid with 3D Tilt and Border Beams ────────── */}
+      {/* â”€â”€ Features Bento Grid with 3D Tilt and Border Beams â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section ref={bentoRef} id="features" className="max-w-7xl mx-auto px-6 py-24 md:py-32 space-y-16">
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white">
@@ -1461,7 +1503,7 @@ export default function LandingPage() {
 
       <div className="retzlo-section-line" />
 
-      {/* ── Focus Station Interactive Cassette Player ─────────────────── */}
+      {/* â”€â”€ Focus Station Interactive Cassette Player â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section ref={focusSectionRef} id="lofi-focus" className="max-w-7xl mx-auto px-6 py-24 md:py-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
@@ -1539,7 +1581,7 @@ export default function LandingPage() {
                 <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isPlaying ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)] animate-pulse" : "bg-stone-600"}`} />
               </div>
 
-              {/* ── Vintage Cassette Deck HTML Illustration ────────────────── */}
+              {/* â”€â”€ Vintage Cassette Deck HTML Illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
               <div className="my-8 bg-[#090817] border-2 border-white/10 rounded-xl p-4 relative overflow-hidden">
                 {/* Cassette Slot Window */}
                 <div className="relative h-32 bg-[#121022] rounded-lg border border-white/5 overflow-hidden flex items-center justify-center">
@@ -1642,7 +1684,7 @@ export default function LandingPage() {
 
       <div className="retzlo-section-line" />
 
-      {/* ── Testimonials Section ──────────────────────────────────────── */}
+      {/* â”€â”€ Testimonials Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="max-w-7xl mx-auto px-6 py-24 md:py-32 space-y-16">
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <h2 className="text-3xl font-bold text-white">Focus reviews from our community</h2>
@@ -1685,7 +1727,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Final Call to Action Section ──────────────────────────────── */}
+      {/* â”€â”€ Final Call to Action Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="relative border-t border-white/[0.04] bg-gradient-to-b from-transparent to-[#0e0c26]/60 py-24 md:py-32">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-8 relative z-10">
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white">
@@ -1706,19 +1748,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Footer ────────────────────────────────────────────────────── */}
+      {/* â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <footer className="border-t border-white/5 bg-[#060613] px-6 py-12 text-stone-500 text-xs">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <span className="font-bold text-stone-300 text-sm tracking-wider">Retzlo</span>
             <span className="text-stone-700">|</span>
-            <p>© {new Date().getFullYear()} Retzlo Platform. All rights reserved.</p>
+            <p>Â© {new Date().getFullYear()} Retzlo Platform. All rights reserved.</p>
           </div>
           
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-stone-300 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-stone-300 transition-colors">Terms of Service</a>
-            <span className="text-stone-800">•</span>
+            <span className="text-stone-800">â€¢</span>
             <span className="font-mono text-stone-600 tracking-wider">SYSTEM_MARK_RETZLO_V1</span>
           </div>
         </div>
@@ -1726,3 +1768,8 @@ export default function LandingPage() {
     </main>
   );
 }
+
+
+
+
+

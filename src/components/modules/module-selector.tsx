@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight, BarChart3, CheckSquare, Dumbbell, Heart, Lock, Sparkles, Users, WalletCards } from "lucide-react";
+import { ArrowRight, BarChart3, Building2, CheckSquare, Dumbbell, Lock, Sparkles, Users, WalletCards } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Module {
@@ -41,6 +41,15 @@ const MODULES: Module[] = [
     href: "/hub",
     available: true,
     tag: "New"
+  },
+  {
+    id: "office",
+    label: "OFFICE",
+    description: "A lightweight interactive room for work, notes, finance, rewards, and future AI helpers.",
+    icon: <Building2 className="h-8 w-8" />,
+    href: "/office",
+    available: true,
+    tag: "Beta"
   },
   {
     id: "hr",
@@ -134,3 +143,5 @@ export function ModuleSelector() {
     </div>
   );
 }
+
+

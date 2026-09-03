@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
@@ -18,6 +18,27 @@ export function LoginForm() {
   const [rememberAccount, setRememberAccount] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
+    async function redirectExistingSession() {
+      const session = await getSession().catch(() => null);
+
+      if (!isMounted) return;
+
+      if (session?.user?.id) {
+        router.replace(searchParams.get("callbackUrl") ?? "/select-module");
+        router.refresh();
+      }
+    }
+
+    void redirectExistingSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router, searchParams]);
+
+  useEffect(() => {
     const rememberedEmail = getRememberedAccount(window.localStorage);
 
     if (rememberedEmail) {
@@ -33,7 +54,7 @@ export function LoginForm() {
 
     const formData = new FormData(event.currentTarget);
     const submittedIdentifier = String(formData.get("email") ?? "");
-    const password = formData.get("password");
+    const password = String(formData.get("password") ?? "");
     const result = await signIn("credentials", {
       email: submittedIdentifier,
       identifier: submittedIdentifier,
@@ -77,7 +98,7 @@ export function LoginForm() {
           id="password" 
           name="password" 
           type="password" 
-          placeholder="••••••••" 
+          placeholder="password" 
           required 
           className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]"
         />

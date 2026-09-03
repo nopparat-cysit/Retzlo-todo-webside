@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -350,7 +350,7 @@ textarea {
   }
 }
 
-/* ── Skeleton shimmer ──────────────────────────────────────── */
+/* â”€â”€ Skeleton shimmer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .skeleton-base {
   position: relative;
   overflow: hidden;
@@ -378,7 +378,7 @@ textarea {
   100% { background-position: 200% 0; }
 }
 
-/* ── Toast notifications ───────────────────────────────────── */
+/* â”€â”€ Toast notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .toast-enter {
   animation: toast-slide-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -413,7 +413,7 @@ textarea {
   }
 }
 
-/* ── Command palette ───────────────────────────────────────── */
+/* â”€â”€ Command palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .cmd-backdrop {
   animation: cmd-backdrop-in 180ms ease both;
 }
@@ -438,7 +438,7 @@ textarea {
   }
 }
 
-/* ── Card celebration particles ────────────────────────────── */
+/* â”€â”€ Card celebration particles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .celebrate-particle {
   position: fixed;
   pointer-events: none;
@@ -458,12 +458,12 @@ textarea {
   }
 }
 
-/* ── Column progress bar ───────────────────────────────────── */
+/* â”€â”€ Column progress bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .column-progress-fill {
   transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Sidebar active nav item ───────────────────────────────── */
+/* â”€â”€ Sidebar active nav item â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .nav-item-active {
   border-color: rgba(169, 162, 255, 0.5) !important;
   background: rgba(169, 162, 255, 0.1) !important;
@@ -474,7 +474,7 @@ textarea {
   color: #a9a2ff;
 }
 
-/* ── Quick-add card inline ─────────────────────────────────── */
+/* â”€â”€ Quick-add card inline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .quick-add-enter {
   animation: quick-add-in 180ms ease both;
 }
@@ -491,7 +491,7 @@ textarea {
   }
 }
 
-/* ── Drag overlay tilt ─────────────────────────────────────── */
+/* â”€â”€ Drag overlay tilt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .drag-tilt {
   transform: rotate(2deg);
   box-shadow:
@@ -499,7 +499,7 @@ textarea {
     0 0 32px rgba(169, 162, 255, 0.2);
 }
 
-/* ── Drop zone glow ────────────────────────────────────────── */
+/* â”€â”€ Drop zone glow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .drop-zone-active {
   animation: drop-glow 1.2s ease-in-out infinite alternate;
 }
@@ -509,7 +509,7 @@ textarea {
   to   { box-shadow: 0 0 20px 2px rgba(169, 162, 255, 0.2); }
 }
 
-/* ── Greeting fade-in ──────────────────────────────────────── */
+/* â”€â”€ Greeting fade-in â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .greeting-appear {
   animation: greeting-fade 600ms ease both;
 }
@@ -519,7 +519,7 @@ textarea {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Empty state float ─────────────────────────────────────── */
+/* â”€â”€ Empty state float â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .empty-float {
   animation: empty-float 4s ease-in-out infinite;
 }
@@ -1066,9 +1066,9 @@ textarea {
   }
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    11 Premium Productivity Features Styling
-   ────────────────────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Focus Mode */
 body.focus-mode aside {
@@ -1146,7 +1146,7 @@ body.focus-mode main > div.grid {
   animation: audio-bar-3 0.7s ease-in-out infinite;
 }
 
-/* ── Module Selector ────────────────────────────────────────────────────── */
+/* â”€â”€ Module Selector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .module-selector-container {
   animation: landing-rise 500ms ease-out both;
@@ -1173,8 +1173,10 @@ body.focus-mode main > div.grid {
 .module-card:nth-child(2) { animation: landing-rise 400ms 80ms ease-out both; }
 .module-card:nth-child(3) { animation: landing-rise 400ms 160ms ease-out both; }
 .module-card:nth-child(4) { animation: landing-rise 400ms 240ms ease-out both; }
+.module-card:nth-child(5) { animation: landing-rise 400ms 320ms ease-out both; }
+.module-card:nth-child(6) { animation: landing-rise 400ms 400ms ease-out both; }
 
-/* ── FAB Hub ────────────────────────────────────────────────────────────── */
+/* â”€â”€ FAB Hub â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .fab-main {
   transition:
@@ -1207,7 +1209,7 @@ body.focus-mode main > div.grid {
   }
 }
 
-/* ── Lofi Panel (Updated for better Retro Lofi Mood) ───────────────────── */
+/* â”€â”€ Lofi Panel (Updated for better Retro Lofi Mood) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .lofi-panel {
   border: 1px solid var(--border);
   background:
@@ -1244,7 +1246,7 @@ body.focus-mode main > div.grid {
   background-size: 48px 48px;
 }
 
-/* ── Lofi Toggle Switch (Improved for Retro Lofi Mood) ───────────────────── */
+/* â”€â”€ Lofi Toggle Switch (Improved for Retro Lofi Mood) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .lofi-toggle {
   position: relative;
   display: inline-block;
@@ -1294,7 +1296,7 @@ input:checked + .lofi-slider:before {
   background-color: #090817;
 }
 
-/* ── Enhanced Lofi Sidebar ─────────────────────────────────────────────── */
+/* â”€â”€ Enhanced Lofi Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .project-sidebar {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -1308,7 +1310,7 @@ input:checked + .lofi-slider:before {
   box-shadow: none;
 }
 
-/* ── Improved Toggle Labels and 50% Progress ───────────────────────────── */
+/* â”€â”€ Improved Toggle Labels and 50% Progress â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .toggle-label {
   font-size: 0.75rem;
   color: var(--muted);
@@ -1322,9 +1324,9 @@ input:checked + .lofi-slider:before {
   margin-top: 4px;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    RETZLO LANDING PAGE
-   ═══════════════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .retzlo-nav {
   position: fixed;
@@ -1500,9 +1502,9 @@ input:checked + .lofi-slider:before {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    RETZLO ADVANCED ANIMATIONS
-   ═══════════════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* Grid Beams (Shooting Light Trails) */
 .retzlo-grid-beam-x {
@@ -1609,9 +1611,9 @@ input:checked + .lofi-slider:before {
   transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms ease;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    SYNTHWAVE HERO ANIMATIONS
-   ═══════════════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* Star twinkle */
 .synth-star {
@@ -1622,7 +1624,7 @@ input:checked + .lofi-slider:before {
   50% { opacity: 0.2; transform: scale(0.6); }
 }
 
-/* Floating cards — 3 independent rhythms */
+/* Floating cards â€” 3 independent rhythms */
 .synth-float-a {
   animation: synth-float-a 6s ease-in-out infinite;
 }
@@ -1647,7 +1649,7 @@ input:checked + .lofi-slider:before {
   50% { transform: translateY(-12px) rotate(4deg) translateZ(55px); }
 }
 
-/* VU bar bounce — 4 variants */
+/* VU bar bounce â€” 4 variants */
 @keyframes synth-vu-0 {
   0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); }
 }
@@ -1667,7 +1669,7 @@ input:checked + .lofi-slider:before {
   50% { opacity: 0.7; box-shadow: 0 0 40px 14px rgba(255,110,199,0.7), 0 0 90px 30px rgba(169,162,255,0.45); }
 }
 
-/* ── Sticker Floating Animations ── */
+/* â”€â”€ Sticker Floating Animations â”€â”€ */
 .sticker-float-slow {
   animation: sticker-float-slow 6s ease-in-out infinite alternate;
 }
@@ -1691,4 +1693,136 @@ input:checked + .lofi-slider:before {
   100% { transform: translateY(-6px) rotate(4deg); }
 }
 
+
+
+/* Retzlo landing hero motion */
+.retzlo-hero-board-float {
+  animation: retzlo-hero-board-float 6.8s ease-in-out infinite;
+}
+
+.retzlo-hero-beam-pulse {
+  animation: retzlo-hero-beam-pulse 2.8s ease-in-out infinite;
+}
+
+.retzlo-hero-beam-delay {
+  animation-delay: 1.15s;
+}
+
+.retzlo-hero-coin-ring {
+  animation: retzlo-hero-coin-ring 7s linear infinite, retzlo-hero-coin-breathe 2.6s ease-in-out infinite;
+}
+
+.retzlo-hero-vu-bar {
+  animation: retzlo-hero-vu-bar 1.15s ease-in-out infinite alternate;
+  transform-origin: bottom;
+}
+
+.retzlo-hero-vu-bar:nth-child(3n + 1) { animation-duration: 0.82s; }
+.retzlo-hero-vu-bar:nth-child(3n + 2) { animation-duration: 1.05s; }
+.retzlo-hero-vu-bar:nth-child(3n + 3) { animation-duration: 1.32s; }
+
+.retzlo-hero-card-glow {
+  animation: retzlo-hero-card-glow 3.6s ease-in-out infinite;
+}
+
+.retzlo-hero-card-glow:nth-child(2) {
+  animation-delay: 0.9s;
+}
+
+@keyframes retzlo-hero-board-float {
+  0%, 100% { transform: translateZ(48px) rotateY(-13deg) rotateX(4deg) translateY(0); }
+  50% { transform: translateZ(48px) rotateY(-12deg) rotateX(4.7deg) translateY(-8px); }
+}
+
+@keyframes retzlo-hero-beam-pulse {
+  0%, 100% { opacity: 0.34; filter: blur(0.5px) drop-shadow(0 0 16px rgba(169,162,255,0.2)); }
+  42% { opacity: 0.88; filter: blur(0.25px) drop-shadow(0 0 34px rgba(229,189,114,0.42)); }
+}
+
+@keyframes retzlo-hero-coin-ring {
+  to { rotate: 360deg; }
+}
+
+@keyframes retzlo-hero-coin-breathe {
+  0%, 100% { box-shadow: 0 0 18px rgba(229,189,114,0.18); }
+  50% { box-shadow: 0 0 34px rgba(229,189,114,0.38); }
+}
+
+@keyframes retzlo-hero-vu-bar {
+  from { transform: scaleY(0.55); opacity: 0.48; }
+  to { transform: scaleY(1.18); opacity: 0.95; }
+}
+
+@keyframes retzlo-hero-card-glow {
+  0%, 100% { border-color: rgba(255,255,255,0.1); }
+  50% { border-color: rgba(229,189,114,0.24); box-shadow: 0 0 18px rgba(169,162,255,0.13); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .retzlo-hero-board-float,
+  .retzlo-hero-beam-pulse,
+  .retzlo-hero-coin-ring,
+  .retzlo-hero-vu-bar,
+  .retzlo-hero-card-glow {
+    animation: none;
+  }
+}
+
+/* Retzlo Office module */
+.office-room-floor {
+  transform: translateX(-50%) perspective(620px) rotateX(58deg) rotateZ(-1deg);
+  background-image:
+    linear-gradient(90deg, rgba(169,162,255,0.18) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(169,162,255,0.14) 1px, transparent 1px),
+    radial-gradient(circle at 50% 36%, rgba(137,199,214,0.12), transparent 34%);
+  background-size: 38px 38px, 38px 38px, 100% 100%;
+  box-shadow: inset 0 0 72px rgba(169,162,255,0.12), 0 24px 80px rgba(0,0,0,0.42);
+}
+
+.office-neon-line {
+  background: linear-gradient(90deg, transparent, rgba(169,162,255,0.72), rgba(229,189,114,0.56), transparent);
+  animation: office-neon-line 2.8s ease-in-out infinite;
+}
+
+.office-zone {
+  animation: office-zone-float 5.8s ease-in-out infinite;
+}
+
+.office-zone::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--zone-accent) 42%, transparent), transparent 38%, color-mix(in srgb, var(--zone-accent) 18%, transparent));
+  opacity: 0.38;
+}
+
+.office-agent {
+  animation: office-agent-bob 3.6s ease-in-out infinite;
+}
+
+@keyframes office-zone-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes office-agent-bob {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-10px); }
+  70% { transform: translateY(-4px); }
+}
+
+@keyframes office-neon-line {
+  0%, 100% { opacity: 0.45; filter: drop-shadow(0 0 8px rgba(169,162,255,0.35)); }
+  50% { opacity: 0.95; filter: drop-shadow(0 0 18px rgba(229,189,114,0.45)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .office-zone,
+  .office-agent,
+  .office-neon-line {
+    animation: none;
+  }
+}
 
