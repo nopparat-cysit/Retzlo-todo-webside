@@ -10,15 +10,18 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback } from "react";
+import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { CheckSquare, Coins, FileText, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/ui/app-modal";
 import { useAppModal } from "@/components/ui/app-modal";
+import { DraftRecoveryModal } from "@/components/ui/draft-recovery-modal";
+import { useToast } from "@/components/ui/toast";
 import { DateTimeField } from "@/components/ui/date-time-field";
 import { Input, Textarea } from "@/components/ui/input";
 import { RetroStickerPicker } from "@/components/stickers/retro-sticker-picker";
+import { useFormDraft } from "@/hooks/use-form-draft";
 import { composeDueDate } from "@/lib/kanban/due-date";
 import { getPrivateCoinEntry, resolveCardRewardPayload } from "@/lib/kanban/private-coins";
 import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
@@ -87,6 +90,83 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   const [mounted, setMounted] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const isSubmittingRef = useRef(false);
+  const { toast } = useToast();
+
+  const draftKey = mode === "create" ? `card:new:${card?.columnId ?? "default"}` : `card:edit:${card?.id ?? "unknown"}`;
+
+  const currentFormData = useMemo(
+    () => ({
+      title,
+      description,
+      note,
+      date,
+      time,
+      selectedStatus,
+      selectedColor,
+      selectedPriority,
+      isStarred,
+      rewardCoins,
+      privateGlobalCoins,
+      stickers,
+      checklist
+    }),
+    [
+      title,
+      description,
+      note,
+      date,
+      time,
+      selectedStatus,
+      selectedColor,
+      selectedPriority,
+      isStarred,
+      rewardCoins,
+      privateGlobalCoins,
+      stickers,
+      checklist
+    ]
+  );
+
+  const hasMeaningfulDraftData = useCallback((data: typeof currentFormData) => {
+    return Boolean(
+      (data.title && data.title.trim()) ||
+      (data.description && data.description.trim()) ||
+      (data.note && data.note.trim()) ||
+      (data.checklist && data.checklist.length > 0)
+    );
+  }, []);
+
+  const handleRestoreDraft = useCallback((draft: typeof currentFormData) => {
+    if (draft.title !== undefined) setTitle(draft.title);
+    if (draft.description !== undefined) setDescription(draft.description);
+    if (draft.note !== undefined) setNote(draft.note);
+    if (draft.date !== undefined) setDate(draft.date);
+    if (draft.time !== undefined) setTime(draft.time);
+    if (draft.selectedStatus !== undefined) setSelectedStatus(draft.selectedStatus);
+    if (draft.selectedColor !== undefined) setSelectedColor(draft.selectedColor);
+    if (draft.selectedPriority !== undefined) setSelectedPriority(draft.selectedPriority);
+    if (draft.isStarred !== undefined) setIsStarred(draft.isStarred);
+    if (draft.rewardCoins !== undefined) setRewardCoins(draft.rewardCoins);
+    if (draft.privateGlobalCoins !== undefined) setPrivateGlobalCoins(draft.privateGlobalCoins);
+    if (draft.stickers !== undefined) setStickers(draft.stickers);
+    if (draft.checklist !== undefined) setChecklist(draft.checklist);
+    toast({ message: "กู้คืนข้อมูลร่างเรียบร้อยแล้ว", type: "success" });
+  }, [toast]);
+
+  const {
+    isRecoveryOpen,
+    draftTimestamp,
+    restoreDraft,
+    discardDraft,
+    clearDraft
+  } = useFormDraft({
+    draftKey,
+    currentData: currentFormData,
+    enabled: open && mounted,
+    hasMeaningfulData: hasMeaningfulDraftData,
+    onRestore: handleRestoreDraft
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -244,6 +324,11 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!title.trim() || isSubmittingRef.current || isSaving) {
+      return;
+    }
+
+    isSubmittingRef.current = true;
     setIsSaving(true);
     const formData = new FormData(event.currentTarget);
     const due = composeDueDate(date, time);
@@ -255,22 +340,27 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
       rewardCoins
     });
 
-    await onSubmit({
-      title: String(formData.get("title") ?? ""),
-      description: String(formData.get("description") ?? "") || null,
-      note: note || null,
-      status: selectedStatus,
-      color: selectedColor,
-      checklist,
-      dueDate: due.dueDate,
-      dueDateAllDay: due.dueDateAllDay,
-      priority: selectedPriority,
-      isStarred,
-      rewardCoins: rewardPayload.rewardCoins,
-      privateCoins: rewardPayload.privateCoins,
-      stickers: normalizeRetroStickerSelection(stickers)
-    });
-    setIsSaving(false);
+    try {
+      await onSubmit({
+        title: String(formData.get("title") ?? ""),
+        description: String(formData.get("description") ?? "") || null,
+        note: note || null,
+        status: selectedStatus,
+        color: selectedColor,
+        checklist,
+        dueDate: due.dueDate,
+        dueDateAllDay: due.dueDateAllDay,
+        priority: selectedPriority,
+        isStarred,
+        rewardCoins: rewardPayload.rewardCoins,
+        privateCoins: rewardPayload.privateCoins,
+        stickers: normalizeRetroStickerSelection(stickers)
+      });
+      clearDraft();
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSaving(false);
+    }
   }
 
   const modal = (
@@ -278,7 +368,10 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
         open={open && mounted}
         onClose={onClose}
         hasUnsavedChanges={hasChanges}
-        onDiscard={onClose}
+        onDiscard={() => {
+          clearDraft();
+          onClose();
+        }}
         labelledBy="card-modal-title"
         contentClassName="lofi-panel flex max-h-[92vh] max-w-5xl flex-col overflow-hidden rounded-lg"
       >
@@ -508,7 +601,17 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     </AppModal>
   );
 
-  return modal;
+  return (
+    <>
+      {modal}
+      <DraftRecoveryModal
+        open={isRecoveryOpen}
+        savedAt={draftTimestamp}
+        onRestore={restoreDraft}
+        onDiscard={discardDraft}
+      />
+    </>
+  );
 }
 
 function CardModalCloseButton({ className, children, ...props }: React.ComponentPropsWithoutRef<"button">) {

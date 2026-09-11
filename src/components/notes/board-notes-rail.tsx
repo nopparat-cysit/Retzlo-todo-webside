@@ -81,7 +81,6 @@ export function BoardNotesRail({
 
     const note = normalizeNote(data.note);
     setNotes((current) => [note, ...current]);
-    setSelectedNote(note);
     setIsCreateOpen(false);
     form.reset();
     toast({ message: "Note created successfully!", type: "success" });
@@ -242,15 +241,16 @@ export function BoardNotesRail({
           onClose={() => setSelectedNote(null)}
           onDelete={() => deleteNote(selectedNote.id)}
           onToggleComplete={() => updateNote(selectedNote.id, { isCompleted: !selectedNote.completedAt })}
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
-            updateNote(selectedNote.id, {
+            await updateNote(selectedNote.id, {
               title: String(formData.get("title") ?? ""),
               content: String(formData.get("content") ?? ""),
               emoji: String(formData.get("emoji") ?? "📝"),
               color: normalizeCardColor(formData.get("color"))
             });
+            setSelectedNote(null);
           }}
         />
       ) : null}

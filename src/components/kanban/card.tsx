@@ -113,92 +113,94 @@ export function KanbanCard({
   }
 
   return (
-    <article
-      id={`card-${card.id}`}
-      ref={setNodeRef}
-      style={style}
-      className={cn(
-        "scroll-mt-24 cursor-grab rounded-xl border p-3 text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg",
-        colorMeta.cardClass,
-        card.status === "DONE" && "card-completed",
-        isDragging && "opacity-60",
-        isDragPreviewTarget && "border-dusk-lavender/50 bg-dusk-lavender/10 opacity-25"
-      )}
-      suppressHydrationWarning
-      {...attributes}
-      {...listeners}
-      role="button"
-      tabIndex={0}
-      onClick={(event) => {
-        if (event.button === 0) {
-          setIsEditing(true);
-        }
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          setIsEditing(true);
-        }
-      }}
-    >
-      <div className="space-y-2">
-        <div className="flex items-start justify-between gap-1">
-          <div className="flex-1">
-            <p className="font-medium text-stone-100">{card.title}</p>
-            {visibleStickers.length > 0 && (
-              <div className="mt-1 flex flex-wrap gap-1.5 select-none leading-none">
-                {visibleStickers.map((st, i) => (
-                  <span
-                    key={`${st}-${i}`}
-                    className="inline-grid h-7 w-7 cursor-default place-items-center transition-transform duration-200 hover:scale-110"
-                    title="Retro sticker"
-                  >
-                    <RetroStickerImage size={28} src={st} />
-                  </span>
-                ))}
-              </div>
+    <>
+      <article
+        id={`card-${card.id}`}
+        ref={setNodeRef}
+        style={style}
+        className={cn(
+          "scroll-mt-24 cursor-grab rounded-xl border p-3 text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg",
+          colorMeta.cardClass,
+          card.status === "DONE" && "card-completed",
+          isDragging && "opacity-60",
+          isDragPreviewTarget && "border-dusk-lavender/50 bg-dusk-lavender/10 opacity-25"
+        )}
+        suppressHydrationWarning
+        {...attributes}
+        {...listeners}
+        role="button"
+        tabIndex={0}
+        onClick={(event) => {
+          if (event.button === 0) {
+            setIsEditing(true);
+          }
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setIsEditing(true);
+          }
+        }}
+      >
+        <div className="space-y-2">
+          <div className="flex items-start justify-between gap-1">
+            <div className="flex-1">
+              <p className="font-medium text-stone-100">{card.title}</p>
+              {visibleStickers.length > 0 && (
+                <div className="mt-1 flex flex-wrap gap-1.5 select-none leading-none">
+                  {visibleStickers.map((st, i) => (
+                    <span
+                      key={`${st}-${i}`}
+                      className="inline-grid h-7 w-7 cursor-default place-items-center transition-transform duration-200 hover:scale-110"
+                      title="Retro sticker"
+                    >
+                      <RetroStickerImage size={28} src={st} />
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            {card.isStarred && (
+              <Star className="h-3.5 w-3.5 shrink-0 fill-dusk-amber text-dusk-amber" />
             )}
           </div>
-          {card.isStarred && (
-            <Star className="h-3.5 w-3.5 shrink-0 fill-dusk-amber text-dusk-amber" />
-          )}
+          <div className="flex flex-wrap gap-2">
+            <span className={cn("rounded-full border px-2 py-1 text-xs", statusMeta.badgeClass)}>{statusMeta.label}</span>
+            <span className={cn(
+              "rounded-full border px-2 py-1 text-xs uppercase tracking-wide",
+              card.priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400 font-semibold",
+              card.priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber",
+              card.priority === "LOW" && "border-white/5 bg-white/5 text-stone-400"
+            )}>
+              {card.priority ?? "MEDIUM"}
+            </span>
+            {isOverdue ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-400/10 px-2 py-1 text-xs text-red-400 font-semibold animate-pulse">
+                Overdue
+              </span>
+            ) : null}
+            {card.checklist.length > 0 ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-dusk-cyan/10 px-2 py-1 text-xs text-dusk-cyan">
+                <CheckSquare className="h-3 w-3" />
+                {completedChecklist}/{card.checklist.length}
+              </span>
+            ) : null}
+            {card.note ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-dusk-lavender/10 px-2 py-1 text-xs text-dusk-lavender" title="This card has a note">
+                <FileText className="h-3 w-3" />
+                Note
+              </span>
+            ) : null}
+          </div>
+          {card.description ? <p className="line-clamp-3 text-stone-400">{card.description}</p> : null}
+          {card.dueDate ? (
+            <p className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber">
+              <CalendarClock className="h-3 w-3" />
+              {formatMediumDateTime(card.dueDate, card.dueDateAllDay)}
+            </p>
+          ) : null}
         </div>
-        <div className="flex flex-wrap gap-2">
-          <span className={cn("rounded-full border px-2 py-1 text-xs", statusMeta.badgeClass)}>{statusMeta.label}</span>
-          <span className={cn(
-            "rounded-full border px-2 py-1 text-xs uppercase tracking-wide",
-            card.priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400 font-semibold",
-            card.priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber",
-            card.priority === "LOW" && "border-white/5 bg-white/5 text-stone-400"
-          )}>
-            {card.priority ?? "MEDIUM"}
-          </span>
-          {isOverdue ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-400/10 px-2 py-1 text-xs text-red-400 font-semibold animate-pulse">
-              Overdue
-            </span>
-          ) : null}
-          {card.checklist.length > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-dusk-cyan/10 px-2 py-1 text-xs text-dusk-cyan">
-              <CheckSquare className="h-3 w-3" />
-              {completedChecklist}/{card.checklist.length}
-            </span>
-          ) : null}
-          {card.note ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-dusk-lavender/10 px-2 py-1 text-xs text-dusk-lavender" title="This card has a note">
-              <FileText className="h-3 w-3" />
-              Note
-            </span>
-          ) : null}
-        </div>
-        {card.description ? <p className="line-clamp-3 text-stone-400">{card.description}</p> : null}
-        {card.dueDate ? (
-          <p className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber">
-            <CalendarClock className="h-3 w-3" />
-            {formatMediumDateTime(card.dueDate, card.dueDateAllDay)}
-          </p>
-        ) : null}
-      </div>
+      </article>
       <CardModal
         card={card}
         mode="edit"
@@ -220,6 +222,6 @@ export function KanbanCard({
         onConfirm={deleteCard}
         onClose={() => setIsDeleteConfirmOpen(false)}
       />
-    </article>
+    </>
   );
 }

@@ -117,7 +117,6 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
     }
 
     setNotes((current) => [note, ...current]);
-    setSelectedNote(note);
     setIsCreateOpen(false);
     toast({ message: "Note created successfully!", type: "success" });
     return note;
@@ -427,7 +426,10 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
           onClose={() => setSelectedNote(null)}
           onDelete={() => deleteNote(selectedNote.id)}
           onToggleComplete={() => updateNote(selectedNote.id, { isCompleted: !selectedNote.completedAt })}
-          onSubmit={(payload) => updateNote(selectedNote.id, payload)}
+          onSubmit={async (payload) => {
+            await updateNote(selectedNote.id, payload);
+            setSelectedNote(null);
+          }}
           allowMemberPrivateItems={allowMemberPrivateItems}
         />
       ) : null}
@@ -576,7 +578,7 @@ function NoteEditorModal({
   onClose: () => void;
   onDelete?: () => void;
   onToggleComplete?: () => void;
-  onSubmit: (payload: NotePayload) => void;
+  onSubmit: (payload: NotePayload) => void | Promise<unknown>;
   allowMemberPrivateItems?: boolean;
 }) {
   const [titleValue, setTitleValue] = useState(note?.title ?? "");
@@ -605,11 +607,11 @@ function NoteEditorModal({
     );
   }, [note, titleValue, contentValue, emoji, color, isHidden, date, time]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const due = composeDueDate(date, time);
 
-    onSubmit({
+    await onSubmit({
       title: titleValue,
       content: contentValue,
       emoji,
@@ -618,6 +620,7 @@ function NoteEditorModal({
       dueDateAllDay: due.dueDateAllDay,
       isHidden
     });
+    onClose();
   }
 
   return (

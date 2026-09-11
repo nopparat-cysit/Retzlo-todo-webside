@@ -42,4 +42,10 @@ describe("kanban card interactions", () => {
     expect(columnSource).toContain("status: column.defaultCardStatus");
     expect(columnSource).not.toContain('status: "TODO"');
   });
+
+  it("does not nest CardModal or ConfirmModal inside article onClick to prevent event bubbling re-opening", () => {
+    const cardSource = readFileSync(new URL("./card.tsx", import.meta.url), "utf8");
+    expect(cardSource).toMatch(/<\/article>\s*<CardModal/);
+    expect(cardSource).toMatch(/\/>\s*<ConfirmModal/);
+  });
 });

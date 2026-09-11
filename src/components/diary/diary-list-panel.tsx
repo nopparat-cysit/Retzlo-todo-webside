@@ -164,7 +164,6 @@ export function DiaryListPanel({
 
     setItems((current) => [item, ...current]);
     setFocusedItemId(item.id);
-    setSelectedItem(item);
     setIsCreateOpen(false);
     toast({ message: "Diary item created.", type: "success" });
   }

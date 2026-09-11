@@ -16,4 +16,14 @@ describe("note modal layering", () => {
     expect(boardNotesRailSource).not.toContain('import { ModalPortal } from "@/components/ui/modal-portal"');
     expect((boardNotesRailSource.match(/<AppModal/g) ?? []).length).toBeGreaterThanOrEqual(2);
   });
+
+  it("does not auto-select newly created notes upon creation", () => {
+    expect(notesPanelSource).not.toMatch(/setNotes\(\(current\) => \[note, \.\.\.current\]\);\s*setSelectedNote\(note\);/);
+    expect(boardNotesRailSource).not.toMatch(/setNotes\(\(current\) => \[note, \.\.\.current\]\);\s*setSelectedNote\(note\);/);
+  });
+
+  it("closes note edit modals upon saving changes", () => {
+    expect(notesPanelSource).toContain("setSelectedNote(null)");
+    expect(boardNotesRailSource).toContain("setSelectedNote(null)");
+  });
 });

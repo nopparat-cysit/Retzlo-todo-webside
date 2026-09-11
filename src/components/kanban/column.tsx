@@ -69,6 +69,7 @@ export function KanbanColumn({
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [quickTitle, setQuickTitle] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [settingsName, setSettingsName] = useState(column.name);
   const [settingsColor, setSettingsColor] = useState<ColumnThemeId>(column.color);
@@ -200,7 +201,8 @@ export function KanbanColumn({
 
   async function handleQuickSubmit() {
     const title = quickTitle.trim();
-    if (!title || isSubmitting) return;
+    if (!title || isSubmittingRef.current || isSubmitting) return;
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     try {
       await onCreateCard(column.id, {
@@ -214,6 +216,7 @@ export function KanbanColumn({
       });
       closeQuickAdd();
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }
@@ -515,6 +518,7 @@ export function KanbanColumn({
 
       <CardModal
         mode="create"
+        card={isModalOpen ? ({ columnId: column.id, status: column.defaultCardStatus } as any) : undefined}
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={async (payload) => {

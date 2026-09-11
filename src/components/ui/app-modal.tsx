@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentPropsWithoutRef, KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from "react";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { ModalPortal } from "@/components/ui/modal-portal";
@@ -49,6 +49,21 @@ export function AppModal({
   closeOnOverlayClick = true
 }: AppModalProps) {
   const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open || !hasUnsavedChanges) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+      return "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [open, hasUnsavedChanges]);
 
   if (!open) {
     return null;

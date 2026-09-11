@@ -13,8 +13,9 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles, X } from "lucide-react";
-import { FormEvent, useState, useEffect, useRef } from "react";
+import { FormEvent, useState, useEffect, useRef, useMemo } from "react";
 
+import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
 import { KanbanColumn } from "@/components/kanban/column";
 import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import { ColumnStatusPicker } from "@/components/kanban/column-status-picker";
@@ -82,9 +83,16 @@ export function KanbanBoard({ board }: { board: BoardData }) {
   const [columnIcon, setColumnIcon] = useState<ColumnIconId>("kanban");
   const [columnDefaultCardStatus, setColumnDefaultCardStatus] = useState<CardStatus>("TODO");
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+  const [isCreatingColumn, setIsCreatingColumn] = useState(false);
+  const isCreatingColumnRef = useRef(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+
+  const collisionDetection = useMemo(
+    () => createKanbanCollisionDetection(() => columns),
+    [columns]
+  );
 
   // Premium Features States
   const [searchQuery, setSearchQuery] = useState("");
@@ -189,36 +197,43 @@ export function KanbanBoard({ board }: { board: BoardData }) {
     event.preventDefault();
     setSyncError(null);
 
-    if (!columnName.trim()) {
+    if (!columnName.trim() || isCreatingColumnRef.current || isCreatingColumn) {
       return;
     }
 
-    const response = await fetch("/api/columns", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        boardId: board.id,
-        name: columnName.trim(),
-        color: columnColor,
-        icon: columnIcon,
-        defaultCardStatus: columnDefaultCardStatus
-      })
-    });
-    const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
+    isCreatingColumnRef.current = true;
+    setIsCreatingColumn(true);
+    try {
+      const response = await fetch("/api/columns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          boardId: board.id,
+          name: columnName.trim(),
+          color: columnColor,
+          icon: columnIcon,
+          defaultCardStatus: columnDefaultCardStatus
+        })
+      });
+      const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
 
-    if (data.column) {
-      const column = normalizeColumn({ ...data.column, cards: [] });
-      setColumns((current) => [...current, column]);
-      setColumnName("");
-      setColumnColor("default");
-      setColumnIcon("kanban");
-      setColumnDefaultCardStatus("TODO");
-      setIsColumnModalOpen(false);
-      toast({ message: "Column created.", type: "success" });
-    } else {
-      const msg = data.error ?? "Something did not sync. Try again.";
-      setSyncError(msg);
-      toast({ message: msg, type: "error" });
+      if (data.column) {
+        const column = normalizeColumn({ ...data.column, cards: [] });
+        setColumns((current) => [...current, column]);
+        setColumnName("");
+        setColumnColor("default");
+        setColumnIcon("kanban");
+        setColumnDefaultCardStatus("TODO");
+        setIsColumnModalOpen(false);
+        toast({ message: "Column created.", type: "success" });
+      } else {
+        const msg = data.error ?? "Something did not sync. Try again.";
+        setSyncError(msg);
+        toast({ message: msg, type: "error" });
+      }
+    } finally {
+      isCreatingColumnRef.current = false;
+      setIsCreatingColumn(false);
     }
   }
 
@@ -361,7 +376,9 @@ export function KanbanBoard({ board }: { board: BoardData }) {
         ? (overData.columnId as string)
         : overData?.type === "column"
           ? (overData.columnId as string)
-          : sourceColumnId;
+          : String(over.id).startsWith("column:")
+            ? String(over.id).replace("column:", "")
+            : sourceColumnId;
     const destinationColumn = currentColumns.find((column) => column.id === destinationColumnId);
     const overCardIndex =
       overData?.type === "card" && destinationColumn
@@ -412,6 +429,14 @@ export function KanbanBoard({ board }: { board: BoardData }) {
 
     lastCardDropTargetRef.current = target;
     setActiveDropColumnId(target.destinationColumnId);
+
+    // Prevent redundant state re-renders if card is already in this column at this position
+    const currentDestCol = columns.find((c) => c.id === target.destinationColumnId);
+    const currentCardIdx = currentDestCol?.cards.findIndex((c) => c.id === target.cardId);
+    if (currentCardIdx === target.destinationIndex && currentDestCol) {
+      return;
+    }
+
     setColumns(moveCard(baseColumns, target).columns);
   }
 
@@ -771,9 +796,9 @@ export function KanbanBoard({ board }: { board: BoardData }) {
               >
                 Cancel
               </Button>
-              <Button disabled={!columnName.trim()}>
+              <Button disabled={!columnName.trim() || isCreatingColumn}>
                 <Plus className="h-4 w-4" />
-                Add column
+                {isCreatingColumn ? "Adding..." : "Add column"}
               </Button>
             </div>
           </form>
@@ -784,7 +809,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       {syncError ? <p className="mt-4 rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{syncError}</p> : null}
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={collisionDetection}
         onDragCancel={handleDragCancel}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}

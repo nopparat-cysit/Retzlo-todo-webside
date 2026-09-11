@@ -1158,41 +1158,48 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const isPendingRef = useRef(false);
   const [projectType, setProjectType] = useState<"WORK" | "DIARY">("WORK");
   const [themeColor, setThemeColor] = useState<CardColor>("DEFAULT");
   const [sticker, setSticker] = useState(DEFAULT_PROJECT_STICKER);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isPendingRef.current || isPending) return;
+    isPendingRef.current = true;
     setError(null);
     setIsPending(true);
 
-    const formData = new FormData(event.currentTarget);
-    const response = await fetch("/api/projects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        description: formData.get("description"),
-        type: projectType,
-        themeColor,
-        sticker
-      })
-    });
-    const data = (await response.json()) as { project?: { id: string }; error?: string };
+    try {
+      const formData = new FormData(event.currentTarget);
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          description: formData.get("description"),
+          type: projectType,
+          themeColor,
+          sticker
+        })
+      });
+      const data = (await response.json()) as { project?: { id: string }; error?: string };
 
-    setIsPending(false);
+      if (!response.ok || !data.project) {
+        const msg = data.error ?? "Could not create project.";
+        setError(msg);
+        toast({ message: msg, type: "error" });
+        return;
+      }
 
-    if (!response.ok || !data.project) {
-      const msg = data.error ?? "Could not create project.";
-      setError(msg);
-      toast({ message: msg, type: "error" });
-      return;
+      toast({ message: "Project created.", type: "success" });
+      onClose();
+      router.push(`/project/${data.project.id}/${projectType === "DIARY" ? "diary" : "board"}`);
+      router.refresh();
+    } finally {
+      isPendingRef.current = false;
+      setIsPending(false);
     }
-
-    toast({ message: "Project created.", type: "success" });
-    router.push(`/project/${data.project.id}/${projectType === "DIARY" ? "diary" : "board"}`);
-    router.refresh();
   }
 
   return (
