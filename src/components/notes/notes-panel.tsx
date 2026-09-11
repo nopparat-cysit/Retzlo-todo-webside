@@ -22,6 +22,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/ui/app-modal";
+import { useAppModal } from "@/components/ui/app-modal";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/state";
@@ -67,6 +70,7 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<ProjectNote | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
   const visibleNotes = useMemo(() => {
     const filtered = notes.filter((note) => {
       const isCompleted = Boolean(note.completedAt);
@@ -107,21 +111,37 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
   async function createNote(payload: NotePayload) {
     const note = await saveNote(`/api/projects/${projectId}/notes`, "POST", payload);
 
-    if (!note) return null;
+    if (!note) {
+      toast({ message: "Could not create note.", type: "error" });
+      return null;
+    }
 
     setNotes((current) => [note, ...current]);
     setSelectedNote(note);
     setIsCreateOpen(false);
+    toast({ message: "Note created successfully!", type: "success" });
     return note;
   }
 
   async function updateNote(noteId: string, payload: Partial<NotePayload & { isStarred: boolean; isHidden: boolean; isCompleted: boolean }>) {
     const note = await saveNote(`/api/notes/${noteId}`, "PATCH", payload);
 
-    if (!note) return;
+    if (!note) {
+      toast({ message: "Could not update note.", type: "error" });
+      return;
+    }
 
     setNotes((current) => current.map((item) => (item.id === note.id ? note : item)));
     setSelectedNote((current) => (current?.id === note.id ? note : current));
+    if (payload.isCompleted !== undefined) {
+      toast({ message: payload.isCompleted ? "Note completed" : "Note restored", type: "info" });
+    } else if (payload.isStarred !== undefined) {
+      toast({ message: payload.isStarred ? "Note starred" : "Note unstarred", type: "info" });
+    } else if (payload.isHidden !== undefined) {
+      toast({ message: payload.isHidden ? "Note hidden from members" : "Note visible to members", type: "info" });
+    } else {
+      toast({ message: "Note saved successfully!", type: "success" });
+    }
   }
 
   async function saveNote(
@@ -138,7 +158,8 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
     const data = (await response.json()) as { note?: ProjectNote; error?: string };
 
     if (!response.ok || !data.note) {
-      setError(data.error ?? "Something did not sync. Try again.");
+      const err = data.error ?? "Something did not sync. Try again.";
+      setError(err);
       return null;
     }
 
@@ -151,12 +172,15 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
 
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
-      setError(data.error ?? "Something did not sync. Try again.");
+      const err = data.error ?? "Something did not sync. Try again.";
+      setError(err);
+      toast({ message: err, type: "error" });
       return;
     }
 
     setNotes((current) => current.filter((note) => note.id !== noteId));
     setSelectedNote(null);
+    toast({ message: "Note deleted successfully!", type: "success" });
   }
 
   async function quickCreateNote(event: FormEvent<HTMLFormElement>) {
@@ -555,20 +579,39 @@ function NoteEditorModal({
   onSubmit: (payload: NotePayload) => void;
   allowMemberPrivateItems?: boolean;
 }) {
+  const [titleValue, setTitleValue] = useState(note?.title ?? "");
+  const [contentValue, setContentValue] = useState(note?.content ?? "");
   const [date, setDate] = useState(note?.dueDate ? note.dueDate.slice(0, 10) : "");
   const [time, setTime] = useState(note?.dueDate && !note.dueDateAllDay ? timeValue(note.dueDate) : "");
   const [color, setColor] = useState<CardColor>(normalizeCardColor(note?.color));
   const [emoji, setEmoji] = useState(note?.emoji ?? DEFAULT_NOTE_STICKER);
   const [isHidden, setIsHidden] = useState(note?.isHidden ?? false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  const isDirty = useMemo(() => {
+    if (!note) {
+      return titleValue.trim().length > 0 || contentValue.trim().length > 0;
+    }
+    const origDate = note.dueDate ? note.dueDate.slice(0, 10) : "";
+    const origTime = note.dueDate && !note.dueDateAllDay ? timeValue(note.dueDate) : "";
+    return (
+      titleValue !== (note.title ?? "") ||
+      contentValue !== (note.content ?? "") ||
+      emoji !== (note.emoji ?? DEFAULT_NOTE_STICKER) ||
+      color !== normalizeCardColor(note.color) ||
+      isHidden !== (note.isHidden ?? false) ||
+      date !== origDate ||
+      time !== origTime
+    );
+  }, [note, titleValue, contentValue, emoji, color, isHidden, date, time]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
     const due = composeDueDate(date, time);
 
     onSubmit({
-      title: String(formData.get("title") ?? ""),
-      content: String(formData.get("content") ?? ""),
+      title: titleValue,
+      content: contentValue,
       emoji,
       color,
       dueDate: due.dueDate,
@@ -578,110 +621,217 @@ function NoteEditorModal({
   }
 
   return (
-    <AppModal
-      open
-      onClose={onClose}
-      labelledBy="note-card-title"
-      contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
-    >
-        <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={handleSubmit}>
-          <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Note Card</p>
-              <h2 id="note-card-title" className="mt-1 text-2xl font-semibold">{title}</h2>
+    <>
+      <AppModal
+        open
+        onClose={onClose}
+        hasUnsavedChanges={isDirty}
+        onDiscard={onClose}
+        labelledBy="note-card-title"
+        contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
+      >
+        <NoteEditorModalContent
+          title={title}
+          note={note}
+          titleValue={titleValue}
+          setTitleValue={setTitleValue}
+          contentValue={contentValue}
+          setContentValue={setContentValue}
+          emoji={emoji}
+          setEmoji={setEmoji}
+          color={color}
+          setColor={setColor}
+          isHidden={isHidden}
+          setIsHidden={setIsHidden}
+          date={date}
+          setDate={setDate}
+          time={time}
+          setTime={setTime}
+          allowMemberPrivateItems={allowMemberPrivateItems}
+          onToggleComplete={onToggleComplete}
+          onRequestDelete={onDelete ? () => setIsDeleteConfirmOpen(true) : undefined}
+          onSubmit={handleSubmit}
+        />
+      </AppModal>
+
+      {onDelete ? (
+        <ConfirmModal
+          open={isDeleteConfirmOpen}
+          title="Delete Note"
+          message="Are you sure you want to delete this note? This action cannot be undone."
+          confirmLabel="Delete note"
+          variant="danger"
+          onConfirm={() => {
+            setIsDeleteConfirmOpen(false);
+            onDelete();
+          }}
+          onClose={() => setIsDeleteConfirmOpen(false)}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function NoteEditorModalContent({
+  title,
+  note,
+  titleValue,
+  setTitleValue,
+  contentValue,
+  setContentValue,
+  emoji,
+  setEmoji,
+  color,
+  setColor,
+  isHidden,
+  setIsHidden,
+  date,
+  setDate,
+  time,
+  setTime,
+  allowMemberPrivateItems,
+  onToggleComplete,
+  onRequestDelete,
+  onSubmit
+}: {
+  title: string;
+  note?: ProjectNote;
+  titleValue: string;
+  setTitleValue: (val: string) => void;
+  contentValue: string;
+  setContentValue: (val: string) => void;
+  emoji: string;
+  setEmoji: (val: string) => void;
+  color: CardColor;
+  setColor: (val: CardColor) => void;
+  isHidden: boolean;
+  setIsHidden: (val: boolean) => void;
+  date: string;
+  setDate: (val: string) => void;
+  time: string;
+  setTime: (val: string) => void;
+  allowMemberPrivateItems: boolean;
+  onToggleComplete?: () => void;
+  onRequestDelete?: () => void;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+}) {
+  const { requestClose } = useAppModal();
+
+  return (
+    <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
+      <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Note Card</p>
+          <h2 id="note-card-title" className="mt-1 text-2xl font-semibold">{title}</h2>
+        </div>
+        <button
+          className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100"
+          type="button"
+          aria-label="Close note"
+          onClick={requestClose}
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
+        <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
+          <div className="flex items-center gap-3">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
+              {renderNoteSticker(emoji, "h-12 w-12")}
             </div>
-            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </button>
+            <Input
+              name="title"
+              value={titleValue}
+              onChange={(e) => setTitleValue(e.target.value)}
+              placeholder="Note title"
+              required
+            />
           </div>
+          <Textarea
+            className="min-h-[360px]"
+            name="content"
+            value={contentValue}
+            onChange={(e) => setContentValue(e.target.value)}
+            placeholder="Write a note..."
+          />
+        </div>
 
-          <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
-            <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
-              <div className="flex items-center gap-3">
-                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
-                  {renderNoteSticker(emoji, "h-12 w-12")}
-                </div>
-                <Input name="title" defaultValue={note?.title ?? ""} placeholder="Note title" required />
-              </div>
-              <Textarea className="min-h-[360px]" name="content" defaultValue={note?.content ?? ""} placeholder="Write a note..." />
+        <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+          <NoteStickerPicker selectedSticker={emoji} onChange={setEmoji} />
+          <ColorPicker selectedColor={color} onChange={setColor} />
+          <label
+            className={cn(
+              "flex items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-stone-300",
+              !allowMemberPrivateItems && !note?.canToggleHidden && "opacity-60"
+            )}
+          >
+            <span>Hide from other members</span>
+            <input
+              checked={isHidden}
+              className="h-4 w-4 accent-dusk-lavender"
+              disabled={!allowMemberPrivateItems && !note?.canToggleHidden}
+              type="checkbox"
+              onChange={(event) => setIsHidden(event.target.checked)}
+            />
+          </label>
+          <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
+            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
+              <CalendarClock className="h-4 w-4 text-dusk-cyan" />
+              Calendar
             </div>
-
-            <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
-              <NoteStickerPicker selectedSticker={emoji} onChange={setEmoji} />
-              <ColorPicker selectedColor={color} onChange={setColor} />
-              <label
-                className={cn(
-                  "flex items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-stone-300",
-                  !allowMemberPrivateItems && !note?.canToggleHidden && "opacity-60"
-                )}
-              >
-                <span>Hide from other members</span>
-                <input
-                  checked={isHidden}
-                  className="h-4 w-4 accent-dusk-lavender"
-                  disabled={!allowMemberPrivateItems && !note?.canToggleHidden}
-                  type="checkbox"
-                  onChange={(event) => setIsHidden(event.target.checked)}
-                />
-              </label>
-              <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
-                <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
-                  <CalendarClock className="h-4 w-4 text-dusk-cyan" />
-                  Calendar
-                </div>
-                <div className="mb-3 flex flex-wrap gap-2">
-                  {[
-                    ["today", "Today"],
-                    ["tomorrow", "Tomorrow"],
-                    ["next-week", "Next week"],
-                    ["clear", "Clear date"]
-                  ].map(([value, label]) => (
-                    <Button
-                      className="h-8 px-3"
-                      key={value}
-                      type="button"
-                      variant="ghost"
-                      onClick={() => {
-                        setDate(applyDueShortcut(value as "today" | "tomorrow" | "next-week" | "clear"));
-                        if (value === "clear") setTime("");
-                      }}
-                    >
-                      {label}
-                    </Button>
-                  ))}
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                  <Input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-                  <Input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
-                </div>
-                <p className="mt-2 text-xs text-stone-500">No time means all day.</p>
-              </div>
-            </aside>
+            <div className="mb-3 flex flex-wrap gap-2">
+              {[
+                ["today", "Today"],
+                ["tomorrow", "Tomorrow"],
+                ["next-week", "Next week"],
+                ["clear", "Clear date"]
+              ].map(([value, label]) => (
+                <Button
+                  className="h-8 px-3"
+                  key={value}
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setDate(applyDueShortcut(value as "today" | "tomorrow" | "next-week" | "clear"));
+                    if (value === "clear") setTime("");
+                  }}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <Input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+              <Input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
+            </div>
+            <p className="mt-2 text-xs text-stone-500">No time means all day.</p>
           </div>
+        </aside>
+      </div>
 
-          <div className="flex flex-wrap justify-end gap-2 border-t border-white/10 px-5 py-4">
-            {onToggleComplete ? (
-              <Button type="button" variant="secondary" onClick={onToggleComplete}>
-                {note?.completedAt ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-                {note?.completedAt ? "Restore note" : "Mark complete"}
-              </Button>
-            ) : null}
-            {onDelete ? (
-              <Button type="button" variant="danger" onClick={onDelete}>
-                <Trash2 className="h-4 w-4" />
-                Delete
-              </Button>
-            ) : null}
-            <Button type="button" variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button>
-              <Save className="h-4 w-4" />
-              Save note
-            </Button>
-          </div>
-        </form>
-    </AppModal>
+      <div className="flex flex-wrap justify-end gap-2 border-t border-white/10 px-5 py-4">
+        {onToggleComplete ? (
+          <Button type="button" variant="secondary" onClick={onToggleComplete}>
+            {note?.completedAt ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+            {note?.completedAt ? "Restore note" : "Mark complete"}
+          </Button>
+        ) : null}
+        {onRequestDelete ? (
+          <Button type="button" variant="danger" onClick={onRequestDelete}>
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </Button>
+        ) : null}
+        <Button type="button" variant="ghost" onClick={requestClose}>
+          Cancel
+        </Button>
+        <Button type="submit">
+          <Save className="h-4 w-4" />
+          Save note
+        </Button>
+      </div>
+    </form>
   );
 }
 

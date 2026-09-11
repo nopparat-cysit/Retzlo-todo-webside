@@ -20,6 +20,7 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
   const [selectedAgent, setSelectedAgent] = useState<OfficeAgent | null>(null);
   const frameRef = useRef(0);
   const agentsRef = useRef(agents);
+  const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     agentsRef.current = agents;
@@ -208,7 +209,6 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
 
     animate();
 
-    const canvas = canvasRef.current;
     const handleClick = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const clickX = e.clientX - rect.left;

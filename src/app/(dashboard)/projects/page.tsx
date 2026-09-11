@@ -1,15 +1,19 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
+import type { Prisma } from "@prisma/client";
+
 import {
   ProjectsDashboard,
   type GlobalCalendarCard,
   type GlobalCalendarDiary,
+  type GlobalCalendarDiaryRaw,
   type ProjectDashboardItem,
   type UserProfile,
 } from "@/components/project/projects-dashboard";
 import { FabHub } from "@/components/hub/fab-hub";
 import { authOptions } from "@/lib/auth";
+import { normalizeDiaryChecklist, type DiaryRewardCoinType } from "@/lib/diary/checklist";
 import { prisma } from "@/lib/prisma";
 import { getDatabaseErrorMessage } from "@/lib/safe-db";
 import type { CardStatus } from "@/types/kanban";
@@ -121,7 +125,8 @@ export default async function ProjectsPage() {
           }
         }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
+      take: 100
     })
   ]).catch((error) => {
     console.error("Failed to load projects dashboard data", error);
@@ -244,19 +249,29 @@ function toGlobalCalendarCard(card: {
   };
 }
 
-function toGlobalCalendarDiary(diary: any): GlobalCalendarDiary {
+type DiaryWithProject = Prisma.DiaryItemGetPayload<{
+  include: {
+    project: {
+      select: {
+        id: true;
+        name: true;
+      };
+    };
+  };
+}>;
+
+function toGlobalCalendarDiary(diary: DiaryWithProject): GlobalCalendarDiaryRaw {
   return {
     id: diary.id,
-    diaryId: diary.id,
     title: diary.title,
     description: diary.description ?? "",
     color: diary.color,
     intervalDays: diary.intervalDays,
     startDate: diary.startDate.toISOString(),
-    checklist: diary.checklist ?? [],
+    checklist: normalizeDiaryChecklist(diary.checklist, diary.startDate),
     rewardCoins: diary.rewardCoins,
-    rewardCoinType: diary.rewardCoinType,
-    rewardClaimedDates: diary.rewardClaimedDates ?? [],
+    rewardCoinType: diary.rewardCoinType as DiaryRewardCoinType,
+    rewardClaimedDates: Array.isArray(diary.rewardClaimedDates) ? (diary.rewardClaimedDates as string[]) : [],
     isStarred: diary.isStarred,
     isHidden: diary.isHidden,
     dueTime: diary.dueTime,

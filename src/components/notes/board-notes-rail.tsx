@@ -4,6 +4,9 @@ import { FormEvent, useMemo, useState } from "react";
 import { CheckCircle2, FileText, Plus, RotateCcw, Save, Star, Trash2, X } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
+import { useAppModal } from "@/components/ui/app-modal";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
@@ -29,6 +32,7 @@ export function BoardNotesRail({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<ProjectNote | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
   const visibleNotes = useMemo(() => {
     const activeNotes = notes.filter((note) => !note.completedAt);
     const filtered =
@@ -69,7 +73,9 @@ export function BoardNotesRail({
     const data = (await response.json()) as { note?: ProjectNote; error?: string };
 
     if (!response.ok || !data.note) {
-      setError(data.error ?? "Something did not sync. Try again.");
+      const msg = data.error ?? "Something did not sync. Try again.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
       return;
     }
 
@@ -78,6 +84,7 @@ export function BoardNotesRail({
     setSelectedNote(note);
     setIsCreateOpen(false);
     form.reset();
+    toast({ message: "Note created successfully!", type: "success" });
   }
 
   async function updateNote(noteId: string, payload: Partial<Pick<ProjectNote, "title" | "content" | "emoji" | "isStarred" | "color">> & { isCompleted?: boolean }) {
@@ -90,13 +97,22 @@ export function BoardNotesRail({
     const data = (await response.json()) as { note?: ProjectNote; error?: string };
 
     if (!response.ok || !data.note) {
-      setError(data.error ?? "Something did not sync. Try again.");
+      const msg = data.error ?? "Something did not sync. Try again.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
       return;
     }
 
     const note = normalizeNote(data.note);
     setNotes((current) => current.map((item) => (item.id === note.id ? note : item)));
     setSelectedNote((current) => (current?.id === note.id ? note : current));
+    if (payload.isCompleted !== undefined) {
+      toast({ message: payload.isCompleted ? "Note completed" : "Note restored", type: "info" });
+    } else if (payload.isStarred !== undefined) {
+      toast({ message: payload.isStarred ? "Note starred" : "Note unstarred", type: "info" });
+    } else {
+      toast({ message: "Note saved successfully!", type: "success" });
+    }
   }
 
   async function deleteNote(noteId: string) {
@@ -107,12 +123,15 @@ export function BoardNotesRail({
 
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
-      setError(data.error ?? "Something did not sync. Try again.");
+      const msg = data.error ?? "Something did not sync. Try again.";
+      setError(msg);
+      toast({ message: msg, type: "error" });
       return;
     }
 
     setNotes((current) => current.filter((note) => note.id !== noteId));
     setSelectedNote((current) => (current?.id === noteId ? null : current));
+    toast({ message: "Note deleted successfully!", type: "success" });
   }
 
   return (
@@ -250,33 +269,83 @@ function NoteModal({
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
+  const [noteTitle, setNoteTitle] = useState("");
+  const [content, setContent] = useState("");
+  const isDirty = noteTitle.trim().length > 0 || content.trim().length > 0;
+
   return (
     <AppModal
       open
       onClose={onClose}
+      hasUnsavedChanges={isDirty}
+      onDiscard={onClose}
       labelledBy="board-note-modal-title"
       contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-4xl flex-col overflow-hidden rounded-2xl"
     >
-        <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
-          <ModalHeader title={title} onClose={onClose} />
-          <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
-            <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
-              <Input name="title" placeholder="Note title" required />
-              <Textarea className="min-h-[320px]" name="content" placeholder="Write a note..." />
-            </div>
-            <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
-              <EmojiPicker selectedEmoji="📝" />
-              <ColorPicker selectedColor="DEFAULT" />
-            </aside>
-          </div>
-          <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
-            <Button type="button" variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button>{submitLabel}</Button>
-          </div>
-        </form>
+      <NoteModalContent
+        title={title}
+        submitLabel={submitLabel}
+        noteTitle={noteTitle}
+        setNoteTitle={setNoteTitle}
+        content={content}
+        setContent={setContent}
+        onSubmit={onSubmit}
+      />
     </AppModal>
+  );
+}
+
+function NoteModalContent({
+  title,
+  submitLabel,
+  noteTitle,
+  setNoteTitle,
+  content,
+  setContent,
+  onSubmit
+}: {
+  title: string;
+  submitLabel: string;
+  noteTitle: string;
+  setNoteTitle: (val: string) => void;
+  content: string;
+  setContent: (val: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  const { requestClose } = useAppModal();
+
+  return (
+    <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
+      <ModalHeader title={title} onClose={requestClose} />
+      <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
+        <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
+          <Input
+            name="title"
+            value={noteTitle}
+            onChange={(e) => setNoteTitle(e.target.value)}
+            placeholder="Note title"
+            required
+          />
+          <Textarea
+            className="min-h-[320px]"
+            name="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Write a note..."
+          />
+        </div>
+        <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+          <EmojiPicker selectedEmoji="📝" />
+          <ColorPicker selectedColor="DEFAULT" />
+        </aside>
+      </div>
+      <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
+        <Button type="button" variant="ghost" onClick={requestClose}>
+          Cancel
+        </Button>
+        <Button>{submitLabel}</Button>
+      </div>
+    </form>
   );
 }
 
@@ -293,44 +362,135 @@ function EditNoteModal({
   onToggleComplete: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
+  const [title, setTitle] = useState(note.title);
+  const [content, setContent] = useState(note.content ?? "");
+  const [emoji, setEmoji] = useState(note.emoji ?? "📝");
+  const [color, setColor] = useState<CardColor>(normalizeCardColor(note.color));
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  const isDirty = useMemo(() => {
+    return (
+      title !== note.title ||
+      content !== (note.content ?? "") ||
+      emoji !== (note.emoji ?? "📝") ||
+      color !== normalizeCardColor(note.color)
+    );
+  }, [note, title, content, emoji, color]);
+
   return (
-    <AppModal
-      open
-      onClose={onClose}
-      labelledBy="board-note-modal-title"
-      contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-4xl flex-col overflow-hidden rounded-2xl"
-    >
-        <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
-          <ModalHeader title="Edit note" onClose={onClose} />
-          <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
-            <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
-              <Input name="title" defaultValue={note.title} placeholder="Note title" required />
-              <Textarea className="min-h-[320px]" name="content" defaultValue={note.content} placeholder="Write a note..." />
-            </div>
-            <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
-              <EmojiPicker selectedEmoji={note.emoji ?? "📝"} />
-              <ColorPicker selectedColor={normalizeCardColor(note.color)} />
-            </aside>
-          </div>
-          <div className="flex flex-wrap justify-end gap-2 border-t border-white/10 px-5 py-4">
-            <Button type="button" variant="secondary" onClick={onToggleComplete}>
-              {note.completedAt ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-              {note.completedAt ? "Restore" : "Mark complete"}
-            </Button>
-            <Button type="button" variant="danger" onClick={onDelete}>
-              <Trash2 className="h-4 w-4" />
-              Delete
-            </Button>
-            <Button type="button" variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button>
-              <Save className="h-4 w-4" />
-              Save
-            </Button>
-          </div>
-        </form>
-    </AppModal>
+    <>
+      <AppModal
+        open
+        onClose={onClose}
+        hasUnsavedChanges={isDirty}
+        onDiscard={onClose}
+        labelledBy="board-note-modal-title"
+        contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-4xl flex-col overflow-hidden rounded-2xl"
+      >
+        <EditNoteModalContent
+          note={note}
+          title={title}
+          setTitle={setTitle}
+          content={content}
+          setContent={setContent}
+          emoji={emoji}
+          setEmoji={setEmoji}
+          color={color}
+          setColor={setColor}
+          onToggleComplete={onToggleComplete}
+          onRequestDelete={() => setIsDeleteConfirmOpen(true)}
+          onSubmit={onSubmit}
+        />
+      </AppModal>
+
+      <ConfirmModal
+        open={isDeleteConfirmOpen}
+        title="Delete Note"
+        message="Are you sure you want to delete this note? This action cannot be undone."
+        confirmLabel="Delete note"
+        variant="danger"
+        onConfirm={() => {
+          setIsDeleteConfirmOpen(false);
+          onDelete();
+        }}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+      />
+    </>
+  );
+}
+
+function EditNoteModalContent({
+  note,
+  title,
+  setTitle,
+  content,
+  setContent,
+  emoji,
+  setEmoji,
+  color,
+  setColor,
+  onToggleComplete,
+  onRequestDelete,
+  onSubmit
+}: {
+  note: ProjectNote;
+  title: string;
+  setTitle: (val: string) => void;
+  content: string;
+  setContent: (val: string) => void;
+  emoji: string;
+  setEmoji: (val: string) => void;
+  color: CardColor;
+  setColor: (val: CardColor) => void;
+  onToggleComplete: () => void;
+  onRequestDelete: () => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  const { requestClose } = useAppModal();
+
+  return (
+    <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
+      <ModalHeader title="Edit note" onClose={requestClose} />
+      <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
+        <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
+          <Input
+            name="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Note title"
+            required
+          />
+          <Textarea
+            className="min-h-[320px]"
+            name="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Write a note..."
+          />
+        </div>
+        <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+          <EmojiPicker selectedEmoji={emoji} onChange={setEmoji} />
+          <ColorPicker selectedColor={color} onChange={setColor} />
+        </aside>
+      </div>
+      <div className="flex flex-wrap justify-end gap-2 border-t border-white/10 px-5 py-4">
+        <Button type="button" variant="secondary" onClick={onToggleComplete}>
+          {note.completedAt ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+          {note.completedAt ? "Restore" : "Mark complete"}
+        </Button>
+        <Button type="button" variant="danger" onClick={onRequestDelete}>
+          <Trash2 className="h-4 w-4" />
+          Delete
+        </Button>
+        <Button type="button" variant="ghost" onClick={requestClose}>
+          Cancel
+        </Button>
+        <Button>
+          <Save className="h-4 w-4" />
+          Save
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -348,7 +508,13 @@ function ModalHeader({ title, onClose }: { title: string; onClose: () => void })
   );
 }
 
-function ColorPicker({ selectedColor }: { selectedColor: CardColor }) {
+function ColorPicker({
+  selectedColor,
+  onChange
+}: {
+  selectedColor: CardColor;
+  onChange?: (color: CardColor) => void;
+}) {
   return (
     <div className="space-y-2 text-sm text-stone-300">
       <span>Note color</span>
@@ -367,7 +533,14 @@ function ColorPicker({ selectedColor }: { selectedColor: CardColor }) {
               )}
               title={option.label}
             >
-              <input className="sr-only" defaultChecked={selectedColor === option.value} name="color" type="radio" value={option.value} />
+              <input
+                className="sr-only"
+                checked={selectedColor === option.value}
+                onChange={() => onChange?.(option.value)}
+                name="color"
+                type="radio"
+                value={option.value}
+              />
               <span className={cn("h-5 w-5 rounded-full border", meta.swatchClass)} />
             </label>
           );
@@ -377,7 +550,13 @@ function ColorPicker({ selectedColor }: { selectedColor: CardColor }) {
   );
 }
 
-function EmojiPicker({ selectedEmoji }: { selectedEmoji: string }) {
+function EmojiPicker({
+  selectedEmoji,
+  onChange
+}: {
+  selectedEmoji: string;
+  onChange?: (emoji: string) => void;
+}) {
   return (
     <div className="space-y-2 text-sm text-stone-300">
       <span>Note emoji</span>
@@ -390,7 +569,14 @@ function EmojiPicker({ selectedEmoji }: { selectedEmoji: string }) {
               selectedEmoji === option ? "border-dusk-amber bg-dusk-amber/10" : "border-white/10"
             )}
           >
-            <input className="sr-only" defaultChecked={selectedEmoji === option} name="emoji" type="radio" value={option} />
+            <input
+              className="sr-only"
+              checked={selectedEmoji === option}
+              onChange={() => onChange?.(option)}
+              name="emoji"
+              type="radio"
+              value={option}
+            />
             {option}
           </label>
         ))}

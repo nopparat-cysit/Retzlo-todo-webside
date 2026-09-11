@@ -1,11 +1,23 @@
 "use client";
 
 import type { ComponentPropsWithoutRef, KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from "react";
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { ModalPortal } from "@/components/ui/modal-portal";
 import { cn } from "@/lib/utils";
+
+interface AppModalContextValue {
+  requestClose: () => void;
+}
+
+const AppModalContext = createContext<AppModalContextValue>({
+  requestClose: () => {}
+});
+
+export function useAppModal() {
+  return useContext(AppModalContext);
+}
 
 interface AppModalProps {
   open: boolean;
@@ -106,7 +118,9 @@ export function AppModal({
           onClick={stopModalContentEvent}
           onKeyDown={handleModalContentKeyDown}
         >
-          {children}
+          <AppModalContext.Provider value={{ requestClose }}>
+            {children}
+          </AppModalContext.Provider>
         </div>
       </div>
 

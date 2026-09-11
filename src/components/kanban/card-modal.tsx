@@ -15,9 +15,9 @@ import { CheckSquare, Coins, FileText, GripVertical, Plus, Star, Trash2, X } fro
 
 import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/ui/app-modal";
+import { useAppModal } from "@/components/ui/app-modal";
 import { DateTimeField } from "@/components/ui/date-time-field";
 import { Input, Textarea } from "@/components/ui/input";
-import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { RetroStickerPicker } from "@/components/stickers/retro-sticker-picker";
 import { composeDueDate } from "@/lib/kanban/due-date";
 import { getPrivateCoinEntry, resolveCardRewardPayload } from "@/lib/kanban/private-coins";
@@ -77,7 +77,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   const [title, setTitle] = useState(card?.title ?? "");
   const [description, setDescription] = useState(card?.description ?? "");
   const [isSaving, setIsSaving] = useState(false);
-  const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   // Gamification fields
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
@@ -204,25 +203,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     checklist
   ]);
 
-  const handleCloseRequest = useCallback(() => {
-    if (hasChanges) {
-      setShowConfirmClose(true);
-    } else {
-      onClose();
-    }
-  }, [hasChanges, onClose]);
-
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        handleCloseRequest();
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [hasChanges, handleCloseRequest]);
-
   if (!open || !mounted) {
     return null;
   }
@@ -294,8 +274,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   }
 
   const modal = (
-    <>
-      <AppModal
+    <AppModal
         open={open && mounted}
         onClose={onClose}
         hasUnsavedChanges={hasChanges}
@@ -339,14 +318,17 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
               )}
               onClick={() => setIsStarred((v) => !v)}
             >
-              <Star className={cn("h-4 w-4", isStarred && "fill-dusk-amber")} />
+              <Star className="h-4 w-4" />
             </button>
-            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={handleCloseRequest}>
+            <CardModalCloseButton
+              className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100"
+              aria-label="Close"
+            >
               <X className="h-5 w-5" />
-            </button>
+            </CardModalCloseButton>
           </div>
         </div>
-        </div>
+      </div>
 
         <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] lg:items-start">
@@ -519,29 +501,32 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
               Delete card
             </Button>
           ) : null}
-          <Button type="button" variant="ghost" onClick={handleCloseRequest}>
-            Cancel
-          </Button>
+          <CardModalCancelButton />
           <Button disabled={isSaving}>{isSaving ? "Saving..." : "Save card"}</Button>
         </div>
       </form>
-      </AppModal>
-      <ConfirmModal
-        open={showConfirmClose}
-        title="Discard changes?"
-        message="You have unsaved changes. Are you sure you want to discard them?"
-        confirmLabel="Discard changes"
-        variant="danger"
-        onConfirm={() => {
-          setShowConfirmClose(false);
-          onClose();
-        }}
-        onClose={() => setShowConfirmClose(false)}
-      />
-    </>
+    </AppModal>
   );
 
   return modal;
+}
+
+function CardModalCloseButton({ className, children, ...props }: React.ComponentPropsWithoutRef<"button">) {
+  const { requestClose } = useAppModal();
+  return (
+    <button type="button" onClick={requestClose} className={className} {...props}>
+      {children}
+    </button>
+  );
+}
+
+function CardModalCancelButton() {
+  const { requestClose } = useAppModal();
+  return (
+    <Button type="button" variant="ghost" onClick={requestClose}>
+      Cancel
+    </Button>
+  );
 }
 
 function ColorPicker({

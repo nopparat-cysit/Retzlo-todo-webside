@@ -84,7 +84,8 @@ export function ProjectCalendar({
   const [notes] = useState(initialNotes);
   const [diaryItems, setDiaryItems] = useState(initialDiaryItems);
   const [filters, setFilters] = useState<CalendarFilterState>(defaultCalendarFilters);
-  const [isFiltersOpen, setIsFiltersOpen] = useState(true);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isUpcomingOpen, setIsUpcomingOpen] = useState(false);
   const [viewMode, setViewMode] = useState<CalendarViewMode>("month");
   const [customDays, setCustomDays] = useState(5);
   const [anchorDate, setAnchorDate] = useState(() => toDateKey(new Date()));
@@ -211,6 +212,38 @@ export function ProjectCalendar({
   const rangeLabel = formatRangeLabel(calendarDays);
   const dayColumnCount = viewMode === "month" ? 7 : calendarDays.length;
 
+  const currentMonthLabel = useMemo(() => {
+    try {
+      const parts = anchorDate.split("-");
+      if (parts.length >= 2) {
+        const year = Number(parts[0]);
+        const month = Number(parts[1]) - 1;
+        const d = new Date(year, month, 1);
+        return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+      }
+      return "";
+    } catch {
+      return "";
+    }
+  }, [anchorDate]);
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (!filters.showCards || !filters.showNotes || !filters.showDiaryChecklist) count++;
+    const defaultStatuses = defaultCalendarFilters.statuses;
+    if (
+      filters.statuses.TODO !== defaultStatuses.TODO ||
+      filters.statuses.DOING !== defaultStatuses.DOING ||
+      filters.statuses.WAITING !== defaultStatuses.WAITING ||
+      filters.statuses.DONE !== defaultStatuses.DONE
+    ) {
+      count++;
+    }
+    if (filters.noteScope !== "all") count++;
+    if (filters.timeScope !== "all") count++;
+    return count;
+  }, [filters]);
+
   async function handleSaveIntent(payload: any) {
     setPendingUpdatePayload(payload);
     setIsUpdateConfirmOpen(true);
@@ -308,270 +341,365 @@ export function ProjectCalendar({
 
   return (
     <>
-      <div
-        className="grid h-full min-h-0 gap-4 overflow-y-auto pr-1 scrollbar-soft xl:grid-cols-[var(--calendar-filter-width)_minmax(0,1fr)_340px]"
-        style={{
-          "--calendar-filter-width": isFiltersOpen ? "280px" : "64px"
-        } as CSSProperties}
-      >
-        <Panel className={cn("overflow-hidden transition-[padding] duration-200", isFiltersOpen ? "p-5" : "p-2")}>
-          <button
-            aria-expanded={isFiltersOpen}
-            aria-label={isFiltersOpen ? "Collapse calendar filters" : "Expand calendar filters"}
-            className={cn(
-              "flex w-full items-center gap-3 rounded-lg text-left transition hover:bg-white/[0.04]",
-              isFiltersOpen ? "justify-between p-0" : "h-12 justify-center"
-            )}
-            type="button"
-            onClick={() => setIsFiltersOpen((current) => !current)}
-            title={isFiltersOpen ? "Collapse filters" : "Expand filters"}
-          >
-            <div className={cn("flex items-center gap-2", !isFiltersOpen && "justify-center")}>
-              <SlidersHorizontal className="h-5 w-5 shrink-0 text-dusk-lavender" />
-              <div>
-                <h3 className={cn("font-semibold", !isFiltersOpen && "sr-only")}>Calendar Filters</h3>
-                <p className={cn("text-xs text-stone-500", !isFiltersOpen && "sr-only")}>Choose what appears.</p>
+      <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
+        {/* Top Control Bar Panel */}
+        <Panel className="p-4 shrink-0 shadow-lg">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            {/* Left: Month/Year, Range & Navigation */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="grid h-9 w-9 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-sm">
+                  <CalendarDays className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold tracking-tight text-stone-100">{currentMonthLabel}</h2>
+                    <span className="rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[11px] font-semibold text-dusk-amber">
+                      {rangeLabel}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Controls: [<] [Today] [>] */}
+              <div className="flex items-center rounded-xl border border-white/10 bg-white/[0.03] p-0.5 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setAnchorDate((value) => shiftDateKey(value, viewMode === "month" ? -30 : -calendarDays.length))}
+                  className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 hover:bg-white/10 hover:text-stone-100 transition"
+                  aria-label="Previous month or week"
+                  title="Previous"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAnchorDate(todayKey)}
+                  className="px-2.5 h-8 rounded-lg text-xs font-semibold text-stone-300 hover:bg-white/10 hover:text-stone-100 transition"
+                >
+                  Today
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAnchorDate((value) => shiftDateKey(value, viewMode === "month" ? 30 : calendarDays.length))}
+                  className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 hover:bg-white/10 hover:text-stone-100 transition"
+                  aria-label="Next month or week"
+                  title="Next"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
             </div>
-            <ChevronDown className={cn("h-4 w-4 shrink-0 text-stone-500 transition", !isFiltersOpen && "-rotate-90")} />
-          </button>
 
-          {isFiltersOpen ? <div className="mt-5 space-y-5">
-            <div>
-              <p className="mb-2 text-xs uppercase tracking-[0.18em] text-stone-500">Sources</p>
-              <FilterCheckbox label="Cards" checked={filters.showCards} onChange={(checked) => setFilters((current) => ({ ...current, showCards: checked }))} />
-              <FilterCheckbox label="Notes" checked={filters.showNotes} onChange={(checked) => setFilters((current) => ({ ...current, showNotes: checked }))} />
-              <FilterCheckbox label="Diary Checklist" checked={filters.showDiaryChecklist} onChange={(checked) => setFilters((current) => ({ ...current, showDiaryChecklist: checked }))} />
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs uppercase tracking-[0.18em] text-stone-500">Card Status</p>
-              {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
-                const meta = getStatusMeta(status);
-
-                return (
-                  <FilterCheckbox
-                    key={status}
-                    label={meta.label}
-                    checked={filters.statuses[status]}
-                    swatchClassName={meta.badgeClass}
-                    onChange={(checked) =>
-                      setFilters((current) => ({
-                        ...current,
-                        statuses: { ...current.statuses, [status]: checked }
-                      }))
-                    }
-                  />
-                );
-              })}
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs uppercase tracking-[0.18em] text-stone-500">Notes</p>
-              <FilterSelect
-                value={filters.noteScope}
-                options={[
-                  { value: "all", label: "All notes" },
-                  { value: "starred", label: "Starred only" },
-                  { value: "plain", label: "Not starred" }
-                ]}
-                onValueChange={(noteScope) => setFilters((current) => ({ ...current, noteScope }))}
-              />
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs uppercase tracking-[0.18em] text-stone-500">Time</p>
-              <FilterSelect
-                value={filters.timeScope}
-                options={[
-                  { value: "all", label: "All times" },
-                  { value: "allDay", label: "All-day only" },
-                  { value: "timed", label: "Timed only" }
-                ]}
-                onValueChange={(timeScope) => setFilters((current) => ({ ...current, timeScope }))}
-              />
-            </div>
-          </div> : null}
-        </Panel>
-
-        <Panel className="p-5">
-          <div className="mb-5 flex flex-col justify-between gap-3 2xl:flex-row 2xl:items-end">
-            <div>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="h-5 w-5 text-dusk-lavender" />
-                <h2 className="text-2xl font-semibold">Calendar</h2>
-              </div>
-              <p className="mt-1 text-sm text-stone-400">Cards and notes with dates gather here.</p>
-              <p className="mt-1 text-xs text-dusk-amber">{rangeLabel}</p>
-            </div>
+            {/* Right: View Switcher, Filters Toggle, Upcoming Toggle */}
             <div className="flex flex-wrap items-center gap-2">
-              <IconButton label="Previous" onClick={() => setAnchorDate((value) => shiftDateKey(value, viewMode === "month" ? -30 : -calendarDays.length))}>
-                <ChevronLeft className="h-4 w-4" />
-              </IconButton>
-              <IconButton label="Today" onClick={() => setAnchorDate(todayKey)}>
-                Today
-              </IconButton>
-              <IconButton label="Next" onClick={() => setAnchorDate((value) => shiftDateKey(value, viewMode === "month" ? 30 : calendarDays.length))}>
-                <ChevronRight className="h-4 w-4" />
-              </IconButton>
-              <Input
-                className="w-auto min-w-40"
-                type="date"
-                value={anchorDate}
-                onChange={(event) => setAnchorDate(event.target.value)}
-              />
               <SegmentedControl
                 aria-label="Calendar view"
                 value={viewMode}
                 items={[
                   { value: "month", label: "Month" },
-                  { value: "day3", label: "3 days" },
-                  { value: "day5", label: "5 days" },
-                  { value: "week", label: "7 days" },
-                  { value: "custom", label: "Custom" }
+                  { value: "week", label: "Week" }
                 ]}
-                onValueChange={setViewMode}
+                onValueChange={(val) => setViewMode(val as CalendarViewMode)}
               />
-              {viewMode === "custom" ? (
-                <Input
-                  className="w-20"
-                  max={14}
-                  min={1}
-                  type="number"
-                  value={customDays}
-                  onChange={(event) => setCustomDays(Number(event.target.value))}
-                />
-              ) : null}
+
+              <button
+                type="button"
+                onClick={() => setIsFiltersOpen((v) => !v)}
+                className={cn(
+                  "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-medium transition",
+                  isFiltersOpen
+                    ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender shadow-sm"
+                    : "border-white/10 bg-white/[0.03] text-stone-300 hover:border-white/20 hover:bg-white/[0.06] hover:text-stone-100"
+                )}
+                aria-expanded={isFiltersOpen}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="grid h-4 w-4 place-items-center rounded-full bg-dusk-lavender text-[9px] font-bold text-ink-950">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsUpcomingOpen((v) => !v)}
+                className={cn(
+                  "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-medium transition",
+                  isUpcomingOpen
+                    ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber shadow-sm"
+                    : "border-white/10 bg-white/[0.03] text-stone-300 hover:border-white/20 hover:bg-white/[0.06] hover:text-stone-100"
+                )}
+                aria-expanded={isUpcomingOpen}
+              >
+                <Clock className="h-3.5 w-3.5" />
+                <span>Upcoming</span>
+                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-semibold text-stone-400">
+                  {filteredItems.length}
+                </span>
+              </button>
             </div>
           </div>
-          {filteredItems.length === 0 ? (
-            <EmptyState
-              className="border-dashed bg-white/[0.015] p-8"
-              title="No calendar items match"
-              message="Try widening the filters or changing the date range."
-            />
-          ) : (
-            <div>
-              <div className="mb-2 grid gap-2 text-center text-xs uppercase tracking-[0.2em] text-stone-500" style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}>
-                {calendarDays.slice(0, dayColumnCount).map((day) => (
-                  <span key={`label-${day.key}`}>{formatWeekday(day.date)}</span>
-                ))}
-              </div>
-              <div className="grid gap-2 overflow-x-auto" style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(8rem, 1fr))` }}>
-                {calendarDays.map((day) => {
-                  const key = day.key;
-                  const datedItems = groups[key] ?? [];
-                  const muted = !day.isCurrentMonth && viewMode === "month";
-                  const current = key === todayKey;
 
-                  const cardsAndNotes = datedItems.filter((i) => i.type === "card" || i.type === "note");
-                  const diaryChecklists = datedItems.filter((i): i is CalendarDiaryChecklist => i.type === "diary_checklist");
+          {/* Horizontal Collapsible Filters Drawer */}
+          {isFiltersOpen && (
+            <div className="mt-4 border-t border-white/10 pt-4">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center gap-6">
+                  {/* Sources */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">Sources:</span>
+                    <div className="flex items-center gap-2">
+                      <FilterCheckbox label="Cards" checked={filters.showCards} onChange={(checked) => setFilters((current) => ({ ...current, showCards: checked }))} />
+                      <FilterCheckbox label="Notes" checked={filters.showNotes} onChange={(checked) => setFilters((current) => ({ ...current, showNotes: checked }))} />
+                      <FilterCheckbox label="Diaries" checked={filters.showDiaryChecklist} onChange={(checked) => setFilters((current) => ({ ...current, showDiaryChecklist: checked }))} />
+                    </div>
+                  </div>
 
-                  const groupedDiariesMap = new Map<string, CalendarDiaryChecklist[]>();
-                  for (const d of diaryChecklists) {
-                    const existing = groupedDiariesMap.get(d.diaryId) ?? [];
-                    existing.push(d);
-                    groupedDiariesMap.set(d.diaryId, existing);
-                  }
+                  {/* Status */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">Status:</span>
+                    <div className="flex items-center gap-1.5">
+                      {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
+                        const meta = getStatusMeta(status);
+                        return (
+                          <FilterCheckbox
+                            key={status}
+                            label={meta.label}
+                            checked={filters.statuses[status]}
+                            swatchClassName={meta.badgeClass}
+                            onChange={(checked) =>
+                              setFilters((current) => ({
+                                ...current,
+                                statuses: { ...current.statuses, [status]: checked }
+                              }))
+                            }
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                  const diarySummaries = Array.from(groupedDiariesMap.entries()).map(([diaryId, items]) => {
-                    const completedCount = items.filter((i) => i.completed).length;
-                    const totalCount = items.length;
-                    return {
-                      type: "diary_summary" as const,
-                      id: `${diaryId}-${items[0].dueDate}`,
-                      diaryId,
-                      diaryTitle: items[0].diaryTitle,
-                      completedCount,
-                      totalCount,
-                      color: items[0].color,
-                      dueDate: items[0].dueDate
-                    };
-                  });
+                  {/* Notes Scope */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">Notes:</span>
+                    <FilterSelect
+                      triggerClassName="h-8 text-xs"
+                      value={filters.noteScope}
+                      options={[
+                        { value: "all", label: "All notes" },
+                        { value: "starred", label: "Starred only" },
+                        { value: "plain", label: "Not starred" }
+                      ]}
+                      onValueChange={(noteScope) => setFilters((current) => ({ ...current, noteScope }))}
+                    />
+                  </div>
 
-                  const cellRenderItems = [...cardsAndNotes, ...diarySummaries];
+                  {/* Time Scope */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">Time:</span>
+                    <FilterSelect
+                      triggerClassName="h-8 text-xs"
+                      value={filters.timeScope}
+                      options={[
+                        { value: "all", label: "All times" },
+                        { value: "allDay", label: "All-day only" },
+                        { value: "timed", label: "Timed only" }
+                      ]}
+                      onValueChange={(timeScope) => setFilters((current) => ({ ...current, timeScope }))}
+                    />
+                  </div>
+                </div>
 
-                  return (
-                    <section
-                      key={key}
-                      onClick={() => setSelectedDayKey(key)}
-                      className={cn(
-                        "min-h-36 rounded-md border p-2 cursor-pointer transition hover:border-dusk-lavender/40 hover:bg-white/[0.02]",
-                        current ? "border-dusk-amber/50 bg-dusk-amber/10" : "border-white/10 bg-ink-950/45",
-                        muted && "opacity-55"
-                      )}
-                    >
-                      <div className="mb-2 flex items-center justify-between">
-                        {cellRenderItems.length > 0 ? (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedDayKey(key);
-                            }}
-                            className="text-xs font-semibold text-dusk-lavender hover:text-dusk-lavender/80 underline decoration-dotted"
-                          >
-                            all
-                          </button>
-                        ) : (
-                          <div />
-                        )}
-                        <span className="text-sm font-semibold text-stone-200">{day.date.getDate()}</span>
-                      </div>
-                      <div className="space-y-1.5">
-                        {cellRenderItems.slice(0, 3).map((entry) => {
-                          if (entry.type === "card") {
-                            return <CalendarCardButton key={`card-${entry.id}`} card={entry} onClick={() => setSelectedCardId(entry.id)} />;
-                          } else if (entry.type === "note") {
-                            return <CalendarNoteButton key={`note-${entry.id}`} note={entry} onClick={() => setSelectedNoteId(entry.id)} />;
-                          } else {
-                            return (
-                              <CalendarDiarySummaryButton
-                                key={`diary-summary-${entry.id}`}
-                                item={entry}
-                                onClick={() => setSelectedDayKey(key)}
-                              />
-                            );
-                          }
-                        })}
-                        {cellRenderItems.length > 3 ? (
-                          <p className="text-xs text-stone-500">+{cellRenderItems.length - 3} more</p>
-                        ) : null}
-                      </div>
-                    </section>
-                  );
-                })}
+                {activeFilterCount > 0 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-xs text-stone-400 hover:text-stone-200"
+                    onClick={() => setFilters(defaultCalendarFilters)}
+                  >
+                    Reset filters
+                  </Button>
+                )}
               </div>
             </div>
           )}
         </Panel>
-        <Panel className="p-5">
-          <h3 className="mb-3 text-lg font-semibold">Upcoming</h3>
-          <div className="space-y-2">
-            {filteredItems.slice(0, 10).map((item) => {
-              if (item.type === "card") {
-                return <UpcomingCard key={`upcoming-card-${item.id}`} card={item} onClick={() => setSelectedCardId(item.id)} />;
-              } else if (item.type === "note") {
-                return <UpcomingNote key={`upcoming-note-${item.id}`} note={item} onClick={() => setSelectedNoteId(item.id)} />;
-              } else {
-                return (
-                  <UpcomingDiaryChecklist
-                    key={`upcoming-diary-${item.id}`}
-                    item={item}
-                    onToggle={(checked) => handleToggleDiaryChecklist(item.diaryId, item.checklistItemId, item.dueDate, checked)}
-                  />
-                );
-              }
-            })}
-            {filteredItems.length === 0 ? (
-              <EmptyState
-                className="border-dashed bg-white/[0.015] p-4 text-left"
-                title="No upcoming matches"
-                message="Adjust the filters or add due dates to cards, notes, and diary items."
-              />
-            ) : null}
+
+        {/* Main Body: Full-width Calendar Grid + Collapsible Upcoming Panel */}
+        <div className="flex min-h-0 flex-1 gap-4 overflow-hidden">
+          {/* Calendar Grid Container */}
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pr-1 scrollbar-soft">
+            {filteredItems.length === 0 && calendarDays.every((day) => !(groups[day.key]?.length)) ? (
+              <Panel className="grid flex-1 place-items-center p-8">
+                <EmptyState
+                  className="max-w-md border-dashed bg-white/[0.015] p-8"
+                  title="No calendar items match"
+                  message="Try widening your filters or adding due dates to tasks, notes, or diary checklists."
+                />
+              </Panel>
+            ) : (
+              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 shadow-xl">
+                {/* Weekday Header */}
+                <div
+                  className="grid border-b border-white/10 bg-white/[0.035] text-center text-xs font-semibold uppercase tracking-[0.2em] text-stone-400"
+                  style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}
+                >
+                  {calendarDays.slice(0, dayColumnCount).map((day) => {
+                    const isWeekend = day.date.getDay() === 0 || day.date.getDay() === 6;
+                    return (
+                      <div key={`label-${day.key}`} className={cn("py-2.5", isWeekend ? "text-stone-500" : "text-stone-300")}>
+                        {formatWeekday(day.date)}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Days Grid */}
+                <div
+                  className="grid min-h-0 flex-1 gap-px bg-white/10 overflow-y-auto scrollbar-soft"
+                  style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}
+                >
+                  {calendarDays.map((day) => {
+                    const key = day.key;
+                    const datedItems = groups[key] ?? [];
+                    const muted = !day.isCurrentMonth && viewMode === "month";
+                    const current = key === todayKey;
+
+                    const cardsAndNotes = datedItems.filter((i) => i.type === "card" || i.type === "note");
+                    const diaryChecklists = datedItems.filter((i): i is CalendarDiaryChecklist => i.type === "diary_checklist");
+
+                    const groupedDiariesMap = new Map<string, CalendarDiaryChecklist[]>();
+                    for (const d of diaryChecklists) {
+                      const existing = groupedDiariesMap.get(d.diaryId) ?? [];
+                      existing.push(d);
+                      groupedDiariesMap.set(d.diaryId, existing);
+                    }
+
+                    const diarySummaries = Array.from(groupedDiariesMap.entries()).map(([diaryId, items]) => {
+                      const completedCount = items.filter((i) => i.completed).length;
+                      const totalCount = items.length;
+                      return {
+                        type: "diary_summary" as const,
+                        id: `${diaryId}-${items[0].dueDate}`,
+                        diaryId,
+                        diaryTitle: items[0].diaryTitle,
+                        completedCount,
+                        totalCount,
+                        color: items[0].color,
+                        dueDate: items[0].dueDate
+                      };
+                    });
+
+                    const cellRenderItems = [...cardsAndNotes, ...diarySummaries];
+
+                    return (
+                      <section
+                        key={key}
+                        onClick={() => setSelectedDayKey(key)}
+                        className={cn(
+                          "group relative flex min-h-[110px] sm:min-h-[135px] flex-col p-2 sm:p-2.5 transition cursor-pointer",
+                          current ? "bg-dusk-amber/[0.04]" : "bg-[#090817]",
+                          muted ? "opacity-35 bg-[#060512]" : "hover:bg-white/[0.025]"
+                        )}
+                      >
+                        <div className="mb-1.5 flex items-center justify-between">
+                          <span
+                            className={cn(
+                              "text-xs font-semibold transition",
+                              current
+                                ? "grid h-6 w-6 place-items-center rounded-full bg-dusk-amber text-ink-950 font-bold shadow-sm shadow-dusk-amber/30"
+                                : muted
+                                  ? "text-stone-600"
+                                  : "text-stone-300 group-hover:text-stone-100"
+                            )}
+                          >
+                            {day.date.getDate()}
+                          </span>
+
+                          {cellRenderItems.length > 3 ? (
+                            <span className="rounded-full bg-dusk-lavender/10 px-2 py-0.5 text-[10px] font-semibold text-dusk-lavender group-hover:bg-dusk-lavender/20 transition">
+                              +{cellRenderItems.length - 3} more
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <div className="space-y-1.5 flex-1 min-h-0">
+                          {cellRenderItems.slice(0, 3).map((entry) => {
+                            if (entry.type === "card") {
+                              return <CalendarCardButton key={`card-${entry.id}`} card={entry} onClick={() => setSelectedCardId(entry.id)} />;
+                            } else if (entry.type === "note") {
+                              return <CalendarNoteButton key={`note-${entry.id}`} note={entry} onClick={() => setSelectedNoteId(entry.id)} />;
+                            } else {
+                              return (
+                                <CalendarDiarySummaryButton
+                                  key={`diary-summary-${entry.id}`}
+                                  item={entry}
+                                  onClick={() => setSelectedDayKey(key)}
+                                />
+                              );
+                            }
+                          })}
+                        </div>
+                      </section>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        </Panel>
+
+          {/* Optional Upcoming Panel */}
+          {isUpcomingOpen && (
+            <Panel className="flex w-80 shrink-0 flex-col overflow-hidden p-4 shadow-xl">
+              <div className="mb-3 flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-dusk-amber" />
+                  <h3 className="text-sm font-semibold text-stone-100">Upcoming</h3>
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-stone-400">
+                    {filteredItems.length}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsUpcomingOpen(false)}
+                  className="rounded-lg p-1 text-stone-400 hover:bg-white/10 hover:text-stone-100 transition"
+                  aria-label="Close upcoming panel"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
+                {filteredItems.slice(0, 15).map((item) => {
+                  if (item.type === "card") {
+                    return <UpcomingCard key={`upcoming-card-${item.id}`} card={item} onClick={() => setSelectedCardId(item.id)} />;
+                  } else if (item.type === "note") {
+                    return <UpcomingNote key={`upcoming-note-${item.id}`} note={item} onClick={() => setSelectedNoteId(item.id)} />;
+                  } else {
+                    return (
+                      <UpcomingDiaryChecklist
+                        key={`upcoming-diary-${item.id}`}
+                        item={item}
+                        onToggle={(checked) => handleToggleDiaryChecklist(item.diaryId, item.checklistItemId, item.dueDate, checked)}
+                      />
+                    );
+                  }
+                })}
+                {filteredItems.length === 0 ? (
+                  <EmptyState
+                    className="border-dashed bg-white/[0.015] p-4 text-left"
+                    title="No upcoming matches"
+                    message="Adjust the filters or add due dates to cards, notes, and diary items."
+                  />
+                ) : null}
+              </div>
+            </Panel>
+          )}
+        </div>
       </div>
 
       {selectedCard ? (
@@ -856,28 +984,29 @@ type CalendarEntry = (CalendarCard & { type: "card"; dueDate: string }) | (Calen
 
 function CalendarCardButton({ card, onClick }: { card: CalendarCard; onClick: () => void }) {
   const colorMeta = getCardColorMeta(card.color);
+  const status = getStatusMeta(card.status);
 
   return (
     <button
-      className={cn("block w-full rounded border px-2 py-1.5 text-left text-xs hover:border-dusk-lavender/60", colorMeta.softClass)}
+      className={cn(
+        "group/pill flex w-full items-center gap-1.5 rounded-md border px-2 py-1 text-left text-xs transition",
+        "hover:scale-[1.01] hover:border-white/25 hover:shadow-sm",
+        colorMeta.softClass
+      )}
       type="button"
       onClick={(e) => {
         e.stopPropagation();
         onClick();
       }}
+      title={`${card.title} • ${status.label}${card.dueDate ? ` • ${card.dueDateAllDay ? "All day" : formatTime(card.dueDate)}` : ""}`}
     >
-      <span className="block truncate font-medium text-stone-100">{card.title}</span>
-      <span className="mt-1 flex items-center gap-1 text-[11px] text-dusk-cyan">
-        <Clock className="h-3 w-3" />
-        {card.dueDateAllDay
-          ? "All day"
-          : card.dueDate
-            ? formatTime(card.dueDate)
-            : ""}
-      </span>
-      <span className="mt-1 inline-flex">
-        <StatusBadge status={card.status} />
-      </span>
+      <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full border", status.badgeClass)} />
+      <span className="truncate font-medium text-stone-200 flex-1">{card.title}</span>
+      {!card.dueDateAllDay && card.dueDate && (
+        <span className="shrink-0 text-[10px] text-dusk-cyan">
+          {formatTime(card.dueDate)}
+        </span>
+      )}
     </button>
   );
 }
@@ -896,11 +1025,12 @@ function CalendarDiarySummaryButton({
   onClick: () => void;
 }) {
   const colorMeta = getCardColorMeta(item.color);
+  const allDone = item.completedCount === item.totalCount && item.totalCount > 0;
 
   return (
     <button
       className={cn(
-        "flex w-full items-center gap-1.5 rounded border px-2 py-1.5 text-left text-xs transition font-medium text-stone-200 hover:border-white/20",
+        "group/pill flex w-full items-center gap-1.5 rounded-md border px-2 py-1 text-left text-xs transition hover:scale-[1.01] hover:border-white/25",
         colorMeta.softClass
       )}
       type="button"
@@ -908,10 +1038,19 @@ function CalendarDiarySummaryButton({
         e.stopPropagation();
         onClick();
       }}
+      title={`Diary: ${item.diaryTitle} (${item.completedCount}/${item.totalCount})`}
     >
-      <span className="truncate flex-1">📖 {item.diaryTitle}</span>
-      <span className="text-[10px] text-stone-400 shrink-0 font-semibold">
-        ({item.completedCount}/{item.totalCount})
+      <span className="text-[11px] shrink-0">📖</span>
+      <span className={cn("truncate font-medium text-stone-200 flex-1", allDone && "line-through text-stone-400")}>
+        {item.diaryTitle}
+      </span>
+      <span
+        className={cn(
+          "shrink-0 rounded px-1 text-[9px] font-semibold font-mono",
+          allDone ? "bg-emerald-500/20 text-emerald-300" : "bg-white/10 text-stone-300"
+        )}
+      >
+        {item.completedCount}/{item.totalCount}
       </span>
     </button>
   );
@@ -991,25 +1130,35 @@ function UpcomingDiaryChecklist({
   );
 }
 
-function CalendarNoteButton({ note, onClick }: { note: CalendarNote; onClick: () => void }) {
+function CalendarNotePill({ note, onClick }: { note: CalendarNote; onClick: () => void }) {
   const colorMeta = getCardColorMeta(note.color);
 
   return (
     <button
-      className={cn("block w-full rounded border px-2 py-1.5 text-left text-xs hover:border-dusk-amber/60", colorMeta.softClass)}
+      className={cn(
+        "group/pill flex w-full items-center gap-1.5 rounded-md border px-2 py-1 text-left text-xs transition hover:scale-[1.01] hover:border-white/25",
+        colorMeta.softClass
+      )}
       type="button"
       onClick={(e) => {
         e.stopPropagation();
         onClick();
       }}
+      title={note.title}
     >
-      <span className="flex items-center gap-1 truncate font-medium text-stone-100">
-        <FileText className="h-3 w-3 text-dusk-amber" />
-        {note.title}
-      </span>
-      <span className="mt-1 block text-[11px] text-dusk-amber">{note.dueDateAllDay ? "All day" : formatTime(note.dueDate)}</span>
+      <FileText className="h-3 w-3 shrink-0 text-dusk-amber" />
+      <span className="truncate font-medium text-stone-200 flex-1">{note.title}</span>
+      {!note.dueDateAllDay && note.dueDate && (
+        <span className="shrink-0 text-[10px] text-dusk-amber">
+          {formatTime(note.dueDate)}
+        </span>
+      )}
     </button>
   );
+}
+
+function CalendarNoteButton({ note, onClick }: { note: CalendarNote; onClick: () => void }) {
+  return <CalendarNotePill note={note} onClick={onClick} />;
 }
 
 function UpcomingCard({ card, onClick }: { card: CalendarCard; onClick: () => void }) {

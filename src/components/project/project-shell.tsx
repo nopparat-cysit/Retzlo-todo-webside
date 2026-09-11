@@ -15,12 +15,12 @@ import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { ErrorState } from "@/components/ui/state";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
 
-// Nav items: Boards and Members removed per user request.
 const navItems = [
   { href: "board", label: "Board", iconName: "board" },
   { href: "calendar", label: "Calendar", iconName: "calendar" },
   { href: "diary", label: "Diary", iconName: "diary" },
   { href: "notes", label: "Notes", iconName: "notes" },
+  { href: "members", label: "Members", iconName: "members" },
   { href: "rewards", label: "Rewards Store", iconName: "rewards" },
 ] as const;
 

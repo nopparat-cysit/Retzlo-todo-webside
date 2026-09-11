@@ -32,7 +32,7 @@ import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/state";
 import { useToast } from "@/components/ui/toast";
-import { DiaryItemModal, type DiaryPayload } from "@/components/hub/diary-hub-panel";
+import { DiaryItemModal, type DiaryPayload, type HubDiaryItem } from "@/components/hub/diary-hub-panel";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ProjectAppearanceControls } from "@/components/project/project-appearance-controls";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
@@ -94,17 +94,18 @@ export interface GlobalCalendarCard {
   };
 }
 
-export interface GlobalCalendarDiary {
+import type { DiaryChecklistItem, DiaryRewardCoinType } from "@/lib/diary/checklist";
+
+export interface GlobalCalendarDiaryRaw {
   id: string;
-  diaryId: string;
   title: string;
-  description: string;
+  description: string | null;
   color: string;
   intervalDays: number;
   startDate: string;
-  checklist: any[];
+  checklist: DiaryChecklistItem[];
   rewardCoins: number;
-  rewardCoinType: string;
+  rewardCoinType: DiaryRewardCoinType;
   rewardClaimedDates: string[];
   isStarred: boolean;
   isHidden: boolean;
@@ -114,6 +115,10 @@ export interface GlobalCalendarDiary {
     id: string;
     name: string;
   } | null;
+}
+
+export interface GlobalCalendarDiary extends GlobalCalendarDiaryRaw {
+  diaryId: string;
   dueDate?: string;
   checklistSummary?: {
     completedCount: number;
@@ -122,7 +127,7 @@ export interface GlobalCalendarDiary {
     isDue: boolean;
     totalCount: number;
   };
-  rawItem?: any;
+  rawItem?: GlobalCalendarDiaryRaw;
 }
 
 export interface UserProfile {
@@ -141,20 +146,34 @@ export function ProjectsDashboard({
 }: {
   projects: ProjectDashboardItem[];
   calendarCards: GlobalCalendarCard[];
-  calendarDiaries?: GlobalCalendarDiary[];
+  calendarDiaries?: GlobalCalendarDiaryRaw[];
   userProfile?: UserProfile;
   databaseWarning?: string;
 }) {
   const router = useRouter();
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [selectedDiary, setSelectedDiary] = useState<any | null>(null);
+  const [projectList, setProjectList] = useState<ProjectDashboardItem[]>(projects);
+  const [selectedDiary, setSelectedDiary] = useState<HubDiaryItem | null>(null);
   const [calendarStatusFilters, setCalendarStatusFilters] = useState(defaultCalendarFilters.statuses);
   const [calendarTimeScope, setCalendarTimeScope] = useState(defaultCalendarFilters.timeScope);
   const [calendarRange, setCalendarRange] = useState<"7" | "30" | "all">("30");
   const [starredProjectIds, setStarredProjectIds] = useState<Set<string>>(new Set());
-  const sortedProjects = useMemo(() => sortProjectsByStarred(projects, starredProjectIds), [projects, starredProjectIds]);
+
+  useEffect(() => {
+    setProjectList(projects);
+  }, [projects]);
+
+  const sortedProjects = useMemo(() => sortProjectsByStarred(projectList, starredProjectIds), [projectList, starredProjectIds]);
   const selectedProjectId = sortedProjects[0]?.id ?? "";
+
+  function handleUpdateProject(updated: ProjectDashboardItem) {
+    setProjectList((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)));
+  }
+
+  function handleDeleteProject(id: string) {
+    setProjectList((prev) => prev.filter((p) => p.id !== id));
+  }
 
   useEffect(() => {
     try {
@@ -480,7 +499,19 @@ export function ProjectsDashboard({
                       className={cn("block w-full text-left rounded-xl border p-3 transition", borderClass)}
                       onClick={(e) => {
                         e.preventDefault();
-                        setSelectedDiary(diaryItem.rawItem);
+                        if (!diaryItem.rawItem) return;
+                        const hubItem: HubDiaryItem = {
+                          ...diaryItem.rawItem,
+                          color: normalizeCardColor(diaryItem.rawItem.color),
+                          authorId: "",
+                          createdAt: diaryItem.rawItem.startDate,
+                          updatedAt: diaryItem.rawItem.startDate,
+                          canManage: true,
+                          canToggleHidden: true,
+                          author: { name: null, email: "" },
+                          projectName: diaryItem.rawItem.project?.name ?? null
+                        };
+                        setSelectedDiary(hubItem);
                       }}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -534,7 +565,7 @@ export function ProjectsDashboard({
             </Button>
           </div>
 
-          {projects.length === 0 ? (
+          {projectList.length === 0 ? (
             <div className="lofi-panel grid min-h-0 flex-1 place-items-center overflow-hidden rounded-2xl p-8 text-center">
               <div className="max-w-md">
                 <div className="mx-auto mb-2 h-24 w-24">
@@ -553,6 +584,8 @@ export function ProjectsDashboard({
                     isStarred={starredProjectIds.has(project.id)}
                     project={project}
                     onToggleStar={() => toggleProjectStar(project.id)}
+                    onUpdateProject={handleUpdateProject}
+                    onDeleteProject={handleDeleteProject}
                   />
                 ))}
               </div>
@@ -560,7 +593,7 @@ export function ProjectsDashboard({
           )}
         </section>
 
-        {projects.length > 0 ? <ProjectSupportColumn projects={sortedProjects} calendarCards={filteredCalendarCards} /> : null}
+        {projectList.length > 0 ? <ProjectSupportColumn projects={sortedProjects} calendarCards={filteredCalendarCards} /> : null}
       </div>
 
       {isCreateOpen ? <CreateProjectModal onClose={() => setIsCreateOpen(false)} /> : null}
@@ -702,11 +735,15 @@ function ProjectStatusMetric({
 function ProjectCard({
   isStarred,
   project,
-  onToggleStar
+  onToggleStar,
+  onUpdateProject,
+  onDeleteProject,
 }: {
   isStarred: boolean;
   project: ProjectDashboardItem;
   onToggleStar: () => void;
+  onUpdateProject?: (updated: ProjectDashboardItem) => void;
+  onDeleteProject?: (id: string) => void;
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -853,7 +890,13 @@ function ProjectCard({
         <EditProjectModal
           project={project}
           onClose={() => setEditOpen(false)}
-          onSaved={() => { setEditOpen(false); router.refresh(); }}
+          onSaved={(updated) => {
+            setEditOpen(false);
+            if (updated && onUpdateProject) {
+              onUpdateProject(updated);
+            }
+            router.refresh();
+          }}
         />
       )}
 
@@ -870,6 +913,9 @@ function ProjectCard({
           const res = await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
           if (res.ok) {
             setDeleteOpen(false);
+            if (onDeleteProject) {
+              onDeleteProject(project.id);
+            }
             toast({ message: "Project deleted.", type: "success" });
             router.refresh();
           } else {
@@ -892,7 +938,7 @@ function EditProjectModal({
 }: {
   project: ProjectDashboardItem;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (updated?: ProjectDashboardItem) => void;
 }) {
   const { toast } = useToast();
   const [name, setName] = useState(project.name);
@@ -905,6 +951,13 @@ function EditProjectModal({
   const [error, setError] = useState<string | null>(null);
   const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
+
+  const isDirty =
+    name !== project.name ||
+    description !== (project.description ?? "") ||
+    coverPreview !== (project.coverImage ?? null) ||
+    themeColor !== normalizeCardColor(project.themeColor) ||
+    sticker !== (project.sticker || DEFAULT_PROJECT_STICKER);
 
   async function handleCoverUpload(file: File) {
     setIsUploadingCover(true);
@@ -922,6 +975,7 @@ function EditProjectModal({
       setError(data.error ?? "Cover upload failed.");
       toast({ message: data.error ?? "Cover upload failed.", type: "error" });
     } else {
+      if (data.coverImage) setCoverPreview(data.coverImage);
       toast({ message: "Cover image updated.", type: "success" });
     }
   }
@@ -939,7 +993,13 @@ function EditProjectModal({
     const res = await fetch(`/api/projects/${project.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim(), description: description.trim() || null, themeColor, sticker }),
+      body: JSON.stringify({
+        name: name.trim(),
+        description: description.trim() || null,
+        coverImage: coverPreview,
+        themeColor,
+        sticker
+      }),
     });
     setIsSaving(false);
     if (!res.ok) {
@@ -948,127 +1008,150 @@ function EditProjectModal({
       toast({ message: d.error ?? "Could not save project settings.", type: "error" });
       return;
     }
+    const data = (await res.json().catch(() => ({}))) as { project?: Partial<ProjectDashboardItem> };
     toast({ message: "Project settings updated.", type: "success" });
-    onSaved();
+    const updatedProject: ProjectDashboardItem = {
+      ...project,
+      name: name.trim(),
+      description: description.trim() || null,
+      coverImage: coverPreview,
+      themeColor,
+      sticker,
+      ...(data.project ?? {})
+    };
+    onSaved(updatedProject);
   }
 
   return (
-    <AppModal
-      open
-      onClose={onClose}
-      labelledBy="project-settings-title"
-      contentClassName="max-w-5xl"
-    >
-      <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl" onSubmit={handleSaveIntent}>
-        <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Project settings</p>
-            <h2 id="project-settings-title" className="mt-1 text-2xl font-semibold">Edit project</h2>
-          </div>
-          <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-5">
-          {error ? (
-            <p className="mb-4 rounded-xl border border-dusk-rose/25 bg-dusk-rose/10 px-4 py-2.5 text-sm text-dusk-rose">
-              {error}
-            </p>
-          ) : null}
-
-          <section className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-            <div className="space-y-4">
-              <label className="block space-y-1.5 text-sm text-stone-300">
-                <span>Project name</span>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Design system, Marketing plan..."
-                  maxLength={80}
-                  required
-                />
-              </label>
-
-              <label className="block space-y-1.5 text-sm text-stone-300">
-                <span>Description</span>
-                <Textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Optional context for your team..."
-                  rows={4}
-                  maxLength={500}
-                />
-              </label>
-              <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Project media</p>
-              <h3 className="mt-1 text-xl font-semibold text-stone-100">Cover image</h3>
-              <p className="mt-1 text-sm leading-6 text-stone-500">Use the same cover style that appears on the project card.</p>
+    <>
+      <AppModal
+        open
+        onClose={onClose}
+        labelledBy="project-settings-title"
+        contentClassName="max-w-5xl"
+        hasUnsavedChanges={isDirty}
+      >
+        <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl" onSubmit={handleSaveIntent}>
+          <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Project settings</p>
+              <h2 id="project-settings-title" className="mt-1 text-2xl font-semibold">Edit project</h2>
             </div>
-
-            <button
-              className="group relative mt-5 block aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-ink-950/45 text-left"
-              title="Upload project cover"
-              type="button"
-              onClick={() => coverInputRef.current?.click()}
-            >
-              {coverPreview ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={coverPreview} alt="Project cover" className="h-full w-full object-cover" />
-              ) : (
-                <div className="h-full w-full bg-[radial-gradient(circle_at_20%_15%,rgba(249,199,132,0.18),transparent_32%),linear-gradient(135deg,rgba(169,162,255,0.2),rgba(103,232,249,0.1),rgba(244,114,182,0.1))]" />
-              )}
-              <div className="absolute inset-0 grid place-items-center bg-ink-950/45 opacity-0 transition group-hover:opacity-100">
-                <span className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-ink-950/70 px-3 py-2 text-sm font-medium text-white">
-                  {isUploadingCover ? (
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  ) : (
-                    <Upload className="h-4 w-4" />
-                  )}
-                  {coverPreview ? "Change cover" : "Upload cover"}
-                </span>
-              </div>
+            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
+              <X className="h-5 w-5" />
             </button>
-            <input
-              ref={coverInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleCoverUpload(f); }}
-            />
-            <p className="mt-2 flex items-center gap-2 text-xs text-stone-600">
-              <ImageIcon className="h-3.5 w-3.5" />
-              JPG, PNG, WebP, or GIF. Max 5 MB.
-            </p>
+          </div>
 
-            <div className="mt-5 rounded-xl border border-white/10 bg-ink-950/25 p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-stone-500">Quick summary</p>
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                <ProjectStatusMetric label="Boards" value={project.counts.boards} tone="amber" compact />
-                <ProjectStatusMetric label="Notes" value={project.counts.notes} tone="rose" compact />
-                <ProjectStatusMetric label="Cards" value={project.board?.columns.reduce((sum, column) => sum + column.cards.length, 0) ?? 0} compact />
+          <div className="flex-1 overflow-y-auto p-5">
+            {error ? (
+              <p className="mb-4 rounded-xl border border-dusk-rose/25 bg-dusk-rose/10 px-4 py-2.5 text-sm text-dusk-rose">
+                {error}
+              </p>
+            ) : null}
+
+            <section className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+              <div className="space-y-4">
+                <label className="block space-y-1.5 text-sm text-stone-300">
+                  <span>Project name</span>
+                  <Input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Design system, Marketing plan..."
+                    maxLength={80}
+                    required
+                  />
+                </label>
+
+                <label className="block space-y-1.5 text-sm text-stone-300">
+                  <span>Description</span>
+                  <Textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Optional context for your team..."
+                    rows={4}
+                    maxLength={500}
+                  />
+                </label>
+                <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Project media</p>
+                <h3 className="mt-1 text-xl font-semibold text-stone-100">Cover image</h3>
+                <p className="mt-1 text-sm leading-6 text-stone-500">Use the same cover style that appears on the project card.</p>
               </div>
-            </div>
 
-            <div className="mt-5">
-              <ProjectAppearanceControls
-                color={themeColor}
-                sticker={sticker}
-                onColorChange={setThemeColor}
-                onStickerChange={setSticker}
+              <button
+                className="group relative mt-5 block aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-ink-950/45 text-left"
+                title="Upload project cover"
+                type="button"
+                onClick={() => coverInputRef.current?.click()}
+              >
+                {coverPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={coverPreview} alt="Project cover" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full bg-[radial-gradient(circle_at_20%_15%,rgba(249,199,132,0.18),transparent_32%),linear-gradient(135deg,rgba(169,162,255,0.2),rgba(103,232,249,0.1),rgba(244,114,182,0.1))]" />
+                )}
+                <div className="absolute inset-0 grid place-items-center bg-ink-950/45 opacity-0 transition group-hover:opacity-100">
+                  <span className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-ink-950/70 px-3 py-2 text-sm font-medium text-white">
+                    {isUploadingCover ? (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    {coverPreview ? "Change cover" : "Upload cover"}
+                  </span>
+                </div>
+              </button>
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleCoverUpload(f); }}
               />
-            </div>
-          </section>
-        </div>
+              <p className="mt-2 flex items-center gap-2 text-xs text-stone-600">
+                <ImageIcon className="h-3.5 w-3.5" />
+                JPG, PNG, WebP, or GIF. Max 5 MB.
+              </p>
 
-        <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
-          <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button disabled={isSaving || !name.trim()}>{isSaving ? "Saving..." : "Save changes"}</Button>
-        </div>
-      </form>
-    </AppModal>
+              <div className="mt-5 rounded-xl border border-white/10 bg-ink-950/25 p-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-stone-500">Quick summary</p>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <ProjectStatusMetric label="Boards" value={project.counts.boards} tone="amber" compact />
+                  <ProjectStatusMetric label="Notes" value={project.counts.notes} tone="rose" compact />
+                  <ProjectStatusMetric label="Cards" value={project.board?.columns.reduce((sum, column) => sum + column.cards.length, 0) ?? 0} compact />
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <ProjectAppearanceControls
+                  color={themeColor}
+                  sticker={sticker}
+                  onColorChange={setThemeColor}
+                  onStickerChange={setSticker}
+                />
+              </div>
+            </section>
+          </div>
+
+          <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
+            <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+            <Button disabled={isSaving || !name.trim()}>{isSaving ? "Saving..." : "Save changes"}</Button>
+          </div>
+        </form>
+      </AppModal>
+
+      <ConfirmModal
+        open={confirmSaveOpen}
+        title="Save changes"
+        message={`Save changes to "${name.trim() || project.name}"?`}
+        confirmLabel="Save"
+        isLoading={isSaving}
+        variant="default"
+        onClose={() => setConfirmSaveOpen(false)}
+        onConfirm={handleSave}
+      />
+    </>
   );
 }
-
 
 function CreateProjectModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();

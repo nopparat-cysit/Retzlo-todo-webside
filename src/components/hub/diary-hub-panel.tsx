@@ -27,7 +27,7 @@ const PROJECT_KEY = "retrod:hub:diary:project";
 
 type DiaryFilter = "all" | "today" | "starred" | "hidden" | "personal";
 
-interface HubDiaryItem extends ProjectDiaryItem {
+export interface HubDiaryItem extends ProjectDiaryItem {
   projectName: string | null;
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { LogOut } from "lucide-react";
+import Link from "next/link";
+import { LogOut, Sparkles, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 import {
@@ -84,16 +85,40 @@ export function UserProfilePopover({
             <p className="truncate text-sm font-semibold text-stone-100">{name}</p>
             <p className="mt-0.5 truncate text-xs text-stone-500">{email}</p>
           </div>
-          <DropdownMenuItem
-            onSelect={(event) => {
-              event.preventDefault();
-              void signOut({ callbackUrl: "/login" });
-            }}
-            className="mt-4 flex cursor-pointer items-center gap-2 rounded-lg border border-red-300/15 bg-red-400/10 px-3 py-2 text-sm text-red-200 focus:border-red-300/30 focus:bg-red-400/15 focus:text-red-100"
-          >
-            <LogOut className="h-4 w-4" />
-            Log out
-          </DropdownMenuItem>
+          <div className="mt-3 space-y-1 border-t border-white/10 pt-2">
+            <DropdownMenuItem asChild>
+              <Link
+                href="/profile"
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-stone-300 transition hover:bg-white/5 hover:text-stone-100 focus:bg-white/10 focus:text-stone-100"
+              >
+                <User className="h-4 w-4 text-dusk-lavender" />
+                Profile Settings
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link
+                href="/select-module"
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-stone-300 transition hover:bg-white/5 hover:text-stone-100 focus:bg-white/10 focus:text-stone-100"
+              >
+                <Sparkles className="h-4 w-4 text-dusk-amber" />
+                Switch Module
+              </Link>
+            </DropdownMenuItem>
+          </div>
+
+          <div className="mt-1 border-t border-white/10 pt-2">
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                void signOut({ callbackUrl: "/login" });
+              }}
+              className="flex cursor-pointer items-center gap-2 rounded-lg border border-red-300/15 bg-red-400/10 px-3 py-2 text-sm text-red-200 focus:border-red-300/30 focus:bg-red-400/15 focus:text-red-100"
+            >
+              <LogOut className="h-4 w-4" />
+              Log out
+            </DropdownMenuItem>
+          </div>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -112,7 +112,7 @@ function SortableNavItem({ item }: { item: ProjectNavItem }) {
         type="button"
         aria-label={`Reorder ${item.label}`}
         title={`Reorder ${item.label}`}
-        className="sidebar-expanded-only absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 cursor-grab place-items-center rounded-md text-stone-600 opacity-0 transition hover:bg-white/10 hover:text-dusk-lavender group-hover/sort:opacity-100 active:cursor-grabbing"
+        className="sidebar-expanded-only absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 cursor-grab place-items-center rounded-md text-stone-500 opacity-60 transition hover:bg-white/10 hover:text-dusk-lavender md:opacity-0 md:group-hover/sort:opacity-100 active:cursor-grabbing"
         {...attributes}
         {...listeners}
       >

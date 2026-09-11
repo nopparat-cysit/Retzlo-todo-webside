@@ -15,8 +15,21 @@ export function BackButton({ className, label = "Back" }: BackButtonProps) {
   const pathname = usePathname();
 
   const handleBack = () => {
-    // Prefer real browser history (this prevents loop issues)
-    if (typeof window !== "undefined" && window.history.length > 2) {
+    // If referrer was an auth page or external, avoid bouncing back to login
+    const isFromAuth =
+      typeof document !== "undefined" &&
+      (document.referrer.includes("/login") ||
+        document.referrer.includes("/register") ||
+        document.referrer.includes("/reset-password") ||
+        document.referrer.includes("/forgot-password") ||
+        document.referrer.includes("/accept-invitation"));
+
+    if (typeof window !== "undefined" && window.history.length > 2 && !isFromAuth) {
+      // From board root, user expects going back to projects list
+      if (pathname?.match(/^\/project\/[^/]+\/board$/)) {
+        router.push("/projects");
+        return;
+      }
       router.back();
       return;
     }
@@ -25,6 +38,12 @@ export function BackButton({ className, label = "Back" }: BackButtonProps) {
     if (pathname?.startsWith("/project/")) {
       router.push("/projects");
     } else if (pathname?.startsWith("/finance/") || pathname === "/finance") {
+      router.push("/select-module");
+    } else if (pathname === "/projects") {
+      router.push("/select-module");
+    } else if (pathname === "/profile") {
+      router.push("/projects");
+    } else if (pathname === "/hub" || pathname === "/vital" || pathname === "/office") {
       router.push("/select-module");
     } else if (
       pathname === "/forgot-password" ||

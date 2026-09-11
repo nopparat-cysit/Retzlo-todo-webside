@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
 interface ProjectSidebarGreetingProps {
   userName: string;
@@ -14,14 +14,16 @@ function getGreeting(hour: number): string {
 }
 
 export function ProjectSidebarGreeting({ userName }: ProjectSidebarGreetingProps) {
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    return getGreeting(hour);
+  const [greeting, setGreeting] = useState<string>("Welcome");
+
+  useEffect(() => {
+    setGreeting(getGreeting(new Date().getHours()));
   }, []);
 
   return (
-    <p className="text-xs text-stone-500">
+    <p className="text-xs text-stone-500" suppressHydrationWarning>
       {greeting}, {userName} ✦
     </p>
   );
 }
+
