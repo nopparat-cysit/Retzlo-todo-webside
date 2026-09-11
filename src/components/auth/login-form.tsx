@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getRememberedAccount, setRememberedAccount } from "@/lib/auth/remember-account";
+import { getDefaultModule, getModuleHref } from "@/lib/modules/default-module";
 
 export function LoginForm() {
   const router = useRouter();
@@ -26,7 +27,12 @@ export function LoginForm() {
       if (!isMounted) return;
 
       if (session?.user?.id) {
-        router.replace(searchParams.get("callbackUrl") ?? "/select-module");
+        const defaultMod = getDefaultModule();
+        if (defaultMod && !searchParams.get("callbackUrl")) {
+          router.replace(getModuleHref(defaultMod));
+        } else {
+          router.replace(searchParams.get("callbackUrl") ?? "/select-module");
+        }
         router.refresh();
       }
     }
@@ -72,7 +78,9 @@ export function LoginForm() {
     setRememberedAccount(window.localStorage, submittedIdentifier, rememberAccount);
 
     const callbackUrl = searchParams.get("callbackUrl");
-    router.push(callbackUrl ?? "/select-module");
+    const defaultMod = getDefaultModule();
+    const destination = callbackUrl ?? (defaultMod ? getModuleHref(defaultMod) : "/select-module");
+    router.push(destination);
     router.refresh();
   }
 

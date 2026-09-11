@@ -3,6 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { getDefaultModule, getModuleHref } from "@/lib/modules/default-module";
 import { 
   ArrowRight, 
   Sparkles, 
@@ -631,8 +633,10 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
 }
 
 export default function LandingPage() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<MarketingSessionUser | null>(null);
+  const [defaultDestination, setDefaultDestination] = useState<string>("/select-module");
   const [isPlaying, setIsPlaying] = useState(false);
   const [crtMode, setCrtMode] = useState(true); // Default CRT mode ON for lofi vibes
   const [steamHovered, setSteamHovered] = useState(false);
@@ -640,13 +644,27 @@ export default function LandingPage() {
   useEffect(() => {
     let isMounted = true;
 
+    const defaultMod = getDefaultModule();
+    const destination = defaultMod ? getModuleHref(defaultMod) : "/select-module";
+    setDefaultDestination(destination);
+
     async function loadSession() {
       try {
         const response = await fetch("/api/auth/session", { cache: "no-store" });
         const session = (await response.json()) as { user?: MarketingSessionUser };
 
-        if (isMounted) {
-          setCurrentUser(session.user ?? null);
+        if (!isMounted) return;
+
+        if (session.user) {
+          setCurrentUser(session.user);
+          if (defaultMod) {
+            const searchParams = new URLSearchParams(window.location.search);
+            if (!searchParams.get("stay")) {
+              router.replace(destination);
+            }
+          }
+        } else {
+          setCurrentUser(null);
         }
       } catch {
         if (isMounted) {
@@ -660,7 +678,7 @@ export default function LandingPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [router]);
   
   // Scroll and Bento reveal states
   const [scrollPercent, setScrollPercent] = useState(0);
@@ -1159,7 +1177,7 @@ export default function LandingPage() {
                 <Link href="/profile" className="max-w-[180px] truncate px-3 py-2 text-sm font-medium text-stone-300 transition-colors hover:text-white">
                   {currentUser.name || currentUser.email || "Workspace user"}
                 </Link>
-                <Link href="/select-module">
+                <Link href={defaultDestination}>
                   <button className="retzlo-cta-ghost px-5 py-2.5 text-xs font-semibold uppercase tracking-wider">
                     Enter Workspace
                   </button>
@@ -1170,7 +1188,7 @@ export default function LandingPage() {
                 <Link href="/login" className="px-4 py-2 text-sm text-stone-300 hover:text-white font-medium transition-colors">
                   Sign In
                 </Link>
-                <Link href="/select-module">
+                <Link href={defaultDestination}>
                   <button className="retzlo-cta-ghost px-5 py-2.5 text-xs font-semibold uppercase tracking-wider">
                     Enter Workspace
                   </button>
@@ -1220,7 +1238,7 @@ export default function LandingPage() {
                       {currentUser.name || currentUser.email || "Workspace user"}
                     </button>
                   </Link>
-                  <Link href="/select-module" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href={defaultDestination} onClick={() => setMobileMenuOpen(false)}>
                     <button className="w-full text-center bg-[#a9a2ff] text-[#080817] font-semibold py-2.5 rounded-lg text-sm">
                       Enter workspace
                     </button>
@@ -1233,7 +1251,7 @@ export default function LandingPage() {
                       Sign In
                     </button>
                   </Link>
-                  <Link href="/select-module" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href={defaultDestination} onClick={() => setMobileMenuOpen(false)}>
                     <button className="w-full text-center bg-[#a9a2ff] text-[#080817] font-semibold py-2.5 rounded-lg text-sm">
                       Start planning
                     </button>
@@ -1738,7 +1756,7 @@ export default function LandingPage() {
             Free workspace. Modular boards, calendars, diary notes, and ledger accounts. Set up in less than 60 seconds.
           </p>
           <div className="flex justify-center pt-2">
-            <Link href="/select-module">
+            <Link href={defaultDestination}>
               <button className="retzlo-cta-primary px-8 py-4 text-base flex items-center gap-2 group">
                 Get Started Now
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
