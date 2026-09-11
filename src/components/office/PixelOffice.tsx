@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Coffee, Heart, Laptop, Moon, Move, Sparkles, User, Wand2 } from 'lucide-react';
 
 import {
@@ -12,34 +13,52 @@ import {
 } from '@/lib/office/avatar-catalog';
 import { AvatarCustomizerModal } from './avatar-customizer-modal';
 
-interface OfficeAgent {
+export interface OfficeMember {
   id: string;
   name: string;
-  status: 'idle' | 'working' | 'thinking' | 'waiting';
-  currentTask?: string;
-  color?: string;
+  role?: string;
+  status?: string;
+  isCurrentUser?: boolean;
 }
 
 interface PixelOfficeProps {
-  agents?: OfficeAgent[];
-  onAgentClick?: (agent: OfficeAgent) => void;
+  members?: OfficeMember[];
+  agents?: Array<{ id: string; name: string; status: 'idle' | 'working' | 'thinking' | 'waiting'; currentTask?: string; color?: string }>;
+  projectId?: string;
+  onAgentClick?: (agent: any) => void;
 }
 
-export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
+export function PixelOffice({ members = [], projectId, onAgentClick }: PixelOfficeProps) {
+  const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [selectedAgent, setSelectedAgent] = useState<OfficeAgent | null>(null);
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+  const [selectedTeammate, setSelectedTeammate] = useState<OfficeMember | null>(null);
+
+  // Find current user's name from members list if available
+  const currentUserMember = members.find((m) => m.isCurrentUser);
+  const teammates = members.filter((m) => !m.isCurrentUser);
 
   // Player custom avatar configuration
   const [playerConfig, setPlayerConfig] = useState<AvatarConfig>(() => {
+    let initial = DEFAULT_AVATAR_CONFIG;
     if (typeof window !== 'undefined') {
       try {
         const saved = window.localStorage.getItem('retrod:avatar-config');
-        if (saved) return JSON.parse(saved) as AvatarConfig;
+        if (saved) initial = JSON.parse(saved) as AvatarConfig;
       } catch {}
     }
-    return DEFAULT_AVATAR_CONFIG;
+    return {
+      ...initial,
+      name: currentUserMember?.name || initial.name || 'You',
+    };
   });
+
+  // Update name if member name loaded
+  useEffect(() => {
+    if (currentUserMember?.name) {
+      setPlayerConfig((prev) => (prev.name === 'You' ? { ...prev, name: currentUserMember.name } : prev));
+    }
+  }, [currentUserMember?.name]);
 
   // Player movement and animation states
   const playerPosRef = useRef({ x: 390, y: 310 });
@@ -47,25 +66,31 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
   const playerDirRef = useRef<AvatarDirection>('down');
   const playerAnimRef = useRef<AvatarAnimation>('idle');
   const keysPressedRef = useRef<Set<string>>(new Set());
+  const nearbyDeskRef = useRef<{ label: string; path: string } | null>(null);
 
   const [currentEmote, setCurrentEmote] = useState<AvatarAnimation>('idle');
-  const agentsRef = useRef(agents);
+  const teammatesRef = useRef(teammates);
   const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    agentsRef.current = agents;
-  }, [agents]);
+    teammatesRef.current = teammates;
+  }, [teammates]);
 
-  // Keyboard controls listener (W, A, S, D and Arrow Keys)
+  // Keyboard controls listener (W, A, S, D, Arrow Keys, and E for interact)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't capture when typing in inputs
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
 
       const key = e.key.toLowerCase();
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
         e.preventDefault();
         keysPressedRef.current.add(key);
+      } else if (key === 'e') {
+        // Interact with nearby desk
+        const desk = nearbyDeskRef.current;
+        if (desk && projectId) {
+          router.push(`/project/${projectId}/${desk.path}`);
+        }
       }
     };
 
@@ -81,7 +106,7 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [projectId, router]);
 
   const triggerEmote = (emote: AvatarAnimation) => {
     setCurrentEmote(emote);
@@ -162,7 +187,7 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
       ctx.fillStyle = '#090817';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Wall with paper texture lines
+      // Wall with vertical panel lines
       ctx.fillStyle = '#111025';
       ctx.fillRect(0, 0, canvas.width, 195);
       ctx.strokeStyle = '#2a2540';
@@ -187,10 +212,10 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
 
       // 5. Interactive Desks (Modules)
       const desks = [
-        { x: 65, y: 225, w: 125, label: 'VITAL HUB', color: '#a9a2ff' },
-        { x: 260, y: 200, w: 135, label: 'KANBAN', color: '#e5bd72' },
-        { x: 480, y: 245, w: 115, label: 'DIARY', color: '#89c7d6' },
-        { x: 670, y: 215, w: 125, label: 'LO-FI', color: '#d59ab3' },
+        { x: 65, y: 225, w: 125, label: 'NOTES BOARD', path: 'notes', color: '#d59ab3' },
+        { x: 260, y: 200, w: 135, label: 'KANBAN DESK', path: 'board', color: '#e5bd72' },
+        { x: 480, y: 245, w: 115, label: 'DIARY STATION', path: 'diary', color: '#89c7d6' },
+        { x: 670, y: 215, w: 125, label: 'LO-FI LOUNGE', path: 'rewards', color: '#a9a2ff' },
       ];
 
       desks.forEach((desk) => {
@@ -202,67 +227,52 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
 
         ctx.fillStyle = desk.color;
         ctx.font = 'bold 11px monospace';
-        ctx.fillText(desk.label, desk.x + 24, desk.y + 24);
+        ctx.fillText(desk.label, desk.x + 16, desk.y + 24);
       });
 
-      // 6. Draw AI Agents
-      const currentAgents =
-        agentsRef.current.length > 0
-          ? agentsRef.current
-          : [
-              { id: '1', name: 'HERMES', status: 'working' as const, currentTask: 'Building UI' },
-              { id: '2', name: 'VITAL', status: 'thinking' as const, currentTask: 'Tracking progress' },
-              { id: '3', name: 'LOFI', status: 'idle' as const, currentTask: 'Playing beats' },
-            ];
+      // 6. Draw Teammates in the room
+      teammatesRef.current.forEach((member, i) => {
+        const x = 110 + ((i * 180) % 520);
+        const y = 245 + Math.floor(i / 3) * 85;
 
-      currentAgents.forEach((agent, i) => {
-        const x = 95 + ((i * 165) % 520);
-        const y = 225 + Math.floor(i / 3) * 95 + (i % 2 === 0 ? 12 : 0);
+        // Create a distinct procedural avatar style for each teammate
+        const teammateConfig: AvatarConfig = {
+          skinToneId: i % 2 === 0 ? 'fair' : 'warm_ivory',
+          hairstyleId: ['clean_part', 'messy_anime', 'samurai_bun', 'classic_bob', 'wavy_curls'][i % 5] || 'clean_part',
+          hairColorId: ['cocoa_brown', 'honey_blonde', 'jet_black', 'indigo_violet'][i % 4] || 'jet_black',
+          outfitId: ['lofi_hoodie', 'business_suit', 'knit_sweater', 'graphic_tee', 'bomber_jacket'][i % 5] || 'lofi_hoodie',
+          outfitColorId: ['dusk_amber', 'dusk_cyan', 'dusk_rose', 'dusk_lavender', 'forest_emerald'][i % 5] || 'dusk_amber',
+          accessoryId: i % 2 === 0 ? 'headphones' : 'wire_glasses',
+          petId: 'none',
+          name: member.name,
+        };
 
-        // Render Agent Character
-        const isActive = agent.status === 'working' || agent.status === 'thinking';
-        const bob = Math.sin(frame / 6) * (isActive ? 1.5 : 0.8);
-        const color = agent.color || (agent.name.includes('HERMES') ? '#a9a2ff' : '#89c7d6');
+        const isWorking = member.status === 'BUSY';
+        const anim: AvatarAnimation = isWorking ? 'work' : 'idle';
 
-        // Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.65)';
-        ctx.fillRect(x + 5, y + 37, 24, 9);
+        drawAvatar(ctx, x, y, teammateConfig, anim, 'down', frame, 1.1);
 
-        // Legs
-        ctx.fillStyle = '#241d3d';
-        const legSwing = isActive ? Math.sin(frame / 3.5) * 3 : 0;
-        ctx.fillRect(x + 9, y + 29, 6, 17 + legSwing);
-        ctx.fillRect(x + 19, y + 29, 6, 17 - legSwing);
-
-        // Body
-        ctx.fillStyle = color;
-        ctx.fillRect(x + 8, y + 13, 19, 18);
-
-        // Head
-        ctx.fillStyle = '#f5e8c7';
-        ctx.fillRect(x + 11, y + 5, 14, 13);
-
-        // Hair
-        ctx.fillStyle = '#1a162f';
-        ctx.fillRect(x + 10, y + 6, 16, 5);
-
-        // Eyes
-        ctx.fillStyle = '#0f0c23';
-        ctx.fillRect(x + 14, y + 10, 3, 4);
-        ctx.fillRect(x + 21, y + 10, 3, 4);
-
-        // Nameplate
+        // Teammate Nameplate
         ctx.fillStyle = '#e5bd72';
         ctx.font = 'bold 9px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(agent.name, x + 17, y - 3);
+        ctx.fillText(member.name, x + 16, y - 5);
 
         // Status badge
         ctx.font = '7px monospace';
-        ctx.fillStyle = isActive ? '#89c7d6' : '#666';
-        ctx.fillText(agent.status.toUpperCase(), x + 17, y + 52);
+        ctx.fillStyle = member.status === 'OFFLINE' ? '#666' : '#89c7d6';
+        ctx.fillText((member.status || 'ONLINE').toUpperCase(), x + 16, y + 48);
         ctx.textAlign = 'left';
       });
+
+      // If user is solo in project:
+      if (teammatesRef.current.length === 0) {
+        ctx.fillStyle = 'rgba(169, 162, 255, 0.45)';
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('OPEN DESK • INVITE TEAMMATES FROM MEMBERS TAB', 430, 175);
+        ctx.textAlign = 'left';
+      }
 
       // 7. Draw Player's Customized Character
       const px = playerPosRef.current.x;
@@ -279,7 +289,7 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
         1.15
       );
 
-      // Player Nameplate & Halo badge
+      // Player Nameplate & Glow
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 10px monospace';
       ctx.textAlign = 'center';
@@ -289,7 +299,37 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
       ctx.shadowBlur = 0;
       ctx.textAlign = 'left';
 
-      // 8. Vinyl Record Player
+      // 8. Check Proximity to Desks
+      let nearDesk: (typeof desks)[number] | null = null;
+      for (const desk of desks) {
+        const deskCenterX = desk.x + desk.w / 2;
+        const deskCenterY = desk.y + 20;
+        const dist = Math.hypot(px - deskCenterX, py - deskCenterY);
+        if (dist < 65) {
+          nearDesk = desk;
+          break;
+        }
+      }
+      nearbyDeskRef.current = nearDesk ? { label: nearDesk.label, path: nearDesk.path } : null;
+
+      // Draw interactive floating balloon if near desk
+      if (nearDesk) {
+        const promptText = `กด E เพื่อเปิด ${nearDesk.label}`;
+        ctx.font = 'bold 10px monospace';
+        const textWidth = ctx.measureText(promptText).width + 16;
+        ctx.fillStyle = 'rgba(9, 8, 23, 0.92)';
+        ctx.fillRect(px + 17 - textWidth / 2, py - 30, textWidth, 18);
+        ctx.strokeStyle = nearDesk.color;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(px + 17 - textWidth / 2, py - 30, textWidth, 18);
+
+        ctx.fillStyle = nearDesk.color;
+        ctx.textAlign = 'center';
+        ctx.fillText(promptText, px + 17, py - 17);
+        ctx.textAlign = 'left';
+      }
+
+      // 9. Vinyl Record Player
       ctx.save();
       ctx.translate(785, 88);
       ctx.rotate(frame * 0.045);
@@ -315,12 +355,12 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
       ctx.font = 'bold 26px monospace';
       ctx.shadowColor = '#a9a2ff';
       ctx.shadowBlur = 22;
-      ctx.fillText('RETZLO', 355, 78);
+      ctx.fillText('GATHER VIRTUAL OFFICE', 280, 78);
       ctx.shadowBlur = 0;
 
       ctx.font = '10px monospace';
       ctx.fillStyle = '#89c7d6';
-      ctx.fillText('INDIGO • LO-FI • OFFICE', 362, 108);
+      ctx.fillText('TEAM CO-WORKING • WALK & CHILL', 345, 108);
 
       animationFrameRef.current = requestAnimationFrame(animate);
     };
@@ -340,19 +380,20 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
         return;
       }
 
-      // Click on Agent
-      const clicked = agentsRef.current.find((_, i) => {
-        const agentX = 95 + ((i * 165) % 520);
-        return clickX > agentX - 30 && clickX < agentX + 50 && clickY > 200 && clickY < 380;
+      // Click on Teammate
+      const clickedTeammate = teammatesRef.current.find((_, i) => {
+        const tx = 110 + ((i * 180) % 520);
+        const ty = 245 + Math.floor(i / 3) * 85;
+        return clickX > tx - 25 && clickX < tx + 45 && clickY > ty - 10 && clickY < ty + 55;
       });
 
-      if (clicked && onAgentClick) {
-        onAgentClick(clicked);
+      if (clickedTeammate) {
+        setSelectedTeammate(clickedTeammate);
         return;
       }
 
       // Click to walk on floor
-      if (clickY >= 200) {
+      if (clickY >= 195) {
         targetPosRef.current = { x: clickX - 16, y: clickY - 25 };
       }
     };
@@ -363,7 +404,7 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
       canvas?.removeEventListener('click', handleClick as EventListener);
     };
-  }, [onAgentClick, playerConfig, currentEmote]);
+  }, [playerConfig, currentEmote]);
 
   return (
     <div className="relative mx-auto w-full max-w-[880px]">
@@ -372,10 +413,10 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
         <div>
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-xs uppercase tracking-[3px] text-dusk-amber">PIXEL VIRTUAL OFFICE</span>
+            <span className="text-xs uppercase tracking-[3px] text-dusk-amber">GATHER VIRTUAL OFFICE</span>
           </div>
-          <div className="mt-0.5 text-[10px] text-stone-500">
-            WASD หรือคลิกเพื่อเดิน • คลิกตัวละครเพื่อแต่งตัว
+          <div className="mt-0.5 text-[10px] text-stone-400">
+            เดินด้วย WASD / ลูกศร / คลิก • เดินใกล้โต๊ะเพื่อเปิดโมดูล • คลิกตัวละครเพื่อแต่งตัว
           </div>
         </div>
 
@@ -428,14 +469,16 @@ export function PixelOffice({ agents = [], onAgentClick }: PixelOfficeProps) {
         </div>
       </div>
 
-      {/* Agent detail tooltip if selected */}
-      {selectedAgent && (
+      {/* Teammate tooltip if selected */}
+      {selectedTeammate && (
         <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-[#111025] px-4 py-2.5 text-xs text-stone-300">
           <div>
-            <span className="font-semibold text-white">{selectedAgent.name}</span> —{' '}
-            <span className="text-stone-400">{selectedAgent.currentTask || selectedAgent.status}</span>
+            <span className="font-semibold text-white">{selectedTeammate.name}</span>
+            <span className="ml-2 text-[11px] text-stone-400">({selectedTeammate.role || 'Member'})</span>
           </div>
-          <span className="text-[10px] uppercase tracking-wider text-dusk-amber">Active Agent</span>
+          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] text-emerald-400">
+            {selectedTeammate.status || 'ONLINE'}
+          </span>
         </div>
       )}
 

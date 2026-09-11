@@ -40,6 +40,7 @@ export interface OfficeProject {
   updatedAt: string;
   boardId: string | null;
   counts: { boards: number; members: number; notes: number };
+  members?: Array<{ id: string; name: string; role?: string; status?: string; isCurrentUser?: boolean }>;
 }
 
 type ModalMode = "project" | "thread" | "task" | "report" | "routine" | "diary" | "memory" | "skill" | null;
@@ -280,6 +281,8 @@ function OfficeWorkspace({
         <div className="grid gap-4">
           <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#090817]/90 p-4 shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
             <PixelOffice
+              members={project.members}
+              projectId={project.id}
               agents={pixelAgents}
               onAgentClick={(agent) => {
                 setSelectedAgentId(agent.id);
@@ -289,28 +292,55 @@ function OfficeWorkspace({
             />
           </div>
 
-          <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-4">
-            <MetricCard label="Needs You" value={String(needsYou.length)} detail="Blocked or waiting tasks" />
-            <MetricCard label="Latest Reports" value={String(office?.reports.length ?? 0)} detail="Saved outputs" />
-            <MetricCard label="Running Tasks" value={String(runningTasks.length)} detail="Queued / working" />
-            <MetricCard label="Agents" value={String(office?.agents.length ?? 0)} detail="Project staff" />
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Panel title="Quick Actions">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <ActionButton icon={ClipboardList} label="Task" onClick={() => openModal("task")} />
-                <ActionButton icon={FileText} label="Report" onClick={() => openModal("report")} />
-                <ActionButton icon={CalendarClock} label="Routine" onClick={() => openModal("routine")} />
-                <ActionButton icon={Brain} label="Diary" onClick={() => openModal("diary")} />
-                <ActionButton icon={Sparkles} label="Skill" onClick={() => openModal("skill")} />
-                <ActionButton icon={CheckCircle2} label="Memory" onClick={() => openModal("memory")} />
+          {isProjectScoped ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <Link href={`/project/${project.id}/board`} className="rounded-2xl border border-white/10 bg-[#090817]/80 p-4 transition hover:-translate-y-0.5 hover:border-dusk-amber/40 hover:bg-white/[0.05]">
+                <div className="text-xs uppercase tracking-wider text-dusk-amber">Kanban Desk</div>
+                <div className="mt-1 font-semibold text-white">Open Kanban Board</div>
+                <div className="mt-1 text-xs text-stone-400">Manage tasks, cards & workflow</div>
+              </Link>
+              <Link href={`/project/${project.id}/diary`} className="rounded-2xl border border-white/10 bg-[#090817]/80 p-4 transition hover:-translate-y-0.5 hover:border-dusk-cyan/40 hover:bg-white/[0.05]">
+                <div className="text-xs uppercase tracking-wider text-dusk-cyan">Diary Station</div>
+                <div className="mt-1 font-semibold text-white">Open Diary & Routines</div>
+                <div className="mt-1 text-xs text-stone-400">Track reflections & habits</div>
+              </Link>
+              <Link href={`/project/${project.id}/notes`} className="rounded-2xl border border-white/10 bg-[#090817]/80 p-4 transition hover:-translate-y-0.5 hover:border-dusk-rose/40 hover:bg-white/[0.05]">
+                <div className="text-xs uppercase tracking-wider text-dusk-rose">Notes Whiteboard</div>
+                <div className="mt-1 font-semibold text-white">Open Notes Space</div>
+                <div className="mt-1 text-xs text-stone-400">Team scratchpads & docs</div>
+              </Link>
+              <Link href={`/project/${project.id}/members`} className="rounded-2xl border border-white/10 bg-[#090817]/80 p-4 transition hover:-translate-y-0.5 hover:border-dusk-lavender/40 hover:bg-white/[0.05]">
+                <div className="text-xs uppercase tracking-wider text-dusk-lavender">Team Presence</div>
+                <div className="mt-1 font-semibold text-white">Team Members ({project.counts.members})</div>
+                <div className="mt-1 text-xs text-stone-400">View & invite teammates</div>
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-4">
+                <MetricCard label="Needs You" value={String(needsYou.length)} detail="Blocked or waiting tasks" />
+                <MetricCard label="Latest Reports" value={String(office?.reports.length ?? 0)} detail="Saved outputs" />
+                <MetricCard label="Running Tasks" value={String(runningTasks.length)} detail="Queued / working" />
+                <MetricCard label="Agents" value={String(office?.agents.length ?? 0)} detail="Project staff" />
               </div>
-            </Panel>
-            <Panel title="Today Brief" action={<button type="button" onClick={() => openModal("report")} className="text-xs text-dusk-amber hover:text-white">Create report</button>}>
-              <p className="text-sm leading-6 text-stone-300">{todayBrief}</p>
-            </Panel>
-          </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <Panel title="Quick Actions">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <ActionButton icon={ClipboardList} label="Task" onClick={() => openModal("task")} />
+                    <ActionButton icon={FileText} label="Report" onClick={() => openModal("report")} />
+                    <ActionButton icon={CalendarClock} label="Routine" onClick={() => openModal("routine")} />
+                    <ActionButton icon={Brain} label="Diary" onClick={() => openModal("diary")} />
+                    <ActionButton icon={Sparkles} label="Skill" onClick={() => openModal("skill")} />
+                    <ActionButton icon={CheckCircle2} label="Memory" onClick={() => openModal("memory")} />
+                  </div>
+                </Panel>
+                <Panel title="Today Brief" action={<button type="button" onClick={() => openModal("report")} className="text-xs text-dusk-amber hover:text-white">Create report</button>}>
+                  <p className="text-sm leading-6 text-stone-300">{todayBrief}</p>
+                </Panel>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <>

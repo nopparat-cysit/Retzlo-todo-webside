@@ -50,6 +50,21 @@ export default async function ProjectOfficePage({
           take: 1,
           orderBy: { createdAt: "asc" },
           select: { id: true }
+        },
+        members: {
+          select: {
+            id: true,
+            role: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatar: true,
+                status: true
+              }
+            }
+          }
         }
       }
     });
@@ -71,7 +86,14 @@ export default async function ProjectOfficePage({
         boards: project._count.boards,
         members: project._count.members,
         notes: project._count.notes
-      }
+      },
+      members: project.members.map((m) => ({
+        id: m.user.id,
+        name: m.user.name || m.user.email.split("@")[0],
+        role: m.role,
+        status: m.user.status || "ONLINE",
+        isCurrentUser: m.user.id === session.user.id
+      }))
     };
 
     return (
