@@ -57,12 +57,14 @@ export function OfficeModule({
   initialProjectId,
   projects,
   office,
-  databaseError
+  databaseError,
+  isProjectScoped
 }: {
   initialProjectId?: string;
   projects: OfficeProject[];
   office?: OfficePayload | null;
   databaseError?: string;
+  isProjectScoped?: boolean;
 }) {
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [query, setQuery] = useState("");
@@ -74,22 +76,24 @@ export function OfficeModule({
   }, [projects, query]);
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#060613] text-stone-100">
-      <div className="relative min-h-screen px-3 py-4 sm:px-4 lg:px-5">
+    <main className={cn("text-stone-100", isProjectScoped ? "min-h-full" : "min-h-screen overflow-hidden bg-[#060613]")}>
+      <div className={cn("relative", isProjectScoped ? "p-3 sm:p-4 lg:p-5" : "min-h-screen px-3 py-4 sm:px-4 lg:px-5")}>
         <OfficeBackdrop />
-        <header className="relative z-20 flex w-full items-center justify-between">
-          <Link href="/select-module" className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-300 transition hover:border-dusk-lavender/40 hover:text-white">
-            Module Hub
-          </Link>
-          <div className="flex items-center gap-2 rounded-full border border-[#e5bd72]/20 bg-[#e5bd72]/10 px-3 py-2 text-xs uppercase tracking-[0.24em] text-[#e5bd72]">
-            <Radio className="h-3.5 w-3.5" /> Office beta
-          </div>
-        </header>
+        {!isProjectScoped && (
+          <header className="relative z-20 flex w-full items-center justify-between">
+            <Link href="/select-module" className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-300 transition hover:border-dusk-lavender/40 hover:text-white">
+              Module Hub
+            </Link>
+            <div className="flex items-center gap-2 rounded-full border border-[#e5bd72]/20 bg-[#e5bd72]/10 px-3 py-2 text-xs uppercase tracking-[0.24em] text-[#e5bd72]">
+              <Radio className="h-3.5 w-3.5" /> Office beta
+            </div>
+          </header>
+        )}
 
         {databaseError ? (
           <DatabaseFallback message={databaseError} />
         ) : selectedProject ? (
-          <OfficeWorkspace project={selectedProject} office={office} openModal={setModalMode} />
+          <OfficeWorkspace project={selectedProject} office={office} openModal={setModalMode} isProjectScoped={isProjectScoped} />
         ) : (
           <OfficeProjectSelector projects={projects} filteredProjects={filteredProjects} query={query} setQuery={setQuery} openCreate={() => setModalMode("project")} />
         )}
@@ -188,9 +192,20 @@ function OfficeProjectCard({ project }: { project: OfficeProject }) {
   );
 }
 
-function OfficeWorkspace({ project, office, openModal }: { project: OfficeProject; office?: OfficePayload | null; openModal: (mode: ModalMode) => void }) {
+function OfficeWorkspace({
+  project,
+  office,
+  openModal,
+  isProjectScoped
+}: {
+  project: OfficeProject;
+  office?: OfficePayload | null;
+  openModal: (mode: ModalMode) => void;
+  isProjectScoped?: boolean;
+}) {
   const [selectedAgentId, setSelectedAgentId] = useState(() => office?.agents[0]?.id ?? "");
   const [selectedThreadId, setSelectedThreadId] = useState(() => office?.threads[0]?.id ?? "");
+  const [viewMode, setViewMode] = useState<"floor" | "dashboard">("floor");
   const selectedAgent = office?.agents.find((agent) => agent.id === selectedAgentId) ?? office?.agents[0] ?? null;
   const agentThreads = office?.threads.filter((thread) => thread.agentId === selectedAgent?.id) ?? [];
   const selectedThread = agentThreads.find((thread) => thread.id === selectedThreadId) ?? agentThreads[0] ?? null;
@@ -198,85 +213,176 @@ function OfficeWorkspace({ project, office, openModal }: { project: OfficeProjec
   const needsYou = office?.tasks.filter((task) => task.status === "NEEDS_YOU" || task.status === "FAILED") ?? [];
   const todayBrief = office?.reports[0]?.summary ?? "No report yet. Ask Chief or Researcher to create the first brief.";
 
+  const pixelAgents = useMemo(() => {
+    return (office?.agents ?? []).map((agent) => {
+      const accentColor =
+        agent.accent === "AMBER"
+          ? "#e5bd72"
+          : agent.accent === "CYAN"
+          ? "#89c7d6"
+          : agent.accent === "ROSE"
+          ? "#d59ab3"
+          : "#a9a2ff";
+      const activeTask = office?.tasks.find(
+        (t) => t.agentId === agent.id && (t.status === "WORKING" || t.status === "QUEUED")
+      );
+      return {
+        id: agent.id,
+        name: agent.name,
+        status: (activeTask ? "working" : "idle") as "idle" | "working" | "thinking" | "waiting",
+        currentTask: activeTask?.title ?? agent.role,
+        color: accentColor
+      };
+    });
+  }, [office]);
+
   return (
-    <section className="relative z-10 grid w-full gap-4 pt-6">
+    <section className="relative z-10 grid w-full gap-4 pt-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-dusk-lavender/20 bg-white/[0.04] px-4 py-2 text-xs uppercase tracking-[0.28em] text-dusk-lavender"><LayoutDashboard className="h-3.5 w-3.5 text-[#e5bd72]" /> Office dashboard</div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-dusk-lavender/20 bg-white/[0.04] px-4 py-2 text-xs uppercase tracking-[0.28em] text-dusk-lavender"><LayoutDashboard className="h-3.5 w-3.5 text-[#e5bd72]" /> {isProjectScoped ? "Virtual Office" : "Office dashboard"}</div>
           <h1 className="mt-4 text-3xl font-semibold text-white sm:text-5xl">What should I know now?</h1>
           <p className="mt-2 max-w-4xl text-sm leading-7 text-stone-300">{project.name} office keeps chat, tasks, reports, routines, and agent learning in one project-scoped workspace.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/office" className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium text-stone-200 transition hover:border-dusk-lavender/35">Switch project</Link>
-          <Link href={`/project/${project.id}/${project.type === "DIARY" ? "diary" : "board"}`} className="rounded-full bg-[#a9a2ff] px-4 py-2 text-sm font-semibold text-[#080817] transition hover:bg-[#e5bd72]">Open project</Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-lg border border-white/10 bg-black/40 p-1">
+            <button
+              type="button"
+              onClick={() => setViewMode("floor")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition",
+                viewMode === "floor" ? "bg-dusk-lavender text-ink-950" : "text-stone-400 hover:text-white"
+              )}
+            >
+              🎮 Virtual Floor
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("dashboard")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition",
+                viewMode === "dashboard" ? "bg-dusk-lavender text-ink-950" : "text-stone-400 hover:text-white"
+              )}
+            >
+              📊 Dashboard
+            </button>
+          </div>
+          {!isProjectScoped && (
+            <>
+              <Link href="/office" className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-medium text-stone-200 transition hover:border-dusk-lavender/35">Switch project</Link>
+              <Link href={`/project/${project.id}/${project.type === "DIARY" ? "diary" : "board"}`} className="rounded-full bg-[#a9a2ff] px-4 py-2 text-sm font-semibold text-[#080817] transition hover:bg-[#e5bd72]">Open project</Link>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-4">
-        <MetricCard label="Needs You" value={String(needsYou.length)} detail="Blocked or waiting tasks" />
-        <MetricCard label="Latest Reports" value={String(office?.reports.length ?? 0)} detail="Saved outputs" />
-        <MetricCard label="Running Tasks" value={String(runningTasks.length)} detail="Queued / working" />
-        <MetricCard label="Agents" value={String(office?.agents.length ?? 0)} detail="Project staff" />
-      </div>
-
-      <div className="grid min-h-[calc(100vh-245px)] gap-3 lg:grid-cols-[240px_260px_minmax(420px,1fr)_320px] xl:grid-cols-[260px_280px_minmax(520px,1fr)_340px]">
-        <Panel title="Agents" action={<button type="button" onClick={() => openModal("memory")} className="text-xs text-dusk-amber hover:text-white">Save memory</button>}>
-          <div className="grid gap-2">
-            {(office?.agents ?? []).map((agent) => (
-              <button key={agent.id} type="button" onClick={() => { setSelectedAgentId(agent.id); setSelectedThreadId(""); }} className={cn("rounded-lg border p-3 text-left transition", selectedAgent?.id === agent.id ? agentAccentClasses[agent.accent] ?? agentAccentClasses.LAVENDER : "border-white/10 bg-white/[0.035] hover:bg-white/[0.06]")}>
-                <div className="flex items-center gap-2"><Bot className="h-4 w-4" /><span className="font-semibold text-white">{agent.name}</span></div>
-                <p className="mt-1 text-xs leading-5 text-stone-400">{agent.role}</p>
-              </button>
-            ))}
-          </div>
-        </Panel>        <Panel title="Threads" action={<button type="button" onClick={() => openModal("thread")} className="text-xs text-dusk-amber hover:text-white">New thread</button>}>
-          <div className="grid gap-2">
-            {agentThreads.length > 0 ? agentThreads.map((thread) => (
-              <button key={thread.id} type="button" onClick={() => setSelectedThreadId(thread.id)} className={cn("rounded-lg border p-3 text-left transition", selectedThread?.id === thread.id ? "border-dusk-lavender/40 bg-dusk-lavender/12" : "border-white/10 bg-white/[0.035] hover:bg-white/[0.06]")}>
-                <div className="line-clamp-1 text-sm font-semibold text-white">{thread.title}</div>
-                <div className="mt-1 text-[11px] text-stone-500">{thread._count.messages} messages / {thread._count.tasks} tasks / {thread._count.reports} reports</div>
-              </button>
-            )) : <EmptyText text="No thread yet. Start with New thread or send a message." />}
-          </div>
-        </Panel>
-
-        <Panel title={selectedThread?.title ?? "Chat"} action={<span className="text-xs text-stone-500">web-only V1</span>}>
-          <OfficeChat projectId={project.id} agent={selectedAgent} thread={selectedThread} />
-        </Panel>
-
+      {viewMode === "floor" ? (
         <div className="grid gap-4">
-          <Panel title="Today Brief" action={<button type="button" onClick={() => openModal("report")} className="text-xs text-dusk-amber hover:text-white">Create report</button>}>
-            <p className="text-sm leading-6 text-stone-300">{todayBrief}</p>
-          </Panel>
-          <Panel title="Quick Actions">
-            <div className="grid grid-cols-2 gap-2">
-              <ActionButton icon={ClipboardList} label="Task" onClick={() => openModal("task")} />
-              <ActionButton icon={FileText} label="Report" onClick={() => openModal("report")} />
-              <ActionButton icon={CalendarClock} label="Routine" onClick={() => openModal("routine")} />
-              <ActionButton icon={Brain} label="Diary" onClick={() => openModal("diary")} />
-              <ActionButton icon={Sparkles} label="Skill" onClick={() => openModal("skill")} />
-              <ActionButton icon={CheckCircle2} label="Memory" onClick={() => openModal("memory")} />
-            </div>
-          </Panel>
-          <Panel title="Latest Reports">
-            <div className="grid gap-2">
-              {(office?.reports ?? []).slice(0, 4).map((report) => <MiniItem key={report.id} title={report.title} detail={report.summary} />)}
-              {office?.reports.length ? null : <EmptyText text="No reports yet." />}
-            </div>
-          </Panel>
-          <Panel title="Running Tasks">
-            <div className="grid gap-2">
-              {runningTasks.slice(0, 5).map((task) => <MiniItem key={task.id} title={task.title} detail={`${task.status} / ${task.agent.name}`} />)}
-              {runningTasks.length ? null : <EmptyText text="No active task yet." />}
-            </div>
-          </Panel>
-          <Panel title="Routines" action={<button type="button" onClick={() => openModal("routine")} className="text-xs text-dusk-amber hover:text-white">New</button>}>
-            <RoutineList projectId={project.id} routines={office?.routines ?? []} />
-          </Panel>
-        </div>
-      </div>
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#090817]/90 p-4 shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
+            <PixelOffice
+              agents={pixelAgents}
+              onAgentClick={(agent) => {
+                setSelectedAgentId(agent.id);
+                setSelectedThreadId("");
+                setViewMode("dashboard");
+              }}
+            />
+          </div>
 
-      <Panel title="Agent Docs / Skills / Diary"><AgentKnowledge agent={selectedAgent} /></Panel>
+          <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-4">
+            <MetricCard label="Needs You" value={String(needsYou.length)} detail="Blocked or waiting tasks" />
+            <MetricCard label="Latest Reports" value={String(office?.reports.length ?? 0)} detail="Saved outputs" />
+            <MetricCard label="Running Tasks" value={String(runningTasks.length)} detail="Queued / working" />
+            <MetricCard label="Agents" value={String(office?.agents.length ?? 0)} detail="Project staff" />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Panel title="Quick Actions">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <ActionButton icon={ClipboardList} label="Task" onClick={() => openModal("task")} />
+                <ActionButton icon={FileText} label="Report" onClick={() => openModal("report")} />
+                <ActionButton icon={CalendarClock} label="Routine" onClick={() => openModal("routine")} />
+                <ActionButton icon={Brain} label="Diary" onClick={() => openModal("diary")} />
+                <ActionButton icon={Sparkles} label="Skill" onClick={() => openModal("skill")} />
+                <ActionButton icon={CheckCircle2} label="Memory" onClick={() => openModal("memory")} />
+              </div>
+            </Panel>
+            <Panel title="Today Brief" action={<button type="button" onClick={() => openModal("report")} className="text-xs text-dusk-amber hover:text-white">Create report</button>}>
+              <p className="text-sm leading-6 text-stone-300">{todayBrief}</p>
+            </Panel>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-3 md:grid-cols-4 xl:grid-cols-4">
+            <MetricCard label="Needs You" value={String(needsYou.length)} detail="Blocked or waiting tasks" />
+            <MetricCard label="Latest Reports" value={String(office?.reports.length ?? 0)} detail="Saved outputs" />
+            <MetricCard label="Running Tasks" value={String(runningTasks.length)} detail="Queued / working" />
+            <MetricCard label="Agents" value={String(office?.agents.length ?? 0)} detail="Project staff" />
+          </div>
+
+          <div className="grid min-h-[calc(100vh-245px)] gap-3 lg:grid-cols-[240px_260px_minmax(420px,1fr)_320px] xl:grid-cols-[260px_280px_minmax(520px,1fr)_340px]">
+            <Panel title="Agents" action={<button type="button" onClick={() => openModal("memory")} className="text-xs text-dusk-amber hover:text-white">Save memory</button>}>
+              <div className="grid gap-2">
+                {(office?.agents ?? []).map((agent) => (
+                  <button key={agent.id} type="button" onClick={() => { setSelectedAgentId(agent.id); setSelectedThreadId(""); }} className={cn("rounded-lg border p-3 text-left transition", selectedAgent?.id === agent.id ? agentAccentClasses[agent.accent] ?? agentAccentClasses.LAVENDER : "border-white/10 bg-white/[0.035] hover:bg-white/[0.06]")}>
+                    <div className="flex items-center gap-2"><Bot className="h-4 w-4" /><span className="font-semibold text-white">{agent.name}</span></div>
+                    <p className="mt-1 text-xs leading-5 text-stone-400">{agent.role}</p>
+                  </button>
+                ))}
+              </div>
+            </Panel>
+
+            <Panel title="Threads" action={<button type="button" onClick={() => openModal("thread")} className="text-xs text-dusk-amber hover:text-white">New thread</button>}>
+              <div className="grid gap-2">
+                {agentThreads.length > 0 ? agentThreads.map((thread) => (
+                  <button key={thread.id} type="button" onClick={() => setSelectedThreadId(thread.id)} className={cn("rounded-lg border p-3 text-left transition", selectedThread?.id === thread.id ? "border-dusk-lavender/40 bg-dusk-lavender/12" : "border-white/10 bg-white/[0.035] hover:bg-white/[0.06]")}>
+                    <div className="line-clamp-1 text-sm font-semibold text-white">{thread.title}</div>
+                    <div className="mt-1 text-[11px] text-stone-500">{thread._count.messages} messages / {thread._count.tasks} tasks / {thread._count.reports} reports</div>
+                  </button>
+                )) : <EmptyText text="No thread yet. Start with New thread or send a message." />}
+              </div>
+            </Panel>
+
+            <Panel title={selectedThread?.title ?? "Chat"} action={<span className="text-xs text-stone-500">web-only V1</span>}>
+              <OfficeChat projectId={project.id} agent={selectedAgent} thread={selectedThread} />
+            </Panel>
+
+            <div className="grid gap-4">
+              <Panel title="Today Brief" action={<button type="button" onClick={() => openModal("report")} className="text-xs text-dusk-amber hover:text-white">Create report</button>}>
+                <p className="text-sm leading-6 text-stone-300">{todayBrief}</p>
+              </Panel>
+              <Panel title="Quick Actions">
+                <div className="grid grid-cols-2 gap-2">
+                  <ActionButton icon={ClipboardList} label="Task" onClick={() => openModal("task")} />
+                  <ActionButton icon={FileText} label="Report" onClick={() => openModal("report")} />
+                  <ActionButton icon={CalendarClock} label="Routine" onClick={() => openModal("routine")} />
+                  <ActionButton icon={Brain} label="Diary" onClick={() => openModal("diary")} />
+                  <ActionButton icon={Sparkles} label="Skill" onClick={() => openModal("skill")} />
+                  <ActionButton icon={CheckCircle2} label="Memory" onClick={() => openModal("memory")} />
+                </div>
+              </Panel>
+              <Panel title="Latest Reports">
+                <div className="grid gap-2">
+                  {(office?.reports ?? []).slice(0, 4).map((report) => <MiniItem key={report.id} title={report.title} detail={report.summary} />)}
+                  {office?.reports.length ? null : <EmptyText text="No reports yet." />}
+                </div>
+              </Panel>
+              <Panel title="Running Tasks">
+                <div className="grid gap-2">
+                  {runningTasks.slice(0, 5).map((task) => <MiniItem key={task.id} title={task.title} detail={`${task.status} / ${task.agent.name}`} />)}
+                  {runningTasks.length ? null : <EmptyText text="No active task yet." />}
+                </div>
+              </Panel>
+              <Panel title="Routines" action={<button type="button" onClick={() => openModal("routine")} className="text-xs text-dusk-amber hover:text-white">New</button>}>
+                <RoutineList projectId={project.id} routines={office?.routines ?? []} />
+              </Panel>
+            </div>
+          </div>
+
+          <Panel title="Agent Docs / Skills / Diary"><AgentKnowledge agent={selectedAgent} /></Panel>
+        </>
+      )}
     </section>
   );
 }

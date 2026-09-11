@@ -667,45 +667,42 @@ function DiaryFocusCard({
 
   return (
     <article className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-      {/* Header Banner */}
-      <div className={cn("border-b border-white/10 bg-white/[0.015] p-5 lg:p-6", colorMeta.softClass)}>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      {/* Header Banner - Compact & Low-Profile */}
+      <div className={cn("border-b border-white/10 bg-white/[0.015] px-4 py-3 sm:px-5 sm:py-3.5", colorMeta.softClass)}>
+        <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <DiaryStatusBadges item={item} />
-            </div>
-
-            <div className="mt-2.5 flex items-center gap-3">
-              <span className={cn("h-3.5 w-3.5 shrink-0 rounded-full border", colorMeta.swatchClass)} />
-              <h2 className="truncate text-2xl font-bold tracking-tight text-stone-100 sm:text-3xl">
+              <span className={cn("h-3 w-3 shrink-0 rounded-full border", colorMeta.swatchClass)} />
+              <h2 className="truncate text-base sm:text-lg font-bold tracking-tight text-stone-100">
                 {item.title}
               </h2>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <DiaryStatusBadges item={item} />
+              </div>
             </div>
 
-            {item.description ? (
-              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-stone-300/80 italic">
-                &ldquo;{item.description}&rdquo;
-              </p>
-            ) : (
-              <p className="mt-1 text-xs italic text-stone-500">No ritual description provided.</p>
-            )}
-
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-stone-400">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-stone-500" />
-                Created by {item.author.name ?? item.author.email}
-              </span>
-              <span>•</span>
-              <span>Started {formatMediumDate(item.startDate)}</span>
+            {/* Description & metadata row */}
+            <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-stone-400">
+              {item.description ? (
+                <p className="max-w-xl truncate text-xs italic text-stone-300/80">
+                  &ldquo;{item.description}&rdquo;
+                </p>
+              ) : null}
+              <div className="flex items-center gap-1.5 text-[11px] text-stone-500">
+                {item.description ? <span>•</span> : null}
+                <span>Created by {item.author.name ?? item.author.email}</span>
+                <span>•</span>
+                <span>Started {formatMediumDate(item.startDate)}</span>
+              </div>
             </div>
           </div>
 
           {/* Action Bar */}
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5">
             <button
               aria-label={item.isStarred ? "Unstar diary checklist" : "Star diary checklist"}
               className={cn(
-                "grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-amber/45 hover:text-dusk-amber",
+                "grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-amber/45 hover:text-dusk-amber active:scale-95",
                 item.isStarred && "border-dusk-amber/35 bg-dusk-amber/10 text-dusk-amber"
               )}
               disabled={!item.canManage}
@@ -713,28 +710,28 @@ function DiaryFocusCard({
               type="button"
               onClick={onStar}
             >
-              <Star className={cn("h-4 w-4", item.isStarred && "fill-dusk-amber")} />
+              <Star className={cn("h-3.5 w-3.5", item.isStarred && "fill-dusk-amber")} />
             </button>
 
             {item.canManage ? (
               <>
                 <button
                   aria-label="Edit diary checklist"
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender"
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender active:scale-95"
                   title="Edit ritual"
                   type="button"
                   onClick={onEdit}
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Pencil className="h-3.5 w-3.5" />
                 </button>
                 <button
                   aria-label="Delete diary checklist"
-                  className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-red-400/40 hover:bg-red-400/10 hover:text-red-300"
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-red-400/40 hover:bg-red-400/10 hover:text-red-300 active:scale-95"
                   title="Delete ritual"
                   type="button"
                   onClick={onDelete}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </>
             ) : null}
@@ -1037,23 +1034,23 @@ function DiaryStatusBadges({ item }: { item: DiaryItemWithSummary }) {
   return (
     <>
       {!item.isDueToday ? (
-        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-stone-500">
+        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-stone-400">
           Not due today
         </span>
       ) : null}
       {item.isHidden ? (
-        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-rose/25 bg-dusk-rose/10 px-2 py-1 text-[11px] text-dusk-rose">
-          <EyeOff className="h-3 w-3" />
+        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-rose/25 bg-dusk-rose/10 px-2 py-0.5 text-[10px] text-dusk-rose">
+          <EyeOff className="h-2.5 w-2.5" />
           Hidden
         </span>
       ) : null}
-      <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-1 text-[11px] text-dusk-cyan">
-        <Repeat className="h-3 w-3" />
+      <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] text-dusk-cyan">
+        <Repeat className="h-2.5 w-2.5" />
         {getDiarySummaryLabel(item)}
       </span>
       {item.dueTime ? (
-        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/25 bg-dusk-amber/10 px-2 py-1 font-mono text-[11px] text-dusk-amber">
-          <Clock className="h-3 w-3" />
+        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/25 bg-dusk-amber/10 px-2 py-0.5 font-mono text-[10px] text-dusk-amber">
+          <Clock className="h-2.5 w-2.5" />
           {item.dueTime}
         </span>
       ) : null}

@@ -56,4 +56,22 @@ describe("Office module source", () => {
     expect(schemaSource).toContain("model OfficeAgentDiaryEntry");
     expect(schemaSource).toContain("model OfficeAgentMemory");
   });
+
+  it("integrates Office into project sidebar and navigation", () => {
+    const navLinkSource = readFileSync("src/components/project/project-nav-link.tsx", "utf8");
+    const shellSource = readFileSync("src/components/project/project-shell.tsx", "utf8");
+
+    expect(navLinkSource).toContain("office: Building2");
+    expect(shellSource).toContain('{ href: "office", label: "Office", iconName: "office" }');
+  });
+
+  it("provides a project-scoped office page route with membership checks", () => {
+    const projectOfficeSource = readFileSync("src/app/(dashboard)/project/[id]/office/page.tsx", "utf8");
+
+    expect(projectOfficeSource).toContain("getServerSession");
+    expect(projectOfficeSource).toContain("getProjectMembership");
+    expect(projectOfficeSource).toContain("getOfficePayload");
+    expect(projectOfficeSource).toContain("isProjectScoped={true}");
+    expect(officeSource).toContain("isProjectScoped?: boolean");
+  });
 });
