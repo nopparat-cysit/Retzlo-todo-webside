@@ -11,7 +11,7 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { CheckSquare, Coins, FileText, GripVertical, Plus, Star, Trash2, X } from "lucide-react";
+import { CheckSquare, Coins, FileText, GripVertical, Plus, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/ui/app-modal";
@@ -23,6 +23,12 @@ import { Input, Textarea } from "@/components/ui/input";
 import { RetroStickerPicker } from "@/components/stickers/retro-sticker-picker";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { composeDueDate } from "@/lib/kanban/due-date";
+import {
+  DIFFICULTY_CONFIGS,
+  DIFFICULTY_SCORES,
+  getDifficultyMetadata,
+  type DifficultyScore
+} from "@/lib/kanban/difficulty";
 import { getPrivateCoinEntry, resolveCardRewardPayload } from "@/lib/kanban/private-coins";
 import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
@@ -51,6 +57,7 @@ interface CardModalProps {
     rewardCoins?: number;
     privateCoins?: any;
     stickers?: string[];
+    difficulty?: DifficultyScore | null;
   }) => Promise<void>;
 }
 
@@ -73,6 +80,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
   const [selectedStatus, setSelectedStatus] = useState<CardStatus>(card?.status ?? "TODO");
   const [selectedColor, setSelectedColor] = useState<CardColor>(normalizeCardColor(card?.color));
   const [selectedPriority, setSelectedPriority] = useState<"LOW" | "MEDIUM" | "HIGH">(card?.priority ?? "MEDIUM");
+  const [difficulty, setDifficulty] = useState<DifficultyScore | null>(card?.difficulty ?? null);
   const [isStarred, setIsStarred] = useState(card?.isStarred ?? false);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(card?.checklist ?? []);
   const [newChecklistItem, setNewChecklistItem] = useState("");
@@ -109,7 +117,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
       rewardCoins,
       privateGlobalCoins,
       stickers,
-      checklist
+      checklist,
+      difficulty
     }),
     [
       title,
@@ -124,7 +133,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
       rewardCoins,
       privateGlobalCoins,
       stickers,
-      checklist
+      checklist,
+      difficulty
     ]
   );
 
@@ -151,6 +161,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     if (draft.privateGlobalCoins !== undefined) setPrivateGlobalCoins(draft.privateGlobalCoins);
     if (draft.stickers !== undefined) setStickers(draft.stickers);
     if (draft.checklist !== undefined) setChecklist(draft.checklist);
+    if (draft.difficulty !== undefined) setDifficulty(draft.difficulty);
     toast({ message: "กู้คืนข้อมูลร่างเรียบร้อยแล้ว", type: "success" });
   }, [toast]);
 
@@ -182,6 +193,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     setSelectedStatus(card?.status ?? "TODO");
     setSelectedColor(normalizeCardColor(card?.color));
     setSelectedPriority(card?.priority ?? "MEDIUM");
+    setDifficulty(card?.difficulty ?? null);
     setIsStarred(card?.isStarred ?? false);
     setChecklist(card?.checklist ?? []);
     setNewChecklistItem("");
@@ -219,6 +231,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
         checklist.length > 0 ||
         selectedStatus !== "TODO" ||
         selectedPriority !== "MEDIUM" ||
+        difficulty !== null ||
         isStarred ||
         rewardCoins > 0 ||
         stickers.length > 0 ||
@@ -235,6 +248,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     const initialStatus = card.status ?? "TODO";
     const initialColor = normalizeCardColor(card.color);
     const initialPriority = card.priority ?? "MEDIUM";
+    const initialDifficulty = card.difficulty ?? null;
     const initialStarred = card.isStarred ?? false;
     const initialReward = card.rewardCoins ?? 0;
     const initialStickers = normalizeRetroStickerSelection(card.stickers);
@@ -259,6 +273,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
       selectedStatus !== initialStatus ||
       selectedColor !== initialColor ||
       selectedPriority !== initialPriority ||
+      difficulty !== initialDifficulty ||
       isStarred !== initialStarred ||
       rewardCoins !== initialReward ||
       date !== initialDate ||
@@ -275,6 +290,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
     selectedStatus,
     selectedColor,
     selectedPriority,
+    difficulty,
     isStarred,
     rewardCoins,
     stickers,
@@ -354,7 +370,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
         isStarred,
         rewardCoins: rewardPayload.rewardCoins,
         privateCoins: rewardPayload.privateCoins,
-        stickers: normalizeRetroStickerSelection(stickers)
+        stickers: normalizeRetroStickerSelection(stickers),
+        difficulty
       });
       clearDraft();
     } finally {
@@ -528,6 +545,66 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, o
                 );
               })}
             </div>
+          </div>
+
+          {/* Difficulty Score (1, 3, 5, 8, 16, 21) */}
+          <div className="space-y-2 text-sm text-stone-300">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 font-medium">
+                <Zap className="h-4 w-4 text-amber-400" />
+                <span>คะแนนความยาก (Story Points)</span>
+              </span>
+              {difficulty ? (
+                <span className="text-xs text-stone-400 font-medium">
+                  {getDifficultyMetadata(difficulty)?.title}
+                </span>
+              ) : null}
+            </div>
+
+            <div className="grid grid-cols-7 gap-1.5">
+              <button
+                type="button"
+                className={cn(
+                  "h-9 rounded-md border text-xs font-semibold transition flex items-center justify-center",
+                  difficulty === null
+                    ? "border-white/30 bg-white/10 text-stone-200 shadow-xs font-bold"
+                    : "border-white/10 text-stone-500 hover:text-stone-300 hover:border-white/20"
+                )}
+                onClick={() => setDifficulty(null)}
+                title="ไม่กำหนดคะแนนความยาก"
+              >
+                -
+              </button>
+              {DIFFICULTY_SCORES.map((score) => {
+                const isSelected = difficulty === score;
+                const meta = DIFFICULTY_CONFIGS[score];
+                return (
+                  <button
+                    key={score}
+                    type="button"
+                    title={`${meta.title} — ${meta.description}`}
+                    className={cn(
+                      "h-9 rounded-md border text-xs font-bold transition flex items-center justify-center gap-0.5",
+                      isSelected
+                        ? meta.activeChipClass
+                        : "border-white/10 text-stone-400 hover:text-stone-200 hover:border-white/20"
+                    )}
+                    onClick={() => setDifficulty(isSelected ? null : score)}
+                  >
+                    ⚡{score}
+                  </button>
+                );
+              })}
+            </div>
+            {difficulty ? (
+              <p className="text-[11px] text-stone-400">
+                {getDifficultyMetadata(difficulty)?.description}
+              </p>
+            ) : (
+              <p className="text-[11px] text-stone-500">
+                ระดับความยาก: 1, 3, 5, 8, 16, 21 pts
+              </p>
+            )}
           </div>
 
           <ColorPicker selectedColor={selectedColor} onChange={setSelectedColor} />

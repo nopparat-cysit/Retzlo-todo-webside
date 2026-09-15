@@ -2,7 +2,7 @@
 
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { AlertTriangle, GripVertical, Minus, Plus, Settings, Trash2, X } from "lucide-react";
+import { AlertTriangle, GripVertical, Minus, Plus, Settings, Trash2, X, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
@@ -19,6 +19,7 @@ import {
   type ColumnIconId,
   type ColumnThemeId
 } from "@/lib/kanban/column-settings";
+import { calculateColumnPoints, type DifficultyScore } from "@/lib/kanban/difficulty";
 import { cn } from "@/lib/utils";
 import type { Card, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 
@@ -48,6 +49,10 @@ export function KanbanColumn({
       dueDateAllDay: boolean;
       priority?: "LOW" | "MEDIUM" | "HIGH";
       isStarred?: boolean;
+      rewardCoins?: number;
+      privateCoins?: any;
+      stickers?: string[];
+      difficulty?: DifficultyScore | null;
     }
   ) => Promise<void>;
   onCardDeleted: (cardId: string) => void;
@@ -131,6 +136,7 @@ export function KanbanColumn({
   }, [isQuickAddOpen]);
 
   const totalCards = column.cards.length;
+  const totalPoints = calculateColumnPoints(column.cards);
   const doneCount = column.cards.filter((c) => c.status === "DONE").length;
   const progressPct = totalCards > 0 ? Math.round((doneCount / totalCards) * 100) : 0;
 
@@ -253,6 +259,15 @@ export function KanbanColumn({
         <h2 className="column-collapsed-title text-sm text-stone-300 truncate w-32 text-center select-none mb-4">
           {column.name}
         </h2>
+        {totalPoints > 0 && (
+          <span
+            className="mb-1.5 inline-flex items-center gap-0.5 rounded border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400 select-none"
+            title={`คะแนนความยากรวม: ${totalPoints} pts`}
+          >
+            <Zap className="h-2.5 w-2.5 text-amber-400" />
+            <span>{totalPoints}</span>
+          </span>
+        )}
         <span className="rounded bg-white/5 px-2 py-0.5 text-xs text-stone-400 select-none">
           {totalCards}
         </span>
@@ -294,6 +309,15 @@ export function KanbanColumn({
               : "border-white/5 bg-white/5 text-stone-500"
           )}>
             LIMIT {wipLimit}
+          </span>
+        )}
+        {totalPoints > 0 && (
+          <span
+            className="inline-flex items-center gap-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-400 select-none shadow-xs"
+            title={`คะแนนความยากรวม: ${totalPoints} pts`}
+          >
+            <Zap className="h-3 w-3 text-amber-400" />
+            <span>{totalPoints} pts</span>
           </span>
         )}
         {totalCards > 0 && (

@@ -1,5 +1,6 @@
 import type { CardColor } from "@/lib/theme/card-colors";
 import type { ColumnIconId, ColumnThemeId } from "@/lib/kanban/column-settings";
+import type { DifficultyScore } from "@/lib/kanban/difficulty";
 
 export type CardPriority = "LOW" | "MEDIUM" | "HIGH";
 
@@ -20,6 +21,7 @@ export interface Card {
   rewardCoins?: number;
   privateCoins?: any;
   stickers?: string[];
+  difficulty?: DifficultyScore | null;
 }
 
 export type CardStatus = "TODO" | "DOING" | "WAITING" | "DONE";

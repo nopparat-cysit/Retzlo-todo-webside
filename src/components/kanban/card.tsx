@@ -2,7 +2,7 @@
 
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, FileText, Star } from "lucide-react";
+import { CalendarClock, CheckSquare, FileText, Star, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
@@ -10,6 +10,7 @@ import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime } from "@/lib/date-format";
+import { getDifficultyMetadata, type DifficultyScore } from "@/lib/kanban/difficulty";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
@@ -67,6 +68,7 @@ export function KanbanCard({
     rewardCoins?: number;
     privateCoins?: unknown;
     stickers?: string[];
+    difficulty?: DifficultyScore | null;
   }) {
     const response = await fetch("/api/cards", {
       method: "PATCH",
@@ -86,6 +88,7 @@ export function KanbanCard({
         dueDate: data.card.dueDate ? new Date(data.card.dueDate).toISOString() : null,
         dueDateAllDay: data.card.dueDateAllDay ?? false,
         isStarred: data.card.isStarred ?? false,
+        difficulty: data.card.difficulty !== undefined ? data.card.difficulty : card.difficulty,
       });
       setIsEditing(false);
       toast({ message: "Card updated.", type: "success" });
@@ -174,6 +177,18 @@ export function KanbanCard({
             )}>
               {card.priority ?? "MEDIUM"}
             </span>
+            {card.difficulty ? (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold select-none",
+                  getDifficultyMetadata(card.difficulty)?.badgeClass
+                )}
+                title={getDifficultyMetadata(card.difficulty)?.title}
+              >
+                <Zap className="h-3 w-3" />
+                {getDifficultyMetadata(card.difficulty)?.pointsLabel}
+              </span>
+            ) : null}
             {isOverdue ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-400/10 px-2 py-1 text-xs text-red-400 font-semibold animate-pulse">
                 Overdue

@@ -13,6 +13,7 @@ import {
 } from "@/lib/project-auth";
 import { getColumnIconOption, getColumnThemeOption } from "@/lib/kanban/column-settings";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
+import { extractDifficulty } from "@/lib/kanban/difficulty";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
 import type { CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 import type { ProjectNote } from "@/types/note";
@@ -62,6 +63,7 @@ function toColumns(columns: Array<{
       rewardCoins: card.rewardCoins,
       privateCoins: card.privateCoins,
       stickers: Array.isArray(card.stickers) ? (card.stickers as string[]) : [],
+      difficulty: extractDifficulty(card.privateCoins),
     }))
   }));
 }

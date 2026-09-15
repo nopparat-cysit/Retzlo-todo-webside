@@ -13,6 +13,11 @@ import {
 } from "@/lib/project-auth";
 import { processCardDonePayouts } from "@/lib/kanban/payout";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
+import {
+  extractDifficulty,
+  sanitizeDifficultyScore,
+  withDifficulty
+} from "@/lib/kanban/difficulty";
 
 const cardStatusSchema = z.enum(["TODO", "DOING", "WAITING", "DONE"]);
 const cardColorSchema = z.enum(cardColorValues).default("DEFAULT");
@@ -23,6 +28,10 @@ const checklistItemSchema = z.object({
   checked: z.boolean()
 });
 const retroStickersSchema = z.array(z.string()).default([]).transform(normalizeRetroStickerSelection);
+const difficultySchema = z.preprocess(
+  sanitizeDifficultyScore,
+  z.union([z.literal(1), z.literal(3), z.literal(5), z.literal(8), z.literal(16), z.literal(21)]).nullable()
+).optional();
 
 const createCardSchema = z.object({
   columnId: z.string().uuid(),
@@ -39,6 +48,7 @@ const createCardSchema = z.object({
   rewardCoins: z.number().int().nonnegative().default(0),
   privateCoins: z.any().optional(),
   stickers: retroStickersSchema,
+  difficulty: difficultySchema,
 });
 
 const updateCardSchema = z.object({
@@ -56,6 +66,7 @@ const updateCardSchema = z.object({
   rewardCoins: z.number().int().nonnegative().optional(),
   privateCoins: z.any().optional(),
   stickers: retroStickersSchema.optional(),
+  difficulty: difficultySchema,
 });
 
 function serializeCard<T extends {
@@ -83,6 +94,7 @@ function serializeCard<T extends {
     rewardCoins: card.rewardCoins,
     privateCoins: card.privateCoins,
     stickers: normalizeRetroStickerSelection(card.stickers),
+    difficulty: extractDifficulty(card.privateCoins),
   };
 }
 
@@ -110,6 +122,7 @@ export async function POST(request: Request) {
     const position = await prisma.card.count({
       where: { columnId: payload.columnId }
     });
+    const privateCoins = withDifficulty(payload.privateCoins, payload.difficulty);
     const card = await prisma.card.create({
       data: {
         columnId: payload.columnId,
@@ -124,7 +137,7 @@ export async function POST(request: Request) {
         priority: payload.priority,
         isStarred: payload.isStarred ?? false,
         rewardCoins: payload.rewardCoins,
-        privateCoins: payload.privateCoins,
+        privateCoins: privateCoins as any,
         stickers: payload.stickers,
         position
       }
@@ -162,6 +175,14 @@ export async function PATCH(request: Request) {
         await processCardDonePayouts(tx, payload.cardId, userId, projectId);
       }
 
+      let nextPrivateCoins = payload.privateCoins;
+      if (payload.difficulty !== undefined) {
+        const baseCoins = nextPrivateCoins !== undefined
+          ? nextPrivateCoins
+          : (await tx.card.findUnique({ where: { id: payload.cardId }, select: { privateCoins: true } }))?.privateCoins;
+        nextPrivateCoins = withDifficulty(baseCoins, payload.difficulty);
+      }
+
       return tx.card.update({
         where: { id: payload.cardId },
         data: {
@@ -175,7 +196,7 @@ export async function PATCH(request: Request) {
           dueDateAllDay: payload.dueDateAllDay,
           priority: payload.priority,
           rewardCoins: payload.rewardCoins,
-          privateCoins: payload.privateCoins,
+          ...(nextPrivateCoins !== undefined && { privateCoins: nextPrivateCoins as any }),
           stickers: payload.stickers,
           ...(payload.isStarred !== undefined && { isStarred: payload.isStarred }),
         }

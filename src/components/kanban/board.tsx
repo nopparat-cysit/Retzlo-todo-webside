@@ -37,6 +37,7 @@ import { getStatusMeta } from "@/lib/kanban/status";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
 import { playCardDoneSound, playCardCreateSound } from "@/lib/sound";
 import { cn } from "@/lib/utils";
+import type { DifficultyScore } from "@/lib/kanban/difficulty";
 import type { Card, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 
 interface BoardData {
@@ -307,6 +308,10 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       dueDateAllDay: boolean;
       priority?: "LOW" | "MEDIUM" | "HIGH";
       isStarred?: boolean;
+      rewardCoins?: number;
+      privateCoins?: any;
+      stickers?: string[];
+      difficulty?: DifficultyScore | null;
     }
   ) {
     const response = await fetch("/api/cards", {
