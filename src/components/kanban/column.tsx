@@ -21,12 +21,13 @@ import {
 } from "@/lib/kanban/column-settings";
 import { calculateColumnPoints, type DifficultyScore } from "@/lib/kanban/difficulty";
 import { cn } from "@/lib/utils";
-import type { Card, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
+import type { Card, CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 
 export function KanbanColumn({
   column,
   activeCardId,
   isDropTarget,
+  members = [],
   onCreateCard,
   onCardDeleted,
   onCardSaved,
@@ -37,6 +38,7 @@ export function KanbanColumn({
   column: ColumnWithCards;
   activeCardId: string | null;
   isDropTarget: boolean;
+  members?: CardAssignee[];
   onCreateCard: (
     columnId: string,
     payload: {
@@ -53,6 +55,7 @@ export function KanbanColumn({
       privateCoins?: any;
       stickers?: string[];
       difficulty?: DifficultyScore | null;
+      assigneeIds?: string[];
     }
   ) => Promise<void>;
   onCardDeleted: (cardId: string) => void;
@@ -370,6 +373,7 @@ export function KanbanColumn({
               key={card.id}
               card={card}
               columnId={column.id}
+              members={members}
               isDragPreviewTarget={activeCardId === card.id}
               onDeleted={onCardDeleted}
               onSaved={onCardSaved}
@@ -544,6 +548,7 @@ export function KanbanColumn({
         mode="create"
         card={isModalOpen ? ({ columnId: column.id, status: column.defaultCardStatus } as any) : undefined}
         open={isModalOpen}
+        members={members}
         onClose={() => setIsModalOpen(false)}
         onSubmit={async (payload) => {
           await onCreateCard(column.id, payload);

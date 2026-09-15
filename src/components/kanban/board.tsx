@@ -12,7 +12,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles, X } from "lucide-react";
+import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles, Users, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo } from "react";
 
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
@@ -33,12 +33,13 @@ import {
   type ColumnThemeId
 } from "@/lib/kanban/column-settings";
 import { moveCard, reorderColumns } from "@/lib/kanban/reorder";
+import { filterCardsByAssignee } from "@/lib/kanban/assignees";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
 import { playCardDoneSound, playCardCreateSound } from "@/lib/sound";
 import { cn } from "@/lib/utils";
 import type { DifficultyScore } from "@/lib/kanban/difficulty";
-import type { Card, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
+import type { Card, CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 
 interface BoardData {
   id: string;
@@ -72,7 +73,7 @@ function normalizeColumn(column: ColumnWithCards): ColumnWithCards {
   };
 }
 
-export function KanbanBoard({ board }: { board: BoardData }) {
+export function KanbanBoard({ board, members = [] }: { board: BoardData; members?: CardAssignee[] }) {
   const [columns, setColumns] = useState(() => board.columns.map(normalizeColumn));
   const [dragSnapshot, setDragSnapshot] = useState<ColumnWithCards[] | null>(null);
   const lastCardDropTargetRef = useRef<CardDropTarget | null>(null);
@@ -98,6 +99,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
   // Premium Features States
   const [searchQuery, setSearchQuery] = useState("");
   const [isTodayFilterActive, setIsTodayFilterActive] = useState(false);
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [moveHistory, setMoveHistory] = useState<MoveAction[]>([]);
 
@@ -312,6 +314,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       privateCoins?: any;
       stickers?: string[];
       difficulty?: DifficultyScore | null;
+      assigneeIds?: string[];
     }
   ) {
     const response = await fetch("/api/cards", {
@@ -570,10 +573,9 @@ export function KanbanBoard({ board }: { board: BoardData }) {
     return dueDate >= todayStart && dueDate <= todayEnd;
   };
 
-  // Dynamic Filtering based on Search Query & Today Filter
-  const filteredColumns = columns.map((column) => ({
-    ...column,
-    cards: column.cards.filter((card) => {
+  // Dynamic Filtering based on Search Query, Today Filter & Assignee Filter
+  const filteredColumns = columns.map((column) => {
+    const baseCards = column.cards.filter((card) => {
       const matchesSearch =
         card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (card.description && card.description.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -581,8 +583,13 @@ export function KanbanBoard({ board }: { board: BoardData }) {
       const matchesToday = !isTodayFilterActive || isCardDueTodayOrOverdue(card);
 
       return matchesSearch && matchesToday;
-    })
-  }));
+    });
+
+    return {
+      ...column,
+      cards: filterCardsByAssignee(baseCards, assigneeFilter)
+    };
+  });
 
   // Statistics Computations
   const totalCards = columns.reduce((acc, col) => acc + col.cards.length, 0);
@@ -676,6 +683,48 @@ export function KanbanBoard({ board }: { board: BoardData }) {
             <CalendarClock className="h-3.5 w-3.5" />
             Today
           </button>
+
+          {/* Assignee Filter */}
+          <div className="relative flex h-9 items-center">
+            <Users className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-stone-400" />
+            <select
+              value={assigneeFilter}
+              onChange={(e) => setAssigneeFilter(e.target.value)}
+              aria-label="Filter cards by assignee"
+              className={cn(
+                "h-9 appearance-none rounded-xl border pl-8 pr-7 text-xs font-medium transition cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-400/50",
+                assigneeFilter !== "ALL"
+                  ? "border-primary-400/40 bg-primary-950/40 text-primary-200"
+                  : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
+              )}
+            >
+              <option value="ALL" className="bg-stone-900 text-stone-200">
+                All Assignees
+              </option>
+              <option value="UNASSIGNED" className="bg-stone-900 text-stone-200">
+                Unassigned
+              </option>
+              {members.length > 0 && (
+                <optgroup label="Members" className="bg-stone-900 text-stone-400">
+                  {members.map((member) => (
+                    <option key={member.id} value={member.id} className="bg-stone-900 text-stone-200">
+                      {member.name || member.email}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
+            {assigneeFilter !== "ALL" && (
+              <button
+                type="button"
+                onClick={() => setAssigneeFilter("ALL")}
+                className="absolute right-2 z-10 text-stone-400 hover:text-white"
+                title="Clear assignee filter"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
 
           {/* Focus Toggle */}
           <button
@@ -834,6 +883,7 @@ export function KanbanBoard({ board }: { board: BoardData }) {
                 onColumnDeleted={deleteColumn}
                 onColumnSaved={updateColumn}
                 isFirst={index === 0}
+                members={members}
               />
             ))}
           </SortableContext>

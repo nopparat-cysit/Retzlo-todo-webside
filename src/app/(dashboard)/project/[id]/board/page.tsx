@@ -14,36 +14,40 @@ import {
 import { getColumnIconOption, getColumnThemeOption } from "@/lib/kanban/column-settings";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { extractDifficulty } from "@/lib/kanban/difficulty";
+import { extractAssigneeIds, resolveAssignees } from "@/lib/kanban/assignees";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
-import type { CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
+import type { CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 import type { ProjectNote } from "@/types/note";
 
-function toColumns(columns: Array<{
-  id: string;
-  name: string;
-  position: number;
-  color?: string | null;
-  icon?: string | null;
-  defaultCardStatus?: string | null;
-  cards: Array<{
+function toColumns(
+  columns: Array<{
     id: string;
-    title: string;
-    description: string | null;
-    note: string | null;
+    name: string;
     position: number;
-    status: string;
-    color: string;
-    checklist: unknown;
-    dueDate: Date | null;
-    dueDateAllDay: boolean;
-    priority: string;
-    isStarred: boolean;
-    columnId: string;
-    rewardCoins: number;
-    privateCoins: unknown;
-    stickers: unknown;
-  }>;
-}>): ColumnWithCards[] {
+    color?: string | null;
+    icon?: string | null;
+    defaultCardStatus?: string | null;
+    cards: Array<{
+      id: string;
+      title: string;
+      description: string | null;
+      note: string | null;
+      position: number;
+      status: string;
+      color: string;
+      checklist: unknown;
+      dueDate: Date | null;
+      dueDateAllDay: boolean;
+      priority: string;
+      isStarred: boolean;
+      columnId: string;
+      rewardCoins: number;
+      privateCoins: unknown;
+      stickers: unknown;
+    }>;
+  }>,
+  members: CardAssignee[] = []
+): ColumnWithCards[] {
   return columns.map((column) => ({
     id: column.id,
     name: column.name,
@@ -51,20 +55,25 @@ function toColumns(columns: Array<{
     color: getColumnThemeOption(column.color).id,
     icon: getColumnIconOption(column.icon).id,
     defaultCardStatus: (column.defaultCardStatus ?? "TODO") as CardStatus,
-    cards: column.cards.map((card) => ({
-      ...card,
-      status: card.status as CardStatus,
-      color: normalizeCardColor(card.color),
-      checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
-      dueDate: card.dueDate ? card.dueDate.toISOString() : null,
-      dueDateAllDay: card.dueDateAllDay,
-      priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
-      isStarred: card.isStarred,
-      rewardCoins: card.rewardCoins,
-      privateCoins: card.privateCoins,
-      stickers: Array.isArray(card.stickers) ? (card.stickers as string[]) : [],
-      difficulty: extractDifficulty(card.privateCoins),
-    }))
+    cards: column.cards.map((card) => {
+      const assigneeIds = extractAssigneeIds(card.privateCoins);
+      return {
+        ...card,
+        status: card.status as CardStatus,
+        color: normalizeCardColor(card.color),
+        checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
+        dueDate: card.dueDate ? card.dueDate.toISOString() : null,
+        dueDateAllDay: card.dueDateAllDay,
+        priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
+        isStarred: card.isStarred,
+        rewardCoins: card.rewardCoins,
+        privateCoins: card.privateCoins,
+        stickers: Array.isArray(card.stickers) ? (card.stickers as string[]) : [],
+        difficulty: extractDifficulty(card.privateCoins),
+        assigneeIds,
+        assignees: resolveAssignees(assigneeIds, members)
+      };
+    })
   }));
 }
 
@@ -122,6 +131,7 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
   let project: { allowMemberPrivateItems: boolean; notesEnabled: boolean } | null;
   let board: any = null;
   let notes: any[] = [];
+  let projectMembers: any[] = [];
 
   try {
     membership = await getProjectMembership(params.id, userId);
@@ -142,7 +152,7 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
       notFound();
     }
 
-    [board, notes] = await Promise.all([
+    [board, notes, projectMembers] = await Promise.all([
       prisma.board.findFirst({
         where: { projectId: params.id },
         orderBy: { createdAt: "asc" },
@@ -175,6 +185,20 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
             take: 40
           })
         : Promise.resolve([]),
+      prisma.projectMember.findMany({
+        where: { projectId: params.id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true
+            }
+          }
+        },
+        orderBy: { createdAt: "asc" }
+      })
     ]);
   } catch (error) {
     if (isDatabaseConnectionError(error)) {
@@ -188,14 +212,23 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
     notFound();
   }
 
+  const members: CardAssignee[] = (projectMembers || []).map((pm) => ({
+    id: pm.user.id,
+    name: pm.user.name,
+    email: pm.user.email,
+    avatar: pm.user.avatar,
+    role: pm.role
+  }));
+
   return (
     <div className={project.notesEnabled ? "grid h-full min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]" : "h-full min-h-0"}>
       <KanbanBoard
         board={{
           id: board.id,
           name: board.name,
-          columns: toColumns(board.columns)
+          columns: toColumns(board.columns, members)
         }}
+        members={members}
       />
       {project.notesEnabled ? (
         <BoardNotesRail

@@ -6,27 +6,31 @@ import { CalendarClock, CheckSquare, FileText, Star, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
+import { AssigneeStack } from "@/components/kanban/assignee-avatar";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime } from "@/lib/date-format";
 import { getDifficultyMetadata, type DifficultyScore } from "@/lib/kanban/difficulty";
+import { resolveAssignees } from "@/lib/kanban/assignees";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
-import type { Card } from "@/types/kanban";
+import type { Card, CardAssignee } from "@/types/kanban";
 
 export function KanbanCard({
   card,
   columnId,
   isDragPreviewTarget = false,
+  members = [],
   onDeleted,
   onSaved
 }: {
   card: Card;
   columnId: string;
   isDragPreviewTarget?: boolean;
+  members?: CardAssignee[];
   onSaved: (card: Card) => void;
   onDeleted: (cardId: string) => void;
 }) {
@@ -69,6 +73,7 @@ export function KanbanCard({
     privateCoins?: unknown;
     stickers?: string[];
     difficulty?: DifficultyScore | null;
+    assigneeIds?: string[];
   }) {
     const response = await fetch("/api/cards", {
       method: "PATCH",
@@ -89,6 +94,8 @@ export function KanbanCard({
         dueDateAllDay: data.card.dueDateAllDay ?? false,
         isStarred: data.card.isStarred ?? false,
         difficulty: data.card.difficulty !== undefined ? data.card.difficulty : card.difficulty,
+        assigneeIds: data.card.assigneeIds !== undefined ? data.card.assigneeIds : card.assigneeIds,
+        assignees: data.card.assignees ?? (members.length > 0 ? resolveAssignees(data.card.assigneeIds ?? card.assigneeIds, members) : card.assignees),
       });
       setIsEditing(false);
       toast({ message: "Card updated.", type: "success" });
@@ -208,11 +215,19 @@ export function KanbanCard({
             ) : null}
           </div>
           {card.description ? <p className="line-clamp-3 text-stone-400">{card.description}</p> : null}
-          {card.dueDate ? (
-            <p className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber">
-              <CalendarClock className="h-3 w-3" />
-              {formatMediumDateTime(card.dueDate, card.dueDateAllDay)}
-            </p>
+          {(card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) ? (
+            <div className="flex items-center justify-between gap-2 pt-1">
+              {card.dueDate ? (
+                <p className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber">
+                  <CalendarClock className="h-3 w-3" />
+                  {formatMediumDateTime(card.dueDate, card.dueDateAllDay)}
+                </p>
+              ) : <div />}
+              <AssigneeStack
+                assignees={card.assignees ?? (members ? resolveAssignees(card.assigneeIds, members) : [])}
+                size={22}
+              />
+            </div>
           ) : null}
         </div>
       </article>
@@ -220,6 +235,7 @@ export function KanbanCard({
         card={card}
         mode="edit"
         open={isEditing}
+        members={members}
         onClose={() => setIsEditing(false)}
         onDelete={async () => {
           setIsEditing(false);

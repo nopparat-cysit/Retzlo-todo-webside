@@ -18,6 +18,10 @@ import {
   sanitizeDifficultyScore,
   withDifficulty
 } from "@/lib/kanban/difficulty";
+import {
+  extractAssigneeIds,
+  withAssignees
+} from "@/lib/kanban/assignees";
 
 const cardStatusSchema = z.enum(["TODO", "DOING", "WAITING", "DONE"]);
 const cardColorSchema = z.enum(cardColorValues).default("DEFAULT");
@@ -49,6 +53,7 @@ const createCardSchema = z.object({
   privateCoins: z.any().optional(),
   stickers: retroStickersSchema,
   difficulty: difficultySchema,
+  assigneeIds: z.array(z.string().trim().min(1)).default([]).optional(),
 });
 
 const updateCardSchema = z.object({
@@ -67,6 +72,7 @@ const updateCardSchema = z.object({
   privateCoins: z.any().optional(),
   stickers: retroStickersSchema.optional(),
   difficulty: difficultySchema,
+  assigneeIds: z.array(z.string().trim().min(1)).optional(),
 });
 
 function serializeCard<T extends {
@@ -95,6 +101,7 @@ function serializeCard<T extends {
     privateCoins: card.privateCoins,
     stickers: normalizeRetroStickerSelection(card.stickers),
     difficulty: extractDifficulty(card.privateCoins),
+    assigneeIds: extractAssigneeIds(card.privateCoins),
   };
 }
 
@@ -122,7 +129,10 @@ export async function POST(request: Request) {
     const position = await prisma.card.count({
       where: { columnId: payload.columnId }
     });
-    const privateCoins = withDifficulty(payload.privateCoins, payload.difficulty);
+    let privateCoins = withDifficulty(payload.privateCoins, payload.difficulty);
+    if (payload.assigneeIds !== undefined) {
+      privateCoins = withAssignees(privateCoins, payload.assigneeIds);
+    }
     const card = await prisma.card.create({
       data: {
         columnId: payload.columnId,
@@ -181,6 +191,12 @@ export async function PATCH(request: Request) {
           ? nextPrivateCoins
           : (await tx.card.findUnique({ where: { id: payload.cardId }, select: { privateCoins: true } }))?.privateCoins;
         nextPrivateCoins = withDifficulty(baseCoins, payload.difficulty);
+      }
+      if (payload.assigneeIds !== undefined) {
+        const baseCoins = nextPrivateCoins !== undefined
+          ? nextPrivateCoins
+          : (await tx.card.findUnique({ where: { id: payload.cardId }, select: { privateCoins: true } }))?.privateCoins;
+        nextPrivateCoins = withAssignees(baseCoins, payload.assigneeIds);
       }
 
       return tx.card.update({

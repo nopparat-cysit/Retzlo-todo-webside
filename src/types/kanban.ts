@@ -1,7 +1,9 @@
 import type { CardColor } from "@/lib/theme/card-colors";
 import type { ColumnIconId, ColumnThemeId } from "@/lib/kanban/column-settings";
 import type { DifficultyScore } from "@/lib/kanban/difficulty";
+import type { CardAssignee } from "@/lib/kanban/assignees";
 
+export type { CardAssignee } from "@/lib/kanban/assignees";
 export type CardPriority = "LOW" | "MEDIUM" | "HIGH";
 
 export interface Card {
@@ -22,6 +24,8 @@ export interface Card {
   privateCoins?: any;
   stickers?: string[];
   difficulty?: DifficultyScore | null;
+  assigneeIds?: string[];
+  assignees?: CardAssignee[];
 }
 
 export type CardStatus = "TODO" | "DOING" | "WAITING" | "DONE";
