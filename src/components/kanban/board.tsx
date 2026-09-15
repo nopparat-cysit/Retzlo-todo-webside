@@ -12,7 +12,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles, Users, X } from "lucide-react";
+import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo } from "react";
 
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
@@ -23,6 +23,16 @@ import { triggerCelebration } from "@/components/kanban/card-celebration";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { AssigneeAvatar } from "@/components/kanban/assignee-avatar";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime } from "@/lib/date-format";
 import {
@@ -100,6 +110,10 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   const [searchQuery, setSearchQuery] = useState("");
   const [isTodayFilterActive, setIsTodayFilterActive] = useState(false);
   const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
+  const selectedAssignee = useMemo(
+    () => members.find((m) => m.id === assigneeFilter),
+    [members, assigneeFilter]
+  );
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [moveHistory, setMoveHistory] = useState<MoveAction[]>([]);
 
@@ -685,43 +699,88 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
           </button>
 
           {/* Assignee Filter */}
-          <div className="relative flex h-9 items-center">
-            <Users className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-stone-400" />
-            <select
-              value={assigneeFilter}
-              onChange={(e) => setAssigneeFilter(e.target.value)}
-              aria-label="Filter cards by assignee"
-              className={cn(
-                "h-9 appearance-none rounded-xl border pl-8 pr-7 text-xs font-medium transition cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-400/50",
-                assigneeFilter !== "ALL"
-                  ? "border-primary-400/40 bg-primary-950/40 text-primary-200"
-                  : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
-              )}
-            >
-              <option value="ALL" className="bg-stone-900 text-stone-200">
-                All Assignees
-              </option>
-              <option value="UNASSIGNED" className="bg-stone-900 text-stone-200">
-                Unassigned
-              </option>
-              {members.length > 0 && (
-                <optgroup label="Members" className="bg-stone-900 text-stone-400">
-                  {members.map((member) => (
-                    <option key={member.id} value={member.id} className="bg-stone-900 text-stone-200">
-                      {member.name || member.email}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
+          <div className="flex items-center gap-1.5">
+            <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
+              <SelectTrigger
+                aria-label="Filter cards by assignee"
+                className={cn(
+                  "h-9 w-auto min-w-[135px] max-w-[220px] gap-2 rounded-xl border px-3 text-xs font-medium transition cursor-pointer select-none [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
+                  assigneeFilter !== "ALL"
+                    ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold [&>svg]:text-dusk-lavender"
+                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
+                )}
+              >
+                <SelectValue>
+                  {selectedAssignee ? (
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <AssigneeAvatar user={selectedAssignee} size={16} />
+                      <span className="truncate">{selectedAssignee.name || selectedAssignee.email}</span>
+                    </span>
+                  ) : assigneeFilter === "UNASSIGNED" ? (
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <UserX className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />
+                      <span className="truncate">Unassigned</span>
+                    </span>
+                  ) : assigneeFilter !== "ALL" ? (
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <Users className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />
+                      <span className="truncate">Filtered</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <Users className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+                      <span className="truncate">All Assignees</span>
+                    </span>
+                  )}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent align="start" className="min-w-[15rem] max-w-[22rem]">
+                <SelectItem value="ALL" className="cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+                    <span>All Assignees</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="UNASSIGNED" className="cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <UserX className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+                    <span>Unassigned</span>
+                  </div>
+                </SelectItem>
+                {members.length > 0 && (
+                  <>
+                    <SelectSeparator />
+                    <SelectLabel>Members ({members.length})</SelectLabel>
+                    {members.map((member) => (
+                      <SelectItem key={member.id} value={member.id} className="cursor-pointer py-1.5">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <AssigneeAvatar user={member} size={20} />
+                          <div className="flex flex-col min-w-0 text-left">
+                            <span className="truncate text-xs font-medium text-stone-200">
+                              {member.name || member.email}
+                            </span>
+                            {member.name && (
+                              <span className="truncate text-[10px] text-stone-400">
+                                {member.email}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
+              </SelectContent>
+            </Select>
             {assigneeFilter !== "ALL" && (
               <button
                 type="button"
                 onClick={() => setAssigneeFilter("ALL")}
-                className="absolute right-2 z-10 text-stone-400 hover:text-white"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.035] text-stone-400 hover:border-white/20 hover:bg-white/5 hover:text-white transition"
                 title="Clear assignee filter"
+                aria-label="Clear assignee filter"
               >
-                <X className="h-3 w-3" />
+                <X className="h-3.5 w-3.5" />
               </button>
             )}
           </div>

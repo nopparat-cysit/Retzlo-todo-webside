@@ -48,4 +48,12 @@ describe("kanban card interactions", () => {
     expect(cardSource).toMatch(/<\/article>\s*<CardModal/);
     expect(cardSource).toMatch(/\/>\s*<ConfirmModal/);
   });
+
+  it("renders accessible Radix UI select and avatar badges for assignee filtering without raw HTML select", () => {
+    expect(boardSource).toContain("<Select value={assigneeFilter}");
+    expect(boardSource).toContain("<SelectTrigger");
+    expect(boardSource).toContain("<AssigneeAvatar");
+    expect(boardSource).not.toContain("<select");
+    expect(boardSource).not.toContain("border-primary-400");
+  });
 });
