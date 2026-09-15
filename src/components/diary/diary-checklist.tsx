@@ -31,6 +31,33 @@ const repeatPresets = [
   { label: "Monthly", days: 30 }
 ];
 
+function toLocalDateString(date: Date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function getOffsetLocalDateString(offsetDays: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return toLocalDateString(d);
+}
+
+const START_DATE_PRESETS = [
+  { label: "วันนี้", offset: 0, title: "เริ่มตั้งแต่วันนี้" },
+  { label: "+1d", offset: 1, title: "เริ่มพรุ่งนี้ (+1 วัน)" },
+  { label: "+3d", offset: 3, title: "เริ่มในอีก 3 วัน" },
+  { label: "+7d", offset: 7, title: "เริ่มในอีก 1 สัปดาห์" }
+];
+
+const REPEAT_DAYS_PRESETS = [
+  { label: "ทุกวัน", days: 1 },
+  { label: "7 วัน", days: 7 },
+  { label: "14 วัน", days: 14 },
+  { label: "30 วัน", days: 30 }
+];
+
 export function DiaryChecklistEditor({
   defaultRepeatDays,
   defaultStartDate,
@@ -151,96 +178,124 @@ export function DiaryChecklistEditor({
                   onChange={(event) => updateItem(item.id, { description: event.target.value })}
                 />
 
-                <div className="grid gap-2.5 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-1 text-xs text-stone-400">
-                      <span>Start date (วันเริ่มต้น)</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const d = new Date();
-                            updateItem(item.id, { startDate: d.toISOString().slice(0, 10) });
-                          }}
-                          className="rounded px-1.5 py-0.5 text-[10px] bg-white/5 hover:bg-white/10 text-stone-300 transition"
-                          title="เริ่มวันนี้"
-                        >
-                          วันนี้
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const d = new Date();
-                            d.setDate(d.getDate() + 1);
-                            updateItem(item.id, { startDate: d.toISOString().slice(0, 10) });
-                          }}
-                          className="rounded px-1.5 py-0.5 text-[10px] bg-white/5 hover:bg-white/10 text-stone-300 transition"
-                          title="เริ่มพรุ่งนี้"
-                        >
-                          +1d
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const d = new Date();
-                            d.setDate(d.getDate() + 3);
-                            updateItem(item.id, { startDate: d.toISOString().slice(0, 10) });
-                          }}
-                          className="rounded px-1.5 py-0.5 text-[10px] bg-dusk-amber/15 hover:bg-dusk-amber/25 text-dusk-amber font-semibold border border-dusk-amber/30 transition"
-                          title="เริ่มในอีก 3 วัน"
-                        >
-                          +3d
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const d = new Date();
-                            d.setDate(d.getDate() + 7);
-                            updateItem(item.id, { startDate: d.toISOString().slice(0, 10) });
-                          }}
-                          className="rounded px-1.5 py-0.5 text-[10px] bg-white/5 hover:bg-white/10 text-stone-300 transition"
-                          title="เริ่มสัปดาห์หน้า"
-                        >
-                          +7d
-                        </button>
+                {/* Timing & Recurrence Settings Box */}
+                <div className="rounded-xl border border-white/10 bg-ink-950/35 p-3.5 space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {/* Start Date Field */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-medium text-stone-300">Start date (วันเริ่มต้น)</span>
+                        {item.startDate ? (
+                          <span className="text-[11px] text-stone-400 font-mono">
+                            {item.startDate.slice(0, 10) === toLocalDateString()
+                              ? "🟢 วันนี้"
+                              : item.startDate.slice(0, 10) > toLocalDateString()
+                                ? "⏳ เริ่มในอนาคต"
+                                : "เริ่มแล้ว"}
+                          </span>
+                        ) : null}
+                      </div>
+                      <Input
+                        className="h-9 font-mono text-sm"
+                        type="date"
+                        value={(item.startDate || defaultStartDate).slice(0, 10)}
+                        onChange={(event) => updateItem(item.id, { startDate: event.target.value })}
+                        required
+                      />
+                      {/* Quick Presets row placed cleanly under input */}
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        <span className="text-[11px] text-stone-500">ปุ่มลัด:</span>
+                        {START_DATE_PRESETS.map((preset) => {
+                          const targetDate = getOffsetLocalDateString(preset.offset);
+                          const currentVal = (item.startDate || defaultStartDate).slice(0, 10);
+                          const isSelected = currentVal === targetDate;
+                          return (
+                            <button
+                              key={preset.offset}
+                              type="button"
+                              title={preset.title}
+                              onClick={() => updateItem(item.id, { startDate: targetDate })}
+                              className={cn(
+                                "rounded px-2 py-0.5 text-[11px] font-medium transition",
+                                isSelected
+                                  ? "border border-dusk-amber/45 bg-dusk-amber/20 text-dusk-amber font-semibold shadow-xs"
+                                  : "border border-white/10 bg-white/5 text-stone-400 hover:border-white/20 hover:bg-white/10 hover:text-stone-200"
+                              )}
+                            >
+                              {preset.label}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
-                    <Input
-                      className="h-9"
-                      type="date"
-                      value={item.startDate || defaultStartDate}
-                      onChange={(event) => updateItem(item.id, { startDate: event.target.value })}
-                      required
-                    />
+
+                    {/* Repeat Interval Field */}
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-medium text-stone-300">
+                        Repeat every (ทำซ้ำทุก)
+                      </label>
+                      <div className="relative">
+                        <Input
+                          className="h-9 pr-16 font-mono text-sm"
+                          max={365}
+                          min={1}
+                          type="number"
+                          value={item.intervalDays}
+                          onChange={(event) =>
+                            updateItem(item.id, { intervalDays: Math.max(1, Number(event.target.value) || 1) })
+                          }
+                        />
+                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">
+                          วัน (days)
+                        </span>
+                      </div>
+                      {/* Quick rhythm presets under input */}
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        <span className="text-[11px] text-stone-500">รอบ:</span>
+                        {REPEAT_DAYS_PRESETS.map((rhythm) => (
+                          <button
+                            key={rhythm.days}
+                            type="button"
+                            onClick={() => updateItem(item.id, { intervalDays: rhythm.days })}
+                            className={cn(
+                              "rounded px-2 py-0.5 text-[11px] font-medium transition",
+                              item.intervalDays === rhythm.days
+                                ? "border border-dusk-cyan/45 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-xs"
+                                : "border border-white/10 bg-white/5 text-stone-400 hover:border-white/20 hover:bg-white/10 hover:text-stone-200"
+                            )}
+                          >
+                            {rhythm.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
-                  <label className="space-y-1.5 text-xs text-stone-400">
-                    <span>Repeat every (days) (ทำซ้ำทุกกี่วัน)</span>
-                    <Input
-                      className="h-9"
-                      max={365}
-                      min={1}
-                      type="number"
-                      value={item.intervalDays}
-                      onChange={(event) => updateItem(item.id, { intervalDays: Number(event.target.value) })}
-                    />
-                  </label>
-                </div>
-
-                <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_9rem]">
-                  <label className="space-y-1.5 text-xs text-stone-400">
-                    <span>Due time (เวลาที่กำหนด - ไม่ระบุ = ตลอดวัน)</span>
-                    <Input
-                      className="h-9"
-                      type="time"
-                      value={item.dueTime ?? ""}
-                      onChange={(event) => updateItem(item.id, { dueTime: event.target.value || null })}
-                    />
-                  </label>
-                  <div className="flex items-end pb-1.5">
-                    <p className="text-[11px] leading-4 text-stone-500">
-                      Resets at local midnight when item is due.
-                    </p>
+                  {/* Due Time */}
+                  <div className="grid gap-2 border-t border-white/5 pt-2.5 sm:grid-cols-[1fr_auto] sm:items-center">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-medium text-stone-300">Due time (เวลาที่กำหนด):</span>
+                      <Input
+                        className="h-8 w-36 font-mono text-xs"
+                        type="time"
+                        value={item.dueTime ?? ""}
+                        onChange={(event) => updateItem(item.id, { dueTime: event.target.value || null })}
+                      />
+                      {item.dueTime ? (
+                        <button
+                          type="button"
+                          onClick={() => updateItem(item.id, { dueTime: null })}
+                          className="rounded px-2 py-0.5 text-[11px] text-stone-400 hover:bg-white/5 hover:text-stone-200 transition"
+                        >
+                          ล้างเวลา (ตลอดวัน)
+                        </button>
+                      ) : (
+                        <span className="text-[11px] text-stone-500">ไม่ระบุ = ตลอดวัน</span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-stone-500 sm:text-right">
+                      รีเซ็ตทุกเที่ยงคืนเมื่อถึงรอบที่ต้องทำ
+                    </span>
                   </div>
                 </div>
               </div>

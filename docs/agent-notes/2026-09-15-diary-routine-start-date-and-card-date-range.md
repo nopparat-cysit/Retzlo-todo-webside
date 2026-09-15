@@ -11,19 +11,19 @@ Support per-item start date configuration for Diary routine checklist items (all
 - src/app/(dashboard)/project/[id]/board/page.tsx: Mapped startDate and startDateAllDay in 	oColumns.
 - src/components/kanban/card-modal.tsx: Added Start Date & Due Date DateTimeFields, wired into form draft recovery, change tracking, and payload submission.
 - src/components/kanban/card.tsx: Added date range / start date badge formatting (ormatCardDateRange) and updated saveCard callback.
-- src/components/diary/diary-checklist.tsx: Stopped clobbering per-item startDate with defaultStartDate, added per-item start date picker and quick offset buttons (+1d, +3d, +7d), and rendered start date badges in preview.
+- src/components/diary/diary-checklist.tsx: Revamped the Timing & Recurrence card UI for routine items. Split Start date and Repeat every into balanced columns, placed quick presets ([วันนี้], [+1d], [+3d], [+7d]) neatly below the date input with accurate dynamic active state highlighting (removing hardcoded amber border), added repeat rhythm presets ([ทุกวัน], [7 วัน], [14 วัน], [30 วัน]), and added a clean due time row with a reset-to-anytime action.
 - src/components/diary/diary-list-panel.tsx: 
-  - Swapped DiaryFocusCard layout so Shelf is on the left (320px) and Checklist is on the right (minmax(0, 1fr)), highlighted Milestone Reward Coins at the top of the shelf, added mini coin badge in header banner, and added coin progress callout in checklist header.
-  - Refactored `DiaryItemModal` (Create/Edit Modal) into an expanded 2-column studio layout (`max-w-5xl`): Details, Start Date, Settings, and the Milestone Reward (Coins) Card are permanently placed on the LEFT column (`380px`), while the Checklist Studio occupies the full RIGHT column (`minmax(0, 1fr)`).
-- src/components/hub/diary-hub-panel.tsx: Applied the identical 2-column layout swap and Coins placement card to `HubDiaryModal` for consistent experience across Workspace and Hub views.
-- src/lib/diary/checklist.test.ts: Added recurrence unit tests verifying items scheduled to start in +3 days are not due today.
+  - Restored `DiaryFocusCard` layout so **Checklist Studio** is on the **LEFT** (`minmax(0, 1fr)`) and the **Information & Coins Shelf** is on the **RIGHT** (`320px`), returning to the natural primary reading order.
+  - Retained `DiaryItemModal` (Create/Edit Modal) 2-column studio layout (`max-w-5xl`): Details, Start Date, Settings, and the Milestone Reward (Coins) Card on the left, and Checklist Studio on the right.
+- src/components/hub/diary-hub-panel.tsx: Consistent 2-column studio modal layout for hub diary management.
+- src/lib/diary/checklist.test.ts: Recurrence unit tests verifying items scheduled to start in +3 days are not due today.
 
 ## Important Behavior Changes
+- `DiaryFocusCard` (Focus view): Checklist Studio is now back on the **LEFT** side, and the Metadata Shelf (Milestone Reward, Schedule & Rhythm, Visibility, and Quote) is on the **RIGHT** side.
+- Routine items date UI: Clean, uncrowded card layout with accurate dynamic active state on quick preset buttons ([วันนี้], [+1d], [+3d], [+7d]) without false selections.
 - Diary routine checklist items can now start in the future (e.g. +3 days). Items whose start date has not arrived are accurately marked as not due today.
-- Diary focus view now places the Checklist Studio on the right side of the desktop screen and the Information Shelf on the left side.
-- Diary Create & Edit / Setting modals (`DiaryItemModal` and `HubDiaryModal`) now place Details, Start Date, Settings, and the Milestone Reward (Coins) card neatly on the left side, and the full Checklist Studio on the right side.
-- Coins (Milestone Reward) can be toggled and configured directly on the left panel without awkward popup drawers.
-- Kanban cards now support both Start Date (วันที่เริ่ม) and End Date (วันที่สิ้นสุด), formatted as a date range badge (15 มี.ค. → 20 มี.ค.) on the board.
+- Diary Create & Edit / Setting modals (`DiaryItemModal` and `HubDiaryModal`) place Details, Start Date, Settings, and Milestone Reward Coins on the left, and Checklist Studio on the right.
+- Kanban cards support Start Date (วันที่เริ่ม) and End Date (วันที่สิ้นสุด), formatted as a date range badge (15 มี.ค. → 20 มี.ค.) on the board.
 
 ## Database / Schema Changes
 - None (zero database migration risk). startDate and startDateAllDay are stored in Postgres within the existing card.privateCoins JSON field, matching the proven architecture used for difficulty scores and assignees.

@@ -758,140 +758,9 @@ function DiaryFocusCard({
 
       {/* 2-Column Ritual Studio Content */}
       <div className="min-h-0 flex-1 overflow-y-auto p-5 scrollbar-soft lg:p-6">
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-          {/* Left Column (Desktop): Insights, Coins & Metadata Shelf */}
-          <div className="order-2 flex flex-col gap-4 xl:order-1">
-            {/* Reward Card */}
-            <div className="rounded-2xl border border-dusk-amber/30 bg-ink-950/50 p-4 shadow-sm">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-dusk-amber">
-                  <Coins className="h-4 w-4" />
-                  <span>Milestone Reward</span>
-                </div>
-                {hasReward ? (
-                  <span
-                    className={cn(
-                      "rounded-full border px-2 py-0.5 text-[10px] font-medium",
-                      rewardClaimed
-                        ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                        : rewardReady
-                          ? "border-dusk-amber/35 bg-dusk-amber/15 text-dusk-amber animate-pulse"
-                          : "border-white/10 bg-white/5 text-stone-400"
-                    )}
-                  >
-                    {rewardClaimed ? "Claimed ✓" : rewardReady ? "Ready to Claim!" : "In Progress"}
-                  </span>
-                ) : null}
-              </div>
-
-              {hasReward ? (
-                <div className="mt-3">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="font-mono text-2xl font-bold text-dusk-amber">+{item.rewardCoins}</span>
-                    <span className="text-xs text-stone-400">
-                      {item.rewardCoinType === "GLOBAL" ? "Global Coins" : "Project Coins"}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs text-stone-400">
-                    {rewardClaimed
-                      ? "Reward claimed for today's routine!"
-                      : "Automatically rewarded once 100% of today's checklist is complete."}
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-2 text-xs text-stone-400">
-                  <p>No coin reward configured for this ritual.</p>
-                  {item.canManage ? (
-                    <button
-                      className="mt-2 text-[11px] font-medium text-dusk-amber underline underline-offset-2 hover:text-amber-300"
-                      type="button"
-                      onClick={onEdit}
-                    >
-                      Configure coin reward
-                    </button>
-                  ) : null}
-                </div>
-              )}
-            </div>
-
-            {/* Schedule & Rhythm Card */}
-            <div className="rounded-2xl border border-white/10 bg-ink-950/40 p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-dusk-lavender">
-                <Clock className="h-4 w-4" />
-                <span>Schedule & Rhythm</span>
-              </div>
-              <div className="mt-3 space-y-2.5 text-xs text-stone-300">
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                  <span className="text-stone-400">Frequency</span>
-                  <span className="font-medium text-stone-200">
-                    Every {item.intervalDays} day{item.intervalDays > 1 ? "s" : ""}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                  <span className="text-stone-400">Target Time</span>
-                  <span className="font-mono text-stone-200">{item.dueTime ?? "Anytime"}</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                  <span className="text-stone-400">Started Date</span>
-                  <span className="text-stone-200">{formatMediumDate(item.startDate)}</span>
-                </div>
-                <div className="flex items-center justify-between pt-0.5">
-                  <span className="text-stone-400">Today&apos;s Status</span>
-                  <span className={cn("font-medium", item.isDueToday ? "text-dusk-cyan" : "text-stone-400")}>
-                    {item.isDueToday ? "Scheduled today" : "Rest / Off-cycle"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Visibility & Privacy Card */}
-            <div className="rounded-2xl border border-white/10 bg-ink-950/40 p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-dusk-cyan">
-                <Shield className="h-4 w-4" />
-                <span>Member Visibility</span>
-              </div>
-              <div className="mt-2 text-xs text-stone-400">
-                {item.isHidden ? (
-                  <p className="flex items-center gap-1.5 text-dusk-rose">
-                    <EyeOff className="h-3.5 w-3.5" />
-                    Hidden from other project members
-                  </p>
-                ) : (
-                  <p className="text-stone-300">Visible to all workspace members on this diary shelf.</p>
-                )}
-              </div>
-              {item.canToggleHidden ? (
-                <Button
-                  className="mt-3 w-full text-xs"
-                  size="sm"
-                  type="button"
-                  variant="ghost"
-                  onClick={onToggleHidden}
-                >
-                  {item.isHidden ? <Eye className="mr-1.5 h-3.5 w-3.5" /> : <EyeOff className="mr-1.5 h-3.5 w-3.5" />}
-                  {item.isHidden ? "Make Visible to Workspace" : "Hide from Workspace"}
-                </Button>
-              ) : null}
-            </div>
-
-            {/* Retro Lofi Sticker & Mindful Note */}
-            <div className="flex items-center gap-3.5 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] p-4">
-              <Image
-                alt=""
-                aria-hidden="true"
-                className="h-12 w-12 shrink-0 object-contain drop-shadow-md"
-                height={48}
-                src={lofiSticker.src}
-                width={48}
-              />
-              <p className="text-xs leading-relaxed italic text-stone-400">
-                &ldquo;{lofiSticker.quote}&rdquo;
-              </p>
-            </div>
-          </div>
-
-          {/* Right Column (Desktop): Checklist Studio */}
-          <div className="order-1 flex min-h-0 flex-col gap-4 rounded-2xl border border-white/10 bg-ink-950/40 p-4 sm:p-5 xl:order-2">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          {/* Left Column (Desktop): Checklist Studio */}
+          <div className="order-1 flex min-h-0 flex-col gap-4 rounded-2xl border border-white/10 bg-ink-950/40 p-4 sm:p-5 xl:order-1">
             {/* Checklist Header & Progress */}
             <div className="border-b border-white/8 pb-4">
               <div className="flex items-center justify-between gap-3">
@@ -1061,6 +930,137 @@ function DiaryFocusCard({
                 </Button>
               </form>
             ) : null}
+          </div>
+
+          {/* Right Column (Desktop): Insights, Coins & Metadata Shelf */}
+          <div className="order-2 flex flex-col gap-4 xl:order-2">
+            {/* Reward Card */}
+            <div className="rounded-2xl border border-dusk-amber/30 bg-ink-950/50 p-4 shadow-sm">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-dusk-amber">
+                  <Coins className="h-4 w-4" />
+                  <span>Milestone Reward</span>
+                </div>
+                {hasReward ? (
+                  <span
+                    className={cn(
+                      "rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                      rewardClaimed
+                        ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                        : rewardReady
+                          ? "border-dusk-amber/35 bg-dusk-amber/15 text-dusk-amber animate-pulse"
+                          : "border-white/10 bg-white/5 text-stone-400"
+                    )}
+                  >
+                    {rewardClaimed ? "Claimed ✓" : rewardReady ? "Ready to Claim!" : "In Progress"}
+                  </span>
+                ) : null}
+              </div>
+
+              {hasReward ? (
+                <div className="mt-3">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-mono text-2xl font-bold text-dusk-amber">+{item.rewardCoins}</span>
+                    <span className="text-xs text-stone-400">
+                      {item.rewardCoinType === "GLOBAL" ? "Global Coins" : "Project Coins"}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-stone-400">
+                    {rewardClaimed
+                      ? "Reward claimed for today's routine!"
+                      : "Automatically rewarded once 100% of today's checklist is complete."}
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-2 text-xs text-stone-400">
+                  <p>No coin reward configured for this ritual.</p>
+                  {item.canManage ? (
+                    <button
+                      className="mt-2 text-[11px] font-medium text-dusk-amber underline underline-offset-2 hover:text-amber-300"
+                      type="button"
+                      onClick={onEdit}
+                    >
+                      Configure coin reward
+                    </button>
+                  ) : null}
+                </div>
+              )}
+            </div>
+
+            {/* Schedule & Rhythm Card */}
+            <div className="rounded-2xl border border-white/10 bg-ink-950/40 p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-dusk-lavender">
+                <Clock className="h-4 w-4" />
+                <span>Schedule & Rhythm</span>
+              </div>
+              <div className="mt-3 space-y-2.5 text-xs text-stone-300">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                  <span className="text-stone-400">Frequency</span>
+                  <span className="font-medium text-stone-200">
+                    Every {item.intervalDays} day{item.intervalDays > 1 ? "s" : ""}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                  <span className="text-stone-400">Target Time</span>
+                  <span className="font-mono text-stone-200">{item.dueTime ?? "Anytime"}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                  <span className="text-stone-400">Started Date</span>
+                  <span className="text-stone-200">{formatMediumDate(item.startDate)}</span>
+                </div>
+                <div className="flex items-center justify-between pt-0.5">
+                  <span className="text-stone-400">Today&apos;s Status</span>
+                  <span className={cn("font-medium", item.isDueToday ? "text-dusk-cyan" : "text-stone-400")}>
+                    {item.isDueToday ? "Scheduled today" : "Rest / Off-cycle"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Visibility & Privacy Card */}
+            <div className="rounded-2xl border border-white/10 bg-ink-950/40 p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-dusk-cyan">
+                <Shield className="h-4 w-4" />
+                <span>Member Visibility</span>
+              </div>
+              <div className="mt-2 text-xs text-stone-400">
+                {item.isHidden ? (
+                  <p className="flex items-center gap-1.5 text-dusk-rose">
+                    <EyeOff className="h-3.5 w-3.5" />
+                    Hidden from other project members
+                  </p>
+                ) : (
+                  <p className="text-stone-300">Visible to all workspace members on this diary shelf.</p>
+                )}
+              </div>
+              {item.canToggleHidden ? (
+                <Button
+                  className="mt-3 w-full text-xs"
+                  size="sm"
+                  type="button"
+                  variant="ghost"
+                  onClick={onToggleHidden}
+                >
+                  {item.isHidden ? <Eye className="mr-1.5 h-3.5 w-3.5" /> : <EyeOff className="mr-1.5 h-3.5 w-3.5" />}
+                  {item.isHidden ? "Make Visible to Workspace" : "Hide from Workspace"}
+                </Button>
+              ) : null}
+            </div>
+
+            {/* Retro Lofi Sticker & Mindful Note */}
+            <div className="flex items-center gap-3.5 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] p-4">
+              <Image
+                alt=""
+                aria-hidden="true"
+                className="h-12 w-12 shrink-0 object-contain drop-shadow-md"
+                height={48}
+                src={lofiSticker.src}
+                width={48}
+              />
+              <p className="text-xs leading-relaxed italic text-stone-400">
+                &ldquo;{lofiSticker.quote}&rdquo;
+              </p>
+            </div>
           </div>
         </div>
       </div>
