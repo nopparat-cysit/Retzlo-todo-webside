@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut, Sparkles, User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 import {
@@ -93,16 +93,6 @@ export function UserProfilePopover({
               >
                 <User className="h-4 w-4 text-dusk-lavender" />
                 Profile Settings
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem asChild>
-              <Link
-                href="/select-module"
-                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-stone-300 transition hover:bg-white/5 hover:text-stone-100 focus:bg-white/10 focus:text-stone-100"
-              >
-                <Sparkles className="h-4 w-4 text-dusk-amber" />
-                Switch Module
               </Link>
             </DropdownMenuItem>
           </div>

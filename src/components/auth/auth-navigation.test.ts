@@ -7,7 +7,7 @@ const landingSource = readFileSync("src/app/(marketing)/page.tsx", "utf8");
 describe("auth-aware navigation", () => {
   it("redirects away from login on an existing client session", () => {
     expect(loginFormSource).toContain("getSession");
-    expect(loginFormSource).toContain("router.replace(searchParams.get(\"callbackUrl\") ?? \"/select-module\")");
+    expect(loginFormSource).toContain('router.replace(searchParams.get("callbackUrl") ?? "/projects")');
     expect(loginFormSource).not.toContain("isCheckingSession");
     expect(loginFormSource).not.toContain("Checking your workspace session");
     expect(loginFormSource).toContain("const password = String(formData.get(\"password\") ?? \"\")");

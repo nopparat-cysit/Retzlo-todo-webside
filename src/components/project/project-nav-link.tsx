@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpenCheck, CalendarDays, FileText, KanbanSquare, Settings, Users, Gift, Building2 } from "lucide-react";
+import { BookOpenCheck, CalendarDays, FileText, KanbanSquare, Settings, Users, Gift } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,6 @@ const ICON_MAP = {
   diary: BookOpenCheck,
   notes: FileText,
   members: Users,
-  office: Building2,
   settings: Settings,
   rewards: Gift,
 } as const;

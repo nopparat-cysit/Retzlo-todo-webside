@@ -9,11 +9,8 @@ function read(path: string) {
 }
 
 describe("visual consistency guardrails", () => {
-  it("uses shared EmptyState for finance, hub, and calendar empty surfaces", () => {
+  it("uses shared EmptyState for hub and calendar empty surfaces", () => {
     const files = [
-      "src/components/finance/finance-empty-state.tsx",
-      "src/components/finance/category-breakdown.tsx",
-      "src/components/finance/subscription-list.tsx",
       "src/components/hub/notes-hub-panel.tsx",
       "src/components/hub/diary-hub-panel.tsx",
       "src/components/kanban/project-calendar.tsx",
@@ -31,18 +28,12 @@ describe("visual consistency guardrails", () => {
     const notesHub = read("src/components/hub/notes-hub-panel.tsx");
     const diaryHub = read("src/components/hub/diary-hub-panel.tsx");
     const calendar = read("src/components/kanban/project-calendar.tsx");
-    const finance = read("src/components/finance/transaction-list.tsx");
-    const categories = read("src/components/finance/category-breakdown.tsx");
-    const subscriptions = read("src/components/finance/subscription-list.tsx");
     const projects = read("src/components/project/projects-dashboard.tsx");
 
     expect(notesHub).not.toContain("No notes in this filter.");
     expect(diaryHub).not.toContain("No diary items in this filter.");
     expect(calendar).not.toContain("No matching calendar items");
     expect(calendar).not.toContain("No items match the selected filters for this day.");
-    expect(finance).not.toContain("No transactions yet.");
-    expect(categories).not.toContain("No expense data this month.");
-    expect(subscriptions).not.toContain("No active recurring bills.");
     expect(projects).not.toContain("No upcoming due dates yet.");
   });
 

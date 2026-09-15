@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { getDefaultModule, getModuleHref } from "@/lib/modules/default-module";
 import { 
   ArrowRight, 
   Sparkles, 
@@ -636,17 +635,14 @@ export default function LandingPage() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<MarketingSessionUser | null>(null);
-  const [defaultDestination, setDefaultDestination] = useState<string>("/select-module");
+  const [defaultDestination, setDefaultDestination] = useState<string>("/projects");
   const [isPlaying, setIsPlaying] = useState(false);
   const [crtMode, setCrtMode] = useState(true); // Default CRT mode ON for lofi vibes
   const [steamHovered, setSteamHovered] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-
-    const defaultMod = getDefaultModule();
-    const destination = defaultMod ? getModuleHref(defaultMod) : "/select-module";
-    setDefaultDestination(destination);
+    setDefaultDestination("/projects");
 
     async function loadSession() {
       try {
@@ -657,11 +653,9 @@ export default function LandingPage() {
 
         if (session.user) {
           setCurrentUser(session.user);
-          if (defaultMod) {
-            const searchParams = new URLSearchParams(window.location.search);
-            if (!searchParams.get("stay")) {
-              router.replace(destination);
-            }
+          const searchParams = new URLSearchParams(window.location.search);
+          if (!searchParams.get("stay")) {
+            router.replace("/projects");
           }
         } else {
           setCurrentUser(null);
@@ -1321,7 +1315,7 @@ export default function LandingPage() {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3 retzlo-fade-up-d3">
-              <Link href="/select-module">
+              <Link href="/projects">
                 <button className="retzlo-cta-primary px-7 py-3 flex items-center gap-2 group text-sm">
                   Start planning
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

@@ -37,14 +37,10 @@ export function BackButton({ className, label = "Back" }: BackButtonProps) {
     // Safe fallback based on current path
     if (pathname?.startsWith("/project/")) {
       router.push("/projects");
-    } else if (pathname?.startsWith("/finance/") || pathname === "/finance") {
-      router.push("/select-module");
     } else if (pathname === "/projects") {
-      router.push("/select-module");
+      router.push("/projects");
     } else if (pathname === "/profile") {
       router.push("/projects");
-    } else if (pathname === "/hub" || pathname === "/vital" || pathname === "/office") {
-      router.push("/select-module");
     } else if (
       pathname === "/forgot-password" ||
       pathname === "/reset-password" ||

@@ -7,7 +7,6 @@ import { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getDefaultModule, getModuleHref } from "@/lib/modules/default-module";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -53,8 +52,7 @@ export function RegisterForm() {
     }
 
     await signIn("credentials", { email, identifier: email, password, redirect: false });
-    const defaultMod = getDefaultModule();
-    const destination = searchParams.get("callbackUrl") ?? (defaultMod ? getModuleHref(defaultMod) : "/select-module");
+    const destination = searchParams.get("callbackUrl") ?? "/projects";
     router.push(destination);
     router.refresh();
   }

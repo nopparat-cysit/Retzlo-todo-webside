@@ -2,8 +2,6 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const pages = [
-  new URL("./hub/notes/page.tsx", import.meta.url),
-  new URL("./hub/diary/page.tsx", import.meta.url),
   new URL("./projects/rewards/page.tsx", import.meta.url),
   new URL("./project/[id]/rewards/page.tsx", import.meta.url)
 ];
