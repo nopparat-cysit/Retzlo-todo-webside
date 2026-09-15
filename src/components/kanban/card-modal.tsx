@@ -22,7 +22,6 @@ import { DateTimeField } from "@/components/ui/date-time-field";
 import { Input, Textarea } from "@/components/ui/input";
 import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { RetroStickerPicker } from "@/components/ui/retro-sticker-picker";
-import { AssigneePicker } from "./assignee-picker";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { composeDueDate, composeStartDate } from "@/lib/kanban/due-date";
 import {
@@ -36,7 +35,7 @@ import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
-import type { Card, CardAssignee, CardStatus, ChecklistItem } from "@/types/kanban";
+import type { Card, CardStatus, ChecklistItem } from "@/types/kanban";
 
 interface CardModalProps {
   card?: Card;
@@ -45,7 +44,6 @@ interface CardModalProps {
   onClose: () => void;
   onDelete?: () => Promise<void>;
   footerAction?: ReactNode;
-  members?: CardAssignee[];
   onSubmit: (data: {
     title: string;
     description: string | null;
@@ -93,7 +91,7 @@ function timeValue(card?: Card) {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
-export function CardModal({ card, mode, open, onClose, onDelete, footerAction, members = [], onSubmit }: CardModalProps) {
+export function CardModal({ card, mode, open, onClose, onDelete, footerAction, onSubmit }: CardModalProps) {
   const [startDate, setStartDate] = useState(startDateValue(card));
   const [startTime, setStartTime] = useState(startTimeValue(card));
   const [date, setDate] = useState(dateValue(card));
@@ -102,7 +100,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [selectedColor, setSelectedColor] = useState<CardColor>(normalizeCardColor(card?.color));
   const [selectedPriority, setSelectedPriority] = useState<"LOW" | "MEDIUM" | "HIGH">(card?.priority ?? "MEDIUM");
   const [difficulty, setDifficulty] = useState<DifficultyScore | null>(card?.difficulty ?? null);
-  const [assigneeIds, setAssigneeIds] = useState<string[]>(card?.assigneeIds ?? []);
   const [isStarred, setIsStarred] = useState(card?.isStarred ?? false);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(card?.checklist ?? []);
   const [newChecklistItem, setNewChecklistItem] = useState("");
@@ -142,8 +139,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       privateGlobalCoins,
       stickers,
       checklist,
-      difficulty,
-      assigneeIds
+      difficulty
     }),
     [
       title,
@@ -161,8 +157,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       privateGlobalCoins,
       stickers,
       checklist,
-      difficulty,
-      assigneeIds
+      difficulty
     ]
   );
 
@@ -172,7 +167,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       (data.description && data.description.trim()) ||
       (data.note && data.note.trim()) ||
       (data.checklist && data.checklist.length > 0) ||
-      (data.assigneeIds && data.assigneeIds.length > 0) ||
       (data.startDate && data.startDate.trim()) ||
       (data.date && data.date.trim())
     );
@@ -195,7 +189,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     if (draft.stickers !== undefined) setStickers(draft.stickers);
     if (draft.checklist !== undefined) setChecklist(draft.checklist);
     if (draft.difficulty !== undefined) setDifficulty(draft.difficulty);
-    if (draft.assigneeIds !== undefined) setAssigneeIds(draft.assigneeIds);
     toast({ message: "กู้คืนข้อมูลร่างเรียบร้อยแล้ว", type: "success" });
   }, [toast]);
 
@@ -230,7 +223,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     setSelectedColor(normalizeCardColor(card?.color));
     setSelectedPriority(card?.priority ?? "MEDIUM");
     setDifficulty(card?.difficulty ?? null);
-    setAssigneeIds(card?.assigneeIds ?? []);
     setIsStarred(card?.isStarred ?? false);
     setChecklist(card?.checklist ?? []);
     setNewChecklistItem("");
@@ -269,7 +261,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         selectedStatus !== "TODO" ||
         selectedPriority !== "MEDIUM" ||
         difficulty !== null ||
-        assigneeIds.length > 0 ||
         isStarred ||
         rewardCoins > 0 ||
         stickers.length > 0 ||
@@ -289,7 +280,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     const initialColor = normalizeCardColor(card.color);
     const initialPriority = card.priority ?? "MEDIUM";
     const initialDifficulty = card.difficulty ?? null;
-    const initialAssignees = card.assigneeIds ?? [];
     const initialStarred = card.isStarred ?? false;
     const initialReward = card.rewardCoins ?? 0;
     const initialStickers = normalizeRetroStickerSelection(card.stickers);
@@ -309,10 +299,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       stickers.length !== initialStickers.length ||
       stickers.some((s, idx) => s !== initialStickers[idx]);
 
-    const assigneesChanged =
-      assigneeIds.length !== initialAssignees.length ||
-      assigneeIds.some((id) => !initialAssignees.includes(id));
-
     return (
       title !== initialTitle ||
       description !== initialDesc ||
@@ -321,7 +307,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       selectedColor !== initialColor ||
       selectedPriority !== initialPriority ||
       difficulty !== initialDifficulty ||
-      assigneesChanged ||
       isStarred !== initialStarred ||
       rewardCoins !== initialReward ||
       startDate !== initialStartDate ||
@@ -341,7 +326,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     selectedColor,
     selectedPriority,
     difficulty,
-    assigneeIds,
     isStarred,
     rewardCoins,
     stickers,
@@ -428,7 +412,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         privateCoins: rewardPayload.privateCoins,
         stickers: normalizeRetroStickerSelection(stickers),
         difficulty,
-        assigneeIds
+        assigneeIds: card?.assigneeIds
       });
       clearDraft();
     } finally {
@@ -664,14 +648,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
             )}
           </div>
 
-          {/* ผู้รับผิดชอบ (Assignees) */}
-          <AssigneePicker
-            members={members}
-            selectedIds={assigneeIds}
-            onChange={setAssigneeIds}
-            disabled={isSaving}
-          />
-
           {/* วันที่เริ่ม และ วันที่สิ้นสุด (Start Date & Due Date) */}
           <div className="space-y-3">
             <DateTimeField
@@ -722,7 +698,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                     onChange={(e) => setRewardCoins(Math.max(0, parseInt(e.target.value) || 0))}
                     className="h-10 w-full rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
                   />
-                  <span>Awarded to assignee upon completion.</span>
+                  <span>Awarded upon completion.</span>
                 </label>
 
                 <label className="block space-y-1 text-xs text-stone-400">

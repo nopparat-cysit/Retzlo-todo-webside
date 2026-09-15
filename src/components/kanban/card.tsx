@@ -6,32 +6,28 @@ import { CalendarClock, CheckSquare, FileText, Star, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
-import { AssigneeStack } from "@/components/kanban/assignee-avatar";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime, formatShortDate } from "@/lib/date-format";
 import { formatCardDateRange } from "@/lib/kanban/due-date";
 import { getDifficultyMetadata, type DifficultyScore } from "@/lib/kanban/difficulty";
-import { resolveAssignees } from "@/lib/kanban/assignees";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
-import type { Card, CardAssignee } from "@/types/kanban";
+import type { Card } from "@/types/kanban";
 
 export function KanbanCard({
   card,
   columnId,
   isDragPreviewTarget = false,
-  members = [],
   onSaved,
   onDeleted
 }: {
   card: Card;
   columnId: string;
   isDragPreviewTarget?: boolean;
-  members?: CardAssignee[];
   onSaved: (card: Card) => void;
   onDeleted: (cardId: string) => void;
 }) {
@@ -99,8 +95,7 @@ export function KanbanCard({
         dueDateAllDay: data.card.dueDateAllDay ?? false,
         isStarred: data.card.isStarred ?? false,
         difficulty: data.card.difficulty !== undefined ? data.card.difficulty : card.difficulty,
-        assigneeIds: data.card.assigneeIds !== undefined ? data.card.assigneeIds : card.assigneeIds,
-        assignees: data.card.assignees ?? (members.length > 0 ? resolveAssignees(data.card.assigneeIds ?? card.assigneeIds, members) : card.assignees),
+        assigneeIds: data.card.assigneeIds !== undefined ? data.card.assigneeIds : card.assigneeIds
       });
       setIsEditing(false);
       toast({ message: "Card updated.", type: "success" });
@@ -220,37 +215,31 @@ export function KanbanCard({
             ) : null}
           </div>
           {card.description ? <p className="line-clamp-3 text-stone-400">{card.description}</p> : null}
-          {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) ? (
+          {card.startDate || card.dueDate ? (
             <div className="flex items-center justify-between gap-2 pt-1">
-              {(card.startDate || card.dueDate) ? (
-                <p
-                  className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-0.5 text-[11px] font-medium text-dusk-amber whitespace-nowrap min-w-0 max-w-[70%]"
-                  title={
-                    card.startDate && card.dueDate
-                      ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)} — กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
-                      : card.startDate
-                        ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)}`
-                        : card.dueDate
-                          ? `กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
-                          : undefined
-                  }
-                >
-                  <CalendarClock className="h-3 w-3 shrink-0" />
-                  <span className="truncate">
-                    {formatCardDateRange({
-                      startDate: card.startDate,
-                      startDateAllDay: card.startDateAllDay,
-                      dueDate: card.dueDate,
-                      dueDateAllDay: card.dueDateAllDay,
-                      formatFn: (val) => formatShortDate(val)
-                    })}
-                  </span>
-                </p>
-              ) : <div />}
-              <AssigneeStack
-                assignees={card.assignees ?? (members ? resolveAssignees(card.assigneeIds, members) : [])}
-                size={22}
-              />
+              <p
+                className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-0.5 text-[11px] font-medium text-dusk-amber whitespace-nowrap min-w-0"
+                title={
+                  card.startDate && card.dueDate
+                    ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)} — กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
+                    : card.startDate
+                      ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)}`
+                      : card.dueDate
+                        ? `กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
+                        : undefined
+                }
+              >
+                <CalendarClock className="h-3 w-3 shrink-0" />
+                <span className="truncate">
+                  {formatCardDateRange({
+                    startDate: card.startDate,
+                    startDateAllDay: card.startDateAllDay,
+                    dueDate: card.dueDate,
+                    dueDateAllDay: card.dueDateAllDay,
+                    formatFn: (val) => formatShortDate(val)
+                  })}
+                </span>
+              </p>
             </div>
           ) : null}
         </div>
@@ -259,7 +248,6 @@ export function KanbanCard({
         card={card}
         mode="edit"
         open={isEditing}
-        members={members}
         onClose={() => setIsEditing(false)}
         onDelete={async () => {
           setIsEditing(false);

@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -1764,64 +1764,6 @@ input:checked + .lofi-slider:before {
   .retzlo-hero-coin-ring,
   .retzlo-hero-vu-bar,
   .retzlo-hero-card-glow {
-    animation: none;
-  }
-}
-
-/* Retzlo Office module */
-.office-room-floor {
-  transform: translateX(-50%) perspective(620px) rotateX(58deg) rotateZ(-1deg);
-  background-image:
-    linear-gradient(90deg, rgba(169,162,255,0.18) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(169,162,255,0.14) 1px, transparent 1px),
-    radial-gradient(circle at 50% 36%, rgba(137,199,214,0.12), transparent 34%);
-  background-size: 38px 38px, 38px 38px, 100% 100%;
-  box-shadow: inset 0 0 72px rgba(169,162,255,0.12), 0 24px 80px rgba(0,0,0,0.42);
-}
-
-.office-neon-line {
-  background: linear-gradient(90deg, transparent, rgba(169,162,255,0.72), rgba(229,189,114,0.56), transparent);
-  animation: office-neon-line 2.8s ease-in-out infinite;
-}
-
-.office-zone {
-  animation: office-zone-float 5.8s ease-in-out infinite;
-}
-
-.office-zone::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--zone-accent) 42%, transparent), transparent 38%, color-mix(in srgb, var(--zone-accent) 18%, transparent));
-  opacity: 0.38;
-}
-
-.office-agent {
-  animation: office-agent-bob 3.6s ease-in-out infinite;
-}
-
-@keyframes office-zone-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
-}
-
-@keyframes office-agent-bob {
-  0%, 100% { transform: translateY(0); }
-  45% { transform: translateY(-10px); }
-  70% { transform: translateY(-4px); }
-}
-
-@keyframes office-neon-line {
-  0%, 100% { opacity: 0.45; filter: drop-shadow(0 0 8px rgba(169,162,255,0.35)); }
-  50% { opacity: 0.95; filter: drop-shadow(0 0 18px rgba(229,189,114,0.45)); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .office-zone,
-  .office-agent,
-  .office-neon-line {
     animation: none;
   }
 }
