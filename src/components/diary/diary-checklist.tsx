@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, CheckCircle2, Circle, Coins, Plus, Repeat, Trash2 } from "lucide-react";
+import { Calendar, CheckCircle2, Circle, Coins, Plus, Repeat, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -272,11 +272,16 @@ export function DiaryChecklistEditor({
                   </div>
 
                   {/* Due Time */}
-                  <div className="grid gap-2 border-t border-white/5 pt-2.5 sm:grid-cols-[1fr_auto] sm:items-center">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-medium text-stone-300">Due time (เวลาที่กำหนด):</span>
+                  <div className="space-y-1.5 border-t border-white/5 pt-2.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-stone-300">Due time (เวลาที่กำหนด)</span>
+                      <span className="text-[10px] text-stone-500">
+                        รีเซ็ตทุกเที่ยงคืนเมื่อถึงรอบที่ต้องทำ
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <Input
-                        className="h-8 w-36 font-mono text-xs"
+                        className="h-9 w-40 font-mono text-xs"
                         type="time"
                         value={item.dueTime ?? ""}
                         onChange={(event) => updateItem(item.id, { dueTime: event.target.value || null })}
@@ -285,17 +290,15 @@ export function DiaryChecklistEditor({
                         <button
                           type="button"
                           onClick={() => updateItem(item.id, { dueTime: null })}
-                          className="rounded px-2 py-0.5 text-[11px] text-stone-400 hover:bg-white/5 hover:text-stone-200 transition"
+                          className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-stone-300 hover:border-red-400/30 hover:bg-red-500/10 hover:text-red-300 transition whitespace-nowrap"
                         >
-                          ล้างเวลา (ตลอดวัน)
+                          <X className="h-3.5 w-3.5" />
+                          <span>ล้างเวลา (ตลอดวัน)</span>
                         </button>
                       ) : (
-                        <span className="text-[11px] text-stone-500">ไม่ระบุ = ตลอดวัน</span>
+                        <span className="text-xs text-stone-500">ไม่ระบุ = ตลอดวัน</span>
                       )}
                     </div>
-                    <span className="text-[10px] text-stone-500 sm:text-right">
-                      รีเซ็ตทุกเที่ยงคืนเมื่อถึงรอบที่ต้องทำ
-                    </span>
                   </div>
                 </div>
               </div>

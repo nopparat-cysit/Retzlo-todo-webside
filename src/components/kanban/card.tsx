@@ -10,7 +10,7 @@ import { AssigneeStack } from "@/components/kanban/assignee-avatar";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
-import { formatMediumDateTime } from "@/lib/date-format";
+import { formatMediumDateTime, formatShortDate } from "@/lib/date-format";
 import { formatCardDateRange } from "@/lib/kanban/due-date";
 import { getDifficultyMetadata, type DifficultyScore } from "@/lib/kanban/difficulty";
 import { resolveAssignees } from "@/lib/kanban/assignees";
@@ -224,21 +224,25 @@ export function KanbanCard({
             <div className="flex items-center justify-between gap-2 pt-1">
               {(card.startDate || card.dueDate) ? (
                 <p
-                  className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber font-medium"
+                  className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-0.5 text-[11px] font-medium text-dusk-amber whitespace-nowrap min-w-0 max-w-[70%]"
                   title={
                     card.startDate && card.dueDate
                       ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)} — กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
-                      : undefined
+                      : card.startDate
+                        ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)}`
+                        : card.dueDate
+                          ? `กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
+                          : undefined
                   }
                 >
                   <CalendarClock className="h-3 w-3 shrink-0" />
-                  <span>
+                  <span className="truncate">
                     {formatCardDateRange({
                       startDate: card.startDate,
                       startDateAllDay: card.startDateAllDay,
                       dueDate: card.dueDate,
                       dueDateAllDay: card.dueDateAllDay,
-                      formatFn: (val, allDay) => formatMediumDateTime(val, allDay)
+                      formatFn: (val) => formatShortDate(val)
                     })}
                   </span>
                 </p>

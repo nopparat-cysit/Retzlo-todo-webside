@@ -10,8 +10,8 @@ Support per-item start date configuration for Diary routine checklist items (all
 - src/app/api/cards/route.ts: Added startDate and startDateAllDay to card schemas, serialization, POST creation, and PATCH update handlers (stored safely inside privateCoins).
 - src/app/(dashboard)/project/[id]/board/page.tsx: Mapped startDate and startDateAllDay in 	oColumns.
 - src/components/kanban/card-modal.tsx: Added Start Date & Due Date DateTimeFields, wired into form draft recovery, change tracking, and payload submission. Reordered ColorPicker to be positioned directly below the Start Date and Due Date section as requested.
-- src/components/kanban/card.tsx: Added date range / start date badge formatting (ormatCardDateRange) and updated saveCard callback.
-- src/components/diary/diary-checklist.tsx: Revamped the Timing & Recurrence card UI for routine items. Split Start date and Repeat every into balanced columns, placed quick presets ([วันนี้], [+1d], [+3d], [+7d]) neatly below the date input with accurate dynamic active state highlighting (removing hardcoded amber border), added repeat rhythm presets ([ทุกวัน], [7 วัน], [14 วัน], [30 วัน]), and added a clean due time row with a reset-to-anytime action.
+- src/components/kanban/card.tsx: Switched card date range display to compact `formatShortDate` (e.g. `Sep 11 → Sep 15`), applied `whitespace-nowrap min-w-0 max-w-[70%]` and `truncate` to prevent line-wrapping on Mac/Retina displays, and preserved full datetime with year in the hover `title` tooltip.
+- src/components/diary/diary-checklist.tsx: Re-architected Due time section in routine items into a two-row structured layout with `whitespace-nowrap` on `ล้างเวลา (ตลอดวัน)` button, preventing it from awkwardly wrapping onto a third line below the time input.
 - src/components/diary/diary-list-panel.tsx: 
   - Restored `DiaryFocusCard` layout so **Checklist Studio** is on the **LEFT** (`minmax(0, 1fr)`) and the **Information & Coins Shelf** is on the **RIGHT** (`320px`), returning to the natural primary reading order.
   - Retained `DiaryItemModal` (Create/Edit Modal) 2-column studio layout (`max-w-5xl`): Details, Start Date, Settings, and the Milestone Reward (Coins) Card on the left, and Checklist Studio on the right.
@@ -19,11 +19,9 @@ Support per-item start date configuration for Diary routine checklist items (all
 - src/lib/diary/checklist.test.ts: Recurrence unit tests verifying items scheduled to start in +3 days are not due today.
 
 ## Important Behavior Changes
+- Kanban Card date badge: Compact short date format with `whitespace-nowrap` and `truncate` ensures date range never breaks onto multiple lines on Mac/high-DPI screens, while retaining complete datetime on hover.
+- Routine item Due time: Formatted cleanly with `Due time (เวลาที่กำหนด)` label and reset hint on top row, and time input with `[✕ ล้างเวลา (ตลอดวัน)]` button on the bottom row, never wrapping onto an extra line.
 - `DiaryFocusCard` (Focus view): Checklist Studio is now back on the **LEFT** side, and the Metadata Shelf (Milestone Reward, Schedule & Rhythm, Visibility, and Quote) is on the **RIGHT** side.
-- Routine items date UI: Clean, uncrowded card layout with accurate dynamic active state on quick preset buttons ([วันนี้], [+1d], [+3d], [+7d]) without false selections.
-- Diary routine checklist items can now start in the future (e.g. +3 days). Items whose start date has not arrived are accurately marked as not due today.
-- Diary Create & Edit / Setting modals (`DiaryItemModal` and `HubDiaryModal`) place Details, Start Date, Settings, and Milestone Reward Coins on the left, and Checklist Studio on the right.
-- Kanban cards support Start Date (วันที่เริ่ม) and End Date (วันที่สิ้นสุด), formatted as a date range badge (15 มี.ค. → 20 มี.ค.) on the board.
 
 ## Database / Schema Changes
 - None (zero database migration risk). startDate and startDateAllDay are stored in Postgres within the existing card.privateCoins JSON field, matching the proven architecture used for difficulty scores and assignees.
