@@ -15,6 +15,8 @@ export interface Card {
   status: CardStatus;
   color: CardColor;
   checklist: ChecklistItem[];
+  startDate?: string | null;
+  startDateAllDay?: boolean;
   dueDate: string | null;
   dueDateAllDay: boolean;
   priority: CardPriority;

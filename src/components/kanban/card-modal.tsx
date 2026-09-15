@@ -23,7 +23,7 @@ import { Input, Textarea } from "@/components/ui/input";
 import { RetroStickerPicker } from "@/components/stickers/retro-sticker-picker";
 import { AssigneePicker } from "./assignee-picker";
 import { useFormDraft } from "@/hooks/use-form-draft";
-import { composeDueDate } from "@/lib/kanban/due-date";
+import { composeDueDate, composeStartDate } from "@/lib/kanban/due-date";
 import {
   DIFFICULTY_CONFIGS,
   DIFFICULTY_SCORES,
@@ -45,13 +45,15 @@ interface CardModalProps {
   onDelete?: () => Promise<void>;
   footerAction?: ReactNode;
   members?: CardAssignee[];
-  onSubmit: (payload: {
+  onSubmit: (data: {
     title: string;
     description: string | null;
     note: string | null;
     status: CardStatus;
     color: CardColor;
     checklist: ChecklistItem[];
+    startDate?: string | null;
+    startDateAllDay?: boolean;
     dueDate: string | null;
     dueDateAllDay: boolean;
     priority: "LOW" | "MEDIUM" | "HIGH";
@@ -62,6 +64,19 @@ interface CardModalProps {
     difficulty?: DifficultyScore | null;
     assigneeIds?: string[];
   }) => Promise<void>;
+}
+
+function startDateValue(card?: Card) {
+  return card?.startDate ? card.startDate.slice(0, 10) : "";
+}
+
+function startTimeValue(card?: Card) {
+  if (!card?.startDate || card.startDateAllDay) {
+    return "";
+  }
+
+  const date = new Date(card.startDate);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
 function dateValue(card?: Card) {
@@ -78,6 +93,8 @@ function timeValue(card?: Card) {
 }
 
 export function CardModal({ card, mode, open, onClose, onDelete, footerAction, members = [], onSubmit }: CardModalProps) {
+  const [startDate, setStartDate] = useState(startDateValue(card));
+  const [startTime, setStartTime] = useState(startTimeValue(card));
   const [date, setDate] = useState(dateValue(card));
   const [time, setTime] = useState(timeValue(card));
   const [selectedStatus, setSelectedStatus] = useState<CardStatus>(card?.status ?? "TODO");
@@ -112,6 +129,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       title,
       description,
       note,
+      startDate,
+      startTime,
       date,
       time,
       selectedStatus,
@@ -129,6 +148,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       title,
       description,
       note,
+      startDate,
+      startTime,
       date,
       time,
       selectedStatus,
@@ -150,7 +171,9 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       (data.description && data.description.trim()) ||
       (data.note && data.note.trim()) ||
       (data.checklist && data.checklist.length > 0) ||
-      (data.assigneeIds && data.assigneeIds.length > 0)
+      (data.assigneeIds && data.assigneeIds.length > 0) ||
+      (data.startDate && data.startDate.trim()) ||
+      (data.date && data.date.trim())
     );
   }, []);
 
@@ -158,6 +181,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     if (draft.title !== undefined) setTitle(draft.title);
     if (draft.description !== undefined) setDescription(draft.description);
     if (draft.note !== undefined) setNote(draft.note);
+    if (draft.startDate !== undefined) setStartDate(draft.startDate);
+    if (draft.startTime !== undefined) setStartTime(draft.startTime);
     if (draft.date !== undefined) setDate(draft.date);
     if (draft.time !== undefined) setTime(draft.time);
     if (draft.selectedStatus !== undefined) setSelectedStatus(draft.selectedStatus);
@@ -196,6 +221,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       return;
     }
 
+    setStartDate(startDateValue(card));
+    setStartTime(startTimeValue(card));
     setDate(dateValue(card));
     setTime(timeValue(card));
     setSelectedStatus(card?.status ?? "TODO");
@@ -245,6 +272,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         isStarred ||
         rewardCoins > 0 ||
         stickers.length > 0 ||
+        startDate !== "" ||
+        startTime !== "" ||
         date !== "" ||
         time !== ""
       );
@@ -263,6 +292,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     const initialStarred = card.isStarred ?? false;
     const initialReward = card.rewardCoins ?? 0;
     const initialStickers = normalizeRetroStickerSelection(card.stickers);
+    const initialStartDate = startDateValue(card);
+    const initialStartTime = startTimeValue(card);
     const initialDate = dateValue(card);
     const initialTime = timeValue(card);
 
@@ -292,6 +323,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       assigneesChanged ||
       isStarred !== initialStarred ||
       rewardCoins !== initialReward ||
+      startDate !== initialStartDate ||
+      startTime !== initialStartTime ||
       date !== initialDate ||
       time !== initialTime ||
       checklistChanged ||
@@ -311,6 +344,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     isStarred,
     rewardCoins,
     stickers,
+    startDate,
+    startTime,
     date,
     time,
     checklist
@@ -364,6 +399,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     isSubmittingRef.current = true;
     setIsSaving(true);
     const formData = new FormData(event.currentTarget);
+    const start = composeStartDate(startDate, startTime);
     const due = composeDueDate(date, time);
     const rewardPayload = resolveCardRewardPayload({
       activeUserId,
@@ -381,6 +417,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         status: selectedStatus,
         color: selectedColor,
         checklist,
+        startDate: start.startDate,
+        startDateAllDay: start.startDateAllDay,
         dueDate: due.dueDate,
         dueDateAllDay: due.dueDateAllDay,
         priority: selectedPriority,
@@ -635,13 +673,33 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
           <ColorPicker selectedColor={selectedColor} onChange={setSelectedColor} />
 
-          <DateTimeField
-            value={{ date, time }}
-            onChange={(nextValue) => {
-              setDate(nextValue.date);
-              setTime(nextValue.time);
-            }}
-          />
+          {/* วันที่เริ่ม และ วันที่สิ้นสุด (Start Date & Due Date) */}
+          <div className="space-y-3">
+            <DateTimeField
+              label="วันที่เริ่ม (Start Date)"
+              description="กำหนดวันเริ่มต้นของงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+              value={{ date: startDate, time: startTime }}
+              onChange={(nextValue) => {
+                setStartDate(nextValue.date);
+                setStartTime(nextValue.time);
+              }}
+            />
+
+            <DateTimeField
+              label="วันที่สิ้นสุด (Due / End Date)"
+              description="กำหนดวันสิ้นสุดหรือส่งงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+              value={{ date, time }}
+              onChange={(nextValue) => {
+                setDate(nextValue.date);
+                setTime(nextValue.time);
+              }}
+            />
+            {startDate && date && startDate > date ? (
+              <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-300">
+                ⚠️ ข้อสังเกต: วันที่เริ่มต้น ({startDate}) อยู่หลังวันที่สิ้นสุด ({date})
+              </p>
+            ) : null}
+          </div>
 
           {/* ── Coin Rewards & Stickers ── */}
           <div className="grid gap-3">

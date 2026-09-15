@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Circle, Coins, Plus, Repeat, Trash2 } from "lucide-react";
+import { Calendar, CheckCircle2, Circle, Coins, Plus, Repeat, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -38,10 +38,10 @@ export function DiaryChecklistEditor({
   onChange,
   value
 }: DiaryChecklistEditorProps) {
-  const items = value.map((item) => ({ ...item, startDate: defaultStartDate }));
+  const items = value.map((item) => ({ ...item, startDate: item.startDate || defaultStartDate }));
 
   function updateItem(itemId: string, patch: Partial<DiaryChecklistItem>) {
-    onChange(items.map((item) => (item.id === itemId ? { ...item, ...patch, startDate: defaultStartDate } : item)));
+    onChange(items.map((item) => (item.id === itemId ? { ...item, ...patch } : item)));
   }
 
   function addItem() {
@@ -151,18 +151,71 @@ export function DiaryChecklistEditor({
                   onChange={(event) => updateItem(item.id, { description: event.target.value })}
                 />
 
-                <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_9rem]">
-                  <label className="space-y-2 text-xs text-stone-400">
-                    <span>Time</span>
+                <div className="grid gap-2.5 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-1 text-xs text-stone-400">
+                      <span>Start date (วันเริ่มต้น)</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const d = new Date();
+                            updateItem(item.id, { startDate: d.toISOString().slice(0, 10) });
+                          }}
+                          className="rounded px-1.5 py-0.5 text-[10px] bg-white/5 hover:bg-white/10 text-stone-300 transition"
+                          title="เริ่มวันนี้"
+                        >
+                          วันนี้
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const d = new Date();
+                            d.setDate(d.getDate() + 1);
+                            updateItem(item.id, { startDate: d.toISOString().slice(0, 10) });
+                          }}
+                          className="rounded px-1.5 py-0.5 text-[10px] bg-white/5 hover:bg-white/10 text-stone-300 transition"
+                          title="เริ่มพรุ่งนี้"
+                        >
+                          +1d
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const d = new Date();
+                            d.setDate(d.getDate() + 3);
+                            updateItem(item.id, { startDate: d.toISOString().slice(0, 10) });
+                          }}
+                          className="rounded px-1.5 py-0.5 text-[10px] bg-dusk-amber/15 hover:bg-dusk-amber/25 text-dusk-amber font-semibold border border-dusk-amber/30 transition"
+                          title="เริ่มในอีก 3 วัน"
+                        >
+                          +3d
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const d = new Date();
+                            d.setDate(d.getDate() + 7);
+                            updateItem(item.id, { startDate: d.toISOString().slice(0, 10) });
+                          }}
+                          className="rounded px-1.5 py-0.5 text-[10px] bg-white/5 hover:bg-white/10 text-stone-300 transition"
+                          title="เริ่มสัปดาห์หน้า"
+                        >
+                          +7d
+                        </button>
+                      </div>
+                    </div>
                     <Input
                       className="h-9"
-                      type="time"
-                      value={item.dueTime ?? ""}
-                      onChange={(event) => updateItem(item.id, { dueTime: event.target.value || null })}
+                      type="date"
+                      value={item.startDate || defaultStartDate}
+                      onChange={(event) => updateItem(item.id, { startDate: event.target.value })}
+                      required
                     />
-                  </label>
-                  <label className="space-y-2 text-xs text-stone-400">
-                    <span>Repeat every (days)</span>
+                  </div>
+
+                  <label className="space-y-1.5 text-xs text-stone-400">
+                    <span>Repeat every (days) (ทำซ้ำทุกกี่วัน)</span>
                     <Input
                       className="h-9"
                       max={365}
@@ -172,9 +225,23 @@ export function DiaryChecklistEditor({
                       onChange={(event) => updateItem(item.id, { intervalDays: Number(event.target.value) })}
                     />
                   </label>
-                  <p className="text-[11px] leading-5 text-stone-500 sm:col-span-2">
-                    Resets at midnight when this item is due.
-                  </p>
+                </div>
+
+                <div className="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_9rem]">
+                  <label className="space-y-1.5 text-xs text-stone-400">
+                    <span>Due time (เวลาที่กำหนด - ไม่ระบุ = ตลอดวัน)</span>
+                    <Input
+                      className="h-9"
+                      type="time"
+                      value={item.dueTime ?? ""}
+                      onChange={(event) => updateItem(item.id, { dueTime: event.target.value || null })}
+                    />
+                  </label>
+                  <div className="flex items-end pb-1.5">
+                    <p className="text-[11px] leading-4 text-stone-500">
+                      Resets at local midnight when item is due.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -321,6 +388,12 @@ export function DiaryChecklistPreview({
                     <Repeat className="h-3 w-3" />
                     Every {item.intervalDays}d
                   </span>
+                  {item.startDate ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.055] px-2 py-0.5" title={`Start date: ${item.startDate}`}>
+                      <Calendar className="h-3 w-3" />
+                      Starts {item.startDate}
+                    </span>
+                  ) : null}
                   {item.dueTime ? <span className="rounded-full bg-white/[0.055] px-2 py-0.5">{item.dueTime}</span> : null}
                   {!isDue ? <span className="rounded-full bg-white/[0.055] px-2 py-0.5">Not due today</span> : null}
                 </span>

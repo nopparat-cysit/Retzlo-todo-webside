@@ -49,6 +49,24 @@ describe("diary checklist helpers", () => {
     expect(isDiaryChecklistItemDueOnDate(item, "2026-06-04")).toBe(true);
   });
 
+  it("does not treat an item starting in the future as due today", () => {
+    const [futureItem] = normalizeDiaryChecklist([
+      { id: "item-future", label: "Weekly report", intervalDays: 7, startDate: "2026-06-04" }
+    ]);
+
+    // Today is 2026-06-01 (+3 days before start date)
+    expect(isDiaryChecklistItemDueOnDate(futureItem, "2026-06-01")).toBe(false);
+    expect(isDiaryChecklistItemDueOnDate(futureItem, "2026-06-02")).toBe(false);
+    expect(isDiaryChecklistItemDueOnDate(futureItem, "2026-06-03")).toBe(false);
+
+    // On start date (2026-06-04), it becomes due
+    expect(isDiaryChecklistItemDueOnDate(futureItem, "2026-06-04")).toBe(true);
+
+    // Next due date (+7 days)
+    expect(isDiaryChecklistItemDueOnDate(futureItem, "2026-06-05")).toBe(false);
+    expect(isDiaryChecklistItemDueOnDate(futureItem, "2026-06-11")).toBe(true);
+  });
+
   it("uses the parent diary start date when a checklist item has no valid start date", () => {
     expect(
       normalizeDiaryChecklist([{ id: "item-1", label: "Stretch", startDate: "bad-date" }], "2026-06-10")[0].startDate

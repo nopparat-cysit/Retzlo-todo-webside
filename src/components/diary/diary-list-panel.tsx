@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FormEvent, useMemo, useState, useEffect, useCallback } from "react";
 import {
   BookOpenCheck,
+  Calendar,
   CalendarDays,
   CheckCircle2,
   Clock,
@@ -678,6 +679,22 @@ function DiaryFocusCard({
               </h2>
               <div className="flex flex-wrap items-center gap-1.5">
                 <DiaryStatusBadges item={item} />
+                {hasReward ? (
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold select-none shadow-sm",
+                      rewardClaimed
+                        ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                        : rewardReady
+                          ? "border-dusk-amber/40 bg-dusk-amber/20 text-dusk-amber animate-pulse"
+                          : "border-dusk-amber/25 bg-dusk-amber/10 text-dusk-amber"
+                    )}
+                    title={rewardClaimed ? "Reward claimed today" : `Reward: +${item.rewardCoins} coins upon 100% completion`}
+                  >
+                    <Coins className="h-3.5 w-3.5" />
+                    +{item.rewardCoins} {item.rewardCoinType === "GLOBAL" ? "Global" : "Project"} Coins
+                  </span>
+                ) : null}
               </div>
             </div>
 
@@ -741,161 +758,11 @@ function DiaryFocusCard({
 
       {/* 2-Column Ritual Studio Content */}
       <div className="min-h-0 flex-1 overflow-y-auto p-5 scrollbar-soft lg:p-6">
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
-          {/* Left Column: Checklist Studio */}
-          <div className="flex min-h-0 flex-col gap-4 rounded-2xl border border-white/10 bg-ink-950/40 p-4 sm:p-5">
-            {/* Checklist Header & Progress */}
-            <div className="border-b border-white/8 pb-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-cyan/25 bg-dusk-cyan/10 text-dusk-cyan">
-                    <CheckSquare className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-stone-200">Ritual Checklist</h3>
-                    <p className="text-[11px] text-stone-400">Step-by-step routine for this ritual</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {dueItems.length > 0 ? (
-                    <span className="rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2.5 py-0.5 text-xs font-medium text-dusk-cyan">
-                      {completedDueCount}/{dueItems.length} completed ({progressPercent}%)
-                    </span>
-                  ) : (
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-stone-400">
-                      {sortedChecklist.length} steps
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {dueItems.length > 0 ? (
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.08]">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-dusk-cyan via-dusk-lavender to-emerald-400 transition-all duration-300"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-              ) : null}
-            </div>
-
-            {/* Checklist Items List */}
-            <div className="space-y-2.5">
-              {sortedChecklist.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-white/10 p-6 text-center">
-                  <p className="text-sm text-stone-400">No steps in this checklist yet.</p>
-                  <p className="mt-1 text-xs text-stone-500">Break down this ritual by adding subtasks below.</p>
-                </div>
-              ) : (
-                sortedChecklist.map((chk) => {
-                  const isDue = isDiaryChecklistItemDueOnDate(chk, selectedDate);
-                  const isCompleted = isDiaryChecklistItemCompletedOnDate(chk, selectedDate);
-
-                  return (
-                    <div
-                      key={chk.id}
-                      className={cn(
-                        "group flex items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.025] p-3 transition hover:border-dusk-lavender/30 hover:bg-white/[0.045]",
-                        isDue && "border-dusk-lavender/20 bg-dusk-lavender/[0.04]",
-                        isCompleted && "border-emerald-400/20 bg-emerald-400/[0.03]",
-                        !isDue && "opacity-60"
-                      )}
-                    >
-                      <div className="flex min-w-0 flex-1 items-start gap-3">
-                        <button
-                          aria-label={isCompleted ? "Mark step incomplete" : "Mark step complete"}
-                          className={cn(
-                            "mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg border transition",
-                            isCompleted
-                              ? "border-emerald-400/50 bg-emerald-400/20 text-emerald-300"
-                              : "border-white/20 bg-ink-950/60 text-stone-400 group-hover:border-dusk-cyan/50 group-hover:text-dusk-cyan",
-                            (!item.canManage || !isDue) && "cursor-default opacity-70"
-                          )}
-                          disabled={!item.canManage || !isDue}
-                          type="button"
-                          onClick={() => handleToggleChecklist(chk.id, isCompleted)}
-                        >
-                          {isCompleted ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Circle className="h-3.5 w-3.5" />}
-                        </button>
-
-                        <div className="min-w-0 flex-1">
-                          <span
-                            className={cn(
-                              "block text-sm font-medium text-stone-100 break-words",
-                              isCompleted && "line-through text-stone-400/80"
-                            )}
-                          >
-                            {chk.label}
-                          </span>
-                          {chk.description ? (
-                            <p className="mt-0.5 text-xs text-stone-400 line-clamp-2">{chk.description}</p>
-                          ) : null}
-                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-stone-400">
-                            <span className="inline-flex items-center gap-1 rounded bg-white/[0.05] px-1.5 py-0.5">
-                              <Repeat className="h-2.5 w-2.5" />
-                              Every {chk.intervalDays}d
-                            </span>
-                            {chk.dueTime ? (
-                              <span className="rounded bg-white/[0.05] px-1.5 py-0.5 font-mono">{chk.dueTime}</span>
-                            ) : null}
-                            <span
-                              className={cn(
-                                "rounded px-1.5 py-0.5",
-                                isDue ? "bg-dusk-cyan/15 text-dusk-cyan" : "bg-white/[0.05] text-stone-500"
-                              )}
-                            >
-                              {isDue ? "Due today" : "Upcoming"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {item.canManage ? (
-                        <button
-                          aria-label={`Remove step ${chk.label}`}
-                          className="opacity-0 group-hover:opacity-100 grid h-6 w-6 shrink-0 place-items-center rounded text-stone-500 transition hover:bg-red-400/10 hover:text-red-300"
-                          title="Remove step"
-                          type="button"
-                          onClick={() => handleDeleteStep(chk.id, chk.label)}
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      ) : null}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            {/* Quick Add Inline Step */}
-            {item.canManage ? (
-              <form className="mt-2 flex items-center gap-2 border-t border-white/8 pt-3" onSubmit={handleAddStep}>
-                <div className="relative flex-1">
-                  <Plus className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
-                  <Input
-                    className="h-10 pl-9 pr-3 text-sm bg-ink-950/60 border-white/10 placeholder:text-stone-500"
-                    placeholder="Add a step to this ritual... (Press Enter)"
-                    value={newStepLabel}
-                    onChange={(e) => setNewStepLabel(e.target.value)}
-                  />
-                </div>
-                <Button
-                  className="h-10 shrink-0 px-4 text-xs font-semibold"
-                  disabled={!newStepLabel.trim()}
-                  type="submit"
-                  variant="secondary"
-                >
-                  Add Step
-                </Button>
-              </form>
-            ) : null}
-          </div>
-
-          {/* Right Column: Insights & Metadata Shelf */}
-          <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+          {/* Left Column (Desktop): Insights, Coins & Metadata Shelf */}
+          <div className="order-2 flex flex-col gap-4 xl:order-1">
             {/* Reward Card */}
-            <div className="rounded-2xl border border-white/10 bg-ink-950/40 p-4">
+            <div className="rounded-2xl border border-dusk-amber/30 bg-ink-950/50 p-4 shadow-sm">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-dusk-amber">
                   <Coins className="h-4 w-4" />
@@ -1021,6 +888,179 @@ function DiaryFocusCard({
                 &ldquo;{lofiSticker.quote}&rdquo;
               </p>
             </div>
+          </div>
+
+          {/* Right Column (Desktop): Checklist Studio */}
+          <div className="order-1 flex min-h-0 flex-col gap-4 rounded-2xl border border-white/10 bg-ink-950/40 p-4 sm:p-5 xl:order-2">
+            {/* Checklist Header & Progress */}
+            <div className="border-b border-white/8 pb-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-cyan/25 bg-dusk-cyan/10 text-dusk-cyan">
+                    <CheckSquare className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-stone-200">Ritual Checklist</h3>
+                    <p className="text-[11px] text-stone-400">Step-by-step routine for this ritual</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {dueItems.length > 0 ? (
+                    <span className="rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2.5 py-0.5 text-xs font-medium text-dusk-cyan">
+                      {completedDueCount}/{dueItems.length} completed ({progressPercent}%)
+                    </span>
+                  ) : (
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-stone-400">
+                      {sortedChecklist.length} steps
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {dueItems.length > 0 ? (
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.08]">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-dusk-cyan via-dusk-lavender to-emerald-400 transition-all duration-300"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              ) : null}
+
+              {/* Progress Coin Reward Callout */}
+              {hasReward ? (
+                <div className="mt-3 flex items-center justify-between rounded-lg border border-dusk-amber/20 bg-dusk-amber/[0.06] px-3 py-1.5 text-xs text-dusk-amber">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <Coins className="h-3.5 w-3.5" />
+                    {rewardClaimed
+                      ? "รับเหรียญรางวัลประจำวันเรียบร้อยแล้ว!"
+                      : rewardReady
+                        ? "ทำครบทุกข้อแล้ว! พร้อมรับเหรียญรางวัล"
+                        : `ทำครบทุกข้อวันนี้เพื่อรับ +${item.rewardCoins} Coins`}
+                  </span>
+                  <span className="font-mono text-[11px] opacity-80">
+                    {completedDueCount}/{dueItems.length}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+
+            {/* Checklist Items List */}
+            <div className="space-y-2.5">
+              {sortedChecklist.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-white/10 p-6 text-center">
+                  <p className="text-sm text-stone-400">No steps in this checklist yet.</p>
+                  <p className="mt-1 text-xs text-stone-500">Break down this ritual by adding subtasks below.</p>
+                </div>
+              ) : (
+                sortedChecklist.map((chk) => {
+                  const isDue = isDiaryChecklistItemDueOnDate(chk, selectedDate);
+                  const isCompleted = isDiaryChecklistItemCompletedOnDate(chk, selectedDate);
+
+                  return (
+                    <div
+                      key={chk.id}
+                      className={cn(
+                        "group flex items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.025] p-3 transition hover:border-dusk-lavender/30 hover:bg-white/[0.045]",
+                        isDue && "border-dusk-lavender/20 bg-dusk-lavender/[0.04]",
+                        isCompleted && "opacity-60",
+                        !isDue && "opacity-45"
+                      )}
+                    >
+                      <div className="flex min-w-0 flex-1 items-start gap-3">
+                        <button
+                          aria-label={isCompleted ? "Mark step incomplete" : "Mark step complete"}
+                          className={cn(
+                            "mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border transition",
+                            isCompleted
+                              ? "border-emerald-400/50 bg-emerald-400/20 text-emerald-300"
+                              : "border-white/20 bg-ink-950/60 text-stone-400 group-hover:border-dusk-cyan/50 group-hover:text-dusk-cyan",
+                            (!item.canManage || !isDue) && "cursor-default opacity-70"
+                          )}
+                          disabled={!item.canManage || !isDue}
+                          type="button"
+                          onClick={() => handleToggleChecklist(chk.id, isCompleted)}
+                        >
+                          {isCompleted ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Circle className="h-3.5 w-3.5" />}
+                        </button>
+
+                        <div className="min-w-0 flex-1">
+                          <span
+                            className={cn(
+                              "block text-sm font-medium text-stone-100 break-words",
+                              isCompleted && "line-through text-stone-400/80"
+                            )}
+                          >
+                            {chk.label}
+                          </span>
+                          {chk.description ? (
+                            <p className="mt-0.5 text-xs text-stone-400 line-clamp-2">{chk.description}</p>
+                          ) : null}
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-stone-400">
+                            <span className="inline-flex items-center gap-1 rounded bg-white/[0.05] px-1.5 py-0.5">
+                              <Repeat className="h-2.5 w-2.5" />
+                              Every {chk.intervalDays}d
+                            </span>
+                            {chk.startDate ? (
+                              <span className="inline-flex items-center gap-1 rounded bg-white/[0.05] px-1.5 py-0.5" title={`Start date: ${chk.startDate}`}>
+                                <Calendar className="h-2.5 w-2.5" />
+                                Starts {chk.startDate}
+                              </span>
+                            ) : null}
+                            {chk.dueTime ? (
+                              <span className="rounded bg-white/[0.05] px-1.5 py-0.5 font-mono">{chk.dueTime}</span>
+                            ) : null}
+                            <span
+                              className={cn(
+                                "rounded px-1.5 py-0.5",
+                                isDue ? "bg-dusk-cyan/15 text-dusk-cyan" : "bg-white/[0.05] text-stone-500"
+                              )}
+                            >
+                              {isDue ? "Due today" : "Upcoming"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {item.canManage ? (
+                        <button
+                          aria-label={`Remove step ${chk.label}`}
+                          className="opacity-0 group-hover:opacity-100 grid h-6 w-6 shrink-0 place-items-center rounded text-stone-500 transition hover:bg-red-400/10 hover:text-red-300"
+                          title="Remove step"
+                          type="button"
+                          onClick={() => handleDeleteStep(chk.id, chk.label)}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      ) : null}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Quick Add Inline Step */}
+            {item.canManage ? (
+              <form className="mt-2 flex items-center gap-2 border-t border-white/8 pt-3" onSubmit={handleAddStep}>
+                <div className="relative flex-1">
+                  <Plus className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
+                  <Input
+                    className="h-10 pl-9 pr-3 text-sm bg-ink-950/60 border-white/10 placeholder:text-stone-500"
+                    placeholder="Add a step to this ritual... (Press Enter)"
+                    value={newStepLabel}
+                    onChange={(e) => setNewStepLabel(e.target.value)}
+                  />
+                </div>
+                <Button
+                  className="h-10 shrink-0 px-4 text-xs font-semibold"
+                  disabled={!newStepLabel.trim()}
+                  type="submit"
+                  variant="secondary"
+                >
+                  Add Step
+                </Button>
+              </form>
+            ) : null}
           </div>
         </div>
       </div>

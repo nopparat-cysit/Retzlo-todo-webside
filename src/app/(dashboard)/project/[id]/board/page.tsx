@@ -15,6 +15,7 @@ import { getColumnIconOption, getColumnThemeOption } from "@/lib/kanban/column-s
 import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { extractDifficulty } from "@/lib/kanban/difficulty";
 import { extractAssigneeIds, resolveAssignees } from "@/lib/kanban/assignees";
+import { extractStartDate, extractStartDateAllDay } from "@/lib/kanban/due-date";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
 import type { CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 import type { ProjectNote } from "@/types/note";
@@ -62,6 +63,8 @@ function toColumns(
         status: card.status as CardStatus,
         color: normalizeCardColor(card.color),
         checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
+        startDate: extractStartDate(card.privateCoins),
+        startDateAllDay: extractStartDateAllDay(card.privateCoins),
         dueDate: card.dueDate ? card.dueDate.toISOString() : null,
         dueDateAllDay: card.dueDateAllDay,
         priority: card.priority as "LOW" | "MEDIUM" | "HIGH",

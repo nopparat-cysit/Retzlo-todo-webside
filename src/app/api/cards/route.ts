@@ -22,6 +22,11 @@ import {
   extractAssigneeIds,
   withAssignees
 } from "@/lib/kanban/assignees";
+import {
+  extractStartDate,
+  extractStartDateAllDay,
+  withStartDate
+} from "@/lib/kanban/due-date";
 
 const cardStatusSchema = z.enum(["TODO", "DOING", "WAITING", "DONE"]);
 const cardColorSchema = z.enum(cardColorValues).default("DEFAULT");
@@ -45,6 +50,8 @@ const createCardSchema = z.object({
   status: cardStatusSchema.default("TODO"),
   color: cardColorSchema,
   checklist: z.array(checklistItemSchema).default([]),
+  startDate: z.string().datetime().nullable().optional(),
+  startDateAllDay: z.boolean().default(false).optional(),
   dueDate: z.string().datetime().nullable().optional(),
   dueDateAllDay: z.boolean().default(false),
   priority: cardPrioritySchema,
@@ -64,6 +71,8 @@ const updateCardSchema = z.object({
   status: cardStatusSchema.optional(),
   color: z.enum(cardColorValues).optional(),
   checklist: z.array(checklistItemSchema).optional(),
+  startDate: z.string().datetime().nullable().optional(),
+  startDateAllDay: z.boolean().optional(),
   dueDate: z.string().datetime().nullable().optional(),
   dueDateAllDay: z.boolean().optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
@@ -93,6 +102,8 @@ function serializeCard<T extends {
     status: card.status as CardStatus,
     color: normalizeCardColor(card.color),
     checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
+    startDate: extractStartDate(card.privateCoins),
+    startDateAllDay: extractStartDateAllDay(card.privateCoins),
     dueDate: card.dueDate ? card.dueDate.toISOString() : null,
     dueDateAllDay: card.dueDateAllDay,
     priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
@@ -132,6 +143,9 @@ export async function POST(request: Request) {
     let privateCoins = withDifficulty(payload.privateCoins, payload.difficulty);
     if (payload.assigneeIds !== undefined) {
       privateCoins = withAssignees(privateCoins, payload.assigneeIds);
+    }
+    if (payload.startDate !== undefined || payload.startDateAllDay !== undefined) {
+      privateCoins = withStartDate(privateCoins, payload.startDate, payload.startDateAllDay ?? false);
     }
     const card = await prisma.card.create({
       data: {
@@ -197,6 +211,16 @@ export async function PATCH(request: Request) {
           ? nextPrivateCoins
           : (await tx.card.findUnique({ where: { id: payload.cardId }, select: { privateCoins: true } }))?.privateCoins;
         nextPrivateCoins = withAssignees(baseCoins, payload.assigneeIds);
+      }
+      if (payload.startDate !== undefined || payload.startDateAllDay !== undefined) {
+        const baseCoins = nextPrivateCoins !== undefined
+          ? nextPrivateCoins
+          : (await tx.card.findUnique({ where: { id: payload.cardId }, select: { privateCoins: true } }))?.privateCoins;
+        nextPrivateCoins = withStartDate(
+          baseCoins,
+          payload.startDate,
+          payload.startDateAllDay !== undefined ? payload.startDateAllDay : extractStartDateAllDay(baseCoins)
+        );
       }
 
       return tx.card.update({

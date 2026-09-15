@@ -11,6 +11,7 @@ import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime } from "@/lib/date-format";
+import { formatCardDateRange } from "@/lib/kanban/due-date";
 import { getDifficultyMetadata, type DifficultyScore } from "@/lib/kanban/difficulty";
 import { resolveAssignees } from "@/lib/kanban/assignees";
 import { getStatusMeta } from "@/lib/kanban/status";
@@ -24,8 +25,8 @@ export function KanbanCard({
   columnId,
   isDragPreviewTarget = false,
   members = [],
-  onDeleted,
-  onSaved
+  onSaved,
+  onDeleted
 }: {
   card: Card;
   columnId: string;
@@ -65,6 +66,8 @@ export function KanbanCard({
     status: import("@/types/kanban").CardStatus;
     color: import("@/lib/theme/card-colors").CardColor;
     checklist: import("@/types/kanban").ChecklistItem[];
+    startDate?: string | null;
+    startDateAllDay?: boolean;
     dueDate: string | null;
     dueDateAllDay: boolean;
     priority: "LOW" | "MEDIUM" | "HIGH";
@@ -90,6 +93,8 @@ export function KanbanCard({
         ...data.card,
         color: normalizeCardColor(data.card.color),
         checklist: Array.isArray(data.card.checklist) ? data.card.checklist : [],
+        startDate: data.card.startDate !== undefined ? data.card.startDate : card.startDate,
+        startDateAllDay: data.card.startDateAllDay !== undefined ? data.card.startDateAllDay : card.startDateAllDay,
         dueDate: data.card.dueDate ? new Date(data.card.dueDate).toISOString() : null,
         dueDateAllDay: data.card.dueDateAllDay ?? false,
         isStarred: data.card.isStarred ?? false,
@@ -215,12 +220,27 @@ export function KanbanCard({
             ) : null}
           </div>
           {card.description ? <p className="line-clamp-3 text-stone-400">{card.description}</p> : null}
-          {(card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) ? (
+          {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) ? (
             <div className="flex items-center justify-between gap-2 pt-1">
-              {card.dueDate ? (
-                <p className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber">
-                  <CalendarClock className="h-3 w-3" />
-                  {formatMediumDateTime(card.dueDate, card.dueDateAllDay)}
+              {(card.startDate || card.dueDate) ? (
+                <p
+                  className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber font-medium"
+                  title={
+                    card.startDate && card.dueDate
+                      ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)} — กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
+                      : undefined
+                  }
+                >
+                  <CalendarClock className="h-3 w-3 shrink-0" />
+                  <span>
+                    {formatCardDateRange({
+                      startDate: card.startDate,
+                      startDateAllDay: card.startDateAllDay,
+                      dueDate: card.dueDate,
+                      dueDateAllDay: card.dueDateAllDay,
+                      formatFn: (val, allDay) => formatMediumDateTime(val, allDay)
+                    })}
+                  </span>
                 </p>
               ) : <div />}
               <AssigneeStack
