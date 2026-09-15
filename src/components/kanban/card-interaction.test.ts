@@ -49,8 +49,10 @@ describe("kanban card interactions", () => {
     expect(cardSource).toMatch(/\/>\s*<ConfirmModal/);
   });
 
-  it("streamlines the board toolbar for personal todo without assignee filter or raw HTML select", () => {
-    expect(boardSource).not.toContain("assigneeFilter");
+  it("renders accessible Radix UI select and avatar badges for assignee filtering without raw HTML select", () => {
+    expect(boardSource).toContain("<Select value={assigneeFilter}");
+    expect(boardSource).toContain("<SelectTrigger");
+    expect(boardSource).toContain("<AssigneeAvatar");
     expect(boardSource).not.toContain("<select");
     expect(boardSource).not.toContain("border-primary-400");
   });

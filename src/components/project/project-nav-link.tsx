@@ -11,6 +11,7 @@ const ICON_MAP = {
   calendar: CalendarDays,
   diary: BookOpenCheck,
   notes: FileText,
+  members: Users,
   settings: Settings,
   rewards: Gift,
 } as const;
