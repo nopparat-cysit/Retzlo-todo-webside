@@ -9,7 +9,7 @@ Support per-item start date configuration for Diary routine checklist items (all
 - src/lib/kanban/due-date.test.ts: Added unit tests for composeStartDate, extractStartDate, withStartDate, and ormatCardDateRange.
 - src/app/api/cards/route.ts: Added startDate and startDateAllDay to card schemas, serialization, POST creation, and PATCH update handlers (stored safely inside privateCoins).
 - src/app/(dashboard)/project/[id]/board/page.tsx: Mapped startDate and startDateAllDay in 	oColumns.
-- src/components/kanban/card-modal.tsx: Added Start Date & Due Date DateTimeFields, wired into form draft recovery, change tracking, and payload submission.
+- src/components/kanban/card-modal.tsx: Added Start Date & Due Date DateTimeFields, wired into form draft recovery, change tracking, and payload submission. Reordered ColorPicker to be positioned directly below the Start Date and Due Date section as requested.
 - src/components/kanban/card.tsx: Added date range / start date badge formatting (ormatCardDateRange) and updated saveCard callback.
 - src/components/diary/diary-checklist.tsx: Revamped the Timing & Recurrence card UI for routine items. Split Start date and Repeat every into balanced columns, placed quick presets ([วันนี้], [+1d], [+3d], [+7d]) neatly below the date input with accurate dynamic active state highlighting (removing hardcoded amber border), added repeat rhythm presets ([ทุกวัน], [7 วัน], [14 วัน], [30 วัน]), and added a clean due time row with a reset-to-anytime action.
 - src/components/diary/diary-list-panel.tsx: 

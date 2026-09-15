@@ -671,8 +671,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
             disabled={isSaving}
           />
 
-          <ColorPicker selectedColor={selectedColor} onChange={setSelectedColor} />
-
           {/* วันที่เริ่ม และ วันที่สิ้นสุด (Start Date & Due Date) */}
           <div className="space-y-3">
             <DateTimeField
@@ -700,6 +698,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
               </p>
             ) : null}
           </div>
+
+          <ColorPicker selectedColor={selectedColor} onChange={setSelectedColor} />
 
           {/* ── Coin Rewards & Stickers ── */}
           <div className="grid gap-3">
