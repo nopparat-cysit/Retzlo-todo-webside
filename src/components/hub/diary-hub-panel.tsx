@@ -518,10 +518,10 @@ export function DiaryItemModal({
       open
       onClose={handleCloseRequest}
       labelledBy="hub-diary-modal-title"
-      contentClassName="max-w-4xl"
+      contentClassName="max-w-5xl"
     >
-      <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-xl p-5" onSubmit={handleSubmit}>
-        <div className="mb-5 flex items-center justify-between gap-3">
+      <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-xl p-5" onSubmit={handleSubmit}>
+        <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">
               {isPersonal ? "Personal" : "Project"} · Recurring
@@ -529,44 +529,130 @@ export function DiaryItemModal({
             <h2 id="hub-diary-modal-title" className="mt-1 text-2xl font-semibold">{title}</h2>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              className={cn(
-                "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs transition",
-                isRewardOpen
-                  ? "border-dusk-amber/40 bg-dusk-amber/10 text-dusk-amber"
-                  : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-amber/35"
-              )}
-              type="button"
-              onClick={() => setIsRewardOpen((current) => !current)}
-            >
-              <Coins className="h-4 w-4" />
-              Reward
-            </button>
-            <button
-              className={cn(
-                "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs transition",
-                isSettingsOpen
-                  ? "border-dusk-amber/40 bg-dusk-amber/10 text-dusk-amber"
-                  : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-amber/35"
-              )}
-              type="button"
-              onClick={() => setIsSettingsOpen((current) => !current)}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              Settings
-            </button>
-            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10" type="button" onClick={handleCloseRequest}>
+            {isRewardOpen && rewardCoins > 0 ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/35 bg-dusk-amber/15 px-2.5 py-1 text-xs font-semibold text-dusk-amber">
+                <Coins className="h-3.5 w-3.5" />
+                +{rewardCoins} {rewardCoinType === "GLOBAL" ? "Global" : "Project"} Coins
+              </span>
+            ) : null}
+            <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={handleCloseRequest}>
               <X className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        <div className={cn("grid min-h-0 flex-1 gap-5 overflow-hidden", (isSettingsOpen || isRewardOpen) && "lg:grid-cols-[minmax(0,1fr)_18rem]")}>
-          <section className="flex min-h-0 flex-col gap-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender">Details</p>
-            <Input name="title" value={titleVal} onChange={(e) => setTitleVal(e.target.value)} placeholder="Diary title" required />
-            <Textarea className="min-h-28" name="description" value={descriptionVal} onChange={(e) => setDescriptionVal(e.target.value)} placeholder="What should repeat?" />
-            <ColorPicker selectedColor={color} onChange={setColor} />
+        {/* 2-Column Layout: Left = Details, Settings & Coins | Right = Checklist Studio */}
+        <div className="grid min-h-0 flex-1 gap-6 overflow-hidden lg:grid-cols-[380px_minmax(0,1fr)]">
+          {/* Left Column: Details, Settings & Coins Reward */}
+          <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1 scrollbar-soft">
+            {/* Details Card */}
+            <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender font-semibold">Details</p>
+              <label className="block space-y-1 text-xs text-stone-400">
+                <span className="text-stone-300 font-medium">Diary title</span>
+                <Input name="title" value={titleVal} onChange={(e) => setTitleVal(e.target.value)} placeholder="Diary title" required />
+              </label>
+              <label className="block space-y-1 text-xs text-stone-400">
+                <span className="text-stone-300 font-medium">Description</span>
+                <Textarea className="min-h-24 resize-none" name="description" value={descriptionVal} onChange={(e) => setDescriptionVal(e.target.value)} placeholder="What should repeat?" />
+              </label>
+              <ColorPicker selectedColor={color} onChange={setColor} />
+            </div>
+
+            {/* Schedule & Settings Card */}
+            <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-dusk-cyan font-semibold">Schedule & Settings</p>
+              <label className="block space-y-1 text-xs text-stone-400">
+                <span className="text-stone-300 font-medium">Start date (วันเริ่มต้นหลัก)</span>
+                <Input
+                  name="startDate"
+                  type="date"
+                  value={startDate}
+                  onChange={(event) => setStartDate(event.target.value)}
+                  required
+                />
+              </label>
+            </div>
+
+            {/* Coins Placement: Milestone Reward Card */}
+            <div className="space-y-3 rounded-xl border border-dusk-amber/30 bg-dusk-amber/[0.045] p-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-dusk-amber font-semibold">
+                  <Coins className="h-4 w-4" />
+                  <span>Milestone Reward</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isRewardOpen) {
+                      setIsRewardOpen(false);
+                    } else {
+                      setIsRewardOpen(true);
+                      if (rewardCoins === 0) setRewardCoins(10);
+                    }
+                  }}
+                  className={cn(
+                    "rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition",
+                    isRewardOpen
+                      ? "border-dusk-amber/40 bg-dusk-amber/20 text-dusk-amber"
+                      : "border-white/10 bg-white/5 text-stone-400 hover:text-stone-200"
+                  )}
+                >
+                  {isRewardOpen ? "Enabled ✓" : "Off"}
+                </button>
+              </div>
+
+              {isRewardOpen ? (
+                <div className="space-y-3 pt-1">
+                  <label className="block space-y-1 text-xs text-stone-400">
+                    <span className="text-stone-300 font-medium">Coins to award (จำนวนเหรียญที่จะมอบให้)</span>
+                    <Input
+                      max={100000}
+                      min={0}
+                      type="number"
+                      value={rewardCoins}
+                      onChange={(event) => setRewardCoins(Math.max(0, Number(event.target.value) || 0))}
+                    />
+                    <span className="text-[11px] text-stone-500">Awarded when 100% of today&apos;s checklist is complete.</span>
+                  </label>
+
+                  <div className="space-y-1.5 text-xs text-stone-400">
+                    <span className="text-stone-300 font-medium">Coin type (ประเภทเหรียญ)</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { value: "GLOBAL" as const, label: "Global coins", disabled: false },
+                        { value: "PROJECT" as const, label: "Project coins", disabled: isPersonal }
+                      ].map((option) => (
+                        <button
+                          key={option.value}
+                          className={cn(
+                            "flex h-9 items-center justify-between rounded-lg border px-3 text-left text-xs transition",
+                            rewardCoinType === option.value
+                              ? "border-dusk-amber/45 bg-dusk-amber/15 text-dusk-amber font-semibold"
+                              : "border-white/10 bg-white/[0.035] text-stone-400 hover:border-dusk-amber/35",
+                            option.disabled && "cursor-not-allowed opacity-45"
+                          )}
+                          disabled={option.disabled}
+                          type="button"
+                          onClick={() => setRewardCoinType(option.value)}
+                        >
+                          <span>{option.label}</span>
+                          {rewardCoinType === option.value ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-stone-500">
+                  ตั้งค่าให้เหรียญรางวัลเมื่อทำ routine ครบทุกข้อในแต่ละวัน
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Checklist Studio */}
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <DiaryChecklistEditor
               defaultRepeatDays={intervalDays}
               defaultStartDate={startDate}
@@ -574,75 +660,7 @@ export function DiaryItemModal({
               value={checklist}
               onChange={setChecklist}
             />
-          </section>
-
-          <aside className={cn("space-y-4 overflow-y-auto self-start rounded-lg border border-white/10 bg-white/[0.025] p-4 scrollbar-soft", !isSettingsOpen && !isRewardOpen && "hidden")}>
-            {isSettingsOpen ? (
-              <div className="space-y-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Settings</p>
-                <label className="space-y-2 text-sm text-stone-300">
-                  <span>Start date</span>
-                  <Input
-                    name="startDate"
-                    type="date"
-                    value={startDate}
-                    onChange={(event) => setStartDate(event.target.value)}
-                    required
-                  />
-                </label>
-              </div>
-            ) : null}
-
-            {isRewardOpen ? (
-              <div className="space-y-4 rounded-lg border border-dusk-amber/20 bg-dusk-amber/[0.045] p-3">
-                <div className="flex items-start gap-2">
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-dusk-amber/25 bg-dusk-amber/10 text-dusk-amber">
-                    <Coins className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Checklist reward</p>
-                    <p className="mt-1 text-[11px] leading-5 text-stone-500">Awarded once per day after every due checklist item is complete.</p>
-                  </div>
-                </div>
-                <label className="space-y-2 text-sm text-stone-300">
-                  <span>Coins to award</span>
-                  <Input
-                    max={100000}
-                    min={0}
-                    type="number"
-                    value={rewardCoins}
-                    onChange={(event) => setRewardCoins(Math.max(0, Number(event.target.value) || 0))}
-                  />
-                </label>
-                <div className="space-y-2 text-sm text-stone-300">
-                  <span>Coin type</span>
-                  <div className="grid gap-2">
-                    {[
-                      { value: "GLOBAL" as const, label: "Global coins", disabled: false },
-                      { value: "PROJECT" as const, label: "Project coins", disabled: isPersonal }
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        className={cn(
-                          "flex h-10 items-center justify-between rounded-lg border px-3 text-left text-xs transition",
-                          rewardCoinType === option.value
-                            ? "border-dusk-amber/45 bg-dusk-amber/12 text-dusk-amber"
-                            : "border-white/10 bg-white/[0.035] text-stone-400 hover:border-dusk-amber/35",
-                          option.disabled && "cursor-not-allowed opacity-45"
-                        )}
-                        disabled={option.disabled}
-                        type="button"
-                        onClick={() => setRewardCoinType(option.value)}
-                      >
-                        <span>{option.label}</span>
-                        {rewardCoinType === option.value ? <CheckCircle2 className="h-4 w-4" /> : null}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : null}
-          </aside>
+          </div>
         </div>
 
         <div className="mt-5 flex flex-wrap justify-end gap-2">
