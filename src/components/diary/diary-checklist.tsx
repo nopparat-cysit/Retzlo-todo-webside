@@ -4,6 +4,7 @@ import { Calendar, CheckCircle2, Circle, Coins, Plus, Repeat, Trash2, X } from "
 
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import {
   isDiaryChecklistItemCompletedOnDate,
   isDiaryChecklistItemDueOnDate,
@@ -384,12 +385,7 @@ export function DiaryChecklistPreview({
           </div>
         </div>
         {dueItems.length > 0 ? (
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-dusk-cyan to-dusk-lavender transition-[width]"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
+          <ProgressBar value={progressPercent} className="mt-2 space-y-0" />
         ) : null}
       </div>
 

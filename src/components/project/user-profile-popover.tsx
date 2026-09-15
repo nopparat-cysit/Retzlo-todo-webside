@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { LogOut, User } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -11,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 interface UserProfilePopoverProps {
@@ -55,7 +55,7 @@ export function UserProfilePopover({
           )}
           aria-label="Open user menu"
         >
-          <Avatar avatar={avatar} initials={initials} name={name} statusColor={statusColor} size={variant === "avatar" ? 36 : 32} />
+          <Avatar src={avatar} initials={initials} name={name} statusColor={statusColor} size={variant === "avatar" ? 36 : 32} />
           {variant === "card" ? (
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-medium text-stone-200 group-hover:text-dusk-lavender">
@@ -76,7 +76,7 @@ export function UserProfilePopover({
         <div className="h-16 bg-[radial-gradient(circle_at_18%_20%,rgba(229,189,114,0.22),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(213,154,179,0.22),transparent_32%),linear-gradient(135deg,rgba(35,31,68,0.9),rgba(63,46,86,0.82))]" />
         <div className="px-4 pb-4">
           <div className="-mt-7 flex items-end gap-3">
-            <Avatar avatar={avatar} initials={initials} name={name} statusColor={statusColor} size={56} />
+            <Avatar src={avatar} initials={initials} name={name} statusColor={statusColor} size={56} />
             <span className="mb-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-stone-300">
               {statusLabel(status)}
             </span>
@@ -112,46 +112,5 @@ export function UserProfilePopover({
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-}
-
-function Avatar({
-  avatar,
-  initials,
-  name,
-  size,
-  statusColor,
-}: {
-  avatar: string | null | undefined;
-  initials: string;
-  name: string;
-  size: number;
-  statusColor: string;
-}) {
-  return (
-    <span className="relative block shrink-0" style={{ height: size, width: size }}>
-      <span className="block h-full w-full overflow-hidden rounded-full border border-white/20 bg-dusk-lavender/15">
-        {avatar ? (
-          <Image
-            src={avatar}
-            alt={name}
-            width={size}
-            height={size}
-            className="h-full w-full object-cover"
-            unoptimized
-          />
-        ) : (
-          <span className="grid h-full w-full place-items-center text-xs font-bold text-dusk-lavender">
-            {initials}
-          </span>
-        )}
-      </span>
-      <span
-        className={cn(
-          "absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-ink-950",
-          statusColor
-        )}
-      />
-    </span>
   );
 }

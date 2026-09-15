@@ -20,7 +20,8 @@ import { DraftRecoveryModal } from "@/components/ui/draft-recovery-modal";
 import { useToast } from "@/components/ui/toast";
 import { DateTimeField } from "@/components/ui/date-time-field";
 import { Input, Textarea } from "@/components/ui/input";
-import { RetroStickerPicker } from "@/components/stickers/retro-sticker-picker";
+import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
+import { RetroStickerPicker } from "@/components/ui/retro-sticker-picker";
 import { AssigneePicker } from "./assignee-picker";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { composeDueDate, composeStartDate } from "@/lib/kanban/due-date";
@@ -801,31 +802,11 @@ function ColorPicker({
   onChange: (color: CardColor) => void;
 }) {
   return (
-    <div className="space-y-2 text-sm text-stone-300">
-      <span>Card color</span>
-      <div className="flex flex-wrap gap-2">
-        {cardColorOptions.map((option) => {
-          const meta = getCardColorMeta(option.value);
-
-          return (
-            <button
-              key={option.value}
-              className={cn(
-                "grid h-8 w-8 place-items-center rounded-full border bg-white/[0.035] transition hover:scale-105 hover:border-white/25",
-                selectedColor === option.value
-                  ? "border-dusk-amber ring-2 ring-dusk-amber/45 ring-offset-2 ring-offset-ink-950"
-                  : "border-white/10"
-              )}
-              title={option.label}
-              type="button"
-              onClick={() => onChange(option.value)}
-            >
-              <span className={cn("h-5 w-5 rounded-full border", meta.swatchClass)} />
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <ColorSwatchPicker
+      label="Card color"
+      value={selectedColor}
+      onChange={onChange}
+    />
   );
 }
 

@@ -27,6 +27,11 @@ const viewOptions = [
   { value: "notes", label: "Notes" }
 ] as const;
 
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { CoinBadge } from "@/components/ui/coin-badge";
+import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
+import { Avatar, AvatarStack } from "@/components/ui/avatar";
+
 function Badge({ children, tone = "lavender" }: { children: React.ReactNode; tone?: "lavender" | "amber" | "cyan" | "rose" }) {
   const tones = {
     lavender: "border-dusk-lavender/25 bg-dusk-lavender/10 text-dusk-lavender",
@@ -36,20 +41,6 @@ function Badge({ children, tone = "lavender" }: { children: React.ReactNode; ton
   };
 
   return <span className={`rounded-full border px-2 py-1 text-[11px] font-semibold ${tones[tone]}`}>{children}</span>;
-}
-
-function ProgressBar({ value }: { value: number }) {
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-[11px] text-stone-500">
-        <span>Progress</span>
-        <span>{value}%</span>
-      </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-        <div className="h-full rounded-full bg-gradient-to-r from-dusk-lavender via-dusk-cyan to-dusk-amber" style={{ width: `${value}%` }} />
-      </div>
-    </div>
-  );
 }
 
 export function DesignSystemPreview() {
@@ -144,7 +135,7 @@ export function DesignSystemPreview() {
           title="Diary card"
           description="Daily task rows and mood signals share the same card language."
           badges={<Badge tone="rose">Today</Badge>}
-          progress={<ProgressBar value={40} />}
+          progress={<ProgressBar value={40} showLabel />}
           meta={<span className="inline-flex items-center gap-1"><CircleDot className="h-3.5 w-3.5" /> 3 items</span>}
         />
         <EntityCard
@@ -152,7 +143,7 @@ export function DesignSystemPreview() {
           title="Reward card"
           description="Image, price, and approval state stay readable at a glance."
           media={<div className="grid h-20 place-items-center rounded-lg bg-gradient-to-br from-dusk-amber/25 via-dusk-rose/12 to-dusk-lavender/15"><Coins className="h-7 w-7 text-dusk-amber" /></div>}
-          badges={<Badge tone="amber">120 coins</Badge>}
+          badges={<CoinBadge amount={120} />}
           footer={<span className="inline-flex items-center gap-1 text-xs text-emerald-300"><CheckCircle2 className="h-3.5 w-3.5" /> Approval ready</span>}
         />
       </section>
@@ -187,7 +178,7 @@ export function DesignSystemPreview() {
           description="Health and routine widgets stay calm, readable, and aligned with the dashboard shell."
           media={<div className="grid h-20 place-items-center rounded-lg bg-gradient-to-br from-dusk-rose/22 to-dusk-lavender/12"><HeartPulse className="h-7 w-7 text-dusk-rose" /></div>}
           badges={<Badge tone="rose">Vital</Badge>}
-          progress={<ProgressBar value={72} />}
+          progress={<ProgressBar value={72} showLabel />}
         />
       </section>
 
