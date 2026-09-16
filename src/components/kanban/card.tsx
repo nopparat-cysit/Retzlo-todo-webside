@@ -2,7 +2,7 @@
 
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, FileText, Star, Zap } from "lucide-react";
+import { CalendarClock, CheckSquare, Clock, FileText, Star, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
@@ -139,7 +139,7 @@ export function KanbanCard({
         ref={setNodeRef}
         style={style}
         className={cn(
-          "scroll-mt-24 cursor-grab rounded-xl border p-3 text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg",
+          "scroll-mt-24 cursor-grab rounded-xl border p-3 text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60",
           colorMeta.cardClass,
           card.status === "DONE" && "card-completed",
           isDragging && "opacity-60",
@@ -164,8 +164,8 @@ export function KanbanCard({
       >
         <div className="space-y-2">
           <div className="flex items-start justify-between gap-1">
-            <div className="flex-1">
-              <p className="font-medium text-stone-100">{card.title}</p>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-stone-100 break-words">{card.title}</p>
               {visibleStickers.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1.5 select-none leading-none">
                   {visibleStickers.map((st, i) => (
@@ -207,7 +207,8 @@ export function KanbanCard({
               </span>
             ) : null}
             {isOverdue ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-400/10 px-2 py-1 text-xs text-red-400 font-semibold animate-pulse">
+              <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-400/10 px-2 py-0.5 text-xs text-red-400 font-semibold animate-pulse">
+                <Clock className="h-3 w-3 shrink-0" />
                 Overdue
               </span>
             ) : null}
@@ -224,7 +225,7 @@ export function KanbanCard({
               </span>
             ) : null}
           </div>
-          {card.description ? <p className="line-clamp-3 text-stone-400">{card.description}</p> : null}
+          {card.description ? <p className="line-clamp-3 text-stone-400 break-words">{card.description}</p> : null}
           {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) ? (
             <div className="flex items-center justify-between gap-2 pt-1">
               {(card.startDate || card.dueDate) ? (

@@ -56,4 +56,13 @@ describe("kanban card interactions", () => {
     expect(boardSource).not.toContain("<select");
     expect(boardSource).not.toContain("border-primary-400");
   });
+
+  it("provides consolidated filter clear button and empty board onboarding", () => {
+    expect(boardSource).toContain("activeFilterCount");
+    expect(boardSource).toContain("resetAllFilters");
+    expect(boardSource).toContain("Clear filters");
+    expect(boardSource).toContain("No columns on this board yet");
+    expect(boardSource).toContain("hasActiveFilters={activeFilterCount > 0}");
+    expect(columnSource).toContain("No cards match filter");
+  });
 });

@@ -606,6 +606,18 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     };
   });
 
+  // Active filter count & reset helper
+  const activeFilterCount =
+    (searchQuery.trim() ? 1 : 0) +
+    (isTodayFilterActive ? 1 : 0) +
+    (assigneeFilter !== "ALL" ? 1 : 0);
+
+  const resetAllFilters = () => {
+    setSearchQuery("");
+    setIsTodayFilterActive(false);
+    setAssigneeFilter("ALL");
+  };
+
   // Statistics Computations
   const totalCards = columns.reduce((acc, col) => acc + col.cards.length, 0);
   const doneCards = columns.reduce((acc, col) => acc + col.cards.filter((c) => c.status === "DONE").length, 0);
@@ -633,26 +645,26 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         </div>
 
         {/* ── Premium Control Bar ── */}
-        <div className="flex flex-wrap items-center justify-start gap-2 xl:justify-end">
-          <div className="flex h-11 w-[8.25rem] shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full xl:w-auto xl:flex xl:flex-wrap xl:items-center xl:justify-end">
+          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.25rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
             <span className="text-[9px] uppercase tracking-wider text-stone-500 select-none">Total</span>
             <span className="text-base font-bold leading-none text-stone-200">{totalCards}</span>
           </div>
-          <div className="flex h-11 w-[8.25rem] shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.25rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
             <span className="flex items-center text-[9px] uppercase tracking-wider text-dusk-lavender select-none">
               <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-dusk-lavender" />
               Progress
             </span>
             <span className="text-base font-bold leading-none text-dusk-lavender">{doingCards}</span>
           </div>
-          <div className="flex h-11 w-[8.25rem] shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.25rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
             <span className="flex items-center text-[9px] uppercase tracking-wider text-dusk-amber select-none">
               <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-dusk-amber" />
               Done
             </span>
             <span className="text-base font-bold leading-none text-dusk-amber">{doneCards}</span>
           </div>
-          <div className="flex h-11 w-[8.25rem] shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.25rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
             <span className="flex items-center text-[9px] uppercase tracking-wider text-dusk-rose select-none">
               <span className={cn("mr-1.5 h-1.5 w-1.5 rounded-full bg-dusk-rose", overdueCards > 0 ? "animate-pulse" : "")} />
               Overdue
@@ -758,6 +770,19 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
               </button>
             )}
           </div>
+
+          {/* Clear All Filters Button */}
+          {activeFilterCount > 0 && (
+            <button
+              type="button"
+              onClick={resetAllFilters}
+              className="flex h-9 items-center gap-1.5 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 text-xs font-medium text-dusk-amber transition hover:border-dusk-amber/50 hover:bg-dusk-amber/20 select-none"
+              title="Reset all active filters"
+            >
+              <X className="h-3.5 w-3.5" />
+              Clear filters ({activeFilterCount})
+            </button>
+          )}
 
           {/* Focus Toggle */}
           <button
@@ -902,25 +927,49 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         onDragOver={handleDragOver}
         onDragStart={handleDragStart}
       >
-        <div className="scrollbar-soft mt-4 flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1">
-          <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
-            {filteredColumns.map((column, index) => (
-              <KanbanColumn
-                key={column.id}
-                column={column}
-                activeCardId={activeCardId}
-                isDropTarget={activeDropColumnId === column.id}
-                onCreateCard={createCard}
-                onCardDeleted={deleteCard}
-                onCardSaved={saveCard}
-                onColumnDeleted={deleteColumn}
-                onColumnSaved={updateColumn}
-                isFirst={index === 0}
-                members={members}
-              />
-            ))}
-          </SortableContext>
-        </div>
+        {columns.length === 0 ? (
+          <div className="lofi-panel mt-4 flex min-h-[320px] flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 p-8 text-center">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl border border-white/10 bg-white/[0.035] text-dusk-amber shadow-inner">
+              <Plus className="h-7 w-7" />
+            </div>
+            <h3 className="mt-4 text-base font-semibold text-stone-100">No columns on this board yet</h3>
+            <p className="mt-1.5 max-w-sm text-xs text-stone-400">
+              Create your first column like &ldquo;To Do&rdquo;, &ldquo;In Progress&rdquo;, or &ldquo;Done&rdquo; to start organizing tasks.
+            </p>
+            <Button
+              className="mt-5 text-xs"
+              type="button"
+              onClick={() => {
+                setSyncError(null);
+                setIsColumnModalOpen(true);
+              }}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add First Column
+            </Button>
+          </div>
+        ) : (
+          <div className="scrollbar-soft mt-4 flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1">
+            <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
+              {filteredColumns.map((column, index) => (
+                <KanbanColumn
+                  key={column.id}
+                  column={column}
+                  activeCardId={activeCardId}
+                  isDropTarget={activeDropColumnId === column.id}
+                  onCreateCard={createCard}
+                  onCardDeleted={deleteCard}
+                  onCardSaved={saveCard}
+                  onColumnDeleted={deleteColumn}
+                  onColumnSaved={updateColumn}
+                  isFirst={index === 0}
+                  members={members}
+                  hasActiveFilters={activeFilterCount > 0}
+                />
+              ))}
+            </SortableContext>
+          </div>
+        )}
         <DragOverlay adjustScale={false} dropAnimation={null} zIndex={10000}>
           {activeCard ? <KanbanCardDragPreview card={activeCard} /> : null}
         </DragOverlay>

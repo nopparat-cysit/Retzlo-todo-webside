@@ -33,7 +33,8 @@ export function KanbanColumn({
   onCardSaved,
   onColumnDeleted,
   onColumnSaved,
-  isFirst = false
+  isFirst = false,
+  hasActiveFilters = false
 }: {
   column: ColumnWithCards;
   activeCardId: string | null;
@@ -71,6 +72,7 @@ export function KanbanColumn({
     }
   ) => Promise<void>;
   isFirst?: boolean;
+  hasActiveFilters?: boolean;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -390,7 +392,16 @@ export function KanbanColumn({
                 "animate-pulse border-dusk-lavender/60 bg-dusk-lavender/10 text-dusk-lavender shadow-[0_0_18px_2px_rgba(169,162,255,0.15)]"
             )}
           >
-            {isDropTarget ? "Release to drop" : "Drop a card here."}
+            {isDropTarget ? (
+              "Release to drop"
+            ) : hasActiveFilters ? (
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-stone-400">No cards match filter</p>
+                <p className="text-[11px] text-stone-600">Try clearing active filters</p>
+              </div>
+            ) : (
+              "Drop a card here."
+            )}
           </div>
         )}
       </div>
@@ -415,21 +426,24 @@ export function KanbanColumn({
               style={{ fieldSizing: "content" } as React.CSSProperties}
               aria-label="Quick add card title"
             />
-            <div className="mt-2 flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                className="h-7 px-3 text-xs text-dusk-lavender hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
-                disabled={!quickTitle.trim() || isSubmitting}
-                onClick={() => void handleQuickSubmit()}
-              >
-                Add
-              </Button>
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-3 text-xs text-dusk-lavender hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
+                  disabled={!quickTitle.trim() || isSubmitting}
+                  onClick={() => void handleQuickSubmit()}
+                >
+                  Add
+                </Button>
+                <span className="text-[10px] text-stone-500 select-none">↵ to add • Esc</span>
+              </div>
               <button
                 type="button"
                 onClick={closeQuickAdd}
-                className="ml-auto rounded p-1 text-stone-500 transition-colors hover:text-stone-300"
+                className="rounded p-1 text-stone-500 transition-colors hover:text-stone-300"
                 aria-label="Cancel quick add"
               >
                 <X className="h-3.5 w-3.5" />
