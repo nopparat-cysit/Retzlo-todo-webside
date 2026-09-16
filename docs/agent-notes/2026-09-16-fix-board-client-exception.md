@@ -6,10 +6,12 @@
 ## Files Created, Modified, Deleted, or Moved
 
 - **Modified**:
-  - `src/components/kanban/board.tsx`: Replaced invalid DOM nesting (`<div>` inside `SelectItem`'s `<span>`) with `<span>`, and added fallback `placeholder="All Assignees"` to `SelectValue`.
+  - `src/components/kanban/board.tsx`: Standardized `SelectItem` children to clean string labels according to Radix UI specification, moved avatar/icon display into `SelectTrigger`, and added fallback `placeholder="All Assignees"` to `SelectValue`.
   - `src/lib/date-format.ts`: Added `toSafeDate()` to prevent `RangeError: Invalid time value` when handling null, undefined, or malformed date inputs across all formatting utilities.
   - `src/lib/date-format.test.ts`: Added unit tests verifying safe date handling for null, undefined, and invalid date strings.
   - `src/components/kanban/card-modal.tsx`: Initialized `stickers` state using `useState<string[]>(() => normalizeRetroStickerSelection(card?.stickers))` to prevent initial render draft desync.
+  - `src/app/error.tsx`: Added detailed error name, message, and expandable stack trace display.
+  - `src/app/(dashboard)/error.tsx`: Added detailed error name, message, and expandable stack trace display.
 - **Created**:
   - `src/app/error.tsx`: Root error boundary with Retro Lo-Fi Indigo styling and recovery action.
   - `src/app/(dashboard)/error.tsx`: Dashboard error boundary preventing full app crashes and providing retry/dashboard navigation.
@@ -18,9 +20,9 @@
 
 ## Important Behavior Changes
 
-- Resolves HTML5 specification violation where `<SelectPrimitive.ItemText>` (`<span>`) contained block `<div>` elements, which previously triggered React hydration failure and unmounted the Kanban board page on client load.
+- Resolves HTML5 specification violation where `<SelectPrimitive.ItemText>` (`<span>`) contained block `<div>` elements and nested components, which previously triggered React hydration failure and unmounted the Kanban board page on client load.
 - Prevents unhandled `RangeError` from `Intl.DateTimeFormat.prototype.format` if any card or notification contains an unexpected or invalid date string.
-- Adds resilient Next.js error boundaries so any unexpected runtime errors display a graceful Retro Lo-Fi fallback screen with retry actions instead of Next.js generic error pages.
+- Adds resilient Next.js error boundaries so any unexpected runtime errors display a graceful Retro Lo-Fi fallback screen with retry actions, error message diagnostics, and navigation options instead of Next.js generic blank crash pages.
 
 ## Database/Schema Changes
 
@@ -35,4 +37,4 @@
 
 ## Known Follow-ups, Blockers, or Deployment Notes
 
-- Ready for production deployment on Vercel.
+- Pushed to `origin main` for automatic production deployment on Vercel.

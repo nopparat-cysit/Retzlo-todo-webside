@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
@@ -27,6 +27,19 @@ export default function GlobalError({
         <p className="mt-2 text-xs leading-relaxed text-stone-400">
           ระบบพบข้อผิดพลาดที่ไม่คาดคิด คุณสามารถลองโหลดใหม่อีกครั้ง หรือกลับไปยังหน้าหลัก
         </p>
+
+        {error.message && (
+          <div className="mt-3 rounded-xl border border-dusk-rose/30 bg-ink-950/80 p-3 text-left font-mono text-[11px] text-stone-200 break-all max-h-48 overflow-y-auto">
+            <div className="font-bold text-dusk-rose mb-1">{error.name || "Error"}:</div>
+            <div className="text-stone-300">{error.message}</div>
+            {error.stack && (
+              <details className="mt-2 text-[10px] text-stone-400">
+                <summary className="cursor-pointer text-stone-500 hover:text-stone-300">Stack trace</summary>
+                <pre className="mt-1 whitespace-pre-wrap text-[9px] text-stone-400 overflow-x-auto">{error.stack}</pre>
+              </details>
+            )}
+          </div>
+        )}
 
         {error.digest && (
           <p className="mt-2 font-mono text-[10px] text-stone-500">

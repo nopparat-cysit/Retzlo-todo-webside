@@ -710,62 +710,31 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
                     : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
                 )}
               >
-                <SelectValue placeholder="All Assignees">
+                <span className="flex items-center gap-1.5 min-w-0">
                   {selectedAssignee ? (
-                    <span className="flex items-center gap-1.5 min-w-0">
-                      <AssigneeAvatar user={selectedAssignee} size={16} />
-                      <span className="truncate">{selectedAssignee.name || selectedAssignee.email}</span>
-                    </span>
+                    <AssigneeAvatar user={selectedAssignee} size={16} />
                   ) : assigneeFilter === "UNASSIGNED" ? (
-                    <span className="flex items-center gap-1.5 min-w-0">
-                      <UserX className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />
-                      <span className="truncate">Unassigned</span>
-                    </span>
-                  ) : assigneeFilter !== "ALL" ? (
-                    <span className="flex items-center gap-1.5 min-w-0">
-                      <Users className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />
-                      <span className="truncate">Filtered</span>
-                    </span>
+                    <UserX className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />
                   ) : (
-                    <span className="flex items-center gap-1.5 min-w-0">
-                      <Users className="h-3.5 w-3.5 shrink-0 text-stone-400" />
-                      <span className="truncate">All Assignees</span>
-                    </span>
+                    <Users className="h-3.5 w-3.5 shrink-0 text-stone-400" />
                   )}
-                </SelectValue>
+                  <SelectValue placeholder="All Assignees" />
+                </span>
               </SelectTrigger>
               <SelectContent align="start" className="min-w-[15rem] max-w-[22rem]">
                 <SelectItem value="ALL" className="cursor-pointer">
-                  <span className="flex items-center gap-2">
-                    <Users className="h-3.5 w-3.5 shrink-0 text-stone-400" />
-                    <span>All Assignees</span>
-                  </span>
+                  All Assignees
                 </SelectItem>
                 <SelectItem value="UNASSIGNED" className="cursor-pointer">
-                  <span className="flex items-center gap-2">
-                    <UserX className="h-3.5 w-3.5 shrink-0 text-stone-400" />
-                    <span>Unassigned</span>
-                  </span>
+                  Unassigned
                 </SelectItem>
                 {members.length > 0 && (
                   <>
                     <SelectSeparator />
                     <SelectLabel>Members ({members.length})</SelectLabel>
                     {members.map((member) => (
-                      <SelectItem key={member.id} value={member.id} className="cursor-pointer py-1.5">
-                        <span className="flex items-center gap-2 min-w-0">
-                          <AssigneeAvatar user={member} size={20} />
-                          <span className="flex flex-col min-w-0 text-left">
-                            <span className="truncate text-xs font-medium text-stone-200">
-                              {member.name || member.email}
-                            </span>
-                            {member.name && (
-                              <span className="truncate text-[10px] text-stone-400">
-                                {member.email}
-                              </span>
-                            )}
-                          </span>
-                        </span>
+                      <SelectItem key={member.id} value={member.id} className="cursor-pointer">
+                        {member.name ? `${member.name} (${member.email})` : member.email}
                       </SelectItem>
                     ))}
                   </>
