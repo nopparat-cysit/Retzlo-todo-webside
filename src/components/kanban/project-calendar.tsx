@@ -29,7 +29,9 @@ import { formatMediumDate, formatShortDate, formatShortDue, formatTime, formatWe
 import { getStatusMeta } from "@/lib/kanban/status";
 import { getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
-import type { Card } from "@/types/kanban";
+import { AssigneeStack } from "@/components/kanban/assignee-avatar";
+import { resolveAssignees } from "@/lib/kanban/assignees";
+import type { Card, CardAssignee } from "@/types/kanban";
 
 import {
   toggleDiaryChecklistCompletion,
@@ -73,12 +75,14 @@ export function ProjectCalendar({
   projectId,
   initialCards,
   initialNotes = [],
-  initialDiaryItems = []
+  initialDiaryItems = [],
+  members = []
 }: {
   projectId: string;
   initialCards: CalendarCard[];
   initialNotes?: CalendarNote[];
   initialDiaryItems?: ProjectDiaryItem[];
+  members?: CardAssignee[];
 }) {
   const [cards, setCards] = useState(initialCards);
   const [notes] = useState(initialNotes);
@@ -267,7 +271,7 @@ export function ProjectCalendar({
       const nextCard = normalizeCalendarCard({
         ...selectedCard,
         ...data.card
-      });
+      }, members);
       setCards((current) => current.map((item) => (item.id === nextCard.id ? nextCard : item)));
       setSelectedCardId(null);
       toast({ message: "Card updated.", type: "success" });
@@ -676,7 +680,7 @@ export function ProjectCalendar({
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
                 {filteredItems.slice(0, 15).map((item) => {
                   if (item.type === "card") {
-                    return <UpcomingCard key={`upcoming-card-${item.id}`} card={item} onClick={() => setSelectedCardId(item.id)} />;
+                    return <UpcomingCard key={`upcoming-card-${item.id}`} card={item} members={members} onClick={() => setSelectedCardId(item.id)} />;
                   } else if (item.type === "note") {
                     return <UpcomingNote key={`upcoming-note-${item.id}`} note={item} onClick={() => setSelectedNoteId(item.id)} />;
                   } else {
@@ -707,6 +711,7 @@ export function ProjectCalendar({
           card={selectedCard}
           mode="edit"
           open={Boolean(selectedCard)}
+          members={members}
           onClose={() => setSelectedCardId(null)}
           onDelete={async () => {
             setIsDeleteConfirmOpen(true);
@@ -938,10 +943,26 @@ export function ProjectCalendar({
                                   {(item as CalendarNote).content}
                                 </p>
                               )}
-                              {isCard && (item as CalendarCard).description && (
-                                <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
-                                  {(item as CalendarCard).description}
-                                </p>
+                              {isCard && (
+                                <>
+                                  {(item as CalendarCard).description && (
+                                    <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
+                                      {(item as CalendarCard).description}
+                                    </p>
+                                  )}
+                                  {((item as CalendarCard).assignees?.length || (item as CalendarCard).assigneeIds?.length) ? (
+                                    <div className="mt-2 flex items-center gap-2">
+                                      <AssigneeStack
+                                        assignees={
+                                          (item as CalendarCard).assignees && (item as CalendarCard).assignees!.length > 0
+                                            ? (item as CalendarCard).assignees!
+                                            : resolveAssignees((item as CalendarCard).assigneeIds, members)
+                                        }
+                                        size={20}
+                                      />
+                                    </div>
+                                  ) : null}
+                                </>
                               )}
                               {isDiaryChecklist && (
                                 <p className="mt-1 text-xs text-stone-500 font-medium">
@@ -1161,8 +1182,9 @@ function CalendarNoteButton({ note, onClick }: { note: CalendarNote; onClick: ()
   return <CalendarNotePill note={note} onClick={onClick} />;
 }
 
-function UpcomingCard({ card, onClick }: { card: CalendarCard; onClick: () => void }) {
+function UpcomingCard({ card, members = [], onClick }: { card: CalendarCard; members?: CardAssignee[]; onClick: () => void }) {
   const colorMeta = getCardColorMeta(card.color);
+  const assignees = (card.assignees && card.assignees.length > 0) ? card.assignees : resolveAssignees(card.assigneeIds, members);
 
   return (
     <button
@@ -1174,8 +1196,13 @@ function UpcomingCard({ card, onClick }: { card: CalendarCard; onClick: () => vo
         <p className="font-medium">{card.title}</p>
         <StatusBadge status={card.status} />
       </div>
-      <p className="mt-1 text-xs text-dusk-cyan">{formatDue(card)}</p>
-      <p className="mt-1 text-xs text-stone-500">{card.column.name}</p>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <div>
+          <p className="text-xs text-dusk-cyan">{formatDue(card)}</p>
+          <p className="mt-0.5 text-xs text-stone-500">{card.column.name}</p>
+        </div>
+        {assignees.length > 0 ? <AssigneeStack assignees={assignees} size={18} /> : null}
+      </div>
     </button>
   );
 }
@@ -1251,13 +1278,18 @@ function StatusBadge({ status }: { status: Card["status"] }) {
   return <span className={cn("rounded border px-2 py-1 text-[11px]", meta.badgeClass)}>{meta.label}</span>;
 }
 
-function normalizeCalendarCard(card: CalendarCard): CalendarCard {
+function normalizeCalendarCard(card: CalendarCard, members: CardAssignee[] = []): CalendarCard {
+  const assigneeIds = card.assigneeIds ?? [];
   return {
     ...card,
     checklist: Array.isArray(card.checklist) ? card.checklist : [],
     color: normalizeCardColor(card.color),
     dueDate: card.dueDate ? new Date(card.dueDate).toISOString() : null,
-    dueDateAllDay: card.dueDateAllDay ?? false
+    dueDateAllDay: card.dueDateAllDay ?? false,
+    assigneeIds,
+    assignees: (card.assignees && card.assignees.length > 0)
+      ? card.assignees
+      : resolveAssignees(assigneeIds, members)
   };
 }
 

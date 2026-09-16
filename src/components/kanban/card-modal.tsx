@@ -199,66 +199,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     toast({ message: "กู้คืนข้อมูลร่างเรียบร้อยแล้ว", type: "success" });
   }, [toast]);
 
-  const {
-    isRecoveryOpen,
-    draftTimestamp,
-    restoreDraft,
-    discardDraft,
-    clearDraft
-  } = useFormDraft({
-    draftKey,
-    currentData: currentFormData,
-    enabled: open && mounted,
-    hasMeaningfulData: hasMeaningfulDraftData,
-    onRestore: handleRestoreDraft
-  });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    setStartDate(startDateValue(card));
-    setStartTime(startTimeValue(card));
-    setDate(dateValue(card));
-    setTime(timeValue(card));
-    setSelectedStatus(card?.status ?? "TODO");
-    setSelectedColor(normalizeCardColor(card?.color));
-    setSelectedPriority(card?.priority ?? "MEDIUM");
-    setDifficulty(card?.difficulty ?? null);
-    setAssigneeIds(card?.assigneeIds ?? []);
-    setIsStarred(card?.isStarred ?? false);
-    setChecklist(card?.checklist ?? []);
-    setNewChecklistItem("");
-    setNote(card?.note ?? "");
-    setTitle(card?.title ?? "");
-    setDescription(card?.description ?? "");
-
-    setRewardCoins(card?.rewardCoins ?? 0);
-    setShowCoinRewards(Boolean(card?.rewardCoins));
-    setStickers(normalizeRetroStickerSelection(card?.stickers));
-
-    async function fetchUser() {
-      try {
-        const res = await fetch("/api/profile");
-        if (res.ok) {
-          const d = await res.json() as { user: { id: string } };
-          const privateCoins = getPrivateCoinEntry(card?.privateCoins, d.user.id).coins;
-          setActiveUserId(d.user.id);
-          setPrivateGlobalCoins(privateCoins);
-          if (privateCoins > 0) {
-            setShowCoinRewards(true);
-          }
-        }
-      } catch {}
-    }
-    void fetchUser();
-  }, [card, open]);
-
   const hasChanges = useMemo(() => {
     if (mode === "create") {
       return (
@@ -351,6 +291,161 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     time,
     checklist
   ]);
+
+  const isDraftEqualInitial = useCallback(
+    (draft: typeof currentFormData) => {
+      if (mode === "create") {
+        return (
+          (!draft.title || !draft.title.trim()) &&
+          (!draft.description || !draft.description.trim()) &&
+          (!draft.note || !draft.note.trim()) &&
+          (!draft.checklist || draft.checklist.length === 0) &&
+          (draft.selectedStatus === "TODO" || !draft.selectedStatus) &&
+          (draft.selectedPriority === "MEDIUM" || !draft.selectedPriority) &&
+          (draft.difficulty === null || draft.difficulty === undefined) &&
+          (!draft.assigneeIds || draft.assigneeIds.length === 0) &&
+          !draft.isStarred &&
+          (!draft.rewardCoins || draft.rewardCoins === 0) &&
+          (!draft.stickers || draft.stickers.length === 0) &&
+          (!draft.startDate || !draft.startDate.trim()) &&
+          (!draft.startTime || !draft.startTime.trim()) &&
+          (!draft.date || !draft.date.trim()) &&
+          (!draft.time || !draft.time.trim())
+        );
+      }
+
+      if (!card) return false;
+
+      const initialTitle = card.title ?? "";
+      const initialDesc = card.description ?? "";
+      const initialNote = card.note ?? "";
+      const initialStatus = card.status ?? "TODO";
+      const initialColor = normalizeCardColor(card.color);
+      const initialPriority = card.priority ?? "MEDIUM";
+      const initialDifficulty = card.difficulty ?? null;
+      const initialAssignees = card.assigneeIds ?? [];
+      const initialStarred = card.isStarred ?? false;
+      const initialReward = card.rewardCoins ?? 0;
+      const initialStickers = normalizeRetroStickerSelection(card.stickers);
+      const initialStartDate = startDateValue(card);
+      const initialStartTime = startTimeValue(card);
+      const initialDate = dateValue(card);
+      const initialTime = timeValue(card);
+
+      const draftTitle = draft.title ?? "";
+      const draftDesc = draft.description ?? "";
+      const draftNote = draft.note ?? "";
+      const draftStatus = draft.selectedStatus ?? "TODO";
+      const draftColor = normalizeCardColor(draft.selectedColor);
+      const draftPriority = draft.selectedPriority ?? "MEDIUM";
+      const draftDifficulty = draft.difficulty ?? null;
+      const draftAssignees = draft.assigneeIds ?? [];
+      const draftStarred = Boolean(draft.isStarred);
+      const draftReward = draft.rewardCoins ?? 0;
+      const draftStickers = normalizeRetroStickerSelection(draft.stickers);
+      const draftStartDate = draft.startDate ?? "";
+      const draftStartTime = draft.startTime ?? "";
+      const draftDate = draft.date ?? "";
+      const draftTime = draft.time ?? "";
+
+      const checklistMatches =
+        (draft.checklist?.length ?? 0) === (card.checklist?.length ?? 0) &&
+        (draft.checklist ?? []).every((item, idx) => {
+          const initialItem = card.checklist?.[idx];
+          return initialItem && item.label === initialItem.label && item.checked === initialItem.checked;
+        });
+
+      const stickersMatches =
+        draftStickers.length === initialStickers.length &&
+        draftStickers.every((s, idx) => s === initialStickers[idx]);
+
+      const assigneesMatches =
+        draftAssignees.length === initialAssignees.length &&
+        draftAssignees.every((id) => initialAssignees.includes(id));
+
+      return (
+        draftTitle === initialTitle &&
+        draftDesc === initialDesc &&
+        draftNote === initialNote &&
+        draftStatus === initialStatus &&
+        draftColor === initialColor &&
+        draftPriority === initialPriority &&
+        draftDifficulty === initialDifficulty &&
+        draftStarred === initialStarred &&
+        draftReward === initialReward &&
+        draftStartDate === initialStartDate &&
+        draftStartTime === initialStartTime &&
+        draftDate === initialDate &&
+        draftTime === initialTime &&
+        checklistMatches &&
+        stickersMatches &&
+        assigneesMatches
+      );
+    },
+    [card, mode]
+  );
+
+  const {
+    isRecoveryOpen,
+    draftTimestamp,
+    restoreDraft,
+    discardDraft,
+    clearDraft
+  } = useFormDraft({
+    draftKey,
+    currentData: currentFormData,
+    enabled: open && mounted,
+    isDirty: hasChanges,
+    hasMeaningfulData: hasMeaningfulDraftData,
+    isDraftEqualInitial,
+    onRestore: handleRestoreDraft
+  });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    setStartDate(startDateValue(card));
+    setStartTime(startTimeValue(card));
+    setDate(dateValue(card));
+    setTime(timeValue(card));
+    setSelectedStatus(card?.status ?? "TODO");
+    setSelectedColor(normalizeCardColor(card?.color));
+    setSelectedPriority(card?.priority ?? "MEDIUM");
+    setDifficulty(card?.difficulty ?? null);
+    setAssigneeIds(card?.assigneeIds ?? []);
+    setIsStarred(card?.isStarred ?? false);
+    setChecklist(card?.checklist ?? []);
+    setNewChecklistItem("");
+    setNote(card?.note ?? "");
+    setTitle(card?.title ?? "");
+    setDescription(card?.description ?? "");
+
+    setRewardCoins(card?.rewardCoins ?? 0);
+    setShowCoinRewards(Boolean(card?.rewardCoins));
+    setStickers(normalizeRetroStickerSelection(card?.stickers));
+
+    async function fetchUser() {
+      try {
+        const res = await fetch("/api/profile");
+        if (res.ok) {
+          const d = await res.json() as { user: { id: string } };
+          const privateCoins = getPrivateCoinEntry(card?.privateCoins, d.user.id).coins;
+          setActiveUserId(d.user.id);
+          setPrivateGlobalCoins(privateCoins);
+          if (privateCoins > 0) {
+            setShowCoinRewards(true);
+          }
+        }
+      } catch {}
+    }
+    void fetchUser();
+  }, [card, open]);
 
   if (!open || !mounted) {
     return null;

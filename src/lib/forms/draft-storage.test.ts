@@ -67,4 +67,35 @@ describe("draft-storage", () => {
     expect(loadFormDraft("corrupt-key")).toBeNull();
     expect(store[`${DRAFT_PREFIX}corrupt-key`]).toBeUndefined();
   });
+
+  it("identifies when draft data is identical to initial pristine data", () => {
+    const initialData = { title: "Original Task", description: "Pristine", status: "TODO" };
+    saveFormDraft("card:edit:1", { ...initialData });
+
+    const loaded = loadFormDraft<typeof initialData>("card:edit:1");
+    expect(loaded).not.toBeNull();
+
+    // If identical, we clear the draft
+    const isPristine = JSON.stringify(loaded?.data) === JSON.stringify(initialData);
+    expect(isPristine).toBe(true);
+
+    if (isPristine) {
+      clearFormDraft("card:edit:1");
+    }
+
+    expect(loadFormDraft("card:edit:1")).toBeNull();
+  });
+
+  it("retains draft data when user made meaningful edits", () => {
+    const initialData = { title: "Original Task", description: "Pristine", status: "TODO" };
+    const modifiedData = { title: "Updated Task Title", description: "Pristine", status: "TODO" };
+    saveFormDraft("card:edit:2", modifiedData);
+
+    const loaded = loadFormDraft<typeof initialData>("card:edit:2");
+    expect(loaded).not.toBeNull();
+
+    const isPristine = JSON.stringify(loaded?.data) === JSON.stringify(initialData);
+    expect(isPristine).toBe(false);
+    expect(loaded?.data.title).toBe("Updated Task Title");
+  });
 });

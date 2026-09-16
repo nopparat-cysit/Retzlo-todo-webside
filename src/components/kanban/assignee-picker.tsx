@@ -82,10 +82,10 @@ export function AssigneePicker({
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-1.5 font-medium">
           <Users className="h-4 w-4 text-dusk-lavender" />
-          <span>ผู้รับผิดชอบ (Assignees)</span>
+          <span>ผู้รับผิดชอบ / คนดูแล (Assignees)</span>
         </span>
         <span className="text-xs text-stone-500">
-          {selectedIds.length === 0 ? "ยังไม่มีผู้รับผิดชอบ" : `${selectedIds.length} คน`}
+          {selectedIds.length === 0 ? "ยังไม่มีคนดูแล" : `${selectedIds.length} คน`}
         </span>
       </div>
 
@@ -120,7 +120,7 @@ export function AssigneePicker({
             className="inline-flex items-center gap-1 rounded-md border border-dashed border-white/20 bg-white/[0.03] px-2.5 py-1 text-xs text-stone-400 hover:border-dusk-lavender/50 hover:bg-white/[0.08] hover:text-stone-200 transition"
           >
             <Plus className="h-3.5 w-3.5" />
-            <span>{selectedMembers.length === 0 ? "เลือกผู้รับผิดชอบ" : "เพิ่มอีก"}</span>
+            <span>{selectedMembers.length === 0 ? "เลือกคนดูแล / ผู้รับผิดชอบ" : "เพิ่มอีก"}</span>
           </button>
         )}
       </div>
@@ -168,7 +168,7 @@ export function AssigneePicker({
             <div className="max-h-52 overflow-y-auto space-y-1 scrollbar-soft pr-1">
               {filteredMembers.length === 0 ? (
                 <p className="py-4 text-center text-xs text-stone-500">
-                  {searchQuery ? "ไม่พบสมาชิกที่ตรงกับการค้นหา" : "ไม่มีสมาชิกในโปรเจกต์"}
+                  {searchQuery ? "ไม่พบสมาชิกที่ตรงกับการค้นหา" : "ยังไม่มีสมาชิกในโปรเจกต์ (เชิญสมาชิกได้ที่เมนูด้านบน)"}
                 </p>
               ) : (
                 filteredMembers.map((member) => {

@@ -6,8 +6,12 @@ import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { getProjectMembership, requireUserId, canManageAuthoredItem, canToggleHiddenItem } from "@/lib/project-auth";
 import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
 import { serializeDiaryRewardClaimedDates } from "@/lib/diary/payout";
+import { extractAssigneeIds, resolveAssignees } from "@/lib/kanban/assignees";
+import { extractStartDate, extractStartDateAllDay } from "@/lib/kanban/due-date";
+import { extractDifficulty } from "@/lib/kanban/difficulty";
+import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
-import type { CardStatus, ChecklistItem } from "@/types/kanban";
+import type { CardAssignee, CardStatus, ChecklistItem } from "@/types/kanban";
 import type { ProjectDiaryItem } from "@/types/diary-item";
 
 export default async function CalendarPage({ params }: { params: { id: string } }) {
@@ -21,6 +25,7 @@ export default async function CalendarPage({ params }: { params: { id: string } 
   let cards: any[] = [];
   let notes: any[] = [];
   let diaryItems: any[] = [];
+  let projectMembers: any[] = [];
 
   try {
     membership = await getProjectMembership(params.id, userId);
@@ -37,7 +42,7 @@ export default async function CalendarPage({ params }: { params: { id: string } 
       notFound();
     }
 
-    [cards, notes, diaryItems] = await Promise.all([
+    [cards, notes, diaryItems, projectMembers] = await Promise.all([
       prisma.card.findMany({
         where: {
           dueDate: { not: null },
@@ -74,6 +79,20 @@ export default async function CalendarPage({ params }: { params: { id: string } 
             }
           }
         }
+      }),
+      prisma.projectMember.findMany({
+        where: { projectId: params.id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true
+            }
+          }
+        },
+        orderBy: { createdAt: "asc" }
       })
     ]);
   } catch (error) {
@@ -84,6 +103,13 @@ export default async function CalendarPage({ params }: { params: { id: string } 
     throw error;
   }
 
+  const members: CardAssignee[] = (projectMembers || []).map((pm) => ({
+    id: pm.user.id,
+    name: pm.user.name,
+    email: pm.user.email,
+    avatar: pm.user.avatar
+  }));
+
   const initialDiaryItems = toProjectDiaryItems(diaryItems, {
     membership,
     userId,
@@ -93,9 +119,10 @@ export default async function CalendarPage({ params }: { params: { id: string } 
   return (
     <ProjectCalendar
       projectId={params.id}
-      initialCards={cards.map(toCalendarCard)}
+      initialCards={cards.map((card) => toCalendarCard(card, members))}
       initialNotes={notes.map(toCalendarNote)}
       initialDiaryItems={initialDiaryItems}
+      members={members}
     />
   );
 }
@@ -151,11 +178,15 @@ function toCalendarCard(card: {
   priority: string;
   isStarred: boolean;
   columnId: string;
+  rewardCoins?: number;
+  privateCoins?: unknown;
+  stickers?: unknown;
   column: {
     name: string;
     boardId: string;
   };
-}): CalendarCard {
+}, members: CardAssignee[] = []): CalendarCard {
+  const assigneeIds = extractAssigneeIds(card.privateCoins);
   return {
     id: card.id,
     title: card.title,
@@ -165,12 +196,20 @@ function toCalendarCard(card: {
     status: card.status as CardStatus,
     color: normalizeCardColor(card.color),
     checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
+    startDate: extractStartDate(card.privateCoins),
+    startDateAllDay: extractStartDateAllDay(card.privateCoins),
     dueDate: card.dueDate ? card.dueDate.toISOString() : null,
     dueDateAllDay: card.dueDateAllDay,
     priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
     isStarred: card.isStarred,
+    rewardCoins: card.rewardCoins ?? 0,
+    privateCoins: card.privateCoins,
+    stickers: normalizeRetroStickerSelection(card.stickers),
+    difficulty: extractDifficulty(card.privateCoins),
     columnId: card.columnId,
-    column: card.column
+    column: card.column,
+    assigneeIds,
+    assignees: resolveAssignees(assigneeIds, members)
   };
 }
 

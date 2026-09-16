@@ -89,6 +89,11 @@ export function KanbanCard({
     const data = (await response.json()) as { card?: Card; error?: string };
 
     if (data.card) {
+      const updatedAssigneeIds = data.card.assigneeIds !== undefined ? data.card.assigneeIds : card.assigneeIds;
+      const resolved = (data.card.assignees && data.card.assignees.length > 0)
+        ? data.card.assignees
+        : resolveAssignees(updatedAssigneeIds, members);
+
       onSaved({
         ...data.card,
         color: normalizeCardColor(data.card.color),
@@ -99,8 +104,8 @@ export function KanbanCard({
         dueDateAllDay: data.card.dueDateAllDay ?? false,
         isStarred: data.card.isStarred ?? false,
         difficulty: data.card.difficulty !== undefined ? data.card.difficulty : card.difficulty,
-        assigneeIds: data.card.assigneeIds !== undefined ? data.card.assigneeIds : card.assigneeIds,
-        assignees: data.card.assignees ?? (members.length > 0 ? resolveAssignees(data.card.assigneeIds ?? card.assigneeIds, members) : card.assignees),
+        assigneeIds: updatedAssigneeIds,
+        assignees: resolved,
       });
       setIsEditing(false);
       toast({ message: "Card updated.", type: "success" });
@@ -248,7 +253,13 @@ export function KanbanCard({
                 </p>
               ) : <div />}
               <AssigneeStack
-                assignees={card.assignees ?? (members ? resolveAssignees(card.assigneeIds, members) : [])}
+                assignees={
+                  (card.assignees && card.assignees.length > 0)
+                    ? card.assignees
+                    : (card.assigneeIds && card.assigneeIds.length > 0 && members.length > 0)
+                      ? resolveAssignees(card.assigneeIds, members)
+                      : []
+                }
                 size={22}
               />
             </div>

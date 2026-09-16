@@ -43,7 +43,7 @@ import {
   type ColumnThemeId
 } from "@/lib/kanban/column-settings";
 import { moveCard, reorderColumns } from "@/lib/kanban/reorder";
-import { filterCardsByAssignee } from "@/lib/kanban/assignees";
+import { filterCardsByAssignee, resolveAssignees } from "@/lib/kanban/assignees";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
 import { playCardDoneSound, playCardCreateSound } from "@/lib/sound";
@@ -73,18 +73,18 @@ interface CardDropTarget {
   destinationIndex: number;
 }
 
-function normalizeColumn(column: ColumnWithCards): ColumnWithCards {
+function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []): ColumnWithCards {
   return {
     ...column,
     color: getColumnThemeOption(column.color).id,
     icon: getColumnIconOption(column.icon).id,
     defaultCardStatus: column.defaultCardStatus ?? "TODO",
-    cards: column.cards.map(normalizeCard)
+    cards: column.cards.map((c) => normalizeCard(c, members))
   };
 }
 
 export function KanbanBoard({ board, members = [] }: { board: BoardData; members?: CardAssignee[] }) {
-  const [columns, setColumns] = useState(() => board.columns.map(normalizeColumn));
+  const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
   const [dragSnapshot, setDragSnapshot] = useState<ColumnWithCards[] | null>(null);
   const lastCardDropTargetRef = useRef<CardDropTarget | null>(null);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
@@ -273,7 +273,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
 
     if (data.column) {
-      const nextColumn = normalizeColumn(data.column);
+      const nextColumn = normalizeColumn(data.column, members);
       setColumns((current) => current.map((column) => (column.id === columnId ? nextColumn : column)));
       toast({ message: "Column updated.", type: "success" });
       return;
@@ -339,7 +339,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     const data = (await response.json()) as { card?: Card; error?: string };
 
     if (data.card) {
-      const card = normalizeCard(data.card);
+      const card = normalizeCard(data.card, members);
       setColumns((current) =>
         current.map((column) =>
           column.id === columnId ? { ...column, cards: [...column.cards, card] } : column
@@ -358,7 +358,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     setColumns((current) =>
       current.map((column) => ({
         ...column,
-        cards: column.cards.map((existingCard) => (existingCard.id === card.id ? normalizeCard(card) : existingCard))
+        cards: column.cards.map((existingCard) => (existingCard.id === card.id ? normalizeCard(card, members) : existingCard))
       }))
     );
   }
@@ -1020,12 +1020,17 @@ function KanbanCardDragPreview({ card }: { card: Card }) {
   );
 }
 
-function normalizeCard(card: Card): Card {
+function normalizeCard(card: Card, members: CardAssignee[] = []): Card {
+  const assigneeIds = card.assigneeIds ?? [];
   return {
     ...card,
     color: normalizeCardColor(card.color),
     checklist: Array.isArray(card.checklist) ? card.checklist : [],
     dueDate: card.dueDate ? new Date(card.dueDate).toISOString() : null,
-    dueDateAllDay: card.dueDateAllDay ?? false
+    dueDateAllDay: card.dueDateAllDay ?? false,
+    assigneeIds,
+    assignees: (card.assignees && card.assignees.length > 0)
+      ? card.assignees
+      : resolveAssignees(assigneeIds, members)
   };
 }
