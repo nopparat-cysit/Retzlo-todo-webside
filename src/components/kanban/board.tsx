@@ -662,8 +662,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         </div>
         </div>
 
-        {/* â”€â”€ Premium Control Bar â”€â”€ */}
-          <div className="flex flex-wrap items-center justify-start gap-2">
+        {/* ── Filters & Actions ── */}
+        <div className="flex flex-wrap items-center justify-start gap-2">
           {/* Live Search */}
           <div className="relative">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-stone-500" />

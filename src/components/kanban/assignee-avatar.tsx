@@ -45,7 +45,7 @@ export function AssigneeStack({
     return null;
   }
 
-  const names = assignees.map((a) => a.name?.trim() || a.email).join(", ");
+  const names = assignees.map((a) => a.name?.trim() || a.email || "สมาชิก").join(", ");
 
   return (
     <div className="flex items-center gap-1.5" title={`ผู้รับผิดชอบ: ${names}`}>
@@ -57,7 +57,7 @@ export function AssigneeStack({
       />
       {assignees.length === 1 && (
         <span className="max-w-[100px] truncate text-xs text-stone-400">
-          {assignees[0].name?.trim() || assignees[0].email.split("@")[0]}
+          {assignees[0].name?.trim() || assignees[0].email?.split("@")[0] || ""}
         </span>
       )}
     </div>
