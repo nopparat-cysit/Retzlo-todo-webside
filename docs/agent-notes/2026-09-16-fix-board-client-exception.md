@@ -1,12 +1,12 @@
 ﻿# Work Session Note: Fix Client-side Exception on Board Page
 
 - **Date**: 2026-09-16
-- **Objective**: Identify and resolve the runtime client-side exception ("Application error: a client-side exception has occurred") on the Kanban board page, ensure robust hydration, safe date parsing, and add global/dashboard error boundaries.
+- **Objective**: Identify and resolve the runtime client-side exception ("`SelectLabel` must be used within `SelectGroup`") on the Kanban board page, ensure robust hydration, safe date parsing, and add global/dashboard error boundaries.
 
 ## Files Created, Modified, Deleted, or Moved
 
 - **Modified**:
-  - `src/components/kanban/board.tsx`: Standardized `SelectItem` children to clean string labels according to Radix UI specification, moved avatar/icon display into `SelectTrigger`, and added fallback `placeholder="All Assignees"` to `SelectValue`.
+  - `src/components/kanban/board.tsx`: Imported `SelectGroup` and wrapped `<SelectLabel>` and `<SelectItem>` list inside `<SelectGroup>` according to Radix UI specification; standardized `SelectItem` children to clean string labels; moved avatar/icon display into `SelectTrigger`; and added fallback `placeholder="All Assignees"` to `SelectValue`.
   - `src/lib/date-format.ts`: Added `toSafeDate()` to prevent `RangeError: Invalid time value` when handling null, undefined, or malformed date inputs across all formatting utilities.
   - `src/lib/date-format.test.ts`: Added unit tests verifying safe date handling for null, undefined, and invalid date strings.
   - `src/components/kanban/card-modal.tsx`: Initialized `stickers` state using `useState<string[]>(() => normalizeRetroStickerSelection(card?.stickers))` to prevent initial render draft desync.
@@ -20,6 +20,7 @@
 
 ## Important Behavior Changes
 
+- Resolves Radix UI constraint where `<SelectLabel>` called `useSelectGroupContext()` and threw uncaught error ``SelectLabel` must be used within `SelectGroup`` when rendered with members present.
 - Resolves HTML5 specification violation where `<SelectPrimitive.ItemText>` (`<span>`) contained block `<div>` elements and nested components, which previously triggered React hydration failure and unmounted the Kanban board page on client load.
 - Prevents unhandled `RangeError` from `Intl.DateTimeFormat.prototype.format` if any card or notification contains an unexpected or invalid date string.
 - Adds resilient Next.js error boundaries so any unexpected runtime errors display a graceful Retro Lo-Fi fallback screen with retry actions, error message diagnostics, and navigation options instead of Next.js generic blank crash pages.

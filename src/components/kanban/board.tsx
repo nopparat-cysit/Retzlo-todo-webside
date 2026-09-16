@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectLabel,
   SelectSeparator,
@@ -722,21 +723,25 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
                 </span>
               </SelectTrigger>
               <SelectContent align="start" className="min-w-[15rem] max-w-[22rem]">
-                <SelectItem value="ALL" className="cursor-pointer">
-                  All Assignees
-                </SelectItem>
-                <SelectItem value="UNASSIGNED" className="cursor-pointer">
-                  Unassigned
-                </SelectItem>
+                <SelectGroup>
+                  <SelectItem value="ALL" className="cursor-pointer">
+                    All Assignees
+                  </SelectItem>
+                  <SelectItem value="UNASSIGNED" className="cursor-pointer">
+                    Unassigned
+                  </SelectItem>
+                </SelectGroup>
                 {members.length > 0 && (
                   <>
                     <SelectSeparator />
-                    <SelectLabel>Members ({members.length})</SelectLabel>
-                    {members.map((member) => (
-                      <SelectItem key={member.id} value={member.id} className="cursor-pointer">
-                        {member.name ? `${member.name} (${member.email})` : member.email}
-                      </SelectItem>
-                    ))}
+                    <SelectGroup>
+                      <SelectLabel>Members ({members.length})</SelectLabel>
+                      {members.map((member) => (
+                        <SelectItem key={member.id} value={member.id} className="cursor-pointer">
+                          {member.name ? `${member.name} (${member.email})` : member.email}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </>
                 )}
               </SelectContent>
