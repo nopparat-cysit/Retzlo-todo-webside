@@ -36,7 +36,7 @@ export function InviteForm({ projectId }: { projectId: string }) {
       }
 
       setAcceptUrl(`${window.location.origin}${data.acceptUrl}`);
-      toast({ message: "Invitation link generated successfully!", type: "success" });
+      toast({ message: "ส่งคำเชิญสำเร็จ! (ส่งอีเมลและแจ้งเตือนในระบบแล้ว)", type: "success" });
       form.reset();
     } catch {
       setError("Failed to create invitation.");

@@ -36,6 +36,7 @@ import { DiaryItemModal, type DiaryPayload, type HubDiaryItem } from "@/componen
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ProjectAppearanceControls } from "@/components/project/project-appearance-controls";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
+import { NotificationsPopover } from "@/components/notifications/notifications-popover";
 import { defaultCalendarFilters, filterCalendarItems } from "@/lib/calendar/view";
 import { formatShortDue } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
@@ -358,28 +359,31 @@ export function ProjectsDashboard({
                 <h1 className="text-xl font-semibold">Workspaces</h1>
               </div>
             </div>
-            {userProfile && (
-              <UserProfilePopover
-                avatar={userProfile.avatar}
-                email={userProfile.email}
-                initials={(userProfile.name ?? userProfile.email)
-                  .split(" ")
-                  .map((w) => w[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2)}
-                name={userProfile.name ?? userProfile.email}
-                status={userProfile.status}
-                statusColor={
-                  userProfile.status === "ONLINE"
-                    ? "bg-emerald-400"
-                    : userProfile.status === "BUSY"
-                    ? "bg-dusk-amber"
-                    : "bg-stone-500"
-                }
-                variant="avatar"
-              />
-            )}
+            <div className="flex items-center gap-2">
+              <NotificationsPopover />
+              {userProfile && (
+                <UserProfilePopover
+                  avatar={userProfile.avatar}
+                  email={userProfile.email}
+                  initials={(userProfile.name ?? userProfile.email)
+                    .split(" ")
+                    .map((w) => w[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2)}
+                  name={userProfile.name ?? userProfile.email}
+                  status={userProfile.status}
+                  statusColor={
+                    userProfile.status === "ONLINE"
+                      ? "bg-emerald-400"
+                      : userProfile.status === "BUSY"
+                      ? "bg-dusk-amber"
+                      : "bg-stone-500"
+                  }
+                  variant="avatar"
+                />
+              )}
+            </div>
           </div>
 
           <FilterSelect

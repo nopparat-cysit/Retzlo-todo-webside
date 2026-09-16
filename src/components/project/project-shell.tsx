@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { Bell, Menu, PanelLeftClose } from "lucide-react";
+import { Menu, PanelLeftClose } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -12,6 +12,7 @@ import { ProjectNavLink } from "@/components/project/project-nav-link";
 import { ProjectSortableNav, type ProjectNavItem } from "@/components/project/project-sortable-nav";
 import { ProjectTopbarTools } from "@/components/project/project-topbar-tools";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
+import { NotificationsPopover } from "@/components/notifications/notifications-popover";
 import { ErrorState } from "@/components/ui/state";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
 
@@ -214,13 +215,7 @@ export async function ProjectShell({
                 <span className="text-stone-400">Command</span>
                 <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
               </div>
-              <button
-                type="button"
-                className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender"
-                aria-label="Notifications"
-              >
-                <Bell className="h-4 w-4" />
-              </button>
+              <NotificationsPopover />
               <UserProfilePopover
                 avatar={userRecord?.avatar}
                 email={userEmail}
