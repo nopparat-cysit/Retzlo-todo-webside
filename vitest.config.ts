@@ -5,6 +5,9 @@ export default defineConfig({
     environment: "node",
     globals: true
   },
+  esbuild: {
+    jsx: "automatic"
+  },
   resolve: {
     alias: {
       "@": new URL("./src", import.meta.url).pathname

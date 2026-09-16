@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatMediumDateTime, formatShortDate, formatShortDue, formatTime } from "@/lib/date-format";
+import { formatMediumDate, formatMediumDateTime, formatShortDate, formatShortDue, formatTime } from "@/lib/date-format";
 
 describe("date formatting", () => {
   it("formats dates with a stable locale and timezone", () => {
@@ -25,5 +25,15 @@ describe("date formatting", () => {
   it("formats medium date time labels consistently", () => {
     expect(formatMediumDateTime("2026-05-27T12:00:00.000Z", true)).toBe("May 27, 2026");
     expect(formatMediumDateTime("2026-05-27T12:00:00.000Z", false)).toBe("May 27, 2026, 7:00 PM");
+  });
+
+  it("safely handles null, undefined, and invalid date inputs without throwing", () => {
+    expect(formatShortDate(null)).toBe("");
+    expect(formatShortDate(undefined)).toBe("");
+    expect(formatShortDate("invalid-date")).toBe("");
+    expect(formatTime("invalid-date")).toBe("");
+    expect(formatMediumDate("invalid-date")).toBe("");
+    expect(formatMediumDateTime("invalid-date")).toBe("");
+    expect(formatShortDue("invalid-date", false)).toBe("");
   });
 });

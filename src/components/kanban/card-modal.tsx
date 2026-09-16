@@ -116,7 +116,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [privateGlobalCoins, setPrivateGlobalCoins] = useState(0);
   const [rewardCoins, setRewardCoins] = useState(card?.rewardCoins ?? 0);
   const [showCoinRewards, setShowCoinRewards] = useState(Boolean(card?.rewardCoins));
-  const [stickers, setStickers] = useState<string[]>([]);
+  const [stickers, setStickers] = useState<string[]>(() => normalizeRetroStickerSelection(card?.stickers));
   const [mounted, setMounted] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));

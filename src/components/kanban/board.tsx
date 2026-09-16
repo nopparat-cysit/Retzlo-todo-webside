@@ -710,7 +710,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
                     : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
                 )}
               >
-                <SelectValue>
+                <SelectValue placeholder="All Assignees">
                   {selectedAssignee ? (
                     <span className="flex items-center gap-1.5 min-w-0">
                       <AssigneeAvatar user={selectedAssignee} size={16} />
@@ -736,16 +736,16 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
               </SelectTrigger>
               <SelectContent align="start" className="min-w-[15rem] max-w-[22rem]">
                 <SelectItem value="ALL" className="cursor-pointer">
-                  <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-2">
                     <Users className="h-3.5 w-3.5 shrink-0 text-stone-400" />
                     <span>All Assignees</span>
-                  </div>
+                  </span>
                 </SelectItem>
                 <SelectItem value="UNASSIGNED" className="cursor-pointer">
-                  <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-2">
                     <UserX className="h-3.5 w-3.5 shrink-0 text-stone-400" />
                     <span>Unassigned</span>
-                  </div>
+                  </span>
                 </SelectItem>
                 {members.length > 0 && (
                   <>
@@ -753,9 +753,9 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
                     <SelectLabel>Members ({members.length})</SelectLabel>
                     {members.map((member) => (
                       <SelectItem key={member.id} value={member.id} className="cursor-pointer py-1.5">
-                        <div className="flex items-center gap-2 min-w-0">
+                        <span className="flex items-center gap-2 min-w-0">
                           <AssigneeAvatar user={member} size={20} />
-                          <div className="flex flex-col min-w-0 text-left">
+                          <span className="flex flex-col min-w-0 text-left">
                             <span className="truncate text-xs font-medium text-stone-200">
                               {member.name || member.email}
                             </span>
@@ -764,8 +764,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
                                 {member.email}
                               </span>
                             )}
-                          </div>
-                        </div>
+                          </span>
+                        </span>
                       </SelectItem>
                     ))}
                   </>

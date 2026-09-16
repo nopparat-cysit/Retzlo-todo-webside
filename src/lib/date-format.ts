@@ -31,42 +31,61 @@ const timeFormatter = new Intl.DateTimeFormat(RETROD_LOCALE, {
   timeZone: RETROD_TIME_ZONE
 });
 
-export function formatShortDate(value: string | Date): string {
-  return shortDateFormatter.format(toDate(value));
+export function formatShortDate(value: string | Date | null | undefined): string {
+  const date = toSafeDate(value);
+  if (!date) return "";
+  return shortDateFormatter.format(date);
 }
 
-export function formatWeekday(value: string | Date): string {
-  return weekdayFormatter.format(toDate(value));
+export function formatWeekday(value: string | Date | null | undefined): string {
+  const date = toSafeDate(value);
+  if (!date) return "";
+  return weekdayFormatter.format(date);
 }
 
-export function formatDiaryDate(value: string | Date): string {
-  return diaryDateFormatter.format(toDate(value));
+export function formatDiaryDate(value: string | Date | null | undefined): string {
+  const date = toSafeDate(value);
+  if (!date) return "";
+  return diaryDateFormatter.format(date);
 }
 
-export function formatTime(value: string | Date): string {
-  return timeFormatter.format(toDate(value));
+export function formatTime(value: string | Date | null | undefined): string {
+  const date = toSafeDate(value);
+  if (!date) return "";
+  return timeFormatter.format(date);
 }
 
-export function formatMediumDate(value: string | Date): string {
-  return mediumDateFormatter.format(toDate(value));
+export function formatMediumDate(value: string | Date | null | undefined): string {
+  const date = toSafeDate(value);
+  if (!date) return "";
+  return mediumDateFormatter.format(date);
 }
 
-export function formatMediumDateTime(value: string | Date, allDay = false): string {
-  const date = toDate(value);
+export function formatMediumDateTime(value: string | Date | null | undefined, allDay = false): string {
+  const date = toSafeDate(value);
+  if (!date) return "";
 
   if (allDay) return formatMediumDate(date);
 
   return `${formatMediumDate(date)}, ${formatTime(date)}`;
 }
 
-export function formatShortDue(value: string | Date | null, allDay: boolean): string {
-  if (!value) return "";
+export function formatShortDue(value: string | Date | null | undefined, allDay: boolean): string {
+  const date = toSafeDate(value);
+  if (!date) return "";
 
-  if (allDay) return `${formatShortDate(value)} - All day`;
+  if (allDay) return `${formatShortDate(date)} - All day`;
 
-  return `${formatShortDate(value)} - ${formatTime(value)}`;
+  return `${formatShortDate(date)} - ${formatTime(date)}`;
 }
 
-function toDate(value: string | Date): Date {
-  return value instanceof Date ? value : new Date(value);
+export function toSafeDate(value: string | Date | null | undefined): Date | null {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function toDate(value: string | Date | null | undefined): Date {
+  const date = toSafeDate(value);
+  return date ?? new Date();
 }
