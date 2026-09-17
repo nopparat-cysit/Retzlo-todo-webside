@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Bell, Check, Sparkles, UserPlus, CheckCircle2, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Bell, Check, Sparkles, UserPlus } from "lucide-react";
 import { formatShortDate } from "@/lib/date-format";
 import { useToast } from "@/components/ui/toast";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { InvitationConfirmModal, type InvitationData } from "./invitation-confirm-modal";
 
 interface NotificationItem {
@@ -24,7 +25,6 @@ export function NotificationsPopover() {
   const [loading, setLoading] = useState(false);
   const [selectedInvite, setSelectedInvite] = useState<InvitationData | null>(null);
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -50,21 +50,6 @@ export function NotificationsPopover() {
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
-
-  // Click outside to close
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    }
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [open]);
 
   async function markAllAsRead() {
     try {
@@ -98,28 +83,34 @@ export function NotificationsPopover() {
   }
 
   return (
-    <div className="relative" ref={containerRef}>
-      {/* Bell Trigger Button */}
-      <button
-        type="button"
-        onClick={() => {
-          setOpen((prev) => !prev);
-          if (!open) fetchNotifications();
+    <>
+      <Popover
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (next) fetchNotifications();
         }}
-        className="relative grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender focus:outline-none"
-        aria-label="Notifications"
       >
-        <Bell className="h-4 w-4" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-dusk-amber px-1 text-[10px] font-bold text-ink-950 shadow-[0_0_8px_rgba(229,189,114,0.6)]">
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </span>
-        )}
-      </button>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="relative grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50"
+            aria-label="Notifications"
+          >
+            <Bell className="h-4 w-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-dusk-amber px-1 text-[10px] font-bold text-ink-950 shadow-[0_0_8px_rgba(229,189,114,0.6)]">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
+        </PopoverTrigger>
 
-      {/* Popover Dropdown */}
-      {open && (
-        <div className="lofi-panel absolute right-0 top-11 z-[1000] w-80 sm:w-96 rounded-2xl border border-white/10 bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl animate-fade-in">
+        <PopoverContent
+          align="end"
+          sideOffset={8}
+          className="z-[1000] w-80 sm:w-96 rounded-2xl border border-white/10 bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl"
+        >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
             <div className="flex items-center gap-2">
@@ -134,7 +125,7 @@ export function NotificationsPopover() {
               <button
                 type="button"
                 onClick={markAllAsRead}
-                className="text-[11px] text-stone-400 hover:text-dusk-lavender transition"
+                className="text-[11px] text-stone-400 hover:text-dusk-lavender transition cursor-pointer"
               >
                 อ่านทั้งหมด
               </button>
@@ -193,7 +184,7 @@ export function NotificationsPopover() {
                                 markAsRead(n.id);
                                 setSelectedInvite(n.invitation!);
                               }}
-                              className="rounded-lg bg-gradient-to-r from-dusk-lavender to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:from-dusk-lavender/90 hover:to-indigo-500/90 transition"
+                              className="rounded-lg bg-gradient-to-r from-dusk-lavender to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:from-dusk-lavender/90 hover:to-indigo-500/90 transition cursor-pointer"
                             >
                               👉 ดูคำเชิญ / เข้าร่วม
                             </button>
@@ -206,7 +197,7 @@ export function NotificationsPopover() {
                             <button
                               type="button"
                               onClick={() => markAsRead(n.id)}
-                              className="rounded p-1 text-stone-500 hover:text-stone-300 transition"
+                              className="rounded p-1 text-stone-500 hover:text-stone-300 transition cursor-pointer"
                               title="ทำเครื่องหมายว่าอ่านแล้ว"
                             >
                               <Check className="h-3.5 w-3.5" />
@@ -220,8 +211,8 @@ export function NotificationsPopover() {
               ))
             )}
           </div>
-        </div>
-      )}
+        </PopoverContent>
+      </Popover>
 
       {/* Confirmation Modal when user clicks an invitation notification */}
       {selectedInvite && (
@@ -239,6 +230,6 @@ export function NotificationsPopover() {
           }}
         />
       )}
-    </div>
+    </>
   );
 }

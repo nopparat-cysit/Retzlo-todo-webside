@@ -22,5 +22,8 @@ describe("Invitation System Components", () => {
     expect(popoverSource).toContain('fetch("/api/notifications"');
     expect(popoverSource).toContain("PROJECT_INVITATION");
     expect(popoverSource).toContain("<InvitationConfirmModal");
+    expect(popoverSource).toContain("<Popover");
+    expect(popoverSource).toContain("<PopoverTrigger");
+    expect(popoverSource).toContain("<PopoverContent");
   });
 });
