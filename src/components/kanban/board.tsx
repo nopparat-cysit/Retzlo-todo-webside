@@ -91,7 +91,7 @@ function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []):
 
 export function KanbanBoard({ board, members = [] }: { board: BoardData; members?: CardAssignee[] }) {
   const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
-  const [dragSnapshot, setDragSnapshot] = useState<ColumnWithCards[] | null>(null);
+  const dragSnapshotRef = useRef<ColumnWithCards[] | null>(null);
   const lastCardDropTargetRef = useRef<CardDropTarget | null>(null);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
@@ -511,7 +511,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     lastCardDropTargetRef.current = null;
 
     if (event.active.data.current?.type === "card") {
-      setDragSnapshot(columns);
+      dragSnapshotRef.current = columns;
       const cardId = event.active.data.current.cardId as string;
       const card = columns.flatMap((column) => column.cards).find((item) => item.id === cardId) ?? null;
       setActiveCardId(cardId);
@@ -521,12 +521,12 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
 
   function handleDragCancel() {
     isPointerInteractingRef.current = false;
-    if (dragSnapshot) {
-      setColumns(dragSnapshot);
+    if (dragSnapshotRef.current) {
+      setColumns(dragSnapshotRef.current);
     }
 
     lastCardDropTargetRef.current = null;
-    setDragSnapshot(null);
+    dragSnapshotRef.current = null;
     setActiveCardId(null);
     setActiveDropColumnId(null);
     setActiveCard(null);
@@ -536,7 +536,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     // Always compute the drop target from the stable dragSnapshot.
     // Using the live (optimistic) columns state as base causes index drift
     // when cards have already been inserted/removed by previous dragOver events.
-    const snapshot = dragSnapshot;
+    const snapshot = dragSnapshotRef.current;
     if (!snapshot) return;
 
     const target = getCardDropTarget(event, snapshot);
@@ -556,9 +556,9 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     isPointerInteractingRef.current = false;
     mutationLockUntilRef.current = Date.now() + 2000;
     const { active, over } = event;
-    const previous = dragSnapshot ?? columns;
+    const previous = dragSnapshotRef.current ?? columns;
 
-    setDragSnapshot(null);
+    dragSnapshotRef.current = null;
     setActiveCardId(null);
     setActiveDropColumnId(null);
     setActiveCard(null);
@@ -683,22 +683,25 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   };
 
   // Dynamic Filtering based on Search Query, Today Filter & Assignee Filter
-  const filteredColumns = columns.map((column) => {
-    const baseCards = column.cards.filter((card) => {
-      const matchesSearch =
-        card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (card.description && card.description.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Skip filtering during drag so all cards remain in DOM for accurate collision detection
+  const filteredColumns = activeCardId
+    ? columns
+    : columns.map((column) => {
+        const baseCards = column.cards.filter((card) => {
+          const matchesSearch =
+            card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (card.description && card.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      const matchesToday = !isTodayFilterActive || isCardDueTodayOrOverdue(card);
+          const matchesToday = !isTodayFilterActive || isCardDueTodayOrOverdue(card);
 
-      return matchesSearch && matchesToday;
-    });
+          return matchesSearch && matchesToday;
+        });
 
-    return {
-      ...column,
-      cards: filterCardsByAssignee(baseCards, assigneeFilter)
-    };
-  });
+        return {
+          ...column,
+          cards: filterCardsByAssignee(baseCards, assigneeFilter)
+        };
+      });
 
   // Active filter count & reset helper
   const activeFilterCount =
