@@ -6,6 +6,9 @@ import { assertProjectMember, getProjectIdForBoard, requireUserId } from "@/lib/
 
 import { serializeCard } from "@/lib/kanban/serialize-card";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(_request: Request, { params }: { params: { boardId: string } }) {
   const userId = await requireUserId();
 
@@ -51,5 +54,14 @@ export async function GET(_request: Request, { params }: { params: { boardId: st
     }))
   };
 
-  return NextResponse.json({ board: serializedBoard });
+  return NextResponse.json(
+    { board: serializedBoard },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        Pragma: "no-cache",
+        Expires: "0"
+      }
+    }
+  );
 }

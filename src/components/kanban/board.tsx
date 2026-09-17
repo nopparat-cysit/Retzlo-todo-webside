@@ -51,6 +51,7 @@ import { getStatusMeta } from "@/lib/kanban/status";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
 import { playCardDoneSound, playCardCreateSound } from "@/lib/sound";
 import { cn } from "@/lib/utils";
+import { areColumnsEqual } from "@/lib/kanban/column-equality";
 import { extractDifficulty, type DifficultyScore } from "@/lib/kanban/difficulty";
 import type { Card, CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 
@@ -103,6 +104,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
   const [isCreatingColumn, setIsCreatingColumn] = useState(false);
   const isCreatingColumnRef = useRef(false);
+  const mutationLockUntilRef = useRef<number>(0);
+  const isPointerInteractingRef = useRef<boolean>(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
@@ -111,6 +114,19 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     () => createKanbanCollisionDetection(() => columns),
     [columns]
   );
+
+  // Global Pointer Release Listener to reset interaction lock
+  useEffect(() => {
+    const handlePointerRelease = () => {
+      isPointerInteractingRef.current = false;
+    };
+    window.addEventListener("pointerup", handlePointerRelease);
+    window.addEventListener("pointercancel", handlePointerRelease);
+    return () => {
+      window.removeEventListener("pointerup", handlePointerRelease);
+      window.removeEventListener("pointercancel", handlePointerRelease);
+    };
+  }, []);
 
   // Premium Features States
   const [searchQuery, setSearchQuery] = useState("");
@@ -162,11 +178,23 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   // Real-time Live Synchronization & Multi-User Auto-Update
   const refreshBoard = useCallback(async () => {
     try {
-      const response = await fetch(`/api/boards/${board.id}`);
+      const response = await fetch(`/api/boards/${board.id}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache"
+        }
+      });
       if (!response.ok) return;
       const data = await response.json();
       if (data?.board?.columns) {
-        setColumns(data.board.columns.map((col: any) => normalizeColumn(col, members)));
+        const nextColumns = data.board.columns.map((col: any) => normalizeColumn(col, members));
+        setColumns((current) => {
+          if (areColumnsEqual(current, nextColumns)) {
+            return current; // Skip state mutation to preserve active pointers and avoid lag
+          }
+          return nextColumns;
+        });
       }
     } catch {
       // Silent error on background sync
@@ -175,9 +203,11 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
 
   const { broadcastChange } = useLiveSync({
     channelKey: board.projectId ? [`board:${board.id}`, `project:${board.projectId}`] : `board:${board.id}`,
-    intervalMs: 4000,
+    intervalMs: 2500,
     canSync: () => {
+      if (isPointerInteractingRef.current) return false;
       if (activeCardId) return false;
+      if (Date.now() < mutationLockUntilRef.current) return false;
       if (isColumnModalOpen) return false;
       if (typeof document !== "undefined" && document.querySelector("[role='dialog']")) return false;
       return true;
@@ -189,6 +219,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   const undoLastMove = async () => {
     if (moveHistory.length === 0) return;
     const lastMove = moveHistory[moveHistory.length - 1];
+
+    mutationLockUntilRef.current = Date.now() + 2000;
 
     // Pop from stack
     setMoveHistory((current) => current.slice(0, -1));
@@ -266,6 +298,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
 
       if (data.column) {
+        mutationLockUntilRef.current = Date.now() + 1500;
         const column = normalizeColumn({ ...data.column, cards: [] });
         setColumns((current) => [...current, column]);
         setColumnName("");
@@ -317,26 +350,18 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
 
     if (data.column) {
+      mutationLockUntilRef.current = Date.now() + 1500;
       setColumns((current) =>
-        current.map((col) => {
-          if (col.id !== columnId) return col;
-          return {
-            ...col,
-            name: data.column!.name,
-            color: getColumnThemeOption(data.column!.color).id,
-            icon: getColumnIconOption(data.column!.icon).id,
-            defaultCardStatus: data.column!.defaultCardStatus ?? col.defaultCardStatus,
-            wipLimit: data.column!.wipLimit !== undefined ? data.column!.wipLimit : col.wipLimit,
-            cards: col.cards
-          };
-        })
+        current.map((column) =>
+          column.id === columnId ? normalizeColumn({ ...column, ...data.column }, members) : column
+        )
       );
       toast({ message: "Column updated.", type: "success" });
       broadcastChange("COLUMN_UPDATED");
       return;
     }
 
-    const message = data.error ?? "Column did not sync. Try again.";
+    const message = data.error ?? "Column could not be saved.";
     setSyncError(message);
     toast({ message, type: "error" });
     throw new Error(message);
@@ -351,6 +376,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     const data = (await response.json()) as { ok?: boolean; error?: string };
 
     if (data.ok) {
+      mutationLockUntilRef.current = Date.now() + 1500;
       setColumns((current) =>
         current
           .filter((column) => column.id !== columnId)
@@ -397,6 +423,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     const data = (await response.json()) as { card?: Card; error?: string };
 
     if (data.card) {
+      mutationLockUntilRef.current = Date.now() + 1500;
       const card = normalizeCard(data.card, members);
       setColumns((current) =>
         current.map((column) =>
@@ -414,6 +441,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   }
 
   function saveCard(card: Card) {
+    mutationLockUntilRef.current = Date.now() + 1500;
     setColumns((current) =>
       current.map((column) => ({
         ...column,
@@ -424,6 +452,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   }
 
   function deleteCard(cardId: string) {
+    mutationLockUntilRef.current = Date.now() + 1500;
     setColumns((current) =>
       current.map((column) => ({
         ...column,
@@ -478,6 +507,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   }
 
   function handleDragStart(event: DragStartEvent) {
+    isPointerInteractingRef.current = true;
     lastCardDropTargetRef.current = null;
 
     if (event.active.data.current?.type === "card") {
@@ -490,6 +520,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   }
 
   function handleDragCancel() {
+    isPointerInteractingRef.current = false;
     if (dragSnapshot) {
       setColumns(dragSnapshot);
     }
@@ -524,6 +555,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   }
 
   async function handleDragEnd(event: DragEndEvent) {
+    isPointerInteractingRef.current = false;
+    mutationLockUntilRef.current = Date.now() + 2000;
     const { active, over } = event;
     const previous = dragSnapshot ?? columns;
     setDragSnapshot(null);
@@ -689,7 +722,21 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   const doingCards = columns.reduce((acc, col) => acc + col.cards.filter((c) => c.status === "DOING").length, 0);
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div
+      className="flex h-full min-h-0 flex-col"
+      onPointerDownCapture={(e) => {
+        const target = e.target as HTMLElement | null;
+        if (target?.closest?.("article, [role='button'], button, input, textarea")) {
+          isPointerInteractingRef.current = true;
+        }
+      }}
+      onPointerUpCapture={() => {
+        isPointerInteractingRef.current = false;
+      }}
+      onPointerCancelCapture={() => {
+        isPointerInteractingRef.current = false;
+      }}
+    >
       {/* ── Header ── */}
       <div className="lofi-panel grid gap-2 rounded-2xl p-3">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">

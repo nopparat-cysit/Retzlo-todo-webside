@@ -58,11 +58,15 @@ export function BoardNotesRail({
 
   const refreshNotes = useCallback(async () => {
     try {
-      const response = await fetch(`/api/projects/${projectId}/notes`);
+      const response = await fetch(`/api/projects/${projectId}/notes`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
+      });
       if (!response.ok) return;
       const data = (await response.json()) as { notes?: ProjectNote[] };
       if (Array.isArray(data.notes)) {
-        setNotes(data.notes.map(normalizeNote));
+        const nextNotes = data.notes.map(normalizeNote);
+        setNotes(nextNotes);
       }
     } catch {
       // Ignore background sync errors
@@ -71,7 +75,7 @@ export function BoardNotesRail({
 
   const { broadcastChange } = useLiveSync({
     channelKey: `notes:${projectId}`,
-    intervalMs: 5000,
+    intervalMs: 3000,
     canSync: () => !isCreateOpen && !selectedNote && !document.querySelector("[role='dialog']"),
     onSync: refreshNotes
   });

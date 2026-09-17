@@ -33,7 +33,10 @@ export function NotificationsPopover() {
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/notifications");
+      const res = await fetch("/api/notifications", {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
+      });
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.notifications ?? []);
@@ -47,7 +50,7 @@ export function NotificationsPopover() {
 
   const { broadcastChange } = useLiveSync({
     channelKey: "notifications",
-    intervalMs: 15000,
+    intervalMs: 8000,
     canSync: () => !selectedInvite,
     onSync: fetchNotifications
   });

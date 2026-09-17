@@ -49,6 +49,9 @@ function toNoteResponse(
   };
 }
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const userId = await requireUserId();
 
@@ -89,15 +92,24 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     orderBy: { updatedAt: "desc" }
   });
 
-  return NextResponse.json({
-    notes: notes.map((note) =>
-      toNoteResponse(note, {
-        membership,
-        userId,
-        allowMemberPrivateItems: project.allowMemberPrivateItems
-      })
-    )
-  });
+  return NextResponse.json(
+    {
+      notes: notes.map((note) =>
+        toNoteResponse(note, {
+          membership,
+          userId,
+          allowMemberPrivateItems: project.allowMemberPrivateItems
+        })
+      )
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        Pragma: "no-cache",
+        Expires: "0"
+      }
+    }
+  );
 }
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {

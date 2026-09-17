@@ -111,7 +111,10 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
 
   const refreshNotes = useCallback(async () => {
     try {
-      const response = await fetch(`/api/projects/${projectId}/notes`);
+      const response = await fetch(`/api/projects/${projectId}/notes`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
+      });
       if (!response.ok) return;
       const data = (await response.json()) as { notes?: ProjectNote[] };
       if (Array.isArray(data.notes)) {
@@ -124,7 +127,7 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
 
   const { broadcastChange } = useLiveSync({
     channelKey: `notes:${projectId}`,
-    intervalMs: 5000,
+    intervalMs: 3000,
     canSync: () => !isCreateOpen && !selectedNote && !document.querySelector("[role='dialog']"),
     onSync: refreshNotes
   });

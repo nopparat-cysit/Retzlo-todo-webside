@@ -93,10 +93,11 @@ export function ProjectCalendar({
 
   const refreshCalendar = useCallback(async () => {
     try {
+      const noCache = { cache: "no-store" as RequestCache, headers: { "Cache-Control": "no-cache", Pragma: "no-cache" } };
       const [cardsRes, notesRes, diaryRes] = await Promise.all([
-        fetch(`/api/projects/${projectId}/cards`),
-        fetch(`/api/projects/${projectId}/notes`),
-        fetch(`/api/projects/${projectId}/diary-items`)
+        fetch(`/api/projects/${projectId}/cards`, noCache),
+        fetch(`/api/projects/${projectId}/notes`, noCache),
+        fetch(`/api/projects/${projectId}/diary-items`, noCache)
       ]);
 
       if (cardsRes.ok) {
@@ -140,7 +141,7 @@ export function ProjectCalendar({
 
   const { broadcastChange } = useLiveSync({
     channelKey: [`project:${projectId}`, `calendar:${projectId}`],
-    intervalMs: 5000,
+    intervalMs: 3000,
     canSync: () => {
       if (selectedCardId || selectedNoteId) return false;
       if (isFiltersOpen || isUpcomingOpen) return false;

@@ -9,6 +9,9 @@ const markReadSchema = z.object({
   all: z.boolean().default(false),
 });
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   try {
     const userId = await requireUserId();
@@ -76,7 +79,16 @@ export async function GET(request: Request) {
       return n;
     });
 
-    return NextResponse.json({ notifications: enrichedNotifications });
+    return NextResponse.json(
+      { notifications: enrichedNotifications },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          Pragma: "no-cache",
+          Expires: "0"
+        }
+      }
+    );
   } catch (error) {
     return parseError(error);
   }

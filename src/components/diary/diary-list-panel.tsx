@@ -170,7 +170,10 @@ export function DiaryListPanel({
 
   const refreshDiary = useCallback(async () => {
     try {
-      const response = await fetch(`/api/projects/${projectId}/diary-items`);
+      const response = await fetch(`/api/projects/${projectId}/diary-items`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
+      });
       if (!response.ok) return;
       const data = await response.json();
       if (Array.isArray(data?.diaryItems)) {
@@ -183,7 +186,7 @@ export function DiaryListPanel({
 
   const { broadcastChange } = useLiveSync({
     channelKey: [`project:${projectId}`, `diary:${projectId}`],
-    intervalMs: 5000,
+    intervalMs: 3000,
     canSync: () => {
       if (isCreateOpen || selectedItem) return false;
       if (isDeleteConfirmOpen || isUpdateConfirmOpen) return false;

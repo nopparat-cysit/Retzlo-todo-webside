@@ -6,6 +6,9 @@ import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 
 import { serializeCard } from "@/lib/kanban/serialize-card";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const userId = await requireUserId();
 
@@ -39,5 +42,14 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     orderBy: [{ dueDate: "asc" }, { position: "asc" }]
   });
 
-  return NextResponse.json({ cards: cards.map(serializeCard) });
+  return NextResponse.json(
+    { cards: cards.map(serializeCard) },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        Pragma: "no-cache",
+        Expires: "0"
+      }
+    }
+  );
 }
