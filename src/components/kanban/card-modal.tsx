@@ -200,48 +200,26 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   }, [toast]);
 
   const hasChanges = useMemo(() => {
-    if (mode === "create") {
-      return (
-        title.trim() !== "" ||
-        description.trim() !== "" ||
-        note.trim() !== "" ||
-        checklist.length > 0 ||
-        selectedStatus !== "TODO" ||
-        selectedPriority !== "MEDIUM" ||
-        difficulty !== null ||
-        assigneeIds.length > 0 ||
-        isStarred ||
-        rewardCoins > 0 ||
-        stickers.length > 0 ||
-        startDate !== "" ||
-        startTime !== "" ||
-        date !== "" ||
-        time !== ""
-      );
-    }
-
-    if (!card) return false;
-
-    const initialTitle = card.title ?? "";
-    const initialDesc = card.description ?? "";
-    const initialNote = card.note ?? "";
-    const initialStatus = card.status ?? "TODO";
-    const initialColor = normalizeCardColor(card.color);
-    const initialPriority = card.priority ?? "MEDIUM";
-    const initialDifficulty = card.difficulty ?? null;
-    const initialAssignees = card.assigneeIds ?? [];
-    const initialStarred = card.isStarred ?? false;
-    const initialReward = card.rewardCoins ?? 0;
-    const initialStickers = normalizeRetroStickerSelection(card.stickers);
+    const initialTitle = card?.title ?? "";
+    const initialDesc = card?.description ?? "";
+    const initialNote = card?.note ?? "";
+    const initialStatus = card?.status ?? "TODO";
+    const initialColor = normalizeCardColor(card?.color);
+    const initialPriority = card?.priority ?? "MEDIUM";
+    const initialDifficulty = card?.difficulty ?? null;
+    const initialAssignees = card?.assigneeIds ?? [];
+    const initialStarred = card?.isStarred ?? false;
+    const initialReward = card?.rewardCoins ?? 0;
+    const initialStickers = normalizeRetroStickerSelection(card?.stickers);
     const initialStartDate = startDateValue(card);
     const initialStartTime = startTimeValue(card);
     const initialDate = dateValue(card);
     const initialTime = timeValue(card);
 
     const checklistChanged =
-      checklist.length !== (card.checklist?.length ?? 0) ||
+      checklist.length !== (card?.checklist?.length ?? 0) ||
       checklist.some((item, idx) => {
-        const initialItem = card.checklist?.[idx];
+        const initialItem = card?.checklist?.[idx];
         return !initialItem || item.label !== initialItem.label || item.checked !== initialItem.checked;
       });
 
@@ -253,10 +231,13 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       assigneeIds.length !== initialAssignees.length ||
       assigneeIds.some((id) => !initialAssignees.includes(id));
 
+    const textChanged =
+      mode === "create"
+        ? title.trim() !== "" || description.trim() !== "" || note.trim() !== ""
+        : title.trim() !== initialTitle.trim() || description.trim() !== initialDesc.trim() || note.trim() !== initialNote.trim();
+
     return (
-      title !== initialTitle ||
-      description !== initialDesc ||
-      note !== initialNote ||
+      textChanged ||
       selectedStatus !== initialStatus ||
       selectedColor !== initialColor ||
       selectedPriority !== initialPriority ||
@@ -295,13 +276,17 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const isDraftEqualInitial = useCallback(
     (draft: typeof currentFormData) => {
       if (mode === "create") {
+        const initialStatus = card?.status ?? "TODO";
+        const initialColor = normalizeCardColor(card?.color);
+        const initialPriority = card?.priority ?? "MEDIUM";
         return (
           (!draft.title || !draft.title.trim()) &&
           (!draft.description || !draft.description.trim()) &&
           (!draft.note || !draft.note.trim()) &&
           (!draft.checklist || draft.checklist.length === 0) &&
-          (draft.selectedStatus === "TODO" || !draft.selectedStatus) &&
-          (draft.selectedPriority === "MEDIUM" || !draft.selectedPriority) &&
+          (draft.selectedStatus === initialStatus || !draft.selectedStatus) &&
+          (normalizeCardColor(draft.selectedColor) === initialColor || !draft.selectedColor) &&
+          (draft.selectedPriority === initialPriority || !draft.selectedPriority) &&
           (draft.difficulty === null || draft.difficulty === undefined) &&
           (!draft.assigneeIds || draft.assigneeIds.length === 0) &&
           !draft.isStarred &&

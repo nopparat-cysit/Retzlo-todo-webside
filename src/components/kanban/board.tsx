@@ -259,6 +259,16 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     }
   }
 
+  function openCreateColumnModal() {
+    setColumnName("");
+    setColumnColor("default");
+    setColumnIcon("kanban");
+    setColumnDefaultCardStatus("TODO");
+    setColumnWipLimit("");
+    setSyncError(null);
+    setIsColumnModalOpen(true);
+  }
+
   async function updateColumn(
     columnId: string,
     payload: {
@@ -826,10 +836,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
             className="h-9 text-xs"
             type="button"
             aria-label="Add column"
-            onClick={() => {
-              setSyncError(null);
-              setIsColumnModalOpen(true);
-            }}
+            onClick={openCreateColumnModal}
           >
             <Plus className="h-3.5 w-3.5" />
             Column
@@ -849,7 +856,13 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
             setColumnWipLimit("");
             setIsColumnModalOpen(false);
           }}
-          hasUnsavedChanges={columnName.trim() !== "" || columnColor !== "default" || columnIcon !== "kanban" || columnDefaultCardStatus !== "TODO" || columnWipLimit !== ""}
+          hasUnsavedChanges={
+            columnName.trim() !== "" ||
+            columnColor !== "default" ||
+            columnIcon !== "kanban" ||
+            columnDefaultCardStatus !== "TODO" ||
+            columnWipLimit.trim() !== ""
+          }
           labelledBy="create-column-title"
           contentClassName="lofi-panel w-full max-w-md rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
         >
@@ -962,10 +975,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
             <Button
               className="mt-5 text-xs"
               type="button"
-              onClick={() => {
-                setSyncError(null);
-                setIsColumnModalOpen(true);
-              }}
+              onClick={openCreateColumnModal}
             >
               <Plus className="h-3.5 w-3.5" />
               Add First Column

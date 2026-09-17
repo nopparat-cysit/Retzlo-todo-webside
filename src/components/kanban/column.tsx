@@ -363,6 +363,11 @@ export function KanbanColumn({
           type="button"
           aria-label="Column settings"
           onClick={() => {
+            setSettingsName(column.name);
+            setSettingsColor(column.color);
+            setSettingsIcon(column.icon);
+            setSettingsDefaultCardStatus(column.defaultCardStatus);
+            setSettingsWipLimit(column.wipLimit ? String(column.wipLimit) : "");
             setSettingsError(null);
             setIsSettingsOpen(true);
           }}
@@ -503,11 +508,11 @@ export function KanbanColumn({
           open={isSettingsOpen}
           onClose={closeSettings}
           hasUnsavedChanges={
-            settingsName !== column.name ||
+            settingsName.trim() !== column.name.trim() ||
             settingsColor !== column.color ||
             settingsIcon !== column.icon ||
             settingsDefaultCardStatus !== column.defaultCardStatus ||
-            settingsWipLimit !== (column.wipLimit ? String(column.wipLimit) : "")
+            settingsWipLimit.trim() !== (column.wipLimit ? String(column.wipLimit) : "")
           }
           labelledBy="column-settings-title"
           contentClassName="lofi-panel w-full max-w-lg rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"

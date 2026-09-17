@@ -65,4 +65,18 @@ describe("kanban card interactions", () => {
     expect(boardSource).toContain("hasActiveFilters={activeFilterCount > 0}");
     expect(columnSource).toContain("No cards match filter");
   });
+
+  it("does not trigger false unsaved changes alerts when opening and immediately closing pristine modals", () => {
+    // CardModal must compare status against initial card status (column default), not hardcoded 'TODO'
+    expect(cardModalSource).not.toContain('selectedStatus !== "TODO"');
+    expect(cardModalSource).toMatch(/selectedStatus !== initialStatus/);
+    expect(cardModalSource).toMatch(/initialStatus = card\?\.status \?\? "TODO"/);
+
+    // Board must cleanly reset all fields before opening column modal
+    expect(boardSource).toContain("openCreateColumnModal");
+    expect(boardSource).toMatch(/onClick=\{openCreateColumnModal\}/);
+
+    // Column settings must cleanly reset state upon opening
+    expect(columnSource).toMatch(/setSettingsName\(column\.name\)[\s\S]*setIsSettingsOpen\(true\)/);
+  });
 });
