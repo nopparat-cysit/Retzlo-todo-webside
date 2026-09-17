@@ -45,5 +45,6 @@ export interface ColumnWithCards {
   color: ColumnThemeId;
   icon: ColumnIconId;
   defaultCardStatus: CardStatus;
+  wipLimit?: number | null;
   cards: Card[];
 }

@@ -80,6 +80,7 @@ function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []):
     color: getColumnThemeOption(column.color).id,
     icon: getColumnIconOption(column.icon).id,
     defaultCardStatus: column.defaultCardStatus ?? "TODO",
+    wipLimit: column.wipLimit ?? null,
     cards: column.cards.map((c) => normalizeCard(c, members))
   };
 }
@@ -92,6 +93,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [activeDropColumnId, setActiveDropColumnId] = useState<string | null>(null);
   const [columnName, setColumnName] = useState("");
+  const [columnWipLimit, setColumnWipLimit] = useState("");
   const [columnColor, setColumnColor] = useState<ColumnThemeId>("default");
   const [columnIcon, setColumnIcon] = useState<ColumnIconId>("kanban");
   const [columnDefaultCardStatus, setColumnDefaultCardStatus] = useState<CardStatus>("TODO");
@@ -230,7 +232,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
           name: columnName.trim(),
           color: columnColor,
           icon: columnIcon,
-          defaultCardStatus: columnDefaultCardStatus
+          defaultCardStatus: columnDefaultCardStatus,
+          wipLimit: columnWipLimit.trim() ? parseInt(columnWipLimit.trim(), 10) : null
         })
       });
       const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
@@ -239,6 +242,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         const column = normalizeColumn({ ...data.column, cards: [] });
         setColumns((current) => [...current, column]);
         setColumnName("");
+        setColumnWipLimit("");
         setColumnColor("default");
         setColumnIcon("kanban");
         setColumnDefaultCardStatus("TODO");
@@ -262,6 +266,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       color: ColumnThemeId;
       icon: ColumnIconId;
       defaultCardStatus: CardStatus;
+      wipLimit?: number | null;
     }
   ) {
     setSyncError(null);
@@ -840,9 +845,11 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
             setColumnName("");
             setColumnColor("default");
             setColumnIcon("kanban");
+            setColumnDefaultCardStatus("TODO");
+            setColumnWipLimit("");
             setIsColumnModalOpen(false);
           }}
-          hasUnsavedChanges={columnName.trim() !== "" || columnColor !== "default" || columnIcon !== "kanban" || columnDefaultCardStatus !== "TODO"}
+          hasUnsavedChanges={columnName.trim() !== "" || columnColor !== "default" || columnIcon !== "kanban" || columnDefaultCardStatus !== "TODO" || columnWipLimit !== ""}
           labelledBy="create-column-title"
           contentClassName="lofi-panel w-full max-w-md rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
         >
@@ -864,6 +871,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
                   setColumnColor("default");
                   setColumnIcon("kanban");
                   setColumnDefaultCardStatus("TODO");
+                  setColumnWipLimit("");
                   setIsColumnModalOpen(false);
                 }}
               >
@@ -886,6 +894,20 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
               <ColumnThemePicker value={columnColor} onChange={setColumnColor} />
               <ColumnIconPicker value={columnIcon} onChange={setColumnIcon} />
               <ColumnStatusPicker value={columnDefaultCardStatus} onChange={setColumnDefaultCardStatus} />
+              <label className="block space-y-1.5 text-sm text-stone-300">
+                <div className="flex items-center justify-between">
+                  <span>Card limit (WIP)</span>
+                  <span className="text-[11px] text-stone-500">Optional • Default: none</span>
+                </div>
+                <Input
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={columnWipLimit}
+                  onChange={(event) => setColumnWipLimit(event.target.value)}
+                  placeholder="No limit (leave empty)"
+                />
+              </label>
             </div>
 
             {syncError ? (
@@ -903,6 +925,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
                   setColumnColor("default");
                   setColumnIcon("kanban");
                   setColumnDefaultCardStatus("TODO");
+                  setColumnWipLimit("");
                   setIsColumnModalOpen(false);
                 }}
               >

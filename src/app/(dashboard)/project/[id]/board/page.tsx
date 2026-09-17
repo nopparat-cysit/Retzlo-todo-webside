@@ -28,6 +28,7 @@ function toColumns(
     color?: string | null;
     icon?: string | null;
     defaultCardStatus?: string | null;
+    wipLimit?: number | null;
     cards: Array<{
       id: string;
       title: string;
@@ -56,6 +57,7 @@ function toColumns(
     color: getColumnThemeOption(column.color).id,
     icon: getColumnIconOption(column.icon).id,
     defaultCardStatus: (column.defaultCardStatus ?? "TODO") as CardStatus,
+    wipLimit: column.wipLimit ?? null,
     cards: column.cards.map((card) => {
       const assigneeIds = extractAssigneeIds(card.privateCoins);
       return {

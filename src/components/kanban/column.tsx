@@ -69,6 +69,7 @@ export function KanbanColumn({
       color: ColumnThemeId;
       icon: ColumnIconId;
       defaultCardStatus: CardStatus;
+      wipLimit?: number | null;
     }
   ) => Promise<void>;
   isFirst?: boolean;
@@ -85,6 +86,9 @@ export function KanbanColumn({
   const [settingsColor, setSettingsColor] = useState<ColumnThemeId>(column.color);
   const [settingsIcon, setSettingsIcon] = useState<ColumnIconId>(column.icon);
   const [settingsDefaultCardStatus, setSettingsDefaultCardStatus] = useState<CardStatus>(column.defaultCardStatus);
+  const [settingsWipLimit, setSettingsWipLimit] = useState<string>(
+    column.wipLimit ? String(column.wipLimit) : ""
+  );
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -102,7 +106,8 @@ export function KanbanColumn({
     setSettingsColor(column.color);
     setSettingsIcon(column.icon);
     setSettingsDefaultCardStatus(column.defaultCardStatus);
-  }, [column.color, column.defaultCardStatus, column.icon, column.name]);
+    setSettingsWipLimit(column.wipLimit ? String(column.wipLimit) : "");
+  }, [column.color, column.defaultCardStatus, column.icon, column.name, column.wipLimit]);
 
   const toggleCollapse = () => {
     const newState = !isCollapsed;
@@ -145,9 +150,7 @@ export function KanbanColumn({
   const doneCount = column.cards.filter((c) => c.status === "DONE").length;
   const progressPct = totalCards > 0 ? Math.round((doneCount / totalCards) * 100) : 0;
 
-  const nameLower = column.name.toLowerCase();
-  const isWIPTarget = nameLower.includes("doing") || nameLower.includes("progress") || nameLower.includes("active");
-  const wipLimit = isWIPTarget ? 4 : nameLower.includes("todo") ? 8 : null;
+  const wipLimit = column.wipLimit ?? null;
   const isWipExceeded = wipLimit !== null && totalCards > wipLimit;
 
   function openQuickAdd() {
@@ -165,6 +168,7 @@ export function KanbanColumn({
     setSettingsColor(column.color);
     setSettingsIcon(column.icon);
     setSettingsDefaultCardStatus(column.defaultCardStatus);
+    setSettingsWipLimit(column.wipLimit ? String(column.wipLimit) : "");
     setSettingsError(null);
     setIsSettingsOpen(false);
   }
@@ -185,7 +189,8 @@ export function KanbanColumn({
         name: settingsName.trim(),
         color: settingsColor,
         icon: settingsIcon,
-        defaultCardStatus: settingsDefaultCardStatus
+        defaultCardStatus: settingsDefaultCardStatus,
+        wipLimit: settingsWipLimit.trim() ? parseInt(settingsWipLimit.trim(), 10) : null
       });
       setIsSettingsOpen(false);
     } catch (error) {
@@ -500,7 +505,9 @@ export function KanbanColumn({
           hasUnsavedChanges={
             settingsName !== column.name ||
             settingsColor !== column.color ||
-            settingsIcon !== column.icon
+            settingsIcon !== column.icon ||
+            settingsDefaultCardStatus !== column.defaultCardStatus ||
+            settingsWipLimit !== (column.wipLimit ? String(column.wipLimit) : "")
           }
           labelledBy="column-settings-title"
           contentClassName="lofi-panel w-full max-w-lg rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
@@ -542,6 +549,20 @@ export function KanbanColumn({
               <ColumnThemePicker value={settingsColor} onChange={setSettingsColor} />
               <ColumnIconPicker value={settingsIcon} onChange={setSettingsIcon} />
               <ColumnStatusPicker value={settingsDefaultCardStatus} onChange={setSettingsDefaultCardStatus} />
+              <label className="block space-y-1.5 text-sm text-stone-300">
+                <div className="flex items-center justify-between">
+                  <span>Card limit (WIP)</span>
+                  <span className="text-[11px] text-stone-500">Optional • Default: none</span>
+                </div>
+                <Input
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={settingsWipLimit}
+                  onChange={(event) => setSettingsWipLimit(event.target.value)}
+                  placeholder="No limit (leave empty)"
+                />
+              </label>
             </div>
 
             {totalCards > 0 ? (

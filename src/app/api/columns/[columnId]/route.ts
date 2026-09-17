@@ -51,7 +51,8 @@ export async function PATCH(request: Request, { params }: { params: { columnId: 
         name: payload.name,
         color: payload.color,
         icon: payload.icon,
-        defaultCardStatus: payload.defaultCardStatus
+        defaultCardStatus: payload.defaultCardStatus,
+        wipLimit: payload.wipLimit ?? null
       },
       include: {
         cards: {

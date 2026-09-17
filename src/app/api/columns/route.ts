@@ -41,6 +41,7 @@ export async function POST(request: Request) {
         color: payload.color,
         icon: payload.icon,
         defaultCardStatus: payload.defaultCardStatus,
+        wipLimit: payload.wipLimit ?? null,
         position
       },
       include: { cards: true }

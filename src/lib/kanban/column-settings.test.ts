@@ -55,4 +55,53 @@ describe("column settings", () => {
     expect(getColumnThemeOption(null).id).toBe("default");
     expect(getColumnIconOption(undefined).id).toBe("kanban");
   });
+
+  it("handles wipLimit validation and conversions correctly", () => {
+    // Valid positive integer
+    expect(
+      columnSettingsSchema.parse({
+        name: "Doing",
+        wipLimit: 5
+      }).wipLimit
+    ).toBe(5);
+
+    // Empty string converts to null
+    expect(
+      columnSettingsSchema.parse({
+        name: "Doing",
+        wipLimit: ""
+      }).wipLimit
+    ).toBeNull();
+
+    // Explicit null remains null
+    expect(
+      columnSettingsSchema.parse({
+        name: "Doing",
+        wipLimit: null
+      }).wipLimit
+    ).toBeNull();
+
+    // Undefined/omitted remains undefined (no limit by default)
+    expect(
+      columnSettingsSchema.parse({
+        name: "Doing"
+      }).wipLimit
+    ).toBeUndefined();
+
+    // Rejects 0 or negative numbers
+    expect(() =>
+      columnSettingsSchema.parse({
+        name: "Doing",
+        wipLimit: 0
+      })
+    ).toThrow();
+
+    // Rejects > 99
+    expect(() =>
+      columnSettingsSchema.parse({
+        name: "Doing",
+        wipLimit: 100
+      })
+    ).toThrow();
+  });
 });
