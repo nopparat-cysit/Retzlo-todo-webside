@@ -55,4 +55,35 @@ describe("createKanbanCollisionDetection", () => {
     const collisions = detector(mockArgs);
     expect(collisions[0]?.id).toBe("column:col-2");
   });
+
+  it("excludes active card container to prevent self-collision when column already contains optimistic active card", () => {
+    // col-2 now contains c1 optimistically
+    const columnsWithOptimisticCard = [
+      { id: "col-1", cards: [{ id: "c2" }] },
+      { id: "col-2", cards: [{ id: "c1" }] }
+    ];
+    const detector = createKanbanCollisionDetection(() => columnsWithOptimisticCard);
+
+    const mockArgs: any = {
+      active: {
+        id: "card:c1",
+        data: { current: { type: "card" } },
+        rect: { current: { translated: { top: 50, left: 120, bottom: 70, right: 200, width: 80, height: 20 } } }
+      },
+      collisionRect: { top: 50, left: 120, bottom: 70, right: 200, width: 80, height: 20 },
+      droppableRects: new Map([
+        ["column:col-2", { top: 0, left: 100, bottom: 300, right: 250, width: 150, height: 300 }],
+        ["card:c1", { top: 50, left: 120, bottom: 70, right: 200, width: 80, height: 20 }]
+      ]),
+      droppableContainers: [
+        { id: "column:col-2", data: { current: { type: "column" } } },
+        { id: "card:c1", data: { current: { type: "card" } } }
+      ],
+      pointerCoordinates: { x: 150, y: 60 }
+    };
+
+    const collisions = detector(mockArgs);
+    // Must NOT return card:c1 (self), should return the column container col-2
+    expect(collisions[0]?.id).toBe("column:col-2");
+  });
 });

@@ -37,9 +37,18 @@ export function createKanbanCollisionDetection(
     }
 
     // 2. Card dragging
-    // First, check direct pointer collisions
-    const pointerCollisions = pointerWithin(args);
-    const collisions = pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args);
+    // Exclude the active container being dragged to prevent self-collision (active.id === over.id)
+    const candidateContainers = args.droppableContainers.filter(
+      (container) => container.id !== args.active.id
+    );
+    const cardDragArgs = {
+      ...args,
+      droppableContainers: candidateContainers
+    };
+
+    // First, check direct pointer collisions among other containers
+    const pointerCollisions = pointerWithin(cardDragArgs);
+    const collisions = pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(cardDragArgs);
     const firstCollisionId = getFirstCollision(collisions, "id");
 
     if (firstCollisionId != null) {
@@ -50,16 +59,20 @@ export function createKanbanCollisionDetection(
         const currentColumns = getColumns();
         const targetColumn = currentColumns.find((c) => c.id === columnId);
 
-        // If the column has cards, prioritize closest card within this column
+        // If the column has other cards, prioritize closest card within this column
         if (targetColumn && targetColumn.cards.length > 0) {
-          const cardIds = new Set(targetColumn.cards.map((card) => `card:${card.id}`));
-          const cardsInColumn = args.droppableContainers.filter((container) =>
+          const cardIds = new Set(
+            targetColumn.cards
+              .filter((card) => `card:${card.id}` !== String(args.active.id))
+              .map((card) => `card:${card.id}`)
+          );
+          const cardsInColumn = candidateContainers.filter((container) =>
             cardIds.has(String(container.id))
           );
 
           if (cardsInColumn.length > 0) {
             const closestCard = closestCorners({
-              ...args,
+              ...cardDragArgs,
               droppableContainers: cardsInColumn
             });
             if (closestCard.length > 0) {
@@ -68,7 +81,7 @@ export function createKanbanCollisionDetection(
           }
         }
 
-        // Empty column or no specific card match
+        // Empty column or no other card match -> drop on column
         return [{ id: firstCollisionId }];
       }
 
@@ -77,6 +90,6 @@ export function createKanbanCollisionDetection(
     }
 
     // Fallback when outside droppables
-    return closestCorners(args);
+    return closestCorners(cardDragArgs);
   };
 }

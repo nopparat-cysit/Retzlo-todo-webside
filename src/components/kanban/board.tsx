@@ -91,6 +91,8 @@ function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []):
 
 export function KanbanBoard({ board, members = [] }: { board: BoardData; members?: CardAssignee[] }) {
   const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
+  const columnsRef = useRef(columns);
+  columnsRef.current = columns;
   const dragSnapshotRef = useRef<ColumnWithCards[] | null>(null);
   const lastCardDropTargetRef = useRef<CardDropTarget | null>(null);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
@@ -111,8 +113,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   const collisionDetection = useMemo(
-    () => createKanbanCollisionDetection(() => columns),
-    [columns]
+    () => createKanbanCollisionDetection(() => columnsRef.current),
+    []
   );
 
   // Global Pointer Release Listener to reset interaction lock
@@ -352,9 +354,18 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     if (data.column) {
       mutationLockUntilRef.current = Date.now() + 1500;
       setColumns((current) =>
-        current.map((column) =>
-          column.id === columnId ? normalizeColumn({ ...column, ...data.column }, members) : column
-        )
+        current.map((col) => {
+          if (col.id !== columnId) return col;
+          return {
+            ...col,
+            name: data.column!.name,
+            color: getColumnThemeOption(data.column!.color).id,
+            icon: getColumnIconOption(data.column!.icon).id,
+            defaultCardStatus: data.column!.defaultCardStatus ?? col.defaultCardStatus,
+            wipLimit: data.column!.wipLimit !== undefined ? data.column!.wipLimit : col.wipLimit,
+            cards: col.cards
+          };
+        })
       );
       toast({ message: "Column updated.", type: "success" });
       broadcastChange("COLUMN_UPDATED");
@@ -483,14 +494,20 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
 
     const sourceColumnId = activeData.columnId as string;
     const cardId = activeData.cardId as string;
-    const destinationColumnId =
-      overData?.type === "card"
-        ? (overData.columnId as string)
-        : overData?.type === "column"
-          ? (overData.columnId as string)
-          : String(over.id).startsWith("column:")
-            ? String(over.id).replace("column:", "")
-            : sourceColumnId;
+    let destinationColumnId = sourceColumnId;
+
+    if (overData?.type === "card" && overData.columnId) {
+      destinationColumnId = overData.columnId as string;
+    } else if (overData?.type === "column" && overData.columnId) {
+      destinationColumnId = overData.columnId as string;
+    } else if (String(over.id).startsWith("column:")) {
+      destinationColumnId = String(over.id).replace("column:", "");
+    } else if (String(over.id).startsWith("card:")) {
+      const overCardId = String(over.id).replace("card:", "");
+      const foundCol = currentColumns.find((c) => c.cards.some((card) => card.id === overCardId));
+      if (foundCol) destinationColumnId = foundCol.id;
+    }
+
     const destinationColumn = currentColumns.find((column) => column.id === destinationColumnId);
     const overCardIndex =
       overData?.type === "card" && destinationColumn
@@ -556,7 +573,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     isPointerInteractingRef.current = false;
     mutationLockUntilRef.current = Date.now() + 2000;
     const { active, over } = event;
-    const previous = dragSnapshotRef.current ?? columns;
+    const previous = dragSnapshotRef.current ?? columnsRef.current;
 
     dragSnapshotRef.current = null;
     setActiveCardId(null);
@@ -573,7 +590,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         return;
       }
       if (overData?.type === "column") {
-        const reordered = reorderColumns(columns, activeData.columnId, overData.columnId);
+        const currentCols = columnsRef.current;
+        const reordered = reorderColumns(currentCols, activeData.columnId, overData.columnId);
         lastCardDropTargetRef.current = null;
         setColumns(reordered);
 
@@ -598,9 +616,9 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       return;
     }
 
-    // For card drops: columns state was already updated optimistically by handleDragOver.
-    // We use lastCardDropTargetRef to know WHAT moved, and `columns` as the final visual state.
-    const target = lastCardDropTargetRef.current;
+    // Determine target: try calculating directly from the drop event first,
+    // fallback to lastCardDropTargetRef recorded during dragOver
+    const target = getCardDropTarget(event, previous) ?? lastCardDropTargetRef.current;
     lastCardDropTargetRef.current = null;
 
     if (!target) {
@@ -609,9 +627,10 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       return;
     }
 
-    // columns is already in the correct optimistic state from handleDragOver — keep it.
-    // Just compute the ordered card IDs from the current (optimistic) columns state.
-    const next = columns;
+    // Deterministically compute the final optimistic state from snapshot + target
+    const { columns: next } = moveCard(previous, target);
+    setColumns(next);
+
     const sourceOrderedCardIds = next.find((column) => column.id === target.sourceColumnId)?.cards.map((card) => card.id) ?? [];
     const destinationOrderedCardIds = next.find((column) => column.id === target.destinationColumnId)?.cards.map((card) => card.id) ?? [];
 

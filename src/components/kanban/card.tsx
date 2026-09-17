@@ -139,7 +139,7 @@ export function KanbanCard({
         ref={setNodeRef}
         style={style}
         className={cn(
-          "scroll-mt-24 cursor-grab rounded-xl border p-3 text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60",
+          "scroll-mt-24 cursor-grab rounded-xl border p-3 text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 select-none touch-none",
           colorMeta.cardClass,
           card.status === "DONE" && "card-completed",
           isDragging && "opacity-60",
@@ -151,12 +151,12 @@ export function KanbanCard({
         role="button"
         tabIndex={0}
         onClick={(event) => {
-          if (event.button === 0) {
+          if (event.button === 0 && !isDragging) {
             setIsEditing(true);
           }
         }}
         onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
+          if ((event.key === "Enter" || event.key === " ") && !isDragging) {
             event.preventDefault();
             setIsEditing(true);
           }

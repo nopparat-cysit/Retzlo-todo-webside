@@ -71,16 +71,16 @@ describe("Live Sync Infrastructure and Component Coverage", () => {
     it("synchronizes project calendar cards, notes, and diary items", () => {
       expect(calendarSource).toContain('import { useLiveSync } from "@/hooks/use-live-sync"');
       expect(calendarSource).toContain("channelKey: [`project:${projectId}`, `calendar:${projectId}`]");
-      expect(calendarSource).toContain("fetch(`/api/projects/${projectId}/cards`)");
-      expect(calendarSource).toContain("fetch(`/api/projects/${projectId}/notes`)");
-      expect(calendarSource).toContain("fetch(`/api/projects/${projectId}/diary-items`)");
+      expect(calendarSource).toMatch(/fetch\(`\/api\/projects\/\${projectId}\/cards`/);
+      expect(calendarSource).toMatch(/fetch\(`\/api\/projects\/\${projectId}\/notes`/);
+      expect(calendarSource).toMatch(/fetch\(`\/api\/projects\/\${projectId}\/diary-items`/);
       expect(calendarSource).toContain("broadcastChange()");
     });
 
     it("synchronizes diary list panel and broadcasts checklist/item edits", () => {
       expect(diarySource).toContain('import { useLiveSync } from "@/hooks/use-live-sync"');
       expect(diarySource).toContain("channelKey: [`project:${projectId}`, `diary:${projectId}`]");
-      expect(diarySource).toContain("fetch(`/api/projects/${projectId}/diary-items`)");
+      expect(diarySource).toMatch(/fetch\(`\/api\/projects\/\${projectId}\/diary-items`/);
       expect(diarySource).toContain("broadcastChange()");
     });
 
