@@ -12,6 +12,7 @@ import {
   requireUserId
 } from "@/lib/project-auth";
 import { processCardDonePayouts } from "@/lib/kanban/payout";
+import { serializeCard } from "@/lib/kanban/serialize-card";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import {
   extractDifficulty,
@@ -83,38 +84,6 @@ const updateCardSchema = z.object({
   difficulty: difficultySchema,
   assigneeIds: z.array(z.string().trim().min(1)).optional(),
 });
-
-function serializeCard<T extends {
-  status: string;
-  color: string;
-  checklist: unknown;
-  dueDate: Date | null;
-  dueDateAllDay: boolean;
-  priority: string;
-  isStarred: boolean;
-  rewardCoins: number;
-  privateCoins: unknown;
-  stickers: unknown;
-  note: string | null;
-}>(card: T) {
-  return {
-    ...card,
-    status: card.status as CardStatus,
-    color: normalizeCardColor(card.color),
-    checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
-    startDate: extractStartDate(card.privateCoins),
-    startDateAllDay: extractStartDateAllDay(card.privateCoins),
-    dueDate: card.dueDate ? card.dueDate.toISOString() : null,
-    dueDateAllDay: card.dueDateAllDay,
-    priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
-    isStarred: card.isStarred,
-    rewardCoins: card.rewardCoins,
-    privateCoins: card.privateCoins,
-    stickers: normalizeRetroStickerSelection(card.stickers),
-    difficulty: extractDifficulty(card.privateCoins),
-    assigneeIds: extractAssigneeIds(card.privateCoins),
-  };
-}
 
 export async function POST(request: Request) {
   try {
@@ -199,28 +168,47 @@ export async function PATCH(request: Request) {
         await processCardDonePayouts(tx, payload.cardId, userId, projectId);
       }
 
-      let nextPrivateCoins = payload.privateCoins;
-      if (payload.difficulty !== undefined) {
-        const baseCoins = nextPrivateCoins !== undefined
-          ? nextPrivateCoins
-          : (await tx.card.findUnique({ where: { id: payload.cardId }, select: { privateCoins: true } }))?.privateCoins;
-        nextPrivateCoins = withDifficulty(baseCoins, payload.difficulty);
-      }
-      if (payload.assigneeIds !== undefined) {
-        const baseCoins = nextPrivateCoins !== undefined
-          ? nextPrivateCoins
-          : (await tx.card.findUnique({ where: { id: payload.cardId }, select: { privateCoins: true } }))?.privateCoins;
-        nextPrivateCoins = withAssignees(baseCoins, payload.assigneeIds);
-      }
-      if (payload.startDate !== undefined || payload.startDateAllDay !== undefined) {
-        const baseCoins = nextPrivateCoins !== undefined
-          ? nextPrivateCoins
-          : (await tx.card.findUnique({ where: { id: payload.cardId }, select: { privateCoins: true } }))?.privateCoins;
-        nextPrivateCoins = withStartDate(
-          baseCoins,
-          payload.startDate,
-          payload.startDateAllDay !== undefined ? payload.startDateAllDay : extractStartDateAllDay(baseCoins)
-        );
+      const shouldUpdateCoins =
+        payload.privateCoins !== undefined ||
+        payload.difficulty !== undefined ||
+        payload.assigneeIds !== undefined ||
+        payload.startDate !== undefined ||
+        payload.startDateAllDay !== undefined;
+
+      let nextPrivateCoins: any = undefined;
+      if (shouldUpdateCoins) {
+        const currentCard = await tx.card.findUnique({
+          where: { id: payload.cardId },
+          select: { privateCoins: true }
+        });
+        const currentCoins =
+          typeof currentCard?.privateCoins === "object" && currentCard.privateCoins !== null
+            ? (currentCard.privateCoins as Record<string, unknown>)
+            : {};
+        const incomingCoins =
+          typeof payload.privateCoins === "object" && payload.privateCoins !== null
+            ? (payload.privateCoins as Record<string, unknown>)
+            : {};
+
+        let mergedCoins: Record<string, unknown> = {
+          ...currentCoins,
+          ...incomingCoins
+        };
+
+        if (payload.difficulty !== undefined) {
+          mergedCoins = withDifficulty(mergedCoins, payload.difficulty);
+        }
+        if (payload.assigneeIds !== undefined) {
+          mergedCoins = withAssignees(mergedCoins, payload.assigneeIds);
+        }
+        if (payload.startDate !== undefined || payload.startDateAllDay !== undefined) {
+          mergedCoins = withStartDate(
+            mergedCoins,
+            payload.startDate !== undefined ? payload.startDate : extractStartDate(mergedCoins),
+            payload.startDateAllDay !== undefined ? payload.startDateAllDay : extractStartDateAllDay(mergedCoins)
+          );
+        }
+        nextPrivateCoins = mergedCoins;
       }
 
       return tx.card.update({

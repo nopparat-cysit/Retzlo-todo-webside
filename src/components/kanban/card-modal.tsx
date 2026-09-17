@@ -67,8 +67,23 @@ interface CardModalProps {
   }) => Promise<void>;
 }
 
+function formatLocalDate(isoString?: string | null, isAllDay = false): string {
+  if (!isoString) return "";
+  if (isAllDay) {
+    return isoString.slice(0, 10);
+  }
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) {
+    return isoString.slice(0, 10);
+  }
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function startDateValue(card?: Card) {
-  return card?.startDate ? card.startDate.slice(0, 10) : "";
+  return formatLocalDate(card?.startDate, card?.startDateAllDay);
 }
 
 function startTimeValue(card?: Card) {
@@ -81,7 +96,7 @@ function startTimeValue(card?: Card) {
 }
 
 function dateValue(card?: Card) {
-  return card?.dueDate ? card.dueDate.slice(0, 10) : "";
+  return formatLocalDate(card?.dueDate, card?.dueDateAllDay);
 }
 
 function timeValue(card?: Card) {

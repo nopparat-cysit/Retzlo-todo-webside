@@ -30,7 +30,9 @@ import { getStatusMeta } from "@/lib/kanban/status";
 import { getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import { AssigneeStack } from "@/components/kanban/assignee-avatar";
-import { resolveAssignees } from "@/lib/kanban/assignees";
+import { extractAssigneeIds, resolveAssignees } from "@/lib/kanban/assignees";
+import { extractDifficulty } from "@/lib/kanban/difficulty";
+import { extractStartDate, extractStartDateAllDay } from "@/lib/kanban/due-date";
 import type { Card, CardAssignee } from "@/types/kanban";
 
 import {
@@ -1279,13 +1281,29 @@ function StatusBadge({ status }: { status: Card["status"] }) {
 }
 
 function normalizeCalendarCard(card: CalendarCard, members: CardAssignee[] = []): CalendarCard {
-  const assigneeIds = card.assigneeIds ?? [];
+  const privateCoins = card.privateCoins;
+  const assigneeIds = (card.assigneeIds && card.assigneeIds.length > 0)
+    ? card.assigneeIds
+    : extractAssigneeIds(privateCoins);
+  const difficulty = card.difficulty !== undefined && card.difficulty !== null
+    ? card.difficulty
+    : extractDifficulty(privateCoins);
+  const startDate = card.startDate !== undefined
+    ? card.startDate
+    : extractStartDate(privateCoins);
+  const startDateAllDay = card.startDateAllDay !== undefined
+    ? card.startDateAllDay
+    : extractStartDateAllDay(privateCoins);
+
   return {
     ...card,
     checklist: Array.isArray(card.checklist) ? card.checklist : [],
     color: normalizeCardColor(card.color),
+    startDate,
+    startDateAllDay,
     dueDate: card.dueDate ? new Date(card.dueDate).toISOString() : null,
     dueDateAllDay: card.dueDateAllDay ?? false,
+    difficulty,
     assigneeIds,
     assignees: (card.assignees && card.assignees.length > 0)
       ? card.assignees

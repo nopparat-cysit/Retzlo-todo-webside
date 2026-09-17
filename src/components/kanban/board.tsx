@@ -44,12 +44,13 @@ import {
   type ColumnThemeId
 } from "@/lib/kanban/column-settings";
 import { moveCard, reorderColumns } from "@/lib/kanban/reorder";
-import { filterCardsByAssignee, resolveAssignees } from "@/lib/kanban/assignees";
+import { extractAssigneeIds, filterCardsByAssignee, resolveAssignees } from "@/lib/kanban/assignees";
+import { extractStartDate, extractStartDateAllDay } from "@/lib/kanban/due-date";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
 import { playCardDoneSound, playCardCreateSound } from "@/lib/sound";
 import { cn } from "@/lib/utils";
-import type { DifficultyScore } from "@/lib/kanban/difficulty";
+import { extractDifficulty, type DifficultyScore } from "@/lib/kanban/difficulty";
 import type { Card, CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 
 interface BoardData {
@@ -289,8 +290,20 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     const data = (await response.json()) as { column?: ColumnWithCards; error?: string };
 
     if (data.column) {
-      const nextColumn = normalizeColumn(data.column, members);
-      setColumns((current) => current.map((column) => (column.id === columnId ? nextColumn : column)));
+      setColumns((current) =>
+        current.map((col) => {
+          if (col.id !== columnId) return col;
+          return {
+            ...col,
+            name: data.column!.name,
+            color: getColumnThemeOption(data.column!.color).id,
+            icon: getColumnIconOption(data.column!.icon).id,
+            defaultCardStatus: data.column!.defaultCardStatus ?? col.defaultCardStatus,
+            wipLimit: data.column!.wipLimit !== undefined ? data.column!.wipLimit : col.wipLimit,
+            cards: col.cards
+          };
+        })
+      );
       toast({ message: "Column updated.", type: "success" });
       return;
     }
@@ -1077,13 +1090,29 @@ function KanbanCardDragPreview({ card }: { card: Card }) {
 }
 
 function normalizeCard(card: Card, members: CardAssignee[] = []): Card {
-  const assigneeIds = card.assigneeIds ?? [];
+  const privateCoins = card.privateCoins;
+  const assigneeIds = (card.assigneeIds && card.assigneeIds.length > 0)
+    ? card.assigneeIds
+    : extractAssigneeIds(privateCoins);
+  const difficulty = card.difficulty !== undefined && card.difficulty !== null
+    ? card.difficulty
+    : extractDifficulty(privateCoins);
+  const startDate = card.startDate !== undefined
+    ? card.startDate
+    : extractStartDate(privateCoins);
+  const startDateAllDay = card.startDateAllDay !== undefined
+    ? card.startDateAllDay
+    : extractStartDateAllDay(privateCoins);
+
   return {
     ...card,
     color: normalizeCardColor(card.color),
     checklist: Array.isArray(card.checklist) ? card.checklist : [],
+    startDate,
+    startDateAllDay,
     dueDate: card.dueDate ? new Date(card.dueDate).toISOString() : null,
     dueDateAllDay: card.dueDateAllDay ?? false,
+    difficulty,
     assigneeIds,
     assignees: (card.assignees && card.assignees.length > 0)
       ? card.assignees

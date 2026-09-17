@@ -79,4 +79,19 @@ describe("kanban card interactions", () => {
     // Column settings must cleanly reset state upon opening
     expect(columnSource).toMatch(/setSettingsName\(column\.name\)[\s\S]*setIsSettingsOpen\(true\)/);
   });
+
+  it("preserves card assignees, difficulty, and dates when column settings update and prevents timezone date shift", () => {
+    // board.tsx must not overwrite existing column cards with un-serialized server cards
+    expect(boardSource).toMatch(/cards:\s*col\.cards/);
+
+    // board.tsx normalizeCard must fallback to privateCoins for assignees, difficulty, and startDate
+    expect(boardSource).toContain("extractAssigneeIds(privateCoins)");
+    expect(boardSource).toContain("extractDifficulty(privateCoins)");
+    expect(boardSource).toContain("extractStartDate(privateCoins)");
+
+    // card-modal.tsx must use formatLocalDate to avoid UTC timezone date shift
+    expect(cardModalSource).toContain("function formatLocalDate");
+    expect(cardModalSource).toContain("formatLocalDate(card?.dueDate");
+    expect(cardModalSource).toContain("formatLocalDate(card?.startDate");
+  });
 });

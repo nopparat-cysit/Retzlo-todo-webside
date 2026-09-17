@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
 import { columnSettingsSchema } from "@/lib/kanban/column-settings";
+import { serializeCard } from "@/lib/kanban/serialize-card";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 
@@ -52,7 +53,7 @@ export async function PATCH(request: Request, { params }: { params: { columnId: 
         color: payload.color,
         icon: payload.icon,
         defaultCardStatus: payload.defaultCardStatus,
-        wipLimit: payload.wipLimit ?? null
+        ...(payload.wipLimit !== undefined && { wipLimit: payload.wipLimit })
       },
       include: {
         cards: {
@@ -61,7 +62,12 @@ export async function PATCH(request: Request, { params }: { params: { columnId: 
       }
     });
 
-    return NextResponse.json({ column: updatedColumn });
+    return NextResponse.json({
+      column: {
+        ...updatedColumn,
+        cards: updatedColumn.cards.map((c) => serializeCard(c))
+      }
+    });
   } catch (error) {
     return parseError(error);
   }
