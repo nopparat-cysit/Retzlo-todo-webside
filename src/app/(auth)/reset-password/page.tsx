@@ -1,6 +1,5 @@
+import { AuthScene } from "@/components/auth/auth-scene";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
-import { BackButton } from "@/components/ui/back-button";
-import { Panel, PageShell } from "@/components/ui/panel";
 
 export default function ResetPasswordPage({
   searchParams
@@ -8,18 +7,13 @@ export default function ResetPasswordPage({
   searchParams: { email?: string };
 }) {
   return (
-    <PageShell className="grid max-w-lg items-center">
-      <Panel className="p-6">
-        <div className="mb-6 flex items-start gap-3">
-          <BackButton />
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-dusk-amber">Retzlo</p>
-            <h1 className="mt-2 text-3xl font-semibold">Verify OTP</h1>
-            <p className="mt-2 text-sm text-stone-400">Enter the OTP from your email and choose a new password.</p>
-          </div>
-        </div>
-        <ResetPasswordForm email={searchParams.email ?? ""} />
-      </Panel>
-    </PageShell>
+    <AuthScene
+      eyebrow="Retzlo"
+      title="Verify OTP"
+      description="Enter the OTP from your email and choose a new password."
+      cardClassName="sm:!max-w-md sm:!w-[28rem]"
+    >
+      <ResetPasswordForm email={searchParams.email ?? ""} />
+    </AuthScene>
   );
 }

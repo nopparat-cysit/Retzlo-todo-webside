@@ -1,15 +1,25 @@
 import type { ReactNode } from "react";
 
 import { BackButton } from "@/components/ui/back-button";
+import { cn } from "@/lib/utils";
 
 interface AuthSceneProps {
   children: ReactNode;
-  description: string;
-  eyebrow: string;
-  title: string;
+  description?: string;
+  eyebrow?: string;
+  title?: string;
+  cardClassName?: string;
+  hideHeader?: boolean;
 }
 
-export function AuthScene({ children, description, eyebrow, title }: AuthSceneProps) {
+export function AuthScene({
+  children,
+  description,
+  eyebrow,
+  title,
+  cardClassName,
+  hideHeader = false
+}: AuthSceneProps) {
   return (
     <main className="auth-scene">
       <div className="absolute left-5 top-5 z-20 sm:left-8 sm:top-8">
@@ -106,18 +116,26 @@ export function AuthScene({ children, description, eyebrow, title }: AuthScenePr
         </svg>
       </div>
 
-      <section className="auth-card lofi-panel motion-panel-in">
-        <div className="mb-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.32em] text-dusk-amber">
-            {eyebrow}
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold text-[#f5efe6] tracking-[-0.02em]">
-            {title}
-          </h1>
-          <p className="mt-2 text-sm text-[#f5efe6]/80 max-w-[260px] mx-auto">
-            {description}
-          </p>
-        </div>
+      <section className={cn("auth-card lofi-panel motion-panel-in", cardClassName)}>
+        {!hideHeader && (eyebrow || title || description) ? (
+          <div className="mb-6 text-center">
+            {eyebrow ? (
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-dusk-amber">
+                {eyebrow}
+              </p>
+            ) : null}
+            {title ? (
+              <h1 className="mt-3 text-3xl font-semibold text-[#f5efe6] tracking-[-0.02em]">
+                {title}
+              </h1>
+            ) : null}
+            {description ? (
+              <p className="mt-2 text-sm text-[#f5efe6]/80 max-w-[280px] mx-auto">
+                {description}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         {children}
       </section>
     </main>

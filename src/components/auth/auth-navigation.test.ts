@@ -19,4 +19,20 @@ describe("auth-aware navigation", () => {
     expect(landingSource).toContain('href="/profile"');
     expect(landingSource).toContain("Enter Workspace");
   });
+
+  it("unifies auth layouts using centered AuthScene for accept-invitation and reset-password", () => {
+    const acceptInvitationSource = readFileSync("src/app/(auth)/accept-invitation/page.tsx", "utf8");
+    const resetPasswordSource = readFileSync("src/app/(auth)/reset-password/page.tsx", "utf8");
+    const acceptComponentSource = readFileSync("src/components/auth/accept-invitation.tsx", "utf8");
+
+    expect(acceptInvitationSource).toContain("<AuthScene");
+    expect(acceptInvitationSource).not.toContain("PageShell");
+
+    expect(resetPasswordSource).toContain("<AuthScene");
+    expect(resetPasswordSource).not.toContain("PageShell");
+
+    expect(acceptComponentSource).toContain('status === "ACCEPTED"');
+    expect(acceptComponentSource).toContain("คำเชิญนี้ได้รับการตอบรับแล้ว");
+    expect(acceptComponentSource).toContain("<ProjectPreviewCard");
+  });
 });
