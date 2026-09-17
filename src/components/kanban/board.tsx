@@ -7,6 +7,7 @@ import {
   DragOverlay,
   DragOverEvent,
   DragStartEvent,
+  MeasuringStrategy,
   PointerSensor,
   useSensor,
   useSensors
@@ -481,7 +482,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   function getCardDropTarget(event: DragOverEvent | DragEndEvent, currentColumns: ColumnWithCards[]): CardDropTarget | null {
     const { active, over } = event;
 
-    if (!over || active.id === over.id) {
+    if (!over) {
       return null;
     }
 
@@ -496,6 +497,23 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     const cardId = activeData.cardId as string;
     let destinationColumnId = sourceColumnId;
 
+    if (active.id === over.id) {
+      // The pointer is hovering over the card itself.
+      // Resolve where this card currently resides in the live optimistic state (columnsRef.current).
+      const liveCol = columnsRef.current.find((col) => col.cards.some((c) => c.id === cardId));
+      if (!liveCol) {
+        return null;
+      }
+      destinationColumnId = liveCol.id;
+      const liveIndex = liveCol.cards.findIndex((c) => c.id === cardId);
+      return {
+        cardId,
+        sourceColumnId,
+        destinationColumnId,
+        destinationIndex: Math.max(0, liveIndex)
+      };
+    }
+
     if (overData?.type === "card" && overData.columnId) {
       destinationColumnId = overData.columnId as string;
     } else if (overData?.type === "column" && overData.columnId) {
@@ -509,11 +527,40 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     }
 
     const destinationColumn = currentColumns.find((column) => column.id === destinationColumnId);
-    const overCardIndex =
-      overData?.type === "card" && destinationColumn
-        ? destinationColumn.cards.findIndex((card) => `card:${card.id}` === over.id)
-        : destinationColumn?.cards.length ?? 0;
-    const destinationIndex = overCardIndex < 0 ? destinationColumn?.cards.length ?? 0 : overCardIndex;
+    let destinationIndex = destinationColumn ? destinationColumn.cards.length : 0;
+
+    if (overData?.type === "card" && destinationColumn) {
+      const overCardId = (overData.cardId as string) ?? String(over.id).replace("card:", "");
+      const overCardIndex = destinationColumn.cards.findIndex((card) => card.id === overCardId);
+
+      if (overCardIndex >= 0) {
+        const isBelowOverItem = Boolean(
+          over.rect &&
+          active.rect.current.translated &&
+          active.rect.current.translated.top > (over.rect.top + over.rect.height / 2)
+        );
+
+        if (sourceColumnId === destinationColumnId) {
+          const activeCardIndex = destinationColumn.cards.findIndex((card) => card.id === cardId);
+          if (activeCardIndex >= 0) {
+            if (activeCardIndex < overCardIndex) {
+              destinationIndex = isBelowOverItem ? overCardIndex : overCardIndex - 1;
+            } else {
+              destinationIndex = isBelowOverItem ? overCardIndex + 1 : overCardIndex;
+            }
+          } else {
+            destinationIndex = isBelowOverItem ? overCardIndex + 1 : overCardIndex;
+          }
+        } else {
+          destinationIndex = isBelowOverItem ? overCardIndex + 1 : overCardIndex;
+        }
+      }
+    }
+
+    destinationIndex = Math.max(0, destinationIndex);
+    if (destinationColumn) {
+      destinationIndex = Math.min(destinationIndex, destinationColumn.cards.length);
+    }
 
     return {
       cardId,
@@ -556,10 +603,16 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     const snapshot = dragSnapshotRef.current;
     if (!snapshot) return;
 
+    if (!event.over) {
+      lastCardDropTargetRef.current = null;
+      setActiveDropColumnId(null);
+      setColumns(snapshot);
+      return;
+    }
+
     const target = getCardDropTarget(event, snapshot);
 
     if (!target) {
-      setActiveDropColumnId(null);
       return;
     }
 
@@ -649,6 +702,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         destinationIndex: target.destinationIndex
       };
       setMoveHistory((current) => [...current, newMove]);
+    } else {
+      return;
     }
 
     const destinationColumn = next.find((col) => col.id === target.destinationColumnId);
@@ -665,24 +720,30 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       toast({ message: "Task complete! ✦", type: "success" });
     }
 
-    const response = await fetch("/api/cards/reorder", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        cardId: target.cardId,
-        sourceColumnId: target.sourceColumnId,
-        destinationColumnId: target.destinationColumnId,
-        sourceOrderedCardIds,
-        destinationOrderedCardIds
-      })
-    });
+    try {
+      const response = await fetch("/api/cards/reorder", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cardId: target.cardId,
+          sourceColumnId: target.sourceColumnId,
+          destinationColumnId: target.destinationColumnId,
+          sourceOrderedCardIds,
+          destinationOrderedCardIds
+        })
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        setColumns(previous);
+        setSyncError("Something did not sync. Try again.");
+        toast({ message: "Sync failed. Changes rolled back.", type: "error" });
+      } else {
+        broadcastChange("CARD_MOVED");
+      }
+    } catch {
       setColumns(previous);
       setSyncError("Something did not sync. Try again.");
       toast({ message: "Sync failed. Changes rolled back.", type: "error" });
-    } else {
-      broadcastChange("CARD_MOVED");
     }
   }
 
@@ -1058,6 +1119,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       <DndContext
         sensors={sensors}
         collisionDetection={collisionDetection}
+        measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
         onDragCancel={handleDragCancel}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}

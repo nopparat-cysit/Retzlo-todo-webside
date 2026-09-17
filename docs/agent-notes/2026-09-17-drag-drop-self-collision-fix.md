@@ -1,4 +1,4 @@
-﻿# 2026-09-17 — Kanban Drag-and-Drop Reliability & Collision Detection Fix
+# 2026-09-17 — Kanban Drag-and-Drop Reliability & Collision Detection Fix
 
 ## Objective
 Eliminate recurring card drop failures, card snapping back on release, and sluggish drag pickup ("ลากไม่ติด") across Kanban columns, specifically into empty or low-card columns like "In Progress".
@@ -21,8 +21,13 @@ Eliminate recurring card drop failures, card snapping back on release, and slugg
 - `src/components/kanban/board.tsx`:
   - Added `columnsRef` to prevent stale closure reads.
   - Stabilized `collisionDetection` memo with `() => columnsRef.current`.
-  - Updated `getCardDropTarget` to robustly extract `destinationColumnId` from `overData` and fallback to `over.id` search.
-  - Updated `handleDragEnd` to calculate `getCardDropTarget(event, previous) ?? lastCardDropTargetRef.current` and deterministically compute `next` via `moveCard(previous, target).columns` to ensure 100% accurate API payloads.
+  - Added `measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}` to `<DndContext>` to re-measure droppable bounds during card movements across columns.
+  - Enhanced `getCardDropTarget`:
+    - When `active.id === over.id` (hovering over self in the new column), resolves target from `columnsRef.current` live optimistic position instead of returning `null`.
+    - Added vertical midpoint calculation (`isBelowOverItem = active.rect.current.translated.top > over.rect.top + over.rect.height / 2`) allowing cards to be dropped before or after target items.
+    - Guarded bounds with `Math.max(0, ...)` and `Math.min(..., destinationColumn.cards.length)`.
+  - In `handleDragOver`: guarded out-of-bounds reset with `!event.over` and avoided clearing column drop highlights on card self-hover.
+  - In `handleDragEnd`: skipped API call when position has not changed (`!hasMoved`), and protected API dispatch with `try/catch` to safely roll back only on true errors.
   - Preserved `cards: col.cards` in `updateColumn`.
 - `src/hooks/use-live-sync.test.ts`:
   - Updated regex to match fetch calls with optional cache options.
