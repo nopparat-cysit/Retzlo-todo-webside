@@ -310,7 +310,7 @@ export function KanbanColumn({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group flex h-full min-h-0 w-72 sm:w-80 shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
+        "group flex h-full min-h-0 w-72 sm:w-[336px] shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
         isDropTarget &&
@@ -319,7 +319,7 @@ export function KanbanColumn({
       )}
     >
       {/* ── Header ── */}
-      <header className={cn("flex items-center gap-2 border-b border-white/10 px-3 py-2.5 select-none", theme.headerClass)}>
+      <header className={cn("flex items-center gap-1.5 border-b border-white/10 px-2.5 py-2 select-none", theme.headerClass)}>
         <button
           suppressHydrationWarning
           className="shrink-0 text-stone-600 transition-colors hover:text-dusk-lavender group-hover:text-stone-400 cursor-grab active:cursor-grabbing"
@@ -327,18 +327,18 @@ export function KanbanColumn({
           {...attributes}
           {...listeners}
         >
-          <GripVertical className="h-4 w-4" />
+          <GripVertical className="h-3.5 w-3.5" />
         </button>
         <ColumnIconGlyph className="shrink-0 text-dusk-amber" icon={column.icon} />
         <h2 className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-100" title={column.name}>
           {column.name}
         </h2>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           {wipLimit && (
             <span
               className={cn(
-                "shrink-0 whitespace-nowrap rounded-md border px-1.5 py-0.5 text-[10px] font-mono font-semibold",
+                "shrink-0 whitespace-nowrap rounded-md border px-1 py-0.5 text-[9px] font-mono font-semibold",
                 isWipExceeded
                   ? "animate-pulse border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber"
                   : "border-white/10 bg-white/5 text-stone-400"
@@ -351,23 +351,23 @@ export function KanbanColumn({
 
           {totalPoints > 0 && (
             <span
-              className="shrink-0 inline-flex items-center gap-0.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[11px] font-semibold text-amber-400 select-none"
+              className="shrink-0 inline-flex items-center gap-0.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-1 py-0.5 text-[10px] font-semibold text-amber-400 select-none"
               title={`คะแนนความยากรวม: ${totalPoints} pts`}
             >
-              <Zap className="h-3 w-3 text-amber-400" />
+              <Zap className="h-2.5 w-2.5 text-amber-400" />
               <span>{totalPoints}</span>
             </span>
           )}
 
           <span
-            className="shrink-0 inline-grid min-w-[20px] place-items-center rounded-md bg-white/5 px-1.5 py-0.5 text-[11px] font-medium text-stone-400"
+            className="shrink-0 inline-grid min-w-[18px] place-items-center rounded-md bg-white/5 px-1 py-0.5 text-[10px] font-medium text-stone-400"
             title={doneCount > 0 ? `เสร็จแล้ว ${doneCount} จาก ${totalCards} ใบ` : `การ์ดทั้งหมด ${totalCards} ใบ`}
           >
             {doneCount > 0 ? `${doneCount}/${totalCards}` : totalCards}
           </span>
 
           <button
-            className="grid h-7 w-7 place-items-center rounded-lg text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
+            className="grid h-6 w-6 place-items-center rounded-md text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
             type="button"
             aria-label="Column settings"
             title="Column settings"
@@ -384,7 +384,7 @@ export function KanbanColumn({
             <Settings className="h-3.5 w-3.5" />
           </button>
           <button
-            className="grid h-7 w-7 place-items-center rounded-lg text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
+            className="grid h-6 w-6 place-items-center rounded-md text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
             type="button"
             aria-label="Collapse column"
             title="Collapse column"

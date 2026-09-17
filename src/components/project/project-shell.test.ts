@@ -33,5 +33,22 @@ describe("KanbanBoard Focus Mode placement", () => {
     expect(boardSource).toContain("focus-mode-toggle");
     expect(boardSource).toContain("FOCUS ACTIVE");
   });
+
+  it("collapses board-page-grid and project-shell-grid to 1fr in focus mode CSS", () => {
+    const cssSource = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(cssSource).toContain("body.focus-mode .board-page-grid");
+    expect(cssSource).toContain("body.focus-mode .project-shell-grid");
+    expect(cssSource).toContain("body.focus-mode aside.project-sidebar");
+    expect(cssSource).toContain("body.focus-mode .board-notes-rail");
+  });
+
+  it("assigns board-page-grid and board-notes-rail classes to board page and notes rail", () => {
+    const boardPageSource = readFileSync(join(process.cwd(), "src/app/(dashboard)/project/[id]/board/page.tsx"), "utf8");
+    expect(boardPageSource).toContain("board-page-grid");
+
+    const railSource = readFileSync(join(process.cwd(), "src/components/notes/board-notes-rail.tsx"), "utf8");
+    expect(railSource).toContain("board-notes-rail");
+  });
 });
+
 

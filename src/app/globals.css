@@ -1071,11 +1071,18 @@ textarea {
    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Focus Mode */
-body.focus-mode aside {
+body.focus-mode aside.project-sidebar {
   display: none !important;
 }
-body.focus-mode main > div.grid {
+body.focus-mode .project-shell-grid {
   grid-template-columns: 1fr !important;
+}
+body.focus-mode .board-page-grid {
+  grid-template-columns: 1fr !important;
+}
+body.focus-mode aside.board-notes-rail,
+body.focus-mode .board-notes-rail {
+  display: none !important;
 }
 
 /* Completed Card Fading */

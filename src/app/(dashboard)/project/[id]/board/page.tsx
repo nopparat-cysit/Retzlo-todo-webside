@@ -226,7 +226,7 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
   }));
 
   return (
-    <div className={project.notesEnabled ? "grid h-full min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]" : "h-full min-h-0"}>
+    <div className={project.notesEnabled ? "board-page-grid grid h-full min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]" : "board-page-grid h-full min-h-0"}>
       <KanbanBoard
         board={{
           id: board.id,

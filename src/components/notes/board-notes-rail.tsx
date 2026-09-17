@@ -134,7 +134,7 @@ export function BoardNotesRail({
   }
 
   return (
-    <aside className="lofi-panel flex min-h-0 flex-col rounded-lg p-4">
+    <aside className="board-notes-rail lofi-panel flex min-h-0 flex-col rounded-lg p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
