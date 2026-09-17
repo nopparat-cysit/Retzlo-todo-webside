@@ -79,14 +79,14 @@ export function Avatar({
 
   return (
     <span
-      className={cn("relative inline-block shrink-0 select-none", className)}
+      className={cn("relative inline-block shrink-0 select-none rounded-full", className)}
       style={{ width: size, height: size }}
       title={showTooltip && displayName ? displayName : undefined}
     >
       <span
         className={cn(
-          "grid h-full w-full place-items-center overflow-hidden rounded-full border text-[11px] font-bold transition duration-150",
-          colorClass
+          "grid h-full w-full place-items-center overflow-hidden rounded-full text-[11px] font-bold transition duration-150",
+          avatarSrc ? "border-0" : cn("border", colorClass)
         )}
       >
         {avatarSrc ? (
@@ -95,7 +95,7 @@ export function Avatar({
             alt={displayName || "User avatar"}
             width={size}
             height={size}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover rounded-full"
             unoptimized
           />
         ) : (
@@ -132,12 +132,12 @@ export function AvatarStack({
   return (
     <div className={cn("flex items-center -space-x-1.5", className)}>
       {visible.map((item, idx) => (
-        <div key={item.id ?? idx} className="relative transition hover:z-10 hover:scale-110">
+        <div key={item.id ?? idx} className="relative rounded-full transition hover:z-10 hover:scale-110">
           <Avatar
             user={item}
             size={size}
             showTooltip={showTooltips}
-            className="ring-1 ring-ink-950"
+            className={cn("rounded-full", visible.length > 1 && "ring-1.5 ring-ink-950")}
           />
         </div>
       ))}
