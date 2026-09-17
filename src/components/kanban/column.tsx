@@ -319,10 +319,10 @@ export function KanbanColumn({
       )}
     >
       {/* ── Header ── */}
-      <header className={cn("flex items-center gap-2 border-b border-white/10 px-3 py-3", theme.headerClass)}>
+      <header className={cn("flex items-center gap-2 border-b border-white/10 px-3 py-2.5 select-none", theme.headerClass)}>
         <button
           suppressHydrationWarning
-          className="text-stone-600 transition-colors hover:text-dusk-lavender group-hover:text-stone-400"
+          className="shrink-0 text-stone-600 transition-colors hover:text-dusk-lavender group-hover:text-stone-400 cursor-grab active:cursor-grabbing"
           aria-label="Drag column"
           {...attributes}
           {...listeners}
@@ -330,58 +330,69 @@ export function KanbanColumn({
           <GripVertical className="h-4 w-4" />
         </button>
         <ColumnIconGlyph className="shrink-0 text-dusk-amber" icon={column.icon} />
-        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-100">{column.name}</h2>
-        {wipLimit && (
-          <span className={cn(
-            "text-[10px] px-1.5 py-0.5 rounded-full border select-none font-mono font-semibold",
-            isWipExceeded 
-              ? "border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber animate-pulse" 
-              : "border-white/5 bg-white/5 text-stone-500"
-          )}>
-            LIMIT {wipLimit}
-          </span>
-        )}
-        {totalPoints > 0 && (
+        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-100" title={column.name}>
+          {column.name}
+        </h2>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          {wipLimit && (
+            <span
+              className={cn(
+                "shrink-0 whitespace-nowrap rounded-md border px-1.5 py-0.5 text-[10px] font-mono font-semibold",
+                isWipExceeded
+                  ? "animate-pulse border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber"
+                  : "border-white/10 bg-white/5 text-stone-400"
+              )}
+              title={`WIP Limit: ${wipLimit} cards (${totalCards}/${wipLimit})`}
+            >
+              LIMIT {wipLimit}
+            </span>
+          )}
+
+          {totalPoints > 0 && (
+            <span
+              className="shrink-0 inline-flex items-center gap-0.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[11px] font-semibold text-amber-400 select-none"
+              title={`คะแนนความยากรวม: ${totalPoints} pts`}
+            >
+              <Zap className="h-3 w-3 text-amber-400" />
+              <span>{totalPoints}</span>
+            </span>
+          )}
+
           <span
-            className="inline-flex items-center gap-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-400 select-none shadow-xs"
-            title={`คะแนนความยากรวม: ${totalPoints} pts`}
+            className="shrink-0 inline-grid min-w-[20px] place-items-center rounded-md bg-white/5 px-1.5 py-0.5 text-[11px] font-medium text-stone-400"
+            title={doneCount > 0 ? `เสร็จแล้ว ${doneCount} จาก ${totalCards} ใบ` : `การ์ดทั้งหมด ${totalCards} ใบ`}
           >
-            <Zap className="h-3 w-3 text-amber-400" />
-            <span>{totalPoints} pts</span>
+            {doneCount > 0 ? `${doneCount}/${totalCards}` : totalCards}
           </span>
-        )}
-        {totalCards > 0 && (
-          <span className="text-xs text-stone-500">
-            {doneCount}/{totalCards}
-          </span>
-        )}
-        <span className="rounded-lg bg-white/5 px-2 py-1 text-xs text-stone-400">{totalCards}</span>
-        
-        {/* Collapse Button */}
-        <button
-          className="ml-1 rounded-md p-1 text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
-          type="button"
-          aria-label="Column settings"
-          onClick={() => {
-            setSettingsName(column.name);
-            setSettingsColor(column.color);
-            setSettingsIcon(column.icon);
-            setSettingsDefaultCardStatus(column.defaultCardStatus);
-            setSettingsWipLimit(column.wipLimit ? String(column.wipLimit) : "");
-            setSettingsError(null);
-            setIsSettingsOpen(true);
-          }}
-        >
-          <Settings className="h-4 w-4" />
-        </button>
-        <button
-          className="text-stone-500 hover:text-stone-300"
-          type="button"
-          aria-label="Collapse column"
-          onClick={toggleCollapse}
-        >
-          <Minus className="h-4 w-4" />
-        </button>
+
+          <button
+            className="grid h-7 w-7 place-items-center rounded-lg text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
+            type="button"
+            aria-label="Column settings"
+            title="Column settings"
+            onClick={() => {
+              setSettingsName(column.name);
+              setSettingsColor(column.color);
+              setSettingsIcon(column.icon);
+              setSettingsDefaultCardStatus(column.defaultCardStatus);
+              setSettingsWipLimit(column.wipLimit ? String(column.wipLimit) : "");
+              setSettingsError(null);
+              setIsSettingsOpen(true);
+            }}
+          >
+            <Settings className="h-3.5 w-3.5" />
+          </button>
+          <button
+            className="grid h-7 w-7 place-items-center rounded-lg text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
+            type="button"
+            aria-label="Collapse column"
+            title="Collapse column"
+            onClick={toggleCollapse}
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </header>
 
       {/* ── Progress Bar ── */}
