@@ -11,6 +11,7 @@ import { ProjectSidebarGreeting } from "@/components/project/project-sidebar-gre
 import { ProjectNavLink } from "@/components/project/project-nav-link";
 import { ProjectSortableNav, type ProjectNavItem } from "@/components/project/project-sortable-nav";
 import { ProjectTopbarTools } from "@/components/project/project-topbar-tools";
+import { FocusModeToggle } from "@/components/project/focus-mode-toggle";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
 import { ErrorState } from "@/components/ui/state";
@@ -211,6 +212,7 @@ export async function ProjectShell({
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <ProjectTopbarTools />
+              <FocusModeToggle />
               <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 md:flex">
                 <span className="text-stone-400">Command</span>
                 <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>

@@ -12,7 +12,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Plus, Search, Eye, EyeOff, RotateCcw, Clock, Sparkles, Users, UserX, X } from "lucide-react";
+import { CalendarClock, CheckSquare, Plus, Search, RotateCcw, Clock, Sparkles, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo } from "react";
 
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
@@ -121,27 +121,28 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [moveHistory, setMoveHistory] = useState<MoveAction[]>([]);
 
-  // Focus Mode Toggle Helper
-  const toggleFocusMode = () => {
-    const nextMode = !isFocusMode;
-    setIsFocusMode(nextMode);
+  // Synchronize Focus Mode with Topbar Toggle
+  useEffect(() => {
     if (typeof document !== "undefined") {
-      document.body.classList.toggle("focus-mode", nextMode);
+      setIsFocusMode(document.body.classList.contains("focus-mode"));
     }
-  };
 
-  // Focus Mode & Shortcut Key Listeners (F & N)
+    const handleFocusModeChange = (e: CustomEvent<{ isFocusMode: boolean }>) => {
+      setIsFocusMode(Boolean(e.detail?.isFocusMode));
+    };
+
+    window.addEventListener("focus-mode-toggle" as any, handleFocusModeChange);
+    return () => {
+      window.removeEventListener("focus-mode-toggle" as any, handleFocusModeChange);
+    };
+  }, []);
+
+  // Shortcut Key Listener (N -> Focus Quick Add)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
       if (isInput) return;
-
-      // F -> Focus Mode
-      if (e.key === "f" || e.key === "F") {
-        e.preventDefault();
-        toggleFocusMode();
-      }
 
       // N -> Focus Quick Add
       if (e.key === "n" || e.key === "N") {
@@ -153,12 +154,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      if (typeof document !== "undefined") {
-        document.body.classList.remove("focus-mode");
-      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFocusMode]);
+  }, []);
 
   // Undo Reordering Helper
   const undoLastMove = async () => {
@@ -811,21 +808,6 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
               Clear filters ({activeFilterCount})
             </button>
           )}
-
-          {/* Focus Toggle */}
-          <button
-            type="button"
-            onClick={toggleFocusMode}
-            className={cn(
-              "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
-              isFocusMode
-                ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
-                : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
-            )}
-          >
-            {isFocusMode ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-            {isFocusMode ? "Focus mode" : "Focus"}
-          </button>
 
           {/* Undo */}
           <button
