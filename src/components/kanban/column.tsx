@@ -245,37 +245,57 @@ export function KanbanColumn({
   if (isCollapsed) {
     return (
       <div
-        className="column-collapsed-rail group lofi-panel shrink-0 rounded-2xl border border-white/10 bg-white/[0.035] hover:border-dusk-lavender/50 cursor-pointer flex flex-col items-center py-4"
-        onClick={toggleCollapse}
-        title={`Expand ${column.name}`}
-      >
-        <button
-          className="text-stone-500 hover:text-dusk-lavender mb-4 transition-colors"
-          type="button"
-          aria-label="Expand column"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleCollapse();
-          }}
-        >
-          <Plus className="h-4 w-4" />
-        </button>
-        <ColumnIconGlyph className="mb-3 text-dusk-amber" icon={column.icon} />
-        <h2 className="column-collapsed-title text-sm text-stone-300 truncate w-32 text-center select-none mb-4">
-          {column.name}
-        </h2>
-        {totalPoints > 0 && (
-          <span
-            className="mb-1.5 inline-flex items-center gap-0.5 rounded border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400 select-none"
-            title={`คะแนนความยากรวม: ${totalPoints} pts`}
-          >
-            <Zap className="h-2.5 w-2.5 text-amber-400" />
-            <span>{totalPoints}</span>
-          </span>
+        className={cn(
+          "column-collapsed-rail group lofi-panel shrink-0 rounded-2xl border border-white/10 bg-white/[0.035] hover:border-dusk-lavender/50 cursor-pointer flex flex-col items-center py-3.5 select-none transition-all duration-200",
+          theme.columnClass
         )}
-        <span className="rounded bg-white/5 px-2 py-0.5 text-xs text-stone-400 select-none">
-          {totalCards}
-        </span>
+        onClick={toggleCollapse}
+        title={`คลิกเพื่อขยายคอลัมน์ ${column.name}`}
+      >
+        {/* Top: Expand button & Column Icon */}
+        <div className="flex flex-col items-center gap-2">
+          <button
+            className="grid h-7 w-7 place-items-center rounded-lg text-stone-400 transition-colors hover:bg-white/10 hover:text-dusk-lavender"
+            type="button"
+            aria-label={`Expand ${column.name}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleCollapse();
+            }}
+          >
+            <Plus className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
+          </button>
+          <ColumnIconGlyph className="text-dusk-amber transition-transform duration-200 group-hover:scale-110" icon={column.icon} />
+        </div>
+
+        {/* Center: Vertical Column Title */}
+        <div className="my-auto flex flex-1 items-center justify-center overflow-hidden py-3">
+          <span
+            className="column-collapsed-title max-h-52 truncate text-xs font-semibold text-stone-300 transition-colors group-hover:text-stone-100"
+            title={column.name}
+          >
+            {column.name}
+          </span>
+        </div>
+
+        {/* Bottom: Points & Card Count Badges */}
+        <div className="mt-auto flex flex-col items-center gap-1.5">
+          {totalPoints > 0 && (
+            <span
+              className="inline-flex items-center gap-0.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400 select-none"
+              title={`คะแนนความยากรวม: ${totalPoints} pts`}
+            >
+              <Zap className="h-2.5 w-2.5 text-amber-400" />
+              <span>{totalPoints}</span>
+            </span>
+          )}
+          <span
+            className="inline-grid min-w-[22px] place-items-center rounded-md bg-white/5 px-1.5 py-0.5 text-[11px] font-medium text-stone-400"
+            title={`การ์ดทั้งหมด: ${totalCards}`}
+          >
+            {totalCards}
+          </span>
+        </div>
       </div>
     );
   }
