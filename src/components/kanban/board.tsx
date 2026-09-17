@@ -13,8 +13,9 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { CalendarClock, CheckSquare, Plus, Search, RotateCcw, Clock, Sparkles, Users, UserX, X } from "lucide-react";
-import { FormEvent, useState, useEffect, useRef, useMemo } from "react";
+import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
+import { useLiveSync } from "@/hooks/use-live-sync";
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
 import { KanbanColumn } from "@/components/kanban/column";
 import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
@@ -56,6 +57,7 @@ import type { Card, CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } f
 interface BoardData {
   id: string;
   name: string;
+  projectId?: string;
   columns: ColumnWithCards[];
 }
 
@@ -157,6 +159,32 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     };
   }, []);
 
+  // Real-time Live Synchronization & Multi-User Auto-Update
+  const refreshBoard = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/boards/${board.id}`);
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data?.board?.columns) {
+        setColumns(data.board.columns.map((col: any) => normalizeColumn(col, members)));
+      }
+    } catch {
+      // Silent error on background sync
+    }
+  }, [board.id, members]);
+
+  const { broadcastChange } = useLiveSync({
+    channelKey: board.projectId ? [`board:${board.id}`, `project:${board.projectId}`] : `board:${board.id}`,
+    intervalMs: 4000,
+    canSync: () => {
+      if (activeCardId) return false;
+      if (isColumnModalOpen) return false;
+      if (typeof document !== "undefined" && document.querySelector("[role='dialog']")) return false;
+      return true;
+    },
+    onSync: refreshBoard,
+  });
+
   // Undo Reordering Helper
   const undoLastMove = async () => {
     if (moveHistory.length === 0) return;
@@ -195,6 +223,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     });
 
     toast({ message: `Undo card move: "${lastMove.title}" ↩️`, type: "info" });
+    broadcastChange("CARD_UNDO");
   };
 
   // Keyboard Ctrl+Z Listener for Undo
@@ -246,6 +275,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         setColumnDefaultCardStatus("TODO");
         setIsColumnModalOpen(false);
         toast({ message: "Column created.", type: "success" });
+        broadcastChange("COLUMN_CREATED");
       } else {
         const msg = data.error ?? "Something did not sync. Try again.";
         setSyncError(msg);
@@ -302,6 +332,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         })
       );
       toast({ message: "Column updated.", type: "success" });
+      broadcastChange("COLUMN_UPDATED");
       return;
     }
 
@@ -329,6 +360,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
           }))
       );
       toast({ message: "Column deleted.", type: "success" });
+      broadcastChange("COLUMN_DELETED");
       return;
     }
 
@@ -373,6 +405,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       );
       playCardCreateSound();
       toast({ message: "Card added.", type: "success" });
+      broadcastChange("CARD_CREATED");
       return;
     }
 
@@ -387,6 +420,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         cards: column.cards.map((existingCard) => (existingCard.id === card.id ? normalizeCard(card, members) : existingCard))
       }))
     );
+    broadcastChange("CARD_UPDATED");
   }
 
   function deleteCard(cardId: string) {
@@ -401,6 +435,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
           }))
       }))
     );
+    broadcastChange("CARD_DELETED");
   }
 
   function getCardDropTarget(event: DragOverEvent | DragEndEvent, currentColumns: ColumnWithCards[]): CardDropTarget | null {
@@ -525,6 +560,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       if (!response.ok) {
         setColumns(previous);
         setSyncError("Something did not sync. Try again.");
+      } else {
+        broadcastChange("COLUMN_REORDER");
       }
 
       return;
@@ -595,6 +632,8 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       setColumns(previous);
       setSyncError("Something did not sync. Try again.");
       toast({ message: "Sync failed. Changes rolled back.", type: "error" });
+    } else {
+      broadcastChange("CARD_MOVED");
     }
   }
 

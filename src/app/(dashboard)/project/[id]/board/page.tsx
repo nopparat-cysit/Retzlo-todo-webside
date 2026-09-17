@@ -231,6 +231,7 @@ export default async function BoardPage({ params }: { params: { id: string } }) 
         board={{
           id: board.id,
           name: board.name,
+          projectId: params.id,
           columns: toColumns(board.columns, members)
         }}
         members={members}

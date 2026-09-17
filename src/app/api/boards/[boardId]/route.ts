@@ -4,6 +4,8 @@ import { jsonError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, getProjectIdForBoard, requireUserId } from "@/lib/project-auth";
 
+import { serializeCard } from "@/lib/kanban/serialize-card";
+
 export async function GET(_request: Request, { params }: { params: { boardId: string } }) {
   const userId = await requireUserId();
 
@@ -37,5 +39,17 @@ export async function GET(_request: Request, { params }: { params: { boardId: st
     }
   });
 
-  return NextResponse.json({ board });
+  if (!board) {
+    return jsonError("Board not found.", 404);
+  }
+
+  const serializedBoard = {
+    ...board,
+    columns: board.columns.map((col) => ({
+      ...col,
+      cards: col.cards.map((card) => serializeCard(card))
+    }))
+  };
+
+  return NextResponse.json({ board: serializedBoard });
 }

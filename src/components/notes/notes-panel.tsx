@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState, useCallback } from "react";
 import Image from "next/image";
+import { useLiveSync } from "@/hooks/use-live-sync";
 import {
   CalendarClock,
   CheckCircle2,
@@ -108,6 +109,26 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
     completed: completedNotes.length
   };
 
+  const refreshNotes = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/notes`);
+      if (!response.ok) return;
+      const data = (await response.json()) as { notes?: ProjectNote[] };
+      if (Array.isArray(data.notes)) {
+        setNotes(data.notes.map(normalizeNote));
+      }
+    } catch {
+      // Ignore background sync errors
+    }
+  }, [projectId]);
+
+  const { broadcastChange } = useLiveSync({
+    channelKey: `notes:${projectId}`,
+    intervalMs: 5000,
+    canSync: () => !isCreateOpen && !selectedNote && !document.querySelector("[role='dialog']"),
+    onSync: refreshNotes
+  });
+
   async function createNote(payload: NotePayload) {
     const note = await saveNote(`/api/projects/${projectId}/notes`, "POST", payload);
 
@@ -119,6 +140,7 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
     setNotes((current) => [note, ...current]);
     setIsCreateOpen(false);
     toast({ message: "Note created successfully!", type: "success" });
+    broadcastChange();
     return note;
   }
 
@@ -141,6 +163,7 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
     } else {
       toast({ message: "Note saved successfully!", type: "success" });
     }
+    broadcastChange();
   }
 
   async function saveNote(
@@ -180,6 +203,7 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
     setNotes((current) => current.filter((note) => note.id !== noteId));
     setSelectedNote(null);
     toast({ message: "Note deleted successfully!", type: "success" });
+    broadcastChange();
   }
 
   async function quickCreateNote(event: FormEvent<HTMLFormElement>) {

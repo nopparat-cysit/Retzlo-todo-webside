@@ -4,6 +4,8 @@ import { jsonError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 
+import { serializeCard } from "@/lib/kanban/serialize-card";
+
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const userId = await requireUserId();
 
@@ -37,5 +39,5 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     orderBy: [{ dueDate: "asc" }, { position: "asc" }]
   });
 
-  return NextResponse.json({ cards });
+  return NextResponse.json({ cards: cards.map(serializeCard) });
 }

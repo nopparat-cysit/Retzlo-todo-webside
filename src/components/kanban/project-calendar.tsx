@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, SlidersHorizontal, X } from "lucide-react";
 
+import { useLiveSync } from "@/hooks/use-live-sync";
 import { CardModal } from "@/components/kanban/card-modal";
 import { AppModal } from "@/components/ui/app-modal";
 import { Panel } from "@/components/ui/panel";
@@ -87,8 +88,68 @@ export function ProjectCalendar({
   members?: CardAssignee[];
 }) {
   const [cards, setCards] = useState(initialCards);
-  const [notes] = useState(initialNotes);
+  const [notes, setNotes] = useState(initialNotes);
   const [diaryItems, setDiaryItems] = useState(initialDiaryItems);
+
+  const refreshCalendar = useCallback(async () => {
+    try {
+      const [cardsRes, notesRes, diaryRes] = await Promise.all([
+        fetch(`/api/projects/${projectId}/cards`),
+        fetch(`/api/projects/${projectId}/notes`),
+        fetch(`/api/projects/${projectId}/diary-items`)
+      ]);
+
+      if (cardsRes.ok) {
+        const data = await cardsRes.json();
+        if (Array.isArray(data?.cards)) {
+          setCards(data.cards.map((c: any) => normalizeCalendarCard(c, members)));
+        }
+      }
+
+      if (notesRes.ok) {
+        const data = await notesRes.json();
+        if (Array.isArray(data?.notes)) {
+          const calendarNotes: CalendarNote[] = data.notes
+            .filter((n: any) => Boolean(n.dueDate))
+            .map((n: any) => ({
+              id: n.id,
+              title: n.title,
+              content: n.content,
+              color: normalizeCardColor(n.color),
+              isStarred: Boolean(n.isStarred),
+              dueDate: n.dueDate ? new Date(n.dueDate).toISOString() : new Date().toISOString(),
+              dueDateAllDay: Boolean(n.dueDateAllDay)
+            }));
+          setNotes(calendarNotes);
+        }
+      }
+
+      if (diaryRes.ok) {
+        const data = await diaryRes.json();
+        if (Array.isArray(data?.diaryItems)) {
+          setDiaryItems(data.diaryItems.map((d: any) => ({
+            ...d,
+            checklist: normalizeDiaryChecklist(d.checklist, d.startDate)
+          })));
+        }
+      }
+    } catch {
+      // Silent error on background sync
+    }
+  }, [projectId, members]);
+
+  const { broadcastChange } = useLiveSync({
+    channelKey: [`project:${projectId}`, `calendar:${projectId}`],
+    intervalMs: 5000,
+    canSync: () => {
+      if (selectedCardId || selectedNoteId) return false;
+      if (isFiltersOpen || isUpcomingOpen) return false;
+      if (isUpdateConfirmOpen || isDeleteConfirmOpen) return false;
+      if (typeof document !== "undefined" && document.querySelector("[role='dialog']")) return false;
+      return true;
+    },
+    onSync: refreshCalendar
+  });
   const [filters, setFilters] = useState<CalendarFilterState>(defaultCalendarFilters);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isUpcomingOpen, setIsUpcomingOpen] = useState(false);
@@ -277,6 +338,7 @@ export function ProjectCalendar({
       setCards((current) => current.map((item) => (item.id === nextCard.id ? nextCard : item)));
       setSelectedCardId(null);
       toast({ message: "Card updated.", type: "success" });
+      broadcastChange();
     } else {
       toast({ message: data.error ?? "Could not save card.", type: "error" });
     }
@@ -318,6 +380,7 @@ export function ProjectCalendar({
         };
         setDiaryItems((current) => current.map((d) => (d.id === diaryId ? normalized : d)));
         toast({ message: "Diary checklist updated.", type: "success" });
+        broadcastChange();
       } else {
         setDiaryItems(diaryItems);
         toast({ message: data.error ?? "Failed to update checklist item.", type: "error" });
@@ -339,6 +402,7 @@ export function ProjectCalendar({
       setCards((current) => current.filter((card) => card.id !== selectedCard.id));
       setSelectedCardId(null);
       toast({ message: "Card deleted.", type: "success" });
+      broadcastChange();
     } else {
       const data = await response.json().catch(() => ({}));
       toast({ message: data.error ?? "Could not delete card.", type: "error" });

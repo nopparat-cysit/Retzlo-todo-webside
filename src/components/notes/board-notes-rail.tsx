@@ -1,7 +1,9 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState, useCallback } from "react";
 import { CheckCircle2, FileText, Plus, RotateCcw, Save, Star, Trash2, X } from "lucide-react";
+
+import { useLiveSync } from "@/hooks/use-live-sync";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { useAppModal } from "@/components/ui/app-modal";
@@ -54,6 +56,26 @@ export function BoardNotesRail({
     });
   }, [filter, notes, sortBy]);
 
+  const refreshNotes = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/notes`);
+      if (!response.ok) return;
+      const data = (await response.json()) as { notes?: ProjectNote[] };
+      if (Array.isArray(data.notes)) {
+        setNotes(data.notes.map(normalizeNote));
+      }
+    } catch {
+      // Ignore background sync errors
+    }
+  }, [projectId]);
+
+  const { broadcastChange } = useLiveSync({
+    channelKey: `notes:${projectId}`,
+    intervalMs: 5000,
+    canSync: () => !isCreateOpen && !selectedNote && !document.querySelector("[role='dialog']"),
+    onSync: refreshNotes
+  });
+
   async function createNote(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -84,6 +106,7 @@ export function BoardNotesRail({
     setIsCreateOpen(false);
     form.reset();
     toast({ message: "Note created successfully!", type: "success" });
+    broadcastChange();
   }
 
   async function updateNote(noteId: string, payload: Partial<Pick<ProjectNote, "title" | "content" | "emoji" | "isStarred" | "color">> & { isCompleted?: boolean }) {
@@ -112,6 +135,7 @@ export function BoardNotesRail({
     } else {
       toast({ message: "Note saved successfully!", type: "success" });
     }
+    broadcastChange();
   }
 
   async function deleteNote(noteId: string) {
@@ -131,6 +155,7 @@ export function BoardNotesRail({
     setNotes((current) => current.filter((note) => note.id !== noteId));
     setSelectedNote((current) => (current?.id === noteId ? null : current));
     toast({ message: "Note deleted successfully!", type: "success" });
+    broadcastChange();
   }
 
   return (

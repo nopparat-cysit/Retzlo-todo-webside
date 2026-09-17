@@ -26,6 +26,7 @@ import {
   Circle
 } from "lucide-react";
 
+import { useLiveSync } from "@/hooks/use-live-sync";
 import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
@@ -167,6 +168,31 @@ export function DiaryListPanel({
     return normalizeDiaryItem(data.diaryItem);
   }
 
+  const refreshDiary = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/diary-items`);
+      if (!response.ok) return;
+      const data = await response.json();
+      if (Array.isArray(data?.diaryItems)) {
+        setItems(data.diaryItems.map(normalizeDiaryItem));
+      }
+    } catch {
+      // Ignore background sync errors
+    }
+  }, [projectId]);
+
+  const { broadcastChange } = useLiveSync({
+    channelKey: [`project:${projectId}`, `diary:${projectId}`],
+    intervalMs: 5000,
+    canSync: () => {
+      if (isCreateOpen || selectedItem) return false;
+      if (isDeleteConfirmOpen || isUpdateConfirmOpen) return false;
+      if (typeof document !== "undefined" && document.querySelector("[role='dialog']")) return false;
+      return true;
+    },
+    onSync: refreshDiary
+  });
+
   async function createItem(payload: DiaryPayload) {
     const item = await saveItem(`/api/projects/${projectId}/diary-items`, "POST", payload);
 
@@ -176,6 +202,7 @@ export function DiaryListPanel({
     setFocusedItemId(item.id);
     setIsCreateOpen(false);
     toast({ message: "Diary item created.", type: "success" });
+    broadcastChange();
   }
 
   async function updateItem(itemId: string, payload: Partial<DiaryPayload>, showToast = true) {
@@ -188,6 +215,7 @@ export function DiaryListPanel({
     if (showToast) {
       toast({ message: "Diary item updated.", type: "success" });
     }
+    broadcastChange();
     return true;
   }
 
@@ -211,6 +239,7 @@ export function DiaryListPanel({
     setFocusedItemId((current) => (current === itemId ? null : current));
     setSelectedItem(null);
     toast({ message: "Diary item deleted.", type: "success" });
+    broadcastChange();
   }
 
   return (

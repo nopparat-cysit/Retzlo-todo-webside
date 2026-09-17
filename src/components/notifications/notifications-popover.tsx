@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Bell, Check, Sparkles, UserPlus } from "lucide-react";
 import { formatShortDate } from "@/lib/date-format";
 import { useToast } from "@/components/ui/toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useLiveSync } from "@/hooks/use-live-sync";
 import { InvitationConfirmModal, type InvitationData } from "./invitation-confirm-modal";
 
 interface NotificationItem {
@@ -29,7 +30,7 @@ export function NotificationsPopover() {
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  async function fetchNotifications() {
+  const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/notifications");
@@ -42,14 +43,18 @@ export function NotificationsPopover() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  const { broadcastChange } = useLiveSync({
+    channelKey: "notifications",
+    intervalMs: 15000,
+    canSync: () => !selectedInvite,
+    onSync: fetchNotifications
+  });
 
   useEffect(() => {
     fetchNotifications();
-    // Poll for notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  }, [fetchNotifications]);
 
   async function markAllAsRead() {
     try {
@@ -61,6 +66,7 @@ export function NotificationsPopover() {
       if (res.ok) {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
         toast({ message: "ทำเครื่องหมายอ่านแล้วทั้งหมด", type: "success" });
+        broadcastChange();
       }
     } catch {
       toast({ message: "ไม่สามารถอัปเดตสถานะได้", type: "error" });
@@ -77,6 +83,7 @@ export function NotificationsPopover() {
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
       );
+      broadcastChange();
     } catch {
       // Silent error
     }
@@ -223,10 +230,12 @@ export function NotificationsPopover() {
           onAccepted={() => {
             fetchNotifications();
             setOpen(false);
+            broadcastChange();
           }}
           onDeclined={() => {
             fetchNotifications();
             setOpen(false);
+            broadcastChange();
           }}
         />
       )}

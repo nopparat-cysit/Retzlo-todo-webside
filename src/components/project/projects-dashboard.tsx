@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState, useCallback, type CSSProperties, type MouseEvent } from "react";
+import { useLiveSync } from "@/hooks/use-live-sync";
 import {
   ArrowRight,
   BookOpenCheck,
@@ -168,12 +169,25 @@ export function ProjectsDashboard({
   const sortedProjects = useMemo(() => sortProjectsByStarred(projectList, starredProjectIds), [projectList, starredProjectIds]);
   const selectedProjectId = sortedProjects[0]?.id ?? "";
 
+  const onSync = useCallback(() => {
+    router.refresh();
+  }, [router]);
+
+  const { broadcastChange } = useLiveSync({
+    channelKey: "projects",
+    intervalMs: 8000,
+    canSync: () => !isCreateOpen && !selectedDiary && !document.querySelector("[role='dialog']"),
+    onSync
+  });
+
   function handleUpdateProject(updated: ProjectDashboardItem) {
     setProjectList((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)));
+    broadcastChange();
   }
 
   function handleDeleteProject(id: string) {
     setProjectList((prev) => prev.filter((p) => p.id !== id));
+    broadcastChange();
   }
 
   useEffect(() => {
@@ -600,7 +614,7 @@ export function ProjectsDashboard({
         {projectList.length > 0 ? <ProjectSupportColumn projects={sortedProjects} calendarCards={filteredCalendarCards} /> : null}
       </div>
 
-      {isCreateOpen ? <CreateProjectModal onClose={() => setIsCreateOpen(false)} /> : null}
+      {isCreateOpen ? <CreateProjectModal onClose={() => setIsCreateOpen(false)} onCreated={broadcastChange} /> : null}
       {selectedDiary ? (
         <DiaryItemModal
           item={selectedDiary}
@@ -1157,7 +1171,7 @@ function EditProjectModal({
   );
 }
 
-function CreateProjectModal({ onClose }: { onClose: () => void }) {
+function CreateProjectModal({ onClose, onCreated }: { onClose: () => void; onCreated?: () => void }) {
   const router = useRouter();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
@@ -1197,6 +1211,7 @@ function CreateProjectModal({ onClose }: { onClose: () => void }) {
       }
 
       toast({ message: "Project created.", type: "success" });
+      onCreated?.();
       onClose();
       router.push(`/project/${data.project.id}/${projectType === "DIARY" ? "diary" : "board"}`);
       router.refresh();
