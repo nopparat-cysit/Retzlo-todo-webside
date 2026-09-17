@@ -533,8 +533,13 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   }
 
   function handleDragOver(event: DragOverEvent) {
-    const baseColumns = dragSnapshot ?? columns;
-    const target = getCardDropTarget(event, baseColumns);
+    // Always compute the drop target from the stable dragSnapshot.
+    // Using the live (optimistic) columns state as base causes index drift
+    // when cards have already been inserted/removed by previous dragOver events.
+    const snapshot = dragSnapshot;
+    if (!snapshot) return;
+
+    const target = getCardDropTarget(event, snapshot);
 
     if (!target) {
       setActiveDropColumnId(null);
@@ -544,14 +549,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     lastCardDropTargetRef.current = target;
     setActiveDropColumnId(target.destinationColumnId);
 
-    // Prevent redundant state re-renders if card is already in this column at this position
-    const currentDestCol = columns.find((c) => c.id === target.destinationColumnId);
-    const currentCardIdx = currentDestCol?.cards.findIndex((c) => c.id === target.cardId);
-    if (currentCardIdx === target.destinationIndex && currentDestCol) {
-      return;
-    }
-
-    setColumns(moveCard(baseColumns, target).columns);
+    setColumns(moveCard(snapshot, target).columns);
   }
 
   async function handleDragEnd(event: DragEndEvent) {
@@ -559,6 +557,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     mutationLockUntilRef.current = Date.now() + 2000;
     const { active, over } = event;
     const previous = dragSnapshot ?? columns;
+
     setDragSnapshot(null);
     setActiveCardId(null);
     setActiveDropColumnId(null);
@@ -566,37 +565,31 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
 
     const activeData = active.data.current;
 
-    if (!over && activeData?.type !== "card") {
-      lastCardDropTargetRef.current = null;
-      return;
-    }
-
-    if (active.id === over?.id && activeData?.type !== "card") {
-      lastCardDropTargetRef.current = null;
-      return;
-    }
-
-    const overData = over?.data.current;
-
-    if (activeData?.type === "column" && overData?.type === "column") {
-      const previous = columns;
-      const next = reorderColumns(columns, activeData.columnId, overData.columnId);
-      lastCardDropTargetRef.current = null;
-      setColumns(next);
-
-      const response = await fetch("/api/columns/reorder", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ boardId: board.id, columnIds: next.map((column) => column.id) })
-      });
-
-      if (!response.ok) {
-        setColumns(previous);
-        setSyncError("Something did not sync. Try again.");
-      } else {
-        broadcastChange("COLUMN_REORDER");
+    // Column reorder
+    if (activeData?.type === "column") {
+      const overData = over?.data.current;
+      if (!over || activeData.columnId === overData?.columnId) {
+        lastCardDropTargetRef.current = null;
+        return;
       }
+      if (overData?.type === "column") {
+        const reordered = reorderColumns(columns, activeData.columnId, overData.columnId);
+        lastCardDropTargetRef.current = null;
+        setColumns(reordered);
 
+        const response = await fetch("/api/columns/reorder", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ boardId: board.id, columnIds: reordered.map((column) => column.id) })
+        });
+
+        if (!response.ok) {
+          setColumns(previous);
+          setSyncError("Something did not sync. Try again.");
+        } else {
+          broadcastChange("COLUMN_REORDER");
+        }
+      }
       return;
     }
 
@@ -605,16 +598,22 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       return;
     }
 
-    const target = getCardDropTarget(event, previous) ?? lastCardDropTargetRef.current;
+    // For card drops: columns state was already updated optimistically by handleDragOver.
+    // We use lastCardDropTargetRef to know WHAT moved, and `columns` as the final visual state.
+    const target = lastCardDropTargetRef.current;
     lastCardDropTargetRef.current = null;
 
     if (!target) {
+      // No valid drop target recorded — card was dropped outside; restore snapshot
       setColumns(previous);
       return;
     }
 
-    const next = moveCard(previous, target).columns;
-    setColumns(next);
+    // columns is already in the correct optimistic state from handleDragOver — keep it.
+    // Just compute the ordered card IDs from the current (optimistic) columns state.
+    const next = columns;
+    const sourceOrderedCardIds = next.find((column) => column.id === target.sourceColumnId)?.cards.map((card) => card.id) ?? [];
+    const destinationOrderedCardIds = next.find((column) => column.id === target.destinationColumnId)?.cards.map((card) => card.id) ?? [];
 
     // Save Undo Action History
     const sourceColumn = previous.find((col) => col.id === target.sourceColumnId);
@@ -647,8 +646,6 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
       toast({ message: "Task complete! ✦", type: "success" });
     }
 
-    const sourceOrderedCardIds = next.find((column) => column.id === target.sourceColumnId)?.cards.map((card) => card.id) ?? [];
-    const destinationOrderedCardIds = next.find((column) => column.id === target.destinationColumnId)?.cards.map((card) => card.id) ?? [];
     const response = await fetch("/api/cards/reorder", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
