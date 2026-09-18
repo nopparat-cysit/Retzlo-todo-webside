@@ -24,6 +24,7 @@ export function KanbanCard({
   card,
   columnId,
   isDragPreviewTarget = false,
+  isDragDisabled = false,
   members = [],
   onSaved,
   onDeleted
@@ -31,6 +32,7 @@ export function KanbanCard({
   card: Card;
   columnId: string;
   isDragPreviewTarget?: boolean;
+  isDragDisabled?: boolean;
   members?: CardAssignee[];
   onSaved: (card: Card) => void;
   onDeleted: (cardId: string) => void;
@@ -46,7 +48,11 @@ export function KanbanCard({
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: `card:${card.id}`,
-    data: { type: "card", cardId: card.id, columnId }
+    data: { type: "card", cardId: card.id, columnId },
+    disabled: { draggable: isDragDisabled },
+    // Board state owns placement; sortable transforms would move cards twice.
+    strategy: () => null,
+    animateLayoutChanges: () => false
   });
 
   const style = {

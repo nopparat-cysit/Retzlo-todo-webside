@@ -22,13 +22,6 @@ describe("kanban card interactions", () => {
     expect(boardSource).toContain("activationConstraint: { distance: 4 }");
   });
 
-  it("does not leave unsynced optimistic drag-over state when drag end loses the target", () => {
-    expect(boardSource).toContain("lastCardDropTargetRef");
-    expect(boardSource).toContain("lastCardDropTargetRef.current = target");
-    expect(boardSource).toMatch(/const target = getCardDropTarget\(event, previous\) \?\? lastCardDropTargetRef\.current/);
-    expect(boardSource).toMatch(/if \(!target\)[\s\S]*setColumns\(previous\)/);
-  });
-
   it("uses explicit column default statuses instead of done-column name or position guesses", () => {
     expect(boardSource).toContain("defaultCardStatus");
     expect(columnSource).toContain("defaultCardStatus");

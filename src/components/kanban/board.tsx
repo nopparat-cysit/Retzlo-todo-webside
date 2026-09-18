@@ -1,11 +1,9 @@
 "use client";
 
 import {
-  closestCenter,
   DndContext,
   DragEndEvent,
   DragOverlay,
-  DragOverEvent,
   DragStartEvent,
   MeasuringStrategy,
   PointerSensor,
@@ -45,7 +43,9 @@ import {
   type ColumnIconId,
   type ColumnThemeId
 } from "@/lib/kanban/column-settings";
-import { moveCard, reorderColumns } from "@/lib/kanban/reorder";
+import { moveCard, reorderColumns, type MoveCardInput } from "@/lib/kanban/reorder";
+import { createCardDragSession, getCardDropTarget, prepareCardMove, type CardDragSession } from "@/lib/kanban/drag-session";
+import { createBoardSyncGuard, runBoardReorder } from "@/lib/kanban/board-sync";
 import { extractAssigneeIds, filterCardsByAssignee, resolveAssignees } from "@/lib/kanban/assignees";
 import { extractStartDate, extractStartDateAllDay } from "@/lib/kanban/due-date";
 import { getStatusMeta } from "@/lib/kanban/status";
@@ -72,13 +72,6 @@ interface MoveAction {
   destinationIndex: number;
 }
 
-interface CardDropTarget {
-  cardId: string;
-  sourceColumnId: string;
-  destinationColumnId: string;
-  destinationIndex: number;
-}
-
 function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []): ColumnWithCards {
   return {
     ...column,
@@ -95,7 +88,14 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
   const columnsRef = useRef(columns);
   columnsRef.current = columns;
   const dragSnapshotRef = useRef<ColumnWithCards[] | null>(null);
-  const lastCardDropTargetRef = useRef<CardDropTarget | null>(null);
+  const dragSessionRef = useRef<CardDragSession | null>(null);
+  const lastCardDropTargetRef = useRef<MoveCardInput | null>(null);
+  const syncGuard = useMemo(() => createBoardSyncGuard(), []);
+  const [isSavingReorder, setIsSavingReorder] = useState(false);
+  const applyColumns = useCallback((next: ColumnWithCards[]) => {
+    columnsRef.current = next;
+    setColumns(next);
+  }, []);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [activeDropColumnId, setActiveDropColumnId] = useState<string | null>(null);
@@ -118,18 +118,21 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     []
   );
 
+  useEffect(() => () => collisionDetection.reset(), [collisionDetection]);
+
   // Global Pointer Release Listener to reset interaction lock
   useEffect(() => {
-    const handlePointerRelease = () => {
+    const handlePointerRelease = (event: PointerEvent) => {
       isPointerInteractingRef.current = false;
+      collisionDetection.clearIfOutside({ x: event.clientX, y: event.clientY });
     };
-    window.addEventListener("pointerup", handlePointerRelease);
-    window.addEventListener("pointercancel", handlePointerRelease);
+    window.addEventListener("pointerup", handlePointerRelease, true);
+    window.addEventListener("pointercancel", handlePointerRelease, true);
     return () => {
-      window.removeEventListener("pointerup", handlePointerRelease);
-      window.removeEventListener("pointercancel", handlePointerRelease);
+      window.removeEventListener("pointerup", handlePointerRelease, true);
+      window.removeEventListener("pointercancel", handlePointerRelease, true);
     };
-  }, []);
+  }, [collisionDetection]);
 
   // Premium Features States
   const [searchQuery, setSearchQuery] = useState("");
@@ -178,36 +181,30 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     };
   }, []);
 
-  // Real-time Live Synchronization & Multi-User Auto-Update
+  // Validate the same revision before fetching and before applying a background response.
   const refreshBoard = useCallback(async () => {
     try {
-      const response = await fetch(`/api/boards/${board.id}`, {
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache"
-        }
-      });
-      if (!response.ok) return;
-      const data = await response.json();
-      if (data?.board?.columns) {
-        const nextColumns = data.board.columns.map((col: any) => normalizeColumn(col, members));
-        setColumns((current) => {
-          if (areColumnsEqual(current, nextColumns)) {
-            return current; // Skip state mutation to preserve active pointers and avoid lag
-          }
-          return nextColumns;
+      await syncGuard.sync(async () => {
+        const response = await fetch(`/api/boards/${board.id}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
         });
-      }
+        if (!response.ok) return null;
+        const data = await response.json() as { board?: { columns?: ColumnWithCards[] } };
+        return data.board?.columns?.map(column => normalizeColumn(column, members)) ?? null;
+      }, nextColumns => {
+        if (nextColumns && !areColumnsEqual(columnsRef.current, nextColumns)) applyColumns(nextColumns);
+      });
     } catch {
-      // Silent error on background sync
+      // Background sync failures remain silent.
     }
-  }, [board.id, members]);
+  }, [board.id, members, syncGuard, applyColumns]);
 
-  const { broadcastChange } = useLiveSync({
+  const { broadcastChange, syncNow } = useLiveSync({
     channelKey: board.projectId ? [`board:${board.id}`, `project:${board.projectId}`] : `board:${board.id}`,
     intervalMs: 2500,
     canSync: () => {
+      if (!syncGuard.canSync()) return false;
       if (isPointerInteractingRef.current) return false;
       if (activeCardId) return false;
       if (Date.now() < mutationLockUntilRef.current) return false;
@@ -218,47 +215,48 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     onSync: refreshBoard,
   });
 
-  // Undo Reordering Helper
-  const undoLastMove = async () => {
-    if (moveHistory.length === 0) return;
-    const lastMove = moveHistory[moveHistory.length - 1];
-
-    mutationLockUntilRef.current = Date.now() + 2000;
-
-    // Pop from stack
-    setMoveHistory((current) => current.slice(0, -1));
-
-    const target = {
-      cardId: lastMove.cardId,
-      sourceColumnId: lastMove.destinationColumnId, // Swap to reverse
-      destinationColumnId: lastMove.sourceColumnId, // Swap to reverse
-      destinationIndex: lastMove.sourceIndex
-    };
-
-    setColumns((current) => {
-      const next = moveCard(current, target).columns;
-
-      // Sync DB reorder
-      const sourceOrderedCardIds = next.find((col) => col.id === target.sourceColumnId)?.cards.map((c) => c.id) ?? [];
-      const destinationOrderedCardIds = next.find((col) => col.id === target.destinationColumnId)?.cards.map((c) => c.id) ?? [];
-
-      void fetch("/api/cards/reorder", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cardId: target.cardId,
-          sourceColumnId: target.sourceColumnId,
-          destinationColumnId: target.destinationColumnId,
-          sourceOrderedCardIds,
-          destinationOrderedCardIds
-        })
+  async function persistReorder(
+    request: () => Promise<Response>,
+    previous: ColumnWithCards[],
+    onSuccess: () => void
+  ) {
+    if (syncGuard.isSaving()) return;
+    setIsSavingReorder(true);
+    setSyncError(null);
+    try {
+      const result = await runBoardReorder(syncGuard, request, onSuccess, () => {
+        applyColumns(previous);
+        setSyncError("Something did not sync. Try again.");
+        toast({ message: "Sync failed. Changes rolled back.", type: "error" });
       });
+      if (result === "success") void syncNow();
+    } finally {
+      setIsSavingReorder(false);
+    }
+  }
 
-      return next;
+  const undoLastMove = async () => {
+    if (!syncGuard.canSync() || moveHistory.length === 0) return;
+    const lastMove = moveHistory[moveHistory.length - 1];
+    const session = createCardDragSession(columnsRef.current, lastMove.cardId);
+    if (!session) return;
+    const move = prepareCardMove(session, {
+      cardId: session.cardId,
+      sourceColumnId: session.sourceColumnId,
+      destinationColumnId: lastMove.sourceColumnId,
+      destinationIndex: lastMove.sourceIndex
     });
-
-    toast({ message: `Undo card move: "${lastMove.title}" ↩️`, type: "info" });
-    broadcastChange("CARD_UNDO");
+    if (!move) return;
+    applyColumns(move.columns);
+    await persistReorder(() => fetch("/api/cards/reorder", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(move.payload)
+    }), session.snapshot, () => {
+      setMoveHistory(current => current.slice(0, -1));
+      toast({ message: `Undo card move: "${lastMove.title}" ↩️`, type: "success" });
+      broadcastChange("CARD_UNDO");
+    });
   };
 
   // Keyboard Ctrl+Z Listener for Undo
@@ -479,272 +477,110 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
     broadcastChange("CARD_DELETED");
   }
 
-  function getCardDropTarget(event: DragOverEvent | DragEndEvent, currentColumns: ColumnWithCards[]): CardDropTarget | null {
-    const { active, over } = event;
-
-    if (!over) {
-      return null;
-    }
-
-    const activeData = active.data.current;
-    const overData = over.data.current;
-
-    if (activeData?.type !== "card") {
-      return null;
-    }
-
-    const sourceColumnId = activeData.columnId as string;
-    const cardId = activeData.cardId as string;
-    let destinationColumnId = sourceColumnId;
-
-    if (active.id === over.id) {
-      // The pointer is hovering over the card itself.
-      // Resolve where this card currently resides in the live optimistic state (columnsRef.current).
-      const liveCol = columnsRef.current.find((col) => col.cards.some((c) => c.id === cardId));
-      if (!liveCol) {
-        return null;
-      }
-      destinationColumnId = liveCol.id;
-      const liveIndex = liveCol.cards.findIndex((c) => c.id === cardId);
-      return {
-        cardId,
-        sourceColumnId,
-        destinationColumnId,
-        destinationIndex: Math.max(0, liveIndex)
-      };
-    }
-
-    if (overData?.type === "card" && overData.columnId) {
-      destinationColumnId = overData.columnId as string;
-    } else if (overData?.type === "column" && overData.columnId) {
-      destinationColumnId = overData.columnId as string;
-    } else if (String(over.id).startsWith("column:")) {
-      destinationColumnId = String(over.id).replace("column:", "");
-    } else if (String(over.id).startsWith("card:")) {
-      const overCardId = String(over.id).replace("card:", "");
-      const foundCol = currentColumns.find((c) => c.cards.some((card) => card.id === overCardId));
-      if (foundCol) destinationColumnId = foundCol.id;
-    }
-
-    const destinationColumn = currentColumns.find((column) => column.id === destinationColumnId);
-    let destinationIndex = destinationColumn ? destinationColumn.cards.length : 0;
-
-    if (overData?.type === "card" && destinationColumn) {
-      const overCardId = (overData.cardId as string) ?? String(over.id).replace("card:", "");
-      const overCardIndex = destinationColumn.cards.findIndex((card) => card.id === overCardId);
-
-      if (overCardIndex >= 0) {
-        const isBelowOverItem = Boolean(
-          over.rect &&
-          active.rect.current.translated &&
-          active.rect.current.translated.top > (over.rect.top + over.rect.height / 2)
-        );
-
-        if (sourceColumnId === destinationColumnId) {
-          const activeCardIndex = destinationColumn.cards.findIndex((card) => card.id === cardId);
-          if (activeCardIndex >= 0) {
-            if (activeCardIndex < overCardIndex) {
-              destinationIndex = isBelowOverItem ? overCardIndex : overCardIndex - 1;
-            } else {
-              destinationIndex = isBelowOverItem ? overCardIndex + 1 : overCardIndex;
-            }
-          } else {
-            destinationIndex = isBelowOverItem ? overCardIndex + 1 : overCardIndex;
-          }
-        } else {
-          destinationIndex = isBelowOverItem ? overCardIndex + 1 : overCardIndex;
-        }
+  function handleDragStart(event: DragStartEvent) {
+    if (syncGuard.isSaving()) return;
+    isPointerInteractingRef.current = true;
+    syncGuard.startDrag();
+    collisionDetection.reset();
+    lastCardDropTargetRef.current = null;
+    dragSnapshotRef.current = columnsRef.current;
+    if (String(event.active.id).startsWith("card:")) {
+      const cardId = String(event.active.id).slice("card:".length);
+      const session = createCardDragSession(columnsRef.current, cardId);
+      dragSessionRef.current = session;
+      if (session) {
+        setActiveCardId(cardId);
+        setActiveCard(session.snapshot.find(column => column.id === session.sourceColumnId)!.cards[session.sourceIndex]);
       }
     }
-
-    destinationIndex = Math.max(0, destinationIndex);
-    if (destinationColumn) {
-      destinationIndex = Math.min(destinationIndex, destinationColumn.cards.length);
-    }
-
-    return {
-      cardId,
-      sourceColumnId,
-      destinationColumnId,
-      destinationIndex
-    };
   }
 
-  function handleDragStart(event: DragStartEvent) {
-    isPointerInteractingRef.current = true;
+  function finishDrag() {
+    isPointerInteractingRef.current = false;
+    syncGuard.endDrag();
+    collisionDetection.reset();
+    dragSessionRef.current = null;
+    dragSnapshotRef.current = null;
     lastCardDropTargetRef.current = null;
-
-    if (event.active.data.current?.type === "card") {
-      dragSnapshotRef.current = columns;
-      const cardId = event.active.data.current.cardId as string;
-      const card = columns.flatMap((column) => column.cards).find((item) => item.id === cardId) ?? null;
-      setActiveCardId(cardId);
-      setActiveCard(card);
-    }
+    setActiveCardId(null);
+    setActiveDropColumnId(null);
+    setActiveCard(null);
   }
 
   function handleDragCancel() {
-    isPointerInteractingRef.current = false;
-    if (dragSnapshotRef.current) {
-      setColumns(dragSnapshotRef.current);
-    }
-
-    lastCardDropTargetRef.current = null;
-    dragSnapshotRef.current = null;
-    setActiveCardId(null);
-    setActiveDropColumnId(null);
-    setActiveCard(null);
+    if (dragSnapshotRef.current) applyColumns(dragSnapshotRef.current);
+    finishDrag();
   }
 
-  function handleDragOver(event: DragOverEvent) {
-    // Always compute the drop target from the stable dragSnapshot.
-    // Using the live (optimistic) columns state as base causes index drift
-    // when cards have already been inserted/removed by previous dragOver events.
-    const snapshot = dragSnapshotRef.current;
-    if (!snapshot) return;
-
-    if (!event.over) {
+  function handleDragOver() {
+    const session = dragSessionRef.current;
+    if (!session) return;
+    const target = getCardDropTarget(session, columnsRef.current, collisionDetection.getCardTarget());
+    if (!target) {
       lastCardDropTargetRef.current = null;
       setActiveDropColumnId(null);
-      setColumns(snapshot);
       return;
     }
-
-    const target = getCardDropTarget(event, snapshot);
-
-    if (!target) {
-      return;
-    }
-
+    const last = lastCardDropTargetRef.current;
+    if (last?.destinationColumnId === target.destinationColumnId && last.destinationIndex === target.destinationIndex) return;
     lastCardDropTargetRef.current = target;
     setActiveDropColumnId(target.destinationColumnId);
-
-    setColumns(moveCard(snapshot, target).columns);
+    applyColumns(moveCard(session.snapshot, target).columns);
   }
 
   async function handleDragEnd(event: DragEndEvent) {
-    isPointerInteractingRef.current = false;
-    mutationLockUntilRef.current = Date.now() + 2000;
-    const { active, over } = event;
+    const session = dragSessionRef.current;
     const previous = dragSnapshotRef.current ?? columnsRef.current;
-
-    dragSnapshotRef.current = null;
-    setActiveCardId(null);
-    setActiveDropColumnId(null);
-    setActiveCard(null);
-
-    const activeData = active.data.current;
-
-    // Column reorder
-    if (activeData?.type === "column") {
-      const overData = over?.data.current;
-      if (!over || activeData.columnId === overData?.columnId) {
-        lastCardDropTargetRef.current = null;
-        return;
-      }
-      if (overData?.type === "column") {
-        const currentCols = columnsRef.current;
-        const reordered = reorderColumns(currentCols, activeData.columnId, overData.columnId);
-        lastCardDropTargetRef.current = null;
-        setColumns(reordered);
-
-        const response = await fetch("/api/columns/reorder", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ boardId: board.id, columnIds: reordered.map((column) => column.id) })
-        });
-
-        if (!response.ok) {
-          setColumns(previous);
-          setSyncError("Something did not sync. Try again.");
-        } else {
-          broadcastChange("COLUMN_REORDER");
-        }
-      }
-      return;
-    }
-
-    if (activeData?.type !== "card") {
-      lastCardDropTargetRef.current = null;
-      return;
-    }
-
-    // Determine target: try calculating directly from the drop event first,
-    // fallback to lastCardDropTargetRef recorded during dragOver
-    const target = getCardDropTarget(event, previous) ?? lastCardDropTargetRef.current;
-    lastCardDropTargetRef.current = null;
-
-    if (!target) {
-      // No valid drop target recorded — card was dropped outside; restore snapshot
-      setColumns(previous);
-      return;
-    }
-
-    // Deterministically compute the final optimistic state from snapshot + target
-    const { columns: next } = moveCard(previous, target);
-    setColumns(next);
-
-    const sourceOrderedCardIds = next.find((column) => column.id === target.sourceColumnId)?.cards.map((card) => card.id) ?? [];
-    const destinationOrderedCardIds = next.find((column) => column.id === target.destinationColumnId)?.cards.map((card) => card.id) ?? [];
-
-    // Save Undo Action History
-    const sourceColumn = previous.find((col) => col.id === target.sourceColumnId);
-    const sourceIndex = sourceColumn?.cards.findIndex((c) => c.id === target.cardId) ?? 0;
-    const hasMoved = target.sourceColumnId !== target.destinationColumnId || sourceIndex !== target.destinationIndex;
-
-    if (hasMoved) {
-      const newMove: MoveAction = {
-        cardId: target.cardId,
-        title: activeCard?.title ?? "Card",
-        sourceColumnId: target.sourceColumnId,
-        destinationColumnId: target.destinationColumnId,
-        sourceIndex,
-        destinationIndex: target.destinationIndex
-      };
-      setMoveHistory((current) => [...current, newMove]);
-    } else {
-      return;
-    }
-
-    const destinationColumn = next.find((col) => col.id === target.destinationColumnId);
-    const movedFromDifferentColumn = target.sourceColumnId !== target.destinationColumnId;
-    if (destinationColumn?.defaultCardStatus === "DONE" && movedFromDifferentColumn) {
-      const cardEl = document.getElementById(`card-${target.cardId}`);
-      if (cardEl) {
-        const rect = cardEl.getBoundingClientRect();
-        triggerCelebration(rect.left + rect.width / 2, rect.top + rect.height / 2);
-      } else {
-        triggerCelebration(window.innerWidth / 2, window.innerHeight / 2);
-      }
-      playCardDoneSound();
-      toast({ message: "Task complete! ✦", type: "success" });
-    }
-
-    try {
-      const response = await fetch("/api/cards/reorder", {
+    const target = session ? getCardDropTarget(session, columnsRef.current, collisionDetection.getCardTarget()) : null;
+    const columnTarget = collisionDetection.getColumnTarget();
+    finishDrag();
+    if (!session) {
+      if (!String(event.active.id).startsWith("column:") || !columnTarget?.startsWith("column:")) return;
+      const sourceColumnId = String(event.active.id).slice("column:".length);
+      const destinationColumnId = columnTarget.slice("column:".length);
+      if (sourceColumnId === destinationColumnId) return;
+      const next = reorderColumns(previous, sourceColumnId, destinationColumnId);
+      applyColumns(next);
+      await persistReorder(() => fetch("/api/columns/reorder", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cardId: target.cardId,
-          sourceColumnId: target.sourceColumnId,
-          destinationColumnId: target.destinationColumnId,
-          sourceOrderedCardIds,
-          destinationOrderedCardIds
-        })
+        body: JSON.stringify({ boardId: board.id, columnIds: next.map(column => column.id) })
+      }), previous, () => {
+        toast({ message: "Columns reordered.", type: "success" });
+        broadcastChange("COLUMN_REORDER");
       });
-
-      if (!response.ok) {
-        setColumns(previous);
-        setSyncError("Something did not sync. Try again.");
-        toast({ message: "Sync failed. Changes rolled back.", type: "error" });
-      } else {
-        broadcastChange("CARD_MOVED");
-      }
-    } catch {
-      setColumns(previous);
-      setSyncError("Something did not sync. Try again.");
-      toast({ message: "Sync failed. Changes rolled back.", type: "error" });
+      return;
     }
+
+    const move = prepareCardMove(session, target);
+    if (!move || !target) {
+      applyColumns(previous);
+      return;
+    }
+    applyColumns(move.columns);
+    await persistReorder(() => fetch("/api/cards/reorder", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(move.payload)
+    }), session.snapshot, () => {
+      const card = session.snapshot.find(column => column.id === session.sourceColumnId)!.cards[session.sourceIndex];
+      setMoveHistory(current => [...current, {
+        cardId: session.cardId, title: card.title,
+        sourceColumnId: session.sourceColumnId, destinationColumnId: target.destinationColumnId,
+        sourceIndex: session.sourceIndex, destinationIndex: target.destinationIndex
+      }]);
+      const destination = move.columns.find(column => column.id === target.destinationColumnId);
+      if (destination?.defaultCardStatus === "DONE" && session.sourceColumnId !== destination.id) {
+        const cardEl = document.getElementById(`card-${session.cardId}`);
+        const rect = cardEl?.getBoundingClientRect();
+        triggerCelebration(rect ? rect.left + rect.width / 2 : window.innerWidth / 2, rect ? rect.top + rect.height / 2 : window.innerHeight / 2);
+        playCardDoneSound();
+        toast({ message: "Task complete! ✦", type: "success" });
+      } else {
+        toast({ message: "Card moved.", type: "success" });
+      }
+      broadcastChange("CARD_MOVED");
+    });
   }
 
   // Helper to check if a card is due today or overdue
@@ -978,7 +814,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
           {/* Undo */}
           <button
             type="button"
-            disabled={moveHistory.length === 0}
+            disabled={moveHistory.length === 0 || isSavingReorder || Boolean(activeCardId)}
             onClick={undoLastMove}
             className={cn(
               "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
@@ -1123,6 +959,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
         onDragCancel={handleDragCancel}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
+        onDragMove={handleDragOver}
         onDragStart={handleDragStart}
       >
         {columns.length === 0 ? (
@@ -1151,6 +988,7 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
                   key={column.id}
                   column={column}
                   activeCardId={activeCardId}
+                  isDragDisabled={isSavingReorder}
                   isDropTarget={activeDropColumnId === column.id}
                   onCreateCard={createCard}
                   onCardDeleted={deleteCard}

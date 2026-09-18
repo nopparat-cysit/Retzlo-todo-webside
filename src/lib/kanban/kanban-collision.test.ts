@@ -1,89 +1,91 @@
 import { describe, expect, it } from "vitest";
+import type { CollisionDetection } from "@dnd-kit/core";
 import { createKanbanCollisionDetection } from "./kanban-collision";
 
-describe("createKanbanCollisionDetection", () => {
-  const columns = [
-    { id: "col-1", cards: [{ id: "c1" }, { id: "c2" }] },
-    { id: "col-2", cards: [] }
+type Args = Parameters<CollisionDetection>[0];
+const rect = (left: number, top: number, width: number, height: number) => ({ left, top, width, height, right: left + width, bottom: top + height });
+const columns = [{ id: "backlog", cards: [{ id: "a" }] }, { id: "progress", cards: [{ id: "d" }, { id: "e" }] }, { id: "done", cards: [] }];
+function args(x: number, y: number): Args {
+  const zones = ["backlog", "progress", "done"].map((columnId, i) => ({ id: `card-zone:${columnId}`, data: { current: { type: "card-container", columnId } }, rect: { current: rect(i * 200, 50, 180, 450) } }));
+  const cards = [
+    { id: "card:a", data: { current: { type: "card", columnId: "backlog", cardId: "a" } }, rect: { current: rect(10, 70, 160, 80) } },
+    { id: "card:d", data: { current: { type: "card", columnId: "progress", cardId: "d" } }, rect: { current: rect(210, 70, 160, 80) } },
+    { id: "card:e", data: { current: { type: "card", columnId: "progress", cardId: "e" } }, rect: { current: rect(210, 170, 160, 80) } }
   ];
+  const sortableColumns = zones.map((zone, i) => ({ id: `column:${columns[i].id}`, data: { current: { type: "column", columnId: columns[i].id } }, rect: { current: rect(i * 200, 0, 180, 500) } }));
+  const containers = [...zones, ...cards, ...sortableColumns];
+  return {
+    active: { id: "card:a", data: { current: { type: "card", cardId: "a", columnId: "backlog" } }, rect: { current: { translated: rect(x - 80, y - 40, 160, 80), initial: rect(10, 70, 160, 80) } } },
+    pointerCoordinates: { x, y }, collisionRect: rect(x - 80, y - 40, 160, 80),
+    droppableContainers: containers, droppableRects: new Map(containers.map(item => [item.id, item.rect.current]))
+  } as unknown as Args;
+}
 
-  it("filters column containers when dragging a column", () => {
+describe("zone-first Kanban collision", () => {
+  it.each([
+    [280, 65, "card:d", { columnId: "progress", cardId: "d", placement: "before" }],
+    [280, 125, "card:d", { columnId: "progress", cardId: "d", placement: "after" }],
+    [280, 160, "card:e", { columnId: "progress", cardId: "e", placement: "before" }],
+    [280, 450, "card-zone:progress", { columnId: "progress", placement: "append" }],
+    [480, 200, "card-zone:done", { columnId: "done", placement: "append" }]
+  ])("resolves pointer (%s,%s) within the receiving zone", (x, y, id, target) => {
     const detector = createKanbanCollisionDetection(() => columns);
-
-    const mockArgs: any = {
-      active: {
-        id: "column:col-1",
-        data: { current: { type: "column" } },
-        rect: { current: { translated: { top: 0, left: 0, bottom: 100, right: 100, width: 100, height: 100 } } }
-      },
-      collisionRect: { top: 0, left: 0, bottom: 100, right: 100, width: 100, height: 100 },
-      droppableRects: new Map([
-        ["column:col-2", { top: 0, left: 120, bottom: 100, right: 220, width: 100, height: 100 }],
-        ["card:c1", { top: 10, left: 10, bottom: 30, right: 90, width: 80, height: 20 }]
-      ]),
-      droppableContainers: [
-        { id: "column:col-2", data: { current: { type: "column" } } },
-        { id: "card:c1", data: { current: { type: "card" } } }
-      ],
-      pointerCoordinates: { x: 50, y: 50 }
-    };
-
-    const collisions = detector(mockArgs);
-    // Should only match column container, not card container
-    expect(collisions.some((c) => String(c.id).startsWith("card:"))).toBe(false);
+    expect(detector(args(x as number, y as number))[0]?.id).toBe(id);
+    expect(detector.getCardTarget()).toEqual(target);
+    detector.reset();
   });
 
-  it("handles empty column when dragging a card over it", () => {
+  it("does not target a neighbor, header, or active card when pointer is outside receiving zones", () => {
     const detector = createKanbanCollisionDetection(() => columns);
-
-    const mockArgs: any = {
-      active: {
-        id: "card:c1",
-        data: { current: { type: "card" } },
-        rect: { current: { translated: { top: 0, left: 120, bottom: 20, right: 200, width: 80, height: 20 } } }
-      },
-      collisionRect: { top: 0, left: 120, bottom: 20, right: 200, width: 80, height: 20 },
-      droppableRects: new Map([
-        ["column:col-2", { top: 0, left: 100, bottom: 300, right: 250, width: 150, height: 300 }]
-      ]),
-      droppableContainers: [
-        { id: "column:col-2", data: { current: { type: "column" } } }
-      ],
-      pointerCoordinates: { x: 150, y: 50 }
-    };
-
-    const collisions = detector(mockArgs);
-    expect(collisions[0]?.id).toBe("column:col-2");
+    for (const [x, y] of [[190, 200], [280, 25], [800, 250]]) {
+      expect(detector(args(x, y))).toEqual([]);
+      expect(detector.getCardTarget()).toBeNull();
+    }
+    expect(detector(args(80, 110))[0]?.id).toBe("card-zone:backlog");
+    detector.reset();
   });
 
-  it("excludes active card container to prevent self-collision when column already contains optimistic active card", () => {
-    // col-2 now contains c1 optimistically
-    const columnsWithOptimisticCard = [
-      { id: "col-1", cards: [{ id: "c2" }] },
-      { id: "col-2", cards: [{ id: "c1" }] }
-    ];
-    const detector = createKanbanCollisionDetection(() => columnsWithOptimisticCard);
+  it("isolates column sorting from card receiving zones", () => {
+    const detector = createKanbanCollisionDetection(() => columns);
+    const input = args(280, 150);
+    input.active.id = "column:backlog";
+    input.active.data.current = { type: "column", columnId: "backlog" };
+    expect(detector(input).every(hit => String(hit.id).startsWith("column:"))).toBe(true);
+    expect(detector.getCardTarget()).toBeNull();
+  });
 
-    const mockArgs: any = {
-      active: {
-        id: "card:c1",
-        data: { current: { type: "card" } },
-        rect: { current: { translated: { top: 50, left: 120, bottom: 70, right: 200, width: 80, height: 20 } } }
-      },
-      collisionRect: { top: 50, left: 120, bottom: 70, right: 200, width: 80, height: 20 },
-      droppableRects: new Map([
-        ["column:col-2", { top: 0, left: 100, bottom: 300, right: 250, width: 150, height: 300 }],
-        ["card:c1", { top: 50, left: 120, bottom: 70, right: 200, width: 80, height: 20 }]
-      ]),
-      droppableContainers: [
-        { id: "column:col-2", data: { current: { type: "column" } } },
-        { id: "card:c1", data: { current: { type: "card" } } }
-      ],
-      pointerCoordinates: { x: 150, y: 60 }
-    };
+  it("does not reorder columns when the pointer is outside their bounds", () => {
+    const detector = createKanbanCollisionDetection(() => columns);
+    const input = args(800, 650);
+    input.active.id = "column:backlog";
+    input.active.data.current = { type: "column", columnId: "backlog" };
+    expect(detector(input)).toEqual([]);
+  });
 
-    const collisions = detector(mockArgs);
-    // Must NOT return card:c1 (self), should return the column container col-2
-    expect(collisions[0]?.id).toBe("column:col-2");
+  it("retains a missing measurement for one frame, then clears it; leaving the cached zone clears immediately", () => {
+    let frame!: () => void;
+    const detector = createKanbanCollisionDetection(() => columns, { requestFrame: callback => { frame = callback; return 1; }, cancelFrame: () => {} });
+    detector(args(280, 450));
+    const missing = args(280, 450);
+    missing.droppableRects.delete("card-zone:progress");
+    expect(detector(missing)[0]?.id).toBe("card-zone:progress");
+    frame();
+    expect(detector(missing)).toEqual([]);
+    detector(args(280, 450));
+    expect(detector(args(190, 450))).toEqual([]);
+    detector(args(480, 200));
+    detector.clearIfOutside({ x: 800, y: 200 });
+    expect(detector.getCardTarget()).toBeNull();
+    detector.reset();
+  });
+
+  it("appends to a collapsed zone even when its hidden cards remain in board data", () => {
+    const detector = createKanbanCollisionDetection(() => columns);
+    const input = args(280, 150);
+    const zone = input.droppableContainers.find(item => item.id === "card-zone:progress")!;
+    zone.data.current = { type: "card-container", columnId: "progress", collapsed: true };
+    expect(detector(input)[0]?.id).toBe("card-zone:progress");
+    expect(detector.getCardTarget()).toEqual({ columnId: "progress", placement: "append" });
+    detector.reset();
   });
 });

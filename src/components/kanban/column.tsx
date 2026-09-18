@@ -1,6 +1,7 @@
 "use client";
 
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { AlertTriangle, GripVertical, Minus, Plus, Settings, Trash2, X, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -26,6 +27,7 @@ import type { Card, CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } f
 export function KanbanColumn({
   column,
   activeCardId,
+  isDragDisabled = false,
   isDropTarget,
   members = [],
   onCreateCard,
@@ -38,6 +40,7 @@ export function KanbanColumn({
 }: {
   column: ColumnWithCards;
   activeCardId: string | null;
+  isDragDisabled?: boolean;
   isDropTarget: boolean;
   members?: CardAssignee[];
   onCreateCard: (
@@ -130,7 +133,13 @@ export function KanbanColumn({
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: `column:${column.id}`,
-    data: { type: "column", columnId: column.id }
+    data: { type: "column", columnId: column.id },
+    disabled: { draggable: isDragDisabled }
+  });
+  const { setNodeRef: setCardZoneRef } = useDroppable({
+    id: `card-zone:${column.id}`,
+    data: { type: "card-container", columnId: column.id, collapsed: isCollapsed },
+    disabled: isDragDisabled
   });
 
   const style = {
@@ -250,6 +259,9 @@ export function KanbanColumn({
   if (isCollapsed) {
     return (
       <div
+        ref={node => { setNodeRef(node); setCardZoneRef(node); }}
+        style={style}
+        data-card-zone={column.id}
         className={cn(
           "column-collapsed-rail group lofi-panel shrink-0 rounded-2xl border border-white/10 bg-white/[0.035] hover:border-dusk-lavender/50 cursor-pointer flex flex-col items-center py-3.5 select-none transition-all duration-200",
           theme.columnClass
@@ -409,12 +421,13 @@ export function KanbanColumn({
       </div>
 
       {/* ── Cards List ── */}
-      <div className={cn("scrollbar-soft flex-1 space-y-3 overflow-y-auto p-3", isDropTarget && "bg-white/[0.025]")}>
+      <div ref={setCardZoneRef} data-card-zone={column.id} className={cn("scrollbar-soft min-h-20 flex-1 space-y-3 overflow-y-auto p-3", isDropTarget && "bg-white/[0.025]")}>
         <SortableContext items={column.cards.map((card) => `card:${card.id}`)} strategy={verticalListSortingStrategy}>
           {column.cards.map((card) => (
             <KanbanCard
               key={card.id}
               card={card}
+              isDragDisabled={isDragDisabled}
               columnId={column.id}
               members={members}
               isDragPreviewTarget={activeCardId === card.id}

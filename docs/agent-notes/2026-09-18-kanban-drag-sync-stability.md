@@ -1,0 +1,28 @@
+# Kanban drag and sync stability
+
+- Date: 2026-09-18
+- Objective: Fix frontend drag source drift, receiving-zone collision instability, and stale live-sync responses.
+- Created: `src/lib/kanban/drag-session.ts`, `drag-session.test.ts`, `board-sync.ts`, `board-sync.test.ts`, `scripts/kanban-browser-check.mjs`, and this note.
+- Modified: `src/components/kanban/board.tsx`, `column.tsx`, `card.tsx`, `card-interaction.test.ts`, `src/lib/kanban/kanban-collision.ts`, `kanban-collision.test.ts`, and `package.json`.
+- Deleted/moved: No source files. Removed a Chromium-generated `debug.log`; the browser harness now redirects its log to a temporary file and cleans it up.
+- Behavior:
+  - Capture original card source/index/snapshot once; resolve insertion against snapshot without active card, ignoring remounted active metadata.
+  - Preview only when target/index changes, keep state refs synchronous, and disable secondary sortable transforms/animations on cards.
+  - Dedicated card-body receiving zones, minimum empty-zone height, and append-only collapsed rails; collision selection stays within the receiving zone and excludes the active card.
+  - Cache missing measurements for at most one animation frame while pointer remains inside the previous zone. Capture-phase pointer release clears outside targets; outside card and column drops, cancellation, and no-op do not persist.
+  - Synchronous drag/pending-request guard and revision checks before applying GET responses. Polling remains blocked throughout slow PATCH; successful persistence broadcasts and requests fresh sync. Shared `useLiveSync` implementation is unchanged.
+  - Success Toast and undo history after successful save; failed HTTP/network saves restore snapshot and show error Toast. Undo is blocked during active drag/pending reorder.
+  - User authorized immediate persistence without ConfirmModal for Kanban drag reordering only. Changes are scoped to Kanban components; no shared design tokens changed.
+- Database/schema: None; card and column reorder APIs are unchanged.
+- Verification:
+  - Initial focused red run: collision assertions failed against the old strategy; new drag-session/sync suites could not load helpers that did not yet exist.
+  - Initial focused green run: 25/25 helper/collision tests passed. A later outside-column regression failed first, then passed after restricting column targets.
+  - `npm test -- src/lib/kanban src/components/kanban/card-interaction.test.ts src/hooks/use-live-sync.test.ts`: passed, 104 tests before the additional outside-column case.
+  - Final `npm test`: passed, 247 tests across 56 files.
+  - Final `npm run lint`: passed, no warnings/errors.
+  - Final `npm run build`: passed, generated 30 pages and completed build traces, exit 0.
+  - `npx prisma validate`: passed.
+  - `npm run test:kanban-browser`: Chromium passed 13 scenario groups with real Board/Column/Card/dnd-kit and in-memory API fixtures. Covers all six column directions, same-column ordering, empty/collapsed/scrolled zones, search/today/assignee filters, no-op/Escape/outside, GET completing during drag or after save, PATCH delayed 3.2 seconds, drag/Undo locks, successful Undo, HTTP/network rollback Toast/history, normal column sort, and outside-column cancellation. No React page errors or maximum-update-depth loops.
+  - `git diff --check`: passed.
+  - Additional standalone `tsc --noEmit`: failed on existing unchanged test typing: inferred `never` in `card-serialization.test.ts` and unsupported difficulty value `2` in `column-equality.test.ts`. Production Next build/type checking passed; unrelated test typing was not changed.
+- Follow-ups/delivery: User requested commit and push to `origin/main` after verification; no migrations or manual deployment. Browser checks mock network responses and do not change real database data; they exercise actual React/dnd-kit interactions outside the Next authentication shell. To rerun the optional browser script, provide Playwright/Chromium via installed packages or `KANBAN_PLAYWRIGHT_PATH` and optional `KANBAN_CHROMIUM_PATH`.
