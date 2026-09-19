@@ -295,6 +295,7 @@ export default async function BoardPage({
             columns: toColumns(board.columns, members)
           }}
           members={members}
+          currentUserId={userId}
         />
         {project.notesEnabled ? (
           <BoardNotesRail

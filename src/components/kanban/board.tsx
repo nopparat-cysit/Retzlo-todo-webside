@@ -13,7 +13,6 @@ import {
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { CalendarClock, CheckSquare, Plus, Search, RotateCcw, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { useSession } from "next-auth/react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { useSearchParams } from "next/navigation";
@@ -86,9 +85,15 @@ function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []):
   };
 }
 
-export function KanbanBoard({ board, members = [] }: { board: BoardData; members?: CardAssignee[] }) {
-  const { data: session } = useSession();
-  const currentUserId = session?.user?.id;
+export function KanbanBoard({
+  board,
+  members = [],
+  currentUserId
+}: {
+  board: BoardData;
+  members?: CardAssignee[];
+  currentUserId?: string;
+}) {
   const searchParams = useSearchParams();
   const cardIdFromUrl = searchParams.get("cardId");
   const [selectedCardFromUrl, setSelectedCardFromUrl] = useState<Card | null>(null);
