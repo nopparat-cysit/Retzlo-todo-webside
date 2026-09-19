@@ -24,11 +24,13 @@ function toNoteResponse(
     completedAt: Date | null;
     dueDate: Date | null;
     dueDateAllDay: boolean;
+    boardId?: string | null;
     projectId: string;
     authorId: string;
     createdAt: Date;
     updatedAt: Date;
     author: { name: string | null; email: string };
+    board?: { id: string; name: string } | null;
   },
   context: {
     membership: { role: string };
@@ -39,6 +41,8 @@ function toNoteResponse(
   return {
     ...note,
     color: normalizeCardColor(note.color),
+    boardId: note.boardId ?? null,
+    board: note.board ? { id: note.board.id, name: note.board.name } : null,
     completedAt: note.completedAt ? note.completedAt.toISOString() : null,
     dueDate: note.dueDate ? note.dueDate.toISOString() : null,
     createdAt: note.createdAt.toISOString(),
@@ -118,6 +122,12 @@ export async function PATCH(request: Request, { params }: { params: { noteId: st
           select: {
             name: true,
             email: true
+          }
+        },
+        board: {
+          select: {
+            id: true,
+            name: true
           }
         }
       }

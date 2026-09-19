@@ -11,6 +11,11 @@ export interface ProjectNote {
   completedAt: string | null;
   dueDate: string | null;
   dueDateAllDay: boolean;
+  boardId?: string | null;
+  board?: {
+    id: string;
+    name: string;
+  } | null;
   projectId: string;
   authorId: string;
   createdAt: string;

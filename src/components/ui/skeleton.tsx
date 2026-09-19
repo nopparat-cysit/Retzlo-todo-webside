@@ -97,55 +97,57 @@ export function BoardSkeleton() {
 export function ProjectCardSkeleton() {
   return (
     <div
-      className="flex h-[370px] flex-col gap-4 rounded-xl border border-white/[0.08] bg-ink-900/60 p-5 backdrop-blur-md"
+      className="flex min-h-[420px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-900/60 backdrop-blur-md"
       role="status"
       aria-label="Loading project…"
     >
-      {/* Top accent bar */}
-      <Skeleton className="h-1 w-full rounded-full opacity-40" />
-
-      {/* Icon + title row */}
-      <div className="flex items-start gap-3">
-        <Skeleton className="h-10 w-10 shrink-0 rounded-lg" />
-        <div className="flex flex-1 flex-col gap-2">
-          <Skeleton className="h-4 w-3/5" />
-          <Skeleton className="h-3 w-2/5" />
+      {/* Top cover skeleton */}
+      <div className="relative h-44 sm:h-48 w-full bg-white/[0.04]">
+        <div className="absolute left-3.5 top-3">
+          <Skeleton className="h-5 w-24 rounded-full" />
+        </div>
+        <div className="absolute right-3.5 top-3 flex gap-1.5">
+          <Skeleton className="h-8 w-8 rounded-xl" />
+          <Skeleton className="h-8 w-8 rounded-xl" />
+        </div>
+        <div className="absolute bottom-3 left-4">
+          <Skeleton className="h-6 w-44 rounded-md" />
         </div>
       </div>
 
-      {/* Description lines */}
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-3 w-full" />
-        <Skeleton className="h-3 w-11/12" />
-        <Skeleton className="h-3 w-4/6" />
-      </div>
-
-      {/* Stats row */}
-      <div className="mt-auto flex items-center gap-3">
-        <Skeleton className="h-6 w-20 rounded-full" />
-        <Skeleton className="h-6 w-20 rounded-full" />
-        <Skeleton className="ml-auto h-6 w-6 rounded-full" />
-      </div>
-
-      {/* Progress bar */}
-      <div className="flex flex-col gap-1.5">
-        <div className="flex justify-between">
-          <Skeleton className="h-2.5 w-16" />
-          <Skeleton className="h-2.5 w-8" />
+      <div className="flex flex-1 flex-col p-4 sm:p-5 gap-3">
+        {/* Description lines */}
+        <div className="flex flex-col gap-1.5">
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-3/4" />
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
-          <Skeleton className="h-full w-2/5 rounded-full" />
-        </div>
-      </div>
 
-      {/* Member avatars + action */}
-      <div className="flex items-center justify-between">
-        <div className="flex -space-x-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-7 w-7 rounded-full ring-2 ring-ink-900" />
+        {/* Progress bar skeleton */}
+        <div className="mt-1 rounded-xl border border-white/10 bg-white/[0.02] p-2.5 space-y-2">
+          <div className="flex justify-between">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+          <Skeleton className="h-1.5 w-full rounded-full" />
+        </div>
+
+        {/* 4 Stat Pills */}
+        <div className="grid grid-cols-4 gap-1.5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-lg border border-white/5 bg-white/[0.03] py-2 px-1 flex flex-col items-center gap-1">
+              <Skeleton className="h-3 w-4" />
+              <Skeleton className="h-2 w-8" />
+            </div>
           ))}
         </div>
-        <Skeleton className="h-8 w-24 rounded-md" />
+
+        {/* Launch action bar */}
+        <div className="mt-auto pt-3 border-t border-white/10 flex items-center gap-2">
+          <Skeleton className="h-10 flex-1 rounded-xl" />
+          <Skeleton className="h-10 w-10 rounded-xl" />
+          <Skeleton className="h-10 w-10 rounded-xl" />
+          <Skeleton className="h-10 w-10 rounded-xl" />
+        </div>
       </div>
     </div>
   );

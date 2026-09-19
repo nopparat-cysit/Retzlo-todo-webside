@@ -3,7 +3,14 @@ import { ProjectCalendar, type CalendarCard, type CalendarNote } from "@/compone
 import { ErrorState } from "@/components/ui/state";
 import { prisma } from "@/lib/prisma";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
-import { getProjectMembership, requireUserId, canManageAuthoredItem, canToggleHiddenItem } from "@/lib/project-auth";
+import {
+  canAccessBoard,
+  canManageAuthoredItem,
+  canToggleHiddenItem,
+  getProjectMembership,
+  isOwnerRole,
+  requireUserId
+} from "@/lib/project-auth";
 import { normalizeDiaryChecklist } from "@/lib/diary/checklist";
 import { serializeDiaryRewardClaimedDates } from "@/lib/diary/payout";
 import { extractAssigneeIds, resolveAssignees } from "@/lib/kanban/assignees";
@@ -28,10 +35,11 @@ export default async function CalendarPage({ params }: { params: { id: string } 
   let projectMembers: any[] = [];
 
   try {
-    membership = await getProjectMembership(params.id, userId);
-    if (!membership) {
+    const userMembership = await getProjectMembership(params.id, userId);
+    if (!userMembership) {
       notFound();
     }
+    membership = userMembership;
 
     project = await prisma.project.findUnique({
       where: { id: params.id },
@@ -42,11 +50,25 @@ export default async function CalendarPage({ params }: { params: { id: string } 
       notFound();
     }
 
+    const allBoards = await prisma.board.findMany({
+      where: { projectId: params.id },
+      include: { members: { select: { userId: true } } }
+    });
+    const isOwner = isOwnerRole(userMembership.role);
+    const accessibleBoards = allBoards.filter((b) =>
+      canAccessBoard(b, userId, userMembership.role)
+    );
+    const accessibleBoardIds = accessibleBoards.map((b) => b.id);
+
     [cards, notes, diaryItems, projectMembers] = await Promise.all([
       prisma.card.findMany({
         where: {
           dueDate: { not: null },
-          column: { board: { projectId: params.id } }
+          column: {
+            board: isOwner
+              ? { projectId: params.id }
+              : { id: { in: accessibleBoardIds } }
+          }
         },
         include: {
           column: {
@@ -59,11 +81,27 @@ export default async function CalendarPage({ params }: { params: { id: string } 
         orderBy: [{ dueDate: "asc" }, { position: "asc" }]
       }),
       prisma.note.findMany({
-        where: {
-          projectId: params.id,
-          completedAt: null,
-          dueDate: { not: null }
-        },
+        where: isOwner
+          ? {
+              projectId: params.id,
+              completedAt: null,
+              dueDate: { not: null }
+            }
+          : {
+              projectId: params.id,
+              completedAt: null,
+              dueDate: { not: null },
+              OR: [
+                { authorId: userId },
+                {
+                  isHidden: false,
+                  OR: [
+                    { boardId: null },
+                    { boardId: { in: accessibleBoardIds } }
+                  ]
+                }
+              ]
+            },
         orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }]
       }),
       prisma.diaryItem.findMany({

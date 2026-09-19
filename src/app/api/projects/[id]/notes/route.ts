@@ -18,11 +18,13 @@ function toNoteResponse(
     completedAt: Date | null;
     dueDate: Date | null;
     dueDateAllDay: boolean;
+    boardId?: string | null;
     projectId: string;
     authorId: string;
     createdAt: Date;
     updatedAt: Date;
     author: { name: string | null; email: string };
+    board?: { id: string; name: string } | null;
   },
   context: {
     membership: { role: string };
@@ -35,6 +37,8 @@ function toNoteResponse(
   return {
     ...note,
     color: normalizeCardColor(note.color),
+    boardId: note.boardId ?? null,
+    board: note.board ? { id: note.board.id, name: note.board.name } : null,
     completedAt: note.completedAt ? note.completedAt.toISOString() : null,
     dueDate: note.dueDate ? note.dueDate.toISOString() : null,
     createdAt: note.createdAt.toISOString(),
@@ -52,7 +56,7 @@ function toNoteResponse(
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   const userId = await requireUserId();
 
   if (!userId) {
@@ -74,18 +78,65 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     return jsonError("Project not found.", 404);
   }
 
+  const { searchParams } = new URL(request.url);
+  const boardIdFilter = searchParams.get("boardId");
+
+  const isOwner = isOwnerRole(membership.role);
+
+  // User visibility filter:
+  // - Owners see all project notes (optionally filtered by boardId)
+  // - Regular members see:
+  //   1) Their own notes (whether hidden or not)
+  //   2) Public notes where:
+  //      - boardId is null (general team notes), OR
+  //      - board is public, OR
+  //      - member has access to the board
+  const includeGeneral = searchParams.get("includeGeneral") === "true";
+  const conditions: any[] = [{ projectId: params.id }];
+
+  if (boardIdFilter) {
+    if (boardIdFilter === "null" || boardIdFilter === "none") {
+      conditions.push({ boardId: null });
+    } else if (includeGeneral) {
+      conditions.push({
+        OR: [{ boardId: boardIdFilter }, { boardId: null }]
+      });
+    } else {
+      conditions.push({ boardId: boardIdFilter });
+    }
+  }
+
+  if (!isOwner) {
+    conditions.push({
+      OR: [
+        { authorId: userId },
+        {
+          isHidden: false,
+          OR: [
+            { boardId: null },
+            { board: { isPrivate: false } },
+            { board: { members: { some: { userId } } } }
+          ]
+        }
+      ]
+    });
+  }
+
+  const whereClause = conditions.length === 1 ? conditions[0] : { AND: conditions };
+
   const notes = await prisma.note.findMany({
-    where: isOwnerRole(membership.role)
-      ? { projectId: params.id }
-      : {
-          projectId: params.id,
-          OR: [{ isHidden: false }, { authorId: userId }]
-        },
+    where: whereClause,
     include: {
       author: {
         select: {
           name: true,
           email: true
+        }
+      },
+      board: {
+        select: {
+          id: true,
+          name: true
         }
       }
     },
@@ -147,6 +198,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         emoji: payload.emoji,
         color: payload.color,
         isHidden: payload.isHidden,
+        boardId: payload.boardId ?? null,
         dueDate: payload.dueDate ? new Date(payload.dueDate) : null,
         dueDateAllDay: payload.dueDateAllDay,
         projectId: params.id,
@@ -157,6 +209,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
           select: {
             name: true,
             email: true
+          }
+        },
+        board: {
+          select: {
+            id: true,
+            name: true
           }
         }
       }

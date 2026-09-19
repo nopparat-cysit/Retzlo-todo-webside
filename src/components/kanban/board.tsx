@@ -11,10 +11,13 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Plus, Search, RotateCcw, Clock, Sparkles, Users, UserX, X } from "lucide-react";
+import { CalendarClock, CheckSquare, Plus, Search, RotateCcw, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useSession } from "next-auth/react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
+import { useSearchParams } from "next/navigation";
+import { CardModal } from "@/components/kanban/card-modal";
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
 import { KanbanColumn } from "@/components/kanban/column";
 import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
@@ -84,7 +87,24 @@ function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []):
 }
 
 export function KanbanBoard({ board, members = [] }: { board: BoardData; members?: CardAssignee[] }) {
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
+  const searchParams = useSearchParams();
+  const cardIdFromUrl = searchParams.get("cardId");
+  const [selectedCardFromUrl, setSelectedCardFromUrl] = useState<Card | null>(null);
   const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
+
+  useEffect(() => {
+    if (cardIdFromUrl && columns.length > 0) {
+      for (const col of columns) {
+        const found = col.cards.find((c) => c.id === cardIdFromUrl);
+        if (found) {
+          setSelectedCardFromUrl(found);
+          break;
+        }
+      }
+    }
+  }, [cardIdFromUrl, columns]);
   const columnsRef = useRef(columns);
   columnsRef.current = columns;
   const dragSnapshotRef = useRef<ColumnWithCards[] | null>(null);
@@ -738,6 +758,25 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
             Today
           </button>
 
+          {/* My Tasks Quick Filter */}
+          {currentUserId && (
+            <button
+              type="button"
+              onClick={() => {
+                setAssigneeFilter((prev) => (prev === currentUserId ? "ALL" : currentUserId));
+              }}
+              className={cn(
+                "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
+                assigneeFilter === currentUserId
+                  ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
+                  : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
+              )}
+            >
+              <User className="h-3.5 w-3.5" />
+              My Tasks
+            </button>
+          )}
+
           {/* Assignee Filter */}
           <div className="flex items-center gap-1.5">
             <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
@@ -1007,6 +1046,32 @@ export function KanbanBoard({ board, members = [] }: { board: BoardData; members
           {activeCard ? <KanbanCardDragPreview card={activeCard} /> : null}
         </DragOverlay>
       </DndContext>
+
+      {selectedCardFromUrl && (
+        <CardModal
+          card={selectedCardFromUrl}
+          mode="edit"
+          open={Boolean(selectedCardFromUrl)}
+          onClose={() => setSelectedCardFromUrl(null)}
+          members={members}
+          onDelete={async () => {
+            deleteCard(selectedCardFromUrl.id);
+            setSelectedCardFromUrl(null);
+          }}
+          onSubmit={async (data) => {
+            const response = await fetch("/api/cards", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ cardId: selectedCardFromUrl.id, ...data })
+            });
+            const resData = (await response.json()) as { card?: Card };
+            if (resData.card) {
+              saveCard(resData.card);
+              setSelectedCardFromUrl(null);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

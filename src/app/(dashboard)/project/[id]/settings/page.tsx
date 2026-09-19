@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { ProjectBoardsManager } from "@/components/project/project-boards-manager";
 import { SettingsForm } from "@/components/project/settings-form";
 import { SoundToggle } from "@/components/project/sound-toggle";
 import { prisma } from "@/lib/prisma";
@@ -30,6 +31,53 @@ export default async function SettingsPage({ params }: { params: { id: string } 
     notFound();
   }
 
+  const [boards, projectMembers] = await Promise.all([
+    prisma.board.findMany({
+      where: { projectId: params.id },
+      orderBy: { createdAt: "asc" },
+      include: {
+        members: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true, avatar: true }
+            }
+          }
+        },
+        columns: {
+          select: {
+            id: true,
+            _count: { select: { cards: true } }
+          }
+        }
+      }
+    }),
+    prisma.projectMember.findMany({
+      where: { projectId: params.id },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, avatar: true }
+        }
+      },
+      orderBy: { createdAt: "asc" }
+    })
+  ]);
+
+  const canManage = isOwnerRole(project.members[0]?.role);
+
+  const formattedBoards = boards.map((b) => ({
+    id: b.id,
+    name: b.name,
+    projectId: b.projectId,
+    isPrivate: b.isPrivate,
+    createdAt: b.createdAt.toISOString(),
+    memberUserIds: b.members.map((m) => m.userId),
+    members: b.members.map((m) => ({
+      userId: m.userId,
+      user: m.user
+    })),
+    cardCount: b.columns.reduce((sum, col) => sum + col._count.cards, 0)
+  }));
+
   return (
     <div className="scrollbar-soft h-full min-h-0 overflow-y-auto pr-1">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-8">
@@ -41,7 +89,15 @@ export default async function SettingsPage({ params }: { params: { id: string } 
           </p>
         </section>
 
-        <SettingsForm project={project} canManagePrivacy={isOwnerRole(project.members[0]?.role)} />
+        {/* Sub-projects & Boards Management */}
+        <ProjectBoardsManager
+          projectId={params.id}
+          canManage={canManage}
+          initialBoards={formattedBoards}
+          projectMembers={projectMembers}
+        />
+
+        <SettingsForm project={project} canManagePrivacy={canManage} />
 
         <section className="lofi-panel rounded-2xl p-5">
           <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Personal preferences</p>

@@ -9,19 +9,24 @@ import {
   BookOpenCheck,
   CalendarDays,
   Clock,
+  FileText,
   FolderKanban,
   Gift,
   Image as ImageIcon,
   KanbanSquare,
   Layers3,
+  LayoutGrid,
   MoreHorizontal,
   Pencil,
   Plus,
+  Search,
   Sparkles,
   Star,
   Trash2,
+  TrendingUp,
   Upload,
-  X
+  X,
+  Zap
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -161,6 +166,8 @@ export function ProjectsDashboard({
   const [calendarTimeScope, setCalendarTimeScope] = useState(defaultCalendarFilters.timeScope);
   const [calendarRange, setCalendarRange] = useState<"7" | "30" | "all">("30");
   const [starredProjectIds, setStarredProjectIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilterTab, setActiveFilterTab] = useState<"all" | "starred" | "work" | "diary">("all");
 
   useEffect(() => {
     setProjectList(projects);
@@ -168,6 +175,31 @@ export function ProjectsDashboard({
 
   const sortedProjects = useMemo(() => sortProjectsByStarred(projectList, starredProjectIds), [projectList, starredProjectIds]);
   const selectedProjectId = sortedProjects[0]?.id ?? "";
+
+  const starredCount = useMemo(() => projectList.filter((p) => starredProjectIds.has(p.id)).length, [projectList, starredProjectIds]);
+  const workCount = useMemo(() => projectList.filter((p) => p.type !== "DIARY").length, [projectList]);
+  const diaryCount = useMemo(() => projectList.filter((p) => p.type === "DIARY").length, [projectList]);
+
+  const displayedProjects = useMemo(() => {
+    return sortedProjects.filter((project) => {
+      if (activeFilterTab === "starred" && !starredProjectIds.has(project.id)) {
+        return false;
+      }
+      if (activeFilterTab === "work" && project.type === "DIARY") {
+        return false;
+      }
+      if (activeFilterTab === "diary" && project.type !== "DIARY") {
+        return false;
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchName = project.name.toLowerCase().includes(q);
+        const matchDesc = (project.description ?? "").toLowerCase().includes(q);
+        if (!matchName && !matchDesc) return false;
+      }
+      return true;
+    });
+  }, [sortedProjects, activeFilterTab, starredProjectIds, searchQuery]);
 
   const onSync = useCallback(() => {
     router.refresh();
@@ -400,82 +432,95 @@ export function ProjectsDashboard({
             </div>
           </div>
 
-          <FilterSelect
-            className="mt-6"
-            label="Project"
-            value={selectedProjectId}
-            options={[
-              ...(projects.length === 0 ? [{ value: "", label: "No projects" }] : []),
-              ...sortedProjects.map((project) => ({ value: project.id, label: project.name }))
-            ]}
-            onValueChange={(value) => {
-              if (value) {
-                router.push(`/project/${value}/board`);
-              }
-            }}
-          />
+          <div className="mt-5">
+            <FilterSelect
+              label="Active Project"
+              value={selectedProjectId}
+              options={[
+                ...(projects.length === 0 ? [{ value: "", label: "No projects" }] : []),
+                ...sortedProjects.map((project) => ({ value: project.id, label: project.name }))
+              ]}
+              onValueChange={(value) => {
+                if (value) {
+                  router.push(`/project/${value}/board`);
+                }
+              }}
+            />
+          </div>
 
           <Link
             href="/projects/rewards"
-            className="mt-5 flex items-center justify-between rounded-xl border border-dusk-amber/20 bg-dusk-amber/5 px-4 py-3 text-sm font-medium text-dusk-amber transition hover:border-dusk-amber/45 hover:bg-dusk-amber/10"
+            className="group mt-4 flex items-center justify-between rounded-xl border border-dusk-amber/30 bg-gradient-to-r from-dusk-amber/10 via-dusk-amber/5 to-transparent px-4 py-3 text-sm font-semibold text-dusk-amber transition hover:border-dusk-amber/60 hover:from-dusk-amber/20 hover:shadow-[0_4px_16px_rgba(229,189,114,0.15)]"
           >
-            <div className="flex items-center gap-2">
-              <Gift className="h-4 w-4 text-dusk-amber" />
-              <span>Redeem Rewards</span>
+            <div className="flex items-center gap-2.5">
+              <div className="grid h-7 w-7 place-items-center rounded-lg bg-dusk-amber/20 text-dusk-amber transition group-hover:scale-110">
+                <Gift className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-dusk-amber">Arcade Store</p>
+                <p className="text-stone-200 text-xs font-medium">Redeem Rewards</p>
+              </div>
             </div>
-            <ArrowRight className="h-4 w-4 text-dusk-amber" />
+            <ArrowRight className="h-4 w-4 text-dusk-amber transition group-hover:translate-x-0.5" />
           </Link>
 
-          <div className="mt-5 flex min-h-0 flex-1 flex-col rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-            <div className="mb-3 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-sm font-semibold text-stone-100">
-                <CalendarDays className="h-4 w-4 text-dusk-cyan" />
-                Calendar
+          <div className="mt-4 flex min-h-0 flex-1 flex-col rounded-2xl border border-white/10 bg-white/[0.035] p-3.5 backdrop-blur">
+            <div className="mb-2.5 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-200">
+                <CalendarDays className="h-3.5 w-3.5 text-dusk-cyan" />
+                Agenda & Deadlines
               </div>
-              <span className="rounded bg-white/5 px-2 py-1 text-[11px] text-stone-500">{filteredCalendarCards.length}</span>
+              <span className="rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] font-mono font-medium text-dusk-cyan">
+                {filteredCalendarItems.length}
+              </span>
             </div>
-            <div className="mb-3 grid gap-2">
-              <FilterSelect
-                value={calendarRange}
-                options={[
-                  { value: "7", label: "Next 7 days" },
-                  { value: "30", label: "Next 30 days" },
-                  { value: "all", label: "All dates" }
-                ]}
-                onValueChange={setCalendarRange}
-              />
-              <FilterSelect
-                value={calendarTimeScope}
-                options={[
-                  { value: "all", label: "All times" },
-                  { value: "allDay", label: "All-day only" },
-                  { value: "timed", label: "Timed only" }
-                ]}
-                onValueChange={setCalendarTimeScope}
-              />
-              <div className="grid grid-cols-2 gap-1.5">
-                {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
-                  const meta = getStatusMeta(status);
 
-                  return (
-                    <label key={status} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.045] px-2 py-1 text-[11px] text-stone-300">
-                      <input
-                        checked={calendarStatusFilters[status]}
-                        className="h-3.5 w-3.5 accent-dusk-lavender"
-                        type="checkbox"
-                        onChange={(event) =>
-                          setCalendarStatusFilters((current) => ({
-                            ...current,
-                            [status]: event.target.checked
-                          }))
-                        }
-                      />
-                      <span className={cn("h-2 w-2 rounded-full border", meta.badgeClass)} />
-                      <span>{meta.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
+            {/* Segmented Range Selector */}
+            <div className="mb-2 flex rounded-lg border border-white/10 bg-black/20 p-0.5">
+              {(["7", "30", "all"] as const).map((range) => (
+                <button
+                  key={range}
+                  type="button"
+                  onClick={() => setCalendarRange(range)}
+                  className={cn(
+                    "flex-1 rounded-md py-1 text-center text-[11px] font-medium transition",
+                    calendarRange === range
+                      ? "bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-sm border border-dusk-cyan/30"
+                      : "text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]"
+                  )}
+                >
+                  {range === "7" ? "7 Days" : range === "30" ? "30 Days" : "All"}
+                </button>
+              ))}
+            </div>
+
+            {/* Status Pills Filter */}
+            <div className="mb-2.5 grid grid-cols-2 gap-1">
+              {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
+                const meta = getStatusMeta(status);
+                const isChecked = calendarStatusFilters[status];
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() =>
+                      setCalendarStatusFilters((current) => ({
+                        ...current,
+                        [status]: !current[status]
+                      }))
+                    }
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] font-medium transition text-left",
+                      isChecked
+                        ? "border-white/15 bg-white/[0.08] text-stone-200"
+                        : "border-transparent bg-white/[0.02] text-stone-500 opacity-50 hover:opacity-100"
+                    )}
+                  >
+                    <span className={cn("h-1.5 w-1.5 rounded-full border shrink-0", meta.badgeClass)} />
+                    <span className="truncate">{meta.label}</span>
+                  </button>
+                );
+              })}
             </div>
             <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
               {filteredCalendarItems.slice(0, 8).map((item) => {
@@ -569,18 +614,119 @@ export function ProjectsDashboard({
             </div>
           ) : null}
 
-          <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col justify-between gap-3 overflow-hidden rounded-2xl p-5 sm:flex-row sm:items-center">
-            <div className="flex min-w-0 items-start gap-3">
-              <BackButton className="mt-1" />
-              <div className="min-w-0">
-                <p className="text-xs uppercase tracking-[0.35em] text-dusk-amber">Project Index</p>
-                <h2 className="mt-2 text-3xl font-semibold sm:text-4xl">Choose your board</h2>
+          {/* Unified Studio Command Header */}
+          <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col gap-3.5 overflow-hidden rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-white/10 bg-ink-950/75 shadow-lg">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div className="flex min-w-0 items-center gap-3">
+                <BackButton />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-dusk-amber">
+                      <Sparkles className="h-3 w-3" />
+                      Retzlo Studio
+                    </span>
+                    <span className="text-xs text-stone-400">· {projectList.length} {projectList.length === 1 ? "Workspace" : "Workspaces"}</span>
+                  </div>
+                  <h2 className="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                    Workspaces & Studios
+                  </h2>
+                </div>
+              </div>
+              <Button
+                type="button"
+                onClick={() => setIsCreateOpen(true)}
+                className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition-all shadow-[0_10px_26px_rgba(169,162,255,0.2)] font-semibold"
+              >
+                <Plus className="h-4 w-4" />
+                New Project
+              </Button>
+            </div>
+
+            {/* Search and Category Filter Toolbar */}
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between border-t border-white/10">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search workspaces..."
+                  className="h-8.5 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-9 pr-8 text-xs text-stone-200 placeholder-stone-400 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/[0.06]"
+                />
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                <button
+                  type="button"
+                  onClick={() => setActiveFilterTab("all")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                    activeFilterTab === "all"
+                      ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
+                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                  )}
+                >
+                  <LayoutGrid className="h-3 w-3" />
+                  <span>All</span>
+                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{projectList.length}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveFilterTab("starred")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                    activeFilterTab === "starred"
+                      ? "border border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber font-semibold"
+                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                  )}
+                >
+                  <Star className="h-3 w-3 fill-current" />
+                  <span>Starred</span>
+                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{starredCount}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveFilterTab("work")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                    activeFilterTab === "work"
+                      ? "border border-dusk-cyan/40 bg-dusk-cyan/15 text-dusk-cyan font-semibold"
+                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                  )}
+                >
+                  <KanbanSquare className="h-3 w-3" />
+                  <span>Work</span>
+                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{workCount}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveFilterTab("diary")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                    activeFilterTab === "diary"
+                      ? "border border-dusk-rose/40 bg-dusk-rose/15 text-dusk-rose font-semibold"
+                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                  )}
+                >
+                  <BookOpenCheck className="h-3 w-3" />
+                  <span>Diary</span>
+                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{diaryCount}</span>
+                </button>
               </div>
             </div>
-            <Button type="button" onClick={() => setIsCreateOpen(true)}>
-              <Plus className="h-4 w-4" />
-              New Project
-            </Button>
           </div>
 
           {projectList.length === 0 ? (
@@ -593,10 +739,30 @@ export function ProjectsDashboard({
                 <p className="mt-2 text-sm text-stone-400">Create the first workspace and Retzlo will open its board for you.</p>
               </div>
             </div>
+          ) : displayedProjects.length === 0 ? (
+            <div className="lofi-panel grid min-h-[320px] flex-1 place-items-center overflow-hidden rounded-2xl p-8 text-center border border-white/10">
+              <div className="max-w-md">
+                <div className="mx-auto mb-3 h-20 w-20">
+                  <RetroStickerImage alt="Empty sticker" size={80} src="/stickers/retro/retro-sticker-12-paper-note.png" />
+                </div>
+                <h3 className="text-xl font-bold text-stone-100">No matching workspaces</h3>
+                <p className="mt-1.5 text-sm text-stone-400">
+                  {searchQuery ? `No workspaces matching "${searchQuery}".` : "No workspaces in this category yet."}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-4 text-xs"
+                  onClick={() => { setSearchQuery(""); setActiveFilterTab("all"); }}
+                >
+                  Clear filters
+                </Button>
+              </div>
+            </div>
           ) : (
             <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
               <div className="grid min-w-0 content-start gap-4 pb-4 xl:grid-cols-2">
-                {sortedProjects.map((project) => (
+                {displayedProjects.map((project) => (
                   <ProjectCard
                     key={project.id}
                     isStarred={starredProjectIds.has(project.id)}
@@ -606,6 +772,9 @@ export function ProjectsDashboard({
                     onDeleteProject={handleDeleteProject}
                   />
                 ))}
+                {displayedProjects.length === 1 ? (
+                  <QuickCreateBlueprintCard onCreateClick={() => setIsCreateOpen(true)} />
+                ) : null}
               </div>
             </div>
           )}
@@ -644,18 +813,18 @@ function ProjectSupportColumn({
   const totalNotes = projects.reduce((count, project) => count + project.counts.notes, 0);
   const totalBoards = projects.reduce((count, project) => count + project.counts.boards, 0);
   const activeProjects = projects.filter((project) => project.board || project.type === "DIARY").length;
-  const rhythmItems = calendarCards.slice(0, 3);
+  const rhythmItems = calendarCards.slice(0, 4);
 
   return (
     <aside className="hidden min-h-0 min-w-0 2xl:sticky 2xl:top-5 2xl:block 2xl:h-[calc(100vh-2.5rem)]">
-      <section className="lofi-panel relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl p-5">
+      <section className="lofi-panel relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl p-5 border border-white/10">
         <div className="shrink-0">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-dusk-amber">Recent Rhythm</p>
-              <h4 className="mt-1 text-base font-semibold text-stone-100">Next things with dates</h4>
+              <p className="text-[10px] uppercase tracking-[0.28em] text-dusk-amber font-semibold">Studio Pulse</p>
+              <h4 className="mt-1 text-base font-bold text-stone-100">Upcoming Deadlines</h4>
             </div>
-            <div className="h-12 w-12 shrink-0 rotate-6">
+            <div className="h-10 w-10 shrink-0 rotate-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/stickers/retro/retro-sticker-42-hourglass.png" alt="" className="h-full w-full object-contain" />
             </div>
@@ -669,15 +838,16 @@ function ProjectSupportColumn({
                   <Link
                     key={item.id}
                     href={`/project/${item.project.id}/calendar`}
-                    className="block rounded-xl border border-white/10 bg-white/[0.04] p-3 transition hover:border-dusk-lavender/45 hover:bg-white/[0.065]"
+                    className="block rounded-xl border border-white/10 bg-white/[0.035] p-2.5 transition hover:border-dusk-lavender/45 hover:bg-white/[0.06]"
                   >
-                    <div className="flex items-start gap-3">
-                      <span className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full border", status.badgeClass)} />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-stone-100">{item.title}</p>
-                        <p className="mt-1 truncate text-xs text-stone-500">
-                          {item.project.name} · {formatDue(item)}
-                        </p>
+                    <div className="flex items-start gap-2.5">
+                      <span className={cn("mt-1 h-2 w-2 shrink-0 rounded-full border", status.badgeClass)} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold text-stone-100">{item.title}</p>
+                        <div className="mt-1 flex items-center justify-between text-[11px] text-stone-500">
+                          <span className="truncate">{item.project.name}</span>
+                          <span className="text-dusk-cyan font-mono text-[10px] shrink-0 ml-1">{formatDue(item)}</span>
+                        </div>
                       </div>
                     </div>
                   </Link>
@@ -694,26 +864,41 @@ function ProjectSupportColumn({
         </div>
 
         <div className="mt-5 shrink-0">
-          <p className="text-xs uppercase tracking-[0.28em] text-dusk-amber">Cozy Status</p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <ProjectStatusMetric label="Projects" value={projects.length} />
+          <p className="text-[10px] uppercase tracking-[0.28em] text-dusk-amber font-semibold">Studio Metrics</p>
+          <div className="mt-2.5 grid grid-cols-2 gap-2">
+            <ProjectStatusMetric label="Projects" value={projects.length} tone="lavender" />
             <ProjectStatusMetric label="Active" value={activeProjects} tone="cyan" />
             <ProjectStatusMetric label="Boards" value={totalBoards} tone="amber" />
-            <ProjectStatusMetric label="Cards" value={totalCards} />
+            <ProjectStatusMetric label="Cards" value={totalCards} tone="lavender" />
             <ProjectStatusMetric label="Notes" value={totalNotes} tone="rose" />
             <ProjectStatusMetric label="Due soon" value={calendarCards.length} tone="cyan" />
           </div>
         </div>
 
-        <div className="mt-auto min-h-0 pt-5">
+        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs">
+          <div className="flex items-center justify-between text-stone-300">
+            <span className="font-semibold flex items-center gap-1.5 text-xs text-stone-200">
+              <Zap className="h-3.5 w-3.5 text-dusk-amber" />
+              Omni Command
+            </span>
+            <kbd className="rounded border border-white/20 bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-stone-300">
+              Ctrl + K
+            </kbd>
+          </div>
+          <p className="mt-1.5 text-[11px] leading-relaxed text-stone-400">
+            Search across all boards, cards, and notes instantly from anywhere.
+          </p>
+        </div>
+
+        <div className="mt-auto min-h-0 pt-4">
           <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3">
             <div>
               <p className="text-[10px] uppercase tracking-[0.24em] text-stone-500">Workspace mood</p>
-              <p className="mt-1 text-sm font-semibold text-stone-100">
+              <p className="mt-0.5 text-xs font-semibold text-stone-100">
                 {calendarCards.length > 0 ? "Ready for focused work" : "Calm, no dated pressure"}
               </p>
             </div>
-            <div className="h-12 w-12 shrink-0 -rotate-6">
+            <div className="h-10 w-10 shrink-0 -rotate-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/stickers/retro/retro-sticker-49-cozy-flame.png" alt="" className="h-full w-full object-contain" />
             </div>
@@ -743,10 +928,37 @@ function ProjectStatusMetric({
   }[tone];
 
   return (
-    <div className={cn("rounded-xl border", compact ? "px-3 py-2" : "px-3 py-3", toneClass)}>
-      <p className={cn("uppercase opacity-75", compact ? "text-[9px] tracking-[0.16em]" : "text-[10px] tracking-[0.2em]")}>{label}</p>
-      <p className={cn("font-semibold leading-none", compact ? "mt-1 text-lg" : "mt-2 text-xl")}>{value}</p>
+    <div className={cn("rounded-xl border", compact ? "px-3 py-2" : "px-3 py-2.5", toneClass)}>
+      <p className={cn("uppercase opacity-75 font-semibold", compact ? "text-[9px] tracking-[0.16em]" : "text-[10px] tracking-[0.2em]")}>{label}</p>
+      <p className={cn("font-bold leading-none font-mono", compact ? "mt-1 text-base" : "mt-1.5 text-lg")}>{value}</p>
     </div>
+  );
+}
+
+function QuickCreateBlueprintCard({ onCreateClick }: { onCreateClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onCreateClick}
+      className="lofi-panel group flex min-h-[420px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition-all duration-300 hover:border-dusk-lavender/50 hover:bg-white/[0.035] hover:shadow-xl hover:shadow-dusk-lavender/10"
+    >
+      <div className="relative mb-4 grid h-14 w-14 place-items-center rounded-2xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender transition-transform duration-300 group-hover:scale-110 shadow-inner">
+        <Plus className="h-7 w-7" />
+      </div>
+      <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
+        <Sparkles className="h-3 w-3" /> New Workspace
+      </span>
+      <h4 className="mt-2 text-base font-bold text-stone-100 group-hover:text-dusk-lavender transition-colors">
+        Create another workspace
+      </h4>
+      <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-stone-400">
+        Add a dedicated space for sprints, clients, personal goals, or daily habit reflection.
+      </p>
+      <div className="mt-5 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-semibold text-stone-200 transition group-hover:border-dusk-lavender/40 group-hover:bg-dusk-lavender/20 group-hover:text-white">
+        <Plus className="h-3.5 w-3.5" />
+        <span>Create Workspace</span>
+      </div>
+    </button>
   );
 }
 
@@ -769,6 +981,10 @@ function ProjectCard({
   const columnCount = project.board?.columns.length ?? 0;
   const isDiaryProject = project.type === "DIARY";
   const colorMeta = getCardColorMeta(project.themeColor);
+  const doneCards = cards.filter((c) => c.status === "DONE").length;
+  const totalCards = cards.length;
+  const progressPercent = totalCards > 0 ? Math.round((doneCards / totalCards) * 100) : 0;
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -789,83 +1005,147 @@ function ProjectCard({
       <EntityCard
         tone={project.themeColor}
         title={<span className="sr-only">{project.name}</span>}
-        className={cn("lofi-panel group flex min-h-[390px] flex-col p-0 hover:shadow-xl hover:shadow-dusk-lavender/10", colorMeta.softClass)}
+        className={cn("lofi-panel group flex min-h-[420px] flex-col p-0 hover:shadow-2xl hover:shadow-dusk-lavender/10 border border-white/10 hover:border-dusk-lavender/40 transition-all duration-300", colorMeta.softClass)}
       >
-        <div className="relative h-36 overflow-hidden border-b border-white/10">
+        <div className="relative h-44 sm:h-48 overflow-hidden border-b border-white/10">
           {project.coverImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={project.coverImage} alt="cover" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
           ) : (
             <div className="h-full w-full bg-[radial-gradient(circle_at_22%_20%,rgba(229,189,114,0.22),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(213,154,179,0.22),transparent_32%),linear-gradient(135deg,rgba(35,31,68,0.86),rgba(63,46,86,0.78)_48%,rgba(11,13,31,0.94))]" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent" />
-          <div className="absolute bottom-4 left-4 right-14">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/15 bg-ink-950/55 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-dusk-amber backdrop-blur">
-              {isDiaryProject ? <BookOpenCheck className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-              {isDiaryProject ? "Diary First" : "Workspace"}
-            </div>
-            <h3 className="truncate text-2xl font-semibold text-stone-50">{project.name}</h3>
-          </div>
-          <button
-            type="button"
-            onClick={onToggleStar}
-            className={cn(
-              "absolute right-14 top-3 z-20 grid h-9 w-9 place-items-center rounded-xl border bg-ink-950/60 text-stone-200 backdrop-blur-md transition hover:border-dusk-amber/55 hover:bg-ink-950/80 hover:text-dusk-amber",
-              isStarred && "border-dusk-amber/55 bg-dusk-amber/15 text-dusk-amber"
-            )}
-            aria-label={isStarred ? "Unstar project" : "Star project"}
-            aria-pressed={isStarred}
-          >
-            <Star className={cn("h-4 w-4", isStarred && "fill-dusk-amber")} />
-          </button>
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/45 to-transparent" />
 
-          <button
-            type="button"
-            onClick={toggleProjectMenu}
-            className={cn(
-              "absolute right-3 top-3 z-20 grid h-9 w-9 place-items-center rounded-xl border backdrop-blur-md transition",
-              menuOpen
-                ? "border-dusk-amber/55 bg-ink-950/90 text-dusk-amber shadow-[0_10px_26px_rgba(0,0,0,0.35)]"
-                : "border-white/15 bg-ink-950/60 text-stone-200 hover:border-dusk-lavender/55 hover:bg-ink-950/80 hover:text-dusk-lavender"
-            )}
-            aria-label="Project options"
-            aria-expanded={menuOpen}
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </button>
+          {/* Top Left: Type badge */}
+          <div className="absolute left-3.5 top-3 z-10">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-ink-950/65 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-dusk-amber backdrop-blur-md">
+              {isDiaryProject ? <BookOpenCheck className="h-3 w-3" /> : <KanbanSquare className="h-3 w-3" />}
+              {isDiaryProject ? "Diary Studio" : "Work Studio"}
+            </div>
+          </div>
+
+          {/* Top Right: Star toggle & 3-dots Menu */}
+          <div className="absolute right-3.5 top-3 z-20 flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={onToggleStar}
+              className={cn(
+                "grid h-8 w-8 place-items-center rounded-xl border bg-ink-950/60 text-stone-200 backdrop-blur-md transition hover:border-dusk-amber/55 hover:bg-ink-950/80 hover:text-dusk-amber",
+                isStarred && "border-dusk-amber/55 bg-dusk-amber/15 text-dusk-amber"
+              )}
+              aria-label={isStarred ? "Unstar project" : "Star project"}
+              aria-pressed={isStarred}
+            >
+              <Star className={cn("h-3.5 w-3.5", isStarred && "fill-dusk-amber")} />
+            </button>
+
+            <button
+              type="button"
+              onClick={toggleProjectMenu}
+              className={cn(
+                "grid h-8 w-8 place-items-center rounded-xl border backdrop-blur-md transition",
+                menuOpen
+                  ? "border-dusk-amber/55 bg-ink-950/90 text-dusk-amber shadow-[0_10px_26px_rgba(0,0,0,0.35)]"
+                  : "border-white/15 bg-ink-950/60 text-stone-200 hover:border-dusk-lavender/55 hover:bg-ink-950/80 hover:text-dusk-lavender"
+              )}
+              aria-label="Project options"
+              aria-expanded={menuOpen}
+            >
+              <MoreHorizontal className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          {/* Bottom Right Sticker Stamp */}
+          {project.sticker ? (
+            <div className="absolute bottom-3 right-4 z-10 transition duration-300 group-hover:scale-110 group-hover:rotate-6 drop-shadow-[0_6px_14px_rgba(0,0,0,0.6)] pointer-events-none">
+              <RetroStickerImage alt={project.name} size={44} src={project.sticker} />
+            </div>
+          ) : null}
+
+          {/* Bottom Left Title */}
+          <div className="absolute bottom-3 left-4 right-16">
+            <h3 className="truncate text-xl font-bold tracking-tight text-white drop-shadow-md group-hover:text-dusk-lavender transition-colors">
+              {project.name}
+            </h3>
+          </div>
         </div>
 
-        <div className="flex flex-1 flex-col p-5">
-          <p className="line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-stone-400">
+        <div className="flex flex-1 flex-col p-4 sm:p-5">
+          <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-400">
             {project.description ?? "A quiet project workspace for tasks, notes, due dates, and rewards."}
           </p>
 
-          <div className="mt-5 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4">
-            <ProjectMetric icon={KanbanSquare} label="Boards" value={project.counts.boards} />
-            <ProjectMetric icon={Layers3} label="Members" value={project.counts.members} />
-            <ProjectMetric icon={Pencil} label="Notes" value={project.counts.notes} />
-            <ProjectMetric icon={FolderKanban} label="Cards" value={cards.length} />
+          {/* Task Pipeline / Progress Bar */}
+          <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5 font-medium text-stone-300 text-[11px]">
+                <TrendingUp className="h-3 w-3 text-dusk-cyan" />
+                Tasks Progress
+              </span>
+              <span className="text-[10px] font-semibold text-dusk-cyan font-mono">
+                {totalCards > 0 ? `${doneCards}/${totalCards} done (${progressPercent}%)` : `${columnCount} columns ready`}
+              </span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-dusk-cyan to-dusk-lavender transition-all duration-500"
+                style={{ width: `${totalCards > 0 ? progressPercent : 0}%` }}
+              />
+            </div>
           </div>
 
-          <div className="mt-5 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-400">
-            <span>{columnCount} columns</span>
-            <span>{project.board ? "Board ready" : "No board yet"}</span>
+          {/* Stat Pills Grid */}
+          <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
+            <div className="rounded-lg border border-white/5 bg-white/[0.03] py-1.5 px-1">
+              <p className="text-xs font-bold text-stone-200 font-mono">{project.counts.boards}</p>
+              <p className="text-[9px] uppercase tracking-wider text-stone-400">Boards</p>
+            </div>
+            <div className="rounded-lg border border-white/5 bg-white/[0.03] py-1.5 px-1">
+              <p className="text-xs font-bold text-stone-200 font-mono">{project.counts.members}</p>
+              <p className="text-[9px] uppercase tracking-wider text-stone-400">Members</p>
+            </div>
+            <div className="rounded-lg border border-white/5 bg-white/[0.03] py-1.5 px-1">
+              <p className="text-xs font-bold text-stone-200 font-mono">{project.counts.notes}</p>
+              <p className="text-[9px] uppercase tracking-wider text-stone-400">Notes</p>
+            </div>
+            <div className="rounded-lg border border-white/5 bg-white/[0.03] py-1.5 px-1">
+              <p className="text-xs font-bold text-stone-200 font-mono">{cards.length}</p>
+              <p className="text-[9px] uppercase tracking-wider text-stone-400">Cards</p>
+            </div>
           </div>
 
-          <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
+          {/* Quick-Launch Action Hub */}
+          <div className="mt-auto pt-4 border-t border-white/10 flex items-center gap-2">
             <Link
-              className="motion-interactive inline-flex h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-dusk-lavender/25 bg-dusk-lavender px-3 text-sm font-semibold text-ink-950 shadow-[0_10px_24px_rgba(169,162,255,0.18)] hover:bg-dusk-amber"
               href={`/project/${project.id}/${isDiaryProject ? "diary" : "board"}`}
+              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-dusk-lavender px-3 text-xs font-bold text-ink-950 shadow-[0_8px_20px_rgba(169,162,255,0.2)] transition hover:bg-dusk-amber hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
             >
-              <span className="truncate">{isDiaryProject ? "Open diary" : "Open board"}</span>
-              <ArrowRight className="h-4 w-4" />
+              <span>{isDiaryProject ? "Open Diary" : "Launch Board"}</span>
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
+
             <Link
-              className="motion-interactive inline-flex h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-dusk-amber/25 bg-dusk-amber/8 px-3 text-sm font-semibold text-dusk-amber hover:border-dusk-amber/55 hover:bg-dusk-amber/14"
+              href={`/project/${project.id}/calendar`}
+              title="Calendar View"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-stone-300 transition hover:border-dusk-cyan/50 hover:bg-dusk-cyan/10 hover:text-dusk-cyan"
+            >
+              <CalendarDays className="h-4 w-4" />
+            </Link>
+
+            <Link
+              href={`/project/${project.id}/notes`}
+              title="Project Notes"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-stone-300 transition hover:border-dusk-rose/50 hover:bg-dusk-rose/10 hover:text-dusk-rose"
+            >
+              <FileText className="h-4 w-4" />
+            </Link>
+
+            <Link
               href={`/project/${project.id}/rewards`}
+              title="Rewards Store"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-stone-300 transition hover:border-dusk-amber/50 hover:bg-dusk-amber/10 hover:text-dusk-amber"
             >
               <Gift className="h-4 w-4" />
-              <span className="truncate">Rewards</span>
             </Link>
           </div>
         </div>

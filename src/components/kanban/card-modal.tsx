@@ -23,6 +23,8 @@ import { Input, Textarea } from "@/components/ui/input";
 import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { RetroStickerPicker } from "@/components/ui/retro-sticker-picker";
 import { AssigneePicker } from "./assignee-picker";
+import { CardChatTimeline } from "@/components/kanban/card-chat-timeline";
+import { useSession } from "next-auth/react";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { composeDueDate, composeStartDate } from "@/lib/kanban/due-date";
 import {
@@ -126,8 +128,16 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [description, setDescription] = useState(card?.description ?? "");
   const [isSaving, setIsSaving] = useState(false);
 
-  // Gamification fields
+  // Gamification & session fields
+  const { data: session } = useSession();
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      setActiveUserId(session.user.id);
+    }
+  }, [session]);
+
   const [privateGlobalCoins, setPrivateGlobalCoins] = useState(0);
   const [rewardCoins, setRewardCoins] = useState(card?.rewardCoins ?? 0);
   const [showCoinRewards, setShowCoinRewards] = useState(Boolean(card?.rewardCoins));
@@ -645,6 +655,13 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
               </Button>
             </div>
           </div>
+
+          {mode === "edit" && card?.id ? (
+            <CardChatTimeline
+              cardId={card.id}
+              currentUserId={session?.user?.id ?? activeUserId ?? undefined}
+            />
+          ) : null}
           </div>
 
           <div className="grid gap-4 lg:sticky lg:top-0">

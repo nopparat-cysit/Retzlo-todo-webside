@@ -39,6 +39,8 @@ model User {
   createdCassettes Cassette[]     @relation("CassetteCreator")
   pet             UserPet?
   coffeeBrews     CoffeeBrew[]
+  boardMemberships BoardMember[]
+  cardComments    CardComment[]
 }
 
 model Project {
@@ -104,14 +106,30 @@ model Invitation {
 }
 
 model Board {
-  id        String   @id @default(uuid())
+  id        String        @id @default(uuid())
   name      String
+  isPrivate Boolean       @default(false)
   projectId String
-  createdAt DateTime @default(now())
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   columns   Column[]
+  members   BoardMember[]
+  notes     Note[]
 
   @@index([projectId])
+}
+
+model BoardMember {
+  id        String   @id @default(uuid())
+  boardId   String
+  userId    String
+  createdAt DateTime @default(now())
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, userId])
+  @@index([boardId])
+  @@index([userId])
 }
 
 model Column {
@@ -150,9 +168,26 @@ model Card {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   column        Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  comments      CardComment[]
 
   @@index([columnId, position])
   @@index([dueDate])
+}
+
+model CardComment {
+  id        String   @id @default(uuid())
+  cardId    String
+  authorId  String
+  content   String
+  type      String   @default("COMMENT")
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([cardId, createdAt])
+  @@index([authorId])
 }
 
 model Note {
@@ -166,10 +201,12 @@ model Note {
   completedAt DateTime?
   dueDate   DateTime?
   dueDateAllDay Boolean @default(false)
+  boardId   String?
   projectId String
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  board     Board?   @relation(fields: [boardId], references: [id], onDelete: SetNull)
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
@@ -177,6 +214,7 @@ model Note {
   @@index([projectId, dueDate])
   @@index([projectId, isHidden])
   @@index([projectId, completedAt])
+  @@index([boardId])
   @@index([authorId])
 }
 
@@ -413,7 +451,9 @@ model Notification {
   id        String   @id @default(uuid())
   userId    String
   projectId String?
-  type      String   // e.g. REDEMPTION_PENDING, REDEMPTION_STATUS
+  cardId    String?
+  link      String?
+  type      String   // e.g. REDEMPTION_PENDING, REDEMPTION_STATUS, CARD_COMMENT, DUE_DATE_ALERT
   title     String
   message   String
   isRead    Boolean  @default(false)
@@ -422,6 +462,7 @@ model Notification {
 
   @@index([userId])
   @@index([isRead])
+  @@index([cardId])
 }
 
 model Cassette {

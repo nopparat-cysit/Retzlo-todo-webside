@@ -18,6 +18,7 @@ export const createNoteSchema = z.object({
   emoji: noteEmojiSchema,
   color: z.enum(cardColorValues).default("DEFAULT"),
   isHidden: z.boolean().default(false),
+  boardId: z.string().nullable().optional(),
   dueDate: z.string().datetime().nullable().optional(),
   dueDateAllDay: z.boolean().default(false)
 });
@@ -29,6 +30,7 @@ export const updateNoteSchema = z.object({
   color: z.enum(cardColorValues).optional(),
   isStarred: z.boolean().optional(),
   isHidden: z.boolean().optional(),
+  boardId: z.string().nullable().optional(),
   isCompleted: z.boolean().optional(),
   dueDate: z.string().datetime().nullable().optional(),
   dueDateAllDay: z.boolean().optional()
@@ -43,6 +45,7 @@ export function parseCreateNotePayload(payload: unknown) {
     emoji: parsed.emoji,
     color: parsed.color,
     isHidden: parsed.isHidden,
+    boardId: parsed.boardId ?? null,
     dueDate: parsed.dueDate,
     dueDateAllDay: parsed.dueDateAllDay
   };

@@ -95,3 +95,18 @@ export async function getProjectIdForDiaryItem(diaryItemId: string) {
 
   return diaryItem?.projectId ?? null;
 }
+
+export function canAccessBoard(
+  board: { isPrivate: boolean; members?: Array<{ userId: string }> },
+  userId: string,
+  projectRole?: string
+): boolean {
+  if (isOwnerRole(projectRole)) {
+    return true;
+  }
+  if (!board.isPrivate) {
+    return true;
+  }
+  return Boolean(board.members?.some((m) => m.userId === userId));
+}
+

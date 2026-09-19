@@ -50,15 +50,31 @@ export async function PATCH(request: Request) {
 
       const destinationColumn = await tx.column.findUnique({
         where: { id: payload.destinationColumnId },
-        select: { defaultCardStatus: true }
+        select: { defaultCardStatus: true, name: true }
       });
 
       if (!destinationColumn) {
         throw new Error("Destination column not found.");
       }
 
-      if (payload.sourceColumnId !== payload.destinationColumnId && destinationColumn.defaultCardStatus === "DONE") {
-        await processCardDonePayouts(tx, payload.cardId, userId, projectId);
+      if (payload.sourceColumnId !== payload.destinationColumnId) {
+        if (destinationColumn.defaultCardStatus === "DONE") {
+          await processCardDonePayouts(tx, payload.cardId, userId, projectId);
+        }
+        await tx.cardComment.create({
+          data: {
+            cardId: payload.cardId,
+            authorId: userId,
+            type: "SYSTEM",
+            content: `moved card to ${destinationColumn.name}`,
+            metadata: {
+              action: "COLUMN_MOVE",
+              sourceColumnId: payload.sourceColumnId,
+              destinationColumnId: payload.destinationColumnId,
+              destinationColumnName: destinationColumn.name
+            }
+          }
+        });
       }
 
       const updates =

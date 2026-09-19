@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Bell, Check, Sparkles, UserPlus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Bell, CalendarClock, Check, MessageSquare, Sparkles, UserPlus } from "lucide-react";
 import { formatShortDate } from "@/lib/date-format";
 import { useToast } from "@/components/ui/toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -12,6 +13,8 @@ interface NotificationItem {
   id: string;
   userId: string;
   projectId: string | null;
+  cardId?: string | null;
+  link?: string | null;
   type: string;
   title: string;
   message: string;
@@ -21,6 +24,7 @@ interface NotificationItem {
 }
 
 export function NotificationsPopover() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -164,11 +168,19 @@ export function NotificationsPopover() {
                       className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${
                         n.type === "PROJECT_INVITATION"
                           ? "bg-dusk-lavender/20 text-dusk-lavender"
+                          : n.type === "CARD_COMMENT"
+                          ? "bg-indigo-500/20 text-indigo-400"
+                          : n.type === "DUE_DATE_ALERT"
+                          ? "bg-dusk-amber/20 text-dusk-amber"
                           : "bg-white/10 text-stone-300"
                       }`}
                     >
                       {n.type === "PROJECT_INVITATION" ? (
                         <UserPlus className="h-4 w-4" />
+                      ) : n.type === "CARD_COMMENT" ? (
+                        <MessageSquare className="h-4 w-4" />
+                      ) : n.type === "DUE_DATE_ALERT" ? (
+                        <CalendarClock className="h-4 w-4" />
                       ) : (
                         <Sparkles className="h-4 w-4" />
                       )}
@@ -183,6 +195,33 @@ export function NotificationsPopover() {
                       <p className="mt-0.5 text-xs text-stone-400 line-clamp-2 leading-relaxed">
                         {n.message}
                       </p>
+
+                      {/* Action for Link (e.g. Card Comment or Due Date Alert) */}
+                      {n.link && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              markAsRead(n.id);
+                              setOpen(false);
+                              router.push(n.link!);
+                            }}
+                            className="rounded-lg bg-white/10 hover:bg-white/15 px-3 py-1 text-xs font-medium text-stone-200 transition cursor-pointer"
+                          >
+                            👉 ไปที่การ์ดงาน
+                          </button>
+                          {!n.isRead && (
+                            <button
+                              type="button"
+                              onClick={() => markAsRead(n.id)}
+                              className="rounded p-1 text-stone-500 hover:text-stone-300 transition cursor-pointer"
+                              title="ทำเครื่องหมายว่าอ่านแล้ว"
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      )}
 
                       {/* Action for Project Invitation */}
                       {n.type === "PROJECT_INVITATION" && (

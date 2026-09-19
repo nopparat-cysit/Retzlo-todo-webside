@@ -175,12 +175,45 @@ export async function PATCH(request: Request) {
         payload.startDate !== undefined ||
         payload.startDateAllDay !== undefined;
 
+      const currentCard = await tx.card.findUnique({
+        where: { id: payload.cardId },
+        select: { privateCoins: true, status: true, priority: true }
+      });
+
+      if (payload.status && currentCard && payload.status !== currentCard.status) {
+        await tx.cardComment.create({
+          data: {
+            cardId: payload.cardId,
+            authorId: userId,
+            type: "SYSTEM",
+            content: `changed status to ${payload.status}`,
+            metadata: {
+              action: "STATUS_CHANGE",
+              from: currentCard.status,
+              to: payload.status
+            }
+          }
+        });
+      }
+
+      if (payload.priority && currentCard && payload.priority !== currentCard.priority) {
+        await tx.cardComment.create({
+          data: {
+            cardId: payload.cardId,
+            authorId: userId,
+            type: "SYSTEM",
+            content: `changed priority to ${payload.priority}`,
+            metadata: {
+              action: "PRIORITY_CHANGE",
+              from: currentCard.priority,
+              to: payload.priority
+            }
+          }
+        });
+      }
+
       let nextPrivateCoins: any = undefined;
       if (shouldUpdateCoins) {
-        const currentCard = await tx.card.findUnique({
-          where: { id: payload.cardId },
-          select: { privateCoins: true }
-        });
         const currentCoins =
           typeof currentCard?.privateCoins === "object" && currentCard.privateCoins !== null
             ? (currentCard.privateCoins as Record<string, unknown>)

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { NotesPanel } from "@/components/notes/notes-panel";
 import { prisma } from "@/lib/prisma";
 import {
+  canAccessBoard,
   canManageAuthoredItem,
   canToggleHiddenItem,
   getProjectMembership,
@@ -25,6 +26,8 @@ function toProjectNotes(notes: Array<{
   dueDateAllDay: boolean;
   projectId: string;
   authorId: string;
+  boardId?: string | null;
+  board?: { id: string; name: string } | null;
   createdAt: Date;
   updatedAt: Date;
   author: {
@@ -39,6 +42,8 @@ context: {
 }): ProjectNote[] {
   return notes.map((note) => ({
     ...note,
+    boardId: note.boardId ?? null,
+    board: note.board ? { id: note.board.id, name: note.board.name } : null,
     color: normalizeCardColor(note.color),
     completedAt: note.completedAt ? note.completedAt.toISOString() : null,
     dueDate: note.dueDate ? note.dueDate.toISOString() : null,
@@ -78,18 +83,46 @@ export default async function NotesPage({ params }: { params: { id: string } }) 
     redirect("/projects");
   }
 
+  const allBoards = await prisma.board.findMany({
+    where: { projectId: params.id },
+    orderBy: { createdAt: "asc" },
+    include: {
+      members: { select: { userId: true } }
+    }
+  });
+
+  const accessibleBoards = allBoards
+    .filter((b) => canAccessBoard(b, userId, membership.role))
+    .map((b) => ({ id: b.id, name: b.name, isPrivate: b.isPrivate }));
+  const accessibleBoardIds = accessibleBoards.map((b) => b.id);
+
   const notes = await prisma.note.findMany({
     where: isOwnerRole(membership.role)
       ? { projectId: params.id }
       : {
           projectId: params.id,
-          OR: [{ isHidden: false }, { authorId: userId }]
+          OR: [
+            { authorId: userId },
+            {
+              isHidden: false,
+              OR: [
+                { boardId: null },
+                { boardId: { in: accessibleBoardIds } }
+              ]
+            }
+          ]
         },
     include: {
       author: {
         select: {
           name: true,
           email: true
+        }
+      },
+      board: {
+        select: {
+          id: true,
+          name: true
         }
       }
     },
@@ -99,6 +132,7 @@ export default async function NotesPage({ params }: { params: { id: string } }) 
   return (
     <NotesPanel
       allowMemberPrivateItems={project.allowMemberPrivateItems}
+      availableBoards={accessibleBoards}
       initialNotes={toProjectNotes(notes, {
         membership,
         userId,

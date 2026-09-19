@@ -12,6 +12,7 @@ describe("note validation", () => {
       emoji: DEFAULT_NOTE_STICKER,
       color: "DEFAULT",
       isHidden: false,
+      boardId: null,
       dueDate: undefined,
       dueDateAllDay: false
     });
@@ -49,6 +50,7 @@ describe("note validation", () => {
       emoji: DEFAULT_NOTE_STICKER,
       color: "DEFAULT",
       isHidden: false,
+      boardId: null,
       dueDate: undefined,
       dueDateAllDay: false
     });
@@ -69,8 +71,35 @@ describe("note validation", () => {
       emoji: DEFAULT_NOTE_STICKER,
       color: "CYAN",
       isHidden: false,
+      boardId: null,
       dueDate: "2026-05-26T10:00:00.000Z",
       dueDateAllDay: false
+    });
+  });
+
+  it("accepts and trims boardId metadata", () => {
+    expect(
+      parseCreateNotePayload({
+        title: "Board note",
+        content: "Scattered thoughts",
+        boardId: "board-123"
+      })
+    ).toEqual({
+      title: "Board note",
+      content: "Scattered thoughts",
+      emoji: DEFAULT_NOTE_STICKER,
+      color: "DEFAULT",
+      isHidden: false,
+      boardId: "board-123",
+      dueDate: undefined,
+      dueDateAllDay: false
+    });
+
+    expect(parseUpdateNotePayload({ boardId: "board-456" })).toEqual({
+      boardId: "board-456"
+    });
+    expect(parseUpdateNotePayload({ boardId: null })).toEqual({
+      boardId: null
     });
   });
 

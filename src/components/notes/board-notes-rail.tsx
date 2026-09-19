@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState, useCallback } from "react";
-import { CheckCircle2, FileText, Plus, RotateCcw, Save, Star, Trash2, X } from "lucide-react";
+import { CheckCircle2, FileText, FolderKanban, Globe, Lock, Plus, RotateCcw, Save, Star, Trash2, X } from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 
@@ -19,14 +19,21 @@ import type { ProjectNote } from "@/types/note";
 
 type NoteFilter = "starred" | "recent" | "all" | "completed";
 type NoteSort = "updated" | "created" | "title";
+type NoteScope = "private" | "board" | "team";
 const NOTE_EMOJIS = ["📝", "✨", "🌙", "☕", "📌", "💡", "🎧", "🌿", "⭐", "🔥", "🎯", "📚", "💭", "🧠", "🗓️", "🔖", "🎨", "🚀"];
 
 export function BoardNotesRail({
   projectId,
-  initialNotes
+  initialNotes,
+  activeBoardId,
+  activeBoardName,
+  availableBoards = []
 }: {
   projectId: string;
   initialNotes: ProjectNote[];
+  activeBoardId?: string;
+  activeBoardName?: string;
+  availableBoards?: Array<{ id: string; name: string }>;
 }) {
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes);
   const [filter, setFilter] = useState<NoteFilter>("starred");
@@ -58,7 +65,10 @@ export function BoardNotesRail({
 
   const refreshNotes = useCallback(async () => {
     try {
-      const response = await fetch(`/api/projects/${projectId}/notes`, {
+      const url = activeBoardId
+        ? `/api/projects/${projectId}/notes?boardId=${activeBoardId}&includeGeneral=true`
+        : `/api/projects/${projectId}/notes`;
+      const response = await fetch(url, {
         cache: "no-store",
         headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
       });
@@ -71,7 +81,7 @@ export function BoardNotesRail({
     } catch {
       // Ignore background sync errors
     }
-  }, [projectId]);
+  }, [projectId, activeBoardId]);
 
   const { broadcastChange } = useLiveSync({
     channelKey: `notes:${projectId}`,
@@ -80,20 +90,28 @@ export function BoardNotesRail({
     onSync: refreshNotes
   });
 
-  async function createNote(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function createNote(payload: {
+    title: string;
+    content: string;
+    emoji: string;
+    color: CardColor;
+    scope: NoteScope;
+  }) {
     setError(null);
 
-    const form = event.currentTarget;
-    const formData = new FormData(form);
+    const isHidden = payload.scope === "private";
+    const boardId = payload.scope === "board" ? (activeBoardId ?? null) : null;
+
     const response = await fetch(`/api/projects/${projectId}/notes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: formData.get("title"),
-        content: formData.get("content"),
-        emoji: formData.get("emoji"),
-        color: formData.get("color")
+        title: payload.title,
+        content: payload.content,
+        emoji: payload.emoji,
+        color: payload.color,
+        isHidden,
+        boardId
       })
     });
     const data = (await response.json()) as { note?: ProjectNote; error?: string };
@@ -108,12 +126,17 @@ export function BoardNotesRail({
     const note = normalizeNote(data.note);
     setNotes((current) => [note, ...current]);
     setIsCreateOpen(false);
-    form.reset();
     toast({ message: "Note created successfully!", type: "success" });
     broadcastChange();
   }
 
-  async function updateNote(noteId: string, payload: Partial<Pick<ProjectNote, "title" | "content" | "emoji" | "isStarred" | "color">> & { isCompleted?: boolean }) {
+  async function updateNote(
+    noteId: string,
+    payload: Partial<Pick<ProjectNote, "title" | "content" | "emoji" | "isStarred" | "color" | "isHidden">> & {
+      isCompleted?: boolean;
+      boardId?: string | null;
+    }
+  ) {
     setError(null);
     const response = await fetch(`/api/notes/${noteId}`, {
       method: "PATCH",
@@ -212,72 +235,101 @@ export function BoardNotesRail({
             const colorMeta = getCardColorMeta(note.color);
 
             return (
-            <article key={note.id} className={cn("relative rounded-md border p-3", colorMeta.softClass)}>
-              <button
-                className={cn(
-                  "absolute right-2.5 top-2.5 z-10 text-stone-600 hover:text-dusk-amber disabled:cursor-not-allowed disabled:opacity-40",
-                  note.isStarred && "text-dusk-amber"
-                )}
-                disabled={!note.canManage}
-                type="button"
-                aria-label={note.isStarred ? "Unstar note" : "Star note"}
-                onClick={() => updateNote(note.id, { isStarred: !note.isStarred })}
-              >
-                <Star className="h-4 w-4" />
-              </button>
-              <div className="flex items-start gap-2 pr-6">
-                <button className="min-w-0 flex-1 text-left" type="button" onClick={() => note.canManage && setSelectedNote(note)}>
-                  <h3 className="flex items-center gap-2 truncate text-sm font-medium text-stone-100">
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.05] text-sm">
-                      {note.emoji}
-                    </span>
-                    <span className="truncate">{note.title}</span>
-                  </h3>
-                  {note.completedAt ? (
-                    <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-dusk-mint/25 bg-dusk-mint/10 px-2 py-0.5 text-[10px] text-dusk-mint">
-                      <CheckCircle2 className="h-3 w-3" />
-                      Completed
-                    </span>
-                  ) : null}
-                  <p className="mt-1 line-clamp-3 text-xs leading-5 text-stone-500">{note.content || "No content."}</p>
+              <article key={note.id} className={cn("relative rounded-md border p-3", colorMeta.softClass)}>
+                <button
+                  className={cn(
+                    "absolute right-2.5 top-2.5 z-10 text-stone-600 hover:text-dusk-amber disabled:cursor-not-allowed disabled:opacity-40",
+                    note.isStarred && "text-dusk-amber"
+                  )}
+                  disabled={!note.canManage}
+                  type="button"
+                  aria-label={note.isStarred ? "Unstar note" : "Star note"}
+                  onClick={() => updateNote(note.id, { isStarred: !note.isStarred })}
+                >
+                  <Star className="h-4 w-4" />
                 </button>
-              </div>
-              <div className="mt-2 flex items-center justify-between gap-2">
-                <p className="text-[11px] text-stone-600">{formatMediumDateTime(note.completedAt ?? note.updatedAt)}</p>
-                {note.canManage ? (
-                  <button
-                    className="inline-flex h-7 items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 text-[11px] text-stone-300 transition hover:border-dusk-mint/35 hover:text-dusk-mint"
-                    type="button"
-                    onClick={() => updateNote(note.id, { isCompleted: !note.completedAt })}
-                  >
-                    {note.completedAt ? <RotateCcw className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
-                    {note.completedAt ? "Restore" : "Done"}
+                <div className="flex items-start gap-2 pr-6">
+                  <button className="min-w-0 flex-1 text-left" type="button" onClick={() => note.canManage && setSelectedNote(note)}>
+                    <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+                      {note.isHidden ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-1.5 py-0.5 text-[10px] font-medium text-dusk-amber">
+                          <Lock className="h-2.5 w-2.5" />
+                          Private
+                        </span>
+                      ) : note.board ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/30 bg-dusk-lavender/10 px-1.5 py-0.5 text-[10px] font-medium text-dusk-lavender">
+                          <FolderKanban className="h-2.5 w-2.5" />
+                          {note.board.name}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium text-stone-400">
+                          <Globe className="h-2.5 w-2.5" />
+                          Team
+                        </span>
+                      )}
+                      {note.completedAt ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-mint/25 bg-dusk-mint/10 px-1.5 py-0.5 text-[10px] text-dusk-mint">
+                          <CheckCircle2 className="h-2.5 w-2.5" />
+                          Done
+                        </span>
+                      ) : null}
+                    </div>
+                    <h3 className="flex items-center gap-2 truncate text-sm font-medium text-stone-100">
+                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.05] text-sm">
+                        {note.emoji}
+                      </span>
+                      <span className="truncate">{note.title}</span>
+                    </h3>
+                    <p className="mt-1 line-clamp-3 text-xs leading-5 text-stone-500">{note.content || "No content."}</p>
                   </button>
-                ) : null}
-              </div>
-            </article>
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <p className="text-[11px] text-stone-600">{formatMediumDateTime(note.completedAt ?? note.updatedAt)}</p>
+                  {note.canManage ? (
+                    <button
+                      className="inline-flex h-7 items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 text-[11px] text-stone-300 transition hover:border-dusk-mint/35 hover:text-dusk-mint"
+                      type="button"
+                      onClick={() => updateNote(note.id, { isCompleted: !note.completedAt })}
+                    >
+                      {note.completedAt ? <RotateCcw className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
+                      {note.completedAt ? "Restore" : "Done"}
+                    </button>
+                  ) : null}
+                </div>
+              </article>
             );
           })
         )}
       </div>
 
       {isCreateOpen ? (
-        <NoteModal title="Add note" submitLabel="Add note" onClose={() => setIsCreateOpen(false)} onSubmit={createNote} />
+        <NoteModal
+          title="Add note"
+          submitLabel="Add note"
+          activeBoardName={activeBoardName}
+          hasActiveBoard={Boolean(activeBoardId)}
+          onClose={() => setIsCreateOpen(false)}
+          onSubmit={createNote}
+        />
       ) : null}
       {selectedNote ? (
         <EditNoteModal
           note={selectedNote}
+          activeBoardName={activeBoardName}
+          hasActiveBoard={Boolean(activeBoardId)}
           onClose={() => setSelectedNote(null)}
           onDelete={() => deleteNote(selectedNote.id)}
           onToggleComplete={() => updateNote(selectedNote.id, { isCompleted: !selectedNote.completedAt })}
-          onSubmit={async (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.currentTarget);
+          onSubmit={async (payload) => {
+            const isHidden = payload.scope === "private";
+            const boardId = payload.scope === "board" ? (activeBoardId ?? null) : null;
             await updateNote(selectedNote.id, {
-              title: String(formData.get("title") ?? ""),
-              content: String(formData.get("content") ?? ""),
-              emoji: String(formData.get("emoji") ?? "📝"),
-              color: normalizeCardColor(formData.get("color"))
+              title: payload.title,
+              content: payload.content,
+              emoji: payload.emoji,
+              color: payload.color,
+              isHidden,
+              boardId
             });
             setSelectedNote(null);
           }}
@@ -290,16 +342,29 @@ export function BoardNotesRail({
 function NoteModal({
   title,
   submitLabel,
+  activeBoardName,
+  hasActiveBoard,
   onClose,
   onSubmit
 }: {
   title: string;
   submitLabel: string;
+  activeBoardName?: string;
+  hasActiveBoard?: boolean;
   onClose: () => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (payload: {
+    title: string;
+    content: string;
+    emoji: string;
+    color: CardColor;
+    scope: NoteScope;
+  }) => void | Promise<void>;
 }) {
   const [noteTitle, setNoteTitle] = useState("");
   const [content, setContent] = useState("");
+  const [emoji, setEmoji] = useState("📝");
+  const [color, setColor] = useState<CardColor>("DEFAULT");
+  const [scope, setScope] = useState<NoteScope>("private");
   const isDirty = noteTitle.trim().length > 0 || content.trim().length > 0;
 
   return (
@@ -311,100 +376,101 @@ function NoteModal({
       labelledBy="board-note-modal-title"
       contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-4xl flex-col overflow-hidden rounded-2xl"
     >
-      <NoteModalContent
-        title={title}
-        submitLabel={submitLabel}
-        noteTitle={noteTitle}
-        setNoteTitle={setNoteTitle}
-        content={content}
-        setContent={setContent}
-        onSubmit={onSubmit}
-      />
-    </AppModal>
-  );
-}
-
-function NoteModalContent({
-  title,
-  submitLabel,
-  noteTitle,
-  setNoteTitle,
-  content,
-  setContent,
-  onSubmit
-}: {
-  title: string;
-  submitLabel: string;
-  noteTitle: string;
-  setNoteTitle: (val: string) => void;
-  content: string;
-  setContent: (val: string) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-}) {
-  const { requestClose } = useAppModal();
-
-  return (
-    <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
-      <ModalHeader title={title} onClose={requestClose} />
-      <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
-        <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
-          <Input
-            name="title"
-            value={noteTitle}
-            onChange={(e) => setNoteTitle(e.target.value)}
-            placeholder="Note title"
-            required
-          />
-          <Textarea
-            className="min-h-[320px]"
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Write a note..."
-          />
+      <form
+        className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit({
+            title: noteTitle,
+            content,
+            emoji,
+            color,
+            scope
+          });
+        }}
+      >
+        <ModalHeader title={title} onClose={onClose} />
+        <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
+          <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
+            <Input
+              name="title"
+              value={noteTitle}
+              onChange={(e) => setNoteTitle(e.target.value)}
+              placeholder="Note title"
+              required
+            />
+            <Textarea
+              className="min-h-[320px]"
+              name="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write a note..."
+            />
+          </div>
+          <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+            <ScopeSelector
+              scope={scope}
+              onChange={setScope}
+              activeBoardName={activeBoardName}
+              hasActiveBoard={hasActiveBoard}
+            />
+            <EmojiPicker selectedEmoji={emoji} onChange={setEmoji} />
+            <ColorPicker selectedColor={color} onChange={setColor} />
+          </aside>
         </div>
-        <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
-          <EmojiPicker selectedEmoji="📝" />
-          <ColorPicker selectedColor="DEFAULT" />
-        </aside>
-      </div>
-      <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
-        <Button type="button" variant="ghost" onClick={requestClose}>
-          Cancel
-        </Button>
-        <Button>{submitLabel}</Button>
-      </div>
-    </form>
+        <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button>{submitLabel}</Button>
+        </div>
+      </form>
+    </AppModal>
   );
 }
 
 function EditNoteModal({
   note,
+  activeBoardName,
+  hasActiveBoard,
   onClose,
   onDelete,
   onToggleComplete,
   onSubmit
 }: {
   note: ProjectNote;
+  activeBoardName?: string;
+  hasActiveBoard?: boolean;
   onClose: () => void;
   onDelete: () => void;
   onToggleComplete: () => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (payload: {
+    title: string;
+    content: string;
+    emoji: string;
+    color: CardColor;
+    scope: NoteScope;
+  }) => void | Promise<void>;
 }) {
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content ?? "");
   const [emoji, setEmoji] = useState(note.emoji ?? "📝");
   const [color, setColor] = useState<CardColor>(normalizeCardColor(note.color));
+  const [scope, setScope] = useState<NoteScope>(
+    note.isHidden ? "private" : note.boardId ? "board" : "team"
+  );
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const isDirty = useMemo(() => {
+    const origScope: NoteScope = note.isHidden ? "private" : note.boardId ? "board" : "team";
     return (
       title !== note.title ||
       content !== (note.content ?? "") ||
       emoji !== (note.emoji ?? "📝") ||
-      color !== normalizeCardColor(note.color)
+      color !== normalizeCardColor(note.color) ||
+      scope !== origScope
     );
-  }, [note, title, content, emoji, color]);
+  }, [note, title, content, emoji, color, scope]);
 
   return (
     <>
@@ -416,20 +482,66 @@ function EditNoteModal({
         labelledBy="board-note-modal-title"
         contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-4xl flex-col overflow-hidden rounded-2xl"
       >
-        <EditNoteModalContent
-          note={note}
-          title={title}
-          setTitle={setTitle}
-          content={content}
-          setContent={setContent}
-          emoji={emoji}
-          setEmoji={setEmoji}
-          color={color}
-          setColor={setColor}
-          onToggleComplete={onToggleComplete}
-          onRequestDelete={() => setIsDeleteConfirmOpen(true)}
-          onSubmit={onSubmit}
-        />
+        <form
+          className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit({
+              title,
+              content,
+              emoji,
+              color,
+              scope
+            });
+          }}
+        >
+          <ModalHeader title="Edit note" onClose={onClose} />
+          <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
+            <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
+              <Input
+                name="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Note title"
+                required
+              />
+              <Textarea
+                className="min-h-[320px]"
+                name="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Write a note..."
+              />
+            </div>
+            <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+              <ScopeSelector
+                scope={scope}
+                onChange={setScope}
+                activeBoardName={activeBoardName}
+                hasActiveBoard={hasActiveBoard}
+              />
+              <EmojiPicker selectedEmoji={emoji} onChange={setEmoji} />
+              <ColorPicker selectedColor={color} onChange={setColor} />
+            </aside>
+          </div>
+          <div className="flex flex-wrap justify-end gap-2 border-t border-white/10 px-5 py-4">
+            <Button type="button" variant="secondary" onClick={onToggleComplete}>
+              {note.completedAt ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+              {note.completedAt ? "Restore" : "Mark complete"}
+            </Button>
+            <Button type="button" variant="danger" onClick={() => setIsDeleteConfirmOpen(true)}>
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
+            <Button type="button" variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button>
+              <Save className="h-4 w-4" />
+              Save
+            </Button>
+          </div>
+        </form>
       </AppModal>
 
       <ConfirmModal
@@ -448,78 +560,107 @@ function EditNoteModal({
   );
 }
 
-function EditNoteModalContent({
-  note,
-  title,
-  setTitle,
-  content,
-  setContent,
-  emoji,
-  setEmoji,
-  color,
-  setColor,
-  onToggleComplete,
-  onRequestDelete,
-  onSubmit
+function ScopeSelector({
+  scope,
+  onChange,
+  activeBoardName,
+  hasActiveBoard
 }: {
-  note: ProjectNote;
-  title: string;
-  setTitle: (val: string) => void;
-  content: string;
-  setContent: (val: string) => void;
-  emoji: string;
-  setEmoji: (val: string) => void;
-  color: CardColor;
-  setColor: (val: CardColor) => void;
-  onToggleComplete: () => void;
-  onRequestDelete: () => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  scope: NoteScope;
+  onChange: (scope: NoteScope) => void;
+  activeBoardName?: string;
+  hasActiveBoard?: boolean;
 }) {
-  const { requestClose } = useAppModal();
-
   return (
-    <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
-      <ModalHeader title="Edit note" onClose={requestClose} />
-      <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
-        <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
-          <Input
-            name="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Note title"
-            required
-          />
-          <Textarea
-            className="min-h-[320px]"
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Write a note..."
-          />
-        </div>
-        <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
-          <EmojiPicker selectedEmoji={emoji} onChange={setEmoji} />
-          <ColorPicker selectedColor={color} onChange={setColor} />
-        </aside>
+    <div className="space-y-2 text-sm text-stone-300">
+      <div className="flex items-center justify-between">
+        <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Visibility Scope</span>
       </div>
-      <div className="flex flex-wrap justify-end gap-2 border-t border-white/10 px-5 py-4">
-        <Button type="button" variant="secondary" onClick={onToggleComplete}>
-          {note.completedAt ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-          {note.completedAt ? "Restore" : "Mark complete"}
-        </Button>
-        <Button type="button" variant="danger" onClick={onRequestDelete}>
-          <Trash2 className="h-4 w-4" />
-          Delete
-        </Button>
-        <Button type="button" variant="ghost" onClick={requestClose}>
-          Cancel
-        </Button>
-        <Button>
-          <Save className="h-4 w-4" />
-          Save
-        </Button>
+      <div className="flex flex-col gap-1.5">
+        {/* Private Option - Default */}
+        <label
+          className={cn(
+            "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
+            scope === "private"
+              ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber font-medium shadow-[0_0_12px_rgba(249,199,132,0.1)]"
+              : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Lock className="h-3.5 w-3.5 shrink-0" />
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span>Private Note</span>
+                <span className="rounded bg-dusk-amber/20 px-1 py-0.2 text-[9px] font-mono text-dusk-amber uppercase">Default</span>
+              </div>
+              <p className="text-[10px] text-stone-500 font-normal">Only you can see this (โน้ตส่วนตัว)</p>
+            </div>
+          </div>
+          <input
+            type="radio"
+            name="scope"
+            value="private"
+            checked={scope === "private"}
+            onChange={() => onChange("private")}
+            className="sr-only"
+          />
+        </label>
+
+        {/* Board Option */}
+        {hasActiveBoard && (
+          <label
+            className={cn(
+              "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
+              scope === "board"
+                ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender font-medium shadow-[0_0_12px_rgba(196,181,253,0.1)]"
+                : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+            )}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <FolderKanban className="h-3.5 w-3.5 shrink-0" />
+              <div className="min-w-0">
+                <span className="truncate block font-medium">Board: {activeBoardName || "Current"}</span>
+                <p className="text-[10px] text-stone-500 font-normal truncate">Members of this board only</p>
+              </div>
+            </div>
+            <input
+              type="radio"
+              name="scope"
+              value="board"
+              checked={scope === "board"}
+              onChange={() => onChange("board")}
+              className="sr-only"
+            />
+          </label>
+        )}
+
+        {/* Team Option */}
+        <label
+          className={cn(
+            "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
+            scope === "team"
+              ? "border-dusk-cyan/50 bg-dusk-cyan/15 text-dusk-cyan font-medium shadow-[0_0_12px_rgba(103,232,249,0.1)]"
+              : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Globe className="h-3.5 w-3.5 shrink-0" />
+            <div>
+              <span>Entire Project (Team)</span>
+              <p className="text-[10px] text-stone-500 font-normal">Visible to all project members</p>
+            </div>
+          </div>
+          <input
+            type="radio"
+            name="scope"
+            value="team"
+            checked={scope === "team"}
+            onChange={() => onChange("team")}
+            className="sr-only"
+          />
+        </label>
       </div>
-    </form>
+    </div>
   );
 }
 
@@ -621,6 +762,8 @@ function normalizeNote(note: ProjectNote): ProjectNote {
     color: normalizeCardColor(note.color),
     isStarred: note.isStarred ?? false,
     isHidden: note.isHidden ?? false,
+    boardId: note.boardId ?? null,
+    board: note.board ? { id: note.board.id, name: note.board.name } : null,
     completedAt: note.completedAt ? new Date(note.completedAt).toISOString() : null,
     createdAt: new Date(note.createdAt).toISOString(),
     updatedAt: new Date(note.updatedAt).toISOString(),

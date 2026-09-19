@@ -48,3 +48,41 @@ export interface ColumnWithCards {
   wipLimit?: number | null;
   cards: Card[];
 }
+
+export interface BoardSummary {
+  id: string;
+  name: string;
+  projectId: string;
+  isPrivate: boolean;
+  createdAt: string;
+  memberUserIds?: string[];
+  members?: Array<{
+    userId: string;
+    user: {
+      id: string;
+      name: string | null;
+      email: string;
+      avatar?: string | null;
+    };
+  }>;
+  cardCount?: number;
+}
+
+export interface CardCommentAuthor {
+  id: string;
+  name: string | null;
+  email: string;
+  avatar?: string | null;
+}
+
+export interface CardCommentItem {
+  id: string;
+  cardId: string;
+  authorId: string;
+  author: CardCommentAuthor;
+  content: string;
+  type: "COMMENT" | "SYSTEM";
+  metadata?: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+}

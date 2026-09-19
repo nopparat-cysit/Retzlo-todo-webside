@@ -22,13 +22,28 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     return jsonError("You do not have access to this project.", 403);
   }
 
+  let boardCondition: any = { projectId: params.id };
+
+  if (membership.role !== "OWNER") {
+    const accessibleBoards = await prisma.board.findMany({
+      where: {
+        projectId: params.id,
+        OR: [
+          { isPrivate: false },
+          { members: { some: { userId } } }
+        ]
+      },
+      select: { id: true }
+    });
+    const accessibleBoardIds = accessibleBoards.map((b) => b.id);
+    boardCondition = { id: { in: accessibleBoardIds } };
+  }
+
   const cards = await prisma.card.findMany({
     where: {
       dueDate: { not: null },
       column: {
-        board: {
-          projectId: params.id
-        }
+        board: boardCondition
       }
     },
     include: {

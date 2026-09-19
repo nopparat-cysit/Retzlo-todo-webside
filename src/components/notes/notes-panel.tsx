@@ -9,10 +9,13 @@ import {
   Eye,
   EyeOff,
   FileText,
+  FolderKanban,
+  Globe,
   Grid2X2,
   Grid3X3,
   LayoutGrid,
   List,
+  Lock,
   Plus,
   RotateCcw,
   Save,
@@ -40,6 +43,7 @@ import type { ProjectNote } from "@/types/note";
 type NoteFilter = "all" | "starred" | "dated" | "undated" | "completed";
 type NoteSort = "updated" | "created" | "due" | "title";
 type NoteViewMode = "grid-2" | "grid-3" | "grid-4" | "list";
+type NoteScope = "private" | "board" | "team";
 const DEFAULT_NOTE_STICKER = "/stickers/retro/retro-sticker-12-paper-note.png";
 const NOTE_FILTERS: Array<{ value: NoteFilter; label: string; hint: string }> = [
   { value: "all", label: "Active", hint: "Open notes" },
@@ -61,11 +65,19 @@ interface NotesPanelProps {
   allowMemberPrivateItems: boolean;
   isOwner: boolean;
   compact?: boolean;
+  availableBoards?: Array<{ id: string; name: string; isPrivate?: boolean }>;
 }
 
-export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, isOwner }: NotesPanelProps) {
+export function NotesPanel({
+  projectId,
+  initialNotes,
+  allowMemberPrivateItems,
+  isOwner,
+  availableBoards = []
+}: NotesPanelProps) {
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes);
   const [filter, setFilter] = useState<NoteFilter>("all");
+  const [boardFilter, setBoardFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<NoteSort>("updated");
   const [viewMode, setViewMode] = useState<NoteViewMode>("grid-3");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -74,6 +86,12 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
   const { toast } = useToast();
   const visibleNotes = useMemo(() => {
     const filtered = notes.filter((note) => {
+      if (boardFilter === "general") {
+        if (note.boardId) return false;
+      } else if (boardFilter !== "all") {
+        if (note.boardId !== boardFilter) return false;
+      }
+
       const isCompleted = Boolean(note.completedAt);
       if (filter === "completed") return isCompleted;
       if (isCompleted) return false;
@@ -94,7 +112,7 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
       const key = sortBy === "created" ? "createdAt" : "updatedAt";
       return new Date(b[key]).getTime() - new Date(a[key]).getTime();
     });
-  }, [filter, notes, sortBy]);
+  }, [filter, boardFilter, notes, sortBy]);
   const activeNotes = useMemo(() => notes.filter((note) => !note.completedAt), [notes]);
   const completedNotes = useMemo(() => notes.filter((note) => note.completedAt), [notes]);
   const recentNotes = useMemo(
@@ -310,6 +328,23 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
               onValueChange={setSortBy}
             />
           </div>
+          {availableBoards.length > 0 && (
+            <div className="mt-2 rounded-lg border border-white/10 bg-ink-950/35 p-3">
+              <FilterSelect
+                label="Board Scope"
+                value={boardFilter}
+                options={[
+                  { value: "all", label: "All boards & notes" },
+                  { value: "general", label: "Project-wide only (No board)" },
+                  ...availableBoards.map((b) => ({
+                    value: b.id,
+                    label: `${b.name}${b.isPrivate ? " (Private)" : ""}`
+                  }))
+                ]}
+                onValueChange={setBoardFilter}
+              />
+            </div>
+          )}
           {!allowMemberPrivateItems && !isOwner ? (
             <div className="mt-3 rounded-lg border border-dusk-amber/20 bg-dusk-amber/10 p-3 text-xs leading-5 text-dusk-amber">
               This project does not allow members to hide their own notes.
@@ -441,6 +476,7 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
       {isCreateOpen ? (
         <NoteEditorModal
           allowMemberPrivateItems={allowMemberPrivateItems}
+          availableBoards={availableBoards}
           title="Add note"
           onClose={() => setIsCreateOpen(false)}
           onSubmit={createNote}
@@ -449,6 +485,7 @@ export function NotesPanel({ projectId, initialNotes, allowMemberPrivateItems, i
       {selectedNote ? (
         <NoteEditorModal
           note={selectedNote}
+          availableBoards={availableBoards}
           title="Edit note"
           onClose={() => setSelectedNote(null)}
           onDelete={() => deleteNote(selectedNote.id)}
@@ -473,8 +510,8 @@ function NoteStat({ label, value, tone }: { label: string; value: number; tone: 
 
   return (
     <div className={cn("grid min-w-20 rounded-lg border px-3 py-1.5", toneClass)}>
-      <span className="text-[10px] uppercase tracking-[0.22em] opacity-80">{label}</span>
-      <strong className="text-base">{value}</strong>
+      <span className="text-[11px] uppercase tracking-wider text-stone-400">{label}</span>
+      <span className="text-base font-semibold text-stone-100">{value}</span>
     </div>
   );
 }
@@ -529,11 +566,21 @@ function NoteCard({
               </span>
             ) : null}
             {note.isHidden ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-rose/25 bg-dusk-rose/10 px-2 py-1 text-[11px] text-dusk-rose">
-                <EyeOff className="h-3 w-3" />
-                Hidden
+              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-1 text-[11px] font-medium text-dusk-amber">
+                <Lock className="h-3 w-3" />
+                Private
               </span>
-            ) : null}
+            ) : note.board ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/30 bg-dusk-lavender/10 px-2 py-1 text-[11px] font-medium text-dusk-lavender">
+                <FolderKanban className="h-3 w-3" />
+                {note.board.name}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] font-medium text-stone-400">
+                <Globe className="h-3 w-3" />
+                Team
+              </span>
+            )}
             {note.dueDate ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-1 text-[11px] text-dusk-cyan">
                 <CalendarClock className="h-3 w-3" />
@@ -589,6 +636,7 @@ interface NotePayload {
   dueDate: string | null;
   dueDateAllDay: boolean;
   isHidden: boolean;
+  boardId?: string | null;
 }
 
 function NoteEditorModal({
@@ -598,7 +646,8 @@ function NoteEditorModal({
   onDelete,
   onToggleComplete,
   onSubmit,
-  allowMemberPrivateItems = false
+  allowMemberPrivateItems = false,
+  availableBoards = []
 }: {
   note?: ProjectNote;
   title: string;
@@ -607,6 +656,7 @@ function NoteEditorModal({
   onToggleComplete?: () => void;
   onSubmit: (payload: NotePayload) => void | Promise<unknown>;
   allowMemberPrivateItems?: boolean;
+  availableBoards?: Array<{ id: string; name: string; isPrivate?: boolean }>;
 }) {
   const [titleValue, setTitleValue] = useState(note?.title ?? "");
   const [contentValue, setContentValue] = useState(note?.content ?? "");
@@ -614,7 +664,13 @@ function NoteEditorModal({
   const [time, setTime] = useState(note?.dueDate && !note.dueDateAllDay ? timeValue(note.dueDate) : "");
   const [color, setColor] = useState<CardColor>(normalizeCardColor(note?.color));
   const [emoji, setEmoji] = useState(note?.emoji ?? DEFAULT_NOTE_STICKER);
-  const [isHidden, setIsHidden] = useState(note?.isHidden ?? false);
+  // Default to private if new note!
+  const [scope, setScope] = useState<NoteScope>(
+    note ? (note.isHidden ? "private" : note.boardId ? "board" : "team") : "private"
+  );
+  const [selectedBoardId, setSelectedBoardId] = useState<string>(
+    note?.boardId || (availableBoards[0]?.id ?? "")
+  );
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const isDirty = useMemo(() => {
@@ -623,20 +679,24 @@ function NoteEditorModal({
     }
     const origDate = note.dueDate ? note.dueDate.slice(0, 10) : "";
     const origTime = note.dueDate && !note.dueDateAllDay ? timeValue(note.dueDate) : "";
+    const origScope: NoteScope = note.isHidden ? "private" : note.boardId ? "board" : "team";
     return (
       titleValue !== (note.title ?? "") ||
       contentValue !== (note.content ?? "") ||
       emoji !== (note.emoji ?? DEFAULT_NOTE_STICKER) ||
       color !== normalizeCardColor(note.color) ||
-      isHidden !== (note.isHidden ?? false) ||
+      scope !== origScope ||
+      (scope === "board" && selectedBoardId !== (note.boardId ?? "")) ||
       date !== origDate ||
       time !== origTime
     );
-  }, [note, titleValue, contentValue, emoji, color, isHidden, date, time]);
+  }, [note, titleValue, contentValue, emoji, color, scope, selectedBoardId, date, time]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const due = composeDueDate(date, time);
+    const isHidden = scope === "private";
+    const boardId = scope === "board" ? (selectedBoardId || availableBoards[0]?.id || null) : null;
 
     await onSubmit({
       title: titleValue,
@@ -645,7 +705,8 @@ function NoteEditorModal({
       color,
       dueDate: due.dueDate,
       dueDateAllDay: due.dueDateAllDay,
-      isHidden
+      isHidden,
+      boardId
     });
     onClose();
   }
@@ -671,8 +732,11 @@ function NoteEditorModal({
           setEmoji={setEmoji}
           color={color}
           setColor={setColor}
-          isHidden={isHidden}
-          setIsHidden={setIsHidden}
+          scope={scope}
+          setScope={setScope}
+          selectedBoardId={selectedBoardId}
+          setSelectedBoardId={setSelectedBoardId}
+          availableBoards={availableBoards}
           date={date}
           setDate={setDate}
           time={time}
@@ -713,8 +777,11 @@ function NoteEditorModalContent({
   setEmoji,
   color,
   setColor,
-  isHidden,
-  setIsHidden,
+  scope,
+  setScope,
+  selectedBoardId,
+  setSelectedBoardId,
+  availableBoards,
   date,
   setDate,
   time,
@@ -734,8 +801,11 @@ function NoteEditorModalContent({
   setEmoji: (val: string) => void;
   color: CardColor;
   setColor: (val: CardColor) => void;
-  isHidden: boolean;
-  setIsHidden: (val: boolean) => void;
+  scope: NoteScope;
+  setScope: (val: NoteScope) => void;
+  selectedBoardId: string;
+  setSelectedBoardId: (val: string) => void;
+  availableBoards: Array<{ id: string; name: string; isPrivate?: boolean }>;
   date: string;
   setDate: (val: string) => void;
   time: string;
@@ -788,23 +858,110 @@ function NoteEditorModalContent({
         </div>
 
         <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+          <div className="space-y-2 text-sm text-stone-300">
+            <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Visibility Scope</span>
+            <div className="flex flex-col gap-2">
+              <label
+                className={cn(
+                  "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
+                  scope === "private"
+                    ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber font-medium shadow-[0_0_12px_rgba(249,199,132,0.1)]"
+                    : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Lock className="h-3.5 w-3.5 shrink-0" />
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span>Private Note</span>
+                      <span className="rounded bg-dusk-amber/20 px-1 py-0.2 text-[9px] font-mono text-dusk-amber uppercase">Default</span>
+                    </div>
+                    <p className="text-[10px] text-stone-500 font-normal">Only you can see this (โน้ตส่วนตัว)</p>
+                  </div>
+                </div>
+                <input
+                  type="radio"
+                  name="modal-scope"
+                  value="private"
+                  checked={scope === "private"}
+                  onChange={() => setScope("private")}
+                  className="sr-only"
+                />
+              </label>
+
+              {availableBoards.length > 0 && (
+                <div
+                  className={cn(
+                    "rounded-lg border p-2.5 text-xs transition select-none",
+                    scope === "board"
+                      ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender font-medium shadow-[0_0_12px_rgba(196,181,253,0.1)]"
+                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                  )}
+                >
+                  <label className="flex cursor-pointer items-center justify-between">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FolderKanban className="h-3.5 w-3.5 shrink-0" />
+                      <div className="min-w-0">
+                        <span className="truncate block font-medium">Sub-project Board</span>
+                        <p className="text-[10px] text-stone-500 font-normal truncate">Members of selected board only</p>
+                      </div>
+                    </div>
+                    <input
+                      type="radio"
+                      name="modal-scope"
+                      value="board"
+                      checked={scope === "board"}
+                      onChange={() => setScope("board")}
+                      className="sr-only"
+                    />
+                  </label>
+                  {scope === "board" && (
+                    <div className="mt-2.5 pt-2 border-t border-white/10">
+                      <select
+                        value={selectedBoardId}
+                        onChange={(e) => setSelectedBoardId(e.target.value)}
+                        className="w-full rounded-md border border-white/15 bg-ink-950 px-2.5 py-1.5 text-xs text-stone-200 focus:border-dusk-lavender focus:outline-none"
+                      >
+                        {availableBoards.map((b) => (
+                          <option key={b.id} value={b.id}>
+                            {b.name} {b.isPrivate ? "(Private)" : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <label
+                className={cn(
+                  "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
+                  scope === "team"
+                    ? "border-dusk-cyan/50 bg-dusk-cyan/15 text-dusk-cyan font-medium shadow-[0_0_12px_rgba(103,232,249,0.1)]"
+                    : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Globe className="h-3.5 w-3.5 shrink-0" />
+                  <div>
+                    <span>Entire Project (Team)</span>
+                    <p className="text-[10px] text-stone-500 font-normal">Visible to all project members</p>
+                  </div>
+                </div>
+                <input
+                  type="radio"
+                  name="modal-scope"
+                  value="team"
+                  checked={scope === "team"}
+                  onChange={() => setScope("team")}
+                  className="sr-only"
+                />
+              </label>
+            </div>
+          </div>
+
           <NoteStickerPicker selectedSticker={emoji} onChange={setEmoji} />
           <ColorPicker selectedColor={color} onChange={setColor} />
-          <label
-            className={cn(
-              "flex items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-stone-300",
-              !allowMemberPrivateItems && !note?.canToggleHidden && "opacity-60"
-            )}
-          >
-            <span>Hide from other members</span>
-            <input
-              checked={isHidden}
-              className="h-4 w-4 accent-dusk-lavender"
-              disabled={!allowMemberPrivateItems && !note?.canToggleHidden}
-              type="checkbox"
-              onChange={(event) => setIsHidden(event.target.checked)}
-            />
-          </label>
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
             <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
               <CalendarClock className="h-4 w-4 text-dusk-cyan" />
@@ -957,6 +1114,8 @@ function normalizeNote(note: ProjectNote): ProjectNote {
     color: normalizeCardColor(note.color),
     isStarred: note.isStarred ?? false,
     isHidden: note.isHidden ?? false,
+    boardId: note.boardId ?? null,
+    board: note.board ? { id: note.board.id, name: note.board.name } : null,
     completedAt: note.completedAt ? new Date(note.completedAt).toISOString() : null,
     dueDate: note.dueDate ? new Date(note.dueDate).toISOString() : null,
     dueDateAllDay: note.dueDateAllDay ?? false,
