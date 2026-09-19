@@ -47,17 +47,21 @@ export default async function ProjectsPage() {
             notes: true
           }
         },
+        members: {
+          where: { userId: session.user.id },
+          select: { role: true }
+        },
         boards: {
-          take: 1,
           orderBy: { createdAt: "asc" },
           include: {
+            members: {
+              select: { userId: true }
+            },
             columns: {
               orderBy: { position: "asc" },
-              take: 4,
               include: {
                 cards: {
                   orderBy: { position: "asc" },
-                  take: 12,
                   select: {
                     id: true,
                     title: true,
@@ -155,7 +159,7 @@ export default async function ProjectsPage() {
   return (
     <>
       <ProjectsDashboard
-        projects={projects.map(toProjectDashboardItem)}
+        projects={projects.map((p) => toProjectDashboardItem(p, session.user.id))}
         calendarCards={calendarCards.map(toGlobalCalendarCard)}
         calendarDiaries={(diaryItems ?? []).map(toGlobalCalendarDiary)}
         userProfile={userProfile}
@@ -166,33 +170,69 @@ export default async function ProjectsPage() {
   );
 }
 
-function toProjectDashboardItem(project: {
-  id: string;
-  name: string;
-  description: string | null;
-  coverImage: string | null;
-  themeColor: string;
-  sticker: string;
-  type: string;
-  _count: {
-    boards: number;
-    members: number;
-    notes: number;
-  };
-  boards: Array<{
+function toProjectDashboardItem(
+  project: {
     id: string;
-    columns: Array<{
+    name: string;
+    description: string | null;
+    coverImage: string | null;
+    themeColor: string;
+    sticker: string;
+    type: string;
+    _count: {
+      boards: number;
+      members: number;
+      notes: number;
+    };
+    members?: Array<{ role: string }>;
+    boards: Array<{
       id: string;
       name: string;
-      cards: Array<{
+      isPrivate: boolean;
+      members?: Array<{ userId: string }>;
+      columns: Array<{
         id: string;
-        title: string;
-        status: string;
+        name: string;
+        cards: Array<{
+          id: string;
+          title: string;
+          status: string;
+        }>;
       }>;
     }>;
-  }>;
-}): ProjectDashboardItem {
-  const board = project.boards[0] ?? null;
+  },
+  currentUserId?: string
+): ProjectDashboardItem {
+  const userRole = project.members?.[0]?.role;
+  const isOwner = userRole === "OWNER" || userRole === "ADMIN";
+
+  const visibleBoards = project.boards.filter((b) => {
+    if (!b.isPrivate) return true;
+    if (isOwner) return true;
+    return b.members?.some((m) => m.userId === currentUserId);
+  });
+
+  const board = visibleBoards[0] ?? null;
+
+  const boardsList = visibleBoards.map((b) => {
+    const cards = b.columns.flatMap((c) => c.cards);
+    const totalCards = cards.length;
+    const doneCards = cards.filter((c) => c.status === "DONE").length;
+
+    return {
+      id: b.id,
+      name: b.name,
+      isPrivate: b.isPrivate,
+      columnCount: b.columns.length,
+      totalCards,
+      doneCards,
+      columnsPreview: b.columns.map((c) => ({
+        id: c.id,
+        name: c.name,
+        cardCount: c.cards.length
+      }))
+    };
+  });
 
   return {
     id: project.id,
@@ -202,11 +242,13 @@ function toProjectDashboardItem(project: {
     coverImage: project.coverImage,
     themeColor: project.themeColor,
     sticker: project.sticker,
+    isOwner,
     counts: {
       boards: project._count.boards,
       members: project._count.members,
       notes: project._count.notes
     },
+    boardsList,
     board: board
       ? {
           id: board.id,

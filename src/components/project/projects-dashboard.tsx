@@ -8,6 +8,8 @@ import {
   ArrowRight,
   BookOpenCheck,
   CalendarDays,
+  Check,
+  ChevronDown,
   Clock,
   FileText,
   FolderKanban,
@@ -15,16 +17,21 @@ import {
   Image as ImageIcon,
   KanbanSquare,
   Layers3,
+  LayoutDashboard,
   LayoutGrid,
+  Lock,
   MoreHorizontal,
   Pencil,
   Plus,
+  PlusCircle,
   Search,
+  Settings,
   Sparkles,
   Star,
   Trash2,
   TrendingUp,
   Upload,
+  Users,
   X,
   Zap
 } from "lucide-react";
@@ -54,6 +61,20 @@ import { getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/them
 import { cn } from "@/lib/utils";
 import type { CardStatus } from "@/types/kanban";
 
+export interface ProjectBoardSummary {
+  id: string;
+  name: string;
+  isPrivate: boolean;
+  columnCount: number;
+  totalCards: number;
+  doneCards: number;
+  columnsPreview: Array<{
+    id: string;
+    name: string;
+    cardCount: number;
+  }>;
+}
+
 export interface ProjectDashboardItem {
   id: string;
   name: string;
@@ -62,11 +83,13 @@ export interface ProjectDashboardItem {
   coverImage: string | null;
   themeColor: string;
   sticker: string;
+  isOwner?: boolean;
   counts: {
     boards: number;
     members: number;
     notes: number;
   };
+  boardsList?: ProjectBoardSummary[];
   board: {
     id: string;
     columns: Array<{
@@ -169,16 +192,83 @@ export function ProjectsDashboard({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilterTab, setActiveFilterTab] = useState<"all" | "starred" | "work" | "diary">("all");
 
+  const [activeProjectId, setActiveProjectId] = useState<string>(projects[0]?.id ?? "");
+  const [viewMode, setViewMode] = useState<"boards" | "workspaces">("boards");
+  const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
+  const [boardSearchQuery, setBoardSearchQuery] = useState("");
+  const [editingBoard, setEditingBoard] = useState<ProjectBoardSummary | null>(null);
+  const [deletingBoard, setDeletingBoard] = useState<ProjectBoardSummary | null>(null);
+  const [editingProjectForSettings, setEditingProjectForSettings] = useState<ProjectDashboardItem | null>(null);
+  const [workspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
+
   useEffect(() => {
     setProjectList(projects);
-  }, [projects]);
+    if (projects.length > 0 && (!activeProjectId || !projects.some((p) => p.id === activeProjectId))) {
+      setActiveProjectId(projects[0].id);
+    }
+  }, [projects, activeProjectId]);
 
   const sortedProjects = useMemo(() => sortProjectsByStarred(projectList, starredProjectIds), [projectList, starredProjectIds]);
-  const selectedProjectId = sortedProjects[0]?.id ?? "";
+  const activeProject = useMemo(() => {
+    return projectList.find((p) => p.id === activeProjectId) ?? sortedProjects[0] ?? null;
+  }, [projectList, activeProjectId, sortedProjects]);
+  const selectedProjectId = activeProject?.id ?? sortedProjects[0]?.id ?? "";
 
   const starredCount = useMemo(() => projectList.filter((p) => starredProjectIds.has(p.id)).length, [projectList, starredProjectIds]);
   const workCount = useMemo(() => projectList.filter((p) => p.type !== "DIARY").length, [projectList]);
   const diaryCount = useMemo(() => projectList.filter((p) => p.type === "DIARY").length, [projectList]);
+
+  const activeProjectBoards = useMemo(() => {
+    if (!activeProject) return [];
+    const boards =
+      activeProject.boardsList && activeProject.boardsList.length > 0
+        ? activeProject.boardsList
+        : activeProject.board
+        ? [
+            {
+              id: activeProject.board.id,
+              name: "Main Kanban",
+              isPrivate: false,
+              columnCount: activeProject.board.columns.length,
+              totalCards: activeProject.board.columns.reduce((s, col) => s + col.cards.length, 0),
+              doneCards: activeProject.board.columns.reduce(
+                (s, col) => s + col.cards.filter((c) => c.status === "DONE").length,
+                0
+              ),
+              columnsPreview: activeProject.board.columns.map((col) => ({
+                id: col.id,
+                name: col.name,
+                cardCount: col.cards.length
+              }))
+            }
+          ]
+        : [];
+
+    if (!boardSearchQuery.trim()) return boards;
+    const q = boardSearchQuery.toLowerCase().trim();
+    return boards.filter((b) => b.name.toLowerCase().includes(q));
+  }, [activeProject, boardSearchQuery]);
+
+  const activeProjectTotalCards = useMemo(() => {
+    if (!activeProject) return 0;
+    if (activeProject.boardsList && activeProject.boardsList.length > 0) {
+      return activeProject.boardsList.reduce((sum, b) => sum + b.totalCards, 0);
+    }
+    return activeProject.board?.columns.reduce((sum, col) => sum + col.cards.length, 0) ?? 0;
+  }, [activeProject]);
+
+  const activeProjectDoneCards = useMemo(() => {
+    if (!activeProject) return 0;
+    if (activeProject.boardsList && activeProject.boardsList.length > 0) {
+      return activeProject.boardsList.reduce((sum, b) => sum + b.doneCards, 0);
+    }
+    return activeProject.board?.columns.reduce((sum, col) => sum + col.cards.filter((c) => c.status === "DONE").length, 0) ?? 0;
+  }, [activeProject]);
+
+  const activeProjectProgress = useMemo(() => {
+    if (activeProjectTotalCards === 0) return 0;
+    return Math.round((activeProjectDoneCards / activeProjectTotalCards) * 100);
+  }, [activeProjectTotalCards, activeProjectDoneCards]);
 
   const displayedProjects = useMemo(() => {
     return sortedProjects.filter((project) => {
@@ -219,6 +309,55 @@ export function ProjectsDashboard({
 
   function handleDeleteProject(id: string) {
     setProjectList((prev) => prev.filter((p) => p.id !== id));
+    broadcastChange();
+  }
+
+  function handleCreateBoard(newBoard: ProjectBoardSummary) {
+    if (!activeProject) return;
+    setProjectList((prev) =>
+      prev.map((p) => {
+        if (p.id !== activeProject.id) return p;
+        const currentBoards = p.boardsList ?? [];
+        return {
+          ...p,
+          counts: { ...p.counts, boards: p.counts.boards + 1 },
+          boardsList: [...currentBoards, newBoard]
+        };
+      })
+    );
+    broadcastChange();
+    toast({ message: `Board "${newBoard.name}" created.`, type: "success" });
+  }
+
+  function handleUpdateBoard(updatedBoard: ProjectBoardSummary) {
+    if (!activeProject) return;
+    setProjectList((prev) =>
+      prev.map((p) => {
+        if (p.id !== activeProject.id) return p;
+        const currentBoards = p.boardsList ?? [];
+        return {
+          ...p,
+          boardsList: currentBoards.map((b) => (b.id === updatedBoard.id ? updatedBoard : b))
+        };
+      })
+    );
+    broadcastChange();
+    toast({ message: `Board updated to "${updatedBoard.name}".`, type: "success" });
+  }
+
+  function handleDeleteBoard(boardId: string) {
+    if (!activeProject) return;
+    setProjectList((prev) =>
+      prev.map((p) => {
+        if (p.id !== activeProject.id) return p;
+        const currentBoards = p.boardsList ?? [];
+        return {
+          ...p,
+          counts: { ...p.counts, boards: Math.max(0, p.counts.boards - 1) },
+          boardsList: currentBoards.filter((b) => b.id !== boardId)
+        };
+      })
+    );
     broadcastChange();
   }
 
@@ -442,7 +581,8 @@ export function ProjectsDashboard({
               ]}
               onValueChange={(value) => {
                 if (value) {
-                  router.push(`/project/${value}/board`);
+                  setActiveProjectId(value);
+                  setViewMode("boards");
                 }
               }}
             />
@@ -619,114 +759,327 @@ export function ProjectsDashboard({
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div className="flex min-w-0 items-center gap-3">
                 <BackButton />
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-dusk-amber">
-                      <Sparkles className="h-3 w-3" />
-                      Retzlo Studio
-                    </span>
-                    <span className="text-xs text-stone-400">· {projectList.length} {projectList.length === 1 ? "Workspace" : "Workspaces"}</span>
-                  </div>
-                  <h2 className="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                    Workspaces & Studios
-                  </h2>
-                </div>
-              </div>
-              <Button
-                type="button"
-                onClick={() => setIsCreateOpen(true)}
-                className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition-all shadow-[0_10px_26px_rgba(169,162,255,0.2)] font-semibold"
-              >
-                <Plus className="h-4 w-4" />
-                New Project
-              </Button>
-            </div>
+                {activeProject ? (
+                  <div className="relative min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => setWorkspaceDropdownOpen((prev) => !prev)}
+                      className="group flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-left transition hover:border-dusk-lavender/50 hover:bg-white/[0.07]"
+                    >
+                      <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shrink-0">
+                        {activeProject.sticker ? (
+                          <RetroStickerImage alt={activeProject.name} size={24} src={activeProject.sticker} />
+                        ) : (
+                          <FolderKanban className="h-4 w-4" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
+                            Active Workspace
+                          </span>
+                          <span className="text-[10px] text-stone-500">· {projectList.length} total</span>
+                        </div>
+                        <h2 className="flex items-center gap-1.5 truncate text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-dusk-lavender transition-colors">
+                          <span className="truncate">{activeProject.name}</span>
+                          <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 group-hover:text-stone-200 transition" />
+                        </h2>
+                      </div>
+                    </button>
 
-            {/* Search and Category Filter Toolbar */}
-            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between border-t border-white/10">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400 pointer-events-none" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search workspaces..."
-                  className="h-8.5 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-9 pr-8 text-xs text-stone-200 placeholder-stone-400 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/[0.06]"
-                />
-                {searchQuery ? (
+                    {/* Floating Workspace Switcher Dropdown */}
+                    {workspaceDropdownOpen && (
+                      <>
+                        <button
+                          type="button"
+                          aria-label="Close workspace switcher"
+                          className="fixed inset-0 z-[140] cursor-default"
+                          onClick={() => setWorkspaceDropdownOpen(false)}
+                        />
+                        <div className="absolute left-0 top-full z-[145] mt-2 w-72 sm:w-80 overflow-hidden rounded-2xl border border-dusk-lavender/30 bg-[#080714]/95 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150">
+                          <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
+                            Switch Workspace
+                          </p>
+                          <div className="max-h-60 overflow-y-auto space-y-1 scrollbar-soft pr-1">
+                            {sortedProjects.map((p) => {
+                              const isSelected = p.id === activeProject.id;
+                              return (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setActiveProjectId(p.id);
+                                    setViewMode("boards");
+                                    setWorkspaceDropdownOpen(false);
+                                  }}
+                                  className={cn(
+                                    "flex w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition",
+                                    isSelected
+                                      ? "border border-dusk-lavender/30 bg-dusk-lavender/15 text-white font-semibold"
+                                      : "text-stone-300 hover:bg-white/[0.06] hover:text-white"
+                                  )}
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div className="h-7 w-7 shrink-0 place-items-center grid rounded-lg bg-white/5 border border-white/10">
+                                      {p.sticker ? (
+                                        <RetroStickerImage alt={p.name} size={20} src={p.sticker} />
+                                      ) : (
+                                        <FolderKanban className="h-3.5 w-3.5 text-stone-400" />
+                                      )}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="truncate font-semibold">{p.name}</p>
+                                      <p className="text-[10px] text-stone-500 font-mono">
+                                        {p.counts.boards} {p.counts.boards === 1 ? "board" : "boards"}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {isSelected && <Check className="h-4 w-4 text-dusk-lavender shrink-0" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          <div className="mt-2 border-t border-white/10 pt-2 space-y-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setWorkspaceDropdownOpen(false);
+                                setIsCreateOpen(true);
+                              }}
+                              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-dusk-amber hover:bg-dusk-amber/10 transition"
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                              <span>Create New Workspace</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setWorkspaceDropdownOpen(false);
+                                setViewMode("workspaces");
+                              }}
+                              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-stone-400 hover:bg-white/5 hover:text-stone-200 transition"
+                            >
+                              <LayoutGrid className="h-3.5 w-3.5" />
+                              <span>View All Workspaces Grid</span>
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="min-w-0">
+                    <h2 className="text-xl font-bold tracking-tight text-white">Workspaces</h2>
+                  </div>
+                )}
+              </div>
+
+              {/* View mode toggle + Primary action button */}
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="flex rounded-xl border border-white/10 bg-black/30 p-0.5">
                   <button
                     type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
-                    aria-label="Clear search"
+                    onClick={() => setViewMode("boards")}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      viewMode === "boards"
+                        ? "border border-dusk-lavender/40 bg-dusk-lavender/20 text-dusk-lavender font-semibold shadow-sm"
+                        : "text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]"
+                    )}
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <KanbanSquare className="h-3.5 w-3.5" />
+                    <span>Boards Hub</span>
                   </button>
-                ) : null}
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("workspaces")}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      viewMode === "workspaces"
+                        ? "border border-dusk-lavender/40 bg-dusk-lavender/20 text-dusk-lavender font-semibold shadow-sm"
+                        : "text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]"
+                    )}
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                    <span>All Workspaces</span>
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                      {projectList.length}
+                    </span>
+                  </button>
+                </div>
 
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-                <button
-                  type="button"
-                  onClick={() => setActiveFilterTab("all")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                    activeFilterTab === "all"
-                      ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
-                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
-                  )}
-                >
-                  <LayoutGrid className="h-3 w-3" />
-                  <span>All</span>
-                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{projectList.length}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveFilterTab("starred")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                    activeFilterTab === "starred"
-                      ? "border border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber font-semibold"
-                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
-                  )}
-                >
-                  <Star className="h-3 w-3 fill-current" />
-                  <span>Starred</span>
-                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{starredCount}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveFilterTab("work")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                    activeFilterTab === "work"
-                      ? "border border-dusk-cyan/40 bg-dusk-cyan/15 text-dusk-cyan font-semibold"
-                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
-                  )}
-                >
-                  <KanbanSquare className="h-3 w-3" />
-                  <span>Work</span>
-                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{workCount}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveFilterTab("diary")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                    activeFilterTab === "diary"
-                      ? "border border-dusk-rose/40 bg-dusk-rose/15 text-dusk-rose font-semibold"
-                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
-                  )}
-                >
-                  <BookOpenCheck className="h-3 w-3" />
-                  <span>Diary</span>
-                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{diaryCount}</span>
-                </button>
+                {viewMode === "boards" && activeProject ? (
+                  <Button
+                    type="button"
+                    onClick={() => setIsCreateBoardOpen(true)}
+                    className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition-all shadow-[0_10px_26px_rgba(169,162,255,0.2)] font-semibold"
+                  >
+                    <Plus className="h-4 w-4" />
+                    New Board
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={() => setIsCreateOpen(true)}
+                    className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition-all shadow-[0_10px_26px_rgba(169,162,255,0.2)] font-semibold"
+                  >
+                    <Plus className="h-4 w-4" />
+                    New Project
+                  </Button>
+                )}
               </div>
             </div>
+
+            {/* Sub-navigation bar when viewing active workspace boards */}
+            {viewMode === "boards" && activeProject ? (
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 pt-2 border-t border-white/10 scrollbar-none">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("boards")}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/15 px-3 py-1.5 text-xs font-bold text-dusk-lavender shadow-sm"
+                >
+                  <KanbanSquare className="h-3.5 w-3.5 text-dusk-lavender" />
+                  <span>Boards Hub</span>
+                  <span className="rounded-full bg-dusk-lavender/25 px-1.5 py-0.2 text-[10px] font-mono text-dusk-lavender">
+                    {activeProject.boardsList?.length ?? activeProject.counts.boards}
+                  </span>
+                </button>
+
+                <Link
+                  href={`/project/${activeProject.id}/calendar`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-dusk-cyan/40 hover:bg-dusk-cyan/10 hover:text-dusk-cyan"
+                >
+                  <CalendarDays className="h-3.5 w-3.5 text-dusk-cyan" />
+                  <span>Calendar</span>
+                </Link>
+
+                <Link
+                  href={`/project/${activeProject.id}/notes`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-dusk-rose/40 hover:bg-dusk-rose/10 hover:text-dusk-rose"
+                >
+                  <FileText className="h-3.5 w-3.5 text-dusk-rose" />
+                  <span>Notes</span>
+                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                    {activeProject.counts.notes}
+                  </span>
+                </Link>
+
+                <Link
+                  href={`/project/${activeProject.id}/members`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-white/30 hover:bg-white/[0.08] hover:text-stone-200"
+                >
+                  <Users className="h-3.5 w-3.5 text-stone-300" />
+                  <span>Members</span>
+                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                    {activeProject.counts.members}
+                  </span>
+                </Link>
+
+                <Link
+                  href={`/project/${activeProject.id}/rewards`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-dusk-amber/40 hover:bg-dusk-amber/10 hover:text-dusk-amber"
+                >
+                  <Gift className="h-3.5 w-3.5 text-dusk-amber" />
+                  <span>Rewards</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => setEditingProjectForSettings(activeProject)}
+                  className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium text-stone-400 transition hover:border-white/30 hover:bg-white/[0.08] hover:text-stone-200"
+                >
+                  <Settings className="h-3.5 w-3.5 text-stone-300" />
+                  <span className="hidden sm:inline">Settings</span>
+                </button>
+              </div>
+            ) : (
+              /* Search and Category Filter Toolbar when in All Workspaces view */
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between border-t border-white/10">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search workspaces..."
+                    className="h-8.5 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-9 pr-8 text-xs text-stone-200 placeholder-stone-400 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/[0.06]"
+                  />
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
+                      aria-label="Clear search"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilterTab("all")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      activeFilterTab === "all"
+                        ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
+                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                    )}
+                  >
+                    <LayoutGrid className="h-3 w-3" />
+                    <span>All</span>
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{projectList.length}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilterTab("starred")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      activeFilterTab === "starred"
+                        ? "border border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber font-semibold"
+                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                    )}
+                  >
+                    <Star className="h-3 w-3 fill-current" />
+                    <span>Starred</span>
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{starredCount}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilterTab("work")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      activeFilterTab === "work"
+                        ? "border border-dusk-cyan/40 bg-dusk-cyan/15 text-dusk-cyan font-semibold"
+                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                    )}
+                  >
+                    <KanbanSquare className="h-3 w-3" />
+                    <span>Work</span>
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{workCount}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilterTab("diary")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      activeFilterTab === "diary"
+                        ? "border border-dusk-rose/40 bg-dusk-rose/15 text-dusk-rose font-semibold"
+                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                    )}
+                  >
+                    <BookOpenCheck className="h-3 w-3" />
+                    <span>Diary</span>
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{diaryCount}</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {projectList.length === 0 ? (
@@ -737,46 +1090,185 @@ export function ProjectsDashboard({
                 </div>
                 <h3 className="mt-4 text-2xl font-semibold">No projects yet</h3>
                 <p className="mt-2 text-sm text-stone-400">Create the first workspace and Retzlo will open its board for you.</p>
-              </div>
-            </div>
-          ) : displayedProjects.length === 0 ? (
-            <div className="lofi-panel grid min-h-[320px] flex-1 place-items-center overflow-hidden rounded-2xl p-8 text-center border border-white/10">
-              <div className="max-w-md">
-                <div className="mx-auto mb-3 h-20 w-20">
-                  <RetroStickerImage alt="Empty sticker" size={80} src="/stickers/retro/retro-sticker-12-paper-note.png" />
-                </div>
-                <h3 className="text-xl font-bold text-stone-100">No matching workspaces</h3>
-                <p className="mt-1.5 text-sm text-stone-400">
-                  {searchQuery ? `No workspaces matching "${searchQuery}".` : "No workspaces in this category yet."}
-                </p>
                 <Button
                   type="button"
-                  variant="outline"
-                  className="mt-4 text-xs"
-                  onClick={() => { setSearchQuery(""); setActiveFilterTab("all"); }}
+                  onClick={() => setIsCreateOpen(true)}
+                  className="mt-5 bg-dusk-lavender text-ink-950 font-bold hover:bg-dusk-amber transition"
                 >
-                  Clear filters
+                  <Plus className="h-4 w-4 mr-1.5" />
+                  Create Workspace
                 </Button>
               </div>
             </div>
-          ) : (
+          ) : viewMode === "boards" && activeProject ? (
+            /* BOARDS HUB VIEW FOR ACTIVE WORKSPACE */
             <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
-              <div className="grid min-w-0 content-start gap-4 pb-4 xl:grid-cols-2">
-                {displayedProjects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    isStarred={starredProjectIds.has(project.id)}
-                    project={project}
-                    onToggleStar={() => toggleProjectStar(project.id)}
-                    onUpdateProject={handleUpdateProject}
-                    onDeleteProject={handleDeleteProject}
-                  />
-                ))}
-                {displayedProjects.length === 1 ? (
-                  <QuickCreateBlueprintCard onCreateClick={() => setIsCreateOpen(true)} />
-                ) : null}
+              {/* Workspace Hero Banner */}
+              <div className="relative mb-5 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-transparent p-4 sm:p-5 backdrop-blur-md">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-ink-950/60 p-2 shadow-inner">
+                      {activeProject.sticker ? (
+                        <RetroStickerImage alt={activeProject.name} size={42} src={activeProject.sticker} />
+                      ) : (
+                        <FolderKanban className="h-8 w-8 text-dusk-lavender" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h2 className="truncate text-xl font-bold tracking-tight text-white sm:text-2xl">
+                          {activeProject.name}
+                        </h2>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-dusk-amber">
+                          {activeProject.type === "DIARY" ? "Diary Space" : "Workspace"}
+                        </span>
+                      </div>
+                      <p className="mt-1 line-clamp-1 max-w-xl text-xs text-stone-400">
+                        {activeProject.description ?? "Central workspace for boards, pipelines, notes, and deadlines."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Quick stats in Hero */}
+                  <div className="flex items-center gap-2 self-start shrink-0 sm:self-center">
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
+                      <p className="text-[9px] uppercase tracking-wider text-stone-400">Tasks</p>
+                      <p className="text-sm font-bold font-mono text-stone-200">{activeProjectTotalCards}</p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
+                      <p className="text-[9px] uppercase tracking-wider text-stone-400">Done</p>
+                      <p className="text-sm font-bold font-mono text-dusk-cyan">{activeProjectDoneCards}</p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
+                      <p className="text-[9px] uppercase tracking-wider text-stone-400">Progress</p>
+                      <p className="text-sm font-bold font-mono text-dusk-lavender">{activeProjectProgress}%</p>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* Boards in Active Workspace Header + Filter */}
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-stone-100">
+                    Boards in {activeProject.name}
+                  </h3>
+                  <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-xs font-mono font-medium text-stone-300">
+                    {activeProjectBoards.length}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative w-full sm:w-60">
+                    <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={boardSearchQuery}
+                      onChange={(e) => setBoardSearchQuery(e.target.value)}
+                      placeholder="Filter boards..."
+                      className="h-8.5 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-9 pr-8 text-xs text-stone-200 placeholder-stone-400 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/[0.06]"
+                    />
+                    {boardSearchQuery ? (
+                      <button
+                        type="button"
+                        onClick={() => setBoardSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
+                        aria-label="Clear board search"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    ) : null}
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={() => setIsCreateBoardOpen(true)}
+                    size="sm"
+                    className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition font-semibold"
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    <span>New Board</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Boards Grid */}
+              {activeProjectBoards.length === 0 && boardSearchQuery ? (
+                <div className="lofi-panel grid min-h-[220px] place-items-center rounded-2xl border border-white/10 p-6 text-center">
+                  <div>
+                    <h4 className="text-base font-bold text-stone-200">No boards match &ldquo;{boardSearchQuery}&rdquo;</h4>
+                    <p className="mt-1 text-xs text-stone-400">Try another search term or clear the filter.</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 text-xs"
+                      onClick={() => setBoardSearchQuery("")}
+                    >
+                      Clear search
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid min-w-0 content-start gap-4 pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                  {activeProjectBoards.map((board) => (
+                    <WorkspaceBoardCard
+                      key={board.id}
+                      board={board}
+                      projectId={activeProject.id}
+                      onEdit={(b) => setEditingBoard(b)}
+                      onDelete={(b) => setDeletingBoard(b)}
+                      canManage={activeProject.isOwner !== false}
+                    />
+                  ))}
+                  <QuickCreateBoardBlueprintCard
+                    projectName={activeProject.name}
+                    onCreateClick={() => setIsCreateBoardOpen(true)}
+                  />
+                </div>
+              )}
             </div>
+          ) : (
+            /* ALL WORKSPACES GRID VIEW */
+            displayedProjects.length === 0 ? (
+              <div className="lofi-panel grid min-h-[320px] flex-1 place-items-center overflow-hidden rounded-2xl p-8 text-center border border-white/10">
+                <div className="max-w-md">
+                  <div className="mx-auto mb-3 h-20 w-20">
+                    <RetroStickerImage alt="Empty sticker" size={80} src="/stickers/retro/retro-sticker-12-paper-note.png" />
+                  </div>
+                  <h3 className="text-xl font-bold text-stone-100">No matching workspaces</h3>
+                  <p className="mt-1.5 text-sm text-stone-400">
+                    {searchQuery ? `No workspaces matching "${searchQuery}".` : "No workspaces in this category yet."}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-4 text-xs"
+                    onClick={() => { setSearchQuery(""); setActiveFilterTab("all"); }}
+                  >
+                    Clear filters
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
+                <div className="grid min-w-0 content-start gap-4 pb-4 xl:grid-cols-2">
+                  {displayedProjects.map((project) => (
+                    <ProjectCard
+                      key={project.id}
+                      isStarred={starredProjectIds.has(project.id)}
+                      project={project}
+                      onToggleStar={() => toggleProjectStar(project.id)}
+                      onUpdateProject={handleUpdateProject}
+                      onDeleteProject={handleDeleteProject}
+                    />
+                  ))}
+                  {displayedProjects.length === 1 ? (
+                    <QuickCreateBlueprintCard onCreateClick={() => setIsCreateOpen(true)} />
+                  ) : null}
+                </div>
+              </div>
+            )
           )}
         </section>
 
@@ -793,6 +1285,58 @@ export function ProjectsDashboard({
           onClose={() => setSelectedDiary(null)}
           onDelete={handleDeleteDiary}
           onSubmit={handleSaveDiary}
+        />
+      ) : null}
+      {isCreateBoardOpen && activeProject ? (
+        <CreateBoardModal
+          projectId={activeProject.id}
+          projectName={activeProject.name}
+          onClose={() => setIsCreateBoardOpen(false)}
+          onCreated={handleCreateBoard}
+        />
+      ) : null}
+      {editingBoard ? (
+        <EditBoardModal
+          board={editingBoard}
+          onClose={() => setEditingBoard(null)}
+          onSaved={handleUpdateBoard}
+        />
+      ) : null}
+      {deletingBoard ? (
+        <ConfirmModal
+          open={Boolean(deletingBoard)}
+          title="Delete board"
+          message={`This will permanently delete "${deletingBoard.name}" and all its columns and cards. This action cannot be undone.`}
+          confirmLabel="Delete board"
+          variant="danger"
+          validateText={deletingBoard.name}
+          validatePlaceholder={`Type "${deletingBoard.name}" to confirm`}
+          onConfirm={async () => {
+            const res = await fetch(`/api/boards/${deletingBoard.id}`, { method: "DELETE" });
+            if (res.ok) {
+              handleDeleteBoard(deletingBoard.id);
+              toast({ message: `Board "${deletingBoard.name}" deleted.`, type: "success" });
+              setDeletingBoard(null);
+              router.refresh();
+            } else {
+              const data = await res.json().catch(() => ({}));
+              toast({ message: data.error ?? "Could not delete board.", type: "error" });
+            }
+          }}
+          onClose={() => setDeletingBoard(null)}
+        />
+      ) : null}
+      {editingProjectForSettings ? (
+        <EditProjectModal
+          project={editingProjectForSettings}
+          onClose={() => setEditingProjectForSettings(null)}
+          onSaved={(updated) => {
+            setEditingProjectForSettings(null);
+            if (updated) {
+              handleUpdateProject(updated);
+            }
+            router.refresh();
+          }}
         />
       ) : null}
     </main>
@@ -932,6 +1476,513 @@ function ProjectStatusMetric({
       <p className={cn("uppercase opacity-75 font-semibold", compact ? "text-[9px] tracking-[0.16em]" : "text-[10px] tracking-[0.2em]")}>{label}</p>
       <p className={cn("font-bold leading-none font-mono", compact ? "mt-1 text-base" : "mt-1.5 text-lg")}>{value}</p>
     </div>
+  );
+}
+
+function WorkspaceBoardCard({
+  board,
+  projectId,
+  onEdit,
+  onDelete,
+  canManage = true
+}: {
+  board: ProjectBoardSummary;
+  projectId: string;
+  onEdit: (board: ProjectBoardSummary) => void;
+  onDelete: (board: ProjectBoardSummary) => void;
+  canManage?: boolean;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+
+  function toggleMenu(e: MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMenuPosition({
+      top: rect.bottom + 8,
+      left: Math.max(16, rect.right - 170)
+    });
+    setMenuOpen((prev) => !prev);
+  }
+
+  const progressPercent = board.totalCards > 0 ? Math.round((board.doneCards / board.totalCards) * 100) : 0;
+
+  return (
+    <div className="lofi-panel group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.025] p-5 backdrop-blur-md transition-all duration-300 hover:border-dusk-lavender/40 hover:bg-white/[0.045] hover:shadow-2xl hover:shadow-dusk-lavender/5">
+      <div>
+        {/* Top bar: Board icon + Title + Lock/Public badge + 3-dots */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender">
+              <KanbanSquare className="h-4.5 w-4.5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h4 className="truncate text-base font-bold text-stone-100 group-hover:text-dusk-lavender transition-colors">
+                  {board.name}
+                </h4>
+                {board.isPrivate ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[9px] font-semibold text-dusk-amber">
+                    <Lock className="h-2.5 w-2.5" />
+                    Private
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[9px] font-medium text-stone-400">
+                    Public
+                  </span>
+                )}
+              </div>
+              <p className="mt-0.5 text-xs text-stone-400 font-mono">
+                {board.columnCount} {board.columnCount === 1 ? "column" : "columns"} · {board.totalCards} {board.totalCards === 1 ? "task" : "tasks"}
+              </p>
+            </div>
+          </div>
+
+          {canManage ? (
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={toggleMenu}
+                className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.03] text-stone-400 hover:border-dusk-lavender/40 hover:bg-white/[0.08] hover:text-stone-200 transition"
+                aria-label="Board options"
+              >
+                <MoreHorizontal className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Progress bar */}
+        <div className="mt-4 rounded-xl border border-white/5 bg-white/[0.02] p-3">
+          <div className="flex items-center justify-between text-xs mb-2">
+            <span className="flex items-center gap-1.5 font-medium text-stone-300 text-[11px]">
+              <TrendingUp className="h-3 w-3 text-dusk-cyan" />
+              Task Progress
+            </span>
+            <span className="text-[10px] font-semibold text-dusk-cyan font-mono">
+              {board.totalCards > 0 ? `${board.doneCards}/${board.totalCards} done (${progressPercent}%)` : "No tasks yet"}
+            </span>
+          </div>
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-dusk-cyan to-dusk-lavender transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Columns Preview Chips */}
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {board.columnsPreview && board.columnsPreview.length > 0 ? (
+            board.columnsPreview.map((col) => (
+              <span
+                key={col.id}
+                className="inline-flex items-center gap-1 rounded-md border border-white/5 bg-white/[0.03] px-2 py-0.5 text-[10px] text-stone-400"
+              >
+                <span className="truncate max-w-[100px]">{col.name}</span>
+                <span className="font-mono text-[9px] text-stone-500 font-semibold">({col.cardCount})</span>
+              </span>
+            ))
+          ) : (
+            <span className="text-[11px] text-stone-500">3 default columns</span>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom Action Button */}
+      <div className="mt-5 pt-3 border-t border-white/10">
+        <Link
+          href={`/project/${projectId}/board?boardId=${board.id}`}
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-dusk-lavender text-ink-950 font-bold text-xs shadow-[0_8px_20px_rgba(169,162,255,0.2)] transition hover:bg-dusk-amber hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
+        >
+          <span>Open Board</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+
+      {menuOpen && (
+        <>
+          <button
+            aria-label="Close board options"
+            className="fixed inset-0 z-[150] cursor-default"
+            type="button"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div
+            className="fixed z-[151] w-44 overflow-hidden rounded-xl border border-dusk-lavender/18 bg-[#080714]/95 p-1.5 shadow-[0_24px_70px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl"
+            style={
+              menuPosition
+                ? { top: menuPosition.top, left: menuPosition.left }
+                : { top: 16, right: 16 }
+            }
+          >
+            <button
+              type="button"
+              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-stone-200 transition hover:bg-dusk-lavender/12 hover:text-dusk-lavender"
+              onClick={() => {
+                setMenuOpen(false);
+                onEdit(board);
+              }}
+            >
+              <Pencil className="h-3.5 w-3.5" /> Edit board
+            </button>
+            <button
+              type="button"
+              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-dusk-rose transition hover:bg-dusk-rose/12"
+              onClick={() => {
+                setMenuOpen(false);
+                onDelete(board);
+              }}
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Delete board
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function QuickCreateBoardBlueprintCard({
+  projectName,
+  onCreateClick
+}: {
+  projectName: string;
+  onCreateClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onCreateClick}
+      className="lofi-panel group flex min-h-[240px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition-all duration-300 hover:border-dusk-lavender/50 hover:bg-white/[0.035] hover:shadow-xl hover:shadow-dusk-lavender/10"
+    >
+      <div className="relative mb-3 grid h-12 w-12 place-items-center rounded-2xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender transition-transform duration-300 group-hover:scale-110 shadow-inner">
+        <Plus className="h-6 w-6" />
+      </div>
+      <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
+        <Sparkles className="h-3 w-3" /> New Pipeline
+      </span>
+      <h4 className="mt-2 text-base font-bold text-stone-100 group-hover:text-dusk-lavender transition-colors">
+        + Create New Board
+      </h4>
+      <p className="mt-1 max-w-xs text-xs leading-relaxed text-stone-400">
+        Add another board or workflow to {projectName}.
+      </p>
+      <div className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-stone-200 transition group-hover:border-dusk-lavender/40 group-hover:bg-dusk-lavender/20 group-hover:text-white">
+        <Plus className="h-3.5 w-3.5" />
+        <span>Create Board</span>
+      </div>
+    </button>
+  );
+}
+
+function CreateBoardModal({
+  projectId,
+  projectName,
+  onClose,
+  onCreated
+}: {
+  projectId: string;
+  projectName: string;
+  onClose: () => void;
+  onCreated: (newBoard: ProjectBoardSummary) => void;
+}) {
+  const { toast } = useToast();
+  const [name, setName] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!name.trim() || isPending) return;
+    setIsPending(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/projects/${projectId}/boards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          isPrivate
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.board) {
+        const msg = data.error ?? "Failed to create board.";
+        setError(msg);
+        toast({ message: msg, type: "error" });
+        return;
+      }
+
+      const newBoardSummary: ProjectBoardSummary = {
+        id: data.board.id,
+        name: data.board.name,
+        isPrivate: data.board.isPrivate,
+        columnCount: 3,
+        totalCards: 0,
+        doneCards: 0,
+        columnsPreview: [
+          { id: "col-1", name: "Backlog", cardCount: 0 },
+          { id: "col-2", name: "In Progress", cardCount: 0 },
+          { id: "col-3", name: "Done", cardCount: 0 }
+        ]
+      };
+
+      onCreated(newBoardSummary);
+      onClose();
+    } catch {
+      setError("An unexpected error occurred.");
+      toast({ message: "An unexpected error occurred.", type: "error" });
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  return (
+    <AppModal open onClose={onClose} labelledBy="create-board-title" contentClassName="max-w-md">
+      <form className="lofi-panel w-full max-w-md rounded-2xl p-5" onSubmit={handleSubmit}>
+        <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-dusk-amber font-semibold">
+              {projectName}
+            </p>
+            <h2 id="create-board-title" className="mt-0.5 text-xl font-bold text-white">
+              Create New Board
+            </h2>
+          </div>
+          <button
+            className="rounded-md p-1.5 text-stone-400 hover:bg-white/10 hover:text-stone-100"
+            type="button"
+            onClick={onClose}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <label className="block space-y-1.5 text-sm text-stone-300">
+            <span>Board Name</span>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Marketing Pipeline, Sprint 12, Bugs..."
+              maxLength={80}
+              required
+              autoFocus
+            />
+          </label>
+
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+            <p className="text-xs font-semibold text-stone-200">Board Privacy</p>
+            <div className="mt-2.5 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setIsPrivate(false)}
+                className={cn(
+                  "rounded-lg border p-2.5 text-left text-xs transition",
+                  !isPrivate
+                    ? "border-dusk-lavender bg-dusk-lavender/15 text-dusk-lavender font-semibold"
+                    : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
+                )}
+              >
+                <p className="font-bold flex items-center gap-1">Public</p>
+                <p className="mt-1 text-[10px] opacity-75">All workspace members can access</p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsPrivate(true)}
+                className={cn(
+                  "rounded-lg border p-2.5 text-left text-xs transition",
+                  isPrivate
+                    ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber font-semibold"
+                    : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
+                )}
+              >
+                <p className="font-bold flex items-center gap-1">
+                  <Lock className="h-3 w-3" /> Private
+                </p>
+                <p className="mt-1 text-[10px] opacity-75">Only you and invited members</p>
+              </button>
+            </div>
+          </div>
+
+          {error ? <p className="text-xs text-red-400">{error}</p> : null}
+        </div>
+
+        <div className="mt-5 flex justify-end gap-2 border-t border-white/10 pt-3">
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button disabled={isPending || !name.trim()}>
+            {isPending ? "Creating..." : "Create Board"}
+          </Button>
+        </div>
+      </form>
+    </AppModal>
+  );
+}
+
+function EditBoardModal({
+  board,
+  onClose,
+  onSaved
+}: {
+  board: ProjectBoardSummary;
+  onClose: () => void;
+  onSaved: (updated: ProjectBoardSummary) => void;
+}) {
+  const { toast } = useToast();
+  const [name, setName] = useState(board.name);
+  const [isPrivate, setIsPrivate] = useState(board.isPrivate);
+  const [isSaving, setIsSaving] = useState(false);
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isDirty = name.trim() !== board.name || isPrivate !== board.isPrivate;
+
+  function handleSaveIntent(e: FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setConfirmSaveOpen(true);
+  }
+
+  async function handleSave() {
+    setError(null);
+    setIsSaving(true);
+    setConfirmSaveOpen(false);
+
+    try {
+      const res = await fetch(`/api/boards/${board.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          isPrivate
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.board) {
+        const msg = data.error ?? "Could not save board.";
+        setError(msg);
+        toast({ message: msg, type: "error" });
+        return;
+      }
+
+      onSaved({
+        ...board,
+        name: data.board.name,
+        isPrivate: data.board.isPrivate
+      });
+      onClose();
+    } catch {
+      setError("An unexpected error occurred.");
+      toast({ message: "An unexpected error occurred.", type: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <>
+      <AppModal open onClose={onClose} labelledBy="edit-board-title" contentClassName="max-w-md" hasUnsavedChanges={isDirty}>
+        <form className="lofi-panel w-full max-w-md rounded-2xl p-5" onSubmit={handleSaveIntent}>
+          <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-dusk-amber font-semibold">
+                Board Settings
+              </p>
+              <h2 id="edit-board-title" className="mt-0.5 text-xl font-bold text-white">
+                Edit Board
+              </h2>
+            </div>
+            <button
+              className="rounded-md p-1.5 text-stone-400 hover:bg-white/10 hover:text-stone-100"
+              type="button"
+              onClick={onClose}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block space-y-1.5 text-sm text-stone-300">
+              <span>Board Name</span>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={80}
+                required
+                autoFocus
+              />
+            </label>
+
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+              <p className="text-xs font-semibold text-stone-200">Board Privacy</p>
+              <div className="mt-2.5 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPrivate(false)}
+                  className={cn(
+                    "rounded-lg border p-2.5 text-left text-xs transition",
+                    !isPrivate
+                      ? "border-dusk-lavender bg-dusk-lavender/15 text-dusk-lavender font-semibold"
+                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
+                  )}
+                >
+                  <p className="font-bold">Public</p>
+                  <p className="mt-1 text-[10px] opacity-75">All workspace members</p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsPrivate(true)}
+                  className={cn(
+                    "rounded-lg border p-2.5 text-left text-xs transition",
+                    isPrivate
+                      ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber font-semibold"
+                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
+                  )}
+                >
+                  <p className="font-bold flex items-center gap-1">
+                    <Lock className="h-3 w-3" /> Private
+                  </p>
+                  <p className="mt-1 text-[10px] opacity-75">Only invited members</p>
+                </button>
+              </div>
+            </div>
+
+            {error ? <p className="text-xs text-red-400">{error}</p> : null}
+          </div>
+
+          <div className="mt-5 flex justify-end gap-2 border-t border-white/10 pt-3">
+            <Button type="button" variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button disabled={isSaving || !name.trim()}>
+              {isSaving ? "Saving..." : "Save changes"}
+            </Button>
+          </div>
+        </form>
+      </AppModal>
+
+      <ConfirmModal
+        open={confirmSaveOpen}
+        title="Save board changes"
+        message={`Save changes to "${name.trim() || board.name}"?`}
+        confirmLabel="Save"
+        isLoading={isSaving}
+        variant="default"
+        onClose={() => setConfirmSaveOpen(false)}
+        onConfirm={handleSave}
+      />
+    </>
   );
 }
 
