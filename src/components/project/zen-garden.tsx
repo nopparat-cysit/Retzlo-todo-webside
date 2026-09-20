@@ -66,11 +66,11 @@ export function ZenGarden() {
           )}
         </div>
 
-        {/* Plant 2: Lavender (>=30 Coins) */}
+        {/* Plant 2: Blossom / Lavender (>=30 Coins) */}
         <div className="flex flex-col items-center justify-end z-10 w-8 transition-transform duration-300 hover:-translate-y-1">
           {showLavender ? (
             <>
-              <span className="text-xl leading-none" title="Lavender (Unlocked at 30 Coins)">🪻</span>
+              <span className="text-xl leading-none" title="Blossom (Unlocked at 30 Coins)">🌸</span>
               <span className="text-[9px] text-dusk-lavender font-mono font-semibold mt-1">30c</span>
             </>
           ) : (
@@ -81,11 +81,11 @@ export function ZenGarden() {
           )}
         </div>
 
-        {/* Plant 3: Bonsai (>=60 Coins) */}
+        {/* Plant 3: Bamboo / Bonsai (>=60 Coins) */}
         <div className="flex flex-col items-center justify-end z-10 w-8 transition-transform duration-300 hover:-translate-y-1">
           {showBonsai ? (
             <>
-              <span className="text-xl leading-none" title="Bonsai (Unlocked at 60 Coins)">🪴</span>
+              <span className="text-xl leading-none" title="Bonsai Bamboo (Unlocked at 60 Coins)">🎋</span>
               <span className="text-[9px] text-dusk-cyan font-mono font-semibold mt-1">60c</span>
             </>
           ) : (

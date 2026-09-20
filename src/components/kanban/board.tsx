@@ -186,6 +186,19 @@ export function KanbanBoard({
     };
   }, []);
 
+  const toggleFocusMode = useCallback(() => {
+    setIsFocusMode((prev) => {
+      const next = !prev;
+      if (typeof document !== "undefined") {
+        document.body.classList.toggle("focus-mode", next);
+      }
+      window.dispatchEvent(
+        new CustomEvent("focus-mode-toggle", { detail: { isFocusMode: next } })
+      );
+      return next;
+    });
+  }, []);
+
   // Shortcut Key Listener (N -> Focus Quick Add)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -686,13 +699,29 @@ export function KanbanBoard({
           <h2 className="mt-0.5 flex flex-wrap items-center gap-2 text-lg font-semibold">
             {board.name}
             {isFocusMode && (
-              <span className="rounded bg-dusk-amber/15 border border-dusk-amber/30 px-1.5 py-0.5 text-[10px] text-dusk-amber font-mono font-medium animate-pulse">
-                FOCUS ACTIVE
-              </span>
+              <button
+                type="button"
+                onClick={toggleFocusMode}
+                title="Click to exit Focus Mode (or press F)"
+                aria-label="Exit focus mode"
+                className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2.5 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer"
+              >
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-dusk-amber animate-pulse" />
+                <span>FOCUS ACTIVE</span>
+                <X className="h-3 w-3 opacity-70 group-hover/focus:opacity-100 transition-opacity" />
+              </button>
             )}
           </h2>
           <p className="text-xs text-stone-500">
-            Drag cards across columns. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> for focus.
+            {isFocusMode ? (
+              <>
+                Focus mode active. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> or click the badge to exit.
+              </>
+            ) : (
+              <>
+                Drag cards across columns. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> for focus.
+              </>
+            )}
           </p>
         </div>
 

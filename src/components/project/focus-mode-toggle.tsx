@@ -42,12 +42,25 @@ export function FocusModeToggle() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Never intercept browser combinations like Ctrl+F, Cmd+F, or Alt shortcuts
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
       const target = e.target as HTMLElement;
       const isInput =
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.isContentEditable;
       if (isInput) return;
+
+      // Don't intercept when a modal, dialog, or radix portal is open
+      if (typeof document !== "undefined") {
+        const hasOpenDialog = Boolean(
+          document.querySelector("[role='dialog'], [data-radix-portal], .confirm-modal")
+        );
+        if (hasOpenDialog || target.closest("[role='dialog'], [data-radix-portal]")) {
+          return;
+        }
+      }
 
       if (e.key === "f" || e.key === "F") {
         e.preventDefault();

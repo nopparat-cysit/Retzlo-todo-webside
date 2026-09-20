@@ -49,6 +49,18 @@ describe("KanbanBoard Focus Mode placement", () => {
     const railSource = readFileSync(join(process.cwd(), "src/components/notes/board-notes-rail.tsx"), "utf8");
     expect(railSource).toContain("board-notes-rail");
   });
+
+  it("guards against Ctrl/Cmd/Alt shortcuts and open modals in focus mode toggle", () => {
+    const toggleSource = readFileSync(join(process.cwd(), "src/components/project/focus-mode-toggle.tsx"), "utf8");
+    expect(toggleSource).toContain("e.ctrlKey || e.metaKey || e.altKey");
+    expect(toggleSource).toContain("role='dialog'");
+  });
+
+  it("provides an interactive clickable badge and dynamic helper copy in KanbanBoard", () => {
+    const boardSource = readFileSync(join(process.cwd(), "src/components/kanban/board.tsx"), "utf8");
+    expect(boardSource).toContain("onClick={toggleFocusMode}");
+    expect(boardSource).toContain("Focus mode active");
+  });
 });
 
 
