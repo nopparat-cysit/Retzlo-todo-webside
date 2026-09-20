@@ -44,6 +44,7 @@ import { EntityCard } from "@/components/ui/entity-card";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/state";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/toast";
 import { DiaryItemModal, type DiaryPayload, type HubDiaryItem } from "@/components/hub/diary-hub-panel";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
@@ -755,119 +756,119 @@ export function ProjectsDashboard({
           ) : null}
 
           {/* Unified Studio Command Header */}
-          <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col gap-3.5 overflow-hidden rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-white/10 bg-ink-950/75 shadow-lg">
+          <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col gap-3.5 rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-white/10 bg-ink-950/75 shadow-lg">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div className="flex min-w-0 items-center gap-3">
                 <BackButton />
                 {activeProject ? (
-                  <div className="relative min-w-0">
-                    <button
-                      type="button"
-                      onClick={() => setWorkspaceDropdownOpen((prev) => !prev)}
-                      className="group flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-left transition hover:border-dusk-lavender/50 hover:bg-white/[0.07]"
-                    >
-                      <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shrink-0">
-                        {activeProject.sticker ? (
-                          <RetroStickerImage alt={activeProject.name} size={24} src={activeProject.sticker} />
-                        ) : (
-                          <FolderKanban className="h-4 w-4" />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
-                            Active Workspace
-                          </span>
-                          <span className="text-[10px] text-stone-500">· {projectList.length} total</span>
+                  <Popover open={workspaceDropdownOpen} onOpenChange={setWorkspaceDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="group flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-left transition hover:border-dusk-lavender/50 hover:bg-white/[0.07] data-[state=open]:border-dusk-lavender/50 data-[state=open]:bg-white/[0.07]"
+                        aria-label="Switch active workspace"
+                      >
+                        <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shrink-0">
+                          {activeProject.sticker ? (
+                            <RetroStickerImage alt={activeProject.name} size={24} src={activeProject.sticker} />
+                          ) : (
+                            <FolderKanban className="h-4 w-4" />
+                          )}
                         </div>
-                        <h2 className="flex items-center gap-1.5 truncate text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-dusk-lavender transition-colors">
-                          <span className="truncate">{activeProject.name}</span>
-                          <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 group-hover:text-stone-200 transition" />
-                        </h2>
-                      </div>
-                    </button>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
+                              Active Workspace
+                            </span>
+                            <span className="text-[10px] text-stone-500">· {projectList.length} total</span>
+                          </div>
+                          <h2 className="flex items-center gap-1.5 truncate text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-dusk-lavender transition-colors">
+                            <span className="truncate">{activeProject.name}</span>
+                            <ChevronDown
+                              className={cn(
+                                "h-4 w-4 shrink-0 text-stone-400 group-hover:text-stone-200 transition-transform duration-200",
+                                workspaceDropdownOpen && "rotate-180 text-dusk-lavender"
+                              )}
+                            />
+                          </h2>
+                        </div>
+                      </button>
+                    </PopoverTrigger>
 
-                    {/* Floating Workspace Switcher Dropdown */}
-                    {workspaceDropdownOpen && (
-                      <>
+                    <PopoverContent
+                      align="start"
+                      sideOffset={8}
+                      className="w-72 sm:w-80 overflow-hidden rounded-2xl border border-dusk-lavender/30 bg-[#080714]/98 p-2 shadow-2xl backdrop-blur-xl z-[750]"
+                    >
+                      <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
+                        Switch Workspace
+                      </p>
+                      <div className="max-h-60 overflow-y-auto space-y-1 scrollbar-soft pr-1">
+                        {sortedProjects.map((p) => {
+                          const isSelected = p.id === activeProject.id;
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => {
+                                setActiveProjectId(p.id);
+                                setViewMode("boards");
+                                setWorkspaceDropdownOpen(false);
+                              }}
+                              className={cn(
+                                "flex w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition",
+                                isSelected
+                                  ? "border border-dusk-lavender/30 bg-dusk-lavender/15 text-white font-semibold"
+                                  : "text-stone-300 hover:bg-white/[0.06] hover:text-white"
+                              )}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="h-7 w-7 shrink-0 place-items-center grid rounded-lg bg-white/5 border border-white/10">
+                                  {p.sticker ? (
+                                    <RetroStickerImage alt={p.name} size={20} src={p.sticker} />
+                                  ) : (
+                                    <FolderKanban className="h-3.5 w-3.5 text-stone-400" />
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="truncate font-semibold">{p.name}</p>
+                                  <p className="text-[10px] text-stone-500 font-mono">
+                                    {p.counts.boards} {p.counts.boards === 1 ? "board" : "boards"}
+                                  </p>
+                                </div>
+                              </div>
+                              {isSelected && <Check className="h-4 w-4 text-dusk-lavender shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-2 border-t border-white/10 pt-2 space-y-1">
                         <button
                           type="button"
-                          aria-label="Close workspace switcher"
-                          className="fixed inset-0 z-[140] cursor-default"
-                          onClick={() => setWorkspaceDropdownOpen(false)}
-                        />
-                        <div className="absolute left-0 top-full z-[145] mt-2 w-72 sm:w-80 overflow-hidden rounded-2xl border border-dusk-lavender/30 bg-[#080714]/95 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150">
-                          <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
-                            Switch Workspace
-                          </p>
-                          <div className="max-h-60 overflow-y-auto space-y-1 scrollbar-soft pr-1">
-                            {sortedProjects.map((p) => {
-                              const isSelected = p.id === activeProject.id;
-                              return (
-                                <button
-                                  key={p.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveProjectId(p.id);
-                                    setViewMode("boards");
-                                    setWorkspaceDropdownOpen(false);
-                                  }}
-                                  className={cn(
-                                    "flex w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition",
-                                    isSelected
-                                      ? "border border-dusk-lavender/30 bg-dusk-lavender/15 text-white font-semibold"
-                                      : "text-stone-300 hover:bg-white/[0.06] hover:text-white"
-                                  )}
-                                >
-                                  <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="h-7 w-7 shrink-0 place-items-center grid rounded-lg bg-white/5 border border-white/10">
-                                      {p.sticker ? (
-                                        <RetroStickerImage alt={p.name} size={20} src={p.sticker} />
-                                      ) : (
-                                        <FolderKanban className="h-3.5 w-3.5 text-stone-400" />
-                                      )}
-                                    </div>
-                                    <div className="min-w-0">
-                                      <p className="truncate font-semibold">{p.name}</p>
-                                      <p className="text-[10px] text-stone-500 font-mono">
-                                        {p.counts.boards} {p.counts.boards === 1 ? "board" : "boards"}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  {isSelected && <Check className="h-4 w-4 text-dusk-lavender shrink-0" />}
-                                </button>
-                              );
-                            })}
-                          </div>
-
-                          <div className="mt-2 border-t border-white/10 pt-2 space-y-1">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setWorkspaceDropdownOpen(false);
-                                setIsCreateOpen(true);
-                              }}
-                              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-dusk-amber hover:bg-dusk-amber/10 transition"
-                            >
-                              <Plus className="h-3.5 w-3.5" />
-                              <span>Create New Workspace</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setWorkspaceDropdownOpen(false);
-                                setViewMode("workspaces");
-                              }}
-                              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-stone-400 hover:bg-white/5 hover:text-stone-200 transition"
-                            >
-                              <LayoutGrid className="h-3.5 w-3.5" />
-                              <span>View All Workspaces Grid</span>
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                          onClick={() => {
+                            setWorkspaceDropdownOpen(false);
+                            setIsCreateOpen(true);
+                          }}
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-dusk-amber hover:bg-dusk-amber/10 transition"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          <span>Create New Workspace</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setWorkspaceDropdownOpen(false);
+                            setViewMode("workspaces");
+                          }}
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-stone-400 hover:bg-white/5 hover:text-stone-200 transition"
+                        >
+                          <LayoutGrid className="h-3.5 w-3.5" />
+                          <span>View All Workspaces Grid</span>
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 ) : (
                   <div className="min-w-0">
                     <h2 className="text-xl font-bold tracking-tight text-white">Workspaces</h2>
