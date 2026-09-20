@@ -6,6 +6,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 import { sendProjectInvitationEmail } from "@/lib/mail";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const inviteSchema = z.object({
   email: z.string().email()
@@ -23,6 +24,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
+    }
+
+    const inviteLimit = checkRateLimit(`invite-user:${userId}`, { max: 10, windowMs: 10 * 60 * 1000 });
+    if (!inviteLimit.success) {
+      return jsonError(`Too many invitation requests. Please wait ${inviteLimit.reset} seconds before sending more.`, 429);
     }
 
     const payload = inviteSchema.parse(await request.json());

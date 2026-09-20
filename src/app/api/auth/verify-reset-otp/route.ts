@@ -3,9 +3,16 @@ import { NextResponse } from "next/server";
 import { jsonError, parseError } from "@/lib/api";
 import { normalizeEmail, verifyOtp, verifyResetOtpSchema } from "@/lib/auth/password-reset";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const ipLimit = checkRateLimit(`verify-otp:${ip}`, { max: 10, windowMs: 10 * 60 * 1000 });
+    if (!ipLimit.success) {
+      return jsonError(`Too many OTP verification attempts. Please wait ${ipLimit.reset} seconds.`, 429);
+    }
+
     const payload = verifyResetOtpSchema.parse(await request.json());
     const email = normalizeEmail(payload.email);
     const resetOtp = await prisma.passwordResetOtp.findFirst({

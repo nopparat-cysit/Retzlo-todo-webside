@@ -28,7 +28,7 @@ export default function DashboardError({
           เกิดข้อผิดพลาดในการประมวลผลข้อมูลของโปรเจกต์ คุณสามารถกดลองใหม่อีกครั้งเพื่อโหลดข้อมูลใหม่
         </p>
 
-        {error.message && (
+        {process.env.NODE_ENV !== "production" && error.message ? (
           <div className="mt-3 rounded-xl border border-dusk-rose/30 bg-ink-950/80 p-3 text-left font-mono text-[11px] text-stone-200 break-all max-h-48 overflow-y-auto">
             <div className="font-bold text-dusk-rose mb-1">{error.name || "Error"}:</div>
             <div className="text-stone-300">{error.message}</div>
@@ -39,7 +39,7 @@ export default function DashboardError({
               </details>
             )}
           </div>
-        )}
+        ) : null}
 
         {error.digest && (
           <p className="mt-2 font-mono text-[10px] text-stone-500">

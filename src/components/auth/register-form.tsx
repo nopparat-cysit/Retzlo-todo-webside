@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -131,6 +132,13 @@ export function RegisterForm() {
       >
         {isPending ? "Lighting the lantern..." : "Begin your archive"}
       </Button>
+
+      <p className="mt-3 text-center text-xs text-[#f5efe6]/45 leading-relaxed">
+        By signing up, you agree to our{" "}
+        <Link href="/terms" className="underline hover:text-dusk-lavender transition-colors underline-offset-2">Terms of Service</Link>{" "}
+        and{" "}
+        <Link href="/privacy" className="underline hover:text-dusk-lavender transition-colors underline-offset-2">Privacy Policy</Link>.
+      </p>
     </form>
   );
 }
