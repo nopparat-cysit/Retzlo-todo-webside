@@ -606,6 +606,50 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
           <div className="grid gap-4">
           <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Card title" required />
           <Textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Details, links, context..." />
+
+          {/* Mobile Quick Status & Priority Bar */}
+          <div className="lg:hidden rounded-xl border border-white/10 bg-white/[0.03] p-3 space-y-3">
+            <div className="space-y-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-stone-300">Status</span>
+              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                {statusOptions.map((option) => (
+                  <StatusButton
+                    key={`mobile-${option.value}`}
+                    selected={selectedStatus === option.value}
+                    status={option.value}
+                    onClick={() => setSelectedStatus(option.value)}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/5">
+              <span className="text-xs text-stone-400 font-medium shrink-0">Priority</span>
+              <div className="flex gap-1.5 flex-1 max-w-[200px]">
+                {(["LOW", "MEDIUM", "HIGH"] as const).map((p) => {
+                  const isSelected = selectedPriority === p;
+                  return (
+                    <button
+                      key={`mobile-${p}`}
+                      type="button"
+                      onClick={() => setSelectedPriority(p)}
+                      className={cn(
+                        "flex-1 py-1 rounded-lg border text-[11px] font-semibold transition text-center",
+                        isSelected
+                          ? p === "HIGH"
+                            ? "border-red-400/80 bg-red-400/20 text-red-200"
+                            : p === "MEDIUM"
+                            ? "border-dusk-amber/80 bg-dusk-amber/20 text-dusk-amber"
+                            : "border-dusk-lavender/80 bg-dusk-lavender/20 text-dusk-lavender"
+                          : "border-white/10 bg-white/[0.02] text-stone-400 hover:text-stone-200"
+                      )}
+                    >
+                      {p === "LOW" ? "Low" : p === "MEDIUM" ? "Med" : "High"}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-stone-200">
               <FileText className="h-4 w-4 text-dusk-lavender" />
@@ -664,7 +708,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
           </div>
 
           <div className="grid gap-4 lg:sticky lg:top-0">
-          <div className="space-y-2 text-sm text-stone-300">
+          <div className="space-y-2 text-sm text-stone-300 hidden lg:block">
             <span>Status</span>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {statusOptions.map((option) => (
@@ -678,7 +722,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
             </div>
           </div>
 
-          <div className="space-y-2 text-sm text-stone-300">
+          <div className="space-y-2 text-sm text-stone-300 hidden lg:block">
             <span>Priority</span>
             <div className="flex gap-2">
               {(["LOW", "MEDIUM", "HIGH"] as const).map((p) => {

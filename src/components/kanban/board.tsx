@@ -1025,27 +1025,31 @@ export function KanbanBoard({
             </Button>
           </div>
         ) : (
-          <div className="scrollbar-soft mt-4 flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1">
-            <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
-              {filteredColumns.map((column, index) => (
-                <KanbanColumn
-                  key={column.id}
-                  column={column}
-                  activeCardId={activeCardId}
-                  isDragDisabled={isSavingReorder}
-                  isDropTarget={activeDropColumnId === column.id}
-                  onCreateCard={createCard}
-                  onCardDeleted={deleteCard}
-                  onCardSaved={saveCard}
-                  onColumnDeleted={deleteColumn}
-                  onColumnSaved={updateColumn}
-                  isFirst={index === 0}
-                  members={members}
-                  currentUserId={currentUserId}
-                  hasActiveFilters={activeFilterCount > 0}
-                />
-              ))}
-            </SortableContext>
+          <div className="relative mt-4 flex min-h-0 flex-1">
+            <div className="scrollbar-soft flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1">
+              <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
+                {filteredColumns.map((column, index) => (
+                  <KanbanColumn
+                    key={column.id}
+                    column={column}
+                    activeCardId={activeCardId}
+                    isDragDisabled={isSavingReorder}
+                    isDropTarget={activeDropColumnId === column.id}
+                    onCreateCard={createCard}
+                    onCardDeleted={deleteCard}
+                    onCardSaved={saveCard}
+                    onColumnDeleted={deleteColumn}
+                    onColumnSaved={updateColumn}
+                    isFirst={index === 0}
+                    members={members}
+                    currentUserId={currentUserId}
+                    hasActiveFilters={activeFilterCount > 0}
+                  />
+                ))}
+              </SortableContext>
+            </div>
+            {/* Horizontal scroll fade hint */}
+            <div aria-hidden="true" className="pointer-events-none absolute right-0 top-0 bottom-1 w-6 bg-gradient-to-l from-ink-950/80 to-transparent" />
           </div>
         )}
         <DragOverlay adjustScale={false} dropAnimation={null} zIndex={10000}>

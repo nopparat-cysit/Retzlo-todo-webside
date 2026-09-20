@@ -197,8 +197,8 @@ export function KanbanCard({
             <span className={cn(
               "rounded-full border px-2 py-1 text-xs uppercase tracking-wide",
               card.priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400 font-semibold",
-              card.priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber",
-              card.priority === "LOW" && "border-white/5 bg-white/5 text-stone-400"
+              card.priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber font-medium",
+              card.priority === "LOW" && "border-white/10 bg-white/[0.04] text-stone-300 font-medium"
             )}>
               {card.priority ?? "MEDIUM"}
             </span>
@@ -215,30 +215,30 @@ export function KanbanCard({
               </span>
             ) : null}
             {isOverdue ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-400/10 px-2 py-0.5 text-xs text-red-400 font-semibold animate-pulse">
+              <span className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/15 px-2 py-0.5 text-xs text-red-300 font-semibold animate-pulse">
                 <Clock className="h-3 w-3 shrink-0" />
                 Overdue
               </span>
             ) : null}
             {card.checklist.length > 0 ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-dusk-cyan/10 px-2 py-1 text-xs text-dusk-cyan">
+              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-xs font-medium text-dusk-cyan">
                 <CheckSquare className="h-3 w-3" />
                 {completedChecklist}/{card.checklist.length}
               </span>
             ) : null}
             {card.note ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-dusk-lavender/10 px-2 py-1 text-xs text-dusk-lavender" title="This card has a note">
+              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/20 bg-dusk-lavender/10 px-2 py-0.5 text-xs font-medium text-dusk-lavender" title="This card has a note">
                 <FileText className="h-3 w-3" />
                 Note
               </span>
             ) : null}
           </div>
-          {card.description ? <p className="line-clamp-3 text-stone-400 break-words">{card.description}</p> : null}
+          {card.description ? <p className="line-clamp-3 text-xs leading-relaxed text-stone-300/90 break-words">{card.description}</p> : null}
           {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) ? (
             <div className="flex items-center justify-between gap-2 pt-1">
               {(card.startDate || card.dueDate) ? (
                 <p
-                  className="inline-flex items-center gap-1 rounded-full bg-dusk-amber/10 px-2 py-0.5 text-[11px] font-medium text-dusk-amber whitespace-nowrap min-w-0 max-w-[70%]"
+                  className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/20 bg-dusk-amber/10 px-2 py-0.5 text-[11px] font-medium text-dusk-amber whitespace-nowrap min-w-0 max-w-[70%]"
                   title={
                     card.startDate && card.dueDate
                       ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)} — กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`

@@ -145,7 +145,7 @@ export default async function BoardPage({
   }
 
   let membership: Awaited<ReturnType<typeof getProjectMembership>>;
-  let project: { allowMemberPrivateItems: boolean; notesEnabled: boolean } | null;
+  let project: { name: string; allowMemberPrivateItems: boolean; notesEnabled: boolean } | null;
   let accessibleBoards: Array<{ id: string; name: string; isPrivate: boolean }> = [];
   let activeBoardSummary: { id: string; name: string; isPrivate: boolean } | null = null;
   let board: any = null;
@@ -164,6 +164,7 @@ export default async function BoardPage({
     project = await prisma.project.findUnique({
       where: { id: params.id },
       select: {
+        name: true,
         allowMemberPrivateItems: true,
         notesEnabled: true
       }
@@ -282,6 +283,7 @@ export default async function BoardPage({
     <div className="flex h-full min-h-0 flex-col">
       <BoardTabsBar
         projectId={params.id}
+        projectName={project.name}
         boards={accessibleBoards}
         activeBoardId={board.id}
         canManage={canManageBoards}
