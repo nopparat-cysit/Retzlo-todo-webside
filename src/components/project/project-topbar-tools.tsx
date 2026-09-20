@@ -67,7 +67,7 @@ export function ProjectTopbarTools() {
               <PopoverContent
                 align="end"
                 sideOffset={10}
-                className="w-72 overflow-hidden rounded-xl border-white/15 bg-[#020208] p-2 shadow-[0_24px_64px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.05)] [&>*]:!mt-0"
+                className="w-80 overflow-hidden rounded-xl border-white/15 bg-[#020208] p-2 shadow-[0_24px_64px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.05)] [&>*]:!mt-0"
               >
                 {tool.panel}
               </PopoverContent>

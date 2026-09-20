@@ -163,3 +163,23 @@ export function playKeyboardTickSound(isEnter = false): void {
     // Audio might be blocked — silently ignore
   }
 }
+
+/**
+ * Procedural Zen singing bowl chime: warm harmonics (432 Hz, 864 Hz, 1296 Hz) with smooth decay.
+ */
+export function playZenChimeSound(): void {
+  if (!isSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    playTone(ctx, 432, now, 1.2, 0.14, "sine");
+    playTone(ctx, 864, now, 0.8, 0.06, "sine");
+    playTone(ctx, 1296, now, 0.4, 0.03, "sine");
+
+    setTimeout(() => void ctx.close(), 1400);
+  } catch {
+    // Audio might be blocked — silently ignore
+  }
+}
