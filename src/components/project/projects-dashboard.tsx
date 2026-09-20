@@ -48,6 +48,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useToast } from "@/components/ui/toast";
 import { DiaryItemModal, type DiaryPayload, type HubDiaryItem } from "@/components/hub/diary-hub-panel";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
+import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
 import { ProjectAppearanceControls } from "@/components/project/project-appearance-controls";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
@@ -1296,11 +1297,30 @@ export function ProjectsDashboard({
           onCreated={handleCreateBoard}
         />
       ) : null}
-      {editingBoard ? (
-        <EditBoardModal
-          board={editingBoard}
+      {editingBoard && activeProject ? (
+        <BoardSettingsModal
+          open={Boolean(editingBoard)}
           onClose={() => setEditingBoard(null)}
-          onSaved={handleUpdateBoard}
+          projectId={activeProject.id}
+          boardId={editingBoard.id}
+          boardName={editingBoard.name}
+          isPrivate={editingBoard.isPrivate}
+          columnsPreview={editingBoard.columnsPreview}
+          canManage={activeProject.isOwner !== false}
+          onSaved={(updated) => {
+            handleUpdateBoard({
+              ...editingBoard,
+              name: updated.name,
+              isPrivate: updated.isPrivate
+            });
+            setEditingBoard(null);
+            router.refresh();
+          }}
+          onDeleted={(boardId) => {
+            handleDeleteBoard(boardId);
+            setEditingBoard(null);
+            router.refresh();
+          }}
         />
       ) : null}
       {deletingBoard ? (
@@ -1625,7 +1645,7 @@ function WorkspaceBoardCard({
                 onEdit(board);
               }}
             >
-              <Pencil className="h-3.5 w-3.5" /> Edit board
+              <Settings className="h-3.5 w-3.5" /> Board settings
             </button>
             <button
               type="button"
@@ -1828,164 +1848,7 @@ function CreateBoardModal({
   );
 }
 
-function EditBoardModal({
-  board,
-  onClose,
-  onSaved
-}: {
-  board: ProjectBoardSummary;
-  onClose: () => void;
-  onSaved: (updated: ProjectBoardSummary) => void;
-}) {
-  const { toast } = useToast();
-  const [name, setName] = useState(board.name);
-  const [isPrivate, setIsPrivate] = useState(board.isPrivate);
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const isDirty = name.trim() !== board.name || isPrivate !== board.isPrivate;
-
-  function handleSaveIntent(e: FormEvent) {
-    e.preventDefault();
-    if (!name.trim()) return;
-    setConfirmSaveOpen(true);
-  }
-
-  async function handleSave() {
-    setError(null);
-    setIsSaving(true);
-    setConfirmSaveOpen(false);
-
-    try {
-      const res = await fetch(`/api/boards/${board.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          isPrivate
-        })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.board) {
-        const msg = data.error ?? "Could not save board.";
-        setError(msg);
-        toast({ message: msg, type: "error" });
-        return;
-      }
-
-      onSaved({
-        ...board,
-        name: data.board.name,
-        isPrivate: data.board.isPrivate
-      });
-      onClose();
-    } catch {
-      setError("An unexpected error occurred.");
-      toast({ message: "An unexpected error occurred.", type: "error" });
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  return (
-    <>
-      <AppModal open onClose={onClose} labelledBy="edit-board-title" contentClassName="max-w-md" hasUnsavedChanges={isDirty}>
-        <form className="lofi-panel w-full max-w-md rounded-2xl p-5" onSubmit={handleSaveIntent}>
-          <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-3">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-dusk-amber font-semibold">
-                Board Settings
-              </p>
-              <h2 id="edit-board-title" className="mt-0.5 text-xl font-bold text-white">
-                Edit Board
-              </h2>
-            </div>
-            <button
-              className="rounded-md p-1.5 text-stone-400 hover:bg-white/10 hover:text-stone-100"
-              type="button"
-              onClick={onClose}
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            <label className="block space-y-1.5 text-sm text-stone-300">
-              <span>Board Name</span>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={80}
-                required
-                autoFocus
-              />
-            </label>
-
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-              <p className="text-xs font-semibold text-stone-200">Board Privacy</p>
-              <div className="mt-2.5 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsPrivate(false)}
-                  className={cn(
-                    "rounded-lg border p-2.5 text-left text-xs transition",
-                    !isPrivate
-                      ? "border-dusk-lavender bg-dusk-lavender/15 text-dusk-lavender font-semibold"
-                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
-                  )}
-                >
-                  <p className="font-bold">Public</p>
-                  <p className="mt-1 text-[10px] opacity-75">All workspace members</p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsPrivate(true)}
-                  className={cn(
-                    "rounded-lg border p-2.5 text-left text-xs transition",
-                    isPrivate
-                      ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber font-semibold"
-                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
-                  )}
-                >
-                  <p className="font-bold flex items-center gap-1">
-                    <Lock className="h-3 w-3" /> Private
-                  </p>
-                  <p className="mt-1 text-[10px] opacity-75">Only invited members</p>
-                </button>
-              </div>
-            </div>
-
-            {error ? <p className="text-xs text-red-400">{error}</p> : null}
-          </div>
-
-          <div className="mt-5 flex justify-end gap-2 border-t border-white/10 pt-3">
-            <Button type="button" variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button disabled={isSaving || !name.trim()}>
-              {isSaving ? "Saving..." : "Save changes"}
-            </Button>
-          </div>
-        </form>
-      </AppModal>
-
-      <ConfirmModal
-        open={confirmSaveOpen}
-        title="Save board changes"
-        message={`Save changes to "${name.trim() || board.name}"?`}
-        confirmLabel="Save"
-        isLoading={isSaving}
-        variant="default"
-        onClose={() => setConfirmSaveOpen(false)}
-        onConfirm={handleSave}
-      />
-    </>
-  );
-}
 
 function QuickCreateBlueprintCard({ onCreateClick }: { onCreateClick: () => void }) {
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FolderKanban, Globe, Lock, MoreVertical, Plus, Trash2, Users, Edit3, Check, X, Sparkles } from "lucide-react";
+import { FolderKanban, Globe, Lock, MoreVertical, Plus, Trash2, Users, Edit3, Check, X, Sparkles, Settings } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import type { BoardSummary } from "@/types/kanban";
+import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
 
 interface ProjectMemberInfo {
   id: string;
@@ -56,6 +57,9 @@ export function ProjectBoardsManager({
   const [accessIsPrivate, setAccessIsPrivate] = useState(false);
   const [accessMemberIds, setAccessMemberIds] = useState<string[]>([]);
   const [isSavingAccess, setIsSavingAccess] = useState(false);
+
+  // Detailed Settings Modal State
+  const [detailedSettingsBoard, setDetailedSettingsBoard] = useState<BoardSummary | null>(null);
 
   // Delete Confirm State
   const [deletingBoard, setDeletingBoard] = useState<BoardSummary | null>(null);
@@ -300,6 +304,16 @@ export function ProjectBoardsManager({
               {/* Actions Footer */}
               {canManage && (
                 <div className="mt-4 flex items-center justify-end gap-1.5 border-t border-white/5 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setDetailedSettingsBoard(b)}
+                    className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-dusk-amber transition hover:bg-dusk-amber/10"
+                    title="Detailed board settings"
+                  >
+                    <Settings className="h-3 w-3" />
+                    Settings
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -608,6 +622,43 @@ export function ProjectBoardsManager({
           isLoading={isDeleting}
           onConfirm={handleDeleteBoard}
           onClose={() => setDeletingBoard(null)}
+        />
+      )}
+
+      {/* Detailed Board Settings Modal */}
+      {detailedSettingsBoard && (
+        <BoardSettingsModal
+          open={Boolean(detailedSettingsBoard)}
+          onClose={() => setDetailedSettingsBoard(null)}
+          projectId={projectId}
+          boardId={detailedSettingsBoard.id}
+          boardName={detailedSettingsBoard.name}
+          isPrivate={detailedSettingsBoard.isPrivate}
+          memberUserIds={
+            detailedSettingsBoard.memberUserIds ??
+            detailedSettingsBoard.members?.map((m) => m.userId) ??
+            []
+          }
+          canManage={canManage}
+          onSaved={(updated) => {
+            setBoards((prev) =>
+              prev.map((b) =>
+                b.id === updated.id
+                  ? {
+                      ...b,
+                      name: updated.name,
+                      isPrivate: updated.isPrivate,
+                      memberUserIds: updated.memberUserIds
+                    }
+                  : b
+              )
+            );
+            setDetailedSettingsBoard(null);
+          }}
+          onDeleted={(boardId) => {
+            setBoards((prev) => prev.filter((b) => b.id !== boardId));
+            setDetailedSettingsBoard(null);
+          }}
         />
       )}
     </section>
