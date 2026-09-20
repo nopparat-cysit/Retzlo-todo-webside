@@ -79,13 +79,15 @@ export function ProjectCalendar({
   initialCards,
   initialNotes = [],
   initialDiaryItems = [],
-  members = []
+  members = [],
+  currentUserId
 }: {
   projectId: string;
   initialCards: CalendarCard[];
   initialNotes?: CalendarNote[];
   initialDiaryItems?: ProjectDiaryItem[];
   members?: CardAssignee[];
+  currentUserId?: string;
 }) {
   const [cards, setCards] = useState(initialCards);
   const [notes, setNotes] = useState(initialNotes);
@@ -779,6 +781,7 @@ export function ProjectCalendar({
           mode="edit"
           open={Boolean(selectedCard)}
           members={members}
+          currentUserId={currentUserId}
           onClose={() => setSelectedCardId(null)}
           onDelete={async () => {
             setIsDeleteConfirmOpen(true);

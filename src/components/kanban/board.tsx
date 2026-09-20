@@ -1041,6 +1041,7 @@ export function KanbanBoard({
                   onColumnSaved={updateColumn}
                   isFirst={index === 0}
                   members={members}
+                  currentUserId={currentUserId}
                   hasActiveFilters={activeFilterCount > 0}
                 />
               ))}
@@ -1059,6 +1060,7 @@ export function KanbanBoard({
           open={Boolean(selectedCardFromUrl)}
           onClose={() => setSelectedCardFromUrl(null)}
           members={members}
+          currentUserId={currentUserId}
           onDelete={async () => {
             deleteCard(selectedCardFromUrl.id);
             setSelectedCardFromUrl(null);

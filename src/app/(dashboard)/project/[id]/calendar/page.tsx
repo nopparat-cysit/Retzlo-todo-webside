@@ -161,6 +161,7 @@ export default async function CalendarPage({ params }: { params: { id: string } 
       initialNotes={notes.map(toCalendarNote)}
       initialDiaryItems={initialDiaryItems}
       members={members}
+      currentUserId={userId}
     />
   );
 }

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -120,17 +121,22 @@ export async function POST(request: Request, { params }: { params: { cardId: str
     const notificationRecipients = assigneeIds.filter((id) => id !== userId);
 
     if (notificationRecipients.length > 0) {
-      await prisma.notification.createMany({
-        data: notificationRecipients.map((recipientId) => ({
-          userId: recipientId,
-          projectId: access.projectId,
-          cardId: params.cardId,
-          type: "CARD_COMMENT",
-          title: `💬 New message on "${access.card.title}"`,
-          message: `${authorName}: ${payload.content.slice(0, 120)}`,
-          link: `/project/${access.projectId}/board?cardId=${params.cardId}`
-        }))
-      });
+      try {
+        await prisma.notification.createMany({
+          data: notificationRecipients.map((recipientId) => ({
+            id: randomUUID(),
+            userId: recipientId,
+            projectId: access.projectId,
+            cardId: params.cardId,
+            type: "CARD_COMMENT",
+            title: `💬 New message on "${access.card.title}"`,
+            message: `${authorName}: ${payload.content.slice(0, 120)}`,
+            link: `/project/${access.projectId}/board?cardId=${params.cardId}`
+          }))
+        });
+      } catch (notifError) {
+        console.error("Failed to deliver comment notification:", notifError);
+      }
     }
 
     return NextResponse.json({ comment }, { status: 201 });

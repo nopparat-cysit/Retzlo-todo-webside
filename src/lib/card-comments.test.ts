@@ -82,3 +82,30 @@ describe("Comment Deletion Permissions", () => {
     expect(canDeleteComment("MEMBER", "user-bob", "user-alice")).toBe(false);
   });
 });
+
+export function isCommentAuthor(
+  commentAuthorId: string,
+  currentUserId?: string
+): boolean {
+  return Boolean(commentAuthorId === "me" || (currentUserId && commentAuthorId === currentUserId));
+}
+
+describe("Comment Author Identification", () => {
+  it("identifies optimistic comments with 'me' authorId as current user", () => {
+    expect(isCommentAuthor("me")).toBe(true);
+    expect(isCommentAuthor("me", "user-123")).toBe(true);
+  });
+
+  it("identifies matching authorId as current user", () => {
+    expect(isCommentAuthor("user-123", "user-123")).toBe(true);
+  });
+
+  it("identifies different authorId as not current user", () => {
+    expect(isCommentAuthor("user-456", "user-123")).toBe(false);
+  });
+
+  it("handles undefined currentUserId gracefully for persisted comments", () => {
+    expect(isCommentAuthor("user-456", undefined)).toBe(false);
+  });
+});
+

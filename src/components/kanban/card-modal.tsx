@@ -47,6 +47,7 @@ interface CardModalProps {
   onDelete?: () => Promise<void>;
   footerAction?: ReactNode;
   members?: CardAssignee[];
+  currentUserId?: string;
   onSubmit: (data: {
     title: string;
     description: string | null;
@@ -109,7 +110,7 @@ function timeValue(card?: Card) {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
-export function CardModal({ card, mode, open, onClose, onDelete, footerAction, members = [], onSubmit }: CardModalProps) {
+export function CardModal({ card, mode, open, onClose, onDelete, footerAction, members = [], currentUserId, onSubmit }: CardModalProps) {
   const [startDate, setStartDate] = useState(startDateValue(card));
   const [startTime, setStartTime] = useState(startTimeValue(card));
   const [date, setDate] = useState(dateValue(card));
@@ -128,7 +129,13 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [isSaving, setIsSaving] = useState(false);
 
   // Gamification fields
-  const [activeUserId, setActiveUserId] = useState<string | null>(null);
+  const [activeUserId, setActiveUserId] = useState<string | null>(currentUserId ?? null);
+
+  useEffect(() => {
+    if (currentUserId) {
+      setActiveUserId(currentUserId);
+    }
+  }, [currentUserId]);
 
   const [privateGlobalCoins, setPrivateGlobalCoins] = useState(0);
   const [rewardCoins, setRewardCoins] = useState(card?.rewardCoins ?? 0);
@@ -651,7 +658,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
           {mode === "edit" && card?.id ? (
             <CardChatTimeline
               cardId={card.id}
-              currentUserId={activeUserId ?? undefined}
+              currentUserId={activeUserId ?? currentUserId ?? undefined}
             />
           ) : null}
           </div>

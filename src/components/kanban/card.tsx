@@ -26,6 +26,7 @@ export function KanbanCard({
   isDragPreviewTarget = false,
   isDragDisabled = false,
   members = [],
+  currentUserId,
   onSaved,
   onDeleted
 }: {
@@ -34,6 +35,7 @@ export function KanbanCard({
   isDragPreviewTarget?: boolean;
   isDragDisabled?: boolean;
   members?: CardAssignee[];
+  currentUserId?: string;
   onSaved: (card: Card) => void;
   onDeleted: (cardId: string) => void;
 }) {
@@ -278,6 +280,7 @@ export function KanbanCard({
         mode="edit"
         open={isEditing}
         members={members}
+        currentUserId={currentUserId}
         onClose={() => setIsEditing(false)}
         onDelete={async () => {
           setIsEditing(false);

@@ -30,6 +30,7 @@ export function KanbanColumn({
   isDragDisabled = false,
   isDropTarget,
   members = [],
+  currentUserId,
   onCreateCard,
   onCardDeleted,
   onCardSaved,
@@ -43,6 +44,7 @@ export function KanbanColumn({
   isDragDisabled?: boolean;
   isDropTarget: boolean;
   members?: CardAssignee[];
+  currentUserId?: string;
   onCreateCard: (
     columnId: string,
     payload: {
@@ -430,6 +432,7 @@ export function KanbanColumn({
               isDragDisabled={isDragDisabled}
               columnId={column.id}
               members={members}
+              currentUserId={currentUserId}
               isDragPreviewTarget={activeCardId === card.id}
               onDeleted={onCardDeleted}
               onSaved={onCardSaved}
@@ -633,6 +636,7 @@ export function KanbanColumn({
         card={isModalOpen ? ({ columnId: column.id, status: column.defaultCardStatus } as any) : undefined}
         open={isModalOpen}
         members={members}
+        currentUserId={currentUserId}
         onClose={() => setIsModalOpen(false)}
         onSubmit={async (payload) => {
           await onCreateCard(column.id, payload);

@@ -131,8 +131,11 @@ export function CardChatTimeline({
     [comments]
   );
 
-  async function handleSendMessage(e?: FormEvent) {
-    if (e) e.preventDefault();
+  async function handleSendMessage(e?: React.SyntheticEvent) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const trimmed = inputText.trim();
     if (!trimmed || isSubmitting) return;
 
@@ -188,7 +191,8 @@ export function CardChatTimeline({
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      e.stopPropagation();
+      void handleSendMessage();
     }
   }
 
@@ -294,7 +298,7 @@ export function CardChatTimeline({
           </div>
         ) : (
           filteredComments.map((item) => {
-            const isMe = currentUserId && item.authorId === currentUserId;
+            const isMe = Boolean(item.authorId === "me" || (currentUserId && item.authorId === currentUserId));
             const canDelete = isMe || isProjectOwner;
             const isOptimistic = item.id.startsWith("temp-");
 
@@ -377,7 +381,7 @@ export function CardChatTimeline({
       </div>
 
       {/* Input Bar */}
-      <form onSubmit={handleSendMessage} className="relative flex items-center gap-2 pt-1">
+      <div className="relative flex items-center gap-2 pt-1">
         <textarea
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
@@ -387,7 +391,8 @@ export function CardChatTimeline({
           className="scrollbar-soft flex-1 resize-none rounded-xl border border-white/10 bg-white/[0.04] p-2.5 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/[0.06]"
         />
         <button
-          type="submit"
+          type="button"
+          onClick={() => void handleSendMessage()}
           disabled={!inputText.trim() || isSubmitting}
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition",
@@ -399,7 +404,7 @@ export function CardChatTimeline({
         >
           <Send className="h-4 w-4" />
         </button>
-      </form>
+      </div>
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
