@@ -189,7 +189,24 @@ export default async function BoardPage({
       .map((b) => ({ id: b.id, name: b.name, isPrivate: b.isPrivate }));
 
     if (accessibleBoards.length === 0) {
-      notFound();
+      if (isOwnerRole(userMembership.role)) {
+        const defaultBoard = await prisma.board.create({
+          data: {
+            projectId: params.id,
+            name: "Main Board",
+            columns: {
+              create: [
+                { name: "Backlog", defaultCardStatus: "TODO", position: 0 },
+                { name: "In Progress", defaultCardStatus: "DOING", position: 1 },
+                { name: "Done", defaultCardStatus: "DONE", position: 2 }
+              ]
+            }
+          }
+        });
+        accessibleBoards = [{ id: defaultBoard.id, name: defaultBoard.name, isPrivate: false }];
+      } else {
+        notFound();
+      }
     }
 
     const requestedBoardId = searchParams?.boardId;

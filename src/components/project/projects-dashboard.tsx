@@ -808,22 +808,24 @@ export function ProjectsDashboard({
                         {sortedProjects.map((p) => {
                           const isSelected = p.id === activeProject.id;
                           return (
-                            <button
+                            <div
                               key={p.id}
-                              type="button"
-                              onClick={() => {
-                                setActiveProjectId(p.id);
-                                setViewMode("boards");
-                                setWorkspaceDropdownOpen(false);
-                              }}
                               className={cn(
-                                "flex w-full items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition",
+                                "group flex w-full items-center justify-between gap-1.5 rounded-xl p-1 transition select-none",
                                 isSelected
                                   ? "border border-dusk-lavender/30 bg-dusk-lavender/15 text-white font-semibold"
                                   : "text-stone-300 hover:bg-white/[0.06] hover:text-white"
                               )}
                             >
-                              <div className="flex items-center gap-2.5 min-w-0">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveProjectId(p.id);
+                                  setViewMode("boards");
+                                  setWorkspaceDropdownOpen(false);
+                                }}
+                                className="flex items-center gap-2.5 min-w-0 flex-1 px-2 py-1.5 text-left text-xs"
+                              >
                                 <div className="h-7 w-7 shrink-0 place-items-center grid rounded-lg bg-white/5 border border-white/10">
                                   {p.sticker ? (
                                     <RetroStickerImage alt={p.name} size={20} src={p.sticker} />
@@ -831,15 +833,24 @@ export function ProjectsDashboard({
                                     <FolderKanban className="h-3.5 w-3.5 text-stone-400" />
                                   )}
                                 </div>
-                                <div className="min-w-0">
+                                <div className="min-w-0 flex-1">
                                   <p className="truncate font-semibold">{p.name}</p>
                                   <p className="text-[10px] text-stone-500 font-mono">
                                     {p.counts.boards} {p.counts.boards === 1 ? "board" : "boards"}
                                   </p>
                                 </div>
-                              </div>
-                              {isSelected && <Check className="h-4 w-4 text-dusk-lavender shrink-0" />}
-                            </button>
+                                {isSelected && <Check className="h-4 w-4 text-dusk-lavender shrink-0 ml-1" />}
+                              </button>
+
+                              <Link
+                                href={`/project/${p.id}/${p.type === "DIARY" ? "diary" : "board"}`}
+                                onClick={() => setWorkspaceDropdownOpen(false)}
+                                className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-stone-400 opacity-70 hover:opacity-100 hover:border-dusk-lavender/50 hover:bg-dusk-lavender/20 hover:text-dusk-lavender transition shrink-0"
+                                title={`Launch ${p.name}`}
+                              >
+                                <ArrowRight className="h-3.5 w-3.5" />
+                              </Link>
+                            </div>
                           );
                         })}
                       </div>
@@ -936,6 +947,16 @@ export function ProjectsDashboard({
             {/* Sub-navigation bar when viewing active workspace boards */}
             {viewMode === "boards" && activeProject ? (
               <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 pt-2 border-t border-white/10 scrollbar-none">
+                <Link
+                  href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-dusk-amber/40 bg-dusk-amber/15 px-3 py-1.5 text-xs font-bold text-dusk-amber shadow-sm transition hover:bg-dusk-amber hover:text-ink-950"
+                  title="Open main workspace board"
+                >
+                  <KanbanSquare className="h-3.5 w-3.5" />
+                  <span>{activeProject.type === "DIARY" ? "Open Diary" : "Launch Board"}</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+
                 <button
                   type="button"
                   onClick={() => setViewMode("boards")}
@@ -1109,19 +1130,27 @@ export function ProjectsDashboard({
               <div className="relative mb-5 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-transparent p-4 sm:p-5 backdrop-blur-md">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-ink-950/60 p-2 shadow-inner">
+                    <Link
+                      href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
+                      className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-ink-950/60 p-2 shadow-inner hover:border-dusk-lavender/40 hover:bg-ink-950/90 transition group"
+                      title="Open Workspace"
+                    >
                       {activeProject.sticker ? (
                         <RetroStickerImage alt={activeProject.name} size={42} src={activeProject.sticker} />
                       ) : (
-                        <FolderKanban className="h-8 w-8 text-dusk-lavender" />
+                        <FolderKanban className="h-8 w-8 text-dusk-lavender group-hover:scale-105 transition-transform" />
                       )}
-                    </div>
+                    </Link>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h2 className="truncate text-xl font-bold tracking-tight text-white sm:text-2xl">
-                          {activeProject.name}
-                        </h2>
-                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-dusk-amber">
+                        <Link
+                          href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
+                          className="truncate text-xl font-bold tracking-tight text-white sm:text-2xl hover:text-dusk-lavender transition flex items-center gap-2 group"
+                        >
+                          <span>{activeProject.name}</span>
+                          <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-dusk-lavender" />
+                        </Link>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-dusk-amber shrink-0">
                           {activeProject.type === "DIARY" ? "Diary Space" : "Workspace"}
                         </span>
                       </div>
@@ -1131,20 +1160,30 @@ export function ProjectsDashboard({
                     </div>
                   </div>
 
-                  {/* Quick stats in Hero */}
-                  <div className="flex items-center gap-2 self-start shrink-0 sm:self-center">
-                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
-                      <p className="text-[9px] uppercase tracking-wider text-stone-400">Tasks</p>
-                      <p className="text-sm font-bold font-mono text-stone-200">{activeProjectTotalCards}</p>
+                  {/* Quick stats & Launch Action in Hero */}
+                  <div className="flex items-center gap-3 self-start shrink-0 sm:self-center">
+                    <div className="flex items-center gap-2">
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
+                        <p className="text-[9px] uppercase tracking-wider text-stone-400">Tasks</p>
+                        <p className="text-sm font-bold font-mono text-stone-200">{activeProjectTotalCards}</p>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
+                        <p className="text-[9px] uppercase tracking-wider text-stone-400">Done</p>
+                        <p className="text-sm font-bold font-mono text-dusk-cyan">{activeProjectDoneCards}</p>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
+                        <p className="text-[9px] uppercase tracking-wider text-stone-400">Progress</p>
+                        <p className="text-sm font-bold font-mono text-dusk-lavender">{activeProjectProgress}%</p>
+                      </div>
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
-                      <p className="text-[9px] uppercase tracking-wider text-stone-400">Done</p>
-                      <p className="text-sm font-bold font-mono text-dusk-cyan">{activeProjectDoneCards}</p>
-                    </div>
-                    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
-                      <p className="text-[9px] uppercase tracking-wider text-stone-400">Progress</p>
-                      <p className="text-sm font-bold font-mono text-dusk-lavender">{activeProjectProgress}%</p>
-                    </div>
+
+                    <Link
+                      href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-dusk-lavender px-4 text-xs font-bold text-ink-950 shadow-[0_8px_20px_rgba(169,162,255,0.2)] transition hover:bg-dusk-amber hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
+                    >
+                      <span>{activeProject.type === "DIARY" ? "Open Diary" : "Launch Board"}</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -1513,8 +1552,18 @@ function WorkspaceBoardCard({
   onDelete: (board: ProjectBoardSummary) => void;
   canManage?: boolean;
 }) {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const boardUrl = `/project/${projectId}/board?boardId=${board.id}`;
+
+  function handleCardClick(e: MouseEvent<HTMLDivElement>) {
+    const target = e.target as HTMLElement;
+    if (target.closest("button, a, input, [role='dialog']")) {
+      return;
+    }
+    router.push(boardUrl);
+  }
 
   function toggleMenu(e: MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
@@ -1529,19 +1578,29 @@ function WorkspaceBoardCard({
   const progressPercent = board.totalCards > 0 ? Math.round((board.doneCards / board.totalCards) * 100) : 0;
 
   return (
-    <div className="lofi-panel group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.025] p-5 backdrop-blur-md transition-all duration-300 hover:border-dusk-lavender/40 hover:bg-white/[0.045] hover:shadow-2xl hover:shadow-dusk-lavender/5">
+    <div
+      onClick={handleCardClick}
+      className="lofi-panel group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.025] p-5 backdrop-blur-md transition-all duration-300 hover:border-dusk-lavender/40 hover:bg-white/[0.045] hover:shadow-2xl hover:shadow-dusk-lavender/5 cursor-pointer"
+    >
       <div>
         {/* Top bar: Board icon + Title + Lock/Public badge + 3-dots */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 min-w-0">
-            <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender">
+            <Link
+              href={boardUrl}
+              className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender hover:bg-dusk-lavender/20 transition"
+              title={`Open ${board.name}`}
+            >
               <KanbanSquare className="h-4.5 w-4.5" />
-            </div>
+            </Link>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h4 className="truncate text-base font-bold text-stone-100 group-hover:text-dusk-lavender transition-colors">
+                <Link
+                  href={boardUrl}
+                  className="truncate text-base font-bold text-stone-100 group-hover:text-dusk-lavender transition-colors"
+                >
                   {board.name}
-                </h4>
+                </Link>
                 {board.isPrivate ? (
                   <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[9px] font-semibold text-dusk-amber">
                     <Lock className="h-2.5 w-2.5" />
@@ -1915,6 +1974,8 @@ function ProjectCard({
     setMenuOpen((value) => !value);
   }
 
+  const targetUrl = `/project/${project.id}/${isDiaryProject ? "diary" : "board"}`;
+
   return (
     <>
       <EntityCard
@@ -1923,13 +1984,20 @@ function ProjectCard({
         className={cn("lofi-panel group flex min-h-[420px] flex-col p-0 hover:shadow-2xl hover:shadow-dusk-lavender/10 border border-white/10 hover:border-dusk-lavender/40 transition-all duration-300", colorMeta.softClass)}
       >
         <div className="relative h-44 sm:h-48 overflow-hidden border-b border-white/10">
-          {project.coverImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={project.coverImage} alt="cover" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-          ) : (
-            <div className="h-full w-full bg-[radial-gradient(circle_at_22%_20%,rgba(229,189,114,0.22),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(213,154,179,0.22),transparent_32%),linear-gradient(135deg,rgba(35,31,68,0.86),rgba(63,46,86,0.78)_48%,rgba(11,13,31,0.94))]" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/45 to-transparent" />
+          <Link
+            href={targetUrl}
+            className="absolute inset-0 block z-0"
+            tabIndex={-1}
+            aria-hidden="true"
+          >
+            {project.coverImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={project.coverImage} alt="cover" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            ) : (
+              <div className="h-full w-full bg-[radial-gradient(circle_at_22%_20%,rgba(229,189,114,0.22),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(213,154,179,0.22),transparent_32%),linear-gradient(135deg,rgba(35,31,68,0.86),rgba(63,46,86,0.78)_48%,rgba(11,13,31,0.94))]" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/45 to-transparent" />
+          </Link>
 
           {/* Top Left: Type badge */}
           <div className="absolute left-3.5 top-3 z-10">
@@ -1978,36 +2046,41 @@ function ProjectCard({
           ) : null}
 
           {/* Bottom Left Title */}
-          <div className="absolute bottom-3 left-4 right-16">
-            <h3 className="truncate text-xl font-bold tracking-tight text-white drop-shadow-md group-hover:text-dusk-lavender transition-colors">
+          <div className="absolute bottom-3 left-4 right-16 z-10">
+            <Link
+              href={targetUrl}
+              className="block truncate text-xl font-bold tracking-tight text-white drop-shadow-md hover:text-dusk-lavender transition-colors"
+            >
               {project.name}
-            </h3>
+            </Link>
           </div>
         </div>
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
-          <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-400">
-            {project.description ?? "A quiet project workspace for tasks, notes, due dates, and rewards."}
-          </p>
+          <Link href={targetUrl} className="block group/details">
+            <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-400 group-hover/details:text-stone-300 transition-colors">
+              {project.description ?? "A quiet project workspace for tasks, notes, due dates, and rewards."}
+            </p>
 
-          {/* Task Pipeline / Progress Bar */}
-          <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1.5 font-medium text-stone-300 text-[11px]">
-                <TrendingUp className="h-3 w-3 text-dusk-cyan" />
-                Tasks Progress
-              </span>
-              <span className="text-[10px] font-semibold text-dusk-cyan font-mono">
-                {totalCards > 0 ? `${doneCards}/${totalCards} done (${progressPercent}%)` : `${columnCount} columns ready`}
-              </span>
+            {/* Task Pipeline / Progress Bar */}
+            <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.025] p-2.5 group-hover/details:border-dusk-lavender/30 transition-colors">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 font-medium text-stone-300 text-[11px]">
+                  <TrendingUp className="h-3 w-3 text-dusk-cyan" />
+                  Tasks Progress
+                </span>
+                <span className="text-[10px] font-semibold text-dusk-cyan font-mono">
+                  {totalCards > 0 ? `${doneCards}/${totalCards} done (${progressPercent}%)` : `${columnCount} columns ready`}
+                </span>
+              </div>
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-dusk-cyan to-dusk-lavender transition-all duration-500"
+                  style={{ width: `${totalCards > 0 ? progressPercent : 0}%` }}
+                />
+              </div>
             </div>
-            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-dusk-cyan to-dusk-lavender transition-all duration-500"
-                style={{ width: `${totalCards > 0 ? progressPercent : 0}%` }}
-              />
-            </div>
-          </div>
+          </Link>
 
           {/* Stat Pills Grid */}
           <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
