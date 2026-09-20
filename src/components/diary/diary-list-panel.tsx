@@ -247,46 +247,56 @@ export function DiaryListPanel({
 
   return (
     <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3">
-      <div className="lofi-panel rounded-lg p-4">
-        <div data-diary-hero-layout="single-row" className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div className="lofi-panel rounded-2xl p-4 sm:p-5">
+        <div data-diary-hero-layout="single-row" className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-dusk-amber">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-dusk-amber font-semibold">
               <BookOpenCheck className="h-4 w-4" />
               Diary List
             </div>
-            <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:items-end sm:gap-3">
-              <h2 className="text-xl font-semibold leading-tight text-stone-100 sm:text-2xl">Today rhythm</h2>
-              <p className="text-xs font-medium text-dusk-amber">{formatMediumDate(`${selectedDate}T00:00:00.000Z`)}</p>
+            <div className="mt-1 flex flex-wrap items-baseline gap-2.5">
+              <h2 className="text-xl font-bold leading-tight text-stone-100 sm:text-2xl">Today rhythm</h2>
+              <span className="inline-flex items-center rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-xs font-medium font-mono text-dusk-amber">
+                {formatMediumDate(`${selectedDate}T00:00:00.000Z`)}
+              </span>
             </div>
-            <p className="mt-1 max-w-xl text-sm text-stone-400">
+            <p className="mt-1 max-w-xl text-xs sm:text-sm text-stone-400 leading-relaxed">
               Recurring checklists for the routines that matter today. Upcoming items stay calm and lower in priority.
             </p>
           </div>
 
-          <div className="flex shrink-0 items-center gap-3 xl:ml-auto">
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href={`/project/${projectId}/calendar`}
-                className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 text-sm font-medium text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/[0.08]"
-              >
-                <CalendarDays className="h-4 w-4 text-dusk-lavender" />
-                <span>View in Calendar</span>
-              </Link>
-              <DiaryMetric label="Due today" value={dueTodayCount} tone="lavender" />
-              <DiaryMetric label="Done" value={completedTodayCount} tone="cyan" />
-              <DiaryMetric label="Starred" value={itemsWithSummary.filter((item) => item.isStarred).length} tone="amber" />
+          <div className="flex shrink-0 flex-wrap items-center gap-3.5 xl:ml-auto">
+            <div className="flex flex-col items-start sm:items-end gap-2.5">
+              {/* Metrics Pill Control Bar */}
+              <div className="flex flex-wrap items-center gap-2">
+                <DiaryMetric label="Due today" value={dueTodayCount} tone="lavender" />
+                <DiaryMetric label="Done" value={completedTodayCount} tone="cyan" />
+                <DiaryMetric label="Starred" value={itemsWithSummary.filter((item) => item.isStarred).length} tone="amber" />
+              </div>
+
+              {/* Action Buttons Cluster */}
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/project/${projectId}/calendar`}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 text-xs font-medium text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/[0.08]"
+                >
+                  <CalendarDays className="h-3.5 w-3.5 text-dusk-lavender" />
+                  <span>View in Calendar</span>
+                </Link>
+                <Button className="h-9 rounded-xl px-4 text-xs font-medium" type="button" onClick={() => setIsCreateOpen(true)}>
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>Add diary</span>
+                </Button>
+              </div>
             </div>
-            <Button className="h-12 shrink-0" type="button" onClick={() => setIsCreateOpen(true)}>
-              <Plus className="h-4 w-4" />
-              Add diary
-            </Button>
+
             <Image
               alt=""
               aria-hidden="true"
-              className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_10px_14px_rgba(8,8,23,0.5)] sm:block xl:h-20 xl:w-20"
-              height={96}
+              className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_10px_14px_rgba(8,8,23,0.5)] md:block"
+              height={64}
               src="/stickers/retro/retro-sticker-02-diary-notebook.png"
-              width={96}
+              width={64}
             />
           </div>
         </div>
@@ -482,23 +492,33 @@ function DiaryMetric({
   return (
     <div
       className={cn(
-        "min-w-24 rounded-lg border bg-ink-950/55 px-3 py-2",
-        tone === "amber" && "border-dusk-amber/25",
-        tone === "cyan" && "border-dusk-cyan/25",
-        tone === "lavender" && "border-dusk-lavender/25"
+        "flex h-9 min-w-[6.75rem] items-center justify-between gap-2.5 rounded-xl border bg-white/[0.025] px-3 transition-all select-none",
+        tone === "amber" && "border-dusk-amber/25 text-dusk-amber hover:border-dusk-amber/40 hover:bg-dusk-amber/5",
+        tone === "cyan" && "border-dusk-cyan/25 text-dusk-cyan hover:border-dusk-cyan/40 hover:bg-dusk-cyan/5",
+        tone === "lavender" && "border-dusk-lavender/25 text-dusk-lavender hover:border-dusk-lavender/40 hover:bg-dusk-lavender/5"
       )}
     >
-      <p className="text-[10px] uppercase tracking-[0.16em] text-stone-500">{label}</p>
-      <p
+      <span className="flex items-center text-[9px] uppercase tracking-wider font-semibold">
+        <span
+          className={cn(
+            "mr-1.5 h-1.5 w-1.5 rounded-full shrink-0",
+            tone === "amber" && "bg-dusk-amber",
+            tone === "cyan" && "bg-dusk-cyan",
+            tone === "lavender" && "bg-dusk-lavender"
+          )}
+        />
+        {label}
+      </span>
+      <span
         className={cn(
-          "mt-1 text-lg font-semibold",
+          "text-sm font-bold font-mono leading-none",
           tone === "amber" && "text-dusk-amber",
           tone === "cyan" && "text-dusk-cyan",
           tone === "lavender" && "text-dusk-lavender"
         )}
       >
         {value}
-      </p>
+      </span>
     </div>
   );
 }
