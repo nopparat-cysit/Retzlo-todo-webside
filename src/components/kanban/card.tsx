@@ -9,6 +9,7 @@ import { CardModal } from "@/components/kanban/card-modal";
 import { AssigneeStack } from "@/components/kanban/assignee-avatar";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime, formatShortDate } from "@/lib/date-format";
 import { formatCardDateRange } from "@/lib/kanban/due-date";
@@ -190,26 +191,30 @@ export function KanbanCard({
             </div>
             <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
               {isOverdue && (
-                <div
-                  className="group/overdue relative flex items-center justify-center cursor-help"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <span
-                    className="relative flex h-5 w-5 items-center justify-center rounded-full border border-red-500/40 bg-red-500/15 text-red-400 hover:border-red-400 hover:bg-red-500/25 transition shadow-[0_0_8px_rgba(239,68,68,0.25)]"
-                    aria-label="Overdue task indicator"
-                    title={`Overdue: due on ${card.dueDate ? formatMediumDateTime(card.dueDate, card.dueDateAllDay) : "past due"}`}
-                  >
-                    <Clock className="h-3 w-3 animate-pulse text-red-400" />
-                    <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400 animate-ping" />
-                  </span>
-                  {/* Tooltip on hover */}
-                  <div className="pointer-events-none absolute right-0 bottom-full mb-1.5 z-30 hidden whitespace-nowrap rounded-lg border border-red-500/30 bg-ink-950/95 px-2.5 py-1 text-[11px] font-medium text-red-200 shadow-xl backdrop-blur-md group-hover/overdue:block animate-in fade-in zoom-in-95 duration-150">
-                    <p className="flex items-center gap-1.5">
-                      <Clock className="h-3 w-3 text-red-400 shrink-0" />
-                      <span>Overdue · {card.dueDate ? formatMediumDateTime(card.dueDate, card.dueDateAllDay) : "Past due"}</span>
-                    </p>
-                  </div>
-                </div>
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        className="relative flex items-center justify-center cursor-help"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span
+                          className="relative flex h-5 w-5 items-center justify-center rounded-full border border-red-500/40 bg-red-500/15 text-red-400 hover:border-red-400 hover:bg-red-500/25 transition shadow-[0_0_8px_rgba(239,68,68,0.25)]"
+                          aria-label="Overdue task indicator"
+                        >
+                          <Clock className="h-3 w-3 animate-pulse text-red-400" />
+                          <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400 animate-ping" />
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="end" className="border-red-500/30 bg-ink-950/98 text-[11px] font-medium text-red-200">
+                      <p className="flex items-center gap-1.5">
+                        <Clock className="h-3 w-3 text-red-400 shrink-0" />
+                        <span>Overdue · {card.dueDate ? formatMediumDateTime(card.dueDate, card.dueDateAllDay) : "Past due"}</span>
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
               {card.isStarred && (
                 <Star className="h-3.5 w-3.5 shrink-0 fill-dusk-amber text-dusk-amber" />

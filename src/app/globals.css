@@ -37,12 +37,14 @@
 html {
   min-height: 100%;
   background: var(--background);
+  overflow-x: hidden;
 }
 
 body {
   position: relative;
   min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
   color: var(--foreground);
   background:
     radial-gradient(circle at 18% 10%, rgba(229, 189, 114, 0.07), transparent 24rem),

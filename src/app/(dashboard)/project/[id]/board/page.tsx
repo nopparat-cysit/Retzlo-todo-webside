@@ -297,7 +297,7 @@ export default async function BoardPage({
   const canManageBoards = isOwnerRole(membership.role);
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 min-w-0 max-w-full flex-col overflow-hidden">
       <BoardTabsBar
         projectId={params.id}
         projectName={project.name}
@@ -305,7 +305,7 @@ export default async function BoardPage({
         activeBoardId={board.id}
         canManage={canManageBoards}
       />
-      <div className={project.notesEnabled ? "board-page-grid grid flex-1 min-h-0 gap-3 xl:grid-cols-[minmax(0,1fr)_340px]" : "board-page-grid flex-1 min-h-0"}>
+      <div className={project.notesEnabled ? "board-page-grid grid flex-1 min-h-0 min-w-0 max-w-full gap-3 xl:grid-cols-[minmax(0,1fr)_340px]" : "board-page-grid flex-1 min-h-0 min-w-0 max-w-full"}>
         <KanbanBoard
           board={{
             id: board.id,

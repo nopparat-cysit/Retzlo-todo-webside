@@ -36,6 +36,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { AssigneeAvatar } from "@/components/kanban/assignee-avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime } from "@/lib/date-format";
 import {
@@ -677,7 +678,7 @@ export function KanbanBoard({
 
   return (
     <div
-      className="flex h-full min-h-0 flex-col"
+      className="flex h-full min-h-0 min-w-0 max-w-full flex-col overflow-hidden"
       onPointerDownCapture={(e) => {
         const target = e.target as HTMLElement | null;
         if (target?.closest?.("article, [role='button'], button, input, textarea")) {
@@ -692,91 +693,94 @@ export function KanbanBoard({
       }}
     >
       {/* ── Header ── */}
-      <div className="lofi-panel grid gap-2.5 rounded-2xl p-3 sm:p-3.5">
-        <div className="flex flex-col gap-2.5 xl:flex-row xl:items-start xl:justify-between">
-        <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-dusk-amber font-semibold">Board Channel</p>
-          <h2 className="mt-0.5 flex flex-wrap items-center gap-2 text-base sm:text-lg font-semibold">
-            {board.name}
-            {isFocusMode && (
-              <button
-                type="button"
-                onClick={toggleFocusMode}
-                title="Click to exit Focus Mode (or press F)"
-                aria-label="Exit focus mode"
-                className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer"
-              >
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-dusk-amber animate-pulse" />
-                <span>FOCUS ACTIVE</span>
-                <X className="h-3 w-3 opacity-70 group-hover/focus:opacity-100 transition-opacity" />
-              </button>
-            )}
-          </h2>
-          <p className="text-xs text-stone-500">
-            {isFocusMode ? (
-              <>
-                Focus mode active. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> or click the badge to exit.
-              </>
-            ) : (
-              <>
-                Drag cards across columns. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> for focus.
-              </>
-            )}
-          </p>
-        </div>
+      <div className="lofi-panel relative grid gap-2.5 rounded-2xl p-3 sm:p-3.5 max-w-full">
+        {/* Overdue Indicator Icon (Top-Right Corner Pulsing Icon with Portal Hover Details) */}
+        {overdueCards > 0 ? (
+          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20">
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => setIsTodayFilterActive((prev) => !prev)}
+                    className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-red-500/40 bg-red-500/15 text-red-400 hover:border-red-400 hover:bg-red-500/25 transition shadow-[0_0_12px_rgba(239,68,68,0.25)] cursor-pointer"
+                    aria-label={`${overdueCards} overdue cards`}
+                  >
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-400 animate-ping opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                    </span>
+                    <Clock className="h-4 w-4 text-red-400 animate-pulse ml-0.5" />
+                    <span className="sr-only">{overdueCards} overdue</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="end" className="border-red-500/30 bg-ink-950/98 p-2.5 text-xs text-stone-200 shadow-2xl">
+                  <div className="flex items-center gap-1.5 font-semibold text-red-300 border-b border-white/10 pb-1.5 mb-1.5">
+                    <Clock className="h-3.5 w-3.5 text-red-400" />
+                    <span>{overdueCards} Overdue {overdueCards === 1 ? "Card" : "Cards"}</span>
+                  </div>
+                  <p className="text-[11px] text-stone-400 leading-tight">
+                    There {overdueCards === 1 ? "is 1 task" : `are ${overdueCards} tasks`} past due date.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        ) : null}
 
-        {/* ── Premium Control Bar ── */}
-        <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto xl:justify-end">
-          <div className="grid grid-cols-3 gap-2 flex-1 sm:flex-initial sm:flex sm:items-center">
-            <div className="flex h-10 sm:h-11 min-w-[5.5rem] sm:min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-2.5 sm:px-3">
-              <span className="text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
-              <span className="text-base font-bold leading-none text-stone-200">{totalCards}</span>
-            </div>
-            <div className="flex h-10 sm:h-11 min-w-[5.5rem] sm:min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-2.5 sm:px-3">
-              <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-lavender select-none">
-                <span className="mr-1 sm:mr-1.5 h-2 w-2 rounded-full bg-dusk-lavender shrink-0" />
-                <span className="hidden min-[420px]:inline">Progress</span>
-                <span className="min-[420px]:hidden">Prog</span>
-              </span>
-              <span className="text-base font-bold leading-none text-dusk-lavender">{doingCards}</span>
-            </div>
-            <div className="flex h-10 sm:h-11 min-w-[5.5rem] sm:min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-2.5 sm:px-3">
-              <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-amber select-none">
-                <span className="mr-1 sm:mr-1.5 h-2 w-2 rounded-full bg-dusk-amber shrink-0" />
-                Done
-              </span>
-              <span className="text-base font-bold leading-none text-dusk-amber">{doneCards}</span>
-            </div>
+        <div className="flex flex-col gap-2.5 2xl:flex-row 2xl:items-start 2xl:justify-between pr-10 sm:pr-12">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-dusk-amber font-semibold">Board Channel</p>
+            <h2 className="mt-0.5 flex flex-wrap items-center gap-2 text-base sm:text-lg font-semibold">
+              {board.name}
+              {isFocusMode && (
+                <button
+                  type="button"
+                  onClick={toggleFocusMode}
+                  title="Click to exit Focus Mode (or press F)"
+                  aria-label="Exit focus mode"
+                  className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer"
+                >
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-dusk-amber animate-pulse" />
+                  <span>FOCUS ACTIVE</span>
+                  <X className="h-3 w-3 opacity-70 group-hover/focus:opacity-100 transition-opacity" />
+                </button>
+              )}
+            </h2>
+            <p className="text-xs text-stone-500">
+              {isFocusMode ? (
+                <>
+                  Focus mode active. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> or click the badge to exit.
+                </>
+              ) : (
+                <>
+                  Drag cards across columns. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> for focus.
+                </>
+              )}
+            </p>
           </div>
 
-          {/* Overdue Indicator Icon (Top-Right Pulsing Icon with Hover Details) */}
-          {overdueCards > 0 ? (
-            <div className="group/overdue-top relative flex items-center shrink-0">
-              <div
-                className="relative flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-red-500/40 bg-red-500/10 px-3 transition hover:border-red-400 hover:bg-red-500/20 cursor-help"
-                aria-label={`${overdueCards} overdue cards`}
-                title={`${overdueCards} overdue card${overdueCards > 1 ? "s" : ""}`}
-              >
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
-                </span>
-                <Clock className="h-4 w-4 text-red-400 animate-pulse" />
-                <span className="font-bold text-xs sm:text-sm text-red-300">{overdueCards}</span>
-              </div>
-              {/* Tooltip on hover showing details */}
-              <div className="pointer-events-none absolute right-0 top-full mt-1.5 z-40 hidden min-w-[190px] whitespace-nowrap rounded-xl border border-red-500/30 bg-ink-950/98 p-2.5 text-xs text-stone-200 shadow-2xl backdrop-blur-xl group-hover/overdue-top:block animate-in fade-in zoom-in-95 duration-150">
-                <div className="flex items-center gap-1.5 font-semibold text-red-300 border-b border-white/10 pb-1.5 mb-1.5">
-                  <Clock className="h-3.5 w-3.5 text-red-400" />
-                  <span>{overdueCards} Overdue {overdueCards === 1 ? "Card" : "Cards"}</span>
-                </div>
-                <p className="text-[11px] text-stone-400 leading-tight">
-                  There {overdueCards === 1 ? "is 1 task" : `are ${overdueCards} tasks`} past due date.
-                </p>
-              </div>
+          {/* ── Premium Control Bar ── */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full 2xl:w-auto 2xl:flex 2xl:items-center">
+            <div className="flex h-9 sm:h-10 2xl:w-28 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
+              <span className="text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
+              <span className="text-sm sm:text-base font-bold leading-none text-stone-200">{totalCards}</span>
             </div>
-          ) : null}
-        </div>
+            <div className="flex h-9 sm:h-10 2xl:w-28 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
+              <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-lavender select-none">
+                <span className="mr-1 h-2 w-2 rounded-full bg-dusk-lavender shrink-0" />
+                <span className="hidden min-[380px]:inline">Prog</span>
+              </span>
+              <span className="text-sm sm:text-base font-bold leading-none text-dusk-lavender">{doingCards}</span>
+            </div>
+            <div className="flex h-9 sm:h-10 2xl:w-28 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
+              <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-amber select-none">
+                <span className="mr-1 h-2 w-2 rounded-full bg-dusk-amber shrink-0" />
+                Done
+              </span>
+              <span className="text-sm sm:text-base font-bold leading-none text-dusk-amber">{doneCards}</span>
+            </div>
+          </div>
         </div>
 
         {/* ── Filters & Actions ── */}

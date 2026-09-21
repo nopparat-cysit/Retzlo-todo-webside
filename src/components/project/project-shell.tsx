@@ -202,18 +202,18 @@ export async function ProjectShell({
                 <span className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
               </div>
               <div className="min-w-0">
-                <div className="hidden min-[560px]:flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-stone-500">
+                <div className="hidden min-[640px]:flex lg:hidden 2xl:flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-stone-500">
                   <span>Workspace</span>
                   <span className="text-stone-700">/</span>
                   <span className="text-dusk-amber">Retzlo</span>
                 </div>
-                <h2 className="truncate text-sm sm:text-base font-semibold text-stone-100 max-w-[120px] min-[400px]:max-w-[180px] sm:max-w-[260px] md:max-w-none">{project.name}</h2>
+                <h2 className="truncate text-sm sm:text-base font-semibold text-stone-100 max-w-[120px] min-[400px]:max-w-[180px] sm:max-w-[240px] md:max-w-[280px] lg:max-w-[200px] xl:max-w-[320px] 2xl:max-w-none">{project.name}</h2>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <ProjectTopbarTools />
               <FocusModeToggle />
-              <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 md:flex">
+              <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 xl:flex">
                 <span className="text-stone-400">Command</span>
                 <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
               </div>
@@ -229,7 +229,7 @@ export async function ProjectShell({
               />
             </div>
           </header>
-          <div className="relative z-10 min-h-0 flex-1 overflow-hidden">{children}</div>
+          <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 overflow-hidden">{children}</div>
         </section>
       </div>
 
