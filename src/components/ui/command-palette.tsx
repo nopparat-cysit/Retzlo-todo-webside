@@ -339,7 +339,7 @@ export function CommandPalette({ projectId, projectName }: CommandPaletteProps) 
       role="dialog"
       aria-modal="true"
       aria-label="Command palette"
-      className="fixed inset-0 z-[200] flex items-start justify-center bg-ink-950/75 pt-[16vh] backdrop-blur-md"
+      className="fixed inset-0 z-[1500] flex items-start justify-center bg-ink-950/75 px-3 pt-[16vh] backdrop-blur-md"
       onClick={() => setOpen(false)}
     >
       {/* Panel */}

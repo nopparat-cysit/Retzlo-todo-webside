@@ -247,7 +247,7 @@ export function DiaryListPanel({
   }
 
   return (
-    <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3">
+    <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] gap-3">
       <div className="lofi-panel rounded-2xl p-4 sm:p-5">
         <div data-diary-hero-layout="single-row" className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">

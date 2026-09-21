@@ -221,10 +221,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ toast: addToast }}>
       {children}
 
-      {/* Toast stack — fixed bottom-right */}
+      {/* Toast stack — positioned comfortably above FAB hub to avoid overlap */}
       <div
         aria-label="Notifications"
-        className="pointer-events-none fixed bottom-6 right-6 z-[9999] flex flex-col-reverse gap-2"
+        className="pointer-events-none fixed bottom-24 right-4 sm:bottom-24 sm:right-6 bottom-safe z-[9999] flex flex-col-reverse gap-2"
       >
         {toasts.map((item) => (
           <div key={item.id} className="pointer-events-auto">

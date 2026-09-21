@@ -203,7 +203,7 @@ export function KanbanCard({
                     <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400 animate-ping" />
                   </span>
                   {/* Tooltip on hover */}
-                  <div className="pointer-events-none absolute right-0 top-full mt-1.5 z-30 hidden whitespace-nowrap rounded-lg border border-red-500/30 bg-ink-950/95 px-2.5 py-1 text-[11px] font-medium text-red-200 shadow-xl backdrop-blur-md group-hover/overdue:block animate-in fade-in zoom-in-95 duration-150">
+                  <div className="pointer-events-none absolute right-0 bottom-full mb-1.5 z-30 hidden whitespace-nowrap rounded-lg border border-red-500/30 bg-ink-950/95 px-2.5 py-1 text-[11px] font-medium text-red-200 shadow-xl backdrop-blur-md group-hover/overdue:block animate-in fade-in zoom-in-95 duration-150">
                     <p className="flex items-center gap-1.5">
                       <Clock className="h-3 w-3 text-red-400 shrink-0" />
                       <span>Overdue · {card.dueDate ? formatMediumDateTime(card.dueDate, card.dueDateAllDay) : "Past due"}</span>

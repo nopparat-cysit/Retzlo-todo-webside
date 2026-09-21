@@ -726,32 +726,56 @@ export function KanbanBoard({
         </div>
 
         {/* ── Premium Control Bar ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full xl:w-auto xl:flex xl:flex-wrap xl:items-center xl:justify-end">
-          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
-            <span className="text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
-            <span className="text-base font-bold leading-none text-stone-200">{totalCards}</span>
+        <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto xl:justify-end">
+          <div className="grid grid-cols-3 gap-2 flex-1 sm:flex-initial sm:flex sm:items-center">
+            <div className="flex h-10 sm:h-11 min-w-[5.5rem] sm:min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-2.5 sm:px-3">
+              <span className="text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
+              <span className="text-base font-bold leading-none text-stone-200">{totalCards}</span>
+            </div>
+            <div className="flex h-10 sm:h-11 min-w-[5.5rem] sm:min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-2.5 sm:px-3">
+              <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-lavender select-none">
+                <span className="mr-1 sm:mr-1.5 h-2 w-2 rounded-full bg-dusk-lavender shrink-0" />
+                <span className="hidden min-[420px]:inline">Progress</span>
+                <span className="min-[420px]:hidden">Prog</span>
+              </span>
+              <span className="text-base font-bold leading-none text-dusk-lavender">{doingCards}</span>
+            </div>
+            <div className="flex h-10 sm:h-11 min-w-[5.5rem] sm:min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-2.5 sm:px-3">
+              <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-amber select-none">
+                <span className="mr-1 sm:mr-1.5 h-2 w-2 rounded-full bg-dusk-amber shrink-0" />
+                Done
+              </span>
+              <span className="text-base font-bold leading-none text-dusk-amber">{doneCards}</span>
+            </div>
           </div>
-          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
-            <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-lavender select-none">
-              <span className="mr-1.5 h-2 w-2 rounded-full bg-dusk-lavender" />
-              Progress
-            </span>
-            <span className="text-base font-bold leading-none text-dusk-lavender">{doingCards}</span>
-          </div>
-          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
-            <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-amber select-none">
-              <span className="mr-1.5 h-2 w-2 rounded-full bg-dusk-amber" />
-              Done
-            </span>
-            <span className="text-base font-bold leading-none text-dusk-amber">{doneCards}</span>
-          </div>
-          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.5rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
-            <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-rose select-none">
-              <span className={cn("mr-1.5 h-2 w-2 rounded-full bg-dusk-rose", overdueCards > 0 ? "animate-pulse" : "")} />
-              Overdue
-            </span>
-            <span className="text-base font-bold leading-none text-dusk-rose">{overdueCards}</span>
-          </div>
+
+          {/* Overdue Indicator Icon (Top-Right Pulsing Icon with Hover Details) */}
+          {overdueCards > 0 ? (
+            <div className="group/overdue-top relative flex items-center shrink-0">
+              <div
+                className="relative flex h-10 sm:h-11 items-center gap-2 rounded-xl border border-red-500/40 bg-red-500/10 px-3 transition hover:border-red-400 hover:bg-red-500/20 cursor-help"
+                aria-label={`${overdueCards} overdue cards`}
+                title={`${overdueCards} overdue card${overdueCards > 1 ? "s" : ""}`}
+              >
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
+                </span>
+                <Clock className="h-4 w-4 text-red-400 animate-pulse" />
+                <span className="font-bold text-xs sm:text-sm text-red-300">{overdueCards}</span>
+              </div>
+              {/* Tooltip on hover showing details */}
+              <div className="pointer-events-none absolute right-0 top-full mt-1.5 z-40 hidden min-w-[190px] whitespace-nowrap rounded-xl border border-red-500/30 bg-ink-950/98 p-2.5 text-xs text-stone-200 shadow-2xl backdrop-blur-xl group-hover/overdue-top:block animate-in fade-in zoom-in-95 duration-150">
+                <div className="flex items-center gap-1.5 font-semibold text-red-300 border-b border-white/10 pb-1.5 mb-1.5">
+                  <Clock className="h-3.5 w-3.5 text-red-400" />
+                  <span>{overdueCards} Overdue {overdueCards === 1 ? "Card" : "Cards"}</span>
+                </div>
+                <p className="text-[11px] text-stone-400 leading-tight">
+                  There {overdueCards === 1 ? "is 1 task" : `are ${overdueCards} tasks`} past due date.
+                </p>
+              </div>
+            </div>
+          ) : null}
         </div>
         </div>
 
