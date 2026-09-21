@@ -137,8 +137,8 @@ export async function ProjectShell({
         className="pointer-events-none fixed inset-0 z-[240] bg-ink-950/60 opacity-0 backdrop-blur-sm transition-opacity duration-300 peer-checked:pointer-events-auto peer-checked:opacity-100 lg:hidden"
         aria-hidden="true"
       />
-      <div className="project-shell-grid grid h-[calc(100vh-1.5rem)] min-h-0 gap-3 transition-[grid-template-columns] duration-200 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="project-sidebar lofi-panel fixed bottom-3 left-3 top-3 z-[250] flex min-h-0 w-[280px] -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 peer-checked:translate-x-0 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
+      <div className="project-shell-grid grid h-[calc(100vh-1.5rem)] min-h-0 gap-2.5 transition-[grid-template-columns] duration-200 lg:grid-cols-[256px_minmax(0,1fr)]">
+        <aside className="project-sidebar lofi-panel fixed bottom-3 left-3 top-3 z-[250] flex min-h-0 w-[256px] -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-3.5 shadow-2xl backdrop-blur-xl transition-all duration-300 peer-checked:translate-x-0 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
           <div>
             <div className="flex items-center justify-between gap-2">
               <Link

@@ -727,7 +727,7 @@ export function ProjectCalendar({
 
           {/* Optional Upcoming Panel */}
           {isUpcomingOpen && (
-            <Panel className="flex w-80 shrink-0 flex-col overflow-hidden p-4 shadow-xl">
+            <Panel className="flex w-[280px] shrink-0 flex-col overflow-hidden p-3.5 shadow-xl">
               <div className="mb-3 flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-dusk-amber" />

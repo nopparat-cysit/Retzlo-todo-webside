@@ -147,7 +147,7 @@ export function KanbanCard({
         ref={setNodeRef}
         style={style}
         className={cn(
-          "scroll-mt-24 cursor-grab rounded-xl border p-3 text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 select-none touch-none",
+          "scroll-mt-24 cursor-grab rounded-xl border p-2.5 text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 select-none touch-none",
           colorMeta.cardClass,
           card.status === "DONE" && "card-completed",
           isDragging && "opacity-60",
@@ -170,19 +170,19 @@ export function KanbanCard({
           }
         }}
       >
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-start justify-between gap-1">
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-stone-100 break-words">{card.title}</p>
+              <p className="font-medium text-stone-100 break-words text-xs sm:text-sm">{card.title}</p>
               {visibleStickers.length > 0 && (
-                <div className="mt-1 flex flex-wrap gap-1.5 select-none leading-none">
+                <div className="mt-1 flex flex-wrap gap-1 select-none leading-none">
                   {visibleStickers.map((st, i) => (
                     <span
                       key={`${st}-${i}`}
-                      className="inline-grid h-7 w-7 cursor-default place-items-center transition-transform duration-200 hover:scale-110"
+                      className="inline-grid h-6 w-6 cursor-default place-items-center transition-transform duration-200 hover:scale-110"
                       title="Retro sticker"
                     >
-                      <RetroStickerImage size={28} src={st} />
+                      <RetroStickerImage size={24} src={st} />
                     </span>
                   ))}
                 </div>
@@ -192,10 +192,10 @@ export function KanbanCard({
               <Star className="h-3.5 w-3.5 shrink-0 fill-dusk-amber text-dusk-amber" />
             )}
           </div>
-          <div className="flex flex-wrap gap-2">
-            <span className={cn("rounded-full border px-2 py-1 text-xs", statusMeta.badgeClass)}>{statusMeta.label}</span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className={cn("rounded-full border px-1.5 py-0.5 text-[10px] font-medium leading-none", statusMeta.badgeClass)}>{statusMeta.label}</span>
             <span className={cn(
-              "rounded-full border px-2 py-1 text-xs uppercase tracking-wide",
+              "rounded-full border px-1.5 py-0.5 text-[10px] uppercase tracking-wide leading-none",
               card.priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400 font-semibold",
               card.priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber font-medium",
               card.priority === "LOW" && "border-white/10 bg-white/[0.04] text-stone-300 font-medium"
@@ -205,40 +205,40 @@ export function KanbanCard({
             {card.difficulty ? (
               <span
                 className={cn(
-                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold select-none",
+                  "inline-flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold leading-none select-none",
                   getDifficultyMetadata(card.difficulty)?.badgeClass
                 )}
                 title={getDifficultyMetadata(card.difficulty)?.title}
               >
-                <Zap className="h-3 w-3" />
+                <Zap className="h-2.5 w-2.5" />
                 {getDifficultyMetadata(card.difficulty)?.pointsLabel}
               </span>
             ) : null}
             {isOverdue ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/15 px-2 py-0.5 text-xs text-red-300 font-semibold animate-pulse">
-                <Clock className="h-3 w-3 shrink-0" />
+              <span className="inline-flex items-center gap-0.5 rounded-full border border-red-500/30 bg-red-500/15 px-1.5 py-0.5 text-[10px] text-red-300 font-semibold leading-none animate-pulse">
+                <Clock className="h-2.5 w-2.5 shrink-0" />
                 Overdue
               </span>
             ) : null}
             {card.checklist.length > 0 ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-xs font-medium text-dusk-cyan">
-                <CheckSquare className="h-3 w-3" />
+              <span className="inline-flex items-center gap-0.5 rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-dusk-cyan">
+                <CheckSquare className="h-2.5 w-2.5" />
                 {completedChecklist}/{card.checklist.length}
               </span>
             ) : null}
             {card.note ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/20 bg-dusk-lavender/10 px-2 py-0.5 text-xs font-medium text-dusk-lavender" title="This card has a note">
-                <FileText className="h-3 w-3" />
+              <span className="inline-flex items-center gap-0.5 rounded-full border border-dusk-lavender/20 bg-dusk-lavender/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-dusk-lavender" title="This card has a note">
+                <FileText className="h-2.5 w-2.5" />
                 Note
               </span>
             ) : null}
           </div>
-          {card.description ? <p className="line-clamp-3 text-xs leading-relaxed text-stone-300/90 break-words">{card.description}</p> : null}
+          {card.description ? <p className="line-clamp-2 text-xs leading-relaxed text-stone-300/90 break-words">{card.description}</p> : null}
           {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) ? (
-            <div className="flex items-center justify-between gap-2 pt-1">
+            <div className="flex items-center justify-between gap-1.5 pt-0.5">
               {(card.startDate || card.dueDate) ? (
                 <p
-                  className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/20 bg-dusk-amber/10 px-2 py-0.5 text-[11px] font-medium text-dusk-amber whitespace-nowrap min-w-0 max-w-[70%]"
+                  className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/20 bg-dusk-amber/10 px-2 py-0.5 text-[10px] font-medium text-dusk-amber whitespace-nowrap min-w-0 max-w-[70%]"
                   title={
                     card.startDate && card.dueDate
                       ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)} — กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`

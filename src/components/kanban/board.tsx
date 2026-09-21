@@ -692,11 +692,11 @@ export function KanbanBoard({
       }}
     >
       {/* ── Header ── */}
-      <div className="lofi-panel grid gap-2 rounded-2xl p-3">
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+      <div className="lofi-panel grid gap-2 rounded-xl p-2.5 sm:p-3">
+        <div className="flex flex-col gap-2.5 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-dusk-amber">Board Channel</p>
-          <h2 className="mt-0.5 flex flex-wrap items-center gap-2 text-lg font-semibold">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-dusk-amber font-semibold">Board Channel</p>
+          <h2 className="mt-0.5 flex flex-wrap items-center gap-2 text-base sm:text-lg font-semibold">
             {board.name}
             {isFocusMode && (
               <button
@@ -704,7 +704,7 @@ export function KanbanBoard({
                 onClick={toggleFocusMode}
                 title="Click to exit Focus Mode (or press F)"
                 aria-label="Exit focus mode"
-                className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2.5 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer"
+                className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer"
               >
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-dusk-amber animate-pulse" />
                 <span>FOCUS ACTIVE</span>
@@ -726,51 +726,51 @@ export function KanbanBoard({
         </div>
 
         {/* ── Premium Control Bar ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full xl:w-auto xl:flex xl:flex-wrap xl:items-center xl:justify-end">
-          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.25rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 w-full xl:w-auto xl:flex xl:flex-wrap xl:items-center xl:justify-end">
+          <div className="flex h-8.5 min-w-[6.25rem] flex-1 xl:w-[7.5rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/[0.025] px-2.5">
             <span className="text-[9px] uppercase tracking-wider text-stone-500 select-none">Total</span>
-            <span className="text-base font-bold leading-none text-stone-200">{totalCards}</span>
+            <span className="text-sm font-bold leading-none text-stone-200">{totalCards}</span>
           </div>
-          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.25rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+          <div className="flex h-8.5 min-w-[6.25rem] flex-1 xl:w-[7.5rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/[0.025] px-2.5">
             <span className="flex items-center text-[9px] uppercase tracking-wider text-dusk-lavender select-none">
               <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-dusk-lavender" />
               Progress
             </span>
-            <span className="text-base font-bold leading-none text-dusk-lavender">{doingCards}</span>
+            <span className="text-sm font-bold leading-none text-dusk-lavender">{doingCards}</span>
           </div>
-          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.25rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+          <div className="flex h-8.5 min-w-[6.25rem] flex-1 xl:w-[7.5rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/[0.025] px-2.5">
             <span className="flex items-center text-[9px] uppercase tracking-wider text-dusk-amber select-none">
               <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-dusk-amber" />
               Done
             </span>
-            <span className="text-base font-bold leading-none text-dusk-amber">{doneCards}</span>
+            <span className="text-sm font-bold leading-none text-dusk-amber">{doneCards}</span>
           </div>
-          <div className="flex h-11 min-w-[7.5rem] flex-1 xl:w-[8.25rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3">
+          <div className="flex h-8.5 min-w-[6.25rem] flex-1 xl:w-[7.5rem] xl:flex-initial shrink-0 items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/[0.025] px-2.5">
             <span className="flex items-center text-[9px] uppercase tracking-wider text-dusk-rose select-none">
               <span className={cn("mr-1.5 h-1.5 w-1.5 rounded-full bg-dusk-rose", overdueCards > 0 ? "animate-pulse" : "")} />
               Overdue
             </span>
-            <span className="text-base font-bold leading-none text-dusk-rose">{overdueCards}</span>
+            <span className="text-sm font-bold leading-none text-dusk-rose">{overdueCards}</span>
           </div>
         </div>
         </div>
 
         {/* ── Filters & Actions ── */}
-        <div className="flex flex-wrap items-center justify-start gap-2">
+        <div className="flex flex-wrap items-center justify-start gap-1.5">
           {/* Live Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-stone-500" />
+            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-stone-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search cards..."
-              className="h-9 w-44 rounded-xl border border-white/10 bg-white/[0.045] pl-9 pr-8 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/5"
+              className="h-8.5 w-40 rounded-lg border border-white/10 bg-white/[0.045] pl-8 pr-7 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/5"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-2.5 text-xs text-stone-500 hover:text-stone-300"
+                className="absolute right-2 top-2 text-xs text-stone-500 hover:text-stone-300"
               >
                 ✕
               </button>
@@ -782,7 +782,7 @@ export function KanbanBoard({
             type="button"
             onClick={() => setIsTodayFilterActive(!isTodayFilterActive)}
             className={cn(
-              "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
+              "flex h-8.5 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition select-none",
               isTodayFilterActive
                 ? "border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber font-semibold"
                 : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
@@ -800,7 +800,7 @@ export function KanbanBoard({
                 setAssigneeFilter((prev) => (prev === currentUserId ? "ALL" : currentUserId));
               }}
               className={cn(
-                "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
+                "flex h-8.5 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition select-none",
                 assigneeFilter === currentUserId
                   ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
                   : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
@@ -817,7 +817,7 @@ export function KanbanBoard({
               <SelectTrigger
                 aria-label="Filter cards by assignee"
                 className={cn(
-                  "h-9 w-auto min-w-[135px] max-w-[220px] gap-2 rounded-xl border px-3 text-xs font-medium transition cursor-pointer select-none [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
+                  "h-8.5 w-auto min-w-[130px] max-w-[210px] gap-2 rounded-lg border px-2.5 text-xs font-medium transition cursor-pointer select-none [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
                   assigneeFilter !== "ALL"
                     ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold [&>svg]:text-dusk-lavender"
                     : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
@@ -862,7 +862,7 @@ export function KanbanBoard({
               <button
                 type="button"
                 onClick={() => setAssigneeFilter("ALL")}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.035] text-stone-400 hover:border-white/20 hover:bg-white/5 hover:text-white transition"
+                className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.035] text-stone-400 hover:border-white/20 hover:bg-white/5 hover:text-white transition"
                 title="Clear assignee filter"
                 aria-label="Clear assignee filter"
               >
@@ -876,7 +876,7 @@ export function KanbanBoard({
             <button
               type="button"
               onClick={resetAllFilters}
-              className="flex h-9 items-center gap-1.5 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 text-xs font-medium text-dusk-amber transition hover:border-dusk-amber/50 hover:bg-dusk-amber/20 select-none"
+              className="flex h-8.5 items-center gap-1.5 rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 text-xs font-medium text-dusk-amber transition hover:border-dusk-amber/50 hover:bg-dusk-amber/20 select-none"
               title="Reset all active filters"
             >
               <X className="h-3.5 w-3.5" />
@@ -890,7 +890,7 @@ export function KanbanBoard({
             disabled={moveHistory.length === 0 || isSavingReorder || Boolean(activeCardId)}
             onClick={undoLastMove}
             className={cn(
-              "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
+              "flex h-8.5 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition select-none",
               moveHistory.length > 0
                 ? "border-dusk-cyan/40 bg-dusk-cyan/15 text-dusk-cyan hover:bg-dusk-cyan/20"
                 : "border-white/5 bg-white/[0.01] text-stone-600 cursor-not-allowed"
@@ -903,7 +903,7 @@ export function KanbanBoard({
 
           {/* Add Column Form */}
           <Button
-            className="h-9 text-xs"
+            className="h-8.5 rounded-lg px-3 text-xs"
             type="button"
             aria-label="Add column"
             onClick={openCreateColumnModal}

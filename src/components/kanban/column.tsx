@@ -324,7 +324,7 @@ export function KanbanColumn({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group flex h-full min-h-0 w-72 sm:w-[336px] shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
+        "group flex h-full min-h-0 w-[270px] sm:w-[280px] shrink-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
         isDropTarget &&
@@ -333,7 +333,7 @@ export function KanbanColumn({
       )}
     >
       {/* ── Header ── */}
-      <header className={cn("flex items-center gap-1.5 border-b border-white/10 px-2.5 py-2 select-none", theme.headerClass)}>
+      <header className={cn("flex items-center gap-1.5 border-b border-white/10 px-2 py-1.5 select-none", theme.headerClass)}>
         <button
           suppressHydrationWarning
           className="shrink-0 text-stone-600 transition-colors hover:text-dusk-lavender group-hover:text-stone-400 cursor-grab active:cursor-grabbing"
@@ -423,7 +423,7 @@ export function KanbanColumn({
       </div>
 
       {/* ── Cards List ── */}
-      <div ref={setCardZoneRef} data-card-zone={column.id} className={cn("scrollbar-soft min-h-20 flex-1 space-y-3 overflow-y-auto p-3", isDropTarget && "bg-white/[0.025]")}>
+      <div ref={setCardZoneRef} data-card-zone={column.id} className={cn("scrollbar-soft min-h-20 flex-1 space-y-2.5 overflow-y-auto p-2.5", isDropTarget && "bg-white/[0.025]")}>
         <SortableContext items={column.cards.map((card) => `card:${card.id}`)} strategy={verticalListSortingStrategy}>
           {column.cards.map((card) => (
             <KanbanCard
@@ -464,9 +464,9 @@ export function KanbanColumn({
       </div>
 
       {/* ── Quick-Add Form ── */}
-      <div className="border-t border-white/10 px-3 pb-3 pt-2">
+      <div className="border-t border-white/10 px-2.5 pb-2.5 pt-2">
         {isQuickAddOpen ? (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-2 transition-all duration-200 focus-within:border-dusk-lavender/40 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_12px_rgba(169,162,255,0.06)]">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-2 transition-all duration-200 focus-within:border-dusk-lavender/40 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_12px_rgba(169,162,255,0.06)]">
             <textarea
               ref={quickInputRef}
               rows={1}
@@ -489,7 +489,7 @@ export function KanbanColumn({
                   type="button"
                   size="sm"
                   variant="ghost"
-                  className="h-7 px-3 text-xs text-dusk-lavender hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
+                  className="h-7 px-2.5 text-xs text-dusk-lavender hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
                   disabled={!quickTitle.trim() || isSubmitting}
                   onClick={() => void handleQuickSubmit()}
                 >
@@ -513,7 +513,7 @@ export function KanbanColumn({
               type="button"
               onClick={openQuickAdd}
               className={cn(
-                "flex w-full items-center gap-1.5 rounded-full px-2 py-1.5 text-xs text-stone-500",
+                "flex w-full items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-stone-500",
                 "transition-colors hover:bg-white/5 hover:text-stone-300"
               )}
               aria-label="Quick add card"
@@ -521,8 +521,8 @@ export function KanbanColumn({
               <Plus className="h-3.5 w-3.5" />
               Quick add
             </button>
-            <Button className="w-full" type="button" variant="ghost" onClick={() => setIsModalOpen(true)}>
-              <Plus className="h-4 w-4" />
+            <Button className="w-full h-8 text-xs rounded-lg" type="button" variant="ghost" onClick={() => setIsModalOpen(true)}>
+              <Plus className="h-3.5 w-3.5" />
               Add card
             </Button>
           </div>
