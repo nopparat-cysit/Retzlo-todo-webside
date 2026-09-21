@@ -130,15 +130,15 @@ export async function ProjectShell({
     .slice(0, 2);
 
   return (
-    <main className="soft-grid-bg min-h-screen w-full overflow-hidden p-3">
+    <main className="soft-grid-bg min-h-[100dvh] w-full overflow-hidden p-2 sm:p-3">
       <input id="project-sidebar-toggle" className="peer sr-only" type="checkbox" />
       <label
         htmlFor="project-sidebar-toggle"
         className="pointer-events-none fixed inset-0 z-[240] bg-ink-950/60 opacity-0 backdrop-blur-sm transition-opacity duration-300 peer-checked:pointer-events-auto peer-checked:opacity-100 lg:hidden"
         aria-hidden="true"
       />
-      <div className="project-shell-grid grid h-[calc(100vh-1.5rem)] min-h-0 gap-3 transition-[grid-template-columns] duration-200 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="project-sidebar lofi-panel fixed bottom-3 left-3 top-3 z-[250] flex min-h-0 w-[280px] -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 peer-checked:translate-x-0 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
+      <div className="project-shell-grid grid h-[calc(100dvh-1rem)] sm:h-[calc(100dvh-1.5rem)] min-h-0 gap-2.5 sm:gap-3 transition-[grid-template-columns] duration-200 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="project-sidebar lofi-panel fixed bottom-2 left-2 top-2 z-[250] flex min-h-0 w-[min(280px,calc(100vw-2.5rem))] -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 peer-checked:translate-x-0 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
           <div>
             <div className="flex items-center justify-between gap-2">
               <Link
@@ -187,8 +187,8 @@ export async function ProjectShell({
         </aside>
 
         <section className="flex min-h-0 min-w-0 flex-col rounded-2xl">
-          <header className="lofi-panel relative z-40 mb-3 flex min-h-14 items-center justify-between gap-3 overflow-visible rounded-2xl px-3 sm:px-4">
-            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <header className="lofi-panel relative z-40 mb-3 flex min-h-14 items-center justify-between gap-2 sm:gap-3 overflow-visible rounded-2xl px-2.5 sm:px-4">
+            <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
               <label
                 htmlFor="project-sidebar-toggle"
                 className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender lg:hidden"
@@ -201,13 +201,13 @@ export async function ProjectShell({
               <div className="hidden h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.05] text-dusk-lavender sm:grid">
                 <span className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
               </div>
-              <div className="hidden min-w-0 min-[560px]:block">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-stone-500">
+              <div className="min-w-0">
+                <div className="hidden min-[560px]:flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-stone-500">
                   <span>Workspace</span>
                   <span className="text-stone-700">/</span>
                   <span className="text-dusk-amber">Retzlo</span>
                 </div>
-                <h2 className="truncate text-base font-semibold text-stone-100">{project.name}</h2>
+                <h2 className="truncate text-sm sm:text-base font-semibold text-stone-100 max-w-[120px] min-[400px]:max-w-[180px] sm:max-w-[260px] md:max-w-none">{project.name}</h2>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">

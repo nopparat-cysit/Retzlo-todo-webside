@@ -1776,3 +1776,23 @@ input:checked + .lofi-slider:before {
   }
 }
 
+/* ── Mobile & Touch UX Responsive Utilities ── */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+}
+
+.scroll-touch-x {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.75rem);
+}
+
+.bottom-safe {
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+

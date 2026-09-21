@@ -533,9 +533,9 @@ export function ProjectsDashboard({
   }
 
   return (
-    <main className="soft-grid-bg h-screen w-full overflow-hidden p-3 sm:p-4 lg:p-5">
-      <div className="grid h-full min-h-0 gap-4 lg:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)_360px]">
-        <aside className="lofi-panel relative flex min-h-0 flex-col overflow-hidden rounded-2xl p-5 lg:sticky lg:top-5 lg:h-[calc(100vh-2.5rem)]">
+    <main className="soft-grid-bg min-h-[100dvh] lg:h-screen w-full overflow-y-auto lg:overflow-hidden p-3 sm:p-4 lg:p-5">
+      <div className="grid min-h-0 gap-4 lg:h-full lg:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)_360px]">
+        <aside className="lofi-panel relative flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 sm:p-5 lg:sticky lg:top-5 lg:h-[calc(100dvh-2.5rem)]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="grid h-10 w-10 place-items-center rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/10 text-dusk-lavender">

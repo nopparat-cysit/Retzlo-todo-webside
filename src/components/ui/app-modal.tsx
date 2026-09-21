@@ -117,7 +117,7 @@ export function AppModal({
     <ModalPortal>
       <div
         className={cn(
-          "fixed inset-0 z-[1000] grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm",
+          "fixed inset-0 z-[1000] grid place-items-center overflow-y-auto scroll-touch bg-ink-950/80 p-2 sm:p-4 md:py-6 backdrop-blur-sm",
           className
         )}
         role="dialog"

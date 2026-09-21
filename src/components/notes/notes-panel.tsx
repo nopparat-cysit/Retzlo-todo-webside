@@ -294,11 +294,11 @@ export function NotesPanel({
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-1 gap-2">
             {NOTE_FILTERS.map((item) => (
               <button
                 className={cn(
-                  "flex w-full items-center justify-between gap-3 rounded-lg border px-3 py-2 text-left transition",
+                  "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left transition",
                   filter === item.value
                     ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
                     : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
@@ -307,44 +307,46 @@ export function NotesPanel({
                 type="button"
                 onClick={() => setFilter(item.value)}
               >
-                <span>
-                  <span className="block text-sm font-semibold">{item.label}</span>
-                  <span className="text-xs text-stone-500">{item.hint}</span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold truncate">{item.label}</span>
+                  <span className="hidden xl:block text-xs text-stone-500 truncate">{item.hint}</span>
                 </span>
-                <span className="rounded-md bg-ink-950/45 px-2 py-1 text-xs text-dusk-lavender">{filterCounts[item.value]}</span>
+                <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0">{filterCounts[item.value]}</span>
               </button>
             ))}
           </div>
-          <div className="mt-3 rounded-lg border border-white/10 bg-ink-950/35 p-3">
-            <FilterSelect
-              label="Sort"
-              value={sortBy}
-              options={[
-                { value: "updated", label: "Updated" },
-                { value: "created", label: "Created" },
-                { value: "due", label: "Due date" },
-                { value: "title", label: "Title" }
-              ]}
-              onValueChange={setSortBy}
-            />
-          </div>
-          {availableBoards.length > 0 && (
-            <div className="mt-2 rounded-lg border border-white/10 bg-ink-950/35 p-3">
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2">
+            <div className="rounded-lg border border-white/10 bg-ink-950/35 p-2.5">
               <FilterSelect
-                label="Board Scope"
-                value={boardFilter}
+                label="Sort"
+                value={sortBy}
                 options={[
-                  { value: "all", label: "All boards & notes" },
-                  { value: "general", label: "Project-wide only (No board)" },
-                  ...availableBoards.map((b) => ({
-                    value: b.id,
-                    label: `${b.name}${b.isPrivate ? " (Private)" : ""}`
-                  }))
+                  { value: "updated", label: "Updated" },
+                  { value: "created", label: "Created" },
+                  { value: "due", label: "Due date" },
+                  { value: "title", label: "Title" }
                 ]}
-                onValueChange={setBoardFilter}
+                onValueChange={setSortBy}
               />
             </div>
-          )}
+            {availableBoards.length > 0 && (
+              <div className="rounded-lg border border-white/10 bg-ink-950/35 p-2.5">
+                <FilterSelect
+                  label="Board Scope"
+                  value={boardFilter}
+                  options={[
+                    { value: "all", label: "All boards & notes" },
+                    { value: "general", label: "Project-wide only (No board)" },
+                    ...availableBoards.map((b) => ({
+                      value: b.id,
+                      label: `${b.name}${b.isPrivate ? " (Private)" : ""}`
+                    }))
+                  ]}
+                  onValueChange={setBoardFilter}
+                />
+              </div>
+            )}
+          </div>
           {!allowMemberPrivateItems && !isOwner ? (
             <div className="mt-3 rounded-lg border border-dusk-amber/20 bg-dusk-amber/10 p-3 text-xs leading-5 text-dusk-amber">
               This project does not allow members to hide their own notes.
@@ -424,7 +426,7 @@ export function NotesPanel({
           </div>
         </main>
 
-        <aside className="lofi-panel flex min-h-0 flex-col rounded-lg p-3" data-notes-quick-capture="quick-capture">
+        <aside className="lofi-panel hidden xl:flex min-h-0 flex-col rounded-lg p-3" data-notes-quick-capture="quick-capture">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber">Quick capture</p>

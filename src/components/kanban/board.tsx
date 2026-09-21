@@ -765,7 +765,7 @@ export function KanbanBoard({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search cards..."
-              className="h-9 w-44 rounded-xl border border-white/10 bg-white/[0.045] pl-8.5 pr-7 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/5"
+              className="h-9 w-36 sm:w-44 rounded-xl border border-white/10 bg-white/[0.045] pl-8.5 pr-7 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/5"
             />
             {searchQuery && (
               <button
@@ -1055,7 +1055,7 @@ export function KanbanBoard({
           </div>
         ) : (
           <div className="relative mt-4 flex min-h-0 flex-1">
-            <div className="scrollbar-soft flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1">
+            <div className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1 snap-x snap-mandatory">
               <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
                 {filteredColumns.map((column, index) => (
                   <KanbanColumn

@@ -94,6 +94,7 @@ export function DiaryListPanel({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProjectDiaryItem | null>(null);
   const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<"shelf" | "checklist">("shelf");
   const [filter, setFilter] = useState<DiaryFilter>("all");
   const [sortBy, setSortBy] = useState<DiarySort>("due");
   const [error, setError] = useState<string | null>(null);
@@ -300,8 +301,42 @@ export function DiaryListPanel({
         </div>
       </div>
 
+      {/* Mobile Tab Switcher */}
+      <div className="flex lg:hidden rounded-xl border border-white/10 bg-ink-950/40 p-1 gap-1 shrink-0">
+        <button
+          type="button"
+          onClick={() => setMobileTab("shelf")}
+          className={cn(
+            "flex-1 py-1.5 rounded-lg text-xs font-semibold transition text-center",
+            mobileTab === "shelf"
+              ? "bg-dusk-lavender text-ink-950 shadow-sm"
+              : "text-stone-400 hover:text-stone-200"
+          )}
+        >
+          Rituals ({visibleItems.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab("checklist")}
+          className={cn(
+            "flex-1 py-1.5 rounded-lg text-xs font-semibold transition text-center truncate px-2",
+            mobileTab === "checklist"
+              ? "bg-dusk-lavender text-ink-950 shadow-sm"
+              : "text-stone-400 hover:text-stone-200"
+          )}
+        >
+          {focusedItem ? focusedItem.title : "Today Checklist"}
+        </button>
+      </div>
+
       <div className="grid min-h-0 gap-3 lg:grid-cols-[20rem_minmax(0,1fr)]">
-        <aside data-diary-list-rail="pinned-lists" className="lofi-panel flex min-h-0 flex-col rounded-2xl p-3.5 sm:p-4">
+        <aside
+          data-diary-list-rail="pinned-lists"
+          className={cn(
+            "lofi-panel flex min-h-0 flex-col rounded-2xl p-3.5 sm:p-4",
+            mobileTab === "checklist" && "hidden lg:flex"
+          )}
+        >
           <div className="mb-2.5 flex flex-col gap-2 border-b border-white/10 pb-2.5">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -355,7 +390,10 @@ export function DiaryListPanel({
                             key={item.id}
                             item={item}
                             selected={focusedItem?.id === item.id}
-                            onClick={() => setFocusedItemId(item.id)}
+                            onClick={() => {
+                              setFocusedItemId(item.id);
+                              setMobileTab("checklist");
+                            }}
                           />
                         ))}
                     </div>
@@ -372,7 +410,10 @@ export function DiaryListPanel({
                             key={item.id}
                             item={item}
                             selected={focusedItem?.id === item.id}
-                            onClick={() => setFocusedItemId(item.id)}
+                            onClick={() => {
+                              setFocusedItemId(item.id);
+                              setMobileTab("checklist");
+                            }}
                           />
                         ))}
                     </div>
@@ -385,7 +426,10 @@ export function DiaryListPanel({
                   key={item.id}
                   item={item}
                   selected={focusedItem?.id === item.id}
-                  onClick={() => setFocusedItemId(item.id)}
+                  onClick={() => {
+                    setFocusedItemId(item.id);
+                    setMobileTab("checklist");
+                  }}
                 />
               ))
             )}
@@ -396,7 +440,13 @@ export function DiaryListPanel({
           </Button>
         </aside>
 
-        <main data-diary-checklist-panel="today-checklist" className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl p-0">
+        <main
+          data-diary-checklist-panel="today-checklist"
+          className={cn(
+            "lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl p-0",
+            mobileTab === "shelf" && "hidden lg:flex"
+          )}
+        >
           {error ? <div className="p-4 pb-0"><p className="rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p></div> : null}
           {!allowMemberPrivateItems && !isOwner ? (
             <div className="p-4 pb-0">
@@ -415,6 +465,7 @@ export function DiaryListPanel({
               onToggleHidden={() => updateItem(focusedItem.id, { isHidden: !focusedItem.isHidden })}
               onDelete={() => setIsDeleteConfirmOpen(true)}
               onChecklistChange={(checklist) => updateChecklist(focusedItem, checklist)}
+              onBack={() => setMobileTab("shelf")}
             />
           ) : (
             <div className="grid min-h-0 flex-1 place-items-center p-8 text-center">
@@ -631,7 +682,8 @@ function DiaryFocusCard({
   onStar,
   onToggleHidden,
   onDelete,
-  selectedDate
+  selectedDate,
+  onBack
 }: {
   item: DiaryItemWithSummary;
   onChecklistChange: (checklist: DiaryChecklistItem[]) => void;
@@ -640,6 +692,7 @@ function DiaryFocusCard({
   onToggleHidden: () => void;
   onDelete: () => void;
   selectedDate: string;
+  onBack?: () => void;
 }) {
   const { toast } = useToast();
   const [newStepLabel, setNewStepLabel] = useState("");
@@ -723,6 +776,15 @@ function DiaryFocusCard({
       <div className={cn("border-b border-white/10 bg-white/[0.015] px-4 py-3 sm:px-5 sm:py-3.5", colorMeta.softClass)}>
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="mb-1 inline-flex items-center gap-1 text-xs font-semibold text-dusk-amber hover:underline lg:hidden cursor-pointer"
+              >
+                ← Back to rituals
+              </button>
+            )}
             <div className="flex flex-wrap items-center gap-2">
               <span className={cn("h-3 w-3 shrink-0 rounded-full border", colorMeta.swatchClass)} />
               <h2 className="truncate text-base sm:text-lg font-bold tracking-tight text-stone-100">

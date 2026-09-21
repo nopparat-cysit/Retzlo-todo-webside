@@ -674,7 +674,7 @@ export function ProjectCalendar({
                         key={key}
                         onClick={() => setSelectedDayKey(key)}
                         className={cn(
-                          "group relative flex min-h-[110px] sm:min-h-[135px] flex-col p-2 sm:p-2.5 transition cursor-pointer",
+                          "group relative flex min-h-[80px] sm:min-h-[135px] flex-col p-1.5 sm:p-2.5 transition cursor-pointer",
                           current ? "bg-dusk-amber/[0.04]" : "bg-[#090817]",
                           muted ? "opacity-35 bg-[#060512]" : "hover:bg-white/[0.025]"
                         )}
@@ -727,7 +727,14 @@ export function ProjectCalendar({
 
           {/* Optional Upcoming Panel */}
           {isUpcomingOpen && (
-            <Panel className="flex w-80 shrink-0 flex-col overflow-hidden p-4 shadow-xl">
+            <>
+              {/* Mobile overlay backdrop */}
+              <div
+                className="fixed inset-0 z-40 bg-ink-950/70 backdrop-blur-sm lg:hidden"
+                onClick={() => setIsUpcomingOpen(false)}
+                aria-hidden="true"
+              />
+              <Panel className="fixed inset-y-2 right-2 z-50 flex w-[min(340px,calc(100vw-1rem))] shrink-0 flex-col overflow-hidden p-4 shadow-2xl lg:static lg:inset-auto lg:z-auto lg:w-80 lg:shadow-xl">
               <div className="mb-3 flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-dusk-amber" />
@@ -771,6 +778,7 @@ export function ProjectCalendar({
                 ) : null}
               </div>
             </Panel>
+            </>
           )}
         </div>
       </div>

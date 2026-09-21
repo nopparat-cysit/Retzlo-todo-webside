@@ -219,7 +219,7 @@ export function FabHub() {
 
   return (
     <>
-      <div ref={containerRef} className="fixed bottom-6 right-6 z-[120] flex flex-col items-end gap-3">
+      <div ref={containerRef} className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bottom-safe z-[120] flex flex-col items-end gap-3">
         {/* Action buttons */}
         <div
           className={cn(
