@@ -246,8 +246,8 @@ export function DiaryListPanel({
   }
 
   return (
-    <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-2.5">
-      <div className="lofi-panel rounded-xl p-3 sm:p-3.5">
+    <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3">
+      <div className="lofi-panel rounded-2xl p-4 sm:p-5">
         <div data-diary-hero-layout="single-row" className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-dusk-amber font-semibold">
@@ -255,34 +255,34 @@ export function DiaryListPanel({
               Diary List
             </div>
             <div className="mt-0.5 flex flex-wrap items-baseline gap-2">
-              <h2 className="text-lg font-bold leading-tight text-stone-100 sm:text-xl">Today rhythm</h2>
-              <span className="inline-flex items-center rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[11px] font-medium font-mono text-dusk-amber">
+              <h2 className="text-xl font-bold leading-tight text-stone-100 sm:text-2xl">Today rhythm</h2>
+              <span className="inline-flex items-center rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-xs font-medium font-mono text-dusk-amber">
                 {formatMediumDate(`${selectedDate}T00:00:00.000Z`)}
               </span>
             </div>
-            <p className="mt-0.5 max-w-xl text-xs text-stone-400 leading-relaxed truncate sm:whitespace-normal">
+            <p className="mt-1 max-w-xl text-xs text-stone-400 leading-relaxed truncate sm:whitespace-normal">
               Recurring checklists for the routines that matter today. Upcoming items stay calm and lower in priority.
             </p>
           </div>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-2.5 xl:ml-auto">
+          <div className="flex shrink-0 flex-wrap items-center gap-3 xl:ml-auto">
             {/* Metrics Pill Control Bar */}
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-2">
               <DiaryMetric label="Due today" value={dueTodayCount} tone="lavender" />
               <DiaryMetric label="Done" value={completedTodayCount} tone="cyan" />
               <DiaryMetric label="Starred" value={itemsWithSummary.filter((item) => item.isStarred).length} tone="amber" />
             </div>
 
             {/* Action Buttons Cluster */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <Link
                 href={`/project/${projectId}/calendar`}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 text-xs font-medium text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/[0.08]"
+                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-xs font-medium text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/[0.08]"
               >
                 <CalendarDays className="h-3.5 w-3.5 text-dusk-lavender" />
                 <span>Calendar</span>
               </Link>
-              <Button className="h-8 rounded-lg px-3 text-xs font-medium" type="button" onClick={() => setIsCreateOpen(true)}>
+              <Button className="h-9 rounded-xl px-3.5 text-xs font-medium" type="button" onClick={() => setIsCreateOpen(true)}>
                 <Plus className="h-3.5 w-3.5" />
                 <span>Add diary</span>
               </Button>
@@ -291,17 +291,17 @@ export function DiaryListPanel({
             <Image
               alt=""
               aria-hidden="true"
-              className="pointer-events-none hidden h-10 w-10 shrink-0 object-contain drop-shadow-[0_4px_8px_rgba(8,8,23,0.5)] md:block"
-              height={40}
+              className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_4px_8px_rgba(8,8,23,0.5)] md:block"
+              height={64}
               src="/stickers/retro/retro-sticker-02-diary-notebook.png"
-              width={40}
+              width={64}
             />
           </div>
         </div>
       </div>
 
-      <div className="grid min-h-0 gap-2.5 lg:grid-cols-[17.5rem_minmax(0,1fr)]">
-        <aside data-diary-list-rail="pinned-lists" className="lofi-panel flex min-h-0 flex-col rounded-xl p-3">
+      <div className="grid min-h-0 gap-3 lg:grid-cols-[20rem_minmax(0,1fr)]">
+        <aside data-diary-list-rail="pinned-lists" className="lofi-panel flex min-h-0 flex-col rounded-2xl p-3.5 sm:p-4">
           <div className="mb-2.5 flex flex-col gap-2 border-b border-white/10 pb-2.5">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -396,7 +396,7 @@ export function DiaryListPanel({
           </Button>
         </aside>
 
-        <main data-diary-checklist-panel="today-checklist" className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl p-0">
+        <main data-diary-checklist-panel="today-checklist" className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl p-0">
           {error ? <div className="p-4 pb-0"><p className="rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p></div> : null}
           {!allowMemberPrivateItems && !isOwner ? (
             <div className="p-4 pb-0">
@@ -490,16 +490,16 @@ function DiaryMetric({
   return (
     <div
       className={cn(
-        "flex h-8 min-w-[5.75rem] items-center justify-between gap-2 rounded-lg border bg-white/[0.025] px-2.5 transition-all select-none",
+        "flex h-9 min-w-[6.75rem] items-center justify-between gap-2 rounded-xl border bg-white/[0.025] px-3 transition-all select-none",
         tone === "amber" && "border-dusk-amber/25 text-dusk-amber hover:border-dusk-amber/40 hover:bg-dusk-amber/5",
         tone === "cyan" && "border-dusk-cyan/25 text-dusk-cyan hover:border-dusk-cyan/40 hover:bg-dusk-cyan/5",
         tone === "lavender" && "border-dusk-lavender/25 text-dusk-lavender hover:border-dusk-lavender/40 hover:bg-dusk-lavender/5"
       )}
     >
-      <span className="flex items-center text-[9px] uppercase tracking-wider font-semibold">
+      <span className="flex items-center text-[10px] uppercase tracking-wider font-semibold">
         <span
           className={cn(
-            "mr-1.5 h-1.5 w-1.5 rounded-full shrink-0",
+            "mr-1.5 h-2 w-2 rounded-full shrink-0",
             tone === "amber" && "bg-dusk-amber",
             tone === "cyan" && "bg-dusk-cyan",
             tone === "lavender" && "bg-dusk-lavender"
@@ -509,7 +509,7 @@ function DiaryMetric({
       </span>
       <span
         className={cn(
-          "text-xs font-bold font-mono leading-none",
+          "text-sm font-bold font-mono leading-none",
           tone === "amber" && "text-dusk-amber",
           tone === "cyan" && "text-dusk-cyan",
           tone === "lavender" && "text-dusk-lavender"
