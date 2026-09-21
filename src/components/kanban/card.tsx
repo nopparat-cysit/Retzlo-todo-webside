@@ -171,7 +171,7 @@ export function KanbanCard({
         }}
       >
         <div className="space-y-2">
-          <div className="flex items-start justify-between gap-1">
+          <div className="flex items-start justify-between gap-1.5">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-stone-100 break-words">{card.title}</p>
               {visibleStickers.length > 0 && (
@@ -188,9 +188,33 @@ export function KanbanCard({
                 </div>
               )}
             </div>
-            {card.isStarred && (
-              <Star className="h-3.5 w-3.5 shrink-0 fill-dusk-amber text-dusk-amber" />
-            )}
+            <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
+              {isOverdue && (
+                <div
+                  className="group/overdue relative flex items-center justify-center cursor-help"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span
+                    className="relative flex h-5 w-5 items-center justify-center rounded-full border border-red-500/40 bg-red-500/15 text-red-400 hover:border-red-400 hover:bg-red-500/25 transition shadow-[0_0_8px_rgba(239,68,68,0.25)]"
+                    aria-label="Overdue task indicator"
+                    title={`Overdue: due on ${card.dueDate ? formatMediumDateTime(card.dueDate, card.dueDateAllDay) : "past due"}`}
+                  >
+                    <Clock className="h-3 w-3 animate-pulse text-red-400" />
+                    <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400 animate-ping" />
+                  </span>
+                  {/* Tooltip on hover */}
+                  <div className="pointer-events-none absolute right-0 top-full mt-1.5 z-30 hidden whitespace-nowrap rounded-lg border border-red-500/30 bg-ink-950/95 px-2.5 py-1 text-[11px] font-medium text-red-200 shadow-xl backdrop-blur-md group-hover/overdue:block animate-in fade-in zoom-in-95 duration-150">
+                    <p className="flex items-center gap-1.5">
+                      <Clock className="h-3 w-3 text-red-400 shrink-0" />
+                      <span>Overdue · {card.dueDate ? formatMediumDateTime(card.dueDate, card.dueDateAllDay) : "Past due"}</span>
+                    </p>
+                  </div>
+                </div>
+              )}
+              {card.isStarred && (
+                <Star className="h-3.5 w-3.5 shrink-0 fill-dusk-amber text-dusk-amber" />
+              )}
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <span className={cn("rounded-full border px-2 py-0.5 text-xs", statusMeta.badgeClass)}>{statusMeta.label}</span>
@@ -212,12 +236,6 @@ export function KanbanCard({
               >
                 <Zap className="h-3 w-3" />
                 {getDifficultyMetadata(card.difficulty)?.pointsLabel}
-              </span>
-            ) : null}
-            {isOverdue ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/15 px-2 py-0.5 text-xs text-red-300 font-semibold animate-pulse">
-                <Clock className="h-3 w-3 shrink-0" />
-                Overdue
               </span>
             ) : null}
             {card.checklist.length > 0 ? (
