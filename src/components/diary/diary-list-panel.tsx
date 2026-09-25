@@ -248,7 +248,7 @@ export function DiaryListPanel({
 
   return (
     <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] gap-3">
-      <div className="lofi-panel rounded-2xl p-4 sm:p-5">
+      <div className="lofi-panel rounded-2xl p-3.5 sm:p-5">
         <div data-diary-hero-layout="single-row" className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-dusk-amber font-semibold">
@@ -261,21 +261,21 @@ export function DiaryListPanel({
                 {formatMediumDate(`${selectedDate}T00:00:00.000Z`)}
               </span>
             </div>
-            <p className="mt-1 max-w-xl text-xs text-stone-400 leading-relaxed truncate sm:whitespace-normal">
+            <p className="mt-1 max-w-xl text-xs text-stone-400 leading-relaxed line-clamp-2 sm:line-clamp-none">
               Recurring checklists for the routines that matter today. Upcoming items stay calm and lower in priority.
             </p>
           </div>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-3 xl:ml-auto">
+          <div className="flex shrink-0 flex-wrap items-center gap-2.5 sm:gap-3 xl:ml-auto">
             {/* Metrics Pill Control Bar */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <DiaryMetric label="Due today" value={dueTodayCount} tone="lavender" />
               <DiaryMetric label="Done" value={completedTodayCount} tone="cyan" />
               <DiaryMetric label="Starred" value={itemsWithSummary.filter((item) => item.isStarred).length} tone="amber" />
             </div>
 
             {/* Action Buttons Cluster */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <Link
                 href={`/project/${projectId}/calendar`}
                 className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-xs font-medium text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/[0.08]"

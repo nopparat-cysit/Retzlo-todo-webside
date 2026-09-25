@@ -696,7 +696,7 @@ export function KanbanBoard({
       <div className="lofi-panel relative grid gap-2.5 rounded-2xl p-3 sm:p-3.5 max-w-full">
         {/* Overdue Indicator Icon (Top-Right Corner Pulsing Icon with Portal Hover Details) */}
         {overdueCards > 0 ? (
-          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20">
+          <div className="!absolute !top-2.5 !right-2.5 sm:!top-3 sm:!right-3 z-30">
             <TooltipProvider delayDuration={150}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -728,7 +728,7 @@ export function KanbanBoard({
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-2.5 2xl:flex-row 2xl:items-start 2xl:justify-between pr-10 sm:pr-12">
+        <div className={cn("flex flex-col gap-2.5 2xl:flex-row 2xl:items-start 2xl:justify-between", overdueCards > 0 && "pr-10 sm:pr-12")}>
           <div className="min-w-0 flex-1">
             <p className="text-[10px] uppercase tracking-[0.22em] text-dusk-amber font-semibold">Board Channel</p>
             <h2 className="mt-0.5 flex flex-wrap items-center gap-2 text-base sm:text-lg font-semibold">
@@ -762,21 +762,21 @@ export function KanbanBoard({
 
           {/* ── Premium Control Bar ── */}
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full 2xl:w-auto 2xl:flex 2xl:items-center">
-            <div className="flex h-9 sm:h-10 2xl:w-28 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
-              <span className="text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
+            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
+              <span className="truncate text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
               <span className="text-sm sm:text-base font-bold leading-none text-stone-200">{totalCards}</span>
             </div>
-            <div className="flex h-9 sm:h-10 2xl:w-28 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
-              <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-lavender select-none">
+            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
+              <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-dusk-lavender select-none">
                 <span className="mr-1 h-2 w-2 rounded-full bg-dusk-lavender shrink-0" />
-                <span className="hidden min-[380px]:inline">Prog</span>
+                <span className="truncate hidden min-[360px]:inline">Prog</span>
               </span>
               <span className="text-sm sm:text-base font-bold leading-none text-dusk-lavender">{doingCards}</span>
             </div>
-            <div className="flex h-9 sm:h-10 2xl:w-28 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
-              <span className="flex items-center text-[10px] uppercase tracking-wider text-dusk-amber select-none">
+            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
+              <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-dusk-amber select-none">
                 <span className="mr-1 h-2 w-2 rounded-full bg-dusk-amber shrink-0" />
-                Done
+                <span className="truncate">Done</span>
               </span>
               <span className="text-sm sm:text-base font-bold leading-none text-dusk-amber">{doneCards}</span>
             </div>
@@ -784,16 +784,16 @@ export function KanbanBoard({
         </div>
 
         {/* ── Filters & Actions ── */}
-        <div className="flex flex-wrap items-center justify-start gap-2">
+        <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2">
           {/* Live Search */}
-          <div className="relative">
+          <div className="relative flex-1 min-w-[130px] sm:flex-initial">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-stone-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search cards..."
-              className="h-9 w-36 sm:w-44 rounded-xl border border-white/10 bg-white/[0.045] pl-8.5 pr-7 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/5"
+              className="h-9 w-full sm:w-44 rounded-xl border border-white/10 bg-white/[0.045] pl-8.5 pr-7 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/5"
             />
             {searchQuery && (
               <button
@@ -810,14 +810,14 @@ export function KanbanBoard({
             type="button"
             onClick={() => setIsTodayFilterActive(!isTodayFilterActive)}
             className={cn(
-              "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
+              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition select-none",
               isTodayFilterActive
                 ? "border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber font-semibold"
                 : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
             )}
           >
             <CalendarClock className="h-3.5 w-3.5" />
-            Today
+            <span>Today</span>
           </button>
 
           {/* My Tasks Quick Filter */}
@@ -828,14 +828,14 @@ export function KanbanBoard({
                 setAssigneeFilter((prev) => (prev === currentUserId ? "ALL" : currentUserId));
               }}
               className={cn(
-                "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
+                "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition select-none",
                 assigneeFilter === currentUserId
                   ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
                   : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
               )}
             >
               <User className="h-3.5 w-3.5" />
-              My Tasks
+              <span>My Tasks</span>
             </button>
           )}
 
@@ -845,7 +845,7 @@ export function KanbanBoard({
               <SelectTrigger
                 aria-label="Filter cards by assignee"
                 className={cn(
-                  "h-9 w-auto min-w-[135px] max-w-[210px] gap-2 rounded-xl border px-3 text-xs font-medium transition cursor-pointer select-none [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
+                  "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[180px] sm:max-w-[210px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition cursor-pointer select-none [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
                   assigneeFilter !== "ALL"
                     ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold [&>svg]:text-dusk-lavender"
                     : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
@@ -904,11 +904,11 @@ export function KanbanBoard({
             <button
               type="button"
               onClick={resetAllFilters}
-              className="flex h-9 items-center gap-1.5 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-3 text-xs font-medium text-dusk-amber transition hover:border-dusk-amber/50 hover:bg-dusk-amber/20 select-none"
+              className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 sm:px-3 text-xs font-medium text-dusk-amber transition hover:border-dusk-amber/50 hover:bg-dusk-amber/20 select-none"
               title="Reset all active filters"
             >
               <X className="h-3.5 w-3.5" />
-              Clear filters ({activeFilterCount})
+              <span>Clear filters ({activeFilterCount})</span>
             </button>
           )}
 
@@ -918,7 +918,7 @@ export function KanbanBoard({
             disabled={moveHistory.length === 0 || isSavingReorder || Boolean(activeCardId)}
             onClick={undoLastMove}
             className={cn(
-              "flex h-9 items-center gap-1.5 rounded-xl border px-3 text-xs font-medium transition select-none",
+              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition select-none",
               moveHistory.length > 0
                 ? "border-dusk-cyan/40 bg-dusk-cyan/15 text-dusk-cyan hover:bg-dusk-cyan/20"
                 : "border-white/5 bg-white/[0.01] text-stone-600 cursor-not-allowed"
@@ -926,18 +926,18 @@ export function KanbanBoard({
             title="Undo last card move (Ctrl+Z)"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            Undo
+            <span className="hidden sm:inline">Undo</span>
           </button>
 
           {/* Add Column Form */}
           <Button
-            className="h-9 rounded-xl px-3.5 text-xs font-semibold"
+            className="h-9 shrink-0 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold"
             type="button"
             aria-label="Add column"
             onClick={openCreateColumnModal}
           >
             <Plus className="h-3.5 w-3.5" />
-            Column
+            <span className="hidden min-[360px]:inline">Column</span>
           </Button>
         </div>
       </div>

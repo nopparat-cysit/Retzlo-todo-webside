@@ -283,8 +283,8 @@ export function NotesPanel({
         </div>
       </div>
 
-      <div className="grid min-h-0 gap-3 xl:grid-cols-[17rem_minmax(0,1fr)_20rem]">
-        <aside className="lofi-panel flex min-h-0 flex-col rounded-lg p-3" data-notes-collection-rail="note-shelves">
+      <div className="grid min-h-0 gap-3 grid-cols-1 md:grid-cols-[14rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_20rem]">
+        <aside className="lofi-panel hidden md:flex min-h-0 flex-col rounded-lg p-3" data-notes-collection-rail="note-shelves">
           <div className="mb-3 flex items-center justify-between gap-2">
             <div>
               <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber">Shelves</p>
@@ -389,6 +389,61 @@ export function NotesPanel({
                 <Plus className="h-3.5 w-3.5" />
                 Add note
               </Button>
+            </div>
+          </div>
+          {/* Mobile Filter Controls (< md) */}
+          <div className="md:hidden mb-3 space-y-2">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {NOTE_FILTERS.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setFilter(item.value)}
+                  className={cn(
+                    "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                    filter === item.value
+                      ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                  )}
+                >
+                  <span>{item.label}</span>
+                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                    {filterCounts[item.value]}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-1 rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
+                <FilterSelect
+                  label="Sort"
+                  value={sortBy}
+                  options={[
+                    { value: "updated", label: "Updated" },
+                    { value: "created", label: "Created" },
+                    { value: "due", label: "Due date" },
+                    { value: "title", label: "Title" }
+                  ]}
+                  onValueChange={setSortBy}
+                />
+              </div>
+              {availableBoards.length > 0 && (
+                <div className="flex-1 rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
+                  <FilterSelect
+                    label="Board Scope"
+                    value={boardFilter}
+                    options={[
+                      { value: "all", label: "All boards & notes" },
+                      { value: "general", label: "Project-wide only" },
+                      ...availableBoards.map((b) => ({
+                        value: b.id,
+                        label: `${b.name}${b.isPrivate ? " (Private)" : ""}`
+                      }))
+                    ]}
+                    onValueChange={setBoardFilter}
+                  />
+                </div>
+              )}
             </div>
           </div>
           {error ? <p className="mb-3 rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p> : null}

@@ -426,8 +426,8 @@ export function ProjectCalendar({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold tracking-tight text-stone-100">{currentMonthLabel}</h2>
-                    <span className="rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[11px] font-semibold text-dusk-amber">
+                    <h2 className="text-base sm:text-xl font-bold tracking-tight text-stone-100">{currentMonthLabel}</h2>
+                    <span className="rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold text-dusk-amber truncate">
                       {rangeLabel}
                     </span>
                   </div>
@@ -618,7 +618,7 @@ export function ProjectCalendar({
               <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 shadow-xl">
                 {/* Weekday Header */}
                 <div
-                  className="grid border-b border-white/10 bg-white/[0.035] text-center text-xs font-semibold uppercase tracking-[0.2em] text-stone-400"
+                  className="grid border-b border-white/10 bg-white/[0.035] text-center text-[10px] sm:text-xs font-semibold uppercase tracking-normal sm:tracking-[0.2em] text-stone-400"
                   style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}
                 >
                   {calendarDays.slice(0, dayColumnCount).map((day) => {
@@ -694,8 +694,8 @@ export function ProjectCalendar({
                           </span>
 
                           {cellRenderItems.length > 3 ? (
-                            <span className="rounded-full bg-dusk-lavender/10 px-2 py-0.5 text-[10px] font-semibold text-dusk-lavender group-hover:bg-dusk-lavender/20 transition">
-                              +{cellRenderItems.length - 3} more
+                            <span className="rounded-full bg-dusk-lavender/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold text-dusk-lavender group-hover:bg-dusk-lavender/20 transition">
+                              +{cellRenderItems.length - 3}<span className="hidden min-[480px]:inline"> more</span>
                             </span>
                           ) : null}
                         </div>

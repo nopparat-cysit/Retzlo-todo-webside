@@ -535,7 +535,7 @@ export function ProjectsDashboard({
   return (
     <main className="soft-grid-bg min-h-[100dvh] lg:h-screen w-full overflow-y-auto lg:overflow-hidden p-3 sm:p-4 lg:p-5">
       <div className="grid min-h-0 gap-4 lg:h-full lg:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)_360px]">
-        <aside className="lofi-panel relative flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 sm:p-5 lg:sticky lg:top-5 lg:h-[calc(100dvh-2.5rem)]">
+        <aside className="lofi-panel relative order-2 lg:order-1 flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 sm:p-5 lg:sticky lg:top-5 lg:h-[calc(100dvh-2.5rem)]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="grid h-10 w-10 place-items-center rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/10 text-dusk-lavender">
@@ -749,7 +749,7 @@ export function ProjectsDashboard({
           </div>
         </aside>
 
-        <section className="flex min-h-0 min-w-0 flex-col">
+        <section className="order-1 lg:order-2 flex min-h-0 min-w-0 flex-col">
           {databaseWarning ? (
             <div className="mb-4 rounded-2xl border border-dusk-rose/25 bg-dusk-rose/10 px-4 py-3 text-sm leading-6 text-dusk-rose">
               {databaseWarning}
@@ -902,7 +902,7 @@ export function ProjectsDashboard({
                     )}
                   >
                     <KanbanSquare className="h-3.5 w-3.5" />
-                    <span>Boards Hub</span>
+                    <span className="hidden min-[380px]:inline">Boards Hub</span>
                   </button>
                   <button
                     type="button"
@@ -915,7 +915,7 @@ export function ProjectsDashboard({
                     )}
                   >
                     <LayoutGrid className="h-3.5 w-3.5" />
-                    <span>All Workspaces</span>
+                    <span className="hidden min-[380px]:inline">All Workspaces</span>
                     <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
                       {projectList.length}
                     </span>
@@ -926,19 +926,19 @@ export function ProjectsDashboard({
                   <Button
                     type="button"
                     onClick={() => setIsCreateBoardOpen(true)}
-                    className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition-all shadow-[0_10px_26px_rgba(169,162,255,0.2)] font-semibold"
+                    className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition-all shadow-[0_10px_26px_rgba(169,162,255,0.2)] font-semibold px-2.5 sm:px-4"
                   >
                     <Plus className="h-4 w-4" />
-                    New Board
+                    <span className="hidden sm:inline">New Board</span>
                   </Button>
                 ) : (
                   <Button
                     type="button"
                     onClick={() => setIsCreateOpen(true)}
-                    className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition-all shadow-[0_10px_26px_rgba(169,162,255,0.2)] font-semibold"
+                    className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition-all shadow-[0_10px_26px_rgba(169,162,255,0.2)] font-semibold px-2.5 sm:px-4"
                   >
                     <Plus className="h-4 w-4" />
-                    New Project
+                    <span className="hidden sm:inline">New Project</span>
                   </Button>
                 )}
               </div>
@@ -949,7 +949,7 @@ export function ProjectsDashboard({
               <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 pt-2 border-t border-white/10 scrollbar-none">
                 <Link
                   href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-dusk-amber/40 bg-dusk-amber/15 px-3 py-1.5 text-xs font-bold text-dusk-amber shadow-sm transition hover:bg-dusk-amber hover:text-ink-950"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-dusk-amber/40 bg-dusk-amber/15 px-3 py-1.5 text-xs font-bold text-dusk-amber shadow-sm transition hover:bg-dusk-amber hover:text-ink-950"
                   title="Open main workspace board"
                 >
                   <KanbanSquare className="h-3.5 w-3.5" />
@@ -960,7 +960,7 @@ export function ProjectsDashboard({
                 <button
                   type="button"
                   onClick={() => setViewMode("boards")}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/15 px-3 py-1.5 text-xs font-bold text-dusk-lavender shadow-sm"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/15 px-3 py-1.5 text-xs font-bold text-dusk-lavender shadow-sm"
                 >
                   <KanbanSquare className="h-3.5 w-3.5 text-dusk-lavender" />
                   <span>Boards Hub</span>
@@ -971,7 +971,7 @@ export function ProjectsDashboard({
 
                 <Link
                   href={`/project/${activeProject.id}/calendar`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-dusk-cyan/40 hover:bg-dusk-cyan/10 hover:text-dusk-cyan"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-dusk-cyan/40 hover:bg-dusk-cyan/10 hover:text-dusk-cyan"
                 >
                   <CalendarDays className="h-3.5 w-3.5 text-dusk-cyan" />
                   <span>Calendar</span>
@@ -979,7 +979,7 @@ export function ProjectsDashboard({
 
                 <Link
                   href={`/project/${activeProject.id}/notes`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-dusk-rose/40 hover:bg-dusk-rose/10 hover:text-dusk-rose"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-dusk-rose/40 hover:bg-dusk-rose/10 hover:text-dusk-rose"
                 >
                   <FileText className="h-3.5 w-3.5 text-dusk-rose" />
                   <span>Notes</span>
@@ -990,7 +990,7 @@ export function ProjectsDashboard({
 
                 <Link
                   href={`/project/${activeProject.id}/members`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-white/30 hover:bg-white/[0.08] hover:text-stone-200"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-white/30 hover:bg-white/[0.08] hover:text-stone-200"
                 >
                   <Users className="h-3.5 w-3.5 text-stone-300" />
                   <span>Members</span>
@@ -1001,7 +1001,7 @@ export function ProjectsDashboard({
 
                 <Link
                   href={`/project/${activeProject.id}/rewards`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-dusk-amber/40 hover:bg-dusk-amber/10 hover:text-dusk-amber"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-stone-400 transition hover:border-dusk-amber/40 hover:bg-dusk-amber/10 hover:text-dusk-amber"
                 >
                   <Gift className="h-3.5 w-3.5 text-dusk-amber" />
                   <span>Rewards</span>
@@ -1010,7 +1010,7 @@ export function ProjectsDashboard({
                 <button
                   type="button"
                   onClick={() => setEditingProjectForSettings(activeProject)}
-                  className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium text-stone-400 transition hover:border-white/30 hover:bg-white/[0.08] hover:text-stone-200"
+                  className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium text-stone-400 transition hover:border-white/30 hover:bg-white/[0.08] hover:text-stone-200"
                 >
                   <Settings className="h-3.5 w-3.5 text-stone-300" />
                   <span className="hidden sm:inline">Settings</span>

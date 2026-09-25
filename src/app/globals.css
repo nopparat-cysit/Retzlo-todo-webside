@@ -30,6 +30,30 @@
   --cursor-y: 50vh;
 }
 
+:root[data-theme="light"],
+.light {
+  color-scheme: light;
+  --background: #fbfaf8;
+  --foreground: #1c1917;
+  --panel: #ffffff;
+  --panel-strong: #faf7f2;
+  --paper: #f5f2eb;
+  --paper-strong: #ebe6dc;
+  --border: #e7e2d9;
+  --muted: #78716c;
+  --accent: #7c3aed;
+  --accent-2: #c48b28;
+  --danger: #e11d48;
+  --success: #16a34a;
+  --shadow-panel:
+    0 4px 20px -2px rgba(41, 37, 36, 0.06),
+    0 1px 3px rgba(41, 37, 36, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --shadow-glow: 0 0 24px rgba(169, 162, 255, 0.16);
+  --shadow-floating: 0 16px 40px -4px rgba(41, 37, 36, 0.14);
+  --lofi: var(--shadow-panel);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -1243,7 +1267,7 @@ body.focus-mode .board-notes-rail {
   opacity: 0.6;
 }
 
-.lofi-panel > * {
+.lofi-panel > *:not([class*="absolute"]) {
   position: relative;
   z-index: 1;
 }
@@ -1796,5 +1820,427 @@ input:checked + .lofi-slider:before {
 .bottom-safe {
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ✦ RETZLO WARM PAPER LIGHT MODE (Option B: Warm Cream & Ink Aesthetic) ✦
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Page Background & Ambient Radiance ── */
+[data-theme="light"] body,
+.light body {
+  color: #1c1917;
+  background:
+    radial-gradient(circle at 18% 10%, rgba(229, 189, 114, 0.09), transparent 28rem),
+    radial-gradient(circle at 78% 16%, rgba(213, 154, 179, 0.08), transparent 30rem),
+    linear-gradient(135deg, #fdfbf7, #f7f4ed 50%, #f3ede2),
+    #fbfaf8 !important;
+}
+
+[data-theme="light"] body::before,
+.light body::before {
+  opacity: 0.045;
+  background-image:
+    linear-gradient(rgba(41, 37, 36, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(41, 37, 36, 0.08) 1px, transparent 1px);
+}
+
+/* Hide CRT scanlines in light mode for a clean tactile paper reading experience */
+[data-theme="light"] body::after,
+.light body::after {
+  display: none !important;
+}
+
+[data-theme="light"] ::selection,
+.light ::selection {
+  color: #ffffff;
+  background: #7c3aed;
+}
+
+/* Tactile spotlight cursor aura for light mode */
+[data-theme="light"] .cursor-aura,
+.light .cursor-aura {
+  mix-blend-mode: multiply;
+  opacity: 0.22;
+  background:
+    radial-gradient(circle 18rem at var(--cursor-x) var(--cursor-y), rgba(169, 162, 255, 0.1), transparent 62%),
+    radial-gradient(circle 9rem at var(--cursor-x) var(--cursor-y), rgba(229, 189, 114, 0.08), transparent 70%);
+}
+
+[data-theme="light"] .soft-grid-bg,
+.light .soft-grid-bg {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(229, 189, 114, 0.08), transparent 22rem),
+    radial-gradient(circle at 88% 10%, rgba(213, 154, 179, 0.08), transparent 24rem),
+    linear-gradient(135deg, rgba(245, 242, 235, 0.65), rgba(253, 251, 247, 0.85)),
+    #fbfaf8 !important;
+}
+
+/* ── 2. Scrollbars in Light Mode ── */
+[data-theme="light"] .scrollbar-soft,
+.light .scrollbar-soft {
+  scrollbar-color: rgba(120, 113, 108, 0.26) transparent !important;
+}
+
+[data-theme="light"] .scrollbar-soft::-webkit-scrollbar-thumb,
+.light .scrollbar-soft::-webkit-scrollbar-thumb {
+  background: rgba(120, 113, 108, 0.22) !important;
+}
+
+[data-theme="light"] .scrollbar-soft::-webkit-scrollbar-thumb:hover,
+.light .scrollbar-soft::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 113, 108, 0.42) !important;
+}
+
+/* ── 3. Panels & Sidebars ── */
+[data-theme="light"] .lofi-panel,
+.light .lofi-panel {
+  border: 1px solid #e7e2d9 !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 20px -2px rgba(41, 37, 36, 0.06), 0 1px 3px rgba(41, 37, 36, 0.04) !important;
+}
+
+[data-theme="light"] .lofi-panel::before,
+.light .lofi-panel::before {
+  opacity: 0.15 !important;
+  background:
+    linear-gradient(145deg, rgba(245, 242, 235, 0.6), transparent 60%),
+    radial-gradient(circle at 25% 15%, rgba(169, 162, 255, 0.06), transparent 60%) !important;
+}
+
+[data-theme="light"] .project-sidebar,
+.light .project-sidebar {
+  background: #ffffff !important;
+  border-right: 1px solid #e7e2d9 !important;
+  box-shadow: 2px 0 16px rgba(41, 37, 36, 0.03) !important;
+}
+
+[data-theme="light"] .project-sidebar .lofi-panel,
+.light .project-sidebar .lofi-panel {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ── 4. Warm Charcoal & Mid-Stone Typography ── */
+[data-theme="light"] .text-stone-100,
+.light .text-stone-100 {
+  color: #1c1917 !important;
+}
+
+[data-theme="light"] .text-stone-200,
+.light .text-stone-200 {
+  color: #292524 !important;
+}
+
+[data-theme="light"] .text-stone-300,
+.light .text-stone-300 {
+  color: #44403c !important;
+}
+
+[data-theme="light"] .text-stone-400,
+.light .text-stone-400 {
+  color: #57534e !important;
+}
+
+[data-theme="light"] .text-stone-500,
+.light .text-stone-500 {
+  color: #78716c !important;
+}
+
+[data-theme="light"] .text-stone-600,
+.light .text-stone-600 {
+  color: #a8a29e !important;
+}
+
+[data-theme="light"] .text-stone-700,
+.light .text-stone-700 {
+  color: #d6d3d1 !important;
+}
+
+/* ── 5. Dark Inks Mapping to Clean Paper Surfaces ── */
+[data-theme="light"] .bg-ink-950,
+.light .bg-ink-950 {
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] .bg-ink-900,
+.light .bg-ink-900 {
+  background-color: #faf7f2 !important;
+}
+
+[data-theme="light"] .bg-ink-900\/95,
+.light .bg-ink-900\/95,
+[data-theme="light"] .bg-ink-900\/98,
+.light .bg-ink-900\/98 {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+}
+
+[data-theme="light"] .bg-ink-800,
+.light .bg-ink-800 {
+  background-color: #f5f2eb !important;
+}
+
+[data-theme="light"] .bg-ink-700,
+.light .bg-ink-700 {
+  background-color: #ebe6dc !important;
+}
+
+[data-theme="light"] .bg-\[\#020208\],
+.light .bg-\[\#020208\],
+[data-theme="light"] .bg-\[\#090817\],
+.light .bg-\[\#090817\],
+[data-theme="light"] .bg-\[\#080817\],
+.light .bg-\[\#080817\],
+[data-theme="light"] .bg-\[\#060512\],
+.light .bg-\[\#060512\] {
+  background-color: #ffffff !important;
+}
+
+/* Keep modal backdrops translucent dark so modals focus attention properly */
+[data-theme="light"] .fixed.inset-0.bg-ink-950\/80,
+.light .fixed.inset-0.bg-ink-950\/80,
+[data-theme="light"] .fixed.inset-0.bg-ink-950\/70,
+.light .fixed.inset-0.bg-ink-950\/70 {
+  background-color: rgba(28, 25, 23, 0.42) !important;
+}
+
+/* ── 6. Translucent Dark Layers to Warm Linen Tints ── */
+[data-theme="light"] .bg-white\/\[0\.015\],
+.light .bg-white\/\[0\.015\],
+[data-theme="light"] .bg-white\/\[0\.02\],
+.light .bg-white\/\[0\.02\],
+[data-theme="light"] .bg-white\/\[0\.025\],
+.light .bg-white\/\[0\.025\],
+[data-theme="light"] .bg-white\/\[0\.03\],
+.light .bg-white\/\[0\.03\],
+[data-theme="light"] .bg-white\/\[0\.035\],
+.light .bg-white\/\[0\.035\],
+[data-theme="light"] .bg-white\/\[0\.04\],
+.light .bg-white\/\[0\.04\],
+[data-theme="light"] .bg-white\/\[0\.045\],
+.light .bg-white\/\[0\.045\],
+[data-theme="light"] .bg-white\/\[0\.05\],
+.light .bg-white\/\[0\.05\],
+[data-theme="light"] .bg-white\/5,
+.light .bg-white\/5 {
+  background-color: #f7f4ee !important;
+}
+
+[data-theme="light"] .bg-white\/\[0\.06\],
+.light .bg-white\/\[0\.06\],
+[data-theme="light"] .bg-white\/\[0\.065\],
+.light .bg-white\/\[0\.065\],
+[data-theme="light"] .bg-white\/\[0\.07\],
+.light .bg-white\/\[0\.07\],
+[data-theme="light"] .bg-white\/\[0\.075\],
+.light .bg-white\/\[0\.075\],
+[data-theme="light"] .bg-white\/\[0\.08\],
+.light .bg-white\/\[0\.08\],
+[data-theme="light"] .bg-white\/\[0\.09\],
+.light .bg-white\/\[0\.09\],
+[data-theme="light"] .bg-white\/10,
+.light .bg-white\/10 {
+  background-color: #ede7da !important;
+}
+
+/* Hover background states */
+[data-theme="light"] .hover\:bg-white\/5:hover,
+.light .hover\:bg-white\/5:hover,
+[data-theme="light"] .hover\:bg-white\/10:hover,
+.light .hover\:bg-white\/10:hover,
+[data-theme="light"] .hover\:bg-white\/\[0\.06\]:hover,
+.light .hover\:bg-white\/\[0\.06\]:hover,
+[data-theme="light"] .hover\:bg-white\/\[0\.09\]:hover,
+.light .hover\:bg-white\/\[0\.09\]:hover,
+[data-theme="light"] .hover\:bg-white\/\[0\.11\]:hover,
+.light .hover\:bg-white\/\[0\.11\]:hover {
+  background-color: #e5ded0 !important;
+}
+
+/* ── 7. Soft Warm Linen Borders ── */
+[data-theme="light"] .border-white\/5,
+.light .border-white\/5 {
+  border-color: #f0ebe1 !important;
+}
+
+[data-theme="light"] .border-white\/10,
+.light .border-white\/10 {
+  border-color: #e7e2d9 !important;
+}
+
+[data-theme="light"] .border-white\/12,
+.light .border-white\/12 {
+  border-color: #e2dccf !important;
+}
+
+[data-theme="light"] .border-white\/14,
+.light .border-white\/14 {
+  border-color: #ddd7cb !important;
+}
+
+[data-theme="light"] .border-white\/15,
+.light .border-white\/15 {
+  border-color: #d8d1c3 !important;
+}
+
+[data-theme="light"] .border-white\/20,
+.light .border-white\/20 {
+  border-color: #cfc7b7 !important;
+}
+
+[data-theme="light"] .divide-white\/10 > :not([hidden]) ~ :not([hidden]),
+.light .divide-white\/10 > :not([hidden]) ~ :not([hidden]),
+[data-theme="light"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
+.light .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e7e2d9 !important;
+}
+
+/* ── 8. Form Controls (Input, Textarea, Select) ── */
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+.light input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+[data-theme="light"] textarea,
+.light textarea,
+[data-theme="light"] select,
+.light select {
+  background-color: #ffffff !important;
+  color: #1c1917 !important;
+  border-color: #e7e2d9 !important;
+  color-scheme: light !important;
+}
+
+[data-theme="light"] input::placeholder,
+.light input::placeholder,
+[data-theme="light"] textarea::placeholder,
+.light textarea::placeholder {
+  color: #a8a29e !important;
+}
+
+[data-theme="light"] input:focus,
+.light input:focus,
+[data-theme="light"] textarea:focus,
+.light textarea:focus,
+[data-theme="light"] select:focus,
+.light select:focus {
+  border-color: #a9a2ff !important;
+  box-shadow: 0 0 0 2px rgba(169, 162, 255, 0.22) !important;
+}
+
+/* ── 9. Kanban Board Columns & Sticky Cards ── */
+[data-theme="light"] section[data-column-id],
+.light section[data-column-id],
+[data-theme="light"] section.snap-center,
+.light section.snap-center {
+  background-color: #f7f4ee !important;
+  border-color: #e7e2d9 !important;
+  box-shadow: 0 6px 18px -3px rgba(41, 37, 36, 0.05) !important;
+}
+
+[data-theme="light"] section[data-column-id] header,
+.light section[data-column-id] header,
+[data-theme="light"] section.snap-center header,
+.light section.snap-center header {
+  border-color: #e7e2d9 !important;
+}
+
+/* Default Kanban Card: Crisp white card with soft shadow */
+[data-theme="light"] article[id^="card-"],
+.light article[id^="card-"] {
+  background-color: #ffffff !important;
+  border-color: #e7e2d9 !important;
+  box-shadow: 0 2px 6px -1px rgba(41, 37, 36, 0.06), 0 1px 2px rgba(41, 37, 36, 0.04) !important;
+}
+
+/* Pastel Sticky Notes for Card Colors in Light Mode */
+[data-theme="light"] article[id^="card-"].border-dusk-lavender\/35,
+.light article[id^="card-"].border-dusk-lavender\/35 {
+  background-color: #f5f3ff !important;
+  border-color: #ddd6fe !important;
+}
+
+[data-theme="light"] article[id^="card-"].border-dusk-cyan\/35,
+.light article[id^="card-"].border-dusk-cyan\/35 {
+  background-color: #ecfeff !important;
+  border-color: #a5f3fc !important;
+}
+
+[data-theme="light"] article[id^="card-"].border-dusk-amber\/35,
+.light article[id^="card-"].border-dusk-amber\/35 {
+  background-color: #fefce8 !important;
+  border-color: #fef08a !important;
+}
+
+[data-theme="light"] article[id^="card-"].border-dusk-rose\/35,
+.light article[id^="card-"].border-dusk-rose\/35 {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+}
+
+[data-theme="light"] article[id^="card-"].border-emerald-300\/30,
+.light article[id^="card-"].border-emerald-300\/30 {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+}
+
+[data-theme="light"] article[id^="card-"].border-violet-300\/30,
+.light article[id^="card-"].border-violet-300\/30 {
+  background-color: #f5f3ff !important;
+  border-color: #ddd6fe !important;
+}
+
+[data-theme="light"] article[id^="card-"].border-sky-300\/30,
+.light article[id^="card-"].border-sky-300\/30 {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+}
+
+[data-theme="light"] article[id^="card-"].border-pink-300\/30,
+.light article[id^="card-"].border-pink-300\/30 {
+  background-color: #fdf2f8 !important;
+  border-color: #fbcfe8 !important;
+}
+
+[data-theme="light"] article[id^="card-"].border-slate-300\/25,
+.light article[id^="card-"].border-slate-300\/25 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* ── 10. Modals, Floating Menus & Radix Popovers ── */
+[data-theme="light"] [role="dialog"]:not(.fixed),
+.light [role="dialog"]:not(.fixed),
+[data-theme="light"] [data-radix-popper-content-wrapper] > div,
+.light [data-radix-popper-content-wrapper] > div,
+[data-theme="light"] [data-radix-menu-content],
+.light [data-radix-menu-content] {
+  background-color: #ffffff !important;
+  border: 1px solid #e7e2d9 !important;
+  box-shadow: 0 16px 40px -4px rgba(41, 37, 36, 0.12), 0 4px 12px rgba(41, 37, 36, 0.06) !important;
+  color: #1c1917 !important;
+}
+
+/* ── 11. Retro Lofi Toggle Switch in Light Mode ── */
+[data-theme="light"] .lofi-slider,
+.light .lofi-slider {
+  background-color: #e7e2d9 !important;
+  border-color: #d6cfc2 !important;
+}
+
+[data-theme="light"] .lofi-slider:before,
+.light .lofi-slider:before {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(41, 37, 36, 0.2) !important;
+}
+
+[data-theme="light"] input:checked + .lofi-slider,
+.light input:checked + .lofi-slider {
+  background-color: #a9a2ff !important;
+  border-color: #a9a2ff !important;
+}
+
+[data-theme="light"] input:checked + .lofi-slider:before,
+.light input:checked + .lofi-slider:before {
+  background-color: #ffffff !important;
+}
+
 
 

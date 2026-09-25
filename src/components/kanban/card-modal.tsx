@@ -551,17 +551,18 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
           onClose();
         }}
         labelledBy="card-modal-title"
-        contentClassName="lofi-panel flex max-h-[92vh] max-w-5xl flex-col overflow-hidden rounded-lg"
+        contentClassName="lofi-panel flex w-full max-h-[90dvh] sm:max-h-[92dvh] max-w-5xl flex-col overflow-hidden rounded-t-2xl sm:rounded-2xl"
       >
       <form
-        className="flex max-h-[92vh] w-full flex-col overflow-hidden"
+        className="flex max-h-[90dvh] sm:max-h-[92dvh] w-full flex-col overflow-hidden"
         onSubmit={handleSubmit}
       >
-        <div className="shrink-0 border-b border-white/10 p-5">
+        <div className="shrink-0 border-b border-white/10 p-3.5 sm:p-5">
+        <div className="mx-auto -mt-1 mb-2.5 h-1 w-8 rounded-full bg-white/20 sm:hidden" />
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">{mode === "create" ? "New card" : "Edit card"}</p>
-            <h2 id="card-modal-title" className="mt-1 text-2xl font-semibold">{mode === "create" ? "Create card" : "Card details"}</h2>
+            <h2 id="card-modal-title" className="mt-1 text-xl sm:text-2xl font-semibold">{mode === "create" ? "Create card" : "Card details"}</h2>
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -601,7 +602,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         </div>
       </div>
 
-        <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5">
+        <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-3.5 sm:p-5">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] lg:items-start">
           <div className="grid gap-4">
           <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Card title" required />
@@ -773,7 +774,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
               ) : null}
             </div>
 
-            <div className="grid grid-cols-7 gap-1.5">
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 sm:gap-2">
               <button
                 type="button"
                 className={cn(
@@ -903,7 +904,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         </div>
         </div>
 
-        <div className="flex shrink-0 justify-end gap-2 border-t border-white/10 p-5">
+        <div className="flex shrink-0 flex-wrap sm:flex-nowrap justify-end gap-2 border-t border-white/10 p-3.5 sm:p-5 pb-safe">
           {footerAction}
           {mode === "edit" && onDelete ? (
             <Button type="button" variant="danger" onClick={onDelete}>

@@ -25,7 +25,7 @@ export default async function MembersPage({ params }: { params: { id: string } }
   return (
     <div className="scrollbar-soft h-full min-h-0 overflow-y-auto pr-1">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-8">
-        <section className="rounded-2xl border border-white/10 bg-white/[0.035] px-5 py-4">
+        <section className="rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3.5 sm:px-5 sm:py-4">
           <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Workspace</p>
           <h1 className="mt-1 text-2xl font-semibold text-stone-100">Project members</h1>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-stone-500">
@@ -34,7 +34,7 @@ export default async function MembersPage({ params }: { params: { id: string } }
         </section>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-          <Panel className="lofi-panel p-5">
+          <Panel className="lofi-panel p-3.5 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-stone-100">Active members</h2>
               <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-stone-400">
@@ -63,7 +63,7 @@ export default async function MembersPage({ params }: { params: { id: string } }
               ))}
             </div>
           </Panel>
-          <Panel className="lofi-panel p-5">
+          <Panel className="lofi-panel p-3.5 sm:p-5">
             <h3 className="mb-1 text-lg font-semibold text-stone-100">Invite member</h3>
             <p className="mb-4 text-xs text-stone-500">Send an invitation link to a teammate.</p>
             <InviteForm projectId={params.id} />

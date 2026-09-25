@@ -117,7 +117,7 @@ export function AppModal({
     <ModalPortal>
       <div
         className={cn(
-          "fixed inset-0 z-[1000] grid place-items-center overflow-y-auto scroll-touch bg-ink-950/80 p-2 sm:p-4 md:py-6 backdrop-blur-sm",
+          "fixed inset-0 z-[1000] flex items-end sm:items-center justify-center overflow-y-auto scroll-touch bg-ink-950/80 p-0 sm:p-4 md:py-6 backdrop-blur-sm",
           className
         )}
         role="dialog"
@@ -153,5 +153,5 @@ export function AppModal({
 }
 
 export function AppModalFooter({ className, ...props }: ComponentPropsWithoutRef<"div">) {
-  return <div className={cn("flex justify-end gap-2 border-t border-white/10 p-5", className)} {...props} />;
+  return <div className={cn("flex justify-end gap-2 border-t border-white/10 p-3.5 sm:p-5 pb-safe", className)} {...props} />;
 }

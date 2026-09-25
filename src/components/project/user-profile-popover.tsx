@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 
 interface UserProfilePopoverProps {
@@ -85,7 +86,11 @@ export function UserProfilePopover({
             <p className="truncate text-sm font-semibold text-stone-100">{name}</p>
             <p className="mt-0.5 truncate text-xs text-stone-500">{email}</p>
           </div>
-          <div className="mt-3 space-y-1 border-t border-white/10 pt-2">
+          <div className="mt-3 border-t border-white/10 pt-2.5">
+            <ThemeToggle variant="dropdown" />
+          </div>
+
+          <div className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
             <DropdownMenuItem asChild>
               <Link
                 href="/profile"

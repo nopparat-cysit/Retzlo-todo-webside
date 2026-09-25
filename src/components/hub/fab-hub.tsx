@@ -248,14 +248,14 @@ export function FabHub() {
           id="fab-hub-btn"
           aria-label={redStar ? (isOpen ? "Close display panel" : "Open display panel") : "Choose display"}
           className={cn(
-            "fab-main grid h-14 w-14 place-items-center rounded-full border shadow-[0_4px_24px_rgba(0,0,0,0.35)] transition-all duration-300",
+            "fab-main grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-full border shadow-[0_4px_24px_rgba(0,0,0,0.35)] transition-all duration-300",
             isOpen
               ? "border-dusk-rose/40 bg-dusk-rose/20 text-dusk-rose hover:bg-dusk-rose/30 rotate-45"
               : "border-dusk-lavender/30 bg-dusk-lavender/15 text-dusk-lavender hover:border-dusk-lavender/60 hover:bg-dusk-lavender/25"
           )}
           onClick={toggleHub}
         >
-          {isOpen ? <X className="h-6 w-6" /> : redStar ? <Star className="h-6 w-6 fill-current" /> : <Plus className="h-6 w-6" />}
+          {isOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : redStar ? <Star className="h-5 w-5 sm:h-6 sm:w-6 fill-current" /> : <Plus className="h-5 w-5 sm:h-6 sm:w-6" />}
         </button>
       </div>
 
@@ -316,8 +316,8 @@ function PinnedDisplayPanel({
           : "Note";
 
   return (
-    <div className="motion-floating-in w-[min(calc(100vw-2rem),24rem)] overflow-hidden rounded-2xl border border-white/12 bg-ink-950/92 text-left text-stone-100 shadow-[0_18px_54px_rgba(0,0,0,0.42)] backdrop-blur-xl">
-      <div className="border-b border-white/10 bg-white/[0.035] p-4">
+    <div className="motion-floating-in w-[min(calc(100vw-2rem),24rem)] max-h-[75dvh] flex flex-col overflow-hidden rounded-2xl border border-white/12 bg-ink-950/92 text-left text-stone-100 shadow-[0_18px_54px_rgba(0,0,0,0.42)] backdrop-blur-xl">
+      <div className="border-b border-white/10 bg-white/[0.035] p-4 shrink-0">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className={cn("text-xs uppercase tracking-[0.22em]", isDiary ? "text-dusk-lavender" : "text-dusk-cyan")}>
@@ -351,7 +351,7 @@ function PinnedDisplayPanel({
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 overflow-y-auto scrollbar-soft flex-1 min-h-0">
         {isLoading ? (
           <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm text-stone-400">
             Loading selected display...

@@ -381,7 +381,7 @@ export function KanbanColumn({
           </span>
 
           <button
-            className="grid h-6 w-6 place-items-center rounded-md text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
+            className="grid h-7 w-7 sm:h-6 sm:w-6 place-items-center rounded-md text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
             type="button"
             aria-label="Column settings"
             title="Column settings"
@@ -398,7 +398,7 @@ export function KanbanColumn({
             <Settings className="h-3.5 w-3.5" />
           </button>
           <button
-            className="grid h-6 w-6 place-items-center rounded-md text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
+            className="grid h-7 w-7 sm:h-6 sm:w-6 place-items-center rounded-md text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
             type="button"
             aria-label="Collapse column"
             title="Collapse column"
@@ -513,7 +513,7 @@ export function KanbanColumn({
               type="button"
               onClick={openQuickAdd}
               className={cn(
-                "flex w-full items-center gap-1.5 rounded-full px-2 py-1.5 text-xs text-stone-500",
+                "flex w-full items-center gap-1.5 rounded-full px-2.5 py-2 sm:py-1.5 text-xs text-stone-500",
                 "transition-colors hover:bg-white/5 hover:text-stone-300"
               )}
               aria-label="Quick add card"
@@ -521,7 +521,7 @@ export function KanbanColumn({
               <Plus className="h-3.5 w-3.5" />
               Quick add
             </button>
-            <Button className="w-full" type="button" variant="ghost" onClick={() => setIsModalOpen(true)}>
+            <Button className="w-full h-9 sm:h-8" type="button" variant="ghost" onClick={() => setIsModalOpen(true)}>
               <Plus className="h-4 w-4" />
               Add card
             </Button>
