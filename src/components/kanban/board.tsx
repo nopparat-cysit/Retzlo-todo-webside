@@ -1186,9 +1186,9 @@ function KanbanCardDragPreview({ card }: { card: Card }) {
   const colorMeta = getCardColorMeta(card.color);
 
   return (
-    <article className={cn("pointer-events-none w-72 rotate-1 rounded-md border p-3 text-sm shadow-2xl shadow-dusk-lavender/30 ring-2 ring-dusk-lavender/30", colorMeta.cardClass)}>
+    <article className={cn("pointer-events-none w-72 rotate-1 rounded-xl border p-3 text-sm shadow-2xl shadow-dusk-lavender/30 ring-2 ring-dusk-lavender/30", colorMeta.cardClass)}>
       <div className="space-y-2">
-        <p className="font-medium text-stone-100">{card.title}</p>
+        <p className="font-semibold text-stone-900 dark:text-stone-100">{card.title}</p>
         <div className="flex flex-wrap gap-2">
           <span className={cn("rounded border px-2 py-1 text-xs", statusMeta.badgeClass)}>{statusMeta.label}</span>
           {card.checklist.length > 0 ? (

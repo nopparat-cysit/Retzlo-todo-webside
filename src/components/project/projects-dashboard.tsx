@@ -1127,34 +1127,34 @@ export function ProjectsDashboard({
             /* BOARDS HUB VIEW FOR ACTIVE WORKSPACE */
             <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
               {/* Workspace Hero Banner */}
-              <div className="relative mb-5 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-transparent p-4 sm:p-5 backdrop-blur-md">
+              <div className="relative mb-5 overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-gradient-to-r dark:from-white/[0.04] dark:via-white/[0.02] dark:to-transparent">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4 min-w-0">
                     <Link
                       href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
-                      className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-ink-950/60 p-2 shadow-inner hover:border-dusk-lavender/40 hover:bg-ink-950/90 transition group"
+                      className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-stone-200/90 bg-stone-50 p-2 shadow-xs hover:border-indigo-300 hover:bg-stone-100 transition group dark:border-white/10 dark:bg-ink-950/60 dark:hover:border-dusk-lavender/40 dark:hover:bg-ink-950/90"
                       title="Open Workspace"
                     >
                       {activeProject.sticker ? (
                         <RetroStickerImage alt={activeProject.name} size={42} src={activeProject.sticker} />
                       ) : (
-                        <FolderKanban className="h-8 w-8 text-dusk-lavender group-hover:scale-105 transition-transform" />
+                        <FolderKanban className="h-8 w-8 text-indigo-600 dark:text-dusk-lavender group-hover:scale-105 transition-transform" />
                       )}
                     </Link>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
-                          className="truncate text-xl font-bold tracking-tight text-white sm:text-2xl hover:text-dusk-lavender transition flex items-center gap-2 group"
+                          className="truncate text-xl font-bold tracking-tight text-stone-900 sm:text-2xl hover:text-indigo-600 transition flex items-center gap-2 group dark:text-white dark:hover:text-dusk-lavender"
                         >
                           <span>{activeProject.name}</span>
-                          <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-dusk-lavender" />
+                          <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-600 dark:text-dusk-lavender" />
                         </Link>
                         <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-dusk-amber shrink-0">
                           {activeProject.type === "DIARY" ? "Diary Space" : "Workspace"}
                         </span>
                       </div>
-                      <p className="mt-1 line-clamp-1 max-w-xl text-xs text-stone-400">
+                      <p className="mt-1 line-clamp-1 max-w-xl text-xs text-stone-600 dark:text-stone-400">
                         {activeProject.description ?? "Central workspace for boards, pipelines, notes, and deadlines."}
                       </p>
                     </div>
@@ -1163,23 +1163,23 @@ export function ProjectsDashboard({
                   {/* Quick stats & Launch Action in Hero */}
                   <div className="flex items-center gap-3 self-start shrink-0 sm:self-center">
                     <div className="flex items-center gap-2">
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
-                        <p className="text-[9px] uppercase tracking-wider text-stone-400">Tasks</p>
-                        <p className="text-sm font-bold font-mono text-stone-200">{activeProjectTotalCards}</p>
+                      <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-center dark:border-white/10 dark:bg-white/[0.03]">
+                        <p className="text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400">Tasks</p>
+                        <p className="text-sm font-bold font-mono text-stone-800 dark:text-stone-200">{activeProjectTotalCards}</p>
                       </div>
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
-                        <p className="text-[9px] uppercase tracking-wider text-stone-400">Done</p>
-                        <p className="text-sm font-bold font-mono text-dusk-cyan">{activeProjectDoneCards}</p>
+                      <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-center dark:border-white/10 dark:bg-white/[0.03]">
+                        <p className="text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400">Done</p>
+                        <p className="text-sm font-bold font-mono text-teal-600 dark:text-dusk-cyan">{activeProjectDoneCards}</p>
                       </div>
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 text-center">
-                        <p className="text-[9px] uppercase tracking-wider text-stone-400">Progress</p>
-                        <p className="text-sm font-bold font-mono text-dusk-lavender">{activeProjectProgress}%</p>
+                      <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-1.5 text-center dark:border-white/10 dark:bg-white/[0.03]">
+                        <p className="text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400">Progress</p>
+                        <p className="text-sm font-bold font-mono text-indigo-600 dark:text-dusk-lavender">{activeProjectProgress}%</p>
                       </div>
                     </div>
 
                     <Link
                       href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-dusk-lavender px-4 text-xs font-bold text-ink-950 shadow-[0_8px_20px_rgba(169,162,255,0.2)] transition hover:bg-dusk-amber hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white px-4 text-xs font-semibold shadow-sm transition hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber dark:hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
                     >
                       <span>{activeProject.type === "DIARY" ? "Open Diary" : "Launch Board"}</span>
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -1191,10 +1191,10 @@ export function ProjectsDashboard({
               {/* Boards in Active Workspace Header + Filter */}
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2 min-w-0">
-                  <h3 className="text-lg font-bold text-stone-100 truncate">
+                  <h3 className="text-lg font-bold text-stone-900 truncate dark:text-stone-100">
                     Boards in {activeProject.name}
                   </h3>
-                  <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-xs font-mono font-medium text-stone-300">
+                  <span className="shrink-0 rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-xs font-mono font-medium text-stone-700 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300">
                     {activeProjectBoards.length}
                   </span>
                 </div>
@@ -1207,7 +1207,7 @@ export function ProjectsDashboard({
                       value={boardSearchQuery}
                       onChange={(e) => setBoardSearchQuery(e.target.value)}
                       placeholder="Filter boards..."
-                      className="h-8.5 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-9 pr-8 text-xs text-stone-200 placeholder-stone-400 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/[0.06]"
+                      className="h-8.5 w-full rounded-xl border border-stone-200 bg-white pl-9 pr-8 text-xs text-stone-900 placeholder-stone-400 outline-none transition focus:border-indigo-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder-stone-400 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.06]"
                     />
                     {boardSearchQuery ? (
                       <button
@@ -1225,7 +1225,7 @@ export function ProjectsDashboard({
                     type="button"
                     onClick={() => setIsCreateBoardOpen(true)}
                     size="sm"
-                    className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition font-semibold"
+                    className="shrink-0 bg-indigo-600 text-white hover:bg-indigo-700 transition font-semibold dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-amber"
                   >
                     <Plus className="h-3.5 w-3.5 mr-1" />
                     <span>New Board</span>
@@ -1580,7 +1580,7 @@ function WorkspaceBoardCard({
   return (
     <div
       onClick={handleCardClick}
-      className="lofi-panel group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.025] p-5 backdrop-blur-md transition-all duration-300 hover:border-dusk-lavender/40 hover:bg-white/[0.045] hover:shadow-2xl hover:shadow-dusk-lavender/5 cursor-pointer"
+      className="lofi-panel group relative flex h-full min-h-[260px] flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-indigo-300 hover:shadow-md cursor-pointer dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.045] dark:hover:shadow-2xl dark:hover:shadow-dusk-lavender/5"
     >
       <div>
         {/* Top bar: Board icon + Title + Lock/Public badge + 3-dots */}
@@ -1588,7 +1588,7 @@ function WorkspaceBoardCard({
           <div className="flex items-start gap-3 min-w-0">
             <Link
               href={boardUrl}
-              className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender hover:bg-dusk-lavender/20 transition"
+              className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-600 transition hover:bg-indigo-100 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
               title={`Open ${board.name}`}
             >
               <KanbanSquare className="h-4.5 w-4.5" />
@@ -1597,22 +1597,22 @@ function WorkspaceBoardCard({
               <div className="flex items-center gap-2">
                 <Link
                   href={boardUrl}
-                  className="truncate text-base font-bold text-stone-100 group-hover:text-dusk-lavender transition-colors"
+                  className="truncate text-base font-bold text-stone-900 group-hover:text-indigo-600 transition-colors dark:text-stone-100 dark:group-hover:text-dusk-lavender"
                 >
                   {board.name}
                 </Link>
                 {board.isPrivate ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[9px] font-semibold text-dusk-amber">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[9px] font-semibold text-amber-700 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber">
                     <Lock className="h-2.5 w-2.5" />
                     Private
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[9px] font-medium text-stone-400">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-[9px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400">
                     Public
                   </span>
                 )}
               </div>
-              <p className="mt-0.5 text-xs text-stone-400 font-mono">
+              <p className="mt-0.5 text-xs text-stone-500 font-mono dark:text-stone-400">
                 {board.columnCount} {board.columnCount === 1 ? "column" : "columns"} · {board.totalCards} {board.totalCards === 1 ? "task" : "tasks"}
               </p>
             </div>
@@ -1623,7 +1623,7 @@ function WorkspaceBoardCard({
               <button
                 type="button"
                 onClick={toggleMenu}
-                className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.03] text-stone-400 hover:border-dusk-lavender/40 hover:bg-white/[0.08] hover:text-stone-200 transition"
+                className="grid h-8 w-8 place-items-center rounded-lg border border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
                 aria-label="Board options"
               >
                 <MoreHorizontal className="h-3.5 w-3.5" />
@@ -1633,19 +1633,19 @@ function WorkspaceBoardCard({
         </div>
 
         {/* Progress bar */}
-        <div className="mt-4 rounded-xl border border-white/5 bg-white/[0.02] p-3">
+        <div className="mt-4 rounded-xl border border-stone-200/80 bg-stone-50/80 p-3 dark:border-white/5 dark:bg-white/[0.02]">
           <div className="flex items-center justify-between text-xs mb-2">
-            <span className="flex items-center gap-1.5 font-medium text-stone-300 text-[11px]">
-              <TrendingUp className="h-3 w-3 text-dusk-cyan" />
+            <span className="flex items-center gap-1.5 font-medium text-stone-700 text-[11px] dark:text-stone-300">
+              <TrendingUp className="h-3 w-3 text-teal-600 dark:text-dusk-cyan" />
               Task Progress
             </span>
-            <span className="text-[10px] font-semibold text-dusk-cyan font-mono">
+            <span className="text-[10px] font-semibold text-teal-600 font-mono dark:text-dusk-cyan">
               {board.totalCards > 0 ? `${board.doneCards}/${board.totalCards} done (${progressPercent}%)` : "No tasks yet"}
             </span>
           </div>
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-white/10">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-dusk-cyan to-dusk-lavender transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-teal-500 to-indigo-500 dark:from-dusk-cyan dark:to-dusk-lavender transition-all duration-500"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -1657,7 +1657,7 @@ function WorkspaceBoardCard({
             board.columnsPreview.map((col) => (
               <span
                 key={col.id}
-                className="inline-flex items-center gap-1 rounded-md border border-white/5 bg-white/[0.03] px-2 py-0.5 text-[10px] text-stone-400"
+                className="inline-flex items-center gap-1 rounded-md border border-stone-200/80 bg-stone-50 px-2 py-0.5 text-[10px] text-stone-700 dark:border-white/5 dark:bg-white/[0.03] dark:text-stone-400"
               >
                 <span className="truncate max-w-[100px]">{col.name}</span>
                 <span className="font-mono text-[9px] text-stone-500 font-semibold">({col.cardCount})</span>
@@ -1670,10 +1670,10 @@ function WorkspaceBoardCard({
       </div>
 
       {/* Bottom Action Button */}
-      <div className="mt-5 pt-3 border-t border-white/10">
+      <div className="mt-5 pt-3 border-t border-stone-200/80 dark:border-white/10">
         <Link
           href={`/project/${projectId}/board?boardId=${board.id}`}
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-dusk-lavender text-ink-950 font-bold text-xs shadow-[0_8px_20px_rgba(169,162,255,0.2)] transition hover:bg-dusk-amber hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-sm transition hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber dark:hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
         >
           <span>Open Board</span>
           <ArrowRight className="h-3.5 w-3.5" />
@@ -1689,7 +1689,7 @@ function WorkspaceBoardCard({
             onClick={() => setMenuOpen(false)}
           />
           <div
-            className="fixed z-[151] w-44 overflow-hidden rounded-xl border border-dusk-lavender/18 bg-[#080714]/95 p-1.5 shadow-[0_24px_70px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl"
+            className="fixed z-[151] w-44 overflow-hidden rounded-xl border border-stone-200 bg-white p-1.5 shadow-xl backdrop-blur-xl dark:border-dusk-lavender/18 dark:bg-[#080714]/95 dark:shadow-[0_24px_70px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)]"
             style={
               menuPosition
                 ? { top: menuPosition.top, left: menuPosition.left }
@@ -1698,7 +1698,7 @@ function WorkspaceBoardCard({
           >
             <button
               type="button"
-              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-stone-200 transition hover:bg-dusk-lavender/12 hover:text-dusk-lavender"
+              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-stone-700 transition hover:bg-indigo-50 hover:text-indigo-600 dark:text-stone-200 dark:hover:bg-dusk-lavender/12 dark:hover:text-dusk-lavender"
               onClick={() => {
                 setMenuOpen(false);
                 onEdit(board);
@@ -1708,7 +1708,7 @@ function WorkspaceBoardCard({
             </button>
             <button
               type="button"
-              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-dusk-rose transition hover:bg-dusk-rose/12"
+              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:text-dusk-rose dark:hover:bg-dusk-rose/12"
               onClick={() => {
                 setMenuOpen(false);
                 onDelete(board);
@@ -1734,21 +1734,21 @@ function QuickCreateBoardBlueprintCard({
     <button
       type="button"
       onClick={onCreateClick}
-      className="lofi-panel group flex min-h-[240px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition-all duration-300 hover:border-dusk-lavender/50 hover:bg-white/[0.035] hover:shadow-xl hover:shadow-dusk-lavender/10"
+      className="group flex h-full min-h-[260px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50/60 p-6 text-center transition-all duration-300 hover:border-indigo-400 hover:bg-stone-100/70 hover:shadow-md dark:border-white/15 dark:bg-white/[0.015] dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.035] dark:hover:shadow-xl dark:hover:shadow-dusk-lavender/10"
     >
-      <div className="relative mb-3 grid h-12 w-12 place-items-center rounded-2xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender transition-transform duration-300 group-hover:scale-110 shadow-inner">
+      <div className="relative mb-3 grid h-12 w-12 place-items-center rounded-2xl border border-indigo-200 bg-indigo-50 text-indigo-600 transition-transform duration-300 group-hover:scale-110 shadow-xs dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
         <Plus className="h-6 w-6" />
       </div>
-      <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
+      <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-700 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber">
         <Sparkles className="h-3 w-3" /> New Pipeline
       </span>
-      <h4 className="mt-2 text-base font-bold text-stone-100 group-hover:text-dusk-lavender transition-colors">
+      <h4 className="mt-2 text-base font-bold text-stone-900 group-hover:text-indigo-600 transition-colors dark:text-stone-100 dark:group-hover:text-dusk-lavender">
         + Create New Board
       </h4>
-      <p className="mt-1 max-w-xs text-xs leading-relaxed text-stone-400">
+      <p className="mt-1 max-w-xs text-xs leading-relaxed text-stone-500 dark:text-stone-400">
         Add another board or workflow to {projectName}.
       </p>
-      <div className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-stone-200 transition group-hover:border-dusk-lavender/40 group-hover:bg-dusk-lavender/20 group-hover:text-white">
+      <div className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-stone-700 transition group-hover:border-indigo-300 group-hover:bg-indigo-50 group-hover:text-indigo-700 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-200 dark:group-hover:border-dusk-lavender/40 dark:group-hover:bg-dusk-lavender/20 dark:group-hover:text-white">
         <Plus className="h-3.5 w-3.5" />
         <span>Create Board</span>
       </div>
@@ -2063,19 +2063,19 @@ function ProjectCard({
             </p>
 
             {/* Task Pipeline / Progress Bar */}
-            <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.025] p-2.5 group-hover/details:border-dusk-lavender/30 transition-colors">
+            <div className="mt-3 rounded-xl border border-stone-200/80 bg-stone-50/80 p-2.5 transition-colors group-hover/details:border-indigo-300 dark:border-white/10 dark:bg-white/[0.025] dark:group-hover/details:border-dusk-lavender/30">
               <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5 font-medium text-stone-300 text-[11px]">
-                  <TrendingUp className="h-3 w-3 text-dusk-cyan" />
+                <span className="flex items-center gap-1.5 font-medium text-stone-700 text-[11px] dark:text-stone-300">
+                  <TrendingUp className="h-3 w-3 text-teal-600 dark:text-dusk-cyan" />
                   Tasks Progress
                 </span>
-                <span className="text-[10px] font-semibold text-dusk-cyan font-mono">
+                <span className="text-[10px] font-semibold text-teal-600 font-mono dark:text-dusk-cyan">
                   {totalCards > 0 ? `${doneCards}/${totalCards} done (${progressPercent}%)` : `${columnCount} columns ready`}
                 </span>
               </div>
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-white/10">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-dusk-cyan to-dusk-lavender transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-teal-500 to-indigo-500 dark:from-dusk-cyan dark:to-dusk-lavender transition-all duration-500"
                   style={{ width: `${totalCards > 0 ? progressPercent : 0}%` }}
                 />
               </div>
@@ -2084,29 +2084,29 @@ function ProjectCard({
 
           {/* Stat Pills Grid */}
           <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
-            <div className="rounded-lg border border-white/5 bg-white/[0.03] py-1.5 px-1">
-              <p className="text-xs font-bold text-stone-200 font-mono">{project.counts.boards}</p>
-              <p className="text-[9px] uppercase tracking-wider text-stone-400">Boards</p>
+            <div className="rounded-lg border border-stone-200/80 bg-stone-50/80 py-1.5 px-1 dark:border-white/5 dark:bg-white/[0.03]">
+              <p className="text-xs font-bold text-stone-800 font-mono dark:text-stone-200">{project.counts.boards}</p>
+              <p className="text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400">Boards</p>
             </div>
-            <div className="rounded-lg border border-white/5 bg-white/[0.03] py-1.5 px-1">
-              <p className="text-xs font-bold text-stone-200 font-mono">{project.counts.members}</p>
-              <p className="text-[9px] uppercase tracking-wider text-stone-400">Members</p>
+            <div className="rounded-lg border border-stone-200/80 bg-stone-50/80 py-1.5 px-1 dark:border-white/5 dark:bg-white/[0.03]">
+              <p className="text-xs font-bold text-stone-800 font-mono dark:text-stone-200">{project.counts.members}</p>
+              <p className="text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400">Members</p>
             </div>
-            <div className="rounded-lg border border-white/5 bg-white/[0.03] py-1.5 px-1">
-              <p className="text-xs font-bold text-stone-200 font-mono">{project.counts.notes}</p>
-              <p className="text-[9px] uppercase tracking-wider text-stone-400">Notes</p>
+            <div className="rounded-lg border border-stone-200/80 bg-stone-50/80 py-1.5 px-1 dark:border-white/5 dark:bg-white/[0.03]">
+              <p className="text-xs font-bold text-stone-800 font-mono dark:text-stone-200">{project.counts.notes}</p>
+              <p className="text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400">Notes</p>
             </div>
-            <div className="rounded-lg border border-white/5 bg-white/[0.03] py-1.5 px-1">
-              <p className="text-xs font-bold text-stone-200 font-mono">{cards.length}</p>
-              <p className="text-[9px] uppercase tracking-wider text-stone-400">Cards</p>
+            <div className="rounded-lg border border-stone-200/80 bg-stone-50/80 py-1.5 px-1 dark:border-white/5 dark:bg-white/[0.03]">
+              <p className="text-xs font-bold text-stone-800 font-mono dark:text-stone-200">{cards.length}</p>
+              <p className="text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400">Cards</p>
             </div>
           </div>
 
           {/* Quick-Launch Action Hub */}
-          <div className="mt-auto pt-4 border-t border-white/10 flex items-center gap-2">
+          <div className="mt-auto pt-4 border-t border-stone-200/80 flex items-center gap-2 dark:border-white/10">
             <Link
               href={`/project/${project.id}/${isDiaryProject ? "diary" : "board"}`}
-              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-dusk-lavender px-3 text-xs font-bold text-ink-950 shadow-[0_8px_20px_rgba(169,162,255,0.2)] transition hover:bg-dusk-amber hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
+              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-sm transition hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber dark:hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
             >
               <span>{isDiaryProject ? "Open Diary" : "Launch Board"}</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -2115,7 +2115,7 @@ function ProjectCard({
             <Link
               href={`/project/${project.id}/calendar`}
               title="Calendar View"
-              className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-stone-300 transition hover:border-dusk-cyan/50 hover:bg-dusk-cyan/10 hover:text-dusk-cyan"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-cyan/50 dark:hover:bg-dusk-cyan/10 dark:hover:text-dusk-cyan"
             >
               <CalendarDays className="h-4 w-4" />
             </Link>

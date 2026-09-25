@@ -33,6 +33,13 @@
    - `src/app/globals.css`: Added Light Mode styles for `.skeleton-base` with warm bone background (`#ede8df`) and smooth white sheen gradient.
    - `src/components/theme/theme.test.ts`: Added tests verifying Light Mode styling contracts for `SegmentedControl`, `ColumnIconPicker`, `SortableChecklistItem`, Milestone Reward card, and Skeleton loading.
 
+    - `src/components/project/projects-dashboard.tsx`: Fixed invisible workspace title in Workspace Hero banner in Light Mode; equalized card heights (`min-h-[260px]`); resolved `lofi-panel` class override on `QuickCreateBoardBlueprintCard` so dashed blueprint border renders crisply; upgraded `WorkspaceBoardCard` and `ProjectCard` progress bar tracks (`bg-stone-200 dark:bg-white/10`), column preview chips, and stat pills for crisp contrast in Light Mode.
+    - `src/components/kanban/status.ts`: Upgraded status badge classes (`TODO`, `DOING`, `WAITING`, `DONE`) with high-contrast Light Mode colors (`text-indigo-700 bg-indigo-50`, `text-teal-700 bg-teal-50`, `text-amber-700 bg-amber-50`, `text-emerald-700 bg-emerald-50`), resolving invisible pale mint `text-emerald-200` on the "Done" badge.
+    - `src/components/kanban/card.tsx`: Upgraded card title (`text-stone-900 font-semibold`), priority badges (`HIGH` crimson `text-red-700 bg-red-50 border-red-200`, `MEDIUM` amber, `LOW` stone), checklist/note/date badge contrasts, and overdue pulsing indicator (`bg-red-50 text-red-600 border-red-300`).
+    - `src/components/kanban/column.tsx`: Upgraded column header title (`text-stone-900`), points badge (`bg-amber-50 text-amber-700`), count badge, and header progress bar track (`bg-stone-200`); replaced clunky vertical stacked buttons with a sleek unified action bar (`+ Quick add` button + full details `+` button) that matches the card column cleanly.
+    - `src/components/kanban/board.tsx`: Upgraded `DragCardOverlay` title for Light Mode ink contrast.
+    - `src/app/globals.css`: Refined Light Mode card surface tones with subtle tinted paper backgrounds, defined borders (`#c7d2fe`, `#99f6e4`, `#fde047`, `#fecdd3`, `#a7f3d0`), and soft elevation shadows; fixed `.card-completed` opacity in Light Mode (`0.82` with strike-through title) to eliminate washed-out/unreadable completed cards in the Done column.
+
 ## Important Behavior Changes
 - Theme switching is cleanly housed inside the **User Profile Dropdown** (`UserProfilePopover`) as a segmented 3-choice control (`Light`, `Dark`, `System`), keeping the Topbars clean, modern, and uncluttered across workspaces and dashboards.
 - Users can also configure their Theme preference under Project Settings > Personal Preferences.
@@ -48,6 +55,12 @@
 - Eliminated dark grey bars behind Checklist items in Card details modal, rendering as light paper rows with clear checkboxes and strike-through text.
 - Upgraded **Skeleton Loading** in Light Mode: replaced barely-visible lavender tints and dark containers with warm bone blocks (`#ede8df`), smooth white-sheen shimmer glides, and crisp paper card frames (`ColumnSkeleton`, `ProjectCardSkeleton`, `ProjectsLoading`, `BoardLoading`).
 - Restored active sidebar link readability ("Diary" etc.) with crisp charcoal ink text (`text-stone-900 font-semibold`) in Light Mode.
+- Fixed Workspace Hero Banner title visibility in Light Mode on `/projects` (clean `text-stone-900` ink).
+- Fixed Workspace Board Card progress bar track and column chips visibility on white card surfaces.
+- Fixed dashed blueprint card border on `+ Create New Board` blueprint card and aligned heights with `WorkspaceBoardCard`.
+- Redesigned Kanban Card colors for Light Mode: soft, luxurious paper surface tints with crisp border outlines and subtle elevation shadows.
+- Fixed washed-out/faint text and badges on completed cards in the "Done" column in Light Mode.
+- Replaced clunky column bottom buttons with a sleek, unified action row (`+ Quick add` + details launcher).
 - Dark Mode remains 100% pixel-perfect and unaffected.
 
 ## Database / Schema Changes

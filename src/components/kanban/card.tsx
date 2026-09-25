@@ -174,7 +174,7 @@ export function KanbanCard({
         <div className="space-y-2">
           <div className="flex items-start justify-between gap-1.5">
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-stone-100 break-words">{card.title}</p>
+              <p className="font-semibold text-stone-900 break-words dark:text-stone-100 leading-snug">{card.title}</p>
               {visibleStickers.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1.5 select-none leading-none">
                   {visibleStickers.map((st, i) => (
@@ -199,17 +199,17 @@ export function KanbanCard({
                         onClick={(e) => e.stopPropagation()}
                       >
                         <span
-                          className="relative flex h-5 w-5 items-center justify-center rounded-full border border-red-500/40 bg-red-500/15 text-red-400 hover:border-red-400 hover:bg-red-500/25 transition shadow-[0_0_8px_rgba(239,68,68,0.25)]"
+                          className="relative flex h-5 w-5 items-center justify-center rounded-full border border-red-300 bg-red-50 text-red-600 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 hover:border-red-400 hover:bg-red-100 dark:hover:bg-red-500/25 transition shadow-xs"
                           aria-label="Overdue task indicator"
                         >
-                          <Clock className="h-3 w-3 animate-pulse text-red-400" />
-                          <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-400 animate-ping" />
+                          <Clock className="h-3 w-3 animate-pulse text-red-600 dark:text-red-400" />
+                          <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-red-500 animate-ping" />
                         </span>
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent side="top" align="end" className="border-red-500/30 bg-ink-950/98 text-[11px] font-medium text-red-200">
+                    <TooltipContent side="top" align="end" className="border-red-300 bg-white text-[11px] font-medium text-red-700 shadow-md dark:border-red-500/30 dark:bg-ink-950/98 dark:text-red-200">
                       <p className="flex items-center gap-1.5">
-                        <Clock className="h-3 w-3 text-red-400 shrink-0" />
+                        <Clock className="h-3 w-3 text-red-600 dark:text-red-400 shrink-0" />
                         <span>Overdue · {card.dueDate ? formatMediumDateTime(card.dueDate, card.dueDateAllDay) : "Past due"}</span>
                       </p>
                     </TooltipContent>
@@ -217,17 +217,17 @@ export function KanbanCard({
                 </TooltipProvider>
               )}
               {card.isStarred && (
-                <Star className="h-3.5 w-3.5 shrink-0 fill-dusk-amber text-dusk-amber" />
+                <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-500 dark:fill-dusk-amber dark:text-dusk-amber" />
               )}
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <span className={cn("rounded-full border px-2 py-0.5 text-xs", statusMeta.badgeClass)}>{statusMeta.label}</span>
+          <div className="flex flex-wrap gap-1.5">
+            <span className={cn("rounded-full border px-2 py-0.5 text-xs font-medium", statusMeta.badgeClass)}>{statusMeta.label}</span>
             <span className={cn(
               "rounded-full border px-2 py-0.5 text-xs uppercase tracking-wide",
-              card.priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400 font-semibold",
-              card.priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber font-medium",
-              card.priority === "LOW" && "border-white/10 bg-white/[0.04] text-stone-300 font-medium"
+              card.priority === "HIGH" && "border-red-200 bg-red-50 text-red-700 font-semibold dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-400",
+              card.priority === "MEDIUM" && "border-amber-200 bg-amber-50 text-amber-700 font-medium dark:border-dusk-amber/20 dark:bg-dusk-amber/10 dark:text-dusk-amber",
+              card.priority === "LOW" && "border-stone-200 bg-stone-100 text-stone-600 font-medium dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300"
             )}>
               {card.priority ?? "MEDIUM"}
             </span>
@@ -244,24 +244,24 @@ export function KanbanCard({
               </span>
             ) : null}
             {card.checklist.length > 0 ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-xs font-medium text-dusk-cyan">
+              <span className="inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
                 <CheckSquare className="h-3 w-3" />
                 {completedChecklist}/{card.checklist.length}
               </span>
             ) : null}
             {card.note ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/20 bg-dusk-lavender/10 px-2 py-0.5 text-xs font-medium text-dusk-lavender" title="This card has a note">
+              <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:border-dusk-lavender/20 dark:bg-dusk-lavender/10 dark:text-dusk-lavender" title="This card has a note">
                 <FileText className="h-3 w-3" />
                 Note
               </span>
             ) : null}
           </div>
-          {card.description ? <p className="line-clamp-3 text-xs leading-relaxed text-stone-300/90 break-words">{card.description}</p> : null}
+          {card.description ? <p className="line-clamp-3 text-xs leading-relaxed text-stone-600 dark:text-stone-300/90 break-words">{card.description}</p> : null}
           {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) ? (
             <div className="flex items-center justify-between gap-2 pt-1">
               {(card.startDate || card.dueDate) ? (
                 <p
-                  className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/20 bg-dusk-amber/10 px-2 py-0.5 text-[11px] font-medium text-dusk-amber whitespace-nowrap min-w-0 max-w-[70%]"
+                  className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800 dark:border-dusk-amber/20 dark:bg-dusk-amber/10 dark:text-dusk-amber whitespace-nowrap min-w-0 max-w-[70%]"
                   title={
                     card.startDate && card.dueDate
                       ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)} — กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`

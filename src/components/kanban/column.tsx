@@ -344,7 +344,7 @@ export function KanbanColumn({
           <GripVertical className="h-3.5 w-3.5" />
         </button>
         <ColumnIconGlyph className="shrink-0 text-dusk-amber" icon={column.icon} />
-        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-100" title={column.name}>
+        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-900 dark:text-stone-100" title={column.name}>
           {column.name}
         </h2>
 
@@ -354,8 +354,8 @@ export function KanbanColumn({
               className={cn(
                 "shrink-0 whitespace-nowrap rounded-md border px-1 py-0.5 text-[9px] font-mono font-semibold",
                 isWipExceeded
-                  ? "animate-pulse border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber"
-                  : "border-white/10 bg-white/5 text-stone-400"
+                  ? "animate-pulse border-amber-400 bg-amber-100 text-amber-800 dark:border-dusk-amber/30 dark:bg-dusk-amber/15 dark:text-dusk-amber"
+                  : "border-stone-200 bg-stone-100 text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400"
               )}
               title={`WIP Limit: ${wipLimit} cards (${totalCards}/${wipLimit})`}
             >
@@ -365,23 +365,23 @@ export function KanbanColumn({
 
           {totalPoints > 0 && (
             <span
-              className="shrink-0 inline-flex items-center gap-0.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-1 py-0.5 text-[10px] font-semibold text-amber-400 select-none"
+              className="shrink-0 inline-flex items-center gap-0.5 rounded-md border border-amber-300 bg-amber-50 px-1 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400 select-none"
               title={`คะแนนความยากรวม: ${totalPoints} pts`}
             >
-              <Zap className="h-2.5 w-2.5 text-amber-400" />
+              <Zap className="h-2.5 w-2.5 text-amber-600 dark:text-amber-400" />
               <span>{totalPoints}</span>
             </span>
           )}
 
           <span
-            className="shrink-0 inline-grid min-w-[18px] place-items-center rounded-md bg-white/5 px-1 py-0.5 text-[10px] font-medium text-stone-400"
+            className="shrink-0 inline-grid min-w-[18px] place-items-center rounded-md border border-stone-200/80 bg-stone-100 px-1 py-0.5 text-[10px] font-medium text-stone-600 dark:border-transparent dark:bg-white/5 dark:text-stone-400"
             title={doneCount > 0 ? `เสร็จแล้ว ${doneCount} จาก ${totalCards} ใบ` : `การ์ดทั้งหมด ${totalCards} ใบ`}
           >
             {doneCount > 0 ? `${doneCount}/${totalCards}` : totalCards}
           </span>
 
           <button
-            className="grid h-7 w-7 sm:h-6 sm:w-6 place-items-center rounded-md text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
+            className="grid h-7 w-7 sm:h-6 sm:w-6 place-items-center rounded-md text-stone-500 transition hover:bg-stone-200/70 hover:text-stone-800 dark:text-stone-500 dark:hover:bg-white/10 dark:hover:text-stone-300"
             type="button"
             aria-label="Column settings"
             title="Column settings"
@@ -398,7 +398,7 @@ export function KanbanColumn({
             <Settings className="h-3.5 w-3.5" />
           </button>
           <button
-            className="grid h-7 w-7 sm:h-6 sm:w-6 place-items-center rounded-md text-stone-500 transition hover:bg-white/10 hover:text-stone-300"
+            className="grid h-7 w-7 sm:h-6 sm:w-6 place-items-center rounded-md text-stone-500 transition hover:bg-stone-200/70 hover:text-stone-800 dark:text-stone-500 dark:hover:bg-white/10 dark:hover:text-stone-300"
             type="button"
             aria-label="Collapse column"
             title="Collapse column"
@@ -410,9 +410,9 @@ export function KanbanColumn({
       </header>
 
       {/* ── Progress Bar ── */}
-      <div className="h-[2px] w-full bg-white/5">
+      <div className="h-[2px] w-full bg-stone-200 dark:bg-white/5">
         <div
-          className="h-full bg-dusk-lavender/60 transition-all duration-500"
+          className="h-full bg-indigo-500 dark:bg-dusk-lavender/60 transition-all duration-500"
           style={{ width: `${progressPct}%` }}
           role="progressbar"
           aria-valuenow={progressPct}
@@ -508,23 +508,25 @@ export function KanbanColumn({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={openQuickAdd}
-              className={cn(
-                "flex w-full items-center gap-1.5 rounded-full px-2.5 py-2 sm:py-1.5 text-xs text-stone-500",
-                "transition-colors hover:bg-white/5 hover:text-stone-300"
-              )}
+              className="flex h-8 flex-1 items-center justify-center gap-1.5 rounded-xl border border-dashed border-stone-300 bg-white/40 text-xs font-medium text-stone-600 transition hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-600 dark:border-white/15 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.05] dark:hover:text-stone-200"
               aria-label="Quick add card"
             >
               <Plus className="h-3.5 w-3.5" />
-              Quick add
+              <span>Quick add</span>
             </button>
-            <Button className="w-full h-9 sm:h-8" type="button" variant="ghost" onClick={() => setIsModalOpen(true)}>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              title="Add card with details"
+              aria-label="Add card with full details"
+              className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200 shadow-xs"
+            >
               <Plus className="h-4 w-4" />
-              Add card
-            </Button>
+            </button>
           </div>
         )}
       </div>
