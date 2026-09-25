@@ -2361,16 +2361,7 @@ input:checked + .lofi-slider:before {
 .light section[data-column-id],
 [data-theme="light"] section.snap-center,
 .light section.snap-center {
-  background-color: #f7f4ee !important;
-  border-color: #e7e2d9 !important;
-  box-shadow: 0 6px 18px -3px rgba(41, 37, 36, 0.05) !important;
-}
-
-[data-theme="light"] section[data-column-id] header,
-.light section[data-column-id] header,
-[data-theme="light"] section.snap-center header,
-.light section.snap-center header {
-  border-color: #e7e2d9 !important;
+  box-shadow: 0 6px 20px -3px rgba(41, 37, 36, 0.05), 0 1px 3px rgba(41, 37, 36, 0.03) !important;
 }
 
 /* Default Kanban Card: Crisp white card with soft shadow */

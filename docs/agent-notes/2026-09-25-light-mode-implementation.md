@@ -62,6 +62,12 @@
 - Fixed Workspace Board Card progress bar track and column chips visibility on white card surfaces.
 - Fixed dashed blueprint card border on `+ Create New Board` blueprint card and aligned heights with `WorkspaceBoardCard`.
 - Redesigned Kanban Card colors for Light Mode: soft, luxurious paper surface tints with crisp border outlines and subtle elevation shadows.
+- Redesigned Kanban **Column Colors**:
+  - Removed aggressive `[data-theme="light"] section.snap-center { background-color: #f7f4ee !important; border-color: #e7e2d9 !important; }` that forced muddy beige and overrode custom column theme colors.
+  - Added a 3px top accent indicator strip (`theme.accentBarClass`) to every column (both expanded and collapsed rails) providing an instant, clean status signal (Lavender/Indigo, Amber, Rose, Cyan/Teal, Mint/Emerald, Default).
+  - Linked column header icons (`ColumnIconGlyph`) directly to `theme.iconColorClass` instead of hardcoding `text-dusk-amber`.
+  - Upgraded all 6 column themes with dual Light/Dark mode surface washes (`bg-indigo-50/30`, `bg-amber-50/30`, etc.) and matching border outlines.
+  - Polished the board stats control bar (`Total`, `Prog`, `Done`) with clean white card surfaces and crisp ink typography in Light Mode.
 - Fixed washed-out/faint text and badges on completed cards in the "Done" column in Light Mode.
 - Replaced clunky column bottom buttons with a sleek, unified action row (`+ Quick add` + details launcher).
 - Dark Mode remains 100% pixel-perfect and unaffected.
@@ -71,8 +77,8 @@
 
 ## Verification Commands Run & Results
 - `npx prisma validate`: Pass (schema valid)
-- `npx vitest run src/components/theme/theme.test.ts`: Pass (17/17 tests passed)
-- `npm test`: Pass (62 test files, 296 tests passed)
+- `npx vitest run src/lib/kanban/column-settings.test.ts`: Pass (6/6 tests passed)
+- `npm test`: Pass (62 test files, 297 tests passed)
 - `npm run lint`: Pass (0 errors, 0 warnings)
 - `npm run build`: Pass (35/35 static and dynamic pages generated with 0 errors)
 

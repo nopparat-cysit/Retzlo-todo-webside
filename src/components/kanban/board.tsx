@@ -762,23 +762,23 @@ export function KanbanBoard({
 
           {/* ── Premium Control Bar ── */}
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full 2xl:w-auto 2xl:flex 2xl:items-center">
-            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
+            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
               <span className="truncate text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
-              <span className="text-sm sm:text-base font-bold leading-none text-stone-200">{totalCards}</span>
+              <span className="text-sm sm:text-base font-bold leading-none text-stone-900 dark:text-stone-200">{totalCards}</span>
             </div>
-            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
-              <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-dusk-lavender select-none">
-                <span className="mr-1 h-2 w-2 rounded-full bg-dusk-lavender shrink-0" />
+            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
+              <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-indigo-600 dark:text-dusk-lavender select-none">
+                <span className="mr-1 h-2 w-2 rounded-full bg-indigo-500 dark:bg-dusk-lavender shrink-0" />
                 <span className="truncate hidden min-[360px]:inline">Prog</span>
               </span>
-              <span className="text-sm sm:text-base font-bold leading-none text-dusk-lavender">{doingCards}</span>
+              <span className="text-sm sm:text-base font-bold leading-none text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
             </div>
-            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-white/10 bg-white/[0.025] px-2 sm:px-3">
-              <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-dusk-amber select-none">
-                <span className="mr-1 h-2 w-2 rounded-full bg-dusk-amber shrink-0" />
+            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
+              <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-amber-600 dark:text-dusk-amber select-none">
+                <span className="mr-1 h-2 w-2 rounded-full bg-amber-500 dark:bg-dusk-amber shrink-0" />
                 <span className="truncate">Done</span>
               </span>
-              <span className="text-sm sm:text-base font-bold leading-none text-dusk-amber">{doneCards}</span>
+              <span className="text-sm sm:text-base font-bold leading-none text-amber-600 dark:text-dusk-amber">{doneCards}</span>
             </div>
           </div>
         </div>

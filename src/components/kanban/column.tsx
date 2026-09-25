@@ -265,12 +265,15 @@ export function KanbanColumn({
         style={style}
         data-card-zone={column.id}
         className={cn(
-          "column-collapsed-rail group lofi-panel shrink-0 rounded-2xl border border-white/10 bg-white/[0.035] hover:border-dusk-lavender/50 cursor-pointer flex flex-col items-center py-3.5 select-none transition-all duration-200",
+          "column-collapsed-rail group relative overflow-hidden shrink-0 rounded-2xl border hover:border-dusk-lavender/50 cursor-pointer flex flex-col items-center py-3.5 select-none transition-all duration-200",
           theme.columnClass
         )}
         onClick={toggleCollapse}
         title={`คลิกเพื่อขยายคอลัมน์ ${column.name}`}
       >
+        {/* Top Accent Strip */}
+        <div className={cn("absolute top-0 left-0 right-0 h-[3px]", theme.accentBarClass)} />
+
         {/* Top: Expand button & Column Icon */}
         <div className="flex flex-col items-center gap-2">
           <button
@@ -284,7 +287,7 @@ export function KanbanColumn({
           >
             <Plus className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
           </button>
-          <ColumnIconGlyph className="text-dusk-amber transition-transform duration-200 group-hover:scale-110" icon={column.icon} />
+          <ColumnIconGlyph className={cn("transition-transform duration-200 group-hover:scale-110", theme.iconColorClass)} icon={column.icon} />
         </div>
 
         {/* Center: Vertical Column Title */}
@@ -324,7 +327,7 @@ export function KanbanColumn({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group flex h-full min-h-0 w-[84vw] max-w-[336px] sm:w-[336px] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
+        "group flex h-full min-h-0 w-[84vw] max-w-[336px] sm:w-[336px] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
         isDropTarget &&
@@ -332,18 +335,21 @@ export function KanbanColumn({
         isDragging && "opacity-70"
       )}
     >
+      {/* ── Top Color Accent Strip ── */}
+      <div className={cn("h-[3px] w-full shrink-0", theme.accentBarClass)} />
+
       {/* ── Header ── */}
-      <header className={cn("flex items-center gap-1.5 border-b border-white/10 px-2.5 py-2 select-none", theme.headerClass)}>
+      <header className={cn("flex items-center gap-1.5 border-b px-2.5 py-2 select-none", theme.headerClass)}>
         <button
           suppressHydrationWarning
-          className="shrink-0 text-stone-600 transition-colors hover:text-dusk-lavender group-hover:text-stone-400 cursor-grab active:cursor-grabbing"
+          className="shrink-0 text-stone-500 transition-colors hover:text-stone-800 dark:text-stone-600 dark:hover:text-dusk-lavender group-hover:text-stone-400 cursor-grab active:cursor-grabbing"
           aria-label="Drag column"
           {...attributes}
           {...listeners}
         >
           <GripVertical className="h-3.5 w-3.5" />
         </button>
-        <ColumnIconGlyph className="shrink-0 text-dusk-amber" icon={column.icon} />
+        <ColumnIconGlyph className={cn("shrink-0", theme.iconColorClass)} icon={column.icon} />
         <h2 className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-900 dark:text-stone-100" title={column.name}>
           {column.name}
         </h2>
@@ -464,9 +470,9 @@ export function KanbanColumn({
       </div>
 
       {/* ── Quick-Add Form ── */}
-      <div className="border-t border-white/10 px-3 pb-3 pt-2">
+      <div className={cn("border-t px-3 pb-3 pt-2", theme.headerClass)}>
         {isQuickAddOpen ? (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-2 transition-all duration-200 focus-within:border-dusk-lavender/40 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_12px_rgba(169,162,255,0.06)]">
+          <div className="rounded-2xl border border-stone-200/90 bg-white/80 p-2 transition-all duration-200 focus-within:border-indigo-400 focus-within:bg-white dark:border-white/10 dark:bg-white/5 dark:focus-within:border-dusk-lavender/40 dark:focus-within:bg-white/[0.07] focus-within:shadow-[0_0_12px_rgba(169,162,255,0.06)]">
             <textarea
               ref={quickInputRef}
               rows={1}
@@ -476,7 +482,7 @@ export function KanbanColumn({
               placeholder="Card title…"
               disabled={isSubmitting}
               className={cn(
-                "w-full resize-none rounded bg-transparent text-sm text-stone-100 placeholder-stone-500 outline-none",
+                "w-full resize-none rounded bg-transparent text-sm text-stone-900 placeholder-stone-400 dark:text-stone-100 dark:placeholder-stone-500 outline-none",
                 "scrollbar-soft overflow-hidden transition-all duration-200 focus:rows-2",
                 isSubmitting && "opacity-50"
               )}

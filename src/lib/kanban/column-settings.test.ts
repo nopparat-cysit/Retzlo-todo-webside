@@ -56,6 +56,18 @@ describe("column settings", () => {
     expect(getColumnIconOption(undefined).id).toBe("kanban");
   });
 
+  it("provides complete styling definitions for all column themes", () => {
+    for (const theme of columnThemeOptions) {
+      expect(theme.id).toBeTruthy();
+      expect(theme.label).toBeTruthy();
+      expect(theme.swatchClass).toBeTruthy();
+      expect(theme.accentBarClass).toBeTruthy();
+      expect(theme.iconColorClass).toBeTruthy();
+      expect(theme.columnClass).toBeTruthy();
+      expect(theme.headerClass).toBeTruthy();
+    }
+  });
+
   it("handles wipLimit validation and conversions correctly", () => {
     // Valid positive integer
     expect(
