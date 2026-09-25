@@ -961,11 +961,11 @@ export function KanbanBoard({
             className={cn(
               "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
               isTodayFilterActive
-                ? "border-amber-400 bg-amber-50 text-amber-800 ring-1 ring-amber-400/40 dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber"
-                : "border-stone-300/80 bg-white text-stone-700 hover:border-amber-400/70 hover:bg-amber-50/40 hover:text-amber-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 shadow-xs dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
+                : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
             )}
           >
-            <CalendarClock className={cn("h-3.5 w-3.5 transition-colors", isTodayFilterActive ? "text-amber-600 dark:text-dusk-amber" : "text-amber-600/80 dark:text-dusk-amber/80")} />
+            <CalendarClock className={cn("h-3.5 w-3.5 transition-colors", isTodayFilterActive ? "text-amber-700 dark:text-dusk-amber" : "text-amber-600 dark:text-dusk-amber")} />
             <span>Today</span>
           </button>
 
@@ -979,11 +979,11 @@ export function KanbanBoard({
               className={cn(
                 "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
                 assigneeFilter === currentUserId
-                  ? "border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-400/40 dark:border-dusk-lavender/50 dark:bg-dusk-lavender/20 dark:text-dusk-lavender"
-                  : "border-stone-300/80 bg-white text-stone-700 hover:border-indigo-400/70 hover:bg-indigo-50/40 hover:text-indigo-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                  ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 shadow-xs dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                  : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
               )}
             >
-              <User className={cn("h-3.5 w-3.5 transition-colors", assigneeFilter === currentUserId ? "text-indigo-600 dark:text-dusk-lavender" : "text-indigo-600/80 dark:text-dusk-lavender/80")} />
+              <User className={cn("h-3.5 w-3.5 transition-colors", assigneeFilter === currentUserId ? "text-indigo-700 dark:text-dusk-lavender" : "text-indigo-600 dark:text-dusk-lavender")} />
               <span>My Tasks</span>
             </button>
           )}
@@ -996,8 +996,8 @@ export function KanbanBoard({
                 className={cn(
                   "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[180px] sm:max-w-[210px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
                   assigneeFilter !== "ALL"
-                    ? "border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-400/40 [&>svg]:text-indigo-600 dark:border-dusk-lavender/50 dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:[&>svg]:text-dusk-lavender"
-                    : "border-stone-300/80 bg-white text-stone-800 hover:border-indigo-400/70 hover:bg-indigo-50/40 hover:text-indigo-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                    ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 [&>svg]:text-indigo-700 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender dark:[&>svg]:text-dusk-lavender"
+                    : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                 )}
               >
                 <span className="flex items-center gap-1.5 min-w-0">
@@ -1006,7 +1006,7 @@ export function KanbanBoard({
                   ) : assigneeFilter === "UNASSIGNED" ? (
                     <UserX className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
                   ) : (
-                    <Users className="h-3.5 w-3.5 shrink-0 text-indigo-600/80 dark:text-dusk-lavender/80" />
+                    <Users className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
                   )}
                   <SelectValue placeholder="All Assignees" />
                 </span>

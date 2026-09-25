@@ -18,14 +18,14 @@ const SelectTrigger = forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-10 w-full items-center justify-between rounded-lg border border-stone-300/80 bg-white px-3 text-sm text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 disabled:cursor-not-allowed disabled:opacity-55 cursor-pointer dark:border-white/10 dark:bg-white/[0.065] dark:text-stone-100 dark:placeholder:text-stone-400 dark:focus:border-dusk-lavender/70 dark:focus:ring-dusk-lavender/25",
+      "flex h-10 w-full items-center justify-between rounded-lg border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 disabled:cursor-not-allowed disabled:opacity-55 cursor-pointer dark:border-white/10 dark:bg-white/[0.065] dark:text-stone-100 dark:placeholder:text-stone-400 dark:focus:border-dusk-lavender/70 dark:focus:ring-dusk-lavender/25",
       className
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 text-stone-500 dark:text-stone-400 transition-colors" />
+      <ChevronDown className="h-4 w-4 text-stone-600 dark:text-stone-400 transition-colors" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -91,7 +91,7 @@ const SelectItem = forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-2 text-sm text-stone-800 outline-none transition hover:bg-[#ede7da] hover:text-stone-950 focus:bg-[#ede7da] focus:text-stone-950 dark:text-stone-200 dark:hover:bg-white/[0.08] dark:focus:bg-white/[0.08] dark:focus:text-stone-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-2 text-sm font-medium text-stone-900 outline-none transition hover:bg-[#ede7da] hover:text-stone-950 focus:bg-[#ede7da] focus:text-stone-950 dark:text-stone-200 dark:hover:bg-white/[0.08] dark:focus:bg-white/[0.08] dark:focus:text-stone-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}

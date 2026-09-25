@@ -482,12 +482,12 @@ export function ProjectCalendar({
                 className={cn(
                   "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
                   isFiltersOpen
-                    ? "border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-400/40 dark:border-dusk-lavender/50 dark:bg-dusk-lavender/20 dark:text-dusk-lavender"
-                    : "border-stone-300/80 bg-white text-stone-700 hover:border-indigo-400/70 hover:bg-indigo-50/40 hover:text-indigo-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                    ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                    : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                 )}
                 aria-expanded={isFiltersOpen}
               >
-                <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-600/80 dark:text-dusk-lavender/80" />
+                <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
                 <span>Filters</span>
                 {activeFilterCount > 0 && (
                   <span className="grid h-4 w-4 place-items-center rounded-full bg-indigo-600 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
@@ -502,14 +502,14 @@ export function ProjectCalendar({
                 className={cn(
                   "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
                   isUpcomingOpen
-                    ? "border-amber-400 bg-amber-50 text-amber-800 ring-1 ring-amber-400/40 dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber"
-                    : "border-stone-300/80 bg-white text-stone-700 hover:border-amber-400/70 hover:bg-amber-50/40 hover:text-amber-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                    ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
+                    : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                 )}
                 aria-expanded={isUpcomingOpen}
               >
-                <Clock className="h-3.5 w-3.5 text-amber-600/80 dark:text-dusk-amber/80" />
+                <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
                 <span>Upcoming</span>
-                <span className="rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-semibold text-stone-600 dark:bg-white/10 dark:text-stone-400">
+                <span className="rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 dark:bg-white/10 dark:text-stone-300">
                   {filteredItems.length}
                 </span>
               </button>
