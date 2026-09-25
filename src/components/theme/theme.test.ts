@@ -126,6 +126,29 @@ describe("Theme system and Warm Paper Light Mode", () => {
     expect(skeleton).toContain("skeleton-base");
     expect(skeleton).toContain("border-stone-200/90 bg-stone-100/70");
   });
+
+  it("ensures floating dropdown menus and selects use warm paper and high-contrast typography in Light Mode", () => {
+    const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(css).toContain('[data-theme="light"] [data-radix-select-content]');
+    expect(css).toContain("background-color: #faf7f2 !important;");
+    expect(css).toContain('[data-theme="light"] [role="option"]:hover');
+    expect(css).toContain("background-color: #ede7da !important;");
+    expect(css).toContain('[data-theme="light"] .text-stone-700');
+    expect(css).toContain("color: #292524 !important;");
+
+    const selectComponent = readFileSync(join(process.cwd(), "src/components/ui/select.tsx"), "utf8");
+    expect(selectComponent).toContain("bg-[#faf7f2]");
+    expect(selectComponent).toContain("hover:bg-[#ede7da]");
+  });
+
+  it("normalizes native select appearance to avoid Mac Aqua system white styling", () => {
+    const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(css).toContain("-webkit-appearance: none;");
+    expect(css).toContain("appearance: none;");
+
+    const notesPanel = readFileSync(join(process.cwd(), "src/components/notes/notes-panel.tsx"), "utf8");
+    expect(notesPanel).toContain("appearance-none");
+  });
 });
 
 

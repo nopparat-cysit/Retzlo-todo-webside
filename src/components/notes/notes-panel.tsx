@@ -6,6 +6,7 @@ import { useLiveSync } from "@/hooks/use-live-sync";
 import {
   CalendarClock,
   CheckCircle2,
+  ChevronDown,
   Eye,
   EyeOff,
   FileText,
@@ -973,18 +974,21 @@ function NoteEditorModalContent({
                     />
                   </label>
                   {scope === "board" && (
-                    <div className="mt-2.5 pt-2 border-t border-white/10">
-                      <select
-                        value={selectedBoardId}
-                        onChange={(e) => setSelectedBoardId(e.target.value)}
-                        className="w-full rounded-md border border-white/15 bg-ink-950 px-2.5 py-1.5 text-xs text-stone-200 focus:border-dusk-lavender focus:outline-none"
-                      >
-                        {availableBoards.map((b) => (
-                          <option key={b.id} value={b.id}>
-                            {b.name} {b.isPrivate ? "(Private)" : ""}
-                          </option>
-                        ))}
-                      </select>
+                    <div className="mt-2.5 pt-2 border-t border-stone-200/80 dark:border-white/10">
+                      <div className="relative">
+                        <select
+                          value={selectedBoardId}
+                          onChange={(e) => setSelectedBoardId(e.target.value)}
+                          className="w-full appearance-none rounded-md border border-stone-300/80 bg-white py-2 pl-3 pr-8 text-xs text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
+                        >
+                          {availableBoards.map((b) => (
+                            <option key={b.id} value={b.id} className="bg-white text-stone-900 dark:bg-ink-950 dark:text-stone-100">
+                              {b.name} {b.isPrivate ? "(Private)" : ""}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 dark:text-stone-500" />
+                      </div>
                     </div>
                   )}
                 </div>

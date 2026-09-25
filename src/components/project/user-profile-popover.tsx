@@ -72,37 +72,37 @@ export function UserProfilePopover({
         align={align}
         side={side}
         sideOffset={variant === "avatar" ? 10 : 12}
-        className="w-72 overflow-hidden rounded-xl border-white/15 bg-[#020208] p-0 shadow-[0_24px_64px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.05)]"
+        className="w-72 overflow-hidden rounded-xl border border-[#e2dcd2] bg-[#faf7f2] p-0 shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16)] dark:border-white/15 dark:bg-[#020208] dark:shadow-[0_24px_64px_rgba(0,0,0,0.58),inset_0_1px_0_rgba(255,255,255,0.05)]"
       >
         <div className="h-16 bg-[radial-gradient(circle_at_18%_20%,rgba(229,189,114,0.22),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(213,154,179,0.22),transparent_32%),linear-gradient(135deg,rgba(35,31,68,0.9),rgba(63,46,86,0.82))]" />
         <div className="px-4 pb-4">
           <div className="-mt-7 flex items-end gap-3">
             <Avatar src={avatar} initials={initials} name={name} statusColor={statusColor} size={56} />
-            <span className="mb-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-stone-300">
+            <span className="mb-1 rounded-full border border-stone-200/90 bg-stone-100/90 px-2 py-1 text-[11px] text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-300">
               {statusLabel(status)}
             </span>
           </div>
           <div className="mt-3">
-            <p className="truncate text-sm font-semibold text-stone-100">{name}</p>
+            <p className="truncate text-sm font-semibold text-stone-900 dark:text-stone-100">{name}</p>
             <p className="mt-0.5 truncate text-xs text-stone-500">{email}</p>
           </div>
-          <div className="mt-3 border-t border-white/10 pt-2.5">
+          <div className="mt-3 border-t border-stone-200/80 dark:border-white/10 pt-2.5">
             <ThemeToggle variant="dropdown" />
           </div>
 
-          <div className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
+          <div className="mt-2.5 space-y-1 border-t border-stone-200/80 dark:border-white/10 pt-2">
             <DropdownMenuItem asChild>
               <Link
                 href="/profile"
-                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-stone-300 transition hover:bg-white/5 hover:text-stone-100 focus:bg-white/10 focus:text-stone-100"
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-stone-700 transition hover:bg-stone-200/60 hover:text-stone-950 focus:bg-stone-200/60 focus:text-stone-950 dark:text-stone-300 dark:hover:bg-white/5 dark:hover:text-stone-100 dark:focus:bg-white/10 dark:focus:text-stone-100"
               >
-                <User className="h-4 w-4 text-dusk-lavender" />
+                <User className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
                 Profile Settings
               </Link>
             </DropdownMenuItem>
           </div>
 
-          <div className="mt-1 border-t border-white/10 pt-2">
+          <div className="mt-1 border-t border-stone-200/80 dark:border-white/10 pt-2">
             <DropdownMenuItem
               onSelect={(event) => {
                 event.preventDefault();

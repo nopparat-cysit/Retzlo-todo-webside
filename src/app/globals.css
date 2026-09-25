@@ -1979,12 +1979,22 @@ input:checked + .lofi-slider:before {
 
 [data-theme="light"] .text-stone-600,
 .light .text-stone-600 {
-  color: #a8a29e !important;
+  color: #57534e !important;
 }
 
 [data-theme="light"] .text-stone-700,
 .light .text-stone-700 {
-  color: #d6d3d1 !important;
+  color: #292524 !important;
+}
+
+[data-theme="light"] .text-stone-800,
+.light .text-stone-800 {
+  color: #1c1917 !important;
+}
+
+[data-theme="light"] .text-stone-900,
+.light .text-stone-900 {
+  color: #0c0a09 !important;
 }
 
 /* ── 4.1 High-Contrast Accent Ink Typography for Light Mode ── */
@@ -2332,6 +2342,12 @@ input:checked + .lofi-slider:before {
 }
 
 /* ── 8. Form Controls (Input, Textarea, Select) ── */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
 [data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
 .light input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
 [data-theme="light"] textarea,
@@ -2487,15 +2503,39 @@ input:checked + .lofi-slider:before {
 
 /* ── 10. Modals, Floating Menus & Radix Popovers ── */
 [data-theme="light"] [role="dialog"]:not(.fixed),
-.light [role="dialog"]:not(.fixed),
-[data-theme="light"] [data-radix-popper-content-wrapper] > div,
-.light [data-radix-popper-content-wrapper] > div,
-[data-theme="light"] [data-radix-menu-content],
-.light [data-radix-menu-content] {
+.light [role="dialog"]:not(.fixed) {
   background-color: #ffffff !important;
   border: 1px solid #e7e2d9 !important;
   box-shadow: 0 16px 40px -4px rgba(41, 37, 36, 0.12), 0 4px 12px rgba(41, 37, 36, 0.06) !important;
   color: #1c1917 !important;
+}
+
+[data-theme="light"] [data-radix-popper-content-wrapper] > div,
+.light [data-radix-popper-content-wrapper] > div,
+[data-theme="light"] [data-radix-menu-content],
+.light [data-radix-menu-content],
+[data-theme="light"] [data-radix-select-content],
+.light [data-radix-select-content] {
+  background-color: #faf7f2 !important;
+  border: 1px solid #e2dcd2 !important;
+  box-shadow: 0 18px 48px -6px rgba(41, 37, 36, 0.16), 0 0 0 1px rgba(41, 37, 36, 0.05) !important;
+  color: #1c1917 !important;
+}
+
+[data-theme="light"] [role="menuitem"]:hover,
+.light [role="menuitem"]:hover,
+[data-theme="light"] [role="menuitem"]:focus,
+.light [role="menuitem"]:focus,
+[data-theme="light"] [role="option"]:hover,
+.light [role="option"]:hover,
+[data-theme="light"] [role="option"]:focus,
+.light [role="option"]:focus,
+[data-theme="light"] [data-radix-collection-item]:hover,
+.light [data-radix-collection-item]:hover,
+[data-theme="light"] [data-radix-collection-item]:focus,
+.light [data-radix-collection-item]:focus {
+  background-color: #ede7da !important;
+  color: #0c0a09 !important;
 }
 
 /* ── 11. Retro Lofi Toggle Switch in Light Mode ── */

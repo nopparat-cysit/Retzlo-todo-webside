@@ -117,7 +117,7 @@ export function AssigneePicker({
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="inline-flex items-center gap-1 rounded-md border border-dashed border-white/20 bg-white/[0.03] px-2.5 py-1 text-xs text-stone-400 hover:border-dusk-lavender/50 hover:bg-white/[0.08] hover:text-stone-200 transition"
+            className="inline-flex items-center gap-1 rounded-md border border-dashed border-stone-300/90 bg-stone-100/70 px-2.5 py-1 text-xs text-stone-600 hover:border-indigo-400/60 hover:bg-stone-200/60 hover:text-stone-900 transition dark:border-white/20 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>{selectedMembers.length === 0 ? "เลือกคนดูแล / ผู้รับผิดชอบ" : "เพิ่มอีก"}</span>
@@ -128,7 +128,7 @@ export function AssigneePicker({
       {/* Dropdown Popover */}
       {isOpen && !disabled && (
         <div className="relative z-50">
-          <div className="absolute left-0 top-1 w-full max-w-sm rounded-xl border border-white/15 bg-[#120f26] p-3 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150">
+          <div className="absolute left-0 top-1 w-full max-w-sm rounded-xl border border-[#e2dcd2] bg-[#faf7f2] p-3 shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150 dark:border-white/15 dark:bg-[#120f26] dark:shadow-2xl">
             {/* Search Input */}
             <div className="relative mb-2.5">
               <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-stone-400" />
@@ -138,17 +138,17 @@ export function AssigneePicker({
                 placeholder="ค้นหาสมาชิกด้วยชื่อหรืออีเมล..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 w-full rounded-md border border-white/10 bg-white/5 pl-8 pr-3 text-xs text-stone-100 outline-none placeholder:text-stone-500 focus:border-dusk-lavender/60"
+                className="h-8 w-full rounded-md border border-stone-300/80 bg-white pl-8 pr-3 text-xs text-stone-900 outline-none placeholder:text-stone-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/25 dark:border-white/10 dark:bg-white/5 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-dusk-lavender/60"
               />
             </div>
 
             {/* Quick Actions */}
             {members.length > 1 && (
-              <div className="mb-2 flex items-center justify-between border-b border-white/10 pb-1.5 text-[11px]">
+              <div className="mb-2 flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-1.5 text-[11px]">
                 <button
                   type="button"
                   onClick={selectAll}
-                  className="text-dusk-lavender hover:underline"
+                  className="text-indigo-600 hover:underline dark:text-dusk-lavender font-medium"
                 >
                   เลือกทุกคน ({members.length})
                 </button>
@@ -156,7 +156,7 @@ export function AssigneePicker({
                   <button
                     type="button"
                     onClick={clearAll}
-                    className="text-stone-400 hover:text-red-400"
+                    className="text-stone-500 hover:text-red-600 dark:text-stone-400 dark:hover:text-red-400 transition"
                   >
                     ล้างทั้งหมด
                   </button>
@@ -179,16 +179,16 @@ export function AssigneePicker({
                       type="button"
                       onClick={() => toggleMember(member.id)}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition",
+                        "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition cursor-pointer",
                         isSelected
-                          ? "bg-dusk-lavender/20 text-white font-medium"
-                          : "text-stone-300 hover:bg-white/5 hover:text-white"
+                          ? "bg-indigo-50 text-indigo-900 font-medium dark:bg-dusk-lavender/20 dark:text-white"
+                          : "text-stone-700 hover:bg-stone-200/60 hover:text-stone-950 dark:text-stone-300 dark:hover:bg-white/5 dark:hover:text-white"
                       )}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <AssigneeAvatar user={member} size={24} />
                         <div className="min-w-0">
-                          <p className="truncate">{member.name?.trim() || member.email}</p>
+                          <p className="truncate font-medium">{member.name?.trim() || member.email}</p>
                           {member.name && (
                             <p className="truncate text-[10px] text-stone-500">{member.email}</p>
                           )}
@@ -198,8 +198,8 @@ export function AssigneePicker({
                         className={cn(
                           "grid h-4 w-4 shrink-0 place-items-center rounded border transition",
                           isSelected
-                            ? "border-dusk-lavender bg-dusk-lavender text-ink-950 font-bold"
-                            : "border-white/20 bg-transparent"
+                            ? "border-indigo-600 bg-indigo-600 text-white dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950 font-bold"
+                            : "border-stone-300 bg-white dark:border-white/20 dark:bg-transparent"
                         )}
                       >
                         {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
@@ -211,11 +211,11 @@ export function AssigneePicker({
             </div>
 
             {/* Footer close button */}
-            <div className="mt-2.5 border-t border-white/10 pt-2 flex justify-end">
+            <div className="mt-2.5 border-t border-stone-200/80 dark:border-white/10 pt-2 flex justify-end">
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="rounded-md bg-white/10 px-3 py-1 text-xs text-stone-200 hover:bg-white/15 transition font-medium"
+                className="rounded-md border border-stone-300/80 bg-white px-3 py-1 text-xs text-stone-800 hover:bg-stone-100 hover:text-stone-950 transition font-medium shadow-xs dark:border-transparent dark:bg-white/10 dark:text-stone-200 dark:hover:bg-white/15 cursor-pointer"
               >
                 เรียบร้อย
               </button>

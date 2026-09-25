@@ -997,7 +997,7 @@ export function KanbanBoard({
                   "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[180px] sm:max-w-[210px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
                   assigneeFilter !== "ALL"
                     ? "border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-400/40 [&>svg]:text-indigo-600 dark:border-dusk-lavender/50 dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:[&>svg]:text-dusk-lavender"
-                    : "border-stone-300/80 bg-white text-stone-700 hover:border-indigo-400/70 hover:bg-indigo-50/40 hover:text-indigo-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                    : "border-stone-300/80 bg-white text-stone-800 hover:border-indigo-400/70 hover:bg-indigo-50/40 hover:text-indigo-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                 )}
               >
                 <span className="flex items-center gap-1.5 min-w-0">
