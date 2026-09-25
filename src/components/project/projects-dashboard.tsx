@@ -1150,7 +1150,7 @@ export function ProjectsDashboard({
                           <span>{activeProject.name}</span>
                           <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-600 dark:text-dusk-lavender" />
                         </Link>
-                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-dusk-amber shrink-0">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-700 shrink-0 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber">
                           {activeProject.type === "DIARY" ? "Diary Space" : "Workspace"}
                         </span>
                       </div>
@@ -2057,7 +2057,7 @@ function ProjectCard({
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
           <Link href={targetUrl} className="block group/details">
-            <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-400 group-hover/details:text-stone-300 transition-colors">
+            <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-600 group-hover/details:text-stone-900 transition-colors dark:text-stone-400 dark:group-hover/details:text-stone-300">
               {project.description ?? "A quiet project workspace for tasks, notes, due dates, and rewards."}
             </p>
 
@@ -2122,7 +2122,7 @@ function ProjectCard({
             <Link
               href={`/project/${project.id}/notes`}
               title="Project Notes"
-              className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-stone-300 transition hover:border-dusk-rose/50 hover:bg-dusk-rose/10 hover:text-dusk-rose"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-rose/50 dark:hover:bg-dusk-rose/10 dark:hover:text-dusk-rose"
             >
               <FileText className="h-4 w-4" />
             </Link>
@@ -2130,7 +2130,7 @@ function ProjectCard({
             <Link
               href={`/project/${project.id}/rewards`}
               title="Rewards Store"
-              className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-stone-300 transition hover:border-dusk-amber/50 hover:bg-dusk-amber/10 hover:text-dusk-amber"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-amber/50 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
             >
               <Gift className="h-4 w-4" />
             </Link>
