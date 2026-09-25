@@ -1190,11 +1190,11 @@ export function ProjectsDashboard({
 
               {/* Boards in Active Workspace Header + Filter */}
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-bold text-stone-100">
+                <div className="flex items-center gap-2 min-w-0">
+                  <h3 className="text-lg font-bold text-stone-100 truncate">
                     Boards in {activeProject.name}
                   </h3>
-                  <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-xs font-mono font-medium text-stone-300">
+                  <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-xs font-mono font-medium text-stone-300">
                     {activeProjectBoards.length}
                   </span>
                 </div>
@@ -1420,7 +1420,7 @@ function ProjectSupportColumn({
   const rhythmItems = calendarCards.slice(0, 4);
 
   return (
-    <aside className="hidden min-h-0 min-w-0 2xl:sticky 2xl:top-5 2xl:block 2xl:h-[calc(100vh-2.5rem)]">
+    <aside className="hidden min-h-0 min-w-0 2xl:sticky 2xl:top-5 2xl:block 2xl:h-[calc(100vh-2.5rem)] order-3 2xl:order-3">
       <section className="lofi-panel relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl p-5 border border-white/10">
         <div className="shrink-0">
           <div className="mb-3 flex items-center justify-between gap-3">

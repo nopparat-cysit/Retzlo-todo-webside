@@ -1957,6 +1957,51 @@ input:checked + .lofi-slider:before {
   color: #d6d3d1 !important;
 }
 
+/* ── 4.1 High-Contrast Accent Ink Typography for Light Mode ── */
+[data-theme="light"] .text-dusk-amber,
+.light .text-dusk-amber,
+[data-theme="light"] .text-amber-200,
+.light .text-amber-200,
+[data-theme="light"] .text-amber-300,
+.light .text-amber-300,
+[data-theme="light"] .text-amber-400,
+.light .text-amber-400 {
+  color: #92400e !important; /* Rich Warm Dark Amber Ink */
+}
+
+[data-theme="light"] .text-dusk-lavender,
+.light .text-dusk-lavender,
+[data-theme="light"] .text-indigo-200,
+.light .text-indigo-200,
+[data-theme="light"] .text-indigo-300,
+.light .text-indigo-300,
+[data-theme="light"] .text-purple-200,
+.light .text-purple-200,
+[data-theme="light"] .text-purple-300,
+.light .text-purple-300 {
+  color: #4338ca !important; /* Deep Indigo Violet Ink */
+}
+
+[data-theme="light"] .text-dusk-cyan,
+.light .text-dusk-cyan,
+[data-theme="light"] .text-cyan-200,
+.light .text-cyan-200,
+[data-theme="light"] .text-cyan-300,
+.light .text-cyan-300,
+[data-theme="light"] .text-cyan-400,
+.light .text-cyan-400 {
+  color: #0f766e !important; /* Deep Teal Ink */
+}
+
+[data-theme="light"] .text-dusk-rose,
+.light .text-dusk-rose,
+[data-theme="light"] .text-rose-200,
+.light .text-rose-200,
+[data-theme="light"] .text-rose-300,
+.light .text-rose-300 {
+  color: #9f1239 !important; /* Deep Crimson Ink */
+}
+
 /* ── 5. Dark Inks Mapping to Clean Paper Surfaces ── */
 [data-theme="light"] .bg-ink-950,
 .light .bg-ink-950 {
@@ -2002,6 +2047,100 @@ input:checked + .lofi-slider:before {
 [data-theme="light"] .fixed.inset-0.bg-ink-950\/70,
 .light .fixed.inset-0.bg-ink-950\/70 {
   background-color: rgba(28, 25, 23, 0.42) !important;
+}
+
+/* ── 5.1 Recessed Containers & Dark Overlays Mapped to Soft Paper Wells ── */
+[data-theme="light"] .bg-black\/20,
+.light .bg-black\/20,
+[data-theme="light"] .bg-black\/30,
+.light .bg-black\/30,
+[data-theme="light"] .bg-black\/40,
+.light .bg-black\/40,
+[data-theme="light"] .bg-black\/50,
+.light .bg-black\/50 {
+  background-color: #ede7da !important;
+  border-color: #ded7c8 !important;
+}
+
+[data-theme="light"] .bg-ink-950\/20,
+.light .bg-ink-950\/20,
+[data-theme="light"] .bg-ink-950\/40,
+.light .bg-ink-950\/40,
+[data-theme="light"] .bg-ink-950\/60,
+.light .bg-ink-950\/60 {
+  background-color: #f7f4ee !important;
+  border-color: #e7e2d9 !important;
+}
+
+/* ── 5.2 Accent Pill & Metric Card Backgrounds in Light Mode ── */
+[data-theme="light"] .bg-dusk-amber\/10,
+.light .bg-dusk-amber\/10,
+[data-theme="light"] .bg-dusk-amber\/15,
+.light .bg-dusk-amber\/15,
+[data-theme="light"] .bg-dusk-amber\/20,
+.light .bg-dusk-amber\/20 {
+  background-color: rgba(180, 83, 9, 0.08) !important;
+}
+[data-theme="light"] .border-dusk-amber\/20,
+.light .border-dusk-amber\/20,
+[data-theme="light"] .border-dusk-amber\/25,
+.light .border-dusk-amber\/25,
+[data-theme="light"] .border-dusk-amber\/30,
+.light .border-dusk-amber\/30 {
+  border-color: rgba(180, 83, 9, 0.28) !important;
+}
+
+[data-theme="light"] .bg-dusk-lavender\/10,
+.light .bg-dusk-lavender\/10,
+[data-theme="light"] .bg-dusk-lavender\/15,
+.light .bg-dusk-lavender\/15,
+[data-theme="light"] .bg-dusk-lavender\/20,
+.light .bg-dusk-lavender\/20 {
+  background-color: rgba(67, 56, 202, 0.08) !important;
+}
+[data-theme="light"] .border-dusk-lavender\/20,
+.light .border-dusk-lavender\/20,
+[data-theme="light"] .border-dusk-lavender\/25,
+.light .border-dusk-lavender\/25,
+[data-theme="light"] .border-dusk-lavender\/30,
+.light .border-dusk-lavender\/30,
+[data-theme="light"] .border-dusk-lavender\/40,
+.light .border-dusk-lavender\/40 {
+  border-color: rgba(67, 56, 202, 0.28) !important;
+}
+
+[data-theme="light"] .bg-dusk-cyan\/10,
+.light .bg-dusk-cyan\/10,
+[data-theme="light"] .bg-dusk-cyan\/15,
+.light .bg-dusk-cyan\/15,
+[data-theme="light"] .bg-dusk-cyan\/20,
+.light .bg-dusk-cyan\/20 {
+  background-color: rgba(15, 118, 110, 0.08) !important;
+}
+[data-theme="light"] .border-dusk-cyan\/20,
+.light .border-dusk-cyan\/20,
+[data-theme="light"] .border-dusk-cyan\/25,
+.light .border-dusk-cyan\/25,
+[data-theme="light"] .border-dusk-cyan\/30,
+.light .border-dusk-cyan\/30 {
+  border-color: rgba(15, 118, 110, 0.28) !important;
+}
+
+[data-theme="light"] .bg-dusk-rose\/10,
+.light .bg-dusk-rose\/10,
+[data-theme="light"] .bg-dusk-rose\/15,
+.light .bg-dusk-rose\/15,
+[data-theme="light"] .bg-dusk-rose\/20,
+.light .bg-dusk-rose\/20 {
+  background-color: rgba(159, 18, 57, 0.08) !important;
+}
+[data-theme="light"] .border-dusk-rose\/20,
+.light .border-dusk-rose\/20,
+[data-theme="light"] .border-dusk-rose\/25,
+.light .border-dusk-rose\/25,
+[data-theme="light"] .border-dusk-rose\/30,
+.light .border-dusk-rose\/30 {
+  border-color: rgba(159, 18, 57, 0.28) !important;
 }
 
 /* ── 6. Translucent Dark Layers to Warm Linen Tints ── */

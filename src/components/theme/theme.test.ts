@@ -54,4 +54,20 @@ describe("Theme system and Warm Paper Light Mode", () => {
     expect(provider).toContain('root.setAttribute("data-theme", active)');
     expect(provider).toContain('prefers-color-scheme');
   });
+
+  it("configures high-contrast accent typography and soft paper wells in Light Mode", () => {
+    const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(css).toContain('[data-theme="light"] .text-dusk-amber');
+    expect(css).toContain('[data-theme="light"] .text-dusk-lavender');
+    expect(css).toContain('[data-theme="light"] .text-dusk-cyan');
+    expect(css).toContain('[data-theme="light"] .text-dusk-rose');
+    expect(css).toContain('[data-theme="light"] .bg-black\\/20');
+    expect(css).toContain('#ede7da');
+  });
+
+  it("ensures ProjectSupportColumn has 2xl:order-3 so main boards view stays in center column", () => {
+    const dashboard = readFileSync(join(process.cwd(), "src/components/project/projects-dashboard.tsx"), "utf8");
+    expect(dashboard).toContain('order-3 2xl:order-3');
+  });
 });
+

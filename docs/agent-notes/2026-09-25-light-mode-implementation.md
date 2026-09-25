@@ -12,11 +12,12 @@
 - **Modified:**
   - `src/app/layout.tsx`: Added `suppressHydrationWarning`, injected inline head script to eliminate FOUC, and wrapped body in `<ThemeProvider>`.
   - `tailwind.config.ts`: Configured `darkMode: ["class", '[data-theme="dark"]']`.
-  - `src/app/globals.css`: Added `:root[data-theme="light"], .light` design tokens and comprehensive contextual mapping layer for Light Mode (panels, typography, borders, backgrounds, cards as pastel sticky notes, inputs, scrollbars, and modals).
+  - `src/app/globals.css`: Added `:root[data-theme="light"], .light` design tokens, high-contrast accent ink typography (`text-dusk-amber`, `text-dusk-lavender`, `text-dusk-cyan`, `text-dusk-rose`), recessed paper container wells (`bg-black/20`, `bg-black/30`), and contextual mappings for Light Mode.
   - `src/components/theme/theme-toggle.tsx`: Enhanced `variant="dropdown"` to render a 3-button segmented selector (`Light`, `Dark`, `System`) with active state and smooth click handling.
   - `src/components/project/user-profile-popover.tsx`: Mounted the dedicated Theme Selector inside the user profile dropdown.
   - `src/components/project/project-shell.tsx`: Kept topbar clean by housing theme selection in the user profile dropdown.
-  - `src/components/project/projects-dashboard.tsx`: Kept dashboard header clean by housing theme selection in the user profile dropdown.
+  - `src/components/project/projects-dashboard.tsx`: Fixed 2xl CSS grid column order bug (`order-3 2xl:order-3` on `ProjectSupportColumn`) so the main boards hub stays in the center column; prevented vertical word wrapping on `Boards in {activeProject.name}`.
+  - `src/components/theme/theme.test.ts`: Added unit tests verifying accent ink typography and grid ordering contract.
   - `src/app/(dashboard)/project/[id]/settings/page.tsx`: Mounted `<ThemeToggle variant="settings" />` in Personal Preferences.
 
 ## Important Behavior Changes
@@ -24,6 +25,8 @@
 - Users can also configure their Theme preference under Project Settings > Personal Preferences.
 - The choice is saved immediately in `localStorage` (`retzlo-theme`) and survives page reloads with 0ms visual flash (anti-FOUC script in `<head>`).
 - In Light Mode, scanlines are disabled for a clean tactile paper reading feel, while maintaining the signature retro-lofi identity (warm cream background, charcoal ink text, pastel sticky notes, soft linen borders).
+- All accent colors (`dusk-amber`, `dusk-lavender`, `dusk-cyan`, `dusk-rose`) in Light Mode map to rich, high-contrast inks (Deep Amber, Indigo, Forest Teal, Crimson) ensuring complete legibility across metrics, pills, and headers.
+- Fixed 2xl responsive grid bug where `ProjectSupportColumn` without explicit order defaulted to column 1, pushing the main board hub into the narrow 360px right column.
 - Dark Mode remains 100% pixel-perfect and unaffected.
 
 ## Database / Schema Changes
@@ -31,9 +34,10 @@
 
 ## Verification Commands Run & Results
 - `npx prisma validate`: Pass (schema valid)
-- `npm test`: Pass (62 test files, 287 tests passed)
+- `npm test`: Pass (62 test files, 288 tests passed)
 - `npm run lint`: Pass (0 errors, 0 warnings)
 - `npm run build`: Pass (35/35 static and dynamic pages generated with 0 errors)
 
 ## Known Follow-ups, Blockers, or Deployment Notes
-- Ready for production deployment.
+- Ready for push and production deployment to Vercel.
+
