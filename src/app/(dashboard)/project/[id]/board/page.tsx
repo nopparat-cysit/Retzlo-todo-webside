@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { KanbanBoard } from "@/components/kanban/board";
 import { BoardTabsBar } from "@/components/kanban/board-tabs-bar";
 import { BoardNotesRail } from "@/components/notes/board-notes-rail";

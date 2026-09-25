@@ -121,6 +121,13 @@ export function ProjectBoardsManager({
       setBoards((prev) =>
         prev.map((b) => (b.id === editingBoard.id ? { ...b, name: data.board.name } : b))
       );
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("board-renamed", {
+            detail: { id: editingBoard.id, name: data.board.name }
+          })
+        );
+      }
       setEditingBoard(null);
       toast({ message: "Board name updated", type: "success" });
     } catch (err) {

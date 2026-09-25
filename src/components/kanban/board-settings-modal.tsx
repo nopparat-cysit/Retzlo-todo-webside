@@ -124,7 +124,7 @@ export function BoardSettingsModal({
       }
 
       if (boardData?.board) {
-        if (boardData.board.name) setName(boardData.board.name);
+        setName((prev) => (prev === boardName || !prev.trim() ? (boardData.board.name || prev) : prev));
         if (typeof boardData.board.isPrivate === "boolean") setIsPrivate(boardData.board.isPrivate);
 
         if (Array.isArray(boardData.board.members)) {
@@ -151,7 +151,7 @@ export function BoardSettingsModal({
     return () => {
       isMounted = false;
     };
-  }, [open, projectId, boardId]);
+  }, [open, projectId, boardId, boardName]);
 
   const isDirty = useMemo(() => {
     if (name.trim() !== boardName) return true;
@@ -219,6 +219,13 @@ export function BoardSettingsModal({
       }
 
       toast({ message: `Board "${data.board.name}" settings saved.`, type: "success" });
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("board-renamed", {
+            detail: { id: boardId, name: data.board.name }
+          })
+        );
+      }
       if (onSaved) {
         onSaved({
           id: boardId,

@@ -94,13 +94,32 @@ export async function PATCH(request: Request, { params }: { params: { boardId: s
 
   const membership = await assertProjectMember(projectId, userId);
 
-  if (!membership || !isOwnerRole(membership.role)) {
-    return jsonError("Only project owners and admins can update board settings.", 403);
+  if (!membership) {
+    return jsonError("You do not have access to this project.", 403);
   }
+
+  const isOwnerOrAdmin = isOwnerRole(membership.role) || membership.role === "ADMIN";
 
   try {
     const body = await request.json();
     const payload = updateBoardSchema.parse(body);
+
+    if ((payload.isPrivate !== undefined || payload.memberUserIds !== undefined) && !isOwnerOrAdmin) {
+      return jsonError("Only project owners and admins can update board privacy or member access.", 403);
+    }
+
+    const board = await prisma.board.findUnique({
+      where: { id: params.boardId },
+      include: { members: { select: { userId: true } } }
+    });
+
+    if (!board) {
+      return jsonError("Board not found.", 404);
+    }
+
+    if (!canAccessBoard(board, userId, membership.role)) {
+      return jsonError("You do not have access to this private board.", 403);
+    }
 
     const updated = await prisma.$transaction(async (tx) => {
       const dataToUpdate: { name?: string; isPrivate?: boolean } = {};

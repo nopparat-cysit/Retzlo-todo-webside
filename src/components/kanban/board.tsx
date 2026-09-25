@@ -11,7 +11,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Plus, Search, RotateCcw, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
+import { CalendarClock, Check, CheckSquare, Edit3, Plus, Search, RotateCcw, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -24,6 +24,7 @@ import { ColumnStatusPicker } from "@/components/kanban/column-status-picker";
 import { triggerCelebration } from "@/components/kanban/card-celebration";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -170,6 +171,82 @@ export function KanbanBoard({
   );
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [moveHistory, setMoveHistory] = useState<MoveAction[]>([]);
+
+  // Board Name Editing States
+  const [boardName, setBoardName] = useState(board.name);
+  const [isEditingBoardName, setIsEditingBoardName] = useState(false);
+  const [editingBoardNameValue, setEditingBoardNameValue] = useState(board.name);
+  const [isSavingBoardName, setIsSavingBoardName] = useState(false);
+  const [confirmRenameOpen, setConfirmRenameOpen] = useState(false);
+  const boardNameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setBoardName(board.name);
+    setEditingBoardNameValue(board.name);
+  }, [board.name]);
+
+  useEffect(() => {
+    const handleBoardRenamed = (e: CustomEvent<{ id: string; name: string }>) => {
+      if (e.detail?.id === board.id && e.detail?.name) {
+        setBoardName(e.detail.name);
+        setEditingBoardNameValue(e.detail.name);
+      }
+    };
+    window.addEventListener("board-renamed" as any, handleBoardRenamed);
+    return () => window.removeEventListener("board-renamed" as any, handleBoardRenamed);
+  }, [board.id]);
+
+  const requestRenameBoard = (e?: FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = editingBoardNameValue.trim();
+    if (!trimmed || trimmed === boardName) {
+      setIsEditingBoardName(false);
+      setEditingBoardNameValue(boardName);
+      return;
+    }
+    setConfirmRenameOpen(true);
+  };
+
+  const handleConfirmRenameBoard = async () => {
+    const trimmed = editingBoardNameValue.trim();
+    if (!trimmed) return;
+    setIsSavingBoardName(true);
+    setConfirmRenameOpen(false);
+
+    try {
+      const response = await fetch(`/api/boards/${board.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmed })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to rename board");
+      }
+
+      setBoardName(data.board.name);
+      setEditingBoardNameValue(data.board.name);
+      setIsEditingBoardName(false);
+      toast({ message: `Board renamed to "${data.board.name}".`, type: "success" });
+      broadcastChange("BOARD_UPDATED");
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("board-renamed", {
+            detail: { id: board.id, name: data.board.name }
+          })
+        );
+      }
+    } catch (err) {
+      toast({
+        message: err instanceof Error ? err.message : "Failed to rename board",
+        type: "error"
+      });
+    } finally {
+      setIsSavingBoardName(false);
+    }
+  };
 
   // Synchronize Focus Mode with Topbar Toggle
   useEffect(() => {
@@ -731,8 +808,74 @@ export function KanbanBoard({
         <div className={cn("flex flex-col gap-2.5 2xl:flex-row 2xl:items-start 2xl:justify-between", overdueCards > 0 && "pr-10 sm:pr-12")}>
           <div className="min-w-0 flex-1">
             <p className="text-[10px] uppercase tracking-[0.22em] text-dusk-amber font-semibold">Board Channel</p>
-            <h2 className="mt-0.5 flex flex-wrap items-center gap-2 text-base sm:text-lg font-semibold">
-              {board.name}
+            <div className="mt-0.5 flex flex-wrap items-center gap-2">
+              {isEditingBoardName ? (
+                <form onSubmit={requestRenameBoard} className="flex items-center gap-1.5">
+                  <input
+                    ref={boardNameInputRef}
+                    type="text"
+                    value={editingBoardNameValue}
+                    onChange={(e) => setEditingBoardNameValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        setIsEditingBoardName(false);
+                        setEditingBoardNameValue(boardName);
+                      }
+                    }}
+                    maxLength={80}
+                    className="h-8 rounded-lg border border-indigo-400 bg-white px-2.5 text-base sm:text-lg font-semibold text-stone-900 shadow-xs outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-dusk-lavender/50 dark:bg-white/[0.08] dark:text-stone-100"
+                    placeholder="Board name..."
+                    autoFocus
+                    disabled={isSavingBoardName}
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSavingBoardName || !editingBoardNameValue.trim()}
+                    className="grid h-8 w-8 place-items-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300 transition cursor-pointer"
+                    title="Save board name"
+                    aria-label="Save board name"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingBoardName(false);
+                      setEditingBoardNameValue(boardName);
+                    }}
+                    className="grid h-8 w-8 place-items-center rounded-lg border border-stone-200 bg-stone-100 text-stone-600 hover:bg-stone-200 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 transition cursor-pointer"
+                    title="Cancel (Esc)"
+                    aria-label="Cancel renaming"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </form>
+              ) : (
+                <div className="group/title flex items-center gap-1.5">
+                  <h2
+                    className="text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
+                    onClick={() => {
+                      setEditingBoardNameValue(boardName);
+                      setIsEditingBoardName(true);
+                    }}
+                    title="Click to rename board"
+                  >
+                    {boardName}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingBoardNameValue(boardName);
+                      setIsEditingBoardName(true);
+                    }}
+                    className="opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition grid h-6 w-6 place-items-center rounded text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer"
+                    title="Rename board"
+                    aria-label="Rename board"
+                  >
+                    <Edit3 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
               {isFocusMode && (
                 <button
                   type="button"
@@ -746,7 +889,7 @@ export function KanbanBoard({
                   <X className="h-3 w-3 opacity-70 group-hover/focus:opacity-100 transition-opacity" />
                 </button>
               )}
-            </h2>
+            </div>
             <p className="text-xs text-stone-500">
               {isFocusMode ? (
                 <>
@@ -1141,6 +1284,17 @@ export function KanbanBoard({
           }}
         />
       )}
+
+      <ConfirmModal
+        open={confirmRenameOpen}
+        title="Rename Board"
+        message={`Are you sure you want to rename "${boardName}" to "${editingBoardNameValue.trim()}"?`}
+        confirmLabel="Rename"
+        isLoading={isSavingBoardName}
+        variant="default"
+        onClose={() => setConfirmRenameOpen(false)}
+        onConfirm={handleConfirmRenameBoard}
+      />
     </div>
   );
 }

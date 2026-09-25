@@ -343,6 +343,13 @@ export function ProjectsDashboard({
         };
       })
     );
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("board-renamed", {
+          detail: { id: updatedBoard.id, name: updatedBoard.name }
+        })
+      );
+    }
     broadcastChange();
     toast({ message: `Board updated to "${updatedBoard.name}".`, type: "success" });
   }

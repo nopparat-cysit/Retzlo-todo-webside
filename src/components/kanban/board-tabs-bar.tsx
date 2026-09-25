@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FolderKanban, Globe, Lock, Plus, Settings } from "lucide-react";
@@ -30,12 +30,29 @@ export function BoardTabsBar({
 }: BoardTabsBarProps) {
   const router = useRouter();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [boardsList, setBoardsList] = useState<BoardTabItem[]>(boards);
 
-  if (boards.length <= 1 && !canManage) {
+  useEffect(() => {
+    setBoardsList(boards);
+  }, [boards]);
+
+  useEffect(() => {
+    const handleBoardRenamed = (e: CustomEvent<{ id: string; name: string }>) => {
+      if (e.detail?.id && e.detail?.name) {
+        setBoardsList((prev) =>
+          prev.map((b) => (b.id === e.detail.id ? { ...b, name: e.detail.name } : b))
+        );
+      }
+    };
+    window.addEventListener("board-renamed" as any, handleBoardRenamed);
+    return () => window.removeEventListener("board-renamed" as any, handleBoardRenamed);
+  }, []);
+
+  if (boardsList.length <= 1 && !canManage) {
     return null;
   }
 
-  const activeBoard = boards.find((b) => b.id === activeBoardId) ?? boards[0];
+  const activeBoard = boardsList.find((b) => b.id === activeBoardId) ?? boardsList[0];
 
   return (
     <>
@@ -58,7 +75,7 @@ export function BoardTabsBar({
               <span>Boards:</span>
             </div>
           )}
-          {boards.map((b) => {
+          {boardsList.map((b) => {
             const isActive = b.id === activeBoardId;
 
             return (
@@ -135,13 +152,21 @@ export function BoardTabsBar({
           boardName={activeBoard.name}
           isPrivate={activeBoard.isPrivate}
           canManage={canManage}
-          onSaved={() => {
+          onSaved={(updated) => {
+            setBoardsList((prev) =>
+              prev.map((b) =>
+                b.id === updated.id
+                  ? { ...b, name: updated.name, isPrivate: updated.isPrivate }
+                  : b
+              )
+            );
             setIsSettingsOpen(false);
             router.refresh();
           }}
           onDeleted={() => {
             setIsSettingsOpen(false);
-            const remaining = boards.filter((b) => b.id !== activeBoard.id);
+            const remaining = boardsList.filter((b) => b.id !== activeBoard.id);
+            setBoardsList(remaining);
             if (remaining.length > 0) {
               router.push(`/project/${projectId}/board?boardId=${remaining[0].id}`);
             } else {
