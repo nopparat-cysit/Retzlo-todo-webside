@@ -116,6 +116,16 @@ describe("Theme system and Warm Paper Light Mode", () => {
     expect(diary).toContain("border-dusk-amber/35 bg-amber-50/70");
     expect(diary).toContain("dark:bg-ink-950/50");
   });
+
+  it("ensures skeleton loading uses warm bone base and white shimmer in Light Mode", () => {
+    const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(css).toContain('[data-theme="light"] .skeleton-base');
+    expect(css).toContain("#ede8df !important");
+
+    const skeleton = readFileSync(join(process.cwd(), "src/components/ui/skeleton.tsx"), "utf8");
+    expect(skeleton).toContain("skeleton-base");
+    expect(skeleton).toContain("border-stone-200/90 bg-stone-100/70");
+  });
 });
 
 

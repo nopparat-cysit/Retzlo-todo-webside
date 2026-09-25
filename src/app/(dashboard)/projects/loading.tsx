@@ -33,7 +33,7 @@ export default function ProjectsLoading() {
           </div>
 
           {/* Calendar mini list */}
-          <div className="mt-5 flex-1 rounded-md border border-white/10 bg-ink-950/35 p-4">
+          <div className="mt-5 flex-1 rounded-md border border-stone-200/80 bg-stone-50/80 p-4 dark:border-white/10 dark:bg-ink-950/35">
             <div className="skeleton-base mb-3 h-4 w-20 rounded" />
             <div className="space-y-2">
               {[1, 2, 3, 4].map((i) => (
@@ -46,7 +46,7 @@ export default function ProjectsLoading() {
         {/* Main content skeleton */}
         <section>
           {/* Header bar */}
-          <div className="mb-4 flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.035] p-5">
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-stone-200/80 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
             <div className="space-y-2">
               <div className="skeleton-base h-3 w-24 rounded" />
               <div className="skeleton-base h-9 w-56 rounded" />

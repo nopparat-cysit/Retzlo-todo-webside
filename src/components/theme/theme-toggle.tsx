@@ -20,15 +20,15 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
 
   if (!mounted) {
     if (variant === "settings") {
-      return <div className="h-10 w-full animate-pulse rounded-xl bg-white/5" />;
+      return <div className="h-10 w-full skeleton-base rounded-xl" />;
     }
     if (variant === "dropdown") {
-      return <div className="h-12 w-full animate-pulse rounded-lg bg-white/5" />;
+      return <div className="h-12 w-full skeleton-base rounded-lg" />;
     }
     return (
       <div
         className={cn(
-          "h-9 w-9 rounded-xl border border-white/10 bg-white/[0.045]",
+          "h-9 w-9 skeleton-base rounded-xl border border-stone-200/80 dark:border-white/10",
           className
         )}
       />

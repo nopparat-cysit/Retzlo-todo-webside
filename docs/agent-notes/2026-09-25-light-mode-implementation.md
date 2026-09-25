@@ -27,7 +27,11 @@
    - `src/components/kanban/board.tsx` & `src/components/kanban/column.tsx`: Updated `ColumnThemePicker` color swatch buttons for Light Mode borders and surfaces.
    - `src/components/kanban/card-modal.tsx`: Replaced dark grey `SortableChecklistItem` rows (`bg-ink-950/50`) with clean paper rows (`border-stone-200/90 bg-stone-50/90 text-stone-800`); theme adapted coin input fields.
    - `src/components/kanban/board-settings-modal.tsx`: Theme adapted member list and column list containers and rows.
-   - `src/components/theme/theme.test.ts`: Added tests verifying Light Mode styling contracts for `SegmentedControl`, `ColumnIconPicker`, `SortableChecklistItem`, and Milestone Reward card.
+   - `src/components/theme/theme-toggle.tsx`: Used `skeleton-base` for theme toggle mounting placeholders.
+   - `src/components/ui/skeleton.tsx`: Unified `Skeleton` component to use `.skeleton-base` class; adapted `ColumnSkeleton` and `ProjectCardSkeleton` containers, cover placeholders, and stat pills for Light Mode.
+   - `src/app/(dashboard)/projects/loading.tsx`: Theme adapted sidebar mini calendar container and header bar for Light Mode.
+   - `src/app/globals.css`: Added Light Mode styles for `.skeleton-base` with warm bone background (`#ede8df`) and smooth white sheen gradient.
+   - `src/components/theme/theme.test.ts`: Added tests verifying Light Mode styling contracts for `SegmentedControl`, `ColumnIconPicker`, `SortableChecklistItem`, Milestone Reward card, and Skeleton loading.
 
 ## Important Behavior Changes
 - Theme switching is cleanly housed inside the **User Profile Dropdown** (`UserProfilePopover`) as a segmented 3-choice control (`Light`, `Dark`, `System`), keeping the Topbars clean, modern, and uncluttered across workspaces and dashboards.
@@ -42,6 +46,7 @@
 - Eliminated dark grey pill behind Segmented Control (Month / Week) in Calendar, rendering with warm linen track and crisp active/inactive buttons.
 - Eliminated dark grey container behind Icon picker in Create/Edit Column modal, rendering on soft paper well with white icon buttons.
 - Eliminated dark grey bars behind Checklist items in Card details modal, rendering as light paper rows with clear checkboxes and strike-through text.
+- Upgraded **Skeleton Loading** in Light Mode: replaced barely-visible lavender tints and dark containers with warm bone blocks (`#ede8df`), smooth white-sheen shimmer glides, and crisp paper card frames (`ColumnSkeleton`, `ProjectCardSkeleton`, `ProjectsLoading`, `BoardLoading`).
 - Restored active sidebar link readability ("Diary" etc.) with crisp charcoal ink text (`text-stone-900 font-semibold`) in Light Mode.
 - Dark Mode remains 100% pixel-perfect and unaffected.
 
@@ -50,8 +55,8 @@
 
 ## Verification Commands Run & Results
 - `npx prisma validate`: Pass (schema valid)
-- `npx vitest run src/components/theme/theme.test.ts`: Pass (16/16 tests passed)
-- `npm test`: Pass (62 test files, 295 tests passed)
+- `npx vitest run src/components/theme/theme.test.ts`: Pass (17/17 tests passed)
+- `npm test`: Pass (62 test files, 296 tests passed)
 - `npm run lint`: Pass (0 errors, 0 warnings)
 - `npm run build`: Pass (35/35 static and dynamic pages generated with 0 errors)
 
