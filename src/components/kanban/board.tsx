@@ -1154,8 +1154,8 @@ function ColumnThemePicker({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Color</span>
-        <span className="text-xs text-stone-500">{getColumnThemeOption(value).label}</span>
+        <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">Color</span>
+        <span className="text-xs text-stone-600 dark:text-stone-500">{getColumnThemeOption(value).label}</span>
       </div>
       <div className="grid grid-cols-6 gap-2">
         {columnThemeOptions.map((option) => (
@@ -1163,10 +1163,10 @@ function ColumnThemePicker({
             key={option.id}
             aria-label={`Use ${option.label} column color`}
             className={cn(
-              "grid h-9 place-items-center rounded-lg border bg-white/[0.035] transition hover:-translate-y-0.5 hover:border-dusk-lavender/40",
+              "grid h-9 place-items-center rounded-lg border transition hover:-translate-y-0.5 hover:border-dusk-lavender/40",
               option.id === value
-                ? "border-dusk-amber shadow-[0_0_0_2px_rgba(249,199,132,0.16)]"
-                : "border-white/10"
+                ? "border-dusk-amber bg-dusk-amber/15 shadow-[0_0_0_2px_rgba(249,199,132,0.25)]"
+                : "border-stone-200/80 bg-white dark:border-white/10 dark:bg-white/[0.035]"
             )}
             title={option.label}
             type="button"

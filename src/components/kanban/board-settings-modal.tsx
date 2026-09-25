@@ -509,7 +509,7 @@ export function BoardSettingsModal({
                   </div>
 
                   {/* Member list */}
-                  <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1 scrollbar-soft rounded-xl border border-white/10 bg-ink-950/40 p-2">
+                  <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1 scrollbar-soft rounded-xl border border-stone-200/90 bg-stone-100/70 p-2 dark:border-white/10 dark:bg-ink-950/40">
                     {filteredMembers.length === 0 ? (
                       <p className="py-4 text-center text-xs text-stone-500 font-mono">
                         {memberSearchQuery ? "No members match search." : "No workspace members found."}
@@ -524,8 +524,8 @@ export function BoardSettingsModal({
                             className={cn(
                               "flex items-center justify-between gap-3 rounded-lg border p-2 cursor-pointer transition select-none",
                               isSelected
-                                ? "border-dusk-amber/40 bg-dusk-amber/10 text-white"
-                                : "border-white/5 bg-white/[0.02] text-stone-400 hover:border-white/15 hover:bg-white/[0.04]"
+                                ? "border-dusk-amber/40 bg-dusk-amber/15 text-stone-900 font-semibold dark:text-white"
+                                : "border-stone-200/80 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 dark:border-white/5 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:border-white/15 dark:hover:bg-white/[0.04]"
                             )}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
@@ -581,7 +581,7 @@ export function BoardSettingsModal({
                 </div>
               </div>
 
-              <div className="space-y-2 rounded-xl border border-white/10 bg-ink-950/40 p-2.5 max-h-60 overflow-y-auto scrollbar-soft">
+              <div className="space-y-2 rounded-xl border border-stone-200/90 bg-stone-100/70 p-2.5 max-h-60 overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-ink-950/40">
                 {columns.length === 0 ? (
                   <p className="py-6 text-center text-xs text-stone-500 font-mono">
                     No columns found on this board.
@@ -590,7 +590,7 @@ export function BoardSettingsModal({
                   columns.map((col, index) => (
                     <div
                       key={col.id}
-                      className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.025] px-3 py-2 text-xs"
+                      className="flex items-center justify-between gap-3 rounded-lg border border-stone-200/80 bg-white px-3 py-2 text-xs dark:border-white/10 dark:bg-white/[0.025]"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span className="grid h-5 w-5 shrink-0 place-items-center rounded bg-white/5 font-mono text-[10px] text-stone-400">

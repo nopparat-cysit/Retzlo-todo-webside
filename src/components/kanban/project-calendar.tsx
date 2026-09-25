@@ -439,7 +439,7 @@ export function ProjectCalendar({
                 <button
                   type="button"
                   onClick={() => setAnchorDate((value) => shiftDateKey(value, viewMode === "month" ? -30 : -calendarDays.length))}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 hover:bg-white/10 hover:text-stone-100 transition"
+                  className="grid h-8 w-8 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
                   aria-label="Previous month or week"
                   title="Previous"
                 >
@@ -448,14 +448,14 @@ export function ProjectCalendar({
                 <button
                   type="button"
                   onClick={() => setAnchorDate(todayKey)}
-                  className="px-2.5 h-8 rounded-lg text-xs font-semibold text-stone-300 hover:bg-white/10 hover:text-stone-100 transition"
+                  className="px-2.5 h-8 rounded-lg text-xs font-semibold text-stone-700 hover:bg-black/5 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
                 >
                   Today
                 </button>
                 <button
                   type="button"
                   onClick={() => setAnchorDate((value) => shiftDateKey(value, viewMode === "month" ? 30 : calendarDays.length))}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 hover:bg-white/10 hover:text-stone-100 transition"
+                  className="grid h-8 w-8 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
                   aria-label="Next month or week"
                   title="Next"
                 >
@@ -483,7 +483,7 @@ export function ProjectCalendar({
                   "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-medium transition",
                   isFiltersOpen
                     ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender shadow-sm"
-                    : "border-white/10 bg-white/[0.03] text-stone-300 hover:border-white/20 hover:bg-white/[0.06] hover:text-stone-100"
+                    : "border-stone-200/90 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/[0.06] dark:hover:text-stone-100"
                 )}
                 aria-expanded={isFiltersOpen}
               >
@@ -503,7 +503,7 @@ export function ProjectCalendar({
                   "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-medium transition",
                   isUpcomingOpen
                     ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber shadow-sm"
-                    : "border-white/10 bg-white/[0.03] text-stone-300 hover:border-white/20 hover:bg-white/[0.06] hover:text-stone-100"
+                    : "border-stone-200/90 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/[0.06] dark:hover:text-stone-100"
                 )}
                 aria-expanded={isUpcomingOpen}
               >

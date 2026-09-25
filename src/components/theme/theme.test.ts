@@ -92,6 +92,30 @@ describe("Theme system and Warm Paper Light Mode", () => {
     const link = readFileSync(join(process.cwd(), "src/components/project/project-nav-link.tsx"), "utf8");
     expect(link).toContain("text-stone-900 font-semibold dark:text-stone-100");
   });
+
+  it("ensures SegmentedControl renders theme-adaptive containers and buttons", () => {
+    const seg = readFileSync(join(process.cwd(), "src/components/ui/segmented-control.tsx"), "utf8");
+    expect(seg).toContain("border-stone-200/90 bg-stone-100/90");
+    expect(seg).toContain("dark:bg-ink-950/45");
+  });
+
+  it("ensures ColumnIconPicker renders soft paper wells and crisp tiles in Light Mode", () => {
+    const picker = readFileSync(join(process.cwd(), "src/components/kanban/column-icon-picker.tsx"), "utf8");
+    expect(picker).toContain("border-stone-200/90 bg-stone-100/80");
+    expect(picker).toContain("dark:bg-ink-950/25");
+  });
+
+  it("ensures CardModal checklist items use light paper rows with readable text", () => {
+    const modal = readFileSync(join(process.cwd(), "src/components/kanban/card-modal.tsx"), "utf8");
+    expect(modal).toContain("border-stone-200/90 bg-stone-50/90 px-3 py-2 text-sm text-stone-800");
+    expect(modal).toContain("dark:bg-ink-950/50");
+  });
+
+  it("ensures Milestone Reward card uses warm amber surfaces and high-contrast text", () => {
+    const diary = readFileSync(join(process.cwd(), "src/components/diary/diary-list-panel.tsx"), "utf8");
+    expect(diary).toContain("border-dusk-amber/35 bg-amber-50/70");
+    expect(diary).toContain("dark:bg-ink-950/50");
+  });
 });
 
 

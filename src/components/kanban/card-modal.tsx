@@ -869,29 +869,29 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
               </div>
               <div className="space-y-3">
                 <label className="block space-y-1 text-xs text-stone-400">
-                  <span className="text-stone-300 font-medium">Project Coins (🪙 ของทีม)</span>
+                  <span className="text-stone-700 dark:text-stone-300 font-medium">Project Coins (🪙 ของทีม)</span>
                   <input
                     type="number"
                     min="0"
                     max="1000"
                     value={rewardCoins}
                     onChange={(e) => setRewardCoins(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="h-10 w-full rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
+                    className="h-10 w-full rounded-md border border-stone-200 bg-white px-3 text-sm text-stone-900 outline-none focus:border-dusk-lavender/70 dark:border-white/10 dark:bg-ink-950/60 dark:text-stone-100"
                   />
-                  <span>Awarded to assignee upon completion.</span>
+                  <span className="text-stone-500">Awarded to assignee upon completion.</span>
                 </label>
 
                 <label className="block space-y-1 text-xs text-stone-400">
-                  <span className="text-stone-300 font-medium">My Private Coins (🪙 ส่วนตัว)</span>
+                  <span className="text-stone-700 dark:text-stone-300 font-medium">My Private Coins (🪙 ส่วนตัว)</span>
                   <input
                     type="number"
                     min="0"
                     max="1000"
                     value={privateGlobalCoins}
                     onChange={(e) => setPrivateGlobalCoins(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="h-10 w-full rounded-md border border-white/10 bg-ink-950/60 px-3 text-sm text-stone-100 outline-none focus:border-dusk-lavender/70"
+                    className="h-10 w-full rounded-md border border-stone-200 bg-white px-3 text-sm text-stone-900 outline-none focus:border-dusk-lavender/70 dark:border-white/10 dark:bg-ink-950/60 dark:text-stone-100"
                   />
-                  <span>Your private reward (only you can see this).</span>
+                  <span className="text-stone-500">Your private reward (only you can see this).</span>
                 </label>
               </div>
             </div>
@@ -1013,12 +1013,12 @@ function SortableChecklistItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "flex items-center gap-2 rounded-md bg-ink-950/50 px-3 py-2 text-sm transition",
-        isDragging && "border border-dusk-lavender/50 bg-dusk-lavender/10 shadow-lg"
+        "flex items-center gap-2 rounded-lg border border-stone-200/90 bg-stone-50/90 px-3 py-2 text-sm text-stone-800 transition dark:border-white/10 dark:bg-ink-950/50 dark:text-stone-200",
+        isDragging && "border-dusk-lavender/50 bg-dusk-lavender/10 shadow-lg"
       )}
     >
       <button
-        className="cursor-grab text-stone-500 hover:text-dusk-lavender active:cursor-grabbing"
+        className="cursor-grab text-stone-400 hover:text-dusk-lavender active:cursor-grabbing dark:text-stone-500"
         type="button"
         aria-label="Drag checklist item"
         {...attributes}
@@ -1032,8 +1032,14 @@ function SortableChecklistItem({
         type="checkbox"
         onChange={(event) => onCheckedChange(event.target.checked)}
       />
-      <span className="flex-1">{item.label}</span>
-      <button className="text-stone-500 hover:text-red-300" type="button" onClick={onDelete}>
+      <span className={cn("flex-1", item.checked && "line-through text-stone-400 dark:text-stone-500")}>
+        {item.label}
+      </span>
+      <button
+        className="text-stone-400 hover:text-red-500 dark:text-stone-500 dark:hover:text-red-300 transition"
+        type="button"
+        onClick={onDelete}
+      >
         <X className="h-4 w-4" />
       </button>
     </div>

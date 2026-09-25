@@ -85,10 +85,10 @@ export function ColumnIconPicker({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Icon</span>
-        <span className="text-xs text-stone-500">{selectedIcon.label}</span>
+        <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">Icon</span>
+        <span className="text-xs text-stone-600 dark:text-stone-500">{selectedIcon.label}</span>
       </div>
-      <div className="scrollbar-soft grid max-h-44 grid-cols-6 gap-2 overflow-y-auto rounded-xl border border-white/10 bg-ink-950/25 p-2">
+      <div className="scrollbar-soft grid max-h-44 grid-cols-6 gap-2 overflow-y-auto rounded-xl border border-stone-200/90 bg-stone-100/80 p-2 dark:border-white/10 dark:bg-ink-950/25">
         {columnIconOptions.map((option) => {
           const Icon = columnIconMap[option.id];
           const isSelected = option.id === selectedIcon.id;
@@ -98,10 +98,10 @@ export function ColumnIconPicker({
               key={option.id}
               aria-label={`Use ${option.label} icon`}
               className={cn(
-                "grid h-10 place-items-center rounded-lg border text-stone-400 transition hover:-translate-y-0.5 hover:border-dusk-lavender/40 hover:bg-white/[0.06] hover:text-stone-100",
+                "grid h-10 place-items-center rounded-lg border transition hover:-translate-y-0.5",
                 isSelected
-                  ? "border-dusk-amber bg-dusk-amber/10 text-dusk-amber shadow-[0_0_0_2px_rgba(249,199,132,0.16)]"
-                  : "border-white/10 bg-white/[0.035]"
+                  ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber shadow-[0_0_0_2px_rgba(249,199,132,0.25)]"
+                  : "border-stone-200/80 bg-white text-stone-600 hover:border-dusk-lavender/40 hover:bg-stone-50 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400 dark:hover:bg-white/[0.06] dark:hover:text-stone-100"
               )}
               title={option.label}
               type="button"

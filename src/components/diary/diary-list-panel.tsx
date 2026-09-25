@@ -1048,7 +1048,7 @@ function DiaryFocusCard({
           {/* Right Column (Desktop): Insights, Coins & Metadata Shelf */}
           <div className="order-2 flex flex-col gap-4 xl:order-2">
             {/* Reward Card */}
-            <div className="rounded-2xl border border-dusk-amber/30 bg-ink-950/50 p-4 shadow-sm">
+            <div className="rounded-2xl border border-dusk-amber/35 bg-amber-50/70 p-4 shadow-sm dark:border-dusk-amber/30 dark:bg-ink-950/50">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-dusk-amber">
                   <Coins className="h-4 w-4" />
@@ -1059,10 +1059,10 @@ function DiaryFocusCard({
                     className={cn(
                       "rounded-full border px-2 py-0.5 text-[10px] font-medium",
                       rewardClaimed
-                        ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                        ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300"
                         : rewardReady
-                          ? "border-dusk-amber/35 bg-dusk-amber/15 text-dusk-amber animate-pulse"
-                          : "border-white/10 bg-white/5 text-stone-400"
+                          ? "border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber animate-pulse"
+                          : "border-stone-200 bg-stone-100/90 text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400"
                     )}
                   >
                     {rewardClaimed ? "Claimed ✓" : rewardReady ? "Ready to Claim!" : "In Progress"}
@@ -1074,11 +1074,11 @@ function DiaryFocusCard({
                 <div className="mt-3">
                   <div className="flex items-baseline gap-1.5">
                     <span className="font-mono text-2xl font-bold text-dusk-amber">+{item.rewardCoins}</span>
-                    <span className="text-xs text-stone-400">
+                    <span className="text-xs text-stone-600 dark:text-stone-400">
                       {item.rewardCoinType === "GLOBAL" ? "Global Coins" : "Project Coins"}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-stone-400">
+                  <p className="mt-1 text-xs text-stone-600 dark:text-stone-400">
                     {rewardClaimed
                       ? "Reward claimed for today's routine!"
                       : "Automatically rewarded once 100% of today's checklist is complete."}
@@ -1450,7 +1450,7 @@ function DiaryItemModal({
                       "rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition",
                       isRewardOpen
                         ? "border-dusk-amber/40 bg-dusk-amber/20 text-dusk-amber"
-                        : "border-white/10 bg-white/5 text-stone-400 hover:text-stone-200"
+                        : "border-stone-200 bg-stone-100 text-stone-600 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                   >
                     {isRewardOpen ? "Enabled ✓" : "Off"}

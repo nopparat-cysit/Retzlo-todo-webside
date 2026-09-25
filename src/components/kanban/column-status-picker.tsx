@@ -17,7 +17,7 @@ export function ColumnStatusPicker({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Card status</span>
+        <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">Card status</span>
         <span className={cn("rounded border px-2 py-0.5 text-[10px]", selectedMeta.badgeClass)}>
           {selectedMeta.label}
         </span>
@@ -32,8 +32,10 @@ export function ColumnStatusPicker({
               key={option.value}
               aria-label={`Use ${option.label} as default card status`}
               className={cn(
-                "rounded-lg border bg-white/[0.035] px-2 py-2 text-xs transition hover:-translate-y-0.5 hover:border-dusk-lavender/40",
-                selected ? "border-dusk-amber shadow-[0_0_0_2px_rgba(249,199,132,0.16)]" : "border-white/10"
+                "rounded-lg border px-2 py-2 text-xs transition hover:-translate-y-0.5 hover:border-dusk-lavender/40",
+                selected
+                  ? "border-dusk-amber bg-dusk-amber/15 shadow-[0_0_0_2px_rgba(249,199,132,0.25)]"
+                  : "border-stone-200/80 bg-white text-stone-700 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300"
               )}
               title={option.label}
               type="button"

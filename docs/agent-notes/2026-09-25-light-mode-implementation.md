@@ -18,10 +18,16 @@
   - `src/components/project/project-shell.tsx`: Kept topbar clean by housing theme selection in the user profile dropdown.
   - `src/components/project/projects-dashboard.tsx`: Fixed 2xl CSS grid column order bug (`order-3 2xl:order-3` on `ProjectSupportColumn`) so the main boards hub stays in the center column; prevented vertical word wrapping on `Boards in {activeProject.name}`.
   - `src/components/kanban/board.tsx`: Replaced dark scroll fade hint (`from-ink-950/80`) with theme-adaptive warm paper gradient (`from-[#fbfaf8]/90 dark:from-ink-950/80 to-transparent`), completely eliminating the vertical black edge strip in Light Mode.
-   - `src/components/theme/theme.test.ts`: Added unit tests verifying accent ink typography, grid ordering contract, black edge gradient elimination, translucent bg-ink mapping, and active nav link contrast.
-   - `src/app/(dashboard)/project/[id]/settings/page.tsx`: Mounted `<ThemeToggle variant="settings" />` in Personal Preferences.
-   - `src/components/project/project-nav-link.tsx`: Fixed active text contrast in Light Mode by updating from static `text-stone-50` to `text-stone-900 font-semibold dark:text-stone-100`.
-   - `src/components/hub/fab-hub.tsx`: Adapted Pinned FAB Display Panel container and headers to warm paper theme (`bg-white`, `border-stone-200`, `text-stone-900`, `dark:` variants).
+   - `src/components/diary/diary-list-panel.tsx`: Adapted Milestone Reward card to warm amber surface (`bg-amber-50/70 border-dusk-amber/35`) and high-contrast text (`text-stone-600 dark:text-stone-400`); updated reward toggle button in creation modal.
+   - `src/components/hub/diary-hub-panel.tsx`: Updated Milestone Reward button in Hub creation modal for Light Mode contrast.
+   - `src/components/ui/segmented-control.tsx`: Replaced dark grey track (`border-white/10 bg-ink-950/45`) with clean warm paper track (`border-stone-200/90 bg-stone-100/90`) and high-contrast selected/unselected buttons.
+   - `src/components/kanban/project-calendar.tsx`: Updated calendar header navigation buttons (Prev/Next/Today/Filters/Upcoming) for clean Light Mode styling.
+   - `src/components/kanban/column-icon-picker.tsx`: Adapted Icon picker container (`border-stone-200/90 bg-stone-100/80`) and tile buttons (`border-stone-200/80 bg-white text-stone-600`) for Light Mode.
+   - `src/components/kanban/column-status-picker.tsx`: Theme adapted status picker buttons.
+   - `src/components/kanban/board.tsx` & `src/components/kanban/column.tsx`: Updated `ColumnThemePicker` color swatch buttons for Light Mode borders and surfaces.
+   - `src/components/kanban/card-modal.tsx`: Replaced dark grey `SortableChecklistItem` rows (`bg-ink-950/50`) with clean paper rows (`border-stone-200/90 bg-stone-50/90 text-stone-800`); theme adapted coin input fields.
+   - `src/components/kanban/board-settings-modal.tsx`: Theme adapted member list and column list containers and rows.
+   - `src/components/theme/theme.test.ts`: Added tests verifying Light Mode styling contracts for `SegmentedControl`, `ColumnIconPicker`, `SortableChecklistItem`, and Milestone Reward card.
 
 ## Important Behavior Changes
 - Theme switching is cleanly housed inside the **User Profile Dropdown** (`UserProfilePopover`) as a segmented 3-choice control (`Light`, `Dark`, `System`), keeping the Topbars clean, modern, and uncluttered across workspaces and dashboards.
@@ -31,7 +37,11 @@
 - All accent colors (`dusk-amber`, `dusk-lavender`, `dusk-cyan`, `dusk-rose`) in Light Mode map to rich, high-contrast inks (Deep Amber, Indigo, Forest Teal, Crimson) ensuring complete legibility across metrics, pills, and headers.
 - Fixed 2xl responsive grid bug where `ProjectSupportColumn` without explicit order defaulted to column 1, pushing the main board hub into the narrow 360px right column.
 - Completely eliminated harsh black edge scroll gradient on the Kanban board in Light Mode, blending seamlessly into the warm cream canvas.
-- Eliminated dark grey/black box artifacts across Reward catalog sticker cards, sticker pickers, Notes Studio toolbars/quick capture, and Pinned FAB panels by mapping all mid/low opacity `bg-ink-950/*`, `bg-ink-900/*`, and `bg-ink-800/*` to clean warm paper wells (`#f7f4ee`, `#ffffff`).
+- Eliminated dark grey/black box artifacts across Reward catalog sticker cards, sticker pickers, Notes Studio toolbars/quick capture, and Pinned FAB panels.
+- Eliminated dark grey box behind Milestone Reward card in Diary, rendering it as a warm golden-amber card with readable ink text.
+- Eliminated dark grey pill behind Segmented Control (Month / Week) in Calendar, rendering with warm linen track and crisp active/inactive buttons.
+- Eliminated dark grey container behind Icon picker in Create/Edit Column modal, rendering on soft paper well with white icon buttons.
+- Eliminated dark grey bars behind Checklist items in Card details modal, rendering as light paper rows with clear checkboxes and strike-through text.
 - Restored active sidebar link readability ("Diary" etc.) with crisp charcoal ink text (`text-stone-900 font-semibold`) in Light Mode.
 - Dark Mode remains 100% pixel-perfect and unaffected.
 
@@ -40,7 +50,8 @@
 
 ## Verification Commands Run & Results
 - `npx prisma validate`: Pass (schema valid)
-- `npx vitest run src/components/theme/theme.test.ts`: Pass (12/12 tests passed)
+- `npx vitest run src/components/theme/theme.test.ts`: Pass (16/16 tests passed)
+- `npm test`: Pass (62 test files, 295 tests passed)
 - `npm run lint`: Pass (0 errors, 0 warnings)
 - `npm run build`: Pass (35/35 static and dynamic pages generated with 0 errors)
 

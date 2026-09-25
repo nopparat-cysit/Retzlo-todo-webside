@@ -595,7 +595,7 @@ export function DiaryItemModal({
                     "rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition",
                     isRewardOpen
                       ? "border-dusk-amber/40 bg-dusk-amber/20 text-dusk-amber"
-                      : "border-white/10 bg-white/5 text-stone-400 hover:text-stone-200"
+                      : "border-stone-200 bg-stone-100 text-stone-600 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:text-stone-200"
                   )}
                 >
                   {isRewardOpen ? "Enabled ✓" : "Off"}
