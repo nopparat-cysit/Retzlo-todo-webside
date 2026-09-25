@@ -69,5 +69,15 @@ describe("Theme system and Warm Paper Light Mode", () => {
     const dashboard = readFileSync(join(process.cwd(), "src/components/project/projects-dashboard.tsx"), "utf8");
     expect(dashboard).toContain('order-3 2xl:order-3');
   });
+
+  it("eliminates black edge scroll fade hint in Light Mode", () => {
+    const board = readFileSync(join(process.cwd(), "src/components/kanban/board.tsx"), "utf8");
+    expect(board).toContain("from-[#fbfaf8]/90 dark:from-ink-950/80 to-transparent");
+
+    const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(css).toContain('[data-theme="light"] .from-ink-950\\/80');
+    expect(css).toContain("rgba(251, 250, 248, 0.9)");
+  });
 });
+
 

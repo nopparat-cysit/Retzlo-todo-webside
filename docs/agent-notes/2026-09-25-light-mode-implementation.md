@@ -17,7 +17,8 @@
   - `src/components/project/user-profile-popover.tsx`: Mounted the dedicated Theme Selector inside the user profile dropdown.
   - `src/components/project/project-shell.tsx`: Kept topbar clean by housing theme selection in the user profile dropdown.
   - `src/components/project/projects-dashboard.tsx`: Fixed 2xl CSS grid column order bug (`order-3 2xl:order-3` on `ProjectSupportColumn`) so the main boards hub stays in the center column; prevented vertical word wrapping on `Boards in {activeProject.name}`.
-  - `src/components/theme/theme.test.ts`: Added unit tests verifying accent ink typography and grid ordering contract.
+  - `src/components/kanban/board.tsx`: Replaced dark scroll fade hint (`from-ink-950/80`) with theme-adaptive warm paper gradient (`from-[#fbfaf8]/90 dark:from-ink-950/80 to-transparent`), completely eliminating the vertical black edge strip in Light Mode.
+  - `src/components/theme/theme.test.ts`: Added unit tests verifying accent ink typography, grid ordering contract, and black edge gradient elimination.
   - `src/app/(dashboard)/project/[id]/settings/page.tsx`: Mounted `<ThemeToggle variant="settings" />` in Personal Preferences.
 
 ## Important Behavior Changes
@@ -27,6 +28,7 @@
 - In Light Mode, scanlines are disabled for a clean tactile paper reading feel, while maintaining the signature retro-lofi identity (warm cream background, charcoal ink text, pastel sticky notes, soft linen borders).
 - All accent colors (`dusk-amber`, `dusk-lavender`, `dusk-cyan`, `dusk-rose`) in Light Mode map to rich, high-contrast inks (Deep Amber, Indigo, Forest Teal, Crimson) ensuring complete legibility across metrics, pills, and headers.
 - Fixed 2xl responsive grid bug where `ProjectSupportColumn` without explicit order defaulted to column 1, pushing the main board hub into the narrow 360px right column.
+- Completely eliminated harsh black edge scroll gradient on the Kanban board in Light Mode, blending seamlessly into the warm cream canvas.
 - Dark Mode remains 100% pixel-perfect and unaffected.
 
 ## Database / Schema Changes
@@ -34,10 +36,11 @@
 
 ## Verification Commands Run & Results
 - `npx prisma validate`: Pass (schema valid)
-- `npm test`: Pass (62 test files, 288 tests passed)
+- `npm test`: Pass (62 test files, 289 tests passed)
 - `npm run lint`: Pass (0 errors, 0 warnings)
 - `npm run build`: Pass (35/35 static and dynamic pages generated with 0 errors)
 
 ## Known Follow-ups, Blockers, or Deployment Notes
 - Ready for push and production deployment to Vercel.
+
 

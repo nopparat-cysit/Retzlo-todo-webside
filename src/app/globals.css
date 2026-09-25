@@ -2265,6 +2265,14 @@ input:checked + .lofi-slider:before {
 }
 
 /* ── 9. Kanban Board Columns & Sticky Cards ── */
+/* Horizontal scroll fade hint in Light Mode (eliminates harsh dark/black edge) */
+[data-theme="light"] .from-ink-950\/80,
+.light .from-ink-950\/80 {
+  --tw-gradient-from: rgba(251, 250, 248, 0.9) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgba(251, 250, 248, 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
 [data-theme="light"] section[data-column-id],
 .light section[data-column-id],
 [data-theme="light"] section.snap-center,
