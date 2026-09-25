@@ -161,6 +161,8 @@ export function KanbanCard({
         tabIndex={0}
         onClick={(event) => {
           if (event.button === 0 && !isDragging) {
+            const selection = typeof window !== "undefined" ? window.getSelection()?.toString() : "";
+            if (selection && selection.trim().length > 0) return;
             setIsEditing(true);
           }
         }}
@@ -174,7 +176,14 @@ export function KanbanCard({
         <div className="space-y-2">
           <div className="flex items-start justify-between gap-1.5">
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-stone-900 break-words dark:text-stone-100 leading-snug">{card.title}</p>
+              <p
+                className="font-semibold text-stone-900 break-words dark:text-stone-100 leading-snug select-text cursor-text"
+                onPointerDownCapture={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                {card.title}
+              </p>
               {visibleStickers.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1.5 select-none leading-none">
                   {visibleStickers.map((st, i) => (

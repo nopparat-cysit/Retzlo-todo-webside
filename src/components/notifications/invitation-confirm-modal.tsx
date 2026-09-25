@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, UserPlus, X, FolderKanban } from "lucide-react";
 
@@ -39,6 +39,7 @@ export function InvitationConfirmModal({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isDeclining, setIsDeclining] = useState(false);
+  const isBackdropPointerDownRef = useRef(false);
 
   if (!open) return null;
 
@@ -132,12 +133,23 @@ export function InvitationConfirmModal({
         <div
           className="absolute inset-0"
           aria-hidden="true"
-          onClick={() => {
-            if (!isLoading && !isDeclining) onClose();
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            isBackdropPointerDownRef.current = true;
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isBackdropPointerDownRef.current && !isLoading && !isDeclining) onClose();
+            isBackdropPointerDownRef.current = false;
           }}
         />
 
-        <div className="lofi-panel relative w-full max-w-md rounded-2xl p-6 shadow-2xl border border-dusk-lavender/25 bg-ink-900/95">
+        <div
+          className="lofi-panel relative w-full max-w-md rounded-2xl p-6 shadow-2xl border border-dusk-lavender/25 bg-ink-900/95"
+          onPointerDown={() => {
+            isBackdropPointerDownRef.current = false;
+          }}
+        >
           {/* Close button */}
           <button
             type="button"

@@ -822,8 +822,11 @@ export function KanbanBoard({
                         setEditingBoardNameValue(boardName);
                       }
                     }}
+                    onPointerDownCapture={(e) => {
+                      e.stopPropagation();
+                    }}
                     maxLength={80}
-                    className="h-8 rounded-lg border border-indigo-400 bg-white px-2.5 text-base sm:text-lg font-semibold text-stone-900 shadow-xs outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-dusk-lavender/50 dark:bg-white/[0.08] dark:text-stone-100"
+                    className="h-8 rounded-lg border border-indigo-400 bg-white px-2.5 text-base sm:text-lg font-semibold text-stone-900 shadow-xs outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-dusk-lavender/50 dark:bg-white/[0.08] dark:text-stone-100 select-text"
                     placeholder="Board name..."
                     autoFocus
                     disabled={isSavingBoardName}
@@ -853,12 +856,14 @@ export function KanbanBoard({
               ) : (
                 <div className="group/title flex items-center gap-1.5">
                   <h2
-                    className="text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
+                    className="text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition select-text"
                     onClick={() => {
+                      const selection = typeof window !== "undefined" ? window.getSelection()?.toString() : "";
+                      if (selection && selection.trim().length > 0) return;
                       setEditingBoardNameValue(boardName);
                       setIsEditingBoardName(true);
                     }}
-                    title="Click to rename board"
+                    title="Click to rename board (or drag to copy text)"
                   >
                     {boardName}
                   </h2>

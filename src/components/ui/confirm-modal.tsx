@@ -36,6 +36,7 @@ export function ConfirmModal({
 }: ConfirmModalProps) {
   const [typed, setTyped] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const isBackdropPointerDownRef = useRef(false);
 
   useEffect(() => {
     if (open) {
@@ -70,12 +71,23 @@ export function ConfirmModal({
         <div
           className="absolute inset-0"
           aria-hidden="true"
-          onClick={() => {
-            if (!isLoading) onClose();
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            isBackdropPointerDownRef.current = true;
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isBackdropPointerDownRef.current && !isLoading) onClose();
+            isBackdropPointerDownRef.current = false;
           }}
         />
 
-        <div className="lofi-panel relative w-full max-w-md rounded-xl p-6 shadow-2xl">
+        <div
+          className="lofi-panel relative w-full max-w-md rounded-xl p-6 shadow-2xl"
+          onPointerDown={() => {
+            isBackdropPointerDownRef.current = false;
+          }}
+        >
         {/* Header */}
         <div className="mb-4 flex items-start gap-3">
           {variant === "danger" && (

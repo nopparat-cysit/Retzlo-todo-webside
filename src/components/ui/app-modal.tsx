@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentPropsWithoutRef, KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { ModalPortal } from "@/components/ui/modal-portal";
@@ -49,6 +49,7 @@ export function AppModal({
   closeOnOverlayClick = true
 }: AppModalProps) {
   const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
+  const isPointerDownOnOverlayRef = useRef(false);
 
   useEffect(() => {
     if (!open || !hasUnsavedChanges) return;
@@ -90,18 +91,23 @@ export function AppModal({
 
   function handleOverlayPointerDown(event: PointerEvent<HTMLDivElement>) {
     event.stopPropagation();
+    isPointerDownOnOverlayRef.current = event.target === event.currentTarget;
   }
 
   function handleOverlayClick(event: MouseEvent<HTMLDivElement>) {
     event.stopPropagation();
 
-    if (event.target === event.currentTarget && closeOnOverlayClick) {
+    // Only close if the pointer down actually started directly on the overlay backdrop.
+    // If user dragged to highlight/copy text inside the modal and released outside, DO NOT close.
+    if (isPointerDownOnOverlayRef.current && event.target === event.currentTarget && closeOnOverlayClick) {
       requestClose();
     }
+    isPointerDownOnOverlayRef.current = false;
   }
 
   function stopModalContentEvent(event: PointerEvent<HTMLDivElement> | MouseEvent<HTMLDivElement>) {
     event.stopPropagation();
+    isPointerDownOnOverlayRef.current = false;
   }
 
   function handleModalContentKeyDown(event: KeyboardEvent<HTMLDivElement>) {

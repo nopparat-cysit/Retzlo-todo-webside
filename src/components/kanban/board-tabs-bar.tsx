@@ -61,7 +61,7 @@ export function BoardTabsBar({
         <div className="scrollbar-soft flex items-center gap-1.5 overflow-x-auto min-w-0 pr-2">
           {projectName ? (
             <div className="flex items-center gap-1.5 text-xs shrink-0 mr-2">
-              <span className="font-semibold text-stone-100 truncate max-w-[130px] sm:max-w-[180px]" title={projectName}>
+              <span className="font-semibold text-stone-100 truncate max-w-[130px] sm:max-w-[180px] select-text" title={projectName}>
                 {projectName}
               </span>
               <span className="text-stone-600 font-mono select-none">/</span>
@@ -97,7 +97,7 @@ export function BoardTabsBar({
                   ) : (
                     <FolderKanban className={cn("h-3 w-3 shrink-0", isActive ? "text-dusk-amber" : "text-stone-400")} />
                   )}
-                  <span className="truncate max-w-[140px]">{b.name}</span>
+                  <span className="truncate max-w-[140px] select-text">{b.name}</span>
                 </Link>
 
                 {isActive && canManage && (

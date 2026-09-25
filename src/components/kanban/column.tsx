@@ -350,7 +350,13 @@ export function KanbanColumn({
           <GripVertical className="h-3.5 w-3.5" />
         </button>
         <ColumnIconGlyph className={cn("shrink-0", theme.iconColorClass)} icon={column.icon} />
-        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-900 dark:text-stone-100" title={column.name}>
+        <h2
+          className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-900 dark:text-stone-100 select-text cursor-text"
+          title={column.name}
+          onPointerDownCapture={(e) => {
+            e.stopPropagation();
+          }}
+        >
           {column.name}
         </h2>
 

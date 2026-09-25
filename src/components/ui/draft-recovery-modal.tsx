@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, KeyboardEvent } from "react";
+import { useEffect, useRef, KeyboardEvent } from "react";
 import { FileText, RotateCcw, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModalPortal } from "@/components/ui/modal-portal";
@@ -21,6 +21,8 @@ export function DraftRecoveryModal({
   onDiscard,
   onClose
 }: DraftRecoveryModalProps) {
+  const isBackdropPointerDownRef = useRef(false);
+
   useEffect(() => {
     if (!open) return;
   }, [open]);
@@ -51,13 +53,26 @@ export function DraftRecoveryModal({
         <div
           className="absolute inset-0"
           aria-hidden="true"
-          onClick={() => {
-            if (onClose) onClose();
-            else onDiscard();
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            isBackdropPointerDownRef.current = true;
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isBackdropPointerDownRef.current) {
+              if (onClose) onClose();
+              else onDiscard();
+            }
+            isBackdropPointerDownRef.current = false;
           }}
         />
 
-        <div className="lofi-panel relative w-full max-w-md rounded-2xl border border-dusk-amber/30 bg-white/[0.04] p-6 shadow-[0_24px_68px_rgba(0,0,0,0.5)]">
+        <div
+          className="lofi-panel relative w-full max-w-md rounded-2xl border border-dusk-amber/30 bg-white/[0.04] p-6 shadow-[0_24px_68px_rgba(0,0,0,0.5)]"
+          onPointerDown={() => {
+            isBackdropPointerDownRef.current = false;
+          }}
+        >
           {/* Header */}
           <div className="mb-4 flex items-start gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber shadow-[0_0_16px_rgba(229,189,114,0.2)]">
