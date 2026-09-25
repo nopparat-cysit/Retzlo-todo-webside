@@ -78,6 +78,20 @@ describe("Theme system and Warm Paper Light Mode", () => {
     expect(css).toContain('[data-theme="light"] .from-ink-950\\/80');
     expect(css).toContain("rgba(251, 250, 248, 0.9)");
   });
+
+  it("maps all translucent bg-ink-950 and bg-ink-900 variants to clean paper in Light Mode", () => {
+    const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(css).toContain('[data-theme="light"] .bg-ink-950\\/35');
+    expect(css).toContain('[data-theme="light"] .bg-ink-950\\/45');
+    expect(css).toContain('[data-theme="light"] .bg-ink-950\\/92');
+    expect(css).toContain('[data-theme="light"] .text-stone-50');
+    expect(css).toContain('[data-theme="light"] .project-nav-link-active');
+  });
+
+  it("ensures ProjectNavLink has high-contrast text when active", () => {
+    const link = readFileSync(join(process.cwd(), "src/components/project/project-nav-link.tsx"), "utf8");
+    expect(link).toContain("text-stone-900 font-semibold dark:text-stone-100");
+  });
 });
 
 

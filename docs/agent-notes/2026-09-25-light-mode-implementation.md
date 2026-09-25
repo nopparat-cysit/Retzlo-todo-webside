@@ -18,8 +18,10 @@
   - `src/components/project/project-shell.tsx`: Kept topbar clean by housing theme selection in the user profile dropdown.
   - `src/components/project/projects-dashboard.tsx`: Fixed 2xl CSS grid column order bug (`order-3 2xl:order-3` on `ProjectSupportColumn`) so the main boards hub stays in the center column; prevented vertical word wrapping on `Boards in {activeProject.name}`.
   - `src/components/kanban/board.tsx`: Replaced dark scroll fade hint (`from-ink-950/80`) with theme-adaptive warm paper gradient (`from-[#fbfaf8]/90 dark:from-ink-950/80 to-transparent`), completely eliminating the vertical black edge strip in Light Mode.
-  - `src/components/theme/theme.test.ts`: Added unit tests verifying accent ink typography, grid ordering contract, and black edge gradient elimination.
-  - `src/app/(dashboard)/project/[id]/settings/page.tsx`: Mounted `<ThemeToggle variant="settings" />` in Personal Preferences.
+   - `src/components/theme/theme.test.ts`: Added unit tests verifying accent ink typography, grid ordering contract, black edge gradient elimination, translucent bg-ink mapping, and active nav link contrast.
+   - `src/app/(dashboard)/project/[id]/settings/page.tsx`: Mounted `<ThemeToggle variant="settings" />` in Personal Preferences.
+   - `src/components/project/project-nav-link.tsx`: Fixed active text contrast in Light Mode by updating from static `text-stone-50` to `text-stone-900 font-semibold dark:text-stone-100`.
+   - `src/components/hub/fab-hub.tsx`: Adapted Pinned FAB Display Panel container and headers to warm paper theme (`bg-white`, `border-stone-200`, `text-stone-900`, `dark:` variants).
 
 ## Important Behavior Changes
 - Theme switching is cleanly housed inside the **User Profile Dropdown** (`UserProfilePopover`) as a segmented 3-choice control (`Light`, `Dark`, `System`), keeping the Topbars clean, modern, and uncluttered across workspaces and dashboards.
@@ -29,6 +31,8 @@
 - All accent colors (`dusk-amber`, `dusk-lavender`, `dusk-cyan`, `dusk-rose`) in Light Mode map to rich, high-contrast inks (Deep Amber, Indigo, Forest Teal, Crimson) ensuring complete legibility across metrics, pills, and headers.
 - Fixed 2xl responsive grid bug where `ProjectSupportColumn` without explicit order defaulted to column 1, pushing the main board hub into the narrow 360px right column.
 - Completely eliminated harsh black edge scroll gradient on the Kanban board in Light Mode, blending seamlessly into the warm cream canvas.
+- Eliminated dark grey/black box artifacts across Reward catalog sticker cards, sticker pickers, Notes Studio toolbars/quick capture, and Pinned FAB panels by mapping all mid/low opacity `bg-ink-950/*`, `bg-ink-900/*`, and `bg-ink-800/*` to clean warm paper wells (`#f7f4ee`, `#ffffff`).
+- Restored active sidebar link readability ("Diary" etc.) with crisp charcoal ink text (`text-stone-900 font-semibold`) in Light Mode.
 - Dark Mode remains 100% pixel-perfect and unaffected.
 
 ## Database / Schema Changes
@@ -36,11 +40,11 @@
 
 ## Verification Commands Run & Results
 - `npx prisma validate`: Pass (schema valid)
-- `npm test`: Pass (62 test files, 289 tests passed)
+- `npx vitest run src/components/theme/theme.test.ts`: Pass (12/12 tests passed)
 - `npm run lint`: Pass (0 errors, 0 warnings)
 - `npm run build`: Pass (35/35 static and dynamic pages generated with 0 errors)
 
 ## Known Follow-ups, Blockers, or Deployment Notes
-- Ready for push and production deployment to Vercel.
+- Production deployment triggered via Git push to `origin/main` on GitHub. Users testing Vercel deployments should perform a hard refresh (`Ctrl + Shift + R`) to bypass cached CSS bundles.
 
 

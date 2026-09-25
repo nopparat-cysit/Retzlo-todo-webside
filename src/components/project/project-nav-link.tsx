@@ -39,8 +39,8 @@ export function ProjectNavLink({ href, label, iconName }: ProjectNavLinkProps) {
         "project-nav-link group relative flex h-10 w-full items-center gap-2 rounded-lg border px-3 text-sm transition duration-200",
         isActive && "project-nav-link-active",
         isActive
-          ? "border-dusk-lavender/40 bg-dusk-lavender/12 text-stone-50"
-          : "border-transparent bg-transparent text-stone-400 hover:border-white/10 hover:bg-white/[0.055] hover:text-stone-100"
+          ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-stone-900 font-semibold dark:text-stone-100"
+          : "border-transparent bg-transparent text-stone-500 hover:border-stone-300/40 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:border-white/10 dark:hover:bg-white/[0.055] dark:hover:text-stone-100"
       )}
     >
       <span

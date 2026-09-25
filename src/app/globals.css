@@ -2002,6 +2002,20 @@ input:checked + .lofi-slider:before {
   color: #9f1239 !important; /* Deep Crimson Ink */
 }
 
+/* ── 4.2 Additional Text Tokens for Light Mode ── */
+[data-theme="light"] .text-stone-50,
+.light .text-stone-50 {
+  color: #1c1917 !important;
+}
+
+[data-theme="light"] .project-nav-link-active,
+.light .project-nav-link-active {
+  color: #1c1917 !important;
+  font-weight: 600 !important;
+  background-color: rgba(67, 56, 202, 0.1) !important;
+  border-color: rgba(67, 56, 202, 0.35) !important;
+}
+
 /* ── 5. Dark Inks Mapping to Clean Paper Surfaces ── */
 [data-theme="light"] .bg-ink-950,
 .light .bg-ink-950 {
@@ -2062,12 +2076,65 @@ input:checked + .lofi-slider:before {
   border-color: #ded7c8 !important;
 }
 
-[data-theme="light"] .bg-ink-950\/20,
-.light .bg-ink-950\/20,
+/* 5.1a High-opacity containers & floating panels -> Pure White */
+[data-theme="light"] .bg-ink-950\/98,
+.light .bg-ink-950\/98,
+[data-theme="light"] .bg-ink-950\/95,
+.light .bg-ink-950\/95,
+[data-theme="light"] .bg-ink-950\/92,
+.light .bg-ink-950\/92,
+[data-theme="light"] .bg-ink-950\/90,
+.light .bg-ink-950\/90,
+[data-theme="light"] .bg-ink-950\/85,
+.light .bg-ink-950\/85,
+[data-theme="light"] .bg-ink-950\/80:not(.fixed),
+.light .bg-ink-950\/80:not(.fixed),
+[data-theme="light"] .bg-ink-950\/75,
+.light .bg-ink-950\/75,
+[data-theme="light"] .bg-ink-950\/70,
+.light .bg-ink-950\/70,
+[data-theme="light"] .bg-ink-900\/98,
+.light .bg-ink-900\/98,
+[data-theme="light"] .bg-ink-900\/96,
+.light .bg-ink-900\/96,
+[data-theme="light"] .bg-ink-900\/95,
+.light .bg-ink-900\/95,
+[data-theme="light"] .bg-ink-900\/90,
+.light .bg-ink-900\/90 {
+  background-color: #ffffff !important;
+}
+
+/* 5.1b Mid & low opacity boxes, sticker backgrounds, and recessed subpanels -> Soft Warm Paper */
+[data-theme="light"] .bg-ink-950\/65,
+.light .bg-ink-950\/65,
+[data-theme="light"] .bg-ink-950\/60,
+.light .bg-ink-950\/60,
+[data-theme="light"] .bg-ink-950\/50,
+.light .bg-ink-950\/50,
+[data-theme="light"] .bg-ink-950\/45,
+.light .bg-ink-950\/45,
 [data-theme="light"] .bg-ink-950\/40,
 .light .bg-ink-950\/40,
-[data-theme="light"] .bg-ink-950\/60,
-.light .bg-ink-950\/60 {
+[data-theme="light"] .bg-ink-950\/35,
+.light .bg-ink-950\/35,
+[data-theme="light"] .bg-ink-950\/30,
+.light .bg-ink-950\/30,
+[data-theme="light"] .bg-ink-950\/25,
+.light .bg-ink-950\/25,
+[data-theme="light"] .bg-ink-950\/20,
+.light .bg-ink-950\/20,
+[data-theme="light"] .bg-ink-950\/15,
+.light .bg-ink-950\/15,
+[data-theme="light"] .bg-ink-950\/10,
+.light .bg-ink-950\/10,
+[data-theme="light"] .bg-ink-900\/60,
+.light .bg-ink-900\/60,
+[data-theme="light"] .bg-ink-900\/50,
+.light .bg-ink-900\/50,
+[data-theme="light"] .bg-ink-900\/40,
+.light .bg-ink-900\/40,
+[data-theme="light"] .bg-ink-800\/50,
+.light .bg-ink-800\/50 {
   background-color: #f7f4ee !important;
   border-color: #e7e2d9 !important;
 }

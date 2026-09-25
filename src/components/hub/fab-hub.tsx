@@ -316,8 +316,8 @@ function PinnedDisplayPanel({
           : "Note";
 
   return (
-    <div className="motion-floating-in w-[min(calc(100vw-2rem),24rem)] max-h-[75dvh] flex flex-col overflow-hidden rounded-2xl border border-white/12 bg-ink-950/92 text-left text-stone-100 shadow-[0_18px_54px_rgba(0,0,0,0.42)] backdrop-blur-xl">
-      <div className="border-b border-white/10 bg-white/[0.035] p-4 shrink-0">
+    <div className="motion-floating-in w-[min(calc(100vw-2rem),24rem)] max-h-[75dvh] flex flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white text-left text-stone-900 shadow-[0_18px_54px_rgba(41,37,36,0.12)] backdrop-blur-xl dark:border-white/12 dark:bg-ink-950/92 dark:text-stone-100 dark:shadow-[0_18px_54px_rgba(0,0,0,0.42)]">
+      <div className="border-b border-stone-200/80 bg-stone-50/80 p-4 shrink-0 dark:border-white/10 dark:bg-white/[0.035]">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className={cn("text-xs uppercase tracking-[0.22em]", isDiary ? "text-dusk-lavender" : "text-dusk-cyan")}>
@@ -327,8 +327,8 @@ function PinnedDisplayPanel({
           </div>
           <Star className="mt-0.5 h-4 w-4 shrink-0 fill-red-400 text-red-400" />
         </div>
-        <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] text-stone-400">
-          <span className="rounded-full border border-white/10 bg-white/[0.055] px-2 py-0.5">
+        <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] text-stone-600 dark:text-stone-400">
+          <span className="rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 dark:border-white/10 dark:bg-white/[0.055]">
             {projectName}
           </span>
           {activeItem?.type === "diary" ? (
@@ -353,7 +353,7 @@ function PinnedDisplayPanel({
 
       <div className="p-4 overflow-y-auto scrollbar-soft flex-1 min-h-0">
         {isLoading ? (
-          <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm text-stone-400">
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-600 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400">
             Loading selected display...
           </div>
         ) : error ? (
@@ -361,9 +361,9 @@ function PinnedDisplayPanel({
             {error}
           </div>
         ) : activeItem?.type === "diary" ? (
-          <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3">
+          <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.025]">
             {activeItem.description ? (
-              <p className="mb-3 whitespace-pre-wrap text-sm leading-6 text-stone-300">{activeItem.description}</p>
+              <p className="mb-3 whitespace-pre-wrap text-sm leading-6 text-stone-700 dark:text-stone-300">{activeItem.description}</p>
             ) : null}
             {activeItem.checklist.length > 0 ? (
               <DiaryChecklistPreview
