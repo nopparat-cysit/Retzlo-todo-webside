@@ -780,24 +780,38 @@ export function KanbanBoard({
                   <button
                     type="button"
                     onClick={() => setIsTodayFilterActive((prev) => !prev)}
-                    className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-red-500/40 bg-red-500/15 text-red-400 hover:border-red-400 hover:bg-red-500/25 transition shadow-[0_0_12px_rgba(239,68,68,0.25)] cursor-pointer"
+                    className={cn(
+                      "group relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
+                      isTodayFilterActive
+                        ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
+                        : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
+                    )}
                     aria-label={`${overdueCards} overdue cards`}
                   >
-                    <span className="relative flex h-2 w-2">
-                      <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-400 animate-ping opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                    <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
+                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 animate-ping opacity-40" />
+                      <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[9px] font-bold text-white shadow-xs ring-2 ring-white dark:ring-ink-950">
+                        {overdueCards > 99 ? "99+" : overdueCards}
+                      </span>
                     </span>
-                    <Clock className="h-4 w-4 text-red-400 animate-pulse ml-0.5" />
                     <span className="sr-only">{overdueCards} overdue</span>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" align="end" className="border-red-500/30 bg-ink-950/98 p-2.5 text-xs text-stone-200 shadow-2xl">
-                  <div className="flex items-center gap-1.5 font-semibold text-red-300 border-b border-white/10 pb-1.5 mb-1.5">
-                    <Clock className="h-3.5 w-3.5 text-red-400" />
+                <TooltipContent
+                  side="bottom"
+                  align="end"
+                  className="rounded-xl border border-stone-200/90 bg-white p-2.5 text-xs text-stone-800 shadow-xl dark:border-red-500/30 dark:bg-ink-950/98 dark:text-stone-200"
+                >
+                  <div className="flex items-center gap-1.5 font-semibold text-red-600 dark:text-red-300 border-b border-stone-200/80 pb-1.5 mb-1.5 dark:border-white/10">
+                    <Clock className="h-3.5 w-3.5 shrink-0" />
                     <span>{overdueCards} Overdue {overdueCards === 1 ? "Card" : "Cards"}</span>
                   </div>
-                  <p className="text-[11px] text-stone-400 leading-tight">
+                  <p className="text-[11px] text-stone-600 dark:text-stone-400 leading-tight">
                     There {overdueCards === 1 ? "is 1 task" : `are ${overdueCards} tasks`} past due date.
+                  </p>
+                  <p className="mt-1.5 text-[10px] font-semibold text-red-600 dark:text-red-400">
+                    {isTodayFilterActive ? "✓ Filter active (click to show all)" : "Click to filter overdue tasks"}
                   </p>
                 </TooltipContent>
               </Tooltip>
