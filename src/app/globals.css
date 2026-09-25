@@ -58,6 +58,19 @@
   box-sizing: border-box;
 }
 
+button,
+[role="button"],
+select,
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"],
+select:disabled {
+  cursor: not-allowed;
+}
+
 html {
   min-height: 100%;
   background: var(--background);

@@ -954,13 +954,13 @@ export function KanbanBoard({
             type="button"
             onClick={() => setIsTodayFilterActive(!isTodayFilterActive)}
             className={cn(
-              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium shadow-xs transition select-none",
+              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
               isTodayFilterActive
-                ? "border-amber-400 bg-amber-50 text-amber-700 font-semibold dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber"
-                : "border-stone-200/90 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/5"
+                ? "border-amber-400 bg-amber-50 text-amber-800 ring-1 ring-amber-400/40 dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber"
+                : "border-stone-300/80 bg-white text-stone-700 hover:border-amber-400/70 hover:bg-amber-50/40 hover:text-amber-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
             )}
           >
-            <CalendarClock className="h-3.5 w-3.5" />
+            <CalendarClock className={cn("h-3.5 w-3.5 transition-colors", isTodayFilterActive ? "text-amber-600 dark:text-dusk-amber" : "text-amber-600/80 dark:text-dusk-amber/80")} />
             <span>Today</span>
           </button>
 
@@ -972,13 +972,13 @@ export function KanbanBoard({
                 setAssigneeFilter((prev) => (prev === currentUserId ? "ALL" : currentUserId));
               }}
               className={cn(
-                "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium shadow-xs transition select-none",
+                "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
                 assigneeFilter === currentUserId
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
-                  : "border-stone-200/90 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/5"
+                  ? "border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-400/40 dark:border-dusk-lavender/50 dark:bg-dusk-lavender/20 dark:text-dusk-lavender"
+                  : "border-stone-300/80 bg-white text-stone-700 hover:border-indigo-400/70 hover:bg-indigo-50/40 hover:text-indigo-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
               )}
             >
-              <User className="h-3.5 w-3.5" />
+              <User className={cn("h-3.5 w-3.5 transition-colors", assigneeFilter === currentUserId ? "text-indigo-600 dark:text-dusk-lavender" : "text-indigo-600/80 dark:text-dusk-lavender/80")} />
               <span>My Tasks</span>
             </button>
           )}
@@ -989,10 +989,10 @@ export function KanbanBoard({
               <SelectTrigger
                 aria-label="Filter cards by assignee"
                 className={cn(
-                  "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[180px] sm:max-w-[210px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition cursor-pointer select-none shadow-xs [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
+                  "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[180px] sm:max-w-[210px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
                   assigneeFilter !== "ALL"
-                    ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold [&>svg]:text-indigo-600 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:[&>svg]:text-dusk-lavender"
-                    : "border-stone-200/90 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/5"
+                    ? "border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-400/40 [&>svg]:text-indigo-600 dark:border-dusk-lavender/50 dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:[&>svg]:text-dusk-lavender"
+                    : "border-stone-300/80 bg-white text-stone-700 hover:border-indigo-400/70 hover:bg-indigo-50/40 hover:text-indigo-800 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-200 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                 )}
               >
                 <span className="flex items-center gap-1.5 min-w-0">
@@ -1001,7 +1001,7 @@ export function KanbanBoard({
                   ) : assigneeFilter === "UNASSIGNED" ? (
                     <UserX className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
                   ) : (
-                    <Users className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+                    <Users className="h-3.5 w-3.5 shrink-0 text-indigo-600/80 dark:text-dusk-lavender/80" />
                   )}
                   <SelectValue placeholder="All Assignees" />
                 </span>
@@ -1034,7 +1034,7 @@ export function KanbanBoard({
               <button
                 type="button"
                 onClick={() => setAssigneeFilter("ALL")}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-200/90 bg-white text-stone-500 shadow-xs transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-800 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400 dark:hover:border-white/20 dark:hover:bg-white/5 dark:hover:text-white"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-300/80 bg-white text-stone-600 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white"
                 title="Clear assignee filter"
                 aria-label="Clear assignee filter"
               >
@@ -1048,7 +1048,7 @@ export function KanbanBoard({
             <button
               type="button"
               onClick={resetAllFilters}
-              className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-2.5 sm:px-3 text-xs font-semibold text-amber-800 shadow-xs transition hover:bg-amber-100 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber dark:hover:border-dusk-amber/50 dark:hover:bg-dusk-amber/20 select-none"
+              className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-2.5 sm:px-3 text-xs font-semibold text-amber-800 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:bg-amber-100 hover:border-amber-400 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber dark:hover:border-dusk-amber/60 dark:hover:bg-dusk-amber/25 select-none"
               title="Reset all active filters"
             >
               <X className="h-3.5 w-3.5" />
@@ -1062,20 +1062,20 @@ export function KanbanBoard({
             disabled={moveHistory.length === 0 || isSavingReorder || Boolean(activeCardId)}
             onClick={undoLastMove}
             className={cn(
-              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium shadow-xs transition select-none",
+              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 select-none",
               moveHistory.length > 0
-                ? "border-teal-300 bg-teal-50 text-teal-700 hover:bg-teal-100 dark:border-dusk-cyan/40 dark:bg-dusk-cyan/15 dark:text-dusk-cyan dark:hover:bg-dusk-cyan/20"
-                : "border-stone-200/60 bg-stone-100 text-stone-400 cursor-not-allowed dark:border-white/5 dark:bg-white/[0.01] dark:text-stone-600"
+                ? "cursor-pointer border-teal-400 bg-teal-50 text-teal-800 hover:bg-teal-100 hover:border-teal-500 hover:shadow-xs active:scale-95 dark:border-dusk-cyan/50 dark:bg-dusk-cyan/15 dark:text-dusk-cyan dark:hover:bg-dusk-cyan/25"
+                : "cursor-not-allowed border-stone-200/50 bg-stone-100/60 text-stone-400/80 opacity-50 dark:border-white/5 dark:bg-white/[0.01] dark:text-stone-600"
             )}
             title="Undo last card move (Ctrl+Z)"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <RotateCcw className={cn("h-3.5 w-3.5", moveHistory.length > 0 ? "text-teal-600 dark:text-dusk-cyan" : "text-stone-400/80")} />
             <span className="hidden sm:inline">Undo</span>
           </button>
 
           {/* Add Column Form */}
           <Button
-            className="h-9 shrink-0 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold"
+            className="h-9 shrink-0 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs hover:shadow-sm"
             type="button"
             aria-label="Add column"
             onClick={openCreateColumnModal}
