@@ -32,4 +32,12 @@ describe("Board rename capabilities and contracts", () => {
     expect(apiSource).toMatch(/payload\.isPrivate\s*!==\s*undefined[\s\S]*!isOwnerOrAdmin/);
     expect(apiSource).toContain("canAccessBoard(board, userId, membership.role)");
   });
+
+  it("stabilizes BoardSettingsModal tab and interaction state against re-render resets and ensures title visibility", () => {
+    expect(modalSource).toContain("EMPTY_MEMBERS");
+    expect(modalSource).toContain("prevOpenRef");
+    expect(modalSource).toContain("justOpened");
+    expect(modalSource).toMatch(/id="board-settings-title"[\s\S]*text-stone-900[\s\S]*dark:text-white/);
+  });
 });
+

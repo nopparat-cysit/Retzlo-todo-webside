@@ -14,7 +14,10 @@ const TabsList = forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
-    className={cn("inline-flex h-10 items-center gap-1 rounded-lg border border-white/10 bg-white/[0.045] p-1", className)}
+    className={cn(
+      "inline-flex h-10 items-center gap-1 rounded-lg border border-stone-200/90 bg-stone-100/90 p-1 text-stone-600 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-400",
+      className
+    )}
     {...props}
   />
 ));
@@ -27,7 +30,7 @@ const TabsTrigger = forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex h-8 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-stone-400 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/55 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-dusk-lavender/16 data-[state=active]:text-stone-100",
+      "inline-flex h-8 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-stone-600 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/55 disabled:pointer-events-none disabled:opacity-50 hover:text-stone-900 data-[state=active]:bg-white data-[state=active]:text-stone-900 data-[state=active]:shadow-xs data-[state=active]:font-semibold dark:text-stone-400 dark:hover:text-stone-200 dark:data-[state=active]:bg-dusk-lavender/20 dark:data-[state=active]:text-stone-100",
       className
     )}
     {...props}
