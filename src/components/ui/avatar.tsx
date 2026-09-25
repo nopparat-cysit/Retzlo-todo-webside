@@ -34,12 +34,12 @@ export interface AvatarStackProps {
 }
 
 const AVATAR_COLORS = [
-  "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
-  "bg-purple-500/20 text-purple-300 border-purple-500/30",
-  "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-  "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  "bg-rose-500/20 text-rose-300 border-rose-500/30",
+  "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30",
+  "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30",
+  "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30",
+  "bg-teal-50 text-teal-700 border-teal-200 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/30",
+  "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30",
+  "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/30",
 ];
 
 export function getAvatarColor(id: string = ""): string {
@@ -137,14 +137,14 @@ export function AvatarStack({
             user={item}
             size={size}
             showTooltip={showTooltips}
-            className={cn("rounded-full", visible.length > 1 && "ring-1.5 ring-ink-950")}
+            className={cn("rounded-full", visible.length > 1 && "ring-1.5 ring-white dark:ring-ink-950")}
           />
         </div>
       ))}
       {remaining > 0 && (
         <div
           style={{ width: size, height: size }}
-          className="grid shrink-0 place-items-center rounded-full border border-white/20 bg-ink-900 text-[10px] font-bold text-stone-300 shadow-xs ring-1 ring-ink-950"
+          className="grid shrink-0 place-items-center rounded-full border border-stone-200 bg-stone-100 text-[10px] font-bold text-stone-700 shadow-xs ring-1 ring-white dark:border-white/20 dark:bg-ink-900 dark:text-stone-300 dark:ring-ink-950"
           title={`${remaining} more`}
         >
           +{remaining}

@@ -786,21 +786,22 @@ export function KanbanBoard({
         {/* ── Filters & Actions ── */}
         <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2">
           {/* Live Search */}
-          <div className="relative flex-1 min-w-[130px] sm:flex-initial">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-stone-500" />
+          <div className="group/search relative flex items-center flex-1 min-w-[130px] sm:flex-initial">
+            <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search cards..."
-              className="h-9 w-full sm:w-44 rounded-xl border border-white/10 bg-white/[0.045] pl-8.5 pr-7 text-xs text-stone-100 placeholder-stone-500 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/5"
+              className="h-9 w-full sm:w-44 rounded-xl border border-stone-200/90 bg-white pl-8 pr-7 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/5 dark:focus:ring-dusk-lavender/20"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2 top-2.5 text-xs text-stone-500 hover:text-stone-300"
+                className="absolute right-2 grid h-4 w-4 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+                aria-label="Clear card search"
               >
-                ✕
+                <X className="h-3 w-3" />
               </button>
             )}
           </div>
@@ -810,10 +811,10 @@ export function KanbanBoard({
             type="button"
             onClick={() => setIsTodayFilterActive(!isTodayFilterActive)}
             className={cn(
-              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition select-none",
+              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium shadow-xs transition select-none",
               isTodayFilterActive
-                ? "border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber font-semibold"
-                : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
+                ? "border-amber-400 bg-amber-50 text-amber-700 font-semibold dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber"
+                : "border-stone-200/90 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/5"
             )}
           >
             <CalendarClock className="h-3.5 w-3.5" />
@@ -828,10 +829,10 @@ export function KanbanBoard({
                 setAssigneeFilter((prev) => (prev === currentUserId ? "ALL" : currentUserId));
               }}
               className={cn(
-                "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition select-none",
+                "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium shadow-xs transition select-none",
                 assigneeFilter === currentUserId
-                  ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
-                  : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
+                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                  : "border-stone-200/90 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/5"
               )}
             >
               <User className="h-3.5 w-3.5" />
@@ -845,17 +846,17 @@ export function KanbanBoard({
               <SelectTrigger
                 aria-label="Filter cards by assignee"
                 className={cn(
-                  "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[180px] sm:max-w-[210px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition cursor-pointer select-none [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
+                  "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[180px] sm:max-w-[210px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition cursor-pointer select-none shadow-xs [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
                   assigneeFilter !== "ALL"
-                    ? "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold [&>svg]:text-dusk-lavender"
-                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-white/20 hover:bg-white/5"
+                    ? "border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold [&>svg]:text-indigo-600 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:[&>svg]:text-dusk-lavender"
+                    : "border-stone-200/90 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/5"
                 )}
               >
                 <span className="flex items-center gap-1.5 min-w-0">
                   {selectedAssignee ? (
                     <AssigneeAvatar user={selectedAssignee} size={16} />
                   ) : assigneeFilter === "UNASSIGNED" ? (
-                    <UserX className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />
+                    <UserX className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
                   ) : (
                     <Users className="h-3.5 w-3.5 shrink-0 text-stone-400" />
                   )}
@@ -890,7 +891,7 @@ export function KanbanBoard({
               <button
                 type="button"
                 onClick={() => setAssigneeFilter("ALL")}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.035] text-stone-400 hover:border-white/20 hover:bg-white/5 hover:text-white transition"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-200/90 bg-white text-stone-500 shadow-xs transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-800 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400 dark:hover:border-white/20 dark:hover:bg-white/5 dark:hover:text-white"
                 title="Clear assignee filter"
                 aria-label="Clear assignee filter"
               >
@@ -904,7 +905,7 @@ export function KanbanBoard({
             <button
               type="button"
               onClick={resetAllFilters}
-              className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 sm:px-3 text-xs font-medium text-dusk-amber transition hover:border-dusk-amber/50 hover:bg-dusk-amber/20 select-none"
+              className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-2.5 sm:px-3 text-xs font-semibold text-amber-800 shadow-xs transition hover:bg-amber-100 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber dark:hover:border-dusk-amber/50 dark:hover:bg-dusk-amber/20 select-none"
               title="Reset all active filters"
             >
               <X className="h-3.5 w-3.5" />
@@ -918,10 +919,10 @@ export function KanbanBoard({
             disabled={moveHistory.length === 0 || isSavingReorder || Boolean(activeCardId)}
             onClick={undoLastMove}
             className={cn(
-              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium transition select-none",
+              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-medium shadow-xs transition select-none",
               moveHistory.length > 0
-                ? "border-dusk-cyan/40 bg-dusk-cyan/15 text-dusk-cyan hover:bg-dusk-cyan/20"
-                : "border-white/5 bg-white/[0.01] text-stone-600 cursor-not-allowed"
+                ? "border-teal-300 bg-teal-50 text-teal-700 hover:bg-teal-100 dark:border-dusk-cyan/40 dark:bg-dusk-cyan/15 dark:text-dusk-cyan dark:hover:bg-dusk-cyan/20"
+                : "border-stone-200/60 bg-stone-100 text-stone-400 cursor-not-allowed dark:border-white/5 dark:bg-white/[0.01] dark:text-stone-600"
             )}
             title="Undo last card move (Ctrl+Z)"
           >

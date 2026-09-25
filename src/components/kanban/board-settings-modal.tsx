@@ -497,15 +497,25 @@ export function BoardSettingsModal({
                   </div>
 
                   {/* Search members */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                  <div className="group/search relative flex items-center">
+                    <Search className="pointer-events-none absolute left-3 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
                     <input
                       type="text"
                       value={memberSearchQuery}
                       onChange={(e) => setMemberSearchQuery(e.target.value)}
                       placeholder="Search workspace members..."
-                      className="h-8.5 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-9 pr-3 text-xs text-stone-200 placeholder-stone-400 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/[0.06]"
+                      className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-9.5 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
                     />
+                    {memberSearchQuery ? (
+                      <button
+                        type="button"
+                        onClick={() => setMemberSearchQuery("")}
+                        className="absolute right-2.5 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+                        aria-label="Clear member search"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    ) : null}
                   </div>
 
                   {/* Member list */}

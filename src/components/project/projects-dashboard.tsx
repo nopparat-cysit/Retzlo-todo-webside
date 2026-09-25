@@ -1010,29 +1010,29 @@ export function ProjectsDashboard({
                 <button
                   type="button"
                   onClick={() => setEditingProjectForSettings(activeProject)}
-                  className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium text-stone-400 transition hover:border-white/30 hover:bg-white/[0.08] hover:text-stone-200"
+                  className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 shadow-xs transition hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
                 >
-                  <Settings className="h-3.5 w-3.5 text-stone-300" />
+                  <Settings className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
                   <span className="hidden sm:inline">Settings</span>
                 </button>
               </div>
             ) : (
               /* Search and Category Filter Toolbar when in All Workspaces view */
-              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between border-t border-white/10">
-                <div className="relative flex-1 max-w-sm">
-                  <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400 pointer-events-none" />
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between border-t border-stone-200/90 dark:border-white/10">
+                <div className="group/search relative flex items-center flex-1 max-w-sm">
+                  <Search className="pointer-events-none absolute left-3 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search workspaces..."
-                    className="h-8.5 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-9 pr-8 text-xs text-stone-200 placeholder-stone-400 outline-none transition focus:border-dusk-lavender/50 focus:bg-white/[0.06]"
+                    className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-9.5 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
                   />
                   {searchQuery ? (
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
+                      className="absolute right-2.5 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
                       aria-label="Clear search"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -1045,60 +1045,60 @@ export function ProjectsDashboard({
                     type="button"
                     onClick={() => setActiveFilterTab("all")}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
                       activeFilterTab === "all"
-                        ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold"
-                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                        ? "border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                        : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
                     )}
                   >
                     <LayoutGrid className="h-3 w-3" />
                     <span>All</span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{projectList.length}</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{projectList.length}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setActiveFilterTab("starred")}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
                       activeFilterTab === "starred"
-                        ? "border border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber font-semibold"
-                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                        ? "border-amber-500 bg-amber-50 text-amber-700 font-semibold shadow-xs dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber"
+                        : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
                     )}
                   >
                     <Star className="h-3 w-3 fill-current" />
                     <span>Starred</span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{starredCount}</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{starredCount}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setActiveFilterTab("work")}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
                       activeFilterTab === "work"
-                        ? "border border-dusk-cyan/40 bg-dusk-cyan/15 text-dusk-cyan font-semibold"
-                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                        ? "border-teal-500 bg-teal-50 text-teal-700 font-semibold shadow-xs dark:border-dusk-cyan/40 dark:bg-dusk-cyan/15 dark:text-dusk-cyan"
+                        : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
                     )}
                   >
                     <KanbanSquare className="h-3 w-3" />
                     <span>Work</span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{workCount}</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{workCount}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setActiveFilterTab("diary")}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
                       activeFilterTab === "diary"
-                        ? "border border-dusk-rose/40 bg-dusk-rose/15 text-dusk-rose font-semibold"
-                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200 hover:bg-white/[0.06]"
+                        ? "border-rose-400 bg-rose-50 text-rose-700 font-semibold shadow-xs dark:border-dusk-rose/40 dark:bg-dusk-rose/15 dark:text-dusk-rose"
+                        : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
                     )}
                   >
                     <BookOpenCheck className="h-3 w-3" />
                     <span>Diary</span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px]">{diaryCount}</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{diaryCount}</span>
                   </button>
                 </div>
               </div>
@@ -1200,20 +1200,20 @@ export function ProjectsDashboard({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="relative w-full sm:w-60">
-                    <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                  <div className="group/search relative flex items-center w-full sm:w-64">
+                    <Search className="pointer-events-none absolute left-3 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
                     <input
                       type="text"
                       value={boardSearchQuery}
                       onChange={(e) => setBoardSearchQuery(e.target.value)}
-                      placeholder="Filter boards..."
-                      className="h-8.5 w-full rounded-xl border border-stone-200 bg-white pl-9 pr-8 text-xs text-stone-900 placeholder-stone-400 outline-none transition focus:border-indigo-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder-stone-400 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.06]"
+                      placeholder="Search boards..."
+                      className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-9.5 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
                     />
                     {boardSearchQuery ? (
                       <button
                         type="button"
                         onClick={() => setBoardSearchQuery("")}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
+                        className="absolute right-2.5 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
                         aria-label="Clear board search"
                       >
                         <X className="h-3.5 w-3.5" />
@@ -1224,8 +1224,7 @@ export function ProjectsDashboard({
                   <Button
                     type="button"
                     onClick={() => setIsCreateBoardOpen(true)}
-                    size="sm"
-                    className="shrink-0 bg-indigo-600 text-white hover:bg-indigo-700 transition font-semibold dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-amber"
+                    className="h-9.5 shrink-0 rounded-xl bg-indigo-600 px-3.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-amber"
                   >
                     <Plus className="h-3.5 w-3.5 mr-1" />
                     <span>New Board</span>
@@ -1251,7 +1250,7 @@ export function ProjectsDashboard({
                   </div>
                 </div>
               ) : (
-                <div className="grid min-w-0 content-start gap-4 pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                <div className="grid min-w-0 items-stretch gap-4 pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                   {activeProjectBoards.map((board) => (
                     <WorkspaceBoardCard
                       key={board.id}
@@ -1580,7 +1579,7 @@ function WorkspaceBoardCard({
   return (
     <div
       onClick={handleCardClick}
-      className="lofi-panel group relative flex h-full min-h-[260px] flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-indigo-300 hover:shadow-md cursor-pointer dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.045] dark:hover:shadow-2xl dark:hover:shadow-dusk-lavender/5"
+      className="group relative flex h-full min-h-[260px] flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm transition-all duration-300 hover:border-indigo-300 hover:shadow-md cursor-pointer dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.045] dark:hover:shadow-2xl dark:hover:shadow-dusk-lavender/5"
     >
       <div>
         {/* Top bar: Board icon + Title + Lock/Public badge + 3-dots */}
@@ -1734,7 +1733,7 @@ function QuickCreateBoardBlueprintCard({
     <button
       type="button"
       onClick={onCreateClick}
-      className="group flex h-full min-h-[260px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50/60 p-6 text-center transition-all duration-300 hover:border-indigo-400 hover:bg-stone-100/70 hover:shadow-md dark:border-white/15 dark:bg-white/[0.015] dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.035] dark:hover:shadow-xl dark:hover:shadow-dusk-lavender/10"
+      className="group flex h-full min-h-[260px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-white p-6 text-center transition-all duration-300 hover:border-indigo-400 hover:bg-stone-50/80 hover:shadow-md dark:border-white/15 dark:bg-white/[0.015] dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.035] dark:hover:shadow-xl dark:hover:shadow-dusk-lavender/10"
     >
       <div className="relative mb-3 grid h-12 w-12 place-items-center rounded-2xl border border-indigo-200 bg-indigo-50 text-indigo-600 transition-transform duration-300 group-hover:scale-110 shadow-xs dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
         <Plus className="h-6 w-6" />
