@@ -1311,8 +1311,6 @@ export function KanbanBoard({
                 ))}
               </SortableContext>
             </div>
-            {/* Horizontal scroll fade hint */}
-            <div aria-hidden="true" className="pointer-events-none absolute right-0 top-0 bottom-1 w-6 bg-gradient-to-l from-[#fbfaf8]/90 dark:from-ink-950/80 to-transparent" />
           </div>
         )}
         <DragOverlay adjustScale={false} dropAnimation={null} zIndex={10000}>

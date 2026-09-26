@@ -70,13 +70,9 @@ describe("Theme system and Warm Paper Light Mode", () => {
     expect(dashboard).toContain('order-3 2xl:order-3');
   });
 
-  it("eliminates black edge scroll fade hint in Light Mode", () => {
+  it("eliminates black edge scroll fade hint completely", () => {
     const board = readFileSync(join(process.cwd(), "src/components/kanban/board.tsx"), "utf8");
-    expect(board).toContain("from-[#fbfaf8]/90 dark:from-ink-950/80 to-transparent");
-
-    const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
-    expect(css).toContain('[data-theme="light"] .from-ink-950\\/80');
-    expect(css).toContain("rgba(251, 250, 248, 0.9)");
+    expect(board).not.toContain("dark:from-ink-950/80 to-transparent");
   });
 
   it("maps all translucent bg-ink-950 and bg-ink-900 variants to clean paper in Light Mode", () => {
