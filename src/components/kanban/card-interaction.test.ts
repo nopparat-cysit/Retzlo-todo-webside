@@ -89,4 +89,11 @@ describe("kanban card interactions", () => {
     expect(cardModalSource).toContain("formatLocalDate(card?.dueDate");
     expect(cardModalSource).toContain("formatLocalDate(card?.startDate");
   });
+  it("enables dragging across the entire card by keeping title select-none and not stopping pointerdown", () => {
+    const cardSource = readFileSync(new URL("./card.tsx", import.meta.url), "utf8");
+    expect(cardSource).not.toContain("onPointerDownCapture");
+    expect(cardSource).not.toContain("select-text");
+    expect(cardSource).not.toContain("cursor-text");
+    expect(cardSource).toContain("select-none");
+  });
 });

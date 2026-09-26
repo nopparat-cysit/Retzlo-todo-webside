@@ -150,12 +150,7 @@ function KanbanCardComponent({
                   ))}
                 </div>
               )}
-              <p
-                className="font-medium text-xs sm:text-[13px] text-stone-900 break-words dark:text-stone-100 leading-snug select-text cursor-text line-clamp-2"
-                onPointerDownCapture={(e) => {
-                  e.stopPropagation();
-                }}
-              >
+              <p className="font-medium text-xs sm:text-[13px] text-stone-900 break-words dark:text-stone-100 leading-snug line-clamp-2 select-none">
                 {card.title}
               </p>
             </div>
@@ -242,12 +237,7 @@ function KanbanCardComponent({
         <div className="space-y-2">
           <div className="flex items-start justify-between gap-1.5">
             <div className="flex-1 min-w-0">
-              <p
-                className="font-semibold text-stone-900 break-words dark:text-stone-100 leading-snug select-text cursor-text"
-                onPointerDownCapture={(e) => {
-                  e.stopPropagation();
-                }}
-              >
+              <p className="font-semibold text-stone-900 break-words dark:text-stone-100 leading-snug select-none">
                 {card.title}
               </p>
               {visibleStickers.length > 0 && (

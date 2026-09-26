@@ -18,7 +18,8 @@ export function RetroStickerImage({ alt = "Retro sticker", className, size = 40,
   return (
     <Image
       alt={alt}
-      className={cn("h-full w-full object-contain", className)}
+      className={cn("h-full w-full object-contain pointer-events-none select-none", className)}
+      draggable={false}
       height={size}
       src={`${src}?v=${STICKER_IMAGE_VERSION}`}
       width={size}
