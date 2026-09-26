@@ -2,7 +2,7 @@
 
 ## Project
 
-This repository contains a greenfield Modular Life and Work Management Platform built with Next.js App Router, Prisma, PostgreSQL on Supabase, Tailwind CSS, and NextAuth Credentials.
+This repository contains a greenfield Modular Life and Work Management Platform built with Next.js App Router, Prisma, PostgreSQL on Neon (neon.tech), Tailwind CSS, and NextAuth Credentials.
 
 The first production module is the Work module:
 
@@ -13,7 +13,7 @@ The first production module is the Work module:
 
 ## Collaboration Rules
 
-- Treat secrets as local-only data. Do not commit real Supabase URLs, anon keys, JWT secrets, or invitation tokens.
+- Treat secrets as local-only data. Do not commit real database URLs, secrets, or invitation tokens.
 - Prefer small, typed, feature-scoped files.
 - Keep future modules in mind, but implement only what the Work module needs now.
 - Follow the existing docs before adding abstractions.
