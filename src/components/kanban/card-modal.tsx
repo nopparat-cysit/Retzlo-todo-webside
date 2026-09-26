@@ -11,7 +11,7 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { CheckSquare, Coins, FileText, GripVertical, Plus, Star, Trash2, X, Zap } from "lucide-react";
+import { CheckSquare, Coins, GripVertical, Plus, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/ui/app-modal";
@@ -123,7 +123,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [isStarred, setIsStarred] = useState(card?.isStarred ?? false);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(card?.checklist ?? []);
   const [newChecklistItem, setNewChecklistItem] = useState("");
-  const [note, setNote] = useState(card?.note ?? "");
   const [title, setTitle] = useState(card?.title ?? "");
   const [description, setDescription] = useState(card?.description ?? "");
   const [isSaving, setIsSaving] = useState(false);
@@ -160,7 +159,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     () => ({
       title,
       description,
-      note,
       startDate,
       startTime,
       date,
@@ -179,7 +177,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     [
       title,
       description,
-      note,
       startDate,
       startTime,
       date,
@@ -201,7 +198,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     return Boolean(
       (data.title && data.title.trim()) ||
       (data.description && data.description.trim()) ||
-      (data.note && data.note.trim()) ||
       (data.checklist && data.checklist.length > 0) ||
       (data.assigneeIds && data.assigneeIds.length > 0) ||
       (data.startDate && data.startDate.trim()) ||
@@ -212,7 +208,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const handleRestoreDraft = useCallback((draft: typeof currentFormData) => {
     if (draft.title !== undefined) setTitle(draft.title);
     if (draft.description !== undefined) setDescription(draft.description);
-    if (draft.note !== undefined) setNote(draft.note);
     if (draft.startDate !== undefined) setStartDate(draft.startDate);
     if (draft.startTime !== undefined) setStartTime(draft.startTime);
     if (draft.date !== undefined) setDate(draft.date);
@@ -233,7 +228,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const hasChanges = useMemo(() => {
     const initialTitle = card?.title ?? "";
     const initialDesc = card?.description ?? "";
-    const initialNote = card?.note ?? "";
     const initialStatus = card?.status ?? "TODO";
     const initialColor = normalizeCardColor(card?.color);
     const initialPriority = card?.priority ?? "MEDIUM";
@@ -264,8 +258,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
     const textChanged =
       mode === "create"
-        ? title.trim() !== "" || description.trim() !== "" || note.trim() !== ""
-        : title.trim() !== initialTitle.trim() || description.trim() !== initialDesc.trim() || note.trim() !== initialNote.trim();
+        ? title.trim() !== "" || description.trim() !== ""
+        : title.trim() !== initialTitle.trim() || description.trim() !== initialDesc.trim();
 
     return (
       textChanged ||
@@ -288,7 +282,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     card,
     title,
     description,
-    note,
     selectedStatus,
     selectedColor,
     selectedPriority,
@@ -313,7 +306,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         return (
           (!draft.title || !draft.title.trim()) &&
           (!draft.description || !draft.description.trim()) &&
-          (!draft.note || !draft.note.trim()) &&
           (!draft.checklist || draft.checklist.length === 0) &&
           (draft.selectedStatus === initialStatus || !draft.selectedStatus) &&
           (normalizeCardColor(draft.selectedColor) === initialColor || !draft.selectedColor) &&
@@ -334,7 +326,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
       const initialTitle = card.title ?? "";
       const initialDesc = card.description ?? "";
-      const initialNote = card.note ?? "";
       const initialStatus = card.status ?? "TODO";
       const initialColor = normalizeCardColor(card.color);
       const initialPriority = card.priority ?? "MEDIUM";
@@ -350,7 +341,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
       const draftTitle = draft.title ?? "";
       const draftDesc = draft.description ?? "";
-      const draftNote = draft.note ?? "";
       const draftStatus = draft.selectedStatus ?? "TODO";
       const draftColor = normalizeCardColor(draft.selectedColor);
       const draftPriority = draft.selectedPriority ?? "MEDIUM";
@@ -382,7 +372,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       return (
         draftTitle === initialTitle &&
         draftDesc === initialDesc &&
-        draftNote === initialNote &&
         draftStatus === initialStatus &&
         draftColor === initialColor &&
         draftPriority === initialPriority &&
@@ -438,7 +427,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     setIsStarred(card?.isStarred ?? false);
     setChecklist(card?.checklist ?? []);
     setNewChecklistItem("");
-    setNote(card?.note ?? "");
     setTitle(card?.title ?? "");
     setDescription(card?.description ?? "");
 
@@ -525,7 +513,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       await onSubmit({
         title: String(formData.get("title") ?? ""),
         description: String(formData.get("description") ?? "") || null,
-        note: note || null,
+        note: null,
         status: selectedStatus,
         color: selectedColor,
         checklist,
@@ -657,18 +645,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                 })}
               </div>
             </div>
-          </div>
-          <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-stone-200">
-              <FileText className="h-4 w-4 text-dusk-lavender" />
-              Note (บันทึกข้อความ)
-            </div>
-            <Textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Write custom card notes here..."
-              rows={4}
-            />
           </div>
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
             <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">

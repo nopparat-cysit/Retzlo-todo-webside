@@ -2,7 +2,7 @@
 
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Clock, FileText, Star, Zap } from "lucide-react";
+import { CalendarClock, CheckSquare, Clock, Star, Zap } from "lucide-react";
 import { memo, useEffect, useState } from "react";
 
 import { AssigneeStack } from "@/components/kanban/assignee-avatar";
@@ -198,11 +198,6 @@ function KanbanCardComponent({
               </span>
             ) : null}
 
-            {card.note ? (
-              <span className="inline-flex items-center gap-0.5 rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-0.2 text-[10px] font-medium text-indigo-700 dark:border-dusk-lavender/20 dark:bg-dusk-lavender/10 dark:text-dusk-lavender" title="Has note">
-                <FileText className="h-2.5 w-2.5" />
-              </span>
-            ) : null}
 
             {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) && (
               <div className="ml-auto flex items-center gap-1.5">
@@ -312,12 +307,6 @@ function KanbanCardComponent({
               <span className="inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
                 <CheckSquare className="h-3 w-3" />
                 {completedChecklist}/{card.checklist.length}
-              </span>
-            ) : null}
-            {card.note ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:border-dusk-lavender/20 dark:bg-dusk-lavender/10 dark:text-dusk-lavender" title="This card has a note">
-                <FileText className="h-3 w-3" />
-                Note
               </span>
             ) : null}
           </div>
