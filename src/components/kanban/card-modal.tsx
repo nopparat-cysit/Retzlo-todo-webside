@@ -145,7 +145,14 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   const isSubmittingRef = useRef(false);
+  const modalBodyRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (open && modalBodyRef.current) {
+      modalBodyRef.current.scrollTop = 0;
+    }
+  }, [open, card?.id]);
 
   const draftKey = mode === "create" ? `card:new:${card?.columnId ?? "default"}` : `card:edit:${card?.id ?? "unknown"}`;
 
@@ -602,7 +609,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         </div>
       </div>
 
-        <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-3.5 sm:p-5">
+        <div ref={modalBodyRef} className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-3.5 sm:p-5">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] lg:items-start">
           <div className="grid gap-4">
           <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Card title" required />

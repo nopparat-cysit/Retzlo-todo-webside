@@ -65,7 +65,7 @@ export function CardChatTimeline({
   const [commentToDelete, setCommentToDelete] = useState<CardCommentItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const streamContainerRef = useRef<HTMLDivElement>(null);
   const isInitialLoadRef = useRef(true);
   const { toast } = useToast();
 
@@ -100,14 +100,17 @@ export function CardChatTimeline({
     fetchComments();
   }, [fetchComments]);
 
-  // Scroll to bottom when new comments arrive or on initial load
+  // Scroll only the chat stream container to bottom, NEVER scrolling the parent modal
   useEffect(() => {
-    if (comments.length > 0) {
+    if (comments.length > 0 && streamContainerRef.current) {
       if (isInitialLoadRef.current) {
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        streamContainerRef.current.scrollTop = streamContainerRef.current.scrollHeight;
         isInitialLoadRef.current = false;
       } else {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        streamContainerRef.current.scrollTo({
+          top: streamContainerRef.current.scrollHeight,
+          behavior: "smooth"
+        });
       }
     }
   }, [comments]);
@@ -286,7 +289,10 @@ export function CardChatTimeline({
       </div>
 
       {/* Stream Area */}
-      <div className="scrollbar-soft max-h-[320px] min-h-[140px] overflow-y-auto space-y-3 pr-1 py-1">
+      <div
+        ref={streamContainerRef}
+        className="scrollbar-soft max-h-[320px] min-h-[140px] overflow-y-auto space-y-3 pr-1 py-1"
+      >
         {isLoading && comments.length === 0 ? (
           <div className="flex h-32 items-center justify-center text-xs text-stone-500">
             Loading timeline...
@@ -377,7 +383,6 @@ export function CardChatTimeline({
             );
           })
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Bar */}
