@@ -58,12 +58,6 @@ export function ProjectNavLink({ href, label, iconName, segment }: ProjectNavLin
           : "border-transparent bg-transparent text-stone-500 hover:border-stone-300/40 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:border-white/10 dark:hover:bg-white/[0.055] dark:hover:text-stone-100"
       )}
     >
-      <span
-        className={cn(
-          "project-nav-active-marker absolute left-2 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full transition",
-          isActive ? "bg-dusk-lavender shadow-[0_0_10px_rgba(169,162,255,0.55)]" : "bg-transparent group-hover:bg-white/25"
-        )}
-      />
       {Icon && (
         <Icon
           className={cn(
@@ -73,6 +67,12 @@ export function ProjectNavLink({ href, label, iconName, segment }: ProjectNavLin
         />
       )}
       <span className="sidebar-expanded-only truncate">{label}</span>
+      <span
+        className={cn(
+          "project-nav-active-marker absolute right-3 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full transition md:group-hover/sort:opacity-0",
+          isActive ? "bg-dusk-lavender shadow-[0_0_10px_rgba(169,162,255,0.55)]" : "bg-transparent group-hover:bg-white/25"
+        )}
+      />
     </Link>
   );
 }

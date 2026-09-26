@@ -376,6 +376,7 @@ textarea {
 
   #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar .project-nav-active-marker {
     left: 50%;
+    right: auto;
     top: auto;
     bottom: -0.18rem;
     width: 1rem;
