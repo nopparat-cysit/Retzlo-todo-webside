@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -138,7 +139,7 @@ export default async function BoardPage({
   searchParams
 }: {
   params: { id: string };
-  searchParams?: { boardId?: string };
+  searchParams?: { boardId?: string; cardId?: string };
 }) {
   const userId = await requireUserId();
 
@@ -215,7 +216,21 @@ export default async function BoardPage({
       }
     }
 
-    const requestedBoardId = searchParams?.boardId;
+    const cookieStore = cookies();
+    const cookieBoardId = cookieStore.get(`project_${params.id}_last_board`)?.value;
+
+    let cardTargetBoardId: string | null = null;
+    if (searchParams?.cardId) {
+      const cardRecord = await prisma.card.findUnique({
+        where: { id: searchParams.cardId },
+        select: { column: { select: { boardId: true } } }
+      });
+      if (cardRecord?.column?.boardId) {
+        cardTargetBoardId = cardRecord.column.boardId;
+      }
+    }
+
+    const requestedBoardId = searchParams?.boardId || cardTargetBoardId || cookieBoardId;
     activeBoardSummary = (requestedBoardId
       ? accessibleBoards.find((b) => b.id === requestedBoardId)
       : null) ?? accessibleBoards[0];
@@ -313,6 +328,7 @@ export default async function BoardPage({
       />
       <div className="board-page-grid flex-1 min-h-0 min-w-0 max-w-full flex flex-col">
         <BoardViewContainer
+          key={`board-container-${board.id}`}
           board={{
             id: board.id,
             name: board.name,

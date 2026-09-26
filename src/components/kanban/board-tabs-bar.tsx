@@ -39,7 +39,13 @@ export function BoardTabsBar({
 
   useEffect(() => {
     setSwitchingBoardId(null);
-  }, [activeBoardId]);
+    if (typeof document !== "undefined" && activeBoardId) {
+      document.cookie = `project_${projectId}_last_board=${activeBoardId}; path=/; max-age=31536000; SameSite=Lax`;
+      try {
+        localStorage.setItem(`project_${projectId}_last_board`, activeBoardId);
+      } catch {}
+    }
+  }, [projectId, activeBoardId]);
 
   useEffect(() => {
     const handleBoardRenamed = (e: CustomEvent<{ id: string; name: string }>) => {
@@ -98,6 +104,12 @@ export function BoardTabsBar({
                 <Link
                   href={`/project/${projectId}/board?boardId=${b.id}`}
                   onClick={() => {
+                    if (typeof document !== "undefined") {
+                      document.cookie = `project_${projectId}_last_board=${b.id}; path=/; max-age=31536000; SameSite=Lax`;
+                      try {
+                        localStorage.setItem(`project_${projectId}_last_board`, b.id);
+                      } catch {}
+                    }
                     if (b.id !== activeBoardId) {
                       setSwitchingBoardId(b.id);
                       window.dispatchEvent(

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
 import { Menu, PanelLeftClose } from "lucide-react";
 
@@ -110,9 +111,15 @@ export async function ProjectShell({
   const dotColor = projectDotColor(project.name);
   const statusColor = STATUS_COLORS[userRecord?.status ?? "ONLINE"] ?? "bg-stone-500";
   const isProjectOwner = project.members[0]?.role === "OWNER";
+  const cookieStore = cookies();
+  const lastBoardId = cookieStore.get(`project_${projectId}_last_board`)?.value;
+
   const sortableNavItems: ProjectNavItem[] = navItems.map((item) => ({
     ...item,
-    href: `/project/${projectId}/${item.href}`,
+    href:
+      item.href === "board" && lastBoardId
+        ? `/project/${projectId}/board?boardId=${encodeURIComponent(lastBoardId)}`
+        : `/project/${projectId}/${item.href}`,
     iconName: item.iconName,
     segment: item.href,
   }));

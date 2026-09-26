@@ -47,6 +47,15 @@ export function BoardViewContainer({
     }
   }, []);
 
+  useEffect(() => {
+    if (typeof document !== "undefined" && board.id) {
+      document.cookie = `project_${projectId}_last_board=${board.id}; path=/; max-age=31536000; SameSite=Lax`;
+      try {
+        localStorage.setItem(`project_${projectId}_last_board`, board.id);
+      } catch {}
+    }
+  }, [projectId, board.id]);
+
   const handleToggleNotes = () => {
     setIsNotesOpen((prev) => {
       const next = !prev;

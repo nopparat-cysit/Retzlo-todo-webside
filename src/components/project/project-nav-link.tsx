@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpenCheck, CalendarDays, FileText, KanbanSquare, Settings, Users, Gift } from "lucide-react";
@@ -25,14 +26,28 @@ interface ProjectNavLinkProps {
   segment: string; // e.g. "board", "calendar"
 }
 
-export function ProjectNavLink({ href, label, iconName }: ProjectNavLinkProps) {
+export function ProjectNavLink({ href, label, iconName, segment }: ProjectNavLinkProps) {
   const pathname = usePathname();
-  const isActive = pathname === href || pathname.startsWith(`${href}/`);
+  const cleanHref = href.split("?")[0];
+  const isActive = pathname === cleanHref || pathname.startsWith(`${cleanHref}/`);
   const Icon = ICON_MAP[iconName];
+
+  const targetHref = useMemo(() => {
+    if (segment === "board" && typeof window !== "undefined") {
+      const match = pathname?.match(/^\/project\/([^/]+)/);
+      if (match && match[1]) {
+        const savedBoard = localStorage.getItem(`project_${match[1]}_last_board`);
+        if (savedBoard) {
+          return `/project/${match[1]}/board?boardId=${encodeURIComponent(savedBoard)}`;
+        }
+      }
+    }
+    return href;
+  }, [segment, href, pathname]);
 
   return (
     <Link
-      href={href}
+      href={targetHref}
       aria-current={isActive ? "page" : undefined}
       title={label}
       className={cn(
