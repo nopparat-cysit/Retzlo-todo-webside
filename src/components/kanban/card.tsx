@@ -98,6 +98,7 @@ function KanbanCardComponent({
   const isOverdue = mounted && card.dueDate && new Date(card.dueDate) < new Date() && card.status !== "DONE";
 
   const isCompact = density === "compact";
+  const compactStickers = visibleStickers.slice(0, 2);
 
   return (
     <article
@@ -136,9 +137,9 @@ function KanbanCardComponent({
         <div className="space-y-1.5">
           <div className="flex items-start justify-between gap-1.5">
             <div className="flex-1 min-w-0 flex items-start gap-1.5">
-              {visibleStickers.length > 0 && (
-                <div className="flex shrink-0 gap-0.5 pt-0.5 select-none leading-none">
-                  {visibleStickers.map((st, i) => (
+              {compactStickers.length > 0 && (
+                <div className="flex shrink-0 items-center gap-0.5 pt-0.5 select-none leading-none">
+                  {compactStickers.map((st, i) => (
                     <span
                       key={`${st}-${i}`}
                       className="inline-grid h-4.5 w-4.5 cursor-default place-items-center"
@@ -230,6 +231,7 @@ function KanbanCardComponent({
                         : []
                   }
                   size={16}
+                  max={2}
                 />
               </div>
             )}
