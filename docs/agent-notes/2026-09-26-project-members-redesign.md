@@ -14,6 +14,11 @@
   - Built Pending Invitations section displaying recipient email, expiration badge, sending details, quick copy invite link, and instant invitation revocation with `ConfirmModal` and toast feedback.
   - Built Workspace Roles & Permissions guide matrix explaining Owner vs Member capabilities (Card management, Column management, Member invites, Project deletion).
   - Integrated `ConfirmModal` for all user-initiated deletions (revoking invites, removing workspace members) and `useToast` notifications for all CUD operations.
+- `src/components/ui/input.tsx` [MODIFIED]:
+  - Added dual-theme default styles (`border-stone-200/90 bg-white text-stone-900 focus:border-indigo-500` in light mode, dark variants preserved) to prevent invisible/white text and washed out borders in light mode.
+- `src/components/project/project-members-view.tsx` [MODIFIED]:
+  - Redesigned search input ("ช่องค้นหา") with `group/search`, high-contrast border, `pl-10`, responsive focus ring, clear button, and text contrast.
+  - Redesigned teammate email input with `group/email`, `h-10`, `pl-10`, dedicated Mail icon, and matched `h-10 rounded-xl` Send Invitation button.
 - `src/app/(dashboard)/project/[id]/members/page.tsx` [MODIFIED]:
   - Replaced legacy bare-bones markup with `<ProjectMembersView>`.
   - Consolidated data fetching into a single parallel query (`Promise.all`) fetching project metadata, members with user profiles, and active pending invitations.

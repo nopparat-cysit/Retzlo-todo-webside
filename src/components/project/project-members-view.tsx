@@ -27,7 +27,6 @@ import {
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDate, formatShortDate } from "@/lib/date-format";
 import { cn } from "@/lib/utils";
@@ -423,20 +422,22 @@ export function ProjectMembersView({
                 </div>
               </div>
 
-              {/* Search Filter */}
-              <div className="mt-3.5 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
-                <Input
+              {/* Search Filter Toolbar */}
+              <div className="group/search relative mt-3.5">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+                <input
+                  type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search members by name or email..."
-                  className="pl-9 pr-9 text-xs h-9 bg-stone-50/60 dark:bg-white/[0.02]"
+                  className="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 pl-10 pr-9 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-2xs outline-none transition hover:border-stone-300 hover:bg-white focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
                 />
                 {searchQuery ? (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-0.5"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-200/70 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/15 dark:hover:text-stone-100"
+                    aria-label="Clear search"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -624,14 +625,14 @@ export function ProjectMembersView({
                 Send an invitation link or email directly to a collaborator to join this project.
               </p>
 
-              <form onSubmit={handleSendInvite} className="space-y-3">
+              <form onSubmit={handleSendInvite} className="space-y-3.5">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-stone-700 dark:text-stone-300">
                     Teammate Email Address
                   </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
-                    <Input
+                  <div className="group/email relative">
+                    <Mail className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/email:text-indigo-600 dark:text-stone-500 dark:group-focus-within/email:text-dusk-lavender" />
+                    <input
                       ref={inviteInputRef}
                       type="email"
                       required
@@ -639,13 +640,13 @@ export function ProjectMembersView({
                       onChange={(e) => setInviteEmail(e.target.value)}
                       placeholder="colleague@example.com"
                       disabled={isInviting}
-                      className="pl-9 text-xs h-9.5"
+                      className="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 pl-10 pr-3 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-2xs outline-none transition hover:border-stone-300 hover:bg-white focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
                     />
                   </div>
                 </div>
 
                 {inviteError && (
-                  <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 p-2 rounded-lg border border-rose-200 dark:border-rose-500/20">
+                  <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 p-2.5 rounded-xl border border-rose-200 dark:border-rose-500/20">
                     {inviteError}
                   </p>
                 )}
@@ -653,7 +654,7 @@ export function ProjectMembersView({
                 <Button
                   type="submit"
                   disabled={isInviting || !inviteEmail.trim()}
-                  className="w-full gap-1.5 text-xs h-9 bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 font-medium"
+                  className="w-full gap-2 text-xs h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium disabled:opacity-50"
                 >
                   {isInviting ? (
                     <span>Sending invitation...</span>
