@@ -36,10 +36,12 @@ describe("kanban card interactions", () => {
     expect(columnSource).not.toContain('status: "TODO"');
   });
 
-  it("does not nest CardModal or ConfirmModal inside article onClick to prevent event bubbling re-opening", () => {
+  it("keeps CardModal and ConfirmModal at board level outside card sortable articles to prevent DOM bloat and event bubbling", () => {
     const cardSource = readFileSync(new URL("./card.tsx", import.meta.url), "utf8");
-    expect(cardSource).toMatch(/<\/article>\s*<CardModal/);
-    expect(cardSource).toMatch(/\/>\s*<ConfirmModal/);
+    expect(cardSource).not.toContain("<CardModal");
+    expect(cardSource).not.toContain("<ConfirmModal");
+    expect(boardSource).toContain("<CardModal");
+    expect(boardSource).toContain("<ConfirmModal");
   });
 
   it("renders accessible Radix UI select and avatar badges for assignee filtering without raw HTML select", () => {

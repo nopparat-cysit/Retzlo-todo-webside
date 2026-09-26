@@ -99,15 +99,21 @@ export function KanbanBoard({
 }) {
   const searchParams = useSearchParams();
   const cardIdFromUrl = searchParams.get("cardId");
-  const [selectedCardFromUrl, setSelectedCardFromUrl] = useState<Card | null>(null);
+  const [editingCard, setEditingCard] = useState<Card | null>(null);
+  const [cardToDelete, setCardToDelete] = useState<Card | null>(null);
+  const [isDeletingCard, setIsDeletingCard] = useState(false);
   const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
+
+  useEffect(() => {
+    setColumns(board.columns.map((col) => normalizeColumn(col, members)));
+  }, [board.id, board.columns, members]);
 
   useEffect(() => {
     if (cardIdFromUrl && columns.length > 0) {
       for (const col of columns) {
         const found = col.cards.find((c) => c.id === cardIdFromUrl);
         if (found) {
-          setSelectedCardFromUrl(found);
+          setEditingCard(found);
           break;
         }
       }
@@ -178,6 +184,8 @@ export function KanbanBoard({
     const handleBoardSwitching = (e: CustomEvent<{ targetBoardId: string }>) => {
       if (e.detail?.targetBoardId && e.detail.targetBoardId !== board.id) {
         setIsSwitchingBoard(true);
+      } else if (e.detail?.targetBoardId === board.id) {
+        setIsSwitchingBoard(false);
       }
     };
 
@@ -195,7 +203,7 @@ export function KanbanBoard({
     if (!isSwitchingBoard) return;
     const timer = setTimeout(() => {
       setIsSwitchingBoard(false);
-    }, 8000);
+    }, 4000);
     return () => clearTimeout(timer);
   }, [isSwitchingBoard]);
 
@@ -345,13 +353,15 @@ export function KanbanBoard({
 
   const { broadcastChange, syncNow } = useLiveSync({
     channelKey: board.projectId ? [`board:${board.id}`, `project:${board.projectId}`] : `board:${board.id}`,
-    intervalMs: 2500,
+    intervalMs: 8000,
     canSync: () => {
       if (!syncGuard.canSync()) return false;
       if (isPointerInteractingRef.current) return false;
       if (activeCardId) return false;
       if (Date.now() < mutationLockUntilRef.current) return false;
       if (isColumnModalOpen) return false;
+      if (editingCard) return false;
+      if (cardToDelete) return false;
       if (typeof document !== "undefined" && document.querySelector("[role='dialog']")) return false;
       return true;
     },
@@ -474,7 +484,7 @@ export function KanbanBoard({
     setIsColumnModalOpen(true);
   }
 
-  async function updateColumn(
+  const updateColumn = useCallback(async (
     columnId: string,
     payload: {
       name: string;
@@ -483,7 +493,7 @@ export function KanbanBoard({
       defaultCardStatus: CardStatus;
       wipLimit?: number | null;
     }
-  ) {
+  ) => {
     setSyncError(null);
 
     const response = await fetch(`/api/columns/${columnId}`, {
@@ -518,9 +528,9 @@ export function KanbanBoard({
     setSyncError(message);
     toast({ message, type: "error" });
     throw new Error(message);
-  }
+  }, [broadcastChange, toast]);
 
-  async function deleteColumn(columnId: string) {
+  const deleteColumn = useCallback(async (columnId: string) => {
     setSyncError(null);
 
     const response = await fetch(`/api/columns/${columnId}`, {
@@ -547,9 +557,9 @@ export function KanbanBoard({
     setSyncError(message);
     toast({ message, type: "error" });
     throw new Error(message);
-  }
+  }, [broadcastChange, toast]);
 
-  async function createCard(
+  const createCard = useCallback(async (
     columnId: string,
     payload: {
       title: string;
@@ -567,7 +577,7 @@ export function KanbanBoard({
       difficulty?: DifficultyScore | null;
       assigneeIds?: string[];
     }
-  ) {
+  ) => {
     const response = await fetch("/api/cards", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -591,9 +601,9 @@ export function KanbanBoard({
 
     setSyncError(data.error ?? "Something did not sync. Try again.");
     toast({ message: data.error ?? "Something did not sync.", type: "error" });
-  }
+  }, [members, broadcastChange, toast]);
 
-  function saveCard(card: Card) {
+  const saveCard = useCallback((card: Card) => {
     mutationLockUntilRef.current = Date.now() + 1500;
     setColumns((current) =>
       current.map((column) => ({
@@ -602,9 +612,9 @@ export function KanbanBoard({
       }))
     );
     broadcastChange("CARD_UPDATED");
-  }
+  }, [members, broadcastChange]);
 
-  function deleteCard(cardId: string) {
+  const deleteCard = useCallback((cardId: string) => {
     mutationLockUntilRef.current = Date.now() + 1500;
     setColumns((current) =>
       current.map((column) => ({
@@ -618,7 +628,7 @@ export function KanbanBoard({
       }))
     );
     broadcastChange("CARD_DELETED");
-  }
+  }, [broadcastChange]);
 
   function handleDragStart(event: DragStartEvent) {
     if (syncGuard.isSaving()) return;
@@ -1258,7 +1268,7 @@ export function KanbanBoard({
       <DndContext
         sensors={sensors}
         collisionDetection={collisionDetection}
-        measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
+        measuring={{ droppable: { strategy: MeasuringStrategy.WhileDragging } }}
         onDragCancel={handleDragCancel}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
@@ -1298,6 +1308,7 @@ export function KanbanBoard({
                     activeCardId={activeCardId}
                     isDragDisabled={isSavingReorder}
                     isDropTarget={activeDropColumnId === column.id}
+                    onEditCard={setEditingCard}
                     onCreateCard={createCard}
                     onCardDeleted={deleteCard}
                     onCardSaved={saveCard}
@@ -1318,32 +1329,65 @@ export function KanbanBoard({
         </DragOverlay>
       </DndContext>
 
-      {selectedCardFromUrl && (
+      {editingCard && (
         <CardModal
-          card={selectedCardFromUrl}
+          card={editingCard}
           mode="edit"
-          open={Boolean(selectedCardFromUrl)}
-          onClose={() => setSelectedCardFromUrl(null)}
+          open={Boolean(editingCard)}
+          onClose={() => setEditingCard(null)}
           members={members}
           currentUserId={currentUserId}
           onDelete={async () => {
-            deleteCard(selectedCardFromUrl.id);
-            setSelectedCardFromUrl(null);
+            const toDelete = editingCard;
+            setEditingCard(null);
+            setCardToDelete(toDelete);
           }}
           onSubmit={async (data) => {
             const response = await fetch("/api/cards", {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ cardId: selectedCardFromUrl.id, ...data })
+              body: JSON.stringify({ cardId: editingCard.id, ...data })
             });
-            const resData = (await response.json()) as { card?: Card };
+            const resData = (await response.json()) as { card?: Card; error?: string };
             if (resData.card) {
               saveCard(resData.card);
-              setSelectedCardFromUrl(null);
+              setEditingCard(null);
+              toast({ message: "Card updated.", type: "success" });
+            } else {
+              toast({ message: resData.error ?? "Could not save card.", type: "error" });
             }
           }}
         />
       )}
+
+      <ConfirmModal
+        open={Boolean(cardToDelete)}
+        title="Delete card"
+        message={`Are you sure you want to delete "${cardToDelete?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete card"
+        variant="danger"
+        isLoading={isDeletingCard}
+        onConfirm={async () => {
+          if (!cardToDelete) return;
+          setIsDeletingCard(true);
+          try {
+            const response = await fetch(`/api/cards?cardId=${cardToDelete.id}`, {
+              method: "DELETE"
+            });
+            if (response.ok) {
+              deleteCard(cardToDelete.id);
+              setCardToDelete(null);
+              toast({ message: "Card deleted.", type: "success" });
+            } else {
+              const data = await response.json().catch(() => ({}));
+              toast({ message: data.error ?? "Could not delete card.", type: "error" });
+            }
+          } finally {
+            setIsDeletingCard(false);
+          }
+        }}
+        onClose={() => setCardToDelete(null)}
+      />
 
       <ConfirmModal
         open={confirmRenameOpen}

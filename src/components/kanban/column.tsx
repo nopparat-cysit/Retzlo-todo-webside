@@ -4,7 +4,7 @@ import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { AlertTriangle, GripVertical, Minus, Plus, Settings, Trash2, X, Zap } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
 import { KanbanCard } from "@/components/kanban/card";
@@ -24,27 +24,14 @@ import { calculateColumnPoints, type DifficultyScore } from "@/lib/kanban/diffic
 import { cn } from "@/lib/utils";
 import type { Card, CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 
-export function KanbanColumn({
-  column,
-  activeCardId,
-  isDragDisabled = false,
-  isDropTarget,
-  members = [],
-  currentUserId,
-  onCreateCard,
-  onCardDeleted,
-  onCardSaved,
-  onColumnDeleted,
-  onColumnSaved,
-  isFirst = false,
-  hasActiveFilters = false
-}: {
+export interface KanbanColumnProps {
   column: ColumnWithCards;
   activeCardId: string | null;
   isDragDisabled?: boolean;
   isDropTarget: boolean;
   members?: CardAssignee[];
   currentUserId?: string;
+  onEditCard?: (card: Card) => void;
   onCreateCard: (
     columnId: string,
     payload: {
@@ -79,7 +66,24 @@ export function KanbanColumn({
   ) => Promise<void>;
   isFirst?: boolean;
   hasActiveFilters?: boolean;
-}) {
+}
+
+function KanbanColumnComponent({
+  column,
+  activeCardId,
+  isDragDisabled = false,
+  isDropTarget,
+  members = [],
+  currentUserId,
+  onEditCard,
+  onCreateCard,
+  onCardDeleted,
+  onCardSaved,
+  onColumnDeleted,
+  onColumnSaved,
+  isFirst = false,
+  hasActiveFilters = false
+}: KanbanColumnProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
@@ -446,6 +450,7 @@ export function KanbanColumn({
               members={members}
               currentUserId={currentUserId}
               isDragPreviewTarget={activeCardId === card.id}
+              onEdit={onEditCard}
               onDeleted={onCardDeleted}
               onSaved={onCardSaved}
             />
@@ -681,6 +686,8 @@ export function KanbanColumn({
     </section>
   );
 }
+
+export const KanbanColumn = memo(KanbanColumnComponent);
 
 function ColumnThemePicker({
   onChange,

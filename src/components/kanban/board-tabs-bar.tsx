@@ -105,6 +105,13 @@ export function BoardTabsBar({
                           detail: { targetBoardId: b.id }
                         })
                       );
+                    } else if (switchingBoardId) {
+                      setSwitchingBoardId(null);
+                      window.dispatchEvent(
+                        new CustomEvent("board-switching", {
+                          detail: { targetBoardId: activeBoardId }
+                        })
+                      );
                     }
                   }}
                   className="flex items-center gap-1.5 min-w-0"

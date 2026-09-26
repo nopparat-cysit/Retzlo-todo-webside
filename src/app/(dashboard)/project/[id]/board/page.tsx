@@ -147,7 +147,7 @@ export default async function BoardPage({
     notFound();
   }
 
-  let membership: Awaited<ReturnType<typeof getProjectMembership>>;
+  let membership: NonNullable<Awaited<ReturnType<typeof getProjectMembership>>>;
   let project: { name: string; allowMemberPrivateItems: boolean; notesEnabled: boolean } | null;
   let accessibleBoards: Array<{ id: string; name: string; isPrivate: boolean }> = [];
   let activeBoardSummary: { id: string; name: string; isPrivate: boolean } | null = null;
@@ -156,36 +156,40 @@ export default async function BoardPage({
   let projectMembers: any[] = [];
 
   try {
-    const userMembership = await getProjectMembership(params.id, userId);
-
-    if (!userMembership) {
-      notFound();
-    }
-
-    membership = userMembership;
-
-    project = await prisma.project.findUnique({
+    const projectWithData = await prisma.project.findUnique({
       where: { id: params.id },
       select: {
         name: true,
         allowMemberPrivateItems: true,
-        notesEnabled: true
-      }
-    });
-
-    if (!project) {
-      notFound();
-    }
-
-    const allBoards = await prisma.board.findMany({
-      where: { projectId: params.id },
-      orderBy: { createdAt: "asc" },
-      include: {
+        notesEnabled: true,
         members: {
-          select: { userId: true }
+          where: { userId },
+          take: 1
+        },
+        boards: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            members: {
+              select: { userId: true }
+            }
+          }
         }
       }
     });
+
+    if (!projectWithData || projectWithData.members.length === 0) {
+      notFound();
+    }
+
+    const userMembership = projectWithData.members[0];
+    membership = userMembership;
+    project = {
+      name: projectWithData.name,
+      allowMemberPrivateItems: projectWithData.allowMemberPrivateItems,
+      notesEnabled: projectWithData.notesEnabled
+    };
+
+    const allBoards = projectWithData.boards;
 
     accessibleBoards = allBoards
       .filter((b) => canAccessBoard(b, userId, userMembership.role))
@@ -310,6 +314,7 @@ export default async function BoardPage({
       />
       <div className={project.notesEnabled ? "board-page-grid grid flex-1 min-h-0 min-w-0 max-w-full gap-3 xl:grid-cols-[minmax(0,1fr)_340px]" : "board-page-grid flex-1 min-h-0 min-w-0 max-w-full"}>
         <KanbanBoard
+          key={board.id}
           board={{
             id: board.id,
             name: board.name,
@@ -321,6 +326,7 @@ export default async function BoardPage({
         />
         {project.notesEnabled ? (
           <BoardNotesRail
+            key={board.id}
             projectId={params.id}
             activeBoardId={board.id}
             activeBoardName={board.name}

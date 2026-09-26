@@ -119,3 +119,31 @@ export async function POST(request: Request, { params }: { params: { id: string 
     return parseError(error);
   }
 }
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const userId = await requireUserId();
+    if (!userId) {
+      return jsonError("Please sign in to continue.", 401);
+    }
+
+    const membership = await assertProjectMember(params.id, userId);
+    if (!membership) {
+      return jsonError("You do not have access to this project.", 403);
+    }
+
+    const { searchParams } = new URL(request.url);
+    const invitationId = searchParams.get("invitationId");
+    if (!invitationId) {
+      return jsonError("Missing invitationId parameter.", 400);
+    }
+
+    await prisma.invitation.deleteMany({
+      where: { id: invitationId, projectId: params.id }
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return parseError(error);
+  }
+}

@@ -3,48 +3,73 @@
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { CalendarClock, CheckSquare, Clock, FileText, Star, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
-import { CardModal } from "@/components/kanban/card-modal";
 import { AssigneeStack } from "@/components/kanban/assignee-avatar";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
-import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useToast } from "@/components/ui/toast";
 import { formatMediumDateTime, formatShortDate } from "@/lib/date-format";
 import { formatCardDateRange } from "@/lib/kanban/due-date";
 import { getDifficultyMetadata, type DifficultyScore } from "@/lib/kanban/difficulty";
 import { resolveAssignees } from "@/lib/kanban/assignees";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
-import { getCardColorMeta, normalizeCardColor } from "@/lib/theme/card-colors";
+import { getCardColorMeta } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import type { Card, CardAssignee } from "@/types/kanban";
 
-export function KanbanCard({
-  card,
-  columnId,
-  isDragPreviewTarget = false,
-  isDragDisabled = false,
-  members = [],
-  currentUserId,
-  onSaved,
-  onDeleted
-}: {
+export interface KanbanCardProps {
   card: Card;
   columnId: string;
   isDragPreviewTarget?: boolean;
   isDragDisabled?: boolean;
   members?: CardAssignee[];
   currentUserId?: string;
-  onSaved: (card: Card) => void;
-  onDeleted: (cardId: string) => void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  onEdit?: (card: Card) => void;
+  onSaved?: (card: Card) => void;
+  onDeleted?: (cardId: string) => void;
+}
+
+function areCardPropsEqual(prev: KanbanCardProps, next: KanbanCardProps) {
+  if (prev.isDragPreviewTarget !== next.isDragPreviewTarget) return false;
+  if (prev.isDragDisabled !== next.isDragDisabled) return false;
+  if (prev.columnId !== next.columnId) return false;
+  if (prev.currentUserId !== next.currentUserId) return false;
+  if (prev.onEdit !== next.onEdit) return false;
+  if (prev.members !== next.members) return false;
+  if (prev.card === next.card) return true;
+  return (
+    prev.card.id === next.card.id &&
+    prev.card.title === next.card.title &&
+    prev.card.description === next.card.description &&
+    prev.card.status === next.card.status &&
+    prev.card.color === next.card.color &&
+    prev.card.position === next.card.position &&
+    prev.card.dueDate === next.card.dueDate &&
+    prev.card.dueDateAllDay === next.card.dueDateAllDay &&
+    prev.card.startDate === next.card.startDate &&
+    prev.card.startDateAllDay === next.card.startDateAllDay &&
+    prev.card.priority === next.card.priority &&
+    prev.card.isStarred === next.card.isStarred &&
+    prev.card.rewardCoins === next.card.rewardCoins &&
+    prev.card.difficulty === next.card.difficulty &&
+    prev.card.note === next.card.note &&
+    prev.card.checklist === next.card.checklist &&
+    prev.card.stickers === next.card.stickers &&
+    prev.card.assigneeIds === next.card.assigneeIds &&
+    prev.card.assignees === next.card.assignees
+  );
+}
+
+function KanbanCardComponent({
+  card,
+  columnId,
+  isDragPreviewTarget = false,
+  isDragDisabled = false,
+  members = [],
+  onEdit
+}: KanbanCardProps) {
   const [mounted, setMounted] = useState(false);
-  const { toast } = useToast();
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -69,81 +94,8 @@ export function KanbanCard({
   const visibleStickers = normalizeRetroStickerSelection(card.stickers);
   const isOverdue = mounted && card.dueDate && new Date(card.dueDate) < new Date() && card.status !== "DONE";
 
-  async function saveCard(payload: {
-    title: string;
-    description: string | null;
-    status: import("@/types/kanban").CardStatus;
-    color: import("@/lib/theme/card-colors").CardColor;
-    checklist: import("@/types/kanban").ChecklistItem[];
-    startDate?: string | null;
-    startDateAllDay?: boolean;
-    dueDate: string | null;
-    dueDateAllDay: boolean;
-    priority: "LOW" | "MEDIUM" | "HIGH";
-    isStarred: boolean;
-    rewardCoins?: number;
-    privateCoins?: unknown;
-    stickers?: string[];
-    difficulty?: DifficultyScore | null;
-    assigneeIds?: string[];
-  }) {
-    const response = await fetch("/api/cards", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        cardId: card.id,
-        ...payload
-      })
-    });
-    const data = (await response.json()) as { card?: Card; error?: string };
-
-    if (data.card) {
-      const updatedAssigneeIds = data.card.assigneeIds !== undefined ? data.card.assigneeIds : card.assigneeIds;
-      const resolved = (data.card.assignees && data.card.assignees.length > 0)
-        ? data.card.assignees
-        : resolveAssignees(updatedAssigneeIds, members);
-
-      onSaved({
-        ...data.card,
-        color: normalizeCardColor(data.card.color),
-        checklist: Array.isArray(data.card.checklist) ? data.card.checklist : [],
-        startDate: data.card.startDate !== undefined ? data.card.startDate : card.startDate,
-        startDateAllDay: data.card.startDateAllDay !== undefined ? data.card.startDateAllDay : card.startDateAllDay,
-        dueDate: data.card.dueDate ? new Date(data.card.dueDate).toISOString() : null,
-        dueDateAllDay: data.card.dueDateAllDay ?? false,
-        isStarred: data.card.isStarred ?? false,
-        difficulty: data.card.difficulty !== undefined ? data.card.difficulty : card.difficulty,
-        assigneeIds: updatedAssigneeIds,
-        assignees: resolved,
-      });
-      setIsEditing(false);
-      toast({ message: "Card updated.", type: "success" });
-    } else {
-      toast({ message: data.error ?? "Could not save card.", type: "error" });
-    }
-  }
-
-  async function deleteCard() {
-    setIsDeleting(true);
-    const response = await fetch(`/api/cards?cardId=${card.id}`, {
-      method: "DELETE"
-    });
-    setIsDeleting(false);
-
-    if (response.ok) {
-      onDeleted(card.id);
-      setIsEditing(false);
-      setIsDeleteConfirmOpen(false);
-      toast({ message: "Card deleted.", type: "success" });
-    } else {
-      const data = await response.json().catch(() => ({}));
-      toast({ message: data.error ?? "Could not delete card.", type: "error" });
-    }
-  }
-
   return (
-    <>
-      <article
+    <article
         id={`card-${card.id}`}
         ref={setNodeRef}
         style={style}
@@ -163,13 +115,13 @@ export function KanbanCard({
           if (event.button === 0 && !isDragging) {
             const selection = typeof window !== "undefined" ? window.getSelection()?.toString() : "";
             if (selection && selection.trim().length > 0) return;
-            setIsEditing(true);
+            onEdit?.(card);
           }
         }}
         onKeyDown={(event) => {
           if ((event.key === "Enter" || event.key === " ") && !isDragging) {
             event.preventDefault();
-            setIsEditing(true);
+            onEdit?.(card);
           }
         }}
       >
@@ -307,29 +259,7 @@ export function KanbanCard({
           ) : null}
         </div>
       </article>
-      <CardModal
-        card={card}
-        mode="edit"
-        open={isEditing}
-        members={members}
-        currentUserId={currentUserId}
-        onClose={() => setIsEditing(false)}
-        onDelete={async () => {
-          setIsEditing(false);
-          setIsDeleteConfirmOpen(true);
-        }}
-        onSubmit={saveCard}
-      />
-      <ConfirmModal
-        open={isDeleteConfirmOpen}
-        title="Delete card"
-        message={`Are you sure you want to delete "${card.title}"? This action cannot be undone.`}
-        confirmLabel="Delete card"
-        variant="danger"
-        isLoading={isDeleting}
-        onConfirm={deleteCard}
-        onClose={() => setIsDeleteConfirmOpen(false)}
-      />
-    </>
   );
 }
+
+export const KanbanCard = memo(KanbanCardComponent, areCardPropsEqual);

@@ -89,7 +89,7 @@ export function BoardNotesRail({
 
   const { broadcastChange } = useLiveSync({
     channelKey: `notes:${projectId}`,
-    intervalMs: 3000,
+    intervalMs: 10000,
     canSync: () => !isCreateOpen && !selectedNote && !document.querySelector("[role='dialog']"),
     onSync: refreshNotes
   });
