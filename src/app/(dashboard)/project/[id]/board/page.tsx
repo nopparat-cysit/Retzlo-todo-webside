@@ -3,9 +3,8 @@ import { notFound } from "next/navigation";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-import { KanbanBoard } from "@/components/kanban/board";
 import { BoardTabsBar } from "@/components/kanban/board-tabs-bar";
-import { BoardNotesRail } from "@/components/notes/board-notes-rail";
+import { BoardViewContainer } from "@/components/kanban/board-view-container";
 import { ErrorState } from "@/components/ui/state";
 import { prisma } from "@/lib/prisma";
 import {
@@ -312,9 +311,8 @@ export default async function BoardPage({
         activeBoardId={board.id}
         canManage={canManageBoards}
       />
-      <div className={project.notesEnabled ? "board-page-grid grid flex-1 min-h-0 min-w-0 max-w-full gap-3 xl:grid-cols-[minmax(0,1fr)_340px]" : "board-page-grid flex-1 min-h-0 min-w-0 max-w-full"}>
-        <KanbanBoard
-          key={`board-${board.id}`}
+      <div className="board-page-grid flex-1 min-h-0 min-w-0 max-w-full flex flex-col">
+        <BoardViewContainer
           board={{
             id: board.id,
             name: board.name,
@@ -323,21 +321,15 @@ export default async function BoardPage({
           }}
           members={members}
           currentUserId={userId}
+          notesEnabled={Boolean(project.notesEnabled)}
+          initialNotes={toProjectNotes(notes, {
+            membership,
+            userId,
+            allowMemberPrivateItems: project.allowMemberPrivateItems
+          })}
+          availableBoards={accessibleBoards.map((b) => ({ id: b.id, name: b.name }))}
+          projectId={params.id}
         />
-        {project.notesEnabled ? (
-          <BoardNotesRail
-            key={`notes-${board.id}`}
-            projectId={params.id}
-            activeBoardId={board.id}
-            activeBoardName={board.name}
-            availableBoards={accessibleBoards.map((b) => ({ id: b.id, name: b.name }))}
-            initialNotes={toProjectNotes(notes, {
-              membership,
-              userId,
-              allowMemberPrivateItems: project.allowMemberPrivateItems
-            })}
-          />
-        ) : null}
       </div>
     </div>
   );

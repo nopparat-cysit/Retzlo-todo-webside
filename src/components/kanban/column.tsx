@@ -31,6 +31,7 @@ export interface KanbanColumnProps {
   isDropTarget: boolean;
   members?: CardAssignee[];
   currentUserId?: string;
+  density?: "comfortable" | "compact";
   onEditCard?: (card: Card) => void;
   onCreateCard: (
     columnId: string,
@@ -75,6 +76,7 @@ function KanbanColumnComponent({
   isDropTarget,
   members = [],
   currentUserId,
+  density = "comfortable",
   onEditCard,
   onCreateCard,
   onCardDeleted,
@@ -331,7 +333,7 @@ function KanbanColumnComponent({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group flex h-full min-h-0 w-[84vw] max-w-[336px] sm:w-[336px] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
+        "group flex h-full min-h-0 w-[84vw] sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
         isDropTarget &&
@@ -439,7 +441,7 @@ function KanbanColumnComponent({
       </div>
 
       {/* ── Cards List ── */}
-      <div ref={setCardZoneRef} data-card-zone={column.id} className={cn("scrollbar-soft min-h-20 flex-1 space-y-3 overflow-y-auto p-3", isDropTarget && "bg-white/[0.025]")}>
+      <div ref={setCardZoneRef} data-card-zone={column.id} className={cn("scrollbar-soft min-h-20 flex-1 overflow-y-auto p-2.5 sm:p-3", density === "compact" ? "space-y-1.5" : "space-y-2.5", isDropTarget && "bg-white/[0.025]")}>
         <SortableContext items={column.cards.map((card) => `card:${card.id}`)} strategy={verticalListSortingStrategy}>
           {column.cards.map((card) => (
             <KanbanCard
@@ -449,6 +451,7 @@ function KanbanColumnComponent({
               columnId={column.id}
               members={members}
               currentUserId={currentUserId}
+              density={density}
               isDragPreviewTarget={activeCardId === card.id}
               onEdit={onEditCard}
               onDeleted={onCardDeleted}

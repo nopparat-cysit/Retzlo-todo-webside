@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState, useCallback, useEffect } from "react";
-import { CheckCircle2, FileText, FolderKanban, Globe, Lock, Plus, RotateCcw, Save, Star, Trash2, X } from "lucide-react";
+import { CheckCircle2, FileText, FolderKanban, Globe, Lock, PanelRightClose, Plus, RotateCcw, Save, Star, Trash2, X } from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 
@@ -27,13 +27,15 @@ export function BoardNotesRail({
   initialNotes,
   activeBoardId,
   activeBoardName,
-  availableBoards = []
+  availableBoards = [],
+  onClose
 }: {
   projectId: string;
   initialNotes: ProjectNote[];
   activeBoardId?: string;
   activeBoardName?: string;
   availableBoards?: Array<{ id: string; name: string }>;
+  onClose?: () => void;
 }) {
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes);
 
@@ -199,10 +201,23 @@ export function BoardNotesRail({
           </div>
           <p className="mt-1 text-xs text-stone-500">Pinned thoughts for this board.</p>
         </div>
-        <Button className="h-9 px-3" type="button" onClick={() => setIsCreateOpen(true)}>
-          <Plus className="h-4 w-4" />
-          Add
-        </Button>
+        <div className="flex items-center gap-1.5">
+          <Button className="h-8 px-2.5 text-xs" type="button" onClick={() => setIsCreateOpen(true)}>
+            <Plus className="h-3.5 w-3.5" />
+            Add
+          </Button>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-stone-400 hover:border-white/20 hover:text-white transition cursor-pointer"
+              title="Collapse notes panel (พับเก็บ)"
+              aria-label="Collapse notes panel"
+            >
+              <PanelRightClose className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2">

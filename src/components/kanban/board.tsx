@@ -11,7 +11,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { CalendarClock, Check, CheckSquare, Edit3, Plus, Search, RotateCcw, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
+import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, LayoutGrid, Plus, Search, RotateCcw, Rows3, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -77,6 +77,8 @@ interface MoveAction {
   destinationIndex: number;
 }
 
+import { type CardSortOption, sortCards } from "@/lib/kanban/card-sort";
+
 function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []): ColumnWithCards {
   return {
     ...column,
@@ -91,11 +93,23 @@ function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []):
 export function KanbanBoard({
   board,
   members = [],
-  currentUserId
+  currentUserId,
+  notesEnabled = false,
+  isNotesOpen = false,
+  notesCount = 0,
+  onToggleNotes,
+  density = "comfortable",
+  onToggleDensity
 }: {
   board: BoardData;
   members?: CardAssignee[];
   currentUserId?: string;
+  notesEnabled?: boolean;
+  isNotesOpen?: boolean;
+  notesCount?: number;
+  onToggleNotes?: () => void;
+  density?: "comfortable" | "compact";
+  onToggleDensity?: () => void;
 }) {
   const searchParams = useSearchParams();
   const cardIdFromUrl = searchParams.get("cardId");
@@ -172,6 +186,7 @@ export function KanbanBoard({
   const [searchQuery, setSearchQuery] = useState("");
   const [isTodayFilterActive, setIsTodayFilterActive] = useState(false);
   const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
+  const [cardSort, setCardSort] = useState<CardSortOption>("manual");
   const selectedAssignee = useMemo(
     () => members.find((m) => m.id === assigneeFilter),
     [members, assigneeFilter]
@@ -766,9 +781,10 @@ export function KanbanBoard({
           return matchesSearch && matchesToday;
         });
 
+        const assigneeFiltered = filterCardsByAssignee(baseCards, assigneeFilter);
         return {
           ...column,
-          cards: filterCardsByAssignee(baseCards, assigneeFilter)
+          cards: sortCards(assigneeFiltered, cardSort)
         };
       });
 
@@ -776,12 +792,14 @@ export function KanbanBoard({
   const activeFilterCount =
     (searchQuery.trim() ? 1 : 0) +
     (isTodayFilterActive ? 1 : 0) +
-    (assigneeFilter !== "ALL" ? 1 : 0);
+    (assigneeFilter !== "ALL" ? 1 : 0) +
+    (cardSort !== "manual" ? 1 : 0);
 
   const resetAllFilters = () => {
     setSearchQuery("");
     setIsTodayFilterActive(false);
     setAssigneeFilter("ALL");
+    setCardSort("manual");
   };
 
   // Statistics Computations
@@ -808,194 +826,223 @@ export function KanbanBoard({
     >
       {/* ── Header ── */}
       <div className="lofi-panel relative grid gap-2.5 rounded-2xl p-3 sm:p-3.5 max-w-full">
-        <div className="flex flex-col gap-2.5 2xl:flex-row 2xl:items-start 2xl:justify-between">
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-dusk-amber font-semibold">Board Channel</p>
-            <div className="mt-0.5 flex flex-wrap items-center gap-2">
-              {isEditingBoardName ? (
-                <form onSubmit={requestRenameBoard} className="flex items-center gap-1.5">
-                  <input
-                    ref={boardNameInputRef}
-                    type="text"
-                    value={editingBoardNameValue}
-                    onChange={(e) => setEditingBoardNameValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") {
-                        setIsEditingBoardName(false);
-                        setEditingBoardNameValue(boardName);
-                      }
-                    }}
-                    onPointerDownCapture={(e) => {
-                      e.stopPropagation();
-                    }}
-                    maxLength={80}
-                    className="h-8 rounded-lg border border-indigo-400 bg-white px-2.5 text-base sm:text-lg font-semibold text-stone-900 shadow-xs outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-dusk-lavender/50 dark:bg-white/[0.08] dark:text-stone-100 select-text"
-                    placeholder="Board name..."
-                    autoFocus
-                    disabled={isSavingBoardName}
-                  />
-                  <button
-                    type="submit"
-                    disabled={isSavingBoardName || !editingBoardNameValue.trim()}
-                    className="grid h-8 w-8 place-items-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300 transition cursor-pointer"
-                    title="Save board name"
-                    aria-label="Save board name"
-                  >
-                    <Check className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
+        {/* Top Row: Title, Renaming, Focus & Controls (Stats pills, View Density, Notes toggle) */}
+        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0 flex-1 flex flex-wrap items-center gap-2">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-dusk-amber font-semibold select-none rounded bg-dusk-amber/10 px-1.5 py-0.5 border border-dusk-amber/20">
+              Channel
+            </span>
+            {isEditingBoardName ? (
+              <form onSubmit={requestRenameBoard} className="flex items-center gap-1.5">
+                <input
+                  ref={boardNameInputRef}
+                  type="text"
+                  value={editingBoardNameValue}
+                  onChange={(e) => setEditingBoardNameValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
                       setIsEditingBoardName(false);
                       setEditingBoardNameValue(boardName);
-                    }}
-                    className="grid h-8 w-8 place-items-center rounded-lg border border-stone-200 bg-stone-100 text-stone-600 hover:bg-stone-200 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 transition cursor-pointer"
-                    title="Cancel (Esc)"
-                    aria-label="Cancel renaming"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </form>
-              ) : (
-                <div className="group/title flex items-center gap-1.5">
-                  <h2
-                    className="text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition select-text"
-                    onClick={() => {
-                      const selection = typeof window !== "undefined" ? window.getSelection()?.toString() : "";
-                      if (selection && selection.trim().length > 0) return;
-                      setEditingBoardNameValue(boardName);
-                      setIsEditingBoardName(true);
-                    }}
-                    title="Click to rename board (or drag to copy text)"
-                  >
-                    {boardName}
-                  </h2>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingBoardNameValue(boardName);
-                      setIsEditingBoardName(true);
-                    }}
-                    className="opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition grid h-6 w-6 place-items-center rounded text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer"
-                    title="Rename board"
-                    aria-label="Rename board"
-                  >
-                    <Edit3 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-              {isFocusMode && (
+                    }
+                  }}
+                  onPointerDownCapture={(e) => {
+                    e.stopPropagation();
+                  }}
+                  maxLength={80}
+                  className="h-8 rounded-lg border border-indigo-400 bg-white px-2.5 text-base sm:text-lg font-semibold text-stone-900 shadow-xs outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-dusk-lavender/50 dark:bg-white/[0.08] dark:text-stone-100 select-text"
+                  placeholder="Board name..."
+                  autoFocus
+                  disabled={isSavingBoardName}
+                />
+                <button
+                  type="submit"
+                  disabled={isSavingBoardName || !editingBoardNameValue.trim()}
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300 transition cursor-pointer"
+                  title="Save board name"
+                  aria-label="Save board name"
+                >
+                  <Check className="h-4 w-4" />
+                </button>
                 <button
                   type="button"
-                  onClick={toggleFocusMode}
-                  title="Click to exit Focus Mode (or press F)"
-                  aria-label="Exit focus mode"
-                  className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer"
+                  onClick={() => {
+                    setIsEditingBoardName(false);
+                    setEditingBoardNameValue(boardName);
+                  }}
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-stone-200 bg-stone-100 text-stone-600 hover:bg-stone-200 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 transition cursor-pointer"
+                  title="Cancel (Esc)"
+                  aria-label="Cancel renaming"
                 >
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-dusk-amber animate-pulse" />
-                  <span>FOCUS ACTIVE</span>
-                  <X className="h-3 w-3 opacity-70 group-hover/focus:opacity-100 transition-opacity" />
+                  <X className="h-4 w-4" />
                 </button>
-              )}
-            </div>
-            <p className="text-xs text-stone-500">
-              {isFocusMode ? (
-                <>
-                  Focus mode active. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> or click the badge to exit.
-                </>
-              ) : (
-                <>
-                  Drag cards across columns. Press <kbd className="rounded bg-white/5 px-1 py-0.5 font-mono text-xs">F</kbd> for focus.
-                </>
-              )}
-            </p>
+              </form>
+            ) : (
+              <div className="group/title flex items-center gap-1.5">
+                <h2
+                  className="text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition select-text"
+                  onClick={() => {
+                    const selection = typeof window !== "undefined" ? window.getSelection()?.toString() : "";
+                    if (selection && selection.trim().length > 0) return;
+                    setEditingBoardNameValue(boardName);
+                    setIsEditingBoardName(true);
+                  }}
+                  title="Click to rename board (or drag to copy text)"
+                >
+                  {boardName}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingBoardNameValue(boardName);
+                    setIsEditingBoardName(true);
+                  }}
+                  className="opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition grid h-6 w-6 place-items-center rounded text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer"
+                  title="Rename board"
+                  aria-label="Rename board"
+                >
+                  <Edit3 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+            {isFocusMode && (
+              <button
+                type="button"
+                onClick={toggleFocusMode}
+                title="Click to exit Focus Mode (or press F)"
+                aria-label="Exit focus mode"
+                className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2.5 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer"
+              >
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-dusk-amber animate-pulse" />
+                <span>FOCUS ACTIVE</span>
+                <X className="h-3 w-3 opacity-70 group-hover/focus:opacity-100 transition-opacity" />
+              </button>
+            )}
+            {isFocusMode && (
+              <span className="hidden sm:inline text-[11px] text-stone-500 dark:text-stone-400 font-normal">
+                Focus mode active. Press <kbd className="rounded bg-stone-100 px-1 py-0.5 font-mono text-[10px] text-stone-600 dark:bg-white/10 dark:text-stone-300">F</kbd> or click badge to exit.
+              </span>
+            )}
           </div>
 
           {/* ── Premium Control Bar ── */}
-          <div className="flex items-center gap-1.5 sm:gap-2 w-full 2xl:w-auto">
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-2 flex-1 2xl:flex-initial 2xl:flex 2xl:items-center">
-              <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
-                <span className="truncate text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
-                {isSwitchingBoard ? (
-                  <span className="inline-block h-4 w-4 animate-pulse rounded bg-stone-200 dark:bg-white/15" />
-                ) : (
-                  <span className="text-sm sm:text-base font-bold leading-none text-stone-900 dark:text-stone-200">{totalCards}</span>
-                )}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {/* Stats Pills */}
+            <div className="flex items-center gap-1 sm:gap-1.5 text-xs font-semibold">
+              <div className="flex h-9 items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-2.5 shadow-xs dark:border-white/10 dark:bg-white/[0.03]">
+                <span className="text-[10px] uppercase text-stone-500 font-mono">Total</span>
+                <span className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-200">{totalCards}</span>
               </div>
-              <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
-                <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-indigo-600 dark:text-dusk-lavender select-none">
-                  <span className="mr-1 h-2 w-2 rounded-full bg-indigo-500 dark:bg-dusk-lavender shrink-0" />
-                  <span className="truncate hidden min-[360px]:inline">Prog</span>
+              <div className="flex h-9 items-center gap-1.5 rounded-xl border border-indigo-200/80 bg-indigo-50/50 px-2.5 shadow-xs dark:border-indigo-500/20 dark:bg-indigo-500/10">
+                <span className="flex items-center text-[10px] uppercase text-indigo-600 dark:text-dusk-lavender font-mono">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-indigo-500 dark:bg-dusk-lavender shrink-0" />
+                  Prog
                 </span>
-                {isSwitchingBoard ? (
-                  <span className="inline-block h-4 w-4 animate-pulse rounded bg-indigo-200 dark:bg-dusk-lavender/30" />
-                ) : (
-                  <span className="text-sm sm:text-base font-bold leading-none text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
-                )}
+                <span className="text-xs sm:text-sm font-bold text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
               </div>
-              <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
-                <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-amber-600 dark:text-dusk-amber select-none">
-                  <span className="mr-1 h-2 w-2 rounded-full bg-amber-500 dark:bg-dusk-amber shrink-0" />
-                  <span className="truncate">Done</span>
+              <div className="flex h-9 items-center gap-1.5 rounded-xl border border-amber-200/80 bg-amber-50/50 px-2.5 shadow-xs dark:border-amber-500/20 dark:bg-amber-500/10">
+                <span className="flex items-center text-[10px] uppercase text-amber-600 dark:text-dusk-amber font-mono">
+                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-dusk-amber shrink-0" />
+                  Done
                 </span>
-                {isSwitchingBoard ? (
-                  <span className="inline-block h-4 w-4 animate-pulse rounded bg-amber-200 dark:bg-dusk-amber/30" />
-                ) : (
-                  <span className="text-sm sm:text-base font-bold leading-none text-amber-600 dark:text-dusk-amber">{doneCards}</span>
-                )}
+                <span className="text-xs sm:text-sm font-bold text-amber-600 dark:text-dusk-amber">{doneCards}</span>
               </div>
+
+              {/* Overdue Indicator Icon */}
+              {overdueCards > 0 && (
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => setIsTodayFilterActive((prev) => !prev)}
+                        className={cn(
+                          "group relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
+                          isTodayFilterActive
+                            ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
+                            : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
+                        )}
+                        aria-label={`${overdueCards} overdue cards`}
+                      >
+                        <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
+                        <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
+                          <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[8px] font-bold text-white shadow-xs">
+                            {overdueCards > 99 ? "99+" : overdueCards}
+                          </span>
+                        </span>
+                        <span className="sr-only">{overdueCards} overdue</span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" align="end" className="text-xs">
+                      {overdueCards} overdue task(s)
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
 
-            {/* Overdue Indicator Icon (In-line with stat boxes) */}
-            {overdueCards > 0 ? (
-              <TooltipProvider delayDuration={150}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => setIsTodayFilterActive((prev) => !prev)}
-                      className={cn(
-                        "group relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
-                        isTodayFilterActive
-                          ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
-                          : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
-                      )}
-                      aria-label={`${overdueCards} overdue cards`}
-                    >
-                      <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
-                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
-                        <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 animate-ping opacity-40" />
-                        <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[9px] font-bold text-white shadow-xs ring-2 ring-white dark:ring-ink-950">
-                          {overdueCards > 99 ? "99+" : overdueCards}
-                        </span>
-                      </span>
-                      <span className="sr-only">{overdueCards} overdue</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="bottom"
-                    align="end"
-                    className="rounded-xl border border-stone-200/90 bg-white p-2.5 text-xs text-stone-800 shadow-xl dark:border-red-500/30 dark:bg-[#0e1025] dark:text-stone-200"
+            <div className="h-5 w-[1px] bg-stone-300 dark:bg-white/10 hidden sm:block" />
+
+            {/* Density View Toggle */}
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={onToggleDensity}
+                    className={cn(
+                      "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
+                      density === "compact"
+                        ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender"
+                        : "border-stone-300 bg-white text-stone-700 hover:border-stone-400 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20"
+                    )}
+                    aria-label={density === "compact" ? "Switch to comfortable view" : "Switch to compact view"}
                   >
-                    <div className="flex items-center gap-1.5 font-semibold text-red-600 dark:text-red-300 border-b border-stone-200/80 pb-1.5 mb-1.5 dark:border-white/10">
-                      <Clock className="h-3.5 w-3.5 shrink-0" />
-                      <span>{overdueCards} Overdue {overdueCards === 1 ? "Card" : "Cards"}</span>
-                    </div>
-                    <p className="text-[11px] text-stone-600 dark:text-stone-400 leading-tight">
-                      There {overdueCards === 1 ? "is 1 task" : `are ${overdueCards} tasks`} past due date.
-                    </p>
-                    <p className="mt-1.5 text-[10px] font-semibold text-red-600 dark:text-red-400">
-                      {isTodayFilterActive ? "✓ Filter active (click to show all)" : "Click to filter overdue tasks"}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : null}
+                    {density === "compact" ? (
+                      <Rows3 className="h-3.5 w-3.5 text-dusk-lavender" />
+                    ) : (
+                      <LayoutGrid className="h-3.5 w-3.5 text-stone-400" />
+                    )}
+                    <span className="hidden sm:inline">
+                      {density === "compact" ? "Compact" : "Comfortable"}
+                    </span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="end" className="text-xs">
+                  {density === "compact"
+                    ? "โหมดย่อข้อมูล (ย่อการ์ดให้เห็นงานได้เยอะขึ้น) - คลิกเพื่อสลับเป็นโหมดปกติ"
+                    : "โหมดปกติ - คลิกเพื่อสลับเป็นโหมดย่อข้อมูล (Compact View)"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Notes Toggle */}
+            {notesEnabled && (
+              <button
+                type="button"
+                onClick={onToggleNotes}
+                className={cn(
+                  "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
+                  isNotesOpen
+                    ? "border-dusk-lavender/50 bg-dusk-lavender/20 text-dusk-lavender font-bold"
+                    : "border-stone-300 bg-white text-stone-700 hover:border-dusk-lavender/40 hover:text-dusk-lavender dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20"
+                )}
+                title={isNotesOpen ? "Collapse notes panel (พับเก็บ)" : "Open notes panel (เปิดแถบโน้ต)"}
+                aria-label={isNotesOpen ? "Collapse notes" : "Open notes"}
+              >
+                <FileText className="h-3.5 w-3.5 text-dusk-lavender" />
+                <span className="hidden sm:inline">Notes</span>
+                {notesCount > 0 && (
+                  <span className="inline-grid min-w-[16px] place-items-center rounded-full bg-dusk-lavender/20 px-1 text-[10px] font-mono text-dusk-lavender">
+                    {notesCount}
+                  </span>
+                )}
+              </button>
+            )}
           </div>
         </div>
 
-        {/* ── Filters & Actions ── */}
-        <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2">
+        {/* Bottom Row: Filters, Search, Sort & Actions */}
+        <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2 pt-1 border-t border-stone-200/60 dark:border-white/5">
           {/* Live Search */}
           <div className="group/search relative flex items-center flex-1 min-w-[130px] sm:flex-initial">
             <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
@@ -1105,6 +1152,79 @@ export function KanbanBoard({
                 className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-300/80 bg-white text-stone-600 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white"
                 title="Clear assignee filter"
                 aria-label="Clear assignee filter"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Sort Filter Dropdown */}
+          <div className="flex items-center gap-1.5">
+            <Select value={cardSort} onValueChange={(val) => setCardSort(val as CardSortOption)}>
+              <SelectTrigger
+                aria-label="Sort cards"
+                className={cn(
+                  "h-9 w-auto min-w-[105px] sm:min-w-[120px] max-w-[185px] gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
+                  cardSort !== "manual"
+                    ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 [&>svg]:text-amber-700 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber dark:[&>svg]:text-dusk-amber"
+                    : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                )}
+              >
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <ArrowUpDown className={cn("h-3.5 w-3.5 shrink-0", cardSort !== "manual" ? "text-amber-700 dark:text-dusk-amber" : "text-stone-500 dark:text-stone-400")} />
+                  <span className="truncate">
+                    {cardSort === "manual" && "Sort"}
+                    {cardSort === "difficulty_desc" && "Points: 8→1"}
+                    {cardSort === "difficulty_asc" && "Points: 1→8"}
+                    {cardSort === "priority_desc" && "Priority: High"}
+                    {cardSort === "priority_asc" && "Priority: Low"}
+                    {cardSort === "due_date" && "Due: Soonest"}
+                  </span>
+                </span>
+              </SelectTrigger>
+              <SelectContent align="start" className="min-w-[15rem]">
+                <SelectGroup>
+                  <SelectLabel>Card Sorting</SelectLabel>
+                  <SelectItem value="manual" className="cursor-pointer">
+                    📌 Default (Manual Order)
+                  </SelectItem>
+                </SelectGroup>
+                <SelectSeparator />
+                <SelectGroup>
+                  <SelectLabel>Story Points (Difficulty)</SelectLabel>
+                  <SelectItem value="difficulty_desc" className="cursor-pointer">
+                    ⚡ Story Points: High → Low (8, 5, 3, 1)
+                  </SelectItem>
+                  <SelectItem value="difficulty_asc" className="cursor-pointer">
+                    ⚡ Story Points: Low → High (1, 3, 5, 8)
+                  </SelectItem>
+                </SelectGroup>
+                <SelectSeparator />
+                <SelectGroup>
+                  <SelectLabel>Priority</SelectLabel>
+                  <SelectItem value="priority_desc" className="cursor-pointer">
+                    🎯 Priority: High → Low (Urgent first)
+                  </SelectItem>
+                  <SelectItem value="priority_asc" className="cursor-pointer">
+                    🎯 Priority: Low → High
+                  </SelectItem>
+                </SelectGroup>
+                <SelectSeparator />
+                <SelectGroup>
+                  <SelectLabel>Timeline</SelectLabel>
+                  <SelectItem value="due_date" className="cursor-pointer">
+                    📅 Due Date: Earliest / Overdue first
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {cardSort !== "manual" && (
+              <button
+                type="button"
+                onClick={() => setCardSort("manual")}
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-300/80 bg-white text-stone-600 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white"
+                title="Reset sort to manual"
+                aria-label="Reset sort to manual"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -1305,6 +1425,7 @@ export function KanbanBoard({
                   <KanbanColumn
                     key={column.id}
                     column={column}
+                    density={density}
                     activeCardId={activeCardId}
                     isDragDisabled={isSavingReorder}
                     isDropTarget={activeDropColumnId === column.id}
