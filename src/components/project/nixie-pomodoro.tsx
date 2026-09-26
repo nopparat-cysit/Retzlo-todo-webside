@@ -196,56 +196,56 @@ export function NixiePomodoro() {
   const s2 = secs % 10;
 
   return (
-    <section className="lofi-panel mt-4 flex flex-col space-y-3 rounded-lg border-white/5 bg-white/[0.015] p-3">
+    <div className="flex flex-col space-y-3.5 select-none">
       {/* Mode Switcher Tabs */}
-      <div className="grid grid-cols-2 gap-1.5 rounded-lg border border-white/8 bg-white/[0.03] p-1">
+      <div className="grid grid-cols-2 gap-1.5 rounded-xl border border-stone-200/90 bg-stone-100/70 p-1 dark:border-white/10 dark:bg-white/[0.03]">
         <button
           className={cn(
-            "flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-semibold transition active:scale-[0.98]",
+            "flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition active:scale-[0.98]",
             mode === "focus"
-              ? "border border-dusk-amber/40 bg-dusk-amber/20 text-dusk-amber shadow-[0_0_12px_rgba(229,189,114,0.15)]"
-              : "text-stone-400 hover:bg-white/5 hover:text-stone-200"
+              ? "border border-amber-300/80 bg-white text-amber-900 shadow-2xs dark:border-dusk-amber/40 dark:bg-dusk-amber/20 dark:text-dusk-amber"
+              : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
           )}
           type="button"
           onClick={() => switchMode("focus")}
         >
-          <Timer className="h-3.5 w-3.5" />
+          <Timer className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
           <span>Focus ({focusMinutes}m)</span>
         </button>
         <button
           className={cn(
-            "flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-semibold transition active:scale-[0.98]",
+            "flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition active:scale-[0.98]",
             mode === "break"
-              ? "border border-dusk-cyan/40 bg-dusk-cyan/20 text-dusk-cyan shadow-[0_0_12px_rgba(137,199,214,0.15)]"
-              : "text-stone-400 hover:bg-white/5 hover:text-stone-200"
+              ? "border border-teal-300/80 bg-white text-teal-900 shadow-2xs dark:border-dusk-cyan/40 dark:bg-dusk-cyan/20 dark:text-dusk-cyan"
+              : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
           )}
           type="button"
           onClick={() => switchMode("break")}
         >
-          <Coffee className="h-3.5 w-3.5" />
+          <Coffee className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
           <span>Rest ({breakMinutes}m)</span>
         </button>
       </div>
 
       {/* Mode-Specific Duration Presets */}
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-stone-500">
+        <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
           <span>{mode === "focus" ? "Focus Duration" : "Rest Duration"}</span>
-          <span className="font-mono lowercase text-stone-400">
+          <span className="font-mono lowercase text-stone-500 dark:text-stone-400 font-normal">
             {mode === "focus" ? `${focusMinutes} mins` : `${breakMinutes} mins`}
           </span>
         </div>
 
         {mode === "focus" ? (
-          <div className="grid grid-cols-4 gap-1">
+          <div className="grid grid-cols-4 gap-1.5">
             {focusPresets.map((preset) => (
               <button
                 key={preset.id}
                 className={cn(
-                  "h-7 rounded border text-[11px] font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
+                  "h-8 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
                   selectedFocusPreset === preset.id
-                    ? "border-dusk-amber/50 bg-dusk-amber/20 text-dusk-amber font-bold"
-                    : "border-white/10 bg-white/[0.04] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                    ? "border-amber-400/80 bg-amber-100/70 text-amber-900 font-semibold shadow-2xs dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber"
+                    : "border-stone-200/90 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
                 )}
                 disabled={isRunning}
                 type="button"
@@ -256,10 +256,10 @@ export function NixiePomodoro() {
             ))}
             <button
               className={cn(
-                "h-7 rounded border text-[11px] font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
+                "h-8 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
                 selectedFocusPreset === "custom"
-                  ? "border-dusk-amber/50 bg-dusk-amber/20 text-dusk-amber font-bold"
-                  : "border-white/10 bg-white/[0.04] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                  ? "border-amber-400/80 bg-amber-100/70 text-amber-900 font-semibold shadow-2xs dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber"
+                  : "border-stone-200/90 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
               )}
               disabled={isRunning}
               type="button"
@@ -269,15 +269,15 @@ export function NixiePomodoro() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-4 gap-1">
+          <div className="grid grid-cols-4 gap-1.5">
             {restPresets.map((preset) => (
               <button
                 key={preset.id}
                 className={cn(
-                  "h-7 rounded border text-[11px] font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
+                  "h-8 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
                   selectedRestPreset === preset.id
-                    ? "border-dusk-cyan/50 bg-dusk-cyan/20 text-dusk-cyan font-bold"
-                    : "border-white/10 bg-white/[0.04] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                    ? "border-teal-400/80 bg-teal-100/70 text-teal-900 font-semibold shadow-2xs dark:border-dusk-cyan/50 dark:bg-dusk-cyan/20 dark:text-dusk-cyan"
+                    : "border-stone-200/90 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
                 )}
                 disabled={isRunning}
                 type="button"
@@ -288,10 +288,10 @@ export function NixiePomodoro() {
             ))}
             <button
               className={cn(
-                "h-7 rounded border text-[11px] font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
+                "h-8 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
                 selectedRestPreset === "custom"
-                  ? "border-dusk-cyan/50 bg-dusk-cyan/20 text-dusk-cyan font-bold"
-                  : "border-white/10 bg-white/[0.04] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                  ? "border-teal-400/80 bg-teal-100/70 text-teal-900 font-semibold shadow-2xs dark:border-dusk-cyan/50 dark:bg-dusk-cyan/20 dark:text-dusk-cyan"
+                  : "border-stone-200/90 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
               )}
               disabled={isRunning}
               type="button"
@@ -305,16 +305,16 @@ export function NixiePomodoro() {
         {/* Inline Custom Input */}
         {((mode === "focus" && selectedFocusPreset === "custom") ||
           (mode === "break" && selectedRestPreset === "custom")) && (
-          <div className="flex items-center justify-between rounded-lg border border-white/8 bg-white/[0.025] px-2.5 py-1.5 transition">
-            <span className="text-[11px] text-stone-400">
+          <div className="flex items-center justify-between rounded-xl border border-stone-200/90 bg-stone-50/80 px-3 py-2 transition dark:border-white/10 dark:bg-white/[0.025]">
+            <span className="text-xs font-medium text-stone-600 dark:text-stone-400">
               {mode === "focus" ? "Custom Focus (mins):" : "Custom Rest (mins):"}
             </span>
             <input
               className={cn(
-                "h-7 w-16 rounded border bg-ink-950 px-1 text-center font-mono text-xs outline-none transition disabled:opacity-50",
+                "h-8 w-20 rounded-lg border px-2 text-center font-mono text-xs font-bold outline-none transition disabled:opacity-50",
                 mode === "focus"
-                  ? "border-dusk-amber/30 text-dusk-amber focus:border-dusk-amber/70"
-                  : "border-dusk-cyan/30 text-dusk-cyan focus:border-dusk-cyan/70"
+                  ? "border-amber-300 bg-white text-amber-900 focus:ring-2 focus:ring-amber-500/20 dark:border-dusk-amber/30 dark:bg-ink-950 dark:text-dusk-amber"
+                  : "border-teal-300 bg-white text-teal-900 focus:ring-2 focus:ring-teal-500/20 dark:border-dusk-cyan/30 dark:bg-ink-950 dark:text-dusk-cyan"
               )}
               disabled={isRunning}
               max={99}
@@ -327,42 +327,61 @@ export function NixiePomodoro() {
         )}
       </div>
 
-      {/* Nixie Tube Container */}
-      <div className="relative flex flex-col items-center justify-center rounded-xl border border-white/6 bg-ink-950/80 p-3 shadow-inner">
+      {/* Nixie Tube Container (Rich vintage dark chamber in both light & dark modes) */}
+      <div
+        className="relative flex flex-col items-center justify-center rounded-2xl p-4 overflow-hidden select-none"
+        style={{
+          backgroundColor: "#110f1d",
+          border: mode === "focus" ? "1px solid rgba(245, 158, 11, 0.3)" : "1px solid rgba(20, 184, 166, 0.3)",
+          boxShadow: "inset 0 2px 10px rgba(0, 0, 0, 0.7), 0 4px 16px rgba(0, 0, 0, 0.15)"
+        }}
+      >
+        {/* Subtle vintage cathode grid texture */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)",
+            backgroundSize: "8px 8px"
+          }}
+        />
+
         {/* Phase status indicator */}
-        <div className="mb-2.5 flex items-center gap-1.5 select-none">
+        <div className="relative mb-3 flex items-center gap-2">
           <span
             className={cn(
               "h-1.5 w-1.5 rounded-full",
-              mode === "focus" ? "bg-dusk-amber" : "bg-dusk-cyan",
               isRunning && "animate-ping"
             )}
+            style={{
+              backgroundColor: mode === "focus" ? "#f59e0b" : "#2dd4bf",
+              boxShadow: mode === "focus" ? "0 0 8px #f59e0b" : "0 0 8px #2dd4bf"
+            }}
           />
           <span
-            className={cn(
-              "font-mono text-[10px] font-bold uppercase tracking-[0.2em]",
-              mode === "focus" ? "text-dusk-amber" : "text-dusk-cyan"
-            )}
+            className="font-mono text-[10px] font-bold uppercase tracking-[0.22em]"
+            style={{
+              color: mode === "focus" ? "#fbbf24" : "#2dd4bf",
+              textShadow: mode === "focus" ? "0 0 8px rgba(251,191,36,0.6)" : "0 0 8px rgba(45,212,191,0.6)"
+            }}
           >
             {mode === "focus" ? (isRunning ? "Focusing..." : "Ready to Focus") : (isRunning ? "Resting..." : "Rest Break")}
           </span>
         </div>
 
-        {/* Glowing Tubes */}
-        <div className="flex items-center gap-2">
+        {/* Glowing Tubes Display */}
+        <div className="relative flex items-center gap-2">
           <NixieDigit mode={mode} num={m1} />
           <NixieDigit mode={mode} num={m2} />
           <span
             className={cn(
-              "select-none font-mono text-xl font-bold transition-opacity duration-500",
-              mode === "focus" ? "text-dusk-amber" : "text-dusk-cyan",
+              "select-none font-mono text-2xl font-bold transition-opacity duration-500",
               isRunning && "animate-pulse"
             )}
             style={{
-              textShadow:
-                mode === "focus"
-                  ? "0 0 10px rgba(229,189,114,0.6)"
-                  : "0 0 10px rgba(137,199,214,0.6)"
+              color: mode === "focus" ? "#ffbe53" : "#5eead4",
+              textShadow: mode === "focus"
+                ? "0 0 10px rgba(255,190,83,0.9), 0 0 20px rgba(245,158,11,0.6)"
+                : "0 0 10px rgba(94,234,212,0.9), 0 0 20px rgba(20,184,166,0.6)"
             }}
           >
             :
@@ -373,82 +392,97 @@ export function NixiePomodoro() {
       </div>
 
       {/* Cycle Preview & Session Counter */}
-      <div className="flex items-center justify-between px-0.5 text-[10px] text-stone-400">
-        <span className="font-mono">
-          Completed: <strong className="text-stone-200">{completedSessions}</strong>
+      <div className="flex items-center justify-between px-0.5 text-xs text-stone-500 dark:text-stone-400">
+        <span className="font-mono text-[11px]">
+          Completed: <strong className="text-stone-800 dark:text-stone-100 font-bold">{completedSessions}</strong>
         </span>
-        <span className="font-mono text-stone-500">
+        <span className="font-mono text-[11px] text-stone-500 dark:text-stone-400">
           Cycle: {focusMinutes}m ➔ {breakMinutes}m
         </span>
       </div>
 
       {/* Action Controls */}
-      <div className="flex items-center justify-center gap-2 select-none">
+      <div className="flex items-center justify-center gap-2 select-none pt-0.5">
         <button
           className={cn(
-            "flex flex-1 items-center justify-center gap-1.5 h-8 rounded-lg border text-xs font-semibold shadow transition-all active:scale-[0.98]",
+            "flex flex-1 items-center justify-center gap-2 h-10 rounded-xl border text-xs font-bold shadow-xs transition-all active:scale-[0.98]",
             isRunning
-              ? "border-dusk-rose/30 bg-dusk-rose/10 text-dusk-rose hover:bg-dusk-rose/20"
+              ? "border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/15 dark:text-rose-300"
               : mode === "focus"
-              ? "border-dusk-amber/40 bg-dusk-amber/20 text-dusk-amber hover:bg-dusk-amber/30 shadow-[0_0_12px_rgba(229,189,114,0.15)]"
-              : "border-dusk-cyan/40 bg-dusk-cyan/20 text-dusk-cyan hover:bg-dusk-cyan/30 shadow-[0_0_12px_rgba(137,199,214,0.15)]"
+              ? "border-amber-300/80 bg-amber-500 hover:bg-amber-600 text-stone-950 shadow-[0_2px_8px_rgba(245,158,11,0.25)] dark:border-dusk-amber/40 dark:bg-dusk-amber/20 dark:text-dusk-amber dark:hover:bg-dusk-amber/30"
+              : "border-teal-300/80 bg-teal-500 hover:bg-teal-600 text-white shadow-[0_2px_8px_rgba(20,184,166,0.25)] dark:border-dusk-cyan/40 dark:bg-dusk-cyan/20 dark:text-dusk-cyan dark:hover:bg-dusk-cyan/30"
           )}
           type="button"
           onClick={handleToggle}
         >
           {isRunning ? (
             <>
-              <Pause className="h-3.5 w-3.5" />
-              Pause
+              <Pause className="h-4 w-4" />
+              <span>Pause</span>
             </>
           ) : (
             <>
-              <Play className="h-3.5 w-3.5" />
-              {mode === "focus" ? "Start Focus" : "Start Rest"}
+              <Play className="h-4 w-4" />
+              <span>{mode === "focus" ? "Start Focus" : "Start Rest"}</span>
             </>
           )}
         </button>
 
         <button
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-stone-400 transition-all hover:border-white/20 hover:text-stone-200 active:scale-[0.98]"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition-all hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 active:scale-[0.98] dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
           title={mode === "focus" ? "Skip to Rest Break" : "Skip to Focus Session"}
           type="button"
           onClick={skipToNextMode}
         >
-          <SkipForward className="h-3.5 w-3.5" />
+          <SkipForward className="h-4 w-4" />
         </button>
 
         <button
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-stone-400 transition-all hover:border-white/20 hover:text-stone-200 active:scale-[0.98]"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition-all hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 active:scale-[0.98] dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
           title="Reset Timer"
           type="button"
           onClick={handleReset}
         >
-          <RotateCcw className="h-3.5 w-3.5" />
+          <RotateCcw className="h-4 w-4" />
         </button>
       </div>
-    </section>
+    </div>
   );
 }
 
 // Single Nixie Digit Subcomponent
 function NixieDigit({ num, mode }: { num: number; mode: "focus" | "break" }) {
-  return (
-    <div className="relative h-12 w-8 rounded-md bg-stone-900 border border-white/5 flex items-center justify-center overflow-hidden">
-      {/* Glossy glass reflection element */}
-      <div className="absolute inset-0 bg-gradient-to-r from-white/[0.04] via-transparent to-black/30 pointer-events-none z-10" />
-      <div className="absolute inset-x-0.5 top-0.5 h-1 bg-white/[0.08] rounded pointer-events-none z-10" />
+  const isFocus = mode === "focus";
+  const glowColor = isFocus ? "#ffbe53" : "#5eead4";
+  const haloColor = isFocus ? "rgba(245, 158, 11, 0.45)" : "rgba(20, 184, 166, 0.45)";
 
-      {/* Behind glowing number display */}
-      <span
-        className={cn(
-          "font-mono text-3xl font-bold select-none transition-all duration-300",
-          mode === "focus" ? "text-dusk-amber" : "text-dusk-cyan"
-        )}
+  return (
+    <div
+      className="relative h-14 w-10 rounded-xl flex items-center justify-center overflow-hidden"
+      style={{
+        backgroundColor: "#181528",
+        border: "1px solid rgba(255, 255, 255, 0.12)",
+        boxShadow: "inset 0 1px 3px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3)"
+      }}
+    >
+      {/* Soft glass cylindrical reflection */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.08] via-transparent to-black/40 pointer-events-none z-10" />
+      <div className="absolute left-1 top-1 bottom-1 w-0.5 bg-white/[0.06] rounded-full pointer-events-none z-10" />
+
+      {/* Warm background filament glow */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-30"
         style={{
-          textShadow: mode === "focus"
-            ? "0 0 12px rgba(229,189,114,0.85), 0 0 24px rgba(229,189,114,0.3)"
-            : "0 0 12px rgba(137,199,214,0.85), 0 0 24px rgba(137,199,214,0.3)"
+          background: `radial-gradient(circle at 50% 50%, ${haloColor}, transparent 70%)`
+        }}
+      />
+
+      {/* Glowing number display */}
+      <span
+        className="relative z-0 font-mono text-3xl font-extrabold select-none transition-all duration-300"
+        style={{
+          color: glowColor,
+          textShadow: `0 0 10px ${glowColor}, 0 0 20px ${haloColor}, 0 0 35px ${isFocus ? "rgba(217, 119, 6, 0.4)" : "rgba(13, 148, 136, 0.4)"}`
         }}
       >
         {num}
