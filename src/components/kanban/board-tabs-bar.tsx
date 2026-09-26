@@ -31,10 +31,15 @@ export function BoardTabsBar({
   const router = useRouter();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [boardsList, setBoardsList] = useState<BoardTabItem[]>(boards);
+  const [switchingBoardId, setSwitchingBoardId] = useState<string | null>(null);
 
   useEffect(() => {
     setBoardsList(boards);
   }, [boards]);
+
+  useEffect(() => {
+    setSwitchingBoardId(null);
+  }, [activeBoardId]);
 
   useEffect(() => {
     const handleBoardRenamed = (e: CustomEvent<{ id: string; name: string }>) => {
@@ -76,7 +81,8 @@ export function BoardTabsBar({
             </div>
           )}
           {boardsList.map((b) => {
-            const isActive = b.id === activeBoardId;
+            const isSwitching = switchingBoardId === b.id;
+            const isActive = (b.id === activeBoardId && !switchingBoardId) || isSwitching;
 
             return (
               <div
@@ -85,11 +91,22 @@ export function BoardTabsBar({
                   "group flex h-8 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition-all select-none",
                   isActive
                     ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber shadow-[0_0_12px_rgba(249,199,132,0.12)] font-semibold"
-                    : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                    : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:bg-white/[0.07] hover:text-white",
+                  isSwitching && "animate-pulse ring-1 ring-dusk-amber/40"
                 )}
               >
                 <Link
                   href={`/project/${projectId}/board?boardId=${b.id}`}
+                  onClick={() => {
+                    if (b.id !== activeBoardId) {
+                      setSwitchingBoardId(b.id);
+                      window.dispatchEvent(
+                        new CustomEvent("board-switching", {
+                          detail: { targetBoardId: b.id }
+                        })
+                      );
+                    }
+                  }}
                   className="flex items-center gap-1.5 min-w-0"
                 >
                   {b.isPrivate ? (

@@ -40,7 +40,7 @@ const DropdownMenuSubContent = forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "motion-floating-in z-[760] min-w-40 overflow-hidden rounded-xl border border-[#e2dcd2] bg-[#faf7f2] p-1.5 text-stone-900 shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:border-white/12 dark:bg-ink-900/98 dark:text-stone-100 dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
+      "motion-floating-in z-[760] min-w-40 overflow-hidden rounded-xl border border-[#e2dcd2] bg-[#faf7f2] p-1.5 text-stone-900 shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0e1025] dark:text-stone-100 dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
       className
     )}
     {...props}
@@ -57,7 +57,7 @@ const DropdownMenuContent = forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "motion-floating-in z-[750] min-w-44 overflow-hidden rounded-xl border border-[#e2dcd2] bg-[#faf7f2] p-1.5 text-stone-900 shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:border-white/12 dark:bg-ink-900/98 dark:text-stone-100 dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
+        "motion-floating-in z-[750] min-w-44 overflow-hidden rounded-xl border border-[#e2dcd2] bg-[#faf7f2] p-1.5 text-stone-900 shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0e1025] dark:text-stone-100 dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
         className
       )}
       {...props}

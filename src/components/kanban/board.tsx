@@ -23,6 +23,7 @@ import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import { ColumnStatusPicker } from "@/components/kanban/column-status-picker";
 import { triggerCelebration } from "@/components/kanban/card-celebration";
 import { AppModal } from "@/components/ui/app-modal";
+import { BoardSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
@@ -171,6 +172,32 @@ export function KanbanBoard({
   );
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [moveHistory, setMoveHistory] = useState<MoveAction[]>([]);
+  const [isSwitchingBoard, setIsSwitchingBoard] = useState(false);
+
+  useEffect(() => {
+    const handleBoardSwitching = (e: CustomEvent<{ targetBoardId: string }>) => {
+      if (e.detail?.targetBoardId && e.detail.targetBoardId !== board.id) {
+        setIsSwitchingBoard(true);
+      }
+    };
+
+    window.addEventListener("board-switching" as any, handleBoardSwitching);
+    return () => {
+      window.removeEventListener("board-switching" as any, handleBoardSwitching);
+    };
+  }, [board.id]);
+
+  useEffect(() => {
+    setIsSwitchingBoard(false);
+  }, [board.id]);
+
+  useEffect(() => {
+    if (!isSwitchingBoard) return;
+    const timer = setTimeout(() => {
+      setIsSwitchingBoard(false);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [isSwitchingBoard]);
 
   // Board Name Editing States
   const [boardName, setBoardName] = useState(board.name);
@@ -771,55 +798,7 @@ export function KanbanBoard({
     >
       {/* ── Header ── */}
       <div className="lofi-panel relative grid gap-2.5 rounded-2xl p-3 sm:p-3.5 max-w-full">
-        {/* Overdue Indicator Icon (Top-Right Corner Pulsing Icon with Portal Hover Details) */}
-        {overdueCards > 0 ? (
-          <div className="!absolute !top-2.5 !right-2.5 sm:!top-3 sm:!right-3 z-30">
-            <TooltipProvider delayDuration={150}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => setIsTodayFilterActive((prev) => !prev)}
-                    className={cn(
-                      "group relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
-                      isTodayFilterActive
-                        ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
-                        : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
-                    )}
-                    aria-label={`${overdueCards} overdue cards`}
-                  >
-                    <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
-                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 animate-ping opacity-40" />
-                      <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[9px] font-bold text-white shadow-xs ring-2 ring-white dark:ring-ink-950">
-                        {overdueCards > 99 ? "99+" : overdueCards}
-                      </span>
-                    </span>
-                    <span className="sr-only">{overdueCards} overdue</span>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="bottom"
-                  align="end"
-                  className="rounded-xl border border-stone-200/90 bg-white p-2.5 text-xs text-stone-800 shadow-xl dark:border-red-500/30 dark:bg-ink-950/98 dark:text-stone-200"
-                >
-                  <div className="flex items-center gap-1.5 font-semibold text-red-600 dark:text-red-300 border-b border-stone-200/80 pb-1.5 mb-1.5 dark:border-white/10">
-                    <Clock className="h-3.5 w-3.5 shrink-0" />
-                    <span>{overdueCards} Overdue {overdueCards === 1 ? "Card" : "Cards"}</span>
-                  </div>
-                  <p className="text-[11px] text-stone-600 dark:text-stone-400 leading-tight">
-                    There {overdueCards === 1 ? "is 1 task" : `are ${overdueCards} tasks`} past due date.
-                  </p>
-                  <p className="mt-1.5 text-[10px] font-semibold text-red-600 dark:text-red-400">
-                    {isTodayFilterActive ? "✓ Filter active (click to show all)" : "Click to filter overdue tasks"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        ) : null}
-
-        <div className={cn("flex flex-col gap-2.5 2xl:flex-row 2xl:items-start 2xl:justify-between", overdueCards > 0 && "pr-10 sm:pr-12")}>
+        <div className="flex flex-col gap-2.5 2xl:flex-row 2xl:items-start 2xl:justify-between">
           <div className="min-w-0 flex-1">
             <p className="text-[10px] uppercase tracking-[0.22em] text-dusk-amber font-semibold">Board Channel</p>
             <div className="mt-0.5 flex flex-wrap items-center gap-2">
@@ -923,25 +902,85 @@ export function KanbanBoard({
           </div>
 
           {/* ── Premium Control Bar ── */}
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full 2xl:w-auto 2xl:flex 2xl:items-center">
-            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
-              <span className="truncate text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
-              <span className="text-sm sm:text-base font-bold leading-none text-stone-900 dark:text-stone-200">{totalCards}</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full 2xl:w-auto">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2 flex-1 2xl:flex-initial 2xl:flex 2xl:items-center">
+              <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
+                <span className="truncate text-[10px] uppercase tracking-wider text-stone-500 select-none">Total</span>
+                {isSwitchingBoard ? (
+                  <span className="inline-block h-4 w-4 animate-pulse rounded bg-stone-200 dark:bg-white/15" />
+                ) : (
+                  <span className="text-sm sm:text-base font-bold leading-none text-stone-900 dark:text-stone-200">{totalCards}</span>
+                )}
+              </div>
+              <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
+                <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-indigo-600 dark:text-dusk-lavender select-none">
+                  <span className="mr-1 h-2 w-2 rounded-full bg-indigo-500 dark:bg-dusk-lavender shrink-0" />
+                  <span className="truncate hidden min-[360px]:inline">Prog</span>
+                </span>
+                {isSwitchingBoard ? (
+                  <span className="inline-block h-4 w-4 animate-pulse rounded bg-indigo-200 dark:bg-dusk-lavender/30" />
+                ) : (
+                  <span className="text-sm sm:text-base font-bold leading-none text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
+                )}
+              </div>
+              <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
+                <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-amber-600 dark:text-dusk-amber select-none">
+                  <span className="mr-1 h-2 w-2 rounded-full bg-amber-500 dark:bg-dusk-amber shrink-0" />
+                  <span className="truncate">Done</span>
+                </span>
+                {isSwitchingBoard ? (
+                  <span className="inline-block h-4 w-4 animate-pulse rounded bg-amber-200 dark:bg-dusk-amber/30" />
+                ) : (
+                  <span className="text-sm sm:text-base font-bold leading-none text-amber-600 dark:text-dusk-amber">{doneCards}</span>
+                )}
+              </div>
             </div>
-            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
-              <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-indigo-600 dark:text-dusk-lavender select-none">
-                <span className="mr-1 h-2 w-2 rounded-full bg-indigo-500 dark:bg-dusk-lavender shrink-0" />
-                <span className="truncate hidden min-[360px]:inline">Prog</span>
-              </span>
-              <span className="text-sm sm:text-base font-bold leading-none text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
-            </div>
-            <div className="flex h-9 sm:h-10 2xl:w-28 min-w-0 flex-1 items-center justify-between gap-1 rounded-xl border border-stone-200/90 bg-white shadow-xs dark:border-white/10 dark:bg-white/[0.025] px-2 sm:px-3">
-              <span className="flex items-center min-w-0 text-[10px] uppercase tracking-wider text-amber-600 dark:text-dusk-amber select-none">
-                <span className="mr-1 h-2 w-2 rounded-full bg-amber-500 dark:bg-dusk-amber shrink-0" />
-                <span className="truncate">Done</span>
-              </span>
-              <span className="text-sm sm:text-base font-bold leading-none text-amber-600 dark:text-dusk-amber">{doneCards}</span>
-            </div>
+
+            {/* Overdue Indicator Icon (In-line with stat boxes) */}
+            {overdueCards > 0 ? (
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => setIsTodayFilterActive((prev) => !prev)}
+                      className={cn(
+                        "group relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
+                        isTodayFilterActive
+                          ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
+                          : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
+                      )}
+                      aria-label={`${overdueCards} overdue cards`}
+                    >
+                      <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 animate-ping opacity-40" />
+                        <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[9px] font-bold text-white shadow-xs ring-2 ring-white dark:ring-ink-950">
+                          {overdueCards > 99 ? "99+" : overdueCards}
+                        </span>
+                      </span>
+                      <span className="sr-only">{overdueCards} overdue</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    align="end"
+                    className="rounded-xl border border-stone-200/90 bg-white p-2.5 text-xs text-stone-800 shadow-xl dark:border-red-500/30 dark:bg-[#0e1025] dark:text-stone-200"
+                  >
+                    <div className="flex items-center gap-1.5 font-semibold text-red-600 dark:text-red-300 border-b border-stone-200/80 pb-1.5 mb-1.5 dark:border-white/10">
+                      <Clock className="h-3.5 w-3.5 shrink-0" />
+                      <span>{overdueCards} Overdue {overdueCards === 1 ? "Card" : "Cards"}</span>
+                    </div>
+                    <p className="text-[11px] text-stone-600 dark:text-stone-400 leading-tight">
+                      There {overdueCards === 1 ? "is 1 task" : `are ${overdueCards} tasks`} past due date.
+                    </p>
+                    <p className="mt-1.5 text-[10px] font-semibold text-red-600 dark:text-red-400">
+                      {isTodayFilterActive ? "✓ Filter active (click to show all)" : "Click to filter overdue tasks"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : null}
           </div>
         </div>
 
@@ -1226,7 +1265,11 @@ export function KanbanBoard({
         onDragMove={handleDragOver}
         onDragStart={handleDragStart}
       >
-        {columns.length === 0 ? (
+        {isSwitchingBoard ? (
+          <div className="relative mt-4 flex min-h-0 flex-1 overflow-x-auto pb-4">
+            <BoardSkeleton />
+          </div>
+        ) : columns.length === 0 ? (
           <div className="lofi-panel mt-4 flex min-h-[320px] flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 p-8 text-center">
             <div className="grid h-14 w-14 place-items-center rounded-2xl border border-white/10 bg-white/[0.035] text-dusk-amber shadow-inner">
               <Plus className="h-7 w-7" />

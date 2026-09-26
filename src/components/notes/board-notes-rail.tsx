@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState, useCallback } from "react";
+import { FormEvent, useMemo, useState, useCallback, useEffect } from "react";
 import { CheckCircle2, FileText, FolderKanban, Globe, Lock, Plus, RotateCcw, Save, Star, Trash2, X } from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -36,6 +36,10 @@ export function BoardNotesRail({
   availableBoards?: Array<{ id: string; name: string }>;
 }) {
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes);
+
+  useEffect(() => {
+    setNotes(initialNotes);
+  }, [initialNotes]);
   const [filter, setFilter] = useState<NoteFilter>("starred");
   const [sortBy, setSortBy] = useState<NoteSort>("updated");
   const [isCreateOpen, setIsCreateOpen] = useState(false);

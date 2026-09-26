@@ -149,6 +149,18 @@ describe("Theme system and Warm Paper Light Mode", () => {
     const notesPanel = readFileSync(join(process.cwd(), "src/components/notes/notes-panel.tsx"), "utf8");
     expect(notesPanel).toContain("appearance-none");
   });
+
+  it("ensures floating dropdown menus and selects use deep midnight background and high contrast typography in Dark Mode", () => {
+    const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(css).toContain('[data-theme="dark"] [data-radix-select-content]');
+    expect(css).toContain(".dark [data-radix-select-content]");
+    expect(css).toContain("background-color: #0e1025 !important;");
+    expect(css).toContain(".dark [role=\"option\"]");
+    expect(css).toContain("color: #e7e5e4 !important;");
+
+    const selectComponent = readFileSync(join(process.cwd(), "src/components/ui/select.tsx"), "utf8");
+    expect(selectComponent).toContain("dark:bg-[#0e1025]");
+  });
 });
 
 
