@@ -36,6 +36,12 @@ describe("Live Sync Infrastructure and Component Coverage", () => {
     it("guards background sync when user is actively interacting (canSync)", () => {
       expect(hookSource).toContain("if (canSyncRef.current && !canSyncRef.current()) return");
     });
+
+    it("wires Pusher Channels subscription for real-time remote WebSocket sync", () => {
+      expect(hookSource).toContain("getPusherClient()");
+      expect(hookSource).toContain('channel.bind("retzlo:sync"');
+      expect(hookSource).toContain("sanitizePusherChannel");
+    });
   });
 
   describe("Kanban Board Integration", () => {

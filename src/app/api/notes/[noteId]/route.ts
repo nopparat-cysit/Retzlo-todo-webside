@@ -11,6 +11,7 @@ import {
   requireUserId
 } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 function toNoteResponse(
   note: {
@@ -133,6 +134,12 @@ export async function PATCH(request: Request, { params }: { params: { noteId: st
       }
     });
 
+    triggerPusherEvent(
+      [`retzlo-notes-${projectId}`, `retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "NOTE_UPDATED", noteId: note.id, senderId: userId }
+    );
+
     return NextResponse.json({
       note: toNoteResponse(note, {
         membership,
@@ -183,6 +190,12 @@ export async function DELETE(_request: Request, { params }: { params: { noteId: 
     await prisma.note.delete({
       where: { id: params.noteId }
     });
+
+    triggerPusherEvent(
+      [`retzlo-notes-${projectId}`, `retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "NOTE_DELETED", noteId: params.noteId, senderId: userId }
+    );
 
     return NextResponse.json({ ok: true });
   } catch (error) {

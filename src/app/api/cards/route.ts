@@ -11,6 +11,7 @@ import {
   getProjectIdForColumn,
   requireUserId
 } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 import { processCardDonePayouts } from "@/lib/kanban/payout";
 import { serializeCard } from "@/lib/kanban/serialize-card";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
@@ -135,6 +136,12 @@ export async function POST(request: Request) {
         position
       }
     });
+
+    triggerPusherEvent(
+      [`retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "CARD_CREATED", cardId: card.id, senderId: userId }
+    );
 
     return NextResponse.json({ card: serializeCard(card) }, { status: 201 });
   } catch (error) {
@@ -264,6 +271,12 @@ export async function PATCH(request: Request) {
       });
     });
 
+    triggerPusherEvent(
+      [`retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "CARD_UPDATED", cardId: card.id, senderId: userId }
+    );
+
     return NextResponse.json({ card: serializeCard(card) });
   } catch (error) {
     return parseError(error);
@@ -322,6 +335,12 @@ export async function DELETE(request: Request) {
           data: { position }
         })
       )
+    );
+
+    triggerPusherEvent(
+      [`retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "CARD_DELETED", cardId: parsedCardId.data, senderId: userId }
     );
 
     return NextResponse.json({ ok: true });

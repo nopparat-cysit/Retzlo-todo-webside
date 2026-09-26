@@ -4,6 +4,7 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, isOwnerRole, requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const createBoardSchema = z.object({
   name: z.string().trim().min(1, "Board name is required").max(80, "Board name is too long"),
@@ -149,6 +150,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
         }
       }
     });
+
+    triggerPusherEvent(
+      [`retzlo-project-${params.id}`],
+      "retzlo:sync",
+      { action: "BOARD_CREATED", boardId: board.id, senderId: userId }
+    );
 
     return NextResponse.json(
       {

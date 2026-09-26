@@ -4,6 +4,7 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, getProjectIdForBoard, requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const reorderColumnsSchema = z.object({
   boardId: z.string().uuid(),
@@ -38,6 +39,12 @@ export async function PATCH(request: Request) {
           data: { position }
         })
       )
+    );
+
+    triggerPusherEvent(
+      [`retzlo-board-${payload.boardId}`, `retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "COLUMN_REORDER", boardId: payload.boardId, senderId: userId }
     );
 
     return NextResponse.json({ ok: true });

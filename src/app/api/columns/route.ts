@@ -5,6 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { columnSettingsSchema } from "@/lib/kanban/column-settings";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, getProjectIdForBoard, requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const createColumnSchema = columnSettingsSchema.extend({
   boardId: z.string().uuid()
@@ -46,6 +47,12 @@ export async function POST(request: Request) {
       },
       include: { cards: true }
     });
+
+    triggerPusherEvent(
+      [`retzlo-board-${payload.boardId}`, `retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "COLUMN_CREATED", boardId: payload.boardId, senderId: userId }
+    );
 
     return NextResponse.json({ column }, { status: 201 });
   } catch (error) {

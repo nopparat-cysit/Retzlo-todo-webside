@@ -5,6 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { processCardDonePayouts } from "@/lib/kanban/payout";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const reorderCardsSchema = z.object({
   cardId: z.string().uuid(),
@@ -35,6 +36,8 @@ export async function PATCH(request: Request) {
       return jsonError("You do not have access to this project.", 403);
     }
 
+    let targetBoardId: string | null = null;
+
     await prisma.$transaction(async (tx) => {
       const columns = await tx.column.findMany({
         where: {
@@ -50,12 +53,14 @@ export async function PATCH(request: Request) {
 
       const destinationColumn = await tx.column.findUnique({
         where: { id: payload.destinationColumnId },
-        select: { defaultCardStatus: true, name: true }
+        select: { defaultCardStatus: true, name: true, boardId: true }
       });
 
       if (!destinationColumn) {
         throw new Error("Destination column not found.");
       }
+
+      targetBoardId = destinationColumn.boardId;
 
       if (payload.sourceColumnId !== payload.destinationColumnId) {
         if (destinationColumn.defaultCardStatus === "DONE") {
@@ -110,6 +115,14 @@ export async function PATCH(request: Request) {
         )
       );
     });
+
+    if (targetBoardId) {
+      triggerPusherEvent(
+        [`retzlo-project-${projectId}`, `retzlo-board-${targetBoardId}`],
+        "retzlo:sync",
+        { action: "CARD_REORDER", cardId: payload.cardId, senderId: userId }
+      );
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

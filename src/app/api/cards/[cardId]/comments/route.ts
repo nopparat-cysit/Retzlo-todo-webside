@@ -6,6 +6,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { extractAssigneeIds } from "@/lib/kanban/assignees";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -134,10 +135,22 @@ export async function POST(request: Request, { params }: { params: { cardId: str
             link: `/project/${access.projectId}/board?cardId=${params.cardId}`
           }))
         });
+
+        triggerPusherEvent(
+          ["retzlo-notifications"],
+          "retzlo:sync",
+          { action: "NEW_NOTIFICATION" }
+        );
       } catch (notifError) {
         console.error("Failed to deliver comment notification:", notifError);
       }
     }
+
+    triggerPusherEvent(
+      [`retzlo-card-${params.cardId}-comments`, `retzlo-project-${access.projectId}`],
+      "retzlo:sync",
+      { action: "COMMENT_CREATED", cardId: params.cardId, senderId: userId }
+    );
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {

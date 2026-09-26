@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { getPusherClient, sanitizePusherChannel } from "@/lib/pusher/client";
 
 export interface UseLiveSyncOptions {
   /**
@@ -117,6 +118,52 @@ export function useLiveSync({
         channel.close();
         channelRef.current = null;
       }
+    };
+  }, [enabled, keys, triggerSync]);
+
+  // Setup Pusher Channels for real-time remote WebSocket sync
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined" || keys.length === 0) return;
+
+    const pusher = getPusherClient();
+    if (!pusher) return;
+
+    const subscribedChannels: string[] = [];
+
+    keys.forEach((rawKey) => {
+      const channelName = sanitizePusherChannel(`retzlo-${rawKey}`);
+      try {
+        const channel = pusher.subscribe(channelName);
+        subscribedChannels.push(channelName);
+
+        const handleSyncEvent = (data?: { socketId?: string; senderId?: string }) => {
+          // If the event specifies an originator socket_id that matches our client, ignore echo
+          const myRawSocketId = pusher.connection?.socket_id;
+          if (data?.socketId && myRawSocketId && data.socketId === myRawSocketId) {
+            return;
+          }
+          triggerSync();
+        };
+
+        channel.bind("retzlo:sync", handleSyncEvent);
+        channel.bind("SYNC_EVENT", handleSyncEvent);
+      } catch (err) {
+        console.warn("[useLiveSync] Pusher subscription failed:", channelName, err);
+      }
+    });
+
+    return () => {
+      subscribedChannels.forEach((channelName) => {
+        try {
+          const channel = pusher.channel(channelName);
+          if (channel) {
+            channel.unbind_all();
+          }
+          pusher.unsubscribe(channelName);
+        } catch {
+          // Graceful cleanup
+        }
+      });
     };
   }, [enabled, keys, triggerSync]);
 

@@ -5,6 +5,7 @@ import { parseCreateNotePayload } from "@/lib/notes/validation";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canToggleHiddenItem, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 function toNoteResponse(
   note: {
@@ -219,6 +220,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
         }
       }
     });
+
+    triggerPusherEvent(
+      [`retzlo-notes-${params.id}`, `retzlo-project-${params.id}`],
+      "retzlo:sync",
+      { action: "NOTE_CREATED", noteId: note.id, senderId: userId }
+    );
 
     return NextResponse.json(
       {

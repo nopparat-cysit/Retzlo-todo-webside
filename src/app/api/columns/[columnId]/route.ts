@@ -6,6 +6,7 @@ import { columnSettingsSchema } from "@/lib/kanban/column-settings";
 import { serializeCard } from "@/lib/kanban/serialize-card";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const columnIdSchema = z.string().uuid();
 
@@ -62,6 +63,12 @@ export async function PATCH(request: Request, { params }: { params: { columnId: 
       }
     });
 
+    triggerPusherEvent(
+      [`retzlo-board-${column.board.id}`, `retzlo-project-${column.board.projectId}`],
+      "retzlo:sync",
+      { action: "COLUMN_UPDATED", boardId: column.board.id, senderId: userId }
+    );
+
     return NextResponse.json({
       column: {
         ...updatedColumn,
@@ -106,6 +113,12 @@ export async function DELETE(_request: Request, { params }: { params: { columnId
         }
       })
     ]);
+
+    triggerPusherEvent(
+      [`retzlo-board-${column.board.id}`, `retzlo-project-${column.board.projectId}`],
+      "retzlo:sync",
+      { action: "COLUMN_DELETED", boardId: column.board.id, senderId: userId }
+    );
 
     return NextResponse.json({ ok: true });
   } catch (error) {

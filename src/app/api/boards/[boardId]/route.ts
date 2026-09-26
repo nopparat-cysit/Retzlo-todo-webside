@@ -5,6 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canAccessBoard, getProjectIdForBoard, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { serializeCard } from "@/lib/kanban/serialize-card";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const updateBoardSchema = z.object({
   name: z.string().trim().min(1, "Board name cannot be empty").max(80).optional(),
@@ -163,6 +164,12 @@ export async function PATCH(request: Request, { params }: { params: { boardId: s
       });
     });
 
+    triggerPusherEvent(
+      [`retzlo-board-${params.boardId}`, `retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "BOARD_UPDATED", boardId: params.boardId, senderId: userId }
+    );
+
     return NextResponse.json({
       board: {
         id: updated.id,
@@ -212,6 +219,12 @@ export async function DELETE(_request: Request, { params }: { params: { boardId:
   await prisma.board.delete({
     where: { id: params.boardId }
   });
+
+  triggerPusherEvent(
+    [`retzlo-board-${params.boardId}`, `retzlo-project-${projectId}`],
+    "retzlo:sync",
+    { action: "BOARD_DELETED", boardId: params.boardId, senderId: userId }
+  );
 
   return NextResponse.json({ success: true });
 }
