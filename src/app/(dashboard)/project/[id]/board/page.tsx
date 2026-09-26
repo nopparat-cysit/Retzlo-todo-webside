@@ -314,7 +314,7 @@ export default async function BoardPage({
       />
       <div className={project.notesEnabled ? "board-page-grid grid flex-1 min-h-0 min-w-0 max-w-full gap-3 xl:grid-cols-[minmax(0,1fr)_340px]" : "board-page-grid flex-1 min-h-0 min-w-0 max-w-full"}>
         <KanbanBoard
-          key={board.id}
+          key={`board-${board.id}`}
           board={{
             id: board.id,
             name: board.name,
@@ -326,7 +326,7 @@ export default async function BoardPage({
         />
         {project.notesEnabled ? (
           <BoardNotesRail
-            key={board.id}
+            key={`notes-${board.id}`}
             projectId={params.id}
             activeBoardId={board.id}
             activeBoardName={board.name}
