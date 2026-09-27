@@ -196,6 +196,7 @@ export function KanbanBoard({
   const [moveHistory, setMoveHistory] = useState<MoveAction[]>([]);
   const [isSwitchingBoard, setIsSwitchingBoard] = useState(false);
   const isFilterRestoredRef = useRef(false);
+  const lastSavedFiltersRef = useRef<string>("");
 
   useEffect(() => {
     isFilterRestoredRef.current = false;
@@ -204,12 +205,34 @@ export function KanbanBoard({
       setIsTodayFilterActive(saved.isTodayFilterActive);
       setAssigneeFilter(saved.assigneeFilter);
       setCardSort(saved.cardSort);
+      lastSavedFiltersRef.current = JSON.stringify(saved);
+    } else {
+      lastSavedFiltersRef.current = JSON.stringify({
+        assigneeFilter: "ALL",
+        isTodayFilterActive: false,
+        cardSort: "manual"
+      });
     }
-    isFilterRestoredRef.current = true;
+
+    const timer = setTimeout(() => {
+      isFilterRestoredRef.current = true;
+    }, 50);
+
+    return () => {
+      clearTimeout(timer);
+      isFilterRestoredRef.current = false;
+    };
   }, [board.id, board.projectId, currentUserId]);
 
   useEffect(() => {
     if (!isFilterRestoredRef.current) return;
+    const currentPayload = JSON.stringify({
+      assigneeFilter,
+      isTodayFilterActive,
+      cardSort
+    });
+    if (currentPayload === lastSavedFiltersRef.current) return;
+    lastSavedFiltersRef.current = currentPayload;
     saveBoardFilters(board.id, board.projectId, currentUserId, {
       assigneeFilter,
       isTodayFilterActive,
