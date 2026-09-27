@@ -78,6 +78,7 @@ interface MoveAction {
 }
 
 import { type CardSortOption, sortCards } from "@/lib/kanban/card-sort";
+import { loadSavedBoardFilters, saveBoardFilters } from "@/lib/kanban/filter-persistence";
 
 function normalizeColumn(column: ColumnWithCards, members: CardAssignee[] = []): ColumnWithCards {
   return {
@@ -194,6 +195,27 @@ export function KanbanBoard({
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [moveHistory, setMoveHistory] = useState<MoveAction[]>([]);
   const [isSwitchingBoard, setIsSwitchingBoard] = useState(false);
+  const isFilterRestoredRef = useRef(false);
+
+  useEffect(() => {
+    isFilterRestoredRef.current = false;
+    const saved = loadSavedBoardFilters(board.id, board.projectId, currentUserId);
+    if (saved) {
+      setIsTodayFilterActive(saved.isTodayFilterActive);
+      setAssigneeFilter(saved.assigneeFilter);
+      setCardSort(saved.cardSort);
+    }
+    isFilterRestoredRef.current = true;
+  }, [board.id, board.projectId, currentUserId]);
+
+  useEffect(() => {
+    if (!isFilterRestoredRef.current) return;
+    saveBoardFilters(board.id, board.projectId, currentUserId, {
+      assigneeFilter,
+      isTodayFilterActive,
+      cardSort
+    });
+  }, [board.id, board.projectId, currentUserId, assigneeFilter, isTodayFilterActive, cardSort]);
 
   useEffect(() => {
     const handleBoardSwitching = (e: CustomEvent<{ targetBoardId: string }>) => {

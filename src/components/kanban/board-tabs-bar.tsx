@@ -3,8 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FolderKanban, Globe, Lock, Plus, Settings } from "lucide-react";
+import { FolderKanban, Lock, Plus, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AppModal } from "@/components/ui/app-modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
 
 interface BoardTabItem {
@@ -29,7 +33,11 @@ export function BoardTabsBar({
   canManage = false
 }: BoardTabsBarProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
+  const [newBoardName, setNewBoardName] = useState("");
+  const [isCreatingBoard, setIsCreatingBoard] = useState(false);
   const [boardsList, setBoardsList] = useState<BoardTabItem[]>(boards);
   const [switchingBoardId, setSwitchingBoardId] = useState<string | null>(null);
 
@@ -64,6 +72,42 @@ export function BoardTabsBar({
   }
 
   const activeBoard = boardsList.find((b) => b.id === activeBoardId) ?? boardsList[0];
+
+  async function handleCreateBoard(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newBoardName.trim() || isCreatingBoard) return;
+
+    setIsCreatingBoard(true);
+    try {
+      const response = await fetch(`/api/projects/${projectId}/boards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newBoardName.trim(),
+          isPrivate: false
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create board");
+      }
+
+      setBoardsList((prev) => [...prev, data.board]);
+      setIsCreateBoardOpen(false);
+      setNewBoardName("");
+      toast({ message: `Board "${data.board.name}" created! ✦`, type: "success" });
+      router.push(`/project/${projectId}/board?boardId=${data.board.id}`);
+      router.refresh();
+    } catch (err) {
+      toast({
+        message: err instanceof Error ? err.message : "Failed to create board",
+        type: "error"
+      });
+    } finally {
+      setIsCreatingBoard(false);
+    }
+  }
 
   return (
     <>
@@ -136,47 +180,34 @@ export function BoardTabsBar({
                   <span className="truncate max-w-[140px] select-text">{b.name}</span>
                 </Link>
 
-                {isActive && canManage && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setIsSettingsOpen(true);
-                    }}
-                    className="ml-1 -mr-1 grid h-5 w-5 place-items-center rounded hover:bg-dusk-amber/20 hover:text-white transition text-dusk-amber/80"
-                    title="Board Settings"
-                    aria-label="Board Settings"
-                  >
-                    <Settings className="h-3 w-3" />
-                  </button>
-                )}
               </div>
             );
           })}
-        </div>
 
-        {/* Quick Actions */}
-        {canManage && (
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsSettingsOpen(true)}
-              className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 px-2.5 text-xs text-dusk-lavender transition hover:border-dusk-lavender/60 hover:bg-dusk-lavender/20 select-none font-medium"
-              title="Board Settings & Permissions"
-            >
-              <Settings className="h-3 w-3" />
-              <span className="hidden sm:inline">Board Settings</span>
-            </button>
-            <Link
-              href={`/project/${projectId}/settings`}
-              className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 text-xs text-stone-400 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-stone-200 select-none"
-              title="Project Settings"
-            >
-              <span className="hidden md:inline">Project Settings</span>
-            </Link>
-          </div>
-        )}
+          {/* Action Icons right after boards (ต่อหลัง) */}
+          {canManage && (
+            <div className="flex items-center gap-1 shrink-0 ml-0.5">
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-stone-400 hover:border-dusk-lavender/50 hover:bg-dusk-lavender/15 hover:text-dusk-lavender transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Board Settings (ตั้งค่าบอร์ด)"
+                aria-label="Board Settings"
+              >
+                <Settings className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsCreateBoardOpen(true)}
+                className="grid h-8 w-8 place-items-center rounded-lg border border-dashed border-white/20 bg-white/[0.03] text-stone-400 hover:border-dusk-amber/60 hover:bg-dusk-amber/15 hover:text-dusk-amber transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Create new board (สร้างบอร์ดใหม่)"
+                aria-label="Create new board"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {activeBoard && canManage && (
@@ -211,6 +242,63 @@ export function BoardTabsBar({
             router.refresh();
           }}
         />
+      )}
+
+      {canManage && (
+        <AppModal
+          open={isCreateBoardOpen}
+          onClose={() => {
+            if (!isCreatingBoard) {
+              setIsCreateBoardOpen(false);
+              setNewBoardName("");
+            }
+          }}
+          labelledBy="create-board-modal-title"
+        >
+          <form onSubmit={handleCreateBoard} className="space-y-4 p-5 sm:p-6">
+            <div>
+              <h3 id="create-board-modal-title" className="text-lg font-semibold text-stone-100 flex items-center gap-2">
+                <FolderKanban className="h-5 w-5 text-dusk-amber" />
+                Create New Board
+              </h3>
+              <p className="text-xs text-stone-400 mt-1">
+                Add a new board channel to organize tasks in this project.
+              </p>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-stone-300 mb-1.5 block">Board Name</label>
+              <Input
+                value={newBoardName}
+                onChange={(e) => setNewBoardName(e.target.value)}
+                placeholder="e.g. Marketing Roadmap, Sprint 2..."
+                maxLength={80}
+                autoFocus
+                required
+                disabled={isCreatingBoard}
+              />
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setIsCreateBoardOpen(false);
+                  setNewBoardName("");
+                }}
+                disabled={isCreatingBoard}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!newBoardName.trim() || isCreatingBoard}
+                className="bg-dusk-amber text-ink-950 hover:bg-dusk-amber/90 font-semibold"
+              >
+                {isCreatingBoard ? "Creating..." : "Create Board"}
+              </Button>
+            </div>
+          </form>
+        </AppModal>
       )}
     </>
   );
