@@ -6,6 +6,7 @@ import { CalendarClock, CheckSquare, Clock, Star, Zap } from "lucide-react";
 import { memo, useEffect, useState } from "react";
 
 import { AssigneeStack } from "@/components/kanban/assignee-avatar";
+import { CoffeeCheersButton } from "@/components/kanban/coffee-cheers-button";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatMediumDateTime, formatShortDate } from "@/lib/date-format";
@@ -38,6 +39,7 @@ function areCardPropsEqual(prev: KanbanCardProps, next: KanbanCardProps) {
   if (prev.currentUserId !== next.currentUserId) return false;
   if (prev.density !== next.density) return false;
   if (prev.onEdit !== next.onEdit) return false;
+  if (prev.onSaved !== next.onSaved) return false;
   if (prev.members !== next.members) return false;
   if (prev.card === next.card) return true;
   return (
@@ -59,7 +61,8 @@ function areCardPropsEqual(prev: KanbanCardProps, next: KanbanCardProps) {
     prev.card.checklist === next.card.checklist &&
     prev.card.stickers === next.card.stickers &&
     prev.card.assigneeIds === next.card.assigneeIds &&
-    prev.card.assignees === next.card.assignees
+    prev.card.assignees === next.card.assignees &&
+    prev.card.privateCoins === next.card.privateCoins
   );
 }
 
@@ -69,8 +72,10 @@ function KanbanCardComponent({
   isDragPreviewTarget = false,
   isDragDisabled = false,
   members = [],
+  currentUserId,
   density = "comfortable",
-  onEdit
+  onEdit,
+  onSaved
 }: KanbanCardProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -198,6 +203,18 @@ function KanbanCardComponent({
               </span>
             ) : null}
 
+            {card.status === "DONE" && (
+              <CoffeeCheersButton
+                cardId={card.id}
+                cardTitle={card.title}
+                cardStatus={card.status}
+                privateCoins={card.privateCoins}
+                currentUserId={currentUserId}
+                compact={true}
+                onCheerSuccess={() => onSaved?.(card)}
+              />
+            )}
+
 
             {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) && (
               <div className="ml-auto flex items-center gap-1.5">
@@ -309,6 +326,17 @@ function KanbanCardComponent({
                 {completedChecklist}/{card.checklist.length}
               </span>
             ) : null}
+            {card.status === "DONE" && (
+              <CoffeeCheersButton
+                cardId={card.id}
+                cardTitle={card.title}
+                cardStatus={card.status}
+                privateCoins={card.privateCoins}
+                currentUserId={currentUserId}
+                compact={false}
+                onCheerSuccess={() => onSaved?.(card)}
+              />
+            )}
           </div>
           {card.description ? <p className="line-clamp-2 text-xs leading-relaxed text-stone-600 dark:text-stone-300/90 break-words">{card.description}</p> : null}
           {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) ? (

@@ -183,3 +183,41 @@ export function playZenChimeSound(): void {
     // Audio might be blocked — silently ignore
   }
 }
+
+/**
+ * Procedural tactile coffee pop sound: warm frequency sweep with smooth decay.
+ */
+export function playCoffeePopSound(): void {
+  if (!isSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    const volumeFactor = getSoundVolume();
+    const targetVolume = 0.22 * volumeFactor;
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(740, now + 0.03);
+    osc.frequency.exponentialRampToValueAtTime(260, now + 0.08);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(targetVolume, now + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.09);
+
+    setTimeout(() => void ctx.close(), 250);
+  } catch {
+    // Audio might be blocked — silently ignore
+  }
+}
+

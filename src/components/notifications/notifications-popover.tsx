@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, CalendarClock, Check, MessageSquare, Sparkles, UserPlus } from "lucide-react";
+import { Bell, CalendarClock, Check, Coffee, MessageSquare, Sparkles, UserPlus } from "lucide-react";
 import { formatShortDate } from "@/lib/date-format";
 import { useToast } from "@/components/ui/toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -172,6 +172,8 @@ export function NotificationsPopover() {
                           ? "bg-indigo-500/20 text-indigo-400"
                           : n.type === "DUE_DATE_ALERT"
                           ? "bg-dusk-amber/20 text-dusk-amber"
+                          : n.type === "COFFEE_CHEER"
+                          ? "bg-amber-600/20 text-amber-400"
                           : "bg-white/10 text-stone-300"
                       }`}
                     >
@@ -181,6 +183,8 @@ export function NotificationsPopover() {
                         <MessageSquare className="h-4 w-4" />
                       ) : n.type === "DUE_DATE_ALERT" ? (
                         <CalendarClock className="h-4 w-4" />
+                      ) : n.type === "COFFEE_CHEER" ? (
+                        <Coffee className="h-4 w-4" />
                       ) : (
                         <Sparkles className="h-4 w-4" />
                       )}

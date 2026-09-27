@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ProjectMembersView } from "@/components/project/project-members-view";
 import { prisma } from "@/lib/prisma";
 import { getProjectMembership, requireUserId } from "@/lib/project-auth";
+import { calculateMemberTotalCoffees } from "@/lib/kanban/coffee-cheers";
 
 export default async function MembersPage({ params }: { params: { id: string } }) {
   const userId = await requireUserId();
@@ -15,7 +16,7 @@ export default async function MembersPage({ params }: { params: { id: string } }
     redirect("/projects");
   }
 
-  const [project, members, pendingInvitations] = await Promise.all([
+  const [project, members, pendingInvitations, doneCards] = await Promise.all([
     prisma.project.findUnique({
       where: { id: params.id },
       select: { id: true, name: true }
@@ -48,6 +49,20 @@ export default async function MembersPage({ params }: { params: { id: string } }
         }
       },
       orderBy: { createdAt: "desc" }
+    }),
+    prisma.card.findMany({
+      where: {
+        column: {
+          board: {
+            projectId: params.id
+          }
+        },
+        status: "DONE"
+      },
+      select: {
+        status: true,
+        privateCoins: true
+      }
     })
   ]);
 
@@ -60,6 +75,7 @@ export default async function MembersPage({ params }: { params: { id: string } }
     userId: member.userId,
     role: member.role,
     createdAt: member.createdAt.toISOString(),
+    totalCoffees: calculateMemberTotalCoffees(doneCards, member.userId),
     user: {
       id: member.user.id,
       name: member.user.name,
@@ -95,4 +111,3 @@ export default async function MembersPage({ params }: { params: { id: string } }
     />
   );
 }
-

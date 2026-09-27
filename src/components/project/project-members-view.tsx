@@ -6,6 +6,7 @@ import {
   Calendar,
   Check,
   Clock,
+  Coffee,
   Copy,
   Crown,
   ExternalLink,
@@ -36,6 +37,7 @@ export interface ProjectMemberData {
   userId: string;
   role: string;
   createdAt: string;
+  totalCoffees?: number;
   user: {
     id: string;
     name: string | null;
@@ -118,6 +120,10 @@ export function ProjectMembersView({
   const ownersCount = useMemo(() => members.filter((m) => m.role === "OWNER").length, [members]);
   const regularCount = useMemo(() => members.filter((m) => m.role === "MEMBER").length, [members]);
   const pendingCount = pendingInvitations.length;
+  const totalCoffeesCount = useMemo(
+    () => members.reduce((sum, m) => sum + (m.totalCoffees ?? 0), 0),
+    [members]
+  );
 
   // Handle send invitation
   async function handleSendInvite(e: FormEvent) {
@@ -313,7 +319,7 @@ export function ProjectMembersView({
         </section>
 
         {/* ── KPI Metric Cards ── */}
-        <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {/* Metric 1: Total Members */}
           <div className="group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
             <div className="flex items-center justify-between">
@@ -360,6 +366,21 @@ export function ProjectMembersView({
             </div>
             <p className="mt-2 text-2xl font-bold font-mono text-stone-900 dark:text-stone-100">{pendingCount}</p>
             <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Awaiting acceptance</p>
+          </div>
+
+          {/* Metric 5: Total Coffees */}
+          <div className="col-span-2 sm:col-span-1 group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-amber-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Total Coffees</span>
+              <div className="grid h-8 w-8 place-items-center rounded-xl border border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700/40 dark:bg-amber-950/40 dark:text-amber-300">
+                <Coffee className="h-4 w-4" />
+              </div>
+            </div>
+            <p className="mt-2 text-2xl font-bold font-mono text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+              <span>☕</span>
+              <span>{totalCoffeesCount}</span>
+            </p>
+            <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Coffee cheers earned</p>
           </div>
         </section>
 
@@ -511,8 +532,22 @@ export function ProjectMembersView({
                           </div>
                         </div>
 
-                        {/* Right: Role & Actions */}
-                        <div className="flex items-center gap-2.5 shrink-0">
+                        {/* Right: Role & Coffees & Actions */}
+                        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                          {/* Coffee Cheers Earned Badge */}
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border px-2 sm:px-2.5 py-0.5 sm:py-1 text-xs font-semibold shadow-2xs select-none",
+                              (member.totalCoffees ?? 0) > 0
+                                ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-200"
+                                : "border-stone-200/80 bg-stone-50/80 text-stone-400 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-500"
+                            )}
+                            title={`${member.user.name || "Member"} received ${member.totalCoffees ?? 0} coffee cheers for completing tasks`}
+                          >
+                            <span>☕</span>
+                            <span className="font-mono text-xs">{member.totalCoffees ?? 0}</span>
+                          </span>
+
                           {member.role === "OWNER" ? (
                             <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/80 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-dusk-amber/35 dark:bg-dusk-amber/15 dark:text-dusk-amber shadow-2xs">
                               <Crown className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
