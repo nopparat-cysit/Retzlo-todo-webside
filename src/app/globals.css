@@ -2351,8 +2351,8 @@ select {
 
 [data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
 .light input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
-[data-theme="light"] textarea,
-.light textarea,
+[data-theme="light"] textarea:not(.quick-add-textarea),
+.light textarea:not(.quick-add-textarea),
 [data-theme="light"] select,
 .light select {
   background-color: #ffffff !important;
@@ -2370,12 +2370,33 @@ select {
 
 [data-theme="light"] input:focus,
 .light input:focus,
-[data-theme="light"] textarea:focus,
-.light textarea:focus,
+[data-theme="light"] textarea:not(.quick-add-textarea):focus,
+.light textarea:not(.quick-add-textarea):focus,
 [data-theme="light"] select:focus,
 .light select:focus {
   border-color: #a9a2ff !important;
   box-shadow: 0 0 0 2px rgba(169, 162, 255, 0.22) !important;
+}
+
+/* Quick-add seamless inline card textarea */
+textarea.quick-add-textarea,
+[data-theme="light"] textarea.quick-add-textarea,
+.light textarea.quick-add-textarea {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+textarea.quick-add-textarea:focus,
+[data-theme="light"] textarea.quick-add-textarea:focus,
+.light textarea.quick-add-textarea:focus {
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 /* ── 9. Kanban Board Columns & Sticky Cards ── */

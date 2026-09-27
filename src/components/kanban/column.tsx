@@ -486,44 +486,45 @@ function KanbanColumnComponent({
       {/* ── Quick-Add Form ── */}
       <div className={cn("border-t px-3 pb-3 pt-2", theme.headerClass)}>
         {isQuickAddOpen ? (
-          <div className="rounded-2xl border border-stone-200/90 bg-white/80 p-2 transition-all duration-200 focus-within:border-indigo-400 focus-within:bg-white dark:border-white/10 dark:bg-white/5 dark:focus-within:border-dusk-lavender/40 dark:focus-within:bg-white/[0.07] focus-within:shadow-[0_0_12px_rgba(169,162,255,0.06)]">
+          <div className="rounded-xl border border-indigo-400/80 bg-white p-2.5 shadow-md transition-all duration-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/15 dark:border-dusk-lavender/50 dark:bg-ink-900/95 dark:focus-within:border-dusk-lavender dark:focus-within:ring-dusk-lavender/15">
             <textarea
               ref={quickInputRef}
-              rows={1}
+              rows={2}
               value={quickTitle}
               onChange={(e) => setQuickTitle(e.target.value)}
               onKeyDown={handleQuickKeyDown}
-              placeholder="Card title…"
+              placeholder="Card title..."
               disabled={isSubmitting}
-              className={cn(
-                "w-full resize-none rounded bg-transparent text-sm text-stone-900 placeholder-stone-400 dark:text-stone-100 dark:placeholder-stone-500 outline-none",
-                "scrollbar-soft overflow-hidden transition-all duration-200 focus:rows-2",
-                isSubmitting && "opacity-50"
-              )}
-              style={{ fieldSizing: "content" } as React.CSSProperties}
+              className="quick-add-textarea block w-full resize-none bg-transparent p-0 text-sm font-normal text-stone-900 placeholder:text-stone-400 dark:text-stone-100 dark:placeholder:text-stone-500 !border-0 !border-none !outline-none !shadow-none !ring-0 focus:!border-none focus:!outline-none focus:!shadow-none focus:!ring-0 scrollbar-soft overflow-hidden leading-relaxed"
+              style={{ border: "none", outline: "none", boxShadow: "none", background: "transparent", fieldSizing: "content" } as React.CSSProperties}
               aria-label="Quick add card title"
             />
-            <div className="mt-2 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
+            <div className="mt-2 flex items-center justify-between gap-2 pt-1 border-t border-stone-100 dark:border-white/5">
+              <div className="flex items-center gap-1.5">
                 <Button
                   type="button"
                   size="sm"
-                  variant="ghost"
-                  className="h-7 px-3 text-xs text-dusk-lavender hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
+                  className={cn(
+                    "h-7 px-3 text-xs font-semibold rounded-lg transition-all shadow-xs",
+                    quickTitle.trim()
+                      ? "bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90"
+                      : "bg-stone-200 text-stone-400 dark:bg-white/10 dark:text-stone-500 cursor-not-allowed"
+                  )}
                   disabled={!quickTitle.trim() || isSubmitting}
                   onClick={() => void handleQuickSubmit()}
                 >
-                  Add
+                  {isSubmitting ? "Adding…" : "Add"}
                 </Button>
-                <span className="text-[10px] text-stone-500 select-none">↵ to add • Esc</span>
+                <span className="text-[10px] text-stone-400 dark:text-stone-500 select-none">↵ Enter</span>
               </div>
               <button
                 type="button"
                 onClick={closeQuickAdd}
-                className="rounded p-1 text-stone-500 transition-colors hover:text-stone-300"
+                className="grid h-7 w-7 place-items-center rounded-lg text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200"
                 aria-label="Cancel quick add"
+                title="Cancel (Esc)"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
           </div>
