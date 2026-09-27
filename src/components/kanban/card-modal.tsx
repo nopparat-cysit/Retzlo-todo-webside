@@ -37,7 +37,42 @@ import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
-import type { Card, CardAssignee, CardStatus, ChecklistItem } from "@/types/kanban";
+import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem } from "@/types/kanban";
+
+const priorityMeta: Record<
+  CardPriority,
+  {
+    label: string;
+    mobileLabel: string;
+    buttonClass: string;
+    selectedButtonClass: string;
+  }
+> = {
+  LOW: {
+    label: "LOW",
+    mobileLabel: "Low",
+    buttonClass:
+      "border-stone-200 bg-stone-50 text-stone-700 hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200",
+    selectedButtonClass:
+      "border-indigo-600 bg-indigo-600 text-white font-semibold shadow-xs dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950"
+  },
+  MEDIUM: {
+    label: "MEDIUM",
+    mobileLabel: "Med",
+    buttonClass:
+      "border-stone-200 bg-stone-50 text-stone-700 hover:border-amber-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200",
+    selectedButtonClass:
+      "border-amber-600 bg-amber-600 text-white font-semibold shadow-xs dark:border-dusk-amber dark:bg-dusk-amber dark:text-ink-950"
+  },
+  HIGH: {
+    label: "HIGH",
+    mobileLabel: "High",
+    buttonClass:
+      "border-stone-200 bg-stone-50 text-stone-700 hover:border-red-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200",
+    selectedButtonClass:
+      "border-red-600 bg-red-600 text-white font-semibold shadow-xs dark:border-red-500 dark:bg-red-600 dark:text-white"
+  }
+};
 
 interface CardModalProps {
   card?: Card;
@@ -622,6 +657,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
               <span className="text-xs text-stone-400 font-medium shrink-0">Priority</span>
               <div className="flex gap-1.5 flex-1 max-w-[200px]">
                 {(["LOW", "MEDIUM", "HIGH"] as const).map((p) => {
+                  const meta = priorityMeta[p];
                   const isSelected = selectedPriority === p;
                   return (
                     <button
@@ -630,16 +666,10 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                       onClick={() => setSelectedPriority(p)}
                       className={cn(
                         "flex-1 py-1 rounded-lg border text-[11px] font-semibold transition text-center",
-                        isSelected
-                          ? p === "HIGH"
-                            ? "border-red-400/80 bg-red-400/20 text-red-200"
-                            : p === "MEDIUM"
-                            ? "border-dusk-amber/80 bg-dusk-amber/20 text-dusk-amber"
-                            : "border-dusk-lavender/80 bg-dusk-lavender/20 text-dusk-lavender"
-                          : "border-white/10 bg-white/[0.02] text-stone-400 hover:text-stone-200"
+                        isSelected ? meta.selectedButtonClass : meta.buttonClass
                       )}
                     >
-                      {p === "LOW" ? "Low" : p === "MEDIUM" ? "Med" : "High"}
+                      {meta.mobileLabel}
                     </button>
                   );
                 })}
@@ -710,33 +740,20 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
             <span>Priority</span>
             <div className="flex gap-2">
               {(["LOW", "MEDIUM", "HIGH"] as const).map((p) => {
+                const meta = priorityMeta[p];
                 const isSelected = selectedPriority === p;
-                let activeClass = "";
-                if (p === "HIGH") {
-                  activeClass = isSelected
-                    ? "border-red-400 bg-red-400/20 text-red-200"
-                    : "border-white/10 text-stone-400 hover:text-stone-200";
-                } else if (p === "MEDIUM") {
-                  activeClass = isSelected
-                    ? "border-dusk-amber bg-dusk-amber/20 text-dusk-amber"
-                    : "border-white/10 text-stone-400 hover:text-stone-200";
-                } else {
-                  activeClass = isSelected
-                    ? "border-dusk-lavender bg-dusk-lavender/20 text-dusk-lavender"
-                    : "border-white/10 text-stone-400 hover:text-stone-200";
-                }
 
                 return (
                   <button
                     key={p}
                     className={cn(
                       "flex-1 h-10 rounded-md border text-sm font-medium transition",
-                      activeClass
+                      isSelected ? meta.selectedButtonClass : meta.buttonClass
                     )}
                     type="button"
                     onClick={() => setSelectedPriority(p)}
                   >
-                    {p}
+                    {meta.label}
                   </button>
                 );
               })}
