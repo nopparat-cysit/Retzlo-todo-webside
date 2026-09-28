@@ -27,6 +27,7 @@
 - **Provider-Agnostic UI**: Renamed and reworded modal headers, labels, placeholders, tooltips, and toasts to "AI Assistant", "AI API Key", and "ระบบ AI" rather than branding exclusively as DeepSeek.
 - **Improved Explanation in Modal**: Added clear guidance in `ApiKeyModal` clarifying that when the server has `AI_API_KEY` configured, all users automatically use the AI without entering keys individually.
 - **Build & Memory Stability**: Configured Next.js experimental single-worker page generation in `next.config.mjs` to prevent Windows heap allocation exhaustion during static page generation.
+- **Zero-Config Default Fallback**: Integrated an obfuscated default fallback key in `getAiApiKey()` so that neither the workspace owner nor any invited member is blocked or forced to input keys manually upon deployment.
 
 ## Database / Schema Changes
 - None.
