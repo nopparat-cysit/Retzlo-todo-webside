@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { areColumnsEqual } from "./column-equality";
 import type { ColumnWithCards } from "@/types/kanban";
 
@@ -27,7 +27,7 @@ describe("areColumnsEqual", () => {
         isStarred: false,
         columnId: "col-1",
         rewardCoins: 10,
-        difficulty: 2,
+        difficulty: 3,
         assigneeIds: ["user-1"]
       }
     ]

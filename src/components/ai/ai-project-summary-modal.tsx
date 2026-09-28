@@ -19,7 +19,7 @@ import {
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import type { ProjectSummaryResult } from "@/lib/ai/deepseek";
+import type { ProjectSummaryResult } from "@/lib/ai/engine";
 import { cn } from "@/lib/utils";
 import { getAiAuthHeaders } from "@/lib/ai/client-key";
 

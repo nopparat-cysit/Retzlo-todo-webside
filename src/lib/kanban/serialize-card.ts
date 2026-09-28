@@ -17,21 +17,37 @@ export function serializeCard<T extends {
   privateCoins: unknown;
   stickers: unknown;
   note?: string | null;
-}>(card: T) {
+}>(card: T): Omit<T, "status" | "color" | "checklist" | "dueDate" | "priority" | "stickers"> & {
+  status: CardStatus;
+  color: string;
+  checklist: ChecklistItem[];
+  startDate: string | null;
+  startDateAllDay: boolean;
+  dueDate: string | null;
+  dueDateAllDay: boolean;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  isStarred: boolean;
+  rewardCoins: number;
+  privateCoins: unknown;
+  stickers: ReturnType<typeof normalizeRetroStickerSelection>;
+  difficulty: ReturnType<typeof extractDifficulty>;
+  assigneeIds: string[];
+} {
+  const { status, color, checklist, dueDate, priority, stickers, ...rest } = card;
   return {
-    ...card,
-    status: card.status as CardStatus,
-    color: normalizeCardColor(card.color),
-    checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
+    ...rest,
+    status: status as CardStatus,
+    color: normalizeCardColor(color),
+    checklist: Array.isArray(checklist) ? (checklist as ChecklistItem[]) : [],
     startDate: extractStartDate(card.privateCoins),
     startDateAllDay: extractStartDateAllDay(card.privateCoins),
-    dueDate: card.dueDate ? card.dueDate.toISOString() : null,
+    dueDate: dueDate ? dueDate.toISOString() : null,
     dueDateAllDay: card.dueDateAllDay,
-    priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
+    priority: priority as "LOW" | "MEDIUM" | "HIGH",
     isStarred: card.isStarred,
     rewardCoins: card.rewardCoins,
     privateCoins: card.privateCoins,
-    stickers: normalizeRetroStickerSelection(card.stickers),
+    stickers: normalizeRetroStickerSelection(stickers),
     difficulty: extractDifficulty(card.privateCoins),
     assigneeIds: extractAssigneeIds(card.privateCoins),
   };

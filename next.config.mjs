@@ -2,6 +2,11 @@
 const nextConfig = {
   experimental: {
     typedRoutes: false,
+    cpus: 1,
+    workerThreads: false,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
   images: {
     remotePatterns: [

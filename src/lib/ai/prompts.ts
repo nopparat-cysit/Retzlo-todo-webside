@@ -1,5 +1,5 @@
 /**
- * System prompts for DeepSeek AI engine tailored for Kanban workflow & task management.
+ * System prompts for AI Assistant engines tailored for Kanban workflow & task management.
  */
 
 export const TASK_BREAKDOWN_SYSTEM_PROMPT = `You are a world-class Productivity Specialist, Agile Coach, and Domain Master embedded in a Kanban workspace.

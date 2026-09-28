@@ -4,7 +4,7 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { requireUserId } from "@/lib/project-auth";
 import { AI_CREDIT_COSTS, deductUserAiCredit, getUserAiQuota } from "@/lib/ai/credits";
-import { generateTaskBreakdown } from "@/lib/ai/deepseek";
+import { generateTaskBreakdown } from "@/lib/ai/engine";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -32,9 +32,12 @@ export async function POST(request: Request) {
       return jsonError(`โควตา AI Credits ไม่เพียงพอ (คงเหลือ ${quota.credits} เครดิต)`, 402);
     }
 
-    const clientApiKey = request.headers.get("x-deepseek-api-key")?.trim() || undefined;
+    const clientApiKey =
+      request.headers.get("x-ai-api-key")?.trim() ||
+      request.headers.get("x-deepseek-api-key")?.trim() ||
+      undefined;
 
-    // 2. Call DeepSeek Engine
+    // 2. Call AI Engine
     const result = await generateTaskBreakdown({
       title: payload.title,
       description: payload.description,

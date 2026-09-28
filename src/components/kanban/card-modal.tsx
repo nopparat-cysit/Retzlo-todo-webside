@@ -573,7 +573,9 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
     setIsGeneratingAiChecklist(true);
     try {
-      const authHeaders = overrideKey ? { "x-deepseek-api-key": overrideKey } : getAiAuthHeaders();
+      const authHeaders = overrideKey
+        ? { "x-ai-api-key": overrideKey, "x-deepseek-api-key": overrideKey }
+        : getAiAuthHeaders();
       const res = await fetch("/api/ai/breakdown", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders },
@@ -586,9 +588,12 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
       const data = await res.json();
       if (!res.ok) {
-        if (typeof data.error === "string" && data.error.includes("DEEPSEEK_API_KEY")) {
+        if (
+          typeof data.error === "string" &&
+          (data.error.includes("AI_API_KEY") || data.error.includes("DEEPSEEK_API_KEY"))
+        ) {
           setApiKeyModalReason(
-            "ยังไม่พบการตั้งค่า DEEPSEEK_API_KEY บนเซิร์ฟเวอร์ (เช่น บน Vercel) คุณสามารถระบุ API Key ที่นี่เพื่อใช้งาน AI ทันที"
+            "ยังไม่พบการตั้งค่า AI_API_KEY บนเซิร์ฟเวอร์ (เช่น บน Vercel) คุณสามารถระบุ API Key ที่นี่เพื่อใช้งาน AI ทันที"
           );
           setApiKeyModalOpen(true);
           return;
@@ -624,7 +629,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       }
     } catch {
       toast({
-        message: "เกิดข้อผิดพลาดในการเชื่อมต่อกับ DeepSeek AI",
+        message: "เกิดข้อผิดพลาดในการเชื่อมต่อกับระบบ AI",
         type: "error"
       });
     } finally {
@@ -835,7 +840,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                     setApiKeyModalOpen(true);
                   }}
                   className="rounded-lg p-1 text-stone-400 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
-                  title="ตั้งค่า DeepSeek API Key (สำหรับใช้งานบน Vercel/เบราว์เซอร์)"
+                  title="ตั้งค่า AI API Key (สำหรับใช้งานบน Vercel/เบราว์เซอร์)"
                 >
                   <KeyRound className="h-3.5 w-3.5" />
                 </button>

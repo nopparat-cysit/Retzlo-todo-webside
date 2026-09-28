@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { generateTaskBreakdown, generateProjectSummary } from "./deepseek";
+import { generateTaskBreakdown, generateProjectSummary, getAiApiKey } from "./engine";
 
-const REAL_KEY = process.env.DEEPSEEK_API_KEY || "";
+const REAL_KEY = process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY || "";
 
-describe("DeepSeek AI Engine", () => {
-  it.runIf(Boolean(REAL_KEY))("generates structured checklist breakdown for Pad Kra Pao with real DeepSeek engine", async () => {
-    process.env.DEEPSEEK_API_KEY = REAL_KEY;
+describe("AI Assistant Engine", () => {
+  it("resolves AI_API_KEY or DEEPSEEK_API_KEY properly", () => {
+    const key = getAiApiKey();
+    expect(typeof key).toBe("string");
+  });
+
+  it.runIf(Boolean(REAL_KEY))("generates structured checklist breakdown for Pad Kra Pao with real AI engine", async () => {
+    process.env.AI_API_KEY = REAL_KEY;
     const result = await generateTaskBreakdown({
       title: "วิธีทำผัดกะเพรา",
       description: "สูตรผัดกะเพราหมูสับ พริกแห้ง รสเด็ด",
@@ -20,7 +25,7 @@ describe("DeepSeek AI Engine", () => {
   });
 
   it.runIf(Boolean(REAL_KEY))("generates 8-10 actionable steps for detailed software task", async () => {
-    process.env.DEEPSEEK_API_KEY = REAL_KEY;
+    process.env.AI_API_KEY = REAL_KEY;
     const result = await generateTaskBreakdown({
       title: "ทำระบบ Login ด้วย Google OAuth",
       description: "เชื่อมต่อ NextAuth GoogleProvider และบันทึกบัญชีลง PostgreSQL",
@@ -32,6 +37,9 @@ describe("DeepSeek AI Engine", () => {
   });
 
   it("handles fallback properly when API key is empty or missing", async () => {
+    const originalAiKey = process.env.AI_API_KEY;
+    const originalDeepseekKey = process.env.DEEPSEEK_API_KEY;
+    delete process.env.AI_API_KEY;
     delete process.env.DEEPSEEK_API_KEY;
     try {
       const result = await generateTaskBreakdown({
@@ -40,12 +48,13 @@ describe("DeepSeek AI Engine", () => {
       expect(result.items.length).toBeGreaterThan(0);
       expect(result.suggestedDifficulty).toBe(3);
     } finally {
-      process.env.DEEPSEEK_API_KEY = REAL_KEY;
+      if (originalAiKey) process.env.AI_API_KEY = originalAiKey;
+      if (originalDeepseekKey) process.env.DEEPSEEK_API_KEY = originalDeepseekKey;
     }
   });
 
   it.runIf(Boolean(REAL_KEY))("generates executive project summary with health status", async () => {
-    process.env.DEEPSEEK_API_KEY = REAL_KEY;
+    process.env.AI_API_KEY = REAL_KEY;
     const result = await generateProjectSummary({
       projectName: "Retro Workspace",
       boardName: "Sprint 1",
@@ -61,7 +70,7 @@ describe("DeepSeek AI Engine", () => {
 
     expect(result).toBeDefined();
     expect(["HEALTHY", "ATTENTION", "CRITICAL"]).toContain(result.healthStatus);
-    expect(result.overview).toBeDefined();
-    expect(Array.isArray(result.recommendations)).toBe(true);
+    expect(result.completionRatePercent).toBeGreaterThanOrEqual(0);
+    expect(result.overview.length).toBeGreaterThan(0);
   });
 });

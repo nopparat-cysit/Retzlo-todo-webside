@@ -5,7 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 import { AI_CREDIT_COSTS, deductUserAiCredit, getUserAiQuota } from "@/lib/ai/credits";
-import { generateProjectSummary } from "@/lib/ai/deepseek";
+import { generateProjectSummary } from "@/lib/ai/engine";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -84,9 +84,12 @@ export async function POST(request: Request) {
         dueDate: c.dueDate ? new Date(c.dueDate).toLocaleDateString() : null
       }));
 
-    const clientApiKey = request.headers.get("x-deepseek-api-key")?.trim() || undefined;
+    const clientApiKey =
+      request.headers.get("x-ai-api-key")?.trim() ||
+      request.headers.get("x-deepseek-api-key")?.trim() ||
+      undefined;
 
-    // 3. Call DeepSeek
+    // 3. Call AI Engine
     const summary = await generateProjectSummary({
       projectName: project.name,
       boardName,

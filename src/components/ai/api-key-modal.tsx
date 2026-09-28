@@ -7,7 +7,7 @@ import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
-import { getClientDeepSeekKey, setClientDeepSeekKey } from "@/lib/ai/client-key";
+import { getClientAiKey, setClientAiKey } from "@/lib/ai/client-key";
 
 export interface ApiKeyModalProps {
   open: boolean;
@@ -28,7 +28,7 @@ export function ApiKeyModal({
 
   useEffect(() => {
     if (open) {
-      setKey(getClientDeepSeekKey());
+      setKey(getClientAiKey());
     }
   }, [open]);
 
@@ -36,22 +36,15 @@ export function ApiKeyModal({
     const trimmed = key.trim();
     if (!trimmed) {
       toast({
-        message: "กรุณาระบุ DeepSeek API Key (ขึ้นต้นด้วย sk-)",
+        message: "กรุณาระบุ AI API Key (เช่น sk-...)",
         type: "error"
       });
       return;
     }
 
-    if (!trimmed.startsWith("sk-")) {
-      toast({
-        message: "DeepSeek API Key มักจะขึ้นต้นด้วย sk- กรุณาตรวจสอบความถูกต้อง",
-        type: "error"
-      });
-    }
-
-    setClientDeepSeekKey(trimmed);
+    setClientAiKey(trimmed);
     toast({
-      message: "บันทึก DeepSeek API Key ในเบราว์เซอร์สำเร็จ ✨",
+      message: "บันทึก AI API Key ในเบราว์เซอร์สำเร็จ ✨",
       type: "success"
     });
     onSaved?.(trimmed);
@@ -59,10 +52,10 @@ export function ApiKeyModal({
   };
 
   const handleClear = () => {
-    setClientDeepSeekKey("");
+    setClientAiKey("");
     setKey("");
     toast({
-      message: "ลบ DeepSeek API Key ออกจากเบราว์เซอร์แล้ว",
+      message: "ลบ AI API Key ออกจากเบราว์เซอร์แล้ว",
       type: "success"
     });
   };
@@ -77,7 +70,7 @@ export function ApiKeyModal({
             </div>
             <div>
               <h3 className="text-base font-bold text-stone-100 flex items-center gap-1.5">
-                ตั้งค่า DeepSeek API Key
+                ตั้งค่า AI API Key
                 <Sparkles className="h-3.5 w-3.5 text-dusk-amber" />
               </h3>
               <p className="text-xs text-stone-400">
@@ -102,7 +95,7 @@ export function ApiKeyModal({
 
         <div className="space-y-2">
           <label className="text-xs font-semibold text-stone-300">
-            DeepSeek API Key (sk-...)
+            AI API Key (เช่น sk-...)
           </label>
           <div className="relative">
             <Input
@@ -124,8 +117,9 @@ export function ApiKeyModal({
 
         <div className="rounded-lg bg-stone-900/50 border border-stone-800 p-3 space-y-1.5 text-[11px] text-stone-400">
           <p className="font-semibold text-stone-300">🔒 ปลอดภัยและเป็นส่วนตัว:</p>
-          <p>• คีย์จะถูกจัดเก็บในเครื่องของคุณ (Local Storage) เท่านั้น และถูกส่งตรงไปยัง DeepSeek API ผ่าน Secure Proxy</p>
-          <p>• หากตั้งค่า <code className="text-dusk-amber font-mono">DEEPSEEK_API_KEY</code> ใน Vercel Dashboard แล้ว ระบบจะใช้คีย์ของเซิร์ฟเวอร์โดยอัตโนมัติ</p>
+          <p>• คีย์จะถูกจัดเก็บในเครื่องของคุณ (Local Storage) เท่านั้น และถูกส่งตรงผ่าน Secure Proxy ของระบบ</p>
+          <p>• หากตั้งค่า <code className="text-dusk-amber font-mono">AI_API_KEY</code> หรือ <code className="text-dusk-amber font-mono">DEEPSEEK_API_KEY</code> ในเซิร์ฟเวอร์ (เช่น Vercel Dashboard) แล้ว ระบบจะใช้คีย์ของเซิร์ฟเวอร์โดยอัตโนมัติ ผู้ใช้คนอื่นไม่ต้องใส่คีย์เอง</p>
+          <p>• รองรับโมเดลที่เข้ากันได้กับมาตรฐาน OpenAI API (เช่น DeepSeek, OpenAI, Groq, Mistral)</p>
         </div>
 
         <div className="flex items-center justify-between pt-2">
