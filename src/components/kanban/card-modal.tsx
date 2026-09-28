@@ -11,9 +11,10 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { CheckSquare, Coins, GripVertical, Plus, Star, Trash2, X, Zap } from "lucide-react";
+import { CheckSquare, Coins, GripVertical, Loader2, Plus, SlidersHorizontal, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { playCardCreateSound } from "@/lib/sound";
 import { AppModal } from "@/components/ui/app-modal";
 import { useAppModal } from "@/components/ui/app-modal";
 import { DraftRecoveryModal } from "@/components/ui/draft-recovery-modal";
@@ -24,6 +25,7 @@ import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { RetroStickerPicker } from "@/components/ui/retro-sticker-picker";
 import { AssigneePicker } from "./assignee-picker";
 import { CardChatTimeline } from "@/components/kanban/card-chat-timeline";
+import { AiBreakdownModal } from "@/components/ai/ai-breakdown-modal";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { composeDueDate, composeStartDate } from "@/lib/kanban/due-date";
 import {
@@ -161,6 +163,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [title, setTitle] = useState(card?.title ?? "");
   const [description, setDescription] = useState(card?.description ?? "");
   const [isSaving, setIsSaving] = useState(false);
+  const [aiBreakdownOpen, setAiBreakdownOpen] = useState(false);
+  const [isGeneratingAiChecklist, setIsGeneratingAiChecklist] = useState(false);
 
   // Gamification fields
   const [activeUserId, setActiveUserId] = useState<string | null>(currentUserId ?? null);
@@ -525,6 +529,97 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     });
   }
 
+  function handleApplyAiChecklist(params: {
+    items: string[];
+    mode: "append" | "replace";
+    suggestedDifficulty?: 1 | 3 | 5 | 8;
+    suggestedPriority?: "LOW" | "MEDIUM" | "HIGH";
+  }) {
+    const newItems: ChecklistItem[] = params.items.map((label) => ({
+      id: crypto.randomUUID(),
+      label,
+      checked: false
+    }));
+
+    if (params.mode === "replace") {
+      setChecklist(newItems);
+    } else {
+      setChecklist((current) => [...current, ...newItems]);
+    }
+
+    if (params.suggestedDifficulty && !difficulty) {
+      setDifficulty(params.suggestedDifficulty as DifficultyScore);
+    }
+
+    if (params.suggestedPriority && selectedPriority === "MEDIUM") {
+      setSelectedPriority(params.suggestedPriority);
+    }
+  }
+
+  async function handleInstantAiBreakdown() {
+    if (!title.trim()) {
+      toast({
+        message: "กรุณาระบุชื่องาน (Title) ก่อนกดแตกเช็กลิสต์ด้วย AI",
+        type: "error"
+      });
+      return;
+    }
+
+    if (isGeneratingAiChecklist) return;
+
+    setIsGeneratingAiChecklist(true);
+    try {
+      const res = await fetch("/api/ai/breakdown", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          description: description.trim() || null,
+          depth: "detailed"
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast({
+          message: data.error || "ไม่สามารถสร้างเช็กลิสต์ได้ กรุณาลองใหม่อีกครั้ง",
+          type: "error"
+        });
+        return;
+      }
+
+      if (Array.isArray(data.items) && data.items.length > 0) {
+        playCardCreateSound();
+        const newItems: ChecklistItem[] = data.items.map((label: string) => ({
+          id: crypto.randomUUID(),
+          label,
+          checked: false
+        }));
+
+        setChecklist((current) => [...current, ...newItems]);
+
+        if (data.suggestedDifficulty && !difficulty) {
+          setDifficulty(data.suggestedDifficulty as DifficultyScore);
+        }
+        if (data.suggestedPriority && selectedPriority === "MEDIUM") {
+          setSelectedPriority(data.suggestedPriority);
+        }
+
+        toast({
+          message: `✨ AI สร้าง ${data.items.length} ขั้นตอนสำเร็จ! (หัก 1 เครดิต คงเหลือ ${data.remainingCredits ?? ""})`,
+          type: "success"
+        });
+      }
+    } catch {
+      toast({
+        message: "เกิดข้อผิดพลาดในการเชื่อมต่อกับ DeepSeek AI",
+        type: "error"
+      });
+    } finally {
+      setIsGeneratingAiChecklist(false);
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!title.trim() || isSubmittingRef.current || isSaving) {
@@ -677,9 +772,50 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
             </div>
           </div>
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
-            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
-              <CheckSquare className="h-4 w-4 text-dusk-cyan" />
-              Checklist
+            <div className="mb-3 flex items-center justify-between text-sm font-medium text-stone-200">
+              <div className="flex items-center gap-2">
+                <CheckSquare className="h-4 w-4 text-dusk-cyan" />
+                <span>Checklist</span>
+                {checklist.length > 0 && (
+                  <span className="text-xs text-stone-400 font-mono">
+                    ({checklist.filter((i) => i.checked).length}/{checklist.length})
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  disabled={isGeneratingAiChecklist}
+                  onClick={handleInstantAiBreakdown}
+                  className="group inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/10 px-2.5 py-1 text-xs font-semibold text-dusk-lavender shadow-xs transition-all hover:border-dusk-lavender hover:bg-dusk-lavender/20 hover:scale-102 active:scale-98 cursor-pointer disabled:opacity-60"
+                  title="คลิกเดียว AI แตกชื่องานเป็น 8-10 ข้อย่อยลงในการ์ดทันที"
+                >
+                  {isGeneratingAiChecklist ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-dusk-amber" />
+                      <span>กำลังคิดขั้นตอน...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
+                      <span>AI Breakdown</span>
+                      <span className="rounded bg-dusk-lavender/20 px-1 py-0.2 text-[10px] font-mono text-dusk-lavender/90">
+                        1 cr
+                      </span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAiBreakdownOpen(true)}
+                  className="rounded-lg p-1 text-stone-400 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
+                  title="ตัวเลือกเพิ่มเติม (ใส่เป้าหมายพิเศษ / โหมดแทนที่เดิม)"
+                >
+                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={reorderChecklist}>
               <SortableContext items={checklist.map((item) => item.id)} strategy={verticalListSortingStrategy}>
@@ -927,6 +1063,13 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         savedAt={draftTimestamp}
         onRestore={restoreDraft}
         onDiscard={discardDraft}
+      />
+      <AiBreakdownModal
+        open={aiBreakdownOpen}
+        onClose={() => setAiBreakdownOpen(false)}
+        cardTitle={title}
+        cardDescription={description}
+        onApply={handleApplyAiChecklist}
       />
     </>
   );

@@ -17,6 +17,7 @@ import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "re
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { useSearchParams } from "next/navigation";
 import { CardModal } from "@/components/kanban/card-modal";
+import { AiProjectSummaryModal } from "@/components/ai/ai-project-summary-modal";
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
 import { KanbanColumn } from "@/components/kanban/column";
 import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
@@ -117,6 +118,7 @@ export function KanbanBoard({
   const [editingCard, setEditingCard] = useState<Card | null>(null);
   const [cardToDelete, setCardToDelete] = useState<Card | null>(null);
   const [isDeletingCard, setIsDeletingCard] = useState(false);
+  const [isAiSummaryOpen, setIsAiSummaryOpen] = useState(false);
   const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
 
   useEffect(() => {
@@ -1083,6 +1085,22 @@ export function KanbanBoard({
                 )}
               </button>
             )}
+
+            {/* AI Project Summary Button */}
+            {board.projectId && (
+              <button
+                type="button"
+                onClick={() => setIsAiSummaryOpen(true)}
+                className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-indigo-400/40 bg-indigo-500/10 px-2.5 text-xs font-semibold text-indigo-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:bg-indigo-500/20 active:scale-95 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
+                title="วิเคราะห์และสรุปภาพรวมความคืบหน้าของบอร์ดด้วย AI"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
+                <span className="hidden sm:inline">AI Summary</span>
+                <span className="rounded bg-indigo-500/20 px-1 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                  2 cr
+                </span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -1565,6 +1583,17 @@ export function KanbanBoard({
         onClose={() => setConfirmRenameOpen(false)}
         onConfirm={handleConfirmRenameBoard}
       />
+
+      {board.projectId && (
+        <AiProjectSummaryModal
+          open={isAiSummaryOpen}
+          onClose={() => setIsAiSummaryOpen(false)}
+          projectId={board.projectId}
+          boardId={board.id}
+          projectName={board.name}
+          boardName={board.name}
+        />
+      )}
     </div>
   );
 }
