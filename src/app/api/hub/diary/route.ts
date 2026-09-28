@@ -59,6 +59,7 @@ export async function GET() {
       return {
         ...item,
         color: normalizeCardColor(item.color),
+        repeatUnit: item.repeatUnit === "MONTH" ? "MONTH" : "DAY",
         startDate: item.startDate.toISOString(),
         checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
         rewardCoins: item.rewardCoins,
@@ -97,6 +98,7 @@ export async function POST(request: Request) {
         description: payload.description,
         color: payload.color,
         intervalDays: payload.intervalDays,
+        repeatUnit: payload.repeatUnit ?? "DAY",
         startDate: new Date(`${payload.startDate}T00:00:00.000Z`),
         checklist: payload.checklist as unknown as Prisma.InputJsonValue,
         rewardCoins: payload.rewardCoins,

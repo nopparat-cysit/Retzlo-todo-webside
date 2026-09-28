@@ -1,10 +1,11 @@
-import { isDiaryItemDueOnDate } from "@/lib/diary/recurrence";
+import { isDiaryItemDueOnDate, type DiaryRepeatUnit } from "@/lib/diary/recurrence";
 
 export interface DiaryChecklistItem {
   id: string;
   label: string;
   description: string;
   intervalDays: number;
+  repeatUnit?: DiaryRepeatUnit;
   startDate: string;
   dueTime: string | null;
   completedDates: string[];
@@ -13,6 +14,7 @@ export interface DiaryChecklistItem {
 export interface DiaryChecklistScheduleSource {
   checklist: unknown;
   intervalDays: number;
+  repeatUnit?: DiaryRepeatUnit;
   startDate: string | Date;
 }
 
@@ -36,32 +38,35 @@ export function normalizeDiaryChecklist(value: unknown, fallbackStartDate?: stri
 
   const normalizedFallbackStartDate = normalizeDateKey(fallbackStartDate) ?? "1970-01-01";
 
-  return value
-    .map((entry) => {
-      if (!isRecord(entry)) {
-        return null;
-      }
+  const items: DiaryChecklistItem[] = [];
 
-      const label = typeof entry.label === "string" ? entry.label.trim() : "";
-      const startDate = typeof entry.startDate === "string" && datePattern.test(entry.startDate)
-        ? entry.startDate
-        : normalizedFallbackStartDate;
+  for (const entry of value) {
+    if (!isRecord(entry)) {
+      continue;
+    }
 
-      if (!label) {
-        return null;
-      }
+    const label = typeof entry.label === "string" ? entry.label.trim() : "";
+    const startDate = typeof entry.startDate === "string" && datePattern.test(entry.startDate)
+      ? entry.startDate
+      : normalizedFallbackStartDate;
 
-      return {
-        id: typeof entry.id === "string" && entry.id.trim() ? entry.id : crypto.randomUUID(),
-        label: label.slice(0, 160),
-        description: typeof entry.description === "string" ? entry.description.trim().slice(0, 1000) : "",
-        intervalDays: sanitizeIntervalDays(entry.intervalDays),
-        startDate,
-        dueTime: typeof entry.dueTime === "string" && timePattern.test(entry.dueTime) ? entry.dueTime : null,
-        completedDates: normalizeCompletedDates(entry.completedDates)
-      };
-    })
-    .filter((entry): entry is DiaryChecklistItem => Boolean(entry));
+    if (!label) {
+      continue;
+    }
+
+    items.push({
+      id: typeof entry.id === "string" && entry.id.trim() ? entry.id : crypto.randomUUID(),
+      label: label.slice(0, 160),
+      description: typeof entry.description === "string" ? entry.description.trim().slice(0, 1000) : "",
+      intervalDays: sanitizeIntervalDays(entry.intervalDays),
+      repeatUnit: entry.repeatUnit === "MONTH" ? "MONTH" : "DAY",
+      startDate,
+      dueTime: typeof entry.dueTime === "string" && timePattern.test(entry.dueTime) ? entry.dueTime : null,
+      completedDates: normalizeCompletedDates(entry.completedDates)
+    });
+  }
+
+  return items;
 }
 
 export function getDiaryChecklistSummary(
@@ -71,7 +76,7 @@ export function getDiaryChecklistSummary(
   const checklist = normalizeDiaryChecklist(item.checklist, item.startDate);
 
   if (checklist.length === 0) {
-    const isDue = isDiaryItemDueOnDate(item.startDate, selectedDate, item.intervalDays);
+    const isDue = isDiaryItemDueOnDate(item.startDate, selectedDate, item.intervalDays, item.repeatUnit ?? "DAY");
 
     return {
       completedCount: 0,
@@ -97,7 +102,7 @@ export function getDiaryChecklistSummary(
 }
 
 export function isDiaryChecklistItemDueOnDate(item: DiaryChecklistItem, selectedDate: string | Date) {
-  return isDiaryItemDueOnDate(item.startDate, selectedDate, item.intervalDays);
+  return isDiaryItemDueOnDate(item.startDate, selectedDate, item.intervalDays, item.repeatUnit ?? "DAY");
 }
 
 export function isDiaryChecklistItemCompletedOnDate(item: DiaryChecklistItem, selectedDate: string | Date) {

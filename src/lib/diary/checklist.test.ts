@@ -32,6 +32,7 @@ describe("diary checklist helpers", () => {
         label: "Drink water",
         description: "Morning habit",
         intervalDays: 3,
+        repeatUnit: "DAY",
         startDate: "2026-06-01",
         dueTime: "09:30",
         completedDates: ["2026-06-04"]
@@ -47,6 +48,18 @@ describe("diary checklist helpers", () => {
     expect(isDiaryChecklistItemDueOnDate(item, "2026-06-01")).toBe(true);
     expect(isDiaryChecklistItemDueOnDate(item, "2026-06-02")).toBe(false);
     expect(isDiaryChecklistItemDueOnDate(item, "2026-06-04")).toBe(true);
+  });
+
+  it("checks checklist recurrence with MONTH repeatUnit on 28th", () => {
+    const [monthlyItem] = normalizeDiaryChecklist([
+      { id: "item-monthly", label: "Salary & Rent", intervalDays: 1, repeatUnit: "MONTH", startDate: "2026-01-28" }
+    ]);
+
+    expect(isDiaryChecklistItemDueOnDate(monthlyItem, "2026-01-28")).toBe(true);
+    expect(isDiaryChecklistItemDueOnDate(monthlyItem, "2026-02-28")).toBe(true);
+    expect(isDiaryChecklistItemDueOnDate(monthlyItem, "2026-03-28")).toBe(true);
+    expect(isDiaryChecklistItemDueOnDate(monthlyItem, "2026-03-27")).toBe(false);
+    expect(isDiaryChecklistItemDueOnDate(monthlyItem, "2026-03-29")).toBe(false);
   });
 
   it("does not treat an item starting in the future as due today", () => {

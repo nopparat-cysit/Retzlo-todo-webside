@@ -21,6 +21,7 @@ function toDiaryItemResponse(
     description: string | null;
     color: string;
     intervalDays: number;
+    repeatUnit?: string;
     startDate: Date;
     checklist: unknown;
     rewardCoins: number;
@@ -44,6 +45,7 @@ function toDiaryItemResponse(
   return {
     ...item,
     color: normalizeCardColor(item.color),
+    repeatUnit: item.repeatUnit === "MONTH" ? "MONTH" : "DAY",
     startDate: item.startDate.toISOString(),
     checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
     rewardCoins: item.rewardCoins,
@@ -143,6 +145,7 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
           description: payload.description,
           color: payload.color,
           intervalDays: payload.intervalDays,
+          repeatUnit: payload.repeatUnit,
           startDate: payload.startDate ? new Date(`${payload.startDate}T00:00:00.000Z`) : undefined,
           checklist: payload.checklist as unknown as Prisma.InputJsonValue | undefined,
           rewardCoins: payload.rewardCoins,

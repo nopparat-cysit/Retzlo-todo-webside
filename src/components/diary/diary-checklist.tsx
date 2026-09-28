@@ -18,18 +18,26 @@ import { cn } from "@/lib/utils";
 
 interface DiaryChecklistEditorProps {
   defaultRepeatDays: number;
+  defaultRepeatUnit?: "DAY" | "MONTH";
   defaultStartDate: string;
   onDefaultRepeatDaysChange: (days: number) => void;
+  onDefaultRepeatUnitChange?: (unit: "DAY" | "MONTH") => void;
   onChange: (items: DiaryChecklistItem[]) => void;
   value: DiaryChecklistItem[];
 }
 
+function getStartDayOfMonth(dateStr?: string): number {
+  if (!dateStr) return 1;
+  const parts = dateStr.slice(0, 10).split("-");
+  return Number.parseInt(parts[2], 10) || 1;
+}
+
 const repeatPresets = [
-  { label: "Daily", days: 1 },
-  { label: "3 days", days: 3 },
-  { label: "Weekly", days: 7 },
-  { label: "2 weeks", days: 14 },
-  { label: "Monthly", days: 30 }
+  { label: "Daily", days: 1, unit: "DAY" as const },
+  { label: "3 days", days: 3, unit: "DAY" as const },
+  { label: "Weekly", days: 7, unit: "DAY" as const },
+  { label: "2 weeks", days: 14, unit: "DAY" as const },
+  { label: "Monthly", days: 1, unit: "MONTH" as const }
 ];
 
 function toLocalDateString(date: Date = new Date()): string {
@@ -53,16 +61,18 @@ const START_DATE_PRESETS = [
 ];
 
 const REPEAT_DAYS_PRESETS = [
-  { label: "ทุกวัน", days: 1 },
-  { label: "7 วัน", days: 7 },
-  { label: "14 วัน", days: 14 },
-  { label: "30 วัน", days: 30 }
+  { label: "ทุกวัน", days: 1, unit: "DAY" as const },
+  { label: "7 วัน", days: 7, unit: "DAY" as const },
+  { label: "14 วัน", days: 14, unit: "DAY" as const },
+  { label: "ทุกเดือน (ตรงกับวันที่เดิม)", days: 1, unit: "MONTH" as const }
 ];
 
 export function DiaryChecklistEditor({
   defaultRepeatDays,
+  defaultRepeatUnit = "DAY",
   defaultStartDate,
   onDefaultRepeatDaysChange,
+  onDefaultRepeatUnitChange,
   onChange,
   value
 }: DiaryChecklistEditorProps) {
@@ -80,6 +90,7 @@ export function DiaryChecklistEditor({
         label: "",
         description: "",
         intervalDays: defaultRepeatDays,
+        repeatUnit: defaultRepeatUnit ?? "DAY",
         startDate: defaultStartDate,
         dueTime: null,
         completedDates: []
@@ -124,15 +135,18 @@ export function DiaryChecklistEditor({
         <div className="flex flex-wrap gap-1.5">
           {repeatPresets.map((preset) => (
             <button
-              key={preset.days}
+              key={preset.label}
               type="button"
               className={cn(
                 "h-7 rounded-md border px-2.5 text-xs transition",
-                defaultRepeatDays === preset.days
-                  ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber"
+                defaultRepeatDays === preset.days && (defaultRepeatUnit ?? "DAY") === preset.unit
+                  ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber font-semibold"
                   : "border-white/10 bg-white/5 text-stone-400 hover:border-dusk-amber/40"
               )}
-              onClick={() => onDefaultRepeatDaysChange(preset.days)}
+              onClick={() => {
+                onDefaultRepeatDaysChange(preset.days);
+                onDefaultRepeatUnitChange?.(preset.unit);
+              }}
             >
               {preset.label}
             </button>
@@ -232,12 +246,40 @@ export function DiaryChecklistEditor({
 
                     {/* Repeat Interval Field */}
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-medium text-stone-300">
-                        Repeat every (ทำซ้ำทุก)
-                      </label>
+                      <div className="flex items-center justify-between text-xs">
+                        <label className="block text-xs font-medium text-stone-300">
+                          Repeat every (ทำซ้ำทุก)
+                        </label>
+                        <div className="flex items-center gap-1 rounded-md border border-white/10 bg-white/5 p-0.5">
+                          <button
+                            type="button"
+                            onClick={() => updateItem(item.id, { repeatUnit: "DAY" })}
+                            className={cn(
+                              "rounded px-2 py-0.5 text-[10px] font-medium transition",
+                              (item.repeatUnit ?? "DAY") === "DAY"
+                                ? "bg-dusk-cyan/25 text-dusk-cyan font-semibold shadow-xs"
+                                : "text-stone-400 hover:text-stone-200"
+                            )}
+                          >
+                            วัน (Days)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => updateItem(item.id, { repeatUnit: "MONTH", intervalDays: 1 })}
+                            className={cn(
+                              "rounded px-2 py-0.5 text-[10px] font-medium transition",
+                              item.repeatUnit === "MONTH"
+                                ? "bg-dusk-cyan/25 text-dusk-cyan font-semibold shadow-xs"
+                                : "text-stone-400 hover:text-stone-200"
+                            )}
+                          >
+                            เดือน (Monthly)
+                          </button>
+                        </div>
+                      </div>
                       <div className="relative">
                         <Input
-                          className="h-9 pr-16 font-mono text-sm"
+                          className="h-9 pr-24 font-mono text-sm"
                           max={365}
                           min={1}
                           type="number"
@@ -247,20 +289,26 @@ export function DiaryChecklistEditor({
                           }
                         />
                         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">
-                          วัน (days)
+                          {item.repeatUnit === "MONTH" ? "เดือน (months)" : "วัน (days)"}
                         </span>
                       </div>
+                      {/* Hint for monthly recurrence */}
+                      {item.repeatUnit === "MONTH" && (
+                        <p className="rounded-md border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-1 text-[11px] text-dusk-cyan font-medium">
+                          📅 ทำซ้ำทุกเดือน: ตรงกับวันที่ <strong>{getStartDayOfMonth(item.startDate || defaultStartDate)}</strong> ของทุกเดือน (อิงตาม Start Date)
+                        </p>
+                      )}
                       {/* Quick rhythm presets under input */}
                       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                         <span className="text-[11px] text-stone-500">รอบ:</span>
                         {REPEAT_DAYS_PRESETS.map((rhythm) => (
                           <button
-                            key={rhythm.days}
+                            key={rhythm.label}
                             type="button"
-                            onClick={() => updateItem(item.id, { intervalDays: rhythm.days })}
+                            onClick={() => updateItem(item.id, { intervalDays: rhythm.days, repeatUnit: rhythm.unit })}
                             className={cn(
                               "rounded px-2 py-0.5 text-[11px] font-medium transition",
-                              item.intervalDays === rhythm.days
+                              (item.repeatUnit ?? "DAY") === rhythm.unit && item.intervalDays === rhythm.days
                                 ? "border border-dusk-cyan/45 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-xs"
                                 : "border border-white/10 bg-white/5 text-stone-400 hover:border-white/20 hover:bg-white/10 hover:text-stone-200"
                             )}
@@ -440,7 +488,9 @@ export function DiaryChecklistPreview({
                 <span className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-stone-500">
                   <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.055] px-2 py-0.5">
                     <Repeat className="h-3 w-3" />
-                    Every {item.intervalDays}d
+                    {item.repeatUnit === "MONTH"
+                      ? `Monthly (${getStartDayOfMonth(item.startDate)}th)`
+                      : `Every ${item.intervalDays}d`}
                   </span>
                   {item.startDate ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.055] px-2 py-0.5" title={`Start date: ${item.startDate}`}>

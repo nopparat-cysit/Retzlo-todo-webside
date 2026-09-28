@@ -1,5 +1,6 @@
 import type { CardColor } from "@/lib/theme/card-colors";
 import type { DiaryChecklistItem, DiaryRewardCoinType } from "@/lib/diary/checklist";
+import type { DiaryRepeatUnit } from "@/lib/diary/recurrence";
 
 export interface ProjectDiaryItem {
   id: string;
@@ -7,6 +8,7 @@ export interface ProjectDiaryItem {
   description: string | null;
   color: CardColor;
   intervalDays: number;
+  repeatUnit?: DiaryRepeatUnit;
   startDate: string;
   checklist: DiaryChecklistItem[];
   rewardCoins: number;

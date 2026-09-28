@@ -309,6 +309,7 @@ function toGlobalCalendarDiary(diary: DiaryWithProject): GlobalCalendarDiaryRaw 
     description: diary.description ?? "",
     color: diary.color,
     intervalDays: diary.intervalDays,
+    repeatUnit: (diary.repeatUnit === "MONTH" ? "MONTH" : "DAY") as "DAY" | "MONTH",
     startDate: diary.startDate.toISOString(),
     checklist: normalizeDiaryChecklist(diary.checklist, diary.startDate),
     rewardCoins: diary.rewardCoins,

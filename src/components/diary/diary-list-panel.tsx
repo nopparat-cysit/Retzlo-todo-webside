@@ -64,6 +64,7 @@ interface DiaryPayload {
   description: string;
   color: CardColor;
   intervalDays: number;
+  repeatUnit?: "DAY" | "MONTH";
   startDate: string;
   checklist: DiaryChecklistItem[];
   rewardCoins: number;
@@ -1110,7 +1111,9 @@ function DiaryFocusCard({
                 <div className="flex items-center justify-between border-b border-white/5 pb-2">
                   <span className="text-stone-400">Frequency</span>
                   <span className="font-medium text-stone-200">
-                    Every {item.intervalDays} day{item.intervalDays > 1 ? "s" : ""}
+                    {item.repeatUnit === "MONTH"
+                      ? `Monthly (${getStartDayOfMonth(item.startDate)}th)`
+                      : `Every ${item.intervalDays} day${item.intervalDays > 1 ? "s" : ""}`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between border-b border-white/5 pb-2">
@@ -1221,11 +1224,21 @@ function DiaryEmptyState({ label }: { label: string }) {
   );
 }
 
+function getStartDayOfMonth(dateStr?: string): number {
+  if (!dateStr) return 1;
+  const parts = dateStr.slice(0, 10).split("-");
+  return Number.parseInt(parts[2], 10) || 1;
+}
+
 function getDiarySummaryLabel(item: DiaryItemWithSummary) {
   if (item.checklistSummary.hasChecklist) {
     return item.checklistSummary.isDue
       ? `Due ${item.checklistSummary.completedCount}/${item.checklistSummary.dueCount} today`
       : `Checklist ${item.checklistSummary.totalCount}`;
+  }
+
+  if (item.repeatUnit === "MONTH") {
+    return `Monthly (${getStartDayOfMonth(item.startDate)}th)`;
   }
 
   return `Every ${item.intervalDays} day${item.intervalDays > 1 ? "s" : ""}`;
@@ -1251,6 +1264,7 @@ function DiaryItemModal({
   const [color, setColor] = useState<CardColor>(normalizeCardColor(item?.color));
   const [isHidden, setIsHidden] = useState(item?.isHidden ?? false);
   const [intervalDays, setIntervalDays] = useState(item?.intervalDays ?? 1);
+  const [repeatUnit, setRepeatUnit] = useState<"DAY" | "MONTH">(item?.repeatUnit === "MONTH" ? "MONTH" : "DAY");
   const [startDate, setStartDate] = useState(item?.startDate.slice(0, 10) ?? selectedDate);
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const [isRewardOpen, setIsRewardOpen] = useState((item?.rewardCoins ?? 0) > 0);
@@ -1282,6 +1296,7 @@ function DiaryItemModal({
     const initialColor = normalizeCardColor(item.color);
     const initialHidden = item.isHidden ?? false;
     const initialInterval = item.intervalDays ?? 1;
+    const initialRepeatUnit = item.repeatUnit ?? "DAY";
     const initialStart = item.startDate.slice(0, 10);
     const initialReward = item.rewardCoins ?? 0;
     const initialRewardType = item.rewardCoinType ?? "PROJECT";
@@ -1304,6 +1319,7 @@ function DiaryItemModal({
       color !== initialColor ||
       isHidden !== initialHidden ||
       intervalDays !== initialInterval ||
+      repeatUnit !== initialRepeatUnit ||
       startDate !== initialStart ||
       rewardCoins !== initialReward ||
       rewardCoinType !== initialRewardType ||
@@ -1316,6 +1332,7 @@ function DiaryItemModal({
     color,
     isHidden,
     intervalDays,
+    repeatUnit,
     startDate,
     selectedDate,
     rewardCoins,
@@ -1350,6 +1367,7 @@ function DiaryItemModal({
       description: descriptionVal,
       color,
       intervalDays,
+      repeatUnit,
       startDate,
       checklist: normalizeDiaryChecklist(checklist, startDate),
       rewardCoins: isRewardOpen ? rewardCoins : 0,
@@ -1508,8 +1526,10 @@ function DiaryItemModal({
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
               <DiaryChecklistEditor
                 defaultRepeatDays={intervalDays}
+                defaultRepeatUnit={repeatUnit}
                 defaultStartDate={startDate}
                 onDefaultRepeatDaysChange={setIntervalDays}
+                onDefaultRepeatUnitChange={setRepeatUnit}
                 value={checklist}
                 onChange={setChecklist}
               />

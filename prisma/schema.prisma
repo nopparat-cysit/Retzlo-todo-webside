@@ -224,6 +224,7 @@ model DiaryItem {
   description  String?
   color        String   @default("DEFAULT")
   intervalDays Int
+  repeatUnit   String   @default("DAY")
   startDate    DateTime
   checklist    Json?
   rewardCoins  Int      @default(0)

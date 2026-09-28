@@ -134,6 +134,7 @@ export interface GlobalCalendarDiaryRaw {
   description: string | null;
   color: string;
   intervalDays: number;
+  repeatUnit?: "DAY" | "MONTH";
   startDate: string;
   checklist: DiaryChecklistItem[];
   rewardCoins: number;
@@ -444,7 +445,7 @@ export function ProjectsDashboard({
       }
 
       for (const diary of calendarDiaries) {
-        const isDue = isDiaryItemDueOnDate(diary.startDate, dateStr, diary.intervalDays);
+        const isDue = isDiaryItemDueOnDate(diary.startDate, dateStr, diary.intervalDays, diary.repeatUnit ?? "DAY");
         if (isDue) {
           const checklistSummary = getDiaryChecklistSummary(diary, dateStr);
           diariesList.push({
