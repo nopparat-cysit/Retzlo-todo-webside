@@ -38,6 +38,8 @@ export async function POST(request: Request) {
       request.headers.get("x-deepseek-api-key")?.trim() ||
       undefined;
 
+    const clientModel = request.headers.get("x-ai-model")?.trim() || undefined;
+
     // 2. Call AI Engine
     const result = await generateTaskBreakdown({
       title: payload.title,
@@ -45,7 +47,8 @@ export async function POST(request: Request) {
       customGoal: payload.customGoal,
       depth: payload.depth,
       itemCount: payload.itemCount,
-      apiKey: clientApiKey
+      apiKey: clientApiKey,
+      model: clientModel
     });
 
     // 3. Deduct credit only on successful generation

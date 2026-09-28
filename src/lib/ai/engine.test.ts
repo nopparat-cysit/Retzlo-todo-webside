@@ -3,7 +3,7 @@ import { generateTaskBreakdown, generateProjectSummary, getAiApiKey } from "./en
 
 const REAL_KEY = process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY || "";
 
-describe("AI Assistant Engine", () => {
+describe("AI Assistant Engine", { timeout: 60000 }, () => {
   it("resolves AI_API_KEY or DEEPSEEK_API_KEY properly", () => {
     const key = getAiApiKey();
     expect(typeof key).toBe("string");

@@ -89,6 +89,8 @@ export async function POST(request: Request) {
       request.headers.get("x-deepseek-api-key")?.trim() ||
       undefined;
 
+    const clientModel = request.headers.get("x-ai-model")?.trim() || undefined;
+
     // 3. Call AI Engine
     const summary = await generateProjectSummary({
       projectName: project.name,
@@ -101,7 +103,8 @@ export async function POST(request: Request) {
       inProgressCards: doingCards.map((c) => ({ title: c.title, priority: c.priority })),
       overdueCards,
       doneCards: doneCards.map((c) => ({ title: c.title })),
-      apiKey: clientApiKey
+      apiKey: clientApiKey,
+      model: clientModel
     });
 
     // 4. Deduct credit on successful generation

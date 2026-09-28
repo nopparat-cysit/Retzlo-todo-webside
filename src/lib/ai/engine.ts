@@ -10,6 +10,7 @@ export interface AiChatOptions {
   userPrompt: string;
   systemPrompt?: string;
   apiKey?: string;
+  model?: string;
   temperature?: number;
   maxTokens?: number;
   jsonMode?: boolean;
@@ -48,6 +49,23 @@ function cleanJsonString(text: string): string {
   }
 
   return text;
+}
+
+function safeParseJson<T>(text: string, fallback: T): T {
+  try {
+    const cleaned = cleanJsonString(text);
+    return JSON.parse(cleaned) as T;
+  } catch {
+    try {
+      let candidate = cleanJsonString(text);
+      if (!candidate.endsWith("}")) {
+        candidate = candidate.replace(/,\s*"[^"]*":?\s*("[^"]*)?$/, "") + "}";
+      }
+      return JSON.parse(candidate) as T;
+    } catch {
+      return fallback;
+    }
+  }
 }
 
 /**
@@ -119,11 +137,14 @@ export function getAiBaseUrl(): string {
   ).replace(/\/+$/, "");
 }
 
-export function getAiModel(): string {
+export function getAiModel(overrideModel?: string): string {
+  if (overrideModel && overrideModel.trim()) {
+    return overrideModel.trim();
+  }
   return (
     process.env.AI_MODEL ||
     process.env.DEEPSEEK_MODEL ||
-    "deepseek-chat"
+    "deepseek-v4-pro"
   );
 }
 
@@ -135,7 +156,7 @@ export async function callAiChat(
 ): Promise<string> {
   let apiKey = getAiApiKey(options.apiKey);
   const baseUrl = getAiBaseUrl();
-  const model = getAiModel();
+  const model = getAiModel(options.model);
 
   // Transparent error when API key is missing in production/dev
   if (!apiKey || apiKey === "" || apiKey === "undefined") {
@@ -147,7 +168,7 @@ export async function callAiChat(
     );
   }
 
-  const timeoutMs = options.timeoutMs ?? 20000;
+  const timeoutMs = options.timeoutMs ?? 45000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -168,7 +189,7 @@ export async function callAiChat(
         model,
         messages,
         temperature: options.temperature ?? 0.3,
-        max_tokens: options.maxTokens ?? 1500,
+        max_tokens: options.maxTokens ?? 4096,
         response_format: options.jsonMode ? { type: "json_object" } : undefined
       }),
       signal: controller.signal
@@ -189,7 +210,7 @@ export async function callAiChat(
             model,
             messages,
             temperature: options.temperature ?? 0.3,
-            max_tokens: options.maxTokens ?? 1500,
+            max_tokens: options.maxTokens ?? 4096,
             response_format: options.jsonMode ? { type: "json_object" } : undefined
           }),
           signal: controller.signal
@@ -210,10 +231,11 @@ export async function callAiChat(
     }
 
     const data = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
+      choices?: Array<{ message?: { content?: string; reasoning_content?: string } }>;
     };
 
-    const content = data.choices?.[0]?.message?.content;
+    const choice = data.choices?.[0];
+    const content = choice?.message?.content || choice?.message?.reasoning_content;
     if (!content) {
       throw new Error("AI returned an empty response.");
     }
@@ -241,8 +263,9 @@ export async function generateTaskBreakdown(params: {
   depth?: "standard" | "detailed";
   itemCount?: number;
   apiKey?: string;
+  model?: string;
 }): Promise<TaskBreakdownResult> {
-  const { title, description, customGoal, depth = "detailed", itemCount, apiKey } = params;
+  const { title, description, customGoal, depth = "detailed", itemCount, apiKey, model } = params;
 
   const countDirective = itemCount
     ? `Target Step Count: EXACTLY ${itemCount} actionable steps. You MUST return exactly ${itemCount} items in the "items" array.`
@@ -260,11 +283,11 @@ Generate high-quality, practical, sequential checklist todos starting with actio
     userPrompt,
     jsonMode: true,
     temperature: 0.35,
-    apiKey
+    apiKey,
+    model
   });
 
-  const cleaned = cleanJsonString(rawJson);
-  const parsed = JSON.parse(cleaned) as Partial<TaskBreakdownResult>;
+  const parsed = safeParseJson<Partial<TaskBreakdownResult>>(rawJson, {});
 
   let rawItems = Array.isArray(parsed.items)
     ? parsed.items.map((i) => sanitizeChecklistItem(String(i))).filter(Boolean)
@@ -313,6 +336,7 @@ export async function generateProjectSummary(params: {
   inProgressCards: Array<{ title: string; priority: string }>;
   doneCards: Array<{ title: string }>;
   apiKey?: string;
+  model?: string;
 }): Promise<ProjectSummaryResult> {
   const userPrompt = `Project: "${params.projectName}" (Board: "${params.boardName}")
 Metrics:
@@ -338,11 +362,11 @@ Generate an insightful executive summary in JSON format.`;
     userPrompt,
     jsonMode: true,
     temperature: 0.3,
-    apiKey: params.apiKey
+    apiKey: params.apiKey,
+    model: params.model
   });
 
-  const cleaned = cleanJsonString(rawJson);
-  const parsed = JSON.parse(cleaned) as Partial<ProjectSummaryResult>;
+  const parsed = safeParseJson<Partial<ProjectSummaryResult>>(rawJson, {});
 
   return {
     healthStatus:
