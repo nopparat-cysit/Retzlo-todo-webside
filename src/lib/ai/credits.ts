@@ -11,7 +11,8 @@ export interface UserAiQuota {
 
 export const AI_CREDIT_COSTS = {
   BREAKDOWN: 1,
-  SUMMARY: 2
+  SUMMARY: 2,
+  CHAT: 1
 } as const;
 
 export const AI_TIER_LIMITS: Record<AiTier, number> = {
@@ -79,7 +80,7 @@ export async function getUserAiQuota(userId: string): Promise<UserAiQuota> {
 export async function deductUserAiCredit(
   userId: string,
   cost: number,
-  _feature: "BREAKDOWN" | "SUMMARY"
+  _feature: "BREAKDOWN" | "SUMMARY" | "CHAT"
 ): Promise<{ ok: boolean; remainingCredits: number; error?: string }> {
   const user = await prisma.user.findUnique({
     where: { id: userId },

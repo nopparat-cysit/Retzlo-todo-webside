@@ -3,11 +3,18 @@ import path from "path";
 
 import {
   TASK_BREAKDOWN_SYSTEM_PROMPT,
-  PROJECT_SUMMARY_SYSTEM_PROMPT
+  PROJECT_SUMMARY_SYSTEM_PROMPT,
+  AI_CHATBOT_SYSTEM_PROMPT
 } from "./prompts";
 
+export interface AiChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
 export interface AiChatOptions {
-  userPrompt: string;
+  userPrompt?: string;
+  messages?: AiChatMessage[];
   systemPrompt?: string;
   apiKey?: string;
   model?: string;
@@ -172,11 +179,20 @@ export async function callAiChat(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
-  const messages: Array<{ role: "system" | "user"; content: string }> = [];
-  if (options.systemPrompt) {
-    messages.push({ role: "system", content: options.systemPrompt });
+  const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [];
+  if (options.messages && options.messages.length > 0) {
+    if (options.systemPrompt && !options.messages.some((m) => m.role === "system")) {
+      messages.push({ role: "system", content: options.systemPrompt });
+    }
+    messages.push(...options.messages);
+  } else {
+    if (options.systemPrompt) {
+      messages.push({ role: "system", content: options.systemPrompt });
+    }
+    if (options.userPrompt) {
+      messages.push({ role: "user", content: options.userPrompt });
+    }
   }
-  messages.push({ role: "user", content: options.userPrompt });
 
   try {
     let response = await fetch(`${baseUrl}/chat/completions`, {
@@ -391,9 +407,36 @@ Generate an insightful executive summary in JSON format.`;
 }
 
 /**
+ * Conversational Chat Assistant supporting multi-turn dialogues with project context.
+ */
+export async function chatWithAssistant(params: {
+  messages: AiChatMessage[];
+  projectContext?: string;
+  apiKey?: string;
+  model?: string;
+}): Promise<string> {
+  const systemPrompt = params.projectContext
+    ? `${AI_CHATBOT_SYSTEM_PROMPT}\n\n[ข้อมูลกระดานงานและโปรเจกต์ปัจจุบัน]:\n${params.projectContext}`
+    : AI_CHATBOT_SYSTEM_PROMPT;
+
+  return callAiChat({
+    systemPrompt,
+    messages: params.messages,
+    temperature: 0.6,
+    maxTokens: 4096,
+    apiKey: params.apiKey,
+    model: params.model
+  });
+}
+
+/**
  * Fallback generator for test runtimes when no API key is present.
  */
 function generateFallbackResponse(options: AiChatOptions): string {
+  if (options.messages && options.messages.length > 0) {
+    return "สวัสดีครับ! ผม Retzlo AI ผู้ช่วยวางแผนงานและกระดาน Kanban ของคุณ มีอะไรให้ผมช่วยดูแลเกี่ยวกับงานหรือโปรเจกต์ในตอนนี้ไหมครับ?";
+  }
+
   if (options.systemPrompt?.includes("Productivity Specialist")) {
     return JSON.stringify({
       items: [

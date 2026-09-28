@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateTaskBreakdown, generateProjectSummary, getAiApiKey } from "./engine";
+import { generateTaskBreakdown, generateProjectSummary, chatWithAssistant, getAiApiKey } from "./engine";
 
 const REAL_KEY = process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY || "";
 
@@ -89,5 +89,22 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
     expect(["HEALTHY", "ATTENTION", "CRITICAL"]).toContain(result.healthStatus);
     expect(result.completionRatePercent).toBeGreaterThanOrEqual(0);
     expect(result.overview.length).toBeGreaterThan(0);
+  });
+
+  it("chatWithAssistant generates conversational response successfully", async () => {
+    const originalAiKey = process.env.AI_API_KEY;
+    const originalDeepseekKey = process.env.DEEPSEEK_API_KEY;
+    delete process.env.AI_API_KEY;
+    delete process.env.DEEPSEEK_API_KEY;
+    try {
+      const reply = await chatWithAssistant({
+        messages: [{ role: "user", content: "สวัสดีครับ ขอคำแนะนำการทำงานหน่อย" }]
+      });
+      expect(typeof reply).toBe("string");
+      expect(reply.length).toBeGreaterThan(0);
+    } finally {
+      if (originalAiKey) process.env.AI_API_KEY = originalAiKey;
+      if (originalDeepseekKey) process.env.DEEPSEEK_API_KEY = originalDeepseekKey;
+    }
   });
 });
