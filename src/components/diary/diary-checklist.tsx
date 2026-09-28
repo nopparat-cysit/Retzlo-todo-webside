@@ -26,7 +26,7 @@ interface DiaryChecklistEditorProps {
   value: DiaryChecklistItem[];
 }
 
-function getStartDayOfMonth(dateStr?: string): number {
+export function getStartDayOfMonth(dateStr?: string): number {
   if (!dateStr) return 1;
   const parts = dateStr.slice(0, 10).split("-");
   return Number.parseInt(parts[2], 10) || 1;
@@ -404,12 +404,12 @@ export function DiaryChecklistPreview({
   const rewardReady = hasReward && dueItems.length > 0 && completedDueCount === dueItems.length && !rewardClaimed;
 
   return (
-    <div data-diary-checklist-preview="routine-rows" className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-ink-950/20">
-      <div className="border-b border-white/10 bg-white/[0.035] px-4 py-3">
+    <div data-diary-checklist-preview="routine-rows" className="mt-4 overflow-hidden rounded-2xl border border-stone-200/90 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/40">
+      <div className="border-b border-stone-200/80 bg-stone-100/80 px-4 py-3 dark:border-white/10 dark:bg-white/[0.035]">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-300">Checklist</p>
-            <p className="mt-0.5 text-[11px] text-stone-500">Tap due rows to finish the daily routine.</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-700 dark:text-stone-300">Checklist</p>
+            <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Tap due rows to finish the daily routine.</p>
           </div>
           <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
             {hasReward ? (
@@ -417,17 +417,17 @@ export function DiaryChecklistPreview({
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px]",
                   rewardReady
-                    ? "border-emerald-300/30 bg-emerald-300/12 text-emerald-300"
+                    ? "border-emerald-300/40 bg-emerald-500/15 text-emerald-600 dark:border-emerald-300/30 dark:bg-emerald-300/12 dark:text-emerald-300 font-medium"
                     : rewardClaimed
-                      ? "border-dusk-amber/25 bg-dusk-amber/10 text-dusk-amber"
-                      : "border-dusk-amber/20 bg-dusk-amber/8 text-dusk-amber"
+                      ? "border-amber-300/40 bg-amber-500/15 text-amber-800 dark:border-dusk-amber/25 dark:bg-dusk-amber/10 dark:text-dusk-amber font-medium"
+                      : "border-amber-300/30 bg-amber-500/10 text-amber-800 dark:border-dusk-amber/20 dark:bg-dusk-amber/8 dark:text-dusk-amber font-medium"
                 )}
               >
                 <Coins className="h-3 w-3" />
                 {rewardClaimed ? "Claimed" : `${rewardCoins} ${rewardCoinType === "GLOBAL" ? "global" : "project"}`}
               </span>
             ) : null}
-            <span className="rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] text-dusk-cyan">
+            <span className="rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 text-[10px] text-teal-700 font-medium dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
               {dueItems.length > 0 ? `${progressLabel} today` : `${progressLabel} items`}
             </span>
           </div>
@@ -446,10 +446,10 @@ export function DiaryChecklistPreview({
             <label
               key={item.id}
               className={cn(
-                "group flex w-full items-start gap-3 rounded-xl border border-white/8 bg-white/[0.03] p-3 text-sm transition hover:border-dusk-lavender/22 hover:bg-white/[0.055]",
-                isDue && "border-dusk-lavender/20 bg-dusk-lavender/[0.05] shadow-[0_14px_32px_rgba(169,162,255,0.07)]",
-                isCompleted && "border-emerald-300/20 bg-emerald-300/[0.035]",
-                !isDue && "opacity-45"
+                "group flex w-full items-start gap-3 rounded-xl border border-stone-200/80 bg-white/80 p-3 text-sm transition hover:border-indigo-300 hover:bg-white dark:border-white/8 dark:bg-white/[0.03] dark:hover:border-dusk-lavender/22 dark:hover:bg-white/[0.055]",
+                isDue && "border-indigo-300/60 bg-indigo-50/50 shadow-[0_4px_16px_rgba(99,102,241,0.06)] dark:border-dusk-lavender/20 dark:bg-dusk-lavender/[0.05] dark:shadow-[0_14px_32px_rgba(169,162,255,0.07)]",
+                isCompleted && "border-emerald-300/40 bg-emerald-50/50 dark:border-emerald-300/20 dark:bg-emerald-300/[0.035]",
+                !isDue && "opacity-55"
               )}
             >
               <button
@@ -457,9 +457,9 @@ export function DiaryChecklistPreview({
                 className={cn(
                   "mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border transition",
                   isCompleted
-                    ? "border-emerald-300/40 bg-emerald-300/15 text-emerald-300"
-                    : "border-white/15 bg-ink-950/40 text-stone-500",
-                  canManage && isDue && "hover:border-dusk-cyan/45 hover:text-dusk-cyan",
+                    ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-600 dark:border-emerald-300/40 dark:bg-emerald-300/15 dark:text-emerald-300"
+                    : "border-stone-300 bg-stone-100 text-stone-400 dark:border-white/15 dark:bg-ink-950/40 dark:text-stone-500",
+                  canManage && isDue && "hover:border-indigo-400 hover:text-indigo-600 dark:hover:border-dusk-cyan/45 dark:hover:text-dusk-cyan",
                   (!canManage || !isDue) && "cursor-default opacity-70"
                 )}
                 disabled={!canManage || !isDue}
@@ -470,36 +470,36 @@ export function DiaryChecklistPreview({
               </button>
               <span className="min-w-0 flex-1">
                 <span className="flex min-w-0 items-start justify-between gap-2">
-                  <span className={cn("block truncate font-semibold text-stone-100", isCompleted && "line-through opacity-70")}>
+                  <span className={cn("block truncate font-semibold text-stone-900 dark:text-stone-100", isCompleted && "line-through opacity-70")}>
                     {item.label || "Untitled checklist item"}
                   </span>
                   <span
                     className={cn(
                       "shrink-0 rounded-full border px-2 py-0.5 text-[10px]",
                       isDue
-                        ? "border-dusk-cyan/20 bg-dusk-cyan/10 text-dusk-cyan"
-                        : "border-white/10 bg-white/[0.045] text-stone-500"
+                        ? "border-teal-200 bg-teal-50 text-teal-700 font-medium dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan"
+                        : "border-stone-200 bg-stone-100 text-stone-500 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-500"
                     )}
                   >
                     {isDue ? "Today" : "Later"}
                   </span>
                 </span>
-                {item.description ? <span className="mt-1 line-clamp-2 block text-xs leading-5 text-stone-500">{item.description}</span> : null}
-                <span className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-stone-500">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.055] px-2 py-0.5">
+                {item.description ? <span className="mt-1 line-clamp-2 block text-xs leading-5 text-stone-600 dark:text-stone-400">{item.description}</span> : null}
+                <span className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-stone-600 dark:text-stone-400">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]">
                     <Repeat className="h-3 w-3" />
                     {item.repeatUnit === "MONTH"
                       ? `Monthly (${getStartDayOfMonth(item.startDate)}th)`
                       : `Every ${item.intervalDays}d`}
                   </span>
                   {item.startDate ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.055] px-2 py-0.5" title={`Start date: ${item.startDate}`}>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]" title={`Start date: ${item.startDate}`}>
                       <Calendar className="h-3 w-3" />
                       Starts {item.startDate}
                     </span>
                   ) : null}
-                  {item.dueTime ? <span className="rounded-full bg-white/[0.055] px-2 py-0.5">{item.dueTime}</span> : null}
-                  {!isDue ? <span className="rounded-full bg-white/[0.055] px-2 py-0.5">Not due today</span> : null}
+                  {item.dueTime ? <span className="rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]">{item.dueTime}</span> : null}
+                  {!isDue ? <span className="rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]">Not due today</span> : null}
                 </span>
               </span>
             </label>

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { BookOpen, CheckCircle2, ExternalLink, FileText, Pin, Plus, Save, SlidersHorizontal, Star, X } from "lucide-react";
-import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
+import { DiaryChecklistEditor, DiaryChecklistPreview, getStartDayOfMonth } from "@/components/diary/diary-checklist";
 import { cn } from "@/lib/utils";
 import { Input, Textarea } from "@/components/ui/input";
 import { AppModal } from "@/components/ui/app-modal";
@@ -35,6 +35,7 @@ interface DisplayDiaryItem {
   title: string;
   description: string | null;
   intervalDays: number;
+  repeatUnit?: "DAY" | "MONTH";
   dueTime: string | null;
   projectId: string | null;
   projectName: string | null;
@@ -316,34 +317,36 @@ function PinnedDisplayPanel({
           : "Note";
 
   return (
-    <div className="motion-floating-in w-[min(calc(100vw-2rem),24rem)] max-h-[75dvh] flex flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white text-left text-stone-900 shadow-[0_18px_54px_rgba(41,37,36,0.12)] backdrop-blur-xl dark:border-white/12 dark:bg-ink-950/92 dark:text-stone-100 dark:shadow-[0_18px_54px_rgba(0,0,0,0.42)]">
-      <div className="border-b border-stone-200/80 bg-stone-50/80 p-4 shrink-0 dark:border-white/10 dark:bg-white/[0.035]">
+    <div className="motion-floating-in w-[min(calc(100vw-2rem),24rem)] max-h-[75dvh] flex flex-col overflow-hidden rounded-2xl border border-[#e2dcd2] bg-[#faf7f2] text-left text-stone-900 shadow-[0_18px_54px_rgba(41,37,36,0.14)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0e1025] dark:text-stone-100 dark:shadow-[0_18px_54px_rgba(0,0,0,0.5)]">
+      <div className="border-b border-[#e2dcd2] bg-white/70 p-4 shrink-0 dark:border-white/10 dark:bg-white/[0.035]">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className={cn("text-xs uppercase tracking-[0.22em]", isDiary ? "text-dusk-lavender" : "text-dusk-cyan")}>
+            <p className={cn("text-xs uppercase tracking-[0.22em]", isDiary ? "text-indigo-600 dark:text-dusk-lavender" : "text-teal-700 dark:text-dusk-cyan")}>
               {isDiary ? "Pinned diary list" : "Pinned note"}
             </p>
-            <h3 className="mt-1 truncate text-base font-semibold">{title}</h3>
+            <h3 className="mt-1 truncate text-base font-semibold text-stone-900 dark:text-stone-100">{title}</h3>
           </div>
           <Star className="mt-0.5 h-4 w-4 shrink-0 fill-red-400 text-red-400" />
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] text-stone-600 dark:text-stone-400">
-          <span className="rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 dark:border-white/10 dark:bg-white/[0.055]">
+          <span className="rounded-full border border-stone-200 bg-white/90 px-2 py-0.5 text-stone-700 dark:border-white/10 dark:bg-white/[0.055] dark:text-stone-300">
             {projectName}
           </span>
           {activeItem?.type === "diary" ? (
             <>
-              <span className="rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-dusk-cyan">
-                Every {activeItem.intervalDays}d
+              <span className="rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 text-teal-700 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan font-medium">
+                {activeItem.repeatUnit === "MONTH"
+                  ? `Monthly (${activeItem.startDate ? getStartDayOfMonth(activeItem.startDate) : "28"}th)`
+                  : `Every ${activeItem.intervalDays}d`}
               </span>
               {activeItem.dueTime ? (
-                <span className="rounded-full border border-dusk-amber/20 bg-dusk-amber/10 px-2 py-0.5 text-dusk-amber">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800 dark:border-dusk-amber/20 dark:bg-dusk-amber/10 dark:text-dusk-amber font-medium">
                   {activeItem.dueTime}
                 </span>
               ) : null}
             </>
           ) : activeItem?.type === "note" && activeItem.completedAt ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-dusk-mint/25 bg-dusk-mint/10 px-2 py-0.5 text-dusk-mint">
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-700 dark:border-dusk-mint/25 dark:bg-dusk-mint/10 dark:text-dusk-mint font-medium">
               <CheckCircle2 className="h-3 w-3" />
               Completed
             </span>
@@ -353,15 +356,15 @@ function PinnedDisplayPanel({
 
       <div className="p-4 overflow-y-auto scrollbar-soft flex-1 min-h-0">
         {isLoading ? (
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-600 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400">
+          <div className="rounded-xl border border-[#e2dcd2] bg-white/60 p-4 text-sm text-stone-600 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400">
             Loading selected display...
           </div>
         ) : error ? (
-          <div className="rounded-xl border border-dusk-rose/25 bg-dusk-rose/10 p-4 text-sm leading-6 text-dusk-rose">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-700 dark:border-dusk-rose/25 dark:bg-dusk-rose/10 dark:text-dusk-rose">
             {error}
           </div>
         ) : activeItem?.type === "diary" ? (
-          <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.025]">
+          <div className="rounded-xl border border-[#e2dcd2] bg-white/50 p-3 dark:border-white/10 dark:bg-white/[0.025]">
             {activeItem.description ? (
               <p className="mb-3 whitespace-pre-wrap text-sm leading-6 text-stone-700 dark:text-stone-300">{activeItem.description}</p>
             ) : null}
@@ -373,13 +376,13 @@ function PinnedDisplayPanel({
                 onChange={(checklist) => onDiaryChecklistChange(activeItem, checklist)}
               />
             ) : (
-              <div className="rounded-lg border border-dashed border-white/10 p-4 text-sm text-stone-500">
+              <div className="rounded-lg border border-dashed border-stone-300 p-4 text-sm text-stone-500 dark:border-white/10">
                 No checklist task yet.
               </div>
             )}
           </div>
         ) : (
-          <p className="max-h-32 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-stone-300 scrollbar-soft">
+          <p className="max-h-32 overflow-y-auto whitespace-pre-wrap rounded-xl border border-[#e2dcd2] bg-white/60 p-4 text-sm leading-6 text-stone-700 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 scrollbar-soft">
             {body}
           </p>
         )}
@@ -387,7 +390,7 @@ function PinnedDisplayPanel({
         <div className="mt-4 grid grid-cols-2 gap-2">
           <button
             type="button"
-            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/15 px-3 py-2 text-xs font-medium text-dusk-lavender transition hover:border-dusk-lavender/50 hover:bg-dusk-lavender/20"
+            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-100 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/25"
             onClick={onOpen}
           >
             <ExternalLink className="h-3.5 w-3.5" />
@@ -395,7 +398,7 @@ function PinnedDisplayPanel({
           </button>
           <button
             type="button"
-            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-dusk-amber/25 bg-dusk-amber/10 px-3 py-2 text-xs font-medium text-dusk-amber transition hover:border-dusk-amber/45 hover:bg-dusk-amber/15"
+            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 transition hover:border-amber-300 hover:bg-amber-100 dark:border-dusk-amber/30 dark:bg-dusk-amber/15 dark:text-dusk-amber dark:hover:border-dusk-amber/45 dark:hover:bg-dusk-amber/25"
             onClick={onChange}
           >
             <Pin className="h-3.5 w-3.5" />
@@ -403,7 +406,7 @@ function PinnedDisplayPanel({
           </button>
           <button
             type="button"
-            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2 text-xs font-medium text-stone-300 transition hover:border-dusk-lavender/35 hover:bg-white/[0.075] hover:text-stone-100"
+            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white/80 px-3 py-2 text-xs font-medium text-stone-700 transition hover:border-indigo-300 hover:bg-white dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-300 dark:hover:border-dusk-lavender/35 dark:hover:bg-white/[0.08] dark:hover:text-stone-100"
             onClick={() => onCreate("diary")}
           >
             <BookOpen className="h-3.5 w-3.5" />
@@ -411,7 +414,7 @@ function PinnedDisplayPanel({
           </button>
           <button
             type="button"
-            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2 text-xs font-medium text-stone-300 transition hover:border-dusk-cyan/35 hover:bg-white/[0.075] hover:text-stone-100"
+            className="fab-action-btn flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white/80 px-3 py-2 text-xs font-medium text-stone-700 transition hover:border-teal-300 hover:bg-white dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-300 dark:hover:border-dusk-cyan/35 dark:hover:bg-white/[0.08] dark:hover:text-stone-100"
             onClick={() => onCreate("note")}
           >
             <FileText className="h-3.5 w-3.5" />
@@ -420,7 +423,7 @@ function PinnedDisplayPanel({
         </div>
         <button
           type="button"
-          className="mt-2 w-full rounded-xl border border-red-300/15 bg-red-400/5 px-3 py-2 text-xs text-red-200 transition hover:border-red-300/30 hover:bg-red-400/10"
+          className="mt-2 w-full rounded-xl border border-red-200 bg-red-50/80 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-100 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300 dark:hover:border-red-400/35 dark:hover:bg-red-400/15"
           onClick={onClear}
         >
           Clear display
