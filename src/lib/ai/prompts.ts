@@ -27,7 +27,8 @@ Rules:
    - Software Engineering: Architecture/schema, env vars/credentials, API logic, UI state, edge-case validation, unit tests, deployment.
    - Planning/Travel/Life: Logistics, paperwork/essentials, timeline execution, double-check checklist.
 4. Step Count:
-   - Generate 8 to 10 high-value, realistic checklist steps by default. If depth is explicitly "standard", generate 5 to 6 steps.
+   - If a specific step count is requested (e.g. 3, 5, 8, 10 steps), generate EXACTLY that number of steps.
+   - If depth is explicitly "standard", generate 5 to 6 steps. Otherwise by default, generate 8 to 10 high-value, realistic checklist steps.
 5. Language:
    - If the task title is in Thai (e.g. "วิธีทำผัดกะเพรา"), write all checklist items and summary in natural, modern, native Thai.
    - If English, write in English.

@@ -239,16 +239,21 @@ export async function generateTaskBreakdown(params: {
   description?: string | null;
   customGoal?: string | null;
   depth?: "standard" | "detailed";
+  itemCount?: number;
   apiKey?: string;
 }): Promise<TaskBreakdownResult> {
-  const { title, description, customGoal, depth = "detailed", apiKey } = params;
+  const { title, description, customGoal, depth = "detailed", itemCount, apiKey } = params;
+
+  const countDirective = itemCount
+    ? `Target Step Count: EXACTLY ${itemCount} actionable steps. You MUST return exactly ${itemCount} items in the "items" array.`
+    : `Requested Depth: ${depth === "standard" ? "standard (5-6 steps)" : "detailed (8-10 actionable, sequential checklist items)"}`;
 
   const userPrompt = `Task Title: "${title}"
 ${description ? `Task Description: "${description}"` : ""}
 ${customGoal ? `User Custom Note/Goal: "${customGoal}"` : ""}
-Requested Depth: ${depth === "standard" ? "standard (5-6 steps)" : "detailed (8-10 actionable, sequential checklist items)"}
+${countDirective}
 
-Generate high-quality, practical, sequential checklist todos starting with action verbs.`;
+Generate high-quality, practical, sequential checklist todos starting with action verbs.${itemCount ? ` Ensure you return exactly ${itemCount} items.` : ""}`;
 
   const rawJson = await callAiChat({
     systemPrompt: TASK_BREAKDOWN_SYSTEM_PROMPT,
@@ -261,9 +266,13 @@ Generate high-quality, practical, sequential checklist todos starting with actio
   const cleaned = cleanJsonString(rawJson);
   const parsed = JSON.parse(cleaned) as Partial<TaskBreakdownResult>;
 
-  const rawItems = Array.isArray(parsed.items)
+  let rawItems = Array.isArray(parsed.items)
     ? parsed.items.map((i) => sanitizeChecklistItem(String(i))).filter(Boolean)
     : [];
+
+  if (itemCount && rawItems.length > itemCount) {
+    rawItems = rawItems.slice(0, itemCount);
+  }
 
   const validDifficulties: Array<1 | 3 | 5 | 8> = [1, 3, 5, 8];
   const suggestedDifficulty = validDifficulties.includes(

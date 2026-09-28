@@ -13,7 +13,8 @@ const breakdownSchema = z.object({
   title: z.string().trim().min(1, "กรุณาระบุชื่องานที่ต้องการแตกเช็กลิสต์"),
   description: z.string().nullable().optional(),
   customGoal: z.string().nullable().optional(),
-  depth: z.enum(["standard", "detailed"]).optional().default("detailed")
+  depth: z.enum(["standard", "detailed"]).optional().default("detailed"),
+  itemCount: z.number().int().min(1).max(20).optional()
 });
 
 export async function POST(request: Request) {
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
       description: payload.description,
       customGoal: payload.customGoal,
       depth: payload.depth,
+      itemCount: payload.itemCount,
       apiKey: clientApiKey
     });
 

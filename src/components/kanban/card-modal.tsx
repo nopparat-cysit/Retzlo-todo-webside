@@ -11,7 +11,7 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { CheckSquare, Coins, GripVertical, KeyRound, Loader2, Plus, SlidersHorizontal, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
+import { CheckSquare, Coins, GripVertical, KeyRound, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { playCardCreateSound } from "@/lib/sound";
@@ -168,7 +168,6 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [aiBreakdownOpen, setAiBreakdownOpen] = useState(false);
   const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
   const [apiKeyModalReason, setApiKeyModalReason] = useState<string | undefined>(undefined);
-  const [isGeneratingAiChecklist, setIsGeneratingAiChecklist] = useState(false);
 
   // Gamification fields
   const [activeUserId, setActiveUserId] = useState<string | null>(currentUserId ?? null);
@@ -560,82 +559,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     }
   }
 
-  async function handleInstantAiBreakdown(overrideKey?: string) {
-    if (!title.trim()) {
-      toast({
-        message: "กรุณาระบุชื่องาน (Title) ก่อนกดแตกเช็กลิสต์ด้วย AI",
-        type: "error"
-      });
-      return;
-    }
 
-    if (isGeneratingAiChecklist) return;
-
-    setIsGeneratingAiChecklist(true);
-    try {
-      const authHeaders = overrideKey
-        ? { "x-ai-api-key": overrideKey, "x-deepseek-api-key": overrideKey }
-        : getAiAuthHeaders();
-      const res = await fetch("/api/ai/breakdown", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
-        body: JSON.stringify({
-          title: title.trim(),
-          description: description.trim() || null,
-          depth: "detailed"
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        if (
-          typeof data.error === "string" &&
-          (data.error.includes("AI_API_KEY") || data.error.includes("DEEPSEEK_API_KEY"))
-        ) {
-          setApiKeyModalReason(
-            "ยังไม่พบการตั้งค่า AI_API_KEY บนเซิร์ฟเวอร์ (เช่น บน Vercel) คุณสามารถระบุ API Key ที่นี่เพื่อใช้งาน AI ทันที"
-          );
-          setApiKeyModalOpen(true);
-          return;
-        }
-        toast({
-          message: data.error || "ไม่สามารถสร้างเช็กลิสต์ได้ กรุณาลองใหม่อีกครั้ง",
-          type: "error"
-        });
-        return;
-      }
-
-      if (Array.isArray(data.items) && data.items.length > 0) {
-        playCardCreateSound();
-        const newItems: ChecklistItem[] = data.items.map((label: string) => ({
-          id: crypto.randomUUID(),
-          label,
-          checked: false
-        }));
-
-        setChecklist((current) => [...current, ...newItems]);
-
-        if (data.suggestedDifficulty && !difficulty) {
-          setDifficulty(data.suggestedDifficulty as DifficultyScore);
-        }
-        if (data.suggestedPriority && selectedPriority === "MEDIUM") {
-          setSelectedPriority(data.suggestedPriority);
-        }
-
-        toast({
-          message: `✨ AI สร้าง ${data.items.length} ขั้นตอนสำเร็จ! (หัก 1 เครดิต คงเหลือ ${data.remainingCredits ?? ""})`,
-          type: "success"
-        });
-      }
-    } catch {
-      toast({
-        message: "เกิดข้อผิดพลาดในการเชื่อมต่อกับระบบ AI",
-        type: "error"
-      });
-    } finally {
-      setIsGeneratingAiChecklist(false);
-    }
-  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -803,34 +727,15 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  disabled={isGeneratingAiChecklist}
-                  onClick={() => handleInstantAiBreakdown()}
-                  className="group inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/10 px-2.5 py-1 text-xs font-semibold text-dusk-lavender shadow-xs transition-all hover:border-dusk-lavender hover:bg-dusk-lavender/20 hover:scale-102 active:scale-98 cursor-pointer disabled:opacity-60"
-                  title="คลิกเดียว AI แตกชื่องานเป็น 8-10 ข้อย่อยลงในการ์ดทันที"
-                >
-                  {isGeneratingAiChecklist ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin text-dusk-amber" />
-                      <span>กำลังคิดขั้นตอน...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
-                      <span>AI Breakdown</span>
-                      <span className="rounded bg-dusk-lavender/20 px-1 py-0.2 text-[10px] font-mono text-dusk-lavender/90">
-                        1 cr
-                      </span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
                   onClick={() => setAiBreakdownOpen(true)}
-                  className="rounded-lg p-1 text-stone-400 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
-                  title="ตัวเลือกเพิ่มเติม (ใส่เป้าหมายพิเศษ / โหมดแทนที่เดิม)"
+                  className="group inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/10 px-2.5 py-1 text-xs font-semibold text-dusk-lavender shadow-xs transition-all hover:border-dusk-lavender hover:bg-dusk-lavender/20 hover:scale-102 active:scale-98 cursor-pointer"
+                  title="สร้างเช็กลิสต์ด้วย AI มีจำนวนแนะนำ กำหนดจำนวนได้ และยืนยันก่อนสร้าง"
                 >
-                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
+                  <span>AI Breakdown</span>
+                  <span className="rounded bg-dusk-lavender/20 px-1 py-0.2 text-[10px] font-mono text-dusk-lavender/90">
+                    1 cr
+                  </span>
                 </button>
 
                 <button
@@ -1104,8 +1009,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         open={apiKeyModalOpen}
         onClose={() => setApiKeyModalOpen(false)}
         reason={apiKeyModalReason}
-        onSaved={(key) => {
-          handleInstantAiBreakdown(key);
+        onSaved={() => {
+          setAiBreakdownOpen(true);
         }}
       />
     </>

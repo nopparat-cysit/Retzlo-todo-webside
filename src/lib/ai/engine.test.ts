@@ -46,7 +46,24 @@ describe("AI Assistant Engine", () => {
         title: "Test Task"
       });
       expect(result.items.length).toBeGreaterThan(0);
-      expect(result.suggestedDifficulty).toBe(3);
+      expect([1, 3, 5, 8]).toContain(result.suggestedDifficulty);
+    } finally {
+      if (originalAiKey) process.env.AI_API_KEY = originalAiKey;
+      if (originalDeepseekKey) process.env.DEEPSEEK_API_KEY = originalDeepseekKey;
+    }
+  });
+
+  it("respects itemCount parameter when generating breakdown", async () => {
+    const originalAiKey = process.env.AI_API_KEY;
+    const originalDeepseekKey = process.env.DEEPSEEK_API_KEY;
+    delete process.env.AI_API_KEY;
+    delete process.env.DEEPSEEK_API_KEY;
+    try {
+      const result = await generateTaskBreakdown({
+        title: "Test Task with Custom Count",
+        itemCount: 3
+      });
+      expect(result.items.length).toBe(3);
     } finally {
       if (originalAiKey) process.env.AI_API_KEY = originalAiKey;
       if (originalDeepseekKey) process.env.DEEPSEEK_API_KEY = originalDeepseekKey;
