@@ -84,6 +84,8 @@ export async function POST(request: Request) {
         dueDate: c.dueDate ? new Date(c.dueDate).toLocaleDateString() : null
       }));
 
+    const clientApiKey = request.headers.get("x-deepseek-api-key")?.trim() || undefined;
+
     // 3. Call DeepSeek
     const summary = await generateProjectSummary({
       projectName: project.name,
@@ -95,7 +97,8 @@ export async function POST(request: Request) {
       doneCount: doneCards.length,
       inProgressCards: doingCards.map((c) => ({ title: c.title, priority: c.priority })),
       overdueCards,
-      doneCards: doneCards.map((c) => ({ title: c.title }))
+      doneCards: doneCards.map((c) => ({ title: c.title })),
+      apiKey: clientApiKey
     });
 
     // 4. Deduct credit on successful generation

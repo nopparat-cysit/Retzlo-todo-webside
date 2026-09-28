@@ -7,6 +7,7 @@ import {
 } from "./prompts";
 
 export interface DeepSeekChatOptions {
+  apiKey?: string;
   systemPrompt?: string;
   userPrompt: string;
   temperature?: number;
@@ -44,29 +45,45 @@ function cleanJsonString(raw: string): string {
   return text;
 }
 
-export function getDeepSeekApiKey(): string {
-  // 1. Try reading directly from disk .env to catch updates without requiring server restart
+export function getDeepSeekApiKey(overrideKey?: string): string {
+  if (overrideKey !== undefined && overrideKey.trim()) {
+    return overrideKey.trim();
+  }
+
+  // 1. Process.env (standard production & dev runtime)
+  const envKey = (
+    process.env.DEEPSEEK_API_KEY ||
+    process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY ||
+    ""
+  ).trim();
+
+  if (envKey) return envKey;
+
+  // 2. Try reading directly from disk .env / .env.local (searching up to root)
   try {
-    const envPath = path.resolve(process.cwd(), ".env");
-    if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, "utf-8");
-      const match = content.match(/^DEEPSEEK_API_KEY=["']?([^"'\r\n]+)["']?/m);
-      if (match && match[1] && match[1].trim()) {
-        const diskKey = match[1].trim();
-        process.env.DEEPSEEK_API_KEY = diskKey;
-        return diskKey;
+    let currentDir = process.cwd();
+    for (let i = 0; i < 4; i++) {
+      for (const filename of [".env.local", ".env"]) {
+        const envPath = path.resolve(currentDir, filename);
+        if (fs.existsSync(envPath)) {
+          const content = fs.readFileSync(envPath, "utf-8");
+          const match = content.match(/^DEEPSEEK_API_KEY=["']?([^"'\r\n#]+)["']?/m);
+          if (match && match[1] && match[1].trim()) {
+            const diskKey = match[1].trim();
+            process.env.DEEPSEEK_API_KEY = diskKey;
+            return diskKey;
+          }
+        }
       }
+      const parentDir = path.dirname(currentDir);
+      if (parentDir === currentDir) break;
+      currentDir = parentDir;
     }
   } catch {
     // Ignore file read error in restricted runtimes
   }
 
-  // 2. Fall back to process.env
-  return (
-    process.env.DEEPSEEK_API_KEY ||
-    process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY ||
-    ""
-  ).trim();
+  return "";
 }
 
 /**
@@ -75,7 +92,7 @@ export function getDeepSeekApiKey(): string {
 export async function callDeepSeekChat(
   options: DeepSeekChatOptions
 ): Promise<string> {
-  let apiKey = getDeepSeekApiKey();
+  let apiKey = getDeepSeekApiKey(options.apiKey);
   const baseUrl = (
     process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com"
   ).replace(/\/+$/, "");
@@ -87,7 +104,7 @@ export async function callDeepSeekChat(
       return generateFallbackResponse(options);
     }
     throw new Error(
-      "ไม่พบการตั้งค่า DEEPSEEK_API_KEY กรุณาตรวจสอบไฟล์ .env แล้ว restart server"
+      "ไม่พบการตั้งค่า DEEPSEEK_API_KEY บนเซิร์ฟเวอร์ (หากใช้งานบน Vercel กรุณาเพิ่ม DEEPSEEK_API_KEY ใน Vercel Dashboard หรือระบุในตั้งค่า AI ของระบบ)"
     );
   }
 
@@ -183,8 +200,9 @@ export async function generateTaskBreakdown(params: {
   description?: string | null;
   customGoal?: string | null;
   depth?: "standard" | "detailed";
+  apiKey?: string;
 }): Promise<TaskBreakdownResult> {
-  const { title, description, customGoal, depth = "detailed" } = params;
+  const { title, description, customGoal, depth = "detailed", apiKey } = params;
 
   const userPrompt = `Task Title: "${title}"
 ${description ? `Task Description: "${description}"` : ""}
@@ -197,7 +215,8 @@ Generate high-quality, practical, sequential checklist todos starting with actio
     systemPrompt: TASK_BREAKDOWN_SYSTEM_PROMPT,
     userPrompt,
     jsonMode: true,
-    temperature: 0.35
+    temperature: 0.35,
+    apiKey
   });
 
   const cleaned = cleanJsonString(rawJson);
@@ -245,6 +264,7 @@ export async function generateProjectSummary(params: {
   overdueCards: Array<{ title: string; priority: string; dueDate?: string | null }>;
   inProgressCards: Array<{ title: string; priority: string }>;
   doneCards: Array<{ title: string }>;
+  apiKey?: string;
 }): Promise<ProjectSummaryResult> {
   const userPrompt = `Project: "${params.projectName}" (Board: "${params.boardName}")
 Metrics:
@@ -269,7 +289,8 @@ Generate an insightful executive summary in JSON format.`;
     systemPrompt: PROJECT_SUMMARY_SYSTEM_PROMPT,
     userPrompt,
     jsonMode: true,
-    temperature: 0.3
+    temperature: 0.3,
+    apiKey: params.apiKey
   });
 
   const cleaned = cleanJsonString(rawJson);

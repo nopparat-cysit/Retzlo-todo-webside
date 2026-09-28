@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import type { ProjectSummaryResult } from "@/lib/ai/deepseek";
 import { cn } from "@/lib/utils";
+import { getAiAuthHeaders } from "@/lib/ai/client-key";
 
 export interface AiProjectSummaryModalProps {
   open: boolean;
@@ -51,7 +52,7 @@ export function AiProjectSummaryModal({
     try {
       const res = await fetch("/api/ai/summary", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAiAuthHeaders() },
         body: JSON.stringify({
           projectId,
           boardId

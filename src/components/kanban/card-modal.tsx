@@ -11,7 +11,7 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { CheckSquare, Coins, GripVertical, Loader2, Plus, SlidersHorizontal, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
+import { CheckSquare, Coins, GripVertical, KeyRound, Loader2, Plus, SlidersHorizontal, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { playCardCreateSound } from "@/lib/sound";
@@ -26,6 +26,8 @@ import { RetroStickerPicker } from "@/components/ui/retro-sticker-picker";
 import { AssigneePicker } from "./assignee-picker";
 import { CardChatTimeline } from "@/components/kanban/card-chat-timeline";
 import { AiBreakdownModal } from "@/components/ai/ai-breakdown-modal";
+import { ApiKeyModal } from "@/components/ai/api-key-modal";
+import { getAiAuthHeaders } from "@/lib/ai/client-key";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { composeDueDate, composeStartDate } from "@/lib/kanban/due-date";
 import {
@@ -164,6 +166,8 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [description, setDescription] = useState(card?.description ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [aiBreakdownOpen, setAiBreakdownOpen] = useState(false);
+  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
+  const [apiKeyModalReason, setApiKeyModalReason] = useState<string | undefined>(undefined);
   const [isGeneratingAiChecklist, setIsGeneratingAiChecklist] = useState(false);
 
   // Gamification fields
@@ -556,7 +560,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     }
   }
 
-  async function handleInstantAiBreakdown() {
+  async function handleInstantAiBreakdown(overrideKey?: string) {
     if (!title.trim()) {
       toast({
         message: "กรุณาระบุชื่องาน (Title) ก่อนกดแตกเช็กลิสต์ด้วย AI",
@@ -569,9 +573,10 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
     setIsGeneratingAiChecklist(true);
     try {
+      const authHeaders = overrideKey ? { "x-deepseek-api-key": overrideKey } : getAiAuthHeaders();
       const res = await fetch("/api/ai/breakdown", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || null,
@@ -581,6 +586,13 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
       const data = await res.json();
       if (!res.ok) {
+        if (typeof data.error === "string" && data.error.includes("DEEPSEEK_API_KEY")) {
+          setApiKeyModalReason(
+            "ยังไม่พบการตั้งค่า DEEPSEEK_API_KEY บนเซิร์ฟเวอร์ (เช่น บน Vercel) คุณสามารถระบุ API Key ที่นี่เพื่อใช้งาน AI ทันที"
+          );
+          setApiKeyModalOpen(true);
+          return;
+        }
         toast({
           message: data.error || "ไม่สามารถสร้างเช็กลิสต์ได้ กรุณาลองใหม่อีกครั้ง",
           type: "error"
@@ -787,7 +799,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                 <button
                   type="button"
                   disabled={isGeneratingAiChecklist}
-                  onClick={handleInstantAiBreakdown}
+                  onClick={() => handleInstantAiBreakdown()}
                   className="group inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/10 px-2.5 py-1 text-xs font-semibold text-dusk-lavender shadow-xs transition-all hover:border-dusk-lavender hover:bg-dusk-lavender/20 hover:scale-102 active:scale-98 cursor-pointer disabled:opacity-60"
                   title="คลิกเดียว AI แตกชื่องานเป็น 8-10 ข้อย่อยลงในการ์ดทันที"
                 >
@@ -814,6 +826,18 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                   title="ตัวเลือกเพิ่มเติม (ใส่เป้าหมายพิเศษ / โหมดแทนที่เดิม)"
                 >
                   <SlidersHorizontal className="h-3.5 w-3.5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setApiKeyModalReason(undefined);
+                    setApiKeyModalOpen(true);
+                  }}
+                  className="rounded-lg p-1 text-stone-400 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
+                  title="ตั้งค่า DeepSeek API Key (สำหรับใช้งานบน Vercel/เบราว์เซอร์)"
+                >
+                  <KeyRound className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
@@ -1070,6 +1094,14 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         cardTitle={title}
         cardDescription={description}
         onApply={handleApplyAiChecklist}
+      />
+      <ApiKeyModal
+        open={apiKeyModalOpen}
+        onClose={() => setApiKeyModalOpen(false)}
+        reason={apiKeyModalReason}
+        onSaved={(key) => {
+          handleInstantAiBreakdown(key);
+        }}
       />
     </>
   );

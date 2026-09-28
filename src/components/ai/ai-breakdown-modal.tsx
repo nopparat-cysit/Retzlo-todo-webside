@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { playCardCreateSound } from "@/lib/sound";
 import { cn } from "@/lib/utils";
+import { getAiAuthHeaders } from "@/lib/ai/client-key";
 
 export interface AiBreakdownModalProps {
   open: boolean;
@@ -79,7 +80,7 @@ export function AiBreakdownModal({
     try {
       const res = await fetch("/api/ai/breakdown", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAiAuthHeaders() },
         body: JSON.stringify({
           title: cardTitle.trim(),
           description: cardDescription || null,

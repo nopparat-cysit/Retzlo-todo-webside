@@ -32,12 +32,15 @@ export async function POST(request: Request) {
       return jsonError(`โควตา AI Credits ไม่เพียงพอ (คงเหลือ ${quota.credits} เครดิต)`, 402);
     }
 
+    const clientApiKey = request.headers.get("x-deepseek-api-key")?.trim() || undefined;
+
     // 2. Call DeepSeek Engine
     const result = await generateTaskBreakdown({
       title: payload.title,
       description: payload.description,
       customGoal: payload.customGoal,
-      depth: payload.depth
+      depth: payload.depth,
+      apiKey: clientApiKey
     });
 
     // 3. Deduct credit only on successful generation
