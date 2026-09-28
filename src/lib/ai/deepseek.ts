@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+
 import {
   TASK_BREAKDOWN_SYSTEM_PROMPT,
   PROJECT_SUMMARY_SYSTEM_PROMPT
@@ -41,23 +44,45 @@ function cleanJsonString(raw: string): string {
   return text;
 }
 
+export function getDeepSeekApiKey(): string {
+  // 1. Try reading directly from disk .env to catch updates without requiring server restart
+  try {
+    const envPath = path.resolve(process.cwd(), ".env");
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, "utf-8");
+      const match = content.match(/^DEEPSEEK_API_KEY=["']?([^"'\r\n]+)["']?/m);
+      if (match && match[1] && match[1].trim()) {
+        const diskKey = match[1].trim();
+        process.env.DEEPSEEK_API_KEY = diskKey;
+        return diskKey;
+      }
+    }
+  } catch {
+    // Ignore file read error in restricted runtimes
+  }
+
+  // 2. Fall back to process.env
+  return (
+    process.env.DEEPSEEK_API_KEY ||
+    process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY ||
+    ""
+  ).trim();
+}
+
 /**
  * Executes a call to the DeepSeek Chat Completions API.
  */
 export async function callDeepSeekChat(
   options: DeepSeekChatOptions
 ): Promise<string> {
-  const apiKey =
-    process.env.DEEPSEEK_API_KEY ||
-    process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY ||
-    "";
+  let apiKey = getDeepSeekApiKey();
   const baseUrl = (
     process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com"
   ).replace(/\/+$/, "");
   const model = process.env.DEEPSEEK_MODEL || "deepseek-chat";
 
   // Transparent error when API key is missing in production/dev
-  if (!apiKey || apiKey.trim() === "" || apiKey === "undefined") {
+  if (!apiKey || apiKey === "" || apiKey === "undefined") {
     if (process.env.NODE_ENV === "test" || process.env.VITEST) {
       return generateFallbackResponse(options);
     }
@@ -77,11 +102,11 @@ export async function callDeepSeekChat(
   messages.push({ role: "user", content: options.userPrompt });
 
   try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    let response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey.trim()}`
+        Authorization: `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model,
@@ -93,8 +118,36 @@ export async function callDeepSeekChat(
       signal: controller.signal
     });
 
+    // If 401 Unauthorized, re-check .env from disk in case key was freshly updated
+    if (response.status === 401) {
+      const freshKey = getDeepSeekApiKey();
+      if (freshKey && freshKey !== apiKey) {
+        apiKey = freshKey;
+        response = await fetch(`${baseUrl}/chat/completions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model,
+            messages,
+            temperature: options.temperature ?? 0.3,
+            max_tokens: options.maxTokens ?? 1500,
+            response_format: options.jsonMode ? { type: "json_object" } : undefined
+          }),
+          signal: controller.signal
+        });
+      }
+    }
+
     if (!response.ok) {
       const errText = await response.text().catch(() => "");
+      if (response.status === 401) {
+        throw new Error(
+          "DeepSeek API authentication failed (401): คีย์ไม่ถูกต้องหรือถูกยกเลิก กรุณาตรวจสอบ DEEPSEEK_API_KEY ในไฟล์ .env"
+        );
+      }
       throw new Error(
         `DeepSeek API error (${response.status}): ${errText || response.statusText}`
       );

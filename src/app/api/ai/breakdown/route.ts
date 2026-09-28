@@ -56,6 +56,11 @@ export async function POST(request: Request) {
       remainingCredits: creditResult.remainingCredits
     });
   } catch (error) {
-    return parseError(error);
+    if (error instanceof z.ZodError) {
+      return jsonError("ข้อมูลที่ส่งมาไม่ถูกต้อง", 422);
+    }
+    const message =
+      error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการประมวลผล AI";
+    return jsonError(message, 500);
   }
 }
