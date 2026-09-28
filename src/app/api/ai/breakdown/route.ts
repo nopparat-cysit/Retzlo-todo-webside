@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
 import { requireUserId } from "@/lib/project-auth";
-import { AI_CREDIT_COSTS, deductUserAiCredit } from "@/lib/ai/credits";
+import { AI_CREDIT_COSTS, deductUserAiCredit, getUserAiQuota } from "@/lib/ai/credits";
 import { generateTaskBreakdown } from "@/lib/ai/deepseek";
 
 export const dynamic = "force-dynamic";
@@ -26,15 +26,10 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const payload = breakdownSchema.parse(body);
 
-    // 1. Deduct 1 AI Credit atomically
-    const creditResult = await deductUserAiCredit(
-      userId,
-      AI_CREDIT_COSTS.BREAKDOWN,
-      "BREAKDOWN"
-    );
-
-    if (!creditResult.ok) {
-      return jsonError(creditResult.error || "โควตา AI Credits ไม่เพียงพอ", 402);
+    // 1. Verify user has enough quota before calling AI
+    const quota = await getUserAiQuota(userId);
+    if (!quota.unlimited && quota.credits < AI_CREDIT_COSTS.BREAKDOWN) {
+      return jsonError(`โควตา AI Credits ไม่เพียงพอ (คงเหลือ ${quota.credits} เครดิต)`, 402);
     }
 
     // 2. Call DeepSeek Engine
@@ -44,6 +39,13 @@ export async function POST(request: Request) {
       customGoal: payload.customGoal,
       depth: payload.depth
     });
+
+    // 3. Deduct credit only on successful generation
+    const creditResult = await deductUserAiCredit(
+      userId,
+      AI_CREDIT_COSTS.BREAKDOWN,
+      "BREAKDOWN"
+    );
 
     return NextResponse.json({
       ok: true,

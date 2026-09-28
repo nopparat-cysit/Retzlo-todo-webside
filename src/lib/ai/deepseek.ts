@@ -30,16 +30,15 @@ export interface ProjectSummaryResult {
 
 function cleanJsonString(raw: string): string {
   let text = raw.trim();
-  // Strip markdown code fences if present
-  if (text.startsWith("```json")) {
-    text = text.slice(7);
-  } else if (text.startsWith("```")) {
-    text = text.slice(3);
+  text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+  const firstBrace = text.indexOf("{");
+  const lastBrace = text.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    return text.substring(firstBrace, lastBrace + 1);
   }
-  if (text.endsWith("```")) {
-    text = text.slice(0, -3);
-  }
-  return text.trim();
+
+  return text;
 }
 
 /**

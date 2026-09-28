@@ -4,7 +4,7 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
-import { AI_CREDIT_COSTS, deductUserAiCredit } from "@/lib/ai/credits";
+import { AI_CREDIT_COSTS, deductUserAiCredit, getUserAiQuota } from "@/lib/ai/credits";
 import { generateProjectSummary } from "@/lib/ai/deepseek";
 
 export const dynamic = "force-dynamic";
@@ -48,15 +48,10 @@ export async function POST(request: Request) {
       if (board) boardName = board.name;
     }
 
-    // 1. Deduct 2 AI Credits
-    const creditResult = await deductUserAiCredit(
-      userId,
-      AI_CREDIT_COSTS.SUMMARY,
-      "SUMMARY"
-    );
-
-    if (!creditResult.ok) {
-      return jsonError(creditResult.error || "โควตา AI Credits ไม่เพียงพอ", 402);
+    // 1. Verify quota before expensive AI analysis
+    const quota = await getUserAiQuota(userId);
+    if (!quota.unlimited && quota.credits < AI_CREDIT_COSTS.SUMMARY) {
+      return jsonError(`โควตา AI Credits ไม่เพียงพอ (คงเหลือ ${quota.credits} เครดิต)`, 402);
     }
 
     // 2. Fetch cards snapshot
@@ -102,6 +97,13 @@ export async function POST(request: Request) {
       overdueCards,
       doneCards: doneCards.map((c) => ({ title: c.title }))
     });
+
+    // 4. Deduct credit on successful generation
+    const creditResult = await deductUserAiCredit(
+      userId,
+      AI_CREDIT_COSTS.SUMMARY,
+      "SUMMARY"
+    );
 
     return NextResponse.json({
       ok: true,
