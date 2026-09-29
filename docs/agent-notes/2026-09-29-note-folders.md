@@ -18,7 +18,7 @@ Implement a folder organization system for the Note module in project workspaces
 - `src/app/api/projects/[id]/notes/route.ts`: Updated GET and POST to handle `folderId` filtering, payload assignment, and `folder` relation inclusion.
 - `src/app/api/notes/[noteId]/route.ts`: Updated PATCH to include `folder` in response and handle folder reassignment.
 - `src/app/(dashboard)/project/[id]/notes/page.tsx`: Loaded `initialFolders` server-side and included `folder` relation in initial project notes.
-- `src/components/notes/notes-panel.tsx`: Added Folders shelf in sidebar with count badges, folder edit/delete actions, ConfirmModal on folder deletion, Unfiled filter, folder tag on `NoteCard`, and folder select dropdown in `NoteEditorModalContent`.
+- `src/components/notes/notes-panel.tsx`: Added Folders shelf in sidebar with count badges, folder edit/delete actions, ConfirmModal on folder deletion, Unfiled filter, folder tag on `NoteCard`, and folder select dropdown in `NoteEditorModalContent`. Also reordered Note Editor right column so Calendar is at top, Note Color is directly above Note Sticker, and Note Sticker is positioned at the bottom.
 - `src/components/ai/ai-breakdown-modal.tsx`: Added `aria-label="AI Auto-Breakdown Task"` for test suite compatibility.
 
 ## Important Behavior Changes
@@ -26,6 +26,7 @@ Implement a folder organization system for the Note module in project workspaces
 - Folder deletion triggers a `ConfirmModal` explaining this safe behavior to the user.
 - Every folder action (create, update, delete) shows immediate visual feedback via `toast` notifications.
 - When creating notes inside a folder view, the folder is automatically pre-selected.
+- In Note Editor modal (`NoteEditorModalContent`), reordered the right column sections: Visibility Scope & Folder -> Calendar -> Note Color -> Note Sticker (at the bottom).
 
 ## Database / Schema Changes
 - Added table `NoteFolder` with indexes on `projectId` and `authorId`.

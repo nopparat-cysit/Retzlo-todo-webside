@@ -1325,8 +1325,6 @@ function NoteEditorModalContent({
             </div>
           </div>
 
-          <NoteStickerPicker selectedSticker={emoji} onChange={setEmoji} />
-          <ColorPicker selectedColor={color} onChange={setColor} />
           <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
             <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
               <CalendarClock className="h-4 w-4 text-dusk-cyan" />
@@ -1359,6 +1357,9 @@ function NoteEditorModalContent({
             </div>
             <p className="mt-2 text-xs text-stone-500">No time means all day.</p>
           </div>
+
+          <ColorPicker selectedColor={color} onChange={setColor} />
+          <NoteStickerPicker selectedSticker={emoji} onChange={setEmoji} />
         </aside>
       </div>
 
