@@ -18,14 +18,18 @@ Implement a folder organization system for the Note module in project workspaces
 - `src/app/api/projects/[id]/notes/route.ts`: Updated GET and POST to handle `folderId` filtering, payload assignment, and `folder` relation inclusion.
 - `src/app/api/notes/[noteId]/route.ts`: Updated PATCH to include `folder` in response and handle folder reassignment.
 - `src/app/(dashboard)/project/[id]/notes/page.tsx`: Loaded `initialFolders` server-side and included `folder` relation in initial project notes.
-- `src/components/notes/notes-panel.tsx`: Added Folders shelf in sidebar with count badges, folder edit/delete actions, ConfirmModal on folder deletion, Unfiled filter, folder tag on `NoteCard`, and folder select dropdown in `NoteEditorModalContent`. Also reordered Note Editor right column so Calendar is at top, Note Color is directly above Note Sticker, and Note Sticker is positioned at the bottom.
+- `src/components/notes/notes-panel.tsx`: Replaced the legacy "Shelves" sidebar rail with a unified "Folders" navigation system. The sidebar now displays system views (All Notes, Starred, Unfiled Notes, Completed) alongside Custom Folders with creation, edit, and deletion actions (`ConfirmModal`), sort & board scope controls, dynamic board header title reflecting the active folder/view, mobile folder chips, and auto-preselected `defaultFolderId` when adding a note from within a folder view. Reordered Note Editor right column so Calendar is at top, Note Color is directly above Note Sticker, and Note Sticker is positioned at the bottom.
 - `src/components/ai/ai-breakdown-modal.tsx`: Added `aria-label="AI Auto-Breakdown Task"` for test suite compatibility.
 
 ## Important Behavior Changes
+- Replaced the duplicate/cluttered "Shelves" and "Folders" two-tier sidebar navigation in Note Studio with a unified "Folders" rail.
+- System views (All Notes, Starred, Unfiled Notes, Completed) and custom user folders are now seamlessly consolidated under "Folders".
+- The Note board header dynamically updates its badge and heading to show the active folder name and icon (e.g. `📁 Work / Note board` or `⭐ Starred Notes`) instead of static "Active".
+- Mobile filter chips (< md) now allow horizontal scrolling through all folders and system views, plus inline folder creation.
 - Deleting a folder does not delete the notes inside it; notes are safely detached (`folderId: null`) and moved to "Unfiled Notes" (`onDelete: SetNull`).
 - Folder deletion triggers a `ConfirmModal` explaining this safe behavior to the user.
 - Every folder action (create, update, delete) shows immediate visual feedback via `toast` notifications.
-- When creating notes inside a folder view, the folder is automatically pre-selected.
+- When creating notes inside a folder view, the folder is automatically pre-selected (`defaultFolderId`).
 - In Note Editor modal (`NoteEditorModalContent`), reordered the right column sections: Visibility Scope & Folder -> Calendar -> Note Color -> Note Sticker (at the bottom).
 
 ## Database / Schema Changes

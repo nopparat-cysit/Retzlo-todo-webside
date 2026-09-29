@@ -12,6 +12,7 @@ import {
   FileText,
   Folder,
   FolderKanban,
+  FolderPlus,
   Globe,
   Grid2X2,
   Grid3X3,
@@ -143,6 +144,20 @@ export function NotesPanel({
     undated: activeNotes.filter((note) => !note.dueDate).length,
     completed: completedNotes.length
   };
+  const unfiledCount = useMemo(
+    () => notes.filter((note) => !note.folderId && !note.completedAt).length,
+    [notes]
+  );
+  const activeViewMeta = useMemo(() => {
+    if (filter === "completed") return { label: "Completed", icon: "✅" };
+    if (filter === "starred") return { label: "Starred", icon: "⭐" };
+    if (folderFilter === "unfiled") return { label: "Unfiled Notes", icon: "📄" };
+    if (folderFilter !== "all") {
+      const f = folders.find((item) => item.id === folderFilter);
+      if (f) return { label: f.name, icon: f.icon || "📁" };
+    }
+    return { label: "All Notes", icon: "📁" };
+  }, [filter, folderFilter, folders]);
 
   const refreshNotes = useCallback(async () => {
     try {
@@ -387,37 +402,219 @@ export function NotesPanel({
 
       <div className="grid min-h-0 gap-3 grid-cols-1 md:grid-cols-[14rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_20rem]">
         <aside className="lofi-panel hidden md:flex min-h-0 flex-col rounded-lg p-3" data-notes-collection-rail="note-shelves">
-          <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="mb-3 flex items-center justify-between gap-2 shrink-0">
             <div>
-              <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber">Shelves</p>
-              <p className="mt-1 text-xs text-stone-500">Choose a note view.</p>
+              <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber font-semibold">Folders</p>
+              <p className="mt-0.5 text-xs text-stone-500">Organize and browse notes.</p>
             </div>
-            <Button className="h-9 px-3" type="button" onClick={() => setIsCreateOpen(true)}>
-              <Plus className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-1.5">
+              <Button
+                className="h-8 px-2 text-xs flex items-center gap-1"
+                variant="secondary"
+                type="button"
+                onClick={() => {
+                  setEditingFolder(null);
+                  setIsFolderModalOpen(true);
+                }}
+                title="Create folder"
+              >
+                <FolderPlus className="h-3.5 w-3.5" />
+                <span className="hidden xl:inline">Folder</span>
+              </Button>
+              <Button className="h-8 px-2.5 text-xs" type="button" onClick={() => setIsCreateOpen(true)} title="Create note">
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-1 gap-2">
-            {NOTE_FILTERS.map((item) => (
+
+          <div className="min-h-0 flex-1 overflow-y-auto scrollbar-soft pr-1 space-y-3">
+            {/* System Views */}
+            <div className="space-y-1">
               <button
                 className={cn(
                   "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left transition",
-                  filter === item.value
+                  filter === "all" && folderFilter === "all"
                     ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
                     : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
                 )}
-                key={item.value}
                 type="button"
-                onClick={() => setFilter(item.value)}
+                onClick={() => {
+                  setFilter("all");
+                  setFolderFilter("all");
+                }}
               >
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold truncate">{item.label}</span>
-                  <span className="hidden xl:block text-xs text-stone-500 truncate">{item.hint}</span>
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="text-base shrink-0">📁</span>
+                  <span className="truncate text-sm font-semibold">All Notes</span>
                 </span>
-                <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0">{filterCounts[item.value]}</span>
+                <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0 font-mono">
+                  {activeNotes.length}
+                </span>
               </button>
-            ))}
+
+              <button
+                className={cn(
+                  "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left transition",
+                  filter === "starred" && folderFilter === "all"
+                    ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
+                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
+                )}
+                type="button"
+                onClick={() => {
+                  setFilter("starred");
+                  setFolderFilter("all");
+                }}
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="text-base shrink-0">⭐</span>
+                  <span className="truncate text-sm font-semibold">Starred</span>
+                </span>
+                <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0 font-mono">
+                  {filterCounts.starred}
+                </span>
+              </button>
+
+              <button
+                className={cn(
+                  "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left transition",
+                  filter === "all" && folderFilter === "unfiled"
+                    ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
+                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
+                )}
+                type="button"
+                onClick={() => {
+                  setFilter("all");
+                  setFolderFilter("unfiled");
+                }}
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="text-base shrink-0">📄</span>
+                  <span className="truncate text-sm font-semibold">Unfiled Notes</span>
+                </span>
+                <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0 font-mono">
+                  {unfiledCount}
+                </span>
+              </button>
+
+              <button
+                className={cn(
+                  "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left transition",
+                  filter === "completed"
+                    ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
+                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
+                )}
+                type="button"
+                onClick={() => {
+                  setFilter("completed");
+                  setFolderFilter("all");
+                }}
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="text-base shrink-0">✅</span>
+                  <span className="truncate text-sm font-semibold">Completed</span>
+                </span>
+                <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0 font-mono">
+                  {completedNotes.length}
+                </span>
+              </button>
+            </div>
+
+            {/* Custom Folders Section */}
+            <div className="pt-2 border-t border-white/10">
+              <div className="mb-2 flex items-center justify-between px-1">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
+                  Custom Folders {folders.length > 0 ? `(${folders.length})` : ""}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingFolder(null);
+                    setIsFolderModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-dusk-lavender hover:bg-white/10 hover:text-stone-100 transition"
+                  title="Create folder"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>New</span>
+                </button>
+              </div>
+
+              <div className="space-y-1">
+                {folders.length > 0 ? (
+                  folders.map((folder) => {
+                    const count = notes.filter((n) => n.folderId === folder.id && !n.completedAt).length;
+                    const isSelected = filter === "all" && folderFilter === folder.id;
+
+                    return (
+                      <div
+                        key={folder.id}
+                        className={cn(
+                          "group flex w-full items-center justify-between gap-1.5 rounded-lg border px-3 py-2 text-left transition",
+                          isSelected
+                            ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
+                            : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
+                        )}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFilter("all");
+                            setFolderFilter(folder.id);
+                          }}
+                          className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                        >
+                          <span className="shrink-0 text-base">{folder.icon || "📁"}</span>
+                          <span className="truncate text-sm font-semibold">{folder.name}</span>
+                        </button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender font-mono">
+                            {count}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingFolder(folder);
+                              setIsFolderModalOpen(true);
+                            }}
+                            className="hidden group-hover:inline-flex p-1 rounded hover:bg-white/10 text-stone-400 hover:text-stone-200"
+                            title="Edit folder"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeletingFolder(folder);
+                            }}
+                            className="hidden group-hover:inline-flex p-1 rounded hover:bg-red-400/20 text-stone-400 hover:text-red-300"
+                            title="Delete folder"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingFolder(null);
+                      setIsFolderModalOpen(true);
+                    }}
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/15 px-3 py-2.5 text-xs text-stone-400 hover:border-dusk-lavender/40 hover:text-stone-200 transition"
+                  >
+                    <FolderPlus className="h-3.5 w-3.5 text-dusk-lavender" />
+                    <span>Create first folder</span>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2">
+
+          <div className="mt-3 pt-3 border-t border-white/10 shrink-0 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2">
             <div className="rounded-lg border border-white/10 bg-ink-950/35 p-2.5">
               <FilterSelect
                 label="Sort"
@@ -450,119 +647,6 @@ export function NotesPanel({
             )}
           </div>
 
-          {/* Folders Section */}
-          <div className="mt-4 pt-3 border-t border-white/10">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs uppercase tracking-[0.24em] text-dusk-amber font-semibold">Folders</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingFolder(null);
-                  setIsFolderModalOpen(true);
-                }}
-                className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs text-dusk-lavender hover:bg-white/10 hover:text-stone-100 transition"
-                title="Create Folder"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span>New</span>
-              </button>
-            </div>
-
-            <div className="space-y-1 max-h-56 overflow-y-auto scrollbar-soft pr-1">
-              <button
-                type="button"
-                onClick={() => setFolderFilter("all")}
-                className={cn(
-                  "flex w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-xs transition",
-                  folderFilter === "all"
-                    ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
-                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
-                )}
-              >
-                <span className="flex items-center gap-1.5 truncate">
-                  <span>📁</span>
-                  <span className="font-medium truncate">All Notes</span>
-                </span>
-                <span className="rounded bg-ink-950/45 px-1.5 py-0.5 text-[10px] text-dusk-lavender shrink-0">
-                  {activeNotes.length}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setFolderFilter("unfiled")}
-                className={cn(
-                  "flex w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-xs transition",
-                  folderFilter === "unfiled"
-                    ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
-                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
-                )}
-              >
-                <span className="flex items-center gap-1.5 truncate">
-                  <span>📄</span>
-                  <span className="font-medium truncate">Unfiled Notes</span>
-                </span>
-                <span className="rounded bg-ink-950/45 px-1.5 py-0.5 text-[10px] text-dusk-lavender shrink-0">
-                  {notes.filter((n) => !n.folderId && !n.completedAt).length}
-                </span>
-              </button>
-
-              {folders.map((folder) => {
-                const count = notes.filter((n) => n.folderId === folder.id && !n.completedAt).length;
-                const isSelected = folderFilter === folder.id;
-
-                return (
-                  <div
-                    key={folder.id}
-                    className={cn(
-                      "group flex w-full items-center justify-between gap-1.5 rounded-lg border px-2.5 py-1.5 text-left text-xs transition",
-                      isSelected
-                        ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
-                        : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
-                    )}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setFolderFilter(isSelected ? "all" : folder.id)}
-                      className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
-                    >
-                      <span className="shrink-0 text-sm">{folder.icon || "📁"}</span>
-                      <span className="truncate font-medium">{folder.name}</span>
-                    </button>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className="rounded bg-ink-950/45 px-1.5 py-0.5 text-[10px] text-dusk-lavender">
-                        {count}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingFolder(folder);
-                          setIsFolderModalOpen(true);
-                        }}
-                        className="hidden group-hover:inline-flex p-1 rounded hover:bg-white/10 text-stone-400 hover:text-stone-200"
-                        title="Edit folder"
-                      >
-                        <Pencil className="h-3 w-3" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeletingFolder(folder);
-                        }}
-                        className="hidden group-hover:inline-flex p-1 rounded hover:bg-red-400/20 text-stone-400 hover:text-red-300"
-                        title="Delete folder"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
           {!allowMemberPrivateItems && !isOwner ? (
             <div className="mt-3 rounded-lg border border-dusk-amber/20 bg-dusk-amber/10 p-3 text-xs leading-5 text-dusk-amber">
               This project does not allow members to hide their own notes.
@@ -573,7 +657,10 @@ export function NotesPanel({
         <main className="lofi-panel flex min-h-0 flex-col rounded-lg p-3" data-notes-board="note-cards">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber">{NOTE_FILTERS.find((item) => item.value === filter)?.label}</p>
+              <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber flex items-center gap-1.5">
+                <span>{activeViewMeta.icon}</span>
+                <span>{activeViewMeta.label}</span>
+              </p>
               <h3 className="mt-1 text-xl font-semibold text-stone-100">Note board</h3>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -610,24 +697,120 @@ export function NotesPanel({
           {/* Mobile Filter Controls (< md) */}
           <div className="md:hidden mb-3 space-y-2">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              {NOTE_FILTERS.map((item) => (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => setFilter(item.value)}
-                  className={cn(
-                    "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                    filter === item.value
-                      ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
-                      : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
-                  )}
-                >
-                  <span>{item.label}</span>
-                  <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
-                    {filterCounts[item.value]}
-                  </span>
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setFilter("all");
+                  setFolderFilter("all");
+                }}
+                className={cn(
+                  "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                  filter === "all" && folderFilter === "all"
+                    ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                    : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                )}
+              >
+                <span>📁</span>
+                <span>All</span>
+                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                  {activeNotes.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilter("starred");
+                  setFolderFilter("all");
+                }}
+                className={cn(
+                  "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                  filter === "starred" && folderFilter === "all"
+                    ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                    : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                )}
+              >
+                <span>⭐</span>
+                <span>Starred</span>
+                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                  {filterCounts.starred}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilter("all");
+                  setFolderFilter("unfiled");
+                }}
+                className={cn(
+                  "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                  filter === "all" && folderFilter === "unfiled"
+                    ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                    : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                )}
+              >
+                <span>📄</span>
+                <span>Unfiled</span>
+                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                  {unfiledCount}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilter("completed");
+                  setFolderFilter("all");
+                }}
+                className={cn(
+                  "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                  filter === "completed"
+                    ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                    : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                )}
+              >
+                <span>✅</span>
+                <span>Completed</span>
+                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                  {completedNotes.length}
+                </span>
+              </button>
+              {folders.map((folder) => {
+                const count = notes.filter((n) => n.folderId === folder.id && !n.completedAt).length;
+                const isSelected = filter === "all" && folderFilter === folder.id;
+                return (
+                  <button
+                    key={folder.id}
+                    type="button"
+                    onClick={() => {
+                      setFilter("all");
+                      setFolderFilter(folder.id);
+                    }}
+                    className={cn(
+                      "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      isSelected
+                        ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                    )}
+                  >
+                    <span>{folder.icon || "📁"}</span>
+                    <span>{folder.name}</span>
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingFolder(null);
+                  setIsFolderModalOpen(true);
+                }}
+                className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-dashed border-white/15 px-2 py-1 text-xs text-dusk-lavender hover:bg-white/10 hover:text-stone-100 transition"
+                title="Create folder"
+              >
+                <FolderPlus className="h-3 w-3" />
+                <span>New</span>
+              </button>
             </div>
             <div className="flex flex-wrap gap-2">
               <div className="flex-1 min-w-[120px] rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
@@ -768,6 +951,7 @@ export function NotesPanel({
           allowMemberPrivateItems={allowMemberPrivateItems}
           availableBoards={availableBoards}
           folders={folders}
+          defaultFolderId={folderFilter !== "all" && folderFilter !== "unfiled" ? folderFilter : null}
           title="Add note"
           onClose={() => setIsCreateOpen(false)}
           onSubmit={createNote}
@@ -967,6 +1151,7 @@ interface NotePayload {
 
 function NoteEditorModal({
   note,
+  defaultFolderId,
   title,
   onClose,
   onDelete,
@@ -977,6 +1162,7 @@ function NoteEditorModal({
   folders = []
 }: {
   note?: ProjectNote;
+  defaultFolderId?: string | null;
   title: string;
   onClose: () => void;
   onDelete?: () => void;
@@ -992,7 +1178,7 @@ function NoteEditorModal({
   const [time, setTime] = useState(note?.dueDate && !note.dueDateAllDay ? timeValue(note.dueDate) : "");
   const [color, setColor] = useState<CardColor>(normalizeCardColor(note?.color));
   const [emoji, setEmoji] = useState(note?.emoji ?? DEFAULT_NOTE_STICKER);
-  const [selectedFolderId, setSelectedFolderId] = useState<string>(note?.folderId ?? "");
+  const [selectedFolderId, setSelectedFolderId] = useState<string>(note?.folderId ?? defaultFolderId ?? "");
   // Default to private if new note!
   const [scope, setScope] = useState<NoteScope>(
     note ? (note.isHidden ? "private" : note.boardId ? "board" : "team") : "private"
