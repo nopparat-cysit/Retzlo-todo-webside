@@ -26,4 +26,17 @@ describe("note modal layering", () => {
     expect(notesPanelSource).toContain("setSelectedNote(null)");
     expect(boardNotesRailSource).toContain("setSelectedNote(null)");
   });
+
+  it("uses DateTimeField matching CardModal for due date selection", () => {
+    expect(notesPanelSource).toContain('import { DateTimeField } from "@/components/ui/date-time-field"');
+    expect(notesPanelSource).toContain("<DateTimeField");
+    expect(notesPanelSource).toContain('label="วันที่สิ้นสุด (Due / End Date)"');
+  });
+
+  it("uses Radix UI Select for folder and board selection without raw HTML select", () => {
+    expect(notesPanelSource).toContain('from "@/components/ui/select"');
+    expect(notesPanelSource).toContain("<Select");
+    expect(notesPanelSource).toContain("<SelectTrigger");
+    expect(notesPanelSource).not.toContain("<select");
+  });
 });

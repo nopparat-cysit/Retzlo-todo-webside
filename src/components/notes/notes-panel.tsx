@@ -36,6 +36,17 @@ import { useToast } from "@/components/ui/toast";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/state";
+import { DateTimeField } from "@/components/ui/date-time-field";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { FolderModal } from "@/components/notes/folder-modal";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { formatMediumDate, formatMediumDateTime } from "@/lib/date-format";
@@ -1342,6 +1353,7 @@ function NoteEditorModalContent({
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
 }) {
   const { requestClose } = useAppModal();
+  const currentFolder = folders.find((f) => f.id === selectedFolderId);
 
   return (
     <form className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden" onSubmit={onSubmit}>
@@ -1385,25 +1397,50 @@ function NoteEditorModalContent({
 
         <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
           {/* Folder Selector */}
-          <div className="space-y-2 text-sm text-stone-300">
+          <div className="space-y-1.5 text-sm text-stone-300">
             <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder (โฟลเดอร์)</span>
-            <div className="relative">
-              <select
-                value={selectedFolderId}
-                onChange={(e) => setSelectedFolderId(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-stone-300/80 bg-white py-2 pl-3 pr-8 text-xs text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
+            <Select
+              value={selectedFolderId || "UNFILED"}
+              onValueChange={(val) => setSelectedFolderId(val === "UNFILED" ? "" : val)}
+            >
+              <SelectTrigger
+                aria-label="Select folder"
+                className="h-10 w-full rounded-lg border border-stone-300/80 bg-white px-3 text-xs font-semibold text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
               >
-                <option value="" className="bg-white text-stone-900 dark:bg-ink-950 dark:text-stone-100">
-                  📁 No folder (Unfiled / ไม่มีโฟลเดอร์)
-                </option>
-                {folders.map((f) => (
-                  <option key={f.id} value={f.id} className="bg-white text-stone-900 dark:bg-ink-950 dark:text-stone-100">
-                    {f.icon || "📁"} {f.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 dark:text-stone-500" />
-            </div>
+                <div className="flex items-center gap-2 truncate">
+                  <span className="shrink-0 text-base">{currentFolder?.icon || "📁"}</span>
+                  <span className="truncate font-medium">
+                    {currentFolder ? currentFolder.name : "No folder (Unfiled / ไม่มีโฟลเดอร์)"}
+                  </span>
+                </div>
+              </SelectTrigger>
+              <SelectContent className="z-[1100]">
+                <SelectGroup>
+                  <SelectItem value="UNFILED" className="cursor-pointer text-xs">
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">📁</span>
+                      <span>No folder (Unfiled / ไม่มีโฟลเดอร์)</span>
+                    </span>
+                  </SelectItem>
+                </SelectGroup>
+                {folders.length > 0 && (
+                  <>
+                    <SelectSeparator />
+                    <SelectGroup>
+                      <SelectLabel>Folders ({folders.length})</SelectLabel>
+                      {folders.map((f) => (
+                        <SelectItem key={f.id} value={f.id} className="cursor-pointer text-xs">
+                          <span className="flex items-center gap-2">
+                            <span className="text-base">{f.icon || "📁"}</span>
+                            <span>{f.name}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2 text-sm text-stone-300">
@@ -1465,20 +1502,27 @@ function NoteEditorModalContent({
                   </label>
                   {scope === "board" && (
                     <div className="mt-2.5 pt-2 border-t border-stone-200/80 dark:border-white/10">
-                      <div className="relative">
-                        <select
-                          value={selectedBoardId}
-                          onChange={(e) => setSelectedBoardId(e.target.value)}
-                          className="w-full appearance-none rounded-md border border-stone-300/80 bg-white py-2 pl-3 pr-8 text-xs text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
+                      <Select
+                        value={selectedBoardId || (availableBoards[0]?.id ?? "")}
+                        onValueChange={setSelectedBoardId}
+                      >
+                        <SelectTrigger
+                          aria-label="Select sub-project board"
+                          className="h-9 w-full rounded-md border border-stone-300/80 bg-white px-3 text-xs font-semibold text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
                         >
-                          {availableBoards.map((b) => (
-                            <option key={b.id} value={b.id} className="bg-white text-stone-900 dark:bg-ink-950 dark:text-stone-100">
-                              {b.name} {b.isPrivate ? "(Private)" : ""}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 dark:text-stone-500" />
-                      </div>
+                          <SelectValue placeholder="Select board" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[1100]">
+                          <SelectGroup>
+                            <SelectLabel>Boards ({availableBoards.length})</SelectLabel>
+                            {availableBoards.map((b) => (
+                              <SelectItem key={b.id} value={b.id} className="cursor-pointer text-xs">
+                                {b.name} {b.isPrivate ? "(Private)" : ""}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
                 </div>
@@ -1511,38 +1555,15 @@ function NoteEditorModalContent({
             </div>
           </div>
 
-          <div className="rounded-md border border-white/10 bg-white/[0.035] p-3">
-            <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
-              <CalendarClock className="h-4 w-4 text-dusk-cyan" />
-              Calendar
-            </div>
-            <div className="mb-3 flex flex-wrap gap-2">
-              {[
-                ["today", "Today"],
-                ["tomorrow", "Tomorrow"],
-                ["next-week", "Next week"],
-                ["clear", "Clear date"]
-              ].map(([value, label]) => (
-                <Button
-                  className="h-8 px-3"
-                  key={value}
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setDate(applyDueShortcut(value as "today" | "tomorrow" | "next-week" | "clear"));
-                    if (value === "clear") setTime("");
-                  }}
-                >
-                  {label}
-                </Button>
-              ))}
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <Input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-              <Input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
-            </div>
-            <p className="mt-2 text-xs text-stone-500">No time means all day.</p>
-          </div>
+          <DateTimeField
+            label="วันที่สิ้นสุด (Due / End Date)"
+            description="กำหนดวันสิ้นสุดหรือส่งงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+            value={{ date, time }}
+            onChange={(nextValue) => {
+              setDate(nextValue.date);
+              setTime(nextValue.time);
+            }}
+          />
 
           <ColorPicker selectedColor={color} onChange={setColor} />
           <NoteStickerPicker selectedSticker={emoji} onChange={setEmoji} />
