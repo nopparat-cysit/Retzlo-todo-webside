@@ -96,6 +96,15 @@ export async function getProjectIdForDiaryItem(diaryItemId: string) {
   return diaryItem?.projectId ?? null;
 }
 
+export async function getProjectIdForNoteFolder(folderId: string) {
+  const folder = await prisma.noteFolder.findUnique({
+    where: { id: folderId },
+    select: { projectId: true }
+  });
+
+  return folder?.projectId ?? null;
+}
+
 export function canAccessBoard(
   board: { isPrivate: boolean; members?: Array<{ userId: string }> },
   userId: string,

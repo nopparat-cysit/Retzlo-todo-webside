@@ -10,6 +10,7 @@ import {
   Eye,
   EyeOff,
   FileText,
+  Folder,
   FolderKanban,
   Globe,
   Grid2X2,
@@ -17,6 +18,7 @@ import {
   LayoutGrid,
   List,
   Lock,
+  Pencil,
   Plus,
   RotateCcw,
   Save,
@@ -33,13 +35,14 @@ import { useToast } from "@/components/ui/toast";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/state";
+import { FolderModal } from "@/components/notes/folder-modal";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { formatMediumDate, formatMediumDateTime } from "@/lib/date-format";
 import { applyDueShortcut, composeDueDate } from "@/lib/kanban/due-date";
 import { isSharedIconPath, sharedIconOptions } from "@/lib/stickers/shared-icon-options";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
-import type { ProjectNote } from "@/types/note";
+import type { ProjectNote, NoteFolderItem } from "@/types/note";
 
 type NoteFilter = "all" | "starred" | "dated" | "undated" | "completed";
 type NoteSort = "updated" | "created" | "due" | "title";
@@ -63,6 +66,7 @@ const NOTE_VIEW_MODES: Array<{ value: NoteViewMode; label: string; icon: typeof 
 interface NotesPanelProps {
   projectId: string;
   initialNotes: ProjectNote[];
+  initialFolders?: NoteFolderItem[];
   allowMemberPrivateItems: boolean;
   isOwner: boolean;
   compact?: boolean;
@@ -72,17 +76,23 @@ interface NotesPanelProps {
 export function NotesPanel({
   projectId,
   initialNotes,
+  initialFolders = [],
   allowMemberPrivateItems,
   isOwner,
   availableBoards = []
 }: NotesPanelProps) {
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes);
+  const [folders, setFolders] = useState<NoteFolderItem[]>(initialFolders);
   const [filter, setFilter] = useState<NoteFilter>("all");
+  const [folderFilter, setFolderFilter] = useState<string>("all");
   const [boardFilter, setBoardFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<NoteSort>("updated");
   const [viewMode, setViewMode] = useState<NoteViewMode>("grid-3");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<ProjectNote | null>(null);
+  const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
+  const [editingFolder, setEditingFolder] = useState<NoteFolderItem | null>(null);
+  const [deletingFolder, setDeletingFolder] = useState<NoteFolderItem | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const visibleNotes = useMemo(() => {
@@ -91,6 +101,12 @@ export function NotesPanel({
         if (note.boardId) return false;
       } else if (boardFilter !== "all") {
         if (note.boardId !== boardFilter) return false;
+      }
+
+      if (folderFilter === "unfiled") {
+        if (note.folderId) return false;
+      } else if (folderFilter !== "all") {
+        if (note.folderId !== folderFilter) return false;
       }
 
       const isCompleted = Boolean(note.completedAt);
@@ -113,7 +129,7 @@ export function NotesPanel({
       const key = sortBy === "created" ? "createdAt" : "updatedAt";
       return new Date(b[key]).getTime() - new Date(a[key]).getTime();
     });
-  }, [filter, boardFilter, notes, sortBy]);
+  }, [filter, folderFilter, boardFilter, notes, sortBy]);
   const activeNotes = useMemo(() => notes.filter((note) => !note.completedAt), [notes]);
   const completedNotes = useMemo(() => notes.filter((note) => note.completedAt), [notes]);
   const recentNotes = useMemo(
@@ -130,14 +146,27 @@ export function NotesPanel({
 
   const refreshNotes = useCallback(async () => {
     try {
-      const response = await fetch(`/api/projects/${projectId}/notes`, {
-        cache: "no-store",
-        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
-      });
-      if (!response.ok) return;
-      const data = (await response.json()) as { notes?: ProjectNote[] };
-      if (Array.isArray(data.notes)) {
-        setNotes(data.notes.map(normalizeNote));
+      const [notesRes, foldersRes] = await Promise.all([
+        fetch(`/api/projects/${projectId}/notes`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
+        }),
+        fetch(`/api/projects/${projectId}/note-folders`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
+        })
+      ]);
+      if (notesRes.ok) {
+        const data = (await notesRes.json()) as { notes?: ProjectNote[] };
+        if (Array.isArray(data.notes)) {
+          setNotes(data.notes.map(normalizeNote));
+        }
+      }
+      if (foldersRes.ok) {
+        const data = (await foldersRes.json()) as { folders?: NoteFolderItem[] };
+        if (Array.isArray(data.folders)) {
+          setFolders(data.folders);
+        }
       }
     } catch {
       // Ignore background sync errors
@@ -228,6 +257,77 @@ export function NotesPanel({
     broadcastChange();
   }
 
+  async function handleSaveFolder(data: { name: string; color: string; icon: string }) {
+    if (editingFolder) {
+      await updateFolder(editingFolder.id, data);
+    } else {
+      await createFolder(data);
+    }
+  }
+
+  async function createFolder(payload: { name: string; color: string; icon: string }) {
+    const res = await fetch(`/api/projects/${projectId}/note-folders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.folder) {
+      throw new Error(data.error || "Failed to create folder");
+    }
+    setFolders((curr) => [...curr, data.folder]);
+    toast({ message: `Folder "${data.folder.name}" created!`, type: "success" });
+    broadcastChange();
+  }
+
+  async function updateFolder(folderId: string, payload: { name: string; color: string; icon: string }) {
+    const res = await fetch(`/api/note-folders/${folderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.folder) {
+      throw new Error(data.error || "Failed to update folder");
+    }
+    setFolders((curr) => curr.map((f) => (f.id === folderId ? data.folder : f)));
+    setNotes((curr) =>
+      curr.map((n) =>
+        n.folderId === folderId
+          ? { ...n, folder: { id: data.folder.id, name: data.folder.name, color: data.folder.color, icon: data.folder.icon } }
+          : n
+      )
+    );
+    toast({ message: "Folder updated!", type: "success" });
+    broadcastChange();
+  }
+
+  async function deleteFolder(folderId: string) {
+    try {
+      const res = await fetch(`/api/note-folders/${folderId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to delete folder");
+      }
+      setFolders((curr) => curr.filter((f) => f.id !== folderId));
+      if (folderFilter === folderId) {
+        setFolderFilter("all");
+      }
+      setNotes((curr) =>
+        curr.map((n) =>
+          n.folderId === folderId
+            ? { ...n, folderId: null, folder: null }
+            : n
+        )
+      );
+      toast({ message: "Folder deleted. Notes moved to Unfiled.", type: "success" });
+      broadcastChange();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to delete folder";
+      toast({ message: msg, type: "error" });
+    }
+  }
+
   async function quickCreateNote(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -247,7 +347,8 @@ export function NotesPanel({
       color: "DEFAULT",
       dueDate: null,
       dueDateAllDay: false,
-      isHidden: false
+      isHidden: false,
+      folderId: folderFilter !== "all" && folderFilter !== "unfiled" ? folderFilter : null
     });
 
     if (note) form.reset();
@@ -337,7 +438,7 @@ export function NotesPanel({
                   value={boardFilter}
                   options={[
                     { value: "all", label: "All boards & notes" },
-                    { value: "general", label: "Project-wide only (No board)" },
+                    { value: "general", label: "Project-wide only" },
                     ...availableBoards.map((b) => ({
                       value: b.id,
                       label: `${b.name}${b.isPrivate ? " (Private)" : ""}`
@@ -348,6 +449,120 @@ export function NotesPanel({
               </div>
             )}
           </div>
+
+          {/* Folders Section */}
+          <div className="mt-4 pt-3 border-t border-white/10">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs uppercase tracking-[0.24em] text-dusk-amber font-semibold">Folders</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingFolder(null);
+                  setIsFolderModalOpen(true);
+                }}
+                className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs text-dusk-lavender hover:bg-white/10 hover:text-stone-100 transition"
+                title="Create Folder"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>New</span>
+              </button>
+            </div>
+
+            <div className="space-y-1 max-h-56 overflow-y-auto scrollbar-soft pr-1">
+              <button
+                type="button"
+                onClick={() => setFolderFilter("all")}
+                className={cn(
+                  "flex w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-xs transition",
+                  folderFilter === "all"
+                    ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
+                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
+                )}
+              >
+                <span className="flex items-center gap-1.5 truncate">
+                  <span>📁</span>
+                  <span className="font-medium truncate">All Notes</span>
+                </span>
+                <span className="rounded bg-ink-950/45 px-1.5 py-0.5 text-[10px] text-dusk-lavender shrink-0">
+                  {activeNotes.length}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFolderFilter("unfiled")}
+                className={cn(
+                  "flex w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-xs transition",
+                  folderFilter === "unfiled"
+                    ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
+                    : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
+                )}
+              >
+                <span className="flex items-center gap-1.5 truncate">
+                  <span>📄</span>
+                  <span className="font-medium truncate">Unfiled Notes</span>
+                </span>
+                <span className="rounded bg-ink-950/45 px-1.5 py-0.5 text-[10px] text-dusk-lavender shrink-0">
+                  {notes.filter((n) => !n.folderId && !n.completedAt).length}
+                </span>
+              </button>
+
+              {folders.map((folder) => {
+                const count = notes.filter((n) => n.folderId === folder.id && !n.completedAt).length;
+                const isSelected = folderFilter === folder.id;
+
+                return (
+                  <div
+                    key={folder.id}
+                    className={cn(
+                      "group flex w-full items-center justify-between gap-1.5 rounded-lg border px-2.5 py-1.5 text-left text-xs transition",
+                      isSelected
+                        ? "border-dusk-lavender/65 bg-dusk-lavender/15 text-stone-100"
+                        : "border-white/10 bg-white/[0.035] text-stone-300 hover:border-dusk-lavender/35"
+                    )}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setFolderFilter(isSelected ? "all" : folder.id)}
+                      className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+                    >
+                      <span className="shrink-0 text-sm">{folder.icon || "📁"}</span>
+                      <span className="truncate font-medium">{folder.name}</span>
+                    </button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="rounded bg-ink-950/45 px-1.5 py-0.5 text-[10px] text-dusk-lavender">
+                        {count}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingFolder(folder);
+                          setIsFolderModalOpen(true);
+                        }}
+                        className="hidden group-hover:inline-flex p-1 rounded hover:bg-white/10 text-stone-400 hover:text-stone-200"
+                        title="Edit folder"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeletingFolder(folder);
+                        }}
+                        className="hidden group-hover:inline-flex p-1 rounded hover:bg-red-400/20 text-stone-400 hover:text-red-300"
+                        title="Delete folder"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {!allowMemberPrivateItems && !isOwner ? (
             <div className="mt-3 rounded-lg border border-dusk-amber/20 bg-dusk-amber/10 p-3 text-xs leading-5 text-dusk-amber">
               This project does not allow members to hide their own notes.
@@ -414,8 +629,8 @@ export function NotesPanel({
                 </button>
               ))}
             </div>
-            <div className="flex gap-2">
-              <div className="flex-1 rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
+            <div className="flex flex-wrap gap-2">
+              <div className="flex-1 min-w-[120px] rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
                 <FilterSelect
                   label="Sort"
                   value={sortBy}
@@ -429,7 +644,7 @@ export function NotesPanel({
                 />
               </div>
               {availableBoards.length > 0 && (
-                <div className="flex-1 rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
+                <div className="flex-1 min-w-[120px] rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
                   <FilterSelect
                     label="Board Scope"
                     value={boardFilter}
@@ -442,6 +657,23 @@ export function NotesPanel({
                       }))
                     ]}
                     onValueChange={setBoardFilter}
+                  />
+                </div>
+              )}
+              {folders.length > 0 && (
+                <div className="flex-1 min-w-[120px] rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
+                  <FilterSelect
+                    label="Folder"
+                    value={folderFilter}
+                    options={[
+                      { value: "all", label: "All folders" },
+                      { value: "unfiled", label: "Unfiled only" },
+                      ...folders.map((f) => ({
+                        value: f.id,
+                        label: `${f.icon || "📁"} ${f.name}`
+                      }))
+                    ]}
+                    onValueChange={setFolderFilter}
                   />
                 </div>
               )}
@@ -535,6 +767,7 @@ export function NotesPanel({
         <NoteEditorModal
           allowMemberPrivateItems={allowMemberPrivateItems}
           availableBoards={availableBoards}
+          folders={folders}
           title="Add note"
           onClose={() => setIsCreateOpen(false)}
           onSubmit={createNote}
@@ -544,6 +777,7 @@ export function NotesPanel({
         <NoteEditorModal
           note={selectedNote}
           availableBoards={availableBoards}
+          folders={folders}
           title="Edit note"
           onClose={() => setSelectedNote(null)}
           onDelete={() => deleteNote(selectedNote.id)}
@@ -555,6 +789,33 @@ export function NotesPanel({
           allowMemberPrivateItems={allowMemberPrivateItems}
         />
       ) : null}
+
+      {isFolderModalOpen && (
+        <FolderModal
+          open={isFolderModalOpen}
+          folder={editingFolder}
+          onClose={() => {
+            setIsFolderModalOpen(false);
+            setEditingFolder(null);
+          }}
+          onSave={handleSaveFolder}
+        />
+      )}
+      {deletingFolder && (
+        <ConfirmModal
+          open={Boolean(deletingFolder)}
+          title={`Delete Folder "${deletingFolder.name}"`}
+          message="Are you sure you want to delete this folder? Notes inside will not be deleted; they will be moved to Unfiled notes."
+          confirmLabel="Delete folder"
+          variant="danger"
+          onConfirm={async () => {
+            const id = deletingFolder.id;
+            setDeletingFolder(null);
+            await deleteFolder(id);
+          }}
+          onClose={() => setDeletingFolder(null)}
+        />
+      )}
     </section>
   );
 }
@@ -639,6 +900,12 @@ function NoteCard({
                 Team
               </span>
             )}
+            {note.folder ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/30 bg-dusk-lavender/10 px-2 py-1 text-[11px] font-medium text-dusk-lavender">
+                <span>{note.folder.icon || "📁"}</span>
+                <span className="truncate max-w-[120px]">{note.folder.name}</span>
+              </span>
+            ) : null}
             {note.dueDate ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-1 text-[11px] text-dusk-cyan">
                 <CalendarClock className="h-3 w-3" />
@@ -695,6 +962,7 @@ interface NotePayload {
   dueDateAllDay: boolean;
   isHidden: boolean;
   boardId?: string | null;
+  folderId?: string | null;
 }
 
 function NoteEditorModal({
@@ -705,7 +973,8 @@ function NoteEditorModal({
   onToggleComplete,
   onSubmit,
   allowMemberPrivateItems = false,
-  availableBoards = []
+  availableBoards = [],
+  folders = []
 }: {
   note?: ProjectNote;
   title: string;
@@ -715,6 +984,7 @@ function NoteEditorModal({
   onSubmit: (payload: NotePayload) => void | Promise<unknown>;
   allowMemberPrivateItems?: boolean;
   availableBoards?: Array<{ id: string; name: string; isPrivate?: boolean }>;
+  folders?: NoteFolderItem[];
 }) {
   const [titleValue, setTitleValue] = useState(note?.title ?? "");
   const [contentValue, setContentValue] = useState(note?.content ?? "");
@@ -722,6 +992,7 @@ function NoteEditorModal({
   const [time, setTime] = useState(note?.dueDate && !note.dueDateAllDay ? timeValue(note.dueDate) : "");
   const [color, setColor] = useState<CardColor>(normalizeCardColor(note?.color));
   const [emoji, setEmoji] = useState(note?.emoji ?? DEFAULT_NOTE_STICKER);
+  const [selectedFolderId, setSelectedFolderId] = useState<string>(note?.folderId ?? "");
   // Default to private if new note!
   const [scope, setScope] = useState<NoteScope>(
     note ? (note.isHidden ? "private" : note.boardId ? "board" : "team") : "private"
@@ -743,12 +1014,13 @@ function NoteEditorModal({
       contentValue !== (note.content ?? "") ||
       emoji !== (note.emoji ?? DEFAULT_NOTE_STICKER) ||
       color !== normalizeCardColor(note.color) ||
+      selectedFolderId !== (note.folderId ?? "") ||
       scope !== origScope ||
       (scope === "board" && selectedBoardId !== (note.boardId ?? "")) ||
       date !== origDate ||
       time !== origTime
     );
-  }, [note, titleValue, contentValue, emoji, color, scope, selectedBoardId, date, time]);
+  }, [note, titleValue, contentValue, emoji, color, selectedFolderId, scope, selectedBoardId, date, time]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -764,7 +1036,8 @@ function NoteEditorModal({
       dueDate: due.dueDate,
       dueDateAllDay: due.dueDateAllDay,
       isHidden,
-      boardId
+      boardId,
+      folderId: selectedFolderId || null
     });
     onClose();
   }
@@ -795,6 +1068,9 @@ function NoteEditorModal({
           selectedBoardId={selectedBoardId}
           setSelectedBoardId={setSelectedBoardId}
           availableBoards={availableBoards}
+          folders={folders}
+          selectedFolderId={selectedFolderId}
+          setSelectedFolderId={setSelectedFolderId}
           date={date}
           setDate={setDate}
           time={time}
@@ -840,6 +1116,9 @@ function NoteEditorModalContent({
   selectedBoardId,
   setSelectedBoardId,
   availableBoards,
+  folders = [],
+  selectedFolderId,
+  setSelectedFolderId,
   date,
   setDate,
   time,
@@ -864,6 +1143,9 @@ function NoteEditorModalContent({
   selectedBoardId: string;
   setSelectedBoardId: (val: string) => void;
   availableBoards: Array<{ id: string; name: string; isPrivate?: boolean }>;
+  folders?: NoteFolderItem[];
+  selectedFolderId: string;
+  setSelectedFolderId: (val: string) => void;
   date: string;
   setDate: (val: string) => void;
   time: string;
@@ -916,6 +1198,28 @@ function NoteEditorModalContent({
         </div>
 
         <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+          {/* Folder Selector */}
+          <div className="space-y-2 text-sm text-stone-300">
+            <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder (โฟลเดอร์)</span>
+            <div className="relative">
+              <select
+                value={selectedFolderId}
+                onChange={(e) => setSelectedFolderId(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-stone-300/80 bg-white py-2 pl-3 pr-8 text-xs text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
+              >
+                <option value="" className="bg-white text-stone-900 dark:bg-ink-950 dark:text-stone-100">
+                  📁 No folder (Unfiled / ไม่มีโฟลเดอร์)
+                </option>
+                {folders.map((f) => (
+                  <option key={f.id} value={f.id} className="bg-white text-stone-900 dark:bg-ink-950 dark:text-stone-100">
+                    {f.icon || "📁"} {f.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 dark:text-stone-500" />
+            </div>
+          </div>
+
           <div className="space-y-2 text-sm text-stone-300">
             <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Visibility Scope</span>
             <div className="flex flex-col gap-2">
@@ -1177,6 +1481,8 @@ function normalizeNote(note: ProjectNote): ProjectNote {
     isHidden: note.isHidden ?? false,
     boardId: note.boardId ?? null,
     board: note.board ? { id: note.board.id, name: note.board.name } : null,
+    folderId: note.folderId ?? null,
+    folder: note.folder ? { id: note.folder.id, name: note.folder.name, color: note.folder.color, icon: note.folder.icon } : null,
     completedAt: note.completedAt ? new Date(note.completedAt).toISOString() : null,
     dueDate: note.dueDate ? new Date(note.dueDate).toISOString() : null,
     dueDateAllDay: note.dueDateAllDay ?? false,

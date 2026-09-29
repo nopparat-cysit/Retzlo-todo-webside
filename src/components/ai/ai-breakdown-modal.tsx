@@ -247,6 +247,7 @@ export function AiBreakdownModal({
             <div>
               <h2
                 id="ai-breakdown-title"
+                aria-label="AI Auto-Breakdown Task"
                 className="text-base sm:text-lg font-bold tracking-tight text-stone-100 flex items-center gap-2"
               >
                 <span>สร้างเช็กลิสต์ด้วย AI</span>

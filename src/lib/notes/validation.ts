@@ -19,6 +19,7 @@ export const createNoteSchema = z.object({
   color: z.enum(cardColorValues).default("DEFAULT"),
   isHidden: z.boolean().default(false),
   boardId: z.string().nullable().optional(),
+  folderId: z.string().nullable().optional(),
   dueDate: z.string().datetime().nullable().optional(),
   dueDateAllDay: z.boolean().default(false)
 });
@@ -31,6 +32,7 @@ export const updateNoteSchema = z.object({
   isStarred: z.boolean().optional(),
   isHidden: z.boolean().optional(),
   boardId: z.string().nullable().optional(),
+  folderId: z.string().nullable().optional(),
   isCompleted: z.boolean().optional(),
   dueDate: z.string().datetime().nullable().optional(),
   dueDateAllDay: z.boolean().optional()
@@ -46,6 +48,7 @@ export function parseCreateNotePayload(payload: unknown) {
     color: parsed.color,
     isHidden: parsed.isHidden,
     boardId: parsed.boardId ?? null,
+    folderId: parsed.folderId ?? null,
     dueDate: parsed.dueDate,
     dueDateAllDay: parsed.dueDateAllDay
   };
@@ -53,4 +56,24 @@ export function parseCreateNotePayload(payload: unknown) {
 
 export function parseUpdateNotePayload(payload: unknown) {
   return updateNoteSchema.parse(payload);
+}
+
+export const createNoteFolderSchema = z.object({
+  name: z.string().trim().min(1, "Folder name is required").max(60, "Folder name is too long"),
+  color: z.string().trim().min(1).default("DEFAULT"),
+  icon: z.string().trim().min(1).max(32).default("📁")
+});
+
+export const updateNoteFolderSchema = z.object({
+  name: z.string().trim().min(1, "Folder name is required").max(60, "Folder name is too long").optional(),
+  color: z.string().trim().min(1).optional(),
+  icon: z.string().trim().min(1).max(32).optional()
+});
+
+export function parseCreateNoteFolderPayload(payload: unknown) {
+  return createNoteFolderSchema.parse(payload);
+}
+
+export function parseUpdateNoteFolderPayload(payload: unknown) {
+  return updateNoteFolderSchema.parse(payload);
 }

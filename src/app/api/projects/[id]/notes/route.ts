@@ -20,12 +20,14 @@ function toNoteResponse(
     dueDate: Date | null;
     dueDateAllDay: boolean;
     boardId?: string | null;
+    folderId?: string | null;
     projectId: string;
     authorId: string;
     createdAt: Date;
     updatedAt: Date;
     author: { name: string | null; email: string };
     board?: { id: string; name: string } | null;
+    folder?: { id: string; name: string; color: string; icon: string } | null;
   },
   context: {
     membership: { role: string };
@@ -40,6 +42,8 @@ function toNoteResponse(
     color: normalizeCardColor(note.color),
     boardId: note.boardId ?? null,
     board: note.board ? { id: note.board.id, name: note.board.name } : null,
+    folderId: note.folderId ?? null,
+    folder: note.folder ? { id: note.folder.id, name: note.folder.name, color: note.folder.color, icon: note.folder.icon } : null,
     completedAt: note.completedAt ? note.completedAt.toISOString() : null,
     dueDate: note.dueDate ? note.dueDate.toISOString() : null,
     createdAt: note.createdAt.toISOString(),
@@ -81,6 +85,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
   const { searchParams } = new URL(request.url);
   const boardIdFilter = searchParams.get("boardId");
+  const folderIdFilter = searchParams.get("folderId");
 
   const isOwner = isOwnerRole(membership.role);
 
@@ -104,6 +109,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
       });
     } else {
       conditions.push({ boardId: boardIdFilter });
+    }
+  }
+
+  if (folderIdFilter) {
+    if (folderIdFilter === "unfiled" || folderIdFilter === "null" || folderIdFilter === "none") {
+      conditions.push({ folderId: null });
+    } else if (folderIdFilter !== "all") {
+      conditions.push({ folderId: folderIdFilter });
     }
   }
 
@@ -138,6 +151,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
         select: {
           id: true,
           name: true
+        }
+      },
+      folder: {
+        select: {
+          id: true,
+          name: true,
+          color: true,
+          icon: true
         }
       }
     },
@@ -200,6 +221,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         color: payload.color,
         isHidden: payload.isHidden,
         boardId: payload.boardId ?? null,
+        folderId: payload.folderId ?? null,
         dueDate: payload.dueDate ? new Date(payload.dueDate) : null,
         dueDateAllDay: payload.dueDateAllDay,
         projectId: params.id,
@@ -216,6 +238,14 @@ export async function POST(request: Request, { params }: { params: { id: string 
           select: {
             id: true,
             name: true
+          }
+        },
+        folder: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true
           }
         }
       }

@@ -26,12 +26,14 @@ function toNoteResponse(
     dueDate: Date | null;
     dueDateAllDay: boolean;
     boardId?: string | null;
+    folderId?: string | null;
     projectId: string;
     authorId: string;
     createdAt: Date;
     updatedAt: Date;
     author: { name: string | null; email: string };
     board?: { id: string; name: string } | null;
+    folder?: { id: string; name: string; color: string; icon: string } | null;
   },
   context: {
     membership: { role: string };
@@ -44,6 +46,8 @@ function toNoteResponse(
     color: normalizeCardColor(note.color),
     boardId: note.boardId ?? null,
     board: note.board ? { id: note.board.id, name: note.board.name } : null,
+    folderId: note.folderId ?? null,
+    folder: note.folder ? { id: note.folder.id, name: note.folder.name, color: note.folder.color, icon: note.folder.icon } : null,
     completedAt: note.completedAt ? note.completedAt.toISOString() : null,
     dueDate: note.dueDate ? note.dueDate.toISOString() : null,
     createdAt: note.createdAt.toISOString(),
@@ -129,6 +133,14 @@ export async function PATCH(request: Request, { params }: { params: { noteId: st
           select: {
             id: true,
             name: true
+          }
+        },
+        folder: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true
           }
         }
       }

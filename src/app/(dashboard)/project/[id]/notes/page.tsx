@@ -28,6 +28,8 @@ function toProjectNotes(notes: Array<{
   authorId: string;
   boardId?: string | null;
   board?: { id: string; name: string } | null;
+  folderId?: string | null;
+  folder?: { id: string; name: string; color: string; icon: string } | null;
   createdAt: Date;
   updatedAt: Date;
   author: {
@@ -44,6 +46,8 @@ context: {
     ...note,
     boardId: note.boardId ?? null,
     board: note.board ? { id: note.board.id, name: note.board.name } : null,
+    folderId: note.folderId ?? null,
+    folder: note.folder ? { id: note.folder.id, name: note.folder.name, color: note.folder.color, icon: note.folder.icon } : null,
     color: normalizeCardColor(note.color),
     completedAt: note.completedAt ? note.completedAt.toISOString() : null,
     dueDate: note.dueDate ? note.dueDate.toISOString() : null,
@@ -124,15 +128,46 @@ export default async function NotesPage({ params }: { params: { id: string } }) 
           id: true,
           name: true
         }
+      },
+      folder: {
+        select: {
+          id: true,
+          name: true,
+          color: true,
+          icon: true
+        }
       }
     },
     orderBy: { updatedAt: "desc" }
   });
 
+  const folders = await prisma.noteFolder.findMany({
+    where: { projectId: params.id },
+    include: {
+      _count: {
+        select: { notes: true }
+      }
+    },
+    orderBy: { createdAt: "asc" }
+  });
+
+  const initialFolders = folders.map((f) => ({
+    id: f.id,
+    name: f.name,
+    color: f.color,
+    icon: f.icon,
+    projectId: f.projectId,
+    authorId: f.authorId,
+    _count: f._count,
+    createdAt: f.createdAt.toISOString(),
+    updatedAt: f.updatedAt.toISOString()
+  }));
+
   return (
     <NotesPanel
       allowMemberPrivateItems={project.allowMemberPrivateItems}
       availableBoards={accessibleBoards}
+      initialFolders={initialFolders}
       initialNotes={toProjectNotes(notes, {
         membership,
         userId,

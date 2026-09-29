@@ -24,6 +24,7 @@ model User {
   invitations     Invitation[]    @relation("InvitedUser")
   sentInvitations Invitation[]    @relation("InvitationSender")
   notes           Note[]
+  noteFolders     NoteFolder[]
   diaryItems      DiaryItem[]
   financeTransactions FinanceTransaction[]
   financeCategories FinanceCategory[]
@@ -61,6 +62,7 @@ model Project {
   boards      Board[]
   invitations Invitation[]
   notes       Note[]
+  noteFolders NoteFolder[]
   diaryItems  DiaryItem[]
   rewards     Reward[]
   cassettes   Cassette[]
@@ -202,11 +204,13 @@ model Note {
   dueDate   DateTime?
   dueDateAllDay Boolean @default(false)
   boardId   String?
+  folderId  String?
   projectId String
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   board     Board?   @relation(fields: [boardId], references: [id], onDelete: SetNull)
+  folder    NoteFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
@@ -215,6 +219,24 @@ model Note {
   @@index([projectId, isHidden])
   @@index([projectId, completedAt])
   @@index([boardId])
+  @@index([folderId])
+  @@index([authorId])
+}
+
+model NoteFolder {
+  id        String   @id @default(uuid())
+  name      String
+  color     String   @default("DEFAULT")
+  icon      String   @default("📁")
+  projectId String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  notes     Note[]
+
+  @@index([projectId])
   @@index([authorId])
 }
 

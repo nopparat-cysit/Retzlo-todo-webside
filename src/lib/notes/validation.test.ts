@@ -13,6 +13,7 @@ describe("note validation", () => {
       color: "DEFAULT",
       isHidden: false,
       boardId: null,
+      folderId: null,
       dueDate: undefined,
       dueDateAllDay: false
     });
@@ -51,6 +52,7 @@ describe("note validation", () => {
       color: "DEFAULT",
       isHidden: false,
       boardId: null,
+      folderId: null,
       dueDate: undefined,
       dueDateAllDay: false
     });
@@ -72,6 +74,7 @@ describe("note validation", () => {
       color: "CYAN",
       isHidden: false,
       boardId: null,
+      folderId: null,
       dueDate: "2026-05-26T10:00:00.000Z",
       dueDateAllDay: false
     });
@@ -91,6 +94,7 @@ describe("note validation", () => {
       color: "DEFAULT",
       isHidden: false,
       boardId: "board-123",
+      folderId: null,
       dueDate: undefined,
       dueDateAllDay: false
     });
@@ -100,6 +104,33 @@ describe("note validation", () => {
     });
     expect(parseUpdateNotePayload({ boardId: null })).toEqual({
       boardId: null
+    });
+  });
+
+  it("accepts folderId metadata", () => {
+    expect(
+      parseCreateNotePayload({
+        title: "Folder note",
+        content: "In a folder",
+        folderId: "folder-123"
+      })
+    ).toEqual({
+      title: "Folder note",
+      content: "In a folder",
+      emoji: DEFAULT_NOTE_STICKER,
+      color: "DEFAULT",
+      isHidden: false,
+      boardId: null,
+      folderId: "folder-123",
+      dueDate: undefined,
+      dueDateAllDay: false
+    });
+
+    expect(parseUpdateNotePayload({ folderId: "folder-456" })).toEqual({
+      folderId: "folder-456"
+    });
+    expect(parseUpdateNotePayload({ folderId: null })).toEqual({
+      folderId: null
     });
   });
 
