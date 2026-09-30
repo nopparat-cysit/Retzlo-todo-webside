@@ -8,6 +8,7 @@ import { generateTaskBreakdown } from "@/lib/ai/engine";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+export const maxDuration = 60;
 
 const breakdownSchema = z.object({
   title: z.string().trim().min(1, "กรุณาระบุชื่องานที่ต้องการแตกเช็กลิสต์"),

@@ -9,6 +9,7 @@ import { chatWithAssistant, AiChatMessage } from "@/lib/ai/engine";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+export const maxDuration = 60;
 
 const chatMessageSchema = z.object({
   role: z.enum(["system", "user", "assistant"]),

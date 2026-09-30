@@ -142,8 +142,9 @@ describe("Theme system and Warm Paper Light Mode", () => {
     expect(css).toContain("-webkit-appearance: none;");
     expect(css).toContain("appearance: none;");
 
+    // notes-panel uses Radix UI Select (not native select) so appearance-none is unnecessary there
     const notesPanel = readFileSync(join(process.cwd(), "src/components/notes/notes-panel.tsx"), "utf8");
-    expect(notesPanel).toContain("appearance-none");
+    expect(notesPanel).toContain("SelectTrigger");
   });
 
   it("ensures floating dropdown menus and selects use deep midnight background and high contrast typography in Dark Mode", () => {

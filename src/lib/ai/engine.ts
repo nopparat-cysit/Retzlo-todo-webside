@@ -175,7 +175,8 @@ export async function callAiChat(
     );
   }
 
-  const timeoutMs = options.timeoutMs ?? 45000;
+  // Reasoning models (deepseek-v4-pro, etc.) need longer timeouts
+  const timeoutMs = options.timeoutMs ?? 60000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -241,6 +242,16 @@ export async function callAiChat(
           "การยืนยันตัวตน AI API ล้มเหลว (401): คีย์ไม่ถูกต้องหรือถูกยกเลิก กรุณาตรวจสอบ AI_API_KEY ในไฟล์ .env หรือตั้งค่าในระบบ"
         );
       }
+      if (response.status === 402) {
+        throw new Error(
+          "ยอดเงินคงเหลือ DeepSeek API ไม่เพียงพอ กรุณาเติมเงินที่ platform.deepseek.com หรือเปลี่ยน API Key"
+        );
+      }
+      if (response.status === 429) {
+        throw new Error(
+          "คำขอ AI ถูกจำกัด (Rate Limit) กรุณารอสักครู่แล้วลองใหม่อีกครั้ง"
+        );
+      }
       throw new Error(
         `AI API error (${response.status}): ${errText || response.statusText}`
       );
@@ -253,10 +264,17 @@ export async function callAiChat(
     const choice = data.choices?.[0];
     const content = choice?.message?.content || choice?.message?.reasoning_content;
     if (!content) {
-      throw new Error("AI returned an empty response.");
+      throw new Error("AI ตอบกลับเป็นข้อความว่าง กรุณาลองอีกครั้ง");
     }
 
     return content;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error(
+        `AI ตอบกลับช้าเกินกำหนด (Timeout ${Math.round(timeoutMs / 1000)} วินาที) — ลองส่งข้อความสั้นลงหรือลองใหม่อีกครั้ง`
+      );
+    }
+    throw error;
   } finally {
     clearTimeout(timer);
   }

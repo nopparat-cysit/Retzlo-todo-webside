@@ -176,17 +176,35 @@ export function AiChatWidget() {
         })
       });
 
-      const data = await res.json();
+      let data: any;
+      try {
+        data = await res.json();
+      } catch {
+        // Vercel returns HTML on 504 timeout — not JSON-parseable
+        const errorMsg = res.status === 504
+          ? "AI ตอบกลับช้าเกินกำหนดของเซิร์ฟเวอร์ (Timeout) — ลองส่งข้อความสั้นลงหรือลองใหม่"
+          : `เซิร์ฟเวอร์ตอบกลับผิดปกติ (HTTP ${res.status})`;
+        toast({ message: errorMsg, type: "error" });
+        const errorMessage: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: `⚠️ ${errorMsg}`,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+        return;
+      }
 
       if (!res.ok) {
+        const errMsg = (data.error as string) || "ไม่สามารถติดต่อ AI ได้ในขณะนี้";
         toast({
-          message: data.error || "ไม่สามารถติดต่อ AI ได้ในขณะนี้",
+          message: errMsg,
           type: "error"
         });
         const errorMessage: ChatMessage = {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: `⚠️ เกิดข้อผิดพลาด: ${data.error || "กรุณาลองใหม่อีกครั้ง"}`,
+          content: `⚠️ เกิดข้อผิดพลาด: ${errMsg}`,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         };
         setMessages((prev) => [...prev, errorMessage]);

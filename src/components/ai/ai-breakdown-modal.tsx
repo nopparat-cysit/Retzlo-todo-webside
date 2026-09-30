@@ -136,11 +136,20 @@ export function AiBreakdownModal({
         })
       });
 
-      const data = await res.json();
+      let data: any;
+      try {
+        data = await res.json();
+      } catch {
+        const errorMsg = res.status === 504
+          ? "AI ตอบกลับช้าเกินกำหนดของเซิร์ฟเวอร์ (Timeout) — ลองลดจำนวนข้อหรือลองใหม่"
+          : `เซิร์ฟเวอร์ตอบกลับผิดปกติ (HTTP ${res.status})`;
+        toast({ message: errorMsg, type: "error" });
+        return;
+      }
 
       if (!res.ok) {
         toast({
-          message: data.error || "เกิดข้อผิดพลาดในการเรียกใช้ AI Assistant",
+          message: (data.error as string) || "เกิดข้อผิดพลาดในการเรียกใช้ AI Assistant",
           type: "error"
         });
         return;

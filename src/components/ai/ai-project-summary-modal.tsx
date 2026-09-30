@@ -59,10 +59,19 @@ export function AiProjectSummaryModal({
         })
       });
 
-      const data = await res.json();
+      let data: any;
+      try {
+        data = await res.json();
+      } catch {
+        const errorMsg = res.status === 504
+          ? "AI ตอบกลับช้าเกินกำหนดของเซิร์ฟเวอร์ (Timeout) — ลองใหม่อีกครั้ง"
+          : `เซิร์ฟเวอร์ตอบกลับผิดปกติ (HTTP ${res.status})`;
+        toast({ message: errorMsg, type: "error" });
+        return;
+      }
       if (!res.ok) {
         toast({
-          message: data.error || "ไม่สามารถสรุปภาพรวมโปรเจกต์ได้",
+          message: (data.error as string) || "ไม่สามารถสรุปภาพรวมโปรเจกต์ได้",
           type: "error"
         });
         return;
