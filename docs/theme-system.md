@@ -274,6 +274,6 @@ Template:
 
 ### 2026-10-01 — เพิ่มขั้นตอนยืนยันสร้างการ์ดจาก AI Chat
 - Added/changed: `src/components/ai/ai-chat-widget.tsx`, `src/app/api/ai/chat/route.ts`, `src/app/api/ai/create-cards/route.ts`, `src/lib/ai/chat-actions.ts`, `src/lib/ai/prompts.ts`.
-- Tokens/variants: ตัวอย่างการ์ดร่างใช้ `theme-panel-strong`, `theme-paper`, `theme-foreground`, `theme-muted`, `theme-border`, `theme-success-*` และ shared `ConfirmModal`; มีผลกับ AI Chat widget ที่แสดงทุก route ยกเว้นหน้า auth.
-- Reviewed: ตรวจ source ของ Light/Dark tokens, membership/private-board checks, schema parsing และ confirmation flow; ยังไม่ได้ตรวจภาพ state ข้อเสนอ/ยืนยัน เนื่องจากฐานข้อมูล local ใช้งานไม่ได้.
+- Tokens/variants: ตัวอย่างการ์ดร่างใช้ palette เดิมของ AI Chat และ shared `ConfirmModal`; ไม่มี token สีใหม่. มีผลกับ AI Chat widget ที่แสดงทุก route ยกเว้นหน้า auth.
+- Reviewed: ตรวจ source, membership/private-board checks, schema parsing และ confirmation flow; ยังไม่ได้ตรวจภาพ state ข้อเสนอ/ยืนยัน เนื่องจากฐานข้อมูล local ใช้งานไม่ได้.
 - Follow-ups: ตรวจ end-to-end เมื่อ Neon พร้อม โดยยืนยันว่ามีรายการร่างก่อน และสร้างข้อมูลเฉพาะหลังคลิก Confirm; ตรวจ mobile และ keyboard focus.
