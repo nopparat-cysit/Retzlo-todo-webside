@@ -19,8 +19,10 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { getAiAuthHeaders, getClientAiModel } from "@/lib/ai/client-key";
+import type { AiCreateCardProposal } from "@/lib/ai/chat-actions";
 import { ApiKeyModal } from "@/components/ai/api-key-modal";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +31,30 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: string;
+  createProposal?: AiCreateCardProposal;
+  proposalStatus?: "created" | "cancelled";
+  createdCardCount?: number;
+}
+
+interface AiChatResponse {
+  reply?: string;
+  error?: string;
+  remainingCredits?: number;
+  createProposal?: AiCreateCardProposal | null;
+}
+
+interface CreateCardsResponse {
+  error?: string;
+  createdCount?: number;
+}
+
+function formatProposalDueDate(value: string | null, allDay: boolean) {
+  if (!value) return "ไม่กำหนดวัน";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "วันที่ไม่ถูกต้อง";
+  return allDay
+    ? date.toLocaleDateString("th-TH", { dateStyle: "medium" })
+    : date.toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" });
 }
 
 const STARTER_PROMPTS = [
@@ -51,6 +77,9 @@ export function AiChatWidget() {
   const [activeModel, setActiveModel] = useState<string>("deepseek-v4-pro");
   const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [confirmProposalId, setConfirmProposalId] = useState<string | null>(null);
+  const [isCreatingCards, setIsCreatingCards] = useState(false);
+  const createRequestInFlightRef = useRef(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -163,6 +192,7 @@ export function AiChatWidget() {
           role: m.role,
           content: m.content
         }));
+      const boardId = new URLSearchParams(window.location.search).get("boardId") || undefined;
 
       const res = await fetch("/api/ai/chat", {
         method: "POST",
@@ -172,11 +202,12 @@ export function AiChatWidget() {
         },
         body: JSON.stringify({
           messages: payloadMessages,
-          projectId: currentProjectId
+          projectId: currentProjectId,
+          boardId
         })
       });
 
-      let data: any;
+      let data: AiChatResponse;
       try {
         data = await res.json();
       } catch {
@@ -219,7 +250,8 @@ export function AiChatWidget() {
         id: crypto.randomUUID(),
         role: "assistant",
         content: data.reply || "ขออภัยครับ ไม่พบคำตอบจากระบบ AI",
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        ...(data.createProposal ? { createProposal: data.createProposal } : {})
       };
 
       setMessages((prev) => [...prev, botReply]);
@@ -237,6 +269,72 @@ export function AiChatWidget() {
       setMessages((prev) => [...prev, netErrorMessage]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const cancelCreateProposal = (messageId: string) => {
+    setMessages((current) => current.map((message) =>
+      message.id === messageId
+        ? { ...message, createProposal: undefined, proposalStatus: "cancelled" }
+        : message
+    ));
+    setConfirmProposalId(null);
+  };
+
+  const confirmCreateProposal = async () => {
+    if (!confirmProposalId || createRequestInFlightRef.current) return;
+    const message = messages.find((item) => item.id === confirmProposalId);
+    const proposal = message?.createProposal;
+    if (!message || !proposal) {
+      setConfirmProposalId(null);
+      return;
+    }
+
+    createRequestInFlightRef.current = true;
+    setIsCreatingCards(true);
+    try {
+      const response = await fetch("/api/ai/create-cards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: proposal.projectId,
+          boardId: proposal.boardId,
+          cards: proposal.cards.map((card) => ({
+            columnId: card.columnId,
+            title: card.title,
+            description: card.description,
+            priority: card.priority,
+            dueDate: card.dueDate,
+            dueDateAllDay: card.dueDateAllDay
+          }))
+        })
+      });
+      const data = await response.json() as CreateCardsResponse;
+      if (!response.ok) {
+        throw new Error(data.error || "สร้างการ์ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+      }
+
+      const createdCount = data.createdCount ?? proposal.cards.length;
+      setMessages((current) => current.map((item) =>
+        item.id === message.id
+          ? {
+              ...item,
+              createProposal: undefined,
+              proposalStatus: "created",
+              createdCardCount: createdCount
+            }
+          : item
+      ));
+      setConfirmProposalId(null);
+      toast({ message: `เพิ่มการ์ด ${createdCount} ใบลงบอร์ดแล้ว`, type: "success" });
+    } catch (error) {
+      toast({
+        message: error instanceof Error ? error.message : "สร้างการ์ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+        type: "error"
+      });
+    } finally {
+      createRequestInFlightRef.current = false;
+      setIsCreatingCards(false);
     }
   };
 
@@ -281,6 +379,13 @@ export function AiChatWidget() {
     pathname === "/forgot-password" ||
     pathname === "/reset-password";
   if (isAuthPage) return null;
+
+  const proposalForConfirmation = messages.find((message) =>
+    message.id === confirmProposalId
+  )?.createProposal;
+  const confirmationSummary = proposalForConfirmation
+    ? `ยืนยันสร้าง ${proposalForConfirmation.cards.length} การ์ดลงบอร์ด “${proposalForConfirmation.boardName}” หรือไม่? รายการ: ${proposalForConfirmation.cards.map((card) => card.title).join("、")}`
+    : "";
 
   return (
     <>
@@ -438,6 +543,63 @@ export function AiChatWidget() {
                   <span className="text-[10px] text-stone-400 mt-1 px-1 font-mono">
                     {msg.timestamp}
                   </span>
+                  {msg.createProposal && (
+                    <div className="mt-2 w-full max-w-[85%] rounded-xl border border-stone-700 bg-stone-900 p-3 shadow-sm">
+                      <p className="text-xs font-semibold text-stone-100">
+                        ร่างการ์ด {msg.createProposal.cards.length} ใบ · {msg.createProposal.boardName}
+                      </p>
+                      <p className="mt-1 text-[11px] text-stone-400">
+                        ตรวจรายการ แล้วกดยืนยันก่อนบันทึกลงระบบ
+                      </p>
+                      <ul className="mt-2 max-h-36 space-y-2 overflow-y-auto">
+                        {msg.createProposal.cards.map((card, index) => (
+                          <li
+                            key={`${card.columnId}-${index}`}
+                            className="rounded-lg border border-stone-700 bg-stone-950 px-2.5 py-2"
+                          >
+                            <p className="text-xs font-medium text-stone-100">
+                              {index + 1}. {card.title}
+                            </p>
+                            {card.description && (
+                              <p className="mt-1 whitespace-pre-wrap text-[11px] text-stone-300">
+                                {card.description}
+                              </p>
+                            )}
+                            <p className="mt-1 text-[10px] text-stone-400">
+                              {card.columnName} · ความสำคัญ{
+                                card.priority === "HIGH" ? "สูง" : card.priority === "LOW" ? "ต่ำ" : "ปานกลาง"
+                              } · {formatProposalDueDate(card.dueDate, card.dueDateAllDay)}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => setConfirmProposalId(msg.id)}
+                        >
+                          ตรวจรายการและยืนยัน
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => cancelCreateProposal(msg.id)}
+                        >
+                          ยกเลิกร่าง
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {msg.proposalStatus === "created" && (
+                    <p className="mt-2 rounded-lg border border-emerald-700/50 bg-emerald-950/40 px-3 py-2 text-[11px] text-emerald-300">
+                      สร้างการ์ด {msg.createdCardCount ?? 0} ใบลงบอร์ดแล้ว
+                    </p>
+                  )}
+                  {msg.proposalStatus === "cancelled" && (
+                    <p className="mt-2 text-[11px] text-stone-400">ยกเลิกร่างการ์ดแล้ว</p>
+                  )}
                 </div>
               );
             })}
@@ -508,6 +670,17 @@ export function AiChatWidget() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={Boolean(proposalForConfirmation)}
+        title="ยืนยันสร้างการ์ดจาก AI?"
+        message={confirmationSummary}
+        confirmLabel="ยืนยันสร้าง"
+        cancelLabel="กลับไปตรวจรายการ"
+        isLoading={isCreatingCards}
+        onConfirm={confirmCreateProposal}
+        onClose={() => setConfirmProposalId(null)}
+      />
 
       {/* Model & Key Configuration Modal */}
       <ApiKeyModal
