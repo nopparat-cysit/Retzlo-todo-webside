@@ -4,14 +4,14 @@ import { describe, expect, it } from "vitest";
 
 describe("Board Switch Skeleton and Overdue Alignment Contracts", () => {
   const boardSource = readFileSync(join(process.cwd(), "src/components/kanban/board.tsx"), "utf8");
-  const tabsBarSource = readFileSync(join(process.cwd(), "src/components/kanban/board-tabs-bar.tsx"), "utf8");
+  const boardDropdownSource = readFileSync(join(process.cwd(), "src/components/kanban/board-sidebar-dropdown.tsx"), "utf8");
   const cssSource = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
   const selectSource = readFileSync(join(process.cwd(), "src/components/ui/select.tsx"), "utf8");
 
-  it("dispatches board-switching event and manages switching state in BoardTabsBar", () => {
-    expect(tabsBarSource).toContain("switchingBoardId");
-    expect(tabsBarSource).toMatch(/window\.dispatchEvent\(\s*new CustomEvent\(["']board-switching["']/);
-    expect(tabsBarSource).toContain("setSwitchingBoardId(b.id)");
+  it("dispatches board-switching event and manages switching state in the sidebar dropdown", () => {
+    expect(boardDropdownSource).toContain("switchingBoardId");
+    expect(boardDropdownSource).toMatch(/window\.dispatchEvent\(\s*new CustomEvent\(["']board-switching["']/);
+    expect(boardDropdownSource).toContain("setSwitchingBoardId(b.id)");
   });
 
   it("renders BoardSkeleton immediately when switching boards in KanbanBoard", () => {

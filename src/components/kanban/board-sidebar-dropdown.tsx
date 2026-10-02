@@ -2,13 +2,21 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FolderKanban, Lock, Plus, Settings } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Check, ChevronDown, FolderKanban, Lock, Plus, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
 import { BoardTemplatePicker } from "@/components/kanban/board-template-picker";
 import { DEFAULT_BOARD_TEMPLATE_ID, type BoardTemplateId } from "@/lib/kanban/board-templates";
@@ -19,22 +27,22 @@ interface BoardTabItem {
   isPrivate: boolean;
 }
 
-interface BoardTabsBarProps {
+interface BoardSidebarDropdownProps {
   projectId: string;
-  projectName?: string;
   boards: BoardTabItem[];
-  activeBoardId: string;
+  initialActiveBoardId?: string;
   canManage?: boolean;
 }
 
-export function BoardTabsBar({
+export function BoardSidebarDropdown({
   projectId,
-  projectName,
   boards,
-  activeBoardId,
+  initialActiveBoardId,
   canManage = false
-}: BoardTabsBarProps) {
+}: BoardSidebarDropdownProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
@@ -43,6 +51,13 @@ export function BoardTabsBar({
   const [isCreatingBoard, setIsCreatingBoard] = useState(false);
   const [boardsList, setBoardsList] = useState<BoardTabItem[]>(boards);
   const [switchingBoardId, setSwitchingBoardId] = useState<string | null>(null);
+  const requestedBoardId = searchParams.get("boardId");
+  const activeBoardId =
+    boardsList.find((board) => board.id === requestedBoardId)?.id ??
+    boardsList.find((board) => board.id === initialActiveBoardId)?.id ??
+    boardsList[0]?.id ??
+    "";
+  const isBoardRoute = pathname === `/project/${projectId}/board`;
 
   useEffect(() => {
     setBoardsList(boards);
@@ -69,10 +84,6 @@ export function BoardTabsBar({
     window.addEventListener("board-renamed" as any, handleBoardRenamed);
     return () => window.removeEventListener("board-renamed" as any, handleBoardRenamed);
   }, []);
-
-  if (boardsList.length <= 1 && !canManage) {
-    return null;
-  }
 
   const activeBoard = boardsList.find((b) => b.id === activeBoardId) ?? boardsList[0];
 
@@ -116,42 +127,43 @@ export function BoardTabsBar({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2.5 mb-3">
-        {/* Scrollable Tabs */}
-        <div className="scrollbar-soft flex items-center gap-1.5 overflow-x-auto min-w-0 pr-2">
-          {projectName ? (
-            <div className="flex items-center gap-1.5 text-xs shrink-0 mr-2">
-              <span className="font-semibold text-stone-100 truncate max-w-[130px] sm:max-w-[180px] select-text" title={projectName}>
-                {projectName}
-              </span>
-              <span className="text-stone-600 font-mono select-none">/</span>
-              <span className="text-[10px] uppercase tracking-wider text-dusk-amber/90 font-mono select-none font-semibold">
-                Boards:
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-dusk-amber/90 font-mono select-none mr-2 shrink-0 font-semibold">
-              <FolderKanban className="h-3.5 w-3.5 text-dusk-amber" />
-              <span>Boards:</span>
-            </div>
-          )}
-          {boardsList.map((b) => {
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-label="Open boards menu"
+            aria-current={isBoardRoute ? "page" : undefined}
+            className={cn(
+              "project-nav-link group relative flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm transition duration-200",
+              isBoardRoute
+                ? "project-nav-link-active border-dusk-lavender/40 bg-dusk-lavender/15 text-stone-900 font-semibold dark:text-stone-100"
+                : "border-transparent bg-transparent text-stone-500 hover:border-stone-300/40 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:border-white/10 dark:hover:bg-white/[0.055] dark:hover:text-stone-100"
+            )}
+          >
+            <FolderKanban className={cn("project-sidebar-icon h-4 w-4 shrink-0", isBoardRoute ? "text-dusk-lavender" : "text-stone-400")} />
+            <span className="sidebar-expanded-only truncate">Boards</span>
+            <ChevronDown className="sidebar-expanded-only ml-auto h-3.5 w-3.5 shrink-0 text-stone-500" />
+            <span className={cn(
+              "project-nav-active-marker absolute right-3 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full transition",
+              isBoardRoute ? "bg-dusk-lavender shadow-[0_0_10px_rgba(169,162,255,0.55)]" : "bg-transparent"
+            )} />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="right" align="start" className="w-72 max-w-[calc(100vw-3rem)]">
+          <DropdownMenuLabel className="flex items-center justify-between gap-3">
+            <span>Boards</span>
+            <span className="font-mono text-[10px] font-normal normal-case tracking-normal text-stone-400">
+              {boardsList.length}
+            </span>
+          </DropdownMenuLabel>
+          {boardsList.length ? boardsList.map((b) => {
+            const isActive = b.id === activeBoardId;
             const isSwitching = switchingBoardId === b.id;
-            const isActive = (b.id === activeBoardId && !switchingBoardId) || isSwitching;
-
             return (
-              <div
-                key={b.id}
-                className={cn(
-                  "group flex h-8 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition-all select-none",
-                  isActive
-                    ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber shadow-[0_0_12px_rgba(249,199,132,0.12)] font-semibold"
-                    : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent hover:bg-theme-paper-strong hover:text-theme-foreground",
-                  isSwitching && "animate-pulse ring-1 ring-dusk-amber/40"
-                )}
-              >
+              <DropdownMenuItem key={b.id} asChild>
                 <Link
-                  href={`/project/${projectId}/board?boardId=${b.id}`}
+                  href={`/project/${projectId}/board?boardId=${encodeURIComponent(b.id)}`}
+                  aria-current={isActive ? "page" : undefined}
                   onClick={() => {
                     if (typeof document !== "undefined") {
                       document.cookie = `project_${projectId}_last_board=${b.id}; path=/; max-age=31536000; SameSite=Lax`;
@@ -161,59 +173,42 @@ export function BoardTabsBar({
                     }
                     if (b.id !== activeBoardId) {
                       setSwitchingBoardId(b.id);
-                      window.dispatchEvent(
-                        new CustomEvent("board-switching", {
-                          detail: { targetBoardId: b.id }
-                        })
-                      );
+                      window.dispatchEvent(new CustomEvent("board-switching", { detail: { targetBoardId: b.id } }));
                     } else if (switchingBoardId) {
                       setSwitchingBoardId(null);
-                      window.dispatchEvent(
-                        new CustomEvent("board-switching", {
-                          detail: { targetBoardId: activeBoardId }
-                        })
-                      );
+                      window.dispatchEvent(new CustomEvent("board-switching", { detail: { targetBoardId: activeBoardId } }));
                     }
                   }}
-                  className="flex items-center gap-1.5 min-w-0"
-                >
-                  {b.isPrivate ? (
-                    <Lock className={cn("h-3 w-3 shrink-0", isActive ? "text-dusk-amber" : "text-stone-400")} />
-                  ) : (
-                    <FolderKanban className={cn("h-3 w-3 shrink-0", isActive ? "text-dusk-amber" : "text-stone-400")} />
+                  className={cn(
+                    "w-full",
+                    isActive && "bg-theme-paper-strong font-semibold text-theme-foreground hover:bg-theme-paper-strong focus:bg-theme-paper-strong",
+                    isSwitching && "animate-pulse"
                   )}
-                  <span className="truncate max-w-[140px] select-text">{b.name}</span>
+                >
+                  {b.isPrivate ? <Lock className="h-3.5 w-3.5 shrink-0 text-stone-500" /> : <FolderKanban className="h-3.5 w-3.5 shrink-0 text-stone-500" />}
+                  <span className="min-w-0 flex-1 truncate">{b.name}</span>
+                  {isActive && <Check className="h-3.5 w-3.5 shrink-0" />}
                 </Link>
-
-              </div>
+              </DropdownMenuItem>
             );
-          })}
-
-          {/* Action Icons right after boards (ต่อหลัง) */}
-          {canManage && (
-            <div className="flex items-center gap-1 shrink-0 ml-0.5">
-              <button
-                type="button"
-                onClick={() => setIsSettingsOpen(true)}
-                className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-stone-400 hover:border-dusk-lavender/50 hover:bg-dusk-lavender/15 hover:text-dusk-lavender transition-all cursor-pointer shadow-xs active:scale-95"
-                title="Board Settings (ตั้งค่าบอร์ด)"
-                aria-label="Board Settings"
-              >
-                <Settings className="h-3.5 w-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsCreateBoardOpen(true)}
-                className="grid h-8 w-8 place-items-center rounded-lg border border-dashed border-white/20 bg-white/[0.03] text-stone-400 hover:border-dusk-amber/60 hover:bg-dusk-amber/15 hover:text-dusk-amber transition-all cursor-pointer shadow-xs active:scale-95"
-                title="Create new board (สร้างบอร์ดใหม่)"
-                aria-label="Create new board"
-              >
-                <Plus className="h-3.5 w-3.5" />
-              </button>
-            </div>
+          }) : (
+            <DropdownMenuItem disabled>No boards yet</DropdownMenuItem>
           )}
-        </div>
-      </div>
+          {canManage && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem disabled={!activeBoard} onSelect={() => setIsSettingsOpen(true)}>
+                <Settings className="h-3.5 w-3.5 text-stone-500" />
+                Board settings
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setIsCreateBoardOpen(true)}>
+                <Plus className="h-3.5 w-3.5 text-stone-500" />
+                Create new board
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {activeBoard && canManage && (
         <BoardSettingsModal

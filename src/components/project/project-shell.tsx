@@ -16,6 +16,7 @@ import { FocusModeToggle } from "@/components/project/focus-mode-toggle";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
 import { ErrorState } from "@/components/ui/state";
+import { canAccessBoard } from "@/lib/project-auth";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
 
 const navItems = [
@@ -56,7 +57,15 @@ async function loadProjectShellData(projectId: string, userId: string) {
         members: { some: { userId } },
       },
       include: {
-        boards: { select: { id: true }, take: 1, orderBy: { createdAt: "asc" } },
+        boards: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            name: true,
+            isPrivate: true,
+            members: { select: { userId: true } }
+          }
+        },
         members: {
           where: { userId },
           select: { role: true },
@@ -111,8 +120,12 @@ export async function ProjectShell({
   const dotColor = projectDotColor(project.name);
   const statusColor = STATUS_COLORS[userRecord?.status ?? "ONLINE"] ?? "bg-stone-500";
   const isProjectOwner = project.members[0]?.role === "OWNER";
+  const accessibleBoards = project.boards
+    .filter((board) => canAccessBoard(board, session.user.id, project.members[0]?.role ?? "MEMBER"))
+    .map(({ id, name, isPrivate }) => ({ id, name, isPrivate }));
   const cookieStore = cookies();
   const lastBoardId = cookieStore.get(`project_${projectId}_last_board`)?.value;
+  const initialActiveBoardId = accessibleBoards.find((board) => board.id === lastBoardId)?.id ?? accessibleBoards[0]?.id;
 
   const sortableNavItems: ProjectNavItem[] = navItems.map((item) => ({
     ...item,
@@ -181,7 +194,17 @@ export async function ProjectShell({
           </div>
 
           <div className="my-3 min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 scrollbar-soft">
-            <ProjectSortableNav canSort={isProjectOwner} items={sortableNavItems} projectId={projectId} />
+            <ProjectSortableNav
+              canSort={isProjectOwner}
+              items={sortableNavItems}
+              projectId={projectId}
+              boardNavigation={{
+                projectId,
+                boards: accessibleBoards,
+                initialActiveBoardId,
+                canManage: isProjectOwner
+              }}
+            />
           </div>
 
           <div className="mt-auto space-y-3 border-t border-white/5 pt-4">

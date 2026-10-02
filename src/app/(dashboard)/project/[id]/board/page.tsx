@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-import { BoardTabsBar } from "@/components/kanban/board-tabs-bar";
 import { BoardViewContainer } from "@/components/kanban/board-view-container";
 import { ErrorState } from "@/components/ui/state";
 import { prisma } from "@/lib/prisma";
@@ -148,7 +147,7 @@ export default async function BoardPage({
   }
 
   let membership: NonNullable<Awaited<ReturnType<typeof getProjectMembership>>>;
-  let project: { name: string; allowMemberPrivateItems: boolean; notesEnabled: boolean } | null;
+  let project: { allowMemberPrivateItems: boolean; notesEnabled: boolean } | null;
   let accessibleBoards: Array<{ id: string; name: string; isPrivate: boolean }> = [];
   let activeBoardSummary: { id: string; name: string; isPrivate: boolean } | null = null;
   let board: any = null;
@@ -159,7 +158,6 @@ export default async function BoardPage({
     const projectWithData = await prisma.project.findUnique({
       where: { id: params.id },
       select: {
-        name: true,
         allowMemberPrivateItems: true,
         notesEnabled: true,
         members: {
@@ -184,7 +182,6 @@ export default async function BoardPage({
     const userMembership = projectWithData.members[0];
     membership = userMembership;
     project = {
-      name: projectWithData.name,
       allowMemberPrivateItems: projectWithData.allowMemberPrivateItems,
       notesEnabled: projectWithData.notesEnabled
     };
@@ -315,17 +312,8 @@ export default async function BoardPage({
     role: pm.role
   }));
 
-  const canManageBoards = isOwnerRole(membership.role);
-
   return (
     <div className="flex h-full min-h-0 min-w-0 max-w-full flex-col overflow-hidden">
-      <BoardTabsBar
-        projectId={params.id}
-        projectName={project.name}
-        boards={accessibleBoards}
-        activeBoardId={board.id}
-        canManage={canManageBoards}
-      />
       <div className="board-page-grid flex-1 min-h-0 min-w-0 max-w-full flex flex-col">
         <BoardViewContainer
           key={`board-container-${board.id}`}

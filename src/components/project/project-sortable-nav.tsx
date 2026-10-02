@@ -13,6 +13,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { BoardSidebarDropdown } from "@/components/kanban/board-sidebar-dropdown";
 import { ProjectNavLink, type NavIconName } from "@/components/project/project-nav-link";
 import { cn } from "@/lib/utils";
 
@@ -23,14 +24,29 @@ export interface ProjectNavItem {
   segment: string;
 }
 
+export interface ProjectSidebarBoard {
+  id: string;
+  name: string;
+  isPrivate: boolean;
+}
+
+export interface ProjectSidebarBoardNavigation {
+  projectId: string;
+  boards: ProjectSidebarBoard[];
+  initialActiveBoardId?: string;
+  canManage: boolean;
+}
+
 export function ProjectSortableNav({
   canSort,
   items,
-  projectId
+  projectId,
+  boardNavigation
 }: {
   canSort: boolean;
   items: ProjectNavItem[];
   projectId: string;
+  boardNavigation?: ProjectSidebarBoardNavigation;
 }) {
   const storageKey = `retrod:project-nav-order:${projectId}`;
   const [orderedSegments, setOrderedSegments] = useState<string[]>(() => items.map((item) => item.segment));
@@ -75,7 +91,9 @@ export function ProjectSortableNav({
   if (!canSort) {
     return (
       <nav className="grid gap-2" aria-label="Project navigation">
-        {orderedItems.map((item) => (
+        {orderedItems.map((item) => item.segment === "board" && boardNavigation ? (
+          <BoardSidebarDropdown key={item.segment} {...boardNavigation} />
+        ) : (
           <ProjectNavLink key={item.segment} {...item} />
         ))}
       </nav>
@@ -87,7 +105,11 @@ export function ProjectSortableNav({
       <SortableContext items={orderedItems.map((item) => item.segment)} strategy={verticalListSortingStrategy}>
         <nav className="grid gap-2" aria-label="Project navigation">
           {orderedItems.map((item) => (
-            <SortableNavItem key={item.segment} item={item} />
+            <SortableNavItem
+              key={item.segment}
+              item={item}
+              boardNavigation={item.segment === "board" ? boardNavigation : undefined}
+            />
           ))}
         </nav>
       </SortableContext>
@@ -95,7 +117,13 @@ export function ProjectSortableNav({
   );
 }
 
-function SortableNavItem({ item }: { item: ProjectNavItem }) {
+function SortableNavItem({
+  item,
+  boardNavigation
+}: {
+  item: ProjectNavItem;
+  boardNavigation?: ProjectSidebarBoardNavigation;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.segment
   });
@@ -106,7 +134,11 @@ function SortableNavItem({ item }: { item: ProjectNavItem }) {
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn("group/sort relative w-full", isDragging && "z-20 opacity-80")}
     >
-      <ProjectNavLink {...item} />
+      {item.segment === "board" && boardNavigation ? (
+        <BoardSidebarDropdown {...boardNavigation} />
+      ) : (
+        <ProjectNavLink {...item} />
+      )}
       <button
         suppressHydrationWarning
         type="button"

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 describe("Board rename capabilities and contracts", () => {
   const boardSource = readFileSync(join(process.cwd(), "src/components/kanban/board.tsx"), "utf8");
-  const tabsBarSource = readFileSync(join(process.cwd(), "src/components/kanban/board-tabs-bar.tsx"), "utf8");
+  const boardDropdownSource = readFileSync(join(process.cwd(), "src/components/kanban/board-sidebar-dropdown.tsx"), "utf8");
   const modalSource = readFileSync(join(process.cwd(), "src/components/kanban/board-settings-modal.tsx"), "utf8");
   const apiSource = readFileSync(join(process.cwd(), "src/app/api/boards/[boardId]/route.ts"), "utf8");
 
@@ -16,10 +16,10 @@ describe("Board rename capabilities and contracts", () => {
     expect(boardSource).toContain("board-renamed");
   });
 
-  it("listens to board-renamed events and updates BoardTabsBar reactively", () => {
-    expect(tabsBarSource).toContain("setBoardsList");
-    expect(tabsBarSource).toMatch(/addEventListener\(["']board-renamed["']/);
-    expect(tabsBarSource).toContain("boardsList.map");
+  it("listens to board-renamed events and updates the sidebar dropdown reactively", () => {
+    expect(boardDropdownSource).toContain("setBoardsList");
+    expect(boardDropdownSource).toMatch(/addEventListener\(["']board-renamed["']/);
+    expect(boardDropdownSource).toContain("boardsList.map");
   });
 
   it("preserves user input in BoardSettingsModal without being overwritten by background fetch", () => {
@@ -40,4 +40,3 @@ describe("Board rename capabilities and contracts", () => {
     expect(modalSource).toMatch(/id="board-settings-title"[\s\S]*text-stone-900[\s\S]*dark:text-white/);
   });
 });
-
