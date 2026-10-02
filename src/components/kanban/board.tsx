@@ -1105,7 +1105,7 @@ export function KanbanBoard({
         </div>
 
         {/* Bottom Row: Filters, Search, Sort & Actions */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-1 border-t border-stone-200/60 dark:border-white/5">
+        <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2 pt-1 border-t border-stone-200/60 dark:border-white/5">
           {/* Live Search */}
           <div className="group/search relative flex items-center flex-1 min-w-[130px] sm:flex-initial">
             <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
