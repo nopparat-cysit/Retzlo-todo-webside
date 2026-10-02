@@ -261,7 +261,7 @@ export function AiBreakdownModal({
               >
                 <span>สร้างเช็กลิสต์ด้วย AI</span>
                 {step === "preview" && (
-                  <span className="rounded-md border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-300 font-medium">
+                  <span className="rounded-md border border-theme-info-border bg-theme-info-surface px-2 py-0.5 text-xs font-medium text-theme-info">
                     ตรวจสอบก่อนยืนยัน
                   </span>
                 )}
@@ -362,7 +362,7 @@ export function AiBreakdownModal({
                       aria-label="Decrease item count"
                       onClick={() => setItemCount((c) => Math.max(1, c - 1))}
                       disabled={itemCount <= 1 || isGenerating}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-stone-400 hover:bg-white/10 hover:text-white transition disabled:opacity-30 disabled:hover:bg-transparent"
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground disabled:opacity-30 disabled:hover:bg-transparent"
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
@@ -382,7 +382,7 @@ export function AiBreakdownModal({
                       aria-label="Increase item count"
                       onClick={() => setItemCount((c) => Math.min(15, c + 1))}
                       disabled={itemCount >= 15 || isGenerating}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-stone-400 hover:bg-white/10 hover:text-white transition disabled:opacity-30 disabled:hover:bg-transparent"
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground disabled:opacity-30 disabled:hover:bg-transparent"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
@@ -586,7 +586,7 @@ export function AiBreakdownModal({
                   variant="ghost"
                   size="sm"
                   onClick={() => setStep("configure")}
-                  className="text-stone-300 hover:text-white text-xs gap-1"
+                  className="text-theme-muted hover:text-theme-foreground text-xs gap-1"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   <span>ตั้งค่าใหม่</span>

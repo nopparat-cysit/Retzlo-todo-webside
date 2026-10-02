@@ -47,7 +47,7 @@ export function CreateProjectForm() {
     <form className="space-y-3" onSubmit={handleSubmit}>
       <Input name="name" placeholder="Project name" required />
       <Textarea name="description" placeholder="Description" />
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
       <Button disabled={isPending}>{isPending ? "Creating..." : "New Project"}</Button>
     </form>
   );

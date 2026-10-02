@@ -235,11 +235,11 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                     className={cn(
                       "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide",
                       summary.healthStatus === "HEALTHY" &&
-                        "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
+                        "border-theme-success-border bg-theme-success-surface text-theme-success",
                       summary.healthStatus === "ATTENTION" &&
-                        "border-amber-500/30 bg-amber-500/15 text-amber-300",
+                        "border-theme-warning-border bg-theme-warning-surface text-theme-warning",
                       summary.healthStatus === "CRITICAL" &&
-                        "border-rose-500/30 bg-rose-500/15 text-rose-300"
+                        "border-theme-danger-border bg-theme-danger-surface text-theme-danger"
                     )}
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" />
@@ -355,7 +355,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                   size="sm"
                   disabled={isLoading || isSavingNote}
                   onClick={handleSaveToNotes}
-                  className="gap-1.5 text-xs text-dusk-lavender hover:text-white"
+                  className="gap-1.5 text-xs text-dusk-lavender hover:text-theme-foreground"
                 >
                   <FileText className="h-3.5 w-3.5" />
                   <span>{isSavingNote ? "กำลังบันทึก..." : "บันทึกเป็น Note"}</span>

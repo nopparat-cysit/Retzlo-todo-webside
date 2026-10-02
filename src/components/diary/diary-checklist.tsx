@@ -142,7 +142,7 @@ export function DiaryChecklistEditor({
               type="button"
               aria-label="Decrease default interval"
               onClick={() => onDefaultRepeatDaysChange(Math.max(1, defaultRepeatDays - 1))}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-stone-400 hover:bg-white/10 hover:text-white transition disabled:opacity-30 disabled:hover:bg-transparent"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground disabled:opacity-30 disabled:hover:bg-transparent"
               disabled={defaultRepeatDays <= 1}
             >
               <Minus className="h-3.5 w-3.5" />
@@ -160,7 +160,7 @@ export function DiaryChecklistEditor({
               type="button"
               aria-label="Increase default interval"
               onClick={() => onDefaultRepeatDaysChange(defaultRepeatDays + 1)}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-stone-400 hover:bg-white/10 hover:text-white transition"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground"
             >
               <Plus className="h-3.5 w-3.5" />
             </button>
@@ -205,7 +205,7 @@ export function DiaryChecklistEditor({
                 </div>
                 <button
                   aria-label="Remove checklist item"
-                  className="grid h-8 w-8 place-items-center rounded-md border border-white/10 bg-white/[0.035] text-stone-400 transition hover:border-red-300/35 hover:text-red-300"
+                  className="grid h-8 w-8 place-items-center rounded-md border border-white/10 bg-white/[0.035] text-stone-400 transition hover:border-theme-danger-border hover:bg-theme-danger-surface hover:text-theme-danger"
                   type="button"
                   onClick={() => removeItem(item.id)}
                 >
@@ -287,7 +287,7 @@ export function DiaryChecklistEditor({
                           <button
                             type="button"
                             onClick={() => updateItem(item.id, { dueTime: null })}
-                            className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-red-300 hover:bg-red-500/10 transition"
+                            className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-theme-danger hover:bg-theme-danger-surface transition"
                             title="คลิกเพื่อล้างเวลาและกำหนดเป็นตลอดวัน"
                           >
                             <X className="h-3 w-3" />
@@ -373,7 +373,7 @@ export function DiaryChecklistEditor({
                             type="button"
                             aria-label="Decrease interval"
                             onClick={() => updateItem(item.id, { intervalDays: Math.max(1, (item.intervalDays || 1) - 1) })}
-                            className="flex h-7 w-7 items-center justify-center rounded-md text-stone-400 hover:bg-white/10 hover:text-white transition disabled:opacity-30 disabled:hover:bg-transparent"
+                            className="flex h-7 w-7 items-center justify-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground disabled:opacity-30 disabled:hover:bg-transparent"
                             disabled={item.intervalDays <= 1}
                           >
                             <Minus className="h-3.5 w-3.5" />
@@ -390,7 +390,7 @@ export function DiaryChecklistEditor({
                             type="button"
                             aria-label="Increase interval"
                             onClick={() => updateItem(item.id, { intervalDays: (item.intervalDays || 1) + 1 })}
-                            className="flex h-7 w-7 items-center justify-center rounded-md text-stone-400 hover:bg-white/10 hover:text-white transition"
+                            className="flex h-7 w-7 items-center justify-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground"
                           >
                             <Plus className="h-3.5 w-3.5" />
                           </button>
@@ -503,7 +503,7 @@ export function DiaryChecklistPreview({
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px]",
                   rewardReady
-                    ? "border-emerald-300/40 bg-emerald-500/15 text-emerald-600 dark:border-emerald-300/30 dark:bg-emerald-300/12 dark:text-emerald-300 font-medium"
+                    ? "border-theme-success-border bg-theme-success-surface text-theme-success font-medium"
                     : rewardClaimed
                       ? "border-amber-300/40 bg-amber-500/15 text-amber-800 dark:border-dusk-amber/25 dark:bg-dusk-amber/10 dark:text-dusk-amber font-medium"
                       : "border-amber-300/30 bg-amber-500/10 text-amber-800 dark:border-dusk-amber/20 dark:bg-dusk-amber/8 dark:text-dusk-amber font-medium"
@@ -543,7 +543,7 @@ export function DiaryChecklistPreview({
                 className={cn(
                   "mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border transition",
                   isCompleted
-                    ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-600 dark:border-emerald-300/40 dark:bg-emerald-300/15 dark:text-emerald-300"
+                    ? "border-theme-success-border bg-theme-success-surface text-theme-success"
                     : "border-stone-300 bg-stone-100 text-stone-400 dark:border-white/15 dark:bg-ink-950/40 dark:text-stone-500",
                   canManage && isDue && "hover:border-indigo-400 hover:text-indigo-600 dark:hover:border-dusk-cyan/45 dark:hover:text-dusk-cyan",
                   (!canManage || !isDue) && "cursor-default opacity-70"

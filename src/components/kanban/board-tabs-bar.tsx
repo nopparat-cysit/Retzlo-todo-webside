@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
+import { BoardTemplatePicker } from "@/components/kanban/board-template-picker";
+import { DEFAULT_BOARD_TEMPLATE_ID, type BoardTemplateId } from "@/lib/kanban/board-templates";
 
 interface BoardTabItem {
   id: string;
@@ -37,6 +39,7 @@ export function BoardTabsBar({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
+  const [newBoardTemplateId, setNewBoardTemplateId] = useState<BoardTemplateId>(DEFAULT_BOARD_TEMPLATE_ID);
   const [isCreatingBoard, setIsCreatingBoard] = useState(false);
   const [boardsList, setBoardsList] = useState<BoardTabItem[]>(boards);
   const [switchingBoardId, setSwitchingBoardId] = useState<string | null>(null);
@@ -84,7 +87,8 @@ export function BoardTabsBar({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: newBoardName.trim(),
-          isPrivate: false
+          isPrivate: false,
+          templateId: newBoardTemplateId
         })
       });
 
@@ -96,6 +100,7 @@ export function BoardTabsBar({
       setBoardsList((prev) => [...prev, data.board]);
       setIsCreateBoardOpen(false);
       setNewBoardName("");
+      setNewBoardTemplateId(DEFAULT_BOARD_TEMPLATE_ID);
       toast({ message: `Board "${data.board.name}" created! ✦`, type: "success" });
       router.push(`/project/${projectId}/board?boardId=${data.board.id}`);
       router.refresh();
@@ -141,7 +146,7 @@ export function BoardTabsBar({
                   "group flex h-8 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition-all select-none",
                   isActive
                     ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber shadow-[0_0_12px_rgba(249,199,132,0.12)] font-semibold"
-                    : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:bg-white/[0.07] hover:text-white",
+                    : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent hover:bg-theme-paper-strong hover:text-theme-foreground",
                   isSwitching && "animate-pulse ring-1 ring-dusk-amber/40"
                 )}
               >
@@ -251,22 +256,23 @@ export function BoardTabsBar({
             if (!isCreatingBoard) {
               setIsCreateBoardOpen(false);
               setNewBoardName("");
+              setNewBoardTemplateId(DEFAULT_BOARD_TEMPLATE_ID);
             }
           }}
           labelledBy="create-board-modal-title"
         >
-          <form onSubmit={handleCreateBoard} className="space-y-4 p-5 sm:p-6">
+          <form onSubmit={handleCreateBoard} className="max-h-[calc(100dvh-2rem)] space-y-4 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-6">
             <div>
-              <h3 id="create-board-modal-title" className="text-lg font-semibold text-stone-100 flex items-center gap-2">
-                <FolderKanban className="h-5 w-5 text-dusk-amber" />
+              <h3 id="create-board-modal-title" className="flex items-center gap-2 text-lg font-semibold text-theme-foreground">
+                <FolderKanban className="h-5 w-5 text-theme-accent" />
                 Create New Board
               </h3>
-              <p className="text-xs text-stone-400 mt-1">
+              <p className="mt-1 text-xs text-theme-muted">
                 Add a new board channel to organize tasks in this project.
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-stone-300 mb-1.5 block">Board Name</label>
+              <label className="mb-1.5 block text-xs font-medium text-theme-foreground">Board Name</label>
               <Input
                 value={newBoardName}
                 onChange={(e) => setNewBoardName(e.target.value)}
@@ -277,13 +283,19 @@ export function BoardTabsBar({
                 disabled={isCreatingBoard}
               />
             </div>
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+            <BoardTemplatePicker
+              selectedId={newBoardTemplateId}
+              onSelect={setNewBoardTemplateId}
+              disabled={isCreatingBoard}
+            />
+            <div className="flex items-center justify-end gap-2 border-t border-theme-border pt-2">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => {
                   setIsCreateBoardOpen(false);
                   setNewBoardName("");
+                  setNewBoardTemplateId(DEFAULT_BOARD_TEMPLATE_ID);
                 }}
                 disabled={isCreatingBoard}
               >
@@ -292,7 +304,8 @@ export function BoardTabsBar({
               <Button
                 type="submit"
                 disabled={!newBoardName.trim() || isCreatingBoard}
-                className="bg-dusk-amber text-ink-950 hover:bg-dusk-amber/90 font-semibold"
+                variant="primary"
+                className="font-semibold"
               >
                 {isCreatingBoard ? "Creating..." : "Create Board"}
               </Button>
@@ -303,4 +316,3 @@ export function BoardTabsBar({
     </>
   );
 }
-

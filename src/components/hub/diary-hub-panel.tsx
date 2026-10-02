@@ -234,7 +234,7 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
       </div>
 
       {error && (
-        <p className="rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>
+        <p className="rounded-md border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">{error}</p>
       )}
 
       {/* Items grid */}

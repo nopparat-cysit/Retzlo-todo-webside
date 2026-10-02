@@ -241,7 +241,7 @@ export function ApiKeyModal({
               variant="outline"
               size="sm"
               onClick={handleClear}
-              className="text-red-400 hover:text-red-300 border-red-500/30 hover:bg-red-500/10 text-xs"
+              className="border-theme-danger-border text-theme-danger hover:bg-theme-danger-surface hover:text-theme-danger text-xs"
             >
               <Trash2 className="h-3.5 w-3.5 mr-1" />
               รีเซ็ตค่าเริ่มต้น

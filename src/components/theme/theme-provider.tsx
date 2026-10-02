@@ -8,6 +8,8 @@ import {
   type ReactNode
 } from "react";
 
+import { isThemePreference, resolveTheme } from "@/lib/theme/resolve-theme";
+
 export type Theme = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
 
@@ -35,8 +37,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Read stored theme or default to system
     try {
-      const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
-      if (stored === "light" || stored === "dark" || stored === "system") {
+      const stored = localStorage.getItem(THEME_STORAGE_KEY);
+      if (isThemePreference(stored)) {
         setThemeState(stored);
         applyTheme(stored);
       } else {
@@ -44,7 +46,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         applyTheme("system");
       }
     } catch {
-      applyTheme("dark");
+      applyTheme("system");
     }
     setMounted(true);
   }, []);
@@ -65,7 +67,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [mounted, theme]);
 
   function applyTheme(targetTheme: Theme) {
-    const active: ResolvedTheme = targetTheme === "system" ? getSystemTheme() : targetTheme;
+    const active: ResolvedTheme = resolveTheme(targetTheme, getSystemTheme());
     setResolvedTheme(active);
 
     const root = document.documentElement;

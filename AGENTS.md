@@ -67,6 +67,13 @@ docs/
 - All delete and update operations triggered by user action must present a `ConfirmModal` to verify the user's intent.
 - All CUD (Create, Update, Delete) operations must trigger a success or error Toast notification upon completion to provide immediate visual feedback.
 
+## Theme Documentation
+
+- Read `docs/theme-system.md` before changing theme behavior, palette values, shared color tokens, or global theme styles.
+- When adding a route, module, or substantial UI section, add it to the theme coverage matrix in `docs/theme-system.md` and append a dated entry to its change log. Record which theme modes and states were reviewed, and note any remaining gaps.
+- Prefer semantic theme tokens for UI colors. Use fixed palette values only for intentional brand artwork or domain colors, and record those exceptions in `docs/theme-system.md`.
+- When changing shared tokens or primitives, list the affected routes and components in the work note.
+
 ## Verification
 
 Before claiming work is complete, run the available verification commands:

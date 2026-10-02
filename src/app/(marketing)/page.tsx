@@ -402,13 +402,13 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
         {Array.from({ length: 55 }).map((_, i) => (
           <div key={i} className="absolute rounded-full bg-white synth-star"
             style={{
-              width: Math.random() > 0.85 ? 2 : 1,
-              height: Math.random() > 0.85 ? 2 : 1,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 58}%`,
-              opacity: 0.3 + Math.random() * 0.6,
-              animationDelay: `${Math.random() * 4}s`,
-              animationDuration: `${2 + Math.random() * 3}s`,
+              width: i % 9 === 0 ? 2 : 1,
+              height: i % 9 === 0 ? 2 : 1,
+              left: `${(i * 37 + 11) % 100}%`,
+              top: `${(i * 19 + 7) % 58}%`,
+              opacity: 0.3 + ((i * 13) % 60) / 100,
+              animationDelay: `${((i * 7) % 40) / 10}s`,
+              animationDuration: `${2 + ((i * 11) % 30) / 10}s`,
             }}
           />
         ))}
@@ -491,7 +491,7 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
                 </div>
                 <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1.5">
                   <span className={`h-2 w-2 rounded-full ${isPlaying ? "bg-emerald-300" : "bg-[#a9a2ff]"}`} style={{ boxShadow: isPlaying ? "0 0 16px rgba(110,231,183,0.85)" : "0 0 14px rgba(169,162,255,0.62)" }} />
-                  <span className="text-[9px] font-mono uppercase tracking-widest text-stone-300">{isPlaying ? "live" : "ready"}</span>
+                  <span className="text-[9px] font-mono uppercase tracking-widest text-[#d6d3d1]">{isPlaying ? "live" : "ready"}</span>
                 </div>
               </div>
 
@@ -516,7 +516,7 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
                         }}
                       >
                         <div className="mb-2 h-1.5 w-10 rounded-full" style={{ background: `${column.color}88` }} />
-                        <div className="text-[11px] font-medium text-stone-100">{card}</div>
+                        <div className="text-[11px] font-medium text-[#f5f5f4]">{card}</div>
                       </div>
                     ))}
                   </div>
@@ -524,7 +524,7 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
               </div>
 
               <div className="absolute bottom-4 left-5 right-5 flex items-center justify-between rounded-[14px] border border-white/10 bg-[#03030c]/76 px-3 py-2">
-                <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-stone-400">
+                <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#a8a29e]">
                   <Music className="h-3.5 w-3.5 text-[#e5bd72]" />
                   {isPlaying ? "cards moving" : "click to animate"}
                 </div>
@@ -622,7 +622,7 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
         <span className={`text-[8px] font-mono tracking-widest uppercase px-2 py-1 rounded border ${
           isPlaying
             ? "text-emerald-400 border-emerald-400/30 bg-emerald-400/10"
-            : "text-stone-500 border-white/10 bg-white/5"
+            : "text-[#78716c] border-white/10 bg-white/5"
         }`}>
           {isPlaying ? "â–¶ PLAYING" : "â¸ CLICK TO PLAY"}
         </span>
@@ -1034,7 +1034,7 @@ export default function LandingPage() {
   }, [isPlaying, wiggleActive]);
 
   return (
-    <main className="min-h-screen bg-[#080817] text-stone-100 font-sans relative overflow-hidden selection:bg-[#a9a2ff]/30 selection:text-white">
+    <main className="min-h-screen bg-[#080817] text-[#f5f5f4] font-sans relative overflow-hidden selection:bg-[#a9a2ff]/30 selection:text-white">
       
       {/* â”€â”€ Background Glow Orbs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="retzlo-hero-orb-1" />
@@ -1093,32 +1093,32 @@ export default function LandingPage() {
           className="absolute left-[7%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
           style={{ transform: `translateY(${scrollPercent * -320}px) rotate(12deg)`, top: "1350px" }}
         >
-          <div className="w-full h-full sticker-float-slow">
-            <Image src="/stickers/retro/retro-sticker-47-sleepy-cloud.png" alt="Sleepy Cloud Sticker" fill className="object-contain select-none pointer-events-none" />
+          <div className="relative w-full h-full sticker-float-slow">
+            <Image src="/stickers/retro/retro-sticker-47-sleepy-cloud.png" alt="Sleepy Cloud Sticker" fill sizes="80px" className="object-contain select-none pointer-events-none" />
           </div>
         </div>
         <div 
           className="absolute right-[7%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
           style={{ transform: `translateY(${scrollPercent * -420}px) rotate(-15deg)`, top: "2500px" }}
         >
-          <div className="w-full h-full sticker-float-medium">
-            <Image src="/stickers/retro/retro-sticker-21-music-note.png" alt="Music Note Sticker" fill className="object-contain select-none pointer-events-none" />
+          <div className="relative w-full h-full sticker-float-medium">
+            <Image src="/stickers/retro/retro-sticker-21-music-note.png" alt="Music Note Sticker" fill sizes="80px" className="object-contain select-none pointer-events-none" />
           </div>
         </div>
         <div 
           className="absolute left-[5%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
           style={{ transform: `translateY(${scrollPercent * -280}px) rotate(8deg)`, top: "3700px" }}
         >
-          <div className="w-full h-full sticker-float-fast">
-            <Image src="/stickers/retro/retro-sticker-27-ramen-bowl.png" alt="Ramen Bowl Sticker" fill className="object-contain select-none pointer-events-none" />
+          <div className="relative w-full h-full sticker-float-fast">
+            <Image src="/stickers/retro/retro-sticker-27-ramen-bowl.png" alt="Ramen Bowl Sticker" fill sizes="80px" className="object-contain select-none pointer-events-none" />
           </div>
         </div>
         <div 
           className="absolute right-[6%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
           style={{ transform: `translateY(${scrollPercent * -360}px) rotate(-10deg)`, top: "4800px" }}
         >
-          <div className="w-full h-full sticker-float-slow">
-            <Image src="/stickers/retro/retro-sticker-33-magic-wand.png" alt="Magic Wand Sticker" fill className="object-contain select-none pointer-events-none" />
+          <div className="relative w-full h-full sticker-float-slow">
+            <Image src="/stickers/retro/retro-sticker-33-magic-wand.png" alt="Magic Wand Sticker" fill sizes="80px" className="object-contain select-none pointer-events-none" />
           </div>
         </div>
       </div>
@@ -1153,12 +1153,13 @@ export default function LandingPage() {
                   alt="Retzlo"
                   fill
                   priority
+                  sizes="96px"
                   className="object-contain object-left select-none pointer-events-none"
                 />
               </div>
             </Link>
             
-            <div className="hidden md:flex items-center gap-6 text-sm text-stone-300 font-medium">
+            <div className="hidden md:flex items-center gap-6 text-sm text-[#d6d3d1] font-medium">
               <a href="#features" className="hover:text-[#a9a2ff] transition-colors">Product</a>
               <a href="#workflow" className="hover:text-[#a9a2ff] transition-colors">Workflow</a>
               <a href="#lofi-focus" className="hover:text-[#a9a2ff] transition-colors">Focus</a>
@@ -1168,7 +1169,7 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-4">
             {currentUser ? (
               <div className="flex items-center gap-3">
-                <Link href="/profile" className="max-w-[180px] truncate px-3 py-2 text-sm font-medium text-stone-300 transition-colors hover:text-white">
+                <Link href="/profile" className="max-w-[180px] truncate px-3 py-2 text-sm font-medium text-[#d6d3d1] transition-colors hover:text-white">
                   {currentUser.name || currentUser.email || "Workspace user"}
                 </Link>
                 <Link href={defaultDestination}>
@@ -1179,7 +1180,7 @@ export default function LandingPage() {
               </div>
             ) : (
               <>
-                <Link href="/login" className="px-4 py-2 text-sm text-stone-300 hover:text-white font-medium transition-colors">
+                <Link href="/login" className="px-4 py-2 text-sm text-[#d6d3d1] hover:text-white font-medium transition-colors">
                   Sign In
                 </Link>
                 <Link href={defaultDestination}>
@@ -1193,7 +1194,7 @@ export default function LandingPage() {
 
           {/* Mobile Menu Button */}
           <button 
-            className="md:hidden p-2 text-stone-300 hover:text-white transition-colors"
+            className="md:hidden p-2 text-[#d6d3d1] hover:text-white transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -1205,21 +1206,21 @@ export default function LandingPage() {
           <div className="md:hidden absolute top-[73px] left-0 right-0 border-b border-white/5 bg-[#0b0b20]/95 backdrop-blur-xl px-6 py-6 space-y-4 animate-fade-in">
             <a 
               href="#features" 
-              className="block text-stone-200 hover:text-[#a9a2ff] py-2 border-b border-white/5"
+              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2 border-b border-white/5"
               onClick={() => setMobileMenuOpen(false)}
             >
               Product
             </a>
             <a 
               href="#lofi-focus" 
-              className="block text-stone-200 hover:text-[#a9a2ff] py-2 border-b border-white/5"
+              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2 border-b border-white/5"
               onClick={() => setMobileMenuOpen(false)}
             >
               Workflow
             </a>
             <a 
               href="#tech" 
-              className="block text-stone-200 hover:text-[#a9a2ff] py-2"
+              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               Focus
@@ -1228,7 +1229,7 @@ export default function LandingPage() {
               {currentUser ? (
                 <>
                   <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full truncate text-center py-2.5 text-sm text-stone-300 hover:text-white transition-colors">
+                    <button className="w-full truncate text-center py-2.5 text-sm text-[#d6d3d1] hover:text-white transition-colors">
                       {currentUser.name || currentUser.email || "Workspace user"}
                     </button>
                   </Link>
@@ -1241,7 +1242,7 @@ export default function LandingPage() {
               ) : (
                 <>
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full text-center py-2.5 text-sm text-stone-300 hover:text-white transition-colors">
+                    <button className="w-full text-center py-2.5 text-sm text-[#d6d3d1] hover:text-white transition-colors">
                       Sign In
                     </button>
                   </Link>
@@ -1277,7 +1278,7 @@ export default function LandingPage() {
             className={`px-4 py-2 text-xs font-mono rounded-lg border flex items-center gap-2 backdrop-blur-md transition-all ${
               crtMode
                 ? "bg-emerald-500/10 border-emerald-500/35 text-emerald-400"
-                : "bg-white/5 border-white/10 text-stone-400"
+                : "bg-white/5 border-white/10 text-[#a8a29e]"
             }`}
           >
             <Tv className="w-3.5 h-3.5" />
@@ -1307,7 +1308,7 @@ export default function LandingPage() {
 
             {/* Subtitle */}
             <p
-              className="text-sm sm:text-base text-stone-300 leading-relaxed retzlo-fade-up-d2"
+              className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed retzlo-fade-up-d2"
               style={{ textShadow: "0 1px 12px rgba(0,0,0,0.9)" }}
             >
               Plan projects, move cards across status lanes, and see due dates in one quiet retro-lofi workspace built for focused teams.
@@ -1335,7 +1336,7 @@ export default function LandingPage() {
                   <div key={i} className="w-7 h-7 rounded-full border-2 border-[#07061a]" style={{ background: `${c}55` }} />
                 ))}
               </div>
-              <p className="text-xs text-stone-400">
+              <p className="text-xs text-[#a8a29e]">
                 <span className="text-white font-semibold">Board, calendar, and members</span> ready from the first project
               </p>
             </div>
@@ -1348,7 +1349,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="retzlo-marquee-track">
             {/* Slide block 1 */}
-            <div className="flex items-center gap-12 text-xs font-mono tracking-widest text-stone-500 uppercase">
+            <div className="flex items-center gap-12 text-xs font-mono tracking-widest text-[#78716c] uppercase">
               <span>Create project</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
               <span>Add backlog cards</span>
@@ -1363,7 +1364,7 @@ export default function LandingPage() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
             </div>
             {/* Duplicate slide block for infinite animation */}
-            <div className="flex items-center gap-12 text-xs font-mono tracking-widest text-stone-500 uppercase pl-12">
+            <div className="flex items-center gap-12 text-xs font-mono tracking-widest text-[#78716c] uppercase pl-12">
               <span>Create project</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
               <span>Add backlog cards</span>
@@ -1387,7 +1388,7 @@ export default function LandingPage() {
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white">
             Designed for the <span className="text-[#a9a2ff]">late-night builder</span>
           </h2>
-          <p className="text-stone-400 text-sm md:text-base leading-relaxed">
+          <p className="text-[#a8a29e] text-sm md:text-base leading-relaxed">
             Beautifully modular workspaces that feel organic, cozy, and completely tailored to your daily focus.
           </p>
         </div>
@@ -1412,7 +1413,7 @@ export default function LandingPage() {
                   <Kanban className="w-6 h-6 animate-pulse" />
                 </div>
                 <h3 className="text-2xl font-semibold text-white">Interactive Kanban Boards</h3>
-                <p className="text-stone-400 text-sm leading-relaxed max-w-xl">
+                <p className="text-[#a8a29e] text-sm leading-relaxed max-w-xl">
                   Organize projects with zero friction. Create boards, drag-and-drop tasks, set status lanes, assign priorities, and watch updates persist instantly via optimistic client-side UI cycles.
                 </p>
               </div>
@@ -1441,7 +1442,7 @@ export default function LandingPage() {
                   <Calendar className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl font-semibold text-white">Sync Due Dates</h3>
-                <p className="text-stone-400 text-sm leading-relaxed">
+                <p className="text-[#a8a29e] text-sm leading-relaxed">
                   A unified calendar view. Task due dates mapped out across a tidy grid, giving you visual perspective on what&apos;s due tomorrow, next week, or deep in memory lane.
                 </p>
               </div>
@@ -1470,7 +1471,7 @@ export default function LandingPage() {
                   <DollarSign className="w-6 h-6 animate-bounce" />
                 </div>
                 <h3 className="text-xl font-semibold text-white">Double-Entry Ledgers</h3>
-                <p className="text-stone-400 text-sm leading-relaxed">
+                <p className="text-[#a8a29e] text-sm leading-relaxed">
                   Log income, track recurring subscriptions, set budgets, and display balances. Curated to look like a physical accounting booklet with tactile pastel colors.
                 </p>
               </div>
@@ -1499,7 +1500,7 @@ export default function LandingPage() {
                   <Layers className="w-6 h-6" />
                 </div>
                 <h3 className="text-2xl font-semibold text-white">Retro Lofi Theme Engine</h3>
-                <p className="text-stone-400 text-sm leading-relaxed max-w-xl">
+                <p className="text-[#a8a29e] text-sm leading-relaxed max-w-xl">
                   Cozy design tokens built for developers, designers, and late-night enthusiasts. Soft gradients, glass panels, subtle border trims, and glow effects that make typing a satisfying habit.
                 </p>
               </div>
@@ -1528,7 +1529,7 @@ export default function LandingPage() {
               Get in the zone with <br />
               <span className="text-[#e5bd72]">Retzlo Cassette Radio</span>
             </h2>
-            <p className="text-stone-400 text-sm md:text-base leading-relaxed">
+            <p className="text-[#a8a29e] text-sm md:text-base leading-relaxed">
               Every productive session needs a calm soundtrack. Retzlo integrates ambient audio support directly inside your header tools. Toggle focus mode and work with synthesized background rhythms.
             </p>
             
@@ -1562,7 +1563,7 @@ export default function LandingPage() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-white uppercase tracking-wider">Mellow Focus Brew</p>
-                <p className="text-[10px] text-stone-500 font-mono">Hover to release hot lofi steam</p>
+                <p className="text-[10px] text-[#78716c] font-mono">Hover to release hot lofi steam</p>
               </div>
             </div>
 
@@ -1573,7 +1574,7 @@ export default function LandingPage() {
                 "Fully interactive spinning spools cassette animation",
                 "Needle VU meters bouncing in sync"
               ].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm text-stone-300">
+                <li key={item} className="flex items-center gap-3 text-sm text-[#d6d3d1]">
                   <CheckCircle2 className="w-5 h-5 text-[#89c7d6] shrink-0" />
                   <span>{item}</span>
                 </li>
@@ -1587,8 +1588,8 @@ export default function LandingPage() {
               
               <div className="flex items-center justify-between pb-6 border-b border-white/5">
                 <div className="flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-stone-500" />
-                  <span className="text-xs font-mono uppercase tracking-widest text-stone-500">Focus Channel</span>
+                  <Volume2 className="w-4 h-4 text-[#78716c]" />
+                  <span className="text-xs font-mono uppercase tracking-widest text-[#78716c]">Focus Channel</span>
                 </div>
                 <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isPlaying ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)] animate-pulse" : "bg-stone-600"}`} />
               </div>
@@ -1614,18 +1615,18 @@ export default function LandingPage() {
                     <div className="flex justify-around items-center my-1.5">
                       {/* Left Spool */}
                       <div className="w-10 h-10 rounded-full bg-[#090817] border border-white/10 flex items-center justify-center relative">
-                        <Disc className={`w-8 h-8 text-stone-500 ${isPlaying ? "animate-spin [animation-duration:8s]" : ""}`} />
+                        <Disc className={`w-8 h-8 text-[#78716c] ${isPlaying ? "animate-spin [animation-duration:8s]" : ""}`} />
                         <div className="absolute w-2 h-2 rounded-full bg-[#121022]" />
                       </div>
 
                       {/* Center window */}
-                      <div className="w-12 h-6 bg-[#090817]/80 rounded border border-white/5 flex items-center justify-center font-mono text-[9px] text-stone-600">
+                      <div className="w-12 h-6 bg-[#090817]/80 rounded border border-white/5 flex items-center justify-center font-mono text-[9px] text-[#57534e]">
                         {isPlaying ? "PLAYING" : "STOPPED"}
                       </div>
 
                       {/* Right Spool */}
                       <div className="w-10 h-10 rounded-full bg-[#090817] border border-white/10 flex items-center justify-center relative">
-                        <Disc className={`w-8 h-8 text-stone-500 ${isPlaying ? "animate-spin [animation-duration:8s]" : ""}`} />
+                        <Disc className={`w-8 h-8 text-[#78716c] ${isPlaying ? "animate-spin [animation-duration:8s]" : ""}`} />
                         <div className="absolute w-2 h-2 rounded-full bg-[#121022]" />
                       </div>
                     </div>
@@ -1642,7 +1643,7 @@ export default function LandingPage() {
                 <div className="flex gap-4 mt-4 px-2">
                   {/* Left VU */}
                   <div className="flex-1 bg-[#121022] border border-white/5 rounded p-2 relative h-10 overflow-hidden">
-                    <div className="absolute left-2 top-1 font-mono text-[8px] text-stone-500">VU-L</div>
+                    <div className="absolute left-2 top-1 font-mono text-[8px] text-[#78716c]">VU-L</div>
                     {/* Needle */}
                     <div 
                       className="absolute bottom-0 left-1/2 w-0.5 h-8 bg-rose-500 origin-bottom transition-transform duration-100"
@@ -1651,7 +1652,7 @@ export default function LandingPage() {
                   </div>
                   {/* Right VU */}
                   <div className="flex-1 bg-[#121022] border border-white/5 rounded p-2 relative h-10 overflow-hidden">
-                    <div className="absolute left-2 top-1 font-mono text-[8px] text-stone-500">VU-R</div>
+                    <div className="absolute left-2 top-1 font-mono text-[8px] text-[#78716c]">VU-R</div>
                     {/* Needle */}
                     <div 
                       className="absolute bottom-0 left-1/2 w-0.5 h-8 bg-rose-500 origin-bottom transition-transform duration-100"
@@ -1683,7 +1684,7 @@ export default function LandingPage() {
                 )}
               </button>
               
-              <p className="text-center text-[10px] text-stone-500 font-mono mt-4">
+              <p className="text-center text-[10px] text-[#78716c] font-mono mt-4">
                 {isPlaying 
                   ? "Playing live synthesized warm Lofi pads & vinyl pops..." 
                   : "Requires Web Audio. Synthesizes sounds dynamically."}
@@ -1700,7 +1701,7 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 py-24 md:py-32 space-y-16">
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <h2 className="text-3xl font-bold text-white">Focus reviews from our community</h2>
-          <p className="text-stone-400 text-sm">What designers and developers are saying about their modular lofi workspace.</p>
+          <p className="text-[#a8a29e] text-sm">What designers and developers are saying about their modular lofi workspace.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1722,15 +1723,15 @@ export default function LandingPage() {
             }
           ].map((item, i) => (
             <div key={i} className="retzlo-quote-card p-8 flex flex-col justify-between">
-              <p className="text-stone-300 text-sm leading-relaxed italic">
+              <p className="text-[#d6d3d1] text-sm leading-relaxed italic">
                 &ldquo;{item.quote}&rdquo;
               </p>
               <div className="pt-6 border-t border-white/5 mt-6 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-semibold text-white">{item.author}</div>
-                  <div className="text-xs text-stone-500">{item.role}</div>
+                  <div className="text-xs text-[#78716c]">{item.role}</div>
                 </div>
-                <div className="w-6 h-6 rounded bg-stone-800 flex items-center justify-center text-[10px] text-stone-400 font-mono">
+                <div className="w-6 h-6 rounded bg-stone-800 flex items-center justify-center text-[10px] text-[#a8a29e] font-mono">
                   0{i + 1}
                 </div>
               </div>
@@ -1746,7 +1747,7 @@ export default function LandingPage() {
             Build your space on <br />
             <span className="retzlo-gradient-text py-1 inline-block">Retzlo today.</span>
           </h2>
-          <p className="text-stone-300 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+          <p className="text-[#d6d3d1] text-sm md:text-base max-w-lg mx-auto leading-relaxed">
             Free workspace. Modular boards, calendars, diary notes, and ledger accounts. Set up in less than 60 seconds.
           </p>
           <div className="flex justify-center pt-2">
@@ -1761,19 +1762,19 @@ export default function LandingPage() {
       </section>
 
       {/* â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <footer className="border-t border-white/5 bg-[#060613] px-6 py-12 text-stone-500 text-xs">
+      <footer className="border-t border-white/5 bg-[#060613] px-6 py-12 text-[#78716c] text-xs">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-stone-300 text-sm tracking-wider">Retzlo</span>
-            <span className="text-stone-700">|</span>
+            <span className="font-bold text-[#d6d3d1] text-sm tracking-wider">Retzlo</span>
+            <span className="text-[#44403c]">|</span>
             <p>Â© {new Date().getFullYear()} Retzlo Platform. All rights reserved.</p>
           </div>
           
           <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-stone-300 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-stone-300 transition-colors">Terms of Service</a>
-            <span className="text-stone-800">â€¢</span>
-            <span className="font-mono text-stone-600 tracking-wider">SYSTEM_MARK_RETZLO_V1</span>
+            <a href="#" className="hover:text-[#d6d3d1] transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-[#d6d3d1] transition-colors">Terms of Service</a>
+            <span className="text-[#292524]">â€¢</span>
+            <span className="font-mono text-[#57534e] tracking-wider">SYSTEM_MARK_RETZLO_V1</span>
           </div>
         </div>
       </footer>

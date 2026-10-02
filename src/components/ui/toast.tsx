@@ -53,31 +53,31 @@ const typeStyles: Record<
   { bar: string; icon: string; text: string; glow: string; bg: string }
 > = {
   success: {
-    bg: "bg-ink-900/90",
-    bar: "bg-dusk-amber",
+    bg: "bg-theme-panel-strong",
+    bar: "bg-theme-success",
     icon: "✦",
-    text: "text-dusk-amber",
+    text: "text-theme-success",
     glow: "shadow-[0_0_24px_rgba(229,189,114,0.18)]",
   },
   error: {
-    bg: "bg-red-950/80",
-    bar: "bg-red-400",
+    bg: "bg-theme-panel-strong",
+    bar: "bg-theme-danger",
     icon: "✕",
-    text: "text-red-200",
+    text: "text-theme-danger",
     glow: "shadow-[0_0_24px_rgba(248,113,113,0.14)]",
   },
   info: {
-    bg: "bg-ink-900/90",
-    bar: "bg-dusk-lavender",
+    bg: "bg-theme-panel-strong",
+    bar: "bg-theme-info",
     icon: "◈",
-    text: "text-dusk-lavender",
+    text: "text-theme-info",
     glow: "shadow-[0_0_24px_rgba(169,162,255,0.18)]",
   },
   warning: {
-    bg: "bg-ink-900/90",
-    bar: "bg-dusk-rose",
+    bg: "bg-theme-panel-strong",
+    bar: "bg-theme-warning",
     icon: "⚠",
-    text: "text-dusk-rose",
+    text: "text-theme-warning",
     glow: "shadow-[0_0_24px_rgba(213,154,179,0.18)]",
   },
 };

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { getSharedIconForName, isSharedIconPath, sharedIconOptions } from "@/lib/stickers/shared-icon-options";
+import { cardStickerOptions, normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 
 describe("shared icon options", () => {
   it("combines reward icons and retro stickers without duplicate concept ids", () => {
@@ -24,5 +25,29 @@ describe("shared icon options", () => {
     expect(isSharedIconPath("/stickers/retro/retro-sticker-50-battery-charge.png")).toBe(true);
     expect(isSharedIconPath("/stickers/rewards/reward-icon-04-game.png")).toBe(true);
     expect(isSharedIconPath("/stickers/rewards/reward-icon-02-gift.png")).toBe(false);
+  });
+
+  it("keeps stickers 26–50 out of the card picker without changing the shared library", () => {
+    expect(cardStickerOptions).toHaveLength(65);
+    expect(new Set(cardStickerOptions.map((icon) => icon.id)).size).toBe(cardStickerOptions.length);
+    expect(cardStickerOptions.some((icon) => /\/retro-sticker-(?:2[6-9]|[34]\d|50)-/.test(icon.src))).toBe(false);
+    expect(cardStickerOptions.some((icon) => icon.id === "reward-game")).toBe(true);
+    expect(cardStickerOptions.some((icon) => icon.id === "idea-bulb")).toBe(true);
+    expect(cardStickerOptions.some((icon) => icon.id === "hardhat")).toBe(true);
+    expect(cardStickerOptions.some((icon) => icon.id === "ladybug")).toBe(false);
+    expect(cardStickerOptions.some((icon) => icon.id === "notification-bell")).toBe(true);
+    expect(cardStickerOptions.some((icon) => icon.id === "potted-plant")).toBe(false);
+    expect(cardStickerOptions.some((icon) => icon.id === "suitcase")).toBe(true);
+    expect(sharedIconOptions.some((icon) => icon.id === "water-bottle")).toBe(true);
+    expect(normalizeRetroStickerSelection([
+      "/stickers/retro/retro-sticker-26-water-bottle.png",
+      "/stickers/retro/retro-sticker-51-idea-bulb.png",
+      "/stickers/retro/retro-sticker-55-hardhat.png",
+      "/stickers/retro/unknown.png"
+    ])).toEqual([
+      "/stickers/retro/retro-sticker-26-water-bottle.png",
+      "/stickers/retro/retro-sticker-51-idea-bulb.png",
+      "/stickers/retro/retro-sticker-55-hardhat.png"
+    ]);
   });
 });

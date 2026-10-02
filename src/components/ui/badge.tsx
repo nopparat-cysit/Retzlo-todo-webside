@@ -13,7 +13,7 @@ const badgeVariants = cva(
         rose: "border-dusk-rose/25 bg-dusk-rose/12 text-dusk-rose",
         cyan: "border-dusk-cyan/25 bg-dusk-cyan/12 text-dusk-cyan",
         muted: "border-white/10 bg-white/[0.045] text-stone-300",
-        danger: "border-red-300/25 bg-red-400/10 text-red-200"
+        danger: "border-theme-danger-border bg-theme-danger-surface text-theme-danger"
       }
     },
     defaultVariants: {

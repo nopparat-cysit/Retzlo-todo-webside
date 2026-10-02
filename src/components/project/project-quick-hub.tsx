@@ -207,7 +207,7 @@ function QuickCreateModal({
               </label>
             </aside>
           ) : null}
-          {error ? <p className="text-sm text-red-300">{error}</p> : null}
+          {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
         </div>
         <div className="mt-5 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={onClose}>

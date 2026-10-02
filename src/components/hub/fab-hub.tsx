@@ -579,7 +579,7 @@ function FabDisplayPicker({
               Loading display choices...
             </div>
           ) : error ? (
-            <div className="rounded-lg border border-red-300/20 bg-red-400/10 p-4 text-sm text-red-200">
+            <div className="rounded-lg border border-theme-danger-border bg-theme-danger-surface p-4 text-sm text-theme-danger">
               {error}
             </div>
           ) : activeList.length === 0 ? (
@@ -909,7 +909,7 @@ function FabCreateModal({
               <span>Workspace / Target</span>
               {mode === "note" ? (
                 projects.length === 0 ? (
-                  <p className="text-xs text-red-300">
+                  <p className="text-xs text-theme-danger">
                     You have no projects joined. Please create a project first.
                   </p>
                 ) : (
@@ -990,7 +990,7 @@ function FabCreateModal({
             )}
 
             {error && (
-              <p className="text-xs text-red-300 border border-red-300/20 bg-red-400/10 p-3 rounded-xl">
+              <p className="text-xs text-theme-danger border border-theme-danger-border bg-theme-danger-surface p-3 rounded-xl">
                 {error}
               </p>
             )}
@@ -1052,7 +1052,7 @@ function FabCreateModal({
               ) : null}
 
               {error && (
-                <p className="text-xs text-red-300 border border-red-300/20 bg-red-400/10 p-3 rounded-xl">
+                <p className="text-xs text-theme-danger border border-theme-danger-border bg-theme-danger-surface p-3 rounded-xl">
                   {error}
                 </p>
               )}

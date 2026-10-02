@@ -8,6 +8,38 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        theme: {
+          background: "var(--background)",
+          foreground: "var(--foreground)",
+          panel: "var(--panel)",
+          "panel-strong": "var(--panel-strong)",
+          paper: "var(--paper)",
+          "paper-strong": "var(--paper-strong)",
+          muted: "var(--muted)",
+          border: "var(--border)",
+          accent: "var(--accent)",
+          danger: {
+            DEFAULT: "var(--danger)",
+            foreground: "var(--danger-foreground)",
+            surface: "var(--danger-surface)",
+            border: "var(--danger-border)"
+          },
+          success: {
+            DEFAULT: "var(--success)",
+            surface: "var(--success-surface)",
+            border: "var(--success-border)"
+          },
+          warning: {
+            DEFAULT: "var(--warning)",
+            surface: "var(--warning-surface)",
+            border: "var(--warning-border)"
+          },
+          info: {
+            DEFAULT: "var(--info)",
+            surface: "var(--info-surface)",
+            border: "var(--info-border)"
+          }
+        },
         ink: {
           950: "#080817",
           900: "#0e1025",

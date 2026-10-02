@@ -4,22 +4,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 export const buttonVariants = cva(
-  "motion-interactive inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/55 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]",
+  "motion-interactive inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/55 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-background disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]",
   {
     variants: {
       variant: {
         primary:
           "border border-dusk-lavender/25 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber",
         secondary:
-          "border border-white/10 bg-white/[0.075] text-stone-100 hover:border-dusk-lavender/35 hover:bg-white/[0.11]",
+          "border border-theme-border bg-theme-paper text-theme-foreground hover:border-dusk-lavender/35 hover:bg-theme-paper-strong",
         ghost:
-          "border border-white/10 bg-white/[0.045] text-stone-100 hover:border-dusk-lavender/45 hover:bg-white/[0.09]",
+          "border border-theme-border bg-theme-paper text-theme-foreground hover:border-dusk-lavender/45 hover:bg-theme-paper-strong",
         outline:
-          "border border-white/14 bg-transparent text-stone-100 hover:border-dusk-lavender/45 hover:bg-white/[0.055]",
+          "border border-theme-border bg-transparent text-theme-foreground hover:border-dusk-lavender/45 hover:bg-theme-paper",
         danger:
-          "border border-red-300/25 bg-red-400/90 text-ink-950 hover:bg-red-300",
+          "border border-theme-danger bg-theme-danger text-theme-danger-foreground hover:brightness-95",
         subtle:
-          "border border-transparent bg-transparent text-stone-300 hover:bg-white/[0.06] hover:text-stone-100"
+          "border border-transparent bg-transparent text-theme-muted hover:bg-theme-paper hover:text-theme-foreground"
       },
       size: {
         sm: "h-8 px-3 text-xs",

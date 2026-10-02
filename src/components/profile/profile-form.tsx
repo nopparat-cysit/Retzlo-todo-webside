@@ -21,19 +21,19 @@ const STATUS_OPTIONS: { value: UserStatus; label: string; color: string; dot: st
   {
     value: "ONLINE",
     label: "Online",
-    color: "border-emerald-400/40 bg-emerald-400/10 text-emerald-300 ring-emerald-400/20",
+    color: "border-theme-success-border bg-theme-success-surface text-theme-success ring-theme-success-border",
     dot: "bg-emerald-400",
   },
   {
     value: "BUSY",
     label: "Busy",
-    color: "border-dusk-amber/40 bg-dusk-amber/10 text-dusk-amber ring-dusk-amber/20",
+    color: "border-theme-warning-border bg-theme-warning-surface text-theme-warning ring-theme-warning-border",
     dot: "bg-dusk-amber",
   },
   {
     value: "OFFLINE",
     label: "Offline",
-    color: "border-stone-500/40 bg-stone-500/10 text-stone-400 ring-stone-500/20",
+    color: "border-theme-border bg-theme-paper text-theme-muted ring-theme-border",
     dot: "bg-stone-500",
   },
 ];
@@ -146,7 +146,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         <p
           className={cn(
             "text-sm",
-            message.ok ? "text-emerald-300" : "text-red-300"
+            message.ok ? "text-theme-success" : "text-theme-danger"
           )}
         >
           {message.text}

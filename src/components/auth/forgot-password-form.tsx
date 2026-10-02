@@ -37,7 +37,7 @@ export function ForgotPasswordForm() {
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <Input name="email" type="email" placeholder="you@example.com" required />
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
       <Button className="w-full" disabled={isPending}>
         {isPending ? "Sending..." : "Send OTP"}
       </Button>

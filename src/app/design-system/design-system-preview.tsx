@@ -144,7 +144,7 @@ export function DesignSystemPreview() {
           description="Image, price, and approval state stay readable at a glance."
           media={<div className="grid h-20 place-items-center rounded-lg bg-gradient-to-br from-dusk-amber/25 via-dusk-rose/12 to-dusk-lavender/15"><Coins className="h-7 w-7 text-dusk-amber" /></div>}
           badges={<CoinBadge amount={120} />}
-          footer={<span className="inline-flex items-center gap-1 text-xs text-emerald-300"><CheckCircle2 className="h-3.5 w-3.5" /> Approval ready</span>}
+          footer={<span className="inline-flex items-center gap-1 text-xs text-theme-success"><CheckCircle2 className="h-3.5 w-3.5" /> Approval ready</span>}
         />
       </section>
 

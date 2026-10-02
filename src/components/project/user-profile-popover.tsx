@@ -108,7 +108,7 @@ export function UserProfilePopover({
                 event.preventDefault();
                 void signOut({ callbackUrl: "/login" });
               }}
-              className="flex cursor-pointer items-center gap-2 rounded-lg border border-red-300/15 bg-red-400/10 px-3 py-2 text-sm text-red-200 focus:border-red-300/30 focus:bg-red-400/15 focus:text-red-100"
+              className="flex cursor-pointer items-center gap-2 rounded-lg border border-theme-danger-border bg-theme-danger-surface px-3 py-2 text-sm text-theme-danger focus:border-theme-danger focus:bg-theme-danger-surface focus:text-theme-danger"
             >
               <LogOut className="h-4 w-4" />
               Log out

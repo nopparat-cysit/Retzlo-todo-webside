@@ -38,7 +38,7 @@ import {
 } from "@/lib/kanban/difficulty";
 import { getPrivateCoinEntry, resolveCardRewardPayload } from "@/lib/kanban/private-coins";
 import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
-import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
+import { cardStickerOptions, normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem } from "@/types/kanban";
@@ -967,7 +967,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
             </div>
             ) : null}
 
-            <RetroStickerPicker value={stickers} onChange={(nextValue) => setStickers(normalizeRetroStickerSelection(nextValue))} />
+            <RetroStickerPicker options={cardStickerOptions} value={stickers} onChange={(nextValue) => setStickers(normalizeRetroStickerSelection(nextValue))} />
           </div>
 
           </div>

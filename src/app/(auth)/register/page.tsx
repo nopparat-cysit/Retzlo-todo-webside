@@ -18,11 +18,11 @@ export default async function RegisterPage() {
       title="A new page awaits"
       description="The ink is fresh. The night is quiet. Begin your archive here."
     >
-      <Suspense fallback={<p className="text-sm text-[#f5efe6]/40">Preparing the inkwell...</p>}>
+      <Suspense fallback={<p className="text-sm text-theme-muted">Preparing the inkwell...</p>}>
         <RegisterForm />
       </Suspense>
 
-      <p className="mt-8 text-center text-sm text-[#f5efe6]/50">
+      <p className="mt-8 text-center text-sm text-theme-muted">
         Already have a corner?{" "}
         <Link 
           href="/login"

@@ -38,9 +38,10 @@ describe("NotesPanel reward-style layout", () => {
     expect(source).not.toContain("const NOTE_EMOJIS");
   });
 
-  it("lays note cards out in three columns on wide screens", () => {
-    expect(source).toContain("xl:grid-cols-3");
-    expect(source).not.toContain("lg:grid-cols-2");
+  it("defaults to a comfortable two-column grid and preserves explicit view counts", () => {
+    expect(source).toContain('useState<NoteViewMode>("grid-2")');
+    expect(source).toContain('viewMode === "grid-3" && "grid md:grid-cols-2 xl:grid-cols-3"');
+    expect(source).toContain('viewMode === "grid-4" && "grid sm:grid-cols-2 xl:grid-cols-4"');
   });
 
   it("lets the note board switch between grid and list views", () => {

@@ -59,7 +59,7 @@ export default function DashboardError({
 
           <Link
             href="/"
-            className="inline-flex h-9 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 text-xs font-medium text-stone-300 transition hover:border-white/30 hover:bg-white/10 hover:text-white"
+            className="inline-flex h-9 items-center gap-2 rounded-xl border border-theme-border bg-theme-paper px-4 text-xs font-medium text-theme-muted transition hover:border-theme-accent hover:bg-theme-paper-strong hover:text-theme-foreground"
           >
             <LayoutDashboard className="h-3.5 w-3.5" />
             รายการโปรเจกต์

@@ -120,17 +120,17 @@ export function AuthScene({
         {!hideHeader && (eyebrow || title || description) ? (
           <div className="mb-6 text-center">
             {eyebrow ? (
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-dusk-amber">
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-theme-warning">
                 {eyebrow}
               </p>
             ) : null}
             {title ? (
-              <h1 className="mt-3 text-3xl font-semibold text-[#f5efe6] tracking-[-0.02em]">
+              <h1 className="mt-3 text-3xl font-semibold text-theme-foreground tracking-[-0.02em]">
                 {title}
               </h1>
             ) : null}
             {description ? (
-              <p className="mt-2 text-sm text-[#f5efe6]/80 max-w-[280px] mx-auto">
+              <p className="mt-2 text-sm text-theme-muted max-w-[280px] mx-auto">
                 {description}
               </p>
             ) : null}

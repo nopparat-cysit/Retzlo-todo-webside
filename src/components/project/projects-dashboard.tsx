@@ -791,7 +791,7 @@ export function ProjectsDashboard({
                             </span>
                             <span className="text-[10px] text-stone-500">· {projectList.length} total</span>
                           </div>
-                          <h2 className="flex items-center gap-1.5 truncate text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-dusk-lavender transition-colors">
+                          <h2 className="flex items-center gap-1.5 truncate text-base sm:text-lg font-bold tracking-tight text-theme-foreground group-hover:text-theme-accent transition-colors">
                             <span className="truncate">{activeProject.name}</span>
                             <ChevronDown
                               className={cn(
@@ -822,7 +822,7 @@ export function ProjectsDashboard({
                                 "group flex w-full items-center justify-between gap-1.5 rounded-xl p-1 transition select-none",
                                 isSelected
                                   ? "border border-dusk-lavender/30 bg-dusk-lavender/15 text-white font-semibold"
-                                  : "text-stone-300 hover:bg-white/[0.06] hover:text-white"
+                                  : "text-theme-muted hover:bg-theme-paper hover:text-theme-foreground"
                               )}
                             >
                               <button
@@ -1135,7 +1135,7 @@ export function ProjectsDashboard({
             /* BOARDS HUB VIEW FOR ACTIVE WORKSPACE */
             <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
               {/* Workspace Hero Banner */}
-              <div className="relative mb-5 overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-gradient-to-r dark:from-white/[0.04] dark:via-white/[0.02] dark:to-transparent">
+              <div className="relative mb-5 overflow-hidden rounded-2xl border border-theme-border bg-theme-panel p-4 sm:p-5 shadow-sm backdrop-blur-md dark:bg-gradient-to-r dark:from-white/[0.04] dark:via-white/[0.02] dark:to-transparent">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4 min-w-0">
                     <Link
@@ -1153,7 +1153,7 @@ export function ProjectsDashboard({
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
-                          className="truncate text-xl font-bold tracking-tight text-stone-900 sm:text-2xl hover:text-indigo-600 transition flex items-center gap-2 group dark:text-white dark:hover:text-dusk-lavender"
+                          className="truncate text-xl font-bold tracking-tight text-theme-foreground sm:text-2xl hover:text-theme-accent transition flex items-center gap-2 group"
                         >
                           <span>{activeProject.name}</span>
                           <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-600 dark:text-dusk-lavender" />
@@ -1898,7 +1898,7 @@ function CreateBoardModal({
             </div>
           </div>
 
-          {error ? <p className="text-xs text-red-400">{error}</p> : null}
+          {error ? <p className="text-xs text-theme-danger">{error}</p> : null}
         </div>
 
         <div className="mt-5 flex justify-end gap-2 border-t border-white/10 pt-3">
@@ -2548,7 +2548,7 @@ function CreateProjectModal({ onClose, onCreated }: { onClose: () => void; onCre
             onColorChange={setThemeColor}
             onStickerChange={setSticker}
           />
-          {error ? <p className="text-sm text-red-300">{error}</p> : null}
+          {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
         </div>
         <div className="mt-5 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={onClose}>

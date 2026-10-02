@@ -15,7 +15,18 @@
   --accent: #d59ab3;
   --accent-2: #e5bd72;
   --danger: #fda4af;
+  --danger-foreground: #090817;
+  --danger-surface: rgba(136, 19, 55, 0.26);
+  --danger-border: rgba(251, 113, 133, 0.38);
   --success: #86efac;
+  --success-surface: rgba(20, 83, 45, 0.3);
+  --success-border: rgba(74, 222, 128, 0.36);
+  --warning: #fcd34d;
+  --warning-surface: rgba(120, 53, 15, 0.3);
+  --warning-border: rgba(251, 191, 36, 0.38);
+  --info: #89c7d6;
+  --info-surface: rgba(8, 47, 73, 0.34);
+  --info-border: rgba(103, 232, 249, 0.36);
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -44,7 +55,18 @@
   --accent: #7c3aed;
   --accent-2: #c48b28;
   --danger: #e11d48;
+  --danger-foreground: #ffffff;
+  --danger-surface: #fff1f2;
+  --danger-border: #fecdd3;
   --success: #16a34a;
+  --success-surface: #f0fdf4;
+  --success-border: #bbf7d0;
+  --warning: #854d0e;
+  --warning-surface: #fffbeb;
+  --warning-border: #fde68a;
+  --info: #0e7490;
+  --info-surface: #ecfeff;
+  --info-border: #a5f3fc;
   --shadow-panel:
     0 4px 20px -2px rgba(41, 37, 36, 0.06),
     0 1px 3px rgba(41, 37, 36, 0.04),
@@ -320,6 +342,11 @@ textarea {
 .retro-slider.accent-cyan::-webkit-slider-thumb {
   background: #89c7d6 !important;
   box-shadow: 0 0 6px rgba(137, 199, 214, 0.6) !important;
+}
+
+/* The sidebar is nested inside the grid, so the peer utility cannot reach it. */
+#project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar {
+  transform: translateX(0);
 }
 
 @media (min-width: 1024px) {

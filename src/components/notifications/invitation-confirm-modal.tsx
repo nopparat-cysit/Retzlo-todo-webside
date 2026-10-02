@@ -230,7 +230,7 @@ export function InvitationConfirmModal({
               variant="ghost"
               disabled={isLoading || isDeclining}
               onClick={handleDecline}
-              className="text-stone-400 hover:text-red-400 hover:bg-red-500/10"
+              className="text-theme-muted hover:bg-theme-danger-surface hover:text-theme-danger"
             >
               {isDeclining ? "กำลังปฏิเสธ..." : "ปฏิเสธ (Decline)"}
             </Button>

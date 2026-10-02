@@ -1,5 +1,7 @@
 # Modular Life and Work Management Platform Design
 
+> Theme source of truth and extension workflow: [Theme System Audit & Extension Guide](theme-system.md). Update its coverage matrix and change log whenever a substantial UI section is added or changed.
+
 ## Overview
 
 The platform is a modular life/work management app. The first module is the Work module, centered around project workspaces. A user logs in, chooses a project, and works inside that project's Todo Board or Calendar.

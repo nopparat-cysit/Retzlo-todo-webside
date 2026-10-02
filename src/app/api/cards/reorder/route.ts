@@ -117,7 +117,7 @@ export async function PATCH(request: Request) {
     });
 
     if (targetBoardId) {
-      triggerPusherEvent(
+      await triggerPusherEvent(
         [`retzlo-project-${projectId}`, `retzlo-board-${targetBoardId}`],
         "retzlo:sync",
         { action: "CARD_REORDER", cardId: payload.cardId, senderId: userId }

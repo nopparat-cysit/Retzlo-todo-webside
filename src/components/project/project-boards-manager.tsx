@@ -11,6 +11,8 @@ import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import type { BoardSummary } from "@/types/kanban";
 import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
+import { BoardTemplatePicker } from "@/components/kanban/board-template-picker";
+import { DEFAULT_BOARD_TEMPLATE_ID, type BoardTemplateId } from "@/lib/kanban/board-templates";
 
 interface ProjectMemberInfo {
   id: string;
@@ -43,6 +45,7 @@ export function ProjectBoardsManager({
   // Create Modal State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
+  const [newBoardTemplateId, setNewBoardTemplateId] = useState<BoardTemplateId>(DEFAULT_BOARD_TEMPLATE_ID);
   const [newIsPrivate, setNewIsPrivate] = useState(false);
   const [newMemberIds, setNewMemberIds] = useState<string[]>([]);
   const [isCreating, setIsCreating] = useState(false);
@@ -78,7 +81,8 @@ export function ProjectBoardsManager({
         body: JSON.stringify({
           name: newBoardName.trim(),
           isPrivate: newIsPrivate,
-          memberUserIds: newIsPrivate ? newMemberIds : []
+          memberUserIds: newIsPrivate ? newMemberIds : [],
+          templateId: newBoardTemplateId
         })
       });
 
@@ -90,6 +94,7 @@ export function ProjectBoardsManager({
       setBoards((prev) => [...prev, data.board]);
       setIsCreateOpen(false);
       setNewBoardName("");
+      setNewBoardTemplateId(DEFAULT_BOARD_TEMPLATE_ID);
       setNewIsPrivate(false);
       setNewMemberIds([]);
       toast({ message: `Sub-project "${data.board.name}" created! ✦`, type: "success" });
@@ -236,6 +241,7 @@ export function ProjectBoardsManager({
             className="text-xs shrink-0 self-start sm:self-auto"
             onClick={() => {
               setNewBoardName("");
+              setNewBoardTemplateId(DEFAULT_BOARD_TEMPLATE_ID);
               setNewIsPrivate(false);
               setNewMemberIds([]);
               setIsCreateOpen(true);
@@ -371,20 +377,20 @@ export function ProjectBoardsManager({
           open={isCreateOpen}
           onClose={() => setIsCreateOpen(false)}
           labelledBy="create-board-modal-title"
-          contentClassName="lofi-panel w-full max-w-md rounded-2xl p-5"
+          contentClassName="w-full max-w-4xl overflow-hidden rounded-2xl"
         >
-          <form onSubmit={handleCreateBoard} className="space-y-4">
+          <form onSubmit={handleCreateBoard} className="max-h-[calc(100dvh-1.5rem)] space-y-4 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-5">
             <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Sub-project</p>
-              <h3 id="create-board-modal-title" className="text-xl font-semibold text-stone-100 mt-0.5">
+              <p className="text-xs uppercase tracking-[0.24em] text-theme-accent">Sub-project</p>
+              <h3 id="create-board-modal-title" className="mt-0.5 text-xl font-semibold text-theme-foreground">
                 Create Sub-project Board
               </h3>
-              <p className="text-xs text-stone-400 mt-1">
+              <p className="mt-1 text-xs text-theme-muted">
                 Add a new Kanban workspace lane for your team.
               </p>
             </div>
 
-            <label className="block space-y-1.5 text-sm text-stone-300">
+            <label className="block space-y-1.5 text-sm text-theme-foreground">
               <span>Board name</span>
               <Input
                 autoFocus
@@ -395,9 +401,15 @@ export function ProjectBoardsManager({
               />
             </label>
 
+            <BoardTemplatePicker
+              selectedId={newBoardTemplateId}
+              onSelect={setNewBoardTemplateId}
+              disabled={isCreating}
+            />
+
             {/* Privacy Selection */}
             <div className="space-y-2 pt-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+              <span className="text-xs font-semibold uppercase tracking-wider text-theme-muted">
                 Access Visibility
               </span>
               <div className="grid grid-cols-2 gap-2">
@@ -407,13 +419,13 @@ export function ProjectBoardsManager({
                   className={cn(
                     "flex flex-col items-start rounded-xl border p-3 text-left transition",
                     !newIsPrivate
-                      ? "border-dusk-cyan/60 bg-dusk-cyan/15 text-dusk-cyan"
-                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
+                      ? "border-theme-accent bg-theme-paper-strong text-theme-accent"
+                      : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent hover:text-theme-foreground"
                   )}
                 >
                   <Globe className="h-4 w-4 mb-1" />
                   <span className="text-xs font-semibold">Public to Team</span>
-                  <span className="text-[10px] text-stone-500 leading-tight mt-0.5">
+                  <span className="mt-0.5 text-[10px] leading-tight text-theme-muted">
                     All project members can view
                   </span>
                 </button>
@@ -424,13 +436,13 @@ export function ProjectBoardsManager({
                   className={cn(
                     "flex flex-col items-start rounded-xl border p-3 text-left transition",
                     newIsPrivate
-                      ? "border-dusk-amber/60 bg-dusk-amber/15 text-dusk-amber"
-                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
+                      ? "border-theme-accent bg-theme-paper-strong text-theme-accent"
+                      : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent hover:text-theme-foreground"
                   )}
                 >
                   <Lock className="h-4 w-4 mb-1" />
                   <span className="text-xs font-semibold">Private Board</span>
-                  <span className="text-[10px] text-stone-500 leading-tight mt-0.5">
+                  <span className="mt-0.5 text-[10px] leading-tight text-theme-muted">
                     Only selected members can see
                   </span>
                 </button>
@@ -439,12 +451,12 @@ export function ProjectBoardsManager({
 
             {/* Member Checkboxes if Private */}
             {newIsPrivate && (
-              <div className="space-y-2 border-t border-white/10 pt-3">
+              <div className="space-y-2 border-t border-theme-border pt-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-stone-300">Grant Access to Members</span>
-                  <span className="text-stone-500">{newMemberIds.length} selected</span>
+                  <span className="font-semibold text-theme-foreground">Grant Access to Members</span>
+                  <span className="text-theme-muted">{newMemberIds.length} selected</span>
                 </div>
-                <div className="scrollbar-soft max-h-40 overflow-y-auto space-y-1.5 rounded-xl border border-white/10 bg-black/20 p-2">
+                <div className="scrollbar-soft max-h-40 space-y-1.5 overflow-y-auto rounded-xl border border-theme-border bg-theme-paper p-2">
                   {projectMembers.map((m) => {
                     const isSelected = newMemberIds.includes(m.userId);
                     return (
@@ -455,17 +467,17 @@ export function ProjectBoardsManager({
                         className={cn(
                           "flex w-full items-center justify-between rounded-lg p-2 text-xs transition",
                           isSelected
-                            ? "bg-dusk-amber/15 text-dusk-amber font-medium"
-                            : "text-stone-400 hover:bg-white/5 hover:text-stone-200"
+                            ? "bg-theme-paper-strong font-medium text-theme-accent"
+                            : "text-theme-muted hover:bg-theme-paper-strong hover:text-theme-foreground"
                         )}
                       >
                         <div className="flex items-center gap-2 truncate">
-                          <div className="grid h-5 w-5 place-items-center rounded-full bg-white/10 text-[9px] font-bold">
+                          <div className="grid h-5 w-5 place-items-center rounded-full bg-theme-paper-strong text-[9px] font-bold text-theme-foreground">
                             {(m.user.name?.[0] ?? m.user.email[0]).toUpperCase()}
                           </div>
                           <span className="truncate">{m.user.name ?? m.user.email}</span>
                         </div>
-                        {isSelected && <Check className="h-3.5 w-3.5 text-dusk-amber shrink-0" />}
+                        {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-theme-accent" />}
                       </button>
                     );
                   })}
@@ -473,11 +485,11 @@ export function ProjectBoardsManager({
               </div>
             )}
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+            <div className="flex justify-end gap-2 border-t border-theme-border pt-2">
               <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)}>
                 Cancel
               </Button>
-              <Button disabled={!newBoardName.trim() || isCreating}>
+              <Button type="submit" disabled={!newBoardName.trim() || isCreating}>
                 {isCreating ? "Creating..." : "Create Board"}
               </Button>
             </div>

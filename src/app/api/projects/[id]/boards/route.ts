@@ -5,18 +5,18 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import {
+  BOARD_TEMPLATE_IDS,
+  DEFAULT_BOARD_TEMPLATE_ID,
+  getBoardTemplate
+} from "@/lib/kanban/board-templates";
 
 const createBoardSchema = z.object({
   name: z.string().trim().min(1, "Board name is required").max(80, "Board name is too long"),
   isPrivate: z.boolean().optional().default(false),
-  memberUserIds: z.array(z.string()).optional().default([])
+  memberUserIds: z.array(z.string()).optional().default([]),
+  templateId: z.enum(BOARD_TEMPLATE_IDS).optional().default(DEFAULT_BOARD_TEMPLATE_ID)
 });
-
-const defaultColumns = [
-  { name: "Backlog", defaultCardStatus: "TODO", color: "default", icon: "kanban" },
-  { name: "In Progress", defaultCardStatus: "DOING", color: "lavender", icon: "sparkles" },
-  { name: "Done", defaultCardStatus: "DONE", color: "amber", icon: "check-circle" }
-];
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -108,6 +108,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   try {
     const body = await request.json();
     const payload = createBoardSchema.parse(body);
+    const template = getBoardTemplate(payload.templateId);
 
     const uniqueUserIds = Array.from(
       new Set(payload.isPrivate ? [...payload.memberUserIds, userId] : payload.memberUserIds)
@@ -119,7 +120,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         projectId: params.id,
         isPrivate: payload.isPrivate,
         columns: {
-          create: defaultColumns.map((col, position) => ({
+          create: template.columns.map((col, position) => ({
             name: col.name,
             defaultCardStatus: col.defaultCardStatus,
             color: col.color,

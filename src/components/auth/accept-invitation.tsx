@@ -58,24 +58,24 @@ function ProjectPreviewCard({
   inviter: { name?: string | null; email: string; avatar?: string | null };
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-left shadow-[0_12px_32px_rgba(0,0,0,0.2)]">
+    <div className="lofi-panel rounded-2xl p-4 text-left shadow-[0_12px_32px_rgba(0,0,0,0.2)]">
       <div className="flex items-start gap-3">
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/15 text-dusk-lavender shadow-inner">
           <FolderKanban className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-dusk-amber">โครงการที่ได้รับเชิญ</p>
-          <h2 className="mt-0.5 truncate text-base font-bold text-stone-100 tracking-tight">{project.name}</h2>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-theme-warning">โครงการที่ได้รับเชิญ</p>
+          <h2 className="mt-0.5 truncate text-base font-bold tracking-tight text-theme-foreground">{project.name}</h2>
           {project.description ? (
-            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-stone-400">{project.description}</p>
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-theme-muted">{project.description}</p>
           ) : null}
         </div>
       </div>
 
-      <div className="mt-3.5 flex items-center gap-2.5 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2 text-xs text-stone-300">
+      <div className="mt-3.5 flex items-center gap-2.5 rounded-xl border border-theme-border bg-theme-paper px-3 py-2 text-xs text-theme-muted">
         <Avatar src={inviter.avatar} name={inviter.name ?? inviter.email} size={24} />
         <span className="truncate">
-          เชิญโดย <strong className="font-medium text-stone-100">{inviter.name ?? inviter.email}</strong>
+          เชิญโดย <strong className="font-medium text-theme-foreground">{inviter.name ?? inviter.email}</strong>
         </span>
       </div>
     </div>
@@ -205,9 +205,9 @@ export function AcceptInvitation() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-8 text-stone-400">
-        <div className="mb-3 h-7 w-7 animate-spin rounded-full border-2 border-dusk-lavender border-t-transparent" />
-        <p className="text-xs text-stone-400">กำลังตรวจสอบข้อมูลคำเชิญ...</p>
+      <div className="flex flex-col items-center justify-center py-8 text-theme-muted">
+        <div className="mb-3 h-7 w-7 animate-spin rounded-full border-2 border-theme-accent border-t-transparent" />
+        <p className="text-xs text-theme-muted">กำลังตรวจสอบข้อมูลคำเชิญ...</p>
       </div>
     );
   }
@@ -216,12 +216,12 @@ export function AcceptInvitation() {
   if (error || !data?.invitation) {
     return (
       <div className="space-y-4 text-center">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-dusk-rose/30 bg-dusk-rose/15 text-dusk-rose shadow-[0_0_24px_rgba(213,154,179,0.18)]">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-theme-danger-border bg-theme-danger-surface text-theme-danger">
           <AlertCircle className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-stone-100">ไม่พบข้อมูลคำเชิญ</h2>
-          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-stone-400">
+          <h2 className="text-base font-bold text-theme-foreground">ไม่พบข้อมูลคำเชิญ</h2>
+          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-theme-muted">
             {error ?? "ลิงก์คำเชิญนี้ไม่ถูกต้อง หรืออาจถูกยกเลิกไปแล้ว"}
           </p>
         </div>
@@ -244,12 +244,12 @@ export function AcceptInvitation() {
   if (invitation.status === "ACCEPTED") {
     return (
       <div className="space-y-4 text-center">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-dusk-cyan/30 bg-dusk-cyan/15 text-dusk-cyan shadow-[0_0_24px_rgba(137,199,214,0.2)]">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-theme-success-border bg-theme-success-surface text-theme-success">
           <CheckCircle2 className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-stone-100">คำเชิญนี้ได้รับการตอบรับแล้ว</h2>
-          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-stone-400">
+          <h2 className="text-base font-bold text-theme-foreground">คำเชิญนี้ได้รับการตอบรับแล้ว</h2>
+          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-theme-muted">
             คุณหรือสมาชิกในทีมได้เข้าร่วมโปรเจกต์นี้เรียบร้อยแล้ว สามารถเข้าสู่หน้าจัดการโครงการได้ทันที
           </p>
         </div>
@@ -265,7 +265,7 @@ export function AcceptInvitation() {
               <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </Link>
-          <Link href="/projects" className="block pt-1 text-center text-xs text-stone-400 hover:text-stone-200 transition-colors">
+          <Link href="/projects" className="block pt-1 text-center text-xs text-theme-muted hover:text-theme-foreground transition-colors">
             กลับสู่หน้ารวมโครงการทั้งหมด
           </Link>
         </div>
@@ -277,12 +277,12 @@ export function AcceptInvitation() {
   if (invitation.status === "DECLINED") {
     return (
       <div className="space-y-4 text-center">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/5 text-stone-400">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-theme-border bg-theme-paper text-theme-muted">
           <XCircle className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-stone-100">คำเชิญนี้ถูกปฏิเสธแล้ว</h2>
-          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-stone-400">
+          <h2 className="text-base font-bold text-theme-foreground">คำเชิญนี้ถูกปฏิเสธแล้ว</h2>
+          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-theme-muted">
             คำเชิญนี้ถูกปฏิเสธไปก่อนหน้านี้ หากต้องการเข้าร่วม กรุณาขอรับคำเชิญใหม่จากผู้ดูแลโครงการ
           </p>
         </div>
@@ -306,12 +306,12 @@ export function AcceptInvitation() {
   if (invitation.isExpired) {
     return (
       <div className="space-y-4 text-center">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber shadow-[0_0_24px_rgba(229,189,114,0.18)]">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-theme-warning-border bg-theme-warning-surface text-theme-warning">
           <Clock className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-stone-100">คำเชิญหมดอายุแล้ว</h2>
-          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-stone-400">
+          <h2 className="text-base font-bold text-theme-foreground">คำเชิญหมดอายุแล้ว</h2>
+          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-theme-muted">
             ลิงก์คำเชิญนี้มีอายุ 7 วันและหมดเวลาใช้งานแล้ว กรุณาติดต่อผู้ดูแลโครงการเพื่อขอรับคำเชิญใหม่
           </p>
         </div>
@@ -337,9 +337,9 @@ export function AcceptInvitation() {
       <div className="space-y-4 text-left">
         <ProjectPreviewCard project={invitation.project} inviter={invitation.inviter} />
 
-        <div className="rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 p-3 text-xs text-stone-300">
-          <p className="font-semibold text-dusk-amber mb-0.5">คำเชิญสำหรับ: {invitation.email}</p>
-          <p className="text-stone-400">กรุณาเข้าสู่ระบบหรือสร้างบัญชีด้วยอีเมลนี้เพื่อตอบรับคำเชิญเข้าร่วมโครงการ</p>
+        <div className="rounded-xl border border-theme-info-border bg-theme-info-surface p-3 text-xs text-theme-info">
+          <p className="mb-0.5 font-semibold">คำเชิญสำหรับ: {invitation.email}</p>
+          <p className="text-theme-muted">กรุณาเข้าสู่ระบบหรือสร้างบัญชีด้วยอีเมลนี้เพื่อตอบรับคำเชิญเข้าร่วมโครงการ</p>
         </div>
 
         <div className="space-y-2 pt-1">
@@ -350,7 +350,7 @@ export function AcceptInvitation() {
             </Button>
           </Link>
           <Link href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="block w-full">
-            <Button variant="ghost" className="w-full text-xs text-stone-300 hover:text-stone-100">
+            <Button variant="ghost" className="w-full text-xs text-theme-muted hover:text-theme-foreground">
               สร้างบัญชีใหม่ (Create account)
             </Button>
           </Link>
@@ -365,12 +365,12 @@ export function AcceptInvitation() {
       <div className="space-y-4 text-left">
         <ProjectPreviewCard project={invitation.project} inviter={invitation.inviter} />
 
-        <div className="space-y-1.5 rounded-xl border border-amber-500/25 bg-amber-500/10 p-3.5 text-xs text-stone-300">
-          <div className="flex items-center gap-2 text-amber-300 font-semibold">
-            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
+        <div className="space-y-1.5 rounded-xl border border-theme-warning-border bg-theme-warning-surface p-3.5 text-xs text-theme-foreground">
+          <div className="flex items-center gap-2 font-semibold text-theme-warning">
+            <AlertCircle className="h-4 w-4 shrink-0 text-theme-warning" />
             <span>เข้าสู่ระบบด้วยบัญชีอื่น</span>
           </div>
-          <p className="text-stone-300 leading-relaxed">
+          <p className="leading-relaxed text-theme-foreground">
             ปัจจุบันคุณกำลังเข้าสู่ระบบด้วย <strong>{currentUser?.email}</strong> แต่คำเชิญนี้ถูกส่งมายัง <strong>{invitation.email}</strong>
           </p>
         </div>
@@ -382,7 +382,7 @@ export function AcceptInvitation() {
             </Button>
           </Link>
           <Link href="/projects" className="block w-full">
-            <Button variant="ghost" className="w-full text-xs text-stone-400">
+            <Button variant="ghost" className="w-full text-xs text-theme-muted">
               ยกเลิกและกลับสู่หน้าโครงการ
             </Button>
           </Link>
@@ -396,9 +396,9 @@ export function AcceptInvitation() {
     <div className="space-y-4 text-left">
       <ProjectPreviewCard project={invitation.project} inviter={invitation.inviter} />
 
-      <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-xs text-stone-300">
-        <span className="text-stone-400">บทบาทที่ได้รับมอบหมาย</span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 font-semibold text-dusk-amber text-[11px]">
+      <div className="flex items-center justify-between rounded-xl border border-theme-border bg-theme-paper px-3.5 py-2.5 text-xs text-theme-muted">
+        <span>บทบาทที่ได้รับมอบหมาย</span>
+        <span className="inline-flex items-center gap-1 rounded-full border border-theme-warning-border bg-theme-warning-surface px-2.5 py-0.5 text-[11px] font-semibold text-theme-warning">
           <UserPlus className="h-3 w-3" />
           <span>สมาชิก (Member)</span>
         </span>
@@ -418,7 +418,7 @@ export function AcceptInvitation() {
           variant="ghost"
           onClick={() => setIsDeclineConfirmOpen(true)}
           disabled={isSubmitting || isDeclining}
-          className="w-full text-xs text-stone-400 hover:text-dusk-rose hover:bg-dusk-rose/10"
+          className="w-full text-xs text-theme-muted hover:bg-theme-danger-surface hover:text-theme-danger"
         >
           ปฏิเสธคำเชิญ (Decline)
         </Button>

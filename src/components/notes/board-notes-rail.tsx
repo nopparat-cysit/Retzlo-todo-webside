@@ -210,7 +210,7 @@ export function BoardNotesRail({
             <button
               type="button"
               onClick={onClose}
-              className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-stone-400 hover:border-white/20 hover:text-white transition cursor-pointer"
+              className="grid h-8 w-8 place-items-center rounded-lg border border-theme-border bg-theme-paper text-theme-muted transition hover:border-theme-accent hover:text-theme-foreground cursor-pointer"
               title="Collapse notes panel (พับเก็บ)"
               aria-label="Collapse notes panel"
             >
@@ -242,7 +242,7 @@ export function BoardNotesRail({
         />
       </div>
 
-      {error ? <p className="mt-3 rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p> : null}
+      {error ? <p className="mt-3 rounded-md border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">{error}</p> : null}
 
       <div className="scrollbar-soft mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
         {visibleNotes.length === 0 ? (

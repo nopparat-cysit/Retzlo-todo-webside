@@ -48,7 +48,7 @@ export function EntityCard({
       </div>
       {children}
       {progress ? <div className="mt-3">{progress}</div> : null}
-      {meta ? <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-stone-500">{meta}</div> : null}
+      {meta ? <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-theme-muted">{meta}</div> : null}
       {footer ? <div className="mt-4 border-t border-white/10 pt-3">{footer}</div> : null}
     </>
   );

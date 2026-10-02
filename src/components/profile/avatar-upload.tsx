@@ -125,7 +125,7 @@ export function AvatarUpload({ currentAvatar, userName, onUploaded }: AvatarUplo
         {preview ? "Change photo" : "Upload photo"}
       </button>
 
-      {error && <p className="text-xs text-red-300">{error}</p>}
+      {error && <p className="text-xs text-theme-danger">{error}</p>}
       <p className="text-center text-[11px] text-stone-600">
         JPG, PNG, WebP or GIF · Max 4 MB
       </p>

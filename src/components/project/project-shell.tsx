@@ -144,8 +144,8 @@ export async function ProjectShell({
         className="pointer-events-none fixed inset-0 z-[240] bg-ink-950/60 opacity-0 backdrop-blur-sm transition-opacity duration-300 peer-checked:pointer-events-auto peer-checked:opacity-100 lg:hidden"
         aria-hidden="true"
       />
-      <div className="project-shell-grid grid h-[calc(100dvh-1rem)] sm:h-[calc(100dvh-1.5rem)] min-h-0 gap-2.5 sm:gap-3 transition-[grid-template-columns] duration-200 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="project-sidebar lofi-panel fixed bottom-2 left-2 top-2 z-[250] flex min-h-0 w-[min(280px,calc(100vw-2.5rem))] -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 peer-checked:translate-x-0 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
+      <div className="project-shell-grid grid grid-rows-[minmax(0,1fr)] h-[calc(100dvh-1rem)] sm:h-[calc(100dvh-1.5rem)] min-h-0 gap-2.5 sm:gap-3 transition-[grid-template-columns] duration-200 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="project-sidebar lofi-panel fixed bottom-2 left-2 top-2 z-[250] flex min-h-0 w-[min(280px,calc(100vw-2.5rem))] -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
           <div>
             <div className="flex items-center justify-between gap-2">
               <Link
@@ -193,7 +193,7 @@ export async function ProjectShell({
           </div>
         </aside>
 
-        <section className="flex min-h-0 min-w-0 flex-col rounded-2xl">
+        <section className="row-start-1 flex min-h-0 min-w-0 flex-col rounded-2xl lg:row-start-auto">
           <header className="lofi-panel relative z-40 mb-3 flex min-h-14 items-center justify-between gap-2 sm:gap-3 overflow-visible rounded-2xl px-2.5 sm:px-4">
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
               <label

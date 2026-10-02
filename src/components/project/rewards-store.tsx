@@ -478,10 +478,10 @@ export function RewardsStore({
       </section>
 
       {errorMsg ? (
-        <div className="flex items-center gap-2 rounded-lg border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">
+        <div className="flex items-center gap-2 rounded-lg border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <p>{errorMsg}</p>
-          <button className="ml-auto text-xs text-red-100/80 hover:text-red-100" onClick={() => setErrorMsg(null)}>
+          <button className="ml-auto text-xs text-theme-danger hover:underline" onClick={() => setErrorMsg(null)}>
             Dismiss
           </button>
         </div>
@@ -810,7 +810,7 @@ function RewardCard({
             className={cn(
               "rounded-md border px-2 py-1 text-[11px]",
               isOutOfStock
-                ? "border-red-300/20 bg-red-400/10 text-red-300"
+                ? "border-theme-danger-border bg-theme-danger-surface text-theme-danger"
                 : "border-white/10 bg-white/[0.035] text-stone-400"
             )}
           >
@@ -884,7 +884,9 @@ function HistoryItem({ redemption }: { redemption: Redemption }) {
         <span
           className={cn(
             "rounded-md px-2 py-1 text-[10px] font-semibold",
-            isApproved ? "bg-emerald-400/10 text-emerald-300" : "bg-red-400/10 text-red-300"
+            isApproved
+              ? "bg-theme-success-surface text-theme-success"
+              : "bg-theme-danger-surface text-theme-danger"
           )}
         >
           {isApproved ? "Approved" : "Rejected"}
@@ -1125,7 +1127,7 @@ function RejectRewardModal({
       <form className="lofi-panel w-full max-w-md rounded-xl p-5" onSubmit={onSubmit}>
         <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-red-300">Reject request</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-theme-danger">Reject request</p>
             <h2 id="reject-reward-title" className="mt-1 text-lg font-semibold text-stone-100">Add a reason</h2>
           </div>
           <button className="rounded-lg p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 
+import type { SharedIconOption } from "@/lib/stickers/shared-icon-options";
 import { retroStickerOptions } from "@/lib/stickers/retro-stickers";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,7 @@ interface RetroStickerPickerProps {
   className?: string;
   description?: string;
   label?: string;
+  options?: readonly SharedIconOption[];
   onChange: (nextValue: string[]) => void;
   value: string[];
 }
@@ -39,6 +41,7 @@ export function RetroStickerPicker({
   className,
   description = "Stamp your card to reflect the mood:",
   label = "Retro Stickers",
+  options = retroStickerOptions,
   onChange,
   value
 }: RetroStickerPickerProps) {
@@ -53,13 +56,13 @@ export function RetroStickerPicker({
       <div className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-200">
         <span className="text-xs font-bold uppercase tracking-wider text-dusk-lavender">{label}</span>
         <span className="rounded-full border border-white/10 bg-ink-950/35 px-2 py-0.5 text-[10px] font-semibold text-stone-400">
-          {retroStickerOptions.length}
+          {options.length}
         </span>
       </div>
       {description ? <p className="mb-2.5 text-xs text-stone-500">{description}</p> : null}
 
       <div className="grid max-h-60 grid-cols-5 gap-2.5 overflow-y-auto pr-1 sm:grid-cols-6">
-        {retroStickerOptions.map((sticker) => {
+        {options.map((sticker) => {
           const active = selected.has(sticker.src);
 
           return (

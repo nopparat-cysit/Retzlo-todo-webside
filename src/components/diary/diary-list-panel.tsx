@@ -448,7 +448,7 @@ export function DiaryListPanel({
             mobileTab === "shelf" && "hidden lg:flex"
           )}
         >
-          {error ? <div className="p-4 pb-0"><p className="rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p></div> : null}
+          {error ? <div className="p-4 pb-0"><p className="rounded-md border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">{error}</p></div> : null}
           {!allowMemberPrivateItems && !isOwner ? (
             <div className="p-4 pb-0">
               <div className="rounded-lg border border-dusk-amber/20 bg-dusk-amber/10 px-4 py-3 text-sm text-dusk-amber">
@@ -798,7 +798,7 @@ function DiaryFocusCard({
                     className={cn(
                       "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold select-none shadow-sm",
                       rewardClaimed
-                        ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                        ? "border-theme-success-border bg-theme-success-surface text-theme-success"
                         : rewardReady
                           ? "border-dusk-amber/40 bg-dusk-amber/20 text-dusk-amber animate-pulse"
                           : "border-dusk-amber/25 bg-dusk-amber/10 text-dusk-amber"
@@ -857,7 +857,7 @@ function DiaryFocusCard({
                 </button>
                 <button
                   aria-label="Delete diary checklist"
-                  className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-red-400/40 hover:bg-red-400/10 hover:text-red-300 active:scale-95"
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-theme-danger-border hover:bg-theme-danger-surface hover:text-theme-danger active:scale-95"
                   title="Delete ritual"
                   type="button"
                   onClick={onDelete}
@@ -956,7 +956,7 @@ function DiaryFocusCard({
                           className={cn(
                             "mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border transition",
                             isCompleted
-                              ? "border-emerald-400/50 bg-emerald-400/20 text-emerald-300"
+                              ? "border-theme-success-border bg-theme-success-surface text-theme-success"
                               : "border-white/20 bg-ink-950/60 text-stone-400 group-hover:border-dusk-cyan/50 group-hover:text-dusk-cyan",
                             (!item.canManage || !isDue) && "cursor-default opacity-70"
                           )}
@@ -1008,7 +1008,7 @@ function DiaryFocusCard({
                       {item.canManage ? (
                         <button
                           aria-label={`Remove step ${chk.label}`}
-                          className="opacity-0 group-hover:opacity-100 grid h-6 w-6 shrink-0 place-items-center rounded text-stone-500 transition hover:bg-red-400/10 hover:text-red-300"
+                          className="opacity-0 group-hover:opacity-100 grid h-6 w-6 shrink-0 place-items-center rounded text-stone-500 transition hover:bg-theme-danger-surface hover:text-theme-danger"
                           title="Remove step"
                           type="button"
                           onClick={() => handleDeleteStep(chk.id, chk.label)}
@@ -1060,7 +1060,7 @@ function DiaryFocusCard({
                     className={cn(
                       "rounded-full border px-2 py-0.5 text-[10px] font-medium",
                       rewardClaimed
-                        ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300"
+                        ? "border-theme-success-border bg-theme-success-surface text-theme-success"
                         : rewardReady
                           ? "border-dusk-amber/40 bg-dusk-amber/15 text-dusk-amber animate-pulse"
                           : "border-stone-200 bg-stone-100/90 text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400"

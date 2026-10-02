@@ -7,9 +7,6 @@ import {
   Check,
   Copy,
   KeyRound,
-  Maximize2,
-  MessageSquare,
-  Minus,
   PanelRight,
   PanelRightClose,
   RotateCcw,
@@ -395,21 +392,21 @@ export function AiChatWidget() {
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="group relative flex items-center gap-2.5 rounded-full border border-dusk-lavender/50 bg-stone-900/90 px-3.5 py-2.5 text-stone-100 shadow-xl shadow-dusk-lavender/10 backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-dusk-lavender hover:bg-stone-900 hover:shadow-dusk-lavender/25 active:scale-95 cursor-pointer dark:bg-ink-950/90"
+            className="group relative flex items-center gap-2.5 rounded-full border border-theme-border bg-theme-panel-strong px-3.5 py-2.5 text-theme-foreground shadow-xl backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-theme-accent hover:bg-theme-paper-strong active:scale-95 cursor-pointer"
             title="เปิดแชทผู้ช่วย Retzlo AI (DeepSeek-V4 Pro)"
           >
-            <div className="relative flex h-7 w-7 items-center justify-center rounded-full bg-dusk-lavender/20 text-dusk-lavender border border-dusk-lavender/40 group-hover:bg-dusk-lavender group-hover:text-stone-950 transition-colors">
+            <div className="relative flex h-7 w-7 items-center justify-center rounded-full border border-theme-border bg-theme-paper text-theme-accent group-hover:border-theme-accent group-hover:bg-theme-accent group-hover:text-theme-background transition-colors">
               <Bot className="h-4 w-4" />
               {/* Online indicator dot */}
-              <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-stone-950" />
+              <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-theme-success ring-2 ring-theme-panel-strong" />
             </div>
 
             <div className="flex flex-col text-left">
-              <span className="text-xs font-bold leading-tight text-stone-100 group-hover:text-dusk-lavender transition-colors flex items-center gap-1">
+              <span className="text-xs font-bold leading-tight text-theme-foreground group-hover:text-theme-accent transition-colors flex items-center gap-1">
                 AI Chat
-                <Sparkles className="h-2.5 w-2.5 text-dusk-amber animate-pulse" />
+                <Sparkles className="h-2.5 w-2.5 text-theme-warning animate-pulse" />
               </span>
-              <span className="text-[10px] font-mono text-stone-400">
+              <span className="text-[10px] font-mono text-theme-muted">
                 {activeModel.replace("deepseek-", "")}
               </span>
             </div>
@@ -421,31 +418,31 @@ export function AiChatWidget() {
       {isOpen && (
         <div
           className={cn(
-            "z-50 flex flex-col border border-stone-700/80 bg-stone-950/95 text-stone-100 shadow-2xl backdrop-blur-xl transition-all duration-300",
+            "z-50 flex flex-col border border-theme-border bg-theme-panel text-theme-foreground shadow-2xl backdrop-blur-xl transition-all duration-300",
             viewMode === "float"
               ? "fixed bottom-4 left-4 sm:bottom-6 sm:left-6 w-[360px] sm:w-[420px] h-[560px] max-h-[85vh] rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6"
-              : "fixed top-0 right-0 bottom-0 w-[380px] sm:w-[450px] max-w-full border-l border-stone-700/80 rounded-none overflow-hidden animate-in fade-in slide-in-from-right-6"
+              : "fixed top-0 right-0 bottom-0 w-[380px] sm:w-[450px] max-w-full border-l border-theme-border rounded-none overflow-hidden animate-in fade-in slide-in-from-right-6"
           )}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-white/10 bg-stone-900/80 px-4 py-3 shrink-0">
+          <div className="flex items-center justify-between border-b border-theme-border bg-theme-panel-strong px-4 py-3 shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-dusk-lavender/20 text-dusk-lavender border border-dusk-lavender/40">
+              <div className="relative flex h-8 w-8 items-center justify-center rounded-xl border border-theme-border bg-theme-paper text-theme-accent">
                 <Bot className="h-4.5 w-4.5" />
-                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-stone-950" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-theme-success ring-2 ring-theme-panel-strong" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-stone-100 flex items-center gap-1">
+                <h3 className="text-xs font-bold text-theme-foreground flex items-center gap-1">
                   Retzlo AI Assistant
-                  <Sparkles className="h-3 w-3 text-dusk-amber" />
+                  <Sparkles className="h-3 w-3 text-theme-warning" />
                 </h3>
                 <button
                   type="button"
                   onClick={() => setApiKeyModalOpen(true)}
-                  className="inline-flex items-center gap-1 rounded bg-stone-800/80 px-1.5 py-0.2 text-[10px] font-mono text-stone-300 hover:bg-stone-700 hover:text-dusk-lavender transition cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded border border-theme-border bg-theme-paper px-1.5 py-0.2 text-[10px] font-mono text-theme-muted hover:bg-theme-paper-strong hover:text-theme-accent transition cursor-pointer"
                   title="คลิกเพื่อสลับโมเดลหรือตั้งค่า API Key"
                 >
-                  <KeyRound className="h-2.5 w-2.5 text-dusk-lavender" />
+                  <KeyRound className="h-2.5 w-2.5 text-theme-accent" />
                   <span>{activeModel}</span>
                 </button>
               </div>
@@ -456,7 +453,7 @@ export function AiChatWidget() {
               <button
                 type="button"
                 onClick={handleClearChat}
-                className="rounded-lg p-1.5 text-stone-400 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
+                className="rounded-lg p-1.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
                 title="ล้างประวัติการสนทนา"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
@@ -465,7 +462,7 @@ export function AiChatWidget() {
               <button
                 type="button"
                 onClick={() => setViewMode(viewMode === "float" ? "sidepanel" : "float")}
-                className="rounded-lg p-1.5 text-stone-400 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
+                className="rounded-lg p-1.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
                 title={
                   viewMode === "float"
                     ? "ตรึงแถบข้าง (Side Panel แบบ Gemini ใน Sheets)"
@@ -482,7 +479,7 @@ export function AiChatWidget() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="rounded-lg p-1.5 text-stone-400 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
+                className="rounded-lg p-1.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
                 title="ปิดแชท"
               >
                 <X className="h-4 w-4" />
@@ -492,10 +489,10 @@ export function AiChatWidget() {
 
           {/* Context Tag Banner */}
           {currentProjectId && (
-            <div className="bg-dusk-lavender/10 border-b border-dusk-lavender/20 px-3.5 py-1 text-[11px] text-dusk-lavender flex items-center justify-between">
+            <div className="border-b border-theme-border bg-theme-paper px-3.5 py-1 text-[11px] text-theme-accent flex items-center justify-between">
               <span>📍 เชื่อมต่อบริบทโปรเจกต์ปัจจุบัน</span>
               {credits !== null && (
-                <span className="font-mono text-[10px] text-stone-400">
+                <span className="font-mono text-[10px] text-theme-muted">
                   {credits} cr
                 </span>
               )}
@@ -515,8 +512,8 @@ export function AiChatWidget() {
                     className={cn(
                       "max-w-[85%] rounded-2xl px-3.5 py-2.5 leading-relaxed break-words shadow-xs relative",
                       isUser
-                        ? "bg-dusk-lavender text-stone-950 font-medium rounded-tr-xs"
-                        : "bg-stone-900 border border-stone-800 text-stone-200 rounded-tl-xs"
+                        ? "bg-theme-accent text-theme-background font-medium rounded-tr-xs"
+                        : "bg-theme-panel-strong border border-theme-border text-theme-foreground rounded-tl-xs"
                     )}
                   >
                     {/* Message formatting */}
@@ -529,18 +526,18 @@ export function AiChatWidget() {
                       <button
                         type="button"
                         onClick={() => handleCopy(msg.content, msg.id)}
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition p-1 rounded bg-stone-800 text-stone-400 hover:text-stone-200"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition p-1 rounded bg-theme-paper text-theme-muted hover:text-theme-foreground"
                         title="คัดลอกคำตอบ"
                       >
                         {copiedId === msg.id ? (
-                          <Check className="h-3 w-3 text-emerald-400" />
+                          <Check className="h-3 w-3 text-theme-success" />
                         ) : (
                           <Copy className="h-3 w-3" />
                         )}
                       </button>
                     )}
                   </div>
-                  <span className="text-[10px] text-stone-400 mt-1 px-1 font-mono">
+                  <span className="text-[10px] text-theme-muted mt-1 px-1 font-mono">
                     {msg.timestamp}
                   </span>
                   {msg.createProposal && (
@@ -607,13 +604,13 @@ export function AiChatWidget() {
             {/* Thinking indicator */}
             {isLoading && (
               <div className="flex items-start gap-2">
-                <div className="rounded-2xl rounded-tl-xs bg-stone-900 border border-stone-800 px-3.5 py-2.5 text-stone-400 flex items-center gap-2">
-                  <Bot className="h-3.5 w-3.5 text-dusk-lavender animate-pulse" />
+                <div className="rounded-2xl rounded-tl-xs bg-theme-panel-strong border border-theme-border px-3.5 py-2.5 text-theme-muted flex items-center gap-2">
+                  <Bot className="h-3.5 w-3.5 text-theme-accent animate-pulse" />
                   <span className="text-xs">กำลังคิดและวิเคราะห์...</span>
                   <div className="flex gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-dusk-lavender animate-bounce" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-dusk-lavender animate-bounce [animation-delay:0.2s]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-dusk-lavender animate-bounce [animation-delay:0.4s]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-theme-accent animate-bounce" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-theme-accent animate-bounce [animation-delay:0.2s]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-theme-accent animate-bounce [animation-delay:0.4s]" />
                   </div>
                 </div>
               </div>
@@ -625,14 +622,14 @@ export function AiChatWidget() {
           {/* Quick starter chips (shown when 1 message) */}
           {messages.length <= 1 && (
             <div className="px-4 pb-2 space-y-1.5">
-              <p className="text-[11px] font-semibold text-stone-400">💡 คำถามด่วนที่แนะนำ:</p>
+              <p className="text-[11px] font-semibold text-theme-muted">💡 คำถามด่วนที่แนะนำ:</p>
               <div className="flex flex-wrap gap-1.5">
                 {STARTER_PROMPTS.map((prompt, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => handleSend(prompt)}
-                    className="text-left rounded-lg border border-stone-800 bg-stone-900/70 hover:border-dusk-lavender/50 hover:bg-stone-800 px-2.5 py-1 text-[11px] text-stone-300 transition cursor-pointer"
+                    className="text-left rounded-lg border border-theme-border bg-theme-paper hover:border-theme-accent hover:bg-theme-paper-strong px-2.5 py-1 text-[11px] text-theme-muted hover:text-theme-foreground transition cursor-pointer"
                   >
                     {prompt}
                   </button>
@@ -642,7 +639,7 @@ export function AiChatWidget() {
           )}
 
           {/* Input Box */}
-          <div className="border-t border-white/10 bg-stone-900/90 p-3 shrink-0">
+          <div className="border-t border-theme-border bg-theme-panel-strong p-3 shrink-0">
             <div className="relative flex items-center">
               <textarea
                 ref={inputRef}
@@ -651,19 +648,19 @@ export function AiChatWidget() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="พิมพ์ข้อความคุยกับ AI (Enter เพื่อส่ง)..."
-                className="w-full resize-none rounded-xl border border-stone-700 bg-stone-950/80 px-3.5 py-2.5 pr-10 text-xs text-stone-100 placeholder:text-stone-400 focus:border-dusk-lavender focus:outline-none focus:ring-1 focus:ring-dusk-lavender"
+                className="w-full resize-none rounded-xl border border-theme-border bg-theme-background px-3.5 py-2.5 pr-10 text-xs text-theme-foreground placeholder:text-theme-muted focus:border-theme-accent focus:outline-none focus:ring-1 focus:ring-theme-accent"
               />
               <button
                 type="button"
                 disabled={!input.trim() || isLoading}
                 onClick={() => handleSend()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-dusk-lavender hover:bg-dusk-lavender/20 disabled:opacity-40 transition cursor-pointer"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-theme-accent hover:bg-theme-paper disabled:opacity-40 transition cursor-pointer"
                 title="ส่งข้อความ"
               >
                 <Send className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex items-center justify-between mt-2 text-[10px] text-stone-400 px-1">
+            <div className="flex items-center justify-between mt-2 text-[10px] text-theme-muted px-1">
               <span>หัก 1 เครดิต / ข้อความ</span>
               <span>{activeModel}</span>
             </div>

@@ -74,7 +74,7 @@ export function FolderModal({ folder, open, onClose, onSave }: FolderModalProps)
 
         <div className="space-y-4 p-5">
           {error && (
-            <p className="rounded-md border border-red-400/20 bg-red-400/10 p-2.5 text-xs text-red-200">
+            <p className="rounded-md border border-theme-danger-border bg-theme-danger-surface p-2.5 text-xs text-theme-danger">
               {error}
             </p>
           )}

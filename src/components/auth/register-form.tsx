@@ -61,41 +61,41 @@ export function RegisterForm() {
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       <div className="space-y-1.5">
-        <Label htmlFor="name" className="text-dusk-cyan/90 text-xs tracking-widest">YOUR NAME</Label>
+        <Label htmlFor="name" className="text-theme-muted text-xs tracking-widest">YOUR NAME</Label>
         <Input 
           id="name" 
           name="name" 
           placeholder="Quiet dreamer" 
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]" 
+          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="username" className="text-dusk-cyan/90 text-xs tracking-widest">USERNAME</Label>
+        <Label htmlFor="username" className="text-theme-muted text-xs tracking-widest">USERNAME</Label>
         <Input 
           id="username" 
           name="username" 
           placeholder="lofi_observer" 
           required 
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]" 
+          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-dusk-cyan/90 text-xs tracking-widest">EMAIL</Label>
+        <Label htmlFor="email" className="text-theme-muted text-xs tracking-widest">EMAIL</Label>
         <Input 
           id="email" 
           name="email" 
           type="email" 
           placeholder="you@retzlo.space" 
           required 
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]" 
+          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-dusk-cyan/90 text-xs tracking-widest">PASSWORD</Label>
+          <Label htmlFor="password" className="text-theme-muted text-xs tracking-widest">PASSWORD</Label>
           <Input 
             id="password" 
             name="password" 
@@ -103,11 +103,11 @@ export function RegisterForm() {
             minLength={8}
             placeholder="••••••••" 
             required 
-            className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]" 
+            className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword" className="text-dusk-cyan/90 text-xs tracking-widest">CONFIRM</Label>
+          <Label htmlFor="confirmPassword" className="text-theme-muted text-xs tracking-widest">CONFIRM</Label>
           <Input 
             id="confirmPassword" 
             name="confirmPassword" 
@@ -115,13 +115,13 @@ export function RegisterForm() {
             minLength={8}
             placeholder="••••••••" 
             required 
-            className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]" 
+            className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
           />
         </div>
       </div>
 
       {error ? (
-        <p className="text-sm text-dusk-rose/90 bg-ink-900/50 border border-dusk-rose/20 p-3 rounded-xl text-center">
+        <p className="rounded-xl border border-theme-danger-border bg-theme-danger-surface p-3 text-center text-sm text-theme-danger">
           {error}
         </p>
       ) : null}
@@ -133,7 +133,7 @@ export function RegisterForm() {
         {isPending ? "Lighting the lantern..." : "Begin your archive"}
       </Button>
 
-      <p className="mt-3 text-center text-xs text-[#f5efe6]/45 leading-relaxed">
+      <p className="mt-3 text-center text-xs text-theme-muted leading-relaxed">
         By signing up, you agree to our{" "}
         <Link href="/terms" className="underline hover:text-dusk-lavender transition-colors underline-offset-2">Terms of Service</Link>{" "}
         and{" "}

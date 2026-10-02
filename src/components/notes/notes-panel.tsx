@@ -99,7 +99,7 @@ export function NotesPanel({
   const [folderFilter, setFolderFilter] = useState<string>("all");
   const [boardFilter, setBoardFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<NoteSort>("updated");
-  const [viewMode, setViewMode] = useState<NoteViewMode>("grid-3");
+  const [viewMode, setViewMode] = useState<NoteViewMode>("grid-2");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<ProjectNote | null>(null);
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
@@ -411,7 +411,7 @@ export function NotesPanel({
         </div>
       </div>
 
-      <div className="grid min-h-0 gap-3 grid-cols-1 md:grid-cols-[14rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)_20rem]">
+      <div className="grid min-h-0 gap-3 grid-cols-1 md:grid-cols-[14rem_minmax(0,1fr)] xl:grid-cols-[14rem_minmax(0,1fr)_16rem] 2xl:grid-cols-[17rem_minmax(0,1fr)_20rem]">
         <aside className="lofi-panel hidden md:flex min-h-0 flex-col rounded-lg p-3" data-notes-collection-rail="note-shelves">
           <div className="mb-3 flex items-center justify-between gap-2 shrink-0">
             <div>
@@ -599,7 +599,7 @@ export function NotesPanel({
                               e.stopPropagation();
                               setDeletingFolder(folder);
                             }}
-                            className="hidden group-hover:inline-flex p-1 rounded hover:bg-red-400/20 text-stone-400 hover:text-red-300"
+                            className="hidden group-hover:inline-flex p-1 rounded text-theme-muted hover:bg-theme-danger-surface hover:text-theme-danger"
                             title="Delete folder"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -873,7 +873,7 @@ export function NotesPanel({
               )}
             </div>
           </div>
-          {error ? <p className="mb-3 rounded-md border border-red-300/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</p> : null}
+          {error ? <p className="mb-3 rounded-md border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">{error}</p> : null}
           {visibleNotes.length === 0 ? (
             <EmptyState
               className="border-dashed bg-white/[0.025] p-8"
@@ -1052,7 +1052,7 @@ function NoteCard({
   return (
     <article
       className={cn(
-        "relative flex min-h-0 flex-col rounded-lg border border-white/10 bg-white/[0.035] p-3 shadow-[0_18px_40px_rgba(0,0,0,0.18)]",
+        "relative flex min-w-0 min-h-0 flex-col rounded-lg border border-white/10 bg-white/[0.035] p-3 shadow-[0_18px_40px_rgba(0,0,0,0.18)]",
         colorMeta.softClass,
         featured && "min-h-[180px] border-dusk-lavender/30 bg-dusk-lavender/[0.08]",
         list && "min-h-0"

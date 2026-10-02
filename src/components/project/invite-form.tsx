@@ -59,7 +59,7 @@ export function InviteForm({ projectId }: { projectId: string }) {
   return (
     <form className="space-y-3" onSubmit={handleSubmit}>
       <Input name="email" type="email" placeholder="teammate@example.com" required />
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
       {acceptUrl ? (
         <div className="space-y-2 rounded-md border border-dusk-cyan/20 bg-dusk-cyan/10 p-3 text-sm text-stone-200">
           <p className="font-medium text-dusk-cyan">Invitation created</p>
@@ -95,4 +95,3 @@ export function InviteForm({ projectId }: { projectId: string }) {
     </form>
   );
 }
-

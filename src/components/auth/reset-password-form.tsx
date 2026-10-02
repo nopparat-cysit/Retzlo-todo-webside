@@ -76,7 +76,7 @@ export function ResetPasswordForm({ email }: { email: string }) {
   if (step === "done") {
     return (
       <div className="space-y-4">
-        <p className="rounded-md border border-dusk-cyan/30 bg-dusk-cyan/10 p-3 text-sm text-dusk-cyan">{message}</p>
+        <p className="rounded-md border border-theme-success-border bg-theme-success-surface p-3 text-sm text-theme-success">{message}</p>
         <Link
           className="inline-flex h-10 w-full items-center justify-center rounded-md bg-dusk-lavender px-4 text-sm font-medium text-ink-950 shadow-glow transition hover:bg-dusk-amber"
           href="/login"
@@ -90,13 +90,13 @@ export function ResetPasswordForm({ email }: { email: string }) {
   if (step === "reset") {
     return (
       <form className="space-y-4" onSubmit={resetPassword}>
-        <div className="rounded-md border border-dusk-cyan/30 bg-dusk-cyan/10 p-3 text-sm text-dusk-cyan">
+        <div className="rounded-md border border-theme-info-border bg-theme-info-surface p-3 text-sm text-theme-info">
           OTP verified for {emailValue}
         </div>
         <Input name="password" type="password" minLength={8} placeholder="New password" required />
         <Input name="confirmPassword" type="password" minLength={8} placeholder="Confirm new password" required />
-        {error ? <p className="text-sm text-red-300">{error}</p> : null}
-        {message ? <p className="text-sm text-dusk-cyan">{message}</p> : null}
+        {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
+        {message ? <p className="text-sm text-theme-info">{message}</p> : null}
         <Button className="w-full" disabled={isPending}>
           {isPending ? "Saving..." : "Create new password"}
         </Button>
@@ -123,7 +123,7 @@ export function ResetPasswordForm({ email }: { email: string }) {
         placeholder="6-digit OTP"
         required
       />
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
       <Button className="w-full" disabled={isPending || otpValue.length !== 6}>
         {isPending ? "Verifying..." : "Verify OTP"}
       </Button>

@@ -91,23 +91,23 @@ export function ConfirmModal({
         {/* Header */}
         <div className="mb-4 flex items-start gap-3">
           {variant === "danger" && (
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-red-500/15 text-red-400">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-theme-danger-surface text-theme-danger">
               <AlertTriangle className="h-5 w-5" />
             </div>
           )}
           <div className="min-w-0 flex-1">
             <h2
               id="confirm-modal-title"
-              className="text-xl font-semibold text-stone-100"
+              className="text-xl font-semibold text-theme-foreground"
             >
               {title}
             </h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-stone-400">
+            <p className="mt-1.5 text-sm leading-relaxed text-theme-muted">
               {message}
             </p>
           </div>
           <button
-            className="shrink-0 rounded-md p-1.5 text-stone-500 transition hover:bg-white/10 hover:text-stone-200"
+            className="shrink-0 rounded-md p-1.5 text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground"
             type="button"
             aria-label="Close"
             disabled={isLoading}
@@ -120,9 +120,9 @@ export function ConfirmModal({
         {/* Validate input */}
         {validateText && (
           <div className="mb-4">
-            <p className="mb-2 text-xs text-stone-400">
+            <p className="mb-2 text-xs text-theme-muted">
               Type{" "}
-              <span className="font-mono font-semibold text-red-300">
+              <span className="font-mono font-semibold text-theme-danger">
                 {validateText}
               </span>{" "}
               to confirm:
@@ -133,9 +133,9 @@ export function ConfirmModal({
               onChange={(e) => setTyped(e.target.value)}
               placeholder={validatePlaceholder ?? validateText}
               className={cn(
-                "h-10 w-full rounded-md border border-white/10 bg-ink-950/50 px-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-dusk-lavender/70 focus:ring-2 focus:ring-dusk-lavender/20",
+                "h-10 w-full rounded-md border border-theme-border bg-theme-background px-3 text-sm text-theme-foreground outline-none transition placeholder:text-theme-muted focus:border-dusk-lavender/70 focus:ring-2 focus:ring-dusk-lavender/20",
                 typed.length > 0 && typed !== validateText
-                  ? "border-red-500/60 focus:border-red-400"
+                  ? "border-theme-danger-border focus:border-theme-danger"
                   : ""
               )}
               onKeyDown={(e) => {

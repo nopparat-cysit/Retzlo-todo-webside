@@ -108,7 +108,7 @@ export function DraftRecoveryModal({
             <Button
               type="button"
               variant="ghost"
-              className="h-9 px-4 text-xs text-stone-400 hover:bg-red-500/10 hover:text-red-300"
+              className="h-9 px-4 text-xs text-theme-danger hover:bg-theme-danger-surface hover:text-theme-danger"
               onClick={onDiscard}
             >
               <Trash2 className="h-3.5 w-3.5" />

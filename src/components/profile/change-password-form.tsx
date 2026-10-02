@@ -157,7 +157,7 @@ export function ChangePasswordForm() {
           placeholder="Re-enter new password"
         />
         {mismatch && (
-          <p className="text-xs text-red-300">Passwords don&apos;t match.</p>
+          <p className="text-xs text-theme-danger">Passwords don&apos;t match.</p>
         )}
       </div>
 
@@ -166,8 +166,8 @@ export function ChangePasswordForm() {
           className={cn(
             "flex items-center gap-2 rounded-md border px-3 py-2 text-sm",
             message.ok
-              ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
-              : "border-red-400/20 bg-red-400/10 text-red-300"
+              ? "border-theme-success-border bg-theme-success-surface text-theme-success"
+              : "border-theme-danger-border bg-theme-danger-surface text-theme-danger"
           )}
         >
           {message.ok && <ShieldCheck className="h-4 w-4 shrink-0" />}

@@ -265,7 +265,7 @@ export function SettingsForm({
             </label>
 
             {statusMessage ? (
-              <p className={cn("rounded-lg border px-3 py-2 text-sm", statusMessage.ok ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-300" : "border-dusk-rose/25 bg-dusk-rose/10 text-dusk-rose")}>
+              <p className={cn("rounded-lg border px-3 py-2 text-sm", statusMessage.ok ? "border-theme-success-border bg-theme-success-surface text-theme-success" : "border-theme-danger-border bg-theme-danger-surface text-theme-danger")}>
                 {statusMessage.text}
               </p>
             ) : null}

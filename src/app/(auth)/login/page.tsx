@@ -18,11 +18,11 @@ export default async function LoginPage() {
       title="The lamp is on"
       description="The vinyl turns slowly in the warm amber glow. Your corner of the night is ready."
     >
-      <Suspense fallback={<p className="text-sm text-[#f5efe6]/40">Lighting the lamp...</p>}>
+      <Suspense fallback={<p className="text-sm text-theme-muted">Lighting the lamp...</p>}>
         <LoginForm />
       </Suspense>
 
-      <p className="mt-6 text-center text-sm text-[#f5efe6]/60">
+      <p className="mt-6 text-center text-sm text-theme-muted">
         Lost your key?{" "}
         <Link 
           href="/forgot-password"
@@ -32,7 +32,7 @@ export default async function LoginPage() {
         </Link>
       </p>
 
-      <p className="mt-4 text-center text-sm text-[#f5efe6]/50">
+      <p className="mt-4 text-center text-sm text-theme-muted">
         First time here?{" "}
         <Link 
           href="/register"

@@ -80,7 +80,7 @@ export function LoginForm() {
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       <div className="space-y-1.5">
-        <Label htmlFor="identifier" className="text-dusk-cyan/90 text-xs tracking-widest">IDENTIFIER</Label>
+        <Label htmlFor="identifier" className="text-theme-muted text-xs tracking-widest">IDENTIFIER</Label>
         <Input
           id="identifier"
           name="email"
@@ -89,23 +89,23 @@ export function LoginForm() {
           required
           value={identifier}
           onChange={(event) => setIdentifier(event.target.value)}
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]"
+          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
         />
       </div>
       
       <div className="space-y-1.5">
-        <Label htmlFor="password" className="text-dusk-cyan/90 text-xs tracking-widest">PASSWORD</Label>
+        <Label htmlFor="password" className="text-theme-muted text-xs tracking-widest">PASSWORD</Label>
         <Input 
           id="password" 
           name="password" 
           type="password" 
           placeholder="password" 
           required 
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-[#f5efe6]"
+          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
         />
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-[#f5efe6]/70 cursor-pointer hover:text-[#f5efe6] transition-colors">
+      <label className="flex items-center gap-2 text-sm text-theme-muted cursor-pointer hover:text-theme-foreground transition-colors">
         <input
           className="h-4 w-4 accent-dusk-lavender rounded-sm"
           type="checkbox"
@@ -116,7 +116,7 @@ export function LoginForm() {
       </label>
 
       {error ? (
-        <p className="text-sm text-dusk-rose/90 bg-ink-900/50 border border-dusk-rose/20 p-3 rounded-xl text-center">
+        <p className="rounded-xl border border-theme-danger-border bg-theme-danger-surface p-3 text-center text-sm text-theme-danger">
           {error}
         </p>
       ) : null}
