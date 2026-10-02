@@ -671,8 +671,14 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
         <div ref={modalBodyRef} className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-3.5 sm:p-5">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] lg:items-start">
           <div className="grid gap-4">
-          <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Card title" required />
-          <Textarea name="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Details, links, context..." />
+          <div className="space-y-1.5">
+            <label htmlFor="card-title" className="text-sm font-medium text-stone-600 dark:text-stone-300">Card title</label>
+            <Input id="card-title" name="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Card title" required />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="card-description" className="text-sm font-medium text-stone-600 dark:text-stone-300">Description</label>
+            <Textarea id="card-description" name="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Details, links, context..." />
+          </div>
 
           {/* Mobile Quick Status & Priority Bar */}
           <div className="lg:hidden rounded-xl border border-white/10 bg-white/[0.03] p-3 space-y-3">
