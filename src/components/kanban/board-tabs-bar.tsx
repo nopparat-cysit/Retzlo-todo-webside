@@ -260,8 +260,9 @@ export function BoardTabsBar({
             }
           }}
           labelledBy="create-board-modal-title"
+          contentClassName="w-full max-w-3xl overflow-hidden rounded-2xl"
         >
-          <form onSubmit={handleCreateBoard} className="max-h-[calc(100dvh-2rem)] space-y-4 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-6">
+          <form onSubmit={handleCreateBoard} className="max-h-[calc(100dvh-2rem)] space-y-3.5 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-5">
             <div>
               <h3 id="create-board-modal-title" className="flex items-center gap-2 text-lg font-semibold text-theme-foreground">
                 <FolderKanban className="h-5 w-5 text-theme-accent" />

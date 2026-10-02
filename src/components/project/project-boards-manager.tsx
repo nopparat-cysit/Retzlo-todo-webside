@@ -377,7 +377,7 @@ export function ProjectBoardsManager({
           open={isCreateOpen}
           onClose={() => setIsCreateOpen(false)}
           labelledBy="create-board-modal-title"
-          contentClassName="w-full max-w-4xl overflow-hidden rounded-2xl"
+          contentClassName="w-full max-w-3xl overflow-hidden rounded-2xl"
         >
           <form onSubmit={handleCreateBoard} className="max-h-[calc(100dvh-1.5rem)] space-y-4 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-5">
             <div>
