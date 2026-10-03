@@ -28,13 +28,13 @@ describe("shared UI tone variants", () => {
 
   it("maps card statuses to stable button and badge tones", () => {
     expect(Object.keys(statusToneVariants)).toEqual(["TODO", "DOING", "WAITING", "DONE"]);
-    expect(getStatusTone("DONE").badge).toContain("emerald");
+    expect(getStatusTone("DONE").badge).toContain("theme-success");
     expect(getStatusTone("UNKNOWN").label).toBe("Todo");
   });
 
   it("maps app state tones for shared empty and error states", () => {
     expect(Object.keys(stateToneVariants)).toEqual(["empty", "error", "warning", "success", "info"]);
-    expect(getStateTone("error").panel).toContain("red");
+    expect(getStateTone("error").panel).toContain("theme-danger");
     expect(getStateTone("unknown")).toBe(stateToneVariants.info);
   });
 });

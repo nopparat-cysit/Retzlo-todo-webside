@@ -11,12 +11,13 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, LayoutGrid, Plus, Search, RotateCcw, Rows3, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
+import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { useSearchParams } from "next/navigation";
 import { CardModal } from "@/components/kanban/card-modal";
+import { BoardListView } from "@/components/kanban/board-list-view";
 import { AiProjectSummaryModal } from "@/components/ai/ai-project-summary-modal";
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
 import { KanbanColumn } from "@/components/kanban/column";
@@ -120,6 +121,24 @@ export function KanbanBoard({
   const [isDeletingCard, setIsDeletingCard] = useState(false);
   const [isAiSummaryOpen, setIsAiSummaryOpen] = useState(false);
   const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
+
+  const [viewMode, setViewMode] = useState<"board" | "list">("board");
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("kanban_active_view_mode");
+      if (saved === "board" || saved === "list") {
+        setViewMode(saved);
+      }
+    } catch {}
+  }, []);
+
+  const handleSwitchViewMode = (mode: "board" | "list") => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem("kanban_active_view_mode", mode);
+    } catch {}
+  };
 
   useEffect(() => {
     setColumns(board.columns.map((col) => normalizeColumn(col, members)));
@@ -969,6 +988,38 @@ export function KanbanBoard({
                 Focus mode active. Press <kbd className="rounded bg-stone-100 px-1 py-0.5 font-mono text-[10px] text-stone-600 dark:bg-white/10 dark:text-stone-300">F</kbd> or click badge to exit.
               </span>
             )}
+
+            {/* ── View Switcher: Board vs List (Jira Style) ── */}
+            <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/80 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04]">
+              <button
+                type="button"
+                onClick={() => handleSwitchViewMode("board")}
+                aria-label="Switch to Board view"
+                className={cn(
+                  "flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-all cursor-pointer",
+                  viewMode === "board"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                )}
+              >
+                <KanbanSquare className="h-3.5 w-3.5 text-dusk-lavender" />
+                <span>Board</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchViewMode("list")}
+                aria-label="Switch to List view"
+                className={cn(
+                  "flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-all cursor-pointer",
+                  viewMode === "list"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                )}
+              >
+                <ListFilter className="h-3.5 w-3.5 text-dusk-amber" />
+                <span>List</span>
+              </button>
+            </div>
           </div>
 
           {/* ── Premium Control Bar ── */}
@@ -1446,72 +1497,95 @@ export function KanbanBoard({
         </AppModal>
       ) : null}
 
-      {/* ── Board Columns Grid ── */}
+      {/* ── Board Columns Grid / List View ── */}
       {syncError ? <p className="mt-4 rounded-md border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">{syncError}</p> : null}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={collisionDetection}
-        measuring={{ droppable: { strategy: MeasuringStrategy.WhileDragging } }}
-        onDragCancel={handleDragCancel}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDragMove={handleDragOver}
-        onDragStart={handleDragStart}
-      >
-        {isSwitchingBoard ? (
-          <div className="relative mt-4 flex min-h-0 flex-1 overflow-x-auto pb-4">
-            <BoardSkeleton />
-          </div>
-        ) : columns.length === 0 ? (
-          <div className="lofi-panel mt-4 flex min-h-[320px] flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 p-8 text-center">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl border border-white/10 bg-white/[0.035] text-dusk-amber shadow-inner">
-              <Plus className="h-7 w-7" />
+      {isSwitchingBoard ? (
+        <div className="relative mt-4 flex min-h-0 flex-1 overflow-x-auto pb-4">
+          <BoardSkeleton />
+        </div>
+      ) : viewMode === "list" ? (
+        <BoardListView
+          columns={filteredColumns}
+          allColumns={columns}
+          members={members}
+          currentUserId={currentUserId}
+          onEditCard={setEditingCard}
+          onCreateCard={(columnId, title) =>
+            createCard(columnId, {
+              title,
+              status: "TODO",
+              color: "DEFAULT",
+              checklist: [],
+              dueDate: null,
+              dueDateAllDay: false,
+              description: null
+            })
+          }
+          onCardDeleted={deleteCard}
+          onCardSaved={saveCard}
+        />
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={collisionDetection}
+          measuring={{ droppable: { strategy: MeasuringStrategy.WhileDragging } }}
+          onDragCancel={handleDragCancel}
+          onDragEnd={handleDragEnd}
+          onDragOver={handleDragOver}
+          onDragMove={handleDragOver}
+          onDragStart={handleDragStart}
+        >
+          {columns.length === 0 ? (
+            <div className="lofi-panel mt-4 flex min-h-[320px] flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 p-8 text-center">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl border border-white/10 bg-white/[0.035] text-dusk-amber shadow-inner">
+                <Plus className="h-7 w-7" />
+              </div>
+              <h3 className="mt-4 text-base font-semibold text-stone-100">No columns on this board yet</h3>
+              <p className="mt-1.5 max-w-sm text-xs text-stone-400">
+                Create your first column like &ldquo;To Do&rdquo;, &ldquo;In Progress&rdquo;, or &ldquo;Done&rdquo; to start organizing tasks.
+              </p>
+              <Button
+                className="mt-5 text-xs"
+                type="button"
+                onClick={openCreateColumnModal}
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add First Column
+              </Button>
             </div>
-            <h3 className="mt-4 text-base font-semibold text-stone-100">No columns on this board yet</h3>
-            <p className="mt-1.5 max-w-sm text-xs text-stone-400">
-              Create your first column like &ldquo;To Do&rdquo;, &ldquo;In Progress&rdquo;, or &ldquo;Done&rdquo; to start organizing tasks.
-            </p>
-            <Button
-              className="mt-5 text-xs"
-              type="button"
-              onClick={openCreateColumnModal}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Add First Column
-            </Button>
-          </div>
-        ) : (
-          <div className="relative mt-4 flex min-h-0 flex-1">
-            <div className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1 snap-x snap-mandatory">
-              <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
-                {filteredColumns.map((column, index) => (
-                  <KanbanColumn
-                    key={column.id}
-                    column={column}
-                    density={density}
-                    activeCardId={activeCardId}
-                    isDragDisabled={isSavingReorder}
-                    isDropTarget={activeDropColumnId === column.id}
-                    onEditCard={setEditingCard}
-                    onCreateCard={createCard}
-                    onCardDeleted={deleteCard}
-                    onCardSaved={saveCard}
-                    onColumnDeleted={deleteColumn}
-                    onColumnSaved={updateColumn}
-                    isFirst={index === 0}
-                    members={members}
-                    currentUserId={currentUserId}
-                    hasActiveFilters={activeFilterCount > 0}
-                  />
-                ))}
-              </SortableContext>
+          ) : (
+            <div className="relative mt-4 flex min-h-0 flex-1">
+              <div className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1 snap-x snap-mandatory">
+                <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
+                  {filteredColumns.map((column, index) => (
+                    <KanbanColumn
+                      key={column.id}
+                      column={column}
+                      density={density}
+                      activeCardId={activeCardId}
+                      isDragDisabled={isSavingReorder}
+                      isDropTarget={activeDropColumnId === column.id}
+                      onEditCard={setEditingCard}
+                      onCreateCard={createCard}
+                      onCardDeleted={deleteCard}
+                      onCardSaved={saveCard}
+                      onColumnDeleted={deleteColumn}
+                      onColumnSaved={updateColumn}
+                      isFirst={index === 0}
+                      members={members}
+                      currentUserId={currentUserId}
+                      hasActiveFilters={activeFilterCount > 0}
+                    />
+                  ))}
+                </SortableContext>
+              </div>
             </div>
-          </div>
-        )}
-        <DragOverlay adjustScale={false} dropAnimation={null} zIndex={10000}>
-          {activeCard ? <KanbanCardDragPreview card={activeCard} /> : null}
-        </DragOverlay>
-      </DndContext>
+          )}
+          <DragOverlay adjustScale={false} dropAnimation={null} zIndex={10000}>
+            {activeCard ? <KanbanCardDragPreview card={activeCard} /> : null}
+          </DragOverlay>
+        </DndContext>
+      )}
 
       {editingCard && (
         <CardModal

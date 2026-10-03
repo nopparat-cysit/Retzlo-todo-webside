@@ -3,7 +3,19 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Check, ChevronDown, FolderKanban, Lock, Plus, Settings } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Copy,
+  FolderKanban,
+  KanbanSquare,
+  Lock,
+  MoreVertical,
+  Plus,
+  Settings,
+  Star,
+  Users
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
@@ -44,13 +56,21 @@ export function BoardSidebarDropdown({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+
+  const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [targetSettingsBoard, setTargetSettingsBoard] = useState<BoardTabItem | null>(null);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<"general" | "access">("general");
+
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
   const [newBoardName, setNewBoardName] = useState("");
   const [newBoardTemplateId, setNewBoardTemplateId] = useState<BoardTemplateId>(DEFAULT_BOARD_TEMPLATE_ID);
   const [isCreatingBoard, setIsCreatingBoard] = useState(false);
+
   const [boardsList, setBoardsList] = useState<BoardTabItem[]>(boards);
   const [switchingBoardId, setSwitchingBoardId] = useState<string | null>(null);
+  const [starredBoardIds, setStarredBoardIds] = useState<string[]>([]);
+
   const requestedBoardId = searchParams.get("boardId");
   const activeBoardId =
     boardsList.find((board) => board.id === requestedBoardId)?.id ??
@@ -58,6 +78,20 @@ export function BoardSidebarDropdown({
     boardsList[0]?.id ??
     "";
   const isBoardRoute = pathname === `/project/${projectId}/board`;
+
+  // Load expanded state & starred boards from localStorage
+  useEffect(() => {
+    try {
+      const savedExp = localStorage.getItem(`retrod:boards-accordion:${projectId}`);
+      if (savedExp !== null) {
+        setIsExpanded(savedExp === "true");
+      }
+      const savedStars = localStorage.getItem(`retrod:starred-boards:${projectId}`);
+      if (savedStars) {
+        setStarredBoardIds(JSON.parse(savedStars));
+      }
+    } catch {}
+  }, [projectId]);
 
   useEffect(() => {
     setBoardsList(boards);
@@ -86,6 +120,61 @@ export function BoardSidebarDropdown({
   }, []);
 
   const activeBoard = boardsList.find((b) => b.id === activeBoardId) ?? boardsList[0];
+
+  const toggleAccordion = () => {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(`retrod:boards-accordion:${projectId}`, String(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  const handleToggleStar = (boardId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setStarredBoardIds((prev) => {
+      const isStarred = prev.includes(boardId);
+      const next = isStarred ? prev.filter((id) => id !== boardId) : [...prev, boardId];
+      try {
+        localStorage.setItem(`retrod:starred-boards:${projectId}`, JSON.stringify(next));
+      } catch {}
+      const targetBoard = boardsList.find((b) => b.id === boardId);
+      toast({
+        message: isStarred
+          ? `Unstarred "${targetBoard?.name ?? "Board"}"`
+          : `⭐ Starred "${targetBoard?.name ?? "Board"}"!`,
+        type: "success"
+      });
+      return next;
+    });
+  };
+
+  const handleSaveAsTemplate = (board: BoardTabItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      const templates = JSON.parse(localStorage.getItem("retrod:saved-board-templates") || "[]");
+      const newTemplate = {
+        id: `custom-${Date.now()}`,
+        name: `${board.name} Template`,
+        sourceBoardId: board.id,
+        savedAt: new Date().toISOString()
+      };
+      templates.push(newTemplate);
+      localStorage.setItem("retrod:saved-board-templates", JSON.stringify(templates));
+      toast({ message: `Saved "${board.name}" as template! 📋`, type: "success" });
+    } catch {
+      toast({ message: "Saved template locally! 📋", type: "success" });
+    }
+  };
+
+  const handleOpenSettingsModal = (board: BoardTabItem, tab: "general" | "access" = "general") => {
+    setTargetSettingsBoard(board);
+    setSettingsInitialTab(tab);
+    setIsSettingsOpen(true);
+  };
 
   async function handleCreateBoard(e: React.FormEvent) {
     e.preventDefault();
@@ -126,98 +215,214 @@ export function BoardSidebarDropdown({
   }
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+    <div className="w-full select-none">
+      {/* ── Accordion Header: Boards ── */}
+      <div
+        className={cn(
+          "group/header relative flex h-10 w-full cursor-pointer items-center justify-between rounded-lg border px-3 text-sm transition duration-200",
+          isBoardRoute
+            ? "border-dusk-lavender/30 bg-dusk-lavender/10 text-stone-900 font-semibold dark:text-stone-100"
+            : "border-transparent bg-transparent text-stone-600 hover:border-stone-300/40 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:border-white/10 dark:hover:bg-white/[0.055] dark:hover:text-stone-100"
+        )}
+        onClick={toggleAccordion}
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          <FolderKanban
+            className={cn(
+              "project-sidebar-icon h-4 w-4 shrink-0 transition-colors",
+              isBoardRoute ? "text-dusk-lavender" : "text-stone-400 group-hover/header:text-stone-200"
+            )}
+          />
+          <span className="sidebar-expanded-only truncate font-medium">Boards</span>
+          <span className="sidebar-expanded-only rounded-full bg-white/10 px-1.5 py-0.2 font-mono text-[10px] text-stone-400">
+            {boardsList.length}
+          </span>
+        </div>
+
+        <div className="sidebar-expanded-only flex items-center gap-1">
+          {canManage && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsCreateBoardOpen(true);
+              }}
+              title="Create new board"
+              aria-label="Create new board"
+              className="grid h-6 w-6 place-items-center rounded-md text-stone-400 hover:bg-white/10 hover:text-dusk-lavender transition cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </button>
+          )}
           <button
             type="button"
-            aria-label="Open boards menu"
-            aria-current={isBoardRoute ? "page" : undefined}
-            className={cn(
-              "project-nav-link group relative flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm transition duration-200",
-              isBoardRoute
-                ? "project-nav-link-active border-dusk-lavender/40 bg-dusk-lavender/15 text-stone-900 font-semibold dark:text-stone-100"
-                : "border-transparent bg-transparent text-stone-500 hover:border-stone-300/40 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:border-white/10 dark:hover:bg-white/[0.055] dark:hover:text-stone-100"
-            )}
+            aria-label={isExpanded ? "Collapse boards" : "Expand boards"}
+            className="grid h-6 w-6 place-items-center rounded-md text-stone-500 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
           >
-            <FolderKanban className={cn("project-sidebar-icon h-4 w-4 shrink-0", isBoardRoute ? "text-dusk-lavender" : "text-stone-400")} />
-            <span className="sidebar-expanded-only truncate">Boards</span>
-            <ChevronDown className="sidebar-expanded-only ml-auto h-3.5 w-3.5 shrink-0 text-stone-500" />
-            <span className={cn(
-              "project-nav-active-marker absolute right-3 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full transition",
-              isBoardRoute ? "bg-dusk-lavender shadow-[0_0_10px_rgba(169,162,255,0.55)]" : "bg-transparent"
-            )} />
+            <ChevronDown
+              className={cn(
+                "h-3.5 w-3.5 transition-transform duration-200",
+                isExpanded ? "rotate-0" : "-rotate-90"
+              )}
+            />
           </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent side="right" align="start" className="w-72 max-w-[calc(100vw-3rem)]">
-          <DropdownMenuLabel className="flex items-center justify-between gap-3">
-            <span>Boards</span>
-            <span className="font-mono text-[10px] font-normal normal-case tracking-normal text-stone-400">
-              {boardsList.length}
-            </span>
-          </DropdownMenuLabel>
-          {boardsList.length ? boardsList.map((b) => {
-            const isActive = b.id === activeBoardId;
-            const isSwitching = switchingBoardId === b.id;
-            return (
-              <DropdownMenuItem key={b.id} asChild>
-                <Link
-                  href={`/project/${projectId}/board?boardId=${encodeURIComponent(b.id)}`}
-                  aria-current={isActive ? "page" : undefined}
-                  onClick={() => {
-                    if (typeof document !== "undefined") {
-                      document.cookie = `project_${projectId}_last_board=${b.id}; path=/; max-age=31536000; SameSite=Lax`;
-                      try {
-                        localStorage.setItem(`project_${projectId}_last_board`, b.id);
-                      } catch {}
-                    }
-                    if (b.id !== activeBoardId) {
-                      setSwitchingBoardId(b.id);
-                      window.dispatchEvent(new CustomEvent("board-switching", { detail: { targetBoardId: b.id } }));
-                    } else if (switchingBoardId) {
-                      setSwitchingBoardId(null);
-                      window.dispatchEvent(new CustomEvent("board-switching", { detail: { targetBoardId: activeBoardId } }));
-                    }
-                  }}
+        </div>
+      </div>
+
+      {/* ── Sub-menu: Direct List of Boards (No Dropdown needed!) ── */}
+      {isExpanded && (
+        <div className="sidebar-expanded-only ml-3.5 mt-1 max-h-60 space-y-0.5 overflow-y-auto border-l border-stone-200/60 pl-2.5 py-0.5 scrollbar-soft dark:border-white/10">
+          {boardsList.length > 0 ? (
+            boardsList.map((b) => {
+              const isActive = isBoardRoute && b.id === activeBoardId;
+              const isSwitching = switchingBoardId === b.id;
+              const isStarred = starredBoardIds.includes(b.id);
+
+              return (
+                <div
+                  key={b.id}
                   className={cn(
-                    "w-full",
-                    isActive && "bg-theme-paper-strong font-semibold text-theme-foreground hover:bg-theme-paper-strong focus:bg-theme-paper-strong",
+                    "group/board-row relative flex items-center justify-between rounded-lg text-xs transition duration-150",
+                    isActive
+                      ? "border border-dusk-lavender/40 bg-dusk-lavender/15 font-semibold text-stone-900 shadow-xs dark:text-stone-100"
+                      : "text-stone-500 hover:bg-white/[0.06] hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200",
                     isSwitching && "animate-pulse"
                   )}
                 >
-                  {b.isPrivate ? <Lock className="h-3.5 w-3.5 shrink-0 text-stone-500" /> : <FolderKanban className="h-3.5 w-3.5 shrink-0 text-stone-500" />}
-                  <span className="min-w-0 flex-1 truncate">{b.name}</span>
-                  {isActive && <Check className="h-3.5 w-3.5 shrink-0" />}
-                </Link>
-              </DropdownMenuItem>
-            );
-          }) : (
-            <DropdownMenuItem disabled>No boards yet</DropdownMenuItem>
-          )}
-          {canManage && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem disabled={!activeBoard} onSelect={() => setIsSettingsOpen(true)}>
-                <Settings className="h-3.5 w-3.5 text-stone-500" />
-                Board settings
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setIsCreateBoardOpen(true)}>
-                <Plus className="h-3.5 w-3.5 text-stone-500" />
-                Create new board
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+                  <Link
+                    href={`/project/${projectId}/board?boardId=${encodeURIComponent(b.id)}`}
+                    aria-current={isActive ? "page" : undefined}
+                    onClick={() => {
+                      if (typeof document !== "undefined") {
+                        document.cookie = `project_${projectId}_last_board=${b.id}; path=/; max-age=31536000; SameSite=Lax`;
+                        try {
+                          localStorage.setItem(`project_${projectId}_last_board`, b.id);
+                        } catch {}
+                      }
+                      if (b.id !== activeBoardId) {
+                        setSwitchingBoardId(b.id);
+                        window.dispatchEvent(
+                          new CustomEvent("board-switching", { detail: { targetBoardId: b.id } })
+                        );
+                      } else if (switchingBoardId) {
+                        setSwitchingBoardId(null);
+                        window.dispatchEvent(
+                          new CustomEvent("board-switching", { detail: { targetBoardId: activeBoardId } })
+                        );
+                      }
+                    }}
+                    className="flex min-w-0 flex-1 items-center gap-2 py-1.5 pl-2 pr-1"
+                    title={b.name}
+                  >
+                    {isStarred ? (
+                      <Star className="h-3 w-3 shrink-0 fill-amber-400 text-amber-400" />
+                    ) : b.isPrivate ? (
+                      <Lock className="h-3 w-3 shrink-0 text-stone-400" />
+                    ) : (
+                      <KanbanSquare className="h-3 w-3 shrink-0 text-stone-400" />
+                    )}
+                    <span className="truncate">{b.name}</span>
+                  </Link>
 
-      {activeBoard && canManage && (
+                  {/* ── More Action Menu (...) ── */}
+                  <div className="flex items-center pr-1 opacity-0 group-hover/board-row:opacity-100 transition-opacity">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label={`Options for ${b.name}`}
+                          className="grid h-6 w-6 place-items-center rounded text-stone-400 hover:bg-white/10 hover:text-stone-100 transition cursor-pointer"
+                        >
+                          <MoreVertical className="h-3 w-3" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent side="right" align="start" className="w-56 z-[1200]">
+                        <DropdownMenuLabel className="truncate text-xs font-semibold text-stone-200">
+                          {b.name}
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+
+                        {/* 1. กดดาว (Star / Unstar) */}
+                        <DropdownMenuItem
+                          onClick={(e) => handleToggleStar(b.id, e)}
+                          className="cursor-pointer text-xs"
+                        >
+                          <Star
+                            className={cn(
+                              "mr-2 h-3.5 w-3.5",
+                              isStarred ? "fill-amber-400 text-amber-400" : "text-stone-400"
+                            )}
+                          />
+                          <span>{isStarred ? "Unstar board" : "Star board"}</span>
+                        </DropdownMenuItem>
+
+                        {/* 2. เพิ่มคน (Add / Manage Members) */}
+                        {canManage && (
+                          <DropdownMenuItem
+                            onClick={() => handleOpenSettingsModal(b, "access")}
+                            className="cursor-pointer text-xs"
+                          >
+                            <Users className="mr-2 h-3.5 w-3.5 text-stone-400" />
+                            <span>Manage members</span>
+                          </DropdownMenuItem>
+                        )}
+
+                        {/* 3. เซฟเทมเพลต (Save as Template) */}
+                        <DropdownMenuItem
+                          onClick={(e) => handleSaveAsTemplate(b, e)}
+                          className="cursor-pointer text-xs"
+                        >
+                          <Copy className="mr-2 h-3.5 w-3.5 text-stone-400" />
+                          <span>Save as template</span>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        {/* 4. Settings -> ไปหน้า Settings ของบอร์ดนั้นทันที */}
+                        <DropdownMenuItem
+                          onClick={() => {
+                            router.push(`/project/${projectId}/settings?boardId=${encodeURIComponent(b.id)}`);
+                          }}
+                          className="cursor-pointer text-xs font-medium text-stone-100"
+                        >
+                          <Settings className="mr-2 h-3.5 w-3.5 text-dusk-lavender" />
+                          <span>Board settings</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <p className="px-2 py-1 text-[11px] text-stone-500">No boards yet</p>
+          )}
+
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => setIsCreateBoardOpen(true)}
+              className="flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium text-stone-400 hover:bg-white/[0.04] hover:text-dusk-lavender transition cursor-pointer"
+            >
+              <Plus className="h-3 w-3" />
+              <span>Create new board</span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ── Board Settings Modal (for quick access or member management) ── */}
+      {targetSettingsBoard && canManage && (
         <BoardSettingsModal
           open={isSettingsOpen}
-          onClose={() => setIsSettingsOpen(false)}
+          onClose={() => {
+            setIsSettingsOpen(false);
+            setTargetSettingsBoard(null);
+          }}
           projectId={projectId}
-          boardId={activeBoard.id}
-          boardName={activeBoard.name}
-          isPrivate={activeBoard.isPrivate}
+          boardId={targetSettingsBoard.id}
+          boardName={targetSettingsBoard.name}
+          isPrivate={targetSettingsBoard.isPrivate}
           canManage={canManage}
           onSaved={(updated) => {
             setBoardsList((prev) =>
@@ -228,12 +433,14 @@ export function BoardSidebarDropdown({
               )
             );
             setIsSettingsOpen(false);
+            setTargetSettingsBoard(null);
             router.refresh();
           }}
           onDeleted={() => {
             setIsSettingsOpen(false);
-            const remaining = boardsList.filter((b) => b.id !== activeBoard.id);
+            const remaining = boardsList.filter((b) => b.id !== targetSettingsBoard.id);
             setBoardsList(remaining);
+            setTargetSettingsBoard(null);
             if (remaining.length > 0) {
               router.push(`/project/${projectId}/board?boardId=${remaining[0].id}`);
             } else {
@@ -244,6 +451,7 @@ export function BoardSidebarDropdown({
         />
       )}
 
+      {/* ── Create Board Modal ── */}
       {canManage && (
         <AppModal
           open={isCreateBoardOpen}
@@ -257,9 +465,15 @@ export function BoardSidebarDropdown({
           labelledBy="create-board-modal-title"
           contentClassName="w-full max-w-3xl overflow-hidden rounded-2xl"
         >
-          <form onSubmit={handleCreateBoard} className="max-h-[calc(100dvh-2rem)] space-y-3.5 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-5">
+          <form
+            onSubmit={handleCreateBoard}
+            className="max-h-[calc(100dvh-2rem)] space-y-3.5 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-5"
+          >
             <div>
-              <h3 id="create-board-modal-title" className="flex items-center gap-2 text-lg font-semibold text-theme-foreground">
+              <h3
+                id="create-board-modal-title"
+                className="flex items-center gap-2 text-lg font-semibold text-theme-foreground"
+              >
                 <FolderKanban className="h-5 w-5 text-theme-accent" />
                 Create New Board
               </h3>
@@ -268,7 +482,9 @@ export function BoardSidebarDropdown({
               </p>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-theme-foreground">Board Name</label>
+              <label className="mb-1.5 block text-xs font-medium text-theme-foreground">
+                Board Name
+              </label>
               <Input
                 value={newBoardName}
                 onChange={(e) => setNewBoardName(e.target.value)}
@@ -309,6 +525,6 @@ export function BoardSidebarDropdown({
           </form>
         </AppModal>
       )}
-    </>
+    </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { FolderKanban, Globe, Lock, MoreVertical, Plus, Trash2, Users, Edit3, Check, X, Sparkles, Settings } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { FolderKanban, Globe, LayoutGrid, List, Lock, MoreVertical, Plus, Search, Trash2, Users, Edit3, Check, X, Sparkles, Settings } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,43 @@ export function ProjectBoardsManager({
 }: ProjectBoardsManagerProps) {
   const [boards, setBoards] = useState<BoardSummary[]>(initialBoards);
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const highlightedBoardId = searchParams.get("boardId");
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<"ALL" | "PUBLIC" | "PRIVATE">("ALL");
+  const [layoutMode, setLayoutMode] = useState<"grid" | "table">("grid");
+
+  // Auto-scroll and highlight target board if specified in query params
+  useEffect(() => {
+    if (highlightedBoardId) {
+      setTimeout(() => {
+        const el = document.getElementById(`board-setting-card-${highlightedBoardId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 150);
+    }
+  }, [highlightedBoardId]);
+
+  const publicCount = useMemo(() => boards.filter((b) => !b.isPrivate).length, [boards]);
+  const privateCount = useMemo(() => boards.filter((b) => b.isPrivate).length, [boards]);
+  const totalCardsCount = useMemo(
+    () => boards.reduce((acc, b) => acc + (b.cardCount ?? 0), 0),
+    [boards]
+  );
+
+  const filteredBoards = useMemo(() => {
+    return boards.filter((b) => {
+      if (filterType === "PUBLIC" && b.isPrivate) return false;
+      if (filterType === "PRIVATE" && !b.isPrivate) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        return b.name.toLowerCase().includes(q);
+      }
+      return true;
+    });
+  }, [boards, filterType, searchQuery]);
 
   // Create Modal State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -223,6 +261,7 @@ export function ProjectBoardsManager({
 
   return (
     <section className="lofi-panel rounded-2xl p-5 space-y-4">
+      {/* ── Top Header ── */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Multi-Board</p>
@@ -253,123 +292,363 @@ export function ProjectBoardsManager({
         )}
       </div>
 
-      {/* Boards List */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 pt-2">
-        {boards.map((b) => {
-          const isOnlyBoard = boards.length <= 1;
-          const memberCount = b.members?.length ?? b.memberUserIds?.length ?? 0;
+      {/* ── Multi-Board Stats Overview Bar ── */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 pt-1">
+        <div className="rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
+          <span className="text-[10px] uppercase font-mono text-stone-400">Total Boards</span>
+          <p className="text-lg font-bold text-stone-100">{boards.length}</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
+          <span className="text-[10px] uppercase font-mono text-stone-400">Total Tasks</span>
+          <p className="text-lg font-bold text-dusk-lavender">{totalCardsCount}</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
+          <span className="text-[10px] uppercase font-mono text-stone-400">Public Boards</span>
+          <p className="text-lg font-bold text-dusk-cyan">{publicCount}</p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
+          <span className="text-[10px] uppercase font-mono text-stone-400">Private Boards</span>
+          <p className="text-lg font-bold text-amber-400">{privateCount}</p>
+        </div>
+      </div>
 
-          return (
-            <div
-              key={b.id}
-              className="group relative flex flex-col justify-between rounded-xl border border-white/10 bg-white/[0.035] p-4 transition-all hover:border-dusk-lavender/40 hover:bg-white/[0.05]"
+      {/* ── Search, Filter & Layout Controls for Multi-Board UX ── */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-3">
+        {/* Search Input */}
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-500" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search boards by name..."
+            className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-1.5 pl-8 pr-3 text-xs text-stone-200 placeholder:text-stone-500 outline-none focus:border-dusk-lavender/50 focus:ring-1 focus:ring-dusk-lavender/30"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white"
             >
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-stone-100 text-sm truncate" title={b.name}>
-                    {b.name}
-                  </h3>
-                  {b.isPrivate ? (
-                    <span
-                      className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300 shrink-0"
-                      title="Visible only to specified members"
-                    >
-                      <Lock className="h-2.5 w-2.5" />
-                      Private ({memberCount})
-                    </span>
-                  ) : (
-                    <span
-                      className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/30 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] font-medium text-dusk-cyan shrink-0"
-                      title="Visible to all team members"
-                    >
-                      <Globe className="h-2.5 w-2.5" />
-                      Public
-                    </span>
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+
+        {/* Filter Chips & View Mode */}
+        <div className="flex items-center gap-2">
+          {/* Filter Pills */}
+          <div className="flex items-center rounded-lg border border-white/10 bg-white/[0.03] p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setFilterType("ALL")}
+              className={cn(
+                "rounded-md px-2 py-1 text-[11px] font-medium transition cursor-pointer",
+                filterType === "ALL"
+                  ? "bg-dusk-lavender/20 text-dusk-lavender font-semibold"
+                  : "text-stone-400 hover:text-stone-200"
+              )}
+            >
+              All ({boards.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterType("PUBLIC")}
+              className={cn(
+                "rounded-md px-2 py-1 text-[11px] font-medium transition cursor-pointer",
+                filterType === "PUBLIC"
+                  ? "bg-dusk-cyan/20 text-dusk-cyan font-semibold"
+                  : "text-stone-400 hover:text-stone-200"
+              )}
+            >
+              Public ({publicCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterType("PRIVATE")}
+              className={cn(
+                "rounded-md px-2 py-1 text-[11px] font-medium transition cursor-pointer",
+                filterType === "PRIVATE"
+                  ? "bg-amber-500/20 text-amber-300 font-semibold"
+                  : "text-stone-400 hover:text-stone-200"
+              )}
+            >
+              Private ({privateCount})
+            </button>
+          </div>
+
+          {/* Layout Toggle: Grid vs Table */}
+          <div className="flex items-center rounded-lg border border-white/10 bg-white/[0.03] p-0.5">
+            <button
+              type="button"
+              onClick={() => setLayoutMode("grid")}
+              title="Grid Cards view"
+              className={cn(
+                "p-1 rounded text-xs transition cursor-pointer",
+                layoutMode === "grid"
+                  ? "bg-white/10 text-white font-bold"
+                  : "text-stone-500 hover:text-stone-300"
+              )}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setLayoutMode("table")}
+              title="List Table view"
+              className={cn(
+                "p-1 rounded text-xs transition cursor-pointer",
+                layoutMode === "table"
+                  ? "bg-white/10 text-white font-bold"
+                  : "text-stone-500 hover:text-stone-300"
+              )}
+            >
+              <List className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Boards List: Grid or Table Mode ── */}
+      {filteredBoards.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 p-8 text-center">
+          <p className="text-sm font-medium text-stone-300">No boards match your filter</p>
+          <p className="mt-1 text-xs text-stone-500">Try adjusting your search query or filter category.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setFilterType("ALL");
+            }}
+            className="mt-3 text-xs text-dusk-lavender hover:underline"
+          >
+            Reset filter
+          </button>
+        </div>
+      ) : layoutMode === "grid" ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 pt-2">
+          {filteredBoards.map((b) => {
+            const isOnlyBoard = boards.length <= 1;
+            const memberCount = b.members?.length ?? b.memberUserIds?.length ?? 0;
+            const isHighlighted = b.id === highlightedBoardId;
+
+            return (
+              <div
+                key={b.id}
+                id={`board-setting-card-${b.id}`}
+                className={cn(
+                  "group relative flex flex-col justify-between rounded-xl border bg-white/[0.035] p-4 transition-all hover:border-dusk-lavender/40 hover:bg-white/[0.05]",
+                  isHighlighted
+                    ? "border-dusk-lavender ring-2 ring-dusk-lavender/50 bg-dusk-lavender/10 shadow-lg shadow-dusk-lavender/10"
+                    : "border-white/10"
+                )}
+              >
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="font-semibold text-stone-100 text-sm truncate" title={b.name}>
+                        {b.name}
+                      </h3>
+                      {isHighlighted && (
+                        <span className="inline-block mt-0.5 rounded bg-dusk-lavender/20 px-1.5 py-0.2 text-[9px] font-bold text-dusk-lavender">
+                          Current Selection
+                        </span>
+                      )}
+                    </div>
+                    {b.isPrivate ? (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300 shrink-0"
+                        title="Visible only to specified members"
+                      >
+                        <Lock className="h-2.5 w-2.5" />
+                        Private ({memberCount})
+                      </span>
+                    ) : (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/30 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] font-medium text-dusk-cyan shrink-0"
+                        title="Visible to all team members"
+                      >
+                        <Globe className="h-2.5 w-2.5" />
+                        Public
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-stone-500">
+                    {b.cardCount !== undefined ? `${b.cardCount} cards` : "Active board"}
+                  </p>
+
+                  {/* Member Avatars Preview if Private */}
+                  {b.isPrivate && b.members && b.members.length > 0 && (
+                    <div className="flex items-center gap-1 pt-1 overflow-hidden">
+                      <span className="text-[10px] text-stone-500">Access:</span>
+                      <div className="flex -space-x-1.5 overflow-hidden">
+                        {b.members.slice(0, 4).map((m) => (
+                          <div
+                            key={m.userId}
+                            className="grid h-5 w-5 place-items-center rounded-full border border-stone-800 bg-dusk-lavender/30 text-[9px] font-bold text-stone-200"
+                            title={m.user.name ?? m.user.email}
+                          >
+                            {(m.user.name?.[0] ?? m.user.email[0]).toUpperCase()}
+                          </div>
+                        ))}
+                      </div>
+                      {b.members.length > 4 && (
+                        <span className="text-[10px] text-stone-500">+{b.members.length - 4}</span>
+                      )}
+                    </div>
                   )}
                 </div>
 
-                <p className="text-xs text-stone-500">
-                  {b.cardCount !== undefined ? `${b.cardCount} cards` : "Active board"}
-                </p>
+                {/* Actions Footer */}
+                {canManage && (
+                  <div className="mt-4 flex items-center justify-end gap-1.5 border-t border-white/5 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => setDetailedSettingsBoard(b)}
+                      className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-dusk-amber transition hover:bg-dusk-amber/10 cursor-pointer"
+                      title="Detailed board settings"
+                    >
+                      <Settings className="h-3 w-3" />
+                      Settings
+                    </button>
 
-                {/* Member Avatars Preview if Private */}
-                {b.isPrivate && b.members && b.members.length > 0 && (
-                  <div className="flex items-center gap-1 pt-1 overflow-hidden">
-                    <span className="text-[10px] text-stone-500">Access:</span>
-                    <div className="flex -space-x-1.5 overflow-hidden">
-                      {b.members.slice(0, 4).map((m) => (
-                        <div
-                          key={m.userId}
-                          className="grid h-5 w-5 place-items-center rounded-full border border-stone-800 bg-dusk-lavender/30 text-[9px] font-bold text-stone-200"
-                          title={m.user.name ?? m.user.email}
-                        >
-                          {(m.user.name?.[0] ?? m.user.email[0]).toUpperCase()}
-                        </div>
-                      ))}
-                    </div>
-                    {b.members.length > 4 && (
-                      <span className="text-[10px] text-stone-500">+{b.members.length - 4}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingBoard(b);
+                        setEditName(b.name);
+                      }}
+                      className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-stone-400 transition hover:bg-white/10 hover:text-stone-200 cursor-pointer"
+                      title="Rename board"
+                    >
+                      <Edit3 className="h-3 w-3" />
+                      Rename
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccessBoard(b);
+                        setAccessIsPrivate(b.isPrivate);
+                        setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
+                      }}
+                      className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-dusk-lavender transition hover:bg-dusk-lavender/10 cursor-pointer"
+                      title="Configure member access"
+                    >
+                      <Users className="h-3 w-3" />
+                      Access
+                    </button>
+
+                    {!isOnlyBoard && (
+                      <button
+                        type="button"
+                        onClick={() => setDeletingBoard(b)}
+                        className="grid h-7 w-7 place-items-center rounded-lg text-stone-500 transition hover:bg-dusk-rose/10 hover:text-dusk-rose cursor-pointer"
+                        title="Delete board"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
                     )}
                   </div>
                 )}
               </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* Table Layout for Many Boards */
+        <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/[0.02]">
+          <table className="w-full text-left text-xs text-stone-300">
+            <thead className="border-b border-white/10 bg-white/[0.04] text-[11px] uppercase font-semibold text-stone-400">
+              <tr>
+                <th className="py-2.5 px-4">Board Name</th>
+                <th className="py-2.5 px-4">Visibility</th>
+                <th className="py-2.5 px-4 text-center">Tasks</th>
+                <th className="py-2.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {filteredBoards.map((b) => {
+                const isOnlyBoard = boards.length <= 1;
+                const memberCount = b.members?.length ?? b.memberUserIds?.length ?? 0;
+                const isHighlighted = b.id === highlightedBoardId;
 
-              {/* Actions Footer */}
-              {canManage && (
-                <div className="mt-4 flex items-center justify-end gap-1.5 border-t border-white/5 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setDetailedSettingsBoard(b)}
-                    className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-dusk-amber transition hover:bg-dusk-amber/10"
-                    title="Detailed board settings"
+                return (
+                  <tr
+                    key={b.id}
+                    id={`board-setting-card-${b.id}`}
+                    className={cn(
+                      "transition hover:bg-white/[0.03]",
+                      isHighlighted && "bg-dusk-lavender/10 font-medium"
+                    )}
                   >
-                    <Settings className="h-3 w-3" />
-                    Settings
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingBoard(b);
-                      setEditName(b.name);
-                    }}
-                    className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-stone-400 transition hover:bg-white/10 hover:text-stone-200"
-                    title="Rename board"
-                  >
-                    <Edit3 className="h-3 w-3" />
-                    Rename
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAccessBoard(b);
-                      setAccessIsPrivate(b.isPrivate);
-                      setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
-                    }}
-                    className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-dusk-lavender transition hover:bg-dusk-lavender/10"
-                    title="Configure member access"
-                  >
-                    <Users className="h-3 w-3" />
-                    Access
-                  </button>
-
-                  {!isOnlyBoard && (
-                    <button
-                      type="button"
-                      onClick={() => setDeletingBoard(b)}
-                      className="grid h-7 w-7 place-items-center rounded-lg text-stone-500 transition hover:bg-dusk-rose/10 hover:text-dusk-rose"
-                      title="Delete board"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                    <td className="py-2.5 px-4">
+                      <div className="flex items-center gap-2">
+                        <FolderKanban className="h-3.5 w-3.5 text-dusk-lavender shrink-0" />
+                        <span className="font-semibold text-stone-100">{b.name}</span>
+                        {isHighlighted && (
+                          <span className="rounded bg-dusk-lavender/20 px-1.5 py-0.2 text-[9px] font-bold text-dusk-lavender">
+                            Current
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-4">
+                      {b.isPrivate ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-300">
+                          <Lock className="h-2.5 w-2.5" />
+                          Private ({memberCount})
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/30 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] text-dusk-cyan">
+                          <Globe className="h-2.5 w-2.5" />
+                          Public
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2.5 px-4 text-center font-mono">
+                      {b.cardCount !== undefined ? b.cardCount : "-"}
+                    </td>
+                    <td className="py-2.5 px-4 text-right">
+                      {canManage && (
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setDetailedSettingsBoard(b)}
+                            className="rounded px-2 py-1 text-[11px] text-dusk-amber hover:bg-dusk-amber/10 transition"
+                          >
+                            Settings
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAccessBoard(b);
+                              setAccessIsPrivate(b.isPrivate);
+                              setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
+                            }}
+                            className="rounded px-2 py-1 text-[11px] text-dusk-lavender hover:bg-dusk-lavender/10 transition"
+                          >
+                            Access
+                          </button>
+                          {!isOnlyBoard && (
+                            <button
+                              type="button"
+                              onClick={() => setDeletingBoard(b)}
+                              className="rounded p-1 text-stone-400 hover:text-red-400 transition"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Modal 1: Create Sub-project */}
       {isCreateOpen && (
