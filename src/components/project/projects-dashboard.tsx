@@ -52,6 +52,8 @@ import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
 import { ProjectAppearanceControls } from "@/components/project/project-appearance-controls";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
+import { AiChatTrigger } from "@/components/ai/ai-chat-trigger";
+import { HelpButton } from "@/components/ui/help-button";
 import { defaultCalendarFilters, filterCalendarItems } from "@/lib/calendar/view";
 import { formatShortDue } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
@@ -556,6 +558,7 @@ export function ProjectsDashboard({
             </div>
             <div className="flex items-center gap-2">
               <NotificationsPopover />
+              <AiChatTrigger />
               {userProfile && (
                 <UserProfilePopover
                   avatar={userProfile.avatar}
@@ -578,6 +581,7 @@ export function ProjectsDashboard({
                   variant="avatar"
                 />
               )}
+              <HelpButton />
             </div>
           </div>
 

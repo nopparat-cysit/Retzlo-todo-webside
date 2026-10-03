@@ -15,6 +15,8 @@ import { ProjectTopbarTools } from "@/components/project/project-topbar-tools";
 import { FocusModeToggle } from "@/components/project/focus-mode-toggle";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
+import { AiChatTrigger } from "@/components/ai/ai-chat-trigger";
+import { HelpButton } from "@/components/ui/help-button";
 import { ErrorState } from "@/components/ui/state";
 import { canAccessBoard } from "@/lib/project-auth";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
@@ -248,6 +250,7 @@ export async function ProjectShell({
                 <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
               </div>
               <NotificationsPopover />
+              <AiChatTrigger />
               <UserProfilePopover
                 avatar={userRecord?.avatar}
                 email={userEmail}
@@ -257,6 +260,7 @@ export async function ProjectShell({
                 statusColor={statusColor}
                 variant="avatar"
               />
+              <HelpButton />
             </div>
           </header>
           <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 overflow-hidden">{children}</div>

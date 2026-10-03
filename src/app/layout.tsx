@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { CursorAura } from "@/components/ui/cursor-aura";
 import { ToastProvider } from "@/components/ui/toast";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { AiChatProvider } from "@/components/ai/ai-chat-context";
 import { AiChatWidget } from "@/components/ai/ai-chat-widget";
 
 import "./globals.css";
@@ -53,8 +54,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ThemeProvider>
           <CursorAura />
           <ToastProvider>
-            {children}
-            <AiChatWidget />
+            <AiChatProvider>
+              {children}
+              <AiChatWidget />
+            </AiChatProvider>
           </ToastProvider>
         </ThemeProvider>
       </body>

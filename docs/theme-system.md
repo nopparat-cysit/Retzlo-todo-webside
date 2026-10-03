@@ -291,3 +291,9 @@ Template:
 - Tokens/variants: ใช้ shared DropdownMenu, semantic active state และ icon domain colors เดิม; ไม่มีการเพิ่มสีหรือ token ใหม่.
 - Reviewed: ตรวจ source, route links, board-switching event และ private-board filtering; ยังไม่ได้ตรวจภาพ light/dark/system, mobile drawer หรือ keyboard focus หลังย้าย.
 - Follow-ups: ตรวจ dropdown clipping/focus ใน sidebar แบบขยาย/ย่อ และ mobile; ตรวจ create/settings actions ด้วยฐานข้อมูลที่พร้อม.
+
+### 2026-10-03 — ย้าย AI Chat ไปไว้ข้างซ้ายโปรไฟล์ และเพิ่มปุ่ม ? ไปยังหน้า /help
+- Added/changed: `src/components/ai/ai-chat-context.tsx`, `src/components/ai/ai-chat-trigger.tsx`, `src/components/ui/help-button.tsx`, `src/app/(dashboard)/help/page.tsx`, `src/components/help/help-center-client.tsx`, `src/components/project/project-shell.tsx`, `src/components/project/projects-dashboard.tsx`, `src/components/project/user-profile-popover.tsx`, `docs/system-guide.md`.
+- Tokens/variants: ใช้ semantic surface/text/border/accent tokens และ retro lofi palette สอดคล้องกับ shared primitives; ปุ่ม AI trigger และ Help button บน topbar ใช้ token ชุดเดียวกับ topbar tools.
+- Reviewed: Desktop & mobile responsive styling, category filter, real-time search, quick AI launch trigger.
+

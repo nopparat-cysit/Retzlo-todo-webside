@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
+import { useAiChat } from "@/components/ai/ai-chat-context";
 import { getAiAuthHeaders, getClientAiModel } from "@/lib/ai/client-key";
 import type { AiCreateCardProposal } from "@/lib/ai/chat-actions";
 import { ApiKeyModal } from "@/components/ai/api-key-modal";
@@ -65,7 +66,7 @@ export function AiChatWidget() {
   const pathname = usePathname();
   const { toast } = useToast();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen } = useAiChat();
   const [viewMode, setViewMode] = useState<"float" | "sidepanel">("float");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -386,34 +387,6 @@ export function AiChatWidget() {
 
   return (
     <>
-      {/* ─── Floating Launcher Button at Bottom-Left (สไตล์ Call Center) ─── */}
-      {!isOpen && (
-        <div className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-40 select-none">
-          <button
-            type="button"
-            onClick={() => setIsOpen(true)}
-            className="group relative flex items-center gap-2.5 rounded-full border border-theme-border bg-theme-panel-strong px-3.5 py-2.5 text-theme-foreground shadow-xl backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-theme-accent hover:bg-theme-paper-strong active:scale-95 cursor-pointer"
-            title="เปิดแชทผู้ช่วย Retzlo AI (DeepSeek-V4 Pro)"
-          >
-            <div className="relative flex h-7 w-7 items-center justify-center rounded-full border border-theme-border bg-theme-paper text-theme-accent group-hover:border-theme-accent group-hover:bg-theme-accent group-hover:text-theme-background transition-colors">
-              <Bot className="h-4 w-4" />
-              {/* Online indicator dot */}
-              <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-theme-success ring-2 ring-theme-panel-strong" />
-            </div>
-
-            <div className="flex flex-col text-left">
-              <span className="text-xs font-bold leading-tight text-theme-foreground group-hover:text-theme-accent transition-colors flex items-center gap-1">
-                AI Chat
-                <Sparkles className="h-2.5 w-2.5 text-theme-warning animate-pulse" />
-              </span>
-              <span className="text-[10px] font-mono text-theme-muted">
-                {activeModel.replace("deepseek-", "")}
-              </span>
-            </div>
-          </button>
-        </div>
-      )}
-
       {/* ─── AI Chat Window (Supports Float at Bottom-Left & Side Panel like Gemini) ─── */}
       {isOpen && (
         <div

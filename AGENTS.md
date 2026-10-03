@@ -74,6 +74,13 @@ docs/
 - Prefer semantic theme tokens for UI colors. Use fixed palette values only for intentional brand artwork or domain colors, and record those exceptions in `docs/theme-system.md`.
 - When changing shared tokens or primitives, list the affected routes and components in the work note.
 
+## System Documentation & Knowledge Base
+
+- Maintain `docs/system-guide.md` and the interactive in-app Help & System Guide page (`/help`).
+- Whenever new features, routes, tools, shortcuts, or system capabilities are added, modified, or removed:
+  - Update `docs/system-guide.md` with the latest feature descriptions, workflows, and specifications.
+  - Update the interactive Knowledge Base & Help page (`src/components/help/help-center-client.tsx`) so users always have accurate, up-to-date guidance and help inside the app.
+
 ## Verification
 
 Before claiming work is complete, run the available verification commands:
