@@ -208,7 +208,8 @@ export function SettingsForm({
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(280px,1.05fr)]">
-          <div>
+          <div className="space-y-2">
+            <span className="block text-xs uppercase tracking-[0.16em] text-stone-500">Cover image</span>
             <button
               className="group relative block aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-ink-950/45 text-left"
               title="Upload project cover"
@@ -236,13 +237,14 @@ export function SettingsForm({
               ref={coverInputRef}
               accept="image/jpeg,image/png,image/webp,image/gif"
               className="hidden"
+              hidden
               type="file"
               onChange={(event) => {
                 const file = event.target.files?.[0];
                 if (file) void handleCoverUpload(file);
               }}
             />
-            <p className="mt-2 flex items-center gap-2 text-xs text-stone-600">
+            <p className="flex items-center gap-2 text-xs text-stone-600">
               <ImageIcon className="h-3.5 w-3.5" />
               JPG, PNG, WebP, or GIF. Max 5 MB.
             </p>
