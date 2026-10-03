@@ -43,6 +43,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { getColumnThemeOption } from "@/lib/kanban/column-settings";
+import { BoardExportButton } from "@/components/kanban/board-export-modal";
 
 function checkIsOverdue(dueDate: string | null | undefined): boolean {
   if (!dueDate) return false;
@@ -68,6 +69,7 @@ function toInputDate(dateString: string | null | undefined): string {
 }
 
 interface BoardListViewProps {
+  boardTitle?: string;
   columns: ColumnWithCards[];
   allColumns: ColumnWithCards[];
   members: CardAssignee[];
@@ -152,6 +154,7 @@ const STATUS_PILL_CONFIG: Record<
 };
 
 export function BoardListView({
+  boardTitle,
   columns,
   allColumns,
   members,
@@ -671,11 +674,23 @@ export function BoardListView({
               <span>Group</span>
             </button>
           </div>
+
+          {/* Export Button in Table Toolbar */}
+          <BoardExportButton
+            boardTitle={boardTitle || "ตารางงาน"}
+            columns={allColumns || columns}
+            filteredColumns={columns}
+            members={members}
+            boardPriorities={boardPriorities}
+            viewportElementId="kanban-table-container"
+            isFiltered={columns.length !== allColumns.length || Boolean(tableSearch.trim()) || statusFilter !== "ALL"}
+            variant="compact"
+          />
         </div>
       </div>
 
       {/* ── Scrollable Spreadsheet Grid ── */}
-      <div className="scrollbar-soft flex-1 overflow-x-auto overflow-y-auto pb-16">
+      <div id="kanban-table-container" className="scrollbar-soft flex-1 overflow-x-auto overflow-y-auto pb-16">
         <div className="min-w-[1240px] text-xs">
           {/* ── Table Header (Exact Columns from User Reference Screenshot) ── */}
           <div className="sticky top-0 z-20 flex items-center border-b border-stone-200/80 bg-stone-100/95 font-semibold text-stone-700 backdrop-blur-md dark:border-white/10 dark:bg-stone-900/95 dark:text-stone-300">

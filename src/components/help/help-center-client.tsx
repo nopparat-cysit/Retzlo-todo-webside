@@ -24,6 +24,7 @@ import {
   Table,
   Zap,
   Flag,
+  Download,
 } from "lucide-react";
 
 import { BackButton } from "@/components/ui/back-button";
@@ -144,6 +145,25 @@ const TOPICS: GuideTopic[] = [
       "ป้ายสีกำกับ Priority จะแสดงผลสอดคล้องกันทั้งในการ์ด Kanban, Card Detail Modal, และตาราง Spreadsheet",
     ],
     tips: "หากลบหรือตั้งค่าใหม่ ระบบจะมีปุ่ม 'รีเซ็ตกลับเป็นค่าเริ่มต้น' เพื่อคืนค่ามาตรฐาน High, Medium, Low ได้ทันที",
+  },
+  {
+    id: "board-export",
+    category: "kanban",
+    icon: Download,
+    title: "การส่งออกข้อมูลบอร์ด (Export: Excel, CSV, PDF, PNG)",
+    badge: "Export",
+    badgeColor: "border-emerald-400/30 bg-emerald-400/10 text-emerald-400",
+    summary:
+      "ส่งออกรายการงานในบอร์ดได้อย่างอิสระทั้งไฟล์สเปรดชีต เอกสาร และรูปภาพความละเอียดสูง รองรับการนำไปใช้งานต่อได้ทันที",
+    highlights: [
+      "Excel (.xlsx): สเปรดชีตจัดรูปแบบสมบูรณ์แบบ พร้อมหัวตาราง วันที่ ผู้รับผิดชอบ และความคืบหน้าเช็คลิสต์",
+      "CSV (.csv): ไฟล์ข้อมูลสากล UTF-8 พร้อม BOM เปิดบน Excel และ Google Sheets ภาษาไทยไม่เพี้ยน 100%",
+      "PDF (.pdf): เอกสารสรุปรายงานจัดหน้ามาตรฐาน A4 พร้อมหัวข้อบอร์ดและสถิติภาพรวม",
+      "PNG (.png): บันทึกภาพหน้าจอมุมมองบอร์ดหรือตารางปัจจุบันความละเอียดสูงระดับ 2x Retina",
+      "เลือกขอบเขตได้: ส่งออกงานทั้งหมดในบอร์ด หรือส่งออกเฉพาะรายการที่กำลังกรองแสดงผลอยู่",
+      "Quick Export Dropdown: คลิกส่งออกด่วนได้ใน 1 วินาที หรือเปิดหน้าต่างตัวเลือกเพิ่มเติมเพื่อตรวจสอบรายละเอียด",
+    ],
+    tips: "สามารถกด Export ได้ทั้งจากปุ่มบนหัวบอร์ดหลัก หรือปุ่ม Export ในแถบเครื่องมือของมุมมองตาราง (Table View)",
   },
   {
     id: "coffee-cheers-rewards",
