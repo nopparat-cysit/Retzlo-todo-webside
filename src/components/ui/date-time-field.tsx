@@ -3,7 +3,8 @@
 import { CalendarClock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import { applyDueShortcut, type DueShortcut } from "@/lib/kanban/due-date";
 import { cn } from "@/lib/utils";
 
@@ -73,17 +74,17 @@ export function DateTimeField({
         </div>
       ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
-        <Input
+        <DatePicker
           disabled={disabled}
-          type="date"
           value={value.date}
-          onChange={(event) => update({ date: event.target.value })}
+          onChange={(nextDate) => update({ date: nextDate })}
+          placeholder="เลือกวันที่..."
         />
-        <Input
+        <TimePicker
           disabled={disabled}
-          type="time"
           value={value.time}
-          onChange={(event) => update({ time: event.target.value })}
+          onChange={(nextTime) => update({ time: nextTime })}
+          placeholder="เลือกเวลา (เว้นว่าง = ตลอดวัน)..."
         />
       </div>
       {description ? <p className="mt-2 text-xs text-stone-500">{description}</p> : null}

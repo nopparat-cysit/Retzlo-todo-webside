@@ -32,6 +32,7 @@ import type { Card, CardAssignee, CardPriority, CardStatus, ColumnWithCards } fr
 import { playCardDoneSound } from "@/lib/sound";
 import { useToast } from "@/components/ui/toast";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -970,64 +971,26 @@ export function BoardListView({
                     </div>
 
                     {/* 5. วันที่เริ่มต้น (Start Date) */}
-                    <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
-                      {editingDateCardId === card.id && editingDateField === "startDate" ? (
-                        <input
-                          type="date"
-                          value={toInputDate(card.startDate)}
-                          onChange={(e) => void handleSaveDate(card, "startDate", e.target.value)}
-                          onBlur={() => {
-                            setEditingDateCardId(null);
-                            setEditingDateField(null);
-                          }}
-                          autoFocus
-                          className="h-6 rounded border border-indigo-400 bg-white px-1 text-[11px] text-stone-900 shadow-2xs outline-none dark:bg-stone-800 dark:text-stone-100"
-                        />
-                      ) : (
-                        <span
-                          onClick={() => {
-                            setEditingDateCardId(card.id);
-                            setEditingDateField("startDate");
-                          }}
-                          className="inline-block rounded px-1.5 py-0.5 text-stone-600 hover:bg-stone-100 hover:text-indigo-600 dark:text-stone-400 dark:hover:bg-white/10 transition cursor-pointer"
-                          title="Click to edit start date"
-                        >
-                          {formatTableDate(card.startDate)}
-                        </span>
-                      )}
+                    <div className="w-28 px-1 py-1 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
+                      <DatePicker
+                        value={card.startDate}
+                        onChange={(nextDate) => void handleSaveDate(card, "startDate", nextDate)}
+                        placeholder="-"
+                        triggerClassName="h-6 border-transparent bg-transparent px-1.5 py-0 text-center text-[11px] shadow-none hover:border-stone-200 hover:bg-stone-100 dark:hover:border-white/10 dark:hover:bg-white/10"
+                      />
                     </div>
 
                     {/* 6. วันที่สิ้นสุด (Due Date) */}
-                    <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
-                      {editingDateCardId === card.id && editingDateField === "dueDate" ? (
-                        <input
-                          type="date"
-                          value={toInputDate(card.dueDate)}
-                          onChange={(e) => void handleSaveDate(card, "dueDate", e.target.value)}
-                          onBlur={() => {
-                            setEditingDateCardId(null);
-                            setEditingDateField(null);
-                          }}
-                          autoFocus
-                          className="h-6 rounded border border-indigo-400 bg-white px-1 text-[11px] text-stone-900 shadow-2xs outline-none dark:bg-stone-800 dark:text-stone-100"
-                        />
-                      ) : (
-                        <span
-                          onClick={() => {
-                            setEditingDateCardId(card.id);
-                            setEditingDateField("dueDate");
-                          }}
-                          className={cn(
-                            "inline-block rounded px-1.5 py-0.5 transition cursor-pointer",
-                            cardOverdue && !isCardDone
-                              ? "font-bold text-red-600 hover:bg-red-500/10 dark:text-red-400"
-                              : "text-stone-600 hover:bg-stone-100 hover:text-indigo-600 dark:text-stone-400 dark:hover:bg-white/10"
-                          )}
-                          title="Click to edit due date"
-                        >
-                          {formatTableDate(card.dueDate)}
-                        </span>
-                      )}
+                    <div className="w-28 px-1 py-1 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
+                      <DatePicker
+                        value={card.dueDate}
+                        onChange={(nextDate) => void handleSaveDate(card, "dueDate", nextDate)}
+                        placeholder="d/m/yyyy"
+                        triggerClassName={cn(
+                          "h-6 border-transparent bg-transparent px-1.5 py-0 text-center text-[11px] shadow-none hover:border-stone-200 hover:bg-stone-100 dark:hover:border-white/10 dark:hover:bg-white/10",
+                          cardOverdue && !isCardDone && "font-bold text-red-600 dark:text-red-400 bg-red-500/10"
+                        )}
+                      />
                     </div>
 
                     {/* 7. คอลัมน์ 7 / ความยาก & คะแนน */}

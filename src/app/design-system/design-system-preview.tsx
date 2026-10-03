@@ -6,6 +6,9 @@ import { useState } from "react";
 import { AppModal, AppModalFooter } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { DateTimeField, type DateTimeFieldValue } from "@/components/ui/date-time-field";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { EntityCard } from "@/components/ui/entity-card";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
@@ -48,6 +51,8 @@ export function DesignSystemPreview() {
   const [view, setView] = useState<(typeof viewOptions)[number]["value"]>("board");
   const [selectValue, setSelectValue] = useState("member");
   const [dateValue, setDateValue] = useState<DateTimeFieldValue>({ date: "", time: "" });
+  const [standaloneDate, setStandaloneDate] = useState("2026-10-03");
+  const [standaloneTime, setStandaloneTime] = useState("14:30");
   const [modalOpen, setModalOpen] = useState(false);
   const { toast } = useToast();
 
@@ -98,6 +103,22 @@ export function DesignSystemPreview() {
           </div>
 
           <DateTimeField value={dateValue} onChange={setDateValue} />
+
+          <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3">
+            <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-dusk-lavender">
+              Custom Global Pickers (Retro Lofi Theme)
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-[11px] font-medium text-stone-400">Standalone DatePicker</label>
+                <DatePicker value={standaloneDate} onChange={setStandaloneDate} placeholder="เลือกวันที่..." />
+              </div>
+              <div>
+                <label className="mb-1 block text-[11px] font-medium text-stone-400">Standalone TimePicker</label>
+                <TimePicker value={standaloneTime} onChange={setStandaloneTime} placeholder="เลือกเวลา..." />
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-4">
