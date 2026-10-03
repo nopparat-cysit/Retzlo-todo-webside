@@ -655,7 +655,7 @@ export function BoardListView({
             {/* 2. Priority */}
             <div
               onClick={() => handleSort("priority")}
-              className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
+              className="w-32 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
             >
               <span className="font-bold">Priority</span>
               <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
@@ -726,6 +726,7 @@ export function BoardListView({
             <div className="divide-y divide-stone-200/50 dark:divide-white/[0.04]">
               {allCards.map((card, index) => {
                 const priorityConfig = PRIORITY_CONFIG[card.priority] || PRIORITY_CONFIG.MEDIUM;
+                const PriorityIcon = priorityConfig.icon;
                 const statusPill = STATUS_PILL_CONFIG[card.status] || STATUS_PILL_CONFIG.TODO;
                 const isCardDone = card.status === "DONE";
                 const cardOverdue = checkIsOverdue(card.dueDate);
@@ -822,18 +823,19 @@ export function BoardListView({
                     </div>
 
                     {/* 2. Priority Pill Dropdown */}
-                    <div className="w-28 px-2 py-1.5 flex justify-center" onClick={(e) => e.stopPropagation()}>
+                    <div className="w-32 px-2 py-1.5 flex justify-center" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
                             className={cn(
-                              "inline-flex h-6 items-center gap-1 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer",
+                              "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer",
                               priorityConfig.pillClass
                             )}
                           >
-                            <span>{priorityConfig.code}</span>
-                            <ChevronDown className="h-3 w-3 opacity-70" />
+                            <PriorityIcon className="h-3 w-3 shrink-0" />
+                            <span>{priorityConfig.shortLabel}</span>
+                            <ChevronDown className="h-3 w-3 opacity-70 shrink-0" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="center" className="w-48 z-[1200]">
@@ -843,21 +845,30 @@ export function BoardListView({
                             onClick={() => void handleUpdatePriority(card, "HIGH")}
                             className="cursor-pointer text-xs flex items-center justify-between font-semibold text-red-600 dark:text-red-400"
                           >
-                            <span>P0 • High (Urgent)</span>
+                            <span className="flex items-center gap-1.5">
+                              <ArrowUp className="h-3.5 w-3.5" />
+                              <span>High (Urgent)</span>
+                            </span>
                             {card.priority === "HIGH" && <Check className="h-3.5 w-3.5" />}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => void handleUpdatePriority(card, "MEDIUM")}
                             className="cursor-pointer text-xs flex items-center justify-between font-semibold text-indigo-600 dark:text-indigo-400"
                           >
-                            <span>P1 • Medium</span>
+                            <span className="flex items-center gap-1.5">
+                              <ArrowRight className="h-3.5 w-3.5" />
+                              <span>Medium</span>
+                            </span>
                             {card.priority === "MEDIUM" && <Check className="h-3.5 w-3.5" />}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => void handleUpdatePriority(card, "LOW")}
                             className="cursor-pointer text-xs flex items-center justify-between font-semibold text-sky-600 dark:text-sky-400"
                           >
-                            <span>P2 • Low</span>
+                            <span className="flex items-center gap-1.5">
+                              <ArrowDown className="h-3.5 w-3.5" />
+                              <span>Low</span>
+                            </span>
                             {card.priority === "LOW" && <Check className="h-3.5 w-3.5" />}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -1085,8 +1096,8 @@ export function BoardListView({
                     className="h-7 w-full rounded-lg border border-stone-200 bg-white px-2.5 text-xs text-stone-900 placeholder:text-stone-400 focus:border-indigo-400 focus:outline-none dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                   />
                 </div>
-                <div className="w-28 px-2 flex justify-center">
-                  <span className="text-[10px] text-stone-400 italic">Default P1</span>
+                <div className="w-32 px-2 flex justify-center">
+                  <span className="text-[10px] text-stone-400 italic">Default Medium</span>
                 </div>
                 <div className="w-40 px-2">
                   <span className="text-[10px] text-stone-400 italic">Unassigned</span>
@@ -1174,6 +1185,7 @@ export function BoardListView({
                       <div className="divide-y divide-stone-200/40 dark:divide-white/[0.03]">
                         {column.cards.map((card, idx) => {
                           const priorityConfig = PRIORITY_CONFIG[card.priority] || PRIORITY_CONFIG.MEDIUM;
+                          const PriorityIcon = priorityConfig.icon;
                           const isCardDone = card.status === "DONE";
                           const cardOverdue = checkIsOverdue(card.dueDate);
                           const checklistTotal = card.checklist.length;
@@ -1217,15 +1229,57 @@ export function BoardListView({
                                 </span>
                               </div>
 
-                              <div className="w-28 px-2 py-1.5 flex justify-center">
-                                <span
-                                  className={cn(
-                                    "inline-flex h-6 items-center gap-1 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs",
-                                    priorityConfig.pillClass
-                                  )}
-                                >
-                                  {priorityConfig.code}
-                                </span>
+                              {/* 2. Priority Pill Dropdown */}
+                              <div className="w-32 px-2 py-1.5 flex justify-center" onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <button
+                                      type="button"
+                                      className={cn(
+                                        "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer",
+                                        priorityConfig.pillClass
+                                      )}
+                                    >
+                                      <PriorityIcon className="h-3 w-3 shrink-0" />
+                                      <span>{priorityConfig.shortLabel}</span>
+                                      <ChevronDown className="h-3 w-3 opacity-70 shrink-0" />
+                                    </button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="center" className="w-48 z-[1200]">
+                                    <DropdownMenuLabel className="text-xs">Set Priority</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={() => void handleUpdatePriority(card, "HIGH")}
+                                      className="cursor-pointer text-xs flex items-center justify-between font-semibold text-red-600 dark:text-red-400"
+                                    >
+                                      <span className="flex items-center gap-1.5">
+                                        <ArrowUp className="h-3.5 w-3.5" />
+                                        <span>High (Urgent)</span>
+                                      </span>
+                                      {card.priority === "HIGH" && <Check className="h-3.5 w-3.5" />}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => void handleUpdatePriority(card, "MEDIUM")}
+                                      className="cursor-pointer text-xs flex items-center justify-between font-semibold text-indigo-600 dark:text-indigo-400"
+                                    >
+                                      <span className="flex items-center gap-1.5">
+                                        <ArrowRight className="h-3.5 w-3.5" />
+                                        <span>Medium</span>
+                                      </span>
+                                      {card.priority === "MEDIUM" && <Check className="h-3.5 w-3.5" />}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => void handleUpdatePriority(card, "LOW")}
+                                      className="cursor-pointer text-xs flex items-center justify-between font-semibold text-sky-600 dark:text-sky-400"
+                                    >
+                                      <span className="flex items-center gap-1.5">
+                                        <ArrowDown className="h-3.5 w-3.5" />
+                                        <span>Low</span>
+                                      </span>
+                                      {card.priority === "LOW" && <Check className="h-3.5 w-3.5" />}
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                               </div>
 
                               <div className="w-40 px-2 py-1.5 truncate">
