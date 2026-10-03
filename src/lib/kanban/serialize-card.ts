@@ -1,5 +1,5 @@
 import { normalizeCardColor } from "@/lib/theme/card-colors";
-import type { CardStatus, ChecklistItem } from "@/types/kanban";
+import type { CardPriority, CardStatus, ChecklistItem } from "@/types/kanban";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { extractDifficulty } from "@/lib/kanban/difficulty";
 import { extractAssigneeIds } from "@/lib/kanban/assignees";
@@ -25,7 +25,7 @@ export function serializeCard<T extends {
   startDateAllDay: boolean;
   dueDate: string | null;
   dueDateAllDay: boolean;
-  priority: "LOW" | "MEDIUM" | "HIGH";
+  priority: CardPriority;
   isStarred: boolean;
   rewardCoins: number;
   privateCoins: unknown;
@@ -43,7 +43,7 @@ export function serializeCard<T extends {
     startDateAllDay: extractStartDateAllDay(card.privateCoins),
     dueDate: dueDate ? dueDate.toISOString() : null,
     dueDateAllDay: card.dueDateAllDay,
-    priority: priority as "LOW" | "MEDIUM" | "HIGH",
+    priority: (priority || "MEDIUM") as CardPriority,
     isStarred: card.isStarred,
     rewardCoins: card.rewardCoins,
     privateCoins: card.privateCoins,

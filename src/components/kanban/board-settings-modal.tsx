@@ -16,6 +16,9 @@ import {
   type BoardColumnInfo,
   type BoardMemberInfo
 } from "./board-settings";
+import { BoardPrioritiesTab } from "./board-priorities-tab";
+import { resolveBoardPriorities } from "@/lib/kanban/priority";
+import type { CustomPriority } from "@/types/kanban";
 
 export type { BoardColumnInfo, BoardMemberInfo };
 
@@ -28,8 +31,16 @@ export interface BoardSettingsModalProps {
   isPrivate: boolean;
   memberUserIds?: string[];
   columnsPreview?: BoardColumnInfo[];
+  customPriorities?: CustomPriority[] | null;
+  defaultTab?: string;
   canManage?: boolean;
-  onSaved?: (updated: { id: string; name: string; isPrivate: boolean; memberUserIds?: string[] }) => void;
+  onSaved?: (updated: {
+    id: string;
+    name: string;
+    isPrivate: boolean;
+    memberUserIds?: string[];
+    customPriorities?: CustomPriority[] | null;
+  }) => void;
   onDeleted?: (boardId: string) => void;
 }
 
@@ -45,19 +56,24 @@ export function BoardSettingsModal({
   isPrivate: initialIsPrivate,
   memberUserIds: initialMemberUserIds = EMPTY_MEMBERS,
   columnsPreview: initialColumns = EMPTY_COLUMNS,
+  customPriorities: initialCustomPriorities,
+  defaultTab = "general",
   canManage = true,
   onSaved,
   onDeleted
 }: BoardSettingsModalProps) {
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<string>("general");
+  const [activeTab, setActiveTab] = useState<string>(defaultTab);
   const [name, setName] = useState(boardName);
   const [baseName, setBaseName] = useState(boardName);
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate);
   const [baseIsPrivate, setBaseIsPrivate] = useState(initialIsPrivate);
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(initialMemberUserIds);
   const [baseMemberIds, setBaseMemberIds] = useState<string[]>(initialMemberUserIds);
+
+  const [priorities, setPriorities] = useState<CustomPriority[]>(() => resolveBoardPriorities(initialCustomPriorities));
+  const [basePriorities, setBasePriorities] = useState<CustomPriority[]>(() => resolveBoardPriorities(initialCustomPriorities));
 
   const [projectMembers, setProjectMembers] = useState<BoardMemberInfo[]>([]);
   const [columns, setColumns] = useState<BoardColumnInfo[]>(initialColumns);
@@ -86,14 +102,17 @@ export function BoardSettingsModal({
       setSelectedMemberIds(initialMemberUserIds);
       setBaseMemberIds(initialMemberUserIds);
       setColumns(initialColumns);
+      const resolved = resolveBoardPriorities(initialCustomPriorities);
+      setPriorities(resolved);
+      setBasePriorities(resolved);
       setError(null);
-      setActiveTab("general");
+      setActiveTab(defaultTab || "general");
       setMemberSearchQuery("");
     }
 
     prevOpenRef.current = open;
     prevBoardIdRef.current = boardId;
-  }, [open, boardId, boardName, initialIsPrivate, initialMemberUserIds, initialColumns]);
+  }, [open, boardId, boardName, initialIsPrivate, initialMemberUserIds, initialColumns, initialCustomPriorities, defaultTab]);
 
   // Fetch full board info and project members
   useEffect(() => {
@@ -146,6 +165,12 @@ export function BoardSettingsModal({
             }))
           );
         }
+
+        if (boardData.board.customPriorities !== undefined) {
+          const fetchedPriorities = resolveBoardPriorities(boardData.board.customPriorities);
+          setPriorities(fetchedPriorities);
+          setBasePriorities(fetchedPriorities);
+        }
       }
     });
 
@@ -157,6 +182,7 @@ export function BoardSettingsModal({
   const isDirty = useMemo(() => {
     if (name.trim() !== baseName.trim()) return true;
     if (isPrivate !== baseIsPrivate) return true;
+    if (JSON.stringify(priorities) !== JSON.stringify(basePriorities)) return true;
     const currentSet = new Set(selectedMemberIds);
     const baseSet = new Set(baseMemberIds);
     if (currentSet.size !== baseSet.size) return true;
@@ -164,7 +190,7 @@ export function BoardSettingsModal({
       if (!baseSet.has(id)) return true;
     }
     return false;
-  }, [name, baseName, isPrivate, baseIsPrivate, selectedMemberIds, baseMemberIds]);
+  }, [name, baseName, isPrivate, baseIsPrivate, selectedMemberIds, baseMemberIds, priorities, basePriorities]);
 
   const filteredMembers = useMemo(() => {
     if (!memberSearchQuery.trim()) return projectMembers;
@@ -206,7 +232,8 @@ export function BoardSettingsModal({
         body: JSON.stringify({
           name: name.trim(),
           isPrivate,
-          memberUserIds: isPrivate ? selectedMemberIds : []
+          memberUserIds: isPrivate ? selectedMemberIds : [],
+          customPriorities: priorities
         })
       });
 
@@ -226,13 +253,19 @@ export function BoardSettingsModal({
             detail: { id: boardId, name: data.board.name }
           })
         );
+        window.dispatchEvent(
+          new CustomEvent("board-priorities-updated", {
+            detail: { boardId, customPriorities: data.board.customPriorities }
+          })
+        );
       }
       if (onSaved) {
         onSaved({
           id: boardId,
           name: data.board.name,
           isPrivate: data.board.isPrivate,
-          memberUserIds: isPrivate ? selectedMemberIds : []
+          memberUserIds: isPrivate ? selectedMemberIds : [],
+          customPriorities: data.board.customPriorities
         });
       }
       onClose();
@@ -327,7 +360,7 @@ export function BoardSettingsModal({
 
           {/* Navigation Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-4 w-full bg-stone-100/90 border border-stone-200/90 p-1 rounded-xl dark:border-white/10 dark:bg-white/[0.03]">
+            <TabsList className="grid grid-cols-5 w-full bg-stone-100/90 border border-stone-200/90 p-1 rounded-xl dark:border-white/10 dark:bg-white/[0.03]">
               <TabsTrigger value="general" className="text-xs py-1.5">
                 General
               </TabsTrigger>
@@ -343,6 +376,12 @@ export function BoardSettingsModal({
                 Columns
                 <span className="ml-1.5 rounded-full bg-stone-200/80 px-1.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-stone-300">
                   {columns.length}
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="priorities" className="text-xs py-1.5">
+                Priorities
+                <span className="ml-1.5 rounded-full bg-indigo-500/15 px-1.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-semibold">
+                  {priorities.length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="danger" className="text-xs py-1.5 text-red-500 hover:text-red-600 data-[state=active]:text-red-700 data-[state=active]:bg-red-50 dark:text-red-400 dark:data-[state=active]:text-red-300 dark:data-[state=active]:bg-red-400/15">
@@ -388,7 +427,16 @@ export function BoardSettingsModal({
               />
             </TabsContent>
 
-            {/* TAB 4: Danger Zone */}
+            {/* TAB 4: Priorities (Custom Priorities up to 10 levels) */}
+            <TabsContent value="priorities">
+              <BoardPrioritiesTab
+                priorities={priorities}
+                onChange={setPriorities}
+                canManage={canManage}
+              />
+            </TabsContent>
+
+            {/* TAB 5: Danger Zone */}
             <TabsContent value="danger">
               <BoardDangerTab
                 boardName={boardName}

@@ -1,11 +1,12 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Calendar as CalendarIcon, Clock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarView, formatDisplayDateShort } from "@/components/ui/date-picker";
 import { TimeView, formatDisplayTime } from "@/components/ui/time-picker";
+import { useOutsideClickDismiss } from "@/hooks/use-outside-click";
 
 export interface DateTimePickerValue {
   date: string;
@@ -40,6 +41,10 @@ export function DateTimePicker({
   const [activeTab, setActiveTab] = useState<"date" | "time">("date");
   const generatedId = useId();
   const inputId = id || generatedId;
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClickDismiss(open, () => setOpen(false), contentRef, triggerRef);
 
   const dateString = value.date ? formatDisplayDateShort(value.date) : "";
   const timeString = value.time ? formatDisplayTime(value.time) : "";
@@ -73,6 +78,7 @@ export function DateTimePicker({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
+            ref={triggerRef}
             id={inputId}
             type="button"
             disabled={disabled}
@@ -110,6 +116,7 @@ export function DateTimePicker({
         </PopoverTrigger>
 
         <PopoverContent
+          ref={contentRef}
           align={align}
           sideOffset={6}
           className="w-auto p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
@@ -154,6 +161,7 @@ export function DateTimePicker({
             <TimeView
               value={value.time}
               onChange={handleTimeChange}
+              onConfirm={() => setOpen(false)}
             />
           )}
 

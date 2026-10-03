@@ -1,8 +1,7 @@
 "use client";
 
-import { Bot, Sparkles } from "lucide-react";
-
 import { useAiChat } from "@/components/ai/ai-chat-context";
+import { GeminiSparkleIcon } from "@/components/ai/gemini-sparkle-icon";
 import { cn } from "@/lib/utils";
 
 interface AiChatTriggerProps {
@@ -17,20 +16,19 @@ export function AiChatTrigger({ className }: AiChatTriggerProps) {
       type="button"
       onClick={toggleAiChat}
       className={cn(
-        "relative grid h-9 w-9 shrink-0 place-items-center rounded-lg border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 cursor-pointer",
-        isOpen
-          ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender shadow-[0_0_12px_rgba(168,143,212,0.25)]"
-          : "border-white/10 bg-white/[0.045] text-stone-400 hover:border-dusk-lavender/45 hover:text-dusk-lavender hover:bg-white/[0.07]",
+        "relative grid h-9 w-9 shrink-0 place-items-center rounded-full transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 hover:bg-white/10 active:scale-95 cursor-pointer",
+        isOpen && "bg-white/[0.08] shadow-[0_0_12px_rgba(192,132,252,0.25)]",
         className
       )}
       aria-label="เปิดแชทผู้ช่วย AI"
-      title="เปิดแชทผู้ช่วย AI (DeepSeek)"
+      title="เปิดแชทผู้ช่วย AI (Gemini Assistant)"
     >
-      <Bot className="h-4 w-4" />
-      <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 ring-1 ring-ink-950" />
-      </span>
+      <GeminiSparkleIcon
+        className={cn(
+          "h-5 w-5 transition-transform duration-200",
+          isOpen ? "scale-110 drop-shadow-[0_0_8px_rgba(192,132,252,0.6)]" : "hover:scale-110"
+        )}
+      />
     </button>
   );
 }

@@ -75,6 +75,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       name: b.name,
       projectId: b.projectId,
       isPrivate: b.isPrivate,
+      customPriorities: b.customPriorities,
       createdAt: b.createdAt.toISOString(),
       memberUserIds: b.members.map((m) => m.userId),
       members: b.members.map((m) => ({
@@ -165,6 +166,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
           name: board.name,
           projectId: board.projectId,
           isPrivate: board.isPrivate,
+          customPriorities: board.customPriorities,
           createdAt: board.createdAt.toISOString(),
           memberUserIds: board.members.map((m) => m.userId),
           members: board.members.map((m) => ({

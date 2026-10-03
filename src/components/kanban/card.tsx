@@ -16,8 +16,9 @@ import { resolveAssignees } from "@/lib/kanban/assignees";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { getCardColorMeta } from "@/lib/theme/card-colors";
+import { getPriorityMeta } from "@/lib/kanban/priority";
 import { cn } from "@/lib/utils";
-import type { Card, CardAssignee } from "@/types/kanban";
+import type { Card, CardAssignee, CustomPriority } from "@/types/kanban";
 
 export interface KanbanCardProps {
   card: Card;
@@ -26,6 +27,7 @@ export interface KanbanCardProps {
   isDragDisabled?: boolean;
   members?: CardAssignee[];
   currentUserId?: string;
+  priorities?: CustomPriority[];
   density?: "comfortable" | "compact";
   onEdit?: (card: Card) => void;
   onSaved?: (card: Card) => void;
@@ -41,6 +43,7 @@ function areCardPropsEqual(prev: KanbanCardProps, next: KanbanCardProps) {
   if (prev.onEdit !== next.onEdit) return false;
   if (prev.onSaved !== next.onSaved) return false;
   if (prev.members !== next.members) return false;
+  if (prev.priorities !== next.priorities) return false;
   if (prev.card === next.card) return true;
   return (
     prev.card.id === next.card.id &&
@@ -73,6 +76,7 @@ function KanbanCardComponent({
   isDragDisabled = false,
   members = [],
   currentUserId,
+  priorities,
   density = "comfortable",
   onEdit,
   onSaved
@@ -99,6 +103,7 @@ function KanbanCardComponent({
   const completedChecklist = card.checklist.filter((item) => item.checked).length;
   const statusMeta = getStatusMeta(card.status);
   const colorMeta = getCardColorMeta(card.color);
+  const priorityMeta = getPriorityMeta(card.priority, priorities);
   const visibleStickers = normalizeRetroStickerSelection(card.stickers);
   const isOverdue = mounted && card.dueDate && new Date(card.dueDate) < new Date() && card.status !== "DONE";
 
@@ -175,12 +180,10 @@ function KanbanCardComponent({
             <span
               className={cn(
                 "rounded-md border px-1.5 py-0.2 text-[10px] uppercase font-semibold",
-                card.priority === "HIGH" && "border-red-200 bg-red-50 text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-400",
-                card.priority === "MEDIUM" && "border-amber-200 bg-amber-50 text-amber-700 dark:border-dusk-amber/20 dark:bg-dusk-amber/10 dark:text-dusk-amber",
-                card.priority === "LOW" && "border-stone-200 bg-stone-100 text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300"
+                priorityMeta.pillClass
               )}
             >
-              {card.priority ?? "MEDIUM"}
+              {priorityMeta.label}
             </span>
 
             {card.difficulty ? (
@@ -300,13 +303,13 @@ function KanbanCardComponent({
           </div>
           <div className="flex flex-wrap gap-1.5">
             <span className={cn("rounded-full border px-2 py-0.5 text-xs font-medium", statusMeta.badgeClass)}>{statusMeta.label}</span>
-            <span className={cn(
-              "rounded-full border px-2 py-0.5 text-xs uppercase tracking-wide",
-              card.priority === "HIGH" && "border-red-200 bg-red-50 text-red-700 font-semibold dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-400",
-              card.priority === "MEDIUM" && "border-amber-200 bg-amber-50 text-amber-700 font-medium dark:border-dusk-amber/20 dark:bg-dusk-amber/10 dark:text-dusk-amber",
-              card.priority === "LOW" && "border-stone-200 bg-stone-100 text-stone-600 font-medium dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300"
-            )}>
-              {card.priority ?? "MEDIUM"}
+            <span
+              className={cn(
+                "rounded-full border px-2 py-0.5 text-xs uppercase tracking-wide font-semibold",
+                priorityMeta.pillClass
+              )}
+            >
+              {priorityMeta.label}
             </span>
             {card.difficulty ? (
               <span

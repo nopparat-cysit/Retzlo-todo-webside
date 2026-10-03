@@ -10,7 +10,20 @@ import { triggerPusherEvent } from "@/lib/pusher/server";
 const updateBoardSchema = z.object({
   name: z.string().trim().min(1, "Board name cannot be empty").max(80).optional(),
   isPrivate: z.boolean().optional(),
-  memberUserIds: z.array(z.string()).optional()
+  memberUserIds: z.array(z.string()).optional(),
+  customPriorities: z
+    .array(
+      z.object({
+        id: z.string().min(1).max(50),
+        label: z.string().trim().min(1, "Priority label cannot be empty").max(30),
+        color: z.string().min(1).max(30),
+        level: z.number().int().min(1).max(10)
+      })
+    )
+    .min(1, "Must have at least 1 priority level")
+    .max(10, "Cannot exceed 10 priority levels")
+    .nullable()
+    .optional()
 });
 
 export const dynamic = "force-dynamic";
@@ -123,9 +136,10 @@ export async function PATCH(request: Request, { params }: { params: { boardId: s
     }
 
     const updated = await prisma.$transaction(async (tx) => {
-      const dataToUpdate: { name?: string; isPrivate?: boolean } = {};
+      const dataToUpdate: { name?: string; isPrivate?: boolean; customPriorities?: any } = {};
       if (payload.name !== undefined) dataToUpdate.name = payload.name;
       if (payload.isPrivate !== undefined) dataToUpdate.isPrivate = payload.isPrivate;
+      if (payload.customPriorities !== undefined) dataToUpdate.customPriorities = payload.customPriorities;
 
       if (payload.memberUserIds !== undefined) {
         // Sync members
@@ -176,6 +190,7 @@ export async function PATCH(request: Request, { params }: { params: { boardId: s
         name: updated.name,
         projectId: updated.projectId,
         isPrivate: updated.isPrivate,
+        customPriorities: updated.customPriorities,
         createdAt: updated.createdAt.toISOString(),
         memberUserIds: updated.members.map((m) => m.userId),
         members: updated.members.map((m) => ({

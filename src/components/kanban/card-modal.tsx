@@ -40,43 +40,11 @@ import { getPrivateCoinEntry, resolveCardRewardPayload } from "@/lib/kanban/priv
 import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
 import { cardStickerOptions, normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
+import { getPriorityColorConfig, resolveBoardPriorities } from "@/lib/kanban/priority";
 import { cn } from "@/lib/utils";
-import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem } from "@/types/kanban";
+import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem, CustomPriority } from "@/types/kanban";
 
-const priorityMeta: Record<
-  CardPriority,
-  {
-    label: string;
-    mobileLabel: string;
-    buttonClass: string;
-    selectedButtonClass: string;
-  }
-> = {
-  LOW: {
-    label: "LOW",
-    mobileLabel: "Low",
-    buttonClass:
-      "border-stone-200 bg-stone-50 text-stone-700 hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200",
-    selectedButtonClass:
-      "border-indigo-600 bg-indigo-600 text-white font-semibold shadow-xs dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950"
-  },
-  MEDIUM: {
-    label: "MEDIUM",
-    mobileLabel: "Med",
-    buttonClass:
-      "border-stone-200 bg-stone-50 text-stone-700 hover:border-amber-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200",
-    selectedButtonClass:
-      "border-amber-600 bg-amber-600 text-white font-semibold shadow-xs dark:border-dusk-amber dark:bg-dusk-amber dark:text-ink-950"
-  },
-  HIGH: {
-    label: "HIGH",
-    mobileLabel: "High",
-    buttonClass:
-      "border-stone-200 bg-stone-50 text-stone-700 hover:border-red-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200",
-    selectedButtonClass:
-      "border-red-600 bg-red-600 text-white font-semibold shadow-xs dark:border-red-500 dark:bg-red-600 dark:text-white"
-  }
-};
+
 
 interface CardModalProps {
   card?: Card;
@@ -87,6 +55,7 @@ interface CardModalProps {
   footerAction?: ReactNode;
   members?: CardAssignee[];
   currentUserId?: string;
+  boardPriorities?: CustomPriority[];
   onSubmit: (data: {
     title: string;
     description: string | null;
@@ -98,7 +67,7 @@ interface CardModalProps {
     startDateAllDay?: boolean;
     dueDate: string | null;
     dueDateAllDay: boolean;
-    priority: "LOW" | "MEDIUM" | "HIGH";
+    priority: CardPriority;
     isStarred: boolean;
     rewardCoins?: number;
     privateCoins?: any;
@@ -149,14 +118,29 @@ function timeValue(card?: Card) {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
-export function CardModal({ card, mode, open, onClose, onDelete, footerAction, members = [], currentUserId, onSubmit }: CardModalProps) {
+export function CardModal({ card, mode, open, onClose, onDelete, footerAction, members = [], currentUserId, boardPriorities, onSubmit }: CardModalProps) {
   const [startDate, setStartDate] = useState(startDateValue(card));
   const [startTime, setStartTime] = useState(startTimeValue(card));
   const [date, setDate] = useState(dateValue(card));
   const [time, setTime] = useState(timeValue(card));
   const [selectedStatus, setSelectedStatus] = useState<CardStatus>(card?.status ?? "TODO");
   const [selectedColor, setSelectedColor] = useState<CardColor>(normalizeCardColor(card?.color));
-  const [selectedPriority, setSelectedPriority] = useState<"LOW" | "MEDIUM" | "HIGH">(card?.priority ?? "MEDIUM");
+  const [selectedPriority, setSelectedPriority] = useState<CardPriority>(card?.priority ?? "MEDIUM");
+  const activePriorities = useMemo(() => {
+    const resolved = resolveBoardPriorities(boardPriorities);
+    if (selectedPriority && !resolved.some((p) => p.label.toUpperCase() === selectedPriority.toUpperCase() || p.id === selectedPriority)) {
+      return [
+        ...resolved,
+        {
+          id: `legacy-${selectedPriority}`,
+          label: selectedPriority,
+          level: resolved.length + 1,
+          color: "stone"
+        }
+      ];
+    }
+    return resolved;
+  }, [boardPriorities, selectedPriority]);
   const [difficulty, setDifficulty] = useState<DifficultyScore | null>(card?.difficulty ?? null);
   const [assigneeIds, setAssigneeIds] = useState<string[]>(card?.assigneeIds ?? []);
   const [isStarred, setIsStarred] = useState(card?.isStarred ?? false);
@@ -695,23 +679,28 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                 ))}
               </div>
             </div>
-            <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/5">
-              <span className="text-xs text-stone-400 font-medium shrink-0">Priority</span>
-              <div className="flex gap-1.5 flex-1 max-w-[200px]">
-                {(["LOW", "MEDIUM", "HIGH"] as const).map((p) => {
-                  const meta = priorityMeta[p];
-                  const isSelected = selectedPriority === p;
+            <div className="pt-2 border-t border-white/5 space-y-1.5">
+              <span className="text-xs text-stone-400 font-medium">Priority</span>
+              <div className="flex flex-wrap gap-1.5">
+                {activePriorities.map((item) => {
+                  const colorConfig = getPriorityColorConfig(item.color);
+                  const isSelected =
+                    selectedPriority?.toUpperCase() === item.id.toUpperCase() ||
+                    selectedPriority?.toUpperCase() === item.label.toUpperCase();
                   return (
                     <button
-                      key={`mobile-${p}`}
+                      key={`mobile-${item.id}`}
                       type="button"
-                      onClick={() => setSelectedPriority(p)}
+                      onClick={() => setSelectedPriority(item.id)}
                       className={cn(
-                        "flex-1 py-1 rounded-lg border text-[11px] font-semibold transition text-center",
-                        isSelected ? meta.selectedButtonClass : meta.buttonClass
+                        "px-2.5 py-1 rounded-lg border text-xs font-semibold transition text-center flex items-center gap-1.5",
+                        isSelected
+                          ? cn(colorConfig.pillClass, "ring-1 ring-white/20 font-bold")
+                          : "border-stone-200 bg-stone-50 text-stone-700 hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200"
                       )}
                     >
-                      {meta.mobileLabel}
+                      <span className={cn("w-2 h-2 rounded-full shrink-0", colorConfig.dotClass)} />
+                      <span>{item.label}</span>
                     </button>
                   );
                 })}
@@ -814,22 +803,27 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
           <div className="space-y-2 text-sm text-stone-300 hidden lg:block">
             <span>Priority</span>
-            <div className="flex gap-2">
-              {(["LOW", "MEDIUM", "HIGH"] as const).map((p) => {
-                const meta = priorityMeta[p];
-                const isSelected = selectedPriority === p;
+            <div className="flex flex-wrap gap-2">
+              {activePriorities.map((item) => {
+                const colorConfig = getPriorityColorConfig(item.color);
+                const isSelected =
+                  selectedPriority?.toUpperCase() === item.id.toUpperCase() ||
+                  selectedPriority?.toUpperCase() === item.label.toUpperCase();
 
                 return (
                   <button
-                    key={p}
+                    key={item.id}
                     className={cn(
-                      "flex-1 h-10 rounded-md border text-sm font-medium transition",
-                      isSelected ? meta.selectedButtonClass : meta.buttonClass
+                      "h-9 px-3 rounded-md border text-xs font-medium transition flex items-center gap-1.5",
+                      isSelected
+                        ? cn(colorConfig.pillClass, "ring-2 ring-indigo-500/30 font-semibold shadow-xs")
+                        : "border-stone-200 bg-stone-50 text-stone-700 hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                     type="button"
-                    onClick={() => setSelectedPriority(p)}
+                    onClick={() => setSelectedPriority(item.id)}
                   >
-                    {meta.label}
+                    <span className={cn("w-2 h-2 rounded-full shrink-0", colorConfig.dotClass)} />
+                    <span>{item.label}</span>
                   </button>
                 );
               })}

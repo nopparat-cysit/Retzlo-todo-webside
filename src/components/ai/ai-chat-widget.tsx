@@ -22,6 +22,7 @@ import { useAiChat } from "@/components/ai/ai-chat-context";
 import { getAiAuthHeaders, getClientAiModel } from "@/lib/ai/client-key";
 import type { AiCreateCardProposal } from "@/lib/ai/chat-actions";
 import { ApiKeyModal } from "@/components/ai/api-key-modal";
+import { GeminiSparkleIcon } from "@/components/ai/gemini-sparkle-icon";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage {
@@ -66,8 +67,7 @@ export function AiChatWidget() {
   const pathname = usePathname();
   const { toast } = useToast();
 
-  const { isOpen, setIsOpen } = useAiChat();
-  const [viewMode, setViewMode] = useState<"float" | "sidepanel">("float");
+  const { isOpen, setIsOpen, viewMode, setViewMode, isSmallScreen } = useAiChat();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -387,13 +387,13 @@ export function AiChatWidget() {
 
   return (
     <>
-      {/* ─── AI Chat Window (Supports Float at Bottom-Left & Side Panel like Gemini) ─── */}
+      {/* ─── AI Chat Window (Supports Float at Bottom-Right & Side Panel like Gemini) ─── */}
       {isOpen && (
         <div
           className={cn(
             "z-50 flex flex-col border border-theme-border bg-theme-panel text-theme-foreground shadow-2xl backdrop-blur-xl transition-all duration-300",
-            viewMode === "float"
-              ? "fixed bottom-4 left-4 sm:bottom-6 sm:left-6 w-[360px] sm:w-[420px] h-[560px] max-h-[85vh] rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6"
+            viewMode === "float" || isSmallScreen
+              ? "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[min(calc(100vw-2rem),420px)] h-[560px] max-h-[85vh] rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6"
               : "fixed top-0 right-0 bottom-0 w-[380px] sm:w-[450px] max-w-full border-l border-theme-border rounded-none overflow-hidden animate-in fade-in slide-in-from-right-6"
           )}
         >
@@ -401,7 +401,7 @@ export function AiChatWidget() {
           <div className="flex items-center justify-between border-b border-theme-border bg-theme-panel-strong px-4 py-3 shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="relative flex h-8 w-8 items-center justify-center rounded-xl border border-theme-border bg-theme-paper text-theme-accent">
-                <Bot className="h-4.5 w-4.5" />
+                <GeminiSparkleIcon className="h-4.5 w-4.5" />
                 <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-theme-success ring-2 ring-theme-panel-strong" />
               </div>
               <div>
@@ -432,22 +432,24 @@ export function AiChatWidget() {
                 <RotateCcw className="h-3.5 w-3.5" />
               </button>
 
-              <button
-                type="button"
-                onClick={() => setViewMode(viewMode === "float" ? "sidepanel" : "float")}
-                className="rounded-lg p-1.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
-                title={
-                  viewMode === "float"
-                    ? "ตรึงแถบข้าง (Side Panel แบบ Gemini ใน Sheets)"
-                    : "สลับเป็นกล่องแชทลอย (ซ้ายล่าง)"
-                }
-              >
-                {viewMode === "float" ? (
-                  <PanelRight className="h-3.5 w-3.5" />
-                ) : (
-                  <PanelRightClose className="h-3.5 w-3.5" />
-                )}
-              </button>
+              {!isSmallScreen && (
+                <button
+                  type="button"
+                  onClick={() => setViewMode(viewMode === "float" ? "sidepanel" : "float")}
+                  className="rounded-lg p-1.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
+                  title={
+                    viewMode === "float"
+                      ? "ตรึงแถบข้าง (Side Panel แบบ Gemini ใน Sheets)"
+                      : "สลับเป็นกล่องแชทลอย (ขวาล่าง)"
+                  }
+                >
+                  {viewMode === "float" ? (
+                    <PanelRight className="h-3.5 w-3.5" />
+                  ) : (
+                    <PanelRightClose className="h-3.5 w-3.5" />
+                  )}
+                </button>
+              )}
 
               <button
                 type="button"

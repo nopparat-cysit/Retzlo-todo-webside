@@ -22,7 +22,7 @@ import {
 } from "@/lib/kanban/column-settings";
 import { calculateColumnPoints, type DifficultyScore } from "@/lib/kanban/difficulty";
 import { cn } from "@/lib/utils";
-import type { Card, CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
+import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem, ColumnWithCards, CustomPriority } from "@/types/kanban";
 
 export interface KanbanColumnProps {
   column: ColumnWithCards;
@@ -31,6 +31,7 @@ export interface KanbanColumnProps {
   isDropTarget: boolean;
   members?: CardAssignee[];
   currentUserId?: string;
+  priorities?: CustomPriority[];
   density?: "comfortable" | "compact";
   onEditCard?: (card: Card) => void;
   onCreateCard: (
@@ -43,7 +44,7 @@ export interface KanbanColumnProps {
       checklist: ChecklistItem[];
       dueDate: string | null;
       dueDateAllDay: boolean;
-      priority?: "LOW" | "MEDIUM" | "HIGH";
+      priority?: CardPriority;
       isStarred?: boolean;
       rewardCoins?: number;
       privateCoins?: any;
@@ -76,6 +77,7 @@ function KanbanColumnComponent({
   isDropTarget,
   members = [],
   currentUserId,
+  priorities,
   density = "comfortable",
   onEditCard,
   onCreateCard,
@@ -451,6 +453,7 @@ function KanbanColumnComponent({
               columnId={column.id}
               members={members}
               currentUserId={currentUserId}
+              priorities={priorities}
               density={density}
               isDragPreviewTarget={activeCardId === card.id}
               onEdit={onEditCard}
@@ -660,6 +663,7 @@ function KanbanColumnComponent({
         open={isModalOpen}
         members={members}
         currentUserId={currentUserId}
+        boardPriorities={priorities}
         onClose={() => setIsModalOpen(false)}
         onSubmit={async (payload) => {
           await onCreateCard(column.id, payload);

@@ -108,15 +108,16 @@ model Invitation {
 }
 
 model Board {
-  id        String        @id @default(uuid())
-  name      String
-  isPrivate Boolean       @default(false)
-  projectId String
-  createdAt DateTime      @default(now())
-  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  columns   Column[]
-  members   BoardMember[]
-  notes     Note[]
+  id               String        @id @default(uuid())
+  name             String
+  isPrivate        Boolean       @default(false)
+  customPriorities Json?
+  projectId        String
+  createdAt        DateTime      @default(now())
+  project          Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  columns          Column[]
+  members          BoardMember[]
+  notes            Note[]
 
   @@index([projectId])
 }

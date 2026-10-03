@@ -15,13 +15,13 @@ export function HelpButton({ className, href = "/help" }: HelpButtonProps) {
     <Link
       href={href}
       className={cn(
-        "relative grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50",
+        "relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-stone-400 transition-all hover:text-stone-100 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 active:scale-95",
         className
       )}
       aria-label="ข้อมูลระบบและความช่วยเหลือ"
       title="ข้อมูลระบบ & คู่มือการใช้งาน (Help & Guides)"
     >
-      <HelpCircle className="h-4 w-4" />
+      <HelpCircle className="h-4.5 w-4.5" />
     </Link>
   );
 }

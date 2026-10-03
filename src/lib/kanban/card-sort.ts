@@ -1,4 +1,5 @@
-import { Card } from "@/types/kanban";
+import { Card, CustomPriority } from "@/types/kanban";
+import { getPriorityMeta, resolveBoardPriorities } from "@/lib/kanban/priority";
 
 export type CardSortOption =
   | "manual"
@@ -8,16 +9,16 @@ export type CardSortOption =
   | "difficulty_asc"
   | "due_date";
 
-const PRIORITY_RANKS: Record<string, number> = {
-  HIGH: 3,
-  MEDIUM: 2,
-  LOW: 1
-};
-
-export function sortCards(cards: Card[], sortOption: CardSortOption): Card[] {
+export function sortCards(
+  cards: Card[],
+  sortOption: CardSortOption,
+  boardPriorities?: CustomPriority[]
+): Card[] {
   if (sortOption === "manual") {
     return cards;
   }
+
+  const priorities = resolveBoardPriorities(boardPriorities);
 
   return [...cards].sort((a, b) => {
     if (sortOption === "difficulty_desc") {
@@ -39,19 +40,19 @@ export function sortCards(cards: Card[], sortOption: CardSortOption): Card[] {
     }
 
     if (sortOption === "priority_desc") {
-      const aRank = PRIORITY_RANKS[a.priority ?? "MEDIUM"] ?? 2;
-      const bRank = PRIORITY_RANKS[b.priority ?? "MEDIUM"] ?? 2;
-      if (bRank !== aRank) {
-        return bRank - aRank; // High -> Low
+      const aLevel = getPriorityMeta(a.priority, priorities).level;
+      const bLevel = getPriorityMeta(b.priority, priorities).level;
+      if (aLevel !== bLevel) {
+        return aLevel - bLevel; // High / Urgent (level 1) first
       }
       return (a.position ?? 0) - (b.position ?? 0);
     }
 
     if (sortOption === "priority_asc") {
-      const aRank = PRIORITY_RANKS[a.priority ?? "MEDIUM"] ?? 2;
-      const bRank = PRIORITY_RANKS[b.priority ?? "MEDIUM"] ?? 2;
-      if (aRank !== bRank) {
-        return aRank - bRank; // Low -> High
+      const aLevel = getPriorityMeta(a.priority, priorities).level;
+      const bLevel = getPriorityMeta(b.priority, priorities).level;
+      if (bLevel !== aLevel) {
+        return bLevel - aLevel; // Low (level 10) first
       }
       return (a.position ?? 0) - (b.position ?? 0);
     }

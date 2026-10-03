@@ -4,7 +4,15 @@ import type { DifficultyScore } from "@/lib/kanban/difficulty";
 import type { CardAssignee } from "@/lib/kanban/assignees";
 
 export type { CardAssignee } from "@/lib/kanban/assignees";
-export type CardPriority = "LOW" | "MEDIUM" | "HIGH";
+
+export interface CustomPriority {
+  id: string;
+  label: string;
+  color: string;
+  level: number;
+}
+
+export type CardPriority = "LOW" | "MEDIUM" | "HIGH" | string;
 
 export interface Card {
   id: string;
@@ -54,6 +62,7 @@ export interface BoardSummary {
   name: string;
   projectId: string;
   isPrivate: boolean;
+  customPriorities?: CustomPriority[] | null;
   createdAt: string;
   memberUserIds?: string[];
   members?: Array<{

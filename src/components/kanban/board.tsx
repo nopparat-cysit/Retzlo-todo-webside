@@ -11,13 +11,14 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, Table2, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
+import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, Table2, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { useSearchParams } from "next/navigation";
 import { CardModal } from "@/components/kanban/card-modal";
 import { BoardListView } from "@/components/kanban/board-list-view";
+import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
 import { AiProjectSummaryModal } from "@/components/ai/ai-project-summary-modal";
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
 import { KanbanColumn } from "@/components/kanban/column";
@@ -61,13 +62,14 @@ import { playCardDoneSound, playCardCreateSound } from "@/lib/sound";
 import { cn } from "@/lib/utils";
 import { areColumnsEqual } from "@/lib/kanban/column-equality";
 import { extractDifficulty, type DifficultyScore } from "@/lib/kanban/difficulty";
-import type { Card, CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
+import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem, ColumnWithCards, CustomPriority } from "@/types/kanban";
 
 interface BoardData {
   id: string;
   name: string;
   projectId?: string;
   columns: ColumnWithCards[];
+  customPriorities?: CustomPriority[] | null;
 }
 
 interface MoveAction {
@@ -123,6 +125,9 @@ export function KanbanBoard({
   const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
 
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
+  const [boardPriorities, setBoardPriorities] = useState<CustomPriority[] | undefined>(board.customPriorities ?? undefined);
+  const [isBoardSettingsOpen, setIsBoardSettingsOpen] = useState(false);
+  const [settingsDefaultTab, setSettingsDefaultTab] = useState<string>("general");
 
   useEffect(() => {
     try {
@@ -142,7 +147,21 @@ export function KanbanBoard({
 
   useEffect(() => {
     setColumns(board.columns.map((col) => normalizeColumn(col, members)));
-  }, [board.id, board.columns, members]);
+    setBoardPriorities(board.customPriorities ?? undefined);
+  }, [board.id, board.columns, board.customPriorities, members]);
+
+  useEffect(() => {
+    const handlePrioritiesUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<{ boardId: string; customPriorities?: CustomPriority[] | null }>;
+      if (customEvent.detail && customEvent.detail.boardId === board.id) {
+        setBoardPriorities(customEvent.detail.customPriorities ?? undefined);
+      }
+    };
+    window.addEventListener("board-priorities-updated", handlePrioritiesUpdated);
+    return () => {
+      window.removeEventListener("board-priorities-updated", handlePrioritiesUpdated);
+    };
+  }, [board.id]);
 
   useEffect(() => {
     if (cardIdFromUrl && columns.length > 0) {
@@ -650,7 +669,7 @@ export function KanbanBoard({
       checklist: ChecklistItem[];
       dueDate: string | null;
       dueDateAllDay: boolean;
-      priority?: "LOW" | "MEDIUM" | "HIGH";
+      priority?: CardPriority;
       isStarred?: boolean;
       rewardCoins?: number;
       privateCoins?: any;
@@ -850,7 +869,7 @@ export function KanbanBoard({
         const assigneeFiltered = filterCardsByAssignee(baseCards, assigneeFilter);
         return {
           ...column,
-          cards: sortCards(assigneeFiltered, cardSort)
+          cards: sortCards(assigneeFiltered, cardSort, boardPriorities)
         };
       });
 
@@ -1133,6 +1152,28 @@ export function KanbanBoard({
                 {notesCount > 0 && (
                   <span className="inline-grid min-w-[16px] place-items-center rounded-full bg-dusk-lavender/20 px-1 text-[10px] font-mono text-dusk-lavender">
                     {notesCount}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {/* Priorities Configuration Button */}
+            {board.projectId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSettingsDefaultTab("priorities");
+                  setIsBoardSettingsOpen(true);
+                }}
+                className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
+                title="Configure custom priorities for this board (up to 10 levels, custom colors)"
+                aria-label="Board priorities settings"
+              >
+                <Flag className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                <span className="hidden sm:inline">Priorities</span>
+                {boardPriorities && boardPriorities.length > 0 && (
+                  <span className="rounded bg-indigo-500/10 px-1 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                    {boardPriorities.length}
                   </span>
                 )}
               </button>
@@ -1510,6 +1551,7 @@ export function KanbanBoard({
           allColumns={columns}
           members={members}
           currentUserId={currentUserId}
+          boardPriorities={boardPriorities}
           onEditCard={setEditingCard}
           onCreateCard={(columnId, title) =>
             createCard(columnId, {
@@ -1576,6 +1618,7 @@ export function KanbanBoard({
                       members={members}
                       currentUserId={currentUserId}
                       hasActiveFilters={activeFilterCount > 0}
+                      priorities={boardPriorities}
                     />
                   ))}
                 </SortableContext>
@@ -1596,6 +1639,7 @@ export function KanbanBoard({
           onClose={() => setEditingCard(null)}
           members={members}
           currentUserId={currentUserId}
+          boardPriorities={boardPriorities}
           onDelete={async () => {
             const toDelete = editingCard;
             setEditingCard(null);
@@ -1667,6 +1711,31 @@ export function KanbanBoard({
           boardId={board.id}
           projectName={board.name}
           boardName={board.name}
+        />
+      )}
+
+      {board.projectId && isBoardSettingsOpen && (
+        <BoardSettingsModal
+          open={isBoardSettingsOpen}
+          onClose={() => setIsBoardSettingsOpen(false)}
+          projectId={board.projectId}
+          boardId={board.id}
+          boardName={boardName}
+          isPrivate={false}
+          customPriorities={boardPriorities}
+          defaultTab={settingsDefaultTab}
+          memberUserIds={members.map((m) => m.id)}
+          columnsPreview={columns.map((c) => ({
+            id: c.id,
+            name: c.name,
+            color: c.color,
+            cardCount: c.cards.length
+          }))}
+          onSaved={(updated) => {
+            if (updated.customPriorities !== undefined) {
+              setBoardPriorities(updated.customPriorities ?? undefined);
+            }
+          }}
         />
       )}
     </div>

@@ -12,6 +12,7 @@ import { FilterSelect } from "@/components/ui/filter-select";
 import { normalizeDiaryChecklist, type DiaryChecklistItem } from "@/lib/diary/checklist";
 import { composeDueDate } from "@/lib/kanban/due-date";
 import { cardColorOptions, getCardColorMeta, type CardColor } from "@/lib/theme/card-colors";
+import { useAiChat } from "@/components/ai/ai-chat-context";
 
 const RED_STAR_KEY = "retrod:redStar";
 
@@ -66,6 +67,11 @@ function getRedStar(): RedStar | null {
 
 export function FabHub() {
   const router = useRouter();
+  const { isOpen: isAiChatOpen, viewMode: aiViewMode, isSmallScreen } = useAiChat();
+  const isAiAtBottomRight = isAiChatOpen && (aiViewMode === "float" || isSmallScreen);
+  const isAiChatOpenAndFloat = isAiChatOpen && aiViewMode === "float";
+  const isAiChatOpenAndSidebar = isAiChatOpen && aiViewMode === "sidepanel";
+
   const [isOpen, setIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<"diary" | "note" | null>(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -220,7 +226,17 @@ export function FabHub() {
 
   return (
     <>
-      <div ref={containerRef} className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bottom-safe z-[120] flex flex-col items-end gap-3">
+      <div
+        ref={containerRef}
+        className={cn(
+          "fixed bottom-safe z-[120] flex flex-col items-end gap-3 transition-all duration-300 ease-in-out",
+          isAiChatOpenAndFloat
+            ? "bottom-[calc(min(560px,85vh)+1.5rem)] right-4 sm:bottom-[calc(min(560px,85vh)+2rem)] sm:right-6"
+            : isAiChatOpenAndSidebar
+              ? "max-lg:bottom-[calc(min(560px,85vh)+1.5rem)] max-lg:right-4 max-lg:sm:bottom-[calc(min(560px,85vh)+2rem)] max-lg:sm:right-6 lg:bottom-6 lg:right-[calc(450px+1.5rem)]"
+              : "bottom-4 right-4 sm:bottom-6 sm:right-6"
+        )}
+      >
         {/* Action buttons */}
         <div
           className={cn(
@@ -234,6 +250,7 @@ export function FabHub() {
               fallbackItem={redStar}
               isLoading={displayLoading}
               error={displayError}
+              compactTop={isAiAtBottomRight}
               onOpen={() => navigateTo(redStar.href)}
               onChange={openPicker}
               onClear={clearDisplay}
@@ -288,6 +305,7 @@ function PinnedDisplayPanel({
   fallbackItem,
   isLoading,
   error,
+  compactTop = false,
   onOpen,
   onChange,
   onClear,
@@ -298,6 +316,7 @@ function PinnedDisplayPanel({
   fallbackItem: RedStar;
   isLoading: boolean;
   error: string | null;
+  compactTop?: boolean;
   onOpen: () => void;
   onChange: () => void;
   onClear: () => void;
@@ -317,7 +336,12 @@ function PinnedDisplayPanel({
           : "Note";
 
   return (
-    <div className="motion-floating-in w-[min(calc(100vw-2rem),24rem)] max-h-[75dvh] flex flex-col overflow-hidden rounded-2xl border border-[#e2dcd2] bg-[#faf7f2] text-left text-stone-900 shadow-[0_18px_54px_rgba(41,37,36,0.14)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0e1025] dark:text-stone-100 dark:shadow-[0_18px_54px_rgba(0,0,0,0.5)]">
+    <div
+      className={cn(
+        "motion-floating-in w-[min(calc(100vw-2rem),24rem)] flex flex-col overflow-hidden rounded-2xl border border-[#e2dcd2] bg-[#faf7f2] text-left text-stone-900 shadow-[0_18px_54px_rgba(41,37,36,0.14)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0e1025] dark:text-stone-100 dark:shadow-[0_18px_54px_rgba(0,0,0,0.5)]",
+        compactTop ? "max-h-[calc(100dvh-min(560px,85vh)-3.5rem)] min-h-[140px]" : "max-h-[75dvh]"
+      )}
+    >
       <div className="border-b border-[#e2dcd2] bg-white/70 p-4 shrink-0 dark:border-white/10 dark:bg-white/[0.035]">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">

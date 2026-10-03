@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useOutsideClickDismiss } from "@/hooks/use-outside-click";
 
 export interface DatePickerProps {
   value?: string | null;
@@ -382,6 +383,10 @@ export function DatePicker({
   const [open, setOpen] = useState(false);
   const generatedId = useId();
   const inputId = id || generatedId;
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClickDismiss(open, () => setOpen(false), contentRef, triggerRef);
 
   const displayString = value ? formatDisplayDateShort(value) : "";
 
@@ -400,6 +405,7 @@ export function DatePicker({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
+            ref={triggerRef}
             id={inputId}
             type="button"
             disabled={disabled}
@@ -437,6 +443,7 @@ export function DatePicker({
         </PopoverTrigger>
 
         <PopoverContent
+          ref={contentRef}
           align={align}
           sideOffset={6}
           className="w-auto p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"

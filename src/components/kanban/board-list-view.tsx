@@ -28,7 +28,8 @@ import {
   Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Card, CardAssignee, CardPriority, CardStatus, ColumnWithCards } from "@/types/kanban";
+import type { Card, CardAssignee, CardPriority, CardStatus, ColumnWithCards, CustomPriority } from "@/types/kanban";
+import { getPriorityColorConfig, getPriorityMeta, resolveBoardPriorities } from "@/lib/kanban/priority";
 import { playCardDoneSound } from "@/lib/sound";
 import { useToast } from "@/components/ui/toast";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -71,6 +72,7 @@ interface BoardListViewProps {
   allColumns: ColumnWithCards[];
   members: CardAssignee[];
   currentUserId?: string;
+  boardPriorities?: CustomPriority[];
   onEditCard: (card: Card) => void;
   onCreateCard: (columnId: string, title: string) => Promise<void> | void;
   onCardDeleted?: (cardId: string) => void;
@@ -154,12 +156,14 @@ export function BoardListView({
   allColumns,
   members,
   currentUserId,
+  boardPriorities,
   onEditCard,
   onCreateCard,
   onCardDeleted,
   onCardSaved
 }: BoardListViewProps) {
   const { toast } = useToast();
+  const activePriorities = useMemo(() => resolveBoardPriorities(boardPriorities), [boardPriorities]);
 
   // View presentation mode: "table" (Spreadsheet flat grid) vs "grouped" (Column accordions)
   const [displayMode, setDisplayMode] = useState<"table" | "grouped">("table");
@@ -320,7 +324,8 @@ export function BoardListView({
         if (data.card && onCardSaved) {
           onCardSaved(data.card);
         }
-        toast({ message: `Priority set to ${PRIORITY_CONFIG[priority].code}`, type: "success" });
+        const meta = getPriorityMeta(priority, activePriorities);
+        toast({ message: `Priority set to ${meta.label}`, type: "success" });
       } else {
         toast({ message: "Failed to update priority", type: "error" });
       }
@@ -329,26 +334,66 @@ export function BoardListView({
     }
   };
 
-  // Direct assignee update
-  const handleUpdateAssignee = async (card: Card, memberId: string | null) => {
+  // Toggle single assignee for multi-assignee support
+  const handleToggleAssignee = async (card: Card, memberId: string) => {
+    const currentIds = card.assigneeIds || [];
+    const isAssigned = currentIds.includes(memberId);
+    const newIds = isAssigned
+      ? currentIds.filter((id) => id !== memberId)
+      : [...currentIds, memberId];
+
     try {
-      const assigneeIds = memberId ? [memberId] : [];
       const res = await fetch("/api/cards", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId: card.id, assigneeIds })
+        body: JSON.stringify({ cardId: card.id, assigneeIds: newIds })
       });
       if (res.ok) {
         const data = await res.json();
         if (data.card && onCardSaved) {
           onCardSaved(data.card);
         }
-        toast({ message: memberId ? "Assignee updated" : "Unassigned task", type: "success" });
+        toast({
+          message: isAssigned ? "Removed assignee" : "Added assignee",
+          type: "success"
+        });
       } else {
         toast({ message: "Failed to update assignee", type: "error" });
       }
     } catch {
       toast({ message: "Network error updating assignee", type: "error" });
+    }
+  };
+
+  // Clear all assignees
+  const handleClearAllAssignees = async (card: Card) => {
+    if (!card.assigneeIds || card.assigneeIds.length === 0) return;
+    try {
+      const res = await fetch("/api/cards", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cardId: card.id, assigneeIds: [] })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.card && onCardSaved) {
+          onCardSaved(data.card);
+        }
+        toast({ message: "Cleared all assignees", type: "success" });
+      } else {
+        toast({ message: "Failed to clear assignees", type: "error" });
+      }
+    } catch {
+      toast({ message: "Network error updating assignee", type: "error" });
+    }
+  };
+
+  // Legacy single/clear assignee update (preserves test contracts)
+  const handleUpdateAssignee = async (card: Card, memberId: string | null) => {
+    if (memberId === null) {
+      await handleClearAllAssignees(card);
+    } else {
+      await handleToggleAssignee(card, memberId);
     }
   };
 
@@ -474,9 +519,8 @@ export function BoardListView({
           valA = a.title.toLowerCase();
           valB = b.title.toLowerCase();
         } else if (sortField === "priority") {
-          const rank = { HIGH: 3, MEDIUM: 2, LOW: 1 };
-          valA = rank[a.priority] || 0;
-          valB = rank[b.priority] || 0;
+          valA = getPriorityMeta(a.priority, activePriorities).level;
+          valB = getPriorityMeta(b.priority, activePriorities).level;
         } else if (sortField === "status") {
           valA = a.status;
           valB = b.status;
@@ -495,7 +539,7 @@ export function BoardListView({
     }
 
     return filtered;
-  }, [columns, tableSearch, statusFilter, sortField, sortDirection]);
+  }, [columns, tableSearch, statusFilter, sortField, sortDirection, activePriorities]);
 
   const totalCardsCount = columns.reduce((acc, col) => acc + col.cards.length, 0);
   const doneCardsCount = allCards.filter((c) => c.status === "DONE").length;
@@ -725,14 +769,15 @@ export function BoardListView({
           {displayMode === "table" ? (
             <div className="divide-y divide-stone-200/50 dark:divide-white/[0.04]">
               {allCards.map((card, index) => {
-                const priorityConfig = PRIORITY_CONFIG[card.priority] || PRIORITY_CONFIG.MEDIUM;
-                const PriorityIcon = priorityConfig.icon;
+                const priorityMeta = getPriorityMeta(card.priority, activePriorities);
                 const statusPill = STATUS_PILL_CONFIG[card.status] || STATUS_PILL_CONFIG.TODO;
                 const isCardDone = card.status === "DONE";
                 const cardOverdue = checkIsOverdue(card.dueDate);
                 const checklistTotal = card.checklist.length;
                 const checklistDone = card.checklist.filter((i) => i.checked).length;
-                const firstAssignee = card.assignees?.[0];
+                const cardAssigneeList = (card.assigneeIds && card.assigneeIds.length > 0)
+                  ? card.assigneeIds.map((id) => members.find((m) => m.id === id)).filter((m): m is CardAssignee => Boolean(m))
+                  : (card.assignees ?? []);
 
                 return (
                   <div
@@ -829,48 +874,40 @@ export function BoardListView({
                           <button
                             type="button"
                             className={cn(
-                              "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer",
-                              priorityConfig.pillClass
+                              "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer max-w-[120px] truncate",
+                              priorityMeta.pillClass
                             )}
                           >
-                            <PriorityIcon className="h-3 w-3 shrink-0" />
-                            <span>{priorityConfig.shortLabel}</span>
-                            <ChevronDown className="h-3 w-3 opacity-70 shrink-0" />
+                            <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", priorityMeta.dotClass)} />
+                            <span className="truncate">{priorityMeta.label}</span>
+                            <ChevronDown className="h-3 w-3 opacity-70 shrink-0 ml-auto" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="center" className="w-48 z-[1200]">
                           <DropdownMenuLabel className="text-xs">Priority</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => void handleUpdatePriority(card, "HIGH")}
-                            className="cursor-pointer text-xs flex items-center justify-between font-semibold text-red-600 dark:text-red-400"
-                          >
-                            <span className="flex items-center gap-1.5">
-                              <ArrowUp className="h-3.5 w-3.5" />
-                              <span>High (Urgent)</span>
-                            </span>
-                            {card.priority === "HIGH" && <Check className="h-3.5 w-3.5" />}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => void handleUpdatePriority(card, "MEDIUM")}
-                            className="cursor-pointer text-xs flex items-center justify-between font-semibold text-indigo-600 dark:text-indigo-400"
-                          >
-                            <span className="flex items-center gap-1.5">
-                              <ArrowRight className="h-3.5 w-3.5" />
-                              <span>Medium</span>
-                            </span>
-                            {card.priority === "MEDIUM" && <Check className="h-3.5 w-3.5" />}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => void handleUpdatePriority(card, "LOW")}
-                            className="cursor-pointer text-xs flex items-center justify-between font-semibold text-sky-600 dark:text-sky-400"
-                          >
-                            <span className="flex items-center gap-1.5">
-                              <ArrowDown className="h-3.5 w-3.5" />
-                              <span>Low</span>
-                            </span>
-                            {card.priority === "LOW" && <Check className="h-3.5 w-3.5" />}
-                          </DropdownMenuItem>
+                          {activePriorities.map((item) => {
+                            const isSelected =
+                              card.priority?.toUpperCase() === item.id.toUpperCase() ||
+                              card.priority?.toUpperCase() === item.label.toUpperCase();
+                            const colorCfg = getPriorityColorConfig(item.color);
+                            return (
+                              <DropdownMenuItem
+                                key={item.id}
+                                onClick={() => void handleUpdatePriority(card, item.id)}
+                                className={cn(
+                                  "cursor-pointer text-xs flex items-center justify-between font-semibold",
+                                  isSelected && "bg-stone-100 dark:bg-white/[0.06]"
+                                )}
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span className={cn("h-2 w-2 rounded-full shrink-0", colorCfg.dotClass)} />
+                                  <span>{item.label}</span>
+                                </span>
+                                {isSelected && <Check className="h-3.5 w-3.5 text-dusk-lavender" />}
+                              </DropdownMenuItem>
+                            );
+                          })}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -883,36 +920,63 @@ export function BoardListView({
                             type="button"
                             className="flex w-full items-center gap-1.5 rounded-lg border border-transparent px-1.5 py-1 text-left text-xs text-stone-700 hover:border-stone-200 hover:bg-stone-100/60 dark:text-stone-300 dark:hover:border-white/10 dark:hover:bg-white/[0.04] transition cursor-pointer"
                           >
-                            {firstAssignee ? (
-                              <>
-                                <div className="grid h-5 w-5 place-items-center rounded-full bg-dusk-lavender/30 text-[9px] font-bold text-stone-900 dark:text-stone-100 shrink-0">
-                                  {(firstAssignee.name?.[0] ?? firstAssignee.email[0]).toUpperCase()}
-                                </div>
-                                <span className="truncate font-medium text-stone-800 dark:text-stone-200">
-                                  {firstAssignee.name ?? firstAssignee.email}
-                                </span>
-                              </>
-                            ) : (
+                            {cardAssigneeList.length === 0 ? (
                               <span className="flex items-center gap-1 text-stone-400 italic">
                                 <UserIcon className="h-3.5 w-3.5" />
                                 <span>Unassigned</span>
                               </span>
+                            ) : cardAssigneeList.length === 1 ? (
+                              <>
+                                <div className="grid h-5 w-5 place-items-center rounded-full bg-dusk-lavender/30 text-[9px] font-bold text-stone-900 dark:text-stone-100 shrink-0">
+                                  {(cardAssigneeList[0].name?.[0] ?? cardAssigneeList[0].email[0]).toUpperCase()}
+                                </div>
+                                <span className="truncate font-medium text-stone-800 dark:text-stone-200">
+                                  {cardAssigneeList[0].name ?? cardAssigneeList[0].email}
+                                </span>
+                              </>
+                            ) : (
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <div className="flex -space-x-1.5 overflow-hidden shrink-0">
+                                  {cardAssigneeList.slice(0, 3).map((assignee) => (
+                                    <div
+                                      key={assignee.id}
+                                      className="inline-flex h-5 w-5 rounded-full ring-1.5 ring-white dark:ring-stone-900 bg-dusk-lavender/30 text-[9px] font-bold text-stone-900 dark:text-stone-100 items-center justify-center shrink-0"
+                                      title={assignee.name ?? assignee.email}
+                                    >
+                                      {(assignee.name?.[0] ?? assignee.email[0]).toUpperCase()}
+                                    </div>
+                                  ))}
+                                </div>
+                                <span className="text-[11px] font-medium text-stone-700 dark:text-stone-300 truncate">
+                                  {cardAssigneeList.length} assignees
+                                </span>
+                              </div>
                             )}
                             <ChevronDown className="ml-auto h-3 w-3 text-stone-400 shrink-0 opacity-60" />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-52 z-[1200]">
-                          <DropdownMenuLabel className="text-xs">Assignee</DropdownMenuLabel>
+                        <DropdownMenuContent align="start" className="w-56 z-[1200]">
+                          <DropdownMenuLabel className="text-xs flex items-center justify-between">
+                            <span>Assignee</span>
+                            {cardAssigneeList.length > 0 && (
+                              <span className="text-[10px] text-stone-400 font-mono">
+                                {cardAssigneeList.length} selected
+                              </span>
+                            )}
+                          </DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           {members.map((member) => {
-                            const isAssigned = card.assigneeIds?.includes(member.id);
+                            const isAssigned = (card.assigneeIds ?? []).includes(member.id);
                             return (
                               <DropdownMenuItem
                                 key={member.id}
-                                onClick={() => void handleUpdateAssignee(card, member.id)}
+                                onSelect={(e) => {
+                                  e.preventDefault();
+                                  void handleToggleAssignee(card, member.id);
+                                }}
                                 className={cn(
                                   "cursor-pointer text-xs flex items-center justify-between",
-                                  isAssigned && "font-bold text-dusk-lavender"
+                                  isAssigned && "font-bold text-dusk-lavender bg-dusk-lavender/10"
                                 )}
                               >
                                 <div className="flex items-center gap-2 truncate">
@@ -921,17 +985,21 @@ export function BoardListView({
                                   </div>
                                   <span className="truncate">{member.name ?? member.email}</span>
                                 </div>
-                                {isAssigned && <Check className="h-3.5 w-3.5 shrink-0" />}
+                                {isAssigned && <Check className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />}
                               </DropdownMenuItem>
                             );
                           })}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => void handleUpdateAssignee(card, null)}
-                            className="cursor-pointer text-xs text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
-                          >
-                            Unassign
-                          </DropdownMenuItem>
+                          {cardAssigneeList.length > 0 && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => void handleClearAllAssignees(card)}
+                                className="cursor-pointer text-xs text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 font-medium"
+                              >
+                                Clear all assignees
+                              </DropdownMenuItem>
+                            </>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -1184,13 +1252,14 @@ export function BoardListView({
                     {!isCollapsed && (
                       <div className="divide-y divide-stone-200/40 dark:divide-white/[0.03]">
                         {column.cards.map((card, idx) => {
-                          const priorityConfig = PRIORITY_CONFIG[card.priority] || PRIORITY_CONFIG.MEDIUM;
-                          const PriorityIcon = priorityConfig.icon;
+                          const priorityMeta = getPriorityMeta(card.priority, activePriorities);
                           const isCardDone = card.status === "DONE";
                           const cardOverdue = checkIsOverdue(card.dueDate);
                           const checklistTotal = card.checklist.length;
                           const checklistDone = card.checklist.filter((i) => i.checked).length;
-                          const firstAssignee = card.assignees?.[0];
+                          const cardAssigneeList = (card.assigneeIds && card.assigneeIds.length > 0)
+                            ? card.assigneeIds.map((id) => members.find((m) => m.id === id)).filter((m): m is CardAssignee => Boolean(m))
+                            : (card.assignees ?? []);
 
                           return (
                             <div
@@ -1236,60 +1305,134 @@ export function BoardListView({
                                     <button
                                       type="button"
                                       className={cn(
-                                        "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer",
-                                        priorityConfig.pillClass
+                                        "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer max-w-[120px] truncate",
+                                        priorityMeta.pillClass
                                       )}
                                     >
-                                      <PriorityIcon className="h-3 w-3 shrink-0" />
-                                      <span>{priorityConfig.shortLabel}</span>
-                                      <ChevronDown className="h-3 w-3 opacity-70 shrink-0" />
+                                      <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", priorityMeta.dotClass)} />
+                                      <span className="truncate">{priorityMeta.label}</span>
+                                      <ChevronDown className="h-3 w-3 opacity-70 shrink-0 ml-auto" />
                                     </button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="center" className="w-48 z-[1200]">
-                                    <DropdownMenuLabel className="text-xs">Set Priority</DropdownMenuLabel>
+                                    <DropdownMenuLabel className="text-xs">Priority</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                      onClick={() => void handleUpdatePriority(card, "HIGH")}
-                                      className="cursor-pointer text-xs flex items-center justify-between font-semibold text-red-600 dark:text-red-400"
-                                    >
-                                      <span className="flex items-center gap-1.5">
-                                        <ArrowUp className="h-3.5 w-3.5" />
-                                        <span>High (Urgent)</span>
-                                      </span>
-                                      {card.priority === "HIGH" && <Check className="h-3.5 w-3.5" />}
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() => void handleUpdatePriority(card, "MEDIUM")}
-                                      className="cursor-pointer text-xs flex items-center justify-between font-semibold text-indigo-600 dark:text-indigo-400"
-                                    >
-                                      <span className="flex items-center gap-1.5">
-                                        <ArrowRight className="h-3.5 w-3.5" />
-                                        <span>Medium</span>
-                                      </span>
-                                      {card.priority === "MEDIUM" && <Check className="h-3.5 w-3.5" />}
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() => void handleUpdatePriority(card, "LOW")}
-                                      className="cursor-pointer text-xs flex items-center justify-between font-semibold text-sky-600 dark:text-sky-400"
-                                    >
-                                      <span className="flex items-center gap-1.5">
-                                        <ArrowDown className="h-3.5 w-3.5" />
-                                        <span>Low</span>
-                                      </span>
-                                      {card.priority === "LOW" && <Check className="h-3.5 w-3.5" />}
-                                    </DropdownMenuItem>
+                                    {activePriorities.map((item) => {
+                                      const isSelected =
+                                        card.priority?.toUpperCase() === item.id.toUpperCase() ||
+                                        card.priority?.toUpperCase() === item.label.toUpperCase();
+                                      const colorCfg = getPriorityColorConfig(item.color);
+                                      return (
+                                        <DropdownMenuItem
+                                          key={item.id}
+                                          onClick={() => void handleUpdatePriority(card, item.id)}
+                                          className={cn(
+                                            "cursor-pointer text-xs flex items-center justify-between font-semibold",
+                                            isSelected && "bg-stone-100 dark:bg-white/[0.06]"
+                                          )}
+                                        >
+                                          <span className="flex items-center gap-2">
+                                            <span className={cn("h-2 w-2 rounded-full shrink-0", colorCfg.dotClass)} />
+                                            <span>{item.label}</span>
+                                          </span>
+                                          {isSelected && <Check className="h-3.5 w-3.5 text-dusk-lavender" />}
+                                        </DropdownMenuItem>
+                                      );
+                                    })}
                                   </DropdownMenuContent>
                                 </DropdownMenu>
                               </div>
 
-                              <div className="w-40 px-2 py-1.5 truncate">
-                                {firstAssignee ? (
-                                  <span className="truncate text-stone-700 dark:text-stone-300">
-                                    {firstAssignee.name ?? firstAssignee.email}
-                                  </span>
-                                ) : (
-                                  <span className="text-stone-400 italic">Unassigned</span>
-                                )}
+                              {/* 3. Assignee Dropdown */}
+                              <div className="w-40 px-2 py-1.5 truncate" onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <button
+                                      type="button"
+                                      className="flex w-full items-center gap-1.5 rounded-lg border border-transparent px-1.5 py-1 text-left text-xs text-stone-700 hover:border-stone-200 hover:bg-stone-100/60 dark:text-stone-300 dark:hover:border-white/10 dark:hover:bg-white/[0.04] transition cursor-pointer"
+                                    >
+                                      {cardAssigneeList.length === 0 ? (
+                                        <span className="flex items-center gap-1 text-stone-400 italic">
+                                          <UserIcon className="h-3.5 w-3.5" />
+                                          <span>Unassigned</span>
+                                        </span>
+                                      ) : cardAssigneeList.length === 1 ? (
+                                        <>
+                                          <div className="grid h-5 w-5 place-items-center rounded-full bg-dusk-lavender/30 text-[9px] font-bold text-stone-900 dark:text-stone-100 shrink-0">
+                                            {(cardAssigneeList[0].name?.[0] ?? cardAssigneeList[0].email[0]).toUpperCase()}
+                                          </div>
+                                          <span className="truncate font-medium text-stone-800 dark:text-stone-200">
+                                            {cardAssigneeList[0].name ?? cardAssigneeList[0].email}
+                                          </span>
+                                        </>
+                                      ) : (
+                                        <div className="flex items-center gap-1.5 min-w-0">
+                                          <div className="flex -space-x-1.5 overflow-hidden shrink-0">
+                                            {cardAssigneeList.slice(0, 3).map((assignee) => (
+                                              <div
+                                                key={assignee.id}
+                                                className="inline-flex h-5 w-5 rounded-full ring-1.5 ring-white dark:ring-stone-900 bg-dusk-lavender/30 text-[9px] font-bold text-stone-900 dark:text-stone-100 items-center justify-center shrink-0"
+                                                title={assignee.name ?? assignee.email}
+                                              >
+                                                {(assignee.name?.[0] ?? assignee.email[0]).toUpperCase()}
+                                              </div>
+                                            ))}
+                                          </div>
+                                          <span className="text-[11px] font-medium text-stone-700 dark:text-stone-300 truncate">
+                                            {cardAssigneeList.length} assignees
+                                          </span>
+                                        </div>
+                                      )}
+                                      <ChevronDown className="ml-auto h-3 w-3 text-stone-400 shrink-0 opacity-60" />
+                                    </button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="start" className="w-56 z-[1200]">
+                                    <DropdownMenuLabel className="text-xs flex items-center justify-between">
+                                      <span>Assignee</span>
+                                      {cardAssigneeList.length > 0 && (
+                                        <span className="text-[10px] text-stone-400 font-mono">
+                                          {cardAssigneeList.length} selected
+                                        </span>
+                                      )}
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    {members.map((member) => {
+                                      const isAssigned = (card.assigneeIds ?? []).includes(member.id);
+                                      return (
+                                        <DropdownMenuItem
+                                          key={member.id}
+                                          onSelect={(e) => {
+                                            e.preventDefault();
+                                            void handleToggleAssignee(card, member.id);
+                                          }}
+                                          className={cn(
+                                            "cursor-pointer text-xs flex items-center justify-between",
+                                            isAssigned && "font-bold text-dusk-lavender bg-dusk-lavender/10"
+                                          )}
+                                        >
+                                          <div className="flex items-center gap-2 truncate">
+                                            <div className="grid h-5 w-5 place-items-center rounded-full bg-stone-200 text-[9px] font-bold text-stone-800 dark:bg-stone-700 dark:text-stone-200 shrink-0">
+                                              {(member.name?.[0] ?? member.email[0]).toUpperCase()}
+                                            </div>
+                                            <span className="truncate">{member.name ?? member.email}</span>
+                                          </div>
+                                          {isAssigned && <Check className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />}
+                                        </DropdownMenuItem>
+                                      );
+                                    })}
+                                    {cardAssigneeList.length > 0 && (
+                                      <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                          onClick={() => void handleClearAllAssignees(card)}
+                                          className="cursor-pointer text-xs text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 font-medium"
+                                        >
+                                          Clear all assignees
+                                        </DropdownMenuItem>
+                                      </>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                               </div>
 
                               <div className="w-36 px-2 py-1.5 flex justify-center" onClick={(e) => e.stopPropagation()}>

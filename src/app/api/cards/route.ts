@@ -32,7 +32,7 @@ import {
 
 const cardStatusSchema = z.enum(["TODO", "DOING", "WAITING", "DONE"]);
 const cardColorSchema = z.enum(cardColorValues).default("DEFAULT");
-const cardPrioritySchema = z.enum(["LOW", "MEDIUM", "HIGH"]).default("MEDIUM");
+const cardPrioritySchema = z.string().trim().min(1).max(50).default("MEDIUM");
 const checklistItemSchema = z.object({
   id: z.string().min(1),
   label: z.string().trim().min(1).max(160),
@@ -77,7 +77,7 @@ const updateCardSchema = z.object({
   startDateAllDay: z.boolean().optional(),
   dueDate: z.string().datetime().nullable().optional(),
   dueDateAllDay: z.boolean().optional(),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
+  priority: z.string().trim().min(1).max(50).optional(),
   isStarred: z.boolean().optional(),
   rewardCoins: z.number().int().nonnegative().optional(),
   privateCoins: z.any().optional(),
