@@ -90,7 +90,7 @@ const PRIORITY_CONFIG: Record<
 > = {
   HIGH: {
     code: "P0",
-    label: "P0 (ด่วนมาก / High)",
+    label: "P0 (High / Urgent)",
     shortLabel: "High",
     icon: ArrowUp,
     pillClass:
@@ -98,7 +98,7 @@ const PRIORITY_CONFIG: Record<
   },
   MEDIUM: {
     code: "P1",
-    label: "P1 (ปานกลาง / Medium)",
+    label: "P1 (Medium)",
     shortLabel: "Medium",
     icon: ArrowRight,
     pillClass:
@@ -106,7 +106,7 @@ const PRIORITY_CONFIG: Record<
   },
   LOW: {
     code: "P2",
-    label: "P2 (ปกติ / Low)",
+    label: "P2 (Low)",
     shortLabel: "Low",
     icon: ArrowDown,
     pillClass:
@@ -124,25 +124,25 @@ const STATUS_PILL_CONFIG: Record<
   }
 > = {
   DONE: {
-    label: "เสร็จสมบูรณ์",
+    label: "Done",
     pillClass:
       "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-500/20 dark:text-emerald-300",
     dotClass: "bg-emerald-500"
   },
   DOING: {
-    label: "กำลังดำเนิน...",
+    label: "In Progress",
     pillClass:
       "border-amber-500/30 bg-amber-500/15 text-amber-800 dark:border-amber-400/30 dark:bg-amber-500/20 dark:text-amber-300",
     dotClass: "bg-amber-500 animate-pulse"
   },
   TODO: {
-    label: "ยังไม่เริ่ม",
+    label: "To Do",
     pillClass:
       "border-blue-500/30 bg-blue-500/15 text-blue-700 dark:border-blue-400/30 dark:bg-blue-500/20 dark:text-blue-300",
     dotClass: "bg-blue-500"
   },
   WAITING: {
-    label: "รอการตรวจ",
+    label: "Review",
     pillClass:
       "border-purple-500/30 bg-purple-500/15 text-purple-700 dark:border-purple-400/30 dark:bg-purple-500/20 dark:text-purple-300",
     dotClass: "bg-purple-500"
@@ -512,13 +512,13 @@ export function BoardListView({
 
   return (
     <div className="relative mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white/80 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-ink-950/50">
-      {/* ── Table Topbar (Spreadsheet Tab Header matching screenshot) ── */}
+      {/* ── Table Topbar (Spreadsheet Tab Header) ── */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-stone-200/80 bg-stone-50/90 px-3.5 py-2 dark:border-white/10 dark:bg-stone-900/80">
         <div className="flex items-center gap-2">
-          {/* Active sheet tab pill matching reference screenshot */}
+          {/* Active sheet tab pill */}
           <div className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300/80 bg-white px-3 py-1 text-xs font-bold text-stone-800 shadow-2xs dark:border-white/15 dark:bg-stone-800 dark:text-stone-100">
             <Table2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>ตารางงาน (Table)</span>
+            <span>Table</span>
           </div>
 
           {/* Search within table */}
@@ -528,7 +528,7 @@ export function BoardListView({
               type="text"
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
-              placeholder="ค้นหางานในตาราง..."
+              placeholder="Search tasks..."
               className="h-7 w-36 rounded-lg border border-stone-200 bg-white pl-8 pr-2 text-xs text-stone-800 placeholder:text-stone-400 focus:border-indigo-400 focus:outline-none dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 sm:w-48"
             />
             {tableSearch && (
@@ -550,49 +550,49 @@ export function BoardListView({
               type="button"
               onClick={() => setStatusFilter("ALL")}
               className={cn(
-                "rounded px-2 py-0.5 transition cursor-pointer",
+                "rounded px-2.5 py-0.5 transition cursor-pointer",
                 statusFilter === "ALL"
                   ? "bg-stone-200/80 font-bold text-stone-900 dark:bg-white/10 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >
-              ทั้งหมด
+              All
             </button>
             <button
               type="button"
               onClick={() => setStatusFilter("TODO")}
               className={cn(
-                "rounded px-2 py-0.5 transition cursor-pointer",
+                "rounded px-2.5 py-0.5 transition cursor-pointer",
                 statusFilter === "TODO"
                   ? "bg-blue-500/20 font-bold text-blue-700 dark:bg-blue-500/30 dark:text-blue-300"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >
-              ยังไม่เริ่ม
+              To Do
             </button>
             <button
               type="button"
               onClick={() => setStatusFilter("DOING")}
               className={cn(
-                "rounded px-2 py-0.5 transition cursor-pointer",
+                "rounded px-2.5 py-0.5 transition cursor-pointer",
                 statusFilter === "DOING"
                   ? "bg-amber-500/20 font-bold text-amber-700 dark:bg-amber-500/30 dark:text-amber-300"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >
-              กำลังดำเนิน
+              In Progress
             </button>
             <button
               type="button"
               onClick={() => setStatusFilter("DONE")}
               className={cn(
-                "rounded px-2 py-0.5 transition cursor-pointer",
+                "rounded px-2.5 py-0.5 transition cursor-pointer",
                 statusFilter === "DONE"
                   ? "bg-emerald-500/20 font-bold text-emerald-700 dark:bg-emerald-500/30 dark:text-emerald-300"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >
-              เสร็จแล้ว
+              Done
             </button>
           </div>
 
@@ -601,50 +601,50 @@ export function BoardListView({
             <button
               type="button"
               onClick={() => setDisplayMode("table")}
-              title="Spreadsheet Table (ตารางเรียงแถว)"
+              title="Table View (flat rows)"
               className={cn(
-                "flex items-center gap-1 rounded px-2 py-0.5 transition cursor-pointer",
+                "flex items-center gap-1 rounded px-2.5 py-0.5 transition cursor-pointer",
                 displayMode === "table"
                   ? "bg-stone-200/80 font-bold text-stone-900 dark:bg-white/10 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >
               <Table2 className="h-3 w-3" />
-              <span>ตาราง</span>
+              <span>Table</span>
             </button>
             <button
               type="button"
               onClick={() => setDisplayMode("grouped")}
-              title="Grouped by Status (จัดกลุ่มตามคอลัมน์)"
+              title="Group by Status"
               className={cn(
-                "flex items-center gap-1 rounded px-2 py-0.5 transition cursor-pointer",
+                "flex items-center gap-1 rounded px-2.5 py-0.5 transition cursor-pointer",
                 displayMode === "grouped"
                   ? "bg-stone-200/80 font-bold text-stone-900 dark:bg-white/10 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >
               <ListFilter className="h-3 w-3" />
-              <span>จัดกลุ่ม</span>
+              <span>Group</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* ── Scrollable Spreadsheet Grid ── */}
-      <div className="scrollbar-soft flex-1 overflow-x-auto overflow-y-auto">
-        <div className="min-w-[1020px] text-xs">
+      <div className="scrollbar-soft flex-1 overflow-x-auto overflow-y-auto pb-16">
+        <div className="min-w-[1240px] text-xs">
           {/* ── Table Header (Exact Columns from User Reference Screenshot) ── */}
           <div className="sticky top-0 z-20 flex items-center border-b border-stone-200/80 bg-stone-100/95 font-semibold text-stone-700 backdrop-blur-md dark:border-white/10 dark:bg-stone-900/95 dark:text-stone-300">
             {/* Index / Checkbox */}
             <div className="w-12 py-2.5 text-center text-[11px] font-mono text-stone-400">#</div>
 
-            {/* 1. งาน (Work / Task Title) */}
+            {/* 1. Task Title */}
             <div
               onClick={() => handleSort("title")}
-              className="flex-1 min-w-[260px] px-3 py-2.5 flex items-center gap-1.5 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
+              className="flex-1 min-w-[280px] px-3 py-2.5 flex items-center gap-1.5 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
             >
               <span className="font-bold text-stone-500 dark:text-stone-400 text-[10px] font-mono">Tt</span>
-              <span className="font-bold">งาน / Work (Task Title)</span>
+              <span className="font-bold">Task Title</span>
               {sortField === "title" ? (
                 <ArrowUpDown className="h-3 w-3 text-indigo-500" />
               ) : (
@@ -652,71 +652,71 @@ export function BoardListView({
               )}
             </div>
 
-            {/* 2. รายการสำคัญ (Priority) */}
+            {/* 2. Priority */}
             <div
               onClick={() => handleSort("priority")}
               className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
             >
-              <span className="font-bold">รายการสำคัญ / Priority</span>
+              <span className="font-bold">Priority</span>
               <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
             </div>
 
-            {/* 3. เจ้าของ (Assignee) */}
+            {/* 3. Assignee */}
             <div className="w-40 px-2 py-2.5 flex items-center gap-1 select-none">
               <UserIcon className="h-3.5 w-3.5 text-stone-500" />
-              <span className="font-bold">เจ้าของ / Assignee</span>
+              <span className="font-bold">Assignee</span>
               <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
             </div>
 
-            {/* 4. สถานะ (Status / Column) */}
+            {/* 4. Status */}
             <div
               onClick={() => handleSort("status")}
               className="w-36 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
             >
-              <span className="font-bold">สถานะ / Status / Column</span>
+              <span className="font-bold">Status</span>
               <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
             </div>
 
-            {/* 5. วันที่เริ่มต้น (Start Date) */}
+            {/* 5. Start Date */}
             <div
               onClick={() => handleSort("startDate")}
-              className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
+              className="w-36 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
             >
               <Calendar className="h-3 w-3 text-stone-400" />
-              <span className="font-bold">วันที่เริ่มต้น</span>
+              <span className="font-bold">Start Date</span>
               <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
             </div>
 
-            {/* 6. วันที่สิ้นสุด (Due Date) */}
+            {/* 6. Due Date */}
             <div
               onClick={() => handleSort("dueDate")}
-              className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
+              className="w-36 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
             >
               <Calendar className="h-3 w-3 text-stone-400" />
-              <span className="font-bold">วันที่สิ้นสุด / Due Date</span>
+              <span className="font-bold">Due Date</span>
               <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
             </div>
 
-            {/* 7. คอลัมน์ 7 / ความยาก & คะแนน */}
-            <div className="w-24 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
+            {/* 7. Story Points */}
+            <div className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
               <Zap className="h-3 w-3 text-amber-500" />
-              <span className="font-bold">ความยาก</span>
+              <span className="font-bold">Story Points</span>
             </div>
 
-            {/* 8. ส่งไฟล์ / ย่อย (Checklist & Files) */}
-            <div className="w-24 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
+            {/* 8. Files / Checklist */}
+            <div className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
               <Paperclip className="h-3 w-3 text-stone-400" />
-              <span className="font-bold">ส่งไฟล์</span>
+              <span className="font-bold">Files</span>
             </div>
 
-            {/* 9. โน้ต (Notes) */}
-            <div className="w-20 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
+            {/* 9. Notes */}
+            <div className="w-24 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
               <FileText className="h-3 w-3 text-stone-400" />
-              <span className="font-bold">โน้ต</span>
+              <span className="font-bold">Notes</span>
             </div>
 
             {/* 10. Actions */}
-            <div className="w-12 py-2.5 text-center text-stone-400">•••</div>
+            <div className="w-14 py-2.5 text-center text-stone-400">•••</div>
           </div>
 
           {/* ═══════════════════════════════════════════════════════════
@@ -821,7 +821,7 @@ export function BoardListView({
                       )}
                     </div>
 
-                    {/* 2. รายการสำคัญ (Priority Pill Dropdown matching screenshot) */}
+                    {/* 2. Priority Pill Dropdown */}
                     <div className="w-28 px-2 py-1.5 flex justify-center" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -837,34 +837,34 @@ export function BoardListView({
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="center" className="w-48 z-[1200]">
-                          <DropdownMenuLabel className="text-xs">เลือกระดับความสำคัญ (Priority)</DropdownMenuLabel>
+                          <DropdownMenuLabel className="text-xs">Priority</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => void handleUpdatePriority(card, "HIGH")}
                             className="cursor-pointer text-xs flex items-center justify-between font-semibold text-red-600 dark:text-red-400"
                           >
-                            <span>P0 • High (ด่วนมาก)</span>
+                            <span>P0 • High (Urgent)</span>
                             {card.priority === "HIGH" && <Check className="h-3.5 w-3.5" />}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => void handleUpdatePriority(card, "MEDIUM")}
                             className="cursor-pointer text-xs flex items-center justify-between font-semibold text-indigo-600 dark:text-indigo-400"
                           >
-                            <span>P1 • Medium (ปานกลาง)</span>
+                            <span>P1 • Medium</span>
                             {card.priority === "MEDIUM" && <Check className="h-3.5 w-3.5" />}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => void handleUpdatePriority(card, "LOW")}
                             className="cursor-pointer text-xs flex items-center justify-between font-semibold text-sky-600 dark:text-sky-400"
                           >
-                            <span>P2 • Low (ทั่วไป)</span>
+                            <span>P2 • Low</span>
                             {card.priority === "LOW" && <Check className="h-3.5 w-3.5" />}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
 
-                    {/* 3. เจ้าของ (Assignee Dropdown) */}
+                    {/* 3. Assignee Dropdown */}
                     <div className="w-40 px-2 py-1.5 truncate" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -891,7 +891,7 @@ export function BoardListView({
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-52 z-[1200]">
-                          <DropdownMenuLabel className="text-xs">ผู้รับผิดชอบ (Assignee)</DropdownMenuLabel>
+                          <DropdownMenuLabel className="text-xs">Assignee</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           {members.map((member) => {
                             const isAssigned = card.assigneeIds?.includes(member.id);
@@ -919,13 +919,13 @@ export function BoardListView({
                             onClick={() => void handleUpdateAssignee(card, null)}
                             className="cursor-pointer text-xs text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
                           >
-                            ยกเลิกผู้รับผิดชอบ (Unassign)
+                            Unassign
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
 
-                    {/* 4. สถานะ (Status Pill Dropdown matching screenshot) */}
+                    {/* 4. Status Pill Dropdown */}
                     <div className="w-36 px-2 py-1.5 flex justify-center" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -944,7 +944,7 @@ export function BoardListView({
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="center" className="w-48 z-[1200]">
-                          <DropdownMenuLabel className="text-xs">ย้ายสถานะ / Move Column</DropdownMenuLabel>
+                          <DropdownMenuLabel className="text-xs">Move Column / Status</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           {allColumns.map((col) => {
                             const isCurrentCol = col.id === card.columnId;
@@ -970,31 +970,31 @@ export function BoardListView({
                       </DropdownMenu>
                     </div>
 
-                    {/* 5. วันที่เริ่มต้น (Start Date) */}
-                    <div className="w-28 px-1 py-1 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
+                    {/* 5. Start Date */}
+                    <div className="w-36 px-1.5 py-1 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
                       <DatePicker
                         value={card.startDate}
                         onChange={(nextDate) => void handleSaveDate(card, "startDate", nextDate)}
                         placeholder="-"
-                        triggerClassName="h-6 border-transparent bg-transparent px-1.5 py-0 text-center text-[11px] shadow-none hover:border-stone-200 hover:bg-stone-100 dark:hover:border-white/10 dark:hover:bg-white/10"
+                        triggerClassName="h-6 w-full border-transparent bg-transparent px-2 py-0 text-center text-[11px] shadow-none hover:border-stone-200 hover:bg-stone-100 dark:hover:border-white/10 dark:hover:bg-white/10"
                       />
                     </div>
 
-                    {/* 6. วันที่สิ้นสุด (Due Date) */}
-                    <div className="w-28 px-1 py-1 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
+                    {/* 6. Due Date */}
+                    <div className="w-36 px-1.5 py-1 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
                       <DatePicker
                         value={card.dueDate}
                         onChange={(nextDate) => void handleSaveDate(card, "dueDate", nextDate)}
-                        placeholder="d/m/yyyy"
+                        placeholder="DD/MM/YYYY"
                         triggerClassName={cn(
-                          "h-6 border-transparent bg-transparent px-1.5 py-0 text-center text-[11px] shadow-none hover:border-stone-200 hover:bg-stone-100 dark:hover:border-white/10 dark:hover:bg-white/10",
+                          "h-6 w-full border-transparent bg-transparent px-2 py-0 text-center text-[11px] shadow-none hover:border-stone-200 hover:bg-stone-100 dark:hover:border-white/10 dark:hover:bg-white/10",
                           cardOverdue && !isCardDone && "font-bold text-red-600 dark:text-red-400 bg-red-500/10"
                         )}
                       />
                     </div>
 
-                    {/* 7. คอลัมน์ 7 / ความยาก & คะแนน */}
-                    <div className="w-24 px-2 py-1.5 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
+                    {/* 7. Story Points */}
+                    <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
                       {card.difficulty ? (
                         <span className="inline-flex items-center gap-1 rounded bg-stone-100 px-1.5 py-0.5 font-bold text-amber-600 dark:bg-white/5 dark:text-amber-400">
                           ⚡ {card.difficulty}
@@ -1004,8 +1004,8 @@ export function BoardListView({
                       )}
                     </div>
 
-                    {/* 8. ส่งไฟล์ / ย่อย (Checklist & Files matching screenshot) */}
-                    <div className="w-24 px-2 py-1.5 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
+                    {/* 8. Files / Checklist */}
+                    <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
                       {checklistTotal > 0 ? (
                         <span className="inline-flex items-center gap-1 rounded bg-stone-100 px-1.5 py-0.5 text-[10px] text-stone-600 dark:bg-white/10 dark:text-stone-400">
                           <CheckSquare className="h-3 w-3" />
@@ -1016,17 +1016,17 @@ export function BoardListView({
                       ) : (
                         <span className="text-stone-400 flex items-center justify-center gap-1">
                           <Paperclip className="h-3 w-3 opacity-60" />
-                          <span>0 ไฟล์</span>
+                          <span>0 files</span>
                         </span>
                       )}
                     </div>
 
-                    {/* 9. โน้ต (Notes matching screenshot) */}
-                    <div className="w-20 px-2 py-1.5 text-center text-[11px] text-stone-500">
+                    {/* 9. Notes */}
+                    <div className="w-24 px-2 py-1.5 text-center text-[11px] text-stone-500">
                       {card.description || card.note ? (
                         <span className="inline-flex items-center gap-1 font-medium text-indigo-600 hover:underline dark:text-dusk-lavender">
                           <FileText className="h-3 w-3" />
-                          <span>โน้ต</span>
+                          <span>Note</span>
                         </span>
                       ) : (
                         <span className="text-stone-400">-</span>
@@ -1034,7 +1034,7 @@ export function BoardListView({
                     </div>
 
                     {/* 10. Actions (•••) */}
-                    <div className="w-12 py-1.5 text-center" onClick={(e) => e.stopPropagation()}>
+                    <div className="w-14 py-1.5 text-center" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button
@@ -1046,10 +1046,10 @@ export function BoardListView({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40 z-[1200]">
                           <DropdownMenuItem onClick={() => onEditCard(card)} className="cursor-pointer text-xs">
-                            แก้ไขงาน (Edit task)
+                            Edit task
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={(e) => void handleToggleStar(card, e)} className="cursor-pointer text-xs">
-                            {card.isStarred ? "ยกเลิกติดดาว" : "ติดดาว (Star)"}
+                            {card.isStarred ? "Unstar" : "Star"}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {onCardDeleted && (
@@ -1058,7 +1058,7 @@ export function BoardListView({
                               className="cursor-pointer text-xs text-red-600 focus:text-red-600 dark:text-red-400"
                             >
                               <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                              ลบงาน (Delete)
+                              Delete task
                             </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
@@ -1073,7 +1073,7 @@ export function BoardListView({
                 <div className="w-12 text-center text-stone-400">
                   <Plus className="mx-auto h-4 w-4 text-dusk-lavender" />
                 </div>
-                <div className="flex-1 min-w-[260px] px-2 flex items-center gap-2">
+                <div className="flex-1 min-w-[280px] px-2 flex items-center gap-2">
                   <input
                     type="text"
                     value={bottomNewTitle}
@@ -1081,7 +1081,7 @@ export function BoardListView({
                     onKeyDown={(e) => {
                       if (e.key === "Enter") void handleQuickAdd(bottomSelectedColumnId || columns[0].id, bottomNewTitle);
                     }}
-                    placeholder="+ เพิ่มงานใหม่ (พิมพ์ชื่องานแล้วกด Enter)..."
+                    placeholder="+ Add new task (type title and press Enter)..."
                     className="h-7 w-full rounded-lg border border-stone-200 bg-white px-2.5 text-xs text-stone-900 placeholder:text-stone-400 focus:border-indigo-400 focus:outline-none dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                   />
                 </div>
@@ -1104,12 +1104,12 @@ export function BoardListView({
                     ))}
                   </select>
                 </div>
+                <div className="w-36 px-2 text-center text-[10px] text-stone-400">-</div>
+                <div className="w-36 px-2 text-center text-[10px] text-stone-400">-</div>
                 <div className="w-28 px-2 text-center text-[10px] text-stone-400">-</div>
                 <div className="w-28 px-2 text-center text-[10px] text-stone-400">-</div>
                 <div className="w-24 px-2 text-center text-[10px] text-stone-400">-</div>
-                <div className="w-24 px-2 text-center text-[10px] text-stone-400">-</div>
-                <div className="w-20 px-2 text-center text-[10px] text-stone-400">-</div>
-                <div className="w-12 text-center">
+                <div className="w-14 text-center">
                   <button
                     type="button"
                     onClick={() => void handleQuickAdd(bottomSelectedColumnId || columns[0].id, bottomNewTitle)}
@@ -1206,7 +1206,7 @@ export function BoardListView({
                                 <span className="font-mono text-[10px] text-stone-400 w-4 text-left">{idx + 1}</span>
                               </div>
 
-                              <div className="flex-1 min-w-[260px] px-3 py-2 flex items-center gap-2">
+                              <div className="flex-1 min-w-[280px] px-3 py-2 flex items-center gap-2">
                                 <span
                                   className={cn(
                                     "font-medium text-stone-900 transition-colors group-hover/row:text-indigo-600 dark:text-stone-100 dark:group-hover/row:text-dusk-lavender truncate",
@@ -1269,27 +1269,27 @@ export function BoardListView({
                                 </DropdownMenu>
                               </div>
 
-                              <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
+                              <div className="w-36 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
                                 {formatTableDate(card.startDate)}
                               </div>
 
-                              <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
+                              <div className="w-36 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
                                 {formatTableDate(card.dueDate)}
                               </div>
 
-                              <div className="w-24 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
+                              <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
                                 {card.difficulty ? `⚡ ${card.difficulty}` : "-"}
                               </div>
 
-                              <div className="w-24 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
-                                {checklistTotal > 0 ? `${checklistDone}/${checklistTotal}` : "0 ไฟล์"}
+                              <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
+                                {checklistTotal > 0 ? `${checklistDone}/${checklistTotal}` : "0 files"}
                               </div>
 
-                              <div className="w-20 px-2 py-1.5 text-center text-stone-500">
-                                {card.description ? "โน้ต" : "-"}
+                              <div className="w-24 px-2 py-1.5 text-center text-stone-500">
+                                {card.description ? "Note" : "-"}
                               </div>
 
-                              <div className="w-12 py-1.5 text-center" onClick={(e) => e.stopPropagation()}>
+                              <div className="w-14 py-1.5 text-center" onClick={(e) => e.stopPropagation()}>
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
                                     <button
@@ -1379,17 +1379,17 @@ export function BoardListView({
           <div className="flex items-center justify-between border-t border-stone-200/80 bg-stone-50/70 px-4 py-2.5 text-[11px] text-stone-600 dark:border-white/10 dark:bg-stone-900/60 dark:text-stone-400">
             <div className="flex items-center gap-3">
               <span>
-                ทั้งหมด: <strong>{totalCardsCount}</strong> งาน
+                Total: <strong>{totalCardsCount}</strong> tasks
               </span>
               <span className="text-emerald-600 dark:text-emerald-400">
-                เสร็จแล้ว: <strong>{doneCardsCount}</strong>
+                Done: <strong>{doneCardsCount}</strong>
               </span>
               <span className="text-amber-600 dark:text-amber-400">
-                กำลังทำ: <strong>{inProgressCount}</strong>
+                In progress: <strong>{inProgressCount}</strong>
               </span>
             </div>
             <span className="text-stone-400 hidden sm:inline">
-              คลิกแถวเพื่อดูรายละเอียด • คลิกตัวเลือกเพื่อเปลี่ยนสถานะ, ผู้รับผิดชอบ หรือระดับความสำคัญได้ทันที
+              Click any row to view details • Click cells to update status, assignee, priority, or dates inline
             </span>
           </div>
         </div>

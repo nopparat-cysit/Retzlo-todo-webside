@@ -67,8 +67,8 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
   });
 
   it("provides Jira-style table columns and status grouping in BoardListView", () => {
-    expect(listViewSource).toContain("Work (Task Title)");
-    expect(listViewSource).toContain("Status / Column");
+    expect(listViewSource).toContain("Task Title");
+    expect(listViewSource).toContain("Status");
     expect(listViewSource).toContain("Priority");
     expect(listViewSource).toContain("Assignee");
     expect(listViewSource).toContain("Due Date");
@@ -109,17 +109,17 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
   });
 
   it("provides full interactive spreadsheet table view matching reference grid in BoardListView", () => {
-    // Headers matching reference screenshot
-    expect(listViewSource).toContain("ตารางงาน (Table)");
-    expect(listViewSource).toContain("งาน / Work (Task Title)");
-    expect(listViewSource).toContain("รายการสำคัญ / Priority");
-    expect(listViewSource).toContain("เจ้าของ / Assignee");
-    expect(listViewSource).toContain("สถานะ / Status / Column");
-    expect(listViewSource).toContain("วันที่เริ่มต้น");
-    expect(listViewSource).toContain("วันที่สิ้นสุด / Due Date");
-    expect(listViewSource).toContain("ความยาก");
-    expect(listViewSource).toContain("ส่งไฟล์");
-    expect(listViewSource).toContain("โน้ต");
+    // Headers matching English spreadsheet view
+    expect(listViewSource).toContain("<span>Table</span>");
+    expect(listViewSource).toContain("Task Title");
+    expect(listViewSource).toContain("Priority");
+    expect(listViewSource).toContain("Assignee");
+    expect(listViewSource).toContain("Status");
+    expect(listViewSource).toContain("Start Date");
+    expect(listViewSource).toContain("Due Date");
+    expect(listViewSource).toContain("Story Points");
+    expect(listViewSource).toContain("Files");
+    expect(listViewSource).toContain("Notes");
 
     // Priority pills with P0, P1, P2
     expect(listViewSource).toContain("P0");
@@ -127,10 +127,10 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(listViewSource).toContain("P2");
     expect(listViewSource).toContain("handleUpdatePriority");
 
-    // Status pills matching reference
-    expect(listViewSource).toContain("เสร็จสมบูรณ์");
-    expect(listViewSource).toContain("กำลังดำเนิน...");
-    expect(listViewSource).toContain("ยังไม่เริ่ม");
+    // Status pills matching English labels
+    expect(listViewSource).toContain('label: "Done"');
+    expect(listViewSource).toContain('label: "In Progress"');
+    expect(listViewSource).toContain('label: "To Do"');
 
     // Assignee dropdown assignment
     expect(listViewSource).toContain("handleUpdateAssignee");
