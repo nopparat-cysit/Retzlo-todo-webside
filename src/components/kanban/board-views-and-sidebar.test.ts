@@ -107,4 +107,41 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(settingsManagerSource).toContain("board-setting-card-");
     expect(settingsManagerSource).toContain("Current Selection");
   });
+
+  it("provides full interactive spreadsheet table view matching reference grid in BoardListView", () => {
+    // Headers matching reference screenshot
+    expect(listViewSource).toContain("ตารางงาน (Table)");
+    expect(listViewSource).toContain("งาน / Work (Task Title)");
+    expect(listViewSource).toContain("รายการสำคัญ / Priority");
+    expect(listViewSource).toContain("เจ้าของ / Assignee");
+    expect(listViewSource).toContain("สถานะ / Status / Column");
+    expect(listViewSource).toContain("วันที่เริ่มต้น");
+    expect(listViewSource).toContain("วันที่สิ้นสุด / Due Date");
+    expect(listViewSource).toContain("ความยาก");
+    expect(listViewSource).toContain("ส่งไฟล์");
+    expect(listViewSource).toContain("โน้ต");
+
+    // Priority pills with P0, P1, P2
+    expect(listViewSource).toContain("P0");
+    expect(listViewSource).toContain("P1");
+    expect(listViewSource).toContain("P2");
+    expect(listViewSource).toContain("handleUpdatePriority");
+
+    // Status pills matching reference
+    expect(listViewSource).toContain("เสร็จสมบูรณ์");
+    expect(listViewSource).toContain("กำลังดำเนิน...");
+    expect(listViewSource).toContain("ยังไม่เริ่ม");
+
+    // Assignee dropdown assignment
+    expect(listViewSource).toContain("handleUpdateAssignee");
+
+    // Inline title edit and date editing
+    expect(listViewSource).toContain("handleSaveTitle");
+    expect(listViewSource).toContain("handleSaveDate");
+
+    // ConfirmModal on task deletion
+    expect(listViewSource).toContain("<ConfirmModal");
+    expect(listViewSource).toContain("handleConfirmDelete");
+  });
 });
+

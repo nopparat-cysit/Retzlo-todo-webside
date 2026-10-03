@@ -11,7 +11,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
+import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, Table2, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -1016,8 +1016,9 @@ export function KanbanBoard({
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
               >
-                <ListFilter className="h-3.5 w-3.5 text-dusk-amber" />
-                <span>List</span>
+                <Table2 className="h-3.5 w-3.5 text-dusk-amber" />
+                <ListFilter className="hidden" />
+                <span>Table</span>
               </button>
             </div>
           </div>
