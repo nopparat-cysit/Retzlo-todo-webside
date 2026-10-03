@@ -128,6 +128,24 @@ function SortableNavItem({
     id: item.segment
   });
 
+  const dragHandle = (
+    <button
+      suppressHydrationWarning
+      type="button"
+      aria-label={`Reorder ${item.label}`}
+      title={`Reorder ${item.label}`}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      className="sidebar-expanded-only -ml-1 grid h-5 w-4 shrink-0 cursor-grab place-items-center rounded text-stone-400 opacity-60 transition hover:bg-white/10 hover:text-dusk-lavender md:opacity-0 md:group-hover/sort:opacity-100 active:cursor-grabbing"
+      {...attributes}
+      {...listeners}
+    >
+      <GripVertical className="h-3.5 w-3.5" />
+    </button>
+  );
+
   return (
     <div
       ref={setNodeRef}
@@ -135,21 +153,10 @@ function SortableNavItem({
       className={cn("group/sort relative w-full", isDragging && "z-20 opacity-80")}
     >
       {item.segment === "board" && boardNavigation ? (
-        <BoardSidebarDropdown {...boardNavigation} />
+        <BoardSidebarDropdown {...boardNavigation} dragHandle={dragHandle} />
       ) : (
-        <ProjectNavLink {...item} />
+        <ProjectNavLink {...item} dragHandle={dragHandle} />
       )}
-      <button
-        suppressHydrationWarning
-        type="button"
-        aria-label={`Reorder ${item.label}`}
-        title={`Reorder ${item.label}`}
-        className="sidebar-expanded-only absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 cursor-grab place-items-center rounded-md text-stone-500 opacity-60 transition hover:bg-white/10 hover:text-dusk-lavender md:opacity-0 md:group-hover/sort:opacity-100 active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="h-3.5 w-3.5" />
-      </button>
     </div>
   );
 }

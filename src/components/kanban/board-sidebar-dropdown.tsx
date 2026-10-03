@@ -44,13 +44,15 @@ interface BoardSidebarDropdownProps {
   boards: BoardTabItem[];
   initialActiveBoardId?: string;
   canManage?: boolean;
+  dragHandle?: React.ReactNode;
 }
 
 export function BoardSidebarDropdown({
   projectId,
   boards,
   initialActiveBoardId,
-  canManage = false
+  canManage = false,
+  dragHandle
 }: BoardSidebarDropdownProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -227,6 +229,7 @@ export function BoardSidebarDropdown({
         onClick={toggleAccordion}
       >
         <div className="flex min-w-0 items-center gap-2">
+          {dragHandle}
           <FolderKanban
             className={cn(
               "project-sidebar-icon h-4 w-4 shrink-0 transition-colors",

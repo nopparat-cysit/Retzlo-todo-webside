@@ -24,9 +24,10 @@ interface ProjectNavLinkProps {
   label: string;
   iconName: NavIconName;
   segment: string; // e.g. "board", "calendar"
+  dragHandle?: React.ReactNode;
 }
 
-export function ProjectNavLink({ href, label, iconName, segment }: ProjectNavLinkProps) {
+export function ProjectNavLink({ href, label, iconName, segment, dragHandle }: ProjectNavLinkProps) {
   const pathname = usePathname();
   const cleanHref = href.split("?")[0];
   const isActive = pathname === cleanHref || pathname.startsWith(`${cleanHref}/`);
@@ -58,6 +59,7 @@ export function ProjectNavLink({ href, label, iconName, segment }: ProjectNavLin
           : "border-transparent bg-transparent text-stone-500 hover:border-stone-300/40 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:border-white/10 dark:hover:bg-white/[0.055] dark:hover:text-stone-100"
       )}
     >
+      {dragHandle}
       {Icon && (
         <Icon
           className={cn(
