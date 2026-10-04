@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
-import { Menu, PanelLeftClose } from "lucide-react";
+import { Building2, Menu, PanelLeftClose } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -230,9 +230,14 @@ export async function ProjectShell({
                 <Menu className="h-4 w-4" />
               </label>
               <BackButton />
-              <div className="hidden h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.05] text-dusk-lavender sm:grid">
-                <span className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
-              </div>
+              <Link
+                href="/projects"
+                title="หน้ารวมบริษัท (Workspaces)"
+                aria-label="หน้ารวมบริษัท (Workspaces)"
+                className="hidden sm:inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender"
+              >
+                <Building2 className="h-4 w-4" />
+              </Link>
               <div className="min-w-0">
                 <div className="hidden min-[640px]:flex lg:hidden 2xl:flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-stone-500">
                   <span>Workspace</span>

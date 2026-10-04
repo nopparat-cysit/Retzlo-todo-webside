@@ -427,3 +427,11 @@ Template:
   - นำชุดปุ่ม Segmented Toggle `[Boards Hub] [All Workspaces]` ออกจากแถบ Header ด้านขวาบน
   - ปรับปรุงให้หน้าแดชบอร์ดดูโปร่ง โล่ง สะอาดตา และคงไว้เฉพาะปุ่ม Primary Action สำคัญ (`New Board` / `New Project`)
 - Reviewed: รันการทดสอบ Vitest ใน `src/components/project/` ผ่าน 13/13 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
+
+### 2026-10-04 — เปลี่ยนปุ่มจุดสีสถิตบน Topbar เป็นปุ่ม Icon หน้ารวมบริษัท/Workspaces
+- Added/changed: `src/components/project/project-shell.tsx`.
+- Tokens/variants:
+  - แทนที่กล่องสี่เหลี่ยมจุดสีสถิต (Static dot box) บนแถบ Topbar ข้างชื่อ Workspace ด้วยปุ่มลิงก์ Icon `Building2`
+  - เชื่อมโยงตรงไปยังหน้ารวมบริษัท/แดชบอร์ด (`/projects`) พร้อม Tooltip "หน้ารวมบริษัท (Workspaces)"
+  - ใช้อัตลักษณ์สไตล์ปุ่มมน Retro Lofi (`rounded-xl border border-white/10 bg-white/[0.05]`) กลมกลืนกับปุ่ม BackButton
+- Reviewed: รันการทดสอบ Vitest ใน `src/components/project/` ผ่าน 13/13 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
