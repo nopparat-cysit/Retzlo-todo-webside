@@ -28,6 +28,7 @@ import {
 } from "@/lib/calendar/view";
 import { formatMediumDate, formatShortDate, formatShortDue, formatTime, formatWeekday } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
+import { getPriorityMeta } from "@/lib/kanban/priority";
 import { getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import { AssigneeStack } from "@/components/kanban/assignee-avatar";
@@ -262,15 +263,13 @@ export function ProjectCalendar({
           return a.title.localeCompare(b.title);
         }
         if (daySortBy === "priority") {
-          const getPriorityVal = (item: any) => {
+          const getPriorityRank = (item: any) => {
             if (item.type === "card") {
-              if (item.priority === "HIGH") return 3;
-              if (item.priority === "MEDIUM") return 2;
-              if (item.priority === "LOW") return 1;
+              return getPriorityMeta(item.priority).level;
             }
-            return 0;
+            return 999;
           };
-          return getPriorityVal(b) - getPriorityVal(a);
+          return getPriorityRank(a) - getPriorityRank(b);
         }
         const getAmPmTime = (item: any) => {
           if (item.dueDateAllDay) return -1;
@@ -997,16 +996,19 @@ export function ProjectCalendar({
                                   </span>
                                 )}
 
-                                {isCard && (item as CalendarCard).priority && (
-                                  <span className={cn(
-                                    "rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold",
-                                    (item as CalendarCard).priority === "HIGH" && "border-red-400/20 bg-red-400/10 text-red-400",
-                                    (item as CalendarCard).priority === "MEDIUM" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber",
-                                    (item as CalendarCard).priority === "LOW" && "border-white/5 bg-white/5 text-stone-400"
-                                  )}>
-                                    {(item as CalendarCard).priority}
-                                  </span>
-                                )}
+                                {isCard && (item as CalendarCard).priority && (() => {
+                                  const meta = getPriorityMeta((item as CalendarCard).priority);
+                                  return (
+                                    <span
+                                      className={cn(
+                                        "rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold",
+                                        meta.pillClass
+                                      )}
+                                    >
+                                      {meta.label}
+                                    </span>
+                                  );
+                                })()}
                               </div>
 
                               <h3 className={cn(

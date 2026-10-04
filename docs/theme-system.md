@@ -297,3 +297,21 @@ Template:
 - Tokens/variants: ใช้ semantic surface/text/border/accent tokens และ retro lofi palette สอดคล้องกับ shared primitives; ปุ่ม AI trigger และ Help button บน topbar ใช้ token ชุดเดียวกับ topbar tools.
 - Reviewed: Desktop & mobile responsive styling, category filter, real-time search, quick AI launch trigger.
 
+### 2026-10-04 — ตารางสเปรดชีต (Spreadsheet Table View) และ Custom Priorities
+- Added/changed: `src/components/kanban/board-list-view.tsx`, `src/components/kanban/board-priorities-tab.tsx`, `src/lib/kanban/priority.ts`, `src/components/kanban/card.tsx`, `src/components/kanban/card-modal.tsx`, `src/components/kanban/project-calendar.tsx`.
+- Tokens/variants:
+  - Table View ใช้โทนสี semantic table header, alternating row highlights, stone/dusk borders, และ contrast pills สำหรับ P0–P2 priorities
+  - คอลัมน์ลำดับ `#` แสดงเลขลำดับเรียบง่าย และสลับเป็น completion checkbox เมื่อ hover โดยไม่เกิด layout shift
+  - Custom Priorities รองรับ 12 โทนสี retro lofi (Rose, Orange, Amber, Yellow, Emerald, Teal, Sky, Blue, Indigo, Purple, Pink, Stone) พร้อม dynamic light/dark pillClass
+  - คอลัมน์ Assignee แสดง `AssigneeAvatar` จริงสอดคล้องกับธีมทั่วทั้งระบบ
+- Reviewed: ตรวจสอบทั้งโหมด Flat Table, Grouped Accordion, Calendar item detail panel, Card modal, และ Kanban cards บนทั้งธีม Dark และ Light.
+
+### 2026-10-04 — การส่งออกข้อมูลบอร์ด (Export Board) และ Card Density Switcher
+- Added/changed: `src/components/kanban/board-export-modal.tsx`, `src/lib/kanban/export-board.ts`, `src/components/kanban/board.tsx`, `src/components/ui/date-picker.tsx`, `src/components/ui/time-picker.tsx`.
+- Tokens/variants:
+  - Export modal ใช้ semantic card surface, segmented control สำหรับขอบเขตข้อมูล (All vs Filtered), และ format selection grid
+  - Card density switcher (Normal vs Compact 2x) ใช้ paired button group เคียงข้าง Board/Table view switcher
+  - Custom DatePicker และ TimePicker ใช้ popover surface, linear single-column scroller, และ standard DD/MM/YYYY placeholders พร้อม outside-click dismiss
+- Reviewed: Desktop & mobile responsive styling, outside-click dismissal, export trigger coordination across views.
+
+

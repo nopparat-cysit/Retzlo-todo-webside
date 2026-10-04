@@ -11,4 +11,11 @@ describe("calendar modal layering", () => {
     expect(calendarSource).toContain("calendar-note-title");
     expect(calendarSource).toContain("calendar-day-title");
   });
+
+  it("integrates getPriorityMeta for unified priority sorting and badge styling", () => {
+    expect(calendarSource).toContain('import { getPriorityMeta } from "@/lib/kanban/priority"');
+    expect(calendarSource).toContain("getPriorityRank");
+    expect(calendarSource).toContain("meta.pillClass");
+    expect(calendarSource).not.toContain('priority === "HIGH"');
+  });
 });

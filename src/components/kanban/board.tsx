@@ -1242,6 +1242,7 @@ export function KanbanBoard({
               filteredColumns={filteredColumns}
               members={members}
               boardPriorities={boardPriorities}
+              viewportElementId={viewMode === "list" ? "kanban-table-container" : "kanban-main-viewport"}
               isFiltered={activeFilterCount > 0}
             />
           </div>

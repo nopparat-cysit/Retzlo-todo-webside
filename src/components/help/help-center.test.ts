@@ -64,6 +64,8 @@ describe("Help & System Guide integration", () => {
     expect(clientSource).toContain("ข้อมูลระบบ & คู่มือการใช้งาน");
     expect(clientSource).toContain("DeepSeek-V4 Pro");
     expect(clientSource).toContain("Spreadsheet Table View");
+    expect(clientSource).toContain("Card Density (Normal / Compact 2x)");
+    expect(clientSource).toContain("Hover Checkbox");
     expect(clientSource).toContain("Coffee Cheers");
     expect(clientSource).toContain("useAiChat");
   });

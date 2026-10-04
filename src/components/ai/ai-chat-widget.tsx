@@ -23,6 +23,7 @@ import { getAiAuthHeaders, getClientAiModel } from "@/lib/ai/client-key";
 import type { AiCreateCardProposal } from "@/lib/ai/chat-actions";
 import { ApiKeyModal } from "@/components/ai/api-key-modal";
 import { GeminiSparkleIcon } from "@/components/ai/gemini-sparkle-icon";
+import { getPriorityMeta } from "@/lib/kanban/priority";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage {
@@ -538,9 +539,7 @@ export function AiChatWidget() {
                               </p>
                             )}
                             <p className="mt-1 text-[10px] text-stone-400">
-                              {card.columnName} · ความสำคัญ{
-                                card.priority === "HIGH" ? "สูง" : card.priority === "LOW" ? "ต่ำ" : "ปานกลาง"
-                              } · {formatProposalDueDate(card.dueDate, card.dueDateAllDay)}
+                              {card.columnName} · ความสำคัญ {getPriorityMeta(card.priority).label} · {formatProposalDueDate(card.dueDate, card.dueDateAllDay)}
                             </p>
                           </li>
                         ))}
