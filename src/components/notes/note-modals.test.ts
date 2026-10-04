@@ -39,4 +39,14 @@ describe("note modal layering", () => {
     expect(notesPanelSource).toContain("<SelectTrigger");
     expect(notesPanelSource).not.toContain("<select");
   });
+
+  it("defaults initial note scope to current board in board notes rail modal and provides full notes feature set", () => {
+    expect(boardNotesRailSource).toContain('activeBoardId ? "board" : "private"');
+    expect(boardNotesRailSource).toContain("<DateTimeField");
+    expect(boardNotesRailSource).toContain('label="วันที่สิ้นสุด (Due / End Date)"');
+    expect(boardNotesRailSource).toContain("NoteStickerPicker");
+    expect(boardNotesRailSource).toContain("Folder (โฟลเดอร์)");
+    expect(boardNotesRailSource).toContain('name="modal-scope"');
+  });
 });
+

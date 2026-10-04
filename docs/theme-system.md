@@ -445,6 +445,15 @@ Template:
     - **Full Panoramic Kanban Mode**: จัดวางทุกคอลัมน์แบบเต็มแผ่นแนวนอน 100% ความกว้างขยายตามจำนวนคอลัมน์จริง ไม่มีการตัดทอนหรือมีแถบเลื่อน
     - **Executive Summary Table Mode**: รายงานแบบตารางสรุปรายคอลัมน์ พร้อมสัญลักษณ์ความสำคัญ, ผู้รับผิดชอบ, วันส่งงาน และเช็คลิสต์ เหมาะสำหรับพิมพ์ลงกระดาษ A4 หรือนำเสนอสไลด์
     - **Theme Styles**: รองรับทั้งโหมดกระดาษขาว Clean Light Paper (พื้นหลังขาว เหมาะสำหรับพิมพ์/สไลด์) และดาร์กโหมดพรีเมียม Dark Slate
-  - ปรับปรุง `export-board.ts`: ยกระดับ PNG เป็นความละเอียดสูง 2x Retina และปรับแต่ง PDF ให้จัดหน้า A4 แนวนอน พร้อมระบบตัดแบ่งหน้าหลายแผ่น (Multi-page Pagination) อย่างเป็นระเบียบเมื่อเอกสารมีความยาวมาก
-- Reviewed: รันการทดสอบ Vitest ใน `src/components/kanban/board-export.test.ts` และ `src/lib/kanban/export-board.test.ts` ผ่าน 9/9 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
+### 2026-10-04 — ปรับปรุงหน้าต่าง Add Note ในหน้าบอร์ดให้เหมือนหน้า Notes หลัก พร้อมตั้งค่าเริ่มต้นเป็นบอร์ดปัจจุบัน (Board Note Modal Parity)
+- Added/changed: `src/components/notes/board-notes-rail.tsx`, `src/components/notes/note-modals.test.ts`.
+- Tokens/variants:
+  - ยกระดับ `NoteModal` และ `EditNoteModal` บนแถบโน้ตข้างบอร์ด (`BoardNotesRail`) ให้มีฟังก์ชันและเลย์เอาต์ครบถ้วนเหมือน `NoteEditorModal` ในหน้า Notes หลัก (`/project/[id]/notes`):
+    - **Header & Title:** ช่องกรอกชื่อโน้ตพร้อมกล่องแสดงสติกเกอร์ Retro ขนาดใหญ่ (`renderNoteSticker`)
+    - **Folder Selector:** ตัวเลือกโฟลเดอร์โครงการด้วย Radix UI `<Select>` พร้อมไอคอนโฟลเดอร์
+    - **Visibility Scope:** ปรับค่าเริ่มต้น (Default Scope) ให้เป็น `Sub-project Board` โดยอัตโนมัติ พร้อมแสดงป้าย `Default` และเลือกบอร์ดปัจจุบัน (`activeBoardId` / `activeBoardName`) ในดรอปดาวน์ให้ทันทีตามความต้องการของผู้ใช้ (ผู้ใช้ยังสามารถสลับเป็น Private หรือ Team ได้)
+    - **Due Date & Time:** เพิ่มช่องระบุวันครบกำหนดและเวลา (`DateTimeField`) พร้อมคำอธิบาย
+    - **Color & Sticker Pickers:** ตัวเลือกสีการ์ด 10 เฉดสีสไตล์ Retro Lofi และกริดเลือกสติกเกอร์ย้อนยุค (`sharedIconOptions`)
+- Reviewed: รันการทดสอบ Vitest ใน `src/components/notes/note-modals.test.ts` และ `src/components/notes/notes-panel.test.ts` ผ่าน 14/14 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
+
 

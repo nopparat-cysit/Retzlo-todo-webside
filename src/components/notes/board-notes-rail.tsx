@@ -1,26 +1,59 @@
 "use client";
 
 import { FormEvent, useMemo, useState, useCallback, useEffect } from "react";
-import { CheckCircle2, FileText, FolderKanban, Globe, Lock, PanelRightClose, Plus, RotateCcw, Save, Star, Trash2, X } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  FileText,
+  FolderKanban,
+  Globe,
+  Lock,
+  PanelRightClose,
+  Plus,
+  RotateCcw,
+  Save,
+  Star,
+  Trash2,
+  X
+} from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 
 import { AppModal } from "@/components/ui/app-modal";
-import { useAppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
+import { DateTimeField } from "@/components/ui/date-time-field";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { formatMediumDateTime } from "@/lib/date-format";
-import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
+import { composeDueDate } from "@/lib/kanban/due-date";
+import { isSharedIconPath, sharedIconOptions } from "@/lib/stickers/shared-icon-options";
+import {
+  cardColorOptions,
+  getCardColorMeta,
+  normalizeCardColor,
+  type CardColor
+} from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
-import type { ProjectNote } from "@/types/note";
+import type { NoteFolderItem, ProjectNote } from "@/types/note";
 
 type NoteFilter = "starred" | "recent" | "all" | "completed";
 type NoteSort = "updated" | "created" | "title";
 type NoteScope = "private" | "board" | "team";
-const NOTE_EMOJIS = ["📝", "✨", "🌙", "☕", "📌", "💡", "🎧", "🌿", "⭐", "🔥", "🎯", "📚", "💭", "🧠", "🗓️", "🔖", "🎨", "🚀"];
+
+const DEFAULT_NOTE_STICKER = "/stickers/retro/retro-sticker-12-paper-note.png";
 
 export function BoardNotesRail({
   projectId,
@@ -34,20 +67,47 @@ export function BoardNotesRail({
   initialNotes: ProjectNote[];
   activeBoardId?: string;
   activeBoardName?: string;
-  availableBoards?: Array<{ id: string; name: string }>;
+  availableBoards?: Array<{ id: string; name: string; isPrivate?: boolean }>;
   onClose?: () => void;
 }) {
   const [notes, setNotes] = useState<ProjectNote[]>(initialNotes);
+  const [folders, setFolders] = useState<NoteFolderItem[]>([]);
 
   useEffect(() => {
     setNotes(initialNotes);
   }, [initialNotes]);
+
+  // Fetch project note folders for folder selection
+  useEffect(() => {
+    let isMounted = true;
+    fetch(`/api/projects/${projectId}/note-folders`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data && Array.isArray(data.folders)) {
+          setFolders(data.folders);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [projectId]);
+
   const [filter, setFilter] = useState<NoteFilter>("starred");
   const [sortBy, setSortBy] = useState<NoteSort>("updated");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<ProjectNote | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const effectiveBoards = useMemo(() => {
+    const list = [...(availableBoards || [])];
+    if (activeBoardId && !list.some((b) => b.id === activeBoardId)) {
+      list.unshift({ id: activeBoardId, name: activeBoardName || "Current Board" });
+    }
+    return list;
+  }, [availableBoards, activeBoardId, activeBoardName]);
+
   const visibleNotes = useMemo(() => {
     const activeNotes = notes.filter((note) => !note.completedAt);
     const filtered =
@@ -102,11 +162,15 @@ export function BoardNotesRail({
     emoji: string;
     color: CardColor;
     scope: NoteScope;
+    boardId?: string | null;
+    folderId?: string | null;
+    dueDate?: string | null;
+    dueDateAllDay?: boolean;
   }) {
     setError(null);
 
     const isHidden = payload.scope === "private";
-    const boardId = payload.scope === "board" ? (activeBoardId ?? null) : null;
+    const boardId = payload.scope === "board" ? (payload.boardId || activeBoardId || null) : null;
 
     const response = await fetch(`/api/projects/${projectId}/notes`, {
       method: "POST",
@@ -117,7 +181,10 @@ export function BoardNotesRail({
         emoji: payload.emoji,
         color: payload.color,
         isHidden,
-        boardId
+        boardId,
+        folderId: payload.folderId ?? null,
+        dueDate: payload.dueDate ?? null,
+        dueDateAllDay: payload.dueDateAllDay ?? false
       })
     });
     const data = (await response.json()) as { note?: ProjectNote; error?: string };
@@ -138,7 +205,7 @@ export function BoardNotesRail({
 
   async function updateNote(
     noteId: string,
-    payload: Partial<Pick<ProjectNote, "title" | "content" | "emoji" | "isStarred" | "color" | "isHidden">> & {
+    payload: Partial<Pick<ProjectNote, "title" | "content" | "emoji" | "isStarred" | "color" | "isHidden" | "dueDate" | "dueDateAllDay" | "folderId">> & {
       isCompleted?: boolean;
       boardId?: string | null;
     }
@@ -292,10 +359,22 @@ export function BoardNotesRail({
                           Done
                         </span>
                       ) : null}
+                      {note.dueDate ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-mono text-stone-400">
+                          <Clock className="h-2.5 w-2.5" />
+                          {formatMediumDateTime(note.dueDate, note.dueDateAllDay)}
+                        </span>
+                      ) : null}
+                      {note.folder ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-stone-400">
+                          <span>{note.folder.icon || "📁"}</span>
+                          <span>{note.folder.name}</span>
+                        </span>
+                      ) : null}
                     </div>
                     <h3 className="flex items-center gap-2 truncate text-sm font-medium text-stone-100">
-                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.05] text-sm">
-                        {note.emoji}
+                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.05] text-sm overflow-hidden p-0.5">
+                        {renderNoteSticker(note.emoji, "h-5 w-5")}
                       </span>
                       <span className="truncate">{note.title}</span>
                     </h3>
@@ -306,7 +385,7 @@ export function BoardNotesRail({
                   <p className="text-[11px] text-stone-600">{formatMediumDateTime(note.completedAt ?? note.updatedAt)}</p>
                   {note.canManage ? (
                     <button
-                      className="inline-flex h-7 items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 text-[11px] text-stone-300 transition hover:border-dusk-mint/35 hover:text-dusk-mint"
+                      className="inline-flex h-7 items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 text-[11px] text-stone-300 transition hover:border-dusk-mint/35 hover:text-dusk-mint cursor-pointer"
                       type="button"
                       onClick={() => updateNote(note.id, { isCompleted: !note.completedAt })}
                     >
@@ -325,8 +404,10 @@ export function BoardNotesRail({
         <NoteModal
           title="Add note"
           submitLabel="Add note"
+          activeBoardId={activeBoardId}
           activeBoardName={activeBoardName}
-          hasActiveBoard={Boolean(activeBoardId)}
+          effectiveBoards={effectiveBoards}
+          folders={folders}
           onClose={() => setIsCreateOpen(false)}
           onSubmit={createNote}
         />
@@ -334,21 +415,26 @@ export function BoardNotesRail({
       {selectedNote ? (
         <EditNoteModal
           note={selectedNote}
+          activeBoardId={activeBoardId}
           activeBoardName={activeBoardName}
-          hasActiveBoard={Boolean(activeBoardId)}
+          effectiveBoards={effectiveBoards}
+          folders={folders}
           onClose={() => setSelectedNote(null)}
           onDelete={() => deleteNote(selectedNote.id)}
           onToggleComplete={() => updateNote(selectedNote.id, { isCompleted: !selectedNote.completedAt })}
           onSubmit={async (payload) => {
             const isHidden = payload.scope === "private";
-            const boardId = payload.scope === "board" ? (activeBoardId ?? null) : null;
+            const boardId = payload.scope === "board" ? (payload.boardId ?? activeBoardId ?? null) : null;
             await updateNote(selectedNote.id, {
               title: payload.title,
               content: payload.content,
               emoji: payload.emoji,
               color: payload.color,
               isHidden,
-              boardId
+              boardId,
+              folderId: payload.folderId,
+              dueDate: payload.dueDate,
+              dueDateAllDay: payload.dueDateAllDay
             });
             setSelectedNote(null);
           }}
@@ -359,17 +445,21 @@ export function BoardNotesRail({
 }
 
 function NoteModal({
-  title,
-  submitLabel,
+  title = "Add note",
+  submitLabel = "Add note",
+  activeBoardId,
   activeBoardName,
-  hasActiveBoard,
+  effectiveBoards = [],
+  folders = [],
   onClose,
   onSubmit
 }: {
-  title: string;
-  submitLabel: string;
+  title?: string;
+  submitLabel?: string;
+  activeBoardId?: string;
   activeBoardName?: string;
-  hasActiveBoard?: boolean;
+  effectiveBoards: Array<{ id: string; name: string; isPrivate?: boolean }>;
+  folders?: NoteFolderItem[];
   onClose: () => void;
   onSubmit: (payload: {
     title: string;
@@ -377,14 +467,40 @@ function NoteModal({
     emoji: string;
     color: CardColor;
     scope: NoteScope;
+    boardId?: string | null;
+    folderId?: string | null;
+    dueDate?: string | null;
+    dueDateAllDay?: boolean;
   }) => void | Promise<void>;
 }) {
   const [noteTitle, setNoteTitle] = useState("");
   const [content, setContent] = useState("");
-  const [emoji, setEmoji] = useState("📝");
+  const [emoji, setEmoji] = useState(DEFAULT_NOTE_STICKER);
   const [color, setColor] = useState<CardColor>("DEFAULT");
-  const [scope, setScope] = useState<NoteScope>("private");
-  const isDirty = noteTitle.trim().length > 0 || content.trim().length > 0;
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [selectedFolderId, setSelectedFolderId] = useState<string>("");
+
+  // Default scope is initially the current board!
+  const [scope, setScope] = useState<NoteScope>(activeBoardId ? "board" : "private");
+  const [selectedBoardId, setSelectedBoardId] = useState<string>(
+    activeBoardId || (effectiveBoards[0]?.id ?? "")
+  );
+
+  const isDirty = useMemo(() => {
+    return (
+      noteTitle.trim().length > 0 ||
+      content.trim().length > 0 ||
+      emoji !== DEFAULT_NOTE_STICKER ||
+      color !== "DEFAULT" ||
+      selectedFolderId !== "" ||
+      scope !== (activeBoardId ? "board" : "private") ||
+      date !== "" ||
+      time !== ""
+    );
+  }, [noteTitle, content, emoji, color, selectedFolderId, scope, activeBoardId, date, time]);
+
+  const currentFolder = folders.find((f) => f.id === selectedFolderId);
 
   return (
     <AppModal
@@ -392,56 +508,257 @@ function NoteModal({
       onClose={onClose}
       hasUnsavedChanges={isDirty}
       onDiscard={onClose}
-      labelledBy="board-note-modal-title"
-      contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-4xl flex-col overflow-hidden rounded-2xl"
+      labelledBy="note-card-title"
+      contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
     >
       <form
         className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden"
         onSubmit={(e) => {
           e.preventDefault();
+          const due = composeDueDate(date, time);
+          const boardId = scope === "board" ? (selectedBoardId || activeBoardId || null) : null;
           onSubmit({
             title: noteTitle,
             content,
             emoji,
             color,
-            scope
+            scope,
+            boardId,
+            folderId: selectedFolderId || null,
+            dueDate: due.dueDate,
+            dueDateAllDay: due.dueDateAllDay
           });
         }}
       >
-        <ModalHeader title={title} onClose={onClose} />
-        <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
+        <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Board Note</p>
+            <h2 id="note-card-title" className="mt-1 text-2xl font-semibold">{title}</h2>
+          </div>
+          <button
+            className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100 cursor-pointer"
+            type="button"
+            aria-label="Close note"
+            onClick={onClose}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
           <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
-            <Input
-              name="title"
-              value={noteTitle}
-              onChange={(e) => setNoteTitle(e.target.value)}
-              placeholder="Note title"
-              required
-            />
+            <div className="flex items-center gap-3">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
+                {renderNoteSticker(emoji, "h-12 w-12")}
+              </div>
+              <Input
+                name="title"
+                value={noteTitle}
+                onChange={(e) => setNoteTitle(e.target.value)}
+                placeholder="Note title"
+                required
+              />
+            </div>
             <Textarea
-              className="min-h-[320px]"
+              className="min-h-[360px]"
               name="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write a note..."
             />
           </div>
+
           <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
-            <ScopeSelector
-              scope={scope}
-              onChange={setScope}
-              activeBoardName={activeBoardName}
-              hasActiveBoard={hasActiveBoard}
+            {/* Folder Selector */}
+            <div className="space-y-1.5 text-sm text-stone-300">
+              <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder (โฟลเดอร์)</span>
+              <Select
+                value={selectedFolderId || "UNFILED"}
+                onValueChange={(val) => setSelectedFolderId(val === "UNFILED" ? "" : val)}
+              >
+                <SelectTrigger
+                  aria-label="Select folder"
+                  className="h-10 w-full rounded-lg border border-stone-300/80 bg-white px-3 text-xs font-semibold text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="shrink-0 text-base">{currentFolder?.icon || "📁"}</span>
+                    <span className="truncate font-medium">
+                      {currentFolder ? currentFolder.name : "No folder (Unfiled / ไม่มีโฟลเดอร์)"}
+                    </span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="z-[1100]">
+                  <SelectGroup>
+                    <SelectItem value="UNFILED" className="cursor-pointer text-xs">
+                      <span className="flex items-center gap-2">
+                        <span className="text-base">📁</span>
+                        <span>No folder (Unfiled / ไม่มีโฟลเดอร์)</span>
+                      </span>
+                    </SelectItem>
+                  </SelectGroup>
+                  {folders.length > 0 && (
+                    <>
+                      <SelectSeparator />
+                      <SelectGroup>
+                        <SelectLabel>Folders ({folders.length})</SelectLabel>
+                        {folders.map((f) => (
+                          <SelectItem key={f.id} value={f.id} className="cursor-pointer text-xs">
+                            <span className="flex items-center gap-2">
+                              <span className="text-base">{f.icon || "📁"}</span>
+                              <span>{f.name}</span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Visibility Scope */}
+            <div className="space-y-2 text-sm text-stone-300">
+              <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Visibility Scope</span>
+              <div className="flex flex-col gap-2">
+                {/* Board Option - DEFAULT on Board page */}
+                <div
+                  className={cn(
+                    "rounded-lg border p-2.5 text-xs transition select-none",
+                    scope === "board"
+                      ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender font-medium shadow-[0_0_12px_rgba(196,181,253,0.1)]"
+                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                  )}
+                >
+                  <label className="flex cursor-pointer items-center justify-between">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FolderKanban className="h-3.5 w-3.5 shrink-0" />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate block font-medium">Sub-project Board</span>
+                          <span className="rounded bg-dusk-lavender/20 px-1 py-0.2 text-[9px] font-mono text-dusk-lavender uppercase">
+                            Default
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-stone-500 font-normal truncate">
+                          {activeBoardName ? `บอร์ดปัจจุบัน (${activeBoardName})` : "Members of selected board only"}
+                        </p>
+                      </div>
+                    </div>
+                    <input
+                      type="radio"
+                      name="modal-scope"
+                      value="board"
+                      checked={scope === "board"}
+                      onChange={() => setScope("board")}
+                      className="sr-only"
+                    />
+                  </label>
+                  {scope === "board" && (
+                    <div className="mt-2.5 pt-2 border-t border-stone-200/80 dark:border-white/10">
+                      <Select
+                        value={selectedBoardId || activeBoardId || (effectiveBoards[0]?.id ?? "")}
+                        onValueChange={setSelectedBoardId}
+                      >
+                        <SelectTrigger
+                          aria-label="Select sub-project board"
+                          className="h-9 w-full rounded-md border border-stone-300/80 bg-white px-3 text-xs font-semibold text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
+                        >
+                          <SelectValue placeholder="Select board" />
+                        </SelectTrigger>
+                        <SelectContent className="z-[1100]">
+                          <SelectGroup>
+                            <SelectLabel>Boards ({effectiveBoards.length})</SelectLabel>
+                            {effectiveBoards.map((b) => (
+                              <SelectItem key={b.id} value={b.id} className="cursor-pointer text-xs">
+                                {b.name} {b.id === activeBoardId ? "(Current Board)" : ""} {b.isPrivate ? "(Private)" : ""}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Private Option */}
+                <label
+                  className={cn(
+                    "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
+                    scope === "private"
+                      ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber font-medium shadow-[0_0_12px_rgba(249,199,132,0.1)]"
+                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-3.5 w-3.5 shrink-0" />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span>Private Note</span>
+                      </div>
+                      <p className="text-[10px] text-stone-500 font-normal">Only you can see this (โน้ตส่วนตัว)</p>
+                    </div>
+                  </div>
+                  <input
+                    type="radio"
+                    name="modal-scope"
+                    value="private"
+                    checked={scope === "private"}
+                    onChange={() => setScope("private")}
+                    className="sr-only"
+                  />
+                </label>
+
+                {/* Team Option */}
+                <label
+                  className={cn(
+                    "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
+                    scope === "team"
+                      ? "border-dusk-cyan/50 bg-dusk-cyan/15 text-dusk-cyan font-medium shadow-[0_0_12px_rgba(103,232,249,0.1)]"
+                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-3.5 w-3.5 shrink-0" />
+                    <div>
+                      <span>Entire Project (Team)</span>
+                      <p className="text-[10px] text-stone-500 font-normal">Visible to all project members</p>
+                    </div>
+                  </div>
+                  <input
+                    type="radio"
+                    name="modal-scope"
+                    value="team"
+                    checked={scope === "team"}
+                    onChange={() => setScope("team")}
+                    className="sr-only"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <DateTimeField
+              label="วันที่สิ้นสุด (Due / End Date)"
+              description="กำหนดวันสิ้นสุดหรือส่งงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+              value={{ date, time }}
+              onChange={(nextValue) => {
+                setDate(nextValue.date);
+                setTime(nextValue.time);
+              }}
             />
-            <EmojiPicker selectedEmoji={emoji} onChange={setEmoji} />
+
             <ColorPicker selectedColor={color} onChange={setColor} />
+            <NoteStickerPicker selectedSticker={emoji} onChange={setEmoji} />
           </aside>
         </div>
-        <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
+
+        <div className="flex flex-wrap justify-end gap-2 border-t border-white/10 px-5 py-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button>{submitLabel}</Button>
+          <Button type="submit">
+            <Save className="h-4 w-4" />
+            {submitLabel}
+          </Button>
         </div>
       </form>
     </AppModal>
@@ -450,16 +767,20 @@ function NoteModal({
 
 function EditNoteModal({
   note,
+  activeBoardId,
   activeBoardName,
-  hasActiveBoard,
+  effectiveBoards = [],
+  folders = [],
   onClose,
   onDelete,
   onToggleComplete,
   onSubmit
 }: {
   note: ProjectNote;
+  activeBoardId?: string;
   activeBoardName?: string;
-  hasActiveBoard?: boolean;
+  effectiveBoards: Array<{ id: string; name: string; isPrivate?: boolean }>;
+  folders?: NoteFolderItem[];
   onClose: () => void;
   onDelete: () => void;
   onToggleComplete: () => void;
@@ -469,27 +790,46 @@ function EditNoteModal({
     emoji: string;
     color: CardColor;
     scope: NoteScope;
+    boardId?: string | null;
+    folderId?: string | null;
+    dueDate?: string | null;
+    dueDateAllDay?: boolean;
   }) => void | Promise<void>;
 }) {
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content ?? "");
-  const [emoji, setEmoji] = useState(note.emoji ?? "📝");
+  const [emoji, setEmoji] = useState(note.emoji ?? DEFAULT_NOTE_STICKER);
   const [color, setColor] = useState<CardColor>(normalizeCardColor(note.color));
+  const [date, setDate] = useState(note.dueDate ? note.dueDate.slice(0, 10) : "");
+  const [time, setTime] = useState(note.dueDate && !note.dueDateAllDay ? timeValue(note.dueDate) : "");
+  const [selectedFolderId, setSelectedFolderId] = useState<string>(note.folderId ?? "");
+
   const [scope, setScope] = useState<NoteScope>(
     note.isHidden ? "private" : note.boardId ? "board" : "team"
+  );
+  const [selectedBoardId, setSelectedBoardId] = useState<string>(
+    note.boardId || activeBoardId || (effectiveBoards[0]?.id ?? "")
   );
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const isDirty = useMemo(() => {
+    const origDate = note.dueDate ? note.dueDate.slice(0, 10) : "";
+    const origTime = note.dueDate && !note.dueDateAllDay ? timeValue(note.dueDate) : "";
     const origScope: NoteScope = note.isHidden ? "private" : note.boardId ? "board" : "team";
     return (
       title !== note.title ||
       content !== (note.content ?? "") ||
-      emoji !== (note.emoji ?? "📝") ||
+      emoji !== (note.emoji ?? DEFAULT_NOTE_STICKER) ||
       color !== normalizeCardColor(note.color) ||
-      scope !== origScope
+      selectedFolderId !== (note.folderId ?? "") ||
+      scope !== origScope ||
+      (scope === "board" && selectedBoardId !== (note.boardId ?? "")) ||
+      date !== origDate ||
+      time !== origTime
     );
-  }, [note, title, content, emoji, color, scope]);
+  }, [note, title, content, emoji, color, selectedFolderId, scope, selectedBoardId, date, time]);
+
+  const currentFolder = folders.find((f) => f.id === selectedFolderId);
 
   return (
     <>
@@ -498,51 +838,242 @@ function EditNoteModal({
         onClose={onClose}
         hasUnsavedChanges={isDirty}
         onDiscard={onClose}
-        labelledBy="board-note-modal-title"
-        contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-4xl flex-col overflow-hidden rounded-2xl"
+        labelledBy="note-card-title"
+        contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-5xl flex-col overflow-hidden rounded-2xl"
       >
         <form
           className="flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden"
           onSubmit={(e) => {
             e.preventDefault();
+            const due = composeDueDate(date, time);
+            const boardId = scope === "board" ? (selectedBoardId || note.boardId || activeBoardId || null) : null;
             onSubmit({
               title,
               content,
               emoji,
               color,
-              scope
+              scope,
+              boardId,
+              folderId: selectedFolderId || null,
+              dueDate: due.dueDate,
+              dueDateAllDay: due.dueDateAllDay
             });
           }}
         >
-          <ModalHeader title="Edit note" onClose={onClose} />
-          <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.8fr)]">
+          <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Board Note</p>
+              <h2 id="note-card-title" className="mt-1 text-2xl font-semibold">Edit note</h2>
+            </div>
+            <button
+              className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100 cursor-pointer"
+              type="button"
+              aria-label="Close note"
+              onClick={onClose}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
             <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
-              <Input
-                name="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Note title"
-                required
-              />
+              <div className="flex items-center gap-3">
+                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
+                  {renderNoteSticker(emoji, "h-12 w-12")}
+                </div>
+                <Input
+                  name="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Note title"
+                  required
+                />
+              </div>
               <Textarea
-                className="min-h-[320px]"
+                className="min-h-[360px]"
                 name="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Write a note..."
               />
             </div>
+
             <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
-              <ScopeSelector
-                scope={scope}
-                onChange={setScope}
-                activeBoardName={activeBoardName}
-                hasActiveBoard={hasActiveBoard}
+              {/* Folder Selector */}
+              <div className="space-y-1.5 text-sm text-stone-300">
+                <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder (โฟลเดอร์)</span>
+                <Select
+                  value={selectedFolderId || "UNFILED"}
+                  onValueChange={(val) => setSelectedFolderId(val === "UNFILED" ? "" : val)}
+                >
+                  <SelectTrigger
+                    aria-label="Select folder"
+                    className="h-10 w-full rounded-lg border border-stone-300/80 bg-white px-3 text-xs font-semibold text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="shrink-0 text-base">{currentFolder?.icon || "📁"}</span>
+                      <span className="truncate font-medium">
+                        {currentFolder ? currentFolder.name : "No folder (Unfiled / ไม่มีโฟลเดอร์)"}
+                      </span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="z-[1100]">
+                    <SelectGroup>
+                      <SelectItem value="UNFILED" className="cursor-pointer text-xs">
+                        <span className="flex items-center gap-2">
+                          <span className="text-base">📁</span>
+                          <span>No folder (Unfiled / ไม่มีโฟลเดอร์)</span>
+                        </span>
+                      </SelectItem>
+                    </SelectGroup>
+                    {folders.length > 0 && (
+                      <>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel>Folders ({folders.length})</SelectLabel>
+                          {folders.map((f) => (
+                            <SelectItem key={f.id} value={f.id} className="cursor-pointer text-xs">
+                              <span className="flex items-center gap-2">
+                                <span className="text-base">{f.icon || "📁"}</span>
+                                <span>{f.name}</span>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Visibility Scope */}
+              <div className="space-y-2 text-sm text-stone-300">
+                <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Visibility Scope</span>
+                <div className="flex flex-col gap-2">
+                  {/* Private Option */}
+                  <label
+                    className={cn(
+                      "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
+                      scope === "private"
+                        ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber font-medium shadow-[0_0_12px_rgba(249,199,132,0.1)]"
+                        : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Lock className="h-3.5 w-3.5 shrink-0" />
+                      <div>
+                        <span>Private Note</span>
+                        <p className="text-[10px] text-stone-500 font-normal">Only you can see this (โน้ตส่วนตัว)</p>
+                      </div>
+                    </div>
+                    <input
+                      type="radio"
+                      name="modal-scope-edit"
+                      value="private"
+                      checked={scope === "private"}
+                      onChange={() => setScope("private")}
+                      className="sr-only"
+                    />
+                  </label>
+
+                  {/* Board Option */}
+                  <div
+                    className={cn(
+                      "rounded-lg border p-2.5 text-xs transition select-none",
+                      scope === "board"
+                        ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender font-medium shadow-[0_0_12px_rgba(196,181,253,0.1)]"
+                        : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                    )}
+                  >
+                    <label className="flex cursor-pointer items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FolderKanban className="h-3.5 w-3.5 shrink-0" />
+                        <div className="min-w-0">
+                          <span className="truncate block font-medium">Sub-project Board</span>
+                          <p className="text-[10px] text-stone-500 font-normal truncate">
+                            {activeBoardName ? `บอร์ดปัจจุบัน (${activeBoardName})` : "Members of selected board only"}
+                          </p>
+                        </div>
+                      </div>
+                      <input
+                        type="radio"
+                        name="modal-scope-edit"
+                        value="board"
+                        checked={scope === "board"}
+                        onChange={() => setScope("board")}
+                        className="sr-only"
+                      />
+                    </label>
+                    {scope === "board" && (
+                      <div className="mt-2.5 pt-2 border-t border-stone-200/80 dark:border-white/10">
+                        <Select
+                          value={selectedBoardId || (effectiveBoards[0]?.id ?? "")}
+                          onValueChange={setSelectedBoardId}
+                        >
+                          <SelectTrigger
+                            aria-label="Select sub-project board"
+                            className="h-9 w-full rounded-md border border-stone-300/80 bg-white px-3 text-xs font-semibold text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
+                          >
+                            <SelectValue placeholder="Select board" />
+                          </SelectTrigger>
+                          <SelectContent className="z-[1100]">
+                            <SelectGroup>
+                              <SelectLabel>Boards ({effectiveBoards.length})</SelectLabel>
+                              {effectiveBoards.map((b) => (
+                                <SelectItem key={b.id} value={b.id} className="cursor-pointer text-xs">
+                                  {b.name} {b.id === activeBoardId ? "(Current Board)" : ""} {b.isPrivate ? "(Private)" : ""}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Team Option */}
+                  <label
+                    className={cn(
+                      "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
+                      scope === "team"
+                        ? "border-dusk-cyan/50 bg-dusk-cyan/15 text-dusk-cyan font-medium shadow-[0_0_12px_rgba(103,232,249,0.1)]"
+                        : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-3.5 w-3.5 shrink-0" />
+                      <div>
+                        <span>Entire Project (Team)</span>
+                        <p className="text-[10px] text-stone-500 font-normal">Visible to all project members</p>
+                      </div>
+                    </div>
+                    <input
+                      type="radio"
+                      name="modal-scope-edit"
+                      value="team"
+                      checked={scope === "team"}
+                      onChange={() => setScope("team")}
+                      className="sr-only"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <DateTimeField
+                label="วันที่สิ้นสุด (Due / End Date)"
+                description="กำหนดวันสิ้นสุดหรือส่งงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+                value={{ date, time }}
+                onChange={(nextValue) => {
+                  setDate(nextValue.date);
+                  setTime(nextValue.time);
+                }}
               />
-              <EmojiPicker selectedEmoji={emoji} onChange={setEmoji} />
+
               <ColorPicker selectedColor={color} onChange={setColor} />
+              <NoteStickerPicker selectedSticker={emoji} onChange={setEmoji} />
             </aside>
           </div>
+
           <div className="flex flex-wrap justify-end gap-2 border-t border-white/10 px-5 py-4">
             <Button type="button" variant="secondary" onClick={onToggleComplete}>
               {note.completedAt ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
@@ -555,7 +1086,7 @@ function EditNoteModal({
             <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button>
+            <Button type="submit">
               <Save className="h-4 w-4" />
               Save
             </Button>
@@ -579,122 +1110,9 @@ function EditNoteModal({
   );
 }
 
-function ScopeSelector({
-  scope,
-  onChange,
-  activeBoardName,
-  hasActiveBoard
-}: {
-  scope: NoteScope;
-  onChange: (scope: NoteScope) => void;
-  activeBoardName?: string;
-  hasActiveBoard?: boolean;
-}) {
-  return (
-    <div className="space-y-2 text-sm text-stone-300">
-      <div className="flex items-center justify-between">
-        <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Visibility Scope</span>
-      </div>
-      <div className="flex flex-col gap-1.5">
-        {/* Private Option - Default */}
-        <label
-          className={cn(
-            "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
-            scope === "private"
-              ? "border-dusk-amber/50 bg-dusk-amber/15 text-dusk-amber font-medium shadow-[0_0_12px_rgba(249,199,132,0.1)]"
-              : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
-          )}
-        >
-          <div className="flex items-center gap-2">
-            <Lock className="h-3.5 w-3.5 shrink-0" />
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span>Private Note</span>
-                <span className="rounded bg-dusk-amber/20 px-1 py-0.2 text-[9px] font-mono text-dusk-amber uppercase">Default</span>
-              </div>
-              <p className="text-[10px] text-stone-500 font-normal">Only you can see this (โน้ตส่วนตัว)</p>
-            </div>
-          </div>
-          <input
-            type="radio"
-            name="scope"
-            value="private"
-            checked={scope === "private"}
-            onChange={() => onChange("private")}
-            className="sr-only"
-          />
-        </label>
-
-        {/* Board Option */}
-        {hasActiveBoard && (
-          <label
-            className={cn(
-              "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
-              scope === "board"
-                ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender font-medium shadow-[0_0_12px_rgba(196,181,253,0.1)]"
-                : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
-            )}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <FolderKanban className="h-3.5 w-3.5 shrink-0" />
-              <div className="min-w-0">
-                <span className="truncate block font-medium">Board: {activeBoardName || "Current"}</span>
-                <p className="text-[10px] text-stone-500 font-normal truncate">Members of this board only</p>
-              </div>
-            </div>
-            <input
-              type="radio"
-              name="scope"
-              value="board"
-              checked={scope === "board"}
-              onChange={() => onChange("board")}
-              className="sr-only"
-            />
-          </label>
-        )}
-
-        {/* Team Option */}
-        <label
-          className={cn(
-            "flex cursor-pointer items-center justify-between rounded-lg border p-2.5 text-xs transition select-none",
-            scope === "team"
-              ? "border-dusk-cyan/50 bg-dusk-cyan/15 text-dusk-cyan font-medium shadow-[0_0_12px_rgba(103,232,249,0.1)]"
-              : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20 hover:text-stone-200"
-          )}
-        >
-          <div className="flex items-center gap-2">
-            <Globe className="h-3.5 w-3.5 shrink-0" />
-            <div>
-              <span>Entire Project (Team)</span>
-              <p className="text-[10px] text-stone-500 font-normal">Visible to all project members</p>
-            </div>
-          </div>
-          <input
-            type="radio"
-            name="scope"
-            value="team"
-            checked={scope === "team"}
-            onChange={() => onChange("team")}
-            className="sr-only"
-          />
-        </label>
-      </div>
-    </div>
-  );
-}
-
-function ModalHeader({ title, onClose }: { title: string; onClose: () => void }) {
-  return (
-    <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
-      <div>
-        <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Board Note</p>
-        <h2 id="board-note-modal-title" className="mt-1 text-2xl font-semibold">{title}</h2>
-      </div>
-      <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
-        <X className="h-5 w-5" />
-      </button>
-    </div>
-  );
+function timeValue(value: string) {
+  const date = new Date(value);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
 function ColorPicker({
@@ -702,7 +1120,7 @@ function ColorPicker({
   onChange
 }: {
   selectedColor: CardColor;
-  onChange?: (color: CardColor) => void;
+  onChange: (color: CardColor) => void;
 }) {
   return (
     <div className="space-y-2 text-sm text-stone-300">
@@ -712,26 +1130,20 @@ function ColorPicker({
           const meta = getCardColorMeta(option.value);
 
           return (
-            <label
+            <button
               key={option.value}
               className={cn(
-                "grid h-8 w-8 cursor-pointer place-items-center rounded-full border bg-white/[0.035] transition hover:scale-105 hover:border-white/25",
+                "grid h-8 w-8 place-items-center rounded-full border bg-white/[0.035] transition hover:scale-105 hover:border-white/25 cursor-pointer",
                 selectedColor === option.value
                   ? "border-dusk-amber ring-2 ring-dusk-amber/45 ring-offset-2 ring-offset-ink-950"
                   : "border-white/10"
               )}
               title={option.label}
+              type="button"
+              onClick={() => onChange(option.value)}
             >
-              <input
-                className="sr-only"
-                checked={selectedColor === option.value}
-                onChange={() => onChange?.(option.value)}
-                name="color"
-                type="radio"
-                value={option.value}
-              />
               <span className={cn("h-5 w-5 rounded-full border", meta.swatchClass)} />
-            </label>
+            </button>
           );
         })}
       </div>
@@ -739,51 +1151,58 @@ function ColorPicker({
   );
 }
 
-function EmojiPicker({
-  selectedEmoji,
+function NoteStickerPicker({
+  selectedSticker,
   onChange
 }: {
-  selectedEmoji: string;
-  onChange?: (emoji: string) => void;
+  selectedSticker: string;
+  onChange: (sticker: string) => void;
 }) {
   return (
     <div className="space-y-2 text-sm text-stone-300">
-      <span>Note emoji</span>
-      <div className="grid grid-cols-6 gap-2">
-        {NOTE_EMOJIS.map((option) => (
-          <label
-            key={option}
+      <span>Note sticker</span>
+      <div className="grid max-h-60 grid-cols-5 gap-2 overflow-y-auto pr-1 scrollbar-soft">
+        {sharedIconOptions.map((option) => (
+          <button
+            key={option.id}
             className={cn(
-              "grid h-10 cursor-pointer place-items-center rounded-lg border bg-white/[0.035] text-lg transition hover:-translate-y-0.5 hover:border-dusk-lavender/40",
-              selectedEmoji === option ? "border-dusk-amber bg-dusk-amber/10" : "border-white/10"
+              "grid h-12 w-12 place-items-center overflow-visible rounded-lg border bg-white/[0.035] p-1.5 transition hover:-translate-y-0.5 hover:border-dusk-lavender/40 cursor-pointer",
+              selectedSticker === option.src ? "border-dusk-amber bg-dusk-amber/10" : "border-white/10"
             )}
+            type="button"
+            onClick={() => onChange(option.src)}
+            title={option.label}
           >
-            <input
-              className="sr-only"
-              checked={selectedEmoji === option}
-              onChange={() => onChange?.(option)}
-              name="emoji"
-              type="radio"
-              value={option}
-            />
-            {option}
-          </label>
+            <RetroStickerImage alt={option.label} size={44} src={option.src} />
+          </button>
         ))}
       </div>
     </div>
   );
 }
 
+function renderNoteSticker(value: string, className?: string) {
+  if (isSharedIconPath(value)) {
+    return <RetroStickerImage alt="" className={className} size={44} src={value} />;
+  }
+
+  return <span>{value || "📝"}</span>;
+}
+
 function normalizeNote(note: ProjectNote): ProjectNote {
   return {
     ...note,
-    emoji: note.emoji ?? "📝",
+    emoji: note.emoji ?? DEFAULT_NOTE_STICKER,
     color: normalizeCardColor(note.color),
     isStarred: note.isStarred ?? false,
     isHidden: note.isHidden ?? false,
     boardId: note.boardId ?? null,
     board: note.board ? { id: note.board.id, name: note.board.name } : null,
+    folderId: note.folderId ?? null,
+    folder: note.folder ? { id: note.folder.id, name: note.folder.name, color: note.folder.color, icon: note.folder.icon } : null,
     completedAt: note.completedAt ? new Date(note.completedAt).toISOString() : null,
+    dueDate: note.dueDate ? new Date(note.dueDate).toISOString() : null,
+    dueDateAllDay: note.dueDateAllDay ?? false,
     createdAt: new Date(note.createdAt).toISOString(),
     updatedAt: new Date(note.updatedAt).toISOString(),
     canManage: note.canManage ?? false,
