@@ -48,5 +48,21 @@ describe("note modal layering", () => {
     expect(boardNotesRailSource).toContain("Folder (โฟลเดอร์)");
     expect(boardNotesRailSource).toContain('name="modal-scope"');
   });
+
+  it("renders explicit labels for title and description sections in note modals", () => {
+    // In notes panel modal
+    expect(notesPanelSource).toContain("Title (หัวข้อโน้ต)");
+    expect(notesPanelSource).toContain("Description (รายละเอียดโน้ต)");
+    expect(notesPanelSource).toContain('htmlFor="panel-note-title"');
+    expect(notesPanelSource).toContain('htmlFor="panel-note-content"');
+
+    // In board notes rail create & edit modals
+    expect(boardNotesRailSource).toContain("Title (หัวข้อโน้ต)");
+    expect(boardNotesRailSource).toContain("Description (รายละเอียดโน้ต)");
+    expect(boardNotesRailSource).toContain('htmlFor="rail-create-note-title"');
+    expect(boardNotesRailSource).toContain('htmlFor="rail-create-note-content"');
+    expect(boardNotesRailSource).toContain('htmlFor="rail-edit-note-title"');
+    expect(boardNotesRailSource).toContain('htmlFor="rail-edit-note-content"');
+  });
 });
 

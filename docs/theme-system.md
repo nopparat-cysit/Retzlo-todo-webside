@@ -497,6 +497,15 @@ Template:
     - **Direct Ref Targeting:** นำ `useRef` มาใช้กับ Staging Canvas เพื่อป้องกันปัญหา ID collision ระหว่างปุ่ม Export บนหัวบอร์ดและตารางงาน
 - Reviewed: Vitest 88/88 test files ผ่าน (449/449 tests ผ่าน), ESLint 0 warnings/errors, Prisma schema valid, และ Next.js production build ผ่าน 100% (38/38 routes).
 
+### 2026-10-04 — เพิ่มหัวข้อ (Section Labels) สำหรับ Title และ Description ใน Note Modals
+- Added/changed: `src/components/notes/board-notes-rail.tsx`, `src/components/notes/notes-panel.tsx`, `src/components/notes/note-modals.test.ts`, `docs/agent-notes/2026-10-04-add-note-modal-section-titles.md`.
+- Tokens/variants:
+  - เพิ่มหัวข้อกำกับส่วนข้อมูลในฝั่งซ้ายของ Note Modal (ทั้ง `NoteModal` และ `EditNoteModal` บน `BoardNotesRail` รวมถึง `NoteEditorModalContent` ใน `NotesPanel`):
+    - **Title Section:** เพิ่ม `<label className="block font-medium text-xs text-stone-400 uppercase tracking-wider">Title (หัวข้อโน้ต) <span className="text-rose-500">*</span></label>` เหนือช่องกรอกชื่อโน้ตและสติกเกอร์
+    - **Description Section:** เพิ่ม `<label className="block font-medium text-xs text-stone-400 uppercase tracking-wider">Description (รายละเอียดโน้ต)</label>` เหนือช่อง Textarea เขียนเนื้อหาโน้ต
+    - จัดวางสไตล์ตัวอักษรและระยะห่าง (`space-y-1.5`) สอดคล้องกลมกลืนกับหัวข้อฝั่งขวา (Folder, Visibility scope, วันที่สิ้นสุด, Note color) และตรงตามมาตรฐาน Retro Lofi Indigo Theme
+- Reviewed: Vitest 88/88 test files ผ่าน (450/450 tests ผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100% (38/38 routes).
+
 
 
 

@@ -547,25 +547,46 @@ function NoteModal({
 
         <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
           <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
-            <div className="flex items-center gap-3">
-              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
-                {renderNoteSticker(emoji, "h-12 w-12")}
+            {/* Title Section */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="rail-create-note-title"
+                className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
+              >
+                Title (หัวข้อโน้ต) <span className="text-rose-500">*</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
+                  {renderNoteSticker(emoji, "h-12 w-12")}
+                </div>
+                <Input
+                  id="rail-create-note-title"
+                  name="title"
+                  value={noteTitle}
+                  onChange={(e) => setNoteTitle(e.target.value)}
+                  placeholder="Note title"
+                  required
+                />
               </div>
-              <Input
-                name="title"
-                value={noteTitle}
-                onChange={(e) => setNoteTitle(e.target.value)}
-                placeholder="Note title"
-                required
+            </div>
+
+            {/* Description Section */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="rail-create-note-content"
+                className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
+              >
+                Description (รายละเอียดโน้ต)
+              </label>
+              <Textarea
+                id="rail-create-note-content"
+                className="min-h-[360px]"
+                name="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Write a note..."
               />
             </div>
-            <Textarea
-              className="min-h-[360px]"
-              name="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write a note..."
-            />
           </div>
 
           <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
@@ -877,25 +898,46 @@ function EditNoteModal({
 
           <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.8fr)]">
             <div className="scrollbar-soft min-h-0 space-y-4 overflow-y-auto p-5">
-              <div className="flex items-center gap-3">
-                <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
-                  {renderNoteSticker(emoji, "h-12 w-12")}
+              {/* Title Section */}
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="rail-edit-note-title"
+                  className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
+                >
+                  Title (หัวข้อโน้ต) <span className="text-rose-500">*</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
+                    {renderNoteSticker(emoji, "h-12 w-12")}
+                  </div>
+                  <Input
+                    id="rail-edit-note-title"
+                    name="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Note title"
+                    required
+                  />
                 </div>
-                <Input
-                  name="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Note title"
-                  required
+              </div>
+
+              {/* Description Section */}
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="rail-edit-note-content"
+                  className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
+                >
+                  Description (รายละเอียดโน้ต)
+                </label>
+                <Textarea
+                  id="rail-edit-note-content"
+                  className="min-h-[360px]"
+                  name="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Write a note..."
                 />
               </div>
-              <Textarea
-                className="min-h-[360px]"
-                name="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write a note..."
-              />
             </div>
 
             <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
