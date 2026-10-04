@@ -40,15 +40,24 @@ describe("column settings", () => {
     }
   });
 
-  it("rejects blank names, unknown colors, unknown icons, and unknown statuses", () => {
+  it("rejects blank names, unknown colors, and unknown icons", () => {
     expect(() =>
       columnSettingsSchema.parse({
         name: "   ",
         color: "mystery",
-        icon: "unknown",
-        defaultCardStatus: "MYSTERY"
+        icon: "unknown"
       })
     ).toThrow();
+  });
+
+  it("accepts custom card statuses for columns", () => {
+    const result = columnSettingsSchema.parse({
+      name: "In Review",
+      color: "default",
+      icon: "kanban",
+      defaultCardStatus: "IN_REVIEW"
+    });
+    expect(result.defaultCardStatus).toBe("IN_REVIEW");
   });
 
   it("falls back to default theme and icon for existing columns", () => {

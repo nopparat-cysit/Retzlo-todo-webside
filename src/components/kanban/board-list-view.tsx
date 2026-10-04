@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Card, CardAssignee, CardPriority, CardStatus, ColumnWithCards, CustomPriority } from "@/types/kanban";
+import { getStatusMeta } from "@/lib/kanban/status";
 import { getPriorityColorConfig, getPriorityMeta, resolveBoardPriorities } from "@/lib/kanban/priority";
 import { playCardDoneSound } from "@/lib/sound";
 import { useToast } from "@/components/ui/toast";
@@ -146,6 +147,18 @@ const STATUS_PILL_CONFIG: Record<
     dotClass: "bg-purple-500"
   }
 };
+
+function getStatusPill(status: string) {
+  if (STATUS_PILL_CONFIG[status]) {
+    return STATUS_PILL_CONFIG[status];
+  }
+  const meta = getStatusMeta(status);
+  return {
+    label: meta.label,
+    pillClass: cn("border", meta.badgeClass),
+    dotClass: "bg-indigo-500"
+  };
+}
 
 export function BoardListView({
   boardTitle,
@@ -779,7 +792,7 @@ export function BoardListView({
             <div className="divide-y divide-stone-200/50 dark:divide-white/[0.04]">
               {allCards.map((card, index) => {
                 const priorityMeta = getPriorityMeta(card.priority, activePriorities);
-                const statusPill = STATUS_PILL_CONFIG[card.status] || STATUS_PILL_CONFIG.TODO;
+                const statusPill = getStatusPill(card.status);
                 const isCardDone = card.status === "DONE";
                 const cardOverdue = checkIsOverdue(card.dueDate);
                 const checklistTotal = card.checklist.length;

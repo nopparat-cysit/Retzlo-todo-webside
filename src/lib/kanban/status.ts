@@ -71,6 +71,12 @@ export const statusOptions: Array<{ value: CardStatus; label: string }> = [
   { value: "DONE", label: "Done" }
 ];
 
+let activeBoardStatusesCache: CustomStatusOption[] = [];
+
+export function setActiveBoardStatuses(statuses: CustomStatusOption[]) {
+  activeBoardStatusesCache = statuses;
+}
+
 export function getStoredStatuses(boardId?: string): CustomStatusOption[] {
   if (typeof window === "undefined") return DEFAULT_STATUS_OPTIONS;
   try {
@@ -78,7 +84,10 @@ export function getStoredStatuses(boardId?: string): CustomStatusOption[] {
     const saved = localStorage.getItem(key);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        activeBoardStatusesCache = parsed;
+        return parsed;
+      }
     }
   } catch {}
   return DEFAULT_STATUS_OPTIONS;
@@ -89,14 +98,27 @@ export function saveStoredStatuses(statuses: CustomStatusOption[], boardId?: str
   try {
     const key = boardId ? `retzlo:custom_statuses_${boardId}` : `retzlo:custom_statuses_default`;
     localStorage.setItem(key, JSON.stringify(statuses));
+    activeBoardStatusesCache = statuses;
+    window.dispatchEvent(
+      new CustomEvent("retzlo:statuses-updated", {
+        detail: { boardId, statuses }
+      })
+    );
   } catch {}
 }
 
 const fallbackStatusMeta = STATUS_COLOR_CONFIGS.indigo;
 
 export function getStatusMeta(status: string, customOptions?: CustomStatusOption[]) {
-  if (customOptions && customOptions.length > 0) {
-    const found = customOptions.find((o) => o.value.toUpperCase() === status.toUpperCase());
+  const optionsToUse =
+    customOptions && customOptions.length > 0
+      ? customOptions
+      : activeBoardStatusesCache.length > 0
+        ? activeBoardStatusesCache
+        : undefined;
+
+  if (optionsToUse && optionsToUse.length > 0) {
+    const found = optionsToUse.find((o) => o.value.toUpperCase() === status.toUpperCase());
     if (found) {
       const colorKey = found.color || "indigo";
       const config = STATUS_COLOR_CONFIGS[colorKey] || STATUS_COLOR_CONFIGS.indigo;

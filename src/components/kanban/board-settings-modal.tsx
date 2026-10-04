@@ -17,6 +17,7 @@ import {
   type BoardMemberInfo
 } from "./board-settings";
 import { BoardPrioritiesTab } from "./board-priorities-tab";
+import { BoardAttributesTab } from "./board-attributes-tab";
 import { resolveBoardPriorities } from "@/lib/kanban/priority";
 import type { CustomPriority } from "@/types/kanban";
 
@@ -64,9 +65,28 @@ export function BoardSettingsModal({
 }: BoardSettingsModalProps) {
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<string>(
-    defaultTab === "access" ? "general" : defaultTab
-  );
+  const resolveTabState = (tabInput?: string): { tab: string; subTab: "status" | "priority" | "story-points" } => {
+    if (tabInput === "priorities" || tabInput === "priority") {
+      return { tab: "attributes", subTab: "priority" };
+    }
+    if (tabInput === "statuses" || tabInput === "status") {
+      return { tab: "attributes", subTab: "status" };
+    }
+    if (tabInput === "story-points" || tabInput === "points") {
+      return { tab: "attributes", subTab: "story-points" };
+    }
+    if (tabInput === "attributes") {
+      return { tab: "attributes", subTab: "status" };
+    }
+    if (tabInput === "access") {
+      return { tab: "general", subTab: "status" };
+    }
+    return { tab: tabInput || "general", subTab: "status" };
+  };
+
+  const initialTabState = resolveTabState(defaultTab);
+  const [activeTab, setActiveTab] = useState<string>(initialTabState.tab);
+  const [attributeSubTab, setAttributeSubTab] = useState<"status" | "priority" | "story-points">(initialTabState.subTab);
   const [name, setName] = useState(boardName);
   const [baseName, setBaseName] = useState(boardName);
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate);
@@ -107,7 +127,9 @@ export function BoardSettingsModal({
       setPriorities(resolved);
       setBasePriorities(resolved);
       setError(null);
-      setActiveTab(defaultTab === "access" ? "general" : (defaultTab || "general"));
+      const nextTabState = resolveTabState(defaultTab);
+      setActiveTab(nextTabState.tab);
+      setAttributeSubTab(nextTabState.subTab);
       setMemberSearchQuery("");
     }
 
@@ -367,8 +389,8 @@ export function BoardSettingsModal({
                 )}
               </TabsTrigger>
 
-              <TabsTrigger value="priorities" className="text-xs py-2 font-medium">
-                ⚡ ความสำคัญ
+              <TabsTrigger value="attributes" className="text-xs py-2 font-medium">
+                🏷️ คุณสมบัติการ์ด
                 <span className="ml-1.5 rounded-full bg-indigo-500/15 px-1.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-semibold">
                   {priorities.length}
                 </span>
@@ -410,12 +432,25 @@ export function BoardSettingsModal({
               />
             </TabsContent>
 
-            {/* TAB 2: Priorities */}
-            <TabsContent value="priorities">
-              <BoardPrioritiesTab
-                priorities={priorities}
-                onChange={setPriorities}
+            {/* TAB 2: Card Attributes (Status, Priority, Story Points) */}
+            <TabsContent value="attributes">
+              <BoardAttributesTab
+                boardId={boardId}
                 canManage={canManage}
+                priorities={priorities}
+                onPrioritiesChange={setPriorities}
+                initialSubTab={attributeSubTab}
+              />
+            </TabsContent>
+
+            {/* Backward-compat alias for direct priorities tab */}
+            <TabsContent value="priorities">
+              <BoardAttributesTab
+                boardId={boardId}
+                canManage={canManage}
+                priorities={priorities}
+                onPrioritiesChange={setPriorities}
+                initialSubTab="priority"
               />
             </TabsContent>
 

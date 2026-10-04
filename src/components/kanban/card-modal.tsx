@@ -145,6 +145,43 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
     }
   }, [boardPriorities]);
 
+  // Global Sync Listeners
+  useEffect(() => {
+    const handleStatusSync = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail?.boardId || detail.boardId === boardId) {
+        if (detail?.statuses) setStatuses(detail.statuses);
+        else setStatuses(getStoredStatuses(boardId));
+      }
+    };
+    const handleStoryPointsSync = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail?.boardId || detail.boardId === boardId) {
+        if (detail?.points) setStoryPoints(detail.points);
+        else setStoryPoints(getStoredStoryPoints(boardId));
+      }
+    };
+    const handlePrioritiesSync = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail?.boardId || detail.boardId === boardId) {
+        if (detail?.customPriorities || detail?.priorities) {
+          setLocalPriorities(resolveBoardPriorities(detail.customPriorities || detail.priorities));
+        }
+      }
+    };
+
+    window.addEventListener("retzlo:statuses-updated", handleStatusSync);
+    window.addEventListener("retzlo:story-points-updated", handleStoryPointsSync);
+    window.addEventListener("retzlo:priorities-updated", handlePrioritiesSync);
+    window.addEventListener("board-priorities-updated", handlePrioritiesSync);
+    return () => {
+      window.removeEventListener("retzlo:statuses-updated", handleStatusSync);
+      window.removeEventListener("retzlo:story-points-updated", handleStoryPointsSync);
+      window.removeEventListener("retzlo:priorities-updated", handlePrioritiesSync);
+      window.removeEventListener("board-priorities-updated", handlePrioritiesSync);
+    };
+  }, [boardId]);
+
   const activePriorities = useMemo(() => {
     const resolved = resolveBoardPriorities(localPriorities);
     if (selectedPriority && !resolved.some((p) => p.label.toUpperCase() === selectedPriority.toUpperCase() || p.id === selectedPriority)) {

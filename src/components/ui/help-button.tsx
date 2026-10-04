@@ -168,7 +168,7 @@ export function HelpButton({ className }: HelpButtonProps) {
       >
         <div className="space-y-5">
           {/* Header */}
-          <div className="flex items-start justify-between border-b border-stone-200/80 pb-3.5 dark:border-white/10">
+          <div className="flex items-start justify-between border-b border-stone-200/80 pb-3.5 dark:border-white/[0.08]">
             <div className="flex items-center gap-3">
               <div className="grid h-10 w-10 place-items-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender shadow-sm">
                 <Compass className="h-5 w-5" />
@@ -207,7 +207,7 @@ export function HelpButton({ className }: HelpButtonProps) {
 
           {/* System Specs & Architecture */}
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.02]">
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 สถาปัตยกรรมระบบ
               </span>
@@ -219,7 +219,7 @@ export function HelpButton({ className }: HelpButtonProps) {
               </p>
             </div>
 
-            <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.02]">
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 ปัญญาประดิษฐ์ (AI)
               </span>
@@ -231,7 +231,7 @@ export function HelpButton({ className }: HelpButtonProps) {
               </p>
             </div>
 
-            <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.02]">
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 ฐานข้อมูล & คลาวด์
               </span>
@@ -243,7 +243,7 @@ export function HelpButton({ className }: HelpButtonProps) {
               </p>
             </div>
 
-            <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.02]">
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 การเชื่อมต่อเรียลไทม์
               </span>
@@ -282,7 +282,7 @@ export function HelpButton({ className }: HelpButtonProps) {
           </div>
 
           {/* Action Footer */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-stone-200/80 pt-3.5 dark:border-white/10">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-stone-200/80 pt-3.5 dark:border-white/[0.08]">
             <div className="flex items-center gap-2">
               <Link
                 href="/help"
@@ -304,7 +304,7 @@ export function HelpButton({ className }: HelpButtonProps) {
             <button
               type="button"
               onClick={() => setIsAboutOpen(false)}
-              className="rounded-xl border border-stone-200 bg-white px-3.5 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:bg-white/10 transition cursor-pointer"
+              className="rounded-xl border border-stone-200 bg-white px-3.5 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-white/[0.08] dark:bg-white/5 dark:text-stone-300 dark:hover:bg-white/10 transition cursor-pointer"
             >
               ปิดหน้าต่าง
             </button>

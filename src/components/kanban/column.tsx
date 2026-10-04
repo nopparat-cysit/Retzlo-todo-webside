@@ -608,7 +608,7 @@ function KanbanColumnComponent({
             <div className="mt-4 space-y-4">
               <ColumnThemePicker value={settingsColor} onChange={setSettingsColor} />
               <ColumnIconPicker value={settingsIcon} onChange={setSettingsIcon} />
-              <ColumnStatusPicker value={settingsDefaultCardStatus} onChange={setSettingsDefaultCardStatus} />
+              <ColumnStatusPicker value={settingsDefaultCardStatus} onChange={setSettingsDefaultCardStatus} boardId={boardId} />
               <label className="block space-y-1.5 text-sm text-stone-300">
                 <div className="flex items-center justify-between">
                   <span>Card limit (WIP)</span>

@@ -11,7 +11,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, Table2, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
+import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -1197,20 +1197,20 @@ export function KanbanBoard({
               </button>
             )}
 
-            {/* Priorities Configuration Button */}
+            {/* Attributes Configuration Button */}
             {board.projectId && (
               <button
                 type="button"
                 onClick={() => {
-                  setSettingsDefaultTab("priorities");
+                  setSettingsDefaultTab("attributes");
                   setIsBoardSettingsOpen(true);
                 }}
                 className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
-                title="Configure custom priorities for this board (up to 10 levels, custom colors)"
-                aria-label="Board priorities settings"
+                title="Configure custom status, priorities, and story points for this board"
+                aria-label="Board attributes settings"
               >
-                <Flag className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                <span className="hidden sm:inline">Priorities</span>
+                <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                <span className="hidden sm:inline">Attributes</span>
                 {boardPriorities && boardPriorities.length > 0 && (
                   <span className="rounded bg-indigo-500/10 px-1 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
                     {boardPriorities.length}
@@ -1543,7 +1543,7 @@ export function KanbanBoard({
             <div className="mt-4 space-y-4">
               <ColumnThemePicker value={columnColor} onChange={setColumnColor} />
               <ColumnIconPicker value={columnIcon} onChange={setColumnIcon} />
-              <ColumnStatusPicker value={columnDefaultCardStatus} onChange={setColumnDefaultCardStatus} />
+              <ColumnStatusPicker value={columnDefaultCardStatus} onChange={setColumnDefaultCardStatus} boardId={board.id} />
               <label className="block space-y-1.5 text-sm text-stone-300">
                 <div className="flex items-center justify-between">
                   <span>Card limit (WIP)</span>

@@ -172,11 +172,23 @@ export function CardAttributesEditModal({
     if (!boardId) return;
     try {
       setIsSavingPriorities(true);
-      await fetch(`/api/boards/${boardId}`, {
+      const res = await fetch(`/api/boards/${boardId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ customPriorities: nextPriorities })
       });
+      if (res.ok && typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("board-priorities-updated", {
+            detail: { boardId, customPriorities: nextPriorities }
+          })
+        );
+        window.dispatchEvent(
+          new CustomEvent("retzlo:priorities-updated", {
+            detail: { boardId, priorities: nextPriorities }
+          })
+        );
+      }
     } catch {} finally {
       setIsSavingPriorities(false);
     }

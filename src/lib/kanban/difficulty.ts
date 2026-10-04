@@ -257,6 +257,11 @@ export function saveStoredStoryPoints(points: CustomStoryPoint[], boardId?: stri
   try {
     const key = boardId ? `retzlo:story_points_${boardId}` : `retzlo:story_points_default`;
     localStorage.setItem(key, JSON.stringify(points));
+    window.dispatchEvent(
+      new CustomEvent("retzlo:story-points-updated", {
+        detail: { boardId, points }
+      })
+    );
   } catch {}
 }
 

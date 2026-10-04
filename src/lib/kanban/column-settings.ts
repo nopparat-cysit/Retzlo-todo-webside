@@ -104,7 +104,7 @@ export const columnSettingsSchema = z.object({
   name: z.string().trim().min(1).max(80),
   color: z.enum(columnThemeIds).default("default"),
   icon: z.enum(columnIconIds).default("kanban"),
-  defaultCardStatus: z.enum(columnStatusIds).default("TODO"),
+  defaultCardStatus: z.string().trim().min(1).max(50).default("TODO"),
   wipLimit: z
     .union([
       z.number().int().min(1).max(99),

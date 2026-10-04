@@ -378,3 +378,14 @@ Template:
   - สร้างหน้าแบบฟอร์มติดต่อ (`/contact`) พร้อมระบบ Template Select 7 รูปแบบ (แจ้ง Bug, ขอฟีเจอร์, สอบถามทั่วไป, ติดต่อร่วมมือ, ข้อเสนอแนะ Gamification, ความปลอดภัย, กำหนดเอง) ที่ช่วยเติมหัวข้อและร่างข้อความอัตโนมัติ
   - ระบบส่งเรื่องติดต่อผ่าน API `POST /api/contact` พร้อมสร้าง Ticket Reference ID และแจ้งเตือน Toast ยืนยันผล
 - Reviewed: ตรวจสอบ unit tests `contact-templates.test.ts` และ `help-center.test.ts` ผ่าน 100%, ตรวจสอบ TypeScript, ESLint และ Next.js production build ผ่านสมบูรณ์.
+
+### 2026-10-04 — รวมการตั้งค่าคุณสมบัติการ์ดเข้า Board Settings และเชื่อมโยงทุกจุดแบบเรียลไทม์ (Unified Board Settings & Attributes Synchronization)
+- Added/changed: `src/components/kanban/board-attributes-tab.tsx`, `src/components/kanban/board-settings-modal.tsx`, `src/components/kanban/column-status-picker.tsx`, `src/components/kanban/column.tsx`, `src/components/kanban/board.tsx`, `src/components/kanban/card-modal.tsx`, `src/components/kanban/card-attributes-edit-modal.tsx`, `src/components/kanban/board-list-view.tsx`, `src/lib/kanban/column-settings.ts`, `src/lib/kanban/status.ts`, `src/lib/kanban/difficulty.ts`, `src/components/kanban/board-settings-attributes.test.ts`.
+- Tokens/variants:
+  - รวมการจัดการคุณสมบัติการ์ด (Card Attributes: Statuses, Priorities, Story Points) เข้าสู่ศูนย์กลาง `BoardSettingsModal` ภายใต้แท็บ `คุณสมบัติการ์ด (attributes)` พร้อม sub-navigation pills สไตล์ Retro Lofi
+  - อัปเกรด `ColumnStatusPicker` ในหน้าแก้ไขคอลัมน์และสร้างคอลัมน์ใหม่ ให้โหลดและแสดงผลสถานะที่กำหนดเอง (Custom Statuses) ของบอร์ด พร้อม sync เรียลไทม์ผ่าน `retzlo:statuses-updated`
+  - อนุญาตให้ `columnSettingsSchema` รับสถานะกำหนดเองสำหรับ `defaultCardStatus` ของคอลัมน์ได้อย่างสมบูรณ์
+  - เชื่อมโยง Table / Spreadsheet View ให้ดึงสีและป้ายแสดงสถานะกำหนดเองผ่าน `getStatusMeta` อัตโนมัติ
+  - ปุ่มบนแถบเครื่องมือของบอร์ดเปลี่ยนเป็น `Attributes` เพื่อเข้าถึงการตั้งค่าคุณสมบัติงานทั้งหมดได้อย่างรวดเร็ว
+  - ทุกการลบและรีเซ็ตมี `ConfirmModal` และแสดงผลการทำงานผ่าน Toast แจ้งเตือนตามมาตรฐาน AGENTS.md
+- Reviewed: รัน Vitest ผ่าน 86/86 ไฟล์ (433/433 การทดสอบ), TypeScript `tsc --noEmit` ผ่าน 0 errors, ESLint ผ่าน 0 warnings, Prisma validate และ Next.js production build ผ่าน 100%.
