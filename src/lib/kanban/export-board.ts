@@ -237,16 +237,32 @@ export function downloadExcel(rows: ExportCardRow[], filename: string, sheetTitl
   XLSX.writeFile(workbook, `${filename}.xlsx`);
 }
 
+export interface ImageExportOptions {
+  backgroundColor?: string;
+  pixelRatio?: number;
+}
+
+export interface PdfExportOptions {
+  backgroundColor?: string;
+  orientation?: "landscape" | "portrait" | "auto";
+  margin?: number;
+}
+
 /**
  * Captures an HTML element as high-res PNG image and downloads it
  */
-export async function exportElementToPng(element: HTMLElement, filename: string) {
+export async function exportElementToPng(
+  element: HTMLElement,
+  filename: string,
+  options?: ImageExportOptions
+) {
   const { toPng } = await import("html-to-image");
 
+  const defaultBg = document.documentElement.classList.contains("dark") ? "#0a0a14" : "#ffffff";
   const dataUrl = await toPng(element, {
     quality: 0.98,
-    pixelRatio: 2,
-    backgroundColor: document.documentElement.classList.contains("dark") ? "#0a0a14" : "#ffffff",
+    pixelRatio: options?.pixelRatio ?? 2,
+    backgroundColor: options?.backgroundColor ?? defaultBg,
     filter: (node) => {
       if (node instanceof HTMLElement) {
         if (
@@ -268,22 +284,26 @@ export async function exportElementToPng(element: HTMLElement, filename: string)
 }
 
 /**
- * Captures an HTML element and downloads it as a PDF document
+ * Captures an HTML element and downloads it as a high quality PDF document
  */
 export async function exportElementToPdf(
   element: HTMLElement,
   filename: string,
-  _title = "Board Export"
+  _title = "Board Export",
+  options?: PdfExportOptions
 ) {
   const [{ jsPDF }, { toPng }] = await Promise.all([
     import("jspdf"),
     import("html-to-image")
   ]);
 
+  const defaultBg = document.documentElement.classList.contains("dark") ? "#0a0a14" : "#ffffff";
+  const bg = options?.backgroundColor ?? defaultBg;
+
   const dataUrl = await toPng(element, {
-    quality: 0.95,
+    quality: 0.96,
     pixelRatio: 2,
-    backgroundColor: document.documentElement.classList.contains("dark") ? "#0a0a14" : "#ffffff",
+    backgroundColor: bg,
     filter: (node) => {
       if (node instanceof HTMLElement) {
         if (
@@ -298,41 +318,87 @@ export async function exportElementToPdf(
     }
   });
 
-  // Calculate dimensions
+  // Load image to compute true dimensions
   const img = new Image();
   img.src = dataUrl;
-  await new Promise((resolve) => {
-    img.onload = resolve;
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error("ไม่สามารถประมวลผลรูปภาพสำหรับสร้าง PDF ได้"));
   });
 
-  const isLandscape = img.width >= img.height;
+  const preferredOrientation =
+    options?.orientation && options.orientation !== "auto"
+      ? options.orientation
+      : img.width >= img.height * 0.95
+        ? "landscape"
+        : "portrait";
+
   const pdf = new jsPDF({
-    orientation: isLandscape ? "landscape" : "portrait",
+    orientation: preferredOrientation,
     unit: "mm",
     format: "a4"
   });
 
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 10;
-  const targetWidth = pageWidth - margin * 2;
-  const targetHeight = (img.height * targetWidth) / img.width;
+  const margin = options?.margin ?? 10;
+  const printableWidth = pageWidth - margin * 2;
+  const printableHeight = pageHeight - margin * 2;
 
-  if (targetHeight <= pageHeight - margin * 2) {
-    pdf.addImage(dataUrl, "PNG", margin, margin, targetWidth, targetHeight);
+  // Scale ratio: mm per px
+  const mmPerPx = printableWidth / img.width;
+  const totalHeightMm = img.height * mmPerPx;
+
+  if (totalHeightMm <= printableHeight) {
+    // Fits cleanly on 1 page: center vertically
+    const yPos = margin + (printableHeight - totalHeightMm) / 2;
+    pdf.addImage(dataUrl, "PNG", margin, yPos, printableWidth, totalHeightMm);
+  } else if (totalHeightMm <= printableHeight * 1.25) {
+    // Slightly taller than 1 page: scale down proportionally to fit 1 page comfortably
+    const fitScale = printableHeight / totalHeightMm;
+    const finalW = printableWidth * fitScale;
+    const finalH = totalHeightMm * fitScale;
+    const xPos = (pageWidth - finalW) / 2;
+    pdf.addImage(dataUrl, "PNG", xPos, margin, finalW, finalH);
   } else {
-    // Scale down proportionally to fit page cleanly
-    const scale = (pageHeight - margin * 2) / targetHeight;
-    const finalWidth = targetWidth * scale;
-    const finalHeight = targetHeight * scale;
-    pdf.addImage(
-      dataUrl,
-      "PNG",
-      (pageWidth - finalWidth) / 2,
-      margin,
-      finalWidth,
-      finalHeight
-    );
+    // Significantly tall content (e.g. large boards or multi-item tables): clean multi-page pagination
+    const pagePxHeight = Math.floor(printableHeight / mmPerPx);
+    const totalPages = Math.ceil(img.height / pagePxHeight);
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    for (let page = 0; page < totalPages; page++) {
+      if (page > 0) {
+        pdf.addPage();
+      }
+
+      const sourceY = page * pagePxHeight;
+      const sourceHeight = Math.min(pagePxHeight, img.height - sourceY);
+
+      canvas.width = img.width;
+      canvas.height = sourceHeight;
+
+      if (ctx) {
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(
+          img,
+          0,
+          sourceY,
+          img.width,
+          sourceHeight,
+          0,
+          0,
+          img.width,
+          sourceHeight
+        );
+
+        const sliceDataUrl = canvas.toDataURL("image/png");
+        const sliceHeightMm = sourceHeight * mmPerPx;
+        pdf.addImage(sliceDataUrl, "PNG", margin, margin, printableWidth, sliceHeightMm);
+      }
+    }
   }
 
   pdf.save(`${filename}.pdf`);

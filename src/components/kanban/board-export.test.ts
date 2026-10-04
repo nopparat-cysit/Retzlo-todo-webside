@@ -61,4 +61,36 @@ describe("Board Export System (Excel, CSV, PDF, PNG)", () => {
     expect(src).toContain('id="kanban-table-container"');
     expect(src).toContain("boardTitle");
   });
+
+  it("verifies dedicated BoardExportDocument is implemented with executive header, KPIs, and layouts", () => {
+    const docSrc = readFileSync(
+      join(process.cwd(), "src/components/kanban/board-export-document.tsx"),
+      "utf8"
+    );
+
+    expect(docSrc).toContain("export function BoardExportDocument");
+    expect(docSrc).toContain("RETZLO WORKSPACE • PROJECT EXPORT");
+    expect(docSrc).toContain("ความคืบหน้ารวม");
+    expect(docSrc).toContain("stats.totalCards");
+    expect(docSrc).toContain("stats.completionRate");
+    expect(docSrc).toContain("ExportCardItem");
+    expect(docSrc).toContain("layout === \"kanban\"");
+    expect(docSrc).toContain("layout === \"table\"");
+  });
+
+  it("verifies BoardExportModal mounts unclipped off-screen export container and exposes layout & theme options", () => {
+    const modalSrc = readFileSync(
+      join(process.cwd(), "src/components/kanban/board-export-modal.tsx"),
+      "utf8"
+    );
+
+    expect(modalSrc).toContain("BoardExportDocument");
+    expect(modalSrc).toContain('id="retzlo-export-render-canvas"');
+    expect(modalSrc).toContain('id="retzlo-export-render-canvas-quick"');
+    expect(modalSrc).toContain("exportLayout");
+    expect(modalSrc).toContain("exportTheme");
+    expect(modalSrc).toContain("รูปแบบการจัดวาง");
+    expect(modalSrc).toContain("โทนสีเอกสาร");
+  });
 });
+

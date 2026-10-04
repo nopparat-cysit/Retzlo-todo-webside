@@ -435,3 +435,16 @@ Template:
   - เชื่อมโยงตรงไปยังหน้ารวมบริษัท/แดชบอร์ด (`/projects`) พร้อม Tooltip "หน้ารวมบริษัท (Workspaces)"
   - ใช้อัตลักษณ์สไตล์ปุ่มมน Retro Lofi (`rounded-xl border border-white/10 bg-white/[0.05]`) กลมกลืนกับปุ่ม BackButton
 - Reviewed: รันการทดสอบ Vitest ใน `src/components/project/` ผ่าน 13/13 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
+
+### 2026-10-04 — ปรับปรุงระบบ Export บอร์ดให้เป็น Dedicated Document Layout (ครบทุกคอลัมน์ 100% ไม่ถูกตัดขอบ พร้อมหัวเอกสารผู้บริหารและโหมดตารางรายงาน)
+- Added/changed: `src/components/kanban/board-export-document.tsx`, `src/components/kanban/board-export-modal.tsx`, `src/lib/kanban/export-board.ts`, `src/components/kanban/board-export.test.ts`.
+- Tokens/variants:
+  - แก้ไขปัญหาเดิมที่ใช้การจับภาพหน้าจอ (screenshot) จาก live viewport ซึ่งทำให้คอลัมน์ด้านขวาและการ์ดด้านล่างหลุดขอบ/ถูกตัด และติดปุ่มอินเตอร์แอคทีฟ เช่น "+ เพิ่มการ์ด", เมนูสามจุด, และ scrollbars
+  - สร้างคอมโพเนนต์ `BoardExportDocument` เป็นเลย์เอาต์เฉพาะสำหรับการส่งออก (Dedicated Export Layout) โดยไม่ขึ้นกับขนาดหน้าจอของผู้ใช้:
+    - **Executive Header**: แบนเนอร์หัวเอกสารผู้บริหาร พร้อมชื่อบอร์ด, ชื่อโปรเจกต์, วันที่และเวลาส่งออก, และแถบ KPI สรุปสถานะ (งานทั้งหมด, แต้มความยาก, กำลังทำ, เสร็จสิ้น, เกินกำหนด, อัตราความสำเร็จ %)
+    - **Full Panoramic Kanban Mode**: จัดวางทุกคอลัมน์แบบเต็มแผ่นแนวนอน 100% ความกว้างขยายตามจำนวนคอลัมน์จริง ไม่มีการตัดทอนหรือมีแถบเลื่อน
+    - **Executive Summary Table Mode**: รายงานแบบตารางสรุปรายคอลัมน์ พร้อมสัญลักษณ์ความสำคัญ, ผู้รับผิดชอบ, วันส่งงาน และเช็คลิสต์ เหมาะสำหรับพิมพ์ลงกระดาษ A4 หรือนำเสนอสไลด์
+    - **Theme Styles**: รองรับทั้งโหมดกระดาษขาว Clean Light Paper (พื้นหลังขาว เหมาะสำหรับพิมพ์/สไลด์) และดาร์กโหมดพรีเมียม Dark Slate
+  - ปรับปรุง `export-board.ts`: ยกระดับ PNG เป็นความละเอียดสูง 2x Retina และปรับแต่ง PDF ให้จัดหน้า A4 แนวนอน พร้อมระบบตัดแบ่งหน้าหลายแผ่น (Multi-page Pagination) อย่างเป็นระเบียบเมื่อเอกสารมีความยาวมาก
+- Reviewed: รันการทดสอบ Vitest ใน `src/components/kanban/board-export.test.ts` และ `src/lib/kanban/export-board.test.ts` ผ่าน 9/9 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
+
