@@ -43,7 +43,7 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
     ];
 
     return (
-      <div className={cn("grid grid-cols-3 gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-1.5", className)}>
+      <div className={cn("grid grid-cols-3 gap-1.5 rounded-xl border border-stone-200/90 bg-stone-100/80 p-1 dark:border-white/10 dark:bg-white/[0.04]", className)}>
         {options.map((opt) => {
           const Icon = opt.icon;
           const isSelected = theme === opt.value;
@@ -53,13 +53,13 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
               type="button"
               onClick={() => setTheme(opt.value)}
               className={cn(
-                "flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium transition select-none cursor-pointer",
+                "flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition select-none cursor-pointer",
                 isSelected
-                  ? "border border-dusk-lavender/40 bg-dusk-lavender/20 text-dusk-lavender shadow-sm font-semibold"
-                  : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                  ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                  : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
               <span>{opt.label}</span>
             </button>
           );
@@ -81,7 +81,7 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
           <span>Theme</span>
           <span className="font-mono text-[10px] uppercase text-stone-500">{theme}</span>
         </div>
-        <div className="grid grid-cols-3 gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-1">
+        <div className="grid grid-cols-3 gap-1 rounded-xl border border-stone-200/90 bg-stone-100/80 p-0.5 dark:border-white/10 dark:bg-white/[0.04]">
           {options.map((opt) => {
             const Icon = opt.icon;
             const isSelected = theme === opt.value;
@@ -95,14 +95,14 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
                   setTheme(opt.value);
                 }}
                 className={cn(
-                  "flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition select-none cursor-pointer",
+                  "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition select-none cursor-pointer",
                   isSelected
-                    ? "border border-dusk-lavender/40 bg-dusk-lavender/25 text-dusk-lavender font-semibold shadow-xs"
-                    : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title={`Switch to ${opt.label} theme`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
                 <span>{opt.label}</span>
               </button>
             );

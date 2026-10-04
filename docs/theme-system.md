@@ -400,3 +400,16 @@ Template:
   - รวมรายการแสดงผลสถานะ, ระดับความสำคัญ, และ Story Points จากกล่องลอยแยกเดี่ยวหลายชั้น (Russian nesting doll effect) ให้เป็นคอนเทนเนอร์รายการเดี่ยวสะอาดตาพร้อมเส้นแบ่งแถว `divide-y` บางเบา
 - Reviewed: ตรวจสอบความถูกต้องของ UI ทั้งในโหมด Dark และ Light, รันการทดสอบ Vitest ใน `src/components/kanban/` ผ่าน 56/56 การทดสอบ, ESLint ผ่าน 0 warnings, Prisma validate และ Next.js production build สำเร็จสมบูรณ์.
 
+### 2026-10-04 — สร้างมาตรฐานความสอดคล้องสถานะ Select / Active (Clean Neutral Pill Consistency)
+- Added/changed: `src/components/kanban/board.tsx`, `src/components/ui/segmented-control.tsx`, `src/components/ui/tabs.tsx`, `src/components/help/help-center-client.tsx`, `src/components/project/project-members-view.tsx`, `src/components/theme/theme-toggle.tsx`.
+- Tokens/variants:
+  - กำหนดมาตรฐานสถานะ Selected / Active สำหรับ Segmented Controls, View Switchers, และ Radix Tabs ทั่วทั้งโปรเจกต์ด้วย **Clean Neutral Pill Standard** (Apple / Linear / Notion style):
+    - Track: `border border-stone-200/90 bg-stone-100/80 p-0.5 rounded-xl dark:border-white/10 dark:bg-white/[0.04]`
+    - Selected: `border border-stone-200/80 bg-white text-stone-900 shadow-xs font-semibold dark:border-white/10 dark:bg-stone-800 dark:text-stone-100`
+    - Unselected: `text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200`
+    - Accent: ตัวไอคอนและป้าย Badge คงสีไฮไลท์ตามฟังก์ชัน (เช่น `KanbanSquare` และ `Rows3` ใช้ `text-indigo-600 dark:text-dusk-lavender`, `Table2` ใช้ `text-dusk-amber`)
+  - แก้ไขปุ่ม `Compact 2x` ในบอร์ดที่เคยแสดงผลสีม่วงทึบตัดกับ `Board` และ `Normal` ให้กลับมาเป็น Clean Neutral Pill ที่กลมกลืนกันสมบูรณ์แบบ
+  - ปรับปรุงการแสดงผลของ `SegmentedControl`, `TabsTrigger`, `Help Docs Switcher`, `Project Members Filter Tabs`, และ `Theme Toggle` ให้เป็นไปตามมาตรฐานเดียวกัน
+- Reviewed: รันการทดสอบ Vitest 86/86 ไฟล์ (433/433 การทดสอบผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
+
+

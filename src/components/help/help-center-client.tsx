@@ -590,12 +590,12 @@ export function HelpCenterClient() {
                 className={cn(
                   "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "docs"
-                    ? "bg-white text-indigo-700 shadow-sm dark:bg-dusk-lavender dark:text-ink-950"
-                    : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="โหมดอ่านบทความเอกสาร"
               >
-                <BookOpen className="h-3.5 w-3.5" />
+                <BookOpen className={cn("h-3.5 w-3.5", viewMode === "docs" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
                 <span>Docs</span>
               </button>
               <button
@@ -604,12 +604,12 @@ export function HelpCenterClient() {
                 className={cn(
                   "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "grid"
-                    ? "bg-white text-indigo-700 shadow-sm dark:bg-dusk-lavender dark:text-ink-950"
-                    : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="โหมดดูภาพรวมการ์ดทั้งหมด"
               >
-                <LayoutGrid className="h-3.5 w-3.5" />
+                <LayoutGrid className={cn("h-3.5 w-3.5", viewMode === "grid" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
                 <span>Overview</span>
               </button>
             </div>

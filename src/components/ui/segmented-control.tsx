@@ -43,8 +43,8 @@ export function SegmentedControl<TValue extends string>({
             className={cn(
               "motion-interactive inline-flex h-8 min-w-0 items-center justify-center gap-1.5 rounded-md px-3 text-xs font-semibold outline-none transition focus-visible:ring-2 focus-visible:ring-dusk-lavender/45",
               selected
-                ? "bg-dusk-lavender text-stone-900 font-bold shadow-sm dark:bg-dusk-lavender dark:text-ink-950 dark:shadow-[0_10px_22px_rgba(169,162,255,0.18)]"
-                : "text-stone-600 hover:bg-stone-200/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/[0.06] dark:hover:text-stone-100"
+                ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs font-semibold dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
             )}
             type="button"
             aria-pressed={selected}

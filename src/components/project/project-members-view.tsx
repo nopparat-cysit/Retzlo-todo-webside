@@ -562,8 +562,8 @@ export function ProjectMembersView({
                     className={cn(
                       "px-2.5 py-1 rounded-lg font-medium transition cursor-pointer",
                       roleFilter === "ALL"
-                        ? "bg-white text-stone-900 shadow-xs dark:bg-white/15 dark:text-white"
-                        : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 font-semibold"
+                        : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                   >
                     All ({totalCount})
@@ -574,8 +574,8 @@ export function ProjectMembersView({
                     className={cn(
                       "px-2.5 py-1 rounded-lg font-medium transition cursor-pointer",
                       roleFilter === "OWNER"
-                        ? "bg-white text-stone-900 shadow-xs dark:bg-white/15 dark:text-white"
-                        : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 font-semibold"
+                        : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                   >
                     Owners ({ownersCount})
@@ -586,8 +586,8 @@ export function ProjectMembersView({
                     className={cn(
                       "px-2.5 py-1 rounded-lg font-medium transition cursor-pointer",
                       roleFilter === "MEMBER"
-                        ? "bg-white text-stone-900 shadow-xs dark:bg-white/15 dark:text-white"
-                        : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 font-semibold"
+                        : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                   >
                     Members ({regularCount})

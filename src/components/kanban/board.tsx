@@ -1089,20 +1089,25 @@ export function KanbanBoard({
                         className={cn(
                           "flex h-7 items-center gap-1.5 rounded-lg px-2 sm:px-2.5 text-xs font-semibold transition-all cursor-pointer select-none",
                           density === "compact"
-                            ? "border border-dusk-lavender/40 bg-dusk-lavender/20 text-dusk-lavender font-bold shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                            ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                             : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                         )}
                       >
-                        <Rows3 className={cn("h-3.5 w-3.5", density === "compact" ? "text-dusk-lavender" : "text-stone-400")} />
+                        <Rows3 className={cn("h-3.5 w-3.5", density === "compact" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
                         <span className="hidden sm:inline">Compact</span>
-                        <span className="rounded bg-dusk-lavender/25 px-1 py-0.2 text-[9px] font-mono font-bold text-dusk-lavender">
+                        <span className={cn(
+                          "rounded px-1 py-0.2 text-[9px] font-mono font-bold transition",
+                          density === "compact"
+                            ? "bg-indigo-500/15 text-indigo-600 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                            : "bg-stone-200/80 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                        )}>
                           2x
                         </span>
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
-                      <p className="font-bold text-dusk-lavender flex items-center gap-1.5">
-                        <Rows3 className="h-3.5 w-3.5" />
+                      <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                        <Rows3 className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
                         <span>Compact View (โหมดย่อการ์ดกะทัดรัด)</span>
                       </p>
                       <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-1 leading-relaxed">
