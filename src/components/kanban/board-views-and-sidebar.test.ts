@@ -165,5 +165,14 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(settingsManagerSource).toContain('import { Avatar } from "@/components/ui/avatar"');
     expect(settingsManagerSource).toContain("<Avatar");
   });
+
+  it("displays row index number by default and swaps to completion checkbox on hover in table view", () => {
+    // Both flat and grouped views hide the row number on hover
+    expect(listViewSource).toContain("group-hover/row:hidden select-none");
+    // Both flat and grouped views show the checkbox on hover
+    expect(listViewSource).toContain("hidden group-hover/row:grid h-4 w-4");
+    // Completed state renders checked button immediately
+    expect(listViewSource).toContain("border-emerald-500 bg-emerald-500 text-white");
+  });
 });
 

@@ -799,22 +799,32 @@ export function BoardListView({
                       isCardDone && "bg-stone-50/60 opacity-80 dark:bg-black/20"
                     )}
                   >
-                    {/* Index & Checkbox Complete */}
-                    <div className="w-12 text-center flex items-center justify-center gap-1">
-                      <button
-                        type="button"
-                        onClick={(e) => handleToggleCardComplete(card, e)}
-                        title={isCardDone ? "Mark incomplete" : "Mark as Done"}
-                        className={cn(
-                          "grid h-4 w-4 place-items-center rounded border transition-all cursor-pointer",
-                          isCardDone
-                            ? "border-emerald-500 bg-emerald-500 text-white"
-                            : "border-stone-300 bg-white hover:border-emerald-500 dark:border-stone-600 dark:bg-transparent"
-                        )}
-                      >
-                        {isCardDone && <Check className="h-2.5 w-2.5 stroke-[3]" />}
-                      </button>
-                      <span className="font-mono text-[10px] text-stone-400 w-4 text-left">{index + 1}</span>
+                    {/* Index & Checkbox Complete (Shows number by default, checkbox on hover) */}
+                    <div className="w-12 text-center flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                      {isCardDone ? (
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleCardComplete(card, e)}
+                          title="Mark incomplete"
+                          className="grid h-4 w-4 place-items-center rounded border border-emerald-500 bg-emerald-500 text-white transition-all cursor-pointer shadow-2xs hover:bg-emerald-600 active:scale-95"
+                        >
+                          <Check className="h-2.5 w-2.5 stroke-[3]" />
+                        </button>
+                      ) : (
+                        <>
+                          <span className="font-mono text-[11px] text-stone-400 dark:text-stone-500 group-hover/row:hidden select-none">
+                            {index + 1}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleCardComplete(card, e)}
+                            title="Mark as Done"
+                            className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-emerald-500 hover:bg-emerald-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/10 transition-all cursor-pointer shadow-2xs active:scale-95"
+                          >
+                            <span className="sr-only">Mark as done</span>
+                          </button>
+                        </>
+                      )}
                     </div>
 
                     {/* 1. Work (Task Title) */}
@@ -1274,21 +1284,32 @@ export function BoardListView({
                                 isCardDone && "bg-stone-50/40 opacity-75 dark:bg-black/20"
                               )}
                             >
-                              <div className="w-12 text-center flex items-center justify-center gap-1">
-                                <button
-                                  type="button"
-                                  onClick={(e) => handleToggleCardComplete(card, e)}
-                                  title={isCardDone ? "Mark incomplete" : "Mark as Done"}
-                                  className={cn(
-                                    "grid h-4 w-4 place-items-center rounded border transition-all cursor-pointer",
-                                    isCardDone
-                                      ? "border-emerald-500 bg-emerald-500 text-white"
-                                      : "border-stone-300 bg-white hover:border-emerald-500 dark:border-stone-600 dark:bg-transparent"
-                                  )}
-                                >
-                                  {isCardDone && <Check className="h-2.5 w-2.5 stroke-[3]" />}
-                                </button>
-                                <span className="font-mono text-[10px] text-stone-400 w-4 text-left">{idx + 1}</span>
+                              {/* Index & Checkbox Complete (Shows number by default, checkbox on hover) */}
+                              <div className="w-12 text-center flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+                                {isCardDone ? (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleToggleCardComplete(card, e)}
+                                    title="Mark incomplete"
+                                    className="grid h-4 w-4 place-items-center rounded border border-emerald-500 bg-emerald-500 text-white transition-all cursor-pointer shadow-2xs hover:bg-emerald-600 active:scale-95"
+                                  >
+                                    <Check className="h-2.5 w-2.5 stroke-[3]" />
+                                  </button>
+                                ) : (
+                                  <>
+                                    <span className="font-mono text-[11px] text-stone-400 dark:text-stone-500 group-hover/row:hidden select-none">
+                                      {idx + 1}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleToggleCardComplete(card, e)}
+                                      title="Mark as Done"
+                                      className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-emerald-500 hover:bg-emerald-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/10 transition-all cursor-pointer shadow-2xs active:scale-95"
+                                    >
+                                      <span className="sr-only">Mark as done</span>
+                                    </button>
+                                  </>
+                                )}
                               </div>
 
                               <div className="flex-1 min-w-[280px] px-3 py-2 flex items-center gap-2">
