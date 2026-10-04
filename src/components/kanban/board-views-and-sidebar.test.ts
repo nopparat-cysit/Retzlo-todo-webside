@@ -38,7 +38,7 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(sidebarSource).toContain("Save as template");
 
     // Direct link to board settings page
-    expect(sidebarSource).toContain("/settings?boardId=");
+    expect(sidebarSource).toContain("settings?tab=board-general&boardId=");
   });
 
   it("preserves reactive renaming and board-switching events in sidebar", () => {

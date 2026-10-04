@@ -487,6 +487,16 @@ Template:
   - ปรับปรุงเลย์เอาต์ของ `BoardSettingsModal` (กรณีเปิดจากที่อื่น) จากเดิมที่มีแท็บแนวนอน ให้กลายเป็น **Jira Master-Detail Left Sidebar Dialog** ขนาดใหญ่ กว้าง 4xl พร้อมปุ่มลัด "เปิดหน้า Settings เต็มจอ (Jira Style)"
 - Reviewed: Vitest 21/21 tests ผ่านฉลุย, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100% (38/38 static pages).
 
+### 2026-10-04 — แก้ไขสถาปัตยกรรมการจับภาพบอร์ด (Board Export Canvas Capture & Font Fallback Engine)
+- Added/changed: `src/lib/kanban/export-board.ts`, `src/components/kanban/board-export-modal.tsx`, `src/components/kanban/board-export.test.ts`, `docs/system-guide.md`, `src/components/help/help-center-client.tsx`.
+- Tokens/variants:
+  - แก้ไขปัญหาการส่งออกภาพ PNG และเอกสาร PDF ที่เกิดภาพว่างเปล่า (Blank Canvas / White Screen) จากการใช้ inline style `position: fixed; left: -99999px;` โดยตรงบน root element ที่ถูกจับภาพด้วย `html-to-image`:
+    - **Off-screen Staging Wrapper:** แยกคอนเทนเนอร์ staging ออกเป็นชั้นนอก (`position: fixed; left: -99999px; width: max-content; overflow: visible;`) และให้ตัวเรนเดอร์เอกสารภายใน (`#retzlo-export-render-canvas` / `#retzlo-export-render-canvas-quick`) มีพิกัดสัมพัทธ์ `position: relative; left: 0; top: 0;` เพื่อให้ SVG `<foreignObject>` วาดภาพที่พิกัด `(0, 0)` ได้อย่างสมบูรณ์แบบ
+    - **Capture Style Normalization:** บังคับใช้ `options.style: { position: 'relative', left: '0', top: '0', margin: '0', transform: 'none', opacity: '1', visibility: 'visible' }` ใน `toPng` เพื่อป้องกันไม่ให้สไตล์ตำแหน่งเดิมรบกวนการเรนเดอร์ภาพ
+    - **Font Embedding Fallback:** เพิ่มกลไกตรวจจับและ Fallback อัตโนมัติ (`skipFonts: true`) หากการดึง Web Fonts ผ่านเครือข่ายถูกบล็อกด้วย CORS หรือออฟไลน์ ป้องกัน Promise rejection ไม่ให้การส่งออกล้มเหลว
+    - **Direct Ref Targeting:** นำ `useRef` มาใช้กับ Staging Canvas เพื่อป้องกันปัญหา ID collision ระหว่างปุ่ม Export บนหัวบอร์ดและตารางงาน
+- Reviewed: Vitest 88/88 test files ผ่าน (449/449 tests ผ่าน), ESLint 0 warnings/errors, Prisma schema valid, และ Next.js production build ผ่าน 100% (38/38 routes).
+
 
 
 

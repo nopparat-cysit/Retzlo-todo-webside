@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -72,6 +72,7 @@ export function BoardExportModal({
   isFiltered = false
 }: BoardExportModalProps) {
   const { toast } = useToast();
+  const modalCanvasRef = useRef<HTMLDivElement>(null);
   const [exportScope, setExportScope] = useState<"all" | "filtered">(isFiltered ? "filtered" : "all");
   const [exportLayout, setExportLayout] = useState<ExportLayout>("kanban");
   const [exportTheme, setExportTheme] = useState<ExportTheme>("light");
@@ -146,7 +147,7 @@ export function BoardExportModal({
         onClose();
       } else if (format === "png") {
         // Target dedicated unclipped export document canvas first
-        const dedicatedEl = document.getElementById("retzlo-export-render-canvas");
+        const dedicatedEl = modalCanvasRef.current || document.getElementById("retzlo-export-render-canvas");
         const el = dedicatedEl || document.getElementById(viewportElementId) || document.getElementById("kanban-table-container");
         if (!el) {
           throw new Error("ไม่พบคอนเทนเนอร์บอร์ดสำหรับจับภาพ");
@@ -162,7 +163,7 @@ export function BoardExportModal({
         onClose();
       } else if (format === "pdf") {
         // Target dedicated unclipped export document canvas first
-        const dedicatedEl = document.getElementById("retzlo-export-render-canvas");
+        const dedicatedEl = modalCanvasRef.current || document.getElementById("retzlo-export-render-canvas");
         const el = dedicatedEl || document.getElementById(viewportElementId) || document.getElementById("kanban-table-container");
         if (!el) {
           throw new Error("ไม่พบคอนเทนเนอร์บอร์ดสำหรับสร้าง PDF");
@@ -197,28 +198,42 @@ export function BoardExportModal({
       ══════════════════════════════════════════════════════════════════════════ */}
       {open && (
         <div
-          id="retzlo-export-render-canvas"
-          data-export-container="true"
-          aria-hidden="true"
           style={{
             position: "fixed",
             left: "-99999px",
             top: 0,
+            width: "max-content",
+            height: "auto",
+            overflow: "visible",
             zIndex: -9999,
             pointerEvents: "none",
             opacity: 1
           }}
+          aria-hidden="true"
         >
-          <BoardExportDocument
-            boardTitle={boardTitle}
-            projectName={projectName}
-            columns={activeColumns}
-            members={members}
-            boardPriorities={boardPriorities}
-            scope={exportScope}
-            layout={exportLayout}
-            themeStyle={exportTheme}
-          />
+          <div
+            ref={modalCanvasRef}
+            id="retzlo-export-render-canvas"
+            data-export-container="true"
+            style={{
+              position: "relative",
+              left: 0,
+              top: 0,
+              width: "max-content",
+              display: "inline-block"
+            }}
+          >
+            <BoardExportDocument
+              boardTitle={boardTitle}
+              projectName={projectName}
+              columns={activeColumns}
+              members={members}
+              boardPriorities={boardPriorities}
+              scope={exportScope}
+              layout={exportLayout}
+              themeStyle={exportTheme}
+            />
+          </div>
         </div>
       )}
 
@@ -652,6 +667,7 @@ export function BoardExportButton({
   variant = "default"
 }: BoardExportButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const quickCanvasRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const getFilename = () => {
@@ -663,9 +679,12 @@ export function BoardExportButton({
     return `${safeTitle || "board"}-export-${today}`;
   };
 
+  const isDarkTheme = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+
   const handleQuickExport = async (format: ExportFormat) => {
     const activeColumns = isFiltered && filteredColumns ? filteredColumns : columns;
     const filename = getFilename();
+    const exportBg = isDarkTheme ? "#0b0c1b" : "#ffffff";
 
     try {
       if (format === "excel") {
@@ -683,11 +702,11 @@ export function BoardExportButton({
           type: "success"
         });
       } else if (format === "png") {
-        const dedicatedEl = document.getElementById("retzlo-export-render-canvas-quick");
+        const dedicatedEl = quickCanvasRef.current || document.getElementById("retzlo-export-render-canvas-quick");
         const el = dedicatedEl || document.getElementById(viewportElementId) || document.getElementById("kanban-table-container");
         if (!el) throw new Error("ไม่พบคอนเทนเนอร์บอร์ดสำหรับจับภาพ");
         await exportElementToPng(el, filename, {
-          backgroundColor: "#ffffff",
+          backgroundColor: exportBg,
           pixelRatio: 2.2
         });
         toast({
@@ -695,11 +714,11 @@ export function BoardExportButton({
           type: "success"
         });
       } else if (format === "pdf") {
-        const dedicatedEl = document.getElementById("retzlo-export-render-canvas-quick");
+        const dedicatedEl = quickCanvasRef.current || document.getElementById("retzlo-export-render-canvas-quick");
         const el = dedicatedEl || document.getElementById(viewportElementId) || document.getElementById("kanban-table-container");
         if (!el) throw new Error("ไม่พบคอนเทนเนอร์บอร์ดสำหรับสร้าง PDF");
         await exportElementToPdf(el, filename, boardTitle, {
-          backgroundColor: "#ffffff",
+          backgroundColor: exportBg,
           orientation: "landscape"
         });
         toast({
@@ -717,28 +736,42 @@ export function BoardExportButton({
     <>
       {/* Off-screen dedicated export document for quick dropdown menu actions */}
       <div
-        id="retzlo-export-render-canvas-quick"
-        data-export-container="true"
-        aria-hidden="true"
         style={{
           position: "fixed",
           left: "-99999px",
           top: 0,
+          width: "max-content",
+          height: "auto",
+          overflow: "visible",
           zIndex: -9999,
           pointerEvents: "none",
           opacity: 1
         }}
+        aria-hidden="true"
       >
-        <BoardExportDocument
-          boardTitle={boardTitle}
-          projectName={projectName}
-          columns={isFiltered && filteredColumns ? filteredColumns : columns}
-          members={members}
-          boardPriorities={boardPriorities}
-          scope={isFiltered ? "filtered" : "all"}
-          layout="kanban"
-          themeStyle="light"
-        />
+        <div
+          ref={quickCanvasRef}
+          id="retzlo-export-render-canvas-quick"
+          data-export-container="true"
+          style={{
+            position: "relative",
+            left: 0,
+            top: 0,
+            width: "max-content",
+            display: "inline-block"
+          }}
+        >
+          <BoardExportDocument
+            boardTitle={boardTitle}
+            projectName={projectName}
+            columns={isFiltered && filteredColumns ? filteredColumns : columns}
+            members={members}
+            boardPriorities={boardPriorities}
+            scope={isFiltered ? "filtered" : "all"}
+            layout="kanban"
+            themeStyle={isDarkTheme ? "dark" : "light"}
+          />
+        </div>
       </div>
 
       <DropdownMenu>

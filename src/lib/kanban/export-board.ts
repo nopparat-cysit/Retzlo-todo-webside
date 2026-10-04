@@ -258,12 +258,42 @@ export async function exportElementToPng(
 ) {
   const { toPng } = await import("html-to-image");
 
-  const defaultBg = document.documentElement.classList.contains("dark") ? "#0a0a14" : "#ffffff";
-  const dataUrl = await toPng(element, {
+  // Allow brief tick for DOM and layout reflow to settle
+  await new Promise((resolve) => setTimeout(resolve, 80));
+
+  const defaultBg = document.documentElement.classList.contains("dark") ? "#0b0c1b" : "#ffffff";
+  const bg = options?.backgroundColor ?? defaultBg;
+
+  // Measure full natural dimensions
+  const scrollW = element.scrollWidth || 0;
+  const offsetW = element.offsetWidth || 0;
+  const clientW = element.clientWidth || 0;
+  const scrollH = element.scrollHeight || 0;
+  const offsetH = element.offsetHeight || 0;
+  const clientH = element.clientHeight || 0;
+
+  const targetWidth = Math.max(scrollW, offsetW, clientW, 1200);
+  const targetHeight = Math.max(scrollH, offsetH, clientH, 600);
+
+  const baseOptions = {
     quality: 0.98,
     pixelRatio: options?.pixelRatio ?? 2,
-    backgroundColor: options?.backgroundColor ?? defaultBg,
-    filter: (node) => {
+    backgroundColor: bg,
+    width: targetWidth,
+    height: targetHeight,
+    style: {
+      position: "relative",
+      left: "0",
+      top: "0",
+      margin: "0",
+      transform: "none",
+      opacity: "1",
+      visibility: "visible",
+      width: `${targetWidth}px`,
+      minWidth: `${targetWidth}px`,
+      height: `${targetHeight}px`
+    },
+    filter: (node: Node) => {
       if (node instanceof HTMLElement) {
         if (
           node.classList.contains("fab-hub-container") ||
@@ -275,12 +305,22 @@ export async function exportElementToPng(
       }
       return true;
     }
-  });
+  };
+
+  let dataUrl: string;
+  try {
+    dataUrl = await toPng(element, { ...baseOptions, skipFonts: false });
+  } catch (fontErr) {
+    console.warn("PNG export font embedding failed, falling back with skipFonts: true", fontErr);
+    dataUrl = await toPng(element, { ...baseOptions, skipFonts: true });
+  }
 
   const link = document.createElement("a");
   link.download = `${filename}.png`;
   link.href = dataUrl;
+  document.body.appendChild(link);
   link.click();
+  document.body.removeChild(link);
 }
 
 /**
@@ -297,14 +337,42 @@ export async function exportElementToPdf(
     import("html-to-image")
   ]);
 
-  const defaultBg = document.documentElement.classList.contains("dark") ? "#0a0a14" : "#ffffff";
+  // Allow brief tick for DOM and layout reflow to settle
+  await new Promise((resolve) => setTimeout(resolve, 80));
+
+  const defaultBg = document.documentElement.classList.contains("dark") ? "#0b0c1b" : "#ffffff";
   const bg = options?.backgroundColor ?? defaultBg;
 
-  const dataUrl = await toPng(element, {
+  // Measure full natural dimensions
+  const scrollW = element.scrollWidth || 0;
+  const offsetW = element.offsetWidth || 0;
+  const clientW = element.clientWidth || 0;
+  const scrollH = element.scrollHeight || 0;
+  const offsetH = element.offsetHeight || 0;
+  const clientH = element.clientHeight || 0;
+
+  const targetWidth = Math.max(scrollW, offsetW, clientW, 1200);
+  const targetHeight = Math.max(scrollH, offsetH, clientH, 600);
+
+  const baseOptions = {
     quality: 0.96,
     pixelRatio: 2,
     backgroundColor: bg,
-    filter: (node) => {
+    width: targetWidth,
+    height: targetHeight,
+    style: {
+      position: "relative",
+      left: "0",
+      top: "0",
+      margin: "0",
+      transform: "none",
+      opacity: "1",
+      visibility: "visible",
+      width: `${targetWidth}px`,
+      minWidth: `${targetWidth}px`,
+      height: `${targetHeight}px`
+    },
+    filter: (node: Node) => {
       if (node instanceof HTMLElement) {
         if (
           node.classList.contains("fab-hub-container") ||
@@ -316,7 +384,15 @@ export async function exportElementToPdf(
       }
       return true;
     }
-  });
+  };
+
+  let dataUrl: string;
+  try {
+    dataUrl = await toPng(element, { ...baseOptions, skipFonts: false });
+  } catch (fontErr) {
+    console.warn("PDF export font embedding failed, falling back with skipFonts: true", fontErr);
+    dataUrl = await toPng(element, { ...baseOptions, skipFonts: true });
+  }
 
   // Load image to compute true dimensions
   const img = new Image();
@@ -325,6 +401,10 @@ export async function exportElementToPdf(
     img.onload = () => resolve();
     img.onerror = () => reject(new Error("ไม่สามารถประมวลผลรูปภาพสำหรับสร้าง PDF ได้"));
   });
+
+  if (!img.width || !img.height) {
+    throw new Error("ขนาดของบอร์ดไม่ถูกต้อง ไม่สามารถแปลงเป็น PDF ได้");
+  }
 
   const preferredOrientation =
     options?.orientation && options.orientation !== "auto"

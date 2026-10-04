@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { generateTaskBreakdown, generateProjectSummary, chatWithAssistant, getAiApiKey } from "./engine";
 
 const REAL_KEY = process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY || "";
+const SHOULD_RUN_LIVE = process.env.RUN_LIVE_AI_TESTS === "true" && Boolean(REAL_KEY);
 
 describe("AI Assistant Engine", { timeout: 60000 }, () => {
   it("resolves AI_API_KEY or DEEPSEEK_API_KEY properly", () => {
@@ -9,7 +10,7 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
     expect(typeof key).toBe("string");
   });
 
-  it.runIf(Boolean(REAL_KEY))("generates structured checklist breakdown for Pad Kra Pao with real AI engine", async () => {
+  it.runIf(SHOULD_RUN_LIVE)("generates structured checklist breakdown for Pad Kra Pao with real AI engine", async () => {
     process.env.AI_API_KEY = REAL_KEY;
     const result = await generateTaskBreakdown({
       title: "วิธีทำผัดกะเพรา",
@@ -24,7 +25,7 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
     expect(["LOW", "MEDIUM", "HIGH"]).toContain(result.suggestedPriority);
   });
 
-  it.runIf(Boolean(REAL_KEY))("generates 8-10 actionable steps for detailed software task", async () => {
+  it.runIf(SHOULD_RUN_LIVE)("generates 8-10 actionable steps for detailed software task", async () => {
     process.env.AI_API_KEY = REAL_KEY;
     const result = await generateTaskBreakdown({
       title: "ทำระบบ Login ด้วย Google OAuth",
@@ -70,7 +71,7 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
     }
   });
 
-  it.runIf(Boolean(REAL_KEY))("generates executive project summary with health status", async () => {
+  it.runIf(SHOULD_RUN_LIVE)("generates executive project summary with health status", async () => {
     process.env.AI_API_KEY = REAL_KEY;
     const result = await generateProjectSummary({
       projectName: "Retro Workspace",

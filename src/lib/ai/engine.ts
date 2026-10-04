@@ -83,8 +83,16 @@ function safeParseJson<T>(text: string, fallback: T): T {
  * 3. Local .env / .env.local file inspection on disk
  */
 export function getAiApiKey(overrideKey?: string): string {
-  if (overrideKey !== undefined && overrideKey.trim()) {
+  if (overrideKey !== undefined) {
     return overrideKey.trim();
+  }
+
+  // In vitest automated runs without RUN_LIVE_AI_TESTS, respect test env or fallback cleanly
+  if (process.env.VITEST && process.env.RUN_LIVE_AI_TESTS !== "true") {
+    if (process.env.AI_API_KEY !== undefined || process.env.DEEPSEEK_API_KEY !== undefined) {
+      return (process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY || "").trim();
+    }
+    return "";
   }
 
   // 1. Process.env (standard production & dev runtime)
