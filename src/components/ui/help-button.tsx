@@ -224,7 +224,7 @@ export function HelpButton({ className }: HelpButtonProps) {
                 ปัญญาประดิษฐ์ (AI)
               </span>
               <p className="font-semibold text-indigo-600 dark:text-dusk-lavender mt-0.5">
-                DeepSeek-V4 Pro Engine
+                Retzlo AI Assistant
               </p>
               <p className="text-[11px] text-stone-500 dark:text-stone-400">
                 Multi-turn & Context Aware

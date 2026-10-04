@@ -62,7 +62,7 @@ describe("Help & System Guide integration", () => {
 
     expect(pageSource).toContain("HelpCenterClient");
     expect(clientSource).toContain("ข้อมูลระบบ & คู่มือการใช้งาน");
-    expect(clientSource).toContain("DeepSeek-V4 Pro");
+    expect(clientSource).toContain("ผู้ช่วยอัจฉริยะ Retzlo AI");
     expect(clientSource).toContain("Spreadsheet Table View");
     expect(clientSource).toContain("Card Density (Normal / Compact 2x)");
     expect(clientSource).toContain("Hover Checkbox");

@@ -463,7 +463,7 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
                 <span>ต้องการคำตอบทันที?</span>
               </div>
               <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
-                ผู้ช่วย <strong>Retzlo AI (DeepSeek-V4 Pro)</strong> สามารถตอบคำถามเกี่ยวกับระบบ วิธีใช้งานบอร์ด และคีย์ลัดได้ทันทีโดยไม่ต้องรออีเมล
+                ผู้ช่วย <strong>Retzlo AI</strong> สามารถตอบคำถามเกี่ยวกับระบบ วิธีใช้งานบอร์ด และคีย์ลัดได้ทันทีโดยไม่ต้องรออีเมล
               </p>
               <button
                 type="button"

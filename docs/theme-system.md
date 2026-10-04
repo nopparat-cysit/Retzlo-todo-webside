@@ -371,7 +371,7 @@ Template:
 - Tokens/variants:
   - อัปเกรดปุ่ม `(?)` HelpButton บน Topbar ให้เปิดเมนู DropdownMenu สไตล์ Retro Lofi แสดง:
     1. `คู่มือ & ข้อมูลระบบ`: ลิงก์ตรงไปที่ `/help`
-    2. `รายละเอียดเว็บไซต์`: เปิด Modal แสดงเวอร์ชัน v2.4, ข้อมูลสถาปัตยกรรม (Next.js, Neon PostgreSQL, Tailwind, DeepSeek-V4 Pro) และสรุปโมดูล
+    2. `รายละเอียดเว็บไซต์`: เปิด Modal แสดงเวอร์ชัน v2.4, ข้อมูลสถาปัตยกรรม (Next.js, Neon PostgreSQL, Tailwind, Pusher) และสรุปโมดูล
     3. `ติดต่อเรา & แจ้งปัญหา`: ลิงก์ตรงไปที่ `/contact`
     4. `ถาม AI Assistant`: เรียกผู้ช่วย AI ตอบคำถามทันที
     5. ลิงก์นโยบายความเป็นส่วนตัว (`/privacy`) และข้อกำหนดการใช้งาน (`/terms`)

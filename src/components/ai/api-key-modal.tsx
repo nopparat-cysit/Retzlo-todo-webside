@@ -25,19 +25,19 @@ export interface ApiKeyModalProps {
 const MODEL_PRESETS = [
   {
     id: "deepseek-v4-pro",
-    label: "DeepSeek-V4 Pro",
+    label: "Retzlo AI (ค่าเริ่มต้น)",
     badge: "แนะนำ",
-    subtitle: "โมเดลเรือธง V4 Pro • แม่นยำสูง ฉลาดรอบด้าน แตกขั้นตอนละเอียด"
+    subtitle: "ระบบ AI หลัก • แม่นยำสูง ฉลาดรอบด้าน แตกขั้นตอนละเอียด"
   },
   {
     id: "deepseek-flash",
-    label: "DeepSeek Flash",
+    label: "โหมดความเร็วสูง (Fast)",
     badge: "ความเร็วสูง",
-    subtitle: "โมเดล V4.1-Flash • ประมวลผลรวดเร็วทันใจ ประหยัดต้นทุน"
+    subtitle: "ประมวลผลรวดเร็วทันใจ ตอบสนองฉับไว"
   },
   {
     id: "custom",
-    label: "กำหนดโมเดลเอง (Custom)",
+    label: "กำหนดเอง (Custom)",
     badge: "ยืดหยุ่น",
     subtitle: "ระบุชื่อโมเดลตามต้องการ เช่น gpt-4o, claude-3-7-sonnet"
   }
@@ -101,7 +101,7 @@ export function ApiKeyModal({
     setModelMode("deepseek-v4-pro");
     setCustomModelName("");
     toast({
-      message: "รีเซ็ตการตั้งค่า AI กลับเป็นค่าเริ่มต้น (V4 Pro) แล้ว",
+      message: "รีเซ็ตการตั้งค่า AI กลับเป็นค่าเริ่มต้นแล้ว",
       type: "success"
     });
   };
@@ -230,7 +230,7 @@ export function ApiKeyModal({
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
             <span>คำแนะนำการทำงาน:</span>
           </p>
-          <p>• ค่าเริ่มต้นของระบบจะใช้โมเดล <strong className="text-dusk-lavender">DeepSeek-V4 Pro</strong> ซึ่งมีความฉลาดและคุณภาพสูงสุด</p>
+          <p>• ค่าเริ่มต้นของระบบจะใช้ <strong className="text-dusk-lavender">Retzlo AI (Default)</strong> ซึ่งมีความฉลาดและคุณภาพสูงสุด</p>
           <p>• หากไม่ระบุ API Key ระบบจะใช้คีย์ส่วนกลางของเซิร์ฟเวอร์โดยอัตโนมัติ ผู้ใช้คนอื่นไม่ต้องใส่คีย์เอง</p>
         </div>
 

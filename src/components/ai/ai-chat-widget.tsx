@@ -413,11 +413,11 @@ export function AiChatWidget() {
                 <button
                   type="button"
                   onClick={() => setApiKeyModalOpen(true)}
-                  className="inline-flex items-center gap-1 rounded border border-theme-border bg-theme-paper px-1.5 py-0.2 text-[10px] font-mono text-theme-muted hover:bg-theme-paper-strong hover:text-theme-accent transition cursor-pointer"
-                  title="คลิกเพื่อสลับโมเดลหรือตั้งค่า API Key"
+                  className="inline-flex items-center gap-1 rounded border border-theme-border bg-theme-paper px-1.5 py-0.5 text-[10px] text-theme-muted hover:bg-theme-paper-strong hover:text-theme-accent transition cursor-pointer"
+                  title="คลิกเพื่อจัดการ API Key และการตั้งค่า AI"
                 >
                   <KeyRound className="h-2.5 w-2.5 text-theme-accent" />
-                  <span>{activeModel}</span>
+                  <span>ตั้งค่า AI Key</span>
                 </button>
               </div>
             </div>
