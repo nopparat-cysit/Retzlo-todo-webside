@@ -11,6 +11,7 @@ import {
   FolderKanban,
   Layers,
   Palette,
+  Settings,
   Shield,
   ShieldCheck,
   Sparkles,
@@ -20,7 +21,13 @@ import {
 
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import { BoardAttributesTab } from "@/components/kanban/board-attributes-tab";
+import { BoardGeneralTab } from "@/components/kanban/board-settings/general-tab";
+import { BoardColumnsTab } from "@/components/kanban/board-settings/columns-tab";
+import { BoardDangerTab } from "@/components/kanban/board-settings/danger-tab";
+import type { BoardColumnInfo } from "@/components/kanban/board-settings/types";
 import { DEFAULT_PRIORITIES, resolveBoardPriorities } from "@/lib/kanban/priority";
 import type { CustomPriority } from "@/types/kanban";
 import { ProjectBoardsManager } from "@/components/project/project-boards-manager";
@@ -29,18 +36,22 @@ import { SoundToggle } from "@/components/project/sound-toggle";
 import { cn } from "@/lib/utils";
 
 export type SettingsTabId =
-  | "boards"
   | "identity"
+  | "access"
+  | "boards"
+  | "board-general"
+  | "board-columns"
+  | "attributes"
   | "features"
   | "preferences"
-  | "all"
-  | "attributes"
-  | "access";
+  | "all";
 
 const VALID_TABS: readonly SettingsTabId[] = [
   "identity",
   "access",
   "boards",
+  "board-general",
+  "board-columns",
   "attributes",
   "features",
   "preferences",
@@ -126,11 +137,25 @@ export function ProjectSettingsClient({
     return "identity";
   });
 
+  const { toast } = useToast();
+  const [boardsList, setBoardsList] = useState(formattedBoards);
   const [selectedBoardId, setSelectedBoardId] = useState<string>(
     () => formattedBoards[0]?.id || ""
   );
   const [attributeSubTab, setAttributeSubTab] = useState<"status" | "priority" | "story-points">("status");
   const [boardPriorities, setBoardPriorities] = useState<CustomPriority[]>(DEFAULT_PRIORITIES);
+
+  const activeBoard = boardsList.find((b) => b.id === selectedBoardId) || boardsList[0];
+  const [boardName, setBoardName] = useState(activeBoard?.name || "");
+  const [boardIsPrivate, setBoardIsPrivate] = useState(Boolean(activeBoard?.isPrivate));
+  const [boardMemberUserIds, setBoardMemberUserIds] = useState<string[]>(
+    activeBoard?.memberUserIds || []
+  );
+  const [boardColumns, setBoardColumns] = useState<BoardColumnInfo[]>([]);
+  const [boardMemberSearchQuery, setBoardMemberSearchQuery] = useState("");
+  const [isSavingBoard, setIsSavingBoard] = useState(false);
+  const [isDeletingBoard, setIsDeletingBoard] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -139,38 +164,64 @@ export function ProjectSettingsClient({
       const subTabParam = params.get("subTab");
       const boardIdParam = params.get("boardId");
 
-      if (tabParam && VALID_TABS.includes(tabParam as SettingsTabId)) {
+      if (tabParam === "board") {
+        setActiveTab("board-general");
+      } else if (tabParam === "columns") {
+        setActiveTab("board-columns");
+      } else if (tabParam && VALID_TABS.includes(tabParam as SettingsTabId)) {
         setActiveTab(tabParam as SettingsTabId);
       } else if (boardIdParam) {
-        setActiveTab("boards");
+        setActiveTab("board-general");
       }
 
       if (subTabParam && ["status", "priority", "story-points"].includes(subTabParam)) {
         setAttributeSubTab(subTabParam as "status" | "priority" | "story-points");
       }
 
-      if (boardIdParam && formattedBoards.some((b) => b.id === boardIdParam)) {
+      if (boardIdParam && boardsList.some((b) => b.id === boardIdParam)) {
         setSelectedBoardId(boardIdParam);
       }
     }
-  }, [formattedBoards]);
+  }, [boardsList]);
 
-  // Sync priorities when selectedBoardId changes
+  // Sync board details, priorities, and columns when selectedBoardId changes
   useEffect(() => {
     if (!selectedBoardId) return;
     let isMounted = true;
+    const current = boardsList.find((b) => b.id === selectedBoardId);
+    if (current) {
+      setBoardName(current.name);
+      setBoardIsPrivate(Boolean(current.isPrivate));
+      setBoardMemberUserIds(current.memberUserIds || []);
+    }
     fetch(`/api/boards/${selectedBoardId}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (isMounted && data?.board?.customPriorities) {
+        if (!isMounted || !data?.board) return;
+        setBoardName(data.board.name);
+        setBoardIsPrivate(Boolean(data.board.isPrivate));
+        setBoardMemberUserIds(data.board.members?.map((m: any) => m.userId) || []);
+        if (data.board.customPriorities) {
           setBoardPriorities(resolveBoardPriorities(data.board.customPriorities));
+        }
+        if (data.board.columns) {
+          setBoardColumns(
+            data.board.columns.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              color: c.color,
+              wipLimit: c.wipLimit,
+              defaultCardStatus: c.defaultCardStatus,
+              cardCount: c._count?.cards ?? c.cards?.length ?? 0
+            }))
+          );
         }
       })
       .catch(() => {});
     return () => {
       isMounted = false;
     };
-  }, [selectedBoardId]);
+  }, [selectedBoardId, boardsList]);
 
   const handlePrioritiesChange = async (nextPriorities: CustomPriority[]) => {
     setBoardPriorities(nextPriorities);
@@ -191,6 +242,83 @@ export function ProjectSettingsClient({
     }
   };
 
+  const handleSaveBoardGeneral = async () => {
+    if (!selectedBoardId || !boardName.trim() || isSavingBoard) return;
+    setIsSavingBoard(true);
+    try {
+      const res = await fetch(`/api/boards/${selectedBoardId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: boardName.trim(),
+          isPrivate: boardIsPrivate,
+          memberUserIds: boardIsPrivate ? boardMemberUserIds : []
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.board) throw new Error(data.error || "Failed to update board");
+      setBoardsList((prev) =>
+        prev.map((b) =>
+          b.id === selectedBoardId
+            ? {
+                ...b,
+                name: data.board.name,
+                isPrivate: data.board.isPrivate,
+                memberUserIds: data.board.memberUserIds ?? (boardIsPrivate ? boardMemberUserIds : [])
+              }
+            : b
+        )
+      );
+      toast({ message: `บันทึกการตั้งค่าบอร์ด "${data.board.name}" สำเร็จ ✦`, type: "success" });
+      window.dispatchEvent(
+        new CustomEvent("board-renamed", {
+          detail: { id: selectedBoardId, name: data.board.name }
+        })
+      );
+    } catch (err) {
+      toast({ message: err instanceof Error ? err.message : "Failed to update board", type: "error" });
+    } finally {
+      setIsSavingBoard(false);
+    }
+  };
+
+  const handleDeleteBoard = async () => {
+    if (!selectedBoardId || isDeletingBoard) return;
+    setIsDeletingBoard(true);
+    try {
+      const res = await fetch(`/api/boards/${selectedBoardId}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to delete board");
+      }
+      toast({ message: `ลบบอร์ดเรียบร้อยแล้ว`, type: "success" });
+      setDeleteConfirmOpen(false);
+      const remaining = boardsList.filter((b) => b.id !== selectedBoardId);
+      setBoardsList(remaining);
+      if (remaining.length > 0) {
+        setSelectedBoardId(remaining[0].id);
+      }
+      handleTabChange("boards");
+    } catch (err) {
+      toast({ message: err instanceof Error ? err.message : "Failed to delete board", type: "error" });
+    } finally {
+      setIsDeletingBoard(false);
+    }
+  };
+
+  const handleOpenBoardConfig = (boardId: string, subTab?: "general" | "columns" | "attributes") => {
+    setSelectedBoardId(boardId);
+    const targetTab: SettingsTabId =
+      subTab === "columns"
+        ? "board-columns"
+        : subTab === "attributes"
+        ? "attributes"
+        : "board-general";
+    handleTabChange(targetTab);
+  };
+
   const handleTabChange = (tabId: SettingsTabId) => {
     setActiveTab(tabId);
     if (typeof window !== "undefined") {
@@ -199,6 +327,16 @@ export function ProjectSettingsClient({
       window.history.replaceState(null, "", url.toString());
     }
   };
+
+  const filteredBoardMembers = useMemo(() => {
+    if (!boardMemberSearchQuery.trim()) return projectMembers;
+    const q = boardMemberSearchQuery.toLowerCase();
+    return projectMembers.filter(
+      (m) =>
+        m.user.name?.toLowerCase().includes(q) ||
+        m.user.email.toLowerCase().includes(q)
+    );
+  }, [projectMembers, boardMemberSearchQuery]);
 
   const navGroups: NavGroup[] = [
     {
@@ -234,8 +372,24 @@ export function ProjectSettingsClient({
           label: "Boards & Sub-projects",
           shortLabel: "Boards",
           icon: FolderKanban,
-          badge: formattedBoards.length,
+          badge: boardsList.length,
           description: "จัดการบอร์ดทั้งหมดในโปรเจกต์ สร้างบอร์ดใหม่ และกำหนดสิทธิ์รายบอร์ด"
+        },
+        {
+          id: "board-general",
+          group: "Workflow",
+          label: "Board Details & Access",
+          shortLabel: "Board Details",
+          icon: Settings,
+          description: "ตั้งค่าชื่อบอร์ด ความเป็นส่วนตัว สิทธิ์การเข้าถึง และลบบอร์ด"
+        },
+        {
+          id: "board-columns",
+          group: "Workflow",
+          label: "Columns & Workflow",
+          shortLabel: "Columns",
+          icon: Layers,
+          description: "ขั้นตอนการทำงาน (Workflow Stages), WIP Limits และการแมปสถานะ"
         },
         {
           id: "attributes",
@@ -601,9 +755,219 @@ export function ProjectSettingsClient({
                 <ProjectBoardsManager
                   projectId={projectId}
                   canManage={canManage}
-                  initialBoards={formattedBoards}
+                  initialBoards={boardsList}
                   projectMembers={projectMembers}
+                  onConfigureBoard={handleOpenBoardConfig}
                 />
+              </div>
+            )}
+
+            {/* TAB: Board General & Access */}
+            {(activeTab === "board-general" || activeTab === "all") && (
+              <div className="space-y-4">
+                {activeTab === "all" && (
+                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
+                    <Settings className="h-4 w-4 text-amber-600 dark:text-dusk-amber" />
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
+                      4. ข้อมูลบอร์ดและสิทธิ์เข้าถึง (Board Details & Access)
+                    </h2>
+                  </div>
+                )}
+
+                {/* Active Board Selector Banner */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.03] shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
+                      <FolderKanban className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-dusk-amber">
+                          Active Board
+                        </span>
+                        {boardIsPrivate ? (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.2 text-[9px] font-semibold text-dusk-amber">
+                            Private
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-2 py-0.2 text-[9px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                            Public
+                          </span>
+                        )}
+                      </div>
+                      <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
+                        {boardName || activeBoard?.name || "Select Board"}
+                      </h2>
+                    </div>
+                  </div>
+
+                  {boardsList.length > 1 && (
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">เลือกบอร์ด:</span>
+                      <select
+                        value={selectedBoardId}
+                        onChange={(e) => {
+                          const nextId = e.target.value;
+                          setSelectedBoardId(nextId);
+                          if (typeof window !== "undefined") {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set("boardId", nextId);
+                            window.history.replaceState(null, "", url.toString());
+                          }
+                        }}
+                        className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-bold text-stone-800 shadow-xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer"
+                      >
+                        {boardsList.map((b) => (
+                          <option key={b.id} value={b.id}>
+                            {b.name} {b.isPrivate ? "🔒 (Private)" : "🌐 (Public)"}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {selectedBoardId ? (
+                  <div className="space-y-4">
+                    <section className="lofi-panel rounded-2xl p-5 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02] space-y-4">
+                      <BoardGeneralTab
+                        name={boardName}
+                        onNameChange={setBoardName}
+                        isPrivate={boardIsPrivate}
+                        onPrivacyChange={setBoardIsPrivate}
+                        canManage={canManage}
+                        selectedMemberCount={boardMemberUserIds.length}
+                        totalProjectMembersCount={projectMembers.length}
+                        projectMembers={projectMembers.map((m) => ({
+                          id: m.userId,
+                          userId: m.userId,
+                          role: m.role,
+                          name: m.user.name,
+                          email: m.user.email,
+                          avatar: m.user.avatar
+                        }))}
+                        filteredMembers={filteredBoardMembers.map((m) => ({
+                          id: m.userId,
+                          userId: m.userId,
+                          role: m.role,
+                          name: m.user.name,
+                          email: m.user.email,
+                          avatar: m.user.avatar
+                        }))}
+                        selectedMemberIds={boardMemberUserIds}
+                        memberSearchQuery={boardMemberSearchQuery}
+                        onSearchChange={setBoardMemberSearchQuery}
+                        onToggleMember={(userId) => {
+                          setBoardMemberUserIds((prev) =>
+                            prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+                          );
+                        }}
+                        onSelectAll={() => setBoardMemberUserIds(projectMembers.map((m) => m.userId))}
+                        onClearAll={() => setBoardMemberUserIds([])}
+                      />
+
+                      <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200 dark:border-white/10">
+                        <Button
+                          type="button"
+                          variant="primary"
+                          size="sm"
+                          disabled={!canManage || isSavingBoard || !boardName.trim()}
+                          onClick={() => handleSaveBoardGeneral()}
+                          className="font-semibold shadow-xs"
+                        >
+                          {isSavingBoard ? "กำลังบันทึก..." : "บันทึกการตั้งค่าบอร์ด (Save Changes)"}
+                        </Button>
+                      </div>
+                    </section>
+
+                    {/* Danger Zone */}
+                    {canManage && (
+                      <section className="lofi-panel rounded-2xl p-5 border border-red-200 bg-red-50/20 dark:border-red-500/20 dark:bg-red-500/[0.03]">
+                        <BoardDangerTab
+                          boardName={boardName || activeBoard?.name || "บอร์ดนี้"}
+                          canManage={canManage && boardsList.length > 1}
+                          isDeleting={isDeletingBoard}
+                          onDeleteClick={() => setDeleteConfirmOpen(true)}
+                        />
+                      </section>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-6 text-center text-xs text-stone-500 dark:border-white/10 dark:bg-white/[0.02]">
+                    ยังไม่มีบอร์ดในโปรเจกต์นี้
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB: Board Columns & Workflow */}
+            {(activeTab === "board-columns" || activeTab === "all") && (
+              <div className="space-y-4">
+                {activeTab === "all" && (
+                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
+                    <Layers className="h-4 w-4 text-purple-600 dark:text-dusk-lavender" />
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
+                      5. ขั้นตอนงานและคอลัมน์ (Columns & Workflow)
+                    </h2>
+                  </div>
+                )}
+
+                {/* Active Board Selector Banner */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.03] shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-purple-200 bg-purple-50 text-purple-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
+                      <Layers className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-dusk-amber">
+                        Workflow Stage Columns
+                      </span>
+                      <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
+                        {boardName || activeBoard?.name || "Select Board"}
+                      </h2>
+                    </div>
+                  </div>
+
+                  {boardsList.length > 1 && (
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">เลือกบอร์ด:</span>
+                      <select
+                        value={selectedBoardId}
+                        onChange={(e) => {
+                          const nextId = e.target.value;
+                          setSelectedBoardId(nextId);
+                          if (typeof window !== "undefined") {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set("boardId", nextId);
+                            window.history.replaceState(null, "", url.toString());
+                          }
+                        }}
+                        className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-bold text-stone-800 shadow-xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer"
+                      >
+                        {boardsList.map((b) => (
+                          <option key={b.id} value={b.id}>
+                            {b.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {selectedBoardId ? (
+                  <section className="lofi-panel rounded-2xl p-5 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02]">
+                    <BoardColumnsTab
+                      columns={boardColumns}
+                      totalCards={boardColumns.reduce((acc, c) => acc + (c.cardCount ?? 0), 0)}
+                      projectId={projectId}
+                      boardId={selectedBoardId}
+                    />
+                  </section>
+                ) : (
+                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-6 text-center text-xs text-stone-500 dark:border-white/10 dark:bg-white/[0.02]">
+                    ยังไม่มีบอร์ดในโปรเจกต์นี้
+                  </div>
+                )}
               </div>
             )}
 
@@ -614,7 +978,7 @@ export function ProjectSettingsClient({
                   <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
                     <CheckSquare className="h-4 w-4 text-teal-600 dark:text-dusk-cyan" />
                     <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                      4. สถานะและแอตทริบิวต์การ์ด (Card Attributes & Types)
+                      6. สถานะและแอตทริบิวต์การ์ด (Card Attributes & Types)
                     </h2>
                   </div>
                 )}
@@ -940,6 +1304,19 @@ export function ProjectSettingsClient({
           </main>
         </div>
       </div>
+
+      <ConfirmModal
+        open={deleteConfirmOpen}
+        title={`ลบบอร์ด "${boardName || activeBoard?.name || ""}"`}
+        description="คุณแน่ใจหรือไม่ว่าต้องการลบบอร์ดนี้อย่างถาวร? การ์ดและขั้นตอนงานทั้งหมดในบอร์ดนี้จะถูกลบและไม่สามารถกู้คืนได้"
+        confirmLabel="ลบบอร์ดถาวร"
+        cancelLabel="ยกเลิก"
+        variant="danger"
+        isDestructive
+        isLoading={isDeletingBoard}
+        onConfirm={handleDeleteBoard}
+        onCancel={() => setDeleteConfirmOpen(false)}
+      />
     </div>
   );
 }

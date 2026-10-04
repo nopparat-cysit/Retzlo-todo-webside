@@ -65,6 +65,16 @@ describe("ProjectSettingsClient Jira-style Master-Detail Architecture", () => {
     expect(source).toContain("onPrioritiesChange={handlePrioritiesChange}");
   });
 
+  it("integrates dedicated Jira-style Board General, Columns, and Danger tabs with active board switcher", () => {
+    expect(source).toContain('"board-general"');
+    expect(source).toContain('"board-columns"');
+    expect(source).toContain("<BoardGeneralTab");
+    expect(source).toContain("<BoardColumnsTab");
+    expect(source).toContain("<BoardDangerTab");
+    expect(source).toContain("onConfigureBoard={handleOpenBoardConfig}");
+    expect(source).toContain("Active Board");
+  });
+
   it("verifies card-modal.tsx + button links to project settings attributes tab", () => {
     const cardModalSource = readFileSync(
       join(process.cwd(), "src/components/kanban/card-modal.tsx"),

@@ -384,7 +384,7 @@ export function BoardSidebarDropdown({
                         {/* 4. Settings -> ไปหน้า Settings ของบอร์ดนั้นทันที */}
                         <DropdownMenuItem
                           onClick={() => {
-                            router.push(`/project/${projectId}/settings?boardId=${encodeURIComponent(b.id)}`);
+                            router.push(`/project/${projectId}/settings?tab=board-general&boardId=${encodeURIComponent(b.id)}`);
                           }}
                           className="cursor-pointer text-xs font-medium text-stone-100"
                         >

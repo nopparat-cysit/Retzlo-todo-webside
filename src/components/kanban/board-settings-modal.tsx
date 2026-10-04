@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState, useMemo, useRef } from "react";
-import { AlertTriangle, Layers, Lock, Settings, Sparkles, X, Zap } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, ExternalLink, Layers, Lock, Settings, Sparkles, X, Zap } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -335,7 +336,7 @@ export function BoardSettingsModal({
         open={open}
         onClose={onClose}
         labelledBy="board-settings-title"
-        contentClassName="max-w-3xl"
+        contentClassName="max-w-4xl w-full"
         hasUnsavedChanges={isDirty}
       >
         <form className="lofi-panel w-full rounded-2xl p-5 sm:p-6" onSubmit={handleSaveIntent}>
@@ -367,112 +368,167 @@ export function BoardSettingsModal({
               </div>
             </div>
 
-            <button
-              className="rounded-md p-1.5 text-stone-500 hover:bg-stone-100 hover:text-stone-900 transition dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer"
-              type="button"
-              onClick={onClose}
-              aria-label="Close board settings"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              {projectId && (
+                <Link
+                  href={`/project/${projectId}/settings?tab=board-general&boardId=${boardId}`}
+                  onClick={onClose}
+                  className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline dark:text-dusk-lavender mr-1"
+                >
+                  <span>เปิดหน้า Settings เต็มจอ ↗</span>
+                </Link>
+              )}
+              <button
+                className="rounded-md p-1.5 text-stone-500 hover:bg-stone-100 hover:text-stone-900 transition dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer"
+                type="button"
+                onClick={onClose}
+                aria-label="Close board settings"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-4 w-full bg-stone-100/70 border border-stone-200/60 p-1 rounded-xl dark:border-white/5 dark:bg-white/[0.02]">
-              <TabsTrigger value="general" className="text-xs py-2 font-medium">
-                ⚙️ ทั่วไป & สิทธิ์
-                {isPrivate && (
-                  <span className="ml-1.5 rounded-full bg-dusk-amber/20 px-1.5 text-[10px] font-mono text-dusk-amber font-semibold">
-                    {selectedMemberIds.length}
+          {/* Jira-style Master-Detail Layout */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col md:flex-row gap-5 items-start">
+            {/* Left Sidebar */}
+            <aside className="w-full md:w-56 shrink-0 space-y-3">
+              <div className="hidden md:block px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
+                Board Settings
+              </div>
+              <TabsList className="flex flex-row md:flex-col w-full bg-stone-100/70 border border-stone-200/60 p-1.5 rounded-xl dark:border-white/5 dark:bg-white/[0.02] gap-1 h-auto overflow-x-auto md:overflow-visible">
+                <TabsTrigger
+                  value="general"
+                  className="w-full justify-start text-xs py-2 px-3 font-medium transition cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>⚙️</span>
+                    <span>ทั่วไป &amp; สิทธิ์</span>
                   </span>
-                )}
-              </TabsTrigger>
+                  {isPrivate && (
+                    <span className="ml-auto rounded-full bg-dusk-amber/20 px-1.5 text-[10px] font-mono text-dusk-amber font-semibold">
+                      {selectedMemberIds.length}
+                    </span>
+                  )}
+                </TabsTrigger>
 
-              <TabsTrigger value="attributes" className="text-xs py-2 font-medium">
-                🏷️ คุณสมบัติการ์ด
-                <span className="ml-1.5 rounded-full bg-indigo-500/15 px-1.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-semibold">
-                  {priorities.length}
-                </span>
-              </TabsTrigger>
+                <TabsTrigger
+                  value="columns"
+                  className="w-full justify-start text-xs py-2 px-3 font-medium transition cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>📋</span>
+                    <span>ขั้นตอนงาน</span>
+                  </span>
+                  <span className="ml-auto rounded-full bg-stone-200/80 px-1.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-stone-300 font-semibold">
+                    {columns.length}
+                  </span>
+                </TabsTrigger>
 
-              <TabsTrigger value="columns" className="text-xs py-2 font-medium">
-                📋 ขั้นตอนงาน
-                <span className="ml-1.5 rounded-full bg-stone-200/80 px-1.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-stone-300 font-semibold">
-                  {columns.length}
-                </span>
-              </TabsTrigger>
+                <TabsTrigger
+                  value="attributes"
+                  className="w-full justify-start text-xs py-2 px-3 font-medium transition cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>🏷️</span>
+                    <span>คุณสมบัติการ์ด</span>
+                  </span>
+                  <span className="ml-auto rounded-full bg-indigo-500/15 px-1.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-semibold">
+                    {priorities.length}
+                  </span>
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="danger"
-                className="text-xs py-2 font-medium text-red-500 hover:text-red-600 data-[state=active]:text-red-700 data-[state=active]:bg-red-50 dark:text-red-400 dark:data-[state=active]:text-red-300 dark:data-[state=active]:bg-red-400/15"
-              >
-                ⚠️ จัดการบอร์ด
-              </TabsTrigger>
-            </TabsList>
+                <TabsTrigger
+                  value="danger"
+                  className="w-full justify-start text-xs py-2 px-3 font-medium text-red-500 hover:text-red-600 data-[state=active]:text-red-700 data-[state=active]:bg-red-50 dark:text-red-400 dark:data-[state=active]:text-red-300 dark:data-[state=active]:bg-red-400/15 transition cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>จัดการบอร์ด</span>
+                  </span>
+                </TabsTrigger>
+              </TabsList>
 
-            {/* TAB 1: General & Access */}
-            <TabsContent value="general">
-              <BoardGeneralTab
-                name={name}
-                onNameChange={setName}
-                isPrivate={isPrivate}
-                onPrivacyChange={setIsPrivate}
-                canManage={canManage}
-                selectedMemberCount={selectedMemberIds.length}
-                totalProjectMembersCount={projectMembers.length}
-                projectMembers={projectMembers}
-                filteredMembers={filteredMembers}
-                selectedMemberIds={selectedMemberIds}
-                memberSearchQuery={memberSearchQuery}
-                onSearchChange={setMemberSearchQuery}
-                onToggleMember={toggleMember}
-                onSelectAll={selectAllMembers}
-                onClearAll={clearAllMembers}
-              />
-            </TabsContent>
+              {/* Link to Full Page Settings */}
+              {projectId && (
+                <div className="hidden md:block pt-2 border-t border-stone-200/70 dark:border-white/5">
+                  <Link
+                    href={`/project/${projectId}/settings?tab=board-general&boardId=${boardId}`}
+                    onClick={onClose}
+                    className="flex items-center gap-1.5 px-2 py-1.5 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-dusk-lavender dark:hover:text-white transition group"
+                  >
+                    <span>เปิดหน้าเต็มจอ (Jira Style)</span>
+                    <ExternalLink className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </div>
+              )}
+            </aside>
 
-            {/* TAB 2: Card Attributes (Status, Priority, Story Points) */}
-            <TabsContent value="attributes">
-              <BoardAttributesTab
-                boardId={boardId}
-                canManage={canManage}
-                priorities={priorities}
-                onPrioritiesChange={setPriorities}
-                initialSubTab={attributeSubTab}
-              />
-            </TabsContent>
+            {/* Right Content Pane */}
+            <div className="flex-1 min-w-0 w-full space-y-4">
+              {/* TAB 1: General & Access */}
+              <TabsContent value="general" className="mt-0">
+                <BoardGeneralTab
+                  name={name}
+                  onNameChange={setName}
+                  isPrivate={isPrivate}
+                  onPrivacyChange={setIsPrivate}
+                  canManage={canManage}
+                  selectedMemberCount={selectedMemberIds.length}
+                  totalProjectMembersCount={projectMembers.length}
+                  projectMembers={projectMembers}
+                  filteredMembers={filteredMembers}
+                  selectedMemberIds={selectedMemberIds}
+                  memberSearchQuery={memberSearchQuery}
+                  onSearchChange={setMemberSearchQuery}
+                  onToggleMember={toggleMember}
+                  onSelectAll={selectAllMembers}
+                  onClearAll={clearAllMembers}
+                />
+              </TabsContent>
 
-            {/* Backward-compat alias for direct priorities tab */}
-            <TabsContent value="priorities">
-              <BoardAttributesTab
-                boardId={boardId}
-                canManage={canManage}
-                priorities={priorities}
-                onPrioritiesChange={setPriorities}
-                initialSubTab="priority"
-              />
-            </TabsContent>
+              {/* TAB 2: Card Attributes (Status, Priority, Story Points) */}
+              <TabsContent value="attributes" className="mt-0">
+                <BoardAttributesTab
+                  boardId={boardId}
+                  canManage={canManage}
+                  priorities={priorities}
+                  onPrioritiesChange={setPriorities}
+                  initialSubTab={attributeSubTab}
+                />
+              </TabsContent>
 
-            {/* TAB 3: Workflow Stages */}
-            <TabsContent value="columns">
-              <BoardColumnsTab
-                columns={columns}
-                totalCards={totalCards}
-                projectId={projectId}
-                boardId={boardId}
-              />
-            </TabsContent>
+              {/* Backward-compat alias for direct priorities tab */}
+              <TabsContent value="priorities" className="mt-0">
+                <BoardAttributesTab
+                  boardId={boardId}
+                  canManage={canManage}
+                  priorities={priorities}
+                  onPrioritiesChange={setPriorities}
+                  initialSubTab="priority"
+                />
+              </TabsContent>
 
-            {/* TAB 4: Danger Zone */}
-            <TabsContent value="danger">
-              <BoardDangerTab
-                boardName={boardName}
-                canManage={canManage}
-                isDeleting={isDeleting}
-                onDeleteClick={() => setDeleteConfirmOpen(true)}
-              />
-            </TabsContent>
+              {/* TAB 3: Workflow Stages */}
+              <TabsContent value="columns" className="mt-0">
+                <BoardColumnsTab
+                  columns={columns}
+                  totalCards={totalCards}
+                  projectId={projectId}
+                  boardId={boardId}
+                />
+              </TabsContent>
+
+              {/* TAB 4: Danger Zone */}
+              <TabsContent value="danger" className="mt-0">
+                <BoardDangerTab
+                  boardName={boardName}
+                  canManage={canManage}
+                  isDeleting={isDeleting}
+                  onDeleteClick={() => setDeleteConfirmOpen(true)}
+                />
+              </TabsContent>
+            </div>
           </Tabs>
 
           {error ? <p className="mt-3 text-xs text-red-500 dark:text-red-400">{error}</p> : null}

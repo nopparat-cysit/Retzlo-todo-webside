@@ -34,13 +34,15 @@ interface ProjectBoardsManagerProps {
   canManage: boolean;
   initialBoards: BoardSummary[];
   projectMembers: ProjectMemberInfo[];
+  onConfigureBoard?: (boardId: string, subTab?: "general" | "columns" | "attributes") => void;
 }
 
 export function ProjectBoardsManager({
   projectId,
   canManage,
   initialBoards,
-  projectMembers
+  projectMembers,
+  onConfigureBoard
 }: ProjectBoardsManagerProps) {
   const [boards, setBoards] = useState<BoardSummary[]>(initialBoards);
   const { toast } = useToast();
@@ -521,7 +523,13 @@ export function ProjectBoardsManager({
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        onClick={() => setDetailedSettingsBoard(b)}
+                        onClick={() => {
+                          if (onConfigureBoard) {
+                            onConfigureBoard(b.id, "general");
+                          } else {
+                            setDetailedSettingsBoard(b);
+                          }
+                        }}
                         className="flex h-7.5 items-center gap-1.5 rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 text-xs font-semibold text-dusk-amber transition hover:bg-dusk-amber/20 cursor-pointer"
                         title="ตั้งค่าบอร์ด สิทธิ์สมาชิก และระดับความสำคัญ"
                       >
@@ -544,9 +552,13 @@ export function ProjectBoardsManager({
                       <button
                         type="button"
                         onClick={() => {
-                          setAccessBoard(b);
-                          setAccessIsPrivate(b.isPrivate);
-                          setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
+                          if (onConfigureBoard) {
+                            onConfigureBoard(b.id, "general");
+                          } else {
+                            setAccessBoard(b);
+                            setAccessIsPrivate(b.isPrivate);
+                            setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
+                          }
                         }}
                         className="grid h-7.5 w-7.5 place-items-center rounded-lg border border-white/10 text-stone-400 transition hover:bg-white/10 hover:text-stone-200 cursor-pointer"
                         title="กำหนดสิทธิ์สมาชิก (Access)"
@@ -639,7 +651,13 @@ export function ProjectBoardsManager({
                           <>
                             <button
                               type="button"
-                              onClick={() => setDetailedSettingsBoard(b)}
+                              onClick={() => {
+                                if (onConfigureBoard) {
+                                  onConfigureBoard(b.id, "general");
+                                } else {
+                                  setDetailedSettingsBoard(b);
+                                }
+                              }}
                               className="rounded px-2 py-1 text-[11px] font-medium text-dusk-amber hover:bg-dusk-amber/10 transition cursor-pointer"
                             >
                               Settings
@@ -647,9 +665,13 @@ export function ProjectBoardsManager({
                             <button
                               type="button"
                               onClick={() => {
-                                setAccessBoard(b);
-                                setAccessIsPrivate(b.isPrivate);
-                                setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
+                                if (onConfigureBoard) {
+                                  onConfigureBoard(b.id, "general");
+                                } else {
+                                  setAccessBoard(b);
+                                  setAccessIsPrivate(b.isPrivate);
+                                  setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
+                                }
                               }}
                               className="rounded px-2 py-1 text-[11px] font-medium text-dusk-lavender hover:bg-dusk-lavender/10 transition cursor-pointer"
                             >

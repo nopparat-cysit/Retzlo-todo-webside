@@ -151,9 +151,11 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
     1. **General (ทั่วไป):**
        - **Details & Identity (`identity`):** ปรับแก้ชื่อ คำอธิบาย และอัปโหลดภาพปกโปรเจกต์
        - **Access & Team (`access`):** ดูรายชื่อสมาชิกในทีม บทบาท Owner/Member พร้อมปุ่มเชื่อมต่อไปยังหน้าจัดการสมาชิกและส่งคำเชิญ (`/members`)
-    2. **Workflow (เวิร์กโฟลว์):**
-       - **Boards & Sub-projects (`boards`):** จัดการกระดานงานทั้งหมดในโปรเจกต์ สร้างบอร์ดใหม่ กำหนดสิทธิ์รายบอร์ด และปุ่มเข้าสู่บอร์ด
-       - **Card Attributes & Types (`attributes`):** ดูวงจรชีวิตสถานะงาน (TODO, DOING, WAITING, DONE), ตารางลำดับความสำคัญ (P0–P4), และชุดการประเมิน Story Points (Fibonacci, T-Shirt, Linear) พร้อมปุ่มเปิดบอร์ดเพื่อปรับแต่งคอลัมน์
+    2. **Workflow (เวิร์กโฟลว์ & บอร์ด):**
+       - **Boards & Sub-projects (`boards`):** จัดการกระดานงานทั้งหมดในโปรเจกต์ สร้างบอร์ดใหม่ และภาพรวมงาน
+       - **Board Details & Access (`board-general`):** ตั้งค่าชื่อบอร์ด ความเป็นส่วนตัว (Public/Private) และสิทธิ์สมาชิกรายบอร์ด พร้อมปุ่มลบบอร์ดใน Danger Zone โดยไม่ต้องเปิดป๊อปอัปบังหน้าจอ
+       - **Columns & Workflow (`board-columns`):** ตรวจสอบขั้นตอนงานคอลัมน์, WIP Limits, ค่าสถานะเริ่มต้น และจำนวนงาน
+       - **Card Attributes & Types (`attributes`):** ดูวงจรชีวิตสถานะงาน (TODO, DOING, WAITING, DONE), ปรับแต่ง 10 ระดับความสำคัญ (Custom Priorities), และชุดการประเมิน Story Points
     3. **System & Privacy (ระบบ & ความเป็นส่วนตัว):**
        - **Features & Privacy (`features`):** เปิด/ปิดแถบ Quick Notes, สิทธิ์สร้างไอเทมส่วนตัวของสมาชิก, และ Danger Zone สำหรับการลบโปรเจกต์
        - **Preferences & Theme (`preferences`):** ปรับแต่งโหมดธีมของ Retzlo (Retro Lofi Dark / Warm Light / System) และระบบเสียงตอบสนองเฉพาะเครื่อง
@@ -162,10 +164,10 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - **Active State Indicator:** แสดงแถบไฮไลท์สีม่วงลาเวนเดอร์และแถบ Accent Line ที่ขอบซ้ายชัดเจนตามมาตรฐานสากล
   - **Mobile Responsive Adaptive:** บนหน้าจอมือถือและแท็บเล็ต (`< lg`) แถบนำทางด้านซ้ายจะพับเป็นแถบแท็บแนวนอนเลื่อนได้ (Horizontal Scrollable Pills) โดยอัตโนมัติ
   - **URL Query Param Synchronization:** ซิงค์สถานะแท็บกับ URL query parameter `?tab=...` เสมอ ทำให้สามารถแชร์ลิงก์ตรงไปยังแต่ละหมวดการตั้งค่าได้ทันที
-- **หน้าต่างตั้งค่าบอร์ดที่กระชับและใช้งานง่าย (Board Settings Modal):**
-  - รวมแท็บ General และ Member Access เข้าด้วยกัน เพื่อให้การเลือกโหมด Private แสดงรายชื่อสมาชิกพร้อมช่องค้นหา รูปโปรไฟล์ และปุ่มเลือกทั้งหมด/ล้างทั้งหมดได้ทันทีในหน้าเดียว
-  - บูรณาการแท็บ **คุณสมบัติการ์ด (Attributes)** ให้ปรับแต่งสถานะ ความสำคัญ และ Story Points ได้อย่างครบถ้วนในที่เดียว
-  - บันทึกการเปลี่ยนแปลงได้ทันทีโดยไม่ต้องผ่าน Confirm Modal ซ้ำซ้อน พร้อมแสดง Toast แจ้งเตือนความสำเร็จ
+- **หน้าต่างตั้งค่าบอร์ดสไตล์ Jira (Jira Master-Detail Board Settings):**
+  - ไม่เปิดป๊อปอัปบังหน้าจอเมื่อกด Settings จากหน้ารวมบอร์ด แต่สลับเข้าสู่หน้าการตั้งค่าบอร์ดเต็มจอแบบ Jira ทันที
+  - กล่องโมดอล `BoardSettingsModal` ได้รับการปรับปรุงเป็นโครงสร้าง Master-Detail แถบซ้ายแนวตั้งสไตล์ Jira (ทั่วไป & สิทธิ์, ขั้นตอนงาน, คุณสมบัติการ์ด, จัดการบอร์ด) พร้อมลิงก์ "เปิดหน้าเต็มจอ (Jira Style)"
+  - บันทึกการเปลี่ยนแปลงได้ทันทีพร้อมแสดง Toast แจ้งเตือนความสำเร็จ และระบบยืนยันความปลอดภัยด้วย ConfirmModal เมื่อลบบอร์ด
 ### 2.12 ศูนย์รวมเอกสารและคู่มือระบบ (Documentation & Help Hub - `/help`)
 - **สถาปัตยกรรมเว็บไซต์ Documentation สมัยใหม่ (Modern Docs Architecture):**
   - **Left Navigation Sidebar (Docs Tree):** แถบสารบัญด้านซ้ายแบ่งเป็น 10 หมวดหมู่ พร้อมตัวนับจำนวนบทความ ไอคอนประจำหมวด และป้ายกำกับ (Getting Started, AI Powered, Core Workflow, New Feature, Export, Customization, Updated) มีตัวระบุสถานะ Active Indicator ชัดเจน

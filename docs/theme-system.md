@@ -475,6 +475,17 @@ Template:
   - ผู้ใช้สามารถเพิ่ม/แก้ไขสถานะการ์ด, ปรับระดับความสำคัญ 10 ระดับ, และเลือก/ปรับแต่ง Story Points ได้อย่างสมบูรณ์แบบในหน้าเดียว
 - Reviewed: ตรวจสอบความถูกต้องทั้งธีม Dark และ Light, Vitest ผ่าน 22/22 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
 
+### 2026-10-04 — ยกระดับการตั้งค่าบอร์ดเป็นสไตล์ Jira เต็มรูปแบบ ปราศจากโมดอลซ้อน (Jira Master-Detail Board Settings Integration)
+- Added/changed: `src/components/project/project-settings-client.tsx`, `src/components/project/project-boards-manager.tsx`, `src/components/kanban/board-settings-modal.tsx`, `src/components/kanban/board-sidebar-dropdown.tsx`, `src/components/project/project-settings-client.test.ts`.
+- Tokens/variants:
+  - ยกเลิกการเปิดป๊อปอัปโมดอล `BoardSettingsModal` ซ้อนทับหน้าตั้งค่าโปรเจกต์ (`/project/[id]/settings?tab=boards`) เมื่อผู้ใช้คลิกปุ่ม Settings หรือ Access บนการ์ดบอร์ด ให้เปลี่ยนเป็นการสลับเข้าสู่หน้าการตั้งค่าบอร์ดเต็มจอในเลย์เอาต์ Master-Detail แถบซ้ายสไตล์ Jira ทันที
+  - เพิ่มแท็บหลักในแถบเมนู Workflow & Boards:
+    - **Board Details & Access (`board-general`):** ปรับชื่อบอร์ด, สลับความเป็นส่วนตัว (Public / Private), จัดการสิทธิ์สมาชิกในบอร์ดพร้อมช่องค้นหาและปุ่มเลือกทั้งหมด, บันทึกการตั้งค่าพร้อมแจ้งเตือน Toast, และ Danger Zone ลบบอร์ดพร้อม ConfirmModal
+    - **Columns & Workflow (`board-columns`):** ดูขั้นตอนงานคอลัมน์, WIP Limits, ค่าสถานะเริ่มต้น, จำนวนการ์ด และปุ่มเปิดหน้ากระดาน Kanban
+    - **Card Attributes & Types (`attributes`):** ปรับแต่งสถานะคอลัมน์, 10 ระดับความสำคัญ (Custom Priorities), และระดับ Story Points
+  - เพิ่มแถบ **Active Board Selector Banner** ด้านบน พร้อมดรอปดาวน์สลับบอร์ดที่ต้องการตั้งค่าได้สะดวกรวดเร็ว
+  - ปรับปรุงเลย์เอาต์ของ `BoardSettingsModal` (กรณีเปิดจากที่อื่น) จากเดิมที่มีแท็บแนวนอน ให้กลายเป็น **Jira Master-Detail Left Sidebar Dialog** ขนาดใหญ่ กว้าง 4xl พร้อมปุ่มลัด "เปิดหน้า Settings เต็มจอ (Jira Style)"
+- Reviewed: Vitest 21/21 tests ผ่านฉลุย, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100% (38/38 static pages).
 
 
 

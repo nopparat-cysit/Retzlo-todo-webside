@@ -363,7 +363,9 @@ export const TOPICS: GuideTopic[] = [
     highlights: [
       "เลย์เอาต์ Master-Detail สไตล์ Jira: แถบซ้ายแสดงการ์ดอัตลักษณ์ Space Identity, ปุ่มลัดกลับสู่บอร์ด (Back to board), และเมนูนำทางแยกหมวดหมู่อย่างเป็นระเบียบ",
       "หมวด General (ข้อมูล & สมาชิก): แท็บ Details & Identity สำหรับชื่อ/ภาพปก และแท็บ Access & Team ดูรายชื่อผู้มีสิทธิ์เข้าถึงพร้อมปุ่มเชื่อมต่อไปยังหน้าจัดการสมาชิก",
-      "หมวด Workflow (บอร์ด & คุณสมบัติการ์ด): แท็บ Boards & Sub-projects จัดการกระดานทั้งหมด และแท็บ Card Attributes แสดงสถานะ (TODO/DOING/WAITING/DONE), Priority Matrix (P0-P4), และ Story Points",
+      "หมวด Workflow (บอร์ด & ขั้นตอนงาน): แท็บ Boards & Sub-projects, แท็บ Board Details & Access (ชื่อ/สิทธิ์ความเป็นส่วนตัว/สมาชิก), แท็บ Columns & Workflow (คอลัมน์และ WIP limit), และแท็บ Card Attributes & Types (สถานะ/Priorities 10 ระดับ/Story points)",
+      "ไม่เปิดป๊อปอัปซ้อนอีกต่อไป: การกด Settings จากบอร์ดใดๆ จะสลับสู่หน้าการตั้งค่าบอร์ดในแท็บหลักแบบ Jira ทันที พร้อมสวิตช์เลือกบอร์ดที่ต้องการปรับแต่ง",
+      "Jira Sidebar Layout สำหรับ Modal: หน้าต่าง BoardSettingsModal ได้รับการปรับปรุงเป็น Master-Detail แถบข้างซ้ายพร้อมปุ่ม 'เปิดหน้าเต็มจอ (Jira Style)'",
       "หมวด System & Privacy (ฟีเจอร์ & ความเป็นส่วนตัว): เปิด/ปิดแถบบันทึกโน้ต, กำหนดสิทธิ์ไอเทมส่วนตัวของสมาชิก, และ Danger Zone สำหรับลบโปรเจกต์",
       "หมวด Overview (All Settings): แสดงการตั้งค่าทุกหมวดหมู่แบบรวมศูนย์ในหน้าเดียว",
       "Responsive Adaptive: บนหน้าจอมือถือและแท็บเล็ต แถบนำทางจะพับเป็นแถบแท็บแนวนอนเลื่อนได้ (Scrollable Pills) โดยอัตโนมัติ ไม่เปลืองพื้นที่หน้าจอ",
