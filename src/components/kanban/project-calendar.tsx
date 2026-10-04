@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, SlidersHorizontal, X } from "lucide-react";
+import { BookOpen, CalendarDays, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, RotateCcw, SlidersHorizontal, X } from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { CardModal } from "@/components/kanban/card-modal";
@@ -241,6 +241,51 @@ export function ProjectCalendar({
     ? formatMediumDate(new Date(selectedDayKey + "T00:00:00.000Z"))
     : "";
 
+  const fullDateTitle = useMemo(() => {
+    if (!selectedDayKey) return "";
+    try {
+      const parts = selectedDayKey.split("-");
+      if (parts.length >= 3) {
+        const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        return d.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+          year: "numeric"
+        });
+      }
+      return selectedDateLabel;
+    } catch {
+      return selectedDateLabel;
+    }
+  }, [selectedDayKey, selectedDateLabel]);
+
+  const dayStats = useMemo(() => {
+    if (!selectedDayKey) return { total: 0, completed: 0, pending: 0, percent: 0, tasks: 0, notes: 0, diaries: 0 };
+    const all = groups[selectedDayKey] ?? [];
+    let completed = 0;
+    let tasks = 0;
+    let notes = 0;
+    let diaries = 0;
+
+    for (const item of all) {
+      if (item.type === "card") {
+        tasks++;
+        if (item.status === "DONE") completed++;
+      } else if (item.type === "diary_checklist") {
+        diaries++;
+        if (item.completed) completed++;
+      } else if (item.type === "note") {
+        notes++;
+        if ((item as any).completedAt) completed++;
+      }
+    }
+    const total = all.length;
+    const pending = total - completed;
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { total, completed, pending, percent, tasks, notes, diaries };
+  }, [selectedDayKey, groups]);
+
   const selectedDayItems = useMemo(() => {
     if (!selectedDayKey) return [];
     const items = groups[selectedDayKey] ?? [];
@@ -427,6 +472,37 @@ export function ProjectCalendar({
     } else {
       const data = await response.json().catch(() => ({}));
       toast({ message: data.error ?? "Could not delete card.", type: "error" });
+    }
+  }
+
+  async function handleToggleCardStatus(card: CalendarCard) {
+    const newStatus = card.status === "DONE" ? "TODO" : "DONE";
+    setCards((current) =>
+      current.map((c) => (c.id === card.id ? { ...c, status: newStatus as any } : c))
+    );
+    try {
+      const res = await fetch("/api/cards", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cardId: card.id,
+          status: newStatus
+        })
+      });
+      if (res.ok) {
+        toast({ message: `Card marked as ${newStatus === "DONE" ? "done" : "to-do"}.`, type: "success" });
+        broadcastChange();
+      } else {
+        setCards((current) =>
+          current.map((c) => (c.id === card.id ? { ...c, status: card.status } : c))
+        );
+        toast({ message: "Failed to update card status.", type: "error" });
+      }
+    } catch {
+      setCards((current) =>
+        current.map((c) => (c.id === card.id ? { ...c, status: card.status } : c))
+      );
+      toast({ message: "Failed to update card status.", type: "error" });
     }
   }
 
@@ -880,148 +956,272 @@ export function ProjectCalendar({
           open
           onClose={() => setSelectedDayKey(null)}
           labelledBy="calendar-day-title"
-          contentClassName="lofi-panel flex max-h-[calc(100vh-2rem)] max-w-2xl flex-col overflow-hidden rounded-2xl"
+          contentClassName="lofi-panel flex max-h-[calc(100vh-2.5rem)] max-w-2xl w-full flex-col overflow-hidden rounded-2xl border border-white/10 shadow-2xl"
         >
-              <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Day View</p>
-                  <h2 id="calendar-day-title" className="mt-1 text-2xl font-semibold">Items on {selectedDateLabel}</h2>
-                </div>
-                <button
-                  className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100"
-                  type="button"
-                  onClick={() => setSelectedDayKey(null)}
-                >
-                  <X className="h-5 w-5" />
-                </button>
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5 bg-gradient-to-r from-white/[0.03] to-transparent">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-sm shadow-dusk-lavender/10">
+                <CalendarDays className="h-5 w-5" />
               </div>
-
-              {/* Filters & Sorting controls */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.015] px-5 py-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  {/* Type Filter */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-stone-500 uppercase tracking-wide">Type:</span>
-                    <FilterSelect
-                      triggerClassName="h-8"
-                      value={dayTypeFilter}
-                      options={[
-                        { value: "all", label: "All" },
-                        { value: "tasks", label: "Tasks" },
-                        { value: "notes", label: "Notes" },
-                        { value: "diaries", label: "Diaries" }
-                      ]}
-                      onValueChange={setDayTypeFilter}
-                    />
-                  </div>
-
-                  {/* Status Filter */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-stone-500 uppercase tracking-wide">Status:</span>
-                    <FilterSelect
-                      triggerClassName="h-8"
-                      value={dayStatusFilter}
-                      options={[
-                        { value: "all", label: "All" },
-                        { value: "pending", label: "Pending" },
-                        { value: "done", label: "Done" }
-                      ]}
-                      onValueChange={setDayStatusFilter}
-                    />
-                  </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-dusk-amber">
+                    Day Overview
+                  </span>
+                  {selectedDayKey === todayKey && (
+                    <span className="rounded-full bg-dusk-amber/20 border border-dusk-amber/40 px-2 py-0.5 text-[10px] font-bold text-dusk-amber">
+                      Today
+                    </span>
+                  )}
                 </div>
-
-                {/* Sort control */}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-stone-500 uppercase tracking-wide">Sort:</span>
-                  <FilterSelect
-                    triggerClassName="h-8"
-                    value={daySortBy}
-                    options={[
-                      { value: "time", label: "Time" },
-                      { value: "title", label: "Title" },
-                      { value: "priority", label: "Priority" }
-                    ]}
-                    onValueChange={setDaySortBy}
-                  />
-                </div>
+                <h2 id="calendar-day-title" className="mt-0.5 text-xl sm:text-2xl font-bold tracking-tight text-stone-100 truncate">
+                  {fullDateTitle}
+                </h2>
               </div>
+            </div>
+            <button
+              className="rounded-xl border border-white/10 bg-white/5 p-2 text-stone-400 transition hover:border-white/20 hover:bg-white/10 hover:text-stone-100 cursor-pointer shrink-0"
+              type="button"
+              onClick={() => setSelectedDayKey(null)}
+              aria-label="Close day view"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-              {/* Main List */}
-              <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5">
-                {selectedDayItems.length === 0 ? (
-                  <EmptyState
-                    className="border-dashed bg-white/[0.01] py-12"
-                    title="No day matches"
-                    message="This day has no visible cards, notes, or diary checklist items for the current filters."
-                  />
+          {/* Progress & Summary Bar */}
+          {dayStats.total > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-black/25 px-6 py-2.5">
+              <div className="flex items-center gap-2.5 text-xs">
+                <span className="font-semibold text-stone-300">
+                  {dayStats.total} {dayStats.total === 1 ? "item" : "items"}
+                </span>
+                <span className="text-stone-600">•</span>
+                <span className={cn("font-medium", dayStats.completed === dayStats.total && dayStats.total > 0 ? "text-emerald-400 font-semibold" : "text-stone-400")}>
+                  {dayStats.completed} completed
+                </span>
+                {dayStats.pending > 0 ? (
+                  <>
+                    <span className="text-stone-600">•</span>
+                    <span className="text-dusk-amber font-medium">
+                      {dayStats.pending} remaining
+                    </span>
+                  </>
                 ) : (
-                  <div className="space-y-3">
-                    {selectedDayItems.map((item) => {
-                      const colorMeta = getCardColorMeta(item.color);
-                      const isCard = item.type === "card";
-                      const isNote = item.type === "note";
-                      const isDiaryChecklist = item.type === "diary_checklist";
-                      const isCompleted = isCard
-                        ? (item as CalendarCard).status === "DONE"
-                        : isDiaryChecklist
-                          ? (item as CalendarDiaryChecklist).completed
-                          : false;
+                  <>
+                    <span className="text-stone-600">•</span>
+                    <span className="text-emerald-400 font-medium">All done! 🎉</span>
+                  </>
+                )}
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="h-1.5 w-24 sm:w-28 overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-dusk-lavender to-emerald-400 transition-all duration-300"
+                    style={{ width: `${dayStats.percent}%` }}
+                  />
+                </div>
+                <span className="text-[11px] font-semibold text-stone-400 min-w-[32px] text-right font-mono">
+                  {dayStats.percent}%
+                </span>
+              </div>
+            </div>
+          )}
 
-                      return (
-                        <div
-                          key={`${item.type}-${item.id}`}
-                          onClick={() => {
-                            if (isCard) {
-                              setSelectedCardId(item.id);
-                            } else if (isNote) {
-                              setSelectedNoteId(item.id);
-                            }
-                          }}
-                          className={cn(
-                            "relative flex items-start justify-between rounded-xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
-                            isCard || isNote ? "cursor-pointer" : "cursor-default",
-                            colorMeta.softClass ?? "border-white/10 bg-white/5",
-                            isCompleted && "opacity-75"
-                          )}
-                        >
-                          <div className="flex min-w-0 flex-1 items-start gap-3">
-                            {isDiaryChecklist && (
-                              <input
-                                type="checkbox"
-                                checked={isCompleted}
-                                onChange={(e) => {
-                                  e.stopPropagation();
-                                  const dc = item as CalendarDiaryChecklist;
-                                  handleToggleDiaryChecklist(dc.diaryId, dc.checklistItemId, dc.dueDate, e.target.checked);
-                                }}
-                                className="mt-1.5 h-4 w-4 shrink-0 accent-dusk-lavender cursor-pointer"
-                              />
+          {/* Filters & Sorting controls */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.015] px-6 py-3">
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Type Filter */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider">Type:</span>
+                <FilterSelect
+                  triggerClassName="h-8 text-xs rounded-lg border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 text-stone-200"
+                  value={dayTypeFilter}
+                  options={[
+                    { value: "all", label: "All Types" },
+                    { value: "tasks", label: "Tasks" },
+                    { value: "notes", label: "Notes" },
+                    { value: "diaries", label: "Diaries" }
+                  ]}
+                  onValueChange={setDayTypeFilter}
+                />
+              </div>
+
+              {/* Status Filter */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider">Status:</span>
+                <FilterSelect
+                  triggerClassName="h-8 text-xs rounded-lg border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 text-stone-200"
+                  value={dayStatusFilter}
+                  options={[
+                    { value: "all", label: "All Statuses" },
+                    { value: "pending", label: "Pending" },
+                    { value: "done", label: "Done" }
+                  ]}
+                  onValueChange={setDayStatusFilter}
+                />
+              </div>
+            </div>
+
+            {/* Sort control & Reset */}
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider">Sort:</span>
+                <FilterSelect
+                  triggerClassName="h-8 text-xs rounded-lg border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 text-stone-200"
+                  value={daySortBy}
+                  options={[
+                    { value: "time", label: "Time" },
+                    { value: "title", label: "Title" },
+                    { value: "priority", label: "Priority" }
+                  ]}
+                  onValueChange={setDaySortBy}
+                />
+              </div>
+
+              {(dayTypeFilter !== "all" || dayStatusFilter !== "all" || daySortBy !== "time") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDayTypeFilter("all");
+                    setDayStatusFilter("all");
+                    setDaySortBy("time");
+                  }}
+                  className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
+                  title="Reset filters"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Main List */}
+          <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-6">
+            {selectedDayItems.length === 0 ? (
+              <EmptyState
+                className="border-dashed bg-white/[0.015] py-12"
+                title="No items found"
+                message="This day has no visible tasks, notes, or diary checklist items matching your filters."
+                action={
+                  (dayTypeFilter !== "all" || dayStatusFilter !== "all") ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        setDayTypeFilter("all");
+                        setDayStatusFilter("all");
+                      }}
+                      className="mt-3"
+                    >
+                      Clear active filters
+                    </Button>
+                  ) : undefined
+                }
+              />
+            ) : (
+              <div className="space-y-3">
+                {selectedDayItems.map((item) => {
+                  const isCard = item.type === "card";
+                  const isNote = item.type === "note";
+                  const isDiaryChecklist = item.type === "diary_checklist";
+                  const isCompleted = isCard
+                    ? (item as CalendarCard).status === "DONE"
+                    : isDiaryChecklist
+                      ? (item as CalendarDiaryChecklist).completed
+                      : false;
+                  const accentColorClass = getAccentBarColor(item.color);
+
+                  return (
+                    <div
+                      key={`${item.type}-${item.id}`}
+                      onClick={() => {
+                        if (isCard) {
+                          setSelectedCardId(item.id);
+                        } else if (isNote) {
+                          setSelectedNoteId(item.id);
+                        }
+                      }}
+                      className={cn(
+                        "group relative flex items-start gap-3.5 rounded-2xl border border-white/10 bg-white/[0.025] p-4 transition-all duration-200",
+                        "hover:border-white/20 hover:bg-white/[0.05] hover:shadow-lg hover:shadow-black/20",
+                        (isCard || isNote) ? "cursor-pointer" : "cursor-default",
+                        isCompleted && "opacity-65 bg-white/[0.01]"
+                      )}
+                    >
+                      {/* Left Color Accent Bar */}
+                      <div className={cn("w-1 self-stretch rounded-full shrink-0 my-0.5", accentColorClass)} />
+
+                      {/* Interactive Checkbox / Type Icon */}
+                      <div className="shrink-0 pt-0.5">
+                        {isDiaryChecklist ? (
+                          <button
+                            type="button"
+                            role="checkbox"
+                            aria-checked={isCompleted}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const dc = item as CalendarDiaryChecklist;
+                              handleToggleDiaryChecklist(dc.diaryId, dc.checklistItemId, dc.dueDate, !isCompleted);
+                            }}
+                            className={cn(
+                              "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
+                              isCompleted
+                                ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
+                                : "border-white/25 bg-white/5 hover:border-dusk-lavender hover:bg-white/10"
                             )}
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                {isCard && (
-                                  <span className={cn("rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold", getStatusMeta((item as CalendarCard).status).badgeClass)}>
-                                    {getStatusMeta((item as CalendarCard).status).label}
-                                  </span>
-                                )}
-                                {isNote && (
-                                  <span className="inline-flex items-center gap-0.5 rounded-full border border-dusk-amber/25 bg-dusk-amber/10 px-2 py-0.5 text-[10px] text-dusk-amber font-semibold">
-                                    <FileText className="h-2.5 w-2.5" /> Note
-                                  </span>
-                                )}
-                                {isDiaryChecklist && (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/25 bg-dusk-lavender/10 px-2 py-0.5 text-[10px] text-dusk-lavender font-semibold">
-                                    📖 Diary Checklist
-                                  </span>
-                                )}
+                            title={isCompleted ? "Mark incomplete" : "Mark complete"}
+                          >
+                            {isCompleted ? <Check className="h-3.5 w-3.5 stroke-[2.5]" /> : null}
+                          </button>
+                        ) : isCard ? (
+                          <button
+                            type="button"
+                            role="checkbox"
+                            aria-checked={isCompleted}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleCardStatus(item as CalendarCard);
+                            }}
+                            className={cn(
+                              "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
+                              isCompleted
+                                ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
+                                : "border-white/25 bg-white/5 hover:border-dusk-lavender hover:bg-white/10"
+                            )}
+                            title={isCompleted ? "Mark incomplete" : "Mark as done"}
+                          >
+                            {isCompleted ? <Check className="h-3.5 w-3.5 stroke-[2.5]" /> : null}
+                          </button>
+                        ) : (
+                          <div className="flex h-5 w-5 items-center justify-center rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber">
+                            <FileText className="h-3 w-3" />
+                          </div>
+                        )}
+                      </div>
 
-                                {isCard && (item as CalendarCard).priority && (() => {
+                      {/* Main Item Content */}
+                      <div className="min-w-0 flex-1">
+                        {/* Header Badges & Time Row */}
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {isCard && (
+                              <>
+                                <span className="inline-flex items-center gap-1 rounded-md border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-300">
+                                  <CheckCircle2 className="h-3 w-3" /> Task
+                                </span>
+                                <span className={cn("rounded-md border px-2 py-0.5 text-[10px] uppercase font-semibold", getStatusMeta((item as CalendarCard).status).badgeClass)}>
+                                  {getStatusMeta((item as CalendarCard).status).label}
+                                </span>
+                                {(item as CalendarCard).priority && (() => {
                                   const meta = getPriorityMeta((item as CalendarCard).priority);
                                   return (
                                     <span
                                       className={cn(
-                                        "rounded-full border px-2 py-0.5 text-[10px] uppercase font-semibold",
+                                        "rounded-md border px-2 py-0.5 text-[10px] uppercase font-semibold",
                                         meta.pillClass
                                       )}
                                     >
@@ -1029,72 +1229,153 @@ export function ProjectCalendar({
                                     </span>
                                   );
                                 })()}
-                              </div>
+                              </>
+                            )}
 
-                              <h3 className={cn(
-                                "mt-2 text-base font-semibold text-stone-100 truncate",
-                                isCompleted && "line-through text-stone-500"
-                              )}>
-                                {item.title}
-                              </h3>
+                            {isNote && (
+                              <>
+                                <span className="inline-flex items-center gap-1 rounded-md border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] font-semibold text-dusk-amber">
+                                  <FileText className="h-3 w-3" /> Note
+                                </span>
+                                {(item as CalendarNote).isStarred && (
+                                  <span className="inline-flex items-center rounded-md border border-amber-400/30 bg-amber-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
+                                    ★ Starred
+                                  </span>
+                                )}
+                              </>
+                            )}
 
-                              {isNote && (item as CalendarNote).content && (
-                                <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
-                                  {(item as CalendarNote).content}
-                                </p>
-                              )}
-                              {isCard && (
-                                <>
-                                  {(item as CalendarCard).description && (
-                                    <p className="mt-1 line-clamp-2 text-xs text-stone-400 leading-relaxed">
-                                      {(item as CalendarCard).description}
-                                    </p>
-                                  )}
-                                  {((item as CalendarCard).assignees?.length || (item as CalendarCard).assigneeIds?.length) ? (
-                                    <div className="mt-2 flex items-center gap-2">
-                                      <AssigneeStack
-                                        assignees={
-                                          (item as CalendarCard).assignees && (item as CalendarCard).assignees!.length > 0
-                                            ? (item as CalendarCard).assignees!
-                                            : resolveAssignees((item as CalendarCard).assigneeIds, members)
-                                        }
-                                        size={20}
-                                      />
-                                    </div>
-                                  ) : null}
-                                </>
-                              )}
-                              {isDiaryChecklist && (
-                                <p className="mt-1 text-xs text-stone-500 font-medium">
-                                  From diary: {(item as CalendarDiaryChecklist).diaryTitle}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="ml-4 flex flex-col items-end gap-1.5 text-xs text-stone-500 shrink-0">
-                            {item.dueDate && !item.dueDateAllDay && (
-                              <span className="inline-flex items-center gap-1 text-dusk-cyan">
-                                <Clock className="h-3.5 w-3.5" />
-                                {formatTime(item.dueDate)}
+                            {isDiaryChecklist && (
+                              <span className="inline-flex items-center gap-1.5 rounded-md border border-dusk-lavender/30 bg-dusk-lavender/10 px-2 py-0.5 text-[10px] font-semibold text-dusk-lavender">
+                                <BookOpen className="h-3 w-3" /> Diary Checklist
                               </span>
                             )}
-                            {item.dueDateAllDay && (
-                              <span className="text-dusk-cyan font-medium">All day</span>
-                            )}
+                          </div>
+
+                          {/* Time Indicator */}
+                          <div className="flex items-center gap-1.5">
+                            {item.dueDate && !item.dueDateAllDay ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-md border border-dusk-cyan/30 bg-dusk-cyan/10 px-2.5 py-0.5 text-[11px] font-semibold text-dusk-cyan">
+                                <Clock className="h-3 w-3" />
+                                {formatTime(item.dueDate)}
+                              </span>
+                            ) : item.dueDateAllDay ? (
+                              <span className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-stone-400">
+                                All day
+                              </span>
+                            ) : null}
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
 
-              <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
-                <Button type="button" variant="ghost" onClick={() => setSelectedDayKey(null)}>
-                  Close
-                </Button>
+                        {/* Title */}
+                        <h3 className={cn(
+                          "mt-2 text-base font-semibold leading-snug tracking-tight text-stone-100 transition-colors",
+                          isCompleted ? "line-through text-stone-500" : "group-hover:text-white"
+                        )}>
+                          {item.title}
+                        </h3>
+
+                        {/* Source & Metadata */}
+                        {isDiaryChecklist && (
+                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                            <span className="text-stone-400 flex items-center gap-1.5">
+                              <span className="text-xs">📔</span>
+                              From diary: <span className="font-medium text-stone-200">{(item as CalendarDiaryChecklist).diaryTitle}</span>
+                            </span>
+                            <Link
+                              href={`/project/${projectId}/diary`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-dusk-lavender hover:border-dusk-lavender/40 hover:bg-white/10 hover:underline transition"
+                            >
+                              Open in Diary <ExternalLink className="h-2.5 w-2.5" />
+                            </Link>
+                          </div>
+                        )}
+
+                        {isCard && (
+                          <div className="mt-2 space-y-1.5">
+                            {(item as CalendarCard).description && (
+                              <p className="line-clamp-2 text-xs text-stone-400 leading-relaxed">
+                                {(item as CalendarCard).description}
+                              </p>
+                            )}
+                            <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                              <span className="text-xs text-stone-400">
+                                Column: <span className="text-stone-200 font-medium">{(item as CalendarCard).column.name}</span>
+                              </span>
+                              {((item as CalendarCard).assignees?.length || (item as CalendarCard).assigneeIds?.length) ? (
+                                <div className="flex items-center gap-1.5">
+                                  <AssigneeStack
+                                    assignees={
+                                      (item as CalendarCard).assignees && (item as CalendarCard).assignees!.length > 0
+                                        ? (item as CalendarCard).assignees!
+                                        : resolveAssignees((item as CalendarCard).assigneeIds, members)
+                                    }
+                                    size={18}
+                                  />
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                        )}
+
+                        {isNote && (
+                          <div className="mt-2 space-y-1">
+                            {(item as CalendarNote).content && (
+                              <p className="line-clamp-2 text-xs text-stone-400 leading-relaxed whitespace-pre-wrap">
+                                {(item as CalendarNote).content}
+                              </p>
+                            )}
+                            <div className="pt-0.5">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-dusk-amber/80 group-hover:text-dusk-amber group-hover:underline transition">
+                                View note details <ExternalLink className="h-2.5 w-2.5" />
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right Chevron for Clickable Items */}
+                      {(isCard || isNote) && (
+                        <div className="self-center pl-1 text-stone-600 transition-all group-hover:text-stone-300 group-hover:translate-x-0.5">
+                          <ChevronRight className="h-5 w-5" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-white/[0.015] px-6 py-4">
+            <div className="flex items-center gap-3 text-xs text-stone-400">
+              <span>{selectedDayItems.length} {selectedDayItems.length === 1 ? "item" : "items"} shown</span>
+              {dayStats.total > 0 && (
+                <span className="hidden sm:inline text-stone-500">
+                  ({dayStats.tasks} {dayStats.tasks === 1 ? "task" : "tasks"}, {dayStats.diaries} {dayStats.diaries === 1 ? "diary item" : "diaries"}, {dayStats.notes} {dayStats.notes === 1 ? "note" : "notes"})
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/project/${projectId}/board`}
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-semibold text-stone-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Go to Board
+              </Link>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setSelectedDayKey(null)}
+                className="h-9 px-4 rounded-xl text-xs font-semibold"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
         </AppModal>
       )}
     </>
@@ -1184,24 +1465,33 @@ function CalendarDiaryChecklistButton({
   item: CalendarDiaryChecklist;
   onToggle: (checked: boolean) => void;
 }) {
-  const colorMeta = getCardColorMeta(item.color);
+  const accentBarColor = getAccentBarColor(item.color);
 
   return (
     <div
       className={cn(
-        "flex w-full items-start gap-2 rounded border px-2 py-1.5 text-left text-xs",
-        colorMeta.softClass
+        "flex w-full items-start gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1.5 text-left text-xs transition hover:border-white/20",
+        item.completed && "opacity-60"
       )}
     >
-      <input
-        type="checkbox"
-        checked={item.completed}
-        onChange={(e) => {
+      <div className={cn("w-1 self-stretch rounded-full shrink-0 my-0.5", accentBarColor)} />
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={item.completed}
+        onClick={(e) => {
           e.stopPropagation();
-          onToggle(e.target.checked);
+          onToggle(!item.completed);
         }}
-        className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-dusk-lavender cursor-pointer"
-      />
+        className={cn(
+          "relative mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-all duration-150 cursor-pointer active:scale-90",
+          item.completed
+            ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
+            : "border-white/25 bg-white/5 hover:border-dusk-lavender hover:bg-white/10"
+        )}
+      >
+        {item.completed ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : null}
+      </button>
       <div className="min-w-0 flex-1">
         <span
           className={cn(
@@ -1227,25 +1517,37 @@ function UpcomingDiaryChecklist({
   item: CalendarDiaryChecklist;
   onToggle: (checked: boolean) => void;
 }) {
-  const colorMeta = getCardColorMeta(item.color);
+  const accentBarColor = getAccentBarColor(item.color);
 
   return (
     <div
       className={cn(
-        "w-full rounded-md border p-3 text-left text-sm transition hover:border-dusk-lavender/60 flex items-start gap-2",
-        colorMeta.softClass
+        "w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left text-sm transition hover:border-dusk-lavender/40 hover:bg-white/[0.06] flex items-start gap-2.5",
+        item.completed && "opacity-65"
       )}
     >
-      <input
-        type="checkbox"
-        checked={item.completed}
-        onChange={(e) => onToggle(e.target.checked)}
-        className="mt-1 h-4 w-4 shrink-0 accent-dusk-lavender cursor-pointer"
-      />
+      <div className={cn("w-1 self-stretch rounded-full shrink-0 my-0.5", accentBarColor)} />
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={item.completed}
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle(!item.completed);
+        }}
+        className={cn(
+          "relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all duration-150 cursor-pointer active:scale-90",
+          item.completed
+            ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
+            : "border-white/25 bg-white/5 hover:border-dusk-lavender hover:bg-white/10"
+        )}
+      >
+        {item.completed ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
+      </button>
       <div className="min-w-0 flex-1">
-        <p className={cn("font-medium", item.completed && "line-through text-stone-500")}>{item.title}</p>
+        <p className={cn("font-medium text-stone-100", item.completed && "line-through text-stone-500")}>{item.title}</p>
         <p className="mt-1 text-xs text-dusk-cyan">{formatDue(item)}</p>
-        <p className="mt-1 text-xs text-stone-500">📖 {item.diaryTitle}</p>
+        <p className="mt-0.5 text-xs text-stone-400">📖 {item.diaryTitle}</p>
       </div>
     </div>
   );
@@ -1424,3 +1726,30 @@ function formatRangeLabel(days: Array<{ date: Date }>) {
 
   return `${formatShortDate(first)} - ${formatMediumDate(last)}`;
 }
+
+function getAccentBarColor(color: unknown): string {
+  const norm = normalizeCardColor(color);
+  switch (norm) {
+    case "LAVENDER":
+      return "bg-dusk-lavender";
+    case "CYAN":
+      return "bg-dusk-cyan";
+    case "AMBER":
+      return "bg-dusk-amber";
+    case "ROSE":
+      return "bg-dusk-rose";
+    case "EMERALD":
+      return "bg-emerald-400";
+    case "VIOLET":
+      return "bg-violet-400";
+    case "BLUE":
+      return "bg-sky-400";
+    case "WINE":
+      return "bg-pink-400";
+    case "SLATE":
+      return "bg-slate-400";
+    default:
+      return "bg-indigo-400";
+  }
+}
+

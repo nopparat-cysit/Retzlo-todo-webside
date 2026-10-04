@@ -506,6 +506,16 @@ Template:
     - จัดวางสไตล์ตัวอักษรและระยะห่าง (`space-y-1.5`) สอดคล้องกลมกลืนกับหัวข้อฝั่งขวา (Folder, Visibility scope, วันที่สิ้นสุด, Note color) และตรงตามมาตรฐาน Retro Lofi Indigo Theme
 - Reviewed: Vitest 88/88 test files ผ่าน (450/450 tests ผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100% (38/38 routes).
 
-
-
-
+### 2026-10-04 — ยกระดับดีไซน์ Day View Modal ในปฏิทิน (Retro Lofi Indigo Calendar Day Modal & Item Cards Redesign)
+- Added/changed: `src/components/kanban/project-calendar.tsx`, `src/components/kanban/calendar-modals.test.ts`.
+- Tokens/variants:
+  - **Day View Modal Presentation:**
+    - เปลี่ยนหัวข้อโมดอลให้แสดงไอคอน `CalendarDays` ในกรอบนีออนลอฟี่ลาเวนเดอร์ (`border-dusk-lavender/30 bg-dusk-lavender/10`), ระบุวันเต็มในสัปดาห์ (เช่น `Sunday, Oct 4, 2026`) พร้อมแท็ก `Today` เมื่อตรงกับวันปัจจุบัน
+    - เพิ่มแถบ **Progress & KPI Summary**: แสดงสรุปยอดรวมรายการ, จำนวนที่สำเร็จ, รายการที่คงเหลือ, พร้อมแถบหลอดความคืบหน้าแบบเกรเดียนต์ (`from-dusk-lavender to-emerald-400`)
+    - ยกระดับแถบ Filter & Sort: เปลี่ยนช่องกรองสถานะ/ประเภทและเรียงลำดับให้มีพื้นหลังโปร่งแสงคลาสสิก พร้อมปุ่ม `Reset` เมื่อมีการเลือกฟิลเตอร์
+  - **Item Cards Redesign (แก้ไขปัญหากรอบสีน้ำตาลกระด้างและกล่องเช็กบ็อกซ์มืด):**
+    - กำจัดขอบสีน้ำตาลกระด้าง (`dark:border-dusk-amber/30`) จากการใช้ `colorMeta.softClass` โดยตรงรอบการ์ดทั้งใบ ให้กลายเป็นการ์ดพาเนลโทน Retro Lofi ที่ประณีต (`border-white/10 bg-white/[0.025] hover:border-white/20 hover:bg-white/[0.05]`)
+    - เพิ่ม **Vertical Color Accent Bar** ทางซ้ายมือของแต่ละการ์ดตามเฉดสีของไดอารี่/การ์ด (เช่น Amber, Lavender, Cyan, Emerald) สร้างมิติความสวยงามอย่างลงตัว
+    - เปลี่ยน Checkbox เดิมที่เป็น native input ทึบตัน ให้เป็น **Interactive Tactile Checkbox Button** เคลือบสีเขียวมรกต (`bg-emerald-500`) พร้อมไอคอนเครื่องหมายถูกสีขาวคมชัดเมื่อทำสำเร็จ และขีดฆ่าชื่อรายการอัตโนมัติ
+    - เพิ่มปุ่มคลิกไปที่ไดอารี่ (`Open in Diary`) และขยายความสามารถให้การ์ด Kanban สามารถติ๊กเปลี่ยนสถานะเป็น DONE/TODO ได้โดยตรงจากในโมดอลปฏิทิน
+- Reviewed: Vitest 88/88 test files ผ่าน (450 tests ผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, Next.js production build ผ่าน 100% (38/38 routes).
