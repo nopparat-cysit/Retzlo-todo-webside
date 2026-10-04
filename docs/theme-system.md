@@ -389,3 +389,14 @@ Template:
   - ปุ่มบนแถบเครื่องมือของบอร์ดเปลี่ยนเป็น `Attributes` เพื่อเข้าถึงการตั้งค่าคุณสมบัติงานทั้งหมดได้อย่างรวดเร็ว
   - ทุกการลบและรีเซ็ตมี `ConfirmModal` และแสดงผลการทำงานผ่าน Toast แจ้งเตือนตามมาตรฐาน AGENTS.md
 - Reviewed: รัน Vitest ผ่าน 86/86 ไฟล์ (433/433 การทดสอบ), TypeScript `tsc --noEmit` ผ่าน 0 errors, ESLint ผ่าน 0 warnings, Prisma validate และ Next.js production build ผ่าน 100%.
+
+### 2026-10-04 — ปรับปรุง UI คุณสมบัติการ์ดใน Board Settings ให้โปร่งโล่ง ลดความอึดอัดและลบกล่องขอบซ้อนทับ (Board Settings Attributes UI Declutter)
+- Added/changed: `src/components/kanban/board-settings-modal.tsx`, `src/components/kanban/board-attributes-tab.tsx`, `src/components/kanban/board-priorities-tab.tsx`.
+- Tokens/variants:
+  - ขยายความกว้าง Modal จาก `max-w-2xl` (672px) เป็น `max-w-3xl` (768px) เพื่อเพิ่มพื้นที่หายใจรอบขอบหน้าต่าง
+  - ปรับ Sub-navigation ของคุณสมบัติการ์ด (สถานะ, ระดับความสำคัญ, Story Points) ให้เป็นแถบแท็บแบบ Borderless พร้อมเส้นขีดแบ่งล่างบางเบา แทนกล่องมนพื้นหลังหนาซ้อนทับกัน
+  - ตัดกรอบกล่องแบนเนอร์ข้อความขนาดใหญ่ออก ใช้การจัดวาง Typography แบบมินิมอล (Title + Subtitle + Action Button)
+  - ปรับการเลือกสเกล Story Point Presets จากตารางการ์ด 4 บล็อกขนาดใหญ่ ให้เป็นแถบชิปแนวนอน (Horizontal Chips) ช่วยประหยัดพื้นที่แนวตั้งได้กว่า 120px
+  - รวมรายการแสดงผลสถานะ, ระดับความสำคัญ, และ Story Points จากกล่องลอยแยกเดี่ยวหลายชั้น (Russian nesting doll effect) ให้เป็นคอนเทนเนอร์รายการเดี่ยวสะอาดตาพร้อมเส้นแบ่งแถว `divide-y` บางเบา
+- Reviewed: ตรวจสอบความถูกต้องของ UI ทั้งในโหมด Dark และ Light, รันการทดสอบ Vitest ใน `src/components/kanban/` ผ่าน 56/56 การทดสอบ, ESLint ผ่าน 0 warnings, Prisma validate และ Next.js production build สำเร็จสมบูรณ์.
+

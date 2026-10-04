@@ -335,7 +335,7 @@ export function BoardSettingsModal({
         open={open}
         onClose={onClose}
         labelledBy="board-settings-title"
-        contentClassName="max-w-2xl"
+        contentClassName="max-w-3xl"
         hasUnsavedChanges={isDirty}
       >
         <form className="lofi-panel w-full rounded-2xl p-5 sm:p-6" onSubmit={handleSaveIntent}>
@@ -379,7 +379,7 @@ export function BoardSettingsModal({
 
           {/* Navigation Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-4 w-full bg-stone-100/90 border border-stone-200/90 p-1 rounded-xl dark:border-white/10 dark:bg-white/[0.03]">
+            <TabsList className="grid grid-cols-4 w-full bg-stone-100/70 border border-stone-200/60 p-1 rounded-xl dark:border-white/5 dark:bg-white/[0.02]">
               <TabsTrigger value="general" className="text-xs py-2 font-medium">
                 ⚙️ ทั่วไป & สิทธิ์
                 {isPrivate && (

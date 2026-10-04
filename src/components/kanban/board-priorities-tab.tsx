@@ -131,21 +131,17 @@ export function BoardPrioritiesTab({
   };
 
   return (
-    <div className="space-y-4 pt-2">
+    <div className="space-y-3.5 pt-0.5">
       {/* Top Banner & Limits Counter */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.02]">
-        <div className="flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender">
-            <Sparkles className="h-4 w-4" />
-          </div>
-          <div>
-            <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100">
-              Custom Priority Levels (ระดับความสำคัญ)
-            </h4>
-            <p className="text-[11px] text-stone-500 dark:text-stone-400">
-              ปรับแต่งชื่อ ลำดับ และสีประจำระดับความสำคัญในบอร์ดนี้ได้สูงสุด 10 ระดับ
-            </p>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
+        <div>
+          <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-dusk-lavender" />
+            <span>Custom Priority Levels (ระดับความสำคัญ)</span>
+          </h4>
+          <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+            ปรับแต่งชื่อ ลำดับ และสีประจำระดับความสำคัญในบอร์ดนี้ได้สูงสุด 10 ระดับ
+          </p>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -164,7 +160,7 @@ export function BoardPrioritiesTab({
             onClick={handleResetToDefault}
             disabled={!canManage}
             title="รีเซ็ตกลับเป็นค่าเริ่มต้น (High, Medium, Low)"
-            className="flex items-center gap-1 rounded-lg border border-stone-200/80 bg-white px-2 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
+            className="flex items-center gap-1 rounded-lg border border-stone-200/80 bg-stone-50/60 px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
           >
             <RotateCcw className="h-3 w-3" />
             <span className="hidden sm:inline">รีเซ็ต</span>
@@ -173,7 +169,7 @@ export function BoardPrioritiesTab({
       </div>
 
       {/* Priority Levels List */}
-      <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+      <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[320px] overflow-y-auto dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
         {priorities.map((priority, index) => {
           const colorConfig = getPriorityColorConfig(priority.color);
           const isHighest = index === 0;
@@ -182,7 +178,7 @@ export function BoardPrioritiesTab({
           return (
             <div
               key={priority.id}
-              className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-stone-200/80 bg-white p-2.5 shadow-2xs transition-all hover:border-indigo-300/60 dark:border-white/10 dark:bg-stone-900/60 dark:hover:border-white/20"
+              className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 px-3.5 py-2.5 hover:bg-stone-50/60 dark:hover:bg-white/[0.02] transition"
             >
               {/* Left: Urgency Order & Name Input */}
               <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -309,7 +305,7 @@ export function BoardPrioritiesTab({
       </div>
 
       {/* Add New Priority Button */}
-      <div className="pt-1">
+      <div className="pt-0.5">
         <button
           type="button"
           onClick={handleAddPriority}
@@ -331,19 +327,19 @@ export function BoardPrioritiesTab({
       </div>
 
       {/* Live Preview Section */}
-      <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.02]">
-        <div className="text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-2 flex items-center gap-1.5">
+      <div className="flex flex-col gap-1.5 pt-1">
+        <div className="text-[11px] font-bold text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
           <Palette className="h-3.5 w-3.5 text-dusk-amber" />
           <span>ตัวอย่างการแสดงผลบนบอร์ดและตาราง Spreadsheet:</span>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {priorities.map((p, idx) => {
             const config = getPriorityColorConfig(p.color);
             return (
               <div
                 key={p.id}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold shadow-2xs",
+                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold shadow-2xs",
                   config.pillClass
                 )}
               >

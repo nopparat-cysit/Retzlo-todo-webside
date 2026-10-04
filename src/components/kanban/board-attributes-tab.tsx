@@ -232,22 +232,22 @@ export function BoardAttributesTab({
   };
 
   return (
-    <div className="space-y-4 pt-2">
+    <div className="space-y-4 pt-1">
       {/* Sub-navigation Pills */}
-      <div className="flex items-center gap-1.5 rounded-xl border border-stone-200/80 bg-stone-100/90 p-1 dark:border-white/10 dark:bg-white/[0.03]">
+      <div className="flex items-center gap-1 border-b border-stone-200/70 pb-2.5 dark:border-white/10">
         <button
           type="button"
           onClick={() => setActiveSubTab("status")}
           className={cn(
-            "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition cursor-pointer",
+            "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer",
             activeSubTab === "status"
-              ? "bg-white text-stone-900 shadow-2xs dark:bg-stone-800 dark:text-stone-100"
-              : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+              ? "bg-indigo-50 text-indigo-700 font-bold dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+              : "text-stone-600 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
           )}
         >
           <CheckSquare className="h-3.5 w-3.5 text-indigo-500" />
           <span>สถานะการ์ด (Status)</span>
-          <span className="rounded-full bg-indigo-500/10 px-1.5 text-[10px] font-mono text-indigo-600 dark:text-dusk-lavender">
+          <span className="rounded-full bg-indigo-500/10 px-1.5 text-[10px] font-mono text-indigo-600 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
             {statuses.length}
           </span>
         </button>
@@ -256,10 +256,10 @@ export function BoardAttributesTab({
           type="button"
           onClick={() => setActiveSubTab("priority")}
           className={cn(
-            "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition cursor-pointer",
+            "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer",
             activeSubTab === "priority"
-              ? "bg-white text-stone-900 shadow-2xs dark:bg-stone-800 dark:text-stone-100"
-              : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+              ? "bg-rose-50 text-rose-700 font-bold dark:bg-rose-500/15 dark:text-rose-400"
+              : "text-stone-600 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
           )}
         >
           <Flag className="h-3.5 w-3.5 text-rose-500" />
@@ -273,10 +273,10 @@ export function BoardAttributesTab({
           type="button"
           onClick={() => setActiveSubTab("story-points")}
           className={cn(
-            "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition cursor-pointer",
+            "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer",
             activeSubTab === "story-points"
-              ? "bg-white text-stone-900 shadow-2xs dark:bg-stone-800 dark:text-stone-100"
-              : "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+              ? "bg-amber-50 text-amber-700 font-bold dark:bg-amber-500/15 dark:text-amber-400"
+              : "text-stone-600 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
           )}
         >
           <Zap className="h-3.5 w-3.5 text-amber-500" />
@@ -291,89 +291,81 @@ export function BoardAttributesTab({
           SUB-TAB 1: STATUS
          ───────────────────────────────────────────────────────────── */}
       {activeSubTab === "status" && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.02]">
-            <div className="flex items-center gap-2">
-              <div className="grid h-8 w-8 place-items-center rounded-lg border border-indigo-400/30 bg-indigo-500/10 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
-                <CheckSquare className="h-4 w-4" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                  Custom Card Statuses (จัดการสถานะการ์ด)
-                </h4>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                  สถานะที่เพิ่มจะเชื่อมโยงกับคอลัมน์ การ์ด และตารางงานบนบอร์ดนี้โดยอัตโนมัติ
-                </p>
-              </div>
+        <div className="space-y-3.5">
+          {/* Header Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
+            <div>
+              <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                <CheckSquare className="h-3.5 w-3.5 text-indigo-500" />
+                <span>Custom Card Statuses (จัดการสถานะการ์ด)</span>
+              </h4>
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                สถานะที่เพิ่มจะเชื่อมโยงกับคอลัมน์ การ์ด และตารางงานบนบอร์ดนี้โดยอัตโนมัติ
+              </p>
             </div>
 
             <button
               type="button"
               onClick={() => setIsResetStatusConfirmOpen(true)}
               disabled={!canManage}
-              className="flex items-center gap-1 self-start sm:self-auto rounded-lg border border-stone-200/80 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
+              className="flex items-center gap-1 self-start sm:self-auto rounded-lg border border-stone-200/80 bg-stone-50/60 px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
             >
               <RotateCcw className="h-3 w-3" />
               <span>รีเซ็ตค่าเริ่มต้น</span>
             </button>
           </div>
 
-          {/* Add Status Section */}
-          <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3.5 space-y-3 dark:border-white/10 dark:bg-white/[0.02]">
-            <h5 className="text-[11px] font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-              + เพิ่มสถานะใหม่ (Add Status)
-            </h5>
-            <div className="grid gap-2.5 sm:grid-cols-[1fr_auto_auto]">
-              <Input
-                placeholder="เช่น In Review, Testing, Blocked..."
-                value={newStatusLabel}
-                onChange={(e) => setNewStatusLabel(e.target.value)}
-                disabled={!canManage}
-                className="h-8 text-xs"
-                onKeyDown={(e) => e.key === "Enter" && handleAddStatus()}
-              />
-              <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
-                {STATUS_COLOR_KEYS.map((colKey) => (
-                  <button
-                    key={colKey}
-                    type="button"
-                    disabled={!canManage}
-                    onClick={() => setNewStatusColor(colKey)}
-                    className={cn(
-                      "h-6 w-6 rounded-full border transition cursor-pointer flex items-center justify-center shrink-0",
-                      newStatusColor === colKey
-                        ? "ring-2 ring-indigo-500 ring-offset-1 scale-110 shadow-xs"
-                        : "opacity-70 hover:opacity-100",
-                      colKey === "indigo" && "bg-indigo-500 border-indigo-600",
-                      colKey === "teal" && "bg-teal-500 border-teal-600",
-                      colKey === "cyan" && "bg-cyan-500 border-cyan-600",
-                      colKey === "amber" && "bg-amber-500 border-amber-600",
-                      colKey === "emerald" && "bg-emerald-500 border-emerald-600",
-                      colKey === "rose" && "bg-rose-500 border-rose-600",
-                      colKey === "purple" && "bg-purple-500 border-purple-600",
-                      colKey === "stone" && "bg-stone-500 border-stone-600"
-                    )}
-                    title={colKey}
-                  >
-                    {newStatusColor === colKey && <Check className="h-3 w-3 text-white stroke-[3]" />}
-                  </button>
-                ))}
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleAddStatus}
-                disabled={!canManage || !newStatusLabel.trim()}
-                className="h-8 text-xs gap-1 shrink-0"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span>เพิ่มสถานะ</span>
-              </Button>
+          {/* Add Status Inline Bar */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 rounded-xl border border-stone-200/70 bg-stone-50/40 p-2 dark:border-white/10 dark:bg-white/[0.02]">
+            <Input
+              placeholder="พิมพ์ชื่อสถานะใหม่ เช่น In Review, Testing, Blocked..."
+              value={newStatusLabel}
+              onChange={(e) => setNewStatusLabel(e.target.value)}
+              disabled={!canManage}
+              className="h-8 text-xs flex-1 min-w-[160px] bg-white dark:bg-stone-900"
+              onKeyDown={(e) => e.key === "Enter" && handleAddStatus()}
+            />
+            <div className="flex items-center gap-1.5 px-1 overflow-x-auto py-0.5">
+              {STATUS_COLOR_KEYS.map((colKey) => (
+                <button
+                  key={colKey}
+                  type="button"
+                  disabled={!canManage}
+                  onClick={() => setNewStatusColor(colKey)}
+                  className={cn(
+                    "h-5 w-5 rounded-full border transition cursor-pointer flex items-center justify-center shrink-0",
+                    newStatusColor === colKey
+                      ? "ring-2 ring-indigo-500 ring-offset-1 scale-110 shadow-xs"
+                      : "opacity-70 hover:opacity-100",
+                    colKey === "indigo" && "bg-indigo-500 border-indigo-600",
+                    colKey === "teal" && "bg-teal-500 border-teal-600",
+                    colKey === "cyan" && "bg-cyan-500 border-cyan-600",
+                    colKey === "amber" && "bg-amber-500 border-amber-600",
+                    colKey === "emerald" && "bg-emerald-500 border-emerald-600",
+                    colKey === "rose" && "bg-rose-500 border-rose-600",
+                    colKey === "purple" && "bg-purple-500 border-purple-600",
+                    colKey === "stone" && "bg-stone-500 border-stone-600"
+                  )}
+                  title={colKey}
+                >
+                  {newStatusColor === colKey && <Check className="h-2.5 w-2.5 text-white stroke-[3]" />}
+                </button>
+              ))}
             </div>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleAddStatus}
+              disabled={!canManage || !newStatusLabel.trim()}
+              className="h-8 text-xs gap-1 shrink-0"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>เพิ่มสถานะ</span>
+            </Button>
           </div>
 
-          {/* Status List */}
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+          {/* Unified Status List with Dividers */}
+          <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[300px] overflow-y-auto dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
             {statuses.map((st, index) => {
               const cfg = STATUS_COLOR_CONFIGS[st.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
               const isDefault = st.isDefault || ["TODO", "DOING", "WAITING", "DONE"].includes(st.value);
@@ -383,10 +375,10 @@ export function BoardAttributesTab({
               return (
                 <div
                   key={st.value}
-                  className="flex items-center justify-between gap-2 rounded-xl border border-stone-200/80 bg-white p-2.5 shadow-2xs dark:border-white/10 dark:bg-stone-900/60"
+                  className="flex items-center justify-between gap-3 px-3.5 py-2.5 hover:bg-stone-50/60 dark:hover:bg-white/[0.02] transition"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className={cn("px-2.5 py-0.5 rounded border font-semibold text-xs truncate", cfg.badgeClass)}>
+                    <span className={cn("px-2.5 py-0.5 rounded-md border font-semibold text-xs truncate", cfg.badgeClass)}>
                       {st.label}
                     </span>
                     <span className="font-mono text-[10px] text-stone-400 truncate">({st.value})</span>
@@ -398,7 +390,7 @@ export function BoardAttributesTab({
                       type="button"
                       onClick={() => handleMoveStatus(index, "up")}
                       disabled={isFirst || !canManage}
-                      className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
+                      className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
                       title="เลื่อนขึ้น"
                     >
                       <ArrowUp className="h-3.5 w-3.5" />
@@ -407,7 +399,7 @@ export function BoardAttributesTab({
                       type="button"
                       onClick={() => handleMoveStatus(index, "down")}
                       disabled={isLast || !canManage}
-                      className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
+                      className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
                       title="เลื่อนลง"
                     >
                       <ArrowDown className="h-3.5 w-3.5" />
@@ -423,7 +415,7 @@ export function BoardAttributesTab({
                         type="button"
                         onClick={() => setStatusToDelete(st.value)}
                         disabled={!canManage}
-                        className="grid h-7 w-7 place-items-center rounded-lg border border-red-200 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer"
+                        className="grid h-7 w-7 place-items-center rounded-md border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer"
                         title="ลบสถานะ"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -452,118 +444,112 @@ export function BoardAttributesTab({
           SUB-TAB 3: STORY POINTS
          ───────────────────────────────────────────────────────────── */}
       {activeSubTab === "story-points" && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/10 dark:bg-white/[0.02]">
-            <div className="flex items-center gap-2">
-              <div className="grid h-8 w-8 place-items-center rounded-lg border border-amber-400/30 bg-amber-500/10 text-amber-600 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-300">
-                <Zap className="h-4 w-4" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                  Story Points Scale (สเกลคะแนนความยาก)
-                </h4>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                  ประเมินน้ำหนักงาน (Effort) ด้วยสเกลยอดนิยม หรือกำหนดคะแนนเอง
-                </p>
-              </div>
+        <div className="space-y-3.5">
+          {/* Header Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
+            <div>
+              <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-amber-500" />
+                <span>Story Points Scale (สเกลคะแนนความยาก)</span>
+              </h4>
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                ประเมินน้ำหนักงาน (Effort) ด้วยสเกลยอดนิยม หรือกำหนดคะแนนเอง
+              </p>
             </div>
 
             <button
               type="button"
               onClick={() => setIsResetPointsConfirmOpen(true)}
               disabled={!canManage}
-              className="flex items-center gap-1 self-start sm:self-auto rounded-lg border border-stone-200/80 bg-white px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
+              className="flex items-center gap-1 self-start sm:self-auto rounded-lg border border-stone-200/80 bg-stone-50/60 px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
             >
               <RotateCcw className="h-3 w-3" />
               <span>รีเซ็ต Story Points</span>
             </button>
           </div>
 
-          {/* Quick Presets */}
-          <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 space-y-2 dark:border-white/10 dark:bg-white/[0.02]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-              เลือกเทมเพลตสเกลมาตรฐาน (Presets):
+          {/* Quick Presets as Compact Chips */}
+          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+            <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mr-1">
+              สเกลมาตรฐาน:
             </span>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {(Object.keys(STORY_POINT_PRESETS) as Array<keyof typeof STORY_POINT_PRESETS>).map((key) => {
-                const preset = STORY_POINT_PRESETS[key];
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    disabled={!canManage}
-                    onClick={() => handleApplyPreset(key)}
-                    className="flex flex-col items-start rounded-lg border border-stone-200/80 bg-white p-2 text-left transition hover:border-amber-400 hover:bg-amber-50/20 disabled:opacity-40 dark:border-white/10 dark:bg-stone-900/60 dark:hover:border-amber-400/50 cursor-pointer"
-                  >
-                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">{preset.name}</span>
-                    <span className="text-[10px] text-stone-400 truncate max-w-full">{preset.points.map((p) => p.label).join(", ")}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {(Object.keys(STORY_POINT_PRESETS) as Array<keyof typeof STORY_POINT_PRESETS>).map((key) => {
+              const preset = STORY_POINT_PRESETS[key];
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  disabled={!canManage}
+                  onClick={() => handleApplyPreset(key)}
+                  className="inline-flex items-center gap-1 rounded-lg border border-stone-200/80 bg-stone-50/50 px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:border-amber-400 hover:bg-amber-50/30 hover:text-amber-800 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-amber-400/50 cursor-pointer"
+                  title={preset.points.map((p) => p.label).join(", ")}
+                >
+                  <Zap className="h-3 w-3 text-amber-500" />
+                  <span>{preset.name}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Add Custom Point */}
-          <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3.5 space-y-3 dark:border-white/10 dark:bg-white/[0.02]">
-            <h5 className="text-[11px] font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-              + เพิ่มคะแนนกำหนดเอง (Add Custom Story Point)
-            </h5>
-            <div className="grid gap-2.5 sm:grid-cols-[80px_1fr_1fr_auto]">
-              <Input
-                type="number"
-                min={1}
-                max={100}
-                placeholder="คะแนน"
-                value={newPointScore}
-                onChange={(e) => setNewPointScore(e.target.value)}
-                disabled={!canManage}
-                className="h-8 text-xs font-mono font-bold"
-              />
-              <Input
-                placeholder="ชื่อเรียก เช่น ปานกลาง (5 pts)"
-                value={newPointTitle}
-                onChange={(e) => setNewPointTitle(e.target.value)}
-                disabled={!canManage}
-                className="h-8 text-xs"
-              />
-              <Input
-                placeholder="คำอธิบาย เช่น งาน 1 วัน"
-                value={newPointDescription}
-                onChange={(e) => setNewPointDescription(e.target.value)}
-                disabled={!canManage}
-                className="h-8 text-xs"
-              />
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleAddStoryPoint}
-                disabled={!canManage || !newPointScore.trim()}
-                className="h-8 text-xs gap-1 shrink-0"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span>เพิ่มคะแนน</span>
-              </Button>
-            </div>
+          {/* Add Custom Point Inline Bar */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 rounded-xl border border-stone-200/70 bg-stone-50/40 p-2 dark:border-white/10 dark:bg-white/[0.02]">
+            <Input
+              type="number"
+              min={1}
+              max={100}
+              placeholder="คะแนน"
+              value={newPointScore}
+              onChange={(e) => setNewPointScore(e.target.value)}
+              disabled={!canManage}
+              className="h-8 w-20 text-xs font-mono font-bold bg-white dark:bg-stone-900"
+            />
+            <Input
+              placeholder="ชื่อเรียก เช่น ปานกลาง (5 pts)"
+              value={newPointTitle}
+              onChange={(e) => setNewPointTitle(e.target.value)}
+              disabled={!canManage}
+              className="h-8 text-xs flex-1 min-w-[120px] bg-white dark:bg-stone-900"
+            />
+            <Input
+              placeholder="คำอธิบาย เช่น งาน 1 วัน"
+              value={newPointDescription}
+              onChange={(e) => setNewPointDescription(e.target.value)}
+              disabled={!canManage}
+              className="h-8 text-xs flex-1 min-w-[120px] bg-white dark:bg-stone-900"
+              onKeyDown={(e) => e.key === "Enter" && handleAddStoryPoint()}
+            />
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleAddStoryPoint}
+              disabled={!canManage || !newPointScore.trim()}
+              className="h-8 text-xs gap-1 shrink-0"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>เพิ่มคะแนน</span>
+            </Button>
           </div>
 
-          {/* Story Points List */}
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+          {/* Unified Story Points List with Dividers */}
+          <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[320px] overflow-y-auto dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
             {storyPoints.map((pt) => {
               const colorConfig = STORY_POINT_COLOR_CLASSES[pt.color || "cyan"] || STORY_POINT_COLOR_CLASSES.cyan;
 
               return (
                 <div
                   key={pt.score}
-                  className="flex items-center justify-between gap-2 rounded-xl border border-stone-200/80 bg-white p-2.5 shadow-2xs dark:border-white/10 dark:bg-stone-900/60"
+                  className="flex items-center justify-between gap-3 px-3.5 py-2.5 hover:bg-stone-50/60 dark:hover:bg-white/[0.02] transition"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <span className={cn("inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-bold shrink-0", colorConfig.badgeClass)}>
                       <Zap className="h-3 w-3" />
                       <span>{pt.pointsLabel || `${pt.score} pts`}</span>
                     </span>
-                    <div className="flex flex-col min-w-0 truncate">
+                    <div className="flex flex-col min-w-0">
                       <span className="text-xs font-bold text-stone-800 dark:text-stone-200 truncate">{pt.title}</span>
-                      <span className="text-[11px] text-stone-400 truncate">{pt.description}</span>
+                      {pt.description && (
+                        <span className="text-[11px] text-stone-400 truncate">{pt.description}</span>
+                      )}
                     </div>
                   </div>
 
@@ -571,7 +557,7 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => setPointToDelete(pt.score)}
                     disabled={!canManage || storyPoints.length <= 1}
-                    className="grid h-7 w-7 place-items-center rounded-lg border border-red-200 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer shrink-0"
+                    className="grid h-7 w-7 place-items-center rounded-md border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer shrink-0"
                     title="ลบคะแนน"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
