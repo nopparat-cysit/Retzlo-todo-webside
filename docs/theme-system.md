@@ -354,3 +354,14 @@ Template:
   - หน้าต่าง Modal เชิญเพื่อนร่วมทีม (Invite Modal) ออกแบบใหม่ด้วย `AppModal` รองรับการเลือกบทบาท (Member หรือ Owner) และคัดลอกลิงก์คำเชิญได้ทันที
   - เพิ่ม `MembersSkeleton` และ Next.js streaming `loading.tsx` ทำให้การเปิดหน้าสมาชิกรวดเร็วและมี Shimmer Animation สอดคล้องกับธีม Retro Lofi
 - Reviewed: ตรวจสอบสัญญา `Total Coffees`, `totalCoffeesCount`, `member.totalCoffees` สำหรับการทดสอบ `coffee-cheers-button.test.ts`, ตรวจสอบ TypeScript, ESLint, Prisma validate และ Next.js build ผ่านสมบูรณ์ทุกประการ.
+
+### 2026-10-04 — ปรับปรุงศูนย์รวมเอกสารและคู่มือระบบ (Documentation & Help Hub Redesign)
+- Added/changed: `src/components/help/help-center-client.tsx`, `src/app/(dashboard)/help/page.tsx`, `docs/system-guide.md`.
+- Tokens/variants:
+  - ยกเครื่องหน้า `/help` จากการแสดงการ์ดตาราง 2 คอลัมน์เดิม สู่สถาปัตยกรรมเว็บไซต์ Documentation เต็มรูปแบบ (เช่น Stripe, Next.js, GitBook Docs)
+  - แถบเมนูด้านซ้าย (Sticky Sidebar Docs Navigation Tree): จัดหมวดหมู่ 10 หมวดหมู่ พร้อมไอคอนและป้ายสถานะ (New, AI, Core, Updated) ตัวระบุสถานะ Active Indicator สีเรืองแสง และช่องค้นหาเรียลไทม์
+  - พื้นที่อ่านเนื้อหาหลัก (Document Reader): แสดง Breadcrumbs, ข้อมูลผู้เขียน/เวลาอ่าน/วันที่อัปเดต, กล่องบทนำ Lead Summary, เนื้อหาแยกเป็นสัดส่วน (ภาพรวม, ฟังก์ชันและความสามารถ, เคล็ดลับ Pro Tips, คีย์ลัดด่วน)
+  - วิดเจ็ตฟีดแบ็กและปุ่มนำทาง: เพิ่มส่วนประเมินประโยชน์ของบทความ (Was this helpful? 👍/👎) พร้อม Toast แจ้งเตือน และปุ่มเปลี่ยนบทความก่อนหน้า/ถัดไป (Pagination)
+  - แถบสารบัญด้านขวา (On this page TOC): สำหรับหน้าจอ Desktop มีระบบ Anchor ลิงก์กระโดดข้ามหัวข้อย่อยและกล่องถาม Retzlo AI ด่วน
+  - รองรับทั้งโหมดอ่านเอกสาร (Docs Reader View) และโหมดดูภาพรวมการ์ดทั้งหมด (Overview Grid View) พร้อม Drawer สารบัญแบบเต็มสำหรับจอมือถือและแท็บเล็ต
+- Reviewed: ตรวจสอบความถูกต้องของ UI บนทั้งธีม Dark Mode (Retro Lofi Indigo) และ Light Mode (Warm Paper), ตรวจสอบปุ่มคีย์ลัด Ctrl+K, การคัดลอกคีย์ลัด, การทำงานของ Drawer บนจอมือถือ และ Next.js Build ผ่าน 100%.
