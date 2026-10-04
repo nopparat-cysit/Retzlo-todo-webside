@@ -140,3 +140,112 @@ export function ProjectsDashboardSkeleton() {
     </div>
   );
 }
+
+// ─── Calendar Skeleton ────────────────────────────────────────────────────────
+
+export function CalendarSkeleton() {
+  return (
+    <div
+      className="flex h-full min-h-0 flex-col gap-3 p-1 overflow-hidden"
+      role="status"
+      aria-label="Loading calendar…"
+    >
+      {/* Calendar Header Toolbar */}
+      <div className="lofi-panel flex flex-wrap items-center justify-between gap-3 rounded-2xl p-3 sm:px-4 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/70 dark:border-white/10 dark:bg-white/[0.04]">
+            <Skeleton className="h-4 w-4 rounded" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-6 w-32 rounded-md" />
+            <Skeleton className="hidden h-5 w-28 rounded-full opacity-60 sm:block" />
+          </div>
+          <div className="flex items-center gap-1">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-8 w-14 rounded-lg" />
+            <Skeleton className="h-8 w-8 rounded-lg" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-24 rounded-lg" />
+          <Skeleton className="hidden h-8 w-20 rounded-lg sm:block" />
+          <Skeleton className="h-8 w-28 rounded-lg" />
+        </div>
+      </div>
+
+      {/* Calendar Main Grid Panel */}
+      <div className="lofi-panel flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/10">
+        {/* Weekday Names Header Bar */}
+        <div className="grid grid-cols-7 border-b border-stone-200/80 bg-stone-50/80 dark:border-white/10 dark:bg-white/[0.02] py-2.5 text-center shrink-0">
+          {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day) => (
+            <div key={day} className="flex justify-center">
+              <span className="text-[11px] font-semibold tracking-wider text-stone-400 dark:text-stone-500">
+                {day}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* 5 Rows x 7 Columns Month Grid */}
+        <div className="grid flex-1 grid-cols-7 grid-rows-5 divide-x divide-y divide-stone-200/70 border-stone-200/70 dark:divide-white/[0.06] dark:border-white/[0.06] overflow-hidden min-h-0">
+          {Array.from({ length: 35 }).map((_, i) => {
+            const isToday = i === 7;
+            const hasTask1 = i === 4 || i === 8 || i === 15 || i === 22;
+            const hasTask2 = i === 4 || i === 15;
+            const hasDiary = i >= 0 && i <= 8;
+
+            return (
+              <div
+                key={i}
+                className={cn(
+                  "flex flex-col p-2 min-h-0 gap-1.5 transition-colors overflow-hidden",
+                  i < 4 ? "bg-stone-50/40 dark:bg-white/[0.01]" : "bg-white/40 dark:bg-transparent"
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <div
+                    className={cn(
+                      "grid h-5 w-5 place-items-center rounded text-xs",
+                      isToday
+                        ? "rounded-full bg-dusk-amber/20 font-bold text-dusk-amber"
+                        : "text-stone-400 dark:text-stone-500"
+                    )}
+                  >
+                    <Skeleton className="h-3 w-3 rounded" />
+                  </div>
+                </div>
+
+                {/* Shimmering Item Bars */}
+                <div className="flex flex-col gap-1 overflow-hidden mt-0.5">
+                  {hasTask1 && (
+                    <div className="flex h-5 w-full items-center gap-1.5 rounded-md border border-stone-200/80 bg-stone-100/80 px-1.5 dark:border-white/10 dark:bg-white/[0.04]">
+                      <Skeleton className="h-2 w-2 rounded-full" />
+                      <Skeleton className="h-2.5 w-3/4 rounded" />
+                    </div>
+                  )}
+                  {hasDiary && (
+                    <div className="flex h-5 w-full items-center justify-between rounded-md border border-stone-200/60 bg-stone-50/90 px-1.5 dark:border-white/5 dark:bg-white/[0.03]">
+                      <div className="flex items-center gap-1">
+                        <Skeleton className="h-2 w-2 rounded-sm" />
+                        <Skeleton className="h-2.5 w-14 rounded" />
+                      </div>
+                      <Skeleton className="h-2 w-5 rounded" />
+                    </div>
+                  )}
+                  {hasTask2 && (
+                    <div className="hidden sm:flex h-5 w-full items-center gap-1.5 rounded-md border border-stone-200/80 bg-stone-100/80 px-1.5 dark:border-white/10 dark:bg-white/[0.04]">
+                      <Skeleton className="h-2 w-2 rounded-full" />
+                      <Skeleton className="h-2.5 w-1/2 rounded" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+

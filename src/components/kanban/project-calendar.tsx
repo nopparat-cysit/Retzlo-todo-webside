@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, SlidersHorizontal, X } from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -94,6 +94,18 @@ export function ProjectCalendar({
   const [notes, setNotes] = useState(initialNotes);
   const [diaryItems, setDiaryItems] = useState(initialDiaryItems);
 
+  useEffect(() => {
+    setCards(initialCards);
+  }, [initialCards]);
+
+  useEffect(() => {
+    setNotes(initialNotes);
+  }, [initialNotes]);
+
+  useEffect(() => {
+    setDiaryItems(initialDiaryItems);
+  }, [initialDiaryItems]);
+
   const refreshCalendar = useCallback(async () => {
     try {
       const noCache = { cache: "no-store" as RequestCache, headers: { "Cache-Control": "no-cache", Pragma: "no-cache" } };
@@ -144,7 +156,7 @@ export function ProjectCalendar({
 
   const { broadcastChange } = useLiveSync({
     channelKey: [`project:${projectId}`, `calendar:${projectId}`],
-    intervalMs: 3000,
+    intervalMs: 8000,
     canSync: () => {
       if (selectedCardId || selectedNoteId) return false;
       if (isFiltersOpen || isUpcomingOpen) return false;
@@ -177,15 +189,22 @@ export function ProjectCalendar({
     () => buildCalendarDays({ anchorDate, mode: viewMode, customDays }),
     [anchorDate, customDays, viewMode]
   );
+
+  const preparedDiaries = useMemo(() => {
+    return diaryItems.map((diary) => ({
+      ...diary,
+      normalizedChecklist: normalizeDiaryChecklist(diary.checklist, diary.startDate)
+    }));
+  }, [diaryItems]);
+
   const diaryChecklistEntries = useMemo(() => {
     const entries: CalendarDiaryChecklist[] = [];
     for (const day of calendarDays) {
       if (day.key > todayKey) {
         continue;
       }
-      for (const diary of diaryItems) {
-        const checklist = normalizeDiaryChecklist(diary.checklist, diary.startDate);
-        for (const cli of checklist) {
+      for (const diary of preparedDiaries) {
+        for (const cli of diary.normalizedChecklist) {
           if (isDiaryChecklistItemDueOnDate(cli, day.key)) {
             entries.push({
               id: `${diary.id}:${cli.id}:${day.key}`,
@@ -204,7 +223,7 @@ export function ProjectCalendar({
       }
     }
     return entries;
-  }, [diaryItems, calendarDays, todayKey]);
+  }, [preparedDiaries, calendarDays, todayKey]);
 
   const allItems = useMemo<CalendarEntry[]>(
     () => [

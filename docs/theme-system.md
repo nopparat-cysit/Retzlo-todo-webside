@@ -334,4 +334,15 @@ Template:
   - ตัดขั้นตอน Confirm Modal ที่ซ้ำซ้อนตอนกด Save บอร์ด โดยบันทึกทันทีพร้อมแจ้งเตือน Success Toast ตามมาตรฐาน AGENTS.md
 - Reviewed: ตรวจสอบความถูกต้องของสัญญาทดสอบ `theme.test.ts`, `board-rename.test.ts`, `board-views-and-sidebar.test.ts`, และการทำงานบนหน้าจอ Desktop และ Mobile.
 
+### 2026-10-04 — เพิ่ม Skeleton Loading และปรับปรุงประสิทธิภาพความเร็วของหน้าปฏิทิน (Calendar Performance & Skeleton)
+- Added/changed: `src/components/ui/skeleton.tsx`, `src/app/(dashboard)/project/[id]/calendar/loading.tsx`, `src/app/(dashboard)/project/[id]/calendar/page.tsx`, `src/components/kanban/project-calendar.tsx`.
+- Tokens/variants:
+  - เพิ่ม `CalendarSkeleton` ใน `src/components/ui/skeleton.tsx` รองรับการแสดงผลแผงควบคุม Header, แถววันในสัปดาห์ (SUN-SAT), และตาราง 35 วัน (5 สัปดาห์) พร้อม Shimmering animation สไตล์ Retro Lofi
+  - สร้าง `src/app/(dashboard)/project/[id]/calendar/loading.tsx` เพื่อให้ Next.js ทำ Instant Transition แสดง Skeleton ทันทีเมื่อคลิกเข้าสู่หน้าปฏิทิน
+  - ขนานคำสั่งฐานข้อมูลขั้นที่ 1 ใน `page.tsx` ด้วย `Promise.all` ลด Network Waterfall จาก 4 ขั้นเหลือ 2 ขั้น
+  - แก้ไขการแปลงข้อมูล `toProjectDiaryItems` ให้ฟิลด์ `startDate` (ISO String), `repeatUnit`, และสิทธิ์การเข้าถึงสมบูรณ์ตั้งแต่ Server Render ครั้งแรก เพื่อให้รายการ Diary Checklist ทั้งหมดแสดงทันทีไม่ต้องรอ Live Sync ดึงซ้ำ
+  - ปรับปรุงการคำนวณ `preparedDiaries` ใน `project-calendar.tsx` ให้ประมวลผล checklist เพียงครั้งเดียวแทนการรันซ้ำ 35 รอบต่อเดือน และผ่อนคลาย Polling Interval ของ LiveSync เป็น 8000ms
+- Reviewed: ตรวจสอบทั้ง Light Mode, Dark Mode, การนำทางด้วย Router และ Build Production.
+
+
 

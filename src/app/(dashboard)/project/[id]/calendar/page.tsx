@@ -35,25 +35,28 @@ export default async function CalendarPage({ params }: { params: { id: string } 
   let projectMembers: any[] = [];
 
   try {
-    const userMembership = await getProjectMembership(params.id, userId);
-    if (!userMembership) {
+    const [userMembership, projectData, allBoards] = await Promise.all([
+      getProjectMembership(params.id, userId),
+      prisma.project.findUnique({
+        where: { id: params.id },
+        select: { allowMemberPrivateItems: true }
+      }),
+      prisma.board.findMany({
+        where: { projectId: params.id },
+        select: {
+          id: true,
+          isPrivate: true,
+          members: { select: { userId: true } }
+        }
+      })
+    ]);
+
+    if (!userMembership || !projectData) {
       notFound();
     }
     membership = userMembership;
+    project = projectData;
 
-    project = await prisma.project.findUnique({
-      where: { id: params.id },
-      select: { allowMemberPrivateItems: true }
-    });
-
-    if (!project) {
-      notFound();
-    }
-
-    const allBoards = await prisma.board.findMany({
-      where: { projectId: params.id },
-      include: { members: { select: { userId: true } } }
-    });
     const isOwner = isOwnerRole(userMembership.role);
     const accessibleBoards = allBoards.filter((b) =>
       canAccessBoard(b, userId, userMembership.role)
@@ -102,13 +105,24 @@ export default async function CalendarPage({ params }: { params: { id: string } 
                 }
               ]
             },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          color: true,
+          isStarred: true,
+          dueDate: true,
+          dueDateAllDay: true
+        },
         orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }]
       }),
       prisma.diaryItem.findMany({
-        where: {
-          projectId: params.id,
-          isHidden: false
-        },
+        where: isOwner
+          ? { projectId: params.id }
+          : {
+              projectId: params.id,
+              OR: [{ isHidden: false }, { authorId: userId }]
+            },
         include: {
           author: {
             select: {
@@ -189,10 +203,14 @@ function toProjectDiaryItems(
   return items.map((item) => ({
     ...item,
     color: normalizeCardColor(item.color),
+    repeatUnit: item.repeatUnit === "MONTH" ? "MONTH" : "DAY",
+    startDate: item.startDate instanceof Date ? item.startDate.toISOString() : String(item.startDate),
     checklist: normalizeDiaryChecklist(item.checklist, item.startDate),
+    rewardCoins: item.rewardCoins ?? 0,
+    rewardCoinType: item.rewardCoinType === "GLOBAL" || !item.projectId ? "GLOBAL" : "PROJECT",
     rewardClaimedDates: serializeDiaryRewardClaimedDates(item.rewardClaimedDates),
-    createdAt: item.createdAt.toISOString(),
-    updatedAt: item.updatedAt.toISOString(),
+    createdAt: item.createdAt instanceof Date ? item.createdAt.toISOString() : String(item.createdAt),
+    updatedAt: item.updatedAt instanceof Date ? item.updatedAt.toISOString() : String(item.updatedAt),
     canManage: canManageAuthoredItem(context.membership, context.userId, item.authorId),
     canToggleHidden: canToggleHiddenItem(
       context.membership,
