@@ -115,7 +115,7 @@ export function KanbanBoard({
   notesCount?: number;
   onToggleNotes?: () => void;
   density?: "comfortable" | "compact";
-  onToggleDensity?: () => void;
+  onToggleDensity?: (target?: "comfortable" | "compact") => void;
 }) {
   const searchParams = useSearchParams();
   const cardIdFromUrl = searchParams.get("cardId");
@@ -1041,6 +1041,78 @@ export function KanbanBoard({
                 <span>Table</span>
               </button>
             </div>
+
+            {/* ── Card Size / Density Companion Toggle (Board View) ── */}
+            {viewMode === "board" && onToggleDensity && (
+              <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/80 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04] animate-in fade-in zoom-in-95 duration-150">
+                <span className="hidden xl:inline-flex items-center px-1.5 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 font-mono select-none">
+                  Cards:
+                </span>
+
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onToggleDensity("comfortable")}
+                        aria-label="Normal card view"
+                        className={cn(
+                          "flex h-7 items-center gap-1.5 rounded-lg px-2 sm:px-2.5 text-xs font-semibold transition-all cursor-pointer select-none",
+                          density === "comfortable"
+                            ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                            : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                        )}
+                      >
+                        <LayoutGrid className={cn("h-3.5 w-3.5", density === "comfortable" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
+                        <span className="hidden sm:inline">Normal</span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
+                      <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                        <LayoutGrid className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                        <span>Normal View (การ์ดปกติ)</span>
+                      </p>
+                      <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-1 leading-relaxed">
+                        โหมดแสดงรายละเอียดครบถ้วน ทั้ง Checklist, วันครบกำหนด (Due Date), ผู้รับผิดชอบ และป้ายกำกับ
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => onToggleDensity("compact")}
+                        aria-label="Compact card view (see 2x more tasks)"
+                        className={cn(
+                          "flex h-7 items-center gap-1.5 rounded-lg px-2 sm:px-2.5 text-xs font-semibold transition-all cursor-pointer select-none",
+                          density === "compact"
+                            ? "border border-dusk-lavender/40 bg-dusk-lavender/20 text-dusk-lavender font-bold shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                            : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                        )}
+                      >
+                        <Rows3 className={cn("h-3.5 w-3.5", density === "compact" ? "text-dusk-lavender" : "text-stone-400")} />
+                        <span className="hidden sm:inline">Compact</span>
+                        <span className="rounded bg-dusk-lavender/25 px-1 py-0.2 text-[9px] font-mono font-bold text-dusk-lavender">
+                          2x
+                        </span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
+                      <p className="font-bold text-dusk-lavender flex items-center gap-1.5">
+                        <Rows3 className="h-3.5 w-3.5" />
+                        <span>Compact View (โหมดย่อการ์ดกะทัดรัด)</span>
+                      </p>
+                      <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-1 leading-relaxed">
+                        ย่อขนาดการ์ดให้กระชับ ประหยัดพื้นที่ เหมาะกับบอร์ดที่มีงานเยอะ ช่วยให้กวาดสายตามองเห็นงานบนบอร์ดได้เพิ่มขึ้น 2 เท่าในหน้าจอเดียวโดยไม่ต้องเลื่อนบ่อยๆ
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
           </div>
 
           {/* ── Premium Control Bar ── */}
@@ -1100,39 +1172,6 @@ export function KanbanBoard({
             </div>
 
             <div className="h-5 w-[1px] bg-stone-300 dark:bg-white/10 hidden sm:block" />
-
-            {/* Density View Toggle */}
-            <TooltipProvider delayDuration={150}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={onToggleDensity}
-                    className={cn(
-                      "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
-                      density === "compact"
-                        ? "border-dusk-lavender/50 bg-dusk-lavender/15 text-dusk-lavender"
-                        : "border-stone-300 bg-white text-stone-700 hover:border-stone-400 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20"
-                    )}
-                    aria-label={density === "compact" ? "Switch to comfortable view" : "Switch to compact view"}
-                  >
-                    {density === "compact" ? (
-                      <Rows3 className="h-3.5 w-3.5 text-dusk-lavender" />
-                    ) : (
-                      <LayoutGrid className="h-3.5 w-3.5 text-stone-400" />
-                    )}
-                    <span className="hidden sm:inline">
-                      {density === "compact" ? "Compact" : "Comfortable"}
-                    </span>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" align="end" className="text-xs">
-                  {density === "compact"
-                    ? "โหมดย่อข้อมูล (ย่อการ์ดให้เห็นงานได้เยอะขึ้น) - คลิกเพื่อสลับเป็นโหมดปกติ"
-                    : "โหมดปกติ - คลิกเพื่อสลับเป็นโหมดย่อข้อมูล (Compact View)"}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
 
             {/* Notes Toggle */}
             {notesEnabled && (

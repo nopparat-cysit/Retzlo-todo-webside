@@ -64,9 +64,9 @@ export function BoardViewContainer({
     });
   };
 
-  const handleToggleDensity = () => {
+  const handleToggleDensity = (target?: "comfortable" | "compact") => {
     setDensity((prev) => {
-      const next = prev === "comfortable" ? "compact" : "comfortable";
+      const next = target ?? (prev === "comfortable" ? "compact" : "comfortable");
       localStorage.setItem("kanban_card_density", next);
       return next;
     });

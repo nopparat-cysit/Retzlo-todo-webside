@@ -64,6 +64,13 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
 
     // Renders BoardListView when viewMode is list
     expect(boardSource).toContain("<BoardListView");
+
+    // Card Density Companion Toggle sits beside Board view switcher with clear labels & 2x badge
+    expect(boardSource).toContain('viewMode === "board" && onToggleDensity');
+    expect(boardSource).toContain("Normal");
+    expect(boardSource).toContain("Compact");
+    expect(boardSource).toContain("2x");
+    expect(boardSource).toContain("2 เท่า");
   });
 
   it("provides Jira-style table columns and status grouping in BoardListView", () => {
