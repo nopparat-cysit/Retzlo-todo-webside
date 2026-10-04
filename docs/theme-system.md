@@ -467,5 +467,15 @@ Template:
     - **New Section: Card Attributes & Types (`attributes`):** เพิ่มมุมมองสถานะงานมาตรฐาน (TODO, DOING, WAITING, DONE), ตารางลำดับความสำคัญ (P0–P4), ชุดประเมิน Story Points (Fibonacci, T-Shirt, Linear), และฟังก์ชันเสริมของการ์ด พร้อมปุ่มลัดไปยังบอร์ด
 - Reviewed: ตรวจสอบความถูกต้องทั้งธีม Dark และ Light, Vitest ผ่าน 6/6 การทดสอบใน `project-settings-client.test.ts`, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
 
+### 2026-10-04 — ปรับปรุงปุ่ม + ใน Card Modal ให้นำทางไปยังหน้า Project Settings (Attributes Navigation & Management)
+- Added/changed: `src/components/kanban/card-modal.tsx`, `src/components/kanban/board.tsx`, `src/components/project/project-settings-client.tsx`, `src/components/project/project-settings-client.test.ts`.
+- Tokens/variants:
+  - แก้ไขปุ่ม `+` ข้างหัวข้อ Status, Priority และ Story Points ในหน้าต่างรายละเอียดการ์ด (`CardModal`) จากเดิมที่เปิดกล่องป๊อปอัปย่อยซ้อนทับจอ ให้เปลี่ยนเป็นการนำทางตรงไปยังหน้าการตั้งค่าโปรเจกต์ (`/project/[id]/settings?tab=attributes&subTab=...`) ตามคำขอของผู้ใช้
+  - บูรณาการ `BoardAttributesTab` เข้าสู่แท็บ `attributes` ของหน้า Project Settings (`ProjectSettingsClient`) พร้อมตัวสลับบอร์ด (Board Selector) และรองรับการกระโดดไปยังซับแท็บที่เลือก (`status`, `priority`, `story-points`) ทันที
+  - ผู้ใช้สามารถเพิ่ม/แก้ไขสถานะการ์ด, ปรับระดับความสำคัญ 10 ระดับ, และเลือก/ปรับแต่ง Story Points ได้อย่างสมบูรณ์แบบในหน้าเดียว
+- Reviewed: ตรวจสอบความถูกต้องทั้งธีม Dark และ Light, Vitest ผ่าน 22/22 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
+
+
+
 
 

@@ -11,6 +11,7 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { CheckSquare, Coins, GripVertical, KeyRound, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ interface CardModalProps {
   members?: CardAssignee[];
   currentUserId?: string;
   boardId?: string;
+  projectId?: string;
   boardPriorities?: CustomPriority[];
   onSubmit: (data: {
     title: string;
@@ -120,7 +122,24 @@ function timeValue(card?: Card) {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
-export function CardModal({ card, mode, open, onClose, onDelete, footerAction, members = [], currentUserId, boardId, boardPriorities, onSubmit }: CardModalProps) {
+export function CardModal({
+  card,
+  mode,
+  open,
+  onClose,
+  onDelete,
+  footerAction,
+  members = [],
+  currentUserId,
+  boardId,
+  projectId,
+  boardPriorities,
+  onSubmit
+}: CardModalProps) {
+  const router = useRouter();
+  const params = useParams();
+  const activeProjectId = projectId || (params?.id as string) || "";
+
   const [startDate, setStartDate] = useState(startDateValue(card));
   const [startTime, setStartTime] = useState(startTimeValue(card));
   const [date, setDate] = useState(dateValue(card));
@@ -134,9 +153,27 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [storyPoints, setStoryPoints] = useState<CustomStoryPoint[]>(() => getStoredStoryPoints(boardId));
   const [localPriorities, setLocalPriorities] = useState<CustomPriority[]>(() => resolveBoardPriorities(boardPriorities));
 
-  // Edit Attributes Modal State
+  // Edit Attributes Modal State & Navigation to Settings
   const [isEditAttributesOpen, setIsEditAttributesOpen] = useState(false);
   const [editAttributesTab, setEditAttributesTab] = useState<"status" | "priority" | "story-points">("status");
+
+  const handleOpenAttributesSetting = useCallback(
+    (tab: "status" | "priority" | "story-points") => {
+      setEditAttributesTab(tab);
+      if (activeProjectId) {
+        onClose();
+        const query = new URLSearchParams({
+          tab: "attributes",
+          subTab: tab,
+          ...(boardId ? { boardId } : {})
+        });
+        router.push(`/project/${activeProjectId}/settings?${query.toString()}`);
+      } else {
+        setIsEditAttributesOpen(true);
+      }
+    },
+    [activeProjectId, boardId, onClose, router]
+  );
 
   // Keep localPriorities in sync if boardPriorities changes from parent
   useEffect(() => {
@@ -732,7 +769,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                   type="button"
                   onClick={() => {
                     setEditAttributesTab("status");
-                    setIsEditAttributesOpen(true);
+                    handleOpenAttributesSetting("status");
                   }}
                   className="h-5 w-5 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
                   title="Add or Edit Statuses"
@@ -760,7 +797,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                   type="button"
                   onClick={() => {
                     setEditAttributesTab("priority");
-                    setIsEditAttributesOpen(true);
+                    handleOpenAttributesSetting("priority");
                   }}
                   className="h-5 w-5 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
                   title="Add or Edit Priorities"
@@ -882,7 +919,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                 type="button"
                 onClick={() => {
                   setEditAttributesTab("status");
-                  setIsEditAttributesOpen(true);
+                  handleOpenAttributesSetting("status");
                 }}
                 className="h-6 w-6 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
                 title="Add or Edit Statuses"
@@ -911,7 +948,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                 type="button"
                 onClick={() => {
                   setEditAttributesTab("priority");
-                  setIsEditAttributesOpen(true);
+                  handleOpenAttributesSetting("priority");
                 }}
                 className="h-6 w-6 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
                 title="Add or Edit Priorities"
@@ -965,7 +1002,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                 type="button"
                 onClick={() => {
                   setEditAttributesTab("story-points");
-                  setIsEditAttributesOpen(true);
+                  handleOpenAttributesSetting("story-points");
                 }}
                 className="h-6 w-6 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
                 title="Add or Edit Story Points"

@@ -57,4 +57,21 @@ describe("ProjectSettingsClient Jira-style Master-Detail Architecture", () => {
     expect(source).toContain("<SettingsForm");
     expect(source).toContain("<SoundToggle");
   });
+
+  it("integrates interactive BoardAttributesTab for direct Status, Priority, and Story Points configuration", () => {
+    expect(source).toContain("<BoardAttributesTab");
+    expect(source).toContain("boardId={selectedBoardId}");
+    expect(source).toContain("initialSubTab={attributeSubTab}");
+    expect(source).toContain("onPrioritiesChange={handlePrioritiesChange}");
+  });
+
+  it("verifies card-modal.tsx + button links to project settings attributes tab", () => {
+    const cardModalSource = readFileSync(
+      join(process.cwd(), "src/components/kanban/card-modal.tsx"),
+      "utf8"
+    );
+    expect(cardModalSource).toContain("handleOpenAttributesSetting");
+    expect(cardModalSource).toContain('tab: "attributes"');
+    expect(cardModalSource).toContain("/settings?");
+  });
 });

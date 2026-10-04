@@ -1700,6 +1700,7 @@ export function KanbanBoard({
           members={members}
           currentUserId={currentUserId}
           boardId={board.id}
+          projectId={board.projectId}
           boardPriorities={boardPriorities}
           onDelete={async () => {
             const toDelete = editingCard;

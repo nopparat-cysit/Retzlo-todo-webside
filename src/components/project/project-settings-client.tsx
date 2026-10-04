@@ -20,6 +20,9 @@ import {
 
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { BoardAttributesTab } from "@/components/kanban/board-attributes-tab";
+import { DEFAULT_PRIORITIES, resolveBoardPriorities } from "@/lib/kanban/priority";
+import type { CustomPriority } from "@/types/kanban";
 import { ProjectBoardsManager } from "@/components/project/project-boards-manager";
 import { SettingsForm } from "@/components/project/settings-form";
 import { SoundToggle } from "@/components/project/sound-toggle";
@@ -123,18 +126,70 @@ export function ProjectSettingsClient({
     return "identity";
   });
 
+  const [selectedBoardId, setSelectedBoardId] = useState<string>(
+    () => formattedBoards[0]?.id || ""
+  );
+  const [attributeSubTab, setAttributeSubTab] = useState<"status" | "priority" | "story-points">("status");
+  const [boardPriorities, setBoardPriorities] = useState<CustomPriority[]>(DEFAULT_PRIORITIES);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const boardIdParam = params.get("boardId");
       const tabParam = params.get("tab");
-      if (boardIdParam) {
-        setActiveTab("boards");
-      } else if (tabParam && VALID_TABS.includes(tabParam as SettingsTabId)) {
+      const subTabParam = params.get("subTab");
+      const boardIdParam = params.get("boardId");
+
+      if (tabParam && VALID_TABS.includes(tabParam as SettingsTabId)) {
         setActiveTab(tabParam as SettingsTabId);
+      } else if (boardIdParam) {
+        setActiveTab("boards");
+      }
+
+      if (subTabParam && ["status", "priority", "story-points"].includes(subTabParam)) {
+        setAttributeSubTab(subTabParam as "status" | "priority" | "story-points");
+      }
+
+      if (boardIdParam && formattedBoards.some((b) => b.id === boardIdParam)) {
+        setSelectedBoardId(boardIdParam);
       }
     }
-  }, []);
+  }, [formattedBoards]);
+
+  // Sync priorities when selectedBoardId changes
+  useEffect(() => {
+    if (!selectedBoardId) return;
+    let isMounted = true;
+    fetch(`/api/boards/${selectedBoardId}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data?.board?.customPriorities) {
+          setBoardPriorities(resolveBoardPriorities(data.board.customPriorities));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedBoardId]);
+
+  const handlePrioritiesChange = async (nextPriorities: CustomPriority[]) => {
+    setBoardPriorities(nextPriorities);
+    if (!selectedBoardId) return;
+    try {
+      await fetch(`/api/boards/${selectedBoardId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customPriorities: nextPriorities })
+      });
+      window.dispatchEvent(
+        new CustomEvent("board-priorities-updated", {
+          detail: { boardId: selectedBoardId, priorities: nextPriorities }
+        })
+      );
+    } catch {
+      // handled
+    }
+  };
 
   const handleTabChange = (tabId: SettingsTabId) => {
     setActiveTab(tabId);
@@ -563,6 +618,56 @@ export function ProjectSettingsClient({
                     </h2>
                   </div>
                 )}
+
+                {/* Interactive Board Attributes Manager */}
+                <section className="lofi-panel rounded-2xl p-5 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02] space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-stone-200 pb-4 dark:border-white/10">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600 dark:text-dusk-amber">
+                        Interactive Attribute Manager
+                      </p>
+                      <h3 className="mt-0.5 text-sm sm:text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                        <CheckSquare className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
+                        <span>จัดการคุณสมบัติการ์ด (Status, Priority &amp; Story Points)</span>
+                      </h3>
+                      <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                        ปรับแต่งสถานะคอลัมน์ ลำดับความสำคัญ และคะแนนความยาก พร้อมซิงค์เรียลไทม์กับทุกบอร์ด
+                      </p>
+                    </div>
+
+                    {formattedBoards.length > 1 && (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">เลือกบอร์ด:</span>
+                        <select
+                          value={selectedBoardId}
+                          onChange={(e) => setSelectedBoardId(e.target.value)}
+                          className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-bold text-stone-800 shadow-xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer"
+                        >
+                          {formattedBoards.map((b) => (
+                            <option key={b.id} value={b.id}>
+                              {b.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedBoardId ? (
+                    <BoardAttributesTab
+                      key={`board-attr-${selectedBoardId}-${attributeSubTab}`}
+                      boardId={selectedBoardId}
+                      canManage={canManage}
+                      priorities={boardPriorities}
+                      onPrioritiesChange={handlePrioritiesChange}
+                      initialSubTab={attributeSubTab}
+                    />
+                  ) : (
+                    <div className="rounded-xl border border-stone-200 bg-stone-50 p-6 text-center text-xs text-stone-500 dark:border-white/10 dark:bg-white/[0.02]">
+                      ยังไม่มีบอร์ดในโปรเจกต์นี้ โปรดสร้างบอร์ดใหม่ในแท็บ &ldquo;Boards &amp; Sub-projects&rdquo; ก่อนปรับแต่งคุณสมบัติการ์ด
+                    </div>
+                  )}
+                </section>
 
                 <div className="grid grid-cols-1 gap-4">
                   {/* 1. Workflow Statuses */}
