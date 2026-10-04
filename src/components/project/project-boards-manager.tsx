@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { FolderKanban, Globe, LayoutGrid, List, Lock, MoreVertical, Plus, Search, Trash2, Users, Edit3, Check, X, Sparkles, Settings } from "lucide-react";
+import Link from "next/link";
+import { FolderKanban, Globe, LayoutGrid, List, Lock, MoreVertical, Plus, Search, Trash2, Users, Edit3, Check, X, Sparkles, Settings, ExternalLink } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { Avatar } from "@/components/ui/avatar";
@@ -506,57 +507,66 @@ export function ProjectBoardsManager({
                 </div>
 
                 {/* Actions Footer */}
-                {canManage && (
-                  <div className="mt-4 flex items-center justify-end gap-1.5 border-t border-white/5 pt-3">
-                    <button
-                      type="button"
-                      onClick={() => setDetailedSettingsBoard(b)}
-                      className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-dusk-amber transition hover:bg-dusk-amber/10 cursor-pointer"
-                      title="Detailed board settings"
-                    >
-                      <Settings className="h-3 w-3" />
-                      Settings
-                    </button>
+                <div className="mt-4 flex items-center justify-between gap-2 border-t border-white/5 pt-3">
+                  <Link
+                    href={`/project/${projectId}/board?boardId=${b.id}`}
+                    className="flex h-7.5 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 text-xs font-semibold text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/10 hover:text-white"
+                    title="เปิดดูบอร์ดนี้ในมุมมอง Kanban"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 text-dusk-lavender" />
+                    <span>เปิดบอร์ด</span>
+                  </Link>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingBoard(b);
-                        setEditName(b.name);
-                      }}
-                      className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-stone-400 transition hover:bg-white/10 hover:text-stone-200 cursor-pointer"
-                      title="Rename board"
-                    >
-                      <Edit3 className="h-3 w-3" />
-                      Rename
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAccessBoard(b);
-                        setAccessIsPrivate(b.isPrivate);
-                        setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
-                      }}
-                      className="flex h-7 items-center gap-1 rounded-lg px-2 text-[11px] font-medium text-dusk-lavender transition hover:bg-dusk-lavender/10 cursor-pointer"
-                      title="Configure member access"
-                    >
-                      <Users className="h-3 w-3" />
-                      Access
-                    </button>
-
-                    {!isOnlyBoard && (
+                  {canManage && (
+                    <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        onClick={() => setDeletingBoard(b)}
-                        className="grid h-7 w-7 place-items-center rounded-lg text-stone-500 transition hover:bg-dusk-rose/10 hover:text-dusk-rose cursor-pointer"
-                        title="Delete board"
+                        onClick={() => setDetailedSettingsBoard(b)}
+                        className="flex h-7.5 items-center gap-1.5 rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 text-xs font-semibold text-dusk-amber transition hover:bg-dusk-amber/20 cursor-pointer"
+                        title="ตั้งค่าบอร์ด สิทธิ์สมาชิก และระดับความสำคัญ"
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Settings className="h-3.5 w-3.5" />
+                        <span>Settings</span>
                       </button>
-                    )}
-                  </div>
-                )}
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingBoard(b);
+                          setEditName(b.name);
+                        }}
+                        className="grid h-7.5 w-7.5 place-items-center rounded-lg border border-white/10 text-stone-400 transition hover:bg-white/10 hover:text-stone-200 cursor-pointer"
+                        title="เปลี่ยนชื่อบอร์ด"
+                      >
+                        <Edit3 className="h-3.5 w-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAccessBoard(b);
+                          setAccessIsPrivate(b.isPrivate);
+                          setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
+                        }}
+                        className="grid h-7.5 w-7.5 place-items-center rounded-lg border border-white/10 text-stone-400 transition hover:bg-white/10 hover:text-stone-200 cursor-pointer"
+                        title="กำหนดสิทธิ์สมาชิก (Access)"
+                      >
+                        <Users className="h-3.5 w-3.5" />
+                      </button>
+
+                      {!isOnlyBoard && (
+                        <button
+                          type="button"
+                          onClick={() => setDeletingBoard(b)}
+                          className="grid h-7.5 w-7.5 place-items-center rounded-lg border border-red-500/20 text-red-400 transition hover:bg-red-500/10 hover:text-red-300 cursor-pointer"
+                          title="ลบบอร์ดนี้"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -616,37 +626,47 @@ export function ProjectBoardsManager({
                       {b.cardCount !== undefined ? b.cardCount : "-"}
                     </td>
                     <td className="py-2.5 px-4 text-right">
-                      {canManage && (
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            type="button"
-                            onClick={() => setDetailedSettingsBoard(b)}
-                            className="rounded px-2 py-1 text-[11px] text-dusk-amber hover:bg-dusk-amber/10 transition"
-                          >
-                            Settings
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setAccessBoard(b);
-                              setAccessIsPrivate(b.isPrivate);
-                              setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
-                            }}
-                            className="rounded px-2 py-1 text-[11px] text-dusk-lavender hover:bg-dusk-lavender/10 transition"
-                          >
-                            Access
-                          </button>
-                          {!isOnlyBoard && (
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Link
+                          href={`/project/${projectId}/board?boardId=${b.id}`}
+                          className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] font-medium text-stone-200 transition hover:border-dusk-lavender/40 hover:bg-white/10"
+                        >
+                          <ExternalLink className="h-3 w-3 text-dusk-lavender" />
+                          <span>เปิดบอร์ด</span>
+                        </Link>
+
+                        {canManage && (
+                          <>
                             <button
                               type="button"
-                              onClick={() => setDeletingBoard(b)}
-                              className="rounded p-1 text-stone-400 hover:text-red-400 transition"
+                              onClick={() => setDetailedSettingsBoard(b)}
+                              className="rounded px-2 py-1 text-[11px] font-medium text-dusk-amber hover:bg-dusk-amber/10 transition cursor-pointer"
                             >
-                              <Trash2 className="h-3 w-3" />
+                              Settings
                             </button>
-                          )}
-                        </div>
-                      )}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAccessBoard(b);
+                                setAccessIsPrivate(b.isPrivate);
+                                setAccessMemberIds(b.memberUserIds ?? b.members?.map((m) => m.userId) ?? []);
+                              }}
+                              className="rounded px-2 py-1 text-[11px] font-medium text-dusk-lavender hover:bg-dusk-lavender/10 transition cursor-pointer"
+                            >
+                              Access
+                            </button>
+                            {!isOnlyBoard && (
+                              <button
+                                type="button"
+                                onClick={() => setDeletingBoard(b)}
+                                className="rounded p-1 text-stone-400 hover:text-red-400 transition cursor-pointer"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

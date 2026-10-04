@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState, useMemo, useRef } from "react";
-import { Lock, Settings, X } from "lucide-react";
+import { AlertTriangle, Layers, Lock, Settings, Sparkles, X, Zap } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -64,7 +64,9 @@ export function BoardSettingsModal({
 }: BoardSettingsModalProps) {
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<string>(defaultTab);
+  const [activeTab, setActiveTab] = useState<string>(
+    defaultTab === "access" ? "general" : defaultTab
+  );
   const [name, setName] = useState(boardName);
   const [baseName, setBaseName] = useState(boardName);
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate);
@@ -81,7 +83,6 @@ export function BoardSettingsModal({
 
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,7 +107,7 @@ export function BoardSettingsModal({
       setPriorities(resolved);
       setBasePriorities(resolved);
       setError(null);
-      setActiveTab(defaultTab || "general");
+      setActiveTab(defaultTab === "access" ? "general" : (defaultTab || "general"));
       setMemberSearchQuery("");
     }
 
@@ -214,16 +215,12 @@ export function BoardSettingsModal({
     setSelectedMemberIds([]);
   }
 
-  function handleSaveIntent(e: FormEvent) {
+  async function handleSaveIntent(e: FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
-    setConfirmSaveOpen(true);
-  }
+    if (!name.trim() || isSaving) return;
 
-  async function handleSave() {
     setError(null);
     setIsSaving(true);
-    setConfirmSaveOpen(false);
 
     try {
       const res = await fetch(`/api/boards/${boardId}`, {
@@ -246,7 +243,7 @@ export function BoardSettingsModal({
         return;
       }
 
-      toast({ message: `Board "${data.board.name}" settings saved.`, type: "success" });
+      toast({ message: `บันทึกการตั้งค่าบอร์ด "${data.board.name}" สำเร็จ`, type: "success" });
       if (typeof window !== "undefined") {
         window.dispatchEvent(
           new CustomEvent("board-renamed", {
@@ -291,7 +288,7 @@ export function BoardSettingsModal({
         throw new Error(data.error || "Could not delete board");
       }
 
-      toast({ message: `Board "${name}" deleted.`, type: "success" });
+      toast({ message: `ลบบอร์ด "${name}" เรียบร้อยแล้ว`, type: "success" });
       if (onDeleted) {
         onDeleted(boardId);
       }
@@ -349,7 +346,7 @@ export function BoardSettingsModal({
             </div>
 
             <button
-              className="rounded-md p-1.5 text-stone-500 hover:bg-stone-100 hover:text-stone-900 transition dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100"
+              className="rounded-md p-1.5 text-stone-500 hover:bg-stone-100 hover:text-stone-900 transition dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer"
               type="button"
               onClick={onClose}
               aria-label="Close board settings"
@@ -360,36 +357,39 @@ export function BoardSettingsModal({
 
           {/* Navigation Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-5 w-full bg-stone-100/90 border border-stone-200/90 p-1 rounded-xl dark:border-white/10 dark:bg-white/[0.03]">
-              <TabsTrigger value="general" className="text-xs py-1.5">
-                General
-              </TabsTrigger>
-              <TabsTrigger value="access" className="text-xs py-1.5 relative">
-                Access
+            <TabsList className="grid grid-cols-4 w-full bg-stone-100/90 border border-stone-200/90 p-1 rounded-xl dark:border-white/10 dark:bg-white/[0.03]">
+              <TabsTrigger value="general" className="text-xs py-2 font-medium">
+                ⚙️ ทั่วไป & สิทธิ์
                 {isPrivate && (
                   <span className="ml-1.5 rounded-full bg-dusk-amber/20 px-1.5 text-[10px] font-mono text-dusk-amber font-semibold">
                     {selectedMemberIds.length}
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="columns" className="text-xs py-1.5">
-                Columns
-                <span className="ml-1.5 rounded-full bg-stone-200/80 px-1.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-stone-300">
-                  {columns.length}
-                </span>
-              </TabsTrigger>
-              <TabsTrigger value="priorities" className="text-xs py-1.5">
-                Priorities
+
+              <TabsTrigger value="priorities" className="text-xs py-2 font-medium">
+                ⚡ ความสำคัญ
                 <span className="ml-1.5 rounded-full bg-indigo-500/15 px-1.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-semibold">
                   {priorities.length}
                 </span>
               </TabsTrigger>
-              <TabsTrigger value="danger" className="text-xs py-1.5 text-red-500 hover:text-red-600 data-[state=active]:text-red-700 data-[state=active]:bg-red-50 dark:text-red-400 dark:data-[state=active]:text-red-300 dark:data-[state=active]:bg-red-400/15">
-                Danger
+
+              <TabsTrigger value="columns" className="text-xs py-2 font-medium">
+                📋 ขั้นตอนงาน
+                <span className="ml-1.5 rounded-full bg-stone-200/80 px-1.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-stone-300 font-semibold">
+                  {columns.length}
+                </span>
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="danger"
+                className="text-xs py-2 font-medium text-red-500 hover:text-red-600 data-[state=active]:text-red-700 data-[state=active]:bg-red-50 dark:text-red-400 dark:data-[state=active]:text-red-300 dark:data-[state=active]:bg-red-400/15"
+              >
+                ⚠️ จัดการบอร์ด
               </TabsTrigger>
             </TabsList>
 
-            {/* TAB 1: General */}
+            {/* TAB 1: General & Access */}
             <TabsContent value="general">
               <BoardGeneralTab
                 name={name}
@@ -399,16 +399,7 @@ export function BoardSettingsModal({
                 canManage={canManage}
                 selectedMemberCount={selectedMemberIds.length}
                 totalProjectMembersCount={projectMembers.length}
-                onGoToAccessTab={() => setActiveTab("access")}
-              />
-            </TabsContent>
-
-            {/* TAB 2: Access & Members */}
-            <TabsContent value="access">
-              <BoardAccessTab
-                isPrivate={isPrivate}
-                onSwitchToPrivate={() => setIsPrivate(true)}
-                projectMembersCount={projectMembers.length}
+                projectMembers={projectMembers}
                 filteredMembers={filteredMembers}
                 selectedMemberIds={selectedMemberIds}
                 memberSearchQuery={memberSearchQuery}
@@ -419,15 +410,7 @@ export function BoardSettingsModal({
               />
             </TabsContent>
 
-            {/* TAB 3: Columns & Workflow */}
-            <TabsContent value="columns">
-              <BoardColumnsTab
-                columns={columns}
-                totalCards={totalCards}
-              />
-            </TabsContent>
-
-            {/* TAB 4: Priorities (Custom Priorities up to 10 levels) */}
+            {/* TAB 2: Priorities */}
             <TabsContent value="priorities">
               <BoardPrioritiesTab
                 priorities={priorities}
@@ -436,7 +419,17 @@ export function BoardSettingsModal({
               />
             </TabsContent>
 
-            {/* TAB 5: Danger Zone */}
+            {/* TAB 3: Workflow Stages */}
+            <TabsContent value="columns">
+              <BoardColumnsTab
+                columns={columns}
+                totalCards={totalCards}
+                projectId={projectId}
+                boardId={boardId}
+              />
+            </TabsContent>
+
+            {/* TAB 4: Danger Zone */}
             <TabsContent value="danger">
               <BoardDangerTab
                 boardName={boardName}
@@ -450,43 +443,31 @@ export function BoardSettingsModal({
           {error ? <p className="mt-3 text-xs text-red-500 dark:text-red-400">{error}</p> : null}
 
           {/* Footer Actions */}
-          <div className="mt-6 flex items-center justify-between gap-3 border-t border-stone-200/80 pt-3 dark:border-white/10">
+          <div className="mt-6 flex items-center justify-between gap-3 border-t border-stone-200/80 pt-4 dark:border-white/10">
             <span className="text-[11px] text-stone-500">
-              {isDirty ? "• Unsaved changes" : "All changes saved"}
+              {isDirty ? "• มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก" : "ข้อมูลปัจจุบันได้รับการบันทึกแล้ว"}
             </span>
             <div className="flex items-center gap-2">
-              <Button type="button" variant="ghost" onClick={onClose}>
-                Cancel
+              <Button type="button" variant="ghost" onClick={onClose} disabled={isSaving}>
+                ยกเลิก (Cancel)
               </Button>
-              <Button disabled={isSaving || !name.trim() || !canManage}>
-                {isSaving ? "Saving..." : "Save changes"}
+              <Button disabled={isSaving || !name.trim() || !canManage} className="min-w-[120px]">
+                {isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า (Save)"}
               </Button>
             </div>
           </div>
         </form>
       </AppModal>
 
-      {/* Confirm Save Modal */}
-      <ConfirmModal
-        open={confirmSaveOpen}
-        title="Save board changes"
-        message={`Are you sure you want to save changes to "${name.trim() || boardName}"?`}
-        confirmLabel="Save Changes"
-        isLoading={isSaving}
-        variant="default"
-        onClose={() => setConfirmSaveOpen(false)}
-        onConfirm={handleSave}
-      />
-
       {/* Confirm Delete Modal */}
       <ConfirmModal
         open={deleteConfirmOpen}
-        title={`Delete "${boardName}"`}
-        message={`This will permanently delete the board "${boardName}" and all of its tasks. To confirm, please type the board name below.`}
-        confirmLabel="Delete Board"
+        title={`ยืนยันการลบบอร์ด "${boardName}"`}
+        message={`การลบบอร์ดนี้จะลบงาน คอลัมน์ และเช็คลิสต์ทั้งหมดในบอร์ดอย่างถาวร หากต้องการยืนยัน โปรดพิมพ์ชื่อบอร์ดด้านล่าง`}
+        confirmLabel="ลบบอร์ดถาวร"
         variant="danger"
         validateText={boardName}
-        validatePlaceholder={`Type "${boardName}" to confirm`}
+        validatePlaceholder={`พิมพ์ "${boardName}" เพื่อยืนยัน`}
         isLoading={isDeleting}
         onClose={() => setDeleteConfirmOpen(false)}
         onConfirm={handleDeleteBoard}

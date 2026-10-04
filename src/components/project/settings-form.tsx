@@ -13,7 +13,8 @@ import { cn } from "@/lib/utils";
 
 export function SettingsForm({
   canManagePrivacy,
-  project
+  project,
+  viewMode = "all"
 }: {
   canManagePrivacy: boolean;
   project: {
@@ -24,6 +25,7 @@ export function SettingsForm({
     allowMemberPrivateItems: boolean;
     notesEnabled: boolean;
   };
+  viewMode?: "all" | "identity" | "features";
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -196,154 +198,169 @@ export function SettingsForm({
     toast({ message: data.error ?? "Could not save board notes rail setting.", type: "error" });
   }
 
-  return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-      <form className="lofi-panel min-w-0 rounded-2xl p-5 sm:p-6" onSubmit={handleSubmitIntent}>
-        <div className="flex flex-col gap-1">
-          <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Project details</p>
-          <h2 className="text-xl font-semibold text-stone-100">Workspace identity</h2>
-          <p className="max-w-2xl text-sm leading-6 text-stone-500">
-            Keep the name, description, and cover easy to recognize across the project.
+  const identitySection = (
+    <form className={cn("lofi-panel min-w-0 rounded-2xl p-5 sm:p-6", viewMode === "identity" && "w-full max-w-4xl")} onSubmit={handleSubmitIntent}>
+      <div className="flex flex-col gap-1">
+        <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Project details</p>
+        <h2 className="text-xl font-semibold text-stone-100">Workspace identity</h2>
+        <p className="max-w-2xl text-sm leading-6 text-stone-500">
+          Keep the name, description, and cover easy to recognize across the project.
+        </p>
+      </div>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(280px,1.05fr)]">
+        <div className="space-y-2">
+          <span className="block text-xs uppercase tracking-[0.16em] text-stone-500">Cover image</span>
+          <button
+            className="group relative block aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-ink-950/45 text-left"
+            title="Upload project cover"
+            type="button"
+            onClick={() => coverInputRef.current?.click()}
+          >
+            {coverPreview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img alt="Project cover" className="h-full w-full object-cover" src={coverPreview} />
+            ) : (
+              <div className="h-full w-full bg-[radial-gradient(circle_at_20%_15%,rgba(249,199,132,0.18),transparent_32%),linear-gradient(135deg,rgba(169,162,255,0.2),rgba(103,232,249,0.1),rgba(244,114,182,0.1))]" />
+            )}
+            <div className="absolute inset-0 grid place-items-center bg-ink-950/45 opacity-0 transition group-hover:opacity-100">
+              <span className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-ink-950/70 px-3 py-2 text-sm font-medium text-white">
+                {isUploadingCover ? (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+                {coverPreview ? "Change cover" : "Upload cover"}
+              </span>
+            </div>
+          </button>
+          <input
+            ref={coverInputRef}
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            hidden
+            type="file"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void handleCoverUpload(file);
+            }}
+          />
+          <p className="flex items-center gap-2 text-xs text-stone-600">
+            <ImageIcon className="h-3.5 w-3.5" />
+            JPG, PNG, WebP, or GIF. Max 5 MB.
           </p>
         </div>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(280px,1.05fr)]">
-          <div className="space-y-2">
-            <span className="block text-xs uppercase tracking-[0.16em] text-stone-500">Cover image</span>
-            <button
-              className="group relative block aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-ink-950/45 text-left"
-              title="Upload project cover"
-              type="button"
-              onClick={() => coverInputRef.current?.click()}
-            >
-              {coverPreview ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img alt="Project cover" className="h-full w-full object-cover" src={coverPreview} />
-              ) : (
-                <div className="h-full w-full bg-[radial-gradient(circle_at_20%_15%,rgba(249,199,132,0.18),transparent_32%),linear-gradient(135deg,rgba(169,162,255,0.2),rgba(103,232,249,0.1),rgba(244,114,182,0.1))]" />
-              )}
-              <div className="absolute inset-0 grid place-items-center bg-ink-950/45 opacity-0 transition group-hover:opacity-100">
-                <span className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-ink-950/70 px-3 py-2 text-sm font-medium text-white">
-                  {isUploadingCover ? (
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  ) : (
-                    <Upload className="h-4 w-4" />
-                  )}
-                  {coverPreview ? "Change cover" : "Upload cover"}
-                </span>
-              </div>
-            </button>
-            <input
-              ref={coverInputRef}
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              className="hidden"
-              hidden
-              type="file"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) void handleCoverUpload(file);
-              }}
+        <div className="space-y-4">
+          <label className="block space-y-2">
+            <span className="text-xs uppercase tracking-[0.16em] text-stone-500">Project name</span>
+            <Input maxLength={120} required value={name} onChange={(event) => setName(event.target.value)} />
+          </label>
+          <label className="block space-y-2">
+            <span className="text-xs uppercase tracking-[0.16em] text-stone-500">Description</span>
+            <Textarea
+              className="min-h-32 resize-y"
+              maxLength={500}
+              placeholder="What is this workspace for?"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
             />
-            <p className="flex items-center gap-2 text-xs text-stone-600">
-              <ImageIcon className="h-3.5 w-3.5" />
-              JPG, PNG, WebP, or GIF. Max 5 MB.
-            </p>
-          </div>
+          </label>
 
-          <div className="space-y-4">
-            <label className="block space-y-2">
-              <span className="text-xs uppercase tracking-[0.16em] text-stone-500">Project name</span>
-              <Input maxLength={120} required value={name} onChange={(event) => setName(event.target.value)} />
-            </label>
-            <label className="block space-y-2">
-              <span className="text-xs uppercase tracking-[0.16em] text-stone-500">Description</span>
-              <Textarea
-                className="min-h-32 resize-y"
-                maxLength={500}
-                placeholder="What is this workspace for?"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-              />
-            </label>
-
-            {statusMessage ? (
-              <p className={cn("rounded-lg border px-3 py-2 text-sm", statusMessage.ok ? "border-theme-success-border bg-theme-success-surface text-theme-success" : "border-theme-danger-border bg-theme-danger-surface text-theme-danger")}>
-                {statusMessage.text}
-              </p>
-            ) : null}
-
-            <div className="flex justify-end">
-              <Button disabled={isSaving || !name.trim()} type="submit">
-                <Save className="h-4 w-4" />
-                {isSaving ? "Saving..." : "Save changes"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </form>
-
-      <div className="min-w-0 space-y-4">
-        <section className="lofi-panel rounded-2xl p-5">
-          <div className="flex items-start gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-lavender/20 bg-dusk-lavender/10 text-dusk-lavender">
-              <Shield className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Workspace features</p>
-              <h3 className="mt-1 text-base font-semibold text-stone-100">Access and visibility</h3>
-              <p className="mt-1 text-sm leading-6 text-stone-500">
-                Keep lightweight modules available only when this project needs them.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 space-y-3">
-            <SettingsToggleRow
-              checked={notesEnabled}
-              description="Show or hide only the notes panel on the right side of the Board page."
-              disabled={!canManagePrivacy || isSavingPrivacy}
-              icon={<FileText className="h-4 w-4 text-dusk-cyan" />}
-              label="Board notes rail"
-              onToggle={() => {
-                setPendingToggleType("notes");
-                setPendingToggleValue(!notesEnabled);
-                setConfirmToggleOpen(true);
-              }}
-            />
-            <SettingsToggleRow
-              checked={allowMemberPrivateItems}
-              description="Members can hide their own diary items and notes from other members."
-              disabled={!canManagePrivacy || isSavingPrivacy}
-              icon={<EyeOff className="h-4 w-4 text-dusk-lavender" />}
-              label="Private item hiding"
-              onToggle={() => {
-                setPendingToggleType("privacy");
-                setPendingToggleValue(!allowMemberPrivateItems);
-                setConfirmToggleOpen(true);
-              }}
-            />
-          </div>
-
-          {!canManagePrivacy ? (
-            <p className="mt-3 flex items-center gap-2 text-xs text-stone-600">
-              <Lock className="h-3.5 w-3.5" />
-              Only the project owner can change this setting.
+          {statusMessage ? (
+            <p className={cn("rounded-lg border px-3 py-2 text-sm", statusMessage.ok ? "border-theme-success-border bg-theme-success-surface text-theme-success" : "border-theme-danger-border bg-theme-danger-surface text-theme-danger")}>
+              {statusMessage.text}
             </p>
           ) : null}
-        </section>
 
-        <section className="rounded-2xl border border-dusk-rose/25 bg-dusk-rose/[0.055] p-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-dusk-rose">Danger zone</p>
-          <h3 className="mt-1 text-base font-semibold text-stone-100">Delete project</h3>
-          <p className="mt-1 text-sm leading-6 text-stone-400">
-            Permanently delete this project and all boards, columns, cards, diary items, and notes inside it.
-          </p>
-          <Button className="mt-4" type="button" variant="danger" onClick={() => setDeleteOpen(true)}>
-            <Trash2 className="h-4 w-4" />
-            Delete project
-          </Button>
-        </section>
+          <div className="flex justify-end">
+            <Button disabled={isSaving || !name.trim()} type="submit">
+              <Save className="h-4 w-4" />
+              {isSaving ? "Saving..." : "Save changes"}
+            </Button>
+          </div>
+        </div>
       </div>
+    </form>
+  );
+
+  const featuresSection = (
+    <div className={cn("min-w-0 space-y-4", viewMode === "features" && "w-full max-w-4xl")}>
+      <section className="lofi-panel rounded-2xl p-5 sm:p-6">
+        <div className="flex items-start gap-3">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-lavender/20 bg-dusk-lavender/10 text-dusk-lavender">
+            <Shield className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Workspace features</p>
+            <h3 className="mt-1 text-base font-semibold text-stone-100">Access and visibility</h3>
+            <p className="mt-1 text-sm leading-6 text-stone-500">
+              Keep lightweight modules available only when this project needs them.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-3">
+          <SettingsToggleRow
+            checked={notesEnabled}
+            description="Show or hide only the notes panel on the right side of the Board page."
+            disabled={!canManagePrivacy || isSavingPrivacy}
+            icon={<FileText className="h-4 w-4 text-dusk-cyan" />}
+            label="Board notes rail"
+            onToggle={() => {
+              setPendingToggleType("notes");
+              setPendingToggleValue(!notesEnabled);
+              setConfirmToggleOpen(true);
+            }}
+          />
+          <SettingsToggleRow
+            checked={allowMemberPrivateItems}
+            description="Members can hide their own diary items and notes from other members."
+            disabled={!canManagePrivacy || isSavingPrivacy}
+            icon={<EyeOff className="h-4 w-4 text-dusk-lavender" />}
+            label="Private item hiding"
+            onToggle={() => {
+              setPendingToggleType("privacy");
+              setPendingToggleValue(!allowMemberPrivateItems);
+              setConfirmToggleOpen(true);
+            }}
+          />
+        </div>
+
+        {!canManagePrivacy ? (
+          <p className="mt-3 flex items-center gap-2 text-xs text-stone-600">
+            <Lock className="h-3.5 w-3.5" />
+            Only the project owner can change this setting.
+          </p>
+        ) : null}
+      </section>
+
+      <section className="rounded-2xl border border-dusk-rose/25 bg-dusk-rose/[0.055] p-5 sm:p-6">
+        <p className="text-xs uppercase tracking-[0.2em] text-dusk-rose">Danger zone</p>
+        <h3 className="mt-1 text-base font-semibold text-stone-100">Delete project</h3>
+        <p className="mt-1 text-sm leading-6 text-stone-400">
+          Permanently delete this project and all boards, columns, cards, diary items, and notes inside it.
+        </p>
+        <Button className="mt-4" type="button" variant="danger" onClick={() => setDeleteOpen(true)}>
+          <Trash2 className="h-4 w-4" />
+          Delete project
+        </Button>
+      </section>
+    </div>
+  );
+
+  return (
+    <>
+      {viewMode === "identity" ? (
+        identitySection
+      ) : viewMode === "features" ? (
+        featuresSection
+      ) : (
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+          {identitySection}
+          {featuresSection}
+        </div>
+      )}
 
       <ConfirmModal
         open={confirmSaveOpen}
@@ -379,7 +396,7 @@ export function SettingsForm({
         onClose={() => setConfirmToggleOpen(false)}
         onConfirm={handleToggleConfirm}
       />
-    </div>
+    </>
   );
 }
 

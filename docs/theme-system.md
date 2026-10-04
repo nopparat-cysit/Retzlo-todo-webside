@@ -324,4 +324,14 @@ Template:
   - ปฏิบัติตามมาตรฐานการใช้งาน `ConfirmModal` สำหรับการลบและรีเซ็ต พร้อม Toast notifications ทุกการเปลี่ยนแปลง
 - Reviewed: ตรวจสอบทั้ง desktop และ mobile responsive, การเปิดแท็บตรงจากปุ่ม `+`, การเชื่อมต่อบอร์ด `boardId` และการจัดเก็บ board-scoped ใน localStorage และ backend database.
 
+### 2026-10-04 — ปรับปรุงหน้า Project Settings และ Board Settings ให้ใช้งานง่ายและชัดเจน
+- Added/changed: `src/components/project/project-settings-client.tsx`, `src/app/(dashboard)/project/[id]/settings/page.tsx`, `src/components/project/settings-form.tsx`, `src/components/project/project-boards-manager.tsx`, `src/components/kanban/board-settings-modal.tsx`, `src/components/kanban/board-settings/general-tab.tsx`, `src/components/kanban/board-settings/columns-tab.tsx`.
+- Tokens/variants:
+  - จัดการหน้า Project Settings (`/project/[id]/settings`) ใหม่ด้วย Clean Tabbed Architecture: `บอร์ด & ย่อย (boards)`, `ข้อมูลโปรเจกต์ (identity)`, `สิทธิ์ & ฟีเจอร์ (features)`, `การตั้งค่าส่วนตัว (preferences)`, และ `แสดงทั้งหมด (all)`
+  - แต่ละแท็บใช้ semantic pill styling, badge แสดงจำนวนบอร์ด, และ sync กับ query param `?tab=...` อย่างราบรื่น
+  - การ์ดบอร์ดใน Multi-board Manager เพิ่มปุ่ม "เปิดบอร์ด" (Open Board) ชัดเจน พร้อม quick action icons ที่เป็นระเบียบ
+  - รวมแท็บ General และ Access ใน `BoardSettingsModal` เข้าด้วยกัน เมื่อเลือก Private จะแสดงรายชื่อสมาชิกพร้อมช่องค้นหา Avatar และปุ่ม Select/Clear All ในตัว
+  - ตัดขั้นตอน Confirm Modal ที่ซ้ำซ้อนตอนกด Save บอร์ด โดยบันทึกทันทีพร้อมแจ้งเตือน Success Toast ตามมาตรฐาน AGENTS.md
+- Reviewed: ตรวจสอบความถูกต้องของสัญญาทดสอบ `theme.test.ts`, `board-rename.test.ts`, `board-views-and-sidebar.test.ts`, และการทำงานบนหน้าจอ Desktop และ Mobile.
+
 

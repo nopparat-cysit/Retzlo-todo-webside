@@ -1,13 +1,17 @@
 import { notFound } from "next/navigation";
 
-import { ProjectBoardsManager } from "@/components/project/project-boards-manager";
-import { SettingsForm } from "@/components/project/settings-form";
-import { SoundToggle } from "@/components/project/sound-toggle";
+import { ProjectSettingsClient } from "@/components/project/project-settings-client";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { prisma } from "@/lib/prisma";
 import { isOwnerRole, requireUserId } from "@/lib/project-auth";
 
-export default async function SettingsPage({ params }: { params: { id: string } }) {
+export default async function SettingsPage({
+  params,
+  searchParams
+}: {
+  params: { id: string };
+  searchParams?: { tab?: string; boardId?: string };
+}) {
   const userId = await requireUserId();
   const project = await prisma.project.findUnique({
     where: { id: params.id },
@@ -80,46 +84,14 @@ export default async function SettingsPage({ params }: { params: { id: string } 
   }));
 
   return (
-    <div className="scrollbar-soft h-full min-h-0 overflow-y-auto pr-1">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-8">
-        <section className="rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3.5 sm:px-5 sm:py-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Workspace</p>
-          <h1 className="mt-1 text-2xl font-semibold text-stone-100">Project settings</h1>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-stone-500">
-            Manage this workspace without digging through crowded panels.
-          </p>
-        </section>
-
-        {/* Sub-projects & Boards Management */}
-        <ProjectBoardsManager
-          projectId={params.id}
-          canManage={canManage}
-          initialBoards={formattedBoards}
-          projectMembers={projectMembers}
-        />
-
-        <SettingsForm project={project} canManagePrivacy={canManage} />
-
-        <section className="lofi-panel rounded-2xl p-3.5 sm:p-5">
-          <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Personal preferences</p>
-          <div className="mt-4 space-y-6">
-            <div>
-              <h2 className="text-lg font-semibold text-stone-100">Theme mode</h2>
-              <p className="mb-3 mt-1 text-sm leading-6 text-stone-500">
-                Choose how Retzlo looks to you. Stored locally in this browser.
-              </p>
-              <ThemeToggle variant="settings" />
-            </div>
-            <div className="border-t border-white/10 pt-4">
-              <h2 className="text-lg font-semibold text-stone-100">Sound feedback</h2>
-              <p className="mb-4 mt-1 text-sm leading-6 text-stone-500">
-                These settings are stored in this browser only.
-              </p>
-              <SoundToggle />
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
+    <ProjectSettingsClient
+      projectId={params.id}
+      project={project}
+      formattedBoards={formattedBoards}
+      projectMembers={projectMembers}
+      canManage={canManage}
+      initialTab={searchParams?.tab}
+      themeToggleSlot={<ThemeToggle variant="settings" />}
+    />
   );
 }
