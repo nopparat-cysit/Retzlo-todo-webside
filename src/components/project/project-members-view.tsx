@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Calendar,
   Check,
+  ChevronDown,
   Clock,
   Coffee,
   Copy,
@@ -27,6 +28,7 @@ import {
 
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { AppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDate, formatShortDate } from "@/lib/date-format";
@@ -71,6 +73,8 @@ interface ProjectMembersViewProps {
   initialPendingInvitations: PendingInvitationData[];
 }
 
+type MembersTabId = "members" | "invitations" | "roles";
+
 export function ProjectMembersView({
   projectId,
   projectName,
@@ -81,23 +85,29 @@ export function ProjectMembersView({
 }: ProjectMembersViewProps) {
   const [members, setMembers] = useState<ProjectMemberData[]>(initialMembers);
   const [pendingInvitations, setPendingInvitations] = useState<PendingInvitationData[]>(initialPendingInvitations);
+  const [activeTab, setActiveTab] = useState<MembersTabId>("members");
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"ALL" | "OWNER" | "MEMBER">("ALL");
 
-  // Invite form states
+  // Invite modal states
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"MEMBER" | "OWNER">("MEMBER");
   const [isInviting, setIsInviting] = useState(false);
   const [inviteAcceptUrl, setInviteAcceptUrl] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
   const inviteInputRef = useRef<HTMLInputElement>(null);
 
-  // Modals for deletion
+  // Modals for deletion & role changes
   const [memberToRemove, setMemberToRemove] = useState<ProjectMemberData | null>(null);
   const [isRemovingMember, setIsRemovingMember] = useState(false);
 
   const [invitationToRevoke, setInvitationToRevoke] = useState<PendingInvitationData | null>(null);
   const [isRevokingInvitation, setIsRevokingInvitation] = useState(false);
+
+  const [roleChangeTarget, setRoleChangeTarget] = useState<{ member: ProjectMemberData; nextRole: "OWNER" | "MEMBER" } | null>(null);
+  const [isUpdatingRole, setIsUpdatingRole] = useState(false);
 
   const { toast } = useToast();
   const isOwner = currentUserRole === "OWNER";
@@ -138,7 +148,7 @@ export function ProjectMembersView({
       const response = await fetch(`/api/projects/${projectId}/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: inviteEmail.trim() })
+        body: JSON.stringify({ email: inviteEmail.trim(), role: inviteRole })
       });
       const data = await response.json();
 
@@ -255,9 +265,49 @@ export function ProjectMembersView({
     }
   }
 
-  const focusInviteInput = () => {
-    inviteInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    inviteInputRef.current?.focus();
+  // Handle role update
+  async function handleConfirmRoleChange() {
+    if (!roleChangeTarget) return;
+    setIsUpdatingRole(true);
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/members`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          memberId: roleChangeTarget.member.id,
+          role: roleChangeTarget.nextRole
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update role");
+      }
+
+      setMembers((prev) =>
+        prev.map((m) =>
+          m.id === roleChangeTarget.member.id ? { ...m, role: roleChangeTarget.nextRole } : m
+        )
+      );
+
+      toast({
+        message: `Changed ${roleChangeTarget.member.user.name || roleChangeTarget.member.user.email}'s role to ${roleChangeTarget.nextRole === "OWNER" ? "Owner" : "Member"}.`,
+        type: "success"
+      });
+      setRoleChangeTarget(null);
+    } catch (err: any) {
+      toast({ message: err.message || "Could not update member role.", type: "error" });
+    } finally {
+      setIsUpdatingRole(false);
+    }
+  }
+
+  const openInviteModal = () => {
+    setIsInviteModalOpen(true);
+    setInviteError(null);
+    setInviteAcceptUrl(null);
+    setTimeout(() => inviteInputRef.current?.focus(), 100);
   };
 
   return (
@@ -290,7 +340,7 @@ export function ProjectMembersView({
                 </span>
               </h1>
               <p className="mt-1 text-sm text-stone-600 dark:text-stone-400 max-w-2xl leading-relaxed">
-                Manage teammate access, collaborator permissions, and pending workspace invitations.
+                Manage teammate access, roles, and pending workspace invitations.
               </p>
             </div>
 
@@ -300,7 +350,8 @@ export function ProjectMembersView({
                 variant="secondary"
                 size="sm"
                 onClick={handleCopyWorkspaceLink}
-                className="gap-1.5 text-xs"
+                className="gap-1.5 text-xs cursor-pointer"
+                title="Copy workspace URL to clipboard"
               >
                 <Copy className="h-3.5 w-3.5 text-stone-400" />
                 <span className="hidden sm:inline">Share Workspace</span>
@@ -308,8 +359,8 @@ export function ProjectMembersView({
               <Button
                 type="button"
                 size="sm"
-                onClick={focusInviteInput}
-                className="gap-1.5 text-xs shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium"
+                onClick={openInviteModal}
+                className="gap-1.5 text-xs shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium cursor-pointer"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 <span>Invite Teammate</span>
@@ -318,10 +369,17 @@ export function ProjectMembersView({
           </div>
         </section>
 
-        {/* ── KPI Metric Cards ── */}
+        {/* ── KPI Metric Cards (Interactive) ── */}
         <section className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {/* Metric 1: Total Members */}
-          <div className="group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("members");
+              setRoleFilter("ALL");
+            }}
+            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-indigo-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Total Members</span>
               <div className="grid h-8 w-8 place-items-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
@@ -330,10 +388,17 @@ export function ProjectMembersView({
             </div>
             <p className="mt-2 text-2xl font-bold font-mono text-stone-900 dark:text-stone-100">{totalCount}</p>
             <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Active collaborators</p>
-          </div>
+          </button>
 
           {/* Metric 2: Owners */}
-          <div className="group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-amber-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("members");
+              setRoleFilter("OWNER");
+            }}
+            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-amber-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Workspace Owners</span>
               <div className="grid h-8 w-8 place-items-center rounded-xl border border-amber-200 bg-amber-50 text-amber-600 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber">
@@ -342,10 +407,17 @@ export function ProjectMembersView({
             </div>
             <p className="mt-2 text-2xl font-bold font-mono text-stone-900 dark:text-stone-100">{ownersCount}</p>
             <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Full admin controls</p>
-          </div>
+          </button>
 
           {/* Metric 3: Regular Members */}
-          <div className="group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-teal-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("members");
+              setRoleFilter("MEMBER");
+            }}
+            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-teal-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Project Members</span>
               <div className="grid h-8 w-8 place-items-center rounded-xl border border-teal-200 bg-teal-50 text-teal-600 dark:border-dusk-cyan/30 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
@@ -354,10 +426,14 @@ export function ProjectMembersView({
             </div>
             <p className="mt-2 text-2xl font-bold font-mono text-stone-900 dark:text-stone-100">{regularCount}</p>
             <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Standard task editors</p>
-          </div>
+          </button>
 
           {/* Metric 4: Pending Invites */}
-          <div className="group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-purple-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
+          <button
+            type="button"
+            onClick={() => setActiveTab("invitations")}
+            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-purple-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Pending Invites</span>
               <div className="grid h-8 w-8 place-items-center rounded-xl border border-purple-200 bg-purple-50 text-purple-600 dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-400">
@@ -366,7 +442,7 @@ export function ProjectMembersView({
             </div>
             <p className="mt-2 text-2xl font-bold font-mono text-stone-900 dark:text-stone-100">{pendingCount}</p>
             <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Awaiting acceptance</p>
-          </div>
+          </button>
 
           {/* Metric 5: Total Coffees */}
           <div className="col-span-2 sm:col-span-1 group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-amber-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
@@ -384,31 +460,107 @@ export function ProjectMembersView({
           </div>
         </section>
 
-        {/* ── Main 2-Column Content ── */}
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-          {/* ── Left Column: Active Members & Pending Invites ── */}
-          <div className="space-y-5 min-w-0">
-            {/* Active Members Card */}
-            <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-5 shadow-xs dark:border-white/10 dark:bg-white/[0.035]">
-              {/* Header & Search Bar */}
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-stone-200/80 dark:border-white/10 pb-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                    <span>Active Collaborators</span>
-                    <span className="text-xs text-stone-400 font-normal">({filteredMembers.length})</span>
-                  </h2>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                    Team members with direct workspace permissions
-                  </p>
+        {/* ── Main Tabbed Content Panel ── */}
+        <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-6 shadow-xs dark:border-white/10 dark:bg-white/[0.035]">
+          {/* Top-Level Tabs Bar */}
+          <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-4 flex-wrap gap-3">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              <button
+                type="button"
+                onClick={() => setActiveTab("members")}
+                className={cn(
+                  "flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition cursor-pointer shrink-0",
+                  activeTab === "members"
+                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs font-semibold dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:border-dusk-lavender/40"
+                    : "text-stone-500 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-400 dark:hover:text-white dark:hover:bg-white/5"
+                )}
+              >
+                <Users className="h-4 w-4" />
+                <span>สมาชิกในทีม (Members)</span>
+                <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-bold dark:bg-white/10">
+                  {totalCount}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("invitations")}
+                className={cn(
+                  "flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition cursor-pointer shrink-0",
+                  activeTab === "invitations"
+                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs font-semibold dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:border-dusk-lavender/40"
+                    : "text-stone-500 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-400 dark:hover:text-white dark:hover:bg-white/5"
+                )}
+              >
+                <Mail className="h-4 w-4" />
+                <span>คำเชิญรอดำเนินการ (Invitations)</span>
+                {pendingCount > 0 && (
+                  <span className="rounded-full bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 px-1.5 py-0.2 text-[10px] font-bold">
+                    {pendingCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("roles")}
+                className={cn(
+                  "flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition cursor-pointer shrink-0",
+                  activeTab === "roles"
+                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs font-semibold dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:border-dusk-lavender/40"
+                    : "text-stone-500 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-400 dark:hover:text-white dark:hover:bg-white/5"
+                )}
+              >
+                <Shield className="h-4 w-4" />
+                <span>สิทธิ์และการเข้าถึง (Roles & Permissions)</span>
+              </button>
+            </div>
+
+            <Button
+              type="button"
+              size="sm"
+              onClick={openInviteModal}
+              className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium cursor-pointer shrink-0 ml-auto"
+            >
+              <UserPlus className="h-3.5 w-3.5" />
+              <span>+ เชิญสมาชิกใหม่</span>
+            </Button>
+          </div>
+
+          {/* ── TAB 1: MEMBERS LIST ── */}
+          {activeTab === "members" && (
+            <div className="mt-4 space-y-4">
+              {/* Filter and Search Bar */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                {/* Search Bar */}
+                <div className="group/search relative flex-1 max-w-md">
+                  <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search members by name or email..."
+                    className="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 pl-10 pr-9 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-2xs outline-none transition hover:border-stone-300 hover:bg-white focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
+                  />
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-200/70 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/15 dark:hover:text-stone-100 cursor-pointer"
+                      aria-label="Clear search"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  ) : null}
                 </div>
 
-                {/* Filter Tabs */}
-                <div className="flex items-center gap-1 rounded-xl border border-stone-200/80 bg-stone-100/70 p-1 dark:border-white/10 dark:bg-white/5 text-xs">
+                {/* Role Filter Tabs */}
+                <div className="flex items-center gap-1 rounded-xl border border-stone-200/80 bg-stone-100/70 p-1 dark:border-white/10 dark:bg-white/5 text-xs shrink-0 self-start sm:self-auto">
                   <button
                     type="button"
                     onClick={() => setRoleFilter("ALL")}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg font-medium transition",
+                      "px-2.5 py-1 rounded-lg font-medium transition cursor-pointer",
                       roleFilter === "ALL"
                         ? "bg-white text-stone-900 shadow-xs dark:bg-white/15 dark:text-white"
                         : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
@@ -420,7 +572,7 @@ export function ProjectMembersView({
                     type="button"
                     onClick={() => setRoleFilter("OWNER")}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg font-medium transition",
+                      "px-2.5 py-1 rounded-lg font-medium transition cursor-pointer",
                       roleFilter === "OWNER"
                         ? "bg-white text-stone-900 shadow-xs dark:bg-white/15 dark:text-white"
                         : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
@@ -432,7 +584,7 @@ export function ProjectMembersView({
                     type="button"
                     onClick={() => setRoleFilter("MEMBER")}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg font-medium transition",
+                      "px-2.5 py-1 rounded-lg font-medium transition cursor-pointer",
                       roleFilter === "MEMBER"
                         ? "bg-white text-stone-900 shadow-xs dark:bg-white/15 dark:text-white"
                         : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
@@ -443,32 +595,10 @@ export function ProjectMembersView({
                 </div>
               </div>
 
-              {/* Search Filter Toolbar */}
-              <div className="group/search relative mt-3.5">
-                <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search members by name or email..."
-                  className="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 pl-10 pr-9 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-2xs outline-none transition hover:border-stone-300 hover:bg-white focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
-                />
-                {searchQuery ? (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-200/70 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/15 dark:hover:text-stone-100"
-                    aria-label="Clear search"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                ) : null}
-              </div>
-
-              {/* Members List */}
-              <div className="mt-4 space-y-2.5">
+              {/* Members List Cards */}
+              <div className="space-y-2.5 pt-1">
                 {filteredMembers.length === 0 ? (
-                  <div className="py-12 text-center rounded-xl border border-dashed border-stone-200 dark:border-white/10 p-6">
+                  <div className="py-12 text-center rounded-2xl border border-dashed border-stone-200 dark:border-white/10 p-6">
                     <UserX className="mx-auto h-8 w-8 text-stone-400" />
                     <p className="mt-2 text-sm font-semibold text-stone-900 dark:text-stone-100">
                       No members match &ldquo;{searchQuery}&rdquo;
@@ -482,7 +612,7 @@ export function ProjectMembersView({
                         setSearchQuery("");
                         setRoleFilter("ALL");
                       }}
-                      className="mt-3 text-xs"
+                      className="mt-3 text-xs cursor-pointer"
                     >
                       Clear filters
                     </Button>
@@ -490,25 +620,40 @@ export function ProjectMembersView({
                 ) : (
                   filteredMembers.map((member) => {
                     const isSelf = member.userId === currentUserId;
-                    const canRemove = isOwner && !isSelf;
+                    const canManageMember = isOwner && !isSelf;
+                    const isOnline = member.user.status === "ONLINE";
+                    const isBusy = member.user.status === "BUSY";
 
                     return (
                       <div
                         key={member.id}
-                        className="group flex items-center justify-between gap-3 rounded-xl border border-stone-200/80 bg-white/70 p-3 sm:p-3.5 transition hover:border-indigo-300 hover:bg-white dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-white/20 dark:hover:bg-white/[0.05]"
+                        className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-stone-200/80 bg-white/70 p-3.5 sm:p-4 transition hover:border-indigo-300 hover:bg-white hover:shadow-xs dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-white/20 dark:hover:bg-white/[0.05]"
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
-                          {/* Member Avatar */}
-                          <Avatar
-                            user={{
-                              id: member.user.id,
-                              name: member.user.name,
-                              email: member.user.email,
-                              avatar: member.user.avatar
-                            }}
-                            size={42}
-                            showTooltip
-                          />
+                          {/* Member Avatar with Presence Indicator */}
+                          <div className="relative shrink-0">
+                            <Avatar
+                              user={{
+                                id: member.user.id,
+                                name: member.user.name,
+                                email: member.user.email,
+                                avatar: member.user.avatar
+                              }}
+                              size={44}
+                              showTooltip
+                            />
+                            <span
+                              className={cn(
+                                "absolute bottom-0 right-0 h-3 w-3 rounded-full ring-2 ring-white dark:ring-stone-900",
+                                isOnline
+                                  ? "bg-emerald-500"
+                                  : isBusy
+                                    ? "bg-amber-500"
+                                    : "bg-stone-300 dark:bg-stone-600"
+                              )}
+                              title={isOnline ? "Online" : isBusy ? "Busy" : "Offline"}
+                            />
+                          </div>
 
                           {/* Member Info */}
                           <div className="min-w-0">
@@ -532,12 +677,12 @@ export function ProjectMembersView({
                           </div>
                         </div>
 
-                        {/* Right: Role & Coffees & Actions */}
-                        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                        {/* Right: Role, Coffees & Actions */}
+                        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0 pt-2 sm:pt-0 border-t border-stone-100 sm:border-0 dark:border-white/5">
                           {/* Coffee Cheers Earned Badge */}
                           <span
                             className={cn(
-                              "inline-flex items-center gap-1 rounded-full border px-2 sm:px-2.5 py-0.5 sm:py-1 text-xs font-semibold shadow-2xs select-none",
+                              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold shadow-2xs select-none",
                               (member.totalCoffees ?? 0) > 0
                                 ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-200"
                                 : "border-stone-200/80 bg-stone-50/80 text-stone-400 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-500"
@@ -548,24 +693,62 @@ export function ProjectMembersView({
                             <span className="font-mono text-xs">{member.totalCoffees ?? 0}</span>
                           </span>
 
-                          {member.role === "OWNER" ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/80 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-dusk-amber/35 dark:bg-dusk-amber/15 dark:text-dusk-amber shadow-2xs">
-                              <Crown className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
-                              <span>Owner</span>
-                            </span>
+                          {/* Role Switcher or Display Pill */}
+                          {canManageMember ? (
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setRoleChangeTarget({
+                                    member,
+                                    nextRole: member.role === "OWNER" ? "MEMBER" : "OWNER"
+                                  })
+                                }
+                                className={cn(
+                                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-2xs transition cursor-pointer",
+                                  member.role === "OWNER"
+                                    ? "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-dusk-amber/35 dark:bg-dusk-amber/15 dark:text-dusk-amber dark:hover:bg-dusk-amber/25"
+                                    : "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
+                                )}
+                                title={`Click to change role to ${member.role === "OWNER" ? "Member" : "Owner"}`}
+                              >
+                                {member.role === "OWNER" ? (
+                                  <>
+                                    <Crown className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
+                                    <span>Owner</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <UserCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                                    <span>Member</span>
+                                  </>
+                                )}
+                                <ChevronDown className="h-3 w-3 opacity-60" />
+                              </button>
+                            </div>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender shadow-2xs">
-                              <UserCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-                              <span>Member</span>
-                            </span>
+                            <div>
+                              {member.role === "OWNER" ? (
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/80 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-dusk-amber/35 dark:bg-dusk-amber/15 dark:text-dusk-amber shadow-2xs">
+                                  <Crown className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
+                                  <span>Owner</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender shadow-2xs">
+                                  <UserCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                                  <span>Member</span>
+                                </span>
+                              )}
+                            </div>
                           )}
 
-                          {canRemove && (
+                          {/* Remove Member Button */}
+                          {canManageMember && (
                             <button
                               type="button"
                               onClick={() => setMemberToRemove(member)}
-                              className="opacity-0 group-hover:opacity-100 focus:opacity-100 grid h-8 w-8 place-items-center rounded-lg border border-transparent text-stone-400 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 dark:hover:border-rose-500/20 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 cursor-pointer"
-                              title={`Remove ${member.user.name || member.user.email}`}
+                              className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200/80 text-stone-400 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 dark:border-white/10 dark:hover:border-rose-500/20 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 cursor-pointer"
+                              title={`Remove ${member.user.name || member.user.email} from project`}
                               aria-label={`Remove ${member.user.name || member.user.email}`}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -578,51 +761,87 @@ export function ProjectMembersView({
                 )}
               </div>
             </div>
+          )}
 
-            {/* Pending Invitations Card */}
-            {pendingInvitations.length > 0 && (
-              <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-5 shadow-xs dark:border-white/10 dark:bg-white/[0.035]">
-                <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-3">
-                  <div className="flex items-center gap-2">
+          {/* ── TAB 2: PENDING INVITATIONS ── */}
+          {activeTab === "invitations" && (
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-3">
+                <div>
+                  <h3 className="text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <Mail className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                    <h3 className="text-base font-semibold text-stone-900 dark:text-stone-100">
-                      Pending Invitations
-                    </h3>
-                    <span className="rounded-full border border-purple-200 bg-purple-50 px-2 py-0.2 text-[11px] font-semibold text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/15 dark:text-purple-300">
-                      {pendingInvitations.length}
+                    <span>Invitations Sent</span>
+                    <span className="rounded-full bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 px-2 py-0.2 text-[11px] font-bold">
+                      {pendingCount}
                     </span>
-                  </div>
-                  <span className="text-xs text-stone-400">Awaiting confirmation</span>
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Teammates who have been invited to join this project but have not accepted yet
+                  </p>
                 </div>
 
-                <div className="mt-3 space-y-2.5">
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={openInviteModal}
+                  className="text-xs gap-1.5 cursor-pointer"
+                >
+                  <UserPlus className="h-3.5 w-3.5" />
+                  <span>Send New Invite</span>
+                </Button>
+              </div>
+
+              {pendingInvitations.length === 0 ? (
+                <div className="py-12 text-center rounded-2xl border border-dashed border-stone-200 dark:border-white/10 p-6">
+                  <Mail className="mx-auto h-8 w-8 text-stone-400" />
+                  <p className="mt-2 text-sm font-semibold text-stone-900 dark:text-stone-100">
+                    No Pending Invitations
+                  </p>
+                  <p className="text-xs text-stone-500 mt-1">All invited collaborators have joined the workspace.</p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={openInviteModal}
+                    className="mt-4 text-xs gap-1.5 cursor-pointer"
+                  >
+                    <UserPlus className="h-3.5 w-3.5" />
+                    <span>Invite Teammate</span>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
                   {pendingInvitations.map((inv) => {
                     const acceptUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/accept-invitation?token=${inv.token}`;
 
                     return (
                       <div
                         key={inv.id}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 rounded-xl border border-purple-200/70 bg-purple-50/30 p-3 text-xs dark:border-purple-500/20 dark:bg-purple-500/[0.03]"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-purple-200/70 bg-purple-50/25 p-4 text-xs dark:border-purple-500/20 dark:bg-purple-500/[0.03]"
                       >
-                        <div className="min-w-0">
-                          <p className="font-semibold font-mono text-stone-900 dark:text-stone-100 truncate">
-                            {inv.email}
-                          </p>
-                          <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                            Invited by {inv.inviter?.name || inv.inviter?.email || "Team member"} • Expires{" "}
-                            {formatShortDate(inv.expiresAt)}
-                          </p>
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-purple-200 bg-purple-100 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/15 dark:text-purple-300">
+                            <Mail className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold font-mono text-stone-900 dark:text-stone-100 text-sm truncate">
+                              {inv.email}
+                            </p>
+                            <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                              Invited by {inv.inviter?.name || inv.inviter?.email || "Team member"} • Expires{" "}
+                              {formatMediumDate(new Date(inv.expiresAt))}
+                            </p>
+                          </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                           <Button
                             type="button"
                             size="sm"
                             variant="secondary"
                             onClick={() => handleCopyInviteUrl(acceptUrl)}
-                            className="h-7 px-2.5 text-xs gap-1 border-stone-200 dark:border-white/10"
+                            className="h-8 px-3 text-xs gap-1.5 border-stone-200 dark:border-white/10 cursor-pointer"
                           >
-                            <Copy className="h-3 w-3 text-stone-400" />
+                            <Copy className="h-3.5 w-3.5 text-stone-400" />
                             <span>Copy link</span>
                           </Button>
 
@@ -632,7 +851,7 @@ export function ProjectMembersView({
                               size="sm"
                               variant="ghost"
                               onClick={() => setInvitationToRevoke(inv)}
-                              className="h-7 px-2 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-500/10"
+                              className="h-8 px-3 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-500/10 cursor-pointer"
                             >
                               Revoke
                             </Button>
@@ -642,173 +861,322 @@ export function ProjectMembersView({
                     );
                   })}
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* ── Right Column: Invite Form & Permissions Matrix ── */}
-          <div className="space-y-5">
-            {/* Invite Teammate Card */}
-            <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-5 shadow-xs dark:border-white/10 dark:bg-white/[0.035]">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="grid h-7 w-7 place-items-center rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
-                  <UserPlus className="h-4 w-4" />
-                </div>
-                <h3 className="text-base font-semibold text-stone-900 dark:text-stone-100">Invite New Member</h3>
-              </div>
-              <p className="text-xs text-stone-500 dark:text-stone-400 mb-4 leading-relaxed">
-                Send an invitation link or email directly to a collaborator to join this project.
-              </p>
-
-              <form onSubmit={handleSendInvite} className="space-y-3.5">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-stone-700 dark:text-stone-300">
-                    Teammate Email Address
-                  </label>
-                  <div className="group/email relative">
-                    <Mail className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/email:text-indigo-600 dark:text-stone-500 dark:group-focus-within/email:text-dusk-lavender" />
-                    <input
-                      ref={inviteInputRef}
-                      type="email"
-                      required
-                      value={inviteEmail}
-                      onChange={(e) => setInviteEmail(e.target.value)}
-                      placeholder="colleague@example.com"
-                      disabled={isInviting}
-                      className="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 pl-10 pr-3 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-2xs outline-none transition hover:border-stone-300 hover:bg-white focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
-                    />
-                  </div>
-                </div>
-
-                {inviteError && (
-                  <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 p-2.5 rounded-xl border border-rose-200 dark:border-rose-500/20">
-                    {inviteError}
-                  </p>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={isInviting || !inviteEmail.trim()}
-                  className="w-full gap-2 text-xs h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium disabled:opacity-50"
-                >
-                  {isInviting ? (
-                    <span>Sending invitation...</span>
-                  ) : (
-                    <>
-                      <Send className="h-3.5 w-3.5" />
-                      <span>Send Invitation</span>
-                    </>
-                  )}
-                </Button>
-              </form>
-
-              {/* Generated Invite Link Preview */}
-              {inviteAcceptUrl && (
-                <div className="mt-4 space-y-2 rounded-xl border border-teal-200 bg-teal-50/70 p-3 text-xs dark:border-dusk-cyan/30 dark:bg-dusk-cyan/10">
-                  <div className="flex items-center justify-between text-teal-800 dark:text-dusk-cyan font-semibold">
-                    <span className="flex items-center gap-1.5">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      Invitation Link Created
-                    </span>
-                    <span className="text-[10px] font-normal text-teal-700 dark:text-teal-300">7 days valid</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      readOnly
-                      value={inviteAcceptUrl}
-                      className="flex-1 rounded-lg border border-teal-300/60 bg-white/90 px-2 py-1.5 font-mono text-[11px] text-stone-700 dark:border-white/10 dark:bg-ink-950/80 dark:text-stone-300 outline-none truncate"
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => handleCopyInviteUrl(inviteAcceptUrl)}
-                      className="h-7 px-2 shrink-0 gap-1 text-[11px] bg-white dark:bg-white/10"
-                    >
-                      {copiedLink ? (
-                        <>
-                          <Check className="h-3 w-3 text-teal-600 dark:text-dusk-cyan" />
-                          <span>Copied</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-3 w-3" />
-                          <span>Copy</span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <p className="text-[10px] text-stone-500 dark:text-stone-400">
-                    You can share this link directly via Chat, Line, or Slack.
-                  </p>
-                </div>
               )}
             </div>
+          )}
 
-            {/* Role Permissions Matrix Card */}
-            <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-5 shadow-xs dark:border-white/10 dark:bg-white/[0.035]">
-              <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2 mb-3">
-                <Shield className="h-4 w-4 text-dusk-amber" />
-                <span>Workspace Roles & Access</span>
-              </h3>
+          {/* ── TAB 3: ROLES & PERMISSIONS MATRIX ── */}
+          {activeTab === "roles" && (
+            <div className="mt-4 space-y-5">
+              <div className="border-b border-stone-200/80 dark:border-white/10 pb-3">
+                <h3 className="text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-dusk-amber" />
+                  <span>Workspace Roles & Access Matrix</span>
+                </h3>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Understand permissions and capabilities for Workspace Owners versus Project Members
+                </p>
+              </div>
 
-              <div className="space-y-3.5 text-xs">
-                {/* Owner Role */}
-                <div className="rounded-xl border border-amber-200/80 bg-amber-50/40 p-3 dark:border-dusk-amber/20 dark:bg-dusk-amber/[0.04]">
-                  <div className="flex items-center gap-1.5 font-semibold text-amber-900 dark:text-dusk-amber mb-1.5">
-                    <Crown className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
-                    <span>Workspace Owner</span>
+              {/* Roles Cards */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Workspace Owner Card */}
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/30 p-5 dark:border-dusk-amber/30 dark:bg-dusk-amber/[0.04]">
+                  <div className="flex items-center gap-2.5 font-semibold text-amber-900 dark:text-dusk-amber mb-2">
+                    <div className="grid h-8 w-8 place-items-center rounded-xl bg-amber-100 dark:bg-dusk-amber/20 text-amber-700 dark:text-dusk-amber">
+                      <Crown className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold">Workspace Owner</h4>
+                      <p className="text-[11px] font-normal text-amber-700 dark:text-dusk-amber/80">Full administrative authority</p>
+                    </div>
                   </div>
-                  <ul className="space-y-1 text-stone-600 dark:text-stone-400 text-[11px] leading-relaxed">
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-amber-500 font-bold">•</span>
-                      <span>Manage workspace settings, boards & custom branding</span>
+                  <ul className="mt-4 space-y-2 text-stone-600 dark:text-stone-400 text-xs">
+                    <li className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Manage workspace settings, name, description, and cover image</span>
                     </li>
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-amber-500 font-bold">•</span>
-                      <span>Invite new teammates and manage or remove members</span>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Invite teammates, assign roles, and remove collaborators</span>
                     </li>
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-amber-500 font-bold">•</span>
-                      <span>Create and manage private or restricted boards</span>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Create public or private boards and configure access lists</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Delete or archive the workspace when no longer needed</span>
                     </li>
                   </ul>
                 </div>
 
-                {/* Member Role */}
-                <div className="rounded-xl border border-indigo-200/80 bg-indigo-50/40 p-3 dark:border-dusk-lavender/20 dark:bg-dusk-lavender/[0.04]">
-                  <div className="flex items-center gap-1.5 font-semibold text-indigo-900 dark:text-dusk-lavender mb-1.5">
-                    <UserCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-                    <span>Project Member</span>
+                {/* Project Member Card */}
+                <div className="rounded-2xl border border-indigo-200 bg-indigo-50/30 p-5 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/[0.04]">
+                  <div className="flex items-center gap-2.5 font-semibold text-indigo-900 dark:text-dusk-lavender mb-2">
+                    <div className="grid h-8 w-8 place-items-center rounded-xl bg-indigo-100 dark:bg-dusk-lavender/20 text-indigo-700 dark:text-dusk-lavender">
+                      <UserCheck className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold">Project Member</h4>
+                      <p className="text-[11px] font-normal text-indigo-700 dark:text-dusk-lavender/80">Collaborative contributor</p>
+                    </div>
                   </div>
-                  <ul className="space-y-1 text-stone-600 dark:text-stone-400 text-[11px] leading-relaxed">
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-indigo-500 font-bold">•</span>
-                      <span>Create, edit, assign, and drag cards on all public boards</span>
+                  <ul className="mt-4 space-y-2 text-stone-600 dark:text-stone-400 text-xs">
+                    <li className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Create, edit, assign, and drag cards on all accessible boards</span>
                     </li>
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-indigo-500 font-bold">•</span>
-                      <span>Create shared project notes and log diary entries</span>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Manage card checklists, start dates, and due dates</span>
                     </li>
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-indigo-500 font-bold">•</span>
-                      <span>Earn and redeem activity reward coins in the store</span>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Write shared workspace notes and log personal daily diary items</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Send coffee cheers (☕) and redeem coins in the Rewards Store</span>
                     </li>
                   </ul>
                 </div>
               </div>
 
-              {/* Tip */}
-              <div className="mt-4 rounded-xl border border-stone-200/80 bg-stone-50/80 p-3 text-[11px] text-stone-600 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400">
-                <span className="font-semibold text-stone-800 dark:text-stone-200">Pro Tip: </span>
-                To restrict certain cards or tasks to specific people, use the Lock icon in Board Settings to turn the board into a Private Board.
+              {/* Detailed Matrix Table */}
+              <div className="overflow-x-auto rounded-2xl border border-stone-200/90 dark:border-white/10">
+                <table className="w-full text-left text-xs text-stone-700 dark:text-stone-300">
+                  <thead className="bg-stone-50 border-b border-stone-200/80 dark:bg-white/[0.03] dark:border-white/10 text-[11px] uppercase font-semibold text-stone-500">
+                    <tr>
+                      <th className="py-3 px-4">Feature / Action</th>
+                      <th className="py-3 px-4 text-center">Owner (👑)</th>
+                      <th className="py-3 px-4 text-center">Member (👤)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-200/70 dark:divide-white/5">
+                    <tr>
+                      <td className="py-2.5 px-4 font-medium">Workspace Identity & Settings</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Full Control</td>
+                      <td className="py-2.5 px-4 text-center text-stone-400">View Only</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-4 font-medium">Invite Members & Assign Roles</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                      <td className="py-2.5 px-4 text-center text-stone-400">✗ No</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-4 font-medium">Remove Members from Workspace</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                      <td className="py-2.5 px-4 text-center text-stone-400">✗ No</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-4 font-medium">Create & Manage Private Boards</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ All Boards</td>
+                      <td className="py-2.5 px-4 text-center text-amber-600">Assigned Only</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-4 font-medium">Kanban Cards & Spreadsheet View</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-4 font-medium">Calendar & Due Date Scheduling</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-4 font-medium">Shared Notes & Daily Diary</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-4 font-medium">Coffee Cheers & Gamification Rewards</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Tip Banner */}
+              <div className="rounded-2xl border border-stone-200/80 bg-stone-50/80 p-4 text-xs text-stone-600 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400">
+                <span className="font-semibold text-stone-800 dark:text-stone-200">💡 Pro Tip: </span>
+                If you have confidential sub-projects, you can make specific boards Private via Board Settings in the sidebar or Project Settings. Only the members you assign will be able to see or interact with that board.
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Confirm Remove Member Modal */}
+      {/* ── Invite Teammate Modal ── */}
+      <AppModal
+        open={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        labelledBy="invite-teammate-modal-title"
+        contentClassName="lofi-panel w-full max-w-lg rounded-2xl p-6"
+      >
+        <div className="mb-4 flex items-start justify-between gap-3 border-b border-stone-200/80 pb-3 dark:border-white/10">
+          <div>
+            <h2 id="invite-teammate-modal-title" className="text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+              <UserPlus className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
+              Invite Teammate to Workspace
+            </h2>
+            <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+              Send an invitation link for {projectName}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsInviteModalOpen(false)}
+            className="rounded-lg p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-600 dark:hover:bg-white/10 dark:hover:text-stone-200 transition"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-4 pt-1">
+          <form onSubmit={handleSendInvite} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+                Teammate Email Address
+              </label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                <input
+                  ref={inviteInputRef}
+                  type="email"
+                  required
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="colleague@example.com"
+                  disabled={isInviting}
+                  className="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 pl-10 pr-3 text-xs font-medium text-stone-900 placeholder:text-stone-400 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 disabled:opacity-60 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07]"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+                Role in Workspace
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setInviteRole("MEMBER")}
+                  className={cn(
+                    "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
+                    inviteRole === "MEMBER"
+                      ? "border-indigo-500 bg-indigo-50/50 dark:border-dusk-lavender dark:bg-dusk-lavender/10"
+                      : "border-stone-200 bg-stone-50/50 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
+                  )}
+                >
+                  <div className="flex items-center gap-1.5 font-semibold text-xs text-stone-900 dark:text-stone-100">
+                    <UserCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                    <span>Project Member</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-stone-500 dark:text-stone-400 leading-tight">
+                    Standard access to cards, notes & boards
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setInviteRole("OWNER")}
+                  className={cn(
+                    "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
+                    inviteRole === "OWNER"
+                      ? "border-amber-500 bg-amber-50/50 dark:border-dusk-amber dark:bg-dusk-amber/10"
+                      : "border-stone-200 bg-stone-50/50 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
+                  )}
+                >
+                  <div className="flex items-center gap-1.5 font-semibold text-xs text-stone-900 dark:text-stone-100">
+                    <Crown className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
+                    <span>Workspace Owner</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-stone-500 dark:text-stone-400 leading-tight">
+                    Full workspace administration controls
+                  </p>
+                </button>
+              </div>
+            </div>
+
+            {inviteError && (
+              <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 p-2.5 rounded-xl border border-rose-200 dark:border-rose-500/20">
+                {inviteError}
+              </p>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsInviteModalOpen(false)}
+                className="text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isInviting || !inviteEmail.trim()}
+                className="gap-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium cursor-pointer"
+              >
+                {isInviting ? (
+                  <span>Sending...</span>
+                ) : (
+                  <>
+                    <Send className="h-3.5 w-3.5" />
+                    <span>Send Invitation</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+
+          {/* Generated Link Box */}
+          {inviteAcceptUrl && (
+            <div className="mt-4 space-y-2 rounded-xl border border-teal-200 bg-teal-50/80 p-3 text-xs dark:border-dusk-cyan/30 dark:bg-dusk-cyan/10">
+              <div className="flex items-center justify-between text-teal-800 dark:text-dusk-cyan font-semibold">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Invitation Link Ready
+                </span>
+                <span className="text-[10px] font-normal text-teal-700 dark:text-teal-300">Valid for 7 days</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <input
+                  readOnly
+                  value={inviteAcceptUrl}
+                  className="flex-1 rounded-lg border border-teal-300/60 bg-white/95 px-2.5 py-1.5 font-mono text-[11px] text-stone-700 dark:border-white/10 dark:bg-ink-950/80 dark:text-stone-300 outline-none truncate"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => handleCopyInviteUrl(inviteAcceptUrl)}
+                  className="h-7 px-2.5 shrink-0 gap-1 text-[11px] cursor-pointer"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="h-3 w-3 text-teal-600 dark:text-dusk-cyan" />
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-[10px] text-stone-500 dark:text-stone-400">
+                You can copy and send this link directly to your teammate via Line, Slack, or Chat.
+              </p>
+            </div>
+          )}
+        </div>
+      </AppModal>
+
+      {/* ── Confirm Remove Member Modal ── */}
       <ConfirmModal
         open={Boolean(memberToRemove)}
         title="Remove Member from Project"
@@ -820,7 +1188,7 @@ export function ProjectMembersView({
         onClose={() => setMemberToRemove(null)}
       />
 
-      {/* Confirm Revoke Invitation Modal */}
+      {/* ── Confirm Revoke Invitation Modal ── */}
       <ConfirmModal
         open={Boolean(invitationToRevoke)}
         title="Revoke Project Invitation"
@@ -830,6 +1198,18 @@ export function ProjectMembersView({
         isLoading={isRevokingInvitation}
         onConfirm={handleConfirmRevokeInvitation}
         onClose={() => setInvitationToRevoke(null)}
+      />
+
+      {/* ── Confirm Role Change Modal ── */}
+      <ConfirmModal
+        open={Boolean(roleChangeTarget)}
+        title="Change Member Role"
+        message={`Are you sure you want to change "${roleChangeTarget?.member.user.name || roleChangeTarget?.member.user.email}"'s role to ${roleChangeTarget?.nextRole === "OWNER" ? "Workspace Owner" : "Project Member"}?`}
+        confirmLabel={`Set as ${roleChangeTarget?.nextRole === "OWNER" ? "Owner" : "Member"}`}
+        variant="default"
+        isLoading={isUpdatingRole}
+        onConfirm={handleConfirmRoleChange}
+        onClose={() => setRoleChangeTarget(null)}
       />
     </div>
   );

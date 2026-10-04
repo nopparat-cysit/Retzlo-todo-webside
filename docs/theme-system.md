@@ -344,5 +344,13 @@ Template:
   - ปรับปรุงการคำนวณ `preparedDiaries` ใน `project-calendar.tsx` ให้ประมวลผล checklist เพียงครั้งเดียวแทนการรันซ้ำ 35 รอบต่อเดือน และผ่อนคลาย Polling Interval ของ LiveSync เป็น 8000ms
 - Reviewed: ตรวจสอบทั้ง Light Mode, Dark Mode, การนำทางด้วย Router และ Build Production.
 
-
-
+### 2026-10-04 — ปรับปรุงหน้าจัดการสมาชิกโปรเจกต์ (Project Members Page Redesign & Skeleton)
+- Added/changed: `src/components/project/project-members-view.tsx`, `src/app/api/projects/[id]/members/route.ts`, `src/components/ui/skeleton.tsx`, `src/app/(dashboard)/project/[id]/members/loading.tsx`.
+- Tokens/variants:
+  - ปรับโครงสร้างหน้าจัดการสมาชิกเป็นแบบ 3 แท็บชัดเจน: `สมาชิกในทีม (Members)`, `คำเชิญรอดำเนินการ (Invitations)`, และ `สิทธิ์และการเข้าถึง (Roles & Permissions)`
+  - สถิติแดชบอร์ด 5 การ์ด (Total Members, Active Now, Owners, Pending, Total Coffees) สามารถคลิกเพื่อสลับแท็บหรือกรองสถานะได้ทันที
+  - แสดง Avatar พร้อม Presence Status Dot (Online = สีเขียว, Busy = สีส้ม, Offline = สีเทา) ตามข้อมูล `user.status`
+  - รองรับการปรับเปลี่ยนบทบาทสมาชิก (Owner ↔ Member) สำหรับเจ้าของโปรเจกต์ พร้อมความปลอดภัยป้องกันการลดสิทธิ์เจ้าของคนสุดท้าย และมี `ConfirmModal` ตรวจสอบเจตนาก่อนบันทึกเสมอ
+  - หน้าต่าง Modal เชิญเพื่อนร่วมทีม (Invite Modal) ออกแบบใหม่ด้วย `AppModal` รองรับการเลือกบทบาท (Member หรือ Owner) และคัดลอกลิงก์คำเชิญได้ทันที
+  - เพิ่ม `MembersSkeleton` และ Next.js streaming `loading.tsx` ทำให้การเปิดหน้าสมาชิกรวดเร็วและมี Shimmer Animation สอดคล้องกับธีม Retro Lofi
+- Reviewed: ตรวจสอบสัญญา `Total Coffees`, `totalCoffeesCount`, `member.totalCoffees` สำหรับการทดสอบ `coffee-cheers-button.test.ts`, ตรวจสอบ TypeScript, ESLint, Prisma validate และ Next.js build ผ่านสมบูรณ์ทุกประการ.

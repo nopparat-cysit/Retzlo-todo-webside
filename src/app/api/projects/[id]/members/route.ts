@@ -82,3 +82,61 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     return jsonError("Failed to remove member.", 500);
   }
 }
+
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const userId = await requireUserId();
+    if (!userId) {
+      return jsonError("Please sign in to continue.", 401);
+    }
+
+    const membership = await assertProjectMember(params.id, userId);
+    if (!membership || membership.role !== "OWNER") {
+      return jsonError("Only workspace owners can change member roles.", 403);
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const { memberId, role } = body as { memberId?: string; role?: string };
+    if (!memberId || !role || !["OWNER", "MEMBER"].includes(role)) {
+      return jsonError("Invalid memberId or role.", 400);
+    }
+
+    const targetMember = await prisma.projectMember.findUnique({
+      where: { id: memberId }
+    });
+
+    if (!targetMember || targetMember.projectId !== params.id) {
+      return jsonError("Member not found in this project.", 404);
+    }
+
+    // If demoting from OWNER to MEMBER, ensure there is at least one other OWNER
+    if (targetMember.role === "OWNER" && role === "MEMBER") {
+      const ownerCount = await prisma.projectMember.count({
+        where: { projectId: params.id, role: "OWNER" }
+      });
+      if (ownerCount <= 1) {
+        return jsonError("Cannot demote the only workspace owner. Assign another owner first.", 400);
+      }
+    }
+
+    const updated = await prisma.projectMember.update({
+      where: { id: memberId },
+      data: { role },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        }
+      }
+    });
+
+    return NextResponse.json({ ok: true, member: updated });
+  } catch (error) {
+    return jsonError("Failed to update member role.", 500);
+  }
+}
+
