@@ -412,4 +412,11 @@ Template:
   - ปรับปรุงการแสดงผลของ `SegmentedControl`, `TabsTrigger`, `Help Docs Switcher`, `Project Members Filter Tabs`, และ `Theme Toggle` ให้เป็นไปตามมาตรฐานเดียวกัน
 - Reviewed: รันการทดสอบ Vitest 86/86 ไฟล์ (433/433 การทดสอบผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
 
-
+### 2026-10-04 — เพิ่มปุ่ม + สร้างสถานะใหม่ในตัวเลือกสถานะคอลัมน์ (Inline Quick Add Status in Column Status Picker)
+- Added/changed: `src/components/kanban/column-status-picker.tsx`, `src/components/kanban/board-settings-attributes.test.ts`.
+- Tokens/variants:
+  - เพิ่มปุ่ม `+` สไตล์ Retro Lofi ที่หัวข้อ "CARD STATUS" และปุ่มกรอบประ `+ เพิ่มสถานะ` ที่ท้ายตารางตัวเลือกสถานะ
+  - กล่องกรอกข้อมูลสถานะแบบขยายได้ (Inline Quick Add Form) พร้อมตัวเลือกสี 8 เฉด (Indigo, Teal, Cyan, Amber, Emerald, Rose, Purple, Stone) สอดคล้องกับ Retro Lofi Indigo Theme
+  - รองรับการบันทึกด้วย Enter, ยกเลิกด้วย Escape, และเลือกสถานะที่สร้างใหม่ให้อัตโนมัติ (Auto-selection)
+  - ซิงค์การอัปเดตแบบเรียลไทม์ผ่าน `retzlo:statuses-updated` พร้อม Toast แจ้งเตือนความสำเร็จตามมาตรฐาน AGENTS.md
+- Reviewed: รันการทดสอบ Vitest ใน `src/components/kanban/` ผ่าน 56/56 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.

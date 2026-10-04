@@ -55,6 +55,9 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       expect(pickerContent).toContain("retzlo:statuses-updated");
       expect(pickerContent).toContain("getStoredStatuses");
       expect(pickerContent).toContain("getStatusMeta");
+      expect(pickerContent).toContain("isAddingStatus");
+      expect(pickerContent).toContain("handleQuickAddStatus");
+      expect(pickerContent).toContain("เพิ่มสถานะ");
     });
 
     it("verifies column.tsx and board.tsx pass boardId to ColumnStatusPicker", () => {
