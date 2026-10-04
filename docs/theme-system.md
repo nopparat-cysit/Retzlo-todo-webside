@@ -456,4 +456,16 @@ Template:
     - **Color & Sticker Pickers:** ตัวเลือกสีการ์ด 10 เฉดสีสไตล์ Retro Lofi และกริดเลือกสติกเกอร์ย้อนยุค (`sharedIconOptions`)
 - Reviewed: รันการทดสอบ Vitest ใน `src/components/notes/note-modals.test.ts` และ `src/components/notes/notes-panel.test.ts` ผ่าน 14/14 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
 
+### 2026-10-04 — ปรับโฉมหน้าตั้งค่าโปรเจกต์เป็น Master-Detail Left Sidebar สไตล์ Jira & Linear (Jira-style Space Settings Layout)
+- Added/changed: `src/components/project/project-settings-client.tsx`, `src/components/project/project-settings-client.test.ts`.
+- Tokens/variants:
+  - ปรับปรุงหน้าการตั้งค่า `/project/[id]/settings` จากแท็บแนวนอนเดิม ให้กลายเป็นสถาปัตยกรรม **Master-Detail Left Sidebar Navigation** ตามมาตรฐาน Jira Space Settings และ Linear:
+    - **Sticky Left Sidebar (`lg:w-72`):** แถบด้านข้างตรึงตำแหน่ง แสดงปุ่มย้อนกลับ `← Back to board`, การ์ดอัตลักษณ์ Space Identity Card (ภาพปก/สติกเกอร์/อักษรย่อ, ชื่อโปรเจกต์, ป้าย Project Space, ตัวนับจำนวนบอร์ดและสมาชิก), และเมนูนำทางจัดกลุ่ม 4 หมวดหมู่ (General, Workflow, System & Privacy, Overview)
+    - **Active Pill Indicator:** ใช้สไตล์เมนูคลาสสิกของ Jira พร้อมขอบแท่งแอคเซนต์ด้านซ้าย (`before:w-1 before:bg-indigo-600 dark:before:bg-dusk-lavender`) และพื้นผิวไฮไลท์สีอ่อน (`bg-indigo-50 dark:bg-dusk-lavender/15`)
+    - **Mobile Adaptive Navigation:** บนหน้าจอต่ำกว่า `lg:` ย่อแถบนำทางเป็น Horizontal Scrollable Pills อย่างนุ่มนวล ไม่เปลืองพื้นที่
+    - **New Section: Access & Team (`access`):** เพิ่มมุมมองภาพรวมสมาชิกในทีม, สถานะบทบาท Owner/Member, นโยบายการเข้าถึง, และปุ่มเปิดตัวจัดการสมาชิกแบบเต็ม (`/project/[id]/members`)
+    - **New Section: Card Attributes & Types (`attributes`):** เพิ่มมุมมองสถานะงานมาตรฐาน (TODO, DOING, WAITING, DONE), ตารางลำดับความสำคัญ (P0–P4), ชุดประเมิน Story Points (Fibonacci, T-Shirt, Linear), และฟังก์ชันเสริมของการ์ด พร้อมปุ่มลัดไปยังบอร์ด
+- Reviewed: ตรวจสอบความถูกต้องทั้งธีม Dark และ Light, Vitest ผ่าน 6/6 การทดสอบใน `project-settings-client.test.ts`, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
+
+
 
