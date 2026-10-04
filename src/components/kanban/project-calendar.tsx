@@ -789,6 +789,7 @@ export function ProjectCalendar({
           open={Boolean(selectedCard)}
           members={members}
           currentUserId={currentUserId}
+          boardId={selectedCard.column.boardId}
           onClose={() => setSelectedCardId(null)}
           onDelete={async () => {
             setIsDeleteConfirmOpen(true);

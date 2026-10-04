@@ -30,7 +30,7 @@ import {
   withStartDate
 } from "@/lib/kanban/due-date";
 
-const cardStatusSchema = z.enum(["TODO", "DOING", "WAITING", "DONE"]);
+const cardStatusSchema = z.string().trim().min(1).max(50).default("TODO");
 const cardColorSchema = z.enum(cardColorValues).default("DEFAULT");
 const cardPrioritySchema = z.string().trim().min(1).max(50).default("MEDIUM");
 const checklistItemSchema = z.object({
@@ -41,7 +41,7 @@ const checklistItemSchema = z.object({
 const retroStickersSchema = z.array(z.string()).default([]).transform(normalizeRetroStickerSelection);
 const difficultySchema = z.preprocess(
   sanitizeDifficultyScore,
-  z.union([z.literal(1), z.literal(3), z.literal(5), z.literal(8), z.literal(16), z.literal(21)]).nullable()
+  z.number().int().min(1).max(100).nullable()
 ).optional();
 
 const createCardSchema = z.object({

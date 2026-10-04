@@ -57,9 +57,10 @@ describe("difficulty module", () => {
       expect(sanitizeDifficultyScore(undefined)).toBeNull();
       expect(sanitizeDifficultyScore("")).toBeNull();
       expect(sanitizeDifficultyScore("abc")).toBeNull();
-      expect(sanitizeDifficultyScore(13)).toBeNull();
       expect(sanitizeDifficultyScore(0)).toBeNull();
       expect(sanitizeDifficultyScore(-5)).toBeNull();
+      expect(sanitizeDifficultyScore(101)).toBeNull();
+      expect(sanitizeDifficultyScore(-100)).toBeNull();
     });
   });
 
@@ -76,8 +77,18 @@ describe("difficulty module", () => {
     it("returns null for null, undefined, or invalid scores", () => {
       expect(getDifficultyMetadata(null)).toBeNull();
       expect(getDifficultyMetadata(undefined)).toBeNull();
-      // @ts-expect-error testing invalid score
-      expect(getDifficultyMetadata(99)).toBeNull();
+      expect(getDifficultyMetadata(0)).toBeNull();
+      expect(getDifficultyMetadata(-5)).toBeNull();
+    });
+
+    it("resolves custom story point metadata when customList is provided", () => {
+      const customList = [
+        { score: 2, label: "2h", pointsLabel: "2 hrs", title: "2 Hours", description: "Quick task", color: "cyan" }
+      ];
+      const meta = getDifficultyMetadata(2, customList);
+      expect(meta?.label).toBe("2h");
+      expect(meta?.title).toBe("2 Hours");
+      expect(meta?.pointsLabel).toBe("2 hrs");
     });
   });
 
@@ -124,7 +135,8 @@ describe("difficulty module", () => {
       expect(extractDifficulty(null)).toBeNull();
       expect(extractDifficulty({})).toBeNull();
       expect(extractDifficulty({ difficulty: 8 })).toBe(8);
-      expect(extractDifficulty({ difficulty: 99 })).toBeNull();
+      expect(extractDifficulty({ difficulty: -5 })).toBeNull();
+      expect(extractDifficulty({ difficulty: 105 })).toBeNull();
     });
 
     it("injects difficulty preserving other keys", () => {

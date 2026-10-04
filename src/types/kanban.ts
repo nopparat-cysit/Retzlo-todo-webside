@@ -38,7 +38,7 @@ export interface Card {
   assignees?: CardAssignee[];
 }
 
-export type CardStatus = "TODO" | "DOING" | "WAITING" | "DONE";
+export type CardStatus = "TODO" | "DOING" | "WAITING" | "DONE" | string;
 
 export interface ChecklistItem {
   id: string;

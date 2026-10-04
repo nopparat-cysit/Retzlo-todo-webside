@@ -34,17 +34,18 @@ import {
   DIFFICULTY_CONFIGS,
   DIFFICULTY_SCORES,
   getDifficultyMetadata,
+  getStoredStoryPoints,
+  type CustomStoryPoint,
   type DifficultyScore
 } from "@/lib/kanban/difficulty";
 import { getPrivateCoinEntry, resolveCardRewardPayload } from "@/lib/kanban/private-coins";
-import { getStatusMeta, statusOptions } from "@/lib/kanban/status";
+import { getStatusMeta, getStoredStatuses, type CustomStatusOption } from "@/lib/kanban/status";
+import { CardAttributesEditModal } from "@/components/kanban/card-attributes-edit-modal";
 import { cardStickerOptions, normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { getPriorityColorConfig, resolveBoardPriorities } from "@/lib/kanban/priority";
 import { cn } from "@/lib/utils";
 import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem, CustomPriority } from "@/types/kanban";
-
-
 
 interface CardModalProps {
   card?: Card;
@@ -55,6 +56,7 @@ interface CardModalProps {
   footerAction?: ReactNode;
   members?: CardAssignee[];
   currentUserId?: string;
+  boardId?: string;
   boardPriorities?: CustomPriority[];
   onSubmit: (data: {
     title: string;
@@ -118,7 +120,7 @@ function timeValue(card?: Card) {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
-export function CardModal({ card, mode, open, onClose, onDelete, footerAction, members = [], currentUserId, boardPriorities, onSubmit }: CardModalProps) {
+export function CardModal({ card, mode, open, onClose, onDelete, footerAction, members = [], currentUserId, boardId, boardPriorities, onSubmit }: CardModalProps) {
   const [startDate, setStartDate] = useState(startDateValue(card));
   const [startTime, setStartTime] = useState(startTimeValue(card));
   const [date, setDate] = useState(dateValue(card));
@@ -126,8 +128,25 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
   const [selectedStatus, setSelectedStatus] = useState<CardStatus>(card?.status ?? "TODO");
   const [selectedColor, setSelectedColor] = useState<CardColor>(normalizeCardColor(card?.color));
   const [selectedPriority, setSelectedPriority] = useState<CardPriority>(card?.priority ?? "MEDIUM");
+
+  // Dynamic Statuses, Priorities, and Story Points
+  const [statuses, setStatuses] = useState<CustomStatusOption[]>(() => getStoredStatuses(boardId));
+  const [storyPoints, setStoryPoints] = useState<CustomStoryPoint[]>(() => getStoredStoryPoints(boardId));
+  const [localPriorities, setLocalPriorities] = useState<CustomPriority[]>(() => resolveBoardPriorities(boardPriorities));
+
+  // Edit Attributes Modal State
+  const [isEditAttributesOpen, setIsEditAttributesOpen] = useState(false);
+  const [editAttributesTab, setEditAttributesTab] = useState<"status" | "priority" | "story-points">("status");
+
+  // Keep localPriorities in sync if boardPriorities changes from parent
+  useEffect(() => {
+    if (boardPriorities && boardPriorities.length > 0) {
+      setLocalPriorities(resolveBoardPriorities(boardPriorities));
+    }
+  }, [boardPriorities]);
+
   const activePriorities = useMemo(() => {
-    const resolved = resolveBoardPriorities(boardPriorities);
+    const resolved = resolveBoardPriorities(localPriorities);
     if (selectedPriority && !resolved.some((p) => p.label.toUpperCase() === selectedPriority.toUpperCase() || p.id === selectedPriority)) {
       return [
         ...resolved,
@@ -140,8 +159,11 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
       ];
     }
     return resolved;
-  }, [boardPriorities, selectedPriority]);
+  }, [localPriorities, selectedPriority]);
   const [difficulty, setDifficulty] = useState<DifficultyScore | null>(card?.difficulty ?? null);
+  const currentDifficultyMeta = useMemo(() => {
+    return getDifficultyMetadata(difficulty, storyPoints);
+  }, [difficulty, storyPoints]);
   const [assigneeIds, setAssigneeIds] = useState<string[]>(card?.assigneeIds ?? []);
   const [isStarred, setIsStarred] = useState(card?.isStarred ?? false);
   const [checklist, setChecklist] = useState<ChecklistItem[]>(card?.checklist ?? []);
@@ -667,20 +689,49 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
           {/* Mobile Quick Status & Priority Bar */}
           <div className="lg:hidden rounded-xl border border-white/10 bg-white/[0.03] p-3 space-y-3">
             <div className="space-y-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-stone-300">Status</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wider text-stone-300">Status</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditAttributesTab("status");
+                    setIsEditAttributesOpen(true);
+                  }}
+                  className="h-5 w-5 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
+                  title="Add or Edit Statuses"
+                  aria-label="Add or Edit Statuses"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-                {statusOptions.map((option) => (
+                {statuses.map((option) => (
                   <StatusButton
                     key={`mobile-${option.value}`}
                     selected={selectedStatus === option.value}
                     status={option.value}
-                    onClick={() => setSelectedStatus(option.value)}
+                    customStatuses={statuses}
+                    onClick={() => setSelectedStatus(option.value as CardStatus)}
                   />
                 ))}
               </div>
             </div>
             <div className="pt-2 border-t border-white/5 space-y-1.5">
-              <span className="text-xs text-stone-400 font-medium">Priority</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-stone-400 font-medium">Priority</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditAttributesTab("priority");
+                    setIsEditAttributesOpen(true);
+                  }}
+                  className="h-5 w-5 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
+                  title="Add or Edit Priorities"
+                  aria-label="Add or Edit Priorities"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
               <div className="flex flex-wrap gap-1.5">
                 {activePriorities.map((item) => {
                   const colorConfig = getPriorityColorConfig(item.color);
@@ -691,7 +742,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                     <button
                       key={`mobile-${item.id}`}
                       type="button"
-                      onClick={() => setSelectedPriority(item.id)}
+                      onClick={() => setSelectedPriority(item.id as CardPriority)}
                       className={cn(
                         "px-2.5 py-1 rounded-lg border text-xs font-semibold transition text-center flex items-center gap-1.5",
                         isSelected
@@ -788,21 +839,50 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
 
           <div className="grid gap-4 lg:sticky lg:top-0">
           <div className="space-y-2 text-sm text-stone-300 hidden lg:block">
-            <span>Status</span>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-stone-300">Status</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditAttributesTab("status");
+                  setIsEditAttributesOpen(true);
+                }}
+                className="h-6 w-6 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
+                title="Add or Edit Statuses"
+                aria-label="Add or Edit Statuses"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {statusOptions.map((option) => (
+              {statuses.map((option) => (
                 <StatusButton
                   key={option.value}
                   selected={selectedStatus === option.value}
                   status={option.value}
-                  onClick={() => setSelectedStatus(option.value)}
+                  customStatuses={statuses}
+                  onClick={() => setSelectedStatus(option.value as CardStatus)}
                 />
               ))}
             </div>
           </div>
 
           <div className="space-y-2 text-sm text-stone-300 hidden lg:block">
-            <span>Priority</span>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-stone-300">Priority</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditAttributesTab("priority");
+                  setIsEditAttributesOpen(true);
+                }}
+                className="h-6 w-6 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
+                title="Add or Edit Priorities"
+                aria-label="Add or Edit Priorities"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2">
               {activePriorities.map((item) => {
                 const colorConfig = getPriorityColorConfig(item.color);
@@ -820,7 +900,7 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
                         : "border-stone-200 bg-stone-50 text-stone-700 hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                     type="button"
-                    onClick={() => setSelectedPriority(item.id)}
+                    onClick={() => setSelectedPriority(item.id as CardPriority)}
                   >
                     <span className={cn("w-2 h-2 rounded-full shrink-0", colorConfig.dotClass)} />
                     <span>{item.label}</span>
@@ -830,18 +910,32 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
             </div>
           </div>
 
-          {/* Difficulty Score (1, 3, 5, 8, 16, 21) */}
+          {/* Difficulty Score (Story Points) */}
           <div className="space-y-2 text-sm text-stone-300">
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 font-medium">
-                <Zap className="h-4 w-4 text-amber-400" />
-                <span>คะแนนความยาก (Story Points)</span>
-              </span>
-              {difficulty ? (
-                <span className="text-xs text-stone-400 font-medium">
-                  {getDifficultyMetadata(difficulty)?.title}
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <Zap className="h-4 w-4 text-amber-400" />
+                  <span>คะแนนความยาก (Story Points)</span>
                 </span>
-              ) : null}
+                {difficulty ? (
+                  <span className="text-xs text-stone-400 font-medium">
+                    {currentDifficultyMeta?.title}
+                  </span>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditAttributesTab("story-points");
+                  setIsEditAttributesOpen(true);
+                }}
+                className="h-6 w-6 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
+                title="Add or Edit Story Points"
+                aria-label="Add or Edit Story Points"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
             </div>
 
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 sm:gap-2">
@@ -858,34 +952,34 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
               >
                 -
               </button>
-              {DIFFICULTY_SCORES.map((score) => {
-                const isSelected = difficulty === score;
-                const meta = DIFFICULTY_CONFIGS[score];
+              {storyPoints.map((point) => {
+                const isSelected = difficulty === point.score;
+                const meta = getDifficultyMetadata(point.score, storyPoints);
                 return (
                   <button
-                    key={score}
+                    key={point.score}
                     type="button"
-                    title={`${meta.title} — ${meta.description}`}
+                    title={`${meta?.title || point.score} — ${meta?.description || ""}`}
                     className={cn(
                       "h-9 rounded-md border text-xs font-bold transition flex items-center justify-center gap-0.5",
                       isSelected
-                        ? meta.activeChipClass
+                        ? meta?.activeChipClass
                         : "border-white/10 text-stone-400 hover:text-stone-200 hover:border-white/20"
                     )}
-                    onClick={() => setDifficulty(isSelected ? null : score)}
+                    onClick={() => setDifficulty(isSelected ? null : (point.score as any))}
                   >
-                    ⚡{score}
+                    ⚡{point.label || point.score}
                   </button>
                 );
               })}
             </div>
             {difficulty ? (
               <p className="text-[11px] text-stone-400">
-                {getDifficultyMetadata(difficulty)?.description}
+                {currentDifficultyMeta?.description}
               </p>
             ) : (
               <p className="text-[11px] text-stone-500">
-                ระดับความยาก: 1, 3, 5, 8, 16, 21 pts
+                ระดับความยาก: {storyPoints.map((p) => p.label || p.score).join(", ")} pts
               </p>
             )}
           </div>
@@ -1013,6 +1107,18 @@ export function CardModal({ card, mode, open, onClose, onDelete, footerAction, m
           setAiBreakdownOpen(true);
         }}
       />
+      <CardAttributesEditModal
+        open={isEditAttributesOpen}
+        onClose={() => setIsEditAttributesOpen(false)}
+        initialTab={editAttributesTab}
+        boardId={boardId}
+        statuses={statuses}
+        onUpdateStatuses={setStatuses}
+        priorities={localPriorities}
+        onUpdatePriorities={setLocalPriorities}
+        storyPoints={storyPoints}
+        onUpdateStoryPoints={setStoryPoints}
+      />
     </>
   );
 }
@@ -1054,13 +1160,15 @@ function ColorPicker({
 function StatusButton({
   status,
   selected,
+  customStatuses,
   onClick
 }: {
-  status: CardStatus;
+  status: string;
   selected: boolean;
+  customStatuses?: CustomStatusOption[];
   onClick: () => void;
 }) {
-  const meta = getStatusMeta(status);
+  const meta = getStatusMeta(status, customStatuses);
 
   return (
     <button

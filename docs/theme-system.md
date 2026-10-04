@@ -201,8 +201,8 @@ Marketing home คงฉากหลังแบบ dark brand scene; ข้อ�
 | Settings | `src/app/(dashboard)/project/[id]/settings` | ตรวจภาพ light/dark desktop; mobile light 390x844; source | ไม่มี document-level overflow ที่ 390px; theme controls, forms, feature panels ดูสม่ำเสมอในภาพที่เห็น |
 | AI Chat widget | `src/components/ai/ai-chat-widget.tsx` | ตรวจภาพ local 1280×720: Light side panel; Dark float และ side panel; ตรวจ source ของร่างสร้างการ์ดและ ConfirmModal | Launcher, welcome/assistant bubble, quick prompts, input และ controls อ่านได้ทั้งสองธีม; UI ยืนยันสร้างการ์ดใช้ semantic tokens แต่ยังไม่ได้เปิดภาพ state นี้; context/credit banner ยังไม่ยืนยันด้วยภาพเพราะ local DB ใช้งานไม่ได้; mobile/focus ยังเหลือ |
 | Shared overlay/status UI | `src/components/ui/` | ตรวจ source; Design System light visual หลัง implementation สำหรับ error/success/card samples, modal, toast; profile menu light/dark | Status tokens ใช้กับ shared states, Button, ConfirmModal และ toast; tooltip, keyboard focus, skeleton และทุก destructive state ยังต้องไล่ visual เพิ่ม |
-| Design-system preview | `src/app/design-system/` | production `/design-system` ตอบ 404 ในรอบก่อน; local light visual หลัง implementation | ใช้ local เป็น visual QA; production route availability ยังเป็น deployment follow-up |
-| โมดูล/หน้าที่เพิ่มในอนาคต | เพิ่ม path จริงเมื่อสร้าง | ยังไม่มี | ต้องเพิ่มแถวก่อนปิดงาน feature |
+| Card attributes edit modal | `src/components/kanban/card-attributes-edit-modal.tsx`, `src/components/kanban/card-modal.tsx` | ตรวจ source, vitest unit tests, tsc, lint, และ build ผ่าน; รองรับ 3 tabs (Status, Priority, Story Points) | ใช้ semantic modal tokens, retro lofi color swatches, ConfirmModal, และ responsive tabs |
+| โมดูล/หน้าที่เพิ่มในอนาคต | เพิ่ม pathจริงเมื่อสร้าง | ยังไม่มี | ต้องเพิ่มแถวก่อนปิดงาน feature |
 
 ## วิธีบันทึกเมื่อเพิ่มหน้า/ส่วน UI ใหม่
 
@@ -313,5 +313,15 @@ Template:
   - Card density switcher (Normal vs Compact 2x) ใช้ paired button group เคียงข้าง Board/Table view switcher
   - Custom DatePicker และ TimePicker ใช้ popover surface, linear single-column scroller, และ standard DD/MM/YYYY placeholders พร้อม outside-click dismiss
 - Reviewed: Desktop & mobile responsive styling, outside-click dismissal, export trigger coordination across views.
+
+### 2026-10-04 — หน้าแก้ไขตัวเลือกการ์ด (Card Attributes Edit Modal) และปุ่ม + ท้ายหัวข้อ
+- Added/changed: `src/components/kanban/card-attributes-edit-modal.tsx`, `src/components/kanban/card-modal.tsx`, `src/lib/kanban/status.ts`, `src/lib/kanban/difficulty.ts`, `src/types/kanban.ts`.
+- Tokens/variants:
+  - เพิ่มปุ่ม `+` แบบ reactive ที่ท้ายหัวข้อ 3 ส่วนใน Card Modal: สถานะ (Status), ลำดับความสำคัญ (Priority), และคะแนนความยาก (Story Points)
+  - หน้าต่าง Modal จัดการตัวเลือก (Card Attributes Edit Modal) แบ่ง 3 แท็บด้วย responsive tabs และ retro lofi color swatches
+  - ปรับแต่งและสลับชุด Story Points Preset (Retzlo Standard, Fibonacci, Linear/ชั่วโมง, T-Shirt Sizes) หรือเพิ่มตัวเลขคะแนนแบบกำหนดเอง
+  - รองรับการย้ายลำดับ (Move Up / Down) และเพิ่มตัวเลือกสถานะและความสำคัญใหม่พร้อม color swatch picker
+  - ปฏิบัติตามมาตรฐานการใช้งาน `ConfirmModal` สำหรับการลบและรีเซ็ต พร้อม Toast notifications ทุกการเปลี่ยนแปลง
+- Reviewed: ตรวจสอบทั้ง desktop และ mobile responsive, การเปิดแท็บตรงจากปุ่ม `+`, การเชื่อมต่อบอร์ด `boardId` และการจัดเก็บ board-scoped ใน localStorage และ backend database.
 
 

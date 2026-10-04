@@ -25,6 +25,7 @@ import {
   Zap,
   Flag,
   Download,
+  SlidersHorizontal,
 } from "lucide-react";
 
 import { BackButton } from "@/components/ui/back-button";
@@ -166,6 +167,24 @@ const TOPICS: GuideTopic[] = [
       "Quick Export Dropdown: คลิกส่งออกด่วนได้ใน 1 วินาที หรือเปิดหน้าต่างตัวเลือกเพิ่มเติมเพื่อตรวจสอบรายละเอียด",
     ],
     tips: "สามารถกด Export ได้ทั้งจากปุ่มบนหัวบอร์ดหลัก หรือปุ่ม Export ในแถบเครื่องมือของมุมมองตาราง (Table View)",
+  },
+  {
+    id: "card-attributes-customization",
+    category: "kanban",
+    icon: SlidersHorizontal,
+    title: "หน้าปรับแต่งตัวเลือกการ์ด (สถานะ, ความสำคัญ, Story Points) และปุ่ม +",
+    badge: "New Feature",
+    badgeColor: "border-purple-400/30 bg-purple-400/10 text-purple-400",
+    summary:
+      "คลิกปุ่ม '+' ท้ายหัวข้อในหน้าต่างการ์ดเพื่อเปิดหน้าต่างปรับแต่งตัวเลือกทั้ง 3 ส่วน: สถานะ (Status), ลำดับความสำคัญ (Priority), และคะแนนความยาก (Story Points)",
+    highlights: [
+      "ปุ่ม '+' ท้ายหัวข้อ: แสดงอยู่ท้ายหัวข้อทั้ง 3 ส่วนใน Card Modal สามารถกดเพื่อเปิดหน้าต่างแก้ไขตรงไปยังแท็บนั้นได้ทันที",
+      "แท็บสถานะ (Status): เพิ่มสถานะใหม่พร้อมเลือกเฉดสี Retro Lofi, เลื่อนสลับลำดับขึ้น/ลง, ลบ หรือรีเซ็ตกลับเป็นค่าเริ่มต้น",
+      "แท็บความสำคัญ (Priority): ปรับแต่งระดับความสำคัญของบอร์ดได้สูงสุด 10 ระดับ พร้อม 12 โทนสีและจัดลำดับความเร่งด่วน",
+      "แท็บคะแนนความยาก (Story Points): เลือกใช้ชุดตัวเลขสำเร็จรูป (Retzlo Standard, Fibonacci, Linear/ชม., T-Shirt Sizes) หรือเพิ่มตัวเลขคะแนน 1-100 เอง",
+      "ความปลอดภัยสูง: ทุกการลบและรีเซ็ตมี ConfirmModal ยืนยัน พร้อม Toast แจ้งเตือนผลลัพธ์ทันที",
+    ],
+    tips: "การปรับแต่ง Story Points และ Status จะถูกบันทึกแยกตามบอร์ดแบบ Board-scoped ทำให้สามารถตั้งค่าให้เหมาะกับลักษณะงานของแต่ละทีมได้",
   },
   {
     id: "coffee-cheers-rewards",

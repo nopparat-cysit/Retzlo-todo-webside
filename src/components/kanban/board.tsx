@@ -1671,6 +1671,7 @@ export function KanbanBoard({
                         members={members}
                         currentUserId={currentUserId}
                         hasActiveFilters={activeFilterCount > 0}
+                        boardId={board.id}
                         priorities={boardPriorities}
                       />
                     ))}
@@ -1693,6 +1694,7 @@ export function KanbanBoard({
           onClose={() => setEditingCard(null)}
           members={members}
           currentUserId={currentUserId}
+          boardId={board.id}
           boardPriorities={boardPriorities}
           onDelete={async () => {
             const toDelete = editingCard;

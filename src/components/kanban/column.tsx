@@ -26,6 +26,7 @@ import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem, Colum
 
 export interface KanbanColumnProps {
   column: ColumnWithCards;
+  boardId?: string;
   activeCardId: string | null;
   isDragDisabled?: boolean;
   isDropTarget: boolean;
@@ -72,6 +73,7 @@ export interface KanbanColumnProps {
 
 function KanbanColumnComponent({
   column,
+  boardId,
   activeCardId,
   isDragDisabled = false,
   isDropTarget,
@@ -663,6 +665,7 @@ function KanbanColumnComponent({
         open={isModalOpen}
         members={members}
         currentUserId={currentUserId}
+        boardId={boardId}
         boardPriorities={priorities}
         onClose={() => setIsModalOpen(false)}
         onSubmit={async (payload) => {
