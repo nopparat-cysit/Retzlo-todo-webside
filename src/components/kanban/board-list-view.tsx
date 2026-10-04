@@ -52,13 +52,6 @@ function checkIsOverdue(dueDate: string | null | undefined): boolean {
   return !isNaN(d.getTime()) && d.getTime() < Date.now();
 }
 
-function formatTableDate(dateString: string | null | undefined): string {
-  if (!dateString) return "-";
-  const d = new Date(dateString);
-  if (isNaN(d.getTime())) return "-";
-  return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
-}
-
 function toInputDate(dateString: string | null | undefined): string {
   if (!dateString) return "";
   const d = new Date(dateString);
@@ -1065,7 +1058,7 @@ export function BoardListView({
                       <DatePicker
                         value={card.startDate}
                         onChange={(nextDate) => void handleSaveDate(card, "startDate", nextDate)}
-                        placeholder="-"
+                        placeholder="DD/MM/YYYY"
                         triggerClassName="h-6 w-full border-transparent bg-transparent px-2 py-0 text-center text-[11px] shadow-none hover:border-stone-200 hover:bg-stone-100 dark:hover:border-white/10 dark:hover:bg-white/10"
                       />
                     </div>
@@ -1472,12 +1465,25 @@ export function BoardListView({
                                 </DropdownMenu>
                               </div>
 
-                              <div className="w-36 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
-                                {formatTableDate(card.startDate)}
+                              <div className="w-36 px-1.5 py-1 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
+                                <DatePicker
+                                  value={card.startDate}
+                                  onChange={(nextDate) => void handleSaveDate(card, "startDate", nextDate)}
+                                  placeholder="DD/MM/YYYY"
+                                  triggerClassName="h-6 w-full border-transparent bg-transparent px-2 py-0 text-center text-[11px] shadow-none hover:border-stone-200 hover:bg-stone-100 dark:hover:border-white/10 dark:hover:bg-white/10"
+                                />
                               </div>
 
-                              <div className="w-36 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
-                                {formatTableDate(card.dueDate)}
+                              <div className="w-36 px-1.5 py-1 text-center font-mono text-[11px]" onClick={(e) => e.stopPropagation()}>
+                                <DatePicker
+                                  value={card.dueDate}
+                                  onChange={(nextDate) => void handleSaveDate(card, "dueDate", nextDate)}
+                                  placeholder="DD/MM/YYYY"
+                                  triggerClassName={cn(
+                                    "h-6 w-full border-transparent bg-transparent px-2 py-0 text-center text-[11px] shadow-none hover:border-stone-200 hover:bg-stone-100 dark:hover:border-white/10 dark:hover:bg-white/10",
+                                    cardOverdue && !isCardDone && "font-bold text-red-600 dark:text-red-400 bg-red-500/10"
+                                  )}
+                                />
                               </div>
 
                               <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">

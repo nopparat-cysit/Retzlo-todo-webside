@@ -149,6 +149,10 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     // ConfirmModal on task deletion
     expect(listViewSource).toContain("<ConfirmModal");
     expect(listViewSource).toContain("handleConfirmDelete");
+
+    // DatePickers consistently use DD/MM/YYYY placeholder for empty state
+    expect(listViewSource).toContain('placeholder="DD/MM/YYYY"');
+    expect(listViewSource).not.toContain('placeholder="-"');
   });
 
   it("renders AssigneeAvatar and Avatar with actual profile photos instead of raw letter divs", () => {
