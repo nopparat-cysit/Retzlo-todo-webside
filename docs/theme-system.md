@@ -420,3 +420,10 @@ Template:
   - รองรับการบันทึกด้วย Enter, ยกเลิกด้วย Escape, และเลือกสถานะที่สร้างใหม่ให้อัตโนมัติ (Auto-selection)
   - ซิงค์การอัปเดตแบบเรียลไทม์ผ่าน `retzlo:statuses-updated` พร้อม Toast แจ้งเตือนความสำเร็จตามมาตรฐาน AGENTS.md
 - Reviewed: รันการทดสอบ Vitest ใน `src/components/kanban/` ผ่าน 56/56 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
+
+### 2026-10-04 — นำแถบสลับ Boards Hub / All Workspaces ออกจากหน้าหลัก Projects Dashboard
+- Added/changed: `src/components/project/projects-dashboard.tsx`.
+- Tokens/variants:
+  - นำชุดปุ่ม Segmented Toggle `[Boards Hub] [All Workspaces]` ออกจากแถบ Header ด้านขวาบน
+  - ปรับปรุงให้หน้าแดชบอร์ดดูโปร่ง โล่ง สะอาดตา และคงไว้เฉพาะปุ่ม Primary Action สำคัญ (`New Board` / `New Project`)
+- Reviewed: รันการทดสอบ Vitest ใน `src/components/project/` ผ่าน 13/13 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.

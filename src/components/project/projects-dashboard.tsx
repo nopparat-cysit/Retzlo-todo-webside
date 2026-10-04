@@ -900,40 +900,8 @@ export function ProjectsDashboard({
                 )}
               </div>
 
-              {/* View mode toggle + Primary action button */}
+              {/* Primary action button */}
               <div className="flex items-center gap-2 shrink-0">
-                <div className="flex rounded-xl border border-white/10 bg-black/30 p-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("boards")}
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                      viewMode === "boards"
-                        ? "border border-dusk-lavender/40 bg-dusk-lavender/20 text-dusk-lavender font-semibold shadow-sm"
-                        : "text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]"
-                    )}
-                  >
-                    <KanbanSquare className="h-3.5 w-3.5" />
-                    <span className="hidden min-[380px]:inline">Boards Hub</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("workspaces")}
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                      viewMode === "workspaces"
-                        ? "border border-dusk-lavender/40 bg-dusk-lavender/20 text-dusk-lavender font-semibold shadow-sm"
-                        : "text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]"
-                    )}
-                  >
-                    <LayoutGrid className="h-3.5 w-3.5" />
-                    <span className="hidden min-[380px]:inline">All Workspaces</span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
-                      {projectList.length}
-                    </span>
-                  </button>
-                </div>
-
                 {viewMode === "boards" && activeProject ? (
                   <Button
                     type="button"
