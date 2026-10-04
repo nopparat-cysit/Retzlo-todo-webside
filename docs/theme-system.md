@@ -365,3 +365,16 @@ Template:
   - แถบสารบัญด้านขวา (On this page TOC): สำหรับหน้าจอ Desktop มีระบบ Anchor ลิงก์กระโดดข้ามหัวข้อย่อยและกล่องถาม Retzlo AI ด่วน
   - รองรับทั้งโหมดอ่านเอกสาร (Docs Reader View) และโหมดดูภาพรวมการ์ดทั้งหมด (Overview Grid View) พร้อม Drawer สารบัญแบบเต็มสำหรับจอมือถือและแท็บเล็ต
 - Reviewed: ตรวจสอบความถูกต้องของ UI บนทั้งธีม Dark Mode (Retro Lofi Indigo) และ Light Mode (Warm Paper), ตรวจสอบปุ่มคีย์ลัด Ctrl+K, การคัดลอกคีย์ลัด, การทำงานของ Drawer บนจอมือถือ และ Next.js Build ผ่าน 100%.
+
+### 2026-10-04 — เพิ่มเมนู Dropdown ข้อมูลเว็บไซต์/ติดต่อเรา และสร้างหน้าแบบฟอร์มติดต่อพร้อมเทมเพลต (Help Dropdown & Contact Form with Templates)
+- Added/changed: `src/components/ui/help-button.tsx`, `src/lib/contact-templates.ts`, `src/lib/contact-templates.test.ts`, `src/components/contact/contact-page-client.tsx`, `src/app/(dashboard)/contact/page.tsx`, `src/app/api/contact/route.ts`, `docs/system-guide.md`.
+- Tokens/variants:
+  - อัปเกรดปุ่ม `(?)` HelpButton บน Topbar ให้เปิดเมนู DropdownMenu สไตล์ Retro Lofi แสดง:
+    1. `คู่มือ & ข้อมูลระบบ`: ลิงก์ตรงไปที่ `/help`
+    2. `รายละเอียดเว็บไซต์`: เปิด Modal แสดงเวอร์ชัน v2.4, ข้อมูลสถาปัตยกรรม (Next.js, Neon PostgreSQL, Tailwind, DeepSeek-V4 Pro) และสรุปโมดูล
+    3. `ติดต่อเรา & แจ้งปัญหา`: ลิงก์ตรงไปที่ `/contact`
+    4. `ถาม AI Assistant`: เรียกผู้ช่วย AI ตอบคำถามทันที
+    5. ลิงก์นโยบายความเป็นส่วนตัว (`/privacy`) และข้อกำหนดการใช้งาน (`/terms`)
+  - สร้างหน้าแบบฟอร์มติดต่อ (`/contact`) พร้อมระบบ Template Select 7 รูปแบบ (แจ้ง Bug, ขอฟีเจอร์, สอบถามทั่วไป, ติดต่อร่วมมือ, ข้อเสนอแนะ Gamification, ความปลอดภัย, กำหนดเอง) ที่ช่วยเติมหัวข้อและร่างข้อความอัตโนมัติ
+  - ระบบส่งเรื่องติดต่อผ่าน API `POST /api/contact` พร้อมสร้าง Ticket Reference ID และแจ้งเตือน Toast ยืนยันผล
+- Reviewed: ตรวจสอบ unit tests `contact-templates.test.ts` และ `help-center.test.ts` ผ่าน 100%, ตรวจสอบ TypeScript, ESLint และ Next.js production build ผ่านสมบูรณ์.

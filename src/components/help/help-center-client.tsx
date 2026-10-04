@@ -162,7 +162,7 @@ export const TOPICS: GuideTopic[] = [
       "Real-time Collaboration: การ์ดขยับและอัปเดตแบบสดๆ ไปยังหน้าจอเพื่อนร่วมทีมทุกคนในโปรเจกต์ด้วย Pusher WebSocket",
       "Column Settings & WIP Limit: ปรับเปลี่ยนชื่อคอลัมน์ และกำหนดขีดจำกัดงานระหว่างทำ (WIP Limit) เพื่อป้องกันงานคั่งค้าง",
       "Sort Handle ด้านหน้า (⁝⁝): จับลากจุดที่ด้านหน้าเมนูในแถบข้างเพื่อจัดลำดับบอร์ดและเครื่องมือตามใจชอบ",
-      "Card Density Switcher: ปรับความหนาแน่นของการ์ดระหว่าง Normal (ขนาดมาตรฐาน) และ Compact 2x (โหมดกะทัดรัดแสดงข้อมูลแน่นขึ้น 2 เท่า)",
+      "Card Density (Normal / Compact 2x): ปุ่มปรับความหนาแน่นของการ์ดระหว่างโหมด Normal (มาตรฐาน) และ Compact 2x (แสดงข้อมูลแน่นขึ้น 2 เท่า)",
     ],
     tips: "สามารถสลับความหนาแน่นของการ์ดเป็น Compact 2x เมื่อมีงานจำนวนมากในแต่ละคอลัมน์ เพื่อให้เห็นภาพรวมได้กว้างขึ้นโดยไม่ต้องเลื่อนหน้าจอบ่อย",
   },
@@ -541,7 +541,7 @@ export function HelpCenterClient() {
                   </span>
                 </div>
                 <h1 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 leading-tight">
-                  คู่มือระบบ & คลังความรู้
+                  ข้อมูลระบบ & คู่มือการใช้งาน
                 </h1>
               </div>
             </div>
