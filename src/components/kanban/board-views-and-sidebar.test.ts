@@ -143,5 +143,16 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(listViewSource).toContain("<ConfirmModal");
     expect(listViewSource).toContain("handleConfirmDelete");
   });
+
+  it("renders AssigneeAvatar and Avatar with actual profile photos instead of raw letter divs", () => {
+    // BoardListView uses AssigneeAvatar in assignee cells and dropdown items
+    expect(listViewSource).toContain('import { AssigneeAvatar } from "@/components/kanban/assignee-avatar"');
+    expect(listViewSource).toContain("<AssigneeAvatar user={cardAssigneeList[0]} size={20} />");
+    expect(listViewSource).toContain("<AssigneeAvatar user={member} size={20} />");
+
+    // ProjectBoardsManager uses Avatar for board members and selection modals
+    expect(settingsManagerSource).toContain('import { Avatar } from "@/components/ui/avatar"');
+    expect(settingsManagerSource).toContain("<Avatar");
+  });
 });
 

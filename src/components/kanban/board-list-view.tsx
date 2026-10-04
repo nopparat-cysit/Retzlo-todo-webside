@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getColumnThemeOption } from "@/lib/kanban/column-settings";
 import { BoardExportButton } from "@/components/kanban/board-export-modal";
+import { AssigneeAvatar } from "@/components/kanban/assignee-avatar";
 
 function checkIsOverdue(dueDate: string | null | undefined): boolean {
   if (!dueDate) return false;
@@ -942,9 +943,7 @@ export function BoardListView({
                               </span>
                             ) : cardAssigneeList.length === 1 ? (
                               <>
-                                <div className="grid h-5 w-5 place-items-center rounded-full bg-dusk-lavender/30 text-[9px] font-bold text-stone-900 dark:text-stone-100 shrink-0">
-                                  {(cardAssigneeList[0].name?.[0] ?? cardAssigneeList[0].email[0]).toUpperCase()}
-                                </div>
+                                <AssigneeAvatar user={cardAssigneeList[0]} size={20} />
                                 <span className="truncate font-medium text-stone-800 dark:text-stone-200">
                                   {cardAssigneeList[0].name ?? cardAssigneeList[0].email}
                                 </span>
@@ -953,13 +952,12 @@ export function BoardListView({
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <div className="flex -space-x-1.5 overflow-hidden shrink-0">
                                   {cardAssigneeList.slice(0, 3).map((assignee) => (
-                                    <div
+                                    <AssigneeAvatar
                                       key={assignee.id}
-                                      className="inline-flex h-5 w-5 rounded-full ring-1.5 ring-white dark:ring-stone-900 bg-dusk-lavender/30 text-[9px] font-bold text-stone-900 dark:text-stone-100 items-center justify-center shrink-0"
-                                      title={assignee.name ?? assignee.email}
-                                    >
-                                      {(assignee.name?.[0] ?? assignee.email[0]).toUpperCase()}
-                                    </div>
+                                      user={assignee}
+                                      size={20}
+                                      className="ring-1.5 ring-white dark:ring-stone-900"
+                                    />
                                   ))}
                                 </div>
                                 <span className="text-[11px] font-medium text-stone-700 dark:text-stone-300 truncate">
@@ -995,9 +993,7 @@ export function BoardListView({
                                 )}
                               >
                                 <div className="flex items-center gap-2 truncate">
-                                  <div className="grid h-5 w-5 place-items-center rounded-full bg-stone-200 text-[9px] font-bold text-stone-800 dark:bg-stone-700 dark:text-stone-200 shrink-0">
-                                    {(member.name?.[0] ?? member.email[0]).toUpperCase()}
-                                  </div>
+                                  <AssigneeAvatar user={member} size={20} />
                                   <span className="truncate">{member.name ?? member.email}</span>
                                 </div>
                                 {isAssigned && <Check className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />}
@@ -1373,9 +1369,7 @@ export function BoardListView({
                                         </span>
                                       ) : cardAssigneeList.length === 1 ? (
                                         <>
-                                          <div className="grid h-5 w-5 place-items-center rounded-full bg-dusk-lavender/30 text-[9px] font-bold text-stone-900 dark:text-stone-100 shrink-0">
-                                            {(cardAssigneeList[0].name?.[0] ?? cardAssigneeList[0].email[0]).toUpperCase()}
-                                          </div>
+                                          <AssigneeAvatar user={cardAssigneeList[0]} size={20} />
                                           <span className="truncate font-medium text-stone-800 dark:text-stone-200">
                                             {cardAssigneeList[0].name ?? cardAssigneeList[0].email}
                                           </span>
@@ -1384,13 +1378,12 @@ export function BoardListView({
                                         <div className="flex items-center gap-1.5 min-w-0">
                                           <div className="flex -space-x-1.5 overflow-hidden shrink-0">
                                             {cardAssigneeList.slice(0, 3).map((assignee) => (
-                                              <div
+                                              <AssigneeAvatar
                                                 key={assignee.id}
-                                                className="inline-flex h-5 w-5 rounded-full ring-1.5 ring-white dark:ring-stone-900 bg-dusk-lavender/30 text-[9px] font-bold text-stone-900 dark:text-stone-100 items-center justify-center shrink-0"
-                                                title={assignee.name ?? assignee.email}
-                                              >
-                                                {(assignee.name?.[0] ?? assignee.email[0]).toUpperCase()}
-                                              </div>
+                                                user={assignee}
+                                                size={20}
+                                                className="ring-1.5 ring-white dark:ring-stone-900"
+                                              />
                                             ))}
                                           </div>
                                           <span className="text-[11px] font-medium text-stone-700 dark:text-stone-300 truncate">
@@ -1426,9 +1419,7 @@ export function BoardListView({
                                           )}
                                         >
                                           <div className="flex items-center gap-2 truncate">
-                                            <div className="grid h-5 w-5 place-items-center rounded-full bg-stone-200 text-[9px] font-bold text-stone-800 dark:bg-stone-700 dark:text-stone-200 shrink-0">
-                                              {(member.name?.[0] ?? member.email[0]).toUpperCase()}
-                                            </div>
+                                            <AssigneeAvatar user={member} size={20} />
                                             <span className="truncate">{member.name ?? member.email}</span>
                                           </div>
                                           {isAssigned && <Check className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />}

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { FolderKanban, Globe, LayoutGrid, List, Lock, MoreVertical, Plus, Search, Trash2, Users, Edit3, Check, X, Sparkles, Settings } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
@@ -483,13 +484,18 @@ export function ProjectBoardsManager({
                       <span className="text-[10px] text-stone-500">Access:</span>
                       <div className="flex -space-x-1.5 overflow-hidden">
                         {b.members.slice(0, 4).map((m) => (
-                          <div
+                          <Avatar
                             key={m.userId}
-                            className="grid h-5 w-5 place-items-center rounded-full border border-stone-800 bg-dusk-lavender/30 text-[9px] font-bold text-stone-200"
-                            title={m.user.name ?? m.user.email}
-                          >
-                            {(m.user.name?.[0] ?? m.user.email[0]).toUpperCase()}
-                          </div>
+                            user={{
+                              id: m.userId,
+                              name: m.user.name,
+                              email: m.user.email,
+                              avatar: m.user.avatar
+                            }}
+                            size={20}
+                            className="ring-1 ring-white dark:ring-stone-900 shrink-0"
+                            showTooltip
+                          />
                         ))}
                       </div>
                       {b.members.length > 4 && (
@@ -751,9 +757,15 @@ export function ProjectBoardsManager({
                         )}
                       >
                         <div className="flex items-center gap-2 truncate">
-                          <div className="grid h-5 w-5 place-items-center rounded-full bg-theme-paper-strong text-[9px] font-bold text-theme-foreground">
-                            {(m.user.name?.[0] ?? m.user.email[0]).toUpperCase()}
-                          </div>
+                          <Avatar
+                            user={{
+                              id: m.userId,
+                              name: m.user.name,
+                              email: m.user.email,
+                              avatar: m.user.avatar
+                            }}
+                            size={20}
+                          />
                           <span className="truncate">{m.user.name ?? m.user.email}</span>
                         </div>
                         {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-theme-accent" />}
@@ -884,9 +896,15 @@ export function ProjectBoardsManager({
                         )}
                       >
                         <div className="flex items-center gap-2 truncate">
-                          <div className="grid h-5 w-5 place-items-center rounded-full bg-white/10 text-[9px] font-bold">
-                            {(m.user.name?.[0] ?? m.user.email[0]).toUpperCase()}
-                          </div>
+                          <Avatar
+                            user={{
+                              id: m.userId,
+                              name: m.user.name,
+                              email: m.user.email,
+                              avatar: m.user.avatar
+                            }}
+                            size={20}
+                          />
                           <span className="truncate">{m.user.name ?? m.user.email}</span>
                         </div>
                         {isSelected && <Check className="h-3.5 w-3.5 text-dusk-amber shrink-0" />}
