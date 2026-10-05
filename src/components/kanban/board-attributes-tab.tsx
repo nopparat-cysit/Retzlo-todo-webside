@@ -11,6 +11,7 @@ import {
   CheckSquare,
   Clock,
   Code2,
+  Eye,
   Flag,
   Flame,
   Palette,
@@ -121,7 +122,8 @@ export function BoardAttributesTab({
   const [statusToDelete, setStatusToDelete] = useState<string | null>(null);
   const [isResetStatusConfirmOpen, setIsResetStatusConfirmOpen] = useState(false);
 
-  // Template Management State
+  // Template Management & Live Preview State
+  const [previewStatusTemplate, setPreviewStatusTemplate] = useState<StatusWorkflowTemplate | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<StatusWorkflowTemplate | null>(null);
   const [templateApplyMode, setTemplateApplyMode] = useState<"replace" | "append">("replace");
   const [isApplyTemplateConfirmOpen, setIsApplyTemplateConfirmOpen] = useState(false);
@@ -155,7 +157,8 @@ export function BoardAttributesTab({
   const [pointToDelete, setPointToDelete] = useState<CustomStoryPoint | null>(null);
   const [isResetPointsConfirmOpen, setIsResetPointsConfirmOpen] = useState(false);
 
-  // Story Points Template Management State
+  // Story Points Template Management & Live Preview State
+  const [previewPointTemplate, setPreviewPointTemplate] = useState<StoryPointWorkflowTemplate | null>(null);
   const [selectedPointTemplate, setSelectedPointTemplate] = useState<StoryPointWorkflowTemplate | null>(null);
   const [pointTemplateApplyMode, setPointTemplateApplyMode] = useState<"replace" | "append">("replace");
   const [isApplyPointTemplateConfirmOpen, setIsApplyPointTemplateConfirmOpen] = useState(false);
@@ -300,15 +303,28 @@ export function BoardAttributesTab({
     ...customSavedTemplates
   ];
 
+  const displayedStatuses = previewStatusTemplate ? previewStatusTemplate.statuses : statuses;
+
+  const handleSelectStatusTemplate = (tpl: StatusWorkflowTemplate) => {
+    if (previewStatusTemplate?.id === tpl.id) {
+      setPreviewStatusTemplate(null);
+      setSelectedTemplate(null);
+    } else {
+      setPreviewStatusTemplate(tpl);
+      setSelectedTemplate(tpl);
+    }
+  };
+
   const handleConfirmApplyTemplate = () => {
-    if (!selectedTemplate || !canManage) return;
+    const tpl = selectedTemplate || previewStatusTemplate;
+    if (!tpl || !canManage) return;
 
     let nextStatuses: CustomStatusOption[];
     if (templateApplyMode === "replace") {
-      nextStatuses = [...selectedTemplate.statuses];
+      nextStatuses = [...tpl.statuses];
     } else {
       nextStatuses = [...statuses];
-      for (const tplStatus of selectedTemplate.statuses) {
+      for (const tplStatus of tpl.statuses) {
         if (!nextStatuses.some((s) => s.value.toUpperCase() === tplStatus.value.toUpperCase())) {
           nextStatuses.push(tplStatus);
         }
@@ -319,8 +335,9 @@ export function BoardAttributesTab({
     saveStoredStatuses(nextStatuses, boardId);
     setIsApplyTemplateConfirmOpen(false);
     setSelectedTemplate(null);
+    setPreviewStatusTemplate(null);
     toast({
-      message: `นำแม่แบบ "${selectedTemplate.name}" มาปรับใช้เรียบร้อย (${nextStatuses.length} สถานะ)`,
+      message: `นำแม่แบบ "${tpl.name}" มาปรับใช้เรียบร้อย (${nextStatuses.length} สถานะ)`,
       type: "success"
     });
   };
@@ -396,16 +413,29 @@ export function BoardAttributesTab({
     ...customSavedPointTemplates
   ];
 
+  const displayedStoryPoints = previewPointTemplate ? previewPointTemplate.points : storyPoints;
+
+  const handleSelectPointTemplate = (tpl: StoryPointWorkflowTemplate) => {
+    if (previewPointTemplate?.id === tpl.id) {
+      setPreviewPointTemplate(null);
+      setSelectedPointTemplate(null);
+    } else {
+      setPreviewPointTemplate(tpl);
+      setSelectedPointTemplate(tpl);
+    }
+  };
+
   const handleConfirmApplyPointTemplate = () => {
-    if (!selectedPointTemplate || !canManage) return;
+    const tpl = selectedPointTemplate || previewPointTemplate;
+    if (!tpl || !canManage) return;
 
     let nextPoints: CustomStoryPoint[];
     if (pointTemplateApplyMode === "replace") {
-      nextPoints = [...selectedPointTemplate.points];
+      nextPoints = [...tpl.points];
     } else {
       nextPoints = [...storyPoints];
       const existingScores = new Set(nextPoints.map((p) => p.score));
-      for (const tplPt of selectedPointTemplate.points) {
+      for (const tplPt of tpl.points) {
         if (!existingScores.has(tplPt.score)) {
           nextPoints.push(tplPt);
           existingScores.add(tplPt.score);
@@ -418,8 +448,9 @@ export function BoardAttributesTab({
     saveStoredStoryPoints(nextPoints, boardId);
     setIsApplyPointTemplateConfirmOpen(false);
     setSelectedPointTemplate(null);
+    setPreviewPointTemplate(null);
     toast({
-      message: `นำสเกล Story Points "${selectedPointTemplate.name}" มาปรับใช้เรียบร้อย (${nextPoints.length} ระดับคะแนน)`,
+      message: `นำสเกล Story Points "${tpl.name}" มาปรับใช้เรียบร้อย (${nextPoints.length} ระดับคะแนน)`,
       type: "success"
     });
   };
@@ -599,24 +630,127 @@ export function BoardAttributesTab({
             </div>
 
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-soft">
-              {allTemplates.map((tpl) => (
-                <button
-                  key={tpl.id}
-                  type="button"
-                  onClick={() => setSelectedTemplate(tpl)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-900 shrink-0 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10 cursor-pointer"
-                >
-                  <span className="grid h-5 w-5 place-items-center rounded-md bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
-                    {renderTemplateIcon(tpl.icon)}
-                  </span>
-                  <span>{tpl.name}</span>
-                  <span className="rounded-full bg-stone-100 px-1.5 py-0.2 font-mono text-[10px] text-stone-500 dark:bg-white/10 dark:text-stone-400">
-                    {tpl.statuses.length}
-                  </span>
-                </button>
-              ))}
+              {allTemplates.map((tpl) => {
+                const isSelected = previewStatusTemplate?.id === tpl.id;
+                return (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => handleSelectStatusTemplate(tpl)}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer",
+                      isSelected
+                        ? "border-indigo-500 bg-indigo-600 text-white shadow-xs"
+                        : "border-stone-200/90 bg-white text-stone-700 hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "grid h-5 w-5 place-items-center rounded-md text-xs",
+                        isSelected ? "bg-white/20 text-white" : "bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300"
+                      )}
+                    >
+                      {renderTemplateIcon(tpl.icon)}
+                    </span>
+                    <span>{tpl.name}</span>
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.2 font-mono text-[10px]",
+                        isSelected ? "bg-white/20 text-white font-bold" : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                      )}
+                    >
+                      {tpl.statuses.length}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
+
+          {/* Active Live Preview Action Banner for Status */}
+          {previewStatusTemplate && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border-2 border-indigo-500/40 bg-gradient-to-r from-indigo-500/10 via-indigo-500/5 to-transparent p-3.5 dark:border-dusk-lavender/40 dark:from-dusk-lavender/15 dark:via-dusk-lavender/5 dark:to-transparent animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+                <span className="grid h-8 w-8 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-xs">
+                  <Eye className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-bold text-indigo-950 dark:text-indigo-100">
+                      กำลังดูตัวอย่าง: {previewStatusTemplate.name}
+                    </span>
+                    <span className="rounded-md border border-indigo-200/80 bg-white/90 px-1.5 py-0.2 text-[9px] font-bold text-indigo-700 dark:border-white/10 dark:bg-white/10 dark:text-dusk-lavender">
+                      {previewStatusTemplate.category}
+                    </span>
+                    <span className="rounded-md bg-indigo-500/15 px-1.5 py-0.2 font-mono text-[10px] font-bold text-indigo-700 dark:text-dusk-lavender">
+                      {previewStatusTemplate.statuses.length} สถานะ
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-indigo-900/80 dark:text-indigo-200/80 truncate mt-0.5">
+                    {previewStatusTemplate.description}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto flex-wrap">
+                {/* Mode toggle */}
+                <div className="flex items-center rounded-lg border border-indigo-300/80 bg-white/80 p-0.5 text-[10px] font-semibold dark:border-white/10 dark:bg-black/30">
+                  <button
+                    type="button"
+                    onClick={() => setTemplateApplyMode("replace")}
+                    className={cn(
+                      "px-2 py-0.5 rounded cursor-pointer transition",
+                      templateApplyMode === "replace"
+                        ? "bg-indigo-600 text-white font-bold"
+                        : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
+                    )}
+                  >
+                    แทนที่ทั้งหมด
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTemplateApplyMode("append")}
+                    className={cn(
+                      "px-2 py-0.5 rounded cursor-pointer transition",
+                      templateApplyMode === "append"
+                        ? "bg-indigo-600 text-white font-bold"
+                        : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
+                    )}
+                  >
+                    เพิ่มต่อท้าย
+                  </button>
+                </div>
+
+                {/* Apply button */}
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedTemplate(previewStatusTemplate);
+                    setIsApplyTemplateConfirmOpen(true);
+                  }}
+                  className="h-7 text-xs px-2.5 gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs cursor-pointer"
+                >
+                  <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                  <span>นำแม่แบบนี้มาใช้</span>
+                </Button>
+
+                {/* Cancel preview */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreviewStatusTemplate(null);
+                    setSelectedTemplate(null);
+                  }}
+                  className="flex h-7 items-center gap-1 rounded-lg border border-stone-200/80 bg-white/90 px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
+                  title="ยกเลิกการดูตัวอย่าง (กลับสู่สถานะปัจจุบันของบอร์ด)"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  <span className="hidden xs:inline">คืนค่าเดิม</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* 2. Add Status Inline Bar */}
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 rounded-xl border border-stone-200/70 bg-stone-50/40 p-2 dark:border-white/10 dark:bg-white/[0.02]">
@@ -624,7 +758,7 @@ export function BoardAttributesTab({
               placeholder="พิมพ์ชื่อสถานะใหม่ เช่น In Review, Testing, Blocked..."
               value={newStatusLabel}
               onChange={(e) => setNewStatusLabel(e.target.value)}
-              disabled={!canManage}
+              disabled={!canManage || !!previewStatusTemplate}
               className="h-8 text-xs flex-1 min-w-[160px] bg-white dark:bg-stone-900"
               onKeyDown={(e) => e.key === "Enter" && handleAddStatus()}
             />
@@ -633,7 +767,7 @@ export function BoardAttributesTab({
                 <button
                   key={colKey}
                   type="button"
-                  disabled={!canManage}
+                  disabled={!canManage || !!previewStatusTemplate}
                   onClick={() => setNewStatusColor(colKey)}
                   className={cn(
                     "h-5 w-5 rounded-full border transition cursor-pointer flex items-center justify-center shrink-0",
@@ -659,7 +793,7 @@ export function BoardAttributesTab({
               type="button"
               size="sm"
               onClick={handleAddStatus}
-              disabled={!canManage || !newStatusLabel.trim()}
+              disabled={!canManage || !newStatusLabel.trim() || !!previewStatusTemplate}
               className="h-8 text-xs gap-1 shrink-0"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -669,14 +803,14 @@ export function BoardAttributesTab({
 
           {/* 3. Decorated Status List */}
           <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[340px] overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
-            {statuses.map((st, index) => {
+            {displayedStatuses.map((st, index) => {
               const cfg = STATUS_COLOR_CONFIGS[st.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
               const isDefault = st.isDefault || ["TODO", "DOING", "WAITING", "DONE"].includes(st.value);
               const isFirst = index === 0;
-              const isLast = index === statuses.length - 1;
+              const isLast = index === displayedStatuses.length - 1;
               const isEditingThis = editingStatusValue === st.value;
 
-              if (isEditingThis) {
+              if (isEditingThis && !previewStatusTemplate) {
                 return (
                   <div
                     key={st.value}
@@ -775,53 +909,61 @@ export function BoardAttributesTab({
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {/* Reorder Up/Down */}
-                    <button
-                      type="button"
-                      onClick={() => handleMoveStatus(index, "up")}
-                      disabled={isFirst || !canManage}
-                      className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
-                      title="เลื่อนขึ้น"
-                    >
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleMoveStatus(index, "down")}
-                      disabled={isLast || !canManage}
-                      className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
-                      title="เลื่อนลง"
-                    >
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    </button>
-
-                    {/* Edit status */}
-                    {canManage && (
-                      <button
-                        type="button"
-                        onClick={() => startEditStatus(st)}
-                        className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-indigo-50 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:text-dusk-lavender cursor-pointer"
-                        title="แก้ไขสถานะ"
-                      >
-                        <Pencil className="h-3 w-3" />
-                      </button>
-                    )}
-
-                    {/* Delete or System Tag */}
-                    {isDefault ? (
-                      <span className="rounded bg-stone-100 px-2 py-1 text-[10px] font-medium text-stone-400 dark:bg-white/5">
-                        ระบบ
+                    {previewStatusTemplate ? (
+                      <span className="rounded bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:text-dusk-lavender">
+                        ตัวอย่างขั้นตอน
                       </span>
                     ) : (
-                      <button
-                        type="button"
-                        onClick={() => setStatusToDelete(st.value)}
-                        disabled={!canManage}
-                        className="grid h-7 w-7 place-items-center rounded-md border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer"
-                        title="ลบสถานะ"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      <>
+                        {/* Reorder Up/Down */}
+                        <button
+                          type="button"
+                          onClick={() => handleMoveStatus(index, "up")}
+                          disabled={isFirst || !canManage}
+                          className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
+                          title="เลื่อนขึ้น"
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveStatus(index, "down")}
+                          disabled={isLast || !canManage}
+                          className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
+                          title="เลื่อนลง"
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </button>
+
+                        {/* Edit status */}
+                        {canManage && (
+                          <button
+                            type="button"
+                            onClick={() => startEditStatus(st)}
+                            className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-indigo-50 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:text-dusk-lavender cursor-pointer"
+                            title="แก้ไขสถานะ"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                        )}
+
+                        {/* Delete or System Tag */}
+                        {isDefault ? (
+                          <span className="rounded bg-stone-100 px-2 py-1 text-[10px] font-medium text-stone-400 dark:bg-white/5">
+                            ระบบ
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setStatusToDelete(st.value)}
+                            disabled={!canManage}
+                            className="grid h-7 w-7 place-items-center rounded-md border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer"
+                            title="ลบสถานะ"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -896,24 +1038,127 @@ export function BoardAttributesTab({
             </div>
 
             <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-soft">
-              {allPointTemplates.map((tpl) => (
-                <button
-                  key={tpl.id}
-                  type="button"
-                  onClick={() => setSelectedPointTemplate(tpl)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-900 shrink-0 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-amber-400/50 dark:hover:bg-amber-500/10 cursor-pointer"
-                >
-                  <span className="grid h-5 w-5 place-items-center rounded-md bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
-                    {renderStoryPointTemplateIcon(tpl.icon)}
-                  </span>
-                  <span>{tpl.name}</span>
-                  <span className="rounded-full bg-stone-100 px-1.5 py-0.2 font-mono text-[10px] text-stone-500 dark:bg-white/10 dark:text-stone-400">
-                    {tpl.points.length}
-                  </span>
-                </button>
-              ))}
+              {allPointTemplates.map((tpl) => {
+                const isSelected = previewPointTemplate?.id === tpl.id;
+                return (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => handleSelectPointTemplate(tpl)}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer",
+                      isSelected
+                        ? "border-amber-500 bg-amber-600 text-white shadow-xs"
+                        : "border-stone-200/90 bg-white text-stone-700 hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-amber-400/50 dark:hover:bg-amber-500/10"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "grid h-5 w-5 place-items-center rounded-md text-xs",
+                        isSelected ? "bg-white/20 text-white" : "bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300"
+                      )}
+                    >
+                      {renderStoryPointTemplateIcon(tpl.icon)}
+                    </span>
+                    <span>{tpl.name}</span>
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.2 font-mono text-[10px]",
+                        isSelected ? "bg-white/20 text-white font-bold" : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                      )}
+                    >
+                      {tpl.points.length}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
+
+          {/* Active Live Preview Action Banner for Story Points */}
+          {previewPointTemplate && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border-2 border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-3.5 dark:border-amber-400/40 dark:from-amber-500/15 dark:via-amber-500/5 dark:to-transparent animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+                <span className="grid h-8 w-8 place-items-center rounded-xl bg-amber-600 text-white shrink-0 shadow-xs">
+                  <Eye className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-bold text-amber-950 dark:text-amber-100">
+                      กำลังดูตัวอย่าง: {previewPointTemplate.name}
+                    </span>
+                    <span className="rounded-md border border-amber-200/80 bg-white/90 px-1.5 py-0.2 text-[9px] font-bold text-amber-700 dark:border-white/10 dark:bg-white/10 dark:text-amber-300">
+                      {previewPointTemplate.category}
+                    </span>
+                    <span className="rounded-md bg-amber-500/15 px-1.5 py-0.2 font-mono text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                      {previewPointTemplate.points.length} ระดับคะแนน
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-amber-900/80 dark:text-amber-200/80 truncate mt-0.5">
+                    {previewPointTemplate.description}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto flex-wrap">
+                {/* Mode toggle */}
+                <div className="flex items-center rounded-lg border border-amber-300/80 bg-white/80 p-0.5 text-[10px] font-semibold dark:border-white/10 dark:bg-black/30">
+                  <button
+                    type="button"
+                    onClick={() => setPointTemplateApplyMode("replace")}
+                    className={cn(
+                      "px-2 py-0.5 rounded cursor-pointer transition",
+                      pointTemplateApplyMode === "replace"
+                        ? "bg-amber-600 text-white font-bold"
+                        : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
+                    )}
+                  >
+                    แทนที่ทั้งหมด
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPointTemplateApplyMode("append")}
+                    className={cn(
+                      "px-2 py-0.5 rounded cursor-pointer transition",
+                      pointTemplateApplyMode === "append"
+                        ? "bg-amber-600 text-white font-bold"
+                        : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
+                    )}
+                  >
+                    เพิ่มต่อท้าย
+                  </button>
+                </div>
+
+                {/* Apply button */}
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedPointTemplate(previewPointTemplate);
+                    setIsApplyPointTemplateConfirmOpen(true);
+                  }}
+                  className="h-7 text-xs px-2.5 gap-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold shadow-xs cursor-pointer"
+                >
+                  <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                  <span>นำสเกลนี้มาใช้</span>
+                </Button>
+
+                {/* Cancel preview */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreviewPointTemplate(null);
+                    setSelectedPointTemplate(null);
+                  }}
+                  className="flex h-7 items-center gap-1 rounded-lg border border-stone-200/80 bg-white/90 px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
+                  title="ยกเลิกการดูตัวอย่าง (กลับสู่สเกลปัจจุบันของบอร์ด)"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  <span className="hidden xs:inline">คืนค่าเดิม</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Add Custom Point Inline Bar */}
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 rounded-xl border border-stone-200/70 bg-stone-50/40 p-2 dark:border-white/10 dark:bg-white/[0.02]">
@@ -924,21 +1169,21 @@ export function BoardAttributesTab({
               placeholder="คะแนน"
               value={newPointScore}
               onChange={(e) => setNewPointScore(e.target.value)}
-              disabled={!canManage}
+              disabled={!canManage || !!previewPointTemplate}
               className="h-8 w-20 text-xs font-mono font-bold bg-white dark:bg-stone-900"
             />
             <Input
               placeholder="ชื่อเรียก เช่น ปานกลาง (5 pts)"
               value={newPointTitle}
               onChange={(e) => setNewPointTitle(e.target.value)}
-              disabled={!canManage}
+              disabled={!canManage || !!previewPointTemplate}
               className="h-8 text-xs flex-1 min-w-[120px] bg-white dark:bg-stone-900"
             />
             <Input
               placeholder="คำอธิบาย เช่น งาน 1 วัน"
               value={newPointDescription}
               onChange={(e) => setNewPointDescription(e.target.value)}
-              disabled={!canManage}
+              disabled={!canManage || !!previewPointTemplate}
               className="h-8 text-xs flex-1 min-w-[120px] bg-white dark:bg-stone-900"
               onKeyDown={(e) => e.key === "Enter" && handleAddStoryPoint()}
             />
@@ -946,7 +1191,7 @@ export function BoardAttributesTab({
               type="button"
               size="sm"
               onClick={handleAddStoryPoint}
-              disabled={!canManage || !newPointScore.trim()}
+              disabled={!canManage || !newPointScore.trim() || !!previewPointTemplate}
               className="h-8 text-xs gap-1 shrink-0"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -956,12 +1201,12 @@ export function BoardAttributesTab({
 
           {/* Story Points List */}
           <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[300px] overflow-y-auto dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
-            {storyPoints.map((pt) => {
+            {displayedStoryPoints.map((pt) => {
               const colorConfig = STORY_POINT_COLOR_CLASSES[pt.color || "cyan"] || STORY_POINT_COLOR_CLASSES.cyan;
 
               return (
                 <div
-                  key={pt.score}
+                  key={`${pt.score}-${pt.label}`}
                   className="flex items-center justify-between gap-3 px-3.5 py-2.5 hover:bg-stone-50/60 dark:hover:bg-white/[0.02] transition"
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -983,15 +1228,21 @@ export function BoardAttributesTab({
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setPointToDelete(pt)}
-                    disabled={!canManage || storyPoints.length <= 1}
-                    className="grid h-7 w-7 place-items-center rounded-md border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer shrink-0"
-                    title="ลบคะแนน"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  {previewPointTemplate ? (
+                    <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
+                      ตัวอย่างสเกล
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setPointToDelete(pt)}
+                      disabled={!canManage || storyPoints.length <= 1}
+                      className="grid h-7 w-7 place-items-center rounded-md border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer shrink-0"
+                      title="ลบคะแนน"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -999,19 +1250,27 @@ export function BoardAttributesTab({
 
           {/* Live Preview Section */}
           <div className="flex flex-col gap-1.5 pt-1">
-            <div className="text-[11px] font-bold text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
-              <Palette className="h-3.5 w-3.5 text-amber-500" />
-              <span>ตัวอย่างการแสดงผลคะแนนความยาก (Story Points):</span>
+            <div className="text-[11px] font-bold text-stone-600 dark:text-stone-300 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Palette className="h-3.5 w-3.5 text-amber-500" />
+                <span>ตัวอย่างการแสดงผลคะแนนความยาก (Story Points):</span>
+              </div>
+              {previewPointTemplate && (
+                <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                  (แสดงตัวอย่างตามสเกล: {previewPointTemplate.name})
+                </span>
+              )}
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {storyPoints.map((pt) => {
+              {displayedStoryPoints.map((pt) => {
                 const config = STORY_POINT_COLOR_CLASSES[pt.color || "cyan"] || STORY_POINT_COLOR_CLASSES.cyan;
                 return (
                   <div
-                    key={pt.score}
+                    key={`${pt.score}-${pt.label}`}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-2xs",
-                      config.badgeClass
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-2xs transition-all",
+                      config.badgeClass,
+                      previewPointTemplate && "scale-102"
                     )}
                   >
                     <span className="font-mono text-[10px] opacity-80">{pt.score} pts</span>
@@ -1025,136 +1284,7 @@ export function BoardAttributesTab({
         </div>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          TEMPLATE PREVIEW & APPLY MODAL
-         ───────────────────────────────────────────────────────────── */}
-      {selectedTemplate && (
-        <ModalPortal>
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-              onClick={() => setSelectedTemplate(null)}
-            />
-            <div className="relative w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-ink-950 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-start justify-between border-b border-stone-100 pb-3 dark:border-white/10">
-                <div className="flex items-center gap-2.5">
-                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-dusk-lavender/15 dark:text-dusk-lavender">
-                    {renderTemplateIcon(selectedTemplate.icon)}
-                  </span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                        {selectedTemplate.name}
-                      </h3>
-                      <span className="rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.2 text-[10px] font-bold text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
-                        {selectedTemplate.category}
-                      </span>
-                    </div>
-                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                      {selectedTemplate.description}
-                    </p>
-                  </div>
-                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedTemplate(null)}
-                  className="rounded-md p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Status Flow Preview */}
-              <div className="space-y-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  ขั้นตอนงานในแม่แบบนี้ ({selectedTemplate.statuses.length} สถานะ):
-                </span>
-                <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-stone-200/80 bg-stone-50/70 dark:border-white/10 dark:bg-white/[0.02]">
-                  {selectedTemplate.statuses.map((s, idx) => {
-                    const cfg = STATUS_COLOR_CONFIGS[s.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
-                    return (
-                      <div key={s.value} className="flex items-center gap-1.5">
-                        <span className={cn("px-2.5 py-1 rounded-lg border font-bold text-xs shadow-2xs", cfg.badgeClass)}>
-                          {s.label}
-                        </span>
-                        {idx < selectedTemplate.statuses.length - 1 && (
-                          <span className="text-stone-400 text-xs">→</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Apply Mode Selector */}
-              <div className="space-y-2 pt-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  รูปแบบการปรับใช้:
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setTemplateApplyMode("replace")}
-                    className={cn(
-                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
-                      templateApplyMode === "replace"
-                        ? "border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-500/20 dark:border-dusk-lavender dark:bg-dusk-lavender/10"
-                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
-                    )}
-                  >
-                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                      แทนที่ทั้งหมด (Replace)
-                    </span>
-                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      แทนที่สถานะเดิมด้วยชุดใหม่นี้
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setTemplateApplyMode("append")}
-                    className={cn(
-                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
-                      templateApplyMode === "append"
-                        ? "border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-500/20 dark:border-dusk-lavender dark:bg-dusk-lavender/10"
-                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
-                    )}
-                  >
-                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                      เพิ่มต่อท้าย (Append)
-                    </span>
-                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      เก็บสถานะเดิม และเพิ่มเฉพาะสถานะใหม่
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Modal Actions */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-100 dark:border-white/10">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setSelectedTemplate(null)}
-                  className="text-xs"
-                >
-                  ปิด
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => setIsApplyTemplateConfirmOpen(true)}
-                  className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium"
-                >
-                  นำแม่แบบนี้มาใช้
-                </Button>
-              </div>
-            </div>
-          </div>
-        </ModalPortal>
-      )}
 
       {/* ─────────────────────────────────────────────────────────────
           SAVE AS CUSTOM TEMPLATE MODAL
@@ -1245,138 +1375,7 @@ export function BoardAttributesTab({
         </ModalPortal>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          STORY POINT TEMPLATE PREVIEW & APPLY MODAL
-         ───────────────────────────────────────────────────────────── */}
-      {selectedPointTemplate && (
-        <ModalPortal>
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-              onClick={() => setSelectedPointTemplate(null)}
-            />
-            <div className="relative w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-ink-950 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-start justify-between border-b border-stone-100 pb-3 dark:border-white/10">
-                <div className="flex items-center gap-2.5">
-                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400">
-                    {renderStoryPointTemplateIcon(selectedPointTemplate.icon)}
-                  </span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                        {selectedPointTemplate.name}
-                      </h3>
-                      <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.2 text-[10px] font-bold text-amber-700 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-300">
-                        {selectedPointTemplate.category}
-                      </span>
-                    </div>
-                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                      {selectedPointTemplate.description}
-                    </p>
-                  </div>
-                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedPointTemplate(null)}
-                  className="rounded-md p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Point Scales Preview */}
-              <div className="space-y-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  สเกลคะแนนในแม่แบบนี้ ({selectedPointTemplate.points.length} ระดับ):
-                </span>
-                <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-stone-200/80 bg-stone-50/70 dark:border-white/10 dark:bg-white/[0.02]">
-                  {selectedPointTemplate.points.map((pt, idx) => {
-                    const cfg = STORY_POINT_COLOR_CLASSES[pt.color || "cyan"] || STORY_POINT_COLOR_CLASSES.cyan;
-                    return (
-                      <div key={pt.score} className="flex items-center gap-1.5">
-                        <span className={cn("px-2.5 py-1 rounded-lg border font-bold text-xs shadow-2xs flex items-center gap-1.5", cfg.badgeClass)}>
-                          <span className="font-mono text-[10px] opacity-80">{pt.score} pts</span>
-                          <span>•</span>
-                          <span className="truncate max-w-[100px]">{pt.title || `${pt.score} pts`}</span>
-                        </span>
-                        {idx < selectedPointTemplate.points.length - 1 && (
-                          <span className="text-stone-400 text-xs">→</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Apply Mode Selector */}
-              <div className="space-y-2 pt-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  รูปแบบการปรับใช้:
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPointTemplateApplyMode("replace")}
-                    className={cn(
-                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
-                      pointTemplateApplyMode === "replace"
-                        ? "border-amber-600 bg-amber-50/50 ring-2 ring-amber-500/20 dark:border-amber-400 dark:bg-amber-500/10"
-                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
-                    )}
-                  >
-                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                      แทนที่ทั้งหมด (Replace)
-                    </span>
-                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      แทนที่สเกลคะแนนเดิมด้วยชุดใหม่นี้
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPointTemplateApplyMode("append")}
-                    className={cn(
-                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
-                      pointTemplateApplyMode === "append"
-                        ? "border-amber-600 bg-amber-50/50 ring-2 ring-amber-500/20 dark:border-amber-400 dark:bg-amber-500/10"
-                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
-                    )}
-                  >
-                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                      เพิ่มต่อท้าย (Append)
-                    </span>
-                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      เก็บสเกลเดิม และรวมเฉพาะคะแนนใหม่
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Modal Actions */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-100 dark:border-white/10">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setSelectedPointTemplate(null)}
-                  className="text-xs cursor-pointer"
-                >
-                  ปิด
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => setIsApplyPointTemplateConfirmOpen(true)}
-                  className="text-xs bg-amber-600 hover:bg-amber-700 text-white font-medium cursor-pointer"
-                >
-                  นำสเกลนี้มาใช้
-                </Button>
-              </div>
-            </div>
-          </div>
-        </ModalPortal>
-      )}
 
       {/* ─────────────────────────────────────────────────────────────
           SAVE AS CUSTOM STORY POINT SCALE MODAL
@@ -1491,7 +1490,7 @@ export function BoardAttributesTab({
       <ConfirmModal
         open={isApplyTemplateConfirmOpen}
         title="ยืนยันการนำแม่แบบสถานะมาใช้"
-        message={`คุณต้องการนำแม่แบบ "${selectedTemplate?.name}" (${templateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
+        message={`คุณต้องการนำแม่แบบ "${(selectedTemplate || previewStatusTemplate)?.name}" (${templateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
         confirmLabel="นำแม่แบบมาใช้"
         variant="default"
         onClose={() => setIsApplyTemplateConfirmOpen(false)}
@@ -1531,7 +1530,7 @@ export function BoardAttributesTab({
       <ConfirmModal
         open={isApplyPointTemplateConfirmOpen}
         title="ยืนยันการนำแม่แบบ Story Points มาใช้"
-        message={`คุณต้องการนำสเกลแม่แบบ "${selectedPointTemplate?.name}" (${pointTemplateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
+        message={`คุณต้องการนำสเกลแม่แบบ "${(selectedPointTemplate || previewPointTemplate)?.name}" (${pointTemplateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
         confirmLabel="นำสเกลมาใช้"
         variant="default"
         onClose={() => setIsApplyPointTemplateConfirmOpen(false)}

@@ -8,6 +8,7 @@ import {
   Briefcase,
   Check,
   ChevronDown,
+  Eye,
   Flag,
   Palette,
   Plus,
@@ -76,7 +77,8 @@ export function BoardPrioritiesTab({
   const [priorityToDelete, setPriorityToDelete] = useState<CustomPriority | null>(null);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
-  // Template Management State
+  // Template Management & Live Preview State
+  const [previewTemplate, setPreviewTemplate] = useState<PriorityWorkflowTemplate | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<PriorityWorkflowTemplate | null>(null);
   const [templateApplyMode, setTemplateApplyMode] = useState<"replace" | "append">("replace");
   const [isApplyTemplateConfirmOpen, setIsApplyTemplateConfirmOpen] = useState(false);
@@ -103,12 +105,26 @@ export function BoardPrioritiesTab({
     ...customSavedTemplates
   ];
 
+  // The priorities currently displayed: if previewing a template, show its items right away!
+  const displayedPriorities = previewTemplate ? previewTemplate.priorities : priorities;
+
+  const handleSelectTemplate = (tpl: PriorityWorkflowTemplate) => {
+    if (previewTemplate?.id === tpl.id) {
+      setPreviewTemplate(null);
+      setSelectedTemplate(null);
+    } else {
+      setPreviewTemplate(tpl);
+      setSelectedTemplate(tpl);
+    }
+  };
+
   const handleConfirmApplyTemplate = () => {
-    if (!selectedTemplate || !canManage) return;
+    const tpl = selectedTemplate || previewTemplate;
+    if (!tpl || !canManage) return;
 
     let nextList: CustomPriority[];
     if (templateApplyMode === "replace") {
-      nextList = selectedTemplate.priorities.slice(0, MAX_BOARD_PRIORITIES).map((p, idx) => ({
+      nextList = tpl.priorities.slice(0, MAX_BOARD_PRIORITIES).map((p, idx) => ({
         ...p,
         level: idx + 1
       }));
@@ -117,7 +133,7 @@ export function BoardPrioritiesTab({
       const existingIds = new Set(nextList.map((p) => p.id.toUpperCase()));
       const existingLabels = new Set(nextList.map((p) => p.label.trim().toLowerCase()));
 
-      for (const tplPriority of selectedTemplate.priorities) {
+      for (const tplPriority of tpl.priorities) {
         if (nextList.length >= MAX_BOARD_PRIORITIES) break;
         if (!existingIds.has(tplPriority.id.toUpperCase()) && !existingLabels.has(tplPriority.label.trim().toLowerCase())) {
           nextList.push({
@@ -136,8 +152,9 @@ export function BoardPrioritiesTab({
     setEditingId(null);
     setIsApplyTemplateConfirmOpen(false);
     setSelectedTemplate(null);
+    setPreviewTemplate(null);
     toast({
-      message: `นำแม่แบบ "${selectedTemplate.name}" มาปรับใช้เรียบร้อย (${nextList.length} ระดับ)`,
+      message: `นำแม่แบบ "${tpl.name}" มาปรับใช้เรียบร้อย (${nextList.length} ระดับ)`,
       type: "success"
     });
   };
@@ -172,7 +189,7 @@ export function BoardPrioritiesTab({
   };
 
   const handleAddPriority = () => {
-    if (isAtMax || !canManage) return;
+    if (isAtMax || !canManage || previewTemplate) return;
 
     const availableColors = Object.keys(PRIORITY_COLOR_OPTIONS);
     const usedColors = new Set(priorities.map((p) => p.color));
@@ -202,6 +219,7 @@ export function BoardPrioritiesTab({
   };
 
   const handleUpdateLabel = (id: string, label: string) => {
+    if (previewTemplate) return;
     const nextList = priorities.map((p) =>
       p.id === id ? { ...p, label: label.slice(0, 30) } : p
     );
@@ -209,12 +227,13 @@ export function BoardPrioritiesTab({
   };
 
   const handleUpdateColor = (id: string, color: string) => {
+    if (previewTemplate) return;
     const nextList = priorities.map((p) => (p.id === id ? { ...p, color } : p));
     onChange(nextList);
   };
 
   const handleConfirmDeletePriority = () => {
-    if (!priorityToDelete || !canManage) return;
+    if (!priorityToDelete || !canManage || previewTemplate) return;
     if (priorities.length <= MIN_BOARD_PRIORITIES) {
       toast({ message: "ต้องมีระดับความสำคัญอย่างน้อย 1 ระดับ", type: "error" });
       setPriorityToDelete(null);
@@ -236,7 +255,7 @@ export function BoardPrioritiesTab({
   };
 
   const handleMoveUp = (index: number) => {
-    if (index <= 0 || !canManage) return;
+    if (index <= 0 || !canManage || previewTemplate) return;
     const next = [...priorities];
     const temp = next[index - 1];
     next[index - 1] = next[index];
@@ -250,7 +269,7 @@ export function BoardPrioritiesTab({
   };
 
   const handleMoveDown = (index: number) => {
-    if (index >= priorities.length - 1 || !canManage) return;
+    if (index >= priorities.length - 1 || !canManage || previewTemplate) return;
     const next = [...priorities];
     const temp = next[index + 1];
     next[index + 1] = next[index];
@@ -267,6 +286,8 @@ export function BoardPrioritiesTab({
     if (!canManage) return;
     onChange(DEFAULT_PRIORITIES);
     setEditingId(null);
+    setPreviewTemplate(null);
+    setSelectedTemplate(null);
     setIsResetConfirmOpen(false);
     toast({ message: "รีเซ็ตระดับความสำคัญกลับเป็นค่าเริ่มต้นแล้ว", type: "success" });
   };
@@ -281,7 +302,7 @@ export function BoardPrioritiesTab({
             <span>Custom Priority Levels (ระดับความสำคัญ)</span>
           </h4>
           <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-            เลือกแม่แบบความสำคัญสำเร็จรูป หรือปรับแต่งชื่อ ลำดับ และสีได้สูงสุด 10 ระดับ
+            คลิกแม่แบบสำเร็จรูปด้านล่างเพื่อสลับดูตัวอย่างได้ทันที หรือปรับแต่งชื่อ ลำดับ และสีได้สูงสุด 10 ระดับ
           </p>
         </div>
 
@@ -294,7 +315,7 @@ export function BoardPrioritiesTab({
                 : "border-indigo-400/30 bg-indigo-500/10 text-indigo-700 dark:text-dusk-lavender"
             )}
           >
-            {priorities.length} / {MAX_BOARD_PRIORITIES} ระดับ
+            {displayedPriorities.length} / {MAX_BOARD_PRIORITIES} ระดับ
           </span>
           <button
             type="button"
@@ -318,7 +339,7 @@ export function BoardPrioritiesTab({
               แม่แบบระดับความสำคัญสำเร็จรูป (Priority Templates)
             </span>
             <span className="rounded-full bg-rose-100/70 border border-rose-200/60 px-2 py-0.2 text-[9px] font-semibold text-rose-700 dark:bg-rose-500/15 dark:border-rose-400/30 dark:text-rose-300">
-              เลือกดู &amp; ปรับใช้
+              คลิกเพื่อดูตัวอย่างทันที
             </span>
           </div>
 
@@ -335,31 +356,140 @@ export function BoardPrioritiesTab({
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-soft">
-          {allTemplates.map((tpl) => (
-            <button
-              key={tpl.id}
-              type="button"
-              onClick={() => setSelectedTemplate(tpl)}
-              className="inline-flex items-center gap-2 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-rose-400 hover:bg-rose-50/50 hover:text-rose-900 shrink-0 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-rose-400/50 dark:hover:bg-rose-500/10 cursor-pointer"
-            >
-              <span className="grid h-5 w-5 place-items-center rounded-md bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
-                {renderPriorityTemplateIcon(tpl.icon)}
-              </span>
-              <span>{tpl.name}</span>
-              <span className="rounded-full bg-stone-100 px-1.5 py-0.2 font-mono text-[10px] text-stone-500 dark:bg-white/10 dark:text-stone-400">
-                {tpl.priorities.length}
-              </span>
-            </button>
-          ))}
+          {allTemplates.map((tpl) => {
+            const isSelected = previewTemplate?.id === tpl.id;
+            return (
+              <button
+                key={tpl.id}
+                type="button"
+                onClick={() => handleSelectTemplate(tpl)}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer",
+                  isSelected
+                    ? "border-rose-500 bg-rose-500 text-white shadow-sm ring-2 ring-rose-400/40 dark:bg-rose-600 dark:border-rose-600"
+                    : "border-stone-200/90 bg-white text-stone-700 hover:border-rose-400 hover:bg-rose-50/50 hover:text-rose-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-rose-400/50 dark:hover:bg-rose-500/10"
+                )}
+                title={tpl.description}
+              >
+                <span
+                  className={cn(
+                    "grid h-5 w-5 place-items-center rounded-md",
+                    isSelected
+                      ? "bg-white/20 text-white"
+                      : "bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300"
+                  )}
+                >
+                  {renderPriorityTemplateIcon(tpl.icon)}
+                </span>
+                <span>{tpl.name}</span>
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.2 font-mono text-[10px]",
+                    isSelected
+                      ? "bg-white/20 text-white font-bold"
+                      : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                  )}
+                >
+                  {tpl.priorities.length}
+                </span>
+                {isSelected && <Eye className="h-3.5 w-3.5 text-white stroke-[2.5]" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
+      {/* Interactive Live Preview Action Banner */}
+      {previewTemplate && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-rose-300/80 bg-rose-50/70 p-3 shadow-2xs dark:border-rose-500/30 dark:bg-rose-950/20 animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-rose-500 text-white shrink-0 shadow-xs">
+              <Eye className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold text-rose-950 dark:text-rose-200">
+                  กำลังดูตัวอย่าง: {previewTemplate.name}
+                </span>
+                <span className="rounded-md border border-rose-300 bg-rose-100/80 px-2 py-0.2 font-mono text-[10px] font-bold text-rose-800 dark:border-rose-500/40 dark:bg-rose-500/20 dark:text-rose-300">
+                  {previewTemplate.priorities.length} ระดับ
+                </span>
+                <span className="text-[10px] text-rose-700 dark:text-rose-400">
+                  (คลิกแม่แบบอื่นด้านบนเพื่อสลับดูได้ทันที)
+                </span>
+              </div>
+              <p className="text-[11px] text-rose-800/80 dark:text-rose-300/80 truncate mt-0.5">
+                {previewTemplate.description}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto flex-wrap">
+            {/* Mode toggle */}
+            <div className="flex items-center rounded-lg border border-rose-300/80 bg-white/80 p-0.5 text-[10px] font-semibold dark:border-white/10 dark:bg-black/30">
+              <button
+                type="button"
+                onClick={() => setTemplateApplyMode("replace")}
+                className={cn(
+                  "px-2 py-0.5 rounded cursor-pointer transition",
+                  templateApplyMode === "replace"
+                    ? "bg-rose-500 text-white font-bold"
+                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
+                )}
+              >
+                แทนที่ทั้งหมด
+              </button>
+              <button
+                type="button"
+                onClick={() => setTemplateApplyMode("append")}
+                className={cn(
+                  "px-2 py-0.5 rounded cursor-pointer transition",
+                  templateApplyMode === "append"
+                    ? "bg-rose-500 text-white font-bold"
+                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
+                )}
+              >
+                เพิ่มต่อท้าย
+              </button>
+            </div>
+
+            {/* Apply button */}
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                setSelectedTemplate(previewTemplate);
+                setIsApplyTemplateConfirmOpen(true);
+              }}
+              className="h-7 text-xs px-2.5 gap-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs cursor-pointer"
+            >
+              <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+              <span>นำแม่แบบนี้มาใช้</span>
+            </Button>
+
+            {/* Cancel preview */}
+            <button
+              type="button"
+              onClick={() => {
+                setPreviewTemplate(null);
+                setSelectedTemplate(null);
+              }}
+              className="flex h-7 items-center gap-1 rounded-lg border border-stone-200/80 bg-white/90 px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
+              title="ยกเลิกการดูตัวอย่าง (กลับสู่ระดับปัจจุบันของบอร์ด)"
+            >
+              <X className="h-3.5 w-3.5" />
+              <span className="hidden xs:inline">คืนค่าเดิม</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Priority Levels List */}
       <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[320px] overflow-y-auto dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
-        {priorities.map((priority, index) => {
+        {displayedPriorities.map((priority, index) => {
           const colorConfig = getPriorityColorConfig(priority.color);
           const isHighest = index === 0;
-          const isLowest = index === priorities.length - 1;
+          const isLowest = index === displayedPriorities.length - 1;
 
           return (
             <div
@@ -376,22 +506,33 @@ export function BoardPrioritiesTab({
                       ? "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400"
                       : "border-stone-200 bg-stone-100 text-stone-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-stone-300"
                   )}
-                  title={`ระดับความสำคัญที่ ${index + 1} (${index === 0 ? "สูงสุด" : index === priorities.length - 1 ? "ต่ำสุด" : "ปานกลาง"})`}
+                  title={`ระดับความสำคัญที่ ${index + 1}`}
                 >
                   {index + 1}
                 </div>
 
-                {/* Priority Label Input */}
+                {/* Priority Label Input / Preview */}
                 <div className="flex-1 min-w-[140px]">
-                  <input
-                    type="text"
-                    value={priority.label}
-                    onChange={(e) => handleUpdateLabel(priority.id, e.target.value)}
-                    disabled={!canManage}
-                    placeholder="ชื่องาน/ระดับ..."
-                    maxLength={30}
-                    className="h-7 w-full rounded-lg border border-stone-200/80 bg-white px-2 text-xs font-semibold text-stone-900 shadow-2xs placeholder:text-stone-400 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 dark:focus:border-dusk-lavender"
-                  />
+                  {previewTemplate ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                        {priority.label}
+                      </span>
+                      <span className="rounded-md border border-rose-300/60 bg-rose-100/60 px-1.5 py-0.2 text-[9px] font-semibold text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+                        ตัวอย่าง
+                      </span>
+                    </div>
+                  ) : (
+                    <input
+                      type="text"
+                      value={priority.label}
+                      onChange={(e) => handleUpdateLabel(priority.id, e.target.value)}
+                      disabled={!canManage}
+                      placeholder="ชื่องาน/ระดับ..."
+                      maxLength={30}
+                      className="h-7 w-full rounded-lg border border-stone-200/80 bg-white px-2 text-xs font-semibold text-stone-900 shadow-2xs placeholder:text-stone-400 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 dark:focus:border-dusk-lavender"
+                    />
+                  )}
                 </div>
 
                 {/* Live Pill Preview */}
@@ -408,122 +549,136 @@ export function BoardPrioritiesTab({
                 </div>
               </div>
 
-              {/* Right: Color Picker, Reorder, Delete */}
+              {/* Right: Color Picker, Reorder, Delete (or preview badge) */}
               <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
-                {/* Color Swatch Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                {previewTemplate ? (
+                  <span className="rounded-md border border-stone-200 bg-stone-50 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400">
+                    {colorConfig.name}
+                  </span>
+                ) : (
+                  <>
+                    {/* Color Swatch Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          disabled={!canManage}
+                          className="flex h-7 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/70 px-2 text-xs font-medium text-stone-700 hover:border-stone-300 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 cursor-pointer"
+                          title="เลือกสีระดับความสำคัญ"
+                        >
+                          <span className={cn("h-3 w-3 rounded-full shrink-0 shadow-2xs", colorConfig.swatchClass)} />
+                          <span className="text-[11px] font-semibold">{colorConfig.name}</span>
+                          <ChevronDown className="h-3 w-3 opacity-60" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56 p-2 z-[1300]">
+                        <div className="mb-2 px-1 text-[11px] font-bold text-stone-500 dark:text-stone-400">
+                          เลือกสีระดับความสำคัญ:
+                        </div>
+                        <div className="grid grid-cols-2 gap-1">
+                          {Object.values(PRIORITY_COLOR_OPTIONS).map((option) => (
+                            <DropdownMenuItem
+                              key={option.id}
+                              onClick={() => handleUpdateColor(priority.id, option.id)}
+                              className={cn(
+                                "flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 text-xs font-medium",
+                                priority.color === option.id && "bg-indigo-50 font-bold text-indigo-700 dark:bg-white/10 dark:text-dusk-lavender"
+                              )}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className={cn("h-3 w-3 rounded-full shrink-0 shadow-2xs", option.swatchClass)} />
+                                <span>{option.name}</span>
+                              </div>
+                              {priority.color === option.id && <Check className="h-3.5 w-3.5" />}
+                            </DropdownMenuItem>
+                          ))}
+                        </div>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Move Up */}
                     <button
                       type="button"
-                      disabled={!canManage}
-                      className="flex h-7 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/70 px-2 text-xs font-medium text-stone-700 hover:border-stone-300 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 cursor-pointer"
-                      title="เลือกสีระดับความสำคัญ"
+                      onClick={() => handleMoveUp(index)}
+                      disabled={isHighest || !canManage}
+                      className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/[0.08] cursor-pointer"
+                      title="เลื่อนขึ้น (เพิ่มระดับความสำคัญ)"
+                      aria-label="Move priority up"
                     >
-                      <span className={cn("h-3 w-3 rounded-full shrink-0 shadow-2xs", colorConfig.swatchClass)} />
-                      <span className="text-[11px] font-semibold">{colorConfig.name}</span>
-                      <ChevronDown className="h-3 w-3 opacity-60" />
+                      <ArrowUp className="h-3.5 w-3.5" />
                     </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 p-2 z-[1300]">
-                    <div className="mb-2 px-1 text-[11px] font-bold text-stone-500 dark:text-stone-400">
-                      เลือกสีระดับความสำคัญ:
-                    </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      {Object.values(PRIORITY_COLOR_OPTIONS).map((option) => (
-                        <DropdownMenuItem
-                          key={option.id}
-                          onClick={() => handleUpdateColor(priority.id, option.id)}
-                          className={cn(
-                            "flex cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 text-xs font-medium",
-                            priority.color === option.id && "bg-indigo-50 font-bold text-indigo-700 dark:bg-white/10 dark:text-dusk-lavender"
-                          )}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className={cn("h-3 w-3 rounded-full shrink-0 shadow-2xs", option.swatchClass)} />
-                            <span>{option.name}</span>
-                          </div>
-                          {priority.color === option.id && <Check className="h-3.5 w-3.5" />}
-                        </DropdownMenuItem>
-                      ))}
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
 
-                {/* Move Up */}
-                <button
-                  type="button"
-                  onClick={() => handleMoveUp(index)}
-                  disabled={isHighest || !canManage}
-                  className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/[0.08] cursor-pointer"
-                  title="เลื่อนขึ้น (เพิ่มระดับความสำคัญ)"
-                  aria-label="Move priority up"
-                >
-                  <ArrowUp className="h-3.5 w-3.5" />
-                </button>
+                    {/* Move Down */}
+                    <button
+                      type="button"
+                      onClick={() => handleMoveDown(index)}
+                      disabled={isLowest || !canManage}
+                      className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/[0.08] cursor-pointer"
+                      title="เลื่อนลง (ลดระดับความสำคัญ)"
+                      aria-label="Move priority down"
+                    >
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </button>
 
-                {/* Move Down */}
-                <button
-                  type="button"
-                  onClick={() => handleMoveDown(index)}
-                  disabled={isLowest || !canManage}
-                  className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/[0.08] cursor-pointer"
-                  title="เลื่อนลง (ลดระดับความสำคัญ)"
-                  aria-label="Move priority down"
-                >
-                  <ArrowDown className="h-3.5 w-3.5" />
-                </button>
-
-                {/* Delete Level */}
-                <button
-                  type="button"
-                  onClick={() => setPriorityToDelete(priority)}
-                  disabled={isAtMin || !canManage}
-                  className="grid h-7 w-7 place-items-center rounded-lg border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 dark:hover:bg-red-500/15 cursor-pointer"
-                  title={isAtMin ? "ต้องมีอย่างน้อย 1 ระดับ" : "ลบระดับความสำคัญนี้"}
-                  aria-label="Delete priority"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                    {/* Delete Level */}
+                    <button
+                      type="button"
+                      onClick={() => setPriorityToDelete(priority)}
+                      disabled={isAtMin || !canManage}
+                      className="grid h-7 w-7 place-items-center rounded-lg border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 dark:hover:bg-red-500/15 cursor-pointer"
+                      title={isAtMin ? "ต้องมีอย่างน้อย 1 ระดับ" : "ลบระดับความสำคัญนี้"}
+                      aria-label="Delete priority"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Add New Priority Button */}
-      <div className="pt-0.5">
-        <button
-          type="button"
-          onClick={handleAddPriority}
-          disabled={isAtMax || !canManage}
-          className={cn(
-            "flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed py-2 text-xs font-bold transition-all cursor-pointer",
-            isAtMax
-              ? "border-stone-300 text-stone-400 opacity-50 cursor-not-allowed dark:border-white/10"
-              : "border-indigo-400/50 bg-indigo-50/50 text-indigo-700 hover:bg-indigo-100/60 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
-          )}
-        >
-          <Plus className="h-4 w-4" />
-          <span>
-            {isAtMax
-              ? `สร้างครบโควตา ${MAX_BOARD_PRIORITIES} ระดับแล้ว`
-              : `+ เพิ่มระดับความสำคัญใหม่ (${priorities.length}/${MAX_BOARD_PRIORITIES})`}
-          </span>
-        </button>
-      </div>
+      {/* Add New Priority Button (hidden in preview mode) */}
+      {!previewTemplate && (
+        <div className="pt-0.5">
+          <button
+            type="button"
+            onClick={handleAddPriority}
+            disabled={isAtMax || !canManage}
+            className={cn(
+              "flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed py-2 text-xs font-bold transition-all cursor-pointer",
+              isAtMax
+                ? "border-stone-300 text-stone-400 opacity-50 cursor-not-allowed dark:border-white/10"
+                : "border-indigo-400/50 bg-indigo-50/50 text-indigo-700 hover:bg-indigo-100/60 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
+            )}
+          >
+            <Plus className="h-4 w-4" />
+            <span>
+              {isAtMax
+                ? `สร้างครบโควตา ${MAX_BOARD_PRIORITIES} ระดับแล้ว`
+                : `+ เพิ่มระดับความสำคัญใหม่ (${priorities.length}/${MAX_BOARD_PRIORITIES})`}
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Live Preview Section */}
       <div className="flex flex-col gap-1.5 pt-1">
         <div className="text-[11px] font-bold text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
           <Palette className="h-3.5 w-3.5 text-dusk-amber" />
-          <span>ตัวอย่างการแสดงผลบนบอร์ดและตาราง Spreadsheet:</span>
+          <span>
+            {previewTemplate
+              ? `ตัวอย่างการแสดงผลแม่แบบ "${previewTemplate.name}":`
+              : "ตัวอย่างการแสดงผลบนบอร์ดและตาราง Spreadsheet:"}
+          </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {priorities.map((p, idx) => {
+          {displayedPriorities.map((p, idx) => {
             const config = getPriorityColorConfig(p.color);
             return (
               <div
-                key={p.id}
+                key={p.id || idx}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold shadow-2xs",
                   config.pillClass
@@ -536,137 +691,6 @@ export function BoardPrioritiesTab({
           })}
         </div>
       </div>
-
-      {/* Template Preview & Apply Modal */}
-      {selectedTemplate && (
-        <ModalPortal>
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-              onClick={() => setSelectedTemplate(null)}
-            />
-            <div className="relative w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-ink-950 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-start justify-between border-b border-stone-100 pb-3 dark:border-white/10">
-                <div className="flex items-center gap-2.5">
-                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400">
-                    {renderPriorityTemplateIcon(selectedTemplate.icon)}
-                  </span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                        {selectedTemplate.name}
-                      </h3>
-                      <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.2 text-[10px] font-bold text-rose-700 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-300">
-                        {selectedTemplate.category}
-                      </span>
-                    </div>
-                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                      {selectedTemplate.description}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedTemplate(null)}
-                  className="rounded-md p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Priority Flow Preview */}
-              <div className="space-y-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  ระดับในแม่แบบนี้ ({selectedTemplate.priorities.length} ระดับ):
-                </span>
-                <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-stone-200/80 bg-stone-50/70 dark:border-white/10 dark:bg-white/[0.02]">
-                  {selectedTemplate.priorities.map((p, idx) => {
-                    const cfg = getPriorityColorConfig(p.color);
-                    return (
-                      <div key={p.id || idx} className="flex items-center gap-1.5">
-                        <span className={cn("px-2.5 py-1 rounded-lg border font-bold text-xs shadow-2xs flex items-center gap-1.5", cfg.pillClass)}>
-                          <span className="font-mono text-[10px] opacity-75">#{idx + 1}</span>
-                          <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", cfg.dotClass)} />
-                          <span>{p.label}</span>
-                        </span>
-                        {idx < selectedTemplate.priorities.length - 1 && (
-                          <span className="text-stone-400 text-xs">→</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Apply Mode Selector */}
-              <div className="space-y-2 pt-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  รูปแบบการปรับใช้:
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setTemplateApplyMode("replace")}
-                    className={cn(
-                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
-                      templateApplyMode === "replace"
-                        ? "border-rose-600 bg-rose-50/50 ring-2 ring-rose-500/20 dark:border-rose-400 dark:bg-rose-500/10"
-                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
-                    )}
-                  >
-                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                      แทนที่ทั้งหมด (Replace)
-                    </span>
-                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      แทนที่ระดับความสำคัญเดิมด้วยชุดใหม่นี้
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setTemplateApplyMode("append")}
-                    className={cn(
-                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
-                      templateApplyMode === "append"
-                        ? "border-rose-600 bg-rose-50/50 ring-2 ring-rose-500/20 dark:border-rose-400 dark:bg-rose-500/10"
-                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
-                    )}
-                  >
-                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                      เพิ่มต่อท้าย (Append)
-                    </span>
-                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      เก็บระดับเดิม และเพิ่มเฉพาะระดับใหม่
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Modal Actions */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-100 dark:border-white/10">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setSelectedTemplate(null)}
-                  className="text-xs cursor-pointer"
-                >
-                  ปิด
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => setIsApplyTemplateConfirmOpen(true)}
-                  className="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium cursor-pointer"
-                >
-                  นำแม่แบบนี้มาใช้
-                </Button>
-              </div>
-            </div>
-          </div>
-        </ModalPortal>
-      )}
 
       {/* Save as Custom Priority Template Modal */}
       {isSaveCustomTemplateOpen && (
@@ -779,7 +803,7 @@ export function BoardPrioritiesTab({
       <ConfirmModal
         open={isApplyTemplateConfirmOpen}
         title="ยืนยันการนำแม่แบบระดับความสำคัญมาใช้"
-        message={`คุณต้องการนำแม่แบบ "${selectedTemplate?.name}" (${templateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
+        message={`คุณต้องการนำแม่แบบ "${(selectedTemplate || previewTemplate)?.name}" (${templateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
         confirmLabel="นำแม่แบบมาใช้"
         variant="default"
         onClose={() => setIsApplyTemplateConfirmOpen(false)}
