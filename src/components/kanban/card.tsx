@@ -2,13 +2,14 @@
 
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Clock, Star, Zap } from "lucide-react";
+import { CalendarClock, CheckSquare, Clock, Star } from "lucide-react";
 import { memo, useEffect, useState } from "react";
 
 import { AssigneeStack } from "@/components/kanban/assignee-avatar";
 import { CoffeeCheersButton } from "@/components/kanban/coffee-cheers-button";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { formatMediumDateTime, formatShortDate } from "@/lib/date-format";
 import { formatCardDateRange } from "@/lib/kanban/due-date";
 import { getDifficultyMetadata, type DifficultyScore } from "@/lib/kanban/difficulty";
@@ -194,7 +195,7 @@ function KanbanCardComponent({
                 )}
                 title={getDifficultyMetadata(card.difficulty)?.title}
               >
-                <Zap className="h-2.5 w-2.5" />
+                <RetzloUiIcon name="storyPoint" size={12} />
                 {card.difficulty} pts
               </span>
             ) : null}
@@ -319,7 +320,7 @@ function KanbanCardComponent({
                 )}
                 title={getDifficultyMetadata(card.difficulty)?.title}
               >
-                <Zap className="h-3 w-3" />
+                <RetzloUiIcon name="storyPoint" size={14} />
                 {getDifficultyMetadata(card.difficulty)?.pointsLabel}
               </span>
             ) : null}

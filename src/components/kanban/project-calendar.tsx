@@ -12,6 +12,7 @@ import { Panel } from "@/components/ui/panel";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
+import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
@@ -1279,7 +1280,7 @@ export function ProjectCalendar({
                         {isDiaryChecklist && (
                           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                             <span className="text-stone-400 flex items-center gap-1.5">
-                              <span className="text-xs">📔</span>
+                              <RetzloUiIcon name="diary" size={14} />
                               From diary: <span className="font-medium text-stone-200">{(item as CalendarDiaryChecklist).diaryTitle}</span>
                             </span>
                             <Link
@@ -1442,7 +1443,7 @@ function CalendarDiarySummaryButton({
       }}
       title={`Diary: ${item.diaryTitle} (${item.completedCount}/${item.totalCount})`}
     >
-      <span className="text-[11px] shrink-0">📖</span>
+      <RetzloUiIcon name="diary" size={14} />
       <span className={cn("truncate font-medium text-stone-200 flex-1", allDone && "line-through text-stone-400")}>
         {item.diaryTitle}
       </span>
@@ -1503,7 +1504,7 @@ function CalendarDiaryChecklistButton({
           {item.title}
         </span>
         <span className="mt-0.5 block truncate text-[9px] text-stone-400" title={`Diary: ${item.diaryTitle}`}>
-          📖 {item.diaryTitle}
+          <RetzloUiIcon name="diary" size={12} /> {item.diaryTitle}
         </span>
       </div>
     </div>
@@ -1547,7 +1548,9 @@ function UpcomingDiaryChecklist({
       <div className="min-w-0 flex-1">
         <p className={cn("font-medium text-stone-100", item.completed && "line-through text-stone-500")}>{item.title}</p>
         <p className="mt-1 text-xs text-dusk-cyan">{formatDue(item)}</p>
-        <p className="mt-0.5 text-xs text-stone-400">📖 {item.diaryTitle}</p>
+        <p className="mt-0.5 flex items-center gap-1 text-xs text-stone-400">
+          <RetzloUiIcon name="diary" size={14} /> {item.diaryTitle}
+        </p>
       </div>
     </div>
   );

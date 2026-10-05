@@ -7,7 +7,6 @@ import {
   Check,
   ChevronDown,
   Clock,
-  Coffee,
   Copy,
   Crown,
   ExternalLink,
@@ -33,6 +32,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { formatMediumDate, formatShortDate } from "@/lib/date-format";
 import { cn } from "@/lib/utils";
+import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 
 export interface ProjectMemberData {
   id: string;
@@ -446,14 +446,9 @@ export function ProjectMembersView({
 
           {/* Metric 5: Total Coffees */}
           <div className="col-span-2 sm:col-span-1 group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-amber-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Total Coffees</span>
-              <div className="grid h-8 w-8 place-items-center rounded-xl border border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700/40 dark:bg-amber-950/40 dark:text-amber-300">
-                <Coffee className="h-4 w-4" />
-              </div>
-            </div>
+            <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Total Coffees</span>
             <p className="mt-2 text-2xl font-bold font-mono text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-              <span>☕</span>
+              <RetzloUiIcon name="coffee" size={28} />
               <span>{totalCoffeesCount}</span>
             </p>
             <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Coffee cheers earned</p>
@@ -689,7 +684,7 @@ export function ProjectMembersView({
                             )}
                             title={`${member.user.name || "Member"} received ${member.totalCoffees ?? 0} coffee cheers for completing tasks`}
                           >
-                            <span>☕</span>
+                            <RetzloUiIcon name="coffee" size={14} />
                             <span className="font-mono text-xs">{member.totalCoffees ?? 0}</span>
                           </span>
 

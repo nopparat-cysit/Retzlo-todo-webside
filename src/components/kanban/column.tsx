@@ -3,10 +3,11 @@
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { AlertTriangle, GripVertical, Minus, Plus, Settings, Trash2, X, Zap } from "lucide-react";
+import { AlertTriangle, GripVertical, Minus, Plus, Settings, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState, memo } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
+import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { KanbanCard } from "@/components/kanban/card";
 import { ColumnIconGlyph, ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import { ColumnStatusPicker } from "@/components/kanban/column-status-picker";
@@ -317,7 +318,7 @@ function KanbanColumnComponent({
               className="inline-flex items-center gap-0.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400 select-none"
               title={`คะแนนความยากรวม: ${totalPoints} pts`}
             >
-              <Zap className="h-2.5 w-2.5 text-amber-400" />
+              <RetzloUiIcon name="storyPoint" size={12} />
               <span>{totalPoints}</span>
             </span>
           )}
@@ -390,7 +391,7 @@ function KanbanColumnComponent({
               className="shrink-0 inline-flex items-center gap-0.5 rounded-md border border-amber-300 bg-amber-50 px-1 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400 select-none"
               title={`คะแนนความยากรวม: ${totalPoints} pts`}
             >
-              <Zap className="h-2.5 w-2.5 text-amber-600 dark:text-amber-400" />
+              <RetzloUiIcon name="storyPoint" size={12} />
               <span>{totalPoints}</span>
             </span>
           )}

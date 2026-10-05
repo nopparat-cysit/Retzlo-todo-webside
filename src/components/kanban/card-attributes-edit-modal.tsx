@@ -10,12 +10,12 @@ import {
   RotateCcw,
   SlidersHorizontal,
   Trash2,
-  Zap,
   ArrowUp,
   ArrowDown
 } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
+import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
@@ -270,7 +270,7 @@ export function CardAttributesEditModal({
     setNewPointScore("");
     setNewPointTitle("");
     setNewPointDescription("");
-    toast({ message: `เพิ่มคะแนนความยาก ⚡${parsed} เรียบร้อย`, type: "success" });
+    toast({ message: `เพิ่มคะแนนความยาก ${parsed} เรียบร้อย`, type: "success" });
   };
 
   const handleApplyPreset = (key: keyof typeof STORY_POINT_PRESETS) => {
@@ -293,7 +293,7 @@ export function CardAttributesEditModal({
     onUpdateStoryPoints(next);
     saveStoredStoryPoints(next, boardId);
     setPointToDelete(null);
-    toast({ message: `ลบคะแนน ⚡${pointToDelete} เรียบร้อย`, type: "success" });
+    toast({ message: `ลบคะแนน ${pointToDelete} เรียบร้อย`, type: "success" });
   };
 
   const handleResetStoryPoints = () => {
@@ -340,7 +340,7 @@ export function CardAttributesEditModal({
                 <span>Priority (ความสำคัญ)</span>
               </TabsTrigger>
               <TabsTrigger value="story-points" className="gap-1.5 text-xs">
-                <Zap className="h-3.5 w-3.5 text-amber-500" />
+                <RetzloUiIcon name="storyPoint" size={15} />
                 <span>Story Points (คะแนน)</span>
               </TabsTrigger>
             </TabsList>
@@ -691,7 +691,7 @@ export function CardAttributesEditModal({
                       <div key={pt.score} className="flex items-center justify-between p-3 text-xs">
                         <div className="flex items-center gap-3">
                           <span className={cn("h-7 px-2.5 rounded-md border font-bold flex items-center justify-center gap-0.5", colorCls.activeChipClass)}>
-                            ⚡{pt.score}
+                            <RetzloUiIcon name="storyPoint" size={15} />{pt.score}
                           </span>
                           <div>
                             <p className="font-bold text-stone-900 dark:text-stone-100">{pt.title}</p>
@@ -775,7 +775,7 @@ export function CardAttributesEditModal({
       <ConfirmModal
         open={pointToDelete !== null}
         title="ยืนยันการลบคะแนนความยาก"
-        message={`คุณแน่ใจหรือไม่ว่าต้องการลบคะแนน ⚡${pointToDelete} ออกจากตัวเลือก?`}
+        message={`คุณแน่ใจหรือไม่ว่าต้องการลบคะแนน ${pointToDelete} ออกจากตัวเลือก?`}
         confirmLabel="ลบคะแนน"
         variant="danger"
         onConfirm={handleConfirmDeletePoint}

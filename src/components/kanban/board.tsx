@@ -29,6 +29,7 @@ import { triggerCelebration } from "@/components/kanban/card-celebration";
 import { AppModal } from "@/components/ui/app-modal";
 import { BoardSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import {
@@ -1423,10 +1424,10 @@ export function KanbanBoard({
                 <SelectGroup>
                   <SelectLabel>Story Points (Difficulty)</SelectLabel>
                   <SelectItem value="difficulty_desc" className="cursor-pointer">
-                    ⚡ Story Points: High → Low (8, 5, 3, 1)
+                    <span className="inline-flex items-center gap-1.5"><RetzloUiIcon name="storyPoint" size={14} />Story Points: High → Low (8, 5, 3, 1)</span>
                   </SelectItem>
                   <SelectItem value="difficulty_asc" className="cursor-pointer">
-                    ⚡ Story Points: Low → High (1, 3, 5, 8)
+                    <span className="inline-flex items-center gap-1.5"><RetzloUiIcon name="storyPoint" size={14} />Story Points: Low → High (1, 3, 5, 8)</span>
                   </SelectItem>
                 </SelectGroup>
                 <SelectSeparator />

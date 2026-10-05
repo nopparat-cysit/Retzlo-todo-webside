@@ -24,10 +24,10 @@ import {
   Table2,
   Trash2,
   User as UserIcon,
-  X,
-  Zap
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import type { Card, CardAssignee, CardPriority, CardStatus, ColumnWithCards, CustomPriority } from "@/types/kanban";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { getPriorityColorConfig, getPriorityMeta, resolveBoardPriorities } from "@/lib/kanban/priority";
@@ -765,7 +765,7 @@ export function BoardListView({
 
             {/* 7. Story Points */}
             <div className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
-              <Zap className="h-3 w-3 text-amber-500" />
+              <RetzloUiIcon name="storyPoint" size={14} />
               <span className="font-bold">Story Points</span>
             </div>
 
@@ -1103,7 +1103,7 @@ export function BoardListView({
                     <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
                       {card.difficulty ? (
                         <span className="inline-flex items-center gap-1 rounded bg-stone-100 px-1.5 py-0.5 font-bold text-amber-600 dark:bg-white/5 dark:text-amber-400">
-                          ⚡ {card.difficulty}
+                          <RetzloUiIcon name="storyPoint" size={13} /> {card.difficulty}
                         </span>
                       ) : (
                         <span className="text-stone-400">-</span>
@@ -1521,7 +1521,11 @@ export function BoardListView({
                               </div>
 
                               <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
-                                {card.difficulty ? `⚡ ${card.difficulty}` : "-"}
+                                {card.difficulty ? (
+                                  <span className="inline-flex items-center justify-center gap-1">
+                                    <RetzloUiIcon name="storyPoint" size={13} /> {card.difficulty}
+                                  </span>
+                                ) : "-"}
                               </div>
 
                               <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">

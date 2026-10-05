@@ -19,11 +19,11 @@ import {
   Target,
   Trash2,
   Wand2,
-  X,
-  Zap
+  X
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import { ModalPortal } from "@/components/ui/modal-portal";
@@ -345,7 +345,7 @@ export function BoardAttributesTab({
     setNewPointScore("");
     setNewPointTitle("");
     setNewPointDescription("");
-    toast({ message: `เพิ่มคะแนนความยาก ⚡${parsed} เรียบร้อย`, type: "success" });
+    toast({ message: `เพิ่มคะแนนความยาก ${parsed} เรียบร้อย`, type: "success" });
   };
 
   const handleApplyPreset = (key: keyof typeof STORY_POINT_PRESETS) => {
@@ -369,7 +369,7 @@ export function BoardAttributesTab({
     setStoryPoints(next);
     saveStoredStoryPoints(next, boardId);
     setPointToDelete(null);
-    toast({ message: `ลบคะแนน ⚡${pointToDelete} เรียบร้อย`, type: "success" });
+    toast({ message: `ลบคะแนน ${pointToDelete} เรียบร้อย`, type: "success" });
   };
 
   const handleResetStoryPoints = () => {
@@ -428,7 +428,7 @@ export function BoardAttributesTab({
               : "text-stone-600 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
           )}
         >
-          <Zap className="h-3.5 w-3.5 text-amber-500" />
+          <RetzloUiIcon name="storyPoint" size={15} />
           <span>Story Points</span>
           <span className="rounded-full bg-amber-500/10 px-1.5 text-[10px] font-mono text-amber-600 dark:text-amber-400">
             {storyPoints.length}
@@ -742,7 +742,7 @@ export function BoardAttributesTab({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
             <div>
               <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-amber-500" />
+                <RetzloUiIcon name="storyPoint" size={15} />
                 <span>Story Points Scale (สเกลคะแนนความยาก)</span>
               </h4>
               <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
@@ -777,7 +777,7 @@ export function BoardAttributesTab({
                   className="inline-flex items-center gap-1 rounded-lg border border-stone-200/80 bg-stone-50/50 px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:border-amber-400 hover:bg-amber-50/30 hover:text-amber-800 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-amber-400/50 cursor-pointer"
                   title={preset.points.map((p) => p.label).join(", ")}
                 >
-                  <Zap className="h-3 w-3 text-amber-500" />
+                  <RetzloUiIcon name="storyPoint" size={13} />
                   <span>{preset.name}</span>
                 </button>
               );
