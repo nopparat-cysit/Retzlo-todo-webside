@@ -254,7 +254,7 @@ export const TOPICS: GuideTopic[] = [
       "ศูนย์กลางใน Board Settings & Project Settings: เข้าถึงการปรับแต่งครบทั้ง 3 หมวด (Status, Priority, Story Points) ได้ทั้งจากปุ่ม Attributes บนหัวบอร์ด หรือในหน้า Project Settings (/project/[id]/settings?tab=attributes)",
       "เชื่อมโยง Column Settings ทันที: สถานะที่กำหนดเองจะแสดงเป็นตัวเลือก Card Status ในหน้าแก้ไขคอลัมน์และสร้างคอลัมน์ใหม่โดยอัตโนมัติ",
       "ปุ่ม '+' ท้ายหัวข้อในการ์ด: คลิกปุ่ม '+' ท้ายหัวข้อ Status, Priority หรือ Story Points ใน Card Modal จะนำทางไปยังหน้า Project Settings (แท็บ Card Attributes & Types) และเปิดหมวดคุณสมบัตินั้นๆ ให้ปรับแต่งได้ทันทีโดยไม่ซ้อนหน้าต่างหลายชั้น",
-      "แท็บสถานะ (Status): เพิ่มสถานะใหม่พร้อมเลือกเฉดสี Retro Lofi, เลื่อนสลับลำดับขึ้น/ลง, ลบ หรือรีเซ็ตกลับเป็นค่าเริ่มต้น",
+      "แท็บสถานะ (Status) & แม่แบบ Workflow Templates: เลือกปรับใช้แม่แบบขั้นตอนงานสำเร็จรูป (Classic Kanban, Software & IT, Agile & Scrum, Marketing, Bug Tracker, Design, Sales) พร้อมหน้าต่างพรีวิวและตัวเลือกแทนที่ทั้งหมดหรือเพิ่มต่อท้าย, ตกแต่งและแก้ไขชื่อ/สีของแต่ละสถานะ (Inline Edit & Color Swatches), บันทึกโฟลว์งานเป็นแม่แบบส่วนตัว, เลื่อนจัดลำดับ และลบสถานะอย่างปลอดภัย",
       "แท็บความสำคัญ (Priority): ปรับแต่งระดับความสำคัญของบอร์ดได้สูงสุด 10 ระดับ พร้อม 12 โทนสีและจัดลำดับความเร่งด่วน",
       "แท็บคะแนนความยาก (Story Points): เลือกใช้ชุดตัวเลขสำเร็จรูป (Retzlo Standard, Fibonacci, Linear/ชม., T-Shirt Sizes) หรือเพิ่มตัวเลขคะแนน 1-100 เอง",
       "ความปลอดภัยสูง: ทุกการลบและรีเซ็ตมี ConfirmModal ยืนยัน พร้อม Toast แจ้งเตือนผลลัพธ์ทันที",

@@ -71,6 +71,117 @@ export const statusOptions: Array<{ value: CardStatus; label: string }> = [
   { value: "DONE", label: "Done" }
 ];
 
+export interface StatusWorkflowTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  icon: string;
+  statuses: CustomStatusOption[];
+}
+
+export const STATUS_WORKFLOW_TEMPLATES: Record<string, StatusWorkflowTemplate> = {
+  standard: {
+    id: "standard",
+    name: "Classic Kanban",
+    description: "โฟลว์ 4 ขั้นตอนมาตรฐาน สำหรับงานทั่วไป",
+    category: "General",
+    icon: "kanban",
+    statuses: [
+      { value: "TODO", label: "Todo", color: "indigo", isDefault: true },
+      { value: "DOING", label: "Doing", color: "teal", isDefault: true },
+      { value: "WAITING", label: "Waiting", color: "amber", isDefault: true },
+      { value: "DONE", label: "Done", color: "emerald", isDefault: true }
+    ]
+  },
+  software: {
+    id: "software",
+    name: "Software & IT",
+    description: "กระบวนการพัฒนาซอฟต์แวร์ ตรวจโค้ด และทดสอบระบบ QA",
+    category: "Engineering",
+    icon: "code",
+    statuses: [
+      { value: "BACKLOG", label: "Backlog", color: "stone" },
+      { value: "TODO", label: "To Do", color: "indigo", isDefault: true },
+      { value: "DOING", label: "In Development", color: "cyan", isDefault: true },
+      { value: "CODE_REVIEW", label: "Code Review", color: "purple" },
+      { value: "QA_TESTING", label: "QA Testing", color: "amber" },
+      { value: "DONE", label: "Released", color: "emerald", isDefault: true }
+    ]
+  },
+  scrum: {
+    id: "scrum",
+    name: "Agile & Scrum",
+    description: "บริหารสปรินต์ แยก Backlog, ติดขัด (Blocked) และตรวจรับ",
+    category: "Agile",
+    icon: "target",
+    statuses: [
+      { value: "BACKLOG", label: "Product Backlog", color: "stone" },
+      { value: "SPRINT_TODO", label: "Sprint Backlog", color: "indigo" },
+      { value: "DOING", label: "In Progress", color: "cyan", isDefault: true },
+      { value: "BLOCKED", label: "Blocked", color: "rose" },
+      { value: "WAITING", label: "In Review", color: "amber", isDefault: true },
+      { value: "DONE", label: "Done", color: "emerald", isDefault: true }
+    ]
+  },
+  marketing: {
+    id: "marketing",
+    name: "Marketing & Content",
+    description: "แคมเปญการตลาด ไอเดีย ร่างคอนเทนต์ และเผยแพร่",
+    category: "Marketing",
+    icon: "sparkles",
+    statuses: [
+      { value: "IDEAS", label: "Ideas", color: "purple" },
+      { value: "PLANNED", label: "Planned", color: "indigo" },
+      { value: "DOING", label: "Drafting", color: "cyan", isDefault: true },
+      { value: "WAITING", label: "Review", color: "amber", isDefault: true },
+      { value: "DONE", label: "Published", color: "emerald", isDefault: true }
+    ]
+  },
+  bug_tracker: {
+    id: "bug_tracker",
+    name: "Bug Tracker",
+    description: "ติดตามและแก้ไขบั๊ก จัดคิว ซ่อม ตรวจซ้ำ และปิดเคส",
+    category: "Quality",
+    icon: "bug",
+    statuses: [
+      { value: "REPORTED", label: "Reported", color: "rose" },
+      { value: "TRIAGED", label: "Triaged", color: "amber" },
+      { value: "DOING", label: "Fixing", color: "cyan", isDefault: true },
+      { value: "WAITING", label: "Retesting", color: "purple", isDefault: true },
+      { value: "DONE", label: "Resolved", color: "emerald", isDefault: true }
+    ]
+  },
+  design: {
+    id: "design",
+    name: "Creative & Design",
+    description: "โฟลว์งานออกแบบ รีเสิร์ช ออกแบบ รับความคิดเห็น",
+    category: "Design",
+    icon: "palette",
+    statuses: [
+      { value: "RESEARCH", label: "Research", color: "stone" },
+      { value: "CONCEPT", label: "Wireframe", color: "indigo" },
+      { value: "DOING", label: "Designing", color: "purple", isDefault: true },
+      { value: "WAITING", label: "Feedback", color: "amber", isDefault: true },
+      { value: "DONE", label: "Approved", color: "emerald", isDefault: true }
+    ]
+  },
+  sales: {
+    id: "sales",
+    name: "Sales Pipeline",
+    description: "โอกาสทางการขาย ลีด นำเสนอ เจรจา ปิดการขาย",
+    category: "Business",
+    icon: "briefcase",
+    statuses: [
+      { value: "LEAD", label: "New Lead", color: "stone" },
+      { value: "CONTACTED", label: "Contacted", color: "indigo" },
+      { value: "PROPOSAL", label: "Proposal", color: "cyan" },
+      { value: "WAITING", label: "Negotiation", color: "amber", isDefault: true },
+      { value: "DONE", label: "Closed Won", color: "emerald", isDefault: true }
+    ]
+  }
+};
+
 let activeBoardStatusesCache: CustomStatusOption[] = [];
 
 export function setActiveBoardStatuses(statuses: CustomStatusOption[]) {

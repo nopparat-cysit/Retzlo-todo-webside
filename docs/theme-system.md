@@ -536,3 +536,18 @@ Template:
     - แจ้งเตือนความสำเร็จและข้อผิดพลาดด้วย Toast Notification ทุกครั้งที่มีการเปลี่ยนแปลงข้อมูล (CUD operations)
   - **Live Reactive Synchronization:** ส่ง Custom Event `board-columns-updated` และเรียกใช้ callback `onColumnsChange` เพื่อให้บอร์ด Kanban และหน้าตั้งค่าซิงค์ข้อมูลคอลัมน์แบบเรียลไทม์
 - Reviewed: Vitest 89/89 test files ผ่าน (455/455 tests ผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, Next.js production build ผ่าน 100% (38/38 routes).
+
+### 2026-10-05 — เพิ่มระบบแม่แบบและตกแต่งสถานะการ์ด (Status Workflow Templates & Decoration in Attributes Tab)
+- Added/changed: `src/lib/kanban/status.ts`, `src/components/kanban/board-attributes-tab.tsx`, `src/lib/kanban/status.test.ts`, `src/components/kanban/board-settings-attributes.test.ts`, `docs/system-guide.md`, `src/components/help/help-center-client.tsx`.
+- Tokens/variants:
+  - **Status Workflow Templates Bar:** เพิ่มแถบเลือกแม่แบบขั้นตอนงานสำเร็จรูป 7 สไตล์ ได้แก่ Classic Kanban, Software & IT, Agile & Scrum, Marketing & Content, Bug Tracker, Creative & Design, และ Sales Pipeline พร้อมแสดงจำนวนสถานะและไอคอนเฉพาะหมวด
+  - **Template Preview & Decoration Modal:** หน้าต่างดูตัวอย่างขั้นตอนงานแบบภาพรวม แสดงป้ายสถานะพร้อมเชื่อมโยงด้วยลูกศร Flow และตัวเลือกโหมดการปรับใช้:
+    - `แทนที่ทั้งหมด (Replace All)`
+    - `เพิ่มต่อท้าย (Append New)`
+  - **Inline Status Editor & Decoration:**
+    - เพิ่มความสามารถในการแก้ไขชื่อและปรับเปลี่ยนคู่สีของสถานะเดิม (Inline Status Label & 8 Color Swatches)
+    - ป้องกันความปลอดภัยด้วย `ConfirmModal` ทุกครั้งที่มีการบันทึกการแก้ไขหรือลบสถานะ
+    - ปรับปรุงการแสดงผลรายการสถานะให้คมชัด สไตล์ Retro Lofi Indigo พร้อมตัวบอกลำดับเลขและปุ่มสลับขึ้น/ลง
+  - **Save Custom Template:** รองรับการบันทึกชุดขั้นตอนงานที่ผู้ใช้ปรับแต่งเองเก็บไว้ในคลังแม่แบบส่วนตัวสำหรับใช้งานซ้ำ
+  - แจ้งเตือน Toast ทุกการดำเนินการตามข้อกำหนด `AGENTS.md`
+- Reviewed: Vitest 89/89 test files ผ่าน (457/457 tests ผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, Next.js production build ผ่าน 100% (38/38 routes).

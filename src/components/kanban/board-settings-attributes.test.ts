@@ -40,6 +40,14 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       expect(attrContent).toContain("handleConfirmDeletePoint");
       expect(attrContent).toContain("handleResetStoryPoints");
 
+      // Verify status workflow templates & editing integration per AGENTS.md
+      expect(attrContent).toContain("STATUS_WORKFLOW_TEMPLATES");
+      expect(attrContent).toContain("handleConfirmApplyTemplate");
+      expect(attrContent).toContain("handleSaveCustomTemplate");
+      expect(attrContent).toContain("handleConfirmEditStatus");
+      expect(attrContent).toContain("isApplyTemplateConfirmOpen");
+      expect(attrContent).toContain("isEditStatusConfirmOpen");
+
       // Verify event synchronization
       expect(attrContent).toContain("retzlo:statuses-updated");
       expect(attrContent).toContain("retzlo:story-points-updated");
