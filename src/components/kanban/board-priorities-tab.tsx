@@ -355,7 +355,7 @@ export function BoardPrioritiesTab({
           )}
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-soft">
+        <div className="flex flex-wrap items-center gap-2 pt-0.5">
           {allTemplates.map((tpl) => {
             const isSelected = previewTemplate?.id === tpl.id;
             return (
@@ -364,27 +364,27 @@ export function BoardPrioritiesTab({
                 type="button"
                 onClick={() => handleSelectTemplate(tpl)}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer",
+                  "group inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition-all cursor-pointer",
                   isSelected
-                    ? "border-rose-500 bg-rose-500 text-white shadow-sm ring-2 ring-rose-400/40 dark:bg-rose-600 dark:border-rose-600"
+                    ? "border-rose-500 bg-rose-500 text-white shadow-xs ring-2 ring-rose-400/40 dark:bg-rose-600 dark:border-rose-600"
                     : "border-stone-200/90 bg-white text-stone-700 hover:border-rose-400 hover:bg-rose-50/50 hover:text-rose-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-rose-400/50 dark:hover:bg-rose-500/10"
                 )}
                 title={tpl.description}
               >
                 <span
                   className={cn(
-                    "grid h-5 w-5 place-items-center rounded-md",
+                    "grid h-5 w-5 place-items-center rounded-md text-xs transition-colors",
                     isSelected
                       ? "bg-white/20 text-white"
-                      : "bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300"
+                      : "bg-stone-100 text-stone-600 group-hover:bg-rose-100/70 group-hover:text-rose-700 dark:bg-white/10 dark:text-stone-300 dark:group-hover:bg-rose-500/20 dark:group-hover:text-rose-300"
                   )}
                 >
                   {renderPriorityTemplateIcon(tpl.icon)}
                 </span>
-                <span>{tpl.name}</span>
+                <span className="truncate max-w-[220px]">{tpl.name}</span>
                 <span
                   className={cn(
-                    "rounded-full px-1.5 py-0.2 font-mono text-[10px]",
+                    "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors",
                     isSelected
                       ? "bg-white/20 text-white font-bold"
                       : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"

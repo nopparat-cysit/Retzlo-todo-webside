@@ -629,7 +629,7 @@ export function BoardAttributesTab({
               )}
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-soft">
+            <div className="flex flex-wrap items-center gap-2 pt-0.5">
               {allTemplates.map((tpl) => {
                 const isSelected = previewStatusTemplate?.id === tpl.id;
                 return (
@@ -638,29 +638,33 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectStatusTemplate(tpl)}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer",
+                      "group inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition-all cursor-pointer",
                       isSelected
-                        ? "border-indigo-500 bg-indigo-600 text-white shadow-xs"
+                        ? "border-indigo-500 bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-400/40"
                         : "border-stone-200/90 bg-white text-stone-700 hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10"
                     )}
+                    title={tpl.description}
                   >
                     <span
                       className={cn(
-                        "grid h-5 w-5 place-items-center rounded-md text-xs",
-                        isSelected ? "bg-white/20 text-white" : "bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300"
+                        "grid h-5 w-5 place-items-center rounded-md text-xs transition-colors",
+                        isSelected
+                          ? "bg-white/20 text-white"
+                          : "bg-stone-100 text-stone-600 group-hover:bg-indigo-100/70 group-hover:text-indigo-700 dark:bg-white/10 dark:text-stone-300 dark:group-hover:bg-dusk-lavender/20 dark:group-hover:text-dusk-lavender"
                       )}
                     >
                       {renderTemplateIcon(tpl.icon)}
                     </span>
-                    <span>{tpl.name}</span>
+                    <span className="truncate max-w-[220px]">{tpl.name}</span>
                     <span
                       className={cn(
-                        "rounded-full px-1.5 py-0.2 font-mono text-[10px]",
+                        "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors",
                         isSelected ? "bg-white/20 text-white font-bold" : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
                       )}
                     >
                       {tpl.statuses.length}
                     </span>
+                    {isSelected && <Eye className="h-3.5 w-3.5 text-white stroke-[2.5]" />}
                   </button>
                 );
               })}
@@ -1037,7 +1041,7 @@ export function BoardAttributesTab({
               )}
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-soft">
+            <div className="flex flex-wrap items-center gap-2 pt-0.5">
               {allPointTemplates.map((tpl) => {
                 const isSelected = previewPointTemplate?.id === tpl.id;
                 return (
@@ -1046,29 +1050,33 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectPointTemplate(tpl)}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition shrink-0 cursor-pointer",
+                      "group inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition-all cursor-pointer",
                       isSelected
-                        ? "border-amber-500 bg-amber-600 text-white shadow-xs"
+                        ? "border-amber-500 bg-amber-600 text-white shadow-xs ring-2 ring-amber-400/40"
                         : "border-stone-200/90 bg-white text-stone-700 hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-amber-400/50 dark:hover:bg-amber-500/10"
                     )}
+                    title={tpl.description}
                   >
                     <span
                       className={cn(
-                        "grid h-5 w-5 place-items-center rounded-md text-xs",
-                        isSelected ? "bg-white/20 text-white" : "bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300"
+                        "grid h-5 w-5 place-items-center rounded-md text-xs transition-colors",
+                        isSelected
+                          ? "bg-white/20 text-white"
+                          : "bg-stone-100 text-stone-600 group-hover:bg-amber-100/70 group-hover:text-amber-700 dark:bg-white/10 dark:text-stone-300 dark:group-hover:bg-amber-500/20 dark:group-hover:text-amber-300"
                       )}
                     >
                       {renderStoryPointTemplateIcon(tpl.icon)}
                     </span>
-                    <span>{tpl.name}</span>
+                    <span className="truncate max-w-[220px]">{tpl.name}</span>
                     <span
                       className={cn(
-                        "rounded-full px-1.5 py-0.2 font-mono text-[10px]",
+                        "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors",
                         isSelected ? "bg-white/20 text-white font-bold" : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
                       )}
                     >
                       {tpl.points.length}
                     </span>
+                    {isSelected && <Eye className="h-3.5 w-3.5 text-white stroke-[2.5]" />}
                   </button>
                 );
               })}

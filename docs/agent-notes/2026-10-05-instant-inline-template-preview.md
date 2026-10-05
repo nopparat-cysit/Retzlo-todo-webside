@@ -17,6 +17,7 @@ Replace full-screen modal popups for Status, Priority, and Story Points workflow
 
 ## Important Behavior Changes
 - Clicking any template chip instantly highlights it and updates the item list below in real-time ("ด้านล่างเปลี่ยนให้ดูเลย").
+- Eliminated horizontal scrollbar in template bars across all 3 sub-tabs (Status, Priority, Story Points) by replacing `overflow-x-auto` with clean, responsive `flex-wrap`, so all templates are immediately visible and clickable without horizontal scrolling or ugly browser scrollbars.
 - In Story Points tab, both the list and the bottom palette preview badges immediately update to show the selected scale (Fibonacci, Linear, T-Shirt, Pomodoro, Risk Matrix, Retzlo, etc.).
 - Clicking "คืนค่าเดิม" (or clicking the active chip again) immediately reverts the view back to the current board items.
 - Applying a template triggers a `ConfirmModal` confirming user intent, followed by a toast notification upon success.
