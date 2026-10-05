@@ -556,6 +556,7 @@ Template:
 - Added/changed: `src/components/ui/retzlo-ui-icon.tsx`, `src/components/kanban/card.tsx`, `src/components/kanban/card-modal.tsx`, `src/components/kanban/card-attributes-edit-modal.tsx`, `src/components/kanban/board-list-view.tsx`, `src/components/kanban/board.tsx`, `src/components/kanban/board-attributes-tab.tsx`, `src/components/kanban/column.tsx`, `src/components/kanban/project-calendar.tsx`, `src/components/project/project-members-view.tsx`.
 - Tokens/variants:
   - เพิ่ม `RetzloUiIcon` สำหรับใช้ภาพ PNG ที่วาดในสไตล์แบรนด์กับ `Story Points`, Diary ใน Calendar และยอด Coffee Cheers
+  - คะแนนใน List View ใช้ป้ายสี amber ที่มีขนาดคงที่และไอคอน 16 px เพื่อไม่ให้รูปวาดจิ๋วหรือเบียดกับตัวเลข; ขนาดไอคอนคะแนนใน badges อื่นปรับให้สอดคล้องกัน
   - ไอคอนเป็นภาพประกอบ fixed palette โดยตั้งใจให้เหมือนกันทุกธีม ส่วนพื้นผิว ข้อความ และเส้นขอบรอบไอคอนยังใช้ theme classes เดิม จึงไม่เพิ่มสีคงที่ให้ UI ส่วนอื่น
   - ครอบคลุมการ์ด/ตัวเลือก/ตัวจัดการคะแนน/ตัวเรียงลำดับ, ป้าย Diary ในรายการปฏิทินและเช็กลิสต์ และยอดกาแฟรวมกับยอดรายสมาชิก
 - Theme modes and states: ตรวจโค้ดการใช้ใน light/dark เพื่อให้ภาพไอคอนคงที่และพื้นผิวรอบข้างสลับตามธีม; ยังไม่ได้ตรวจภาพจริงใน browser ทั้งสองธีม

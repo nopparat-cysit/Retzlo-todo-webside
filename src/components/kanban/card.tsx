@@ -195,7 +195,7 @@ function KanbanCardComponent({
                 )}
                 title={getDifficultyMetadata(card.difficulty)?.title}
               >
-                <RetzloUiIcon name="storyPoint" size={12} />
+                <RetzloUiIcon name="storyPoint" size={14} />
                 {card.difficulty} pts
               </span>
             ) : null}
@@ -320,7 +320,7 @@ function KanbanCardComponent({
                 )}
                 title={getDifficultyMetadata(card.difficulty)?.title}
               >
-                <RetzloUiIcon name="storyPoint" size={14} />
+                <RetzloUiIcon name="storyPoint" size={16} />
                 {getDifficultyMetadata(card.difficulty)?.pointsLabel}
               </span>
             ) : null}

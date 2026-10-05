@@ -19,6 +19,7 @@
 ## Important Behavior Changes
 - Added a reusable `RetzloUiIcon` component for the selected Story Points, Diary, and Coffee artwork.
 - Replaced Story Points symbols in card badges, card editing, board lists, sorting, and board attributes; replaced Diary glyphs in Calendar views; replaced coffee glyphs in member coffee totals and badges.
+- After visual feedback, standardized the List View score pill width and warm amber surface, enlarged its illustration to 16 px, and adjusted related Story Points icon sizes so the illustration reads clearly beside the value.
 - Other artwork is still an asset only. Notes/folder icons, AI, rewards, Pomodoro, and coffee cheer actions are outside this implementation pass.
 - The selected fixed-palette PNG artwork stays the same in light and dark themes; the surrounding component surfaces continue to use existing theme styles.
 - Palette was revised toward Retzlo's dusty indigo/plum, lavender, warm paper, amber, rose, and cyan after visual feedback.

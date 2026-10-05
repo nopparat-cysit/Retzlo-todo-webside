@@ -1044,7 +1044,7 @@ export function CardModal({
                     onClick={() => setDifficulty(isSelected ? null : (point.score as any))}
                   >
                     <>
-                      <RetzloUiIcon name="storyPoint" size={14} />
+                      <RetzloUiIcon name="storyPoint" size={16} />
                       {point.label || point.score}
                     </>
                   </button>

@@ -777,7 +777,7 @@ export function BoardAttributesTab({
                   className="inline-flex items-center gap-1 rounded-lg border border-stone-200/80 bg-stone-50/50 px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:border-amber-400 hover:bg-amber-50/30 hover:text-amber-800 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-amber-400/50 cursor-pointer"
                   title={preset.points.map((p) => p.label).join(", ")}
                 >
-                  <RetzloUiIcon name="storyPoint" size={13} />
+                  <RetzloUiIcon name="storyPoint" size={15} />
                   <span>{preset.name}</span>
                 </button>
               );

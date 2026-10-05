@@ -63,6 +63,15 @@ function toInputDate(dateString: string | null | undefined): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+function StoryPointsBadge({ points }: { points: number }) {
+  return (
+    <span className="inline-flex min-w-[3.5rem] items-center justify-center gap-1.5 rounded-md border border-amber-200/90 bg-amber-50/90 px-2 py-1 font-mono text-xs font-bold leading-none text-amber-800 shadow-xs dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-300">
+      <RetzloUiIcon name="storyPoint" size={16} />
+      <span>{points}</span>
+    </span>
+  );
+}
+
 interface BoardListViewProps {
   boardTitle?: string;
   columns: ColumnWithCards[];
@@ -765,7 +774,7 @@ export function BoardListView({
 
             {/* 7. Story Points */}
             <div className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
-              <RetzloUiIcon name="storyPoint" size={14} />
+              <RetzloUiIcon name="storyPoint" size={16} />
               <span className="font-bold">Story Points</span>
             </div>
 
@@ -1102,9 +1111,7 @@ export function BoardListView({
                     {/* 7. Story Points */}
                     <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
                       {card.difficulty ? (
-                        <span className="inline-flex items-center gap-1 rounded bg-stone-100 px-1.5 py-0.5 font-bold text-amber-600 dark:bg-white/5 dark:text-amber-400">
-                          <RetzloUiIcon name="storyPoint" size={13} /> {card.difficulty}
-                        </span>
+                        <StoryPointsBadge points={card.difficulty} />
                       ) : (
                         <span className="text-stone-400">-</span>
                       )}
@@ -1521,11 +1528,7 @@ export function BoardListView({
                               </div>
 
                               <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
-                                {card.difficulty ? (
-                                  <span className="inline-flex items-center justify-center gap-1">
-                                    <RetzloUiIcon name="storyPoint" size={13} /> {card.difficulty}
-                                  </span>
-                                ) : "-"}
+                                {card.difficulty ? <StoryPointsBadge points={card.difficulty} /> : "-"}
                               </div>
 
                               <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">

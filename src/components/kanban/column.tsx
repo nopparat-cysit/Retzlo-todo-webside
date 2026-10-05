@@ -318,7 +318,7 @@ function KanbanColumnComponent({
               className="inline-flex items-center gap-0.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400 select-none"
               title={`คะแนนความยากรวม: ${totalPoints} pts`}
             >
-              <RetzloUiIcon name="storyPoint" size={12} />
+              <RetzloUiIcon name="storyPoint" size={14} />
               <span>{totalPoints}</span>
             </span>
           )}
@@ -391,7 +391,7 @@ function KanbanColumnComponent({
               className="shrink-0 inline-flex items-center gap-0.5 rounded-md border border-amber-300 bg-amber-50 px-1 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400 select-none"
               title={`คะแนนความยากรวม: ${totalPoints} pts`}
             >
-              <RetzloUiIcon name="storyPoint" size={12} />
+              <RetzloUiIcon name="storyPoint" size={14} />
               <span>{totalPoints}</span>
             </span>
           )}
