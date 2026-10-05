@@ -158,11 +158,29 @@ export function KanbanBoard({
         setBoardPriorities(customEvent.detail.customPriorities ?? undefined);
       }
     };
+    const handleColumnsUpdated = async (event: Event) => {
+      const customEvent = event as CustomEvent<{ boardId: string }>;
+      if (customEvent.detail && customEvent.detail.boardId === board.id) {
+        try {
+          const res = await fetch(`/api/boards/${board.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.board?.columns) {
+              setColumns(data.board.columns.map((col: any) => normalizeColumn(col, members)));
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+    };
     window.addEventListener("board-priorities-updated", handlePrioritiesUpdated);
+    window.addEventListener("board-columns-updated", handleColumnsUpdated);
     return () => {
       window.removeEventListener("board-priorities-updated", handlePrioritiesUpdated);
+      window.removeEventListener("board-columns-updated", handleColumnsUpdated);
     };
-  }, [board.id]);
+  }, [board.id, members]);
 
   useEffect(() => {
     if (cardIdFromUrl && columns.length > 0) {

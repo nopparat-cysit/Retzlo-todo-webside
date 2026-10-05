@@ -366,7 +366,8 @@ export const TOPICS: GuideTopic[] = [
     highlights: [
       "เลย์เอาต์ Master-Detail สไตล์ Jira: แถบซ้ายแสดงการ์ดอัตลักษณ์ Space Identity, ปุ่มลัดกลับสู่บอร์ด (Back to board), และเมนูนำทางแยกหมวดหมู่อย่างเป็นระเบียบ",
       "หมวด General (ข้อมูล & สมาชิก): แท็บ Details & Identity สำหรับชื่อ/ภาพปก และแท็บ Access & Team ดูรายชื่อผู้มีสิทธิ์เข้าถึงพร้อมปุ่มเชื่อมต่อไปยังหน้าจัดการสมาชิก",
-      "หมวด Workflow (บอร์ด & ขั้นตอนงาน): แท็บ Boards & Sub-projects, แท็บ Board Details & Access (ชื่อ/สิทธิ์ความเป็นส่วนตัว/สมาชิก), แท็บ Columns & Workflow (คอลัมน์และ WIP limit), และแท็บ Card Attributes & Types (สถานะ/Priorities 10 ระดับ/Story points)",
+      "หมวด Workflow (บอร์ด & ขั้นตอนงาน): แท็บ Boards & Sub-projects, แท็บ Board Details & Access (ชื่อ/สิทธิ์ความเป็นส่วนตัว/สมาชิก), แท็บ Columns & Workflow (เพิ่มคอลัมน์ใหม่ '+ เพิ่มคอลัมน์ใหม่' กำหนดสถานะการ์ดเริ่มต้น ธีมสี ไอคอน และ WIP limit พร้อมแก้ไข/ลบคอลัมน์ที่มี ConfirmModal ป้องกัน), และแท็บ Card Attributes & Types (สถานะ/Priorities 10 ระดับ/Story points)",
+      "สร้างและจัดการคอลัมน์ได้ทันที (New Column in Settings): สามารถกด '+ เพิ่มคอลัมน์ใหม่' ในหน้า Settings แท็บ Columns & Workflow ได้โดยตรง ไม่ต้องสลับกลับไปหน้า Kanban พร้อมซิงค์สดแบบเรียลไทม์ทันที",
       "ไม่เปิดป๊อปอัปซ้อนอีกต่อไป: การกด Settings จากบอร์ดใดๆ จะสลับสู่หน้าการตั้งค่าบอร์ดในแท็บหลักแบบ Jira ทันที พร้อมสวิตช์เลือกบอร์ดที่ต้องการปรับแต่ง",
       "Jira Sidebar Layout สำหรับ Modal: หน้าต่าง BoardSettingsModal ได้รับการปรับปรุงเป็น Master-Detail แถบข้างซ้ายพร้อมปุ่ม 'เปิดหน้าเต็มจอ (Jira Style)'",
       "หมวด System & Privacy (ฟีเจอร์ & ความเป็นส่วนตัว): เปิด/ปิดแถบบันทึกโน้ต, กำหนดสิทธิ์ไอเทมส่วนตัวของสมาชิก, และ Danger Zone สำหรับลบโปรเจกต์",

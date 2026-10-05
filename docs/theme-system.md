@@ -519,3 +519,20 @@ Template:
     - เปลี่ยน Checkbox เดิมที่เป็น native input ทึบตัน ให้เป็น **Interactive Tactile Checkbox Button** เคลือบสีเขียวมรกต (`bg-emerald-500`) พร้อมไอคอนเครื่องหมายถูกสีขาวคมชัดเมื่อทำสำเร็จ และขีดฆ่าชื่อรายการอัตโนมัติ
     - เพิ่มปุ่มคลิกไปที่ไดอารี่ (`Open in Diary`) และขยายความสามารถให้การ์ด Kanban สามารถติ๊กเปลี่ยนสถานะเป็น DONE/TODO ได้โดยตรงจากในโมดอลปฏิทิน
 - Reviewed: Vitest 88/88 test files ผ่าน (450 tests ผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, Next.js production build ผ่าน 100% (38/38 routes).
+
+### 2026-10-05 — เพิ่มฟังก์ชันสร้างและจัดการคอลัมน์ในหน้าการตั้งค่าบอร์ด (New Column in Board Settings & Workflow Stages)
+- Added/changed: `src/components/kanban/board-settings/columns-tab.tsx`, `src/components/project/project-settings-client.tsx`, `src/components/kanban/board-settings-modal.tsx`, `src/components/kanban/board.tsx`, `src/components/kanban/board-settings/columns-tab.test.ts`, `docs/system-guide.md`, `src/components/help/help-center-client.tsx`.
+- Tokens/variants:
+  - **New Column Creation Panel:** เพิ่มปุ่ม `+ เพิ่มคอลัมน์ใหม่` สไตล์ Retro Lofi Indigo ที่ส่วนหัวของแท็บ Workflow Stages พร้อมแผงกรอกข้อมูลในสไตล์ Lofi Panel:
+    - ช่องกรอกชื่อคอลัมน์ (Required, max 80 chars)
+    - ตัวเลือกสถานะเริ่มต้นของการ์ด 4 รูปแบบ (TODO, DOING, WAITING, DONE) พร้อมจุดสีและป้ายกำกับตามชุดสีระบบ
+    - ตัวเลือกธีมสีคอลัมน์ 6 โทนสี (`default`, `lavender`, `amber`, `rose`, `cyan`, `mint`) พร้อมวงแหวนสถานะที่เลือก
+    - ตัวเลือกไอคอนคอลัมน์แบบยุบ-ขยาย (`ColumnIconPicker` และ `ColumnIconGlyph`)
+    - ตัวเลขจำกัดจำนวนการ์ด WIP Limit (1-99)
+  - **Inline Editing & Deletion Protection:**
+    - คอลัมน์เดิมแต่ละขั้นตอนรองรับการกดแก้ไขชื่อ/สถานะ/สี/ไอคอน/WIP limit และลบคอลัมน์
+    - ป้องกันการลบคอลัมน์ที่มีการ์ดคงค้างอยู่ด้านใน พร้อมแจ้งเตือนผู้ใช้
+    - เชื่อมโยงระบบยืนยันความปลอดภัย `ConfirmModal` ทั้งสำหรับการแก้ไขและการลบคอลัมน์ตามข้อกำหนด `AGENTS.md`
+    - แจ้งเตือนความสำเร็จและข้อผิดพลาดด้วย Toast Notification ทุกครั้งที่มีการเปลี่ยนแปลงข้อมูล (CUD operations)
+  - **Live Reactive Synchronization:** ส่ง Custom Event `board-columns-updated` และเรียกใช้ callback `onColumnsChange` เพื่อให้บอร์ด Kanban และหน้าตั้งค่าซิงค์ข้อมูลคอลัมน์แบบเรียลไทม์
+- Reviewed: Vitest 89/89 test files ผ่าน (455/455 tests ผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, Next.js production build ผ่าน 100% (38/38 routes).

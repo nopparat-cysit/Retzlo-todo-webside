@@ -961,6 +961,8 @@ export function ProjectSettingsClient({
                       totalCards={boardColumns.reduce((acc, c) => acc + (c.cardCount ?? 0), 0)}
                       projectId={projectId}
                       boardId={selectedBoardId}
+                      canManage={canManage}
+                      onColumnsChange={setBoardColumns}
                     />
                   </section>
                 ) : (

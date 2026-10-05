@@ -163,7 +163,7 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
     2. **Workflow (เวิร์กโฟลว์ & บอร์ด):**
        - **Boards & Sub-projects (`boards`):** จัดการกระดานงานทั้งหมดในโปรเจกต์ สร้างบอร์ดใหม่ และภาพรวมงาน
        - **Board Details & Access (`board-general`):** ตั้งค่าชื่อบอร์ด ความเป็นส่วนตัว (Public/Private) และสิทธิ์สมาชิกรายบอร์ด พร้อมปุ่มลบบอร์ดใน Danger Zone โดยไม่ต้องเปิดป๊อปอัปบังหน้าจอ
-       - **Columns & Workflow (`board-columns`):** ตรวจสอบขั้นตอนงานคอลัมน์, WIP Limits, ค่าสถานะเริ่มต้น และจำนวนงาน
+       - **Columns & Workflow (`board-columns`):** ตรวจสอบและจัดการขั้นตอนงานคอลัมน์, เพิ่มคอลัมน์ใหม่ได้โดยตรงผ่านปุ่ม `+ เพิ่มคอลัมน์ใหม่` (กำหนดชื่อ, สถานะเริ่มต้น TODO/DOING/WAITING/DONE, ธีมสี, ไอคอน, และ WIP Limits) พร้อมแก้ไขรายละเอียดและลบคอลัมน์ที่มีระบบยืนยันความปลอดภัย `ConfirmModal` และ Toast แจ้งเตือนผลลัพธ์ โดยซิงค์ข้อมูลกับกระดาน Kanban แบบเรียลไทม์ทันที
        - **Card Attributes & Types (`attributes`):** ดูวงจรชีวิตสถานะงาน (TODO, DOING, WAITING, DONE), ปรับแต่ง 10 ระดับความสำคัญ (Custom Priorities), และชุดการประเมิน Story Points
     3. **System & Privacy (ระบบ & ความเป็นส่วนตัว):**
        - **Features & Privacy (`features`):** เปิด/ปิดแถบ Quick Notes, สิทธิ์สร้างไอเทมส่วนตัวของสมาชิก, และ Danger Zone สำหรับการลบโปรเจกต์

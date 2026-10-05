@@ -516,6 +516,8 @@ export function BoardSettingsModal({
                   totalCards={totalCards}
                   projectId={projectId}
                   boardId={boardId}
+                  canManage={canManage}
+                  onColumnsChange={setColumns}
                 />
               </TabsContent>
 
