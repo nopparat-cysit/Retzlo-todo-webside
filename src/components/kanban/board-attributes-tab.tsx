@@ -9,14 +9,17 @@ import {
   Bug,
   Check,
   CheckSquare,
+  Clock,
   Code2,
   Flag,
+  Flame,
   Palette,
   Pencil,
   Plus,
   RotateCcw,
   Sparkles,
   Target,
+  Timer,
   Trash2,
   Wand2,
   X,
@@ -42,6 +45,8 @@ import {
   DEFAULT_STORY_POINTS,
   STORY_POINT_COLOR_CLASSES,
   STORY_POINT_PRESETS,
+  STORY_POINT_WORKFLOW_TEMPLATES,
+  type StoryPointWorkflowTemplate,
   getStoredStoryPoints,
   saveStoredStoryPoints
 } from "@/lib/kanban/difficulty";
@@ -77,6 +82,25 @@ function renderTemplateIcon(icon: string) {
       return <Bookmark className="h-3.5 w-3.5 text-cyan-500" />;
     default:
       return <CheckSquare className="h-3.5 w-3.5 text-indigo-500" />;
+  }
+}
+
+function renderStoryPointTemplateIcon(icon: string) {
+  switch (icon) {
+    case "target":
+      return <Target className="h-3.5 w-3.5 text-rose-500" />;
+    case "clock":
+      return <Clock className="h-3.5 w-3.5 text-indigo-500" />;
+    case "sparkles":
+      return <Sparkles className="h-3.5 w-3.5 text-purple-500" />;
+    case "timer":
+      return <Timer className="h-3.5 w-3.5 text-rose-500" />;
+    case "flame":
+      return <Flame className="h-3.5 w-3.5 text-orange-500" />;
+    case "bookmark":
+      return <Bookmark className="h-3.5 w-3.5 text-cyan-500" />;
+    default:
+      return <Zap className="h-3.5 w-3.5 text-amber-500" />;
   }
 }
 
@@ -130,6 +154,25 @@ export function BoardAttributesTab({
   const [newPointColor, setNewPointColor] = useState<string>("cyan");
   const [pointToDelete, setPointToDelete] = useState<CustomStoryPoint | null>(null);
   const [isResetPointsConfirmOpen, setIsResetPointsConfirmOpen] = useState(false);
+
+  // Story Points Template Management State
+  const [selectedPointTemplate, setSelectedPointTemplate] = useState<StoryPointWorkflowTemplate | null>(null);
+  const [pointTemplateApplyMode, setPointTemplateApplyMode] = useState<"replace" | "append">("replace");
+  const [isApplyPointTemplateConfirmOpen, setIsApplyPointTemplateConfirmOpen] = useState(false);
+
+  // Custom Saved Story Point Templates State
+  const [customSavedPointTemplates, setCustomSavedPointTemplates] = useState<StoryPointWorkflowTemplate[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("retzlo:custom_story_point_templates");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isSaveCustomPointTemplateOpen, setIsSaveCustomPointTemplateOpen] = useState(false);
+  const [customPointTemplateName, setCustomPointTemplateName] = useState("");
+  const [customPointTemplateDesc, setCustomPointTemplateDesc] = useState("");
 
   // Sync when boardId changes or external update occurs
   useEffect(() => {
@@ -346,6 +389,68 @@ export function BoardAttributesTab({
     setNewPointTitle("");
     setNewPointDescription("");
     toast({ message: `เพิ่มคะแนนความยาก ${parsed} เรียบร้อย`, type: "success" });
+  };
+
+  const allPointTemplates: StoryPointWorkflowTemplate[] = [
+    ...Object.values(STORY_POINT_WORKFLOW_TEMPLATES),
+    ...customSavedPointTemplates
+  ];
+
+  const handleConfirmApplyPointTemplate = () => {
+    if (!selectedPointTemplate || !canManage) return;
+
+    let nextPoints: CustomStoryPoint[];
+    if (pointTemplateApplyMode === "replace") {
+      nextPoints = [...selectedPointTemplate.points];
+    } else {
+      nextPoints = [...storyPoints];
+      const existingScores = new Set(nextPoints.map((p) => p.score));
+      for (const tplPt of selectedPointTemplate.points) {
+        if (!existingScores.has(tplPt.score)) {
+          nextPoints.push(tplPt);
+          existingScores.add(tplPt.score);
+        }
+      }
+    }
+    nextPoints = nextPoints.sort((a, b) => a.score - b.score);
+
+    setStoryPoints(nextPoints);
+    saveStoredStoryPoints(nextPoints, boardId);
+    setIsApplyPointTemplateConfirmOpen(false);
+    setSelectedPointTemplate(null);
+    toast({
+      message: `นำสเกล Story Points "${selectedPointTemplate.name}" มาปรับใช้เรียบร้อย (${nextPoints.length} ระดับคะแนน)`,
+      type: "success"
+    });
+  };
+
+  const handleSaveCustomPointTemplate = (e: FormEvent) => {
+    e.preventDefault();
+    const trimmedName = customPointTemplateName.trim();
+    if (!trimmedName) {
+      toast({ message: "กรุณาระบุชื่อแม่แบบ", type: "error" });
+      return;
+    }
+
+    const newTemplate: StoryPointWorkflowTemplate = {
+      id: `custom_${Date.now()}`,
+      name: trimmedName,
+      description: customPointTemplateDesc.trim() || `แม่แบบ Story Points กำหนดเอง (${storyPoints.length} ระดับ)`,
+      category: "Custom",
+      icon: "bookmark",
+      points: [...storyPoints]
+    };
+
+    const nextTemplates = [...customSavedPointTemplates, newTemplate];
+    setCustomSavedPointTemplates(nextTemplates);
+    try {
+      localStorage.setItem("retzlo:custom_story_point_templates", JSON.stringify(nextTemplates));
+    } catch {}
+
+    setIsSaveCustomPointTemplateOpen(false);
+    setCustomPointTemplateName("");
+    setCustomPointTemplateDesc("");
+    toast({ message: `บันทึกสเกล Story Points "${trimmedName}" เรียบร้อยแล้ว`, type: "success" });
   };
 
   const handleApplyPreset = (key: keyof typeof STORY_POINT_PRESETS) => {
@@ -765,27 +870,49 @@ export function BoardAttributesTab({
             </button>
           </div>
 
-          {/* Quick Presets as Compact Chips */}
-          <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mr-1">
-              สเกลมาตรฐาน:
-            </span>
-            {(Object.keys(STORY_POINT_PRESETS) as Array<keyof typeof STORY_POINT_PRESETS>).map((key) => {
-              const preset = STORY_POINT_PRESETS[key];
-              return (
+          {/* Quick Story Points Workflow Templates Bar */}
+          <div className="rounded-2xl border border-amber-200/60 bg-amber-50/20 p-3.5 dark:border-amber-400/20 dark:bg-ink-950/40 shadow-xs space-y-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <Wand2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                  แม่แบบสเกลคะแนนสำเร็จรูป (Story Point Templates)
+                </span>
+                <span className="rounded-full bg-amber-100/70 border border-amber-200/60 px-2 py-0.2 text-[9px] font-semibold text-amber-700 dark:bg-amber-500/15 dark:border-amber-400/30 dark:text-amber-300">
+                  เลือกดู &amp; ปรับใช้
+                </span>
+              </div>
+
+              {canManage && (
                 <button
-                  key={key}
                   type="button"
-                  disabled={!canManage}
-                  onClick={() => handleApplyPreset(key)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-stone-200/80 bg-stone-50/50 px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:border-amber-400 hover:bg-amber-50/30 hover:text-amber-800 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-amber-400/50 cursor-pointer"
-                  title={preset.points.map((p) => p.label).join(", ")}
+                  onClick={() => setIsSaveCustomPointTemplateOpen(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:underline self-start sm:self-auto cursor-pointer"
                 >
-                  <Zap className="h-4 w-4" />
-                  <span>{preset.name}</span>
+                  <Bookmark className="h-3 w-3" />
+                  <span>+ บันทึกสเกลนี้เป็นแม่แบบ</span>
                 </button>
-              );
-            })}
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-soft">
+              {allPointTemplates.map((tpl) => (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  onClick={() => setSelectedPointTemplate(tpl)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-900 shrink-0 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-amber-400/50 dark:hover:bg-amber-500/10 cursor-pointer"
+                >
+                  <span className="grid h-5 w-5 place-items-center rounded-md bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                    {renderStoryPointTemplateIcon(tpl.icon)}
+                  </span>
+                  <span>{tpl.name}</span>
+                  <span className="rounded-full bg-stone-100 px-1.5 py-0.2 font-mono text-[10px] text-stone-500 dark:bg-white/10 dark:text-stone-400">
+                    {tpl.points.length}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Add Custom Point Inline Bar */}
@@ -868,6 +995,32 @@ export function BoardAttributesTab({
                 </div>
               );
             })}
+          </div>
+
+          {/* Live Preview Section */}
+          <div className="flex flex-col gap-1.5 pt-1">
+            <div className="text-[11px] font-bold text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
+              <Palette className="h-3.5 w-3.5 text-amber-500" />
+              <span>ตัวอย่างการแสดงผลคะแนนความยาก (Story Points):</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {storyPoints.map((pt) => {
+                const config = STORY_POINT_COLOR_CLASSES[pt.color || "cyan"] || STORY_POINT_COLOR_CLASSES.cyan;
+                return (
+                  <div
+                    key={pt.score}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-2xs",
+                      config.badgeClass
+                    )}
+                  >
+                    <span className="font-mono text-[10px] opacity-80">{pt.score} pts</span>
+                    <span>•</span>
+                    <span className="truncate max-w-[120px]">{pt.title || `${pt.score} pts`}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -1092,6 +1245,228 @@ export function BoardAttributesTab({
         </ModalPortal>
       )}
 
+      {/* ─────────────────────────────────────────────────────────────
+          STORY POINT TEMPLATE PREVIEW & APPLY MODAL
+         ───────────────────────────────────────────────────────────── */}
+      {selectedPointTemplate && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+              onClick={() => setSelectedPointTemplate(null)}
+            />
+            <div className="relative w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-ink-950 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-start justify-between border-b border-stone-100 pb-3 dark:border-white/10">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400">
+                    {renderStoryPointTemplateIcon(selectedPointTemplate.icon)}
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                        {selectedPointTemplate.name}
+                      </h3>
+                      <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.2 text-[10px] font-bold text-amber-700 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-300">
+                        {selectedPointTemplate.category}
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                      {selectedPointTemplate.description}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedPointTemplate(null)}
+                  className="rounded-md p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Point Scales Preview */}
+              <div className="space-y-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                  สเกลคะแนนในแม่แบบนี้ ({selectedPointTemplate.points.length} ระดับ):
+                </span>
+                <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-stone-200/80 bg-stone-50/70 dark:border-white/10 dark:bg-white/[0.02]">
+                  {selectedPointTemplate.points.map((pt, idx) => {
+                    const cfg = STORY_POINT_COLOR_CLASSES[pt.color || "cyan"] || STORY_POINT_COLOR_CLASSES.cyan;
+                    return (
+                      <div key={pt.score} className="flex items-center gap-1.5">
+                        <span className={cn("px-2.5 py-1 rounded-lg border font-bold text-xs shadow-2xs flex items-center gap-1.5", cfg.badgeClass)}>
+                          <span className="font-mono text-[10px] opacity-80">{pt.score} pts</span>
+                          <span>•</span>
+                          <span className="truncate max-w-[100px]">{pt.title || `${pt.score} pts`}</span>
+                        </span>
+                        {idx < selectedPointTemplate.points.length - 1 && (
+                          <span className="text-stone-400 text-xs">→</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Apply Mode Selector */}
+              <div className="space-y-2 pt-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                  รูปแบบการปรับใช้:
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPointTemplateApplyMode("replace")}
+                    className={cn(
+                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
+                      pointTemplateApplyMode === "replace"
+                        ? "border-amber-600 bg-amber-50/50 ring-2 ring-amber-500/20 dark:border-amber-400 dark:bg-amber-500/10"
+                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
+                    )}
+                  >
+                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                      แทนที่ทั้งหมด (Replace)
+                    </span>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
+                      แทนที่สเกลคะแนนเดิมด้วยชุดใหม่นี้
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPointTemplateApplyMode("append")}
+                    className={cn(
+                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
+                      pointTemplateApplyMode === "append"
+                        ? "border-amber-600 bg-amber-50/50 ring-2 ring-amber-500/20 dark:border-amber-400 dark:bg-amber-500/10"
+                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
+                    )}
+                  >
+                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                      เพิ่มต่อท้าย (Append)
+                    </span>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
+                      เก็บสเกลเดิม และรวมเฉพาะคะแนนใหม่
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-100 dark:border-white/10">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setSelectedPointTemplate(null)}
+                  className="text-xs cursor-pointer"
+                >
+                  ปิด
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setIsApplyPointTemplateConfirmOpen(true)}
+                  className="text-xs bg-amber-600 hover:bg-amber-700 text-white font-medium cursor-pointer"
+                >
+                  นำสเกลนี้มาใช้
+                </Button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          SAVE AS CUSTOM STORY POINT SCALE MODAL
+         ───────────────────────────────────────────────────────────── */}
+      {isSaveCustomPointTemplateOpen && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+              onClick={() => setIsSaveCustomPointTemplateOpen(false)}
+            />
+            <form
+              onSubmit={handleSaveCustomPointTemplate}
+              className="relative w-full max-w-md rounded-2xl border border-stone-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-ink-950 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200"
+            >
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3 dark:border-white/10">
+                <div className="flex items-center gap-2">
+                  <Bookmark className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                    บันทึกสเกลคะแนนเป็นแม่แบบส่วนตัว
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsSaveCustomPointTemplateOpen(false)}
+                  className="rounded-md p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
+                    ชื่อสเกลแม่แบบ <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    placeholder="เช่น สเกลประเมินงาน Backend, สเกลทีม Design..."
+                    value={customPointTemplateName}
+                    onChange={(e) => setCustomPointTemplateName(e.target.value)}
+                    maxLength={50}
+                    autoFocus
+                    className="text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
+                    คำอธิบายสั้นๆ (ไม่บังคับ)
+                  </label>
+                  <Input
+                    placeholder="อธิบายว่าสเกลนี้เหมาะกับรูปแบบงานแบบไหน..."
+                    value={customPointTemplateDesc}
+                    onChange={(e) => setCustomPointTemplateDesc(e.target.value)}
+                    maxLength={100}
+                    className="text-xs"
+                  />
+                </div>
+
+                <div className="p-3 rounded-xl border border-stone-200/80 bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]">
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400">
+                    จะบันทึกสเกล Story Points ปัจจุบันทั้งหมด {storyPoints.length} ระดับเป็นแม่แบบส่วนตัวสำหรับนำไปใช้กับบอร์ดอื่นได้อย่างรวดเร็ว
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-white/10">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsSaveCustomPointTemplateOpen(false)}
+                  className="text-xs cursor-pointer"
+                >
+                  ยกเลิก
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={!customPointTemplateName.trim()}
+                  className="text-xs bg-amber-600 hover:bg-amber-700 text-white font-medium cursor-pointer"
+                >
+                  บันทึกแม่แบบ
+                </Button>
+              </div>
+            </form>
+          </div>
+        </ModalPortal>
+      )}
+
       {/* Confirmation Modals per AGENTS.md */}
       <ConfirmModal
         open={statusToDelete !== null}
@@ -1151,6 +1526,16 @@ export function BoardAttributesTab({
         variant="default"
         onClose={() => setIsResetPointsConfirmOpen(false)}
         onConfirm={handleResetStoryPoints}
+      />
+
+      <ConfirmModal
+        open={isApplyPointTemplateConfirmOpen}
+        title="ยืนยันการนำแม่แบบ Story Points มาใช้"
+        message={`คุณต้องการนำสเกลแม่แบบ "${selectedPointTemplate?.name}" (${pointTemplateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
+        confirmLabel="นำสเกลมาใช้"
+        variant="default"
+        onClose={() => setIsApplyPointTemplateConfirmOpen(false)}
+        onConfirm={handleConfirmApplyPointTemplate}
       />
     </div>
   );

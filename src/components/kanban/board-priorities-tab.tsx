@@ -1,16 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   ArrowDown,
   ArrowUp,
+  Bookmark,
+  Briefcase,
   Check,
   ChevronDown,
+  Flag,
   Palette,
   Plus,
   RotateCcw,
   Sparkles,
-  Trash2
+  Target,
+  Trash2,
+  Wand2,
+  X
 } from "lucide-react";
 
 import {
@@ -18,12 +24,16 @@ import {
   MAX_BOARD_PRIORITIES,
   MIN_BOARD_PRIORITIES,
   PRIORITY_COLOR_OPTIONS,
+  PRIORITY_WORKFLOW_TEMPLATES,
   type PriorityColorConfig,
+  type PriorityWorkflowTemplate,
   getPriorityColorConfig
 } from "@/lib/kanban/priority";
 import type { CustomPriority } from "@/types/kanban";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { Input } from "@/components/ui/input";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import { useToast } from "@/components/ui/toast";
 import {
   DropdownMenu,
@@ -31,6 +41,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+
+function renderPriorityTemplateIcon(icon: string) {
+  switch (icon) {
+    case "target":
+      return <Target className="h-3.5 w-3.5 text-rose-500" />;
+    case "sparkles":
+      return <Sparkles className="h-3.5 w-3.5 text-purple-500" />;
+    case "bookmark":
+      return <Bookmark className="h-3.5 w-3.5 text-indigo-500" />;
+    case "briefcase":
+      return <Briefcase className="h-3.5 w-3.5 text-emerald-500" />;
+    case "palette":
+      return <Palette className="h-3.5 w-3.5 text-amber-500" />;
+    default:
+      return <Flag className="h-3.5 w-3.5 text-rose-500" />;
+  }
+}
 
 interface BoardPrioritiesTabProps {
   priorities: CustomPriority[];
@@ -48,8 +76,100 @@ export function BoardPrioritiesTab({
   const [priorityToDelete, setPriorityToDelete] = useState<CustomPriority | null>(null);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
+  // Template Management State
+  const [selectedTemplate, setSelectedTemplate] = useState<PriorityWorkflowTemplate | null>(null);
+  const [templateApplyMode, setTemplateApplyMode] = useState<"replace" | "append">("replace");
+  const [isApplyTemplateConfirmOpen, setIsApplyTemplateConfirmOpen] = useState(false);
+
+  // Custom Saved Templates State
+  const [customSavedTemplates, setCustomSavedTemplates] = useState<PriorityWorkflowTemplate[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("retzlo:custom_priority_templates");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isSaveCustomTemplateOpen, setIsSaveCustomTemplateOpen] = useState(false);
+  const [customTemplateName, setCustomTemplateName] = useState("");
+  const [customTemplateDesc, setCustomTemplateDesc] = useState("");
+
   const isAtMax = priorities.length >= MAX_BOARD_PRIORITIES;
   const isAtMin = priorities.length <= MIN_BOARD_PRIORITIES;
+
+  const allTemplates: PriorityWorkflowTemplate[] = [
+    ...Object.values(PRIORITY_WORKFLOW_TEMPLATES),
+    ...customSavedTemplates
+  ];
+
+  const handleConfirmApplyTemplate = () => {
+    if (!selectedTemplate || !canManage) return;
+
+    let nextList: CustomPriority[];
+    if (templateApplyMode === "replace") {
+      nextList = selectedTemplate.priorities.slice(0, MAX_BOARD_PRIORITIES).map((p, idx) => ({
+        ...p,
+        level: idx + 1
+      }));
+    } else {
+      nextList = [...priorities];
+      const existingIds = new Set(nextList.map((p) => p.id.toUpperCase()));
+      const existingLabels = new Set(nextList.map((p) => p.label.trim().toLowerCase()));
+
+      for (const tplPriority of selectedTemplate.priorities) {
+        if (nextList.length >= MAX_BOARD_PRIORITIES) break;
+        if (!existingIds.has(tplPriority.id.toUpperCase()) && !existingLabels.has(tplPriority.label.trim().toLowerCase())) {
+          nextList.push({
+            ...tplPriority,
+            id: `priority_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+            level: nextList.length + 1
+          });
+          existingIds.add(tplPriority.id.toUpperCase());
+          existingLabels.add(tplPriority.label.trim().toLowerCase());
+        }
+      }
+      nextList = nextList.map((p, idx) => ({ ...p, level: idx + 1 }));
+    }
+
+    onChange(nextList);
+    setEditingId(null);
+    setIsApplyTemplateConfirmOpen(false);
+    setSelectedTemplate(null);
+    toast({
+      message: `นำแม่แบบ "${selectedTemplate.name}" มาปรับใช้เรียบร้อย (${nextList.length} ระดับ)`,
+      type: "success"
+    });
+  };
+
+  const handleSaveCustomTemplate = (e: FormEvent) => {
+    e.preventDefault();
+    const trimmedName = customTemplateName.trim();
+    if (!trimmedName) {
+      toast({ message: "กรุณาระบุชื่อแม่แบบ", type: "error" });
+      return;
+    }
+
+    const newTemplate: PriorityWorkflowTemplate = {
+      id: `custom_${Date.now()}`,
+      name: trimmedName,
+      description: customTemplateDesc.trim() || `แม่แบบระดับความสำคัญกำหนดเอง (${priorities.length} ระดับ)`,
+      category: "Custom",
+      icon: "bookmark",
+      priorities: [...priorities]
+    };
+
+    const nextTemplates = [...customSavedTemplates, newTemplate];
+    setCustomSavedTemplates(nextTemplates);
+    try {
+      localStorage.setItem("retzlo:custom_priority_templates", JSON.stringify(nextTemplates));
+    } catch {}
+
+    setIsSaveCustomTemplateOpen(false);
+    setCustomTemplateName("");
+    setCustomTemplateDesc("");
+    toast({ message: `บันทึกแม่แบบ "${trimmedName}" เรียบร้อยแล้ว`, type: "success" });
+  };
 
   const handleAddPriority = () => {
     if (isAtMax || !canManage) return;
@@ -161,7 +281,7 @@ export function BoardPrioritiesTab({
             <span>Custom Priority Levels (ระดับความสำคัญ)</span>
           </h4>
           <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-            ปรับแต่งชื่อ ลำดับ และสีประจำระดับความสำคัญในบอร์ดนี้ได้สูงสุด 10 ระดับ
+            เลือกแม่แบบความสำคัญสำเร็จรูป หรือปรับแต่งชื่อ ลำดับ และสีได้สูงสุด 10 ระดับ
           </p>
         </div>
 
@@ -186,6 +306,51 @@ export function BoardPrioritiesTab({
             <RotateCcw className="h-3 w-3" />
             <span className="hidden sm:inline">รีเซ็ต</span>
           </button>
+        </div>
+      </div>
+
+      {/* Quick Priority Workflow Templates Bar */}
+      <div className="rounded-2xl border border-rose-200/60 bg-rose-50/20 p-3.5 dark:border-rose-400/20 dark:bg-ink-950/40 shadow-xs space-y-2.5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center gap-1.5">
+            <Wand2 className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+            <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
+              แม่แบบระดับความสำคัญสำเร็จรูป (Priority Templates)
+            </span>
+            <span className="rounded-full bg-rose-100/70 border border-rose-200/60 px-2 py-0.2 text-[9px] font-semibold text-rose-700 dark:bg-rose-500/15 dark:border-rose-400/30 dark:text-rose-300">
+              เลือกดู &amp; ปรับใช้
+            </span>
+          </div>
+
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => setIsSaveCustomTemplateOpen(true)}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:underline self-start sm:self-auto cursor-pointer"
+            >
+              <Bookmark className="h-3 w-3" />
+              <span>+ บันทึกชุดนี้เป็นแม่แบบ</span>
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-soft">
+          {allTemplates.map((tpl) => (
+            <button
+              key={tpl.id}
+              type="button"
+              onClick={() => setSelectedTemplate(tpl)}
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-rose-400 hover:bg-rose-50/50 hover:text-rose-900 shrink-0 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-rose-400/50 dark:hover:bg-rose-500/10 cursor-pointer"
+            >
+              <span className="grid h-5 w-5 place-items-center rounded-md bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                {renderPriorityTemplateIcon(tpl.icon)}
+              </span>
+              <span>{tpl.name}</span>
+              <span className="rounded-full bg-stone-100 px-1.5 py-0.2 font-mono text-[10px] text-stone-500 dark:bg-white/10 dark:text-stone-400">
+                {tpl.priorities.length}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -372,6 +537,224 @@ export function BoardPrioritiesTab({
         </div>
       </div>
 
+      {/* Template Preview & Apply Modal */}
+      {selectedTemplate && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+              onClick={() => setSelectedTemplate(null)}
+            />
+            <div className="relative w-full max-w-lg rounded-2xl border border-stone-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-ink-950 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-start justify-between border-b border-stone-100 pb-3 dark:border-white/10">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400">
+                    {renderPriorityTemplateIcon(selectedTemplate.icon)}
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                        {selectedTemplate.name}
+                      </h3>
+                      <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.2 text-[10px] font-bold text-rose-700 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-300">
+                        {selectedTemplate.category}
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                      {selectedTemplate.description}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedTemplate(null)}
+                  className="rounded-md p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Priority Flow Preview */}
+              <div className="space-y-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                  ระดับในแม่แบบนี้ ({selectedTemplate.priorities.length} ระดับ):
+                </span>
+                <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-stone-200/80 bg-stone-50/70 dark:border-white/10 dark:bg-white/[0.02]">
+                  {selectedTemplate.priorities.map((p, idx) => {
+                    const cfg = getPriorityColorConfig(p.color);
+                    return (
+                      <div key={p.id || idx} className="flex items-center gap-1.5">
+                        <span className={cn("px-2.5 py-1 rounded-lg border font-bold text-xs shadow-2xs flex items-center gap-1.5", cfg.pillClass)}>
+                          <span className="font-mono text-[10px] opacity-75">#{idx + 1}</span>
+                          <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", cfg.dotClass)} />
+                          <span>{p.label}</span>
+                        </span>
+                        {idx < selectedTemplate.priorities.length - 1 && (
+                          <span className="text-stone-400 text-xs">→</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Apply Mode Selector */}
+              <div className="space-y-2 pt-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                  รูปแบบการปรับใช้:
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTemplateApplyMode("replace")}
+                    className={cn(
+                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
+                      templateApplyMode === "replace"
+                        ? "border-rose-600 bg-rose-50/50 ring-2 ring-rose-500/20 dark:border-rose-400 dark:bg-rose-500/10"
+                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
+                    )}
+                  >
+                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                      แทนที่ทั้งหมด (Replace)
+                    </span>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
+                      แทนที่ระดับความสำคัญเดิมด้วยชุดใหม่นี้
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTemplateApplyMode("append")}
+                    className={cn(
+                      "flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer",
+                      templateApplyMode === "append"
+                        ? "border-rose-600 bg-rose-50/50 ring-2 ring-rose-500/20 dark:border-rose-400 dark:bg-rose-500/10"
+                        : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
+                    )}
+                  >
+                    <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                      เพิ่มต่อท้าย (Append)
+                    </span>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
+                      เก็บระดับเดิม และเพิ่มเฉพาะระดับใหม่
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-100 dark:border-white/10">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setSelectedTemplate(null)}
+                  className="text-xs cursor-pointer"
+                >
+                  ปิด
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setIsApplyTemplateConfirmOpen(true)}
+                  className="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium cursor-pointer"
+                >
+                  นำแม่แบบนี้มาใช้
+                </Button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* Save as Custom Priority Template Modal */}
+      {isSaveCustomTemplateOpen && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+              onClick={() => setIsSaveCustomTemplateOpen(false)}
+            />
+            <form
+              onSubmit={handleSaveCustomTemplate}
+              className="relative w-full max-w-md rounded-2xl border border-stone-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-ink-950 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200"
+            >
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3 dark:border-white/10">
+                <div className="flex items-center gap-2">
+                  <Bookmark className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                    บันทึกระดับความสำคัญเป็นแม่แบบส่วนตัว
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsSaveCustomTemplateOpen(false)}
+                  className="rounded-md p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
+                    ชื่อแม่แบบ <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    placeholder="เช่น ลำดับความสำคัญฉุกเฉิน, คิวงาน Production..."
+                    value={customTemplateName}
+                    onChange={(e) => setCustomTemplateName(e.target.value)}
+                    maxLength={50}
+                    autoFocus
+                    className="text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
+                    คำอธิบายสั้นๆ (ไม่บังคับ)
+                  </label>
+                  <Input
+                    placeholder="อธิบายว่าแม่แบบนี้เหมาะกับงานแบบไหน..."
+                    value={customTemplateDesc}
+                    onChange={(e) => setCustomTemplateDesc(e.target.value)}
+                    maxLength={100}
+                    className="text-xs"
+                  />
+                </div>
+
+                <div className="p-3 rounded-xl border border-stone-200/80 bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]">
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400">
+                    จะบันทึกระดับความสำคัญปัจจุบันทั้งหมด {priorities.length} ระดับเป็นแม่แบบส่วนตัวสำหรับเรียกใช้ในอนาคต
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-white/10">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsSaveCustomTemplateOpen(false)}
+                  className="text-xs cursor-pointer"
+                >
+                  ยกเลิก
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={!customTemplateName.trim()}
+                  className="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium cursor-pointer"
+                >
+                  บันทึกแม่แบบ
+                </Button>
+              </div>
+            </form>
+          </div>
+        </ModalPortal>
+      )}
+
       {/* Confirmation Modals per AGENTS.md */}
       <ConfirmModal
         open={priorityToDelete !== null}
@@ -391,6 +774,16 @@ export function BoardPrioritiesTab({
         variant="default"
         onClose={() => setIsResetConfirmOpen(false)}
         onConfirm={handleConfirmResetToDefault}
+      />
+
+      <ConfirmModal
+        open={isApplyTemplateConfirmOpen}
+        title="ยืนยันการนำแม่แบบระดับความสำคัญมาใช้"
+        message={`คุณต้องการนำแม่แบบ "${selectedTemplate?.name}" (${templateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
+        confirmLabel="นำแม่แบบมาใช้"
+        variant="default"
+        onClose={() => setIsApplyTemplateConfirmOpen(false)}
+        onConfirm={handleConfirmApplyTemplate}
       />
     </div>
   );

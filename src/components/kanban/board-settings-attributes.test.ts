@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { DEFAULT_STATUS_OPTIONS, getStatusMeta, getStoredStatuses, type CustomStatusOption } from "@/lib/kanban/status";
-import { DEFAULT_STORY_POINTS, STORY_POINT_PRESETS, getStoredStoryPoints } from "@/lib/kanban/difficulty";
-import { DEFAULT_PRIORITIES, resolveBoardPriorities } from "@/lib/kanban/priority";
+import { DEFAULT_STORY_POINTS, STORY_POINT_PRESETS, STORY_POINT_WORKFLOW_TEMPLATES, getStoredStoryPoints } from "@/lib/kanban/difficulty";
+import { DEFAULT_PRIORITIES, PRIORITY_WORKFLOW_TEMPLATES, resolveBoardPriorities } from "@/lib/kanban/priority";
 import { columnSettingsSchema } from "@/lib/kanban/column-settings";
 
 describe("Board Settings and Attributes Synchronization Integration", () => {
@@ -48,13 +48,20 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       expect(attrContent).toContain("isApplyTemplateConfirmOpen");
       expect(attrContent).toContain("isEditStatusConfirmOpen");
 
+      // Verify story points workflow templates & custom saving
+      expect(attrContent).toContain("STORY_POINT_WORKFLOW_TEMPLATES");
+      expect(attrContent).toContain("handleConfirmApplyPointTemplate");
+      expect(attrContent).toContain("handleSaveCustomPointTemplate");
+      expect(attrContent).toContain("isApplyPointTemplateConfirmOpen");
+      expect(attrContent).toContain("isSaveCustomPointTemplateOpen");
+
       // Verify event synchronization
       expect(attrContent).toContain("retzlo:statuses-updated");
       expect(attrContent).toContain("retzlo:story-points-updated");
       expect(attrContent).toContain("useToast");
     });
 
-    it("verifies BoardPrioritiesTab implements ConfirmModal protection and toast notifications for delete and reset", () => {
+    it("verifies BoardPrioritiesTab implements ConfirmModal protection, workflow templates, and toast notifications", () => {
       const prioPath = resolve(__dirname, "board-priorities-tab.tsx");
       const prioContent = readFileSync(prioPath, "utf-8");
 
@@ -64,6 +71,13 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       expect(prioContent).toContain("handleConfirmDeletePriority");
       expect(prioContent).toContain("isResetConfirmOpen");
       expect(prioContent).toContain("handleConfirmResetToDefault");
+
+      // Verify priority workflow templates & custom template saving
+      expect(prioContent).toContain("PRIORITY_WORKFLOW_TEMPLATES");
+      expect(prioContent).toContain("handleConfirmApplyTemplate");
+      expect(prioContent).toContain("handleSaveCustomTemplate");
+      expect(prioContent).toContain("isApplyTemplateConfirmOpen");
+      expect(prioContent).toContain("isSaveCustomTemplateOpen");
     });
 
     it("verifies ColumnStatusPicker supports dynamic custom statuses and boardId event sync", () => {
@@ -130,6 +144,44 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
 
       const todoMeta = getStatusMeta("TODO", customList);
       expect(todoMeta.label).toBe("Todo");
+    });
+  });
+
+  describe("Workflow Templates Data Integrity", () => {
+    it("validates PRIORITY_WORKFLOW_TEMPLATES structure and default options", () => {
+      expect(PRIORITY_WORKFLOW_TEMPLATES.classic_3).toBeDefined();
+      expect(PRIORITY_WORKFLOW_TEMPLATES.jira_p0_p4).toBeDefined();
+      expect(PRIORITY_WORKFLOW_TEMPLATES.moscow).toBeDefined();
+      expect(PRIORITY_WORKFLOW_TEMPLATES.eisenhower).toBeDefined();
+      expect(PRIORITY_WORKFLOW_TEMPLATES.sla_support).toBeDefined();
+      expect(PRIORITY_WORKFLOW_TEMPLATES.value_matrix).toBeDefined();
+
+      const classic = PRIORITY_WORKFLOW_TEMPLATES.classic_3;
+      expect(classic.priorities.length).toBe(3);
+      expect(classic.priorities[0].label).toBe("High");
+
+      const jira = PRIORITY_WORKFLOW_TEMPLATES.jira_p0_p4;
+      expect(jira.priorities.length).toBe(5);
+      expect(jira.priorities[0].id).toBe("P0");
+    });
+
+    it("validates STORY_POINT_WORKFLOW_TEMPLATES structure and default options", () => {
+      expect(STORY_POINT_WORKFLOW_TEMPLATES.retzlo).toBeDefined();
+      expect(STORY_POINT_WORKFLOW_TEMPLATES.fibonacci).toBeDefined();
+      expect(STORY_POINT_WORKFLOW_TEMPLATES.linear).toBeDefined();
+      expect(STORY_POINT_WORKFLOW_TEMPLATES.tshirt).toBeDefined();
+      expect(STORY_POINT_WORKFLOW_TEMPLATES.pomodoro).toBeDefined();
+      expect(STORY_POINT_WORKFLOW_TEMPLATES.risk_matrix).toBeDefined();
+
+      const retzlo = STORY_POINT_WORKFLOW_TEMPLATES.retzlo;
+      expect(retzlo.points.length).toBe(6);
+      expect(retzlo.points[0].score).toBe(1);
+
+      const fib = STORY_POINT_WORKFLOW_TEMPLATES.fibonacci;
+      expect(fib.points.map((p) => p.score)).toEqual([1, 2, 3, 5, 8, 13, 21]);
+
+      const tshirt = STORY_POINT_WORKFLOW_TEMPLATES.tshirt;
+      expect(tshirt.points.map((p) => p.label)).toEqual(["XS", "S", "M", "L", "XL", "XXL"]);
     });
   });
 });

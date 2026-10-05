@@ -195,13 +195,30 @@ export const STORY_POINT_COLOR_CLASSES: Record<string, { badgeClass: string; act
   }
 };
 
-export const STORY_POINT_PRESETS: Record<string, { name: string; points: CustomStoryPoint[] }> = {
+export interface StoryPointWorkflowTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: "Effort" | "Agile" | "Time" | "Sizing" | "Focus" | "Risk" | "Custom";
+  icon: string;
+  points: CustomStoryPoint[];
+}
+
+export const STORY_POINT_WORKFLOW_TEMPLATES: Record<string, StoryPointWorkflowTemplate> = {
   retzlo: {
-    name: "Retzlo Standard (1, 3, 5, 8, 16, 21)",
+    id: "retzlo",
+    name: "Retzlo Standard",
+    description: "สเกลมาตรฐานสำหรับประเมินน้ำหนักงาน (1, 3, 5, 8, 16, 21 pts)",
+    category: "Effort",
+    icon: "zap",
     points: DEFAULT_STORY_POINTS
   },
   fibonacci: {
-    name: "Fibonacci (1, 2, 3, 5, 8, 13, 21)",
+    id: "fibonacci",
+    name: "Fibonacci Sequence",
+    description: "สเกลฟีโบนักชีมาตรฐาน Agile Scrum สำหรับการวางแผนสปรินต์ (1, 2, 3, 5, 8, 13, 21)",
+    category: "Agile",
+    icon: "target",
     points: [
       { score: 1, label: "1", pointsLabel: "1 pt", title: "ง่ายมาก (1 pt)", description: "งานสั้นๆ 15–30 นาที", color: "emerald", ...STORY_POINT_COLOR_CLASSES.emerald },
       { score: 2, label: "2", pointsLabel: "2 pts", title: "ง่าย (2 pts)", description: "งานสั้นๆ 30–60 นาที", color: "cyan", ...STORY_POINT_COLOR_CLASSES.cyan },
@@ -213,7 +230,11 @@ export const STORY_POINT_PRESETS: Record<string, { name: string; points: CustomS
     ]
   },
   linear: {
-    name: "Linear / ชั่วโมง (1, 2, 4, 8, 16, 24, 40)",
+    id: "linear",
+    name: "Linear / ชั่วโมงทำงาน",
+    description: "ประเมินเทียบเวลาเป็นชั่วโมงทำงาน 1h, 2h, 4h, 8h, 16h, 24h, 40h",
+    category: "Time",
+    icon: "clock",
     points: [
       { score: 1, label: "1h", pointsLabel: "1 hr", title: "1 ชั่วโมง", description: "งานสั้นๆ", color: "emerald", ...STORY_POINT_COLOR_CLASSES.emerald },
       { score: 2, label: "2h", pointsLabel: "2 hrs", title: "2 ชั่วโมง", description: "งานครึ่งเช้า", color: "cyan", ...STORY_POINT_COLOR_CLASSES.cyan },
@@ -225,7 +246,11 @@ export const STORY_POINT_PRESETS: Record<string, { name: string; points: CustomS
     ]
   },
   tshirt: {
-    name: "T-Shirt Sizes (XS, S, M, L, XL, XXL)",
+    id: "tshirt",
+    name: "T-Shirt Sizes",
+    description: "ประเมินขนาดงานแบบเข้าใจง่าย XS, S, M, L, XL, XXL",
+    category: "Sizing",
+    icon: "sparkles",
     points: [
       { score: 1, label: "XS", pointsLabel: "XS (1 pt)", title: "Extra Small (XS)", description: "งานจิ๋ว ไม่เกิน 30 นาที", color: "emerald", ...STORY_POINT_COLOR_CLASSES.emerald },
       { score: 2, label: "S", pointsLabel: "S (2 pts)", title: "Small (S)", description: "งานเล็ก 1-2 ชั่วโมง", color: "cyan", ...STORY_POINT_COLOR_CLASSES.cyan },
@@ -234,8 +259,38 @@ export const STORY_POINT_PRESETS: Record<string, { name: string; points: CustomS
       { score: 8, label: "XL", pointsLabel: "XL (8 pts)", title: "Extra Large (XL)", description: "งานใหญ่พิเศษ 2-3 วัน", color: "rose", ...STORY_POINT_COLOR_CLASSES.rose },
       { score: 13, label: "XXL", pointsLabel: "XXL (13 pts)", title: "Double XL (XXL)", description: "งานมหากาพย์ 1 สัปดาห์ขึ้นไป", color: "purple", ...STORY_POINT_COLOR_CLASSES.purple }
     ]
+  },
+  pomodoro: {
+    id: "pomodoro",
+    name: "Pomodoro Focus Blocks",
+    description: "นับตามรอบโฟกัส 25 นาที (1, 2, 4, 8, 16 Pomodoro)",
+    category: "Focus",
+    icon: "timer",
+    points: [
+      { score: 1, label: "1🍅", pointsLabel: "1 Pomo (25m)", title: "1 Pomodoro (25 นาที)", description: "งานกระชับ โฟกัสรอบเดียว", color: "rose", ...STORY_POINT_COLOR_CLASSES.rose },
+      { score: 2, label: "2🍅", pointsLabel: "2 Pomo (1h)", title: "2 Pomodoro (1 ชม.)", description: "งานสั้น 2 รอบโฟกัส", color: "amber", ...STORY_POINT_COLOR_CLASSES.amber },
+      { score: 4, label: "4🍅", pointsLabel: "4 Pomo (2h)", title: "4 Pomodoro (2 ชม.)", description: "งานครึ่งเช้าหรือครึ่งบ่าย", color: "cyan", ...STORY_POINT_COLOR_CLASSES.cyan },
+      { score: 8, label: "8🍅", pointsLabel: "8 Pomo (4h)", title: "8 Pomodoro (ครึ่งวัน)", description: "งานลึกที่ต้องใช้สมาธิต่อเนื่อง", color: "indigo", ...STORY_POINT_COLOR_CLASSES.indigo },
+      { score: 16, label: "16🍅", pointsLabel: "16 Pomo (1 วัน)", title: "16 Pomodoro (1 วันเต็ม)", description: "งานใหญ่ระดับวันทำงานเต็ม", color: "purple", ...STORY_POINT_COLOR_CLASSES.purple }
+    ]
+  },
+  risk_matrix: {
+    id: "risk_matrix",
+    name: "Complexity & Risk",
+    description: "ประเมินความซับซ้อนและความเสี่ยงของงานระบบ (1, 3, 5, 10, 20 pts)",
+    category: "Risk",
+    icon: "flame",
+    points: [
+      { score: 1, label: "Low", pointsLabel: "1 pt (Low)", title: "ความเสี่ยงต่ำมาก (1 pt)", description: "งานประจำ ไม่มีความเสี่ยง", color: "emerald", ...STORY_POINT_COLOR_CLASSES.emerald },
+      { score: 3, label: "Mild", pointsLabel: "3 pts (Mild)", title: "ความเสี่ยงเล็กน้อย (3 pts)", description: "งานที่มีแนวทางชัดเจน", color: "cyan", ...STORY_POINT_COLOR_CLASSES.cyan },
+      { score: 5, label: "Moderate", pointsLabel: "5 pts (Mod)", title: "ความเสี่ยงปานกลาง (5 pts)", description: "งานที่มีจุดเชื่อมต่อภายนอก", color: "amber", ...STORY_POINT_COLOR_CLASSES.amber },
+      { score: 10, label: "High", pointsLabel: "10 pts (High)", title: "ความเสี่ยงสูง (10 pts)", description: "งานโครงสร้างที่มีผลกระทบกว้าง", color: "orange", ...STORY_POINT_COLOR_CLASSES.orange },
+      { score: 20, label: "Critical", pointsLabel: "20 pts (Crit)", title: "ความเสี่ยงวิกฤต (20 pts)", description: "งานเปลี่ยนแปลง Core System", color: "rose", ...STORY_POINT_COLOR_CLASSES.rose }
+    ]
   }
 };
+
+export const STORY_POINT_PRESETS = STORY_POINT_WORKFLOW_TEMPLATES;
 
 export function getStoredStoryPoints(boardId?: string): CustomStoryPoint[] {
   if (typeof window === "undefined") return DEFAULT_STORY_POINTS;

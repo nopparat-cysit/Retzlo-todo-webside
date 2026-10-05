@@ -143,6 +143,96 @@ export const DEFAULT_PRIORITIES: CustomPriority[] = [
   { id: "LOW", label: "Low", color: "sky", level: 3 }
 ];
 
+export interface PriorityWorkflowTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: "Standard" | "Agile" | "Framework" | "Support" | "Strategy" | "Custom";
+  icon: string;
+  priorities: CustomPriority[];
+}
+
+export const PRIORITY_WORKFLOW_TEMPLATES: Record<string, PriorityWorkflowTemplate> = {
+  classic_3: {
+    id: "classic_3",
+    name: "Classic 3-Level (มาตรฐาน)",
+    description: "ระดับด่วน ด่วนมาก ปกติ และต่ำ เข้าใจง่าย เหมาะกับทุกทีม",
+    category: "Standard",
+    icon: "flag",
+    priorities: [
+      { id: "HIGH", label: "High", color: "rose", level: 1 },
+      { id: "MEDIUM", label: "Medium", color: "indigo", level: 2 },
+      { id: "LOW", label: "Low", color: "sky", level: 3 }
+    ]
+  },
+  jira_p0_p4: {
+    id: "jira_p0_p4",
+    name: "P0 - P4 Scale (Jira Standard)",
+    description: "สเกลความเร่งด่วน P0 บล็อกเกอร์ ถึง P4 รายละเอียดเล็กน้อย",
+    category: "Agile",
+    icon: "target",
+    priorities: [
+      { id: "P0", label: "P0 - Blocker", color: "rose", level: 1 },
+      { id: "P1", label: "P1 - Critical", color: "orange", level: 2 },
+      { id: "P2", label: "P2 - Major", color: "amber", level: 3 },
+      { id: "P3", label: "P3 - Minor", color: "emerald", level: 4 },
+      { id: "P4", label: "P4 - Trivial", color: "stone", level: 5 }
+    ]
+  },
+  moscow: {
+    id: "moscow",
+    name: "MoSCoW Prioritization",
+    description: "หลักบริหารโครงการ Must Have, Should Have, Could Have, Won't Have",
+    category: "Framework",
+    icon: "sparkles",
+    priorities: [
+      { id: "MUST", label: "Must Have", color: "rose", level: 1 },
+      { id: "SHOULD", label: "Should Have", color: "amber", level: 2 },
+      { id: "COULD", label: "Could Have", color: "teal", level: 3 },
+      { id: "WONT", label: "Won't Have", color: "stone", level: 4 }
+    ]
+  },
+  eisenhower: {
+    id: "eisenhower",
+    name: "Eisenhower Matrix (จัดลำดับเวลา)",
+    description: "Do First (ด่วน&สำคัญ), Schedule (วางแผน), Delegate (ส่งต่อ), Don't Do (ละไว้)",
+    category: "Framework",
+    icon: "bookmark",
+    priorities: [
+      { id: "DO_FIRST", label: "Do First (ด่วนและสำคัญ)", color: "rose", level: 1 },
+      { id: "SCHEDULE", label: "Schedule (วางแผนทำ)", color: "indigo", level: 2 },
+      { id: "DELEGATE", label: "Delegate (มอบหมายงาน)", color: "amber", level: 3 },
+      { id: "ELIMINATE", label: "Don't Do (ตัดทิ้ง/ลดทอน)", color: "stone", level: 4 }
+    ]
+  },
+  sla_support: {
+    id: "sla_support",
+    name: "Customer Support & SLA",
+    description: "จัดคิวงานตามความเร็วในการตอบกลับและแก้ไขปัญหา (1hr, 4hr, 24hr, 72hr)",
+    category: "Support",
+    icon: "briefcase",
+    priorities: [
+      { id: "SLA_1H", label: "Critical (SLA 1 ชม.)", color: "rose", level: 1 },
+      { id: "SLA_4H", label: "High (SLA 4 ชม.)", color: "orange", level: 2 },
+      { id: "SLA_24H", label: "Normal (SLA 24 ชม.)", color: "teal", level: 3 },
+      { id: "SLA_72H", label: "Low (SLA 72 ชม.)", color: "stone", level: 4 }
+    ]
+  },
+  value_matrix: {
+    id: "value_matrix",
+    name: "Business Value Matrix",
+    description: "Quick Wins, Major Projects, Fill-ins และ Time Sinks",
+    category: "Strategy",
+    icon: "palette",
+    priorities: [
+      { id: "QUICK_WIN", label: "Quick Win (ได้ผลไว)", color: "emerald", level: 1 },
+      { id: "STRATEGIC", label: "Strategic (โปรเจกต์หลัก)", color: "indigo", level: 2 },
+      { id: "FILL_IN", label: "Fill-in (งานรอง)", color: "sky", level: 3 },
+      { id: "CONSIDER", label: "Time Sink (ใช้เวลามาก)", color: "stone", level: 4 }
+    ]
+  }
+};
+
 export function resolveBoardPriorities(customPriorities?: unknown): CustomPriority[] {
   if (!Array.isArray(customPriorities) || customPriorities.length === 0) {
     return DEFAULT_PRIORITIES;

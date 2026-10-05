@@ -45,12 +45,12 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - ปุ่มจับลากสลับลำดับ (`⁝⁝`) อยู่ด้านหน้าของเมนูใน Sidebar
   - **Card Density Switcher (Normal / Compact 2x):** สลับความหนาแน่นของการ์ดได้ข้างปุ่มสลับมุมมองบอร์ด (Normal: แสดงรายละเอียดครบ สบายตา / Compact: แสดงการ์ดหนาแน่นขึ้น 2 เท่า ลดขนาดขอบและซ่อนรายละเอียดรอง เหมาะกับงานจำนวนมาก)
   - การ์ดแสดงป้าย Priority ตามระดับและสีที่บอร์ดกำหนด
-- **Custom Board Priorities (ความสำคัญแบบกำหนดเองได้สูงสุด 10 ระดับ):**
-  - แต่ละบอร์ดสามารถกำหนดระดับความสำคัญได้เองสูงสุด 10 ระดับ (Custom Priorities) ผ่านแท็บ `Priorities` ใน Board Settings หรือกดปุ่ม `Priorities` ที่แถบ Header Toolbar
-  - สามารถตั้งชื่อระดับความสำคัญเอง (เช่น P0 Urgency, Blocker, Critical, Normal ฯลฯ)
-  - เลือกสีประจำระดับได้ถึง 12 โทนสี Retro Lofi (Rose, Orange, Amber, Yellow, Emerald, Teal, Sky, Blue, Indigo, Purple, Pink, Stone)
-  - ปรับลำดับความเร่งด่วนขึ้น/ลงได้อย่างอิสระ โดยระดับ 1 คือความสำคัญเร่งด่วนที่สุด
-  - ระบบ Card Modal, การ์ด Kanban, ปฏิทิน (Calendar View), มุมมองตาราง และตัวกรองเรียงลำดับ (Sorting) จะปรับใช้ระดับสีและชื่อตามที่บอร์ดกำหนดโดยอัตโนมัติ
+- **Custom Statuses, Priorities & Story Points (ศูนย์กลางคุณสมบัติการ์ดและแม่แบบ Workflow Templates):**
+  - **Card Statuses (สถานะการ์ด):** เลือกแม่แบบขั้นตอนงานสำเร็จรูป (Software Dev, Bug Triage, Content Pipeline, Growth Marketing ฯลฯ) หรือเพิ่ม/แก้ไขสถานะเองได้อิสระพร้อมเลือก 8 โทนสี สามารถบันทึกโฟลว์ที่ปรับแต่งเป็นแม่แบบส่วนตัว (Custom Status Template)
+  - **Custom Board Priorities (ระดับความสำคัญ):** ปรับแต่งได้สูงสุด 10 ระดับ พร้อมแม่แบบสากลสำเร็จรูป (Classic 3-Level, Jira P0–P4 Scale, MoSCoW Prioritization, Eisenhower Matrix, Customer Support & SLA, Business Value Matrix) เลือกสีได้ 12 โทนสี Retro Lofi และบันทึกเป็นแม่แบบส่วนตัว (Custom Priority Template)
+  - **Story Points Scale (สเกลคะแนนความยาก):** เลือกใช้สเกลประเมินน้ำหนักงานสำเร็จรูป (Retzlo Standard, Fibonacci Sequence, Linear/ชม., T-Shirt Sizes, Pomodoro Focus Blocks, Complexity & Risk Scale) หรือเพิ่มคะแนนอิสระ 1–100 และบันทึกสเกลเป็นแม่แบบส่วนตัว (Custom Story Points Template)
+  - **Preview & Apply Modals:** มีหน้าต่างพรีวิวขั้นตอนก่อนปรับใช้ พร้อมตัวเลือก 'แทนที่ทั้งหมด (Replace)' หรือ 'เพิ่มต่อท้าย (Append)'
+  - **ความปลอดภัยและการซิงค์สด:** ทุกการนำแม่แบบมาใช้ แก้ไข ลบ หรือรีเซ็ต ได้รับการปกป้องด้วย ConfirmModal และแสดง Toast แจ้งเตือน พร้อมส่ง Custom Event ซิงค์สดไปยังทุกมุมมอง (Kanban Board, Column Settings, Card Detail Modal, และ Spreadsheet Table View) ทันที
 - **Spreadsheet Table View & Multi-Assignee Support:**
   - สลับมุมมองตารางได้ที่ปุ่ม `📊 Table` / `Spreadsheet` ที่หัวบอร์ด (มีทั้งมุมมองตารางแบบเรียบ และมุมมองจัดกลุ่มตามคอลัมน์)
   - **ลำดับแถว & Hover Checkbox (#):** คอลัมน์แรกแสดงเลขแถว (`1`, `2`, `3`...) ตรงกลางอย่างเป็นระเบียบ เมื่อนำเมาส์ชี้แถว (Hover) จะสลับเป็น Checkbox ให้กดติ๊กเสร็จงานทันที และแสดงเครื่องหมายถูกสีเขียว (`[✓]`) คงไว้เมื่อการ์ดเสร็จสิ้น
