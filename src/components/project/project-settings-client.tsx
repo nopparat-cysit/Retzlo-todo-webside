@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import {
@@ -1308,14 +1308,13 @@ export function ProjectSettingsClient({
       <ConfirmModal
         open={deleteConfirmOpen}
         title={`ลบบอร์ด "${boardName || activeBoard?.name || ""}"`}
-        description="คุณแน่ใจหรือไม่ว่าต้องการลบบอร์ดนี้อย่างถาวร? การ์ดและขั้นตอนงานทั้งหมดในบอร์ดนี้จะถูกลบและไม่สามารถกู้คืนได้"
+        message="คุณแน่ใจหรือไม่ว่าต้องการลบบอร์ดนี้อย่างถาวร? การ์ดและขั้นตอนงานทั้งหมดในบอร์ดนี้จะถูกลบและไม่สามารถกู้คืนได้"
         confirmLabel="ลบบอร์ดถาวร"
         cancelLabel="ยกเลิก"
         variant="danger"
-        isDestructive
         isLoading={isDeletingBoard}
         onConfirm={handleDeleteBoard}
-        onCancel={() => setDeleteConfirmOpen(false)}
+        onClose={() => setDeleteConfirmOpen(false)}
       />
     </div>
   );
