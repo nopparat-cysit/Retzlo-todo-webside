@@ -14,13 +14,15 @@
   - `src/components/kanban/card.tsx`, `src/components/kanban/column.tsx`, `src/components/kanban/card-modal.tsx`, `src/components/kanban/card-attributes-edit-modal.tsx`, `src/components/kanban/board-list-view.tsx`, `src/components/kanban/board.tsx`, and `src/components/kanban/board-attributes-tab.tsx` for Story Points.
   - `src/components/kanban/project-calendar.tsx` for Diary entries in Calendar.
   - `src/components/project/project-members-view.tsx` for total/member coffee counts.
+  - `src/components/notes/notes-panel.tsx` and `src/components/ui/retzlo-ui-icon.tsx` to add the Retzlo artwork map and use artwork for built-in Notes filters.
   - `docs/theme-system.md` to record the fixed-palette art exception, touched areas, and theme review status.
 
 ## Important Behavior Changes
 - Added a reusable `RetzloUiIcon` component for the selected Story Points, Diary, and Coffee artwork.
 - Replaced Story Points symbols in card badges, card editing, board lists, sorting, and board attributes; replaced Diary glyphs in Calendar views; replaced coffee glyphs in member coffee totals and badges.
 - After visual feedback, standardized the List View score pill width and warm amber surface, enlarged its illustration to 16 px, and adjusted related Story Points icon sizes so the illustration reads clearly beside the value.
-- Other artwork is still an asset only. Notes/folder icons, AI, rewards, Pomodoro, and coffee cheer actions are outside this implementation pass.
+- After the folder-sidebar feedback, replaced the built-in All Notes, Starred, Unfiled Notes, and Completed emoji icons in sidebar/mobile filters with Retzlo artwork. Existing custom folder emoji values remain unchanged.
+- Other artwork is still an asset only. Custom folder emoji choices, AI, rewards, Pomodoro, and coffee cheer actions are outside this implementation pass.
 - The selected fixed-palette PNG artwork stays the same in light and dark themes; the surrounding component surfaces continue to use existing theme styles.
 - Palette was revised toward Retzlo's dusty indigo/plum, lavender, warm paper, amber, rose, and cyan after visual feedback.
 

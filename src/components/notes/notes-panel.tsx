@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { RetzloUiIcon, type RetzloUiIconName } from "@/components/ui/retzlo-ui-icon";
 import { AppModal } from "@/components/ui/app-modal";
 import { useAppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -60,6 +61,10 @@ type NoteFilter = "all" | "starred" | "dated" | "undated" | "completed";
 type NoteSort = "updated" | "created" | "due" | "title";
 type NoteViewMode = "grid-2" | "grid-3" | "grid-4" | "list";
 type NoteScope = "private" | "board" | "team";
+type NotesNavIcon =
+  | { type: "system"; name: Extract<RetzloUiIconName, "folder" | "star" | "note" | "completed"> }
+  | { type: "custom"; value: string };
+type NotesViewMeta = { label: string; icon: NotesNavIcon };
 const DEFAULT_NOTE_STICKER = "/stickers/retro/retro-sticker-12-paper-note.png";
 const NOTE_FILTERS: Array<{ value: NoteFilter; label: string; hint: string }> = [
   { value: "all", label: "Active", hint: "Open notes" },
@@ -74,6 +79,14 @@ const NOTE_VIEW_MODES: Array<{ value: NoteViewMode; label: string; icon: typeof 
   { value: "grid-4", label: "4", icon: LayoutGrid },
   { value: "list", label: "List", icon: List }
 ];
+
+function NotesNavIconView({ icon, size = 18 }: { icon: NotesNavIcon; size?: number }) {
+  if (icon.type === "custom") {
+    return <span className="shrink-0">{icon.value}</span>;
+  }
+
+  return <RetzloUiIcon className="shrink-0" name={icon.name} size={size} />;
+}
 
 interface NotesPanelProps {
   projectId: string;
@@ -159,15 +172,15 @@ export function NotesPanel({
     () => notes.filter((note) => !note.folderId && !note.completedAt).length,
     [notes]
   );
-  const activeViewMeta = useMemo(() => {
-    if (filter === "completed") return { label: "Completed", icon: "✅" };
-    if (filter === "starred") return { label: "Starred", icon: "⭐" };
-    if (folderFilter === "unfiled") return { label: "Unfiled Notes", icon: "📄" };
+  const activeViewMeta = useMemo<NotesViewMeta>(() => {
+    if (filter === "completed") return { label: "Completed", icon: { type: "system", name: "completed" } };
+    if (filter === "starred") return { label: "Starred", icon: { type: "system", name: "star" } };
+    if (folderFilter === "unfiled") return { label: "Unfiled Notes", icon: { type: "system", name: "note" } };
     if (folderFilter !== "all") {
       const f = folders.find((item) => item.id === folderFilter);
-      if (f) return { label: f.name, icon: f.icon || "📁" };
+      if (f) return { label: f.name, icon: { type: "custom", value: f.icon || "📁" } };
     }
-    return { label: "All Notes", icon: "📁" };
+    return { label: "All Notes", icon: { type: "system", name: "folder" } };
   }, [filter, folderFilter, folders]);
 
   const refreshNotes = useCallback(async () => {
@@ -455,7 +468,7 @@ export function NotesPanel({
                 }}
               >
                 <span className="flex items-center gap-2 min-w-0">
-                  <span className="text-base shrink-0">📁</span>
+                  <RetzloUiIcon name="folder" size={20} />
                   <span className="truncate text-sm font-semibold">All Notes</span>
                 </span>
                 <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0 font-mono">
@@ -477,7 +490,7 @@ export function NotesPanel({
                 }}
               >
                 <span className="flex items-center gap-2 min-w-0">
-                  <span className="text-base shrink-0">⭐</span>
+                  <RetzloUiIcon name="star" size={20} />
                   <span className="truncate text-sm font-semibold">Starred</span>
                 </span>
                 <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0 font-mono">
@@ -499,7 +512,7 @@ export function NotesPanel({
                 }}
               >
                 <span className="flex items-center gap-2 min-w-0">
-                  <span className="text-base shrink-0">📄</span>
+                  <RetzloUiIcon name="note" size={20} />
                   <span className="truncate text-sm font-semibold">Unfiled Notes</span>
                 </span>
                 <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0 font-mono">
@@ -521,7 +534,7 @@ export function NotesPanel({
                 }}
               >
                 <span className="flex items-center gap-2 min-w-0">
-                  <span className="text-base shrink-0">✅</span>
+                  <RetzloUiIcon name="completed" size={20} />
                   <span className="truncate text-sm font-semibold">Completed</span>
                 </span>
                 <span className="rounded-md bg-ink-950/45 px-2 py-0.5 text-xs text-dusk-lavender shrink-0 font-mono">
@@ -669,7 +682,7 @@ export function NotesPanel({
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber flex items-center gap-1.5">
-                <span>{activeViewMeta.icon}</span>
+                <NotesNavIconView icon={activeViewMeta.icon} size={20} />
                 <span>{activeViewMeta.label}</span>
               </p>
               <h3 className="mt-1 text-xl font-semibold text-stone-100">Note board</h3>
@@ -721,7 +734,7 @@ export function NotesPanel({
                     : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
                 )}
               >
-                <span>📁</span>
+                <RetzloUiIcon name="folder" size={18} />
                 <span>All</span>
                 <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
                   {activeNotes.length}
@@ -740,7 +753,7 @@ export function NotesPanel({
                     : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
                 )}
               >
-                <span>⭐</span>
+                <RetzloUiIcon name="star" size={18} />
                 <span>Starred</span>
                 <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
                   {filterCounts.starred}
@@ -759,7 +772,7 @@ export function NotesPanel({
                     : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
                 )}
               >
-                <span>📄</span>
+                <RetzloUiIcon name="note" size={18} />
                 <span>Unfiled</span>
                 <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
                   {unfiledCount}
@@ -778,7 +791,7 @@ export function NotesPanel({
                     : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
                 )}
               >
-                <span>✅</span>
+                <RetzloUiIcon name="completed" size={18} />
                 <span>Completed</span>
                 <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
                   {completedNotes.length}

@@ -552,12 +552,13 @@ Template:
   - แจ้งเตือน Toast ทุกการดำเนินการตามข้อกำหนด `AGENTS.md`
 - Reviewed: Vitest 89/89 test files ผ่าน (457/457 tests ผ่าน), ESLint 0 warnings/errors, Prisma validate ผ่าน, Next.js production build ผ่าน 100% (38/38 routes).
 
-### 2026-10-05 — ใช้ภาพไอคอน Retzlo กับคะแนน Diary และ Coffee Cheers
-- Added/changed: `src/components/ui/retzlo-ui-icon.tsx`, `src/components/kanban/card.tsx`, `src/components/kanban/card-modal.tsx`, `src/components/kanban/card-attributes-edit-modal.tsx`, `src/components/kanban/board-list-view.tsx`, `src/components/kanban/board.tsx`, `src/components/kanban/board-attributes-tab.tsx`, `src/components/kanban/column.tsx`, `src/components/kanban/project-calendar.tsx`, `src/components/project/project-members-view.tsx`.
+### 2026-10-05 — ใช้ภาพไอคอน Retzlo กับคะแนน Diary Coffee Cheers และตัวกรอง Notes
+- Added/changed: `src/components/ui/retzlo-ui-icon.tsx`, `src/components/kanban/card.tsx`, `src/components/kanban/card-modal.tsx`, `src/components/kanban/card-attributes-edit-modal.tsx`, `src/components/kanban/board-list-view.tsx`, `src/components/kanban/board.tsx`, `src/components/kanban/board-attributes-tab.tsx`, `src/components/kanban/column.tsx`, `src/components/kanban/project-calendar.tsx`, `src/components/project/project-members-view.tsx`, `src/components/notes/notes-panel.tsx`.
 - Tokens/variants:
   - เพิ่ม `RetzloUiIcon` สำหรับใช้ภาพ PNG ที่วาดในสไตล์แบรนด์กับ `Story Points`, Diary ใน Calendar และยอด Coffee Cheers
   - คะแนนใน List View ใช้ป้ายสี amber ที่มีขนาดคงที่และไอคอน 16 px เพื่อไม่ให้รูปวาดจิ๋วหรือเบียดกับตัวเลข; ขนาดไอคอนคะแนนใน badges อื่นปรับให้สอดคล้องกัน
+  - ตัวกรองระบบใน Notes (`All Notes`, `Starred`, `Unfiled Notes`, `Completed`) ใช้ภาพไอคอน Retzlo ทั้ง sidebar และแถบตัวกรองย่อ; ไอคอนของ custom folders ที่ผู้ใช้เลือกไว้ยังแสดงค่าที่บันทึกเดิม
   - ไอคอนเป็นภาพประกอบ fixed palette โดยตั้งใจให้เหมือนกันทุกธีม ส่วนพื้นผิว ข้อความ และเส้นขอบรอบไอคอนยังใช้ theme classes เดิม จึงไม่เพิ่มสีคงที่ให้ UI ส่วนอื่น
-  - ครอบคลุมการ์ด/ตัวเลือก/ตัวจัดการคะแนน/ตัวเรียงลำดับ, ป้าย Diary ในรายการปฏิทินและเช็กลิสต์ และยอดกาแฟรวมกับยอดรายสมาชิก
+  - ครอบคลุมการ์ด/ตัวเลือก/ตัวจัดการคะแนน/ตัวเรียงลำดับ, ป้าย Diary ในรายการปฏิทินและเช็กลิสต์, ยอดกาแฟรวมและยอดรายสมาชิก รวมถึง Notes sidebar และแถบตัวกรองย่อ
 - Theme modes and states: ตรวจโค้ดการใช้ใน light/dark เพื่อให้ภาพไอคอนคงที่และพื้นผิวรอบข้างสลับตามธีม; ยังไม่ได้ตรวจภาพจริงใน browser ทั้งสองธีม
 - Known gaps: ไอคอน Coffee Cheers บนปุ่มให้กาแฟและ notification, ไอคอนพักกาแฟของ Pomodoro และไอคอน Notes/folder ยังไม่ได้เปลี่ยนในรอบนี้
