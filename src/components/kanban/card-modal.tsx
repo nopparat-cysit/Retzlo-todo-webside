@@ -12,10 +12,9 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { CheckSquare, Coins, GripVertical, KeyRound, Plus, Sparkles, Star, Trash2, X } from "lucide-react";
+import { CheckSquare, Coins, GripVertical, KeyRound, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { playCardCreateSound } from "@/lib/sound";
 import { AppModal } from "@/components/ui/app-modal";
 import { useAppModal } from "@/components/ui/app-modal";
@@ -990,7 +989,7 @@ export function CardModal({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="flex items-center gap-1.5 font-medium">
-                  <RetzloUiIcon name="storyPoint" size={16} />
+                  <Zap className="h-4 w-4 text-amber-400" />
                   <span>คะแนนความยาก (Story Points)</span>
                 </span>
                 {difficulty ? (
@@ -1044,7 +1043,7 @@ export function CardModal({
                     onClick={() => setDifficulty(isSelected ? null : (point.score as any))}
                   >
                     <>
-                      <RetzloUiIcon name="storyPoint" size={16} />
+                      <Zap className="h-4 w-4" />
                       {point.label || point.score}
                     </>
                   </button>

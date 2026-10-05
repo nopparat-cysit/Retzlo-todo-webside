@@ -19,11 +19,11 @@ import {
   Target,
   Trash2,
   Wand2,
-  X
+  X,
+  Zap
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import { ModalPortal } from "@/components/ui/modal-portal";
@@ -128,7 +128,7 @@ export function BoardAttributesTab({
   const [newPointTitle, setNewPointTitle] = useState("");
   const [newPointDescription, setNewPointDescription] = useState("");
   const [newPointColor, setNewPointColor] = useState<string>("cyan");
-  const [pointToDelete, setPointToDelete] = useState<number | null>(null);
+  const [pointToDelete, setPointToDelete] = useState<CustomStoryPoint | null>(null);
   const [isResetPointsConfirmOpen, setIsResetPointsConfirmOpen] = useState(false);
 
   // Sync when boardId changes or external update occurs
@@ -233,8 +233,8 @@ export function BoardAttributesTab({
 
   const handleConfirmDeleteStatus = () => {
     if (!statusToDelete || !canManage) return;
-    const item = statuses.find((s) => s.value === statusToDelete);
-    const next = statuses.filter((s) => s.value !== statusToDelete);
+    const item = statuses.find((s) => s.value.toUpperCase() === statusToDelete.toUpperCase());
+    const next = statuses.filter((s) => s.value.toUpperCase() !== statusToDelete.toUpperCase());
     setStatuses(next);
     saveStoredStatuses(next, boardId);
     setStatusToDelete(null);
@@ -358,18 +358,22 @@ export function BoardAttributesTab({
   };
 
   const handleConfirmDeletePoint = () => {
-    if (pointToDelete === null || !canManage) return;
+    if (!pointToDelete || !canManage) return;
     if (storyPoints.length <= 1) {
       toast({ message: "ต้องมีระดับคะแนนความยากอย่างน้อย 1 ระดับ", type: "error" });
       setPointToDelete(null);
       return;
     }
 
-    const next = storyPoints.filter((p) => p.score !== pointToDelete);
+    const targetScore = Number(pointToDelete.score);
+    const next = storyPoints.filter(
+      (p) => Number(p.score) !== targetScore && p.label !== pointToDelete.label
+    );
     setStoryPoints(next);
     saveStoredStoryPoints(next, boardId);
+    const deletedLabel = pointToDelete.title || `${pointToDelete.score} pts`;
     setPointToDelete(null);
-    toast({ message: `ลบคะแนน ${pointToDelete} เรียบร้อย`, type: "success" });
+    toast({ message: `ลบคะแนน "${deletedLabel}" เรียบร้อยแล้ว`, type: "success" });
   };
 
   const handleResetStoryPoints = () => {
@@ -428,7 +432,7 @@ export function BoardAttributesTab({
               : "text-stone-600 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
           )}
         >
-          <RetzloUiIcon name="storyPoint" size={15} />
+          <Zap className="h-4 w-4" />
           <span>Story Points</span>
           <span className="rounded-full bg-amber-500/10 px-1.5 text-[10px] font-mono text-amber-600 dark:text-amber-400">
             {storyPoints.length}
@@ -742,7 +746,7 @@ export function BoardAttributesTab({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
             <div>
               <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <RetzloUiIcon name="storyPoint" size={15} />
+                <Zap className="h-4 w-4 text-amber-500" />
                 <span>Story Points Scale (สเกลคะแนนความยาก)</span>
               </h4>
               <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
@@ -777,7 +781,7 @@ export function BoardAttributesTab({
                   className="inline-flex items-center gap-1 rounded-lg border border-stone-200/80 bg-stone-50/50 px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:border-amber-400 hover:bg-amber-50/30 hover:text-amber-800 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-amber-400/50 cursor-pointer"
                   title={preset.points.map((p) => p.label).join(", ")}
                 >
-                  <RetzloUiIcon name="storyPoint" size={15} />
+                  <Zap className="h-4 w-4" />
                   <span>{preset.name}</span>
                 </button>
               );
@@ -854,7 +858,7 @@ export function BoardAttributesTab({
 
                   <button
                     type="button"
-                    onClick={() => setPointToDelete(pt.score)}
+                    onClick={() => setPointToDelete(pt)}
                     disabled={!canManage || storyPoints.length <= 1}
                     className="grid h-7 w-7 place-items-center rounded-md border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer shrink-0"
                     title="ลบคะแนน"
@@ -1132,7 +1136,7 @@ export function BoardAttributesTab({
       <ConfirmModal
         open={pointToDelete !== null}
         title="ยืนยันการลบ Story Points"
-        message={`ต้องการลบคะแนน "${pointToDelete} pts" ออกจากรายการใช่หรือไม่?`}
+        message={`ต้องการลบคะแนน "${pointToDelete?.title || `${pointToDelete?.score} pts`}" ออกจากรายการใช่หรือไม่?`}
         confirmLabel="ลบคะแนน"
         variant="danger"
         onClose={() => setPointToDelete(null)}

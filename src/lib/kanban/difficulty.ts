@@ -245,7 +245,10 @@ export function getStoredStoryPoints(boardId?: string): CustomStoryPoint[] {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        return parsed.map((item) => ({
+          ...item,
+          score: Number(item.score)
+        }));
       }
     }
   } catch {}
@@ -255,11 +258,18 @@ export function getStoredStoryPoints(boardId?: string): CustomStoryPoint[] {
 export function saveStoredStoryPoints(points: CustomStoryPoint[], boardId?: string) {
   if (typeof window === "undefined") return;
   try {
+    const sanitized = points.map((item) => ({
+      ...item,
+      score: Number(item.score)
+    }));
     const key = boardId ? `retzlo:story_points_${boardId}` : `retzlo:story_points_default`;
-    localStorage.setItem(key, JSON.stringify(points));
+    localStorage.setItem(key, JSON.stringify(sanitized));
+    if (boardId) {
+      localStorage.setItem("retzlo:story_points_default", JSON.stringify(sanitized));
+    }
     window.dispatchEvent(
       new CustomEvent("retzlo:story-points-updated", {
-        detail: { boardId, points }
+        detail: { boardId, points: sanitized }
       })
     );
   } catch {}

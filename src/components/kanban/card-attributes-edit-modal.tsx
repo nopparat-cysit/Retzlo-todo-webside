@@ -11,11 +11,11 @@ import {
   SlidersHorizontal,
   Trash2,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Zap
 } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
-import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
@@ -340,7 +340,7 @@ export function CardAttributesEditModal({
                 <span>Priority (ความสำคัญ)</span>
               </TabsTrigger>
               <TabsTrigger value="story-points" className="gap-1.5 text-xs">
-                <RetzloUiIcon name="storyPoint" size={15} />
+                <Zap className="h-4 w-4" />
                 <span>Story Points (คะแนน)</span>
               </TabsTrigger>
             </TabsList>
@@ -691,7 +691,7 @@ export function CardAttributesEditModal({
                       <div key={pt.score} className="flex items-center justify-between p-3 text-xs">
                         <div className="flex items-center gap-3">
                           <span className={cn("h-7 px-2.5 rounded-md border font-bold flex items-center justify-center gap-0.5", colorCls.activeChipClass)}>
-                            <RetzloUiIcon name="storyPoint" size={15} />{pt.score}
+                            <Zap className="h-4 w-4" />{pt.score}
                           </span>
                           <div>
                             <p className="font-bold text-stone-900 dark:text-stone-100">{pt.title}</p>

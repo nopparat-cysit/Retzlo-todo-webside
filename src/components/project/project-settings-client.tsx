@@ -227,18 +227,23 @@ export function ProjectSettingsClient({
     setBoardPriorities(nextPriorities);
     if (!selectedBoardId) return;
     try {
-      await fetch(`/api/boards/${selectedBoardId}`, {
+      const res = await fetch(`/api/boards/${selectedBoardId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ customPriorities: nextPriorities })
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "เกิดข้อผิดพลาดในการบันทึกระดับความสำคัญ");
+      }
       window.dispatchEvent(
         new CustomEvent("board-priorities-updated", {
           detail: { boardId: selectedBoardId, priorities: nextPriorities }
         })
       );
-    } catch {
-      // handled
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการบันทึกระดับความสำคัญ";
+      toast({ message: msg, type: "error" });
     }
   };
 

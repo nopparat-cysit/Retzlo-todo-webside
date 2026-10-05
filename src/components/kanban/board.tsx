@@ -11,7 +11,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X } from "lucide-react";
+import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X, Zap } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -29,7 +29,6 @@ import { triggerCelebration } from "@/components/kanban/card-celebration";
 import { AppModal } from "@/components/ui/app-modal";
 import { BoardSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import {
@@ -1424,10 +1423,10 @@ export function KanbanBoard({
                 <SelectGroup>
                   <SelectLabel>Story Points (Difficulty)</SelectLabel>
                   <SelectItem value="difficulty_desc" className="cursor-pointer">
-                    <span className="inline-flex items-center gap-1.5"><RetzloUiIcon name="storyPoint" size={14} />Story Points: High → Low (8, 5, 3, 1)</span>
+                    <span className="inline-flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" />Story Points: High → Low (8, 5, 3, 1)</span>
                   </SelectItem>
                   <SelectItem value="difficulty_asc" className="cursor-pointer">
-                    <span className="inline-flex items-center gap-1.5"><RetzloUiIcon name="storyPoint" size={14} />Story Points: Low → High (1, 3, 5, 8)</span>
+                    <span className="inline-flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" />Story Points: Low → High (1, 3, 5, 8)</span>
                   </SelectItem>
                 </SelectGroup>
                 <SelectSeparator />

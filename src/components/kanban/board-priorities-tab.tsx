@@ -23,6 +23,8 @@ import {
 } from "@/lib/kanban/priority";
 import type { CustomPriority } from "@/types/kanban";
 import { cn } from "@/lib/utils";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { useToast } from "@/components/ui/toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,7 +43,10 @@ export function BoardPrioritiesTab({
   onChange,
   canManage = true
 }: BoardPrioritiesTabProps) {
+  const { toast } = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [priorityToDelete, setPriorityToDelete] = useState<CustomPriority | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   const isAtMax = priorities.length >= MAX_BOARD_PRIORITIES;
   const isAtMin = priorities.length <= MIN_BOARD_PRIORITIES;
@@ -70,6 +75,10 @@ export function BoardPrioritiesTab({
 
     onChange(nextList);
     setEditingId(newPriority.id);
+    toast({
+      message: `เพิ่มระดับความสำคัญ "${newPriority.label}" เรียบร้อย`,
+      type: "success"
+    });
   };
 
   const handleUpdateLabel = (id: string, label: string) => {
@@ -84,16 +93,26 @@ export function BoardPrioritiesTab({
     onChange(nextList);
   };
 
-  const handleDeletePriority = (id: string) => {
-    if (isAtMin || !canManage) return;
+  const handleConfirmDeletePriority = () => {
+    if (!priorityToDelete || !canManage) return;
+    if (priorities.length <= MIN_BOARD_PRIORITIES) {
+      toast({ message: "ต้องมีระดับความสำคัญอย่างน้อย 1 ระดับ", type: "error" });
+      setPriorityToDelete(null);
+      return;
+    }
 
-    const filtered = priorities.filter((p) => p.id !== id);
+    const filtered = priorities.filter((p) => p.id !== priorityToDelete.id);
     const reindexed = filtered.map((p, idx) => ({
       ...p,
       level: idx + 1
     }));
     onChange(reindexed);
-    if (editingId === id) setEditingId(null);
+    if (editingId === priorityToDelete.id) setEditingId(null);
+    toast({
+      message: `ลบระดับความสำคัญ "${priorityToDelete.label}" เรียบร้อยแล้ว`,
+      type: "success"
+    });
+    setPriorityToDelete(null);
   };
 
   const handleMoveUp = (index: number) => {
@@ -124,10 +143,12 @@ export function BoardPrioritiesTab({
     onChange(reindexed);
   };
 
-  const handleResetToDefault = () => {
+  const handleConfirmResetToDefault = () => {
     if (!canManage) return;
     onChange(DEFAULT_PRIORITIES);
     setEditingId(null);
+    setIsResetConfirmOpen(false);
+    toast({ message: "รีเซ็ตระดับความสำคัญกลับเป็นค่าเริ่มต้นแล้ว", type: "success" });
   };
 
   return (
@@ -157,7 +178,7 @@ export function BoardPrioritiesTab({
           </span>
           <button
             type="button"
-            onClick={handleResetToDefault}
+            onClick={() => setIsResetConfirmOpen(true)}
             disabled={!canManage}
             title="รีเซ็ตกลับเป็นค่าเริ่มต้น (High, Medium, Low)"
             className="flex items-center gap-1 rounded-lg border border-stone-200/80 bg-stone-50/60 px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
@@ -290,7 +311,7 @@ export function BoardPrioritiesTab({
                 {/* Delete Level */}
                 <button
                   type="button"
-                  onClick={() => handleDeletePriority(priority.id)}
+                  onClick={() => setPriorityToDelete(priority)}
                   disabled={isAtMin || !canManage}
                   className="grid h-7 w-7 place-items-center rounded-lg border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 dark:hover:bg-red-500/15 cursor-pointer"
                   title={isAtMin ? "ต้องมีอย่างน้อย 1 ระดับ" : "ลบระดับความสำคัญนี้"}
@@ -350,6 +371,27 @@ export function BoardPrioritiesTab({
           })}
         </div>
       </div>
+
+      {/* Confirmation Modals per AGENTS.md */}
+      <ConfirmModal
+        open={priorityToDelete !== null}
+        title="ยืนยันการลบระดับความสำคัญ"
+        message={`ต้องการลบระดับความสำคัญ "${priorityToDelete?.label || "Priority"}" ออกจากรายการใช่หรือไม่?`}
+        confirmLabel="ลบระดับความสำคัญ"
+        variant="danger"
+        onClose={() => setPriorityToDelete(null)}
+        onConfirm={handleConfirmDeletePriority}
+      />
+
+      <ConfirmModal
+        open={isResetConfirmOpen}
+        title="รีเซ็ตระดับความสำคัญกลับเป็นค่าเริ่มต้น"
+        message="ระดับความสำคัญทั้งหมดจะถูกรีเซ็ตกลับเป็น 3 ระดับมาตรฐาน (High, Medium, Low)"
+        confirmLabel="รีเซ็ต"
+        variant="default"
+        onClose={() => setIsResetConfirmOpen(false)}
+        onConfirm={handleConfirmResetToDefault}
+      />
     </div>
   );
 }

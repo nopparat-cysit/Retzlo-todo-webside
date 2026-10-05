@@ -24,10 +24,10 @@ import {
   Table2,
   Trash2,
   User as UserIcon,
-  X
+  X,
+  Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import type { Card, CardAssignee, CardPriority, CardStatus, ColumnWithCards, CustomPriority } from "@/types/kanban";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { getPriorityColorConfig, getPriorityMeta, resolveBoardPriorities } from "@/lib/kanban/priority";
@@ -66,7 +66,7 @@ function toInputDate(dateString: string | null | undefined): string {
 function StoryPointsBadge({ points }: { points: number }) {
   return (
     <span className="inline-flex min-w-[3.5rem] items-center justify-center gap-1.5 rounded-md border border-amber-200/90 bg-amber-50/90 px-2 py-1 font-mono text-xs font-bold leading-none text-amber-800 shadow-xs dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-300">
-      <RetzloUiIcon name="storyPoint" size={16} />
+      <Zap className="h-3.5 w-3.5" />
       <span>{points}</span>
     </span>
   );
@@ -774,7 +774,7 @@ export function BoardListView({
 
             {/* 7. Story Points */}
             <div className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
-              <RetzloUiIcon name="storyPoint" size={16} />
+              <Zap className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
               <span className="font-bold">Story Points</span>
             </div>
 

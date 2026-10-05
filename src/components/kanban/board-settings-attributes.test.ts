@@ -54,6 +54,18 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       expect(attrContent).toContain("useToast");
     });
 
+    it("verifies BoardPrioritiesTab implements ConfirmModal protection and toast notifications for delete and reset", () => {
+      const prioPath = resolve(__dirname, "board-priorities-tab.tsx");
+      const prioContent = readFileSync(prioPath, "utf-8");
+
+      expect(prioContent).toContain("ConfirmModal");
+      expect(prioContent).toContain("useToast");
+      expect(prioContent).toContain("priorityToDelete");
+      expect(prioContent).toContain("handleConfirmDeletePriority");
+      expect(prioContent).toContain("isResetConfirmOpen");
+      expect(prioContent).toContain("handleConfirmResetToDefault");
+    });
+
     it("verifies ColumnStatusPicker supports dynamic custom statuses and boardId event sync", () => {
       const pickerPath = resolve(__dirname, "column-status-picker.tsx");
       const pickerContent = readFileSync(pickerPath, "utf-8");
