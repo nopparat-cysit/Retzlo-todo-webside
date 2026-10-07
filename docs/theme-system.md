@@ -578,3 +578,14 @@ Template:
   - Primitives ใช้ semantic surface (`theme-panel`, `theme-paper`), text (`theme-foreground`, `theme-muted`), border (`theme-border`), accent (`theme-accent`), danger (`theme-danger-*`)
   - ไม่มี fixed palette exceptions เพิ่มเติม รองรับ contrast ทั้ง Light Mode (Warm Paper) และ Dark Mode (Retro Lofi Indigo)
 - Reviewed: ตรวจสอบความถูกต้องของ UI ทั้งใน Light และ Dark mode, Vitest unit tests ผ่านครบทุกชุด, TypeScript typecheck ผ่านสมบูรณ์
+
+### 2026-10-07 — ปรับปรุง Contrast หน้าต่างรายละเอียดวันใน Calendar และเส้นนำสายตา Sidebar (Day Overview Contrast & Sidebar Tree Line Polish)
+- Added/changed:
+  - `src/components/kanban/project-calendar.tsx` (ปรับปรุงสี Checkbox button, Progress & Summary bar, ตัวกรอง Filter controls, รายการการ์ด/โน้ต/เช็กลิสต์ไดอารี, และปุ่ม footer ให้มีความคมชัดสูงทั้ง Light และ Dark mode)
+  - `src/components/kanban/board-sidebar-dropdown.tsx` (ปรับเส้น tree guide line แสดงรายการบอร์ดย่อยใต้เมนู Boards เป็น `border-l-2 border-stone-400/90 dark:border-stone-600` เพื่อให้เห็นชัดเจนตามคำขอ)
+  - `src/components/project/project-shell.tsx` (ปรับเส้นแบ่งท้าย Sidebar ให้คมชัดขึ้นใน Light mode)
+  - `src/app/globals.css` (ปรับเส้นขอบด้านขวาของ `.project-sidebar` ในโหมดสว่างให้คมชัด)
+- Tokens/variants:
+  - Checkbox ปุ่มเลือกสถานะ: ปรับจาก `border-white/25 bg-white/5` เป็น `border-2 border-stone-400 bg-white` ในโหมดสว่าง และเมื่อเสร็จสิ้นใช้ `border-emerald-600 bg-emerald-600` ชัดเจนมองเห็นได้ทันที
+  - Progress & Summary Bar: ปรับจากแถบสีดำทึบเป็น `bg-stone-100/80 border-b border-stone-200/80` พร้อมตัวเลขและแถบเปอร์เซ็นต์สีสมดุลกับธีม
+- Reviewed: ตรวจสอบความถูกต้องของโค้ด, Vitest 90/90 files ผ่าน (470 tests ผ่าน), ESLint 0 errors/warnings, Prisma validate ผ่าน, Next.js build ผ่าน 100% (38/38 routes).

@@ -1968,7 +1968,7 @@ input:checked + .lofi-slider:before {
 [data-theme="light"] .project-sidebar,
 .light .project-sidebar {
   background: #ffffff !important;
-  border-right: 1px solid #e7e2d9 !important;
+  border-right: 1.5px solid #d6cfc4 !important;
   box-shadow: 2px 0 16px rgba(41, 37, 36, 0.03) !important;
 }
 

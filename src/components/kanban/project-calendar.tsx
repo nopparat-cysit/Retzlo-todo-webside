@@ -957,10 +957,10 @@ export function ProjectCalendar({
           open
           onClose={() => setSelectedDayKey(null)}
           labelledBy="calendar-day-title"
-          contentClassName="lofi-panel flex max-h-[calc(100vh-2.5rem)] max-w-2xl w-full flex-col overflow-hidden rounded-2xl border border-white/10 shadow-2xl"
+          contentClassName="lofi-panel flex max-h-[calc(100vh-2.5rem)] max-w-2xl w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xl dark:border-white/10 dark:bg-ink-950"
         >
           {/* Header */}
-          <div className="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5 bg-gradient-to-r from-white/[0.03] to-transparent">
+          <div className="flex items-start justify-between gap-4 border-b border-stone-200/80 px-6 py-5 bg-gradient-to-r from-indigo-50/30 to-transparent dark:border-white/10 dark:from-white/[0.03] dark:to-transparent">
             <div className="flex items-center gap-3.5 min-w-0">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-sm shadow-dusk-lavender/10">
                 <CalendarDays className="h-5 w-5" />
@@ -976,13 +976,13 @@ export function ProjectCalendar({
                     </span>
                   )}
                 </div>
-                <h2 id="calendar-day-title" className="mt-0.5 text-xl sm:text-2xl font-bold tracking-tight text-stone-100 truncate">
+                <h2 id="calendar-day-title" className="mt-0.5 text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100 truncate">
                   {fullDateTitle}
                 </h2>
               </div>
             </div>
             <button
-              className="rounded-xl border border-white/10 bg-white/5 p-2 text-stone-400 transition hover:border-white/20 hover:bg-white/10 hover:text-stone-100 cursor-pointer shrink-0"
+              className="rounded-xl border border-stone-200/80 bg-stone-100/60 p-2 text-stone-500 transition hover:border-stone-300 hover:bg-stone-200/60 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer shrink-0"
               type="button"
               onClick={() => setSelectedDayKey(null)}
               aria-label="Close day view"
@@ -993,19 +993,19 @@ export function ProjectCalendar({
 
           {/* Progress & Summary Bar */}
           {dayStats.total > 0 && (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-black/25 px-6 py-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/80 bg-stone-100/80 px-6 py-2.5 dark:border-white/10 dark:bg-ink-950/60">
               <div className="flex items-center gap-2.5 text-xs">
-                <span className="font-semibold text-stone-300">
+                <span className="font-semibold text-stone-800 dark:text-stone-200">
                   {dayStats.total} {dayStats.total === 1 ? "item" : "items"}
                 </span>
                 <span className="text-stone-600">•</span>
-                <span className={cn("font-medium", dayStats.completed === dayStats.total && dayStats.total > 0 ? "text-emerald-400 font-semibold" : "text-stone-400")}>
+                <span className={cn("font-medium", dayStats.completed === dayStats.total && dayStats.total > 0 ? "text-emerald-600 dark:text-emerald-400 font-semibold" : "text-stone-600 dark:text-stone-400")}>
                   {dayStats.completed} completed
                 </span>
                 {dayStats.pending > 0 ? (
                   <>
                     <span className="text-stone-600">•</span>
-                    <span className="text-dusk-amber font-medium">
+                    <span className="text-amber-700 dark:text-dusk-amber font-medium">
                       {dayStats.pending} remaining
                     </span>
                   </>
@@ -1017,13 +1017,13 @@ export function ProjectCalendar({
                 )}
               </div>
               <div className="flex items-center gap-2.5">
-                <div className="h-1.5 w-24 sm:w-28 overflow-hidden rounded-full bg-white/10">
+                <div className="h-1.5 w-24 sm:w-28 overflow-hidden rounded-full bg-stone-200/80 dark:bg-white/10">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-dusk-lavender to-emerald-400 transition-all duration-300"
                     style={{ width: `${dayStats.percent}%` }}
                   />
                 </div>
-                <span className="text-[11px] font-semibold text-stone-400 min-w-[32px] text-right font-mono">
+                <span className="text-[11px] font-semibold text-stone-700 dark:text-stone-400 min-w-[32px] text-right font-mono">
                   {dayStats.percent}%
                 </span>
               </div>
@@ -1031,13 +1031,13 @@ export function ProjectCalendar({
           )}
 
           {/* Filters & Sorting controls */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.015] px-6 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/80 bg-stone-50/60 px-6 py-3 dark:border-white/10 dark:bg-white/[0.015]">
             <div className="flex flex-wrap items-center gap-3">
               {/* Type Filter */}
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider">Type:</span>
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider dark:text-stone-400">Type:</span>
                 <FilterSelect
-                  triggerClassName="h-8 text-xs rounded-lg border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 text-stone-200"
+                  triggerClassName="h-8 text-xs rounded-lg border-stone-200/90 bg-white text-stone-800 shadow-2xs hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-200 dark:hover:border-white/20 dark:hover:bg-white/10"
                   value={dayTypeFilter}
                   options={[
                     { value: "all", label: "All Types" },
@@ -1051,9 +1051,9 @@ export function ProjectCalendar({
 
               {/* Status Filter */}
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider">Status:</span>
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider dark:text-stone-400">Status:</span>
                 <FilterSelect
-                  triggerClassName="h-8 text-xs rounded-lg border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 text-stone-200"
+                  triggerClassName="h-8 text-xs rounded-lg border-stone-200/90 bg-white text-stone-800 shadow-2xs hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-200 dark:hover:border-white/20 dark:hover:bg-white/10"
                   value={dayStatusFilter}
                   options={[
                     { value: "all", label: "All Statuses" },
@@ -1068,9 +1068,9 @@ export function ProjectCalendar({
             {/* Sort control & Reset */}
             <div className="flex items-center gap-2.5">
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider">Sort:</span>
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider dark:text-stone-400">Sort:</span>
                 <FilterSelect
-                  triggerClassName="h-8 text-xs rounded-lg border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 text-stone-200"
+                  triggerClassName="h-8 text-xs rounded-lg border-stone-200/90 bg-white text-stone-800 shadow-2xs hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-200 dark:hover:border-white/20 dark:hover:bg-white/10"
                   value={daySortBy}
                   options={[
                     { value: "time", label: "Time" },
@@ -1089,7 +1089,7 @@ export function ProjectCalendar({
                     setDayStatusFilter("all");
                     setDaySortBy("time");
                   }}
-                  className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
+                  className="inline-flex items-center gap-1 rounded-lg border border-stone-200/90 bg-white px-2 py-1 text-xs text-stone-600 hover:text-stone-900 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:text-stone-100 dark:hover:bg-white/10 transition cursor-pointer"
                   title="Reset filters"
                 >
                   <RotateCcw className="h-3 w-3" />
@@ -1103,7 +1103,7 @@ export function ProjectCalendar({
           <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-6">
             {selectedDayItems.length === 0 ? (
               <EmptyState
-                className="border-dashed bg-white/[0.015] py-12"
+                className="border-dashed border-stone-200/80 bg-stone-50/50 py-12 dark:border-white/10 dark:bg-white/[0.015]"
                 title="No items found"
                 message="This day has no visible tasks, notes, or diary checklist items matching your filters."
                 action={
@@ -1147,10 +1147,10 @@ export function ProjectCalendar({
                         }
                       }}
                       className={cn(
-                        "group relative flex items-start gap-3.5 rounded-2xl border border-white/10 bg-white/[0.025] p-4 transition-all duration-200",
-                        "hover:border-white/20 hover:bg-white/[0.05] hover:shadow-lg hover:shadow-black/20",
+                        "group relative flex items-start gap-3.5 rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs transition-all duration-200",
+                        "hover:border-stone-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-white/20 dark:hover:bg-white/[0.05] dark:hover:shadow-black/20",
                         (isCard || isNote) ? "cursor-pointer" : "cursor-default",
-                        isCompleted && "opacity-65 bg-white/[0.01]"
+                        isCompleted && "opacity-65 bg-stone-50/70 dark:bg-white/[0.01]"
                       )}
                     >
                       {/* Left Color Accent Bar */}
@@ -1171,8 +1171,8 @@ export function ProjectCalendar({
                             className={cn(
                               "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
                               isCompleted
-                                ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
-                                : "border-white/25 bg-white/5 hover:border-dusk-lavender hover:bg-white/10"
+                                ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+                                : "border-2 border-stone-400 bg-white shadow-2xs hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
                             )}
                             title={isCompleted ? "Mark incomplete" : "Mark complete"}
                           >
@@ -1190,8 +1190,8 @@ export function ProjectCalendar({
                             className={cn(
                               "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
                               isCompleted
-                                ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
-                                : "border-white/25 bg-white/5 hover:border-dusk-lavender hover:bg-white/10"
+                                ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+                                : "border-2 border-stone-400 bg-white shadow-2xs hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
                             )}
                             title={isCompleted ? "Mark incomplete" : "Mark as done"}
                           >
@@ -1211,7 +1211,7 @@ export function ProjectCalendar({
                           <div className="flex flex-wrap items-center gap-1.5">
                             {isCard && (
                               <>
-                                <span className="inline-flex items-center gap-1 rounded-md border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-300">
+                                <span className="inline-flex items-center gap-1 rounded-md border border-indigo-500/20 bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
                                   <CheckCircle2 className="h-3 w-3" /> Task
                                 </span>
                                 <span className={cn("rounded-md border px-2 py-0.5 text-[10px] uppercase font-semibold", getStatusMeta((item as CalendarCard).status).badgeClass)}>
@@ -1235,11 +1235,11 @@ export function ProjectCalendar({
 
                             {isNote && (
                               <>
-                                <span className="inline-flex items-center gap-1 rounded-md border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] font-semibold text-dusk-amber">
+                                <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber">
                                   <FileText className="h-3 w-3" /> Note
                                 </span>
                                 {(item as CalendarNote).isStarred && (
-                                  <span className="inline-flex items-center rounded-md border border-amber-400/30 bg-amber-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
+                                  <span className="inline-flex items-center rounded-md border border-amber-400/30 bg-amber-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
                                     ★ Starred
                                   </span>
                                 )}
@@ -1247,7 +1247,7 @@ export function ProjectCalendar({
                             )}
 
                             {isDiaryChecklist && (
-                              <span className="inline-flex items-center gap-1.5 rounded-md border border-dusk-lavender/30 bg-dusk-lavender/10 px-2 py-0.5 text-[10px] font-semibold text-dusk-lavender">
+                              <span className="inline-flex items-center gap-1.5 rounded-md border border-purple-500/20 bg-purple-50 px-2 py-0.5 text-[10px] font-semibold text-purple-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
                                 <BookOpen className="h-3 w-3" /> Diary Checklist
                               </span>
                             )}
@@ -1256,12 +1256,12 @@ export function ProjectCalendar({
                           {/* Time Indicator */}
                           <div className="flex items-center gap-1.5">
                             {item.dueDate && !item.dueDateAllDay ? (
-                              <span className="inline-flex items-center gap-1.5 rounded-md border border-dusk-cyan/30 bg-dusk-cyan/10 px-2.5 py-0.5 text-[11px] font-semibold text-dusk-cyan">
+                              <span className="inline-flex items-center gap-1.5 rounded-md border border-sky-500/20 bg-sky-50 px-2.5 py-0.5 text-[11px] font-semibold text-sky-700 dark:border-dusk-cyan/30 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
                                 <Clock className="h-3 w-3" />
                                 {formatTime(item.dueDate)}
                               </span>
                             ) : item.dueDateAllDay ? (
-                              <span className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-stone-400">
+                              <span className="inline-flex items-center rounded-md border border-stone-200 bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
                                 All day
                               </span>
                             ) : null}
@@ -1270,8 +1270,8 @@ export function ProjectCalendar({
 
                         {/* Title */}
                         <h3 className={cn(
-                          "mt-2 text-base font-semibold leading-snug tracking-tight text-stone-100 transition-colors",
-                          isCompleted ? "line-through text-stone-500" : "group-hover:text-white"
+                          "mt-2 text-base font-semibold leading-snug tracking-tight text-stone-900 transition-colors dark:text-stone-100",
+                          isCompleted ? "line-through text-stone-400 dark:text-stone-500" : "group-hover:text-indigo-600 dark:group-hover:text-white"
                         )}>
                           {item.title}
                         </h3>
@@ -1279,14 +1279,14 @@ export function ProjectCalendar({
                         {/* Source & Metadata */}
                         {isDiaryChecklist && (
                           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                            <span className="text-stone-400 flex items-center gap-1.5">
+                            <span className="text-stone-500 flex items-center gap-1.5 dark:text-stone-400">
                               <RetzloUiIcon name="diary" size={14} />
-                              From diary: <span className="font-medium text-stone-200">{(item as CalendarDiaryChecklist).diaryTitle}</span>
+                              From diary: <span className="font-medium text-stone-800 dark:text-stone-200">{(item as CalendarDiaryChecklist).diaryTitle}</span>
                             </span>
                             <Link
                               href={`/project/${projectId}/diary`}
                               onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-dusk-lavender hover:border-dusk-lavender/40 hover:bg-white/10 hover:underline transition"
+                              className="inline-flex items-center gap-1 rounded-md border border-stone-200/90 bg-stone-100/80 px-2 py-0.5 text-[11px] font-semibold text-purple-700 hover:bg-stone-200/70 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender dark:hover:border-dusk-lavender/40 dark:hover:bg-white/10 hover:underline transition"
                             >
                               Open in Diary <ExternalLink className="h-2.5 w-2.5" />
                             </Link>
@@ -1296,13 +1296,13 @@ export function ProjectCalendar({
                         {isCard && (
                           <div className="mt-2 space-y-1.5">
                             {(item as CalendarCard).description && (
-                              <p className="line-clamp-2 text-xs text-stone-400 leading-relaxed">
+                              <p className="line-clamp-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                                 {(item as CalendarCard).description}
                               </p>
                             )}
                             <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-                              <span className="text-xs text-stone-400">
-                                Column: <span className="text-stone-200 font-medium">{(item as CalendarCard).column.name}</span>
+                              <span className="text-xs text-stone-500 dark:text-stone-400">
+                                Column: <span className="text-stone-800 dark:text-stone-200 font-medium">{(item as CalendarCard).column.name}</span>
                               </span>
                               {((item as CalendarCard).assignees?.length || (item as CalendarCard).assigneeIds?.length) ? (
                                 <div className="flex items-center gap-1.5">
@@ -1323,12 +1323,12 @@ export function ProjectCalendar({
                         {isNote && (
                           <div className="mt-2 space-y-1">
                             {(item as CalendarNote).content && (
-                              <p className="line-clamp-2 text-xs text-stone-400 leading-relaxed whitespace-pre-wrap">
+                              <p className="line-clamp-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed whitespace-pre-wrap">
                                 {(item as CalendarNote).content}
                               </p>
                             )}
                             <div className="pt-0.5">
-                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-dusk-amber/80 group-hover:text-dusk-amber group-hover:underline transition">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 hover:underline dark:text-dusk-amber/80 dark:group-hover:text-dusk-amber transition">
                                 View note details <ExternalLink className="h-2.5 w-2.5" />
                               </span>
                             </div>
@@ -1338,7 +1338,7 @@ export function ProjectCalendar({
 
                       {/* Right Chevron for Clickable Items */}
                       {(isCard || isNote) && (
-                        <div className="self-center pl-1 text-stone-600 transition-all group-hover:text-stone-300 group-hover:translate-x-0.5">
+                        <div className="self-center pl-1 text-stone-400 transition-all group-hover:text-stone-700 group-hover:translate-x-0.5 dark:text-stone-600 dark:group-hover:text-stone-300">
                           <ChevronRight className="h-5 w-5" />
                         </div>
                       )}
@@ -1350,11 +1350,11 @@ export function ProjectCalendar({
           </div>
 
           {/* Footer */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-white/[0.015] px-6 py-4">
-            <div className="flex items-center gap-3 text-xs text-stone-400">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-200/80 bg-stone-50/60 px-6 py-4 dark:border-white/10 dark:bg-white/[0.015]">
+            <div className="flex items-center gap-3 text-xs text-stone-600 dark:text-stone-400">
               <span>{selectedDayItems.length} {selectedDayItems.length === 1 ? "item" : "items"} shown</span>
               {dayStats.total > 0 && (
-                <span className="hidden sm:inline text-stone-500">
+                <span className="hidden sm:inline text-stone-400 dark:text-stone-500">
                   ({dayStats.tasks} {dayStats.tasks === 1 ? "task" : "tasks"}, {dayStats.diaries} {dayStats.diaries === 1 ? "diary item" : "diaries"}, {dayStats.notes} {dayStats.notes === 1 ? "note" : "notes"})
                 </span>
               )}
@@ -1362,7 +1362,7 @@ export function ProjectCalendar({
             <div className="flex items-center gap-2">
               <Link
                 href={`/project/${projectId}/board`}
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-semibold text-stone-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 Go to Board
@@ -1371,7 +1371,7 @@ export function ProjectCalendar({
                 type="button"
                 variant="secondary"
                 onClick={() => setSelectedDayKey(null)}
-                className="h-9 px-4 rounded-xl text-xs font-semibold"
+                className="h-9 px-4 rounded-xl text-xs font-semibold border-stone-200/90 bg-white hover:bg-stone-50 text-stone-700 dark:border-white/10 dark:bg-white/5 dark:text-stone-200"
               >
                 Close
               </Button>
@@ -1487,8 +1487,8 @@ function CalendarDiaryChecklistButton({
         className={cn(
           "relative mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-all duration-150 cursor-pointer active:scale-90",
           item.completed
-            ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
-            : "border-white/25 bg-white/5 hover:border-dusk-lavender hover:bg-white/10"
+            ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+            : "border border-stone-400 bg-white hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/25 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
         )}
       >
         {item.completed ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : null}
@@ -1539,8 +1539,8 @@ function UpcomingDiaryChecklist({
         className={cn(
           "relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all duration-150 cursor-pointer active:scale-90",
           item.completed
-            ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
-            : "border-white/25 bg-white/5 hover:border-dusk-lavender hover:bg-white/10"
+            ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+            : "border-2 border-stone-400 bg-white hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/25 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
         )}
       >
         {item.completed ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}

@@ -285,7 +285,7 @@ export function BoardSidebarDropdown({
 
       {/* ── Sub-menu: Direct List of Boards (No Dropdown needed!) ── */}
       {isExpanded && (
-        <div className="sidebar-expanded-only ml-3.5 mt-1 max-h-60 space-y-0.5 overflow-y-auto border-l border-stone-200/60 pl-2.5 py-0.5 scrollbar-soft dark:border-white/10">
+        <div className="sidebar-expanded-only ml-3.5 mt-1 max-h-60 space-y-0.5 overflow-y-auto border-l-2 border-stone-400/90 pl-2.5 py-0.5 scrollbar-soft dark:border-stone-600">
           {boardsList.length > 0 ? (
             boardsList.map((b) => {
               const isActive = isBoardRoute && b.id === activeBoardId;

@@ -210,7 +210,7 @@ export async function ProjectShell({
             />
           </div>
 
-          <div className="mt-auto space-y-3 border-t border-white/5 pt-4">
+          <div className="mt-auto space-y-3 border-t border-stone-200/80 pt-4 dark:border-white/5">
             <ProjectNavLink {...settingsLink} />
             <p className="sidebar-expanded-only flex items-center gap-1.5 text-[10px] text-stone-600">
               <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">Ctrl K</kbd>
