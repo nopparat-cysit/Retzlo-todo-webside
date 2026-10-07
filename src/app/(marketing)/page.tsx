@@ -1771,8 +1771,10 @@ export default function LandingPage() {
           </div>
           
           <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-[#d6d3d1] transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-[#d6d3d1] transition-colors">Terms of Service</a>
+            <Link href="/help" className="hover:text-[#d6d3d1] transition-colors">System Guide</Link>
+            <Link href="/privacy" className="hover:text-[#d6d3d1] transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-[#d6d3d1] transition-colors">Terms of Service</Link>
+            <Link href="/contact" className="hover:text-[#d6d3d1] transition-colors">Contact</Link>
             <span className="text-[#292524]">â€¢</span>
             <span className="font-mono text-[#57534e] tracking-wider">SYSTEM_MARK_RETZLO_V1</span>
           </div>

@@ -6,17 +6,16 @@ import Link from "next/link";
 import {
   ArrowLeft,
   CheckSquare,
-  ChevronRight,
   ExternalLink,
   FolderKanban,
+  Globe,
   Layers,
+  Lock,
   Palette,
   Settings,
-  Shield,
-  ShieldCheck,
   Sparkles,
-  Users,
-  Volume2
+  Trash2,
+  Users
 } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
@@ -26,41 +25,26 @@ import { useToast } from "@/components/ui/toast";
 import { BoardAttributesTab } from "@/components/kanban/board-attributes-tab";
 import { BoardGeneralTab } from "@/components/kanban/board-settings/general-tab";
 import { BoardColumnsTab } from "@/components/kanban/board-settings/columns-tab";
-import { BoardDangerTab } from "@/components/kanban/board-settings/danger-tab";
 import type { BoardColumnInfo } from "@/components/kanban/board-settings/types";
 import { DEFAULT_PRIORITIES, resolveBoardPriorities } from "@/lib/kanban/priority";
 import type { CustomPriority } from "@/types/kanban";
 import { ProjectBoardsManager } from "@/components/project/project-boards-manager";
 import { SettingsForm } from "@/components/project/settings-form";
 import { SoundToggle } from "@/components/project/sound-toggle";
+import { SettingsRow, SettingsSection } from "@/components/settings/settings-section";
+import { isBoardScopedTab, resolveSettingsTab, type SettingsTabId } from "@/lib/settings/tabs";
 import { cn } from "@/lib/utils";
 
-export type SettingsTabId =
-  | "identity"
-  | "access"
-  | "boards"
-  | "board-general"
-  | "board-columns"
-  | "attributes"
-  | "features"
-  | "preferences"
-  | "all";
+export type { SettingsTabId } from "@/lib/settings/tabs";
 
-const VALID_TABS: readonly SettingsTabId[] = [
-  "identity",
-  "access",
-  "boards",
-  "board-general",
-  "board-columns",
-  "attributes",
-  "features",
-  "preferences",
-  "all"
-] as const;
+type AttributeSubTab = "status" | "priority" | "story-points";
+const ATTRIBUTE_SUB_TABS: readonly AttributeSubTab[] = ["status", "priority", "story-points"];
+
+/** Tabs whose content is a simple form and reads better in a narrow column. */
+const NARROW_TABS: readonly SettingsTabId[] = ["identity", "access", "board-general", "preferences"];
 
 interface TabItem {
   id: SettingsTabId;
-  group: string;
   label: string;
   shortLabel: string;
   icon: typeof FolderKanban;
@@ -69,7 +53,7 @@ interface TabItem {
 }
 
 interface NavGroup {
-  id: string;
+  id: "project" | "boards" | "personal";
   title: string;
   items: TabItem[];
 }
@@ -118,6 +102,7 @@ interface ProjectSettingsClientProps {
   }>;
   canManage: boolean;
   initialTab?: string;
+  initialBoardId?: string;
   themeToggleSlot?: ReactNode;
 }
 
@@ -128,21 +113,21 @@ export function ProjectSettingsClient({
   projectMembers,
   canManage,
   initialTab,
+  initialBoardId,
   themeToggleSlot
 }: ProjectSettingsClientProps) {
-  const [activeTab, setActiveTab] = useState<SettingsTabId>(() => {
-    if (initialTab && VALID_TABS.includes(initialTab as SettingsTabId)) {
-      return initialTab as SettingsTabId;
-    }
-    return "identity";
-  });
+  const [activeTab, setActiveTab] = useState<SettingsTabId>(() =>
+    resolveSettingsTab({ tab: initialTab, boardId: initialBoardId })
+  );
 
   const { toast } = useToast();
   const [boardsList, setBoardsList] = useState(formattedBoards);
-  const [selectedBoardId, setSelectedBoardId] = useState<string>(
-    () => formattedBoards[0]?.id || ""
+  const [selectedBoardId, setSelectedBoardId] = useState<string>(() =>
+    initialBoardId && formattedBoards.some((b) => b.id === initialBoardId)
+      ? initialBoardId
+      : formattedBoards[0]?.id || ""
   );
-  const [attributeSubTab, setAttributeSubTab] = useState<"status" | "priority" | "story-points">("status");
+  const [attributeSubTab, setAttributeSubTab] = useState<AttributeSubTab>("status");
   const [boardPriorities, setBoardPriorities] = useState<CustomPriority[]>(DEFAULT_PRIORITIES);
 
   const activeBoard = boardsList.find((b) => b.id === selectedBoardId) || boardsList[0];
@@ -157,32 +142,22 @@ export function ProjectSettingsClient({
   const [isDeletingBoard, setIsDeletingBoard] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
+  // Read deep-link params once on mount (tab, subTab, boardId).
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const tabParam = params.get("tab");
-      const subTabParam = params.get("subTab");
-      const boardIdParam = params.get("boardId");
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const boardIdParam = params.get("boardId");
+    const subTabParam = params.get("subTab");
 
-      if (tabParam === "board") {
-        setActiveTab("board-general");
-      } else if (tabParam === "columns") {
-        setActiveTab("board-columns");
-      } else if (tabParam && VALID_TABS.includes(tabParam as SettingsTabId)) {
-        setActiveTab(tabParam as SettingsTabId);
-      } else if (boardIdParam) {
-        setActiveTab("board-general");
-      }
+    setActiveTab(resolveSettingsTab({ tab: params.get("tab"), boardId: boardIdParam }));
 
-      if (subTabParam && ["status", "priority", "story-points"].includes(subTabParam)) {
-        setAttributeSubTab(subTabParam as "status" | "priority" | "story-points");
-      }
-
-      if (boardIdParam && boardsList.some((b) => b.id === boardIdParam)) {
-        setSelectedBoardId(boardIdParam);
-      }
+    if (subTabParam && (ATTRIBUTE_SUB_TABS as readonly string[]).includes(subTabParam)) {
+      setAttributeSubTab(subTabParam as AttributeSubTab);
     }
-  }, [boardsList]);
+    if (boardIdParam && formattedBoards.some((b) => b.id === boardIdParam)) {
+      setSelectedBoardId(boardIdParam);
+    }
+  }, [formattedBoards]);
 
   // Sync board details, priorities, and columns when selectedBoardId changes
   useEffect(() => {
@@ -200,20 +175,30 @@ export function ProjectSettingsClient({
         if (!isMounted || !data?.board) return;
         setBoardName(data.board.name);
         setBoardIsPrivate(Boolean(data.board.isPrivate));
-        setBoardMemberUserIds(data.board.members?.map((m: any) => m.userId) || []);
+        setBoardMemberUserIds(data.board.members?.map((m: { userId: string }) => m.userId) || []);
         if (data.board.customPriorities) {
           setBoardPriorities(resolveBoardPriorities(data.board.customPriorities));
         }
         if (data.board.columns) {
           setBoardColumns(
-            data.board.columns.map((c: any) => ({
-              id: c.id,
-              name: c.name,
-              color: c.color,
-              wipLimit: c.wipLimit,
-              defaultCardStatus: c.defaultCardStatus,
-              cardCount: c._count?.cards ?? c.cards?.length ?? 0
-            }))
+            data.board.columns.map(
+              (c: {
+                id: string;
+                name: string;
+                color: string | null;
+                wipLimit: number | null;
+                defaultCardStatus: string | null;
+                _count?: { cards: number };
+                cards?: unknown[];
+              }): BoardColumnInfo => ({
+                id: c.id,
+                name: c.name,
+                color: c.color ?? undefined,
+                wipLimit: c.wipLimit,
+                defaultCardStatus: c.defaultCardStatus ?? undefined,
+                cardCount: c._count?.cards ?? c.cards?.length ?? 0
+              })
+            )
           );
         }
       })
@@ -314,7 +299,7 @@ export function ProjectSettingsClient({
   };
 
   const handleOpenBoardConfig = (boardId: string, subTab?: "general" | "columns" | "attributes") => {
-    setSelectedBoardId(boardId);
+    handleBoardSelect(boardId);
     const targetTab: SettingsTabId =
       subTab === "columns"
         ? "board-columns"
@@ -324,14 +309,24 @@ export function ProjectSettingsClient({
     handleTabChange(targetTab);
   };
 
-  const handleTabChange = (tabId: SettingsTabId) => {
+  function handleTabChange(tabId: SettingsTabId) {
     setActiveTab(tabId);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.set("tab", tabId);
+      url.searchParams.delete("subTab");
       window.history.replaceState(null, "", url.toString());
     }
-  };
+  }
+
+  function handleBoardSelect(nextId: string) {
+    setSelectedBoardId(nextId);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("boardId", nextId);
+      window.history.replaceState(null, "", url.toString());
+    }
+  }
 
   const filteredBoardMembers = useMemo(() => {
     if (!boardMemberSearchQuery.trim()) return projectMembers;
@@ -345,129 +340,171 @@ export function ProjectSettingsClient({
 
   const navGroups: NavGroup[] = [
     {
-      id: "general",
-      title: "General",
+      id: "project",
+      title: "Project",
       items: [
         {
           id: "identity",
-          group: "General",
-          label: "Details & Identity",
-          shortLabel: "Details",
+          label: "General",
+          shortLabel: "General",
           icon: Sparkles,
-          description: "ชื่อ รายละเอียด ภาพปก และภาพลักษณ์ของพื้นที่ทำงาน"
+          description: "ชื่อ คำอธิบาย ภาพปก ฟีเจอร์ของโปรเจกต์ และการลบโปรเจกต์"
         },
         {
           id: "access",
-          group: "General",
-          label: "Access & Team",
-          shortLabel: "Access",
+          label: "Members",
+          shortLabel: "Members",
           icon: Users,
           badge: projectMembers.length,
-          description: "สิทธิ์การเข้าถึง รายชื่อสมาชิก และการจัดการคำเชิญในโปรเจกต์"
+          description: "รายชื่อสมาชิก บทบาท และสิทธิ์การเข้าถึงโปรเจกต์"
         }
       ]
     },
     {
-      id: "workflow",
-      title: "Workflow",
+      id: "boards",
+      title: "Boards",
       items: [
         {
           id: "boards",
-          group: "Workflow",
-          label: "Boards & Sub-projects",
+          label: "All boards",
           shortLabel: "Boards",
           icon: FolderKanban,
           badge: boardsList.length,
-          description: "จัดการบอร์ดทั้งหมดในโปรเจกต์ สร้างบอร์ดใหม่ และกำหนดสิทธิ์รายบอร์ด"
+          description: "สร้าง ค้นหา และจัดการบอร์ดทั้งหมดในโปรเจกต์"
         },
         {
           id: "board-general",
-          group: "Workflow",
-          label: "Board Details & Access",
-          shortLabel: "Board Details",
+          label: "Board details",
+          shortLabel: "Board",
           icon: Settings,
-          description: "ตั้งค่าชื่อบอร์ด ความเป็นส่วนตัว สิทธิ์การเข้าถึง และลบบอร์ด"
+          description: "ชื่อบอร์ด ความเป็นส่วนตัว และสมาชิกที่เข้าถึงบอร์ดนี้"
         },
         {
           id: "board-columns",
-          group: "Workflow",
-          label: "Columns & Workflow",
+          label: "Columns",
           shortLabel: "Columns",
           icon: Layers,
-          description: "ขั้นตอนการทำงาน (Workflow Stages), WIP Limits และการแมปสถานะ"
+          description: "ขั้นตอนการทำงาน WIP limits และการแมปสถานะของบอร์ดนี้"
         },
         {
           id: "attributes",
-          group: "Workflow",
-          label: "Card Attributes & Types",
+          label: "Card attributes",
           shortLabel: "Attributes",
           icon: CheckSquare,
-          description: "โครงสร้างสถานะ (Statuses), ระดับความสำคัญ (Priorities) และ Story Points"
+          description: "Status, Priority และ Story Points ที่ใช้ในการ์ดของบอร์ดนี้"
         }
       ]
     },
     {
-      id: "system",
-      title: "System & Privacy",
+      id: "personal",
+      title: "Personal",
       items: [
-        {
-          id: "features",
-          group: "System & Privacy",
-          label: "Features & Privacy",
-          shortLabel: "Features",
-          icon: ShieldCheck,
-          description: "เปิด/ปิดแถบบันทึก โหมดไอเทมส่วนตัว และโซนอันตราย (ลบโปรเจกต์)"
-        },
         {
           id: "preferences",
-          group: "System & Privacy",
-          label: "Preferences & Theme",
-          shortLabel: "Preferences",
+          label: "Theme & sound",
+          shortLabel: "Theme",
           icon: Palette,
-          description: "ปรับแต่งธีมการแสดงผลและระบบเสียงเฉพาะเครื่องของคุณ"
-        }
-      ]
-    },
-    {
-      id: "overview",
-      title: "Overview",
-      items: [
-        {
-          id: "all",
-          group: "Overview",
-          label: "All Settings",
-          shortLabel: "All",
-          icon: Layers,
-          description: "ดูภาพรวมและจัดการการตั้งค่าทุกส่วนพร้อมกันในหน้าเดียว"
+          description: "ตั้งค่าเฉพาะเบราว์เซอร์นี้ ไม่กระทบสมาชิกคนอื่น"
         }
       ]
     }
   ];
 
-  const allTabs = navGroups.flatMap((g) => g.items);
+  const allTabs = navGroups.flatMap((g) => g.items.map((item) => ({ ...item, group: g.title })));
   const currentTabInfo = allTabs.find((t) => t.id === activeTab) ?? allTabs[0];
+  const isBoardTab = isBoardScopedTab(activeTab);
+  const isNarrow = NARROW_TABS.includes(activeTab);
+  const displayBoardName = boardName || activeBoard?.name || "บอร์ดนี้";
+
+  const noBoardsState = (
+    <div className="rounded-xl border border-dashed border-theme-border p-8 text-center text-xs text-theme-muted">
+      ยังไม่มีบอร์ดในโปรเจกต์นี้ —{" "}
+      <button type="button" className="font-semibold text-theme-accent hover:underline" onClick={() => handleTabChange("boards")}>
+        สร้างบอร์ดใหม่
+      </button>
+    </div>
+  );
 
   return (
     <div className="scrollbar-soft h-full min-h-0 overflow-y-auto px-1 sm:px-2">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 pb-12 pt-2">
-        {/* Mobile Header (< lg) */}
-        <div className="flex flex-col gap-3 lg:hidden">
-          <div className="flex items-center justify-between">
-            <Link
-              href={`/project/${projectId}/board`}
-              className="group inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-              <span>Back to board</span>
-            </Link>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-100/80 px-2.5 py-0.5 text-[11px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              {formattedBoards.length} boards · {projectMembers.length} members
-            </span>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-12 pt-2 lg:flex-row lg:items-start lg:gap-8">
+        {/* ── Sidebar (desktop) ── */}
+        <aside className="hidden w-52 shrink-0 lg:sticky lg:top-2 lg:block">
+          <Link
+            href={`/project/${projectId}/board`}
+            className="group mb-4 inline-flex items-center gap-1.5 px-2 text-xs font-medium text-theme-muted transition-colors hover:text-theme-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
+            <span>Back to board</span>
+          </Link>
+
+          <div className="mb-4 flex items-center gap-2.5 px-2">
+            <div className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-lg border border-theme-border bg-theme-paper text-sm font-bold text-theme-accent">
+              {project.coverImage ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={project.coverImage} alt="" className="h-full w-full object-cover" />
+              ) : project.sticker ? (
+                <span className="text-base">{project.sticker}</span>
+              ) : (
+                <span>{project.name.charAt(0).toUpperCase()}</span>
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-theme-muted">Project Space</p>
+              <p className="truncate text-sm font-semibold text-theme-foreground" title={project.name}>
+                {project.name}
+              </p>
+            </div>
           </div>
 
-          {/* Mobile Horizontal Tabs */}
-          <div className="flex overflow-x-auto gap-2 border-b border-stone-200 pb-2 dark:border-white/10 scrollbar-none">
+          <nav aria-label="Settings" className="space-y-4">
+            {navGroups.map((group) => (
+              <div key={group.id}>
+                <p className="px-2 pb-1 text-[11px] font-semibold text-theme-muted">{group.title}</p>
+                <ul className="space-y-0.5">
+                  {group.items.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    const isSubItem = group.id === "boards" && tab.id !== "boards";
+                    return (
+                      <li key={tab.id}>
+                        <button
+                          type="button"
+                          aria-current={isActive ? "page" : undefined}
+                          onClick={() => handleTabChange(tab.id)}
+                          className={cn(
+                            "flex h-8 w-full cursor-pointer items-center gap-2 rounded-md px-2 text-left text-[13px] transition",
+                            isSubItem && "pl-4",
+                            isActive
+                              ? "bg-theme-paper-strong font-semibold text-theme-foreground"
+                              : "text-theme-muted hover:bg-theme-paper hover:text-theme-foreground"
+                          )}
+                        >
+                          <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive && "text-theme-accent")} />
+                          <span className="flex-1 truncate">{tab.label}</span>
+                          {tab.badge !== undefined && (
+                            <span className="text-[11px] tabular-nums text-theme-muted">{tab.badge}</span>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </nav>
+        </aside>
+
+        {/* ── Mobile header + tabs ── */}
+        <div className="flex flex-col gap-2 lg:hidden">
+          <Link
+            href={`/project/${projectId}/board`}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-theme-muted hover:text-theme-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Back to board</span>
+          </Link>
+          <div className="scrollbar-none -mx-1 flex gap-1 overflow-x-auto border-b border-theme-border px-1 pb-2">
             {allTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -477,839 +514,262 @@ export function ProjectSettingsClient({
                   type="button"
                   onClick={() => handleTabChange(tab.id)}
                   className={cn(
-                    "flex items-center gap-1.5 shrink-0 rounded-xl px-3 py-1.5 text-xs font-medium transition cursor-pointer",
+                    "flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs transition",
                     isActive
-                      ? "bg-indigo-600 text-white dark:bg-dusk-lavender/25 dark:text-dusk-lavender border border-indigo-600 dark:border-dusk-lavender/40 font-semibold shadow-xs"
-                      : "bg-stone-100 text-stone-600 border border-stone-200 hover:text-stone-900 dark:bg-white/[0.03] dark:text-stone-400 dark:border-white/5 dark:hover:text-stone-200"
+                      ? "bg-theme-paper-strong font-semibold text-theme-foreground"
+                      : "text-theme-muted hover:bg-theme-paper hover:text-theme-foreground"
                   )}
                 >
-                  <Icon className="h-3.5 w-3.5" />
+                  <Icon className={cn("h-3.5 w-3.5", isActive && "text-theme-accent")} />
                   <span>{tab.shortLabel}</span>
-                  {tab.badge !== undefined && (
-                    <span
-                      className={cn(
-                        "rounded-full px-1.5 py-0.2 text-[10px] font-bold",
-                        isActive
-                          ? "bg-white/20 text-white dark:bg-dusk-lavender dark:text-stone-950"
-                          : "bg-stone-200 text-stone-700 dark:bg-white/10 dark:text-stone-300"
-                      )}
-                    >
-                      {tab.badge}
-                    </span>
-                  )}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Master-Detail Layout on Desktop (lg+) */}
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
-          {/* Left Sidebar (Sticky on Desktop) */}
-          <aside className="hidden lg:flex flex-col w-72 shrink-0 sticky top-2 space-y-4">
-            {/* Back to Board link */}
-            <Link
-              href={`/project/${projectId}/board`}
-              className="group inline-flex items-center gap-2 text-xs font-semibold text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 transition-colors px-1"
-            >
-              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1 text-stone-500 group-hover:text-stone-800 dark:group-hover:text-stone-100" />
-              <span>Back to board</span>
-            </Link>
+        {/* ── Detail pane ── */}
+        <main className={cn("w-full min-w-0 flex-1 space-y-5", isNarrow && "lg:max-w-3xl")}>
+          <header className="border-b border-theme-border pb-3">
+            <p className="text-xs text-theme-muted">
+              {currentTabInfo.group} / {currentTabInfo.shortLabel}
+            </p>
+            <h1 className="mt-0.5 text-lg font-semibold text-theme-foreground">{currentTabInfo.label}</h1>
+            <p className="mt-0.5 text-xs text-theme-muted">{currentTabInfo.description}</p>
+          </header>
 
-            {/* Space Identity Card */}
-            <div className="lofi-panel rounded-2xl p-4 border border-stone-200 bg-stone-50/90 dark:border-white/10 dark:bg-white/[0.03] space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-stone-300 bg-gradient-to-br from-indigo-500/20 via-purple-500/15 to-amber-500/10 flex items-center justify-center font-bold text-base text-indigo-700 dark:border-white/15 dark:text-indigo-300 shadow-xs">
-                  {project.coverImage ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={project.coverImage}
-                      alt={project.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : project.sticker ? (
-                    <span className="text-xl">{project.sticker}</span>
-                  ) : (
-                    <span>{project.name.charAt(0).toUpperCase()}</span>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-dusk-amber">
-                      Project Space
-                    </span>
-                  </div>
-                  <h2
-                    className="truncate text-sm font-bold text-stone-900 dark:text-stone-100"
-                    title={project.name}
-                  >
-                    {project.name}
-                  </h2>
-                  <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                    {formattedBoards.length} boards · {projectMembers.length} members
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Jira-style Grouped Navigation Panel */}
-            <nav className="lofi-panel rounded-2xl p-3 border border-stone-200 bg-stone-50/90 dark:border-white/10 dark:bg-white/[0.02] space-y-4">
-              {navGroups.map((group) => (
-                <div key={group.id} className="space-y-1">
-                  <div className="px-3 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
-                    {group.title}
-                  </div>
-                  <div className="space-y-0.5">
-                    {group.items.map((tab) => {
-                      const Icon = tab.icon;
-                      const isActive = activeTab === tab.id;
-                      return (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          onClick={() => handleTabChange(tab.id)}
-                          className={cn(
-                            "relative flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs transition cursor-pointer text-left",
-                            isActive
-                              ? "bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200 shadow-xs dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:border-dusk-lavender/40 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1 before:rounded-r-md before:bg-indigo-600 dark:before:bg-dusk-lavender"
-                              : "text-stone-600 hover:text-stone-900 hover:bg-stone-100 border border-transparent dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.04]"
-                          )}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <Icon
-                              className={cn(
-                                "h-4 w-4 shrink-0",
-                                isActive
-                                  ? "text-indigo-600 dark:text-dusk-lavender"
-                                  : "text-stone-400 dark:text-stone-500"
-                              )}
-                            />
-                            <span className="truncate">{tab.label}</span>
-                          </div>
-                          {tab.badge !== undefined && (
-                            <span
-                              className={cn(
-                                "ml-2 rounded-full px-1.5 py-0.5 text-[10px] font-bold shrink-0",
-                                isActive
-                                  ? "bg-indigo-200/80 text-indigo-800 dark:bg-dusk-lavender dark:text-stone-950"
-                                  : "bg-stone-200 text-stone-700 dark:bg-white/10 dark:text-stone-300"
-                              )}
-                            >
-                              {tab.badge}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </nav>
-          </aside>
-
-          {/* Right Detail Pane */}
-          <main className="flex-1 min-w-0 space-y-5 w-full">
-            {/* Active Section Header Banner */}
-            <section className="rounded-2xl border border-stone-200 bg-stone-50/80 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.03]">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-dusk-amber">
-                    <span>{currentTabInfo.group}</span>
-                    <ChevronRight className="h-3 w-3 text-stone-400 dark:text-stone-500" />
-                    <span className="text-stone-700 dark:text-stone-300">
-                      {currentTabInfo.shortLabel}
-                    </span>
-                  </div>
-                  <h1 className="mt-1 text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2.5">
-                    <currentTabInfo.icon className="h-5 w-5 text-indigo-600 dark:text-dusk-lavender" />
-                    <span>{currentTabInfo.label}</span>
-                  </h1>
-                  <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-400">
-                    {currentTabInfo.description}
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            {/* TAB: Identity (Details & Identity) */}
-            {(activeTab === "identity" || activeTab === "all") && (
-              <div className="space-y-4">
-                {activeTab === "all" && (
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-2 dark:border-white/10">
-                    <Sparkles className="h-4 w-4 text-amber-600 dark:text-dusk-amber" />
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                      1. ข้อมูลและภาพลักษณ์โปรเจกต์ (Details & Identity)
-                    </h2>
-                  </div>
-                )}
-                <SettingsForm
-                  project={project}
-                  canManagePrivacy={canManage}
-                  viewMode="identity"
-                />
-              </div>
-            )}
-
-            {/* TAB: Access (Access & Team) */}
-            {(activeTab === "access" || activeTab === "all") && (
-              <div className="space-y-4">
-                {activeTab === "all" && (
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
-                    <Users className="h-4 w-4 text-cyan-600 dark:text-dusk-cyan" />
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                      2. สมาชิกและสิทธิ์เข้าถึง (Access & Team)
-                    </h2>
-                  </div>
-                )}
-
-                <section className="lofi-panel rounded-2xl p-5 sm:p-6 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02] space-y-6">
-                  {/* Access Header & CTA */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-stone-200 pb-5 dark:border-white/10">
-                    <div>
-                      <h3 className="text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                        <span>Space Members</span>
-                        <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-bold text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
-                          {projectMembers.length} คน
-                        </span>
-                      </h3>
-                      <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        สมาชิกทุกคนในโปรเจกต์สามารถเข้าถึงและร่วมทำงานในกระดานสาธารณะได้
-                      </p>
-                    </div>
-
-                    <Link href={`/project/${projectId}/members`}>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="w-full sm:w-auto inline-flex items-center gap-2"
-                      >
-                        <span>จัดการสมาชิกและคำเชิญ</span>
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </Button>
-                    </Link>
-                  </div>
-
-                  {/* Members Preview Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {projectMembers.map((member) => {
-                      const isOwner = member.role.toUpperCase() === "OWNER";
-                      return (
-                        <div
-                          key={member.id}
-                          className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50/70 p-3 dark:border-white/5 dark:bg-white/[0.02]"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <Avatar user={member.user} size={36} />
-                            <div className="min-w-0">
-                              <p className="truncate text-xs font-semibold text-stone-900 dark:text-stone-100">
-                                {member.user.name || member.user.email.split("@")[0]}
-                              </p>
-                              <p className="truncate text-[11px] text-stone-500 dark:text-stone-400">
-                                {member.user.email}
-                              </p>
-                            </div>
-                          </div>
-
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider shrink-0",
-                              isOwner
-                                ? "border border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-300"
-                                : "border border-stone-200 bg-stone-100 text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
-                            )}
-                          >
-                            <Shield className="h-3 w-3" />
-                            {isOwner ? "Owner" : "Member"}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Policy Summary Callout */}
-                  <div className="rounded-xl border border-stone-200 bg-stone-50/80 p-4 text-xs text-stone-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 space-y-1.5">
-                    <p className="font-semibold text-stone-900 dark:text-stone-200">
-                      นโยบายการเข้าถึง (Access Policy):
-                    </p>
-                    <ul className="list-disc pl-4 space-y-1 text-[11px] leading-relaxed">
-                      <li>
-                        <strong>Owner:</strong> สามารถจัดการชื่อและภาพปกโปรเจกต์
-                        กำหนดการตั้งค่าความเป็นส่วนตัว เชิญหรือถอนสมาชิก และลบโปรเจกต์ได้
-                      </li>
-                      <li>
-                        <strong>Member:</strong> สามารถร่วมสร้างการ์ด จัดการงาน บันทึกโน้ต
-                        และสร้างบอร์ดส่วนตัว (หากเปิดใช้งาน)
-                      </li>
-                    </ul>
-                  </div>
-                </section>
-              </div>
-            )}
-
-            {/* TAB: Boards (Boards & Sub-projects) */}
-            {(activeTab === "boards" || activeTab === "all") && (
-              <div className="space-y-4">
-                {activeTab === "all" && (
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
-                    <FolderKanban className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                      3. บอร์ดและโปรเจกต์ย่อย (Boards & Sub-projects)
-                    </h2>
-                  </div>
-                )}
-                <ProjectBoardsManager
-                  projectId={projectId}
-                  canManage={canManage}
-                  initialBoards={boardsList}
-                  projectMembers={projectMembers}
-                  onConfigureBoard={handleOpenBoardConfig}
-                />
-              </div>
-            )}
-
-            {/* TAB: Board General & Access */}
-            {(activeTab === "board-general" || activeTab === "all") && (
-              <div className="space-y-4">
-                {activeTab === "all" && (
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
-                    <Settings className="h-4 w-4 text-amber-600 dark:text-dusk-amber" />
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                      4. ข้อมูลบอร์ดและสิทธิ์เข้าถึง (Board Details & Access)
-                    </h2>
-                  </div>
-                )}
-
-                {/* Active Board Selector Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.03] shadow-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
-                      <FolderKanban className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-dusk-amber">
-                          Active Board
-                        </span>
-                        {boardIsPrivate ? (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.2 text-[9px] font-semibold text-dusk-amber">
-                            Private
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-2 py-0.2 text-[9px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
-                            Public
-                          </span>
-                        )}
-                      </div>
-                      <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
-                        {boardName || activeBoard?.name || "Select Board"}
-                      </h2>
-                    </div>
-                  </div>
-
-                  {boardsList.length > 1 && (
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">เลือกบอร์ด:</span>
-                      <select
-                        value={selectedBoardId}
-                        onChange={(e) => {
-                          const nextId = e.target.value;
-                          setSelectedBoardId(nextId);
-                          if (typeof window !== "undefined") {
-                            const url = new URL(window.location.href);
-                            url.searchParams.set("boardId", nextId);
-                            window.history.replaceState(null, "", url.toString());
-                          }
-                        }}
-                        className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-bold text-stone-800 shadow-xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer"
-                      >
-                        {boardsList.map((b) => (
-                          <option key={b.id} value={b.id}>
-                            {b.name} {b.isPrivate ? "🔒 (Private)" : "🌐 (Public)"}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-
-                {selectedBoardId ? (
-                  <div className="space-y-4">
-                    <section className="lofi-panel rounded-2xl p-5 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02] space-y-4">
-                      <BoardGeneralTab
-                        name={boardName}
-                        onNameChange={setBoardName}
-                        isPrivate={boardIsPrivate}
-                        onPrivacyChange={setBoardIsPrivate}
-                        canManage={canManage}
-                        selectedMemberCount={boardMemberUserIds.length}
-                        totalProjectMembersCount={projectMembers.length}
-                        projectMembers={projectMembers.map((m) => ({
-                          id: m.userId,
-                          userId: m.userId,
-                          role: m.role,
-                          name: m.user.name,
-                          email: m.user.email,
-                          avatar: m.user.avatar
-                        }))}
-                        filteredMembers={filteredBoardMembers.map((m) => ({
-                          id: m.userId,
-                          userId: m.userId,
-                          role: m.role,
-                          name: m.user.name,
-                          email: m.user.email,
-                          avatar: m.user.avatar
-                        }))}
-                        selectedMemberIds={boardMemberUserIds}
-                        memberSearchQuery={boardMemberSearchQuery}
-                        onSearchChange={setBoardMemberSearchQuery}
-                        onToggleMember={(userId) => {
-                          setBoardMemberUserIds((prev) =>
-                            prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
-                          );
-                        }}
-                        onSelectAll={() => setBoardMemberUserIds(projectMembers.map((m) => m.userId))}
-                        onClearAll={() => setBoardMemberUserIds([])}
-                      />
-
-                      <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200 dark:border-white/10">
-                        <Button
-                          type="button"
-                          variant="primary"
-                          size="sm"
-                          disabled={!canManage || isSavingBoard || !boardName.trim()}
-                          onClick={() => handleSaveBoardGeneral()}
-                          className="font-semibold shadow-xs"
-                        >
-                          {isSavingBoard ? "กำลังบันทึก..." : "บันทึกการตั้งค่าบอร์ด (Save Changes)"}
-                        </Button>
-                      </div>
-                    </section>
-
-                    {/* Danger Zone */}
-                    {canManage && (
-                      <section className="lofi-panel rounded-2xl p-5 border border-red-200 bg-red-50/20 dark:border-red-500/20 dark:bg-red-500/[0.03]">
-                        <BoardDangerTab
-                          boardName={boardName || activeBoard?.name || "บอร์ดนี้"}
-                          canManage={canManage && boardsList.length > 1}
-                          isDeleting={isDeletingBoard}
-                          onDeleteClick={() => setDeleteConfirmOpen(true)}
-                        />
-                      </section>
-                    )}
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-6 text-center text-xs text-stone-500 dark:border-white/10 dark:bg-white/[0.02]">
-                    ยังไม่มีบอร์ดในโปรเจกต์นี้
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* TAB: Board Columns & Workflow */}
-            {(activeTab === "board-columns" || activeTab === "all") && (
-              <div className="space-y-4">
-                {activeTab === "all" && (
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
-                    <Layers className="h-4 w-4 text-purple-600 dark:text-dusk-lavender" />
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                      5. ขั้นตอนงานและคอลัมน์ (Columns & Workflow)
-                    </h2>
-                  </div>
-                )}
-
-                {/* Active Board Selector Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.03] shadow-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-purple-200 bg-purple-50 text-purple-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
-                      <Layers className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-dusk-amber">
-                        Workflow Stage Columns
-                      </span>
-                      <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
-                        {boardName || activeBoard?.name || "Select Board"}
-                      </h2>
-                    </div>
-                  </div>
-
-                  {boardsList.length > 1 && (
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">เลือกบอร์ด:</span>
-                      <select
-                        value={selectedBoardId}
-                        onChange={(e) => {
-                          const nextId = e.target.value;
-                          setSelectedBoardId(nextId);
-                          if (typeof window !== "undefined") {
-                            const url = new URL(window.location.href);
-                            url.searchParams.set("boardId", nextId);
-                            window.history.replaceState(null, "", url.toString());
-                          }
-                        }}
-                        className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-bold text-stone-800 shadow-xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer"
-                      >
-                        {boardsList.map((b) => (
-                          <option key={b.id} value={b.id}>
-                            {b.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-
-                {selectedBoardId ? (
-                  <section className="lofi-panel rounded-2xl p-5 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02]">
-                    <BoardColumnsTab
-                      columns={boardColumns}
-                      totalCards={boardColumns.reduce((acc, c) => acc + (c.cardCount ?? 0), 0)}
-                      projectId={projectId}
-                      boardId={selectedBoardId}
-                      canManage={canManage}
-                      onColumnsChange={setBoardColumns}
-                    />
-                  </section>
-                ) : (
-                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-6 text-center text-xs text-stone-500 dark:border-white/10 dark:bg-white/[0.02]">
-                    ยังไม่มีบอร์ดในโปรเจกต์นี้
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* TAB: Attributes (Card Attributes & Types) */}
-            {(activeTab === "attributes" || activeTab === "all") && (
-              <div className="space-y-4">
-                {activeTab === "all" && (
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
-                    <CheckSquare className="h-4 w-4 text-teal-600 dark:text-dusk-cyan" />
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                      6. สถานะและแอตทริบิวต์การ์ด (Card Attributes & Types)
-                    </h2>
-                  </div>
-                )}
-
-                {/* Interactive Board Attributes Manager */}
-                <section className="lofi-panel rounded-2xl p-5 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02] space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-stone-200 pb-4 dark:border-white/10">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600 dark:text-dusk-amber">
-                        Interactive Attribute Manager
-                      </p>
-                      <h3 className="mt-0.5 text-sm sm:text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                        <CheckSquare className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
-                        <span>จัดการคุณสมบัติการ์ด (Status, Priority &amp; Story Points)</span>
-                      </h3>
-                      <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-                        ปรับแต่งสถานะคอลัมน์ ลำดับความสำคัญ และคะแนนความยาก พร้อมซิงค์เรียลไทม์กับทุกบอร์ด
-                      </p>
-                    </div>
-
-                    {formattedBoards.length > 1 && (
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">เลือกบอร์ด:</span>
-                        <select
-                          value={selectedBoardId}
-                          onChange={(e) => setSelectedBoardId(e.target.value)}
-                          className="rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-bold text-stone-800 shadow-xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer"
-                        >
-                          {formattedBoards.map((b) => (
-                            <option key={b.id} value={b.id}>
-                              {b.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-
-                  {selectedBoardId ? (
-                    <BoardAttributesTab
-                      key={`board-attr-${selectedBoardId}-${attributeSubTab}`}
-                      boardId={selectedBoardId}
-                      canManage={canManage}
-                      priorities={boardPriorities}
-                      onPrioritiesChange={handlePrioritiesChange}
-                      initialSubTab={attributeSubTab}
-                    />
-                  ) : (
-                    <div className="rounded-xl border border-stone-200 bg-stone-50 p-6 text-center text-xs text-stone-500 dark:border-white/10 dark:bg-white/[0.02]">
-                      ยังไม่มีบอร์ดในโปรเจกต์นี้ โปรดสร้างบอร์ดใหม่ในแท็บ &ldquo;Boards &amp; Sub-projects&rdquo; ก่อนปรับแต่งคุณสมบัติการ์ด
-                    </div>
-                  )}
-                </section>
-
-                <div className="grid grid-cols-1 gap-4">
-                  {/* 1. Workflow Statuses */}
-                  <section className="lofi-panel rounded-2xl p-5 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02] space-y-4">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600 dark:text-dusk-amber">
-                        Work States
-                      </p>
-                      <h3 className="mt-1 text-sm sm:text-base font-semibold text-stone-900 dark:text-stone-100">
-                        สถานะการ์ดมาตรฐาน (Standard Card Statuses)
-                      </h3>
-                      <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        วงจรชีวิตงานของ Retzlo ประกอบด้วยสถานะพื้นฐานที่สอดคล้องกับ Kanban
-                        และการประมวลผลความคืบหน้า
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                      <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-3.5 dark:border-dusk-lavender/20 dark:bg-dusk-lavender/10">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-indigo-600 dark:bg-dusk-lavender" />
-                          <span className="text-xs font-bold text-indigo-700 dark:text-dusk-lavender">
-                            TODO
-                          </span>
-                        </div>
-                        <p className="mt-1 text-[11px] text-stone-600 dark:text-stone-400">
-                          งานที่รอการดำเนินการ หรืออยู่ในรายการ Backlog
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl border border-teal-200 bg-teal-50/60 p-3.5 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-teal-600 dark:bg-dusk-cyan" />
-                          <span className="text-xs font-bold text-teal-700 dark:text-dusk-cyan">
-                            DOING
-                          </span>
-                        </div>
-                        <p className="mt-1 text-[11px] text-stone-600 dark:text-stone-400">
-                          งานที่กำลังอยู่ระหว่างการปฏิบัติหรือพัฒนา
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3.5 dark:border-dusk-amber/20 dark:bg-dusk-amber/10">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-amber-600 dark:bg-dusk-amber" />
-                          <span className="text-xs font-bold text-amber-700 dark:text-dusk-amber">
-                            WAITING
-                          </span>
-                        </div>
-                        <p className="mt-1 text-[11px] text-stone-600 dark:text-stone-400">
-                          รอการตรวจ รอความคิดเห็น หรือติดอุปสรรคภายนอก
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3.5 dark:border-emerald-500/20 dark:bg-emerald-500/10">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-400" />
-                          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                            DONE
-                          </span>
-                        </div>
-                        <p className="mt-1 text-[11px] text-stone-600 dark:text-stone-400">
-                          งานที่เสร็จสิ้นสมบูรณ์และได้รับรางวัลเหรียญ
-                        </p>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* 2. Priority Scale & Story Points */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Priority Levels */}
-                    <section className="lofi-panel rounded-2xl p-5 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02] space-y-3">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600 dark:text-dusk-amber">
-                          Priority Matrix
-                        </p>
-                        <h3 className="mt-1 text-sm font-semibold text-stone-900 dark:text-stone-100">
-                          ระดับความสำคัญ (Priority Levels)
-                        </h3>
-                        <p className="text-xs text-stone-500 dark:text-stone-400">
-                          ลำดับความเร่งด่วนสำหรับการจัดการ Backlog
-                        </p>
-                      </div>
-
-                      <div className="space-y-2 pt-1">
-                        <div className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50/60 px-3 py-2 text-xs dark:border-red-500/20 dark:bg-red-500/10">
-                          <span className="flex items-center gap-2 font-semibold text-red-700 dark:text-red-300">
-                            <span className="h-2 w-2 rounded-full bg-red-500" />
-                            P0 - Urgent
-                          </span>
-                          <span className="text-[11px] text-stone-500 dark:text-stone-400">ด่วนที่สุด / บล็อกเกอร์</span>
-                        </div>
-                        <div className="flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50/60 px-3 py-2 text-xs dark:border-orange-500/20 dark:bg-orange-500/10">
-                          <span className="flex items-center gap-2 font-semibold text-orange-700 dark:text-orange-300">
-                            <span className="h-2 w-2 rounded-full bg-orange-500" />
-                            P1 - High
-                          </span>
-                          <span className="text-[11px] text-stone-500 dark:text-stone-400">สำคัญมาก / มีผลต่อเป้าหมาย</span>
-                        </div>
-                        <div className="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2 text-xs dark:border-amber-500/20 dark:bg-amber-500/10">
-                          <span className="flex items-center gap-2 font-semibold text-amber-700 dark:text-amber-300">
-                            <span className="h-2 w-2 rounded-full bg-amber-500" />
-                            P2 - Medium
-                          </span>
-                          <span className="text-[11px] text-stone-500 dark:text-stone-400">มาตรฐานประจำวัน</span>
-                        </div>
-                        <div className="flex items-center justify-between rounded-lg border border-cyan-200 bg-cyan-50/60 px-3 py-2 text-xs dark:border-cyan-500/20 dark:bg-cyan-500/10">
-                          <span className="flex items-center gap-2 font-semibold text-cyan-700 dark:text-cyan-300">
-                            <span className="h-2 w-2 rounded-full bg-cyan-500" />
-                            P3 - Low
-                          </span>
-                          <span className="text-[11px] text-stone-500 dark:text-stone-400">งานเสริม / ปรับปรุง</span>
-                        </div>
-                        <div className="flex items-center justify-between rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-xs dark:border-white/10 dark:bg-white/[0.02]">
-                          <span className="flex items-center gap-2 font-semibold text-stone-700 dark:text-stone-300">
-                            <span className="h-2 w-2 rounded-full bg-stone-400" />
-                            P4 - None
-                          </span>
-                          <span className="text-[11px] text-stone-500 dark:text-stone-400">ทั่วไป / ไอเดีย</span>
-                        </div>
-                      </div>
-                    </section>
-
-                    {/* Story Points & Sizing */}
-                    <section className="lofi-panel rounded-2xl p-5 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02] space-y-3">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600 dark:text-dusk-amber">
-                          Estimation & Velocity
-                        </p>
-                        <h3 className="mt-1 text-sm font-semibold text-stone-900 dark:text-stone-100">
-                          Story Points & การประเมินขนาด
-                        </h3>
-                        <p className="text-xs text-stone-500 dark:text-stone-400">
-                          ชุดคะแนนสำหรับการวางแผนสปรินต์และการวัดผลงาน
-                        </p>
-                      </div>
-
-                      <div className="space-y-3 pt-1">
-                        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3 dark:border-white/5 dark:bg-white/[0.02]">
-                          <div className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                            Fibonacci Scale (Default)
-                          </div>
-                          <div className="mt-2 flex flex-wrap gap-1.5">
-                            {["1 pt", "3 pts", "5 pts", "8 pts", "16 pts", "21 pts"].map((pt) => (
-                              <span
-                                key={pt}
-                                className="rounded-lg border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender"
-                              >
-                                {pt}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3 dark:border-white/5 dark:bg-white/[0.02]">
-                          <div className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                            T-Shirt Sizing & Linear
-                          </div>
-                          <div className="mt-2 flex flex-wrap gap-1.5">
-                            {["XS", "S", "M", "L", "XL"].map((sz) => (
-                              <span
-                                key={sz}
-                                className="rounded-lg border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-300"
-                              >
-                                {sz}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="pt-1">
-                          <Link href={`/project/${projectId}/board`}>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="w-full text-xs inline-flex items-center justify-center gap-1.5"
-                            >
-                              <span>ไปยังบอร์ดเพื่อปรับแต่งคอลัมน์</span>
-                              <ExternalLink className="h-3 w-3" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB: Features (Features & Privacy) */}
-            {(activeTab === "features" || activeTab === "all") && (
-              <div className="space-y-4">
-                {activeTab === "all" && (
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
-                    <ShieldCheck className="h-4 w-4 text-cyan-600 dark:text-dusk-cyan" />
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                      5. สิทธิ์และฟีเจอร์ (Features & Privacy)
-                    </h2>
-                  </div>
-                )}
-                <SettingsForm
-                  project={project}
-                  canManagePrivacy={canManage}
-                  viewMode="features"
-                />
-              </div>
-            )}
-
-            {/* TAB: Preferences (Preferences & Theme) */}
-            {(activeTab === "preferences" || activeTab === "all") && (
-              <div className="space-y-4">
-                {activeTab === "all" && (
-                  <div className="flex items-center gap-2 border-b border-stone-200 pb-2 pt-4 dark:border-white/10">
-                    <Palette className="h-4 w-4 text-rose-600 dark:text-dusk-rose" />
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                      6. การตั้งค่าส่วนบุคคล (Preferences & Theme)
-                    </h2>
-                  </div>
-                )}
-                <section
-                  className={cn(
-                    "lofi-panel rounded-2xl p-5 sm:p-6 border border-stone-200 bg-white dark:border-white/10 dark:bg-white/[0.02]",
-                    activeTab === "preferences" && "max-w-4xl"
-                  )}
+          {/* One board scope bar shared by all board-level tabs */}
+          {isBoardTab && boardsList.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-theme-border bg-theme-paper/60 px-3 py-2">
+              <FolderKanban className="h-3.5 w-3.5 text-theme-accent" />
+              <span className="text-xs text-theme-muted">Active Board</span>
+              {boardsList.length > 1 ? (
+                <select
+                  aria-label="เลือกบอร์ด"
+                  value={selectedBoardId}
+                  onChange={(e) => handleBoardSelect(e.target.value)}
+                  className="h-7 cursor-pointer rounded-md border border-theme-border bg-theme-panel px-2 text-xs font-semibold text-theme-foreground"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-dusk-lavender/20 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
-                      <Palette className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-600 dark:text-dusk-amber">
-                        Personal preferences
-                      </p>
-                      <h3 className="mt-1 text-base font-semibold text-stone-900 dark:text-stone-100">
-                        Theme mode & Sound effects
-                      </h3>
-                      <p className="mt-1 text-xs sm:text-sm leading-6 text-stone-500 dark:text-stone-400">
-                        ตั้งค่าการแสดงผลและเสียงตอบสนองเฉพาะเบราว์เซอร์นี้
-                      </p>
-                    </div>
-                  </div>
+                  {boardsList.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="text-xs font-semibold text-theme-foreground">{displayBoardName}</span>
+              )}
+              <span className="inline-flex items-center gap-1 rounded-full border border-theme-border px-2 py-0.5 text-[10px] text-theme-muted">
+                {boardIsPrivate ? <Lock className="h-2.5 w-2.5" /> : <Globe className="h-2.5 w-2.5" />}
+                {boardIsPrivate ? "Private" : "Public"}
+              </span>
+              <Link
+                href={`/project/${projectId}/board?boardId=${selectedBoardId}`}
+                className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-theme-muted hover:text-theme-foreground"
+              >
+                Open board
+                <ExternalLink className="h-3 w-3" />
+              </Link>
+            </div>
+          )}
 
-                  <div className="mt-5 space-y-6">
-                    <div>
-                      <h4 className="text-sm font-semibold text-stone-800 dark:text-stone-200">
-                        Theme mode
-                      </h4>
-                      <p className="mb-3 mt-1 text-xs leading-5 text-stone-500 dark:text-stone-400">
-                        เลือกสไตล์ภาพของ Retzlo สำหรับเครื่องของคุณ (บันทึกเฉพาะในเบราว์เซอร์นี้)
-                      </p>
-                      {themeToggleSlot}
-                    </div>
+          {/* TAB: General */}
+          {activeTab === "identity" && <SettingsForm project={project} canManagePrivacy={canManage} />}
 
-                    <div className="border-t border-stone-200 pt-5 dark:border-white/10">
-                      <div className="flex items-center gap-2">
-                        <Volume2 className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
-                        <h4 className="text-sm font-semibold text-stone-800 dark:text-stone-200">
-                          Sound feedback
-                        </h4>
+          {/* TAB: Members */}
+          {activeTab === "access" && (
+            <>
+              <SettingsSection
+                title={`Space Members · ${projectMembers.length}`}
+                description="สมาชิกทุกคนเข้าถึงและทำงานร่วมกันในบอร์ดสาธารณะได้"
+                actions={
+                  <Link href={`/project/${projectId}/members`}>
+                    <Button variant="secondary" size="sm">
+                      <span>จัดการสมาชิกและคำเชิญ</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </Link>
+                }
+              >
+                {projectMembers.map((member) => {
+                  const isOwner = member.role.toUpperCase() === "OWNER";
+                  return (
+                    <div key={member.id} className="flex items-center gap-3 px-4 py-2.5">
+                      <Avatar user={member.user} size={28} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-theme-foreground">
+                          {member.user.name || member.user.email.split("@")[0]}
+                        </p>
+                        <p className="truncate text-xs text-theme-muted">{member.user.email}</p>
                       </div>
-                      <p className="mb-4 mt-1 text-xs leading-5 text-stone-500 dark:text-stone-400">
-                        เปิด/ปิดเสียงและปรับระดับเสียงแจ้งเตือนเมื่อทำงานเสร็จ
-                      </p>
-                      <SoundToggle />
+                      <span
+                        className={cn(
+                          "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold",
+                          isOwner
+                            ? "border-theme-warning-border bg-theme-warning-surface text-theme-warning"
+                            : "border-theme-border text-theme-muted"
+                        )}
+                      >
+                        {isOwner ? "Owner" : "Member"}
+                      </span>
                     </div>
-                  </div>
-                </section>
-              </div>
-            )}
-          </main>
-        </div>
+                  );
+                })}
+              </SettingsSection>
+
+              <SettingsSection title="Roles" description="สิ่งที่แต่ละบทบาททำได้ในโปรเจกต์นี้">
+                <SettingsRow
+                  label="Owner"
+                  description="จัดการชื่อและภาพปก ตั้งค่าความเป็นส่วนตัว เชิญหรือถอนสมาชิก และลบโปรเจกต์"
+                />
+                <SettingsRow
+                  label="Member"
+                  description="สร้างและจัดการการ์ด บันทึกโน้ต และสร้างไอเทมส่วนตัว (หากเปิดใช้งาน)"
+                />
+              </SettingsSection>
+            </>
+          )}
+
+          {/* TAB: All boards */}
+          {activeTab === "boards" && (
+            <ProjectBoardsManager
+              projectId={projectId}
+              canManage={canManage}
+              initialBoards={boardsList}
+              projectMembers={projectMembers}
+              onConfigureBoard={handleOpenBoardConfig}
+            />
+          )}
+
+          {/* TAB: Board details & access */}
+          {activeTab === "board-general" &&
+            (selectedBoardId ? (
+              <>
+                <SettingsSection
+                  title="Board details & access"
+                  flush
+                  footer={
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={!canManage || isSavingBoard || !boardName.trim()}
+                      onClick={() => handleSaveBoardGeneral()}
+                    >
+                      {isSavingBoard ? "กำลังบันทึก..." : "Save changes"}
+                    </Button>
+                  }
+                >
+                  <BoardGeneralTab
+                    name={boardName}
+                    onNameChange={setBoardName}
+                    isPrivate={boardIsPrivate}
+                    onPrivacyChange={setBoardIsPrivate}
+                    canManage={canManage}
+                    selectedMemberCount={boardMemberUserIds.length}
+                    totalProjectMembersCount={projectMembers.length}
+                    projectMembers={projectMembers.map((m) => ({
+                      id: m.userId,
+                      userId: m.userId,
+                      role: m.role,
+                      name: m.user.name,
+                      email: m.user.email,
+                      avatar: m.user.avatar
+                    }))}
+                    filteredMembers={filteredBoardMembers.map((m) => ({
+                      id: m.userId,
+                      userId: m.userId,
+                      role: m.role,
+                      name: m.user.name,
+                      email: m.user.email,
+                      avatar: m.user.avatar
+                    }))}
+                    selectedMemberIds={boardMemberUserIds}
+                    memberSearchQuery={boardMemberSearchQuery}
+                    onSearchChange={setBoardMemberSearchQuery}
+                    onToggleMember={(userId) => {
+                      setBoardMemberUserIds((prev) =>
+                        prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+                      );
+                    }}
+                    onSelectAll={() => setBoardMemberUserIds(projectMembers.map((m) => m.userId))}
+                    onClearAll={() => setBoardMemberUserIds([])}
+                  />
+                </SettingsSection>
+
+                {canManage && (
+                  <SettingsSection title="Danger zone" tone="danger">
+                    <SettingsRow
+                      label="Delete this board"
+                      description={
+                        boardsList.length > 1
+                          ? `ลบ “${displayBoardName}” พร้อมคอลัมน์ การ์ด เช็กลิสต์ และคอมเมนต์ทั้งหมดอย่างถาวร`
+                          : "โปรเจกต์ต้องมีอย่างน้อย 1 บอร์ด จึงลบบอร์ดสุดท้ายไม่ได้"
+                      }
+                    >
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        disabled={boardsList.length <= 1 || isDeletingBoard}
+                        onClick={() => setDeleteConfirmOpen(true)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete board
+                      </Button>
+                    </SettingsRow>
+                  </SettingsSection>
+                )}
+              </>
+            ) : (
+              noBoardsState
+            ))}
+
+          {/* TAB: Columns */}
+          {activeTab === "board-columns" &&
+            (selectedBoardId ? (
+              <SettingsSection title="Workflow columns" description="ลากเพื่อเรียงลำดับ ตั้ง WIP limit และสถานะเริ่มต้นของการ์ด" flush>
+                <BoardColumnsTab
+                  columns={boardColumns}
+                  totalCards={boardColumns.reduce((acc, c) => acc + (c.cardCount ?? 0), 0)}
+                  projectId={projectId}
+                  boardId={selectedBoardId}
+                  canManage={canManage}
+                  onColumnsChange={setBoardColumns}
+                />
+              </SettingsSection>
+            ) : (
+              noBoardsState
+            ))}
+
+          {/* TAB: Card attributes */}
+          {activeTab === "attributes" &&
+            (selectedBoardId ? (
+              <SettingsSection title="Card attributes" description="ซิงค์กับ Kanban, Card modal และ Table view ทันที" flush>
+                <BoardAttributesTab
+                  key={`board-attr-${selectedBoardId}-${attributeSubTab}`}
+                  boardId={selectedBoardId}
+                  canManage={canManage}
+                  priorities={boardPriorities}
+                  onPrioritiesChange={handlePrioritiesChange}
+                  initialSubTab={attributeSubTab}
+                />
+              </SettingsSection>
+            ) : (
+              noBoardsState
+            ))}
+
+          {/* TAB: Personal preferences */}
+          {activeTab === "preferences" && (
+            <SettingsSection title="Appearance & sound" description="บันทึกเฉพาะในเบราว์เซอร์นี้">
+              <SettingsRow label="Theme mode" description="Light, Dark หรือตามระบบปฏิบัติการ">
+                <div className="w-full sm:w-72">{themeToggleSlot}</div>
+              </SettingsRow>
+              <SettingsRow label="Sound feedback" description="เสียงแจ้งเมื่อย้ายการ์ดไป Done และระดับเสียง" stacked>
+                <SoundToggle />
+              </SettingsRow>
+            </SettingsSection>
+          )}
+        </main>
       </div>
 
       <ConfirmModal

@@ -179,7 +179,7 @@ export async function callAiChat(
       return generateFallbackResponse(options);
     }
     throw new Error(
-      "ไม่พบการตั้งค่า AI_API_KEY บนเซิร์ฟเวอร์ (หากใช้งานบน Vercel กรุณาเพิ่ม AI_API_KEY ใน Vercel Dashboard หรือระบุในตั้งค่า AI ของระบบ)"
+      "ระบบ AI ไม่พร้อมใช้งานชั่วคราว กรุณาติดต่อผู้ดูแลระบบ"
     );
   }
 
@@ -247,12 +247,12 @@ export async function callAiChat(
       const errText = await response.text().catch(() => "");
       if (response.status === 401) {
         throw new Error(
-          "การยืนยันตัวตน AI API ล้มเหลว (401): คีย์ไม่ถูกต้องหรือถูกยกเลิก กรุณาตรวจสอบ AI_API_KEY ในไฟล์ .env หรือตั้งค่าในระบบ"
+          "การยืนยันตัวตน AI ล้มเหลว (401): ระบบ AI ไม่พร้อมใช้งานชั่วคราว กรุณาติดต่อผู้ดูแลระบบ"
         );
       }
       if (response.status === 402) {
         throw new Error(
-          "ยอดเงินคงเหลือ DeepSeek API ไม่เพียงพอ กรุณาเติมเงินที่ platform.deepseek.com หรือเปลี่ยน API Key"
+          "โควตา AI ประจำเซิร์ฟเวอร์หมดชั่วคราว กรุณาลองใหม่อีกครั้งในภายหลังหรือติดต่อผู้ดูแลระบบ"
         );
       }
       if (response.status === 429) {

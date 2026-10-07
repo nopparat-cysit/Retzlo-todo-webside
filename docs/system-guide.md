@@ -15,7 +15,7 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 - **Authentication:** NextAuth.js Credentials Provider
 - **Real-time Sync:** Pusher WebSocket Channels
 - **Styling & Design System:** Tailwind CSS + Semantic Theme Tokens (`retro lofi indigo` palette)
-- **AI Engine:** DeepSeek Chat API (`deepseek-v4-pro` default) พร้อมระบบ Fallback และ Custom User API Key
+- **AI Engine:** DeepSeek Chat API (`deepseek-v4-pro` default) พร้อมโมเดลผู้ช่วยอัจฉริยะในตัว (Server-side Integrated Intelligence) ไม่ต้องตั้งค่า API Key เพิ่มเติม
 
 ---
 
@@ -31,7 +31,7 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - เข้าใจบริบทของโปรเจกต์ปัจจุบัน (Project Context Aware)
   - ตอบคำถามและให้คำแนะนำแบบหลายรอบ (Multi-turn conversation)
   - แนะนำและร่างการ์ดงานใหม่ลงในบอร์ดได้โดยตรงผ่านคำสั่งแชท (พร้อม Confirmation Modal)
-  - รองรับการใส่ DeepSeek API Key ของผู้ใช้เอง และสลับโมเดล AI ในระบบ
+  - ระบบประมวลผลอัจฉริยะในตัว (Built-in Server Management) พร้อมทำงานทันทีโดยไม่ต้องตั้งค่าหรือกรอก API Key ใดๆ ทั้งสิ้น
 
 ### 2.2 ฟีเจอร์ AI Auto-Breakdown & Executive Summary
 - **AI Task Breakdown:** ปุ่ม `✨ AI Breakdown` ภายใน Modal ของการ์ด สั่งให้ AI วิเคราะห์ชื่องานและคำอธิบาย แล้วแตกเป็น Checklist 3–10 ข้อย่อยได้ในคลิกเดียว
@@ -153,43 +153,44 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - เพิ่มหรือลบคะแนนแบบกำหนดเอง (Custom Points 1–100) พร้อมชื่อคำอธิบายและโทนสี
   - ยืนยันการลบและรีเซ็ตด้วย `ConfirmModal` และแจ้งเตือนด้วย Toast ทุกครั้ง
 
-### 2.11 การตั้งค่าโปรเจกต์และพื้นที่ทำงานแบบ Master-Detail สไตล์ Jira (Jira-style Space Settings - `/project/[id]/settings`)
-- **สถาปัตยกรรมแถบนำทาง Master-Detail ด้านซ้าย (Left Sidebar Navigation):**
-  - ได้รับแรงบันดาลใจจาก Jira Space Settings และ Linear จัดกลุ่มการตั้งค่าอย่างมีระดับ ไม่ต้องเลื่อนหายาวในหน้าเดียว
-  - **Space Identity Badge & Back to Board:** หัวแถบแสดงภาพปก/สติกเกอร์ของโปรเจกต์, ชื่อโปรเจกต์, จำนวนบอร์ดและสมาชิก พร้อมปุ่ม `← Back to board` สำหรับกลับสู่หน้าการทำงานได้อย่างรวดเร็ว
-  - **การจัดกลุ่ม 4 หมวดหมู่หลัก (Categorized Settings Navigation):**
-    1. **General (ทั่วไป):**
-       - **Details & Identity (`identity`):** ปรับแก้ชื่อ คำอธิบาย และอัปโหลดภาพปกโปรเจกต์
-       - **Access & Team (`access`):** ดูรายชื่อสมาชิกในทีม บทบาท Owner/Member พร้อมปุ่มเชื่อมต่อไปยังหน้าจัดการสมาชิกและส่งคำเชิญ (`/members`)
-    2. **Workflow (เวิร์กโฟลว์ & บอร์ด):**
-       - **Boards & Sub-projects (`boards`):** จัดการกระดานงานทั้งหมดในโปรเจกต์ สร้างบอร์ดใหม่ และภาพรวมงาน
-       - **Board Details & Access (`board-general`):** ตั้งค่าชื่อบอร์ด ความเป็นส่วนตัว (Public/Private) และสิทธิ์สมาชิกรายบอร์ด พร้อมปุ่มลบบอร์ดใน Danger Zone โดยไม่ต้องเปิดป๊อปอัปบังหน้าจอ
-       - **Columns & Workflow (`board-columns`):** ตรวจสอบและจัดการขั้นตอนงานคอลัมน์, เพิ่มคอลัมน์ใหม่ได้โดยตรงผ่านปุ่ม `+ เพิ่มคอลัมน์ใหม่` (กำหนดชื่อ, สถานะเริ่มต้น TODO/DOING/WAITING/DONE, ธีมสี, ไอคอน, และ WIP Limits) พร้อมแก้ไขรายละเอียดและลบคอลัมน์ที่มีระบบยืนยันความปลอดภัย `ConfirmModal` และ Toast แจ้งเตือนผลลัพธ์ โดยซิงค์ข้อมูลกับกระดาน Kanban แบบเรียลไทม์ทันที
-       - **Card Attributes & Types (`attributes`):** ดูวงจรชีวิตสถานะงาน (TODO, DOING, WAITING, DONE), ปรับแต่ง 10 ระดับความสำคัญ (Custom Priorities), และชุดการประเมิน Story Points
-    3. **System & Privacy (ระบบ & ความเป็นส่วนตัว):**
-       - **Features & Privacy (`features`):** เปิด/ปิดแถบ Quick Notes, สิทธิ์สร้างไอเทมส่วนตัวของสมาชิก, และ Danger Zone สำหรับการลบโปรเจกต์
-       - **Preferences & Theme (`preferences`):** ปรับแต่งโหมดธีมของ Retzlo (Retro Lofi Dark / Warm Light / System) และระบบเสียงตอบสนองเฉพาะเครื่อง
-    4. **Overview (ภาพรวม):**
-       - **All Settings (`all`):** รวมการตั้งค่าทุกหมวดหมู่เรียงต่อเนื่องกันในหน้าเดียว
-  - **Active State Indicator:** แสดงแถบไฮไลท์สีม่วงลาเวนเดอร์และแถบ Accent Line ที่ขอบซ้ายชัดเจนตามมาตรฐานสากล
-  - **Mobile Responsive Adaptive:** บนหน้าจอมือถือและแท็บเล็ต (`< lg`) แถบนำทางด้านซ้ายจะพับเป็นแถบแท็บแนวนอนเลื่อนได้ (Horizontal Scrollable Pills) โดยอัตโนมัติ
-  - **URL Query Param Synchronization:** ซิงค์สถานะแท็บกับ URL query parameter `?tab=...` เสมอ ทำให้สามารถแชร์ลิงก์ตรงไปยังแต่ละหมวดการตั้งค่าได้ทันที
+### 2.11 การตั้งค่าโปรเจกต์แบบจัดกลุ่มตามขอบเขต (Scope-grouped Project Settings - `/project/[id]/settings`)
+- **แถบนำทางด้านซ้าย (Left Sidebar Navigation) แบ่งตามขอบเขตการตั้งค่า (อัปเดต 7 ต.ค. 2026):**
+  - ส่วนหัวแถบแสดงปุ่ม `← Back to board` และชื่อ/ภาพปกโปรเจกต์ขนาดกะทัดรัด
+  - **3 กลุ่มหลัก 7 หน้า:**
+    1. **Project (ระดับโปรเจกต์):**
+       - **General (`identity`):** ชื่อ คำอธิบาย ภาพปก, สวิตช์ฟีเจอร์ (Board notes rail, Private item hiding) และ Danger Zone ลบโปรเจกต์ — รวมอยู่หน้าเดียว
+       - **Members (`access`):** รายชื่อสมาชิกแบบแถวกะทัดรัด บทบาท Owner/Member พร้อมลิงก์ไปหน้าจัดการสมาชิกและคำเชิญ (`/members`) และสรุปสิทธิ์ของแต่ละบทบาท
+    2. **Boards (ระดับบอร์ด):**
+       - **All boards (`boards`):** ค้นหา กรอง และจัดการบอร์ดทั้งหมด (ค่าเริ่มต้นเป็นมุมมองรายการ สลับเป็น Grid ได้) พร้อมปุ่ม `New board`
+       - **Board details (`board-general`):** ชื่อบอร์ด ความเป็นส่วนตัว (Public/Private) สมาชิกรายบอร์ด และ Danger Zone ลบบอร์ด
+       - **Columns (`board-columns`):** เพิ่ม/แก้ไข/ลบคอลัมน์, สถานะเริ่มต้น, ธีมสี, ไอคอน และ WIP Limits (ยืนยันด้วย `ConfirmModal` และแจ้ง Toast)
+       - **Card attributes (`attributes`):** ตัวจัดการ Status, Priority และ Story Points แบบ interactive (ตัดคู่มืออธิบายแบบคงที่ออกแล้ว — ดูคำอธิบายได้ที่ `/help`)
+       - หน้าในระดับบอร์ดใช้ **แถบเลือกบอร์ดเดียวร่วมกัน (Active Board scope bar)** ด้านบนเนื้อหา พร้อมป้าย Public/Private และลิงก์ `Open board`
+    3. **Personal (เฉพาะเครื่องนี้):**
+       - **Theme & sound (`preferences`):** โหมดธีม (Light / Dark / System) และเสียงตอบสนอง บันทึกเฉพาะเบราว์เซอร์นี้
+  - **รูปแบบมาตรฐาน Settings Row:** ทุกหน้าใช้ `SettingsSection` / `SettingsRow` (`src/components/settings/settings-section.tsx`) — Label + คำอธิบายด้านซ้าย, ตัวควบคุมด้านขวา, คั่นด้วยเส้นบาง ลดการเลื่อนหน้าจอ
+  - **Mobile Responsive Adaptive:** บนหน้าจอ `< lg` แถบนำทางพับเป็นแท็บแนวนอนเลื่อนได้
+  - **URL Query Param Synchronization:** ซิงค์แท็บกับ `?tab=...` และบอร์ดกับ `?boardId=...` ลิงก์เก่ายังใช้งานได้: `?tab=features` และ `?tab=all` → General, `?tab=board` → Board details, `?tab=columns` → Columns (ตรรกะอยู่ที่ `src/lib/settings/tabs.ts`)
 - **หน้าต่างตั้งค่าบอร์ดสไตล์ Jira (Jira Master-Detail Board Settings):**
   - ไม่เปิดป๊อปอัปบังหน้าจอเมื่อกด Settings จากหน้ารวมบอร์ด แต่สลับเข้าสู่หน้าการตั้งค่าบอร์ดเต็มจอแบบ Jira ทันที
   - กล่องโมดอล `BoardSettingsModal` ได้รับการปรับปรุงเป็นโครงสร้าง Master-Detail แถบซ้ายแนวตั้งสไตล์ Jira (ทั่วไป & สิทธิ์, ขั้นตอนงาน, คุณสมบัติการ์ด, จัดการบอร์ด) พร้อมลิงก์ "เปิดหน้าเต็มจอ (Jira Style)"
   - บันทึกการเปลี่ยนแปลงได้ทันทีพร้อมแสดง Toast แจ้งเตือนความสำเร็จ และระบบยืนยันความปลอดภัยด้วย ConfirmModal เมื่อลบบอร์ด
 ### 2.12 ศูนย์รวมเอกสารและคู่มือระบบ (Documentation & Help Hub - `/help`)
-- **สถาปัตยกรรมเว็บไซต์ Documentation สมัยใหม่ (Modern Docs Architecture):**
+- **สถาปัตยกรรมเว็บไซต์ Documentation สไตล์ Modern SaaS (Stripe/Linear Inspired):**
+  - **Welcome Hero & 6-Pillar Bento Navigator:** ส่วนหัวต้อนรับพร้อมแถบนำทาง Bento Grid 6 เสาหลักของระบบ (Work Module, Retzlo AI, Attributes & Export, Calendar & Time, Gamification, Life Hub) ช่วยให้ผู้ใช้เห็นภาพรวมระบบทั้งหมดและคลิกกระโดดข้ามหมวดหมู่ได้ในคลิกเดียว
   - **Left Navigation Sidebar (Docs Tree):** แถบสารบัญด้านซ้ายแบ่งเป็น 10 หมวดหมู่ พร้อมตัวนับจำนวนบทความ ไอคอนประจำหมวด และป้ายกำกับ (Getting Started, AI Powered, Core Workflow, New Feature, Export, Customization, Updated) มีตัวระบุสถานะ Active Indicator ชัดเจน
-  - **Document Reader (พื้นที่อ่านเนื้อหาหลัก):**
-    - Breadcrumbs เส้นทางนำทาง และข้อมูลอัปเดต (เวลาที่ใช้อ่าน, วันที่อัปเดต, เวอร์ชัน)
-    - กล่องบทนำ Lead Summary พร้อมคำอธิบายภาพรวมและแนวคิดของฟีเจอร์
-    - รายการคุณสมบัติและความสามารถหลัก (Key Capabilities) พร้อมไอคอนเช็คลิสต์สีเขียวมรกต
-    - กล่องข้อความเคล็ดลับจากผู้เชี่ยวชาญ (💡 Pro Tips Callout)
-    - กล่องแสดงคีย์ลัดด่วน (⌨️ Shortcut Box) พร้อมปุ่ม Copy สำหรับคัดลอกได้ทันที
-    - วิดเจ็ตฟีดแบ็ก "บทความนี้มีประโยชน์กับคุณหรือไม่?" (👍 มีประโยชน์ / 👎 ต้องปรับปรุง) พร้อม Toast แจ้งเตือน
-    - ปุ่มเปลี่ยนบทความก่อนหน้าและถัดไป (Pagination: Prev / Next)
-  - **Right Sidebar (On this page TOC):** สำหรับหน้าจอ Desktop มีระบบสารบัญย่อยในหน้านี้ กระโดดข้ามหัวข้อ และกล่องด่วนสำหรับเรียกถามผู้ช่วย AI Assistant
+  - **Document Reader (พื้นที่อ่านเนื้อหาโครงสร้างใหม่แบบโมดูลาร์):**
+    - **Header & Lead Summary Banner:** การ์ดหัวเรื่องพร้อมไอคอนใหญ่ ป้ายหมวดหมู่ เวลาที่ใช้อ่าน วันที่อัปเดต และแบนเนอร์สรุปใจความสำคัญ (Summary)
+    - **Architecture & Concept Callout:** กรอบอธิบายภาพรวมและแนวคิดสถาปัตยกรรมของแต่ละฟีเจอร์อย่างลึกซึ้ง
+    - **Key Capabilities Grid:** การ์ดแสดงรายการความสามารถหลักแบบ Multi-column พร้อมป้ายสีและไอคอนแสดงความพร้อมใช้งาน
+    - **Step-by-Step Workflow Guide:** ขั้นตอนการใช้งานจริงแบบระบุลำดับ (`01`, `02`, `03`...) พร้อมคำแนะนำวิธีปฏิบัติจริงในระบบ
+    - **Technical Specifications Grid:** ตารางสเปกเทคนิค (Tech Stack, Protocol, Sync Latency, Supported Formats, Security Guard)
+    - **Pro Tips Callout (💡):** กล่องคำแนะนำจากผู้เชี่ยวชาญพร้อมไฮไลต์สีทอง
+    - **Keyboard Shortcuts Box (⌨️):** กล่องคีย์ลัดด่วนสไตล์ Terminal ดำทอง พร้อมปุ่มคัดลอก (Copy) และแจ้งเตือน Toast
+    - **Related Topics Quick Jump:** การ์ดเชื่อมโยงไปยังโมดูลและบทความที่เกี่ยวข้อง
+    - **Article Feedback Widget:** วิดเจ็ตฟีดแบ็ก "บทความนี้มีประโยชน์กับคุณหรือไม่?" (👍 มีประโยชน์ / 👎 ต้องปรับปรุง) พร้อม Toast แจ้งเตือน
+    - **Pagination (Prev / Next):** ปุ่มเปลี่ยนบทความก่อนหน้าและถัดไป
+  - **Right Sidebar (On this page TOC):** สำหรับหน้าจอ Desktop มีระบบสารบัญย่อยในหน้านี้ (#overview, #capabilities, #workflow, #technical-specs, #tips, #shortcuts) และกล่องด่วนสำหรับเรียกถามผู้ช่วย Retzlo AI Assistant
   - **สลับโหมดการดู (View Modes):** รองรับทั้งโหมดอ่านบทความ (Docs Reader View) และโหมดดูภาพรวมการ์ดทั้งหมด (Overview Grid View)
   - **การค้นหาด่วน & คีย์ลัด:** ช่องค้นหาพร้อมคีย์ลัด `Ctrl + K` กรองหัวข้อและเนื้อหาได้แบบ Real-time
   - **Mobile Responsive Drawer:** รองรับปุ่มเมนูสารบัญแบบ Drawer สไลด์ออกบนหน้าจอมือถือและแท็บเล็ต

@@ -51,7 +51,7 @@ export function ProjectBoardsManager({
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"ALL" | "PUBLIC" | "PRIVATE">("ALL");
-  const [layoutMode, setLayoutMode] = useState<"grid" | "table">("grid");
+  const [layoutMode, setLayoutMode] = useState<"grid" | "table">("table");
 
   // Auto-scroll and highlight target board if specified in query params
   useEffect(() => {
@@ -264,24 +264,32 @@ export function ProjectBoardsManager({
   }
 
   return (
-    <section className="lofi-panel rounded-2xl p-5 space-y-4">
-      {/* ── Top Header ── */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Multi-Board</p>
-          <h2 className="mt-1 text-lg font-semibold text-stone-100 flex items-center gap-2">
-            <FolderKanban className="h-5 w-5 text-dusk-lavender" />
-            Sub-projects & Boards
-          </h2>
-          <p className="mt-0.5 text-xs text-stone-400">
-            Manage separate project boards and configure member visibility per board.
-          </p>
+    <section className="space-y-3">
+      {/* ── Summary + primary action ── */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-theme-muted" aria-label="Board statistics">
+          <span className="inline-flex items-center gap-1 rounded-md border border-theme-border bg-theme-panel px-2 py-0.5 text-[11px]">
+            <span className="text-theme-muted">Total Boards:</span>
+            <span className="font-semibold text-theme-foreground">{boards.length}</span>
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-md border border-theme-border bg-theme-panel px-2 py-0.5 text-[11px]">
+            <span className="text-theme-muted">Total Tasks:</span>
+            <span className="font-semibold text-theme-foreground">{totalCardsCount}</span>
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-md border border-theme-border bg-theme-panel px-2 py-0.5 text-[11px]">
+            <span className="text-theme-muted">Public Boards:</span>
+            <span className="font-semibold text-theme-foreground">{publicCount}</span>
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-md border border-theme-border bg-theme-panel px-2 py-0.5 text-[11px]">
+            <span className="text-theme-muted">Private Boards:</span>
+            <span className="font-semibold text-theme-foreground">{privateCount}</span>
+          </span>
         </div>
 
         {canManage && (
           <Button
             type="button"
-            className="text-xs shrink-0 self-start sm:self-auto"
+            size="sm"
             onClick={() => {
               setNewBoardName("");
               setNewBoardTemplateId(DEFAULT_BOARD_TEMPLATE_ID);
@@ -290,34 +298,14 @@ export function ProjectBoardsManager({
               setIsCreateOpen(true);
             }}
           >
-            <Plus className="mr-1.5 h-3.5 w-3.5" />
-            New Sub-project
+            <Plus className="h-3.5 w-3.5" />
+            New board
           </Button>
         )}
       </div>
 
-      {/* ── Multi-Board Stats Overview Bar ── */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 pt-1">
-        <div className="rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
-          <span className="text-[10px] uppercase font-mono text-stone-400">Total Boards</span>
-          <p className="text-lg font-bold text-stone-100">{boards.length}</p>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
-          <span className="text-[10px] uppercase font-mono text-stone-400">Total Tasks</span>
-          <p className="text-lg font-bold text-dusk-lavender">{totalCardsCount}</p>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
-          <span className="text-[10px] uppercase font-mono text-stone-400">Public Boards</span>
-          <p className="text-lg font-bold text-dusk-cyan">{publicCount}</p>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-white/[0.025] p-2.5">
-          <span className="text-[10px] uppercase font-mono text-stone-400">Private Boards</span>
-          <p className="text-lg font-bold text-amber-400">{privateCount}</p>
-        </div>
-      </div>
-
       {/* ── Search, Filter & Layout Controls for Multi-Board UX ── */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         {/* Search Input */}
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-500" />

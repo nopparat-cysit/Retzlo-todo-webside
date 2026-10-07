@@ -1,19 +1,11 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-
-import { authOptions } from "@/lib/auth";
 import { HelpCenterClient } from "@/components/help/help-center-client";
 
 export const metadata = {
   title: "ข้อมูลระบบ & คู่มือการใช้งาน (System Guide & Help) · Retzlo",
+  description:
+    "คู่มือการใช้งานระบบ ข้อมูลสถาปัตยกรรม แนะนำฟีเจอร์ บอร์ด AI และคีย์ลัดสำหรับ Retzlo Platform",
 };
 
-export default async function HelpPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
-
+export default function HelpPage() {
   return <HelpCenterClient />;
 }

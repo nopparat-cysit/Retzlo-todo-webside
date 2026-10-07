@@ -12,7 +12,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { CheckSquare, Coins, GripVertical, KeyRound, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
+import { CheckSquare, Coins, GripVertical, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { playCardCreateSound } from "@/lib/sound";
@@ -27,7 +27,6 @@ import { RetroStickerPicker } from "@/components/ui/retro-sticker-picker";
 import { AssigneePicker } from "./assignee-picker";
 import { CardChatTimeline } from "@/components/kanban/card-chat-timeline";
 import { AiBreakdownModal } from "@/components/ai/ai-breakdown-modal";
-import { ApiKeyModal } from "@/components/ai/api-key-modal";
 import { getAiAuthHeaders } from "@/lib/ai/client-key";
 import { useFormDraft } from "@/hooks/use-form-draft";
 import { composeDueDate, composeStartDate } from "@/lib/kanban/due-date";
@@ -246,8 +245,6 @@ export function CardModal({
   const [description, setDescription] = useState(card?.description ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [aiBreakdownOpen, setAiBreakdownOpen] = useState(false);
-  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
-  const [apiKeyModalReason, setApiKeyModalReason] = useState<string | undefined>(undefined);
 
   // Gamification fields
   const [activeUserId, setActiveUserId] = useState<string | null>(currentUserId ?? null);
@@ -857,18 +854,6 @@ export function CardModal({
                     1 cr
                   </span>
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setApiKeyModalReason(undefined);
-                    setApiKeyModalOpen(true);
-                  }}
-                  className="rounded-lg p-1 text-stone-400 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
-                  title="ตั้งค่า AI API Key (สำหรับใช้งานบน Vercel/เบราว์เซอร์)"
-                >
-                  <KeyRound className="h-3.5 w-3.5" />
-                </button>
               </div>
             </div>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={reorderChecklist}>
@@ -1175,14 +1160,6 @@ export function CardModal({
         cardTitle={title}
         cardDescription={description}
         onApply={handleApplyAiChecklist}
-      />
-      <ApiKeyModal
-        open={apiKeyModalOpen}
-        onClose={() => setApiKeyModalOpen(false)}
-        reason={apiKeyModalReason}
-        onSaved={() => {
-          setAiBreakdownOpen(true);
-        }}
       />
       <CardAttributesEditModal
         open={isEditAttributesOpen}

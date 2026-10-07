@@ -334,23 +334,19 @@ export function BoardColumnsTab({
 
   return (
     <div className="space-y-4 pt-1 mt-0">
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
-        <div>
-          <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5 text-sm">
+      {/* Header Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 text-xs">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
             <Layers className="h-4 w-4 text-dusk-lavender" />
-            ขั้นตอนการทำงานของบอร์ด (Workflow Stages)
-          </p>
-          <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-            ภาพรวมคอลัมน์, สถานะเริ่มต้น, ขีดจำกัด WIP Limit, และจำนวนงานในแต่ละขั้นตอน
-          </p>
+            <span>คอลัมน์ขั้นตอนการทำงาน ({localColumns.length})</span>
+          </span>
+          <span className="rounded-full border border-stone-200/90 bg-stone-100/80 px-2 py-0.5 font-mono text-[10px] font-semibold text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300">
+            รวม {calculatedTotalCards} งาน
+          </span>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-          <div className="rounded-lg border border-stone-200/90 bg-stone-100/80 px-2.5 py-1 text-right font-mono text-[11px] text-stone-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 font-semibold">
-            ทั้งหมด: {calculatedTotalCards} งาน
-          </div>
-
           {canManage && boardId && (
             <Button
               type="button"
@@ -546,7 +542,7 @@ export function BoardColumnsTab({
       )}
 
       {/* COLUMNS LIST */}
-      <div className="space-y-2 rounded-xl border border-stone-200/90 bg-stone-100/70 p-2.5 max-h-[380px] overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-ink-950/40">
+      <div className="space-y-2 rounded-xl border border-stone-200/80 bg-stone-50/50 p-2.5 dark:border-white/10 dark:bg-ink-950/40">
         {localColumns.length === 0 ? (
           <div className="py-8 text-center space-y-2">
             <p className="text-xs text-stone-500 font-mono">

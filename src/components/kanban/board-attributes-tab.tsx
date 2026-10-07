@@ -523,12 +523,12 @@ export function BoardAttributesTab({
   return (
     <div className="space-y-4 pt-1">
       {/* Sub-navigation Pills */}
-      <div className="flex items-center gap-1 border-b border-stone-200/70 pb-2.5 dark:border-white/10">
+      <div className="flex items-center gap-1 border-b border-stone-200/70 pb-2 dark:border-white/10">
         <button
           type="button"
           onClick={() => setActiveSubTab("status")}
           className={cn(
-            "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer",
+            "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
             activeSubTab === "status"
               ? "bg-indigo-50 text-indigo-700 font-bold dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
               : "text-stone-600 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
@@ -545,7 +545,7 @@ export function BoardAttributesTab({
           type="button"
           onClick={() => setActiveSubTab("priority")}
           className={cn(
-            "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer",
+            "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
             activeSubTab === "priority"
               ? "bg-rose-50 text-rose-700 font-bold dark:bg-rose-500/15 dark:text-rose-400"
               : "text-stone-600 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
@@ -562,7 +562,7 @@ export function BoardAttributesTab({
           type="button"
           onClick={() => setActiveSubTab("story-points")}
           className={cn(
-            "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer",
+            "flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
             activeSubTab === "story-points"
               ? "bg-amber-50 text-amber-700 font-bold dark:bg-amber-500/15 dark:text-amber-400"
               : "text-stone-600 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
@@ -580,18 +580,13 @@ export function BoardAttributesTab({
           SUB-TAB 1: STATUS & TEMPLATES
          ───────────────────────────────────────────────────────────── */}
       {activeSubTab === "status" && (
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
-            <div>
-              <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <CheckSquare className="h-3.5 w-3.5 text-indigo-500" />
-                <span>Custom Card Statuses (จัดการและตกแต่งสถานะการ์ด)</span>
-              </h4>
-              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                เลือกแม่แบบสถานะสำเร็จรูป ปรับแต่งสีและชื่อ หรือเพิ่มสถานะใหม่ เชื่อมโยงสดกับทุกมุมมองบนบอร์ดนี้
-              </p>
-            </div>
+            <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+              <CheckSquare className="h-3.5 w-3.5 text-indigo-500" />
+              <span>Custom Card Statuses (จัดการสถานะการ์ด {statuses.length} รายการ)</span>
+            </span>
 
             <button
               type="button"
@@ -605,10 +600,10 @@ export function BoardAttributesTab({
           </div>
 
           {/* 1. Quick Status Workflow Templates Bar */}
-          <div className="rounded-2xl border border-indigo-200/60 bg-indigo-50/20 p-3.5 dark:border-dusk-lavender/20 dark:bg-ink-950/40 shadow-xs space-y-2.5">
+          <div className="rounded-xl border border-indigo-200/60 bg-indigo-50/20 p-3 dark:border-dusk-lavender/20 dark:bg-ink-950/40 shadow-xs space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-1.5">
-                <Wand2 className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
+                <Wand2 className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
                 <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
                   แม่แบบสถานะสำเร็จรูป (Workflow Templates)
                 </span>
@@ -629,7 +624,7 @@ export function BoardAttributesTab({
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 pt-0.5">
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
               {allTemplates.map((tpl) => {
                 const isSelected = previewStatusTemplate?.id === tpl.id;
                 return (
@@ -638,9 +633,9 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectStatusTemplate(tpl)}
                     className={cn(
-                      "group inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition-all cursor-pointer",
+                      "group inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
                       isSelected
-                        ? "border-indigo-500 bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-400/40"
+                        ? "border-indigo-500 bg-indigo-600 text-white shadow-xs ring-1 ring-indigo-400/40"
                         : "border-stone-200/90 bg-white text-stone-700 hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10"
                     )}
                     title={tpl.description}
@@ -995,15 +990,10 @@ export function BoardAttributesTab({
         <div className="space-y-3.5">
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
-            <div>
-              <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <Zap className="h-4 w-4 text-amber-500" />
-                <span>Story Points Scale (สเกลคะแนนความยาก)</span>
-              </h4>
-              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                ประเมินน้ำหนักงาน (Effort) ด้วยสเกลยอดนิยม หรือกำหนดคะแนนเอง
-              </p>
-            </div>
+            <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+              <Zap className="h-4 w-4 text-amber-500" />
+              <span>Story Points Scale (สเกลคะแนนความยาก {storyPoints.length} ระดับ)</span>
+            </span>
 
             <button
               type="button"
@@ -1017,7 +1007,7 @@ export function BoardAttributesTab({
           </div>
 
           {/* Quick Story Points Workflow Templates Bar */}
-          <div className="rounded-2xl border border-amber-200/60 bg-amber-50/20 p-3.5 dark:border-amber-400/20 dark:bg-ink-950/40 shadow-xs space-y-2.5">
+          <div className="rounded-xl border border-amber-200/60 bg-amber-50/20 p-3 dark:border-amber-400/20 dark:bg-ink-950/40 shadow-xs space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-1.5">
                 <Wand2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -1041,7 +1031,7 @@ export function BoardAttributesTab({
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 pt-0.5">
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
               {allPointTemplates.map((tpl) => {
                 const isSelected = previewPointTemplate?.id === tpl.id;
                 return (
@@ -1050,9 +1040,9 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectPointTemplate(tpl)}
                     className={cn(
-                      "group inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-semibold shadow-2xs transition-all cursor-pointer",
+                      "group inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
                       isSelected
-                        ? "border-amber-500 bg-amber-600 text-white shadow-xs ring-2 ring-amber-400/40"
+                        ? "border-amber-500 bg-amber-600 text-white shadow-xs ring-1 ring-amber-400/40"
                         : "border-stone-200/90 bg-white text-stone-700 hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-amber-400/50 dark:hover:bg-amber-500/10"
                     )}
                     title={tpl.description}

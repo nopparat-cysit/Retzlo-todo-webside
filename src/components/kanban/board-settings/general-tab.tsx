@@ -48,7 +48,7 @@ export function BoardGeneralTab({
   const totalCount = projectMembers.length || totalProjectMembersCount;
 
   return (
-    <div className="space-y-4 pt-3 mt-0">
+    <div className="space-y-4 pt-1 mt-0">
       {/* Board Name */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs">
@@ -65,15 +65,15 @@ export function BoardGeneralTab({
           required
           placeholder="เช่น Sprint 1, Marketing Campaign, Backlog"
           disabled={!canManage}
-          className="h-10 text-sm"
+          className="h-9 text-xs"
         />
       </div>
 
       {/* Privacy Selector */}
-      <div className="rounded-xl border border-stone-200/90 bg-stone-100/60 p-4 space-y-3 dark:border-white/10 dark:bg-white/[0.03]">
+      <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5 space-y-3 dark:border-white/10 dark:bg-white/[0.02]">
         <div>
           <p className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-            ความเป็นส่วนตัวและสิทธิ์เข้าถึง (Privacy & Access Mode)
+            ระดับการเข้าถึง (Privacy & Access Mode)
           </p>
           <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
             กำหนดว่าใครบ้างใน Workspace ที่สามารถมองเห็นและร่วมทำงานบนบอร์ดนี้ได้
@@ -86,23 +86,23 @@ export function BoardGeneralTab({
             disabled={!canManage}
             onClick={() => onPrivacyChange(false)}
             className={cn(
-              "flex items-start gap-3 rounded-xl border p-3.5 text-left transition cursor-pointer",
+              "flex items-start gap-3 rounded-lg border p-3 text-left transition cursor-pointer",
               !isPrivate
-                ? "border-dusk-lavender/60 bg-dusk-lavender/15 text-stone-900 ring-2 ring-dusk-lavender/40 dark:text-white"
+                ? "border-dusk-lavender/60 bg-dusk-lavender/15 text-stone-900 ring-1 ring-dusk-lavender/40 dark:text-white"
                 : "border-stone-200/80 bg-white text-stone-600 hover:border-stone-300 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-300"
             )}
           >
             <div
               className={cn(
-                "grid h-8 w-8 shrink-0 place-items-center rounded-lg border",
+                "grid h-7 w-7 shrink-0 place-items-center rounded-md border",
                 !isPrivate
                   ? "border-dusk-lavender/40 bg-dusk-lavender/25 text-dusk-lavender"
                   : "border-stone-200 bg-stone-100 text-stone-500 dark:border-white/10 dark:bg-white/5"
               )}
             >
-              <Globe className="h-4 w-4" />
+              <Globe className="h-3.5 w-3.5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <p className="text-xs font-bold text-stone-900 dark:text-stone-100">Public Workspace Board</p>
                 {!isPrivate && (
@@ -111,8 +111,8 @@ export function BoardGeneralTab({
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                สมาชิกทุกคนในโปรเจกต์สามารถมองเห็นและร่วมทำงานบนบอร์ดนี้ได้ทันที
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 leading-relaxed">
+                สมาชิกทุกคนในโปรเจกต์มองเห็นและร่วมทำงานได้ทันที
               </p>
             </div>
           </button>
@@ -122,23 +122,23 @@ export function BoardGeneralTab({
             disabled={!canManage}
             onClick={() => onPrivacyChange(true)}
             className={cn(
-              "flex items-start gap-3 rounded-xl border p-3.5 text-left transition cursor-pointer",
+              "flex items-start gap-3 rounded-lg border p-3 text-left transition cursor-pointer",
               isPrivate
-                ? "border-dusk-amber/60 bg-dusk-amber/15 text-stone-900 ring-2 ring-dusk-amber/40 dark:text-white"
+                ? "border-dusk-amber/60 bg-dusk-amber/15 text-stone-900 ring-1 ring-dusk-amber/40 dark:text-white"
                 : "border-stone-200/80 bg-white text-stone-600 hover:border-stone-300 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-300"
             )}
           >
             <div
               className={cn(
-                "grid h-8 w-8 shrink-0 place-items-center rounded-lg border",
+                "grid h-7 w-7 shrink-0 place-items-center rounded-md border",
                 isPrivate
                   ? "border-dusk-amber/40 bg-dusk-amber/25 text-dusk-amber"
                   : "border-stone-200 bg-stone-100 text-stone-500 dark:border-white/10 dark:bg-white/5"
               )}
             >
-              <Lock className="h-4 w-4" />
+              <Lock className="h-3.5 w-3.5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <p className="text-xs font-bold text-stone-900 dark:text-stone-100">Private Sub-Board</p>
                 {isPrivate && (
@@ -147,8 +147,8 @@ export function BoardGeneralTab({
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                บอร์ดส่วนตัว กำหนดเฉพาะสมาชิกที่เลือกเท่านั้นที่สามารถเข้าถึงได้
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 leading-relaxed">
+                จำกัดเฉพาะสมาชิกที่กำหนดเท่านั้นที่สามารถเข้าถึงได้
               </p>
             </div>
           </button>

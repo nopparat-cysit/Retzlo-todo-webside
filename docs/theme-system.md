@@ -562,3 +562,19 @@ Template:
   - ครอบคลุมการ์ด/ตัวเลือก/ตัวจัดการคะแนน/ตัวเรียงลำดับ, ป้าย Diary ในรายการปฏิทินและเช็กลิสต์, ยอดกาแฟรวมและยอดรายสมาชิก รวมถึง Notes sidebar และแถบตัวกรองย่อ
 - Theme modes and states: ตรวจโค้ดการใช้ใน light/dark เพื่อให้ภาพไอคอนคงที่และพื้นผิวรอบข้างสลับตามธีม; ยังไม่ได้ตรวจภาพจริงใน browser ทั้งสองธีม
 - Known gaps: ไอคอน Coffee Cheers บนปุ่มให้กาแฟและ notification, ไอคอนพักกาแฟของ Pomodoro และไอคอน Notes/folder ยังไม่ได้เปลี่ยนในรอบนี้
+
+
+### 2026-10-07 — ปรับโฉมหน้า Project Settings สู่มาตรฐาน Settings Row และเปิด /help เป็นสาธารณะ (Scope-Grouped Settings Redesign & Public System Guide)
+- Added/changed:
+  - `src/components/settings/settings-section.tsx` (คอมโพเนนต์ Primitives มาตรฐานใหม่: `SettingsSection`, `SettingsRow`, `SettingsSwitch` รองรับ light/dark ผ่าน semantic tokens)
+  - `src/lib/settings/tabs.ts` และ `src/lib/settings/tabs.test.ts` (ตรรกะจัดกลุ่มแท็บตามขอบเขต Project/Boards/Personal พร้อม legacy deep-link aliases)
+  - `src/components/project/project-settings-client.tsx` (ยกระดับ Master-Detail สู่มาตรฐาน Linear/GitHub, ตัด Static Guide ที่ซ้ำซ้อนออก, ใช้ Active Board scope bar เดียวร่วมกัน)
+  - `src/components/project/settings-form.tsx` (รีแฟกเตอร์เป็น Settings Row แนวนอน ลดความสูงหน้าจอลงกว่า 60%)
+  - `src/components/project/project-boards-manager.tsx` (ตัดแบนเนอร์และสถิติซ้ำซ้อนออก เปลี่ยนค่าเริ่มต้นเป็นตารางรายการกะทัดรัด)
+  - `src/app/(dashboard)/help/page.tsx` (ปลดล็อกให้หน้าคู่มือระบบและคลังความรู้ `/help` เป็นสาธารณะ สามารถเข้าถึงได้โดยไม่ต้องเข้าสู่ระบบ)
+  - `src/components/ui/back-button.tsx` (เพิ่ม fallback สำหรับหน้าสาธารณะ `/help` และ `/contact` ไปยังหน้าหลัก `/`)
+  - `src/app/(marketing)/page.tsx` (เชื่อมโยงลิงก์ท้ายหน้า Landing Page ไปยัง `/help` และ `/contact`)
+- Tokens/variants:
+  - Primitives ใช้ semantic surface (`theme-panel`, `theme-paper`), text (`theme-foreground`, `theme-muted`), border (`theme-border`), accent (`theme-accent`), danger (`theme-danger-*`)
+  - ไม่มี fixed palette exceptions เพิ่มเติม รองรับ contrast ทั้ง Light Mode (Warm Paper) และ Dark Mode (Retro Lofi Indigo)
+- Reviewed: ตรวจสอบความถูกต้องของ UI ทั้งใน Light และ Dark mode, Vitest unit tests ผ่านครบทุกชุด, TypeScript typecheck ผ่านสมบูรณ์

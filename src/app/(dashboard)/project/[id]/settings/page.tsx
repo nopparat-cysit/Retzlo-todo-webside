@@ -91,6 +91,7 @@ export default async function SettingsPage({
       projectMembers={projectMembers}
       canManage={canManage}
       initialTab={searchParams?.tab}
+      initialBoardId={searchParams?.boardId}
       themeToggleSlot={<ThemeToggle variant="settings" />}
     />
   );

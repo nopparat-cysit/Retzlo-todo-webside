@@ -6,7 +6,6 @@ import {
   Bot,
   Check,
   Copy,
-  KeyRound,
   PanelRight,
   PanelRightClose,
   RotateCcw,
@@ -21,7 +20,6 @@ import { useToast } from "@/components/ui/toast";
 import { useAiChat } from "@/components/ai/ai-chat-context";
 import { getAiAuthHeaders, getClientAiModel } from "@/lib/ai/client-key";
 import type { AiCreateCardProposal } from "@/lib/ai/chat-actions";
-import { ApiKeyModal } from "@/components/ai/api-key-modal";
 import { GeminiSparkleIcon } from "@/components/ai/gemini-sparkle-icon";
 import { getPriorityMeta } from "@/lib/kanban/priority";
 import { cn } from "@/lib/utils";
@@ -74,7 +72,6 @@ export function AiChatWidget() {
   const [isLoading, setIsLoading] = useState(false);
   const [credits, setCredits] = useState<number | null>(null);
   const [activeModel, setActiveModel] = useState<string>("deepseek-v4-pro");
-  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [confirmProposalId, setConfirmProposalId] = useState<string | null>(null);
   const [isCreatingCards, setIsCreatingCards] = useState(false);
@@ -93,7 +90,7 @@ export function AiChatWidget() {
     if (saved) {
       setActiveModel(saved);
     }
-  }, [apiKeyModalOpen]);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -410,15 +407,9 @@ export function AiChatWidget() {
                   Retzlo AI Assistant
                   <Sparkles className="h-3 w-3 text-theme-warning" />
                 </h3>
-                <button
-                  type="button"
-                  onClick={() => setApiKeyModalOpen(true)}
-                  className="inline-flex items-center gap-1 rounded border border-theme-border bg-theme-paper px-1.5 py-0.5 text-[10px] text-theme-muted hover:bg-theme-paper-strong hover:text-theme-accent transition cursor-pointer"
-                  title="คลิกเพื่อจัดการ API Key และการตั้งค่า AI"
-                >
-                  <KeyRound className="h-2.5 w-2.5 text-theme-accent" />
-                  <span>ตั้งค่า AI Key</span>
-                </button>
+                <p className="text-[10px] text-theme-muted font-medium">
+                  {activeModel === "deepseek-flash" ? "Fast Mode" : "Ready • ผู้ช่วยอัจฉริยะ"}
+                </p>
               </div>
             </div>
 
@@ -651,15 +642,6 @@ export function AiChatWidget() {
         isLoading={isCreatingCards}
         onConfirm={confirmCreateProposal}
         onClose={() => setConfirmProposalId(null)}
-      />
-
-      {/* Model & Key Configuration Modal */}
-      <ApiKeyModal
-        open={apiKeyModalOpen}
-        onClose={() => setApiKeyModalOpen(false)}
-        onSaved={() => {
-          setActiveModel(getClientAiModel() || "deepseek-v4-pro");
-        }}
       />
     </>
   );
