@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useOutsideClickDismiss } from "@/hooks/use-outside-click";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export interface DatePickerProps {
   value?: string | null;
@@ -120,6 +121,7 @@ export function CalendarView({
   showShortcuts = true,
   className
 }: CalendarViewProps) {
+  const { isEn } = useLanguage();
   const parsedValue = useMemo(() => parseDateString(value), [value]);
 
   const today = useMemo(() => {
@@ -268,7 +270,7 @@ export function CalendarView({
 
         <div className="flex items-center gap-1.5">
           <span className="font-bold text-stone-800 dark:text-stone-100">
-            {MONTH_NAMES_TH[viewMonth]}
+            {(isEn ? MONTH_NAMES_EN : MONTH_NAMES_TH)[viewMonth]}
           </span>
           <span className="font-mono text-stone-500 dark:text-stone-400">
             {viewYear}
@@ -289,7 +291,7 @@ export function CalendarView({
       <div className="grid grid-cols-7 gap-1 py-1 text-center font-mono text-[10px] font-semibold text-stone-400 dark:text-stone-500">
         {WEEKDAY_NAMES.map((w, idx) => (
           <div key={idx} className={cn(idx === 0 && "text-red-500/80 dark:text-red-400/80")}>
-            {w.th}
+            {isEn ? w.en : w.th}
           </div>
         ))}
       </div>
@@ -333,21 +335,21 @@ export function CalendarView({
               onClick={() => handleApplyShortcut("today")}
               className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10 cursor-pointer"
             >
-              วันนี้
+              {isEn ? "Today" : "วันนี้"}
             </button>
             <button
               type="button"
               onClick={() => handleApplyShortcut("tomorrow")}
               className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10 cursor-pointer"
             >
-              พรุ่งนี้
+              {isEn ? "Tomorrow" : "พรุ่งนี้"}
             </button>
             <button
               type="button"
               onClick={() => handleApplyShortcut("next-week")}
               className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10 cursor-pointer"
             >
-              สัปดาห์หน้า
+              {isEn ? "Next Week" : "สัปดาห์หน้า"}
             </button>
           </div>
 
@@ -356,7 +358,7 @@ export function CalendarView({
             onClick={() => handleApplyShortcut("clear")}
             className="rounded-md px-1.5 py-0.5 text-[10px] font-medium text-stone-400 hover:text-red-500 dark:hover:text-red-400 cursor-pointer"
           >
-            ล้าง
+            {isEn ? "Clear" : "ล้าง"}
           </button>
         </div>
       )}

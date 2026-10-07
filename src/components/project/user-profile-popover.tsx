@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { cn } from "@/lib/utils";
 
 interface UserProfilePopoverProps {
@@ -90,6 +91,10 @@ export function UserProfilePopover({
           </div>
           <div className="mt-3 border-t border-stone-200/80 dark:border-white/10 pt-2.5">
             <ThemeToggle variant="dropdown" />
+          </div>
+
+          <div className="mt-2 border-t border-stone-200/80 dark:border-white/10 pt-2">
+            <LanguageSwitcher variant="dropdown" />
           </div>
 
           <div className="mt-2.5 space-y-1 border-t border-stone-200/80 dark:border-white/10 pt-2">

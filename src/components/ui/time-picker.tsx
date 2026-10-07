@@ -5,6 +5,7 @@ import { Check, ChevronDown, ChevronUp, Clock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useOutsideClickDismiss } from "@/hooks/use-outside-click";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export interface TimePickerProps {
   value?: string | null;
@@ -64,6 +65,7 @@ export function formatDisplayTime(timeStr: string | null | undefined): string {
  * - Clear action and explicit Done/Confirm button
  */
 export function TimeView({ value, onChange, onConfirm, className }: TimeViewProps) {
+  const { isEn } = useLanguage();
   const parsed = useMemo(() => parseTimeString(value), [value]);
 
   const [selectedHour, setSelectedHour] = useState<string>(() => parsed?.hour ?? "09");
@@ -304,7 +306,9 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
           </div>
         </div>
 
-        <span className="font-mono text-xs font-semibold text-stone-400">น.</span>
+        <span className="font-mono text-xs font-semibold text-stone-400">
+          {isEn ? "hrs" : "น."}
+        </span>
       </div>
 
       {/* ── Single-Column Wheel Scrollers (Clear, Linear, Intuitive) ── */}
@@ -312,7 +316,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
         {/* Hour Single Column */}
         <div>
           <div className="mb-1 text-center font-mono text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-            ชั่วโมง (HR)
+            {isEn ? "Hour (HR)" : "ชั่วโมง (HR)"}
           </div>
           <div
             ref={hourListRef}
@@ -345,7 +349,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
         {/* Minute Single Column */}
         <div>
           <div className="mb-1 text-center font-mono text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-            นาที (MIN)
+            {isEn ? "Minute (MIN)" : "นาที (MIN)"}
           </div>
           <div
             ref={minuteListRef}
@@ -379,7 +383,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
       {/* ── Presets Grid ── */}
       <div className="mt-3 border-t border-stone-200/80 pt-2.5 dark:border-white/10">
         <div className="mb-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-          เวลายอดนิยม:
+          {isEn ? "Popular Times:" : "เวลายอดนิยม:"}
         </div>
         <div className="grid grid-cols-3 gap-1">
           {PRESET_TIMES.map((preset) => {
@@ -411,7 +415,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
           onClick={handleClear}
           className="rounded-lg px-2 py-1 text-[11px] font-medium text-stone-400 hover:text-red-500 hover:bg-red-500/10 dark:hover:text-red-400 transition cursor-pointer"
         >
-          ตลอดวัน / ล้าง
+          {isEn ? "All Day / Clear" : "ตลอดวัน / ล้าง"}
         </button>
 
         <button
@@ -420,7 +424,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
           className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 transition cursor-pointer"
         >
           <Check className="h-3.5 w-3.5" />
-          <span>ตกลง</span>
+          <span>{isEn ? "Confirm" : "ตกลง"}</span>
         </button>
       </div>
     </div>

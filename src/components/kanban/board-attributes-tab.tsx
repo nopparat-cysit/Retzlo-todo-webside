@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -105,6 +105,140 @@ function renderStoryPointTemplateIcon(icon: string) {
   }
 }
 
+interface MockupSampleCard {
+  code: string;
+  title: string;
+  priority: "HIGH" | "MEDIUM" | "LOW";
+  priorityLabel: string;
+  checklist: string;
+  dueDate: string;
+  assignee: string;
+}
+
+function getMockupSampleCards(status: CustomStatusOption, index: number): MockupSampleCard[] {
+  const norm = (status.label || status.value).toLowerCase();
+
+  if (
+    norm.includes("backlog") ||
+    norm.includes("new") ||
+    norm.includes("todo") ||
+    norm.includes("วางแผน") ||
+    norm.includes("รอดำเนินการ")
+  ) {
+    return [
+      {
+        code: `TSK-${100 + index * 10 + 1}`,
+        title: "ออกแบบ Wireframe ระบบสิทธิ์ผู้ใช้งาน",
+        priority: "HIGH",
+        priorityLabel: "ด่วนมาก",
+        checklist: "1/4",
+        dueDate: "14 ต.ค.",
+        assignee: "NP"
+      },
+      {
+        code: `TSK-${100 + index * 10 + 2}`,
+        title: "สำรวจความต้องการผู้ใช้และทำสรุปสเปกงาน",
+        priority: "MEDIUM",
+        priorityLabel: "ปานกลาง",
+        checklist: "2/3",
+        dueDate: "18 ต.ค.",
+        assignee: "AI"
+      }
+    ];
+  }
+
+  if (
+    norm.includes("doing") ||
+    norm.includes("progress") ||
+    norm.includes("พัฒนา") ||
+    norm.includes("กำลังทำ") ||
+    norm.includes("work")
+  ) {
+    return [
+      {
+        code: `DEV-${200 + index * 10 + 1}`,
+        title: "เชื่อมต่อ REST API และจัดโครงสร้าง State ของบอร์ด",
+        priority: "HIGH",
+        priorityLabel: "ด่วนมาก",
+        checklist: "3/5",
+        dueDate: "วันนี้",
+        assignee: "DEV"
+      },
+      {
+        code: `DEV-${200 + index * 10 + 2}`,
+        title: "ปรับแต่ง Responsive Layout และ UX คอลัมน์",
+        priority: "MEDIUM",
+        priorityLabel: "ปานกลาง",
+        checklist: "2/2",
+        dueDate: "พรุ่งนี้",
+        assignee: "NP"
+      }
+    ];
+  }
+
+  if (
+    norm.includes("review") ||
+    norm.includes("test") ||
+    norm.includes("qa") ||
+    norm.includes("ตรวจ") ||
+    norm.includes("wait") ||
+    norm.includes("รอ")
+  ) {
+    return [
+      {
+        code: `QA-${300 + index * 10 + 1}`,
+        title: "ทดสอบ Unit Test และ Security Vulnerabilities",
+        priority: "HIGH",
+        priorityLabel: "ด่วนมาก",
+        checklist: "4/4",
+        dueDate: "12 ต.ค.",
+        assignee: "QA"
+      },
+      {
+        code: `REV-${300 + index * 10 + 2}`,
+        title: "Code Review สถาปัตยกรรมและ Component Design",
+        priority: "LOW",
+        priorityLabel: "ทั่วไป",
+        checklist: "1/2",
+        dueDate: "15 ต.ค.",
+        assignee: "LD"
+      }
+    ];
+  }
+
+  if (
+    norm.includes("done") ||
+    norm.includes("complete") ||
+    norm.includes("เสร็จ") ||
+    norm.includes("release") ||
+    norm.includes("ปิดงาน")
+  ) {
+    return [
+      {
+        code: `REL-${400 + index * 10 + 1}`,
+        title: "Release ระบบการจัดการบอร์ดขึ้น Production Server",
+        priority: "MEDIUM",
+        priorityLabel: "ปานกลาง",
+        checklist: "6/6",
+        dueDate: "เสร็จสิ้น",
+        assignee: "OPS"
+      }
+    ];
+  }
+
+  return [
+    {
+      code: `TSK-${500 + index * 10 + 1}`,
+      title: `ดำเนินการและติดตามขั้นตอน: ${status.label}`,
+      priority: index % 2 === 0 ? "HIGH" : "MEDIUM",
+      priorityLabel: index % 2 === 0 ? "ด่วนมาก" : "ปานกลาง",
+      checklist: "2/3",
+      dueDate: "16 ต.ค.",
+      assignee: "US"
+    }
+  ];
+}
+
 export function BoardAttributesTab({
   boardId,
   canManage = true,
@@ -127,6 +261,7 @@ export function BoardAttributesTab({
   const [selectedTemplate, setSelectedTemplate] = useState<StatusWorkflowTemplate | null>(null);
   const [templateApplyMode, setTemplateApplyMode] = useState<"replace" | "append">("replace");
   const [isApplyTemplateConfirmOpen, setIsApplyTemplateConfirmOpen] = useState(false);
+  const [mockupColumnFilter, setMockupColumnFilter] = useState<string>("all");
 
   // Custom Saved Templates State
   const [customSavedTemplates, setCustomSavedTemplates] = useState<StatusWorkflowTemplate[]>(() => {
@@ -305,13 +440,21 @@ export function BoardAttributesTab({
 
   const displayedStatuses = previewStatusTemplate ? previewStatusTemplate.statuses : statuses;
 
+  const displayedMockupStatuses = useMemo(() => {
+    if (!previewStatusTemplate) return [];
+    if (mockupColumnFilter === "all") return previewStatusTemplate.statuses;
+    return previewStatusTemplate.statuses.filter((st) => st.value === mockupColumnFilter);
+  }, [previewStatusTemplate, mockupColumnFilter]);
+
   const handleSelectStatusTemplate = (tpl: StatusWorkflowTemplate) => {
     if (previewStatusTemplate?.id === tpl.id) {
       setPreviewStatusTemplate(null);
       setSelectedTemplate(null);
+      setMockupColumnFilter("all");
     } else {
       setPreviewStatusTemplate(tpl);
       setSelectedTemplate(tpl);
+      setMockupColumnFilter("all");
     }
   };
 
@@ -602,7 +745,7 @@ export function BoardAttributesTab({
           {/* 1. Quick Status Workflow Templates Bar */}
           <div className="rounded-xl border border-indigo-200/60 bg-indigo-50/20 p-3 dark:border-dusk-lavender/20 dark:bg-ink-950/40 shadow-xs space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <Wand2 className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
                 <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
                   แม่แบบสถานะสำเร็จรูป (Workflow Templates)
@@ -612,16 +755,43 @@ export function BoardAttributesTab({
                 </span>
               </div>
 
-              {canManage && (
-                <button
-                  type="button"
-                  onClick={() => setIsSaveCustomTemplateOpen(true)}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-dusk-lavender dark:hover:underline self-start sm:self-auto cursor-pointer"
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Dropdown for quick template selection */}
+                <select
+                  value={previewStatusTemplate?.id || ""}
+                  onChange={(e) => {
+                    const found = allTemplates.find((t) => t.id === e.target.value);
+                    if (found) {
+                      handleSelectStatusTemplate(found);
+                    } else {
+                      setPreviewStatusTemplate(null);
+                      setSelectedTemplate(null);
+                      setMockupColumnFilter("all");
+                    }
+                  }}
+                  aria-label="เลือกแม่แบบสถานะสำเร็จรูปจากเมนู Dropdown"
+                  className="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  title="เลือกดูแม่แบบขั้นตอนงานด่วนผ่าน Dropdown"
                 >
-                  <Bookmark className="h-3 w-3" />
-                  <span>+ บันทึกชุดนี้เป็นแม่แบบ</span>
-                </button>
-              )}
+                  <option value="">-- เลือกแม่แบบ (Dropdown) --</option>
+                  {allTemplates.map((tpl) => (
+                    <option key={tpl.id} value={tpl.id}>
+                      {tpl.name} ({tpl.statuses.length} คอลัมน์)
+                    </option>
+                  ))}
+                </select>
+
+                {canManage && (
+                  <button
+                    type="button"
+                    onClick={() => setIsSaveCustomTemplateOpen(true)}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-dusk-lavender dark:hover:underline self-start sm:self-auto cursor-pointer"
+                  >
+                    <Bookmark className="h-3 w-3" />
+                    <span>+ บันทึกชุดนี้เป็นแม่แบบ</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-soft pb-1.5 pt-0.5">
@@ -633,120 +803,260 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectStatusTemplate(tpl)}
                     className={cn(
-                      "group shrink-0 inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
+                      "group shrink-0 inline-flex items-center h-8 rounded-full border shadow-2xs transition-all duration-300 ease-out cursor-pointer overflow-hidden p-1",
                       isSelected
-                        ? "border-indigo-500 bg-indigo-600 text-white shadow-xs ring-1 ring-indigo-400/40"
-                        : "border-stone-200/90 bg-white text-stone-700 hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10"
+                        ? "border-indigo-500 bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-400/40"
+                        : "border-stone-200/90 bg-white text-stone-700 hover:border-indigo-400 hover:bg-indigo-50/40 hover:text-indigo-950 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10"
                     )}
-                    title={tpl.description}
+                    title={tpl.description ? `${tpl.name} - ${tpl.description}` : tpl.name}
                   >
                     <span
                       className={cn(
-                        "grid h-5 w-5 place-items-center rounded-md text-xs transition-colors",
+                        "grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs transition-colors",
                         isSelected
-                          ? "bg-white/20 text-white"
+                          ? "bg-white/20 text-white [&>svg]:text-white"
                           : "bg-stone-100 text-stone-600 group-hover:bg-indigo-100/70 group-hover:text-indigo-700 dark:bg-white/10 dark:text-stone-300 dark:group-hover:bg-dusk-lavender/20 dark:group-hover:text-dusk-lavender"
                       )}
                     >
                       {renderTemplateIcon(tpl.icon)}
                     </span>
-                    <span className="truncate max-w-[220px]">{tpl.name}</span>
+
                     <span
                       className={cn(
-                        "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors",
-                        isSelected ? "bg-white/20 text-white font-bold" : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                        "flex items-center gap-1.5 overflow-hidden whitespace-nowrap transition-all duration-300 ease-out",
+                        isSelected
+                          ? "max-w-[260px] opacity-100 ml-1.5 mr-1.5"
+                          : "max-w-0 opacity-0 group-hover:max-w-[260px] group-hover:opacity-100 group-hover:ml-1.5 group-hover:mr-1.5"
                       )}
                     >
-                      {tpl.statuses.length}
+                      <span className="text-xs font-semibold">{tpl.name}</span>
+                      <span
+                        className={cn(
+                          "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors shrink-0",
+                          isSelected
+                            ? "bg-white/20 text-white font-bold"
+                            : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                        )}
+                      >
+                        {tpl.statuses.length}
+                      </span>
+                      {isSelected && <Eye className="h-3.5 w-3.5 text-white stroke-[2.5] shrink-0" />}
                     </span>
-                    {isSelected && <Eye className="h-3.5 w-3.5 text-white stroke-[2.5]" />}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Active Live Preview Action Banner for Status */}
+          {/* Active Live Preview Action Banner & Kanban Mockup for Status */}
           {previewStatusTemplate && (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border-2 border-indigo-500/40 bg-gradient-to-r from-indigo-500/10 via-indigo-500/5 to-transparent p-3.5 dark:border-dusk-lavender/40 dark:from-dusk-lavender/15 dark:via-dusk-lavender/5 dark:to-transparent animate-in fade-in slide-in-from-top-1 duration-150">
-              <div className="flex items-start sm:items-center gap-2.5 min-w-0">
-                <span className="grid h-8 w-8 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-xs">
-                  <Eye className="h-4 w-4" />
-                </span>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-bold text-indigo-950 dark:text-indigo-100">
-                      กำลังดูตัวอย่าง: {previewStatusTemplate.name}
-                    </span>
-                    <span className="rounded-md border border-indigo-200/80 bg-white/90 px-1.5 py-0.2 text-[9px] font-bold text-indigo-700 dark:border-white/10 dark:bg-white/10 dark:text-dusk-lavender">
-                      {previewStatusTemplate.category}
-                    </span>
-                    <span className="rounded-md bg-indigo-500/15 px-1.5 py-0.2 font-mono text-[10px] font-bold text-indigo-700 dark:text-dusk-lavender">
-                      {previewStatusTemplate.statuses.length} สถานะ
-                    </span>
+            <div className="rounded-2xl border-2 border-indigo-500/40 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-4 dark:border-dusk-lavender/40 dark:from-ink-950/60 dark:via-ink-950/40 dark:to-stone-900/60 shadow-xs space-y-3 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-xs">
+                    <Eye className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-indigo-950 dark:text-indigo-100">
+                        ตัวอย่างบอร์ดจำลอง (Kanban Mockup): {previewStatusTemplate.name}
+                      </span>
+                      <span className="rounded-md border border-indigo-200/80 bg-white/90 px-1.5 py-0.2 text-[9px] font-bold text-indigo-700 dark:border-white/10 dark:bg-white/10 dark:text-dusk-lavender">
+                        {previewStatusTemplate.category}
+                      </span>
+                      <span className="rounded-md bg-indigo-500/15 px-1.5 py-0.2 font-mono text-[10px] font-bold text-indigo-700 dark:text-dusk-lavender">
+                        {previewStatusTemplate.statuses.length} คอลัมน์
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-indigo-900/80 dark:text-indigo-200/80 truncate mt-0.5">
+                      {previewStatusTemplate.description}
+                    </p>
                   </div>
-                  <p className="text-[11px] text-indigo-900/80 dark:text-indigo-200/80 truncate mt-0.5">
-                    {previewStatusTemplate.description}
-                  </p>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto flex-wrap">
+                  {/* Column Dropdown if columns are numerous or user wants to filter */}
+                  {previewStatusTemplate.statuses.length > 3 && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400">คอลัมน์:</span>
+                      <select
+                        value={mockupColumnFilter}
+                        onChange={(e) => setMockupColumnFilter(e.target.value)}
+                        aria-label="กรองคอลัมน์บอร์ดจำลอง"
+                        className="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      >
+                        <option value="all">แสดงทุกคอลัมน์ ({previewStatusTemplate.statuses.length})</option>
+                        {previewStatusTemplate.statuses.map((st) => (
+                          <option key={st.value} value={st.value}>
+                            คอลัมน์: {st.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Mode toggle */}
+                  <div className="flex items-center rounded-lg border border-indigo-300/80 bg-white/80 p-0.5 text-[10px] font-semibold dark:border-white/10 dark:bg-black/30">
+                    <button
+                      type="button"
+                      onClick={() => setTemplateApplyMode("replace")}
+                      className={cn(
+                        "px-2 py-0.5 rounded cursor-pointer transition",
+                        templateApplyMode === "replace"
+                          ? "bg-indigo-600 text-white font-bold"
+                          : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
+                      )}
+                    >
+                      แทนที่ทั้งหมด
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTemplateApplyMode("append")}
+                      className={cn(
+                        "px-2 py-0.5 rounded cursor-pointer transition",
+                        templateApplyMode === "append"
+                          ? "bg-indigo-600 text-white font-bold"
+                          : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
+                      )}
+                    >
+                      เพิ่มต่อท้าย
+                    </button>
+                  </div>
+
+                  {/* Apply button */}
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedTemplate(previewStatusTemplate);
+                      setIsApplyTemplateConfirmOpen(true);
+                    }}
+                    className="h-7 text-xs px-2.5 gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs cursor-pointer"
+                  >
+                    <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                    <span>นำแม่แบบนี้มาใช้</span>
+                  </Button>
+
+                  {/* Cancel preview */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreviewStatusTemplate(null);
+                      setSelectedTemplate(null);
+                      setMockupColumnFilter("all");
+                    }}
+                    className="flex h-7 items-center gap-1 rounded-lg border border-stone-200/80 bg-white/90 px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
+                    title="ยกเลิกการดูตัวอย่าง (กลับสู่สถานะปัจจุบันของบอร์ด)"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    <span className="hidden xs:inline">คืนค่าเดิม</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto flex-wrap">
-                {/* Mode toggle */}
-                <div className="flex items-center rounded-lg border border-indigo-300/80 bg-white/80 p-0.5 text-[10px] font-semibold dark:border-white/10 dark:bg-black/30">
-                  <button
-                    type="button"
-                    onClick={() => setTemplateApplyMode("replace")}
-                    className={cn(
-                      "px-2 py-0.5 rounded cursor-pointer transition",
-                      templateApplyMode === "replace"
-                        ? "bg-indigo-600 text-white font-bold"
-                        : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
-                    )}
-                  >
-                    แทนที่ทั้งหมด
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTemplateApplyMode("append")}
-                    className={cn(
-                      "px-2 py-0.5 rounded cursor-pointer transition",
-                      templateApplyMode === "append"
-                        ? "bg-indigo-600 text-white font-bold"
-                        : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
-                    )}
-                  >
-                    เพิ่มต่อท้าย
-                  </button>
+              {/* Kanban Board Mockup with Top & Bottom Subtle Fade Gradient Masks */}
+              <div className="relative rounded-xl border border-indigo-200/70 bg-stone-100/60 dark:border-white/10 dark:bg-stone-900/50 p-2 sm:p-2.5 overflow-hidden shadow-2xs">
+                {/* Top Fade Gradient Mask */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 top-0 h-4 sm:h-5 bg-gradient-to-b from-stone-100/95 via-stone-100/50 to-transparent dark:from-stone-900/95 dark:via-stone-900/50 dark:to-transparent z-10"
+                />
+                {/* Bottom Fade Gradient Mask */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-4 sm:h-5 bg-gradient-to-t from-stone-100/95 via-stone-100/50 to-transparent dark:from-stone-900/95 dark:via-stone-900/50 dark:to-transparent z-10"
+                />
+
+                {/* Columns Track */}
+                <div className="flex gap-2.5 sm:gap-3 overflow-x-auto scrollbar-soft pb-1.5 pt-1">
+                  {displayedMockupStatuses.map((st, colIndex) => {
+                    const cfg = STATUS_COLOR_CONFIGS[st.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
+                    const sampleCards = getMockupSampleCards(st, colIndex);
+
+                    return (
+                      <div
+                        key={st.value}
+                        className="flex flex-col w-52 sm:w-56 shrink-0 rounded-xl border border-stone-200/80 bg-white/95 dark:border-white/10 dark:bg-stone-900/95 shadow-2xs overflow-hidden"
+                      >
+                        {/* Column Header */}
+                        <div className="flex items-center justify-between px-2.5 py-2 border-b border-stone-100 dark:border-white/5 bg-stone-50/70 dark:bg-white/[0.02]">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", cfg.dot)} />
+                            <span className="text-xs font-bold text-stone-800 dark:text-stone-100 truncate">
+                              {st.label}
+                            </span>
+                          </div>
+                          <span className="font-mono text-[10px] font-bold text-stone-500 bg-stone-200/60 dark:bg-white/10 dark:text-stone-300 px-1.5 py-0.2 rounded-full shrink-0">
+                            {sampleCards.length}
+                          </span>
+                        </div>
+
+                        {/* Card List */}
+                        <div className="p-2 space-y-2 max-h-[220px] overflow-y-auto scrollbar-soft">
+                          {sampleCards.map((card) => (
+                            <div
+                              key={card.code}
+                              className="rounded-lg border border-stone-200/80 bg-white dark:border-white/10 dark:bg-stone-800/80 p-2.5 space-y-2 shadow-2xs hover:shadow-xs hover:border-indigo-300 dark:hover:border-dusk-lavender/40 transition-all text-left"
+                            >
+                              {/* Top: Code & Priority */}
+                              <div className="flex items-center justify-between gap-1.5">
+                                <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                                  {card.code}
+                                </span>
+                                <span
+                                  className={cn(
+                                    "inline-flex items-center gap-1 rounded-full px-1.5 py-0.2 text-[9px] font-bold border",
+                                    card.priority === "HIGH" &&
+                                      "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-400",
+                                    card.priority === "MEDIUM" &&
+                                      "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-400",
+                                    card.priority === "LOW" &&
+                                      "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-400"
+                                  )}
+                                >
+                                  <span
+                                    className={cn(
+                                      "h-1.5 w-1.5 rounded-full shrink-0",
+                                      card.priority === "HIGH" && "bg-red-500",
+                                      card.priority === "MEDIUM" && "bg-amber-500",
+                                      card.priority === "LOW" && "bg-emerald-500"
+                                    )}
+                                  />
+                                  <span>{card.priorityLabel}</span>
+                                </span>
+                              </div>
+
+                              {/* Card Title */}
+                              <p className="text-xs font-medium text-stone-900 dark:text-stone-100 line-clamp-2 leading-snug">
+                                {card.title}
+                              </p>
+
+                              {/* Bottom: Subtasks, Due Date, Assignee */}
+                              <div className="flex items-center justify-between pt-1 border-t border-stone-100 dark:border-white/5 text-[10px] text-stone-500 dark:text-stone-400">
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex items-center gap-1 font-mono text-[10px]" title="รายการงานย่อย (Checklist)">
+                                    <CheckSquare className="h-3 w-3 text-stone-400" />
+                                    <span>{card.checklist}</span>
+                                  </span>
+                                  <span className="inline-flex items-center gap-1 text-[10px]" title="กำหนดส่ง">
+                                    <Clock className="h-3 w-3 text-stone-400" />
+                                    <span>{card.dueDate}</span>
+                                  </span>
+                                </div>
+                                <div
+                                  className="h-5 w-5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-bold text-[9px] grid place-items-center shrink-0 shadow-2xs"
+                                  title={`ผู้รับผิดชอบ: ${card.assignee}`}
+                                >
+                                  {card.assignee}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-
-                {/* Apply button */}
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedTemplate(previewStatusTemplate);
-                    setIsApplyTemplateConfirmOpen(true);
-                  }}
-                  className="h-7 text-xs px-2.5 gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs cursor-pointer"
-                >
-                  <Check className="h-3.5 w-3.5 stroke-[2.5]" />
-                  <span>นำแม่แบบนี้มาใช้</span>
-                </Button>
-
-                {/* Cancel preview */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPreviewStatusTemplate(null);
-                    setSelectedTemplate(null);
-                  }}
-                  className="flex h-7 items-center gap-1 rounded-lg border border-stone-200/80 bg-white/90 px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
-                  title="ยกเลิกการดูตัวอย่าง (กลับสู่สถานะปัจจุบันของบอร์ด)"
-                >
-                  <X className="h-3.5 w-3.5" />
-                  <span className="hidden xs:inline">คืนค่าเดิม</span>
-                </button>
               </div>
             </div>
           )}
@@ -1009,7 +1319,7 @@ export function BoardAttributesTab({
           {/* Quick Story Points Workflow Templates Bar */}
           <div className="rounded-xl border border-amber-200/60 bg-amber-50/20 p-3 dark:border-amber-400/20 dark:bg-ink-950/40 shadow-xs space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <Wand2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
                   แม่แบบสเกลคะแนนสำเร็จรูป (Story Point Templates)
@@ -1019,16 +1329,42 @@ export function BoardAttributesTab({
                 </span>
               </div>
 
-              {canManage && (
-                <button
-                  type="button"
-                  onClick={() => setIsSaveCustomPointTemplateOpen(true)}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:underline self-start sm:self-auto cursor-pointer"
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Dropdown for quick story points template selection */}
+                <select
+                  value={previewPointTemplate?.id || ""}
+                  onChange={(e) => {
+                    const found = allPointTemplates.find((t) => t.id === e.target.value);
+                    if (found) {
+                      handleSelectPointTemplate(found);
+                    } else {
+                      setPreviewPointTemplate(null);
+                      setSelectedPointTemplate(null);
+                    }
+                  }}
+                  aria-label="เลือกแม่แบบสเกลคะแนนจากเมนู Dropdown"
+                  className="h-7 text-[11px] font-medium rounded-lg border border-amber-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  title="เลือกดูแม่แบบสเกลคะแนนผ่าน Dropdown"
                 >
-                  <Bookmark className="h-3 w-3" />
-                  <span>+ บันทึกสเกลนี้เป็นแม่แบบ</span>
-                </button>
-              )}
+                  <option value="">-- เลือกสเกลคะแนน (Dropdown) --</option>
+                  {allPointTemplates.map((tpl) => (
+                    <option key={tpl.id} value={tpl.id}>
+                      {tpl.name} ({tpl.points.length} ระดับ)
+                    </option>
+                  ))}
+                </select>
+
+                {canManage && (
+                  <button
+                    type="button"
+                    onClick={() => setIsSaveCustomPointTemplateOpen(true)}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:underline self-start sm:self-auto cursor-pointer"
+                  >
+                    <Bookmark className="h-3 w-3" />
+                    <span>+ บันทึกสเกลนี้เป็นแม่แบบ</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-soft pb-1.5 pt-0.5">
@@ -1040,33 +1376,45 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectPointTemplate(tpl)}
                     className={cn(
-                      "group shrink-0 inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
+                      "group shrink-0 inline-flex items-center h-8 rounded-full border shadow-2xs transition-all duration-300 ease-out cursor-pointer overflow-hidden p-1",
                       isSelected
-                        ? "border-amber-500 bg-amber-600 text-white shadow-xs ring-1 ring-amber-400/40"
-                        : "border-stone-200/90 bg-white text-stone-700 hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-amber-400/50 dark:hover:bg-amber-500/10"
+                        ? "border-amber-500 bg-amber-600 text-white shadow-xs ring-2 ring-amber-400/40"
+                        : "border-stone-200/90 bg-white text-stone-700 hover:border-amber-400 hover:bg-amber-50/40 hover:text-amber-950 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:hover:border-amber-400/50 dark:hover:bg-amber-500/10"
                     )}
-                    title={tpl.description}
+                    title={tpl.description ? `${tpl.name} - ${tpl.description}` : tpl.name}
                   >
                     <span
                       className={cn(
-                        "grid h-5 w-5 place-items-center rounded-md text-xs transition-colors",
+                        "grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs transition-colors",
                         isSelected
-                          ? "bg-white/20 text-white"
+                          ? "bg-white/20 text-white [&>svg]:text-white"
                           : "bg-stone-100 text-stone-600 group-hover:bg-amber-100/70 group-hover:text-amber-700 dark:bg-white/10 dark:text-stone-300 dark:group-hover:bg-amber-500/20 dark:group-hover:text-amber-300"
                       )}
                     >
                       {renderStoryPointTemplateIcon(tpl.icon)}
                     </span>
-                    <span className="truncate max-w-[220px]">{tpl.name}</span>
+
                     <span
                       className={cn(
-                        "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors",
-                        isSelected ? "bg-white/20 text-white font-bold" : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                        "flex items-center gap-1.5 overflow-hidden whitespace-nowrap transition-all duration-300 ease-out",
+                        isSelected
+                          ? "max-w-[260px] opacity-100 ml-1.5 mr-1.5"
+                          : "max-w-0 opacity-0 group-hover:max-w-[260px] group-hover:opacity-100 group-hover:ml-1.5 group-hover:mr-1.5"
                       )}
                     >
-                      {tpl.points.length}
+                      <span className="text-xs font-semibold">{tpl.name}</span>
+                      <span
+                        className={cn(
+                          "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors shrink-0",
+                          isSelected
+                            ? "bg-white/20 text-white font-bold"
+                            : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                        )}
+                      >
+                        {tpl.points.length}
+                      </span>
+                      {isSelected && <Eye className="h-3.5 w-3.5 text-white stroke-[2.5] shrink-0" />}
                     </span>
-                    {isSelected && <Eye className="h-3.5 w-3.5 text-white stroke-[2.5]" />}
                   </button>
                 );
               })}

@@ -17,6 +17,7 @@ import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
 import { AiChatTrigger } from "@/components/ai/ai-chat-trigger";
 import { HelpButton } from "@/components/ui/help-button";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { ErrorState } from "@/components/ui/state";
 import { canAccessBoard } from "@/lib/project-auth";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
@@ -232,8 +233,8 @@ export async function ProjectShell({
               <BackButton />
               <Link
                 href="/projects"
-                title="หน้ารวมบริษัท (Workspaces)"
-                aria-label="หน้ารวมบริษัท (Workspaces)"
+                title="Workspaces"
+                aria-label="Workspaces"
                 className="hidden sm:inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender"
               >
                 <Building2 className="h-4 w-4" />
@@ -254,6 +255,7 @@ export async function ProjectShell({
                 <span className="text-stone-400">Command</span>
                 <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
               </div>
+              <LanguageSwitcher />
               <NotificationsPopover />
               <AiChatTrigger />
               <UserProfilePopover

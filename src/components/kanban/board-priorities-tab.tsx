@@ -328,7 +328,7 @@ export function BoardPrioritiesTab({
       {/* Quick Priority Workflow Templates Bar */}
       <div className="rounded-xl border border-rose-200/60 bg-rose-50/20 p-3 dark:border-rose-400/20 dark:bg-ink-950/40 shadow-xs space-y-2">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <Wand2 className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
             <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
               แม่แบบระดับความสำคัญสำเร็จรูป (Priority Templates)
@@ -338,16 +338,42 @@ export function BoardPrioritiesTab({
             </span>
           </div>
 
-          {canManage && (
-            <button
-              type="button"
-              onClick={() => setIsSaveCustomTemplateOpen(true)}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:underline self-start sm:self-auto cursor-pointer"
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Dropdown for quick priority template selection */}
+            <select
+              value={previewTemplate?.id || ""}
+              onChange={(e) => {
+                const found = allTemplates.find((t) => t.id === e.target.value);
+                if (found) {
+                  handleSelectTemplate(found);
+                } else {
+                  setPreviewTemplate(null);
+                  setSelectedTemplate(null);
+                }
+              }}
+              aria-label="เลือกแม่แบบระดับความสำคัญจากเมนู Dropdown"
+              className="h-7 text-[11px] font-medium rounded-lg border border-rose-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500"
+              title="เลือกดูแม่แบบระดับความสำคัญผ่าน Dropdown"
             >
-              <Bookmark className="h-3 w-3" />
-              <span>+ บันทึกชุดนี้เป็นแม่แบบ</span>
-            </button>
-          )}
+              <option value="">-- เลือกแม่แบบ (Dropdown) --</option>
+              {allTemplates.map((tpl) => (
+                <option key={tpl.id} value={tpl.id}>
+                  {tpl.name} ({tpl.priorities.length} ระดับ)
+                </option>
+              ))}
+            </select>
+
+            {canManage && (
+              <button
+                type="button"
+                onClick={() => setIsSaveCustomTemplateOpen(true)}
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:underline self-start sm:self-auto cursor-pointer"
+              >
+                <Bookmark className="h-3 w-3" />
+                <span>+ บันทึกชุดนี้เป็นแม่แบบ</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-soft pb-1.5 pt-0.5">
@@ -359,35 +385,45 @@ export function BoardPrioritiesTab({
                 type="button"
                 onClick={() => handleSelectTemplate(tpl)}
                 className={cn(
-                  "group shrink-0 inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
+                  "group shrink-0 inline-flex items-center h-8 rounded-full border shadow-2xs transition-all duration-300 ease-out cursor-pointer overflow-hidden p-1",
                   isSelected
-                    ? "border-rose-500 bg-rose-500 text-white shadow-xs ring-1 ring-rose-400/40 dark:bg-rose-600 dark:border-rose-600"
-                    : "border-stone-200/90 bg-white text-stone-700 hover:border-rose-400 hover:bg-rose-50/50 hover:text-rose-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-rose-400/50 dark:hover:bg-rose-500/10"
+                    ? "border-rose-500 bg-rose-500 text-white shadow-xs ring-2 ring-rose-400/40 dark:bg-rose-600 dark:border-rose-600"
+                    : "border-stone-200/90 bg-white text-stone-700 hover:border-rose-400 hover:bg-rose-50/40 hover:text-rose-950 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:hover:border-rose-400/50 dark:hover:bg-rose-500/10"
                 )}
-                title={tpl.description}
+                title={tpl.description ? `${tpl.name} - ${tpl.description}` : tpl.name}
               >
                 <span
                   className={cn(
-                    "grid h-5 w-5 place-items-center rounded-md text-xs transition-colors",
+                    "grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs transition-colors",
                     isSelected
-                      ? "bg-white/20 text-white"
+                      ? "bg-white/20 text-white [&>svg]:text-white"
                       : "bg-stone-100 text-stone-600 group-hover:bg-rose-100/70 group-hover:text-rose-700 dark:bg-white/10 dark:text-stone-300 dark:group-hover:bg-rose-500/20 dark:group-hover:text-rose-300"
                   )}
                 >
                   {renderPriorityTemplateIcon(tpl.icon)}
                 </span>
-                <span className="truncate max-w-[220px]">{tpl.name}</span>
+
                 <span
                   className={cn(
-                    "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors",
+                    "flex items-center gap-1.5 overflow-hidden whitespace-nowrap transition-all duration-300 ease-out",
                     isSelected
-                      ? "bg-white/20 text-white font-bold"
-                      : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                      ? "max-w-[260px] opacity-100 ml-1.5 mr-1.5"
+                      : "max-w-0 opacity-0 group-hover:max-w-[260px] group-hover:opacity-100 group-hover:ml-1.5 group-hover:mr-1.5"
                   )}
                 >
-                  {tpl.priorities.length}
+                  <span className="text-xs font-semibold">{tpl.name}</span>
+                  <span
+                    className={cn(
+                      "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors shrink-0",
+                      isSelected
+                        ? "bg-white/20 text-white font-bold"
+                        : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                    )}
+                  >
+                    {tpl.priorities.length}
+                  </span>
+                  {isSelected && <Eye className="h-3.5 w-3.5 text-white stroke-[2.5] shrink-0" />}
                 </span>
-                {isSelected && <Eye className="h-3.5 w-3.5 text-white stroke-[2.5]" />}
               </button>
             );
           })}

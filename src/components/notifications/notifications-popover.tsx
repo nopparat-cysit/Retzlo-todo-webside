@@ -7,6 +7,7 @@ import { formatShortDate } from "@/lib/date-format";
 import { useToast } from "@/components/ui/toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useLiveSync } from "@/hooks/use-live-sync";
+import { useLanguage } from "@/lib/i18n/language-context";
 import { InvitationConfirmModal, type InvitationData } from "./invitation-confirm-modal";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
   const [selectedInvite, setSelectedInvite] = useState<InvitationData | null>(null);
 
   const { toast } = useToast();
+  const { isEn } = useLanguage();
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -77,11 +79,11 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
       });
       if (res.ok) {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-        toast({ message: "ทำเครื่องหมายอ่านแล้วทั้งหมด", type: "success" });
+        toast({ message: isEn ? "Marked all as read" : "ทำเครื่องหมายอ่านแล้วทั้งหมด", type: "success" });
         broadcastChange();
       }
     } catch {
-      toast({ message: "ไม่สามารถอัปเดตสถานะได้", type: "error" });
+      toast({ message: isEn ? "Failed to update notifications status" : "ไม่สามารถอัปเดตสถานะได้", type: "error" });
     }
   }
 
@@ -136,10 +138,12 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-stone-100">การแจ้งเตือน</span>
+              <span className="text-sm font-semibold text-stone-100">
+                {isEn ? "Notifications" : "การแจ้งเตือน"}
+              </span>
               {unreadCount > 0 && (
                 <span className="rounded-full bg-dusk-lavender/20 px-2 py-0.5 text-[11px] font-medium text-dusk-lavender">
-                  {unreadCount} ใหม่
+                  {unreadCount} {isEn ? "new" : "ใหม่"}
                 </span>
               )}
             </div>
@@ -149,7 +153,7 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
                 onClick={markAllAsRead}
                 className="text-[11px] text-stone-400 hover:text-dusk-lavender transition cursor-pointer"
               >
-                อ่านทั้งหมด
+                {isEn ? "Mark all as read" : "อ่านทั้งหมด"}
               </button>
             )}
           </div>
@@ -159,7 +163,7 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
             {notifications.length === 0 ? (
               <div className="py-8 text-center text-xs text-stone-500">
                 <Bell className="mx-auto mb-2 h-6 w-6 opacity-30 text-stone-400" />
-                <p>ไม่มีการแจ้งเตือนในขณะนี้</p>
+                <p>{isEn ? "No notifications at this time" : "ไม่มีการแจ้งเตือนในขณะนี้"}</p>
               </div>
             ) : (
               notifications.map((n) => (

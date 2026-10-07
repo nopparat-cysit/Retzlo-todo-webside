@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -18,23 +18,20 @@ import {
   Copy,
   Download,
   FileText,
-  Filter,
   Flag,
-  Flame,
   FolderKanban,
   HelpCircle,
   Keyboard,
   Layers,
   LayoutGrid,
+  Lightbulb,
   ListChecks,
   Menu,
-  MessageSquare,
   Play,
   Search,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
-  Star,
   StickyNote,
   Table,
   ThumbsDown,
@@ -44,6 +41,8 @@ import {
 } from "lucide-react";
 
 import { BackButton } from "@/components/ui/back-button";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useLanguage } from "@/lib/i18n/language-context";
 import { useAiChat } from "@/components/ai/ai-chat-context";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
@@ -80,7 +79,161 @@ export interface GuideTopic {
   demoType?: "architecture" | "ai-chat" | "kanban-table" | "priorities" | "timepicker" | "coffee" | "export" | "habits" | "permissions" | "shortcuts";
 }
 
-export const CATEGORIES = [
+export interface CategoryTheme {
+  eyebrowEn: string;
+  eyebrowTh: string;
+  eyebrowBadge: string;
+  iconBox: string;
+  headerAura: string;
+  summaryCard: string;
+  summaryIconBox: string;
+  summarySparkleColor: string;
+  sectionBadge: string;
+  stepBadge: string;
+  activeSidebar: string;
+  activeSidebarBar: string;
+  activeSidebarIcon: string;
+}
+
+export const CATEGORY_THEME_MAP: Record<GuideTopic["category"], CategoryTheme> = {
+  overview: {
+    eyebrowEn: "SYSTEM OVERVIEW & GETTING STARTED",
+    eyebrowTh: "ภาพรวมระบบ & เริ่มต้นการใช้งาน",
+    eyebrowBadge: "bg-indigo-50 text-indigo-700 border border-indigo-200/80 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:border-dusk-lavender/30",
+    iconBox: "border-indigo-200 bg-indigo-50/90 text-indigo-600 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender",
+    headerAura: "from-indigo-500/15 via-indigo-500/5 to-transparent",
+    summaryCard: "border-indigo-200/80 bg-gradient-to-r from-indigo-50/80 via-indigo-50/30 to-white dark:border-dusk-lavender/30 dark:from-dusk-lavender/10 dark:via-dusk-lavender/5 dark:to-transparent",
+    summaryIconBox: "bg-indigo-100 text-indigo-600 dark:bg-dusk-lavender/25 dark:text-dusk-lavender",
+    summarySparkleColor: "text-indigo-600 dark:text-dusk-lavender",
+    sectionBadge: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:border-dusk-lavender/30",
+    stepBadge: "bg-indigo-50 text-indigo-700 border-indigo-200/80 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:border-dusk-lavender/30",
+    activeSidebar: "bg-indigo-50 text-indigo-700 border-indigo-200/90 shadow-2xs dark:bg-dusk-lavender/15 dark:border-dusk-lavender/30 dark:text-dusk-lavender",
+    activeSidebarBar: "bg-indigo-600 dark:bg-dusk-lavender",
+    activeSidebarIcon: "text-indigo-600 dark:text-dusk-lavender",
+  },
+  ai: {
+    eyebrowEn: "BUILT-IN INTELLIGENCE & COPILOT",
+    eyebrowTh: "ผู้ช่วยอัจฉริยะ RETZLO AI & AUTOMATION",
+    eyebrowBadge: "bg-purple-50 text-purple-700 border border-purple-200/80 dark:bg-purple-500/15 dark:text-purple-300 dark:border-purple-500/30",
+    iconBox: "border-purple-200 bg-purple-50/90 text-purple-600 dark:border-purple-500/40 dark:bg-purple-500/15 dark:text-purple-300",
+    headerAura: "from-purple-500/15 via-purple-500/5 to-transparent",
+    summaryCard: "border-purple-200/80 bg-gradient-to-r from-purple-50/80 via-purple-50/30 to-white dark:border-purple-500/30 dark:from-purple-500/10 dark:via-purple-500/5 dark:to-transparent",
+    summaryIconBox: "bg-purple-100 text-purple-600 dark:bg-purple-500/25 dark:text-purple-300",
+    summarySparkleColor: "text-purple-600 dark:text-purple-400",
+    sectionBadge: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/15 dark:text-purple-300 dark:border-purple-500/30",
+    stepBadge: "bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-500/15 dark:text-purple-300 dark:border-purple-500/30",
+    activeSidebar: "bg-purple-50 text-purple-700 border-purple-200/90 shadow-2xs dark:bg-purple-500/15 dark:border-purple-500/30 dark:text-purple-300",
+    activeSidebarBar: "bg-purple-600 dark:bg-purple-400",
+    activeSidebarIcon: "text-purple-600 dark:text-purple-300",
+  },
+  kanban: {
+    eyebrowEn: "WORK MODULE & DUAL VIEWS",
+    eyebrowTh: "บอร์ด KANBAN & ตาราง SPREADSHEET",
+    eyebrowBadge: "bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30",
+    iconBox: "border-emerald-200 bg-emerald-50/90 text-emerald-600 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-300",
+    headerAura: "from-emerald-500/15 via-emerald-500/5 to-transparent",
+    summaryCard: "border-emerald-200/80 bg-gradient-to-r from-emerald-50/80 via-emerald-50/30 to-white dark:border-emerald-500/30 dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent",
+    summaryIconBox: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/25 dark:text-emerald-300",
+    summarySparkleColor: "text-emerald-600 dark:text-emerald-400",
+    sectionBadge: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30",
+    stepBadge: "bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30",
+    activeSidebar: "bg-emerald-50 text-emerald-700 border-emerald-200/90 shadow-2xs dark:bg-emerald-500/15 dark:border-emerald-500/30 dark:text-emerald-300",
+    activeSidebarBar: "bg-emerald-600 dark:bg-emerald-400",
+    activeSidebarIcon: "text-emerald-600 dark:text-emerald-300",
+  },
+  gamification: {
+    eyebrowEn: "COFFEE CHEERS & REWARDS SHOP",
+    eyebrowTh: "ระบบ CHEERS เหรียญ & ร้านของรางวัล",
+    eyebrowBadge: "bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-dusk-rose/15 dark:text-dusk-rose dark:border-dusk-rose/30",
+    iconBox: "border-rose-200 bg-rose-50/90 text-rose-600 dark:border-dusk-rose/40 dark:bg-dusk-rose/15 dark:text-dusk-rose",
+    headerAura: "from-rose-500/15 via-rose-500/5 to-transparent",
+    summaryCard: "border-rose-200/80 bg-gradient-to-r from-rose-50/80 via-rose-50/30 to-white dark:border-dusk-rose/30 dark:from-dusk-rose/10 dark:via-dusk-rose/5 dark:to-transparent",
+    summaryIconBox: "bg-rose-100 text-rose-600 dark:bg-dusk-rose/25 dark:text-dusk-rose",
+    summarySparkleColor: "text-rose-600 dark:text-dusk-rose",
+    sectionBadge: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-dusk-rose/15 dark:text-dusk-rose dark:border-dusk-rose/30",
+    stepBadge: "bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-dusk-rose/15 dark:text-dusk-rose dark:border-dusk-rose/30",
+    activeSidebar: "bg-rose-50 text-rose-700 border-rose-200/90 shadow-2xs dark:bg-dusk-rose/15 dark:border-dusk-rose/30 dark:text-dusk-rose",
+    activeSidebarBar: "bg-rose-600 dark:bg-dusk-rose",
+    activeSidebarIcon: "text-rose-600 dark:text-dusk-rose",
+  },
+  calendar: {
+    eyebrowEn: "CALENDAR MATRIX & RETRO TIMEPICKER",
+    eyebrowTh: "ปฏิทินงาน & ตัวเลือกเวลา RETRO",
+    eyebrowBadge: "bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-dusk-amber/15 dark:text-dusk-amber dark:border-dusk-amber/30",
+    iconBox: "border-amber-200 bg-amber-50/90 text-amber-600 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber",
+    headerAura: "from-amber-500/15 via-amber-500/5 to-transparent",
+    summaryCard: "border-amber-200/80 bg-gradient-to-r from-amber-50/80 via-amber-50/30 to-white dark:border-dusk-amber/30 dark:from-dusk-amber/10 dark:via-dusk-amber/5 dark:to-transparent",
+    summaryIconBox: "bg-amber-100 text-amber-600 dark:bg-dusk-amber/25 dark:text-dusk-amber",
+    summarySparkleColor: "text-amber-600 dark:text-dusk-amber",
+    sectionBadge: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-dusk-amber/15 dark:text-dusk-amber dark:border-dusk-amber/30",
+    stepBadge: "bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-dusk-amber/15 dark:text-dusk-amber dark:border-dusk-amber/30",
+    activeSidebar: "bg-amber-50 text-amber-700 border-amber-200/90 shadow-2xs dark:bg-dusk-amber/15 dark:border-dusk-amber/30 dark:text-dusk-amber",
+    activeSidebarBar: "bg-amber-600 dark:bg-dusk-amber",
+    activeSidebarIcon: "text-amber-600 dark:text-dusk-amber",
+  },
+  notes: {
+    eyebrowEn: "LIFE MODULE & HABIT STREAKS",
+    eyebrowTh: "สมุดโน้ต, ไดอารี่ & สถิติ STREAKS",
+    eyebrowBadge: "bg-sky-50 text-sky-700 border border-sky-200/80 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30",
+    iconBox: "border-sky-200 bg-sky-50/90 text-sky-600 dark:border-sky-500/40 dark:bg-sky-500/15 dark:text-sky-300",
+    headerAura: "from-sky-500/15 via-sky-500/5 to-transparent",
+    summaryCard: "border-sky-200/80 bg-gradient-to-r from-sky-50/80 via-sky-50/30 to-white dark:border-sky-500/30 dark:from-sky-500/10 dark:via-sky-500/5 dark:to-transparent",
+    summaryIconBox: "bg-sky-100 text-sky-600 dark:bg-sky-500/25 dark:text-sky-300",
+    summarySparkleColor: "text-sky-600 dark:text-sky-400",
+    sectionBadge: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30",
+    stepBadge: "bg-sky-50 text-sky-700 border-sky-200/80 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30",
+    activeSidebar: "bg-sky-50 text-sky-700 border-sky-200/90 shadow-2xs dark:bg-sky-500/15 dark:border-sky-500/30 dark:text-sky-300",
+    activeSidebarBar: "bg-sky-600 dark:bg-sky-400",
+    activeSidebarIcon: "text-sky-600 dark:text-sky-300",
+  },
+  security: {
+    eyebrowEn: "MEMBERS, ROLES & GOVERNANCE",
+    eyebrowTh: "จัดการสมาชิก, บทบาท & สิทธิ์เข้าถึง",
+    eyebrowBadge: "bg-teal-50 text-teal-700 border border-teal-200/80 dark:bg-teal-500/15 dark:text-teal-300 dark:border-teal-500/30",
+    iconBox: "border-teal-200 bg-teal-50/90 text-teal-600 dark:border-teal-500/40 dark:bg-teal-500/15 dark:text-teal-300",
+    headerAura: "from-teal-500/15 via-teal-500/5 to-transparent",
+    summaryCard: "border-teal-200/80 bg-gradient-to-r from-teal-50/80 via-teal-50/30 to-white dark:border-teal-500/30 dark:from-teal-500/10 dark:via-teal-500/5 dark:to-transparent",
+    summaryIconBox: "bg-teal-100 text-teal-600 dark:bg-teal-500/25 dark:text-teal-300",
+    summarySparkleColor: "text-teal-600 dark:text-teal-400",
+    sectionBadge: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-500/15 dark:text-teal-300 dark:border-teal-500/30",
+    stepBadge: "bg-teal-50 text-teal-700 border-teal-200/80 dark:bg-teal-500/15 dark:text-teal-300 dark:border-teal-500/30",
+    activeSidebar: "bg-teal-50 text-teal-700 border-teal-200/90 shadow-2xs dark:bg-teal-500/15 dark:border-teal-500/30 dark:text-teal-300",
+    activeSidebarBar: "bg-teal-600 dark:bg-teal-400",
+    activeSidebarIcon: "text-teal-600 dark:text-teal-300",
+  },
+  shortcuts: {
+    eyebrowEn: "KEYBOARD SHORTCUTS & EFFICIENCY",
+    eyebrowTh: "คีย์ลัดด่วนเพื่อความเร็วสูงสุด",
+    eyebrowBadge: "bg-stone-100 text-stone-700 border border-stone-300/80 dark:bg-white/10 dark:text-stone-200 dark:border-white/20",
+    iconBox: "border-stone-300 bg-stone-100 text-stone-700 dark:border-white/20 dark:bg-white/10 dark:text-stone-200",
+    headerAura: "from-stone-500/15 via-stone-500/5 to-transparent",
+    summaryCard: "border-stone-200/80 bg-gradient-to-r from-stone-100/80 via-stone-50/40 to-white dark:border-white/10 dark:from-white/10 dark:via-white/5 dark:to-transparent",
+    summaryIconBox: "bg-stone-200/80 text-stone-700 dark:bg-white/15 dark:text-stone-200",
+    summarySparkleColor: "text-stone-600 dark:text-stone-300",
+    sectionBadge: "bg-stone-100 text-stone-700 border-stone-300 dark:bg-white/10 dark:text-stone-200 dark:border-white/20",
+    stepBadge: "bg-stone-100 text-stone-700 border-stone-300/80 dark:bg-white/10 dark:text-stone-200 dark:border-white/20",
+    activeSidebar: "bg-stone-100 text-stone-800 border-stone-300 dark:bg-white/10 dark:border-white/20 dark:text-stone-200 shadow-2xs",
+    activeSidebarBar: "bg-stone-600 dark:bg-stone-300",
+    activeSidebarIcon: "text-stone-700 dark:text-stone-200",
+  },
+  faq: {
+    eyebrowEn: "FAQ & TROUBLESHOOTING",
+    eyebrowTh: "คำถามที่พบบ่อย & การแก้ปัญหา",
+    eyebrowBadge: "bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/30",
+    iconBox: "border-blue-200 bg-blue-50/90 text-blue-600 dark:border-blue-500/40 dark:bg-blue-500/15 dark:text-blue-300",
+    headerAura: "from-blue-500/15 via-blue-500/5 to-transparent",
+    summaryCard: "border-blue-200/80 bg-gradient-to-r from-blue-50/80 via-blue-50/30 to-white dark:border-blue-500/30 dark:from-blue-500/10 dark:via-blue-500/5 dark:to-transparent",
+    summaryIconBox: "bg-blue-100 text-blue-600 dark:bg-blue-500/25 dark:text-blue-300",
+    summarySparkleColor: "text-blue-600 dark:text-blue-400",
+    sectionBadge: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/30",
+    stepBadge: "bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/30",
+    activeSidebar: "bg-blue-50 text-blue-700 border-blue-200/90 shadow-2xs dark:bg-blue-500/15 dark:border-blue-500/30 dark:text-blue-300",
+    activeSidebarBar: "bg-blue-600 dark:bg-blue-400",
+    activeSidebarIcon: "text-blue-600 dark:text-blue-300",
+  },
+};
+
+export const CATEGORIES_TH = [
   { id: "all", label: "🌟 ทั้งหมด", fullLabel: "ทุกหมวดหมู่ (All Topics)" },
   { id: "overview", label: "🌟 เริ่มต้น", fullLabel: "ภาพรวมระบบ (Getting Started)" },
   { id: "ai", label: "🤖 ผู้ช่วย AI", fullLabel: "ผู้ช่วย AI (AI & Automation)" },
@@ -93,7 +246,20 @@ export const CATEGORIES = [
   { id: "faq", label: "❓ ถาม-ตอบ", fullLabel: "คำถามที่พบบ่อย (FAQ & Help)" },
 ] as const;
 
-export const SYSTEM_PILLARS = [
+export const CATEGORIES_EN = [
+  { id: "all", label: "🌟 All", fullLabel: "All Topics" },
+  { id: "overview", label: "🌟 Overview", fullLabel: "Getting Started & System Overview" },
+  { id: "ai", label: "🤖 Retzlo AI", fullLabel: "AI Assistant & Automation" },
+  { id: "kanban", label: "📋 Boards & Table", fullLabel: "Kanban & Spreadsheet Views" },
+  { id: "gamification", label: "☕ Cheers & Coins", fullLabel: "Gamification & Rewards" },
+  { id: "calendar", label: "📅 Calendar & Time", fullLabel: "Calendar & Retro TimePicker" },
+  { id: "notes", label: "📝 Notes & Diary", fullLabel: "Notes Hub & Habit Diary" },
+  { id: "security", label: "👥 Access & Team", fullLabel: "Members, Roles & Settings" },
+  { id: "shortcuts", label: "⌨️ Shortcuts", fullLabel: "Keyboard Shortcuts" },
+  { id: "faq", label: "❓ FAQ", fullLabel: "FAQ & Troubleshooting" },
+] as const;
+
+export const SYSTEM_PILLARS_TH = [
   {
     id: "kanban-boards",
     title: "Work Module",
@@ -144,7 +310,783 @@ export const SYSTEM_PILLARS = [
   },
 ];
 
-export const TOPICS: GuideTopic[] = [
+export const SYSTEM_PILLARS_EN = [
+  {
+    id: "kanban-boards",
+    title: "Work Module",
+    subtitle: "Kanban Board & Spreadsheet Table",
+    icon: FolderKanban,
+    tag: "Dual View",
+    color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20",
+  },
+  {
+    id: "ai-assistant",
+    title: "Retzlo AI",
+    subtitle: "Built-in Assistant & Auto-Breakdown",
+    icon: Bot,
+    tag: "Zero-Config",
+    color: "text-indigo-600 bg-indigo-50 dark:bg-dusk-lavender/10 border-indigo-200 dark:border-dusk-lavender/25",
+  },
+  {
+    id: "card-attributes-customization",
+    title: "Attributes & Export",
+    subtitle: "Statuses, 10 Priorities & Export",
+    icon: SlidersHorizontal,
+    tag: "Custom 10-Levels",
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/20",
+  },
+  {
+    id: "calendar-due-dates",
+    title: "Calendar & Time",
+    subtitle: "Task Calendar & Single-Column Scroller",
+    icon: Calendar,
+    tag: "Linear Scroller",
+    color: "text-amber-600 bg-amber-50 dark:bg-dusk-amber/10 border-amber-200 dark:border-dusk-amber/25",
+  },
+  {
+    id: "coffee-cheers-rewards",
+    title: "Gamification",
+    subtitle: "Coffee Cheers & Rewards Store",
+    icon: Coffee,
+    tag: "Coffee + Coins",
+    color: "text-rose-600 bg-rose-50 dark:bg-dusk-rose/10 border-rose-200 dark:border-dusk-rose/25",
+  },
+  {
+    id: "notes-diary-hub",
+    title: "Life Hub",
+    subtitle: "Notes Notebook, Habit Diary & Streaks",
+    icon: StickyNote,
+    tag: "Streak Habits",
+    color: "text-sky-600 bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20",
+  },
+];
+
+export const TOPICS_EN: GuideTopic[] = [
+  {
+    id: "welcome-overview",
+    category: "overview",
+    icon: Compass,
+    title: "Welcome to Retzlo Platform & Modular Architecture",
+    badge: "Getting Started",
+    badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-dusk-lavender",
+    scopeBadge: "System Architecture",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "A modular life and work management platform styled with a soothing Retro Lofi Indigo aesthetic, combining native server-managed AI and enterprise-grade real-time collaboration with 0ms optimistic UI.",
+    concept:
+      "Retzlo is architected under the Modular Life & Work philosophy, seamlessly uniting professional sprint deliverables with personal habits and mental well-being routines. The Retro Lofi Indigo palette provides an eye-friendly, low-stress environment for sustained focus, with all modules connected in real time.",
+    highlights: [
+      "Modular Architecture: Cleanly divided into Work Module (Kanban/Table), Calendar, Notes Hub, Habit Diary, and Rewards Store.",
+      "Real-time 0ms Optimistic UI: Instant state transitions with Pusher WebSocket broadcast and automated rollback safety.",
+      "Built-in Server AI (Zero-Config): Integrated intelligence on the server level, immediately available across all workspaces without manual setup.",
+      "Privacy & Access Control: Distinct Workspace Owner and Project Member roles, with private boards for confidential work.",
+      "Dual Theme System: Native Dark Mode (Retro Lofi Indigo) and Warm Paper Light Mode with automatic system preference detection.",
+      "AGENTS.md Safety Standards: ConfirmModal safeguards on all destructive actions, backed by instant Toast notifications.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Create or Join a Workspace",
+        desc: "Open your workspace dashboard to create a new project with custom icons and cover art, or accept team invitation links.",
+      },
+      {
+        step: "02",
+        title: "Structure Your Boards (Kanban & Table)",
+        desc: "Add workflow columns, choose status templates, and switch freely between Kanban cards and Spreadsheet Table view.",
+      },
+      {
+        step: "03",
+        title: "Harness Built-in AI Assistance",
+        desc: "Engage with Retzlo AI to auto-breakdown tasks into 3-10 checklist items or generate executive project summaries.",
+      },
+      {
+        step: "04",
+        title: "Sync with Calendar & Life Diary",
+        desc: "Track deadlines on the calendar and establish daily routines in the Diary Hub for healthy work-life harmony.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Architecture", value: "Next.js App Router + Modular Design" },
+      { label: "Real-time Engine", value: "Pusher WebSocket (0ms Optimistic UI)" },
+      { label: "Database & ORM", value: "Neon PostgreSQL + Prisma ORM" },
+      { label: "AI Integration", value: "Native Server Managed (Zero-Config)" },
+      { label: "Design System", value: "Retro Lofi Indigo (Semantic Tailwind Tokens)" },
+    ],
+    tips: "Toggle between Dark, Light, or System themes anytime from your avatar popover in the top right corner.",
+    relatedTopicIds: ["kanban-boards", "ai-assistant", "spreadsheet-table-view", "roles-and-security"],
+    demoType: "architecture",
+  },
+  {
+    id: "ai-assistant",
+    category: "ai",
+    icon: Bot,
+    title: "Retzlo AI Intelligent Assistant",
+    badge: "AI Powered",
+    badgeColor: "border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender",
+    scopeBadge: "Native Automation",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Your dedicated in-app project assistant capable of multi-turn dialogues, sprint health analysis, and drafting task cards directly to your board.",
+    concept:
+      "Retzlo AI serves as a virtual Scrum Master tailored to your project. It understands live board structures, cards, columns, deadlines, and assignees, delivering actionable recommendations rather than generic conversational replies.",
+    highlights: [
+      "Zero-Config Native Execution: Ready out of the box with zero server setup or complex manual configurations.",
+      "Instant Topbar Access: Launch anytime via the robot icon 🤖 in the topbar or the floating action button.",
+      "Adaptive Responsive Docking: Starts as an elegant right-hand Side Panel on desktop displays, and transitions smoothly into a floating bottom-right chatbox on mobile screens.",
+      "Star FAB Displacement: The bottom-right star action button automatically glides upward when the chatbox is open, preventing UI overlaps.",
+      "Project-Aware Queries: Ask 'Which tasks are blocked?', 'Who has the highest workload?', or 'Summarize this week's progress'.",
+      "Interactive Card Creation: Instruct AI to generate cards with an automated confirmation preview modal before persisting to database.",
+      "Quick Starter Prompts: One-click prompt suggestions to immediately jumpstart project analysis.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Retzlo AI Chat",
+        desc: "Click the 🤖 icon on the topbar or press the 'Ask AI' quick button anywhere in your workspace.",
+      },
+      {
+        step: "02",
+        title: "Inquire or Issue Direct Commands",
+        desc: "Type questions regarding board progress, search for overdue items, or instruct 'Draft cards for user authentication'.",
+      },
+      {
+        step: "03",
+        title: "Review Preview & Confirm",
+        desc: "When AI proposes card drafts, review titles and destination columns in the confirmation modal and click Confirm.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "AI Engine", value: "Native Deep Intelligence (Chat & Structured JSON)" },
+      { label: "Configuration", value: "Zero Setup (100% Server Managed)" },
+      { label: "Context Scope", value: "Projects, Boards, Columns, Cards, Assignees" },
+      { label: "Docking Modes", value: "Desktop Side Panel / Mobile Floating Chat" },
+    ],
+    tips: "On desktop screens, you can freely switch between the Side Panel and Floating Chat modes to match your multitasking preferences.",
+    relatedTopicIds: ["ai-breakdown-summary", "kanban-boards", "keyboard-shortcuts"],
+    demoType: "ai-chat",
+  },
+  {
+    id: "ai-breakdown-summary",
+    category: "ai",
+    icon: Sparkles,
+    title: "AI Auto-Breakdown & Executive Summary",
+    badge: "Automation",
+    badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber",
+    scopeBadge: "Decomposition & Insights",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Transform complex initiatives into granular actionable checklists and generate executive board summaries with one click.",
+    concept:
+      "High-velocity teams break large epics into achievable checklist steps. Retzlo AI analyzes task descriptions to synthesize 3 to 10 actionable items with live completion progress bars, reducing planning overhead by up to 80%.",
+    highlights: [
+      "AI Task Breakdown: Click ✨ AI Breakdown inside any card modal to decompose tasks into 3–10 structured checklist items.",
+      "Executive Project Summary: Click AI Summary on the board toolbar to evaluate sprint health, bottlenecks, and strategic velocity.",
+      "Dynamic Progress Bar: Each checklist item automatically calculates and visually updates completion percentage in real time.",
+      "Non-destructive Append: Choose whether to replace existing checklists or append new AI suggestions seamlessly.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Any Task Card",
+        desc: "Click on any card in the Kanban board or Spreadsheet Table view to reveal the card modal.",
+      },
+      {
+        step: "02",
+        title: "Trigger ✨ AI Breakdown",
+        desc: "Select the desired item count (3, 5, or 8 items) and click Generate to run the analysis.",
+      },
+      {
+        step: "03",
+        title: "Track Progress in Real Time",
+        desc: "Check off completed items to see the gradient progress bar advance immediately.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Breakdown Scale", value: "3 - 10 Actionable Checklist Items" },
+      { label: "Summary Scope", value: "Health, Bottlenecks, Velocity & Action Items" },
+      { label: "Execution Latency", value: "< 2.5 seconds" },
+    ],
+    tips: "Providing clear context in your card descriptions empowers the AI to generate exceptionally precise checklist recommendations.",
+    relatedTopicIds: ["ai-assistant", "kanban-boards", "board-export"],
+    demoType: "ai-chat",
+  },
+  {
+    id: "kanban-boards",
+    category: "kanban",
+    icon: FolderKanban,
+    title: "Kanban Board Management & Card Flow",
+    badge: "Core Workflow",
+    badgeColor: "border-emerald-400/30 bg-emerald-400/10 text-emerald-600 dark:text-emerald-400",
+    scopeBadge: "Core Kanban",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Real-time visual task management with buttery-smooth drag-and-drop, WIP limits, and customizable card densities.",
+    concept:
+      "Retzlo's Kanban board operates on an Optimistic State Architecture. Card reordering and column transfers happen in 0 milliseconds locally while syncing to all teammates via WebSockets with automated error rollbacks.",
+    highlights: [
+      "Optimistic Drag & Drop: Instantaneous card transitions without network latency or UI stutter.",
+      "Real-time Collaboration: Live card movement updates for all connected project members via Pusher WebSockets.",
+      "Column Settings & WIP Limits: Set Work-In-Progress limits on active columns to identify team bottlenecks early.",
+      "Front Sort Handles (⁝⁝): Convenient front drag handles on sidebar items for effortless reordering.",
+      "Card Density Switcher (Normal / Compact 2x): Toggle between spacious standard cards and ultra-compact 2x views for dense backlogs.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Drag Cards Across Stages",
+        desc: "Move cards between To Do, In Progress, and Done with instantaneous 0ms optimistic updates.",
+      },
+      {
+        step: "02",
+        title: "Switch to Compact 2x Density",
+        desc: "Click the density toggle on the toolbar when dealing with large volumes of cards to minimize scrolling.",
+      },
+      {
+        step: "03",
+        title: "Enforce WIP Limits",
+        desc: "Configure WIP limits in Column Settings to prevent team overload on In Progress tasks.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Sync Engine", value: "Pusher WebSockets Broadcast" },
+      { label: "Latency", value: "0ms (Optimistic UI with Auto-Rollback)" },
+      { label: "Density Views", value: "Normal (Standard) & Compact 2x (High Density)" },
+    ],
+    tips: "Toggle Compact 2x density whenever managing sprint boards with dozens of active cards to view the entire pipeline without excessive scrolling.",
+    relatedTopicIds: ["spreadsheet-table-view", "card-attributes-customization", "board-export"],
+    demoType: "kanban-table",
+  },
+  {
+    id: "spreadsheet-table-view",
+    category: "kanban",
+    icon: Table,
+    title: "Spreadsheet Table View",
+    badge: "High Density",
+    badgeColor: "border-dusk-cyan/30 bg-dusk-cyan/10 text-dusk-cyan",
+    scopeBadge: "Bulk Editing & Grid",
+    readingTime: "4 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Switch effortlessly from Kanban cards to a spreadsheet layout for rapid inline editing, multi-assignee management, and sorting.",
+    concept:
+      "Tailored for project leads and team members needing an eagle-eye overview of large task volumes with inline editing capabilities, bypassing the need to open individual card modals.",
+    highlights: [
+      "Instant Dual View: Switch between Kanban and Table views directly from the board header (supports Flat Table and Column Grouped views).",
+      "Row Index & Hover Checkbox (#): Shows row numbers by default, flipping dynamically on hover to an interactive checkbox that marks tasks as Done with a persistent green [✓].",
+      "Multi-Assignee & Real Avatars: Assign multiple team members per task with real profile avatars in the table cell and dropdown.",
+      "Comprehensive Inline Editing: Edit titles, statuses, and custom priorities directly in table cells.",
+      "Interactive Retro DatePicker: Pick Start Date and Due Date inline with consistent 'DD/MM/YYYY' formatting.",
+      "Priority Column Sorting: Click the Priority column header to sort tasks by urgency level (Level 1 highest).",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Switch to Table View",
+        desc: "Click the Table button on the board toolbar and choose Flat or Grouped layout.",
+      },
+      {
+        step: "02",
+        title: "Edit Directly in Grid Cells",
+        desc: "Click any title, status pill, or priority badge to modify values inline without opening modals.",
+      },
+      {
+        step: "03",
+        title: "Assign Multiple Teammates",
+        desc: "Open the assignee cell and toggle multiple members without the dropdown dismissing prematurely.",
+      },
+      {
+        step: "04",
+        title: "Mark Done via Hover Checkbox",
+        desc: "Hover over the row number (#) at the start of the row to click the checkbox and move the task to Done.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Layout Modes", value: "Flat Table View & Grouped Accordion View" },
+      { label: "Inline Editing", value: "Title, Status, Priority, Assignees, Dates" },
+      { label: "Date Display Format", value: "DD/MM/YYYY" },
+    ],
+    tips: "The assignee multi-select dropdown remains open while toggling members, allowing rapid team assignment in seconds.",
+    relatedTopicIds: ["kanban-boards", "custom-board-priorities", "board-export"],
+    demoType: "kanban-table",
+  },
+  {
+    id: "custom-board-priorities",
+    category: "kanban",
+    icon: Flag,
+    title: "Custom Board Priorities (Up to 10 Levels)",
+    badge: "Customization",
+    badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-dusk-lavender",
+    scopeBadge: "Urgency Scaling",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Design up to 10 custom priority levels per board with 12 soothing Retro Lofi color swatches and urgency ordering.",
+    concept:
+      "Every organization evaluates urgency differently—from P0-P4 severity scales to MoSCoW matrices. Retzlo grants every board full autonomy to define custom priority tiers.",
+    highlights: [
+      "Accessible via Toolbar & Board Settings: Manage priorities directly from the board header or the Attributes tab in Board Settings.",
+      "Up to 10 Levels per Board: Define custom labels such as P0 Blocker, P1 Critical, High, or Backlog.",
+      "12 Retro Lofi Palette Swatches: Rose, Orange, Amber, Yellow, Emerald, Teal, Sky, Blue, Indigo, Purple, Pink, and Stone.",
+      "Urgency Reordering: Reorder tiers up and down, where Level 1 represents the highest urgency.",
+      "Cross-View Consistency: Priority badges sync automatically across Kanban cards, modals, and Spreadsheet Table cells.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Priorities Manager",
+        desc: "Click Priorities on the board header or navigate to Board Settings > Attributes.",
+      },
+      {
+        step: "02",
+        title: "Choose Template or Add Custom Level",
+        desc: "Select standard frameworks like P0-P4 Severity, MoSCoW, or Eisenhower, or add custom levels.",
+      },
+      {
+        step: "03",
+        title: "Customize Colors & Ordering",
+        desc: "Assign shades from the 12 Retro Lofi swatches and arrange urgency levels as needed.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Max Priorities", value: "10 levels per board" },
+      { label: "Color Palette", value: "12 Retro Lofi semantic swatches" },
+      { label: "Sync Scope", value: "Kanban, Table View, Modal, Export Document" },
+    ],
+    tips: "A 'Reset to Default' button is always available to restore standard High, Medium, and Low priorities instantly.",
+    relatedTopicIds: ["card-attributes-customization", "spreadsheet-table-view", "kanban-boards"],
+    demoType: "priorities",
+  },
+  {
+    id: "board-export",
+    category: "kanban",
+    icon: Download,
+    title: "Dedicated Board Export (Excel, CSV, PDF, PNG)",
+    badge: "Export",
+    badgeColor: "border-emerald-400/30 bg-emerald-400/10 text-emerald-600 dark:text-emerald-400",
+    scopeBadge: "Executive Deliverables",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Export full board deliverables in dedicated layouts with 100% column visibility, zero canvas cropping, and executive KPI headers.",
+    concept:
+      "Standard browser viewport screenshots often truncate off-screen columns and lower cards. Retzlo features an off-screen staging renderer delivering pixel-perfect exports for presentations and audit archives.",
+    highlights: [
+      "Dedicated Layout Engine: Renders every column and card in full without scrollbars or UI control clutter.",
+      "Off-screen Staging Wrapper: Isolates the render canvas to prevent blank white screens or scroll disruptions.",
+      "Executive Document Header: Displays formal board titles, timestamps, and KPI cards (total tasks, difficulty points, progress rate, overdue count).",
+      "Layout Options: Choose between Full Panoramic Kanban and Executive Table views.",
+      "Theme Styles: Clean Light Paper for print/PDF or Dark Slate for high-contrast digital presentations.",
+      "Multi-Page A4 PDF: Automatic pagination prevents awkward breaks across large deliverables.",
+      "Retina PNG (2x): Ultra-sharp imagery suitable for executive slide decks.",
+      "Excel & UTF-8 CSV: Fully formatted spreadsheets with proper column widths and character encoding.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Export Menu",
+        desc: "Click the Export button on the board toolbar or select Export from the Table view.",
+      },
+      {
+        step: "02",
+        title: "Choose Format & Layout",
+        desc: "Select PDF, PNG, Excel, or CSV and pick Full Kanban or Executive Table layout.",
+      },
+      {
+        step: "03",
+        title: "Live Preview & Download",
+        desc: "Inspect the generated preview in the modal before downloading your deliverable.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Rendering Engine", value: "Dedicated Off-screen Staging Wrapper" },
+      { label: "Supported Formats", value: "PDF (Multi-page A4), PNG (2x Retina), Excel (.xlsx), CSV (UTF-8 BOM)" },
+      { label: "Style Themes", value: "Clean Light Paper & Dark Slate" },
+    ],
+    tips: "Use the Live Preview modal to review executive metrics before downloading presentation-ready files.",
+    relatedTopicIds: ["kanban-boards", "spreadsheet-table-view", "ai-breakdown-summary"],
+    demoType: "export",
+  },
+  {
+    id: "card-attributes-customization",
+    category: "kanban",
+    icon: SlidersHorizontal,
+    title: "Card Attributes & Workflow Templates in Board Settings",
+    badge: "Updated",
+    badgeColor: "border-purple-400/30 bg-purple-400/10 text-purple-600 dark:text-purple-400",
+    scopeBadge: "Workflow Structure",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Centralized attribute hub for statuses, priorities, and story points with instant inline live previews and workflow templates.",
+    concept:
+      "Unifies all attribute configuration into Board Settings and Project Settings. Modifying custom statuses instantly updates Column Settings, Card Modals, and Table View cells without page reloads.",
+    highlights: [
+      "Centralized in Board & Project Settings: Configure Statuses, Priorities, and Story Points in one location.",
+      "Instant Connection to Columns: Custom statuses appear automatically in column creation and editing modals.",
+      "'+' Quick Buttons in Card Modal: Clicking '+' beside Status, Priority, or Story Points opens the settings tab directly.",
+      "Status Workflow Templates: Apply ready-made flows (Software Dev, Agile/Scrum, Marketing, Bug Triage, Design) with Instant Inline Live Previews and Replace/Append modes.",
+      "Story Points Scales: Pre-built sizing scales (Retzlo Standard, Fibonacci, Sequential Hours, T-Shirt sizes, Pomodoro blocks).",
+      "AGENTS.md Safety Standards: Every template application, edit, or reset is protected by ConfirmModal and Toast notifications.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Attributes Tab",
+        desc: "Click Attributes on the board header or navigate to Project Settings > Card Attributes.",
+      },
+      {
+        step: "02",
+        title: "Inspect Inline Live Preview",
+        desc: "Click any template chip to preview its stages directly on the screen without dialog overhead.",
+      },
+      {
+        step: "03",
+        title: "Choose Replace or Append",
+        desc: "Decide whether to overwrite existing stages or append new stages to the current pipeline.",
+      },
+      {
+        step: "04",
+        title: "Confirm & Sync",
+        desc: "Confirm via ConfirmModal; changes dispatch custom DOM events that sync across all views in real time.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Attribute Categories", value: "Statuses, Priorities (up to 10), Story Points (1-100)" },
+      { label: "Preview Mechanism", value: "Instant Inline Reactive Preview (No Dialog Overhead)" },
+      { label: "Sync Protocol", value: "Custom DOM Events (retzlo:statuses-updated, etc.)" },
+    ],
+    tips: "Changes sync via custom events across Kanban Board, Column Settings, Card Modal, and Table View simultaneously.",
+    relatedTopicIds: ["kanban-boards", "custom-board-priorities", "spreadsheet-table-view"],
+    demoType: "priorities",
+  },
+  {
+    id: "coffee-cheers-rewards",
+    category: "gamification",
+    icon: Coffee,
+    title: "Coffee Cheers & Rewards Store",
+    badge: "Gamification",
+    badgeColor: "border-dusk-rose/30 bg-dusk-rose/10 text-rose-600 dark:text-dusk-rose",
+    scopeBadge: "Morale & Rewards",
+    readingTime: "2 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Cultivate high team morale by sending Coffee Cheers when tasks finish, accumulating coins to redeem in the project rewards store.",
+    concept:
+      "Genuine recognition and appreciation drive team momentum. Coffee Cheers gamifies milestone celebrations with tangible coin earnings redeemable for team perks.",
+    highlights: [
+      "Automated ☕ Cheers Button: Appears automatically when cards move to Done or complete.",
+      "Personal Coin Wallet: Earn coins every time you receive or send cheers to celebrate accomplishments.",
+      "Project Rewards Store: Redeem coins for real-world team rewards or custom project perks.",
+      "Anti-spam Protection: Rate-limited timers ensure cheers remain meaningful and sincere.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Move Card to Done",
+        desc: "When a card transitions to Done, the ☕ Cheers button illuminates for teammates.",
+      },
+      {
+        step: "02",
+        title: "Click ☕ Cheers",
+        desc: "Send appreciation to assignees, granting them coins and triggering a celebratory animation.",
+      },
+      {
+        step: "03",
+        title: "Redeem Rewards in Store",
+        desc: "Open the project Rewards Store to redeem accumulated coins for team perks.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Gamification Currency", value: "Retzlo Coins (Tracked per project)" },
+      { label: "Rate Limit Protection", value: "Anti-spam cool-down timer" },
+      { label: "Integration", value: "Card Completion Triggers & Wallet Sync" },
+    ],
+    tips: "Set up exciting team rewards in the store, such as a coffee shout, snack boxes, or extra flex hours!",
+    relatedTopicIds: ["kanban-boards", "calendar-due-dates", "roles-and-security"],
+    demoType: "coffee",
+  },
+  {
+    id: "calendar-due-dates",
+    category: "calendar",
+    icon: Calendar,
+    title: "Project Calendar & Retro TimePicker",
+    badge: "Productivity",
+    badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-amber-600 dark:text-dusk-amber",
+    scopeBadge: "Time Management",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Stay ahead of deadlines with month and week calendar views, Day View modal, and intuitive single-column linear TimePicker.",
+    concept:
+      "Pulls due dates across all boards, personal notes, and recurring habits into a single coordinated view, providing clarity on upcoming deadlines.",
+    highlights: [
+      "Global Retro DatePicker: Bespoke Retro Lofi Indigo calendar design with quick presets (Today, Tomorrow, Weekend, Next Week).",
+      "Day View Modal: Click any calendar date to reveal the full day overview with KPI progress bars and filterable task cards.",
+      "Tactile Item Cards: Feature left accent bars, real-time checkboxes, and direct navigation links to cards or diary items.",
+      "Single-Column Linear TimePicker: Clean linear scrollers with direct numeric typing and auto-jump for hours and minutes.",
+      "Popular Time Presets: Quick shortcut buttons (🌅 09:00 Morning, ☀️ 12:00 Noon, ☕ 13:30 Afternoon, 💼 17:00 End of Day, 🌙 20:00 Night).",
+      "Instant Skeleton Loading: Smooth skeleton transitions prevent visual jumps during route changes.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Calendar View",
+        desc: "Click Calendar in the sidebar to view tasks in month or week timeline mode.",
+      },
+      {
+        step: "02",
+        title: "Inspect Day Overview",
+        desc: "Click any date cell to open the Day View modal showing all tasks and habits due that day.",
+      },
+      {
+        step: "03",
+        title: "Configure Deadlines & Time",
+        desc: "Select dates and type times directly into the linear TimePicker.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Views", value: "Month Overview, Week Timeline, Day Overview Modal" },
+      { label: "TimePicker Scroller", value: "Single-column linear with direct number input" },
+      { label: "Presets", value: "Today, Tomorrow, This Weekend, Next Week" },
+    ],
+    tips: "Cards near their deadlines display urgency colors; you can check off tasks directly from the Day View modal.",
+    relatedTopicIds: ["kanban-boards", "notes-diary-hub", "spreadsheet-table-view"],
+    demoType: "timepicker",
+  },
+  {
+    id: "notes-diary-hub",
+    category: "notes",
+    icon: StickyNote,
+    title: "Notes Hub & Habit Diary (Life & Work)",
+    badge: "Life & Work",
+    badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-indigo-400",
+    scopeBadge: "Routines & Habits",
+    readingTime: "2 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "A dedicated sanctuary for unstructured ideas, meeting minutes, daily habit checklists, and streak analytics.",
+    concept:
+      "Balancing high-performance project execution with personal mental well-being routines. Notes and habit tracking sit alongside project boards for total life harmony.",
+    highlights: [
+      "Notes System: Organize notes by folder, pin critical documents, and format rich content.",
+      "Diary Tracker: Track daily wellness habits with automated streak analytics and completion rings.",
+      "Offline Draft Storage: Prevents accidental loss by auto-saving typed drafts in the browser.",
+      "One-click Conversion: Convert meeting notes or brainstorms directly into Kanban task cards.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Record Ideas in Notes Hub",
+        desc: "Create notes, categorize into folders, and pin top-priority records to the top.",
+      },
+      {
+        step: "02",
+        title: "Check Off Daily Habits",
+        desc: "Mark completed habits in the Diary Hub to build long-term wellness streaks.",
+      },
+      {
+        step: "03",
+        title: "Convert Notes to Tasks",
+        desc: "Click 'Convert to Card' to instantly turn bullet points into active Kanban cards.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Storage", value: "Cloud Database + Local Browser Draft Backup" },
+      { label: "Habit Tracking", value: "Daily Checklist + Streak Analytics" },
+    ],
+    tips: "Use the Diary Hub for short morning reflections and evening wrap-ups to maintain clear mental focus.",
+    relatedTopicIds: ["calendar-due-dates", "kanban-boards", "ai-assistant"],
+    demoType: "habits",
+  },
+  {
+    id: "roles-and-security",
+    category: "security",
+    icon: ShieldCheck,
+    title: "Team Members, Roles & Access Control",
+    badge: "Updated",
+    badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-dusk-lavender",
+    scopeBadge: "Team Governance",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Workspace team management across 3 tabs with live online presence, role elevation, and dedicated invitation links.",
+    concept:
+      "Role-based access controls ensure sensitive project configurations are guarded while enabling frictionless collaboration for all members.",
+    highlights: [
+      "3-Tab Architecture: 'Team Members' for roster and status, 'Pending Invitations' for shareable links, and 'Permissions' for full matrix breakdown.",
+      "Presence Indicator: Real-time presence dots on member avatars (🟢 Online, 🟠 Busy, ⚪ Offline).",
+      "Role Switcher: Project Owners can elevate or demote members between Owner and Member, with safeguards against demoting the sole remaining owner.",
+      "Dedicated Invite Modal: Generate role-specific invitation links ready to share via Slack, email, or chat.",
+      "ConfirmModal Protection: All removals and invitation revocations require explicit confirmation.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Members Hub",
+        desc: "Click Members in the project sidebar or navigate from Project Settings.",
+      },
+      {
+        step: "02",
+        title: "Invite Teammates",
+        desc: "Click Invite Teammate, assign their initial role, and copy the invitation link.",
+      },
+      {
+        step: "03",
+        title: "Govern Roles & Permissions",
+        desc: "Adjust member privileges between Owner and Member as responsibilities evolve.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Roles", value: "Workspace Owner & Project Member" },
+      { label: "Presence States", value: "🟢 Online, 🟠 Busy, ⚪ Offline" },
+      { label: "Safety Guards", value: "Last Owner Protection & Mandatory ConfirmModal" },
+    ],
+    tips: "Click metric cards at the top (Total Members, Active Now, Pending) to quickly filter the roster.",
+    relatedTopicIds: ["project-and-board-settings", "welcome-overview", "coffee-cheers-rewards"],
+    demoType: "permissions",
+  },
+  {
+    id: "project-and-board-settings",
+    category: "security",
+    icon: SlidersHorizontal,
+    title: "Project & Board Settings (Space Settings)",
+    badge: "Updated",
+    badgeColor: "border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender",
+    scopeBadge: "Workspace Control",
+    readingTime: "2 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Compact settings architecture categorized by scope (Project, Boards, Personal) with standard settings rows.",
+    concept:
+      "Separates workspace-wide governance from board-specific workflows and personal browser preferences, organized into scannable settings rows.",
+    highlights: [
+      "Project › General: Workspace name, description, cover image, feature toggles, and Danger Zone in a unified panel.",
+      "Project › Members: Concise member list with quick links to the full team roster and role management.",
+      "Boards › All Boards: Search, filter Public/Private boards, toggle grid/list view, and create new boards.",
+      "Boards › Active Board Selector: Single top selector to configure board details, columns, and card attributes.",
+      "Columns Management: Add columns, assign default statuses, colors, icons, and WIP limits.",
+      "Personal Preferences: Configure theme (Light/Dark/System) and sound effects saved to this browser.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Select Settings Scope",
+        desc: "Choose Project for workspace-wide settings, Boards for specific pipelines, or Personal for local preferences.",
+      },
+      {
+        step: "02",
+        title: "Configure Settings Rows",
+        desc: "Scan titles on the left and adjust controls on the right for clean navigation.",
+      },
+      {
+        step: "03",
+        title: "Save & Verify",
+        desc: "Save modifications with instantaneous Toast confirmation feedback.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Layout Standard", value: "Scope-grouped Settings Rows" },
+      { label: "URL Deep Linking", value: "?tab=...&boardId=... sync" },
+      { label: "Destructive Action", value: "ConfirmModal verification required" },
+    ],
+    tips: "Share deep links directly with teammates: ?tab=boards, ?tab=access, ?tab=attributes, or ?tab=board-general&boardId=...",
+    relatedTopicIds: ["roles-and-security", "card-attributes-customization", "kanban-boards"],
+    demoType: "permissions",
+  },
+  {
+    id: "keyboard-shortcuts",
+    category: "shortcuts",
+    icon: Keyboard,
+    title: "Keyboard Shortcuts & Power User Speed",
+    badge: "Power User",
+    badgeColor: "border-stone-400/30 bg-stone-400/10 text-stone-600 dark:text-stone-400",
+    scopeBadge: "High-Speed Hotkeys",
+    readingTime: "2 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Accelerate daily workflows with rapid command palette navigation without lifting hands from the keyboard.",
+    concept:
+      "Engineered for power users who demand rapid task switching, search execution, and seamless modal dismissal.",
+    highlights: [
+      "Ctrl / Cmd + K : Open Command Palette to search boards, cards, and projects in a flash.",
+      "F : Toggle Focus Mode to hide sidebar and toolbars for distraction-free execution.",
+      "Esc : Dismiss modals, AI chat windows, and popovers immediately.",
+      "Enter : Submit messages in AI chat or confirm active input fields.",
+      "Ctrl / Cmd + / : Open this System Guide and keyboard shortcuts hub instantly.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Press Ctrl / Cmd + K to Search",
+        desc: "Type task titles or board names to jump across workspace routes in under a second.",
+      },
+      {
+        step: "02",
+        title: "Press F for Focus Mode",
+        desc: "Collapse sidebars and toolbars to focus strictly on the task board in front of you.",
+      },
+      {
+        step: "03",
+        title: "Press Esc to Dismiss",
+        desc: "Close card modals or AI chat panels instantly without touching your mouse.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Global Shortcuts", value: "Ctrl/Cmd+K, F, Esc, Enter" },
+      { label: "Search Mechanism", value: "Instant Client-side Fuzzy Matching" },
+    ],
+    codeOrShortcut: "Ctrl + K / Cmd + K",
+    tips: "Press Ctrl+K and begin typing to jump directly to any card without navigating through boards.",
+    relatedTopicIds: ["welcome-overview", "kanban-boards", "ai-assistant"],
+    demoType: "shortcuts",
+  },
+  {
+    id: "faq-credits-offline",
+    category: "faq",
+    icon: HelpCircle,
+    title: "Frequently Asked Questions (FAQ & Help)",
+    badge: "FAQ",
+    badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-amber-600 dark:text-dusk-amber",
+    scopeBadge: "Troubleshooting & Q&A",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 7, 2026",
+    summary:
+      "Answers to common technical inquiries and best practices for smooth daily platform operations.",
+    concept:
+      "Direct guidance for common user questions and rapid troubleshooting steps.",
+    highlights: [
+      "Q: Does Retzlo AI require server setup? -> Answer: Retzlo AI is 100% built-in and server-managed out of the box with zero manual configuration.",
+      "Q: Will typed text be lost during internet drops? -> Answer: Offline Draft Storage saves your in-progress text in your browser automatically.",
+      "Q: How do I switch themes? -> Answer: Click your avatar popover in the top right to switch between Dark, Light, or System modes.",
+      "Q: Who can view Private Boards? -> Answer: Only the board creator and members explicitly selected in Board Settings can view private boards.",
+      "Q: How do I report a bug or request features? -> Answer: Submit inquiries via the in-app Contact form (/contact) or consult Retzlo AI.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Verify Network Connection",
+        desc: "Ensure active internet connection so Pusher WebSockets synchronize updates in real time.",
+      },
+      {
+        step: "02",
+        title: "Submit Support Inquiries (/contact)",
+        desc: "Select ticket categories (Bug Report or Feature Suggestion) and receive an instant tracking ticket.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Data Resilience", value: "Offline Draft Storage + Optimistic Rollback" },
+      { label: "Support Channel", value: "In-app /contact & Built-in AI Assistant" },
+    ],
+    tips: "Ensure WebSockets are permitted on corporate networks to allow 0ms real-time collaboration to function.",
+    relatedTopicIds: ["welcome-overview", "ai-assistant", "roles-and-security"],
+  },
+];
+
+export const TOPICS_TH: GuideTopic[] = [
   {
     id: "welcome-overview",
     category: "overview",
@@ -874,7 +1816,20 @@ export const TOPICS: GuideTopic[] = [
   },
 ];
 
-export const KEYBOARD_SHORTCUTS_LIST = [
+export const TOPICS: GuideTopic[] = TOPICS_TH;
+
+export const KEYBOARD_SHORTCUTS_LIST_EN = [
+  { key: "Ctrl + K / Cmd + K", title: "Open Command Palette", desc: "Instantly search cards, boards, or switch workspaces", cat: "Navigation" },
+  { key: "F", title: "Toggle Focus Mode", desc: "Hide sidebars and tools to focus strictly on active cards", cat: "Navigation" },
+  { key: "Esc", title: "Dismiss Modal / Popover", desc: "Close modals, AI chat windows, and popovers immediately", cat: "General" },
+  { key: "Ctrl + /", title: "Open System Guide", desc: "Navigate directly to documentation and keyboard shortcuts", cat: "General" },
+  { key: "Enter", title: "Submit / Save Input", desc: "Send messages in AI chat or confirm input fields", cat: "General" },
+  { key: "N", title: "Quick Create Card", desc: "Open new card form in the first column", cat: "Board" },
+  { key: "D", title: "Toggle Card Density", desc: "Switch between Normal and Compact 2x card density", cat: "Board" },
+  { key: "T", title: "Toggle Table / Kanban", desc: "Switch between Kanban board and Spreadsheet Table view", cat: "Board" },
+];
+
+export const KEYBOARD_SHORTCUTS_LIST_TH = [
   { key: "Ctrl + K / Cmd + K", title: "เปิด Command Palette", desc: "ค้นหาการ์ด บอร์ด หรือสลับโปรเจกต์ด่วน", cat: "Navigation" },
   { key: "F", title: "สลับ Focus Mode", desc: "ซ่อน Sidebar และเครื่องมือเพื่อโฟกัสกับบอร์ดตรงหน้า", cat: "Navigation" },
   { key: "Esc", title: "ปิดหน้าต่าง / เมนู", desc: "ปิด Modal, กล่องแชท AI, และ Popover ทันที", cat: "General" },
@@ -885,7 +1840,40 @@ export const KEYBOARD_SHORTCUTS_LIST = [
   { key: "T", title: "สลับมุมมอง Table / Kanban", desc: "สลับระหว่างกระดาน Kanban กับตาราง Spreadsheet", cat: "Board" },
 ];
 
-export const FAQ_ITEMS = [
+export const FAQ_ITEMS_EN = [
+  {
+    q: "Does Retzlo AI require complex server configuration?",
+    a: "Not at all. Retzlo AI is architected as an intelligent built-in server capability. It is provisioned automatically across all workspaces from day one. Simply click the 🤖 robot icon on the topbar to begin issuing instructions.",
+    tag: "AI Engine",
+  },
+  {
+    q: "Will my data be lost if my internet connection drops while typing?",
+    a: "Never. Retzlo features an automated Offline Draft Storage mechanism that backs up active drafts in your local browser storage. When connection restores, your data seamlessly synchronizes.",
+    tag: "Data Safety",
+  },
+  {
+    q: "What is the difference between Public and Private boards?",
+    a: "Public boards are accessible to all project members. Private boards are locked exclusively to the creator and members specifically chosen in Board Settings, safeguarding confidential initiatives.",
+    tag: "Security",
+  },
+  {
+    q: "How does the Spreadsheet Table View differ from the Kanban board?",
+    a: "Kanban boards excel at tracking stage-by-stage workflow transitions. The Spreadsheet Table View is optimized for scanning large volumes of tasks at once, allowing inline edits to titles, statuses, priorities, and multiple assignees.",
+    tag: "Views",
+  },
+  {
+    q: "How does Coffee Cheers work and how do I earn coins?",
+    a: "When cards move to the Done column, a ☕ Cheers button illuminates. Teammates can click it to show appreciation, adding +5 coins to the recipient's personal balance for redeeming items in the project Rewards Store.",
+    tag: "Gamification",
+  },
+  {
+    q: "How do I toggle between Dark Mode and Warm Light Mode?",
+    a: "Click your avatar in the top right corner and open the Theme selector to choose between Dark Mode (Retro Lofi Indigo), Light Mode (Warm Paper), or System.",
+    tag: "Appearance",
+  },
+];
+
+export const FAQ_ITEMS_TH = [
   {
     q: "การใช้งาน Retzlo AI ต้องติดตั้งหรือตั้งค่าเซิร์ฟเวอร์เพิ่มเติมไหม?",
     a: "ไม่ต้องติดตั้งอะไรเพิ่มเติมทั้งสิ้น ระบบ Retzlo AI ได้รับการออกแบบให้ทำงานแบบ Built-in Server AI อัจฉริยะในตัว พร้อมให้บริการทุก Workspace ทันทีตั้งแต่เริ่มใช้งาน เพียงคลิกไอคอนหุ่นยนต์ 🤖 บน Topbar ก็เริ่มสั่งงานได้เลย",
@@ -920,56 +1908,83 @@ export const FAQ_ITEMS = [
 
 /* ── Interactive Sandboxes & Visual Components ── */
 
-function InteractiveAiDemo() {
-  const [selectedPrompt, setSelectedPrompt] = useState<string>("สรุปงานของสัปดาห์นี้ให้หน่อย");
+function InteractiveAiDemo({ isEn }: { isEn: boolean }) {
+  const [selectedPrompt, setSelectedPrompt] = useState<string>(
+    isEn ? "Summarize this week's sprint progress" : "สรุปงานของสัปดาห์นี้ให้หน่อย"
+  );
   const [isThinking, setIsThinking] = useState(false);
   const [simulatedReply, setSimulatedReply] = useState<string>("");
 
-  const prompts = [
-    { label: "สรุปงานสัปดาห์นี้", text: "สรุปงานของสัปดาห์นี้ให้หน่อย" },
-    { label: "แตกงานระบบ Login", text: "ช่วยแตกการ์ดงานทำระบบ Login เป็นเช็คลิสต์ 5 ข้อย่อย" },
-    { label: "ตรวจเช็คคอขวด", text: "มีงานไหนที่ติดค้างใน In Progress เกิน 3 วันบ้าง?" },
-  ];
+  const prompts = isEn
+    ? [
+        { label: "Summarize Sprint", text: "Summarize this week's sprint progress" },
+        { label: "Break Down Login Task", text: "Break down user login system into 5 checklist items" },
+        { label: "Detect Bottlenecks", text: "Are there any tasks blocked in In Progress for over 3 days?" },
+      ]
+    : [
+        { label: "สรุปงานสัปดาห์นี้", text: "สรุปงานของสัปดาห์นี้ให้หน่อย" },
+        { label: "แตกงานระบบ Login", text: "ช่วยแตกการ์ดงานทำระบบ Login เป็นเช็คลิสต์ 5 ข้อย่อย" },
+        { label: "ตรวจเช็คคอขวด", text: "มีงานไหนที่ติดค้างใน In Progress เกิน 3 วันบ้าง?" },
+      ];
 
-  const handleSimulate = (promptText: string) => {
+  const handleSimulate = useCallback((promptText: string) => {
     setSelectedPrompt(promptText);
     setIsThinking(true);
     setSimulatedReply("");
 
     setTimeout(() => {
       setIsThinking(false);
-      if (promptText.includes("Login")) {
+      if (promptText.includes("Login") || promptText.includes("login")) {
         setSimulatedReply(
-          "✨ แตกเช็คลิสต์งาน 'ระบบ Authentication & Login' (5 ข้อย่อย):\n" +
-            "  ☑️ 01. ออกแบบฟอร์ม Sign In & Sign Up ด้วย Retro Lofi UI\n" +
-            "  ☑️ 02. เชื่อมต่อ NextAuth Credentials Provider\n" +
-            "  ☑️ 03. ทำระบบเข้ารหัสผ่าน Argon2 / Bcrypt ในฐานข้อมูล\n" +
-            "  ☑️ 04. เพิ่มการแจ้งเตือนความผิดพลาดผ่าน Toast Notification\n" +
-            "  ☑️ 05. ทดสอบ Unit Test การเข้าสู่ระบบแบบอัตโนมัติ"
+          isEn
+            ? "✨ AI Breakdown for 'User Authentication & Login' (5 checklist items):\n" +
+              "  ☑️ 01. Design Sign In & Sign Up forms with Retro Lofi UI\n" +
+              "  ☑️ 02. Integrate NextAuth Credentials Provider\n" +
+              "  ☑️ 03. Configure secure password hashing in database\n" +
+              "  ☑️ 04. Add form validation and error toast notifications\n" +
+              "  ☑️ 05. Implement automated authentication unit test suite"
+            : "✨ แตกเช็คลิสต์งาน 'ระบบ Authentication & Login' (5 ข้อย่อย):\n" +
+              "  ☑️ 01. ออกแบบฟอร์ม Sign In & Sign Up ด้วย Retro Lofi UI\n" +
+              "  ☑️ 02. เชื่อมต่อ NextAuth Credentials Provider\n" +
+              "  ☑️ 03. ทำระบบเข้ารหัสผ่าน Argon2 / Bcrypt ในฐานข้อมูล\n" +
+              "  ☑️ 04. เพิ่มการแจ้งเตือนความผิดพลาดผ่าน Toast Notification\n" +
+              "  ☑️ 05. ทดสอบ Unit Test การเข้าสู่ระบบแบบอัตโนมัติ"
         );
-      } else if (promptText.includes("คอขวด")) {
+      } else if (promptText.includes("Bottlenecks") || promptText.includes("คอขวด")) {
         setSimulatedReply(
-          "⚡ ตรวจสอบสุขภาพบอร์ด: พบคอขวด 2 รายการในคอลัมน์ In Progress:\n" +
-            "  • งาน 'เชื่อมต่อ Pusher WebSocket' (กำลังดำเนินการ 4 วัน - เกิน WIP Limit!)\n" +
-            "  • งาน 'ส่งออกรายงาน Executive Table' (กำลังทดสอบ PDF Multi-page)\n" +
-            "💡 แนะนำ: กระจายงาน WebSocket ให้สมาชิกช่วยรีวิว หรือขยับ WIP Limit ชั่วคราว"
+          isEn
+            ? "⚡ Board Health Check: Found 2 bottlenecks in 'In Progress':\n" +
+              "  • 'Pusher WebSocket Integration' (4 days active - exceeding WIP Limit!)\n" +
+              "  • 'Executive Table Export' (Testing multi-page PDF generation)\n" +
+              "💡 Recommendation: Reassign WebSocket review to a teammate or temporarily increase WIP limit."
+            : "⚡ ตรวจสอบสุขภาพบอร์ด: พบคอขวด 2 รายการในคอลัมน์ In Progress:\n" +
+              "  • งาน 'เชื่อมต่อ Pusher WebSocket' (กำลังดำเนินการ 4 วัน - เกิน WIP Limit!)\n" +
+              "  • งาน 'ส่งออกรายงาน Executive Table' (กำลังทดสอบ PDF Multi-page)\n" +
+              "💡 แนะนำ: กระจายงาน WebSocket ให้สมาชิกช่วยรีวิว หรือขยับ WIP Limit ชั่วคราว"
         );
       } else {
         setSimulatedReply(
-          "📊 สรุปความคืบหน้าประจำสัปดาห์:\n" +
-            "  • งานทั้งหมดในสปรินต์: 18 การ์ด\n" +
-            "  • ทำเสร็จสิ้นแล้ว (Done): 11 การ์ด (คิดเป็น 61.1%)\n" +
-            "  • กำลังดำเนินการ (In Progress): 4 การ์ด\n" +
-            "  • รอการทดสอบ (Review): 3 การ์ด\n" +
-            "☕ มีการกดส่ง Coffee Cheers ทั้งหมด 14 แก้ว! บรรยากาศทีมยอดเยี่ยมมากครับ"
+          isEn
+            ? "📊 Sprint Progress Summary:\n" +
+              "  • Total Sprint Tasks: 18 cards\n" +
+              "  • Completed (Done): 11 cards (61.1% velocity)\n" +
+              "  • Active (In Progress): 4 cards\n" +
+              "  • Under Review: 3 cards\n" +
+              "☕ Teammates have sent 14 Coffee Cheers! Team morale is running high."
+            : "📊 สรุปความคืบหน้าประจำสัปดาห์:\n" +
+              "  • งานทั้งหมดในสปรินต์: 18 การ์ด\n" +
+              "  • ทำเสร็จสิ้นแล้ว (Done): 11 การ์ด (คิดเป็น 61.1%)\n" +
+              "  • กำลังดำเนินการ (In Progress): 4 การ์ด\n" +
+              "  • รอการทดสอบ (Review): 3 การ์ด\n" +
+              "☕ มีการกดส่ง Coffee Cheers ทั้งหมด 14 แก้ว! บรรยากาศทีมยอดเยี่ยมมากครับ"
         );
       }
-    }, 450);
-  };
+    }, 400);
+  }, [isEn]);
 
   useEffect(() => {
-    handleSimulate("สรุปงานของสัปดาห์นี้ให้หน่อย");
-  }, []);
+    handleSimulate(isEn ? "Summarize this week's sprint progress" : "สรุปงานของสัปดาห์นี้ให้หน่อย");
+  }, [isEn, handleSimulate]);
 
   return (
     <div className="rounded-2xl border border-indigo-200/80 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-4 sm:p-5 dark:border-dusk-lavender/30 dark:from-dusk-lavender/10 dark:via-ink-950/70 dark:to-ink-950/90 shadow-sm space-y-3.5">
@@ -986,7 +2001,7 @@ function InteractiveAiDemo() {
               </span>
             </h4>
             <p className="text-[10px] text-stone-500 dark:text-stone-400">
-              ทดลองคลิกคำสั่งตัวอย่างเพื่อดูรูปแบบการตอบและวิเคราะห์ของ AI ในระบบ
+              {isEn ? "Click prompt chips below to preview how Retzlo AI analyzes and responds." : "ทดลองคลิกคำสั่งตัวอย่างเพื่อดูรูปแบบการตอบและวิเคราะห์ของ AI ในระบบ"}
             </p>
           </div>
         </div>
@@ -1023,7 +2038,7 @@ function InteractiveAiDemo() {
             {isThinking ? (
               <span className="inline-flex items-center gap-2 text-stone-400">
                 <Sparkles className="h-3.5 w-3.5 animate-spin text-amber-400" />
-                กำลังวิเคราะห์บริบทของบอร์ดและประมวลผล...
+                {isEn ? "Analyzing board context and computing insights..." : "กำลังวิเคราะห์บริบทของบอร์ดและประมวลผล..."}
               </span>
             ) : (
               simulatedReply
@@ -1032,7 +2047,7 @@ function InteractiveAiDemo() {
         </div>
 
         <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-stone-400">
-          <span>ความเร็ว: ~0.4s · บริบท: โครงการ & การ์ดสด</span>
+          <span>{isEn ? "Latency: ~0.4s · Context: Live Project Cards" : "ความเร็ว: ~0.4s · บริบท: โครงการ & การ์ดสด"}</span>
           <span className="text-emerald-400 font-semibold">Zero-Config Server AI</span>
         </div>
       </div>
@@ -1040,7 +2055,7 @@ function InteractiveAiDemo() {
   );
 }
 
-function InteractiveKanbanTableDemo() {
+function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
   const [view, setView] = useState<"kanban" | "table">("table");
   const [density, setDensity] = useState<"normal" | "compact">("compact");
   const [doneCards, setDoneCards] = useState<Record<number, boolean>>({ 3: true });
@@ -1049,11 +2064,17 @@ function InteractiveKanbanTableDemo() {
     setDoneCards((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const sampleTasks = [
-    { id: 1, title: "ออกแบบหน้าคู่มือระบบใหม่แบบ Interactive", status: "In Progress", priority: "P0 Blocker", pColor: "bg-rose-500 text-white", assignees: ["NR", "AI"] },
-    { id: 2, title: "เชื่อมต่อ WebSocket Pusher เพื่อ Real-time Sync", status: "In Progress", priority: "P1 Urgent", pColor: "bg-amber-500 text-white", assignees: ["TK"] },
-    { id: 3, title: "ปรับปรุงขนาด Board Settings Modal ไม่ให้เลยขอบ", status: "Done", priority: "P2 Normal", pColor: "bg-indigo-500 text-white", assignees: ["NR"] },
-  ];
+  const sampleTasks = isEn
+    ? [
+        { id: 1, title: "Design interactive bilingual documentation portal", status: "In Progress", priority: "P0 Blocker", pColor: "bg-rose-500 text-white", assignees: ["NR", "AI"] },
+        { id: 2, title: "Establish Pusher WebSocket real-time broadcast", status: "In Progress", priority: "P1 Urgent", pColor: "bg-amber-500 text-white", assignees: ["TK"] },
+        { id: 3, title: "Refactor Board Settings Modal boundaries & layout", status: "Done", priority: "P2 Normal", pColor: "bg-indigo-500 text-white", assignees: ["NR"] },
+      ]
+    : [
+        { id: 1, title: "ออกแบบหน้าคู่มือระบบใหม่แบบ Interactive", status: "In Progress", priority: "P0 Blocker", pColor: "bg-rose-500 text-white", assignees: ["NR", "AI"] },
+        { id: 2, title: "เชื่อมต่อ WebSocket Pusher เพื่อ Real-time Sync", status: "In Progress", priority: "P1 Urgent", pColor: "bg-amber-500 text-white", assignees: ["TK"] },
+        { id: 3, title: "ปรับปรุงขนาด Board Settings Modal ไม่ให้เลยขอบ", status: "Done", priority: "P2 Normal", pColor: "bg-indigo-500 text-white", assignees: ["NR"] },
+      ];
 
   return (
     <div className="rounded-2xl border border-stone-200/80 bg-white p-4 sm:p-5 dark:border-white/10 dark:bg-ink-950/70 shadow-sm space-y-4">
@@ -1061,7 +2082,7 @@ function InteractiveKanbanTableDemo() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 dark:border-white/10 pb-3">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-stone-800 dark:text-stone-200">
-            จำลองมุมมองบอร์ด:
+            {isEn ? "Simulated View:" : "จำลองมุมมองบอร์ด:"}
           </span>
           <div className="flex items-center rounded-lg border border-stone-200 bg-stone-100 p-0.5 dark:border-white/10 dark:bg-white/[0.05]">
             <button
@@ -1086,7 +2107,7 @@ function InteractiveKanbanTableDemo() {
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400"
               )}
             >
-              📊 Spreadsheet Table
+              📊 Spreadsheet Table View
             </button>
           </div>
         </div>
@@ -1098,7 +2119,13 @@ function InteractiveKanbanTableDemo() {
             onClick={() => setDensity(density === "normal" ? "compact" : "normal")}
             className="rounded-lg border border-stone-200 bg-stone-50 px-2 py-0.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
           >
-            {density === "normal" ? "Normal (มาตรฐาน)" : "Compact 2x (หนาแน่น)"}
+            {density === "normal"
+              ? isEn
+                ? "Normal (Standard)"
+                : "Normal (มาตรฐาน)"
+              : isEn
+              ? "Compact 2x"
+              : "Compact 2x (หนาแน่น)"}
           </button>
         </div>
       </div>
@@ -1110,10 +2137,10 @@ function InteractiveKanbanTableDemo() {
             <thead className="border-b border-stone-200 bg-stone-50 text-[11px] font-semibold text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400">
               <tr>
                 <th className="py-2.5 px-3 w-12 text-center">#</th>
-                <th className="py-2.5 px-3">ชื่องาน (Title)</th>
-                <th className="py-2.5 px-3">สถานะ (Status)</th>
-                <th className="py-2.5 px-3">ระดับความสำคัญ (Priority)</th>
-                <th className="py-2.5 px-3">ผู้รับผิดชอบ (Assignees)</th>
+                <th className="py-2.5 px-3">{isEn ? "Task Title" : "ชื่องาน (Title)"}</th>
+                <th className="py-2.5 px-3">{isEn ? "Status" : "สถานะ (Status)"}</th>
+                <th className="py-2.5 px-3">{isEn ? "Priority" : "ระดับความสำคัญ (Priority)"}</th>
+                <th className="py-2.5 px-3">{isEn ? "Assignees" : "ผู้รับผิดชอบ (Assignees)"}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 dark:divide-white/5">
@@ -1129,7 +2156,7 @@ function InteractiveKanbanTableDemo() {
                         type="button"
                         onClick={() => toggleDone(t.id)}
                         className="mx-auto flex h-5 w-5 items-center justify-center rounded border border-stone-300 bg-white text-stone-600 transition group-hover:border-indigo-400 dark:border-white/20 dark:bg-white/5 dark:text-stone-300 cursor-pointer"
-                        title="คลิกเพื่อติ๊กเสร็จงาน (Hover Checkbox)"
+                        title={isEn ? "Hover Checkbox - click to complete" : "คลิกเพื่อติ๊กเสร็จงาน (Hover Checkbox)"}
                       >
                         {isCompleted ? (
                           <Check className="h-3.5 w-3.5 text-emerald-500 font-bold" />
@@ -1187,7 +2214,7 @@ function InteractiveKanbanTableDemo() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3 dark:border-white/10 dark:bg-white/[0.02] space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-stone-700 dark:text-stone-300">
-              <span>In Progress (กำลังทำ)</span>
+              <span>{isEn ? "In Progress" : "In Progress (กำลังทำ)"}</span>
               <span className="rounded bg-indigo-100 dark:bg-white/10 px-1.5 py-0.2 text-[10px] text-indigo-700 dark:text-stone-300">
                 WIP 2/3
               </span>
@@ -1221,7 +2248,7 @@ function InteractiveKanbanTableDemo() {
                     onClick={() => toggleDone(t.id)}
                     className="text-[10px] text-indigo-600 hover:underline dark:text-dusk-lavender cursor-pointer"
                   >
-                    ย้ายไป Done →
+                    {isEn ? "Move to Done →" : "ย้ายไป Done →"}
                   </button>
                 </div>
               </div>
@@ -1230,7 +2257,7 @@ function InteractiveKanbanTableDemo() {
 
           <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/40 p-3 dark:border-emerald-500/20 dark:bg-emerald-500/5 space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-emerald-800 dark:text-emerald-400">
-              <span>Done (เสร็จสิ้น)</span>
+              <span>{isEn ? "Done" : "Done (เสร็จสิ้น)"}</span>
               <span className="rounded bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.2 text-[10px] text-emerald-700 dark:text-emerald-400">
                 1
               </span>
@@ -1250,14 +2277,14 @@ function InteractiveKanbanTableDemo() {
                 </div>
                 <div className="flex items-center justify-between pt-1">
                   <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
-                    ☕ 1 Cheers ได้รับแล้ว
+                    {isEn ? "☕ 1 Cheers received" : "☕ 1 Cheers ได้รับแล้ว"}
                   </span>
                   <button
                     type="button"
                     onClick={() => toggleDone(t.id)}
                     className="text-[10px] text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
                   >
-                    ย้อนกลับ
+                    {isEn ? "Revert" : "ย้อนกลับ"}
                   </button>
                 </div>
               </div>
@@ -1269,18 +2296,18 @@ function InteractiveKanbanTableDemo() {
   );
 }
 
-function InteractivePrioritiesDemo() {
+function InteractivePrioritiesDemo({ isEn }: { isEn: boolean }) {
   const [selectedColor, setSelectedColor] = useState("rose");
 
   const colors = [
-    { id: "rose", label: "Rose", bg: "bg-rose-500", text: "text-white" },
-    { id: "amber", label: "Amber", bg: "bg-amber-500", text: "text-white" },
-    { id: "emerald", label: "Emerald", bg: "bg-emerald-500", text: "text-white" },
-    { id: "teal", label: "Teal", bg: "bg-teal-500", text: "text-white" },
-    { id: "cyan", label: "Cyan", bg: "bg-cyan-500", text: "text-white" },
-    { id: "indigo", label: "Indigo", bg: "bg-indigo-500", text: "text-white" },
-    { id: "purple", label: "Purple", bg: "bg-purple-500", text: "text-white" },
-    { id: "pink", label: "Pink", bg: "bg-pink-500", text: "text-white" },
+    { id: "rose", label: "Rose", bg: "bg-rose-500" },
+    { id: "amber", label: "Amber", bg: "bg-amber-500" },
+    { id: "emerald", label: "Emerald", bg: "bg-emerald-500" },
+    { id: "teal", label: "Teal", bg: "bg-teal-500" },
+    { id: "cyan", label: "Cyan", bg: "bg-cyan-500" },
+    { id: "indigo", label: "Indigo", bg: "bg-indigo-500" },
+    { id: "purple", label: "Purple", bg: "bg-purple-500" },
+    { id: "pink", label: "Pink", bg: "bg-pink-500" },
   ];
 
   const levels = [
@@ -1296,10 +2323,10 @@ function InteractivePrioritiesDemo() {
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 dark:border-white/10 pb-3">
         <div>
           <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100">
-            ระบบความสำคัญ 10 ระดับ (10-Level Custom Priorities)
+            {isEn ? "10-Level Custom Priorities Architecture" : "ระบบความสำคัญ 10 ระดับ (10-Level Custom Priorities)"}
           </h4>
           <p className="text-[10px] text-stone-500 dark:text-stone-400">
-            สร้างได้สูงสุด 10 ระดับต่อบอร์ด พร้อมเลือกได้ 12 สี Retro Lofi Palette
+            {isEn ? "Create up to 10 tiers per board with 12 Retro Lofi semantic color palettes." : "สร้างได้สูงสุด 10 ระดับต่อบอร์ด พร้อมเลือกได้ 12 สี Retro Lofi Palette"}
           </p>
         </div>
         <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
@@ -1309,7 +2336,7 @@ function InteractivePrioritiesDemo() {
 
       <div className="space-y-2">
         <span className="text-[11px] font-semibold text-stone-600 dark:text-stone-400">
-          ตัวอย่างระดับความสำคัญของบอร์ด:
+          {isEn ? "Board Priority Tiers:" : "ตัวอย่างระดับความสำคัญของบอร์ด:"}
         </span>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           {levels.map((lvl) => (
@@ -1328,7 +2355,7 @@ function InteractivePrioritiesDemo() {
 
       <div className="space-y-1.5 pt-1 border-t border-stone-100 dark:border-white/5">
         <span className="text-[11px] font-semibold text-stone-600 dark:text-stone-400">
-          ทดลองเลือกชุดสี Retro Lofi:
+          {isEn ? "Preview Retro Lofi Color Palettes:" : "ทดลองเลือกชุดสี Retro Lofi:"}
         </span>
         <div className="flex flex-wrap gap-2">
           {colors.map((c) => (
@@ -1353,7 +2380,7 @@ function InteractivePrioritiesDemo() {
   );
 }
 
-function InteractiveCoffeeDemo() {
+function InteractiveCoffeeDemo({ isEn }: { isEn: boolean }) {
   const [coffees, setCoffees] = useState(12);
   const [coins, setCoins] = useState(60);
   const [isCheersActive, setIsCheersActive] = useState(false);
@@ -1363,7 +2390,10 @@ function InteractiveCoffeeDemo() {
     setCoffees((c) => c + 1);
     setCoins((c) => c + 5);
     setIsCheersActive(true);
-    toast({ message: "☕ ส่ง Coffee Cheers สำเร็จ! ได้รับ +5 Coins", type: "success" });
+    toast({
+      message: isEn ? "☕ Coffee Cheers sent! Earned +5 Coins" : "☕ ส่ง Coffee Cheers สำเร็จ! ได้รับ +5 Coins",
+      type: "success",
+    });
     setTimeout(() => setIsCheersActive(false), 800);
   };
 
@@ -1379,7 +2409,7 @@ function InteractiveCoffeeDemo() {
               Coffee Cheers & Gamification Wallet
             </h4>
             <p className="text-[10px] text-stone-500 dark:text-stone-400">
-              ส่งกำลังใจเมื่องานเสร็จสมบูรณ์ และสะสมเหรียญแลกของรางวัล
+              {isEn ? "Recognize completed achievements and collect coins for project store rewards." : "ส่งกำลังใจเมื่องานเสร็จสมบูรณ์ และสะสมเหรียญแลกของรางวัล"}
             </p>
           </div>
         </div>
@@ -1397,10 +2427,10 @@ function InteractiveCoffeeDemo() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-stone-200 dark:border-white/10 dark:bg-stone-900/80">
         <div className="space-y-0.5 text-center sm:text-left">
           <p className="text-xs font-bold text-stone-800 dark:text-stone-200">
-            การ์ดงาน: &ldquo;ส่งมอบเวอร์ชัน Retzlo 2.4&rdquo;
+            {isEn ? 'Task Card: "Ship Retzlo 2.4 Production Release"' : 'การ์ดงาน: "ส่งมอบเวอร์ชัน Retzlo 2.4"'}
           </p>
           <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-            ✓ ย้ายมาคอลัมน์ Done แล้ว
+            {isEn ? "✓ Moved to Done stage" : "✓ ย้ายมาคอลัมน์ Done แล้ว"}
           </p>
         </div>
 
@@ -1413,7 +2443,7 @@ function InteractiveCoffeeDemo() {
           )}
         >
           <Coffee className="h-4 w-4" />
-          <span>กด ☕ Cheers (+5 Coins)</span>
+          <span>{isEn ? "Send ☕ Cheers (+5 Coins)" : "กด ☕ Cheers (+5 Coins)"}</span>
         </button>
       </div>
     </div>
@@ -1423,8 +2453,17 @@ function InteractiveCoffeeDemo() {
 /* ── Main Help Center Client Component ── */
 
 export function HelpCenterClient() {
+  const { language } = useLanguage();
+  const isEn = language === "en";
+
+  const categories = isEn ? CATEGORIES_EN : CATEGORIES_TH;
+  const pillars = isEn ? SYSTEM_PILLARS_EN : SYSTEM_PILLARS_TH;
+  const topics = isEn ? TOPICS_EN : TOPICS_TH;
+  const shortcutsList = isEn ? KEYBOARD_SHORTCUTS_LIST_EN : KEYBOARD_SHORTCUTS_LIST_TH;
+  const faqList = isEn ? FAQ_ITEMS_EN : FAQ_ITEMS_TH;
+
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [activeTopicId, setActiveTopicId] = useState<string>(TOPICS[0].id);
+  const [activeTopicId, setActiveTopicId] = useState<string>(topics[0].id);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"docs" | "interactive" | "shortcuts" | "faq">("docs");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -1452,7 +2491,7 @@ export function HelpCenterClient() {
   // Filter topics based on category and search query
   const filteredTopics = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    return TOPICS.filter((topic) => {
+    return topics.filter((topic) => {
       const matchesCategory =
         selectedCategory === "all" || topic.category === selectedCategory;
       const matchesSearch =
@@ -1464,24 +2503,25 @@ export function HelpCenterClient() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [topics, selectedCategory, searchQuery]);
 
   // Current active topic in reader view
   const activeTopic = useMemo(() => {
     return (
-      TOPICS.find((t) => t.id === activeTopicId) ||
+      topics.find((t) => t.id === activeTopicId) ||
       filteredTopics[0] ||
-      TOPICS[0]
+      topics[0]
     );
-  }, [activeTopicId, filteredTopics]);
+  }, [topics, activeTopicId, filteredTopics]);
 
   // Pagination: Previous and Next topics
   const currentTopicIndex = useMemo(() => {
-    return TOPICS.findIndex((t) => t.id === activeTopic.id);
-  }, [activeTopic]);
+    return topics.findIndex((t) => t.id === activeTopic.id);
+  }, [topics, activeTopic]);
 
-  const prevTopic = currentTopicIndex > 0 ? TOPICS[currentTopicIndex - 1] : null;
-  const nextTopic = currentTopicIndex < TOPICS.length - 1 ? TOPICS[currentTopicIndex + 1] : null;
+  const prevTopic = currentTopicIndex > 0 ? topics[currentTopicIndex - 1] : null;
+  const nextTopic = currentTopicIndex < topics.length - 1 ? topics[currentTopicIndex + 1] : null;
+  const categoryTheme = CATEGORY_THEME_MAP[activeTopic.category] || CATEGORY_THEME_MAP.overview;
 
   // Jump to topic
   const selectTopic = (topicId: string) => {
@@ -1498,7 +2538,10 @@ export function HelpCenterClient() {
   const handleCopyShortcut = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedShortcut(code);
-    toast({ message: `คัดลอกคีย์ลัด "${code}" เรียบร้อยแล้ว`, type: "success" });
+    toast({
+      message: isEn ? `Copied shortcut "${code}"` : `คัดลอกคีย์ลัด "${code}" เรียบร้อยแล้ว`,
+      type: "success",
+    });
     setTimeout(() => setCopiedShortcut(null), 2000);
   };
 
@@ -1508,7 +2551,11 @@ export function HelpCenterClient() {
     toast({
       message:
         type === "helpful"
-          ? "ขอบคุณสำหรับข้อเสนอแนะ! ดีใจที่บทความนี้มีประโยชน์กับคุณ"
+          ? isEn
+            ? "Thank you! Glad to hear this article was helpful."
+            : "ขอบคุณสำหรับข้อเสนอแนะ! ดีใจที่บทความนี้มีประโยชน์กับคุณ"
+          : isEn
+          ? "Thank you! We will improve this guide further."
           : "ขอบคุณสำหรับข้อเสนอแนะ! เราจะนำไปพัฒนาเนื้อหาให้ดียิ่งขึ้น",
       type: "success",
     });
@@ -1531,7 +2578,7 @@ export function HelpCenterClient() {
               onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
               className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl border border-stone-200/80 bg-stone-100/80 text-stone-700 hover:bg-stone-200 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300 dark:hover:bg-white/10 transition cursor-pointer"
               aria-label="Toggle docs navigation"
-              title="เปิด/ปิด เมนูสารบัญ"
+              title="Toggle docs navigation"
             >
               {isMobileSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
@@ -1550,7 +2597,7 @@ export function HelpCenterClient() {
                   </span>
                 </div>
                 <h1 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 leading-tight">
-                  ข้อมูลระบบ & คู่มือการใช้งาน
+                  {isEn ? "System Guide & Knowledge Base" : "ข้อมูลระบบ & คู่มือการใช้งาน"}
                 </h1>
               </div>
             </div>
@@ -1565,7 +2612,11 @@ export function HelpCenterClient() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ค้นหา เช่น AI, Spreadsheet, 10 Priorities, คีย์ลัด..."
+                placeholder={
+                  isEn
+                    ? "Search docs, AI, Spreadsheet, 10 Priorities, shortcuts..."
+                    : "ค้นหา เช่น AI, Spreadsheet, 10 Priorities, คีย์ลัด..."
+                }
                 className="w-full h-9 rounded-xl border border-stone-200/90 bg-stone-100/70 pl-10 pr-14 text-xs text-stone-900 placeholder:text-stone-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-black/30 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-dusk-lavender/60 dark:focus:ring-dusk-lavender/30 transition"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -1574,7 +2625,7 @@ export function HelpCenterClient() {
                     type="button"
                     onClick={() => setSearchQuery("")}
                     className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
-                    title="ล้างคำค้น"
+                    title="Clear search"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -1587,7 +2638,7 @@ export function HelpCenterClient() {
             </div>
           </div>
 
-          {/* Right: View Switcher & AI Launcher */}
+          {/* Right: View Switcher, Language Switcher & AI Launcher */}
           <div className="flex items-center gap-2">
             {/* View Mode Switcher */}
             <div className="hidden sm:flex items-center rounded-xl border border-stone-200/90 bg-stone-100/70 p-0.5 dark:border-white/10 dark:bg-white/[0.04]">
@@ -1600,10 +2651,10 @@ export function HelpCenterClient() {
                     ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
-                title="โหมดอ่านคู่มือเอกสาร"
+                title="Documentation mode"
               >
                 <BookOpen className="h-3.5 w-3.5" />
-                <span>คู่มือ</span>
+                <span>{isEn ? "Docs" : "คู่มือ"}</span>
               </button>
               <button
                 type="button"
@@ -1614,10 +2665,10 @@ export function HelpCenterClient() {
                     ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
-                title="โหมดทดลองฟีเจอร์สด"
+                title="Live Playground mode"
               >
                 <Play className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                <span>จำลองสด</span>
+                <span>{isEn ? "Playground" : "จำลองสด"}</span>
               </button>
               <button
                 type="button"
@@ -1628,10 +2679,10 @@ export function HelpCenterClient() {
                     ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
-                title="โหมดคลังคีย์ลัด"
+                title="Keyboard Shortcuts matrix"
               >
                 <Keyboard className="h-3.5 w-3.5" />
-                <span>คีย์ลัด</span>
+                <span>{isEn ? "Shortcuts" : "คีย์ลัด"}</span>
               </button>
               <button
                 type="button"
@@ -1642,22 +2693,25 @@ export function HelpCenterClient() {
                     ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
-                title="คำถามที่พบบ่อย"
+                title="Frequently Asked Questions"
               >
                 <HelpCircle className="h-3.5 w-3.5" />
                 <span>FAQ</span>
               </button>
             </div>
 
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
             {/* Quick AI Trigger Button */}
             <button
               type="button"
               onClick={openAiChat}
               className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:hover:bg-dusk-lavender dark:hover:text-ink-950 transition cursor-pointer shadow-sm"
-              title="เปิดคุยกับ Retzlo AI ประจำระบบ"
+              title="Open Retzlo AI"
             >
               <Bot className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">ถาม AI</span>
+              <span className="hidden sm:inline">{isEn ? "Ask AI" : "ถาม AI"}</span>
               <Sparkles className="h-3 w-3 text-amber-500 dark:text-dusk-amber" />
             </button>
 
@@ -1665,7 +2719,7 @@ export function HelpCenterClient() {
             <Link
               href="/projects"
               className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/[0.08] transition shadow-sm"
-              title="กลับไปยังหน้าโปรเจกต์"
+              title="Return to Workspaces"
             >
               <FolderKanban className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
               <span className="hidden md:inline">Workspace</span>
@@ -1684,10 +2738,12 @@ export function HelpCenterClient() {
                 <span>Retzlo Documentation & Knowledge Hub</span>
               </div>
               <h2 className="mt-2 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-100">
-                คู่มือระบบและศูนย์การเรียนรู้แพลตฟอร์ม
+                {isEn ? "System Guide & Documentation" : "คู่มือระบบและศูนย์การเรียนรู้แพลตฟอร์ม"}
               </h2>
               <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed">
-                ทำความเข้าใจสถาปัตยกรรมโมดูลาร์ เวิร์กโฟลว์การทำงานระดับมืออาชีพ และการใช้งานขุมพลัง AI ในตัวแบบเบ็ดเสร็จ
+                {isEn
+                  ? "Explore the modular architecture, professional workflows, and native AI capabilities designed for focus and productivity."
+                  : "ทำความเข้าใจสถาปัตยกรรมโมดูลาร์ เวิร์กโฟลว์การทำงานระดับมืออาชีพ และการใช้งานขุมพลัง AI ในตัวแบบเบ็ดเสร็จ"}
               </p>
             </div>
 
@@ -1699,14 +2755,14 @@ export function HelpCenterClient() {
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white/80 px-3 py-1.5 text-stone-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 shadow-xs">
                 <Bot className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                <span>Built-in Server AI (พร้อมใช้งานทันที Zero-Config)</span>
+                <span>Built-in Server AI (Zero-Config)</span>
               </span>
             </div>
           </div>
 
           {/* 6 Core Pillars Bento Grid Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-1">
-            {SYSTEM_PILLARS.map((pillar) => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5 pt-2">
+            {pillars.map((pillar) => {
               const PillarIcon = pillar.icon;
               const isSelected = activeTopic.id === pillar.id && viewMode === "docs";
 
@@ -1716,13 +2772,13 @@ export function HelpCenterClient() {
                   type="button"
                   onClick={() => selectTopic(pillar.id)}
                   className={cn(
-                    "group relative flex flex-col p-3 rounded-2xl border text-left transition duration-150 cursor-pointer",
+                    "group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-2xl border text-left transition-all duration-150 cursor-pointer min-h-[110px] shadow-2xs",
                     isSelected
-                      ? "border-indigo-400 bg-indigo-50/80 shadow-sm dark:border-dusk-lavender dark:bg-dusk-lavender/20"
+                      ? "border-indigo-400 ring-2 ring-indigo-500/25 bg-indigo-50/90 shadow-sm dark:border-dusk-lavender dark:ring-dusk-lavender/30 dark:bg-dusk-lavender/20"
                       : "border-stone-200/80 bg-white/80 hover:border-indigo-300 hover:bg-white hover:shadow-xs dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.06]"
                   )}
                 >
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-2.5">
                     <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", pillar.color)}>
                       <PillarIcon className="h-4 w-4" />
                     </div>
@@ -1730,12 +2786,14 @@ export function HelpCenterClient() {
                       {pillar.tag}
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-stone-900 dark:text-stone-100 group-hover:text-indigo-600 dark:group-hover:text-dusk-lavender transition truncate">
-                    {pillar.title}
-                  </span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 line-clamp-1 leading-snug">
-                    {pillar.subtitle}
-                  </span>
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="block text-xs font-bold text-stone-900 dark:text-stone-100 group-hover:text-indigo-600 dark:group-hover:text-dusk-lavender transition truncate">
+                      {pillar.title}
+                    </span>
+                    <span className="block text-[10px] text-stone-500 dark:text-stone-400 line-clamp-1 leading-snug">
+                      {pillar.subtitle}
+                    </span>
+                  </div>
                 </button>
               );
             })}
@@ -1757,7 +2815,9 @@ export function HelpCenterClient() {
             <div className="flex lg:hidden items-center justify-between pb-4 border-b border-stone-200 dark:border-white/10 mb-4">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
-                <span className="font-bold text-sm text-stone-900 dark:text-stone-100">สารบัญคู่มือ</span>
+                <span className="font-bold text-sm text-stone-900 dark:text-stone-100">
+                  {isEn ? "Table of Contents" : "สารบัญคู่มือ"}
+                </span>
               </div>
               <button
                 type="button"
@@ -1771,17 +2831,17 @@ export function HelpCenterClient() {
             {/* Sticky container on desktop */}
             <div className="lg:sticky lg:top-24 flex flex-col gap-4 max-h-[calc(100vh-7rem)] overflow-y-auto pr-1 scrollbar-thin">
               {/* Category Quick Filter Pills */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 px-2">
-                  หมวดหมู่
+                  {isEn ? "Categories" : "หมวดหมู่"}
                 </p>
-                <div className="flex flex-col gap-0.5">
-                  {CATEGORIES.map((cat) => {
+                <div className="flex flex-col gap-1">
+                  {categories.map((cat) => {
                     const isActive = selectedCategory === cat.id;
                     const count =
                       cat.id === "all"
-                        ? TOPICS.length
-                        : TOPICS.filter((t) => t.category === cat.id).length;
+                        ? topics.length
+                        : topics.filter((t) => t.category === cat.id).length;
 
                     return (
                       <button
@@ -1789,16 +2849,16 @@ export function HelpCenterClient() {
                         type="button"
                         onClick={() => setSelectedCategory(cat.id)}
                         className={cn(
-                          "flex items-center justify-between rounded-xl px-2.5 py-1.5 text-xs font-medium transition cursor-pointer text-left",
+                          "flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-all cursor-pointer text-left",
                           isActive
-                            ? "bg-indigo-50 font-semibold text-indigo-700 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                            ? "bg-indigo-50 font-semibold text-indigo-700 dark:bg-dusk-lavender/15 dark:text-dusk-lavender shadow-2xs"
                             : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/[0.04] dark:hover:text-stone-200"
                         )}
                       >
                         <span className="truncate">{cat.label}</span>
                         <span
                           className={cn(
-                            "rounded-full px-1.5 py-0.2 text-[10px]",
+                            "rounded-full px-2 py-0.5 text-[10px] font-mono",
                             isActive
                               ? "bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
                               : "bg-stone-100 text-stone-500 dark:bg-white/5 dark:text-stone-400"
@@ -1812,29 +2872,30 @@ export function HelpCenterClient() {
                 </div>
               </div>
 
-              <div className="h-px bg-stone-200/80 dark:bg-white/10 my-1" />
+              <div className="h-px bg-stone-200/80 dark:bg-white/10 my-3" />
 
               {/* Document Topics Tree */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between px-2">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
-                    หัวข้อบทความ ({filteredTopics.length})
+                    {isEn ? `Articles (${filteredTopics.length})` : `หัวข้อบทความ (${filteredTopics.length})`}
                   </p>
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      className="text-[10px] text-indigo-600 hover:underline dark:text-dusk-lavender"
+                      className="text-[10px] text-indigo-600 hover:underline dark:text-dusk-lavender cursor-pointer"
                     >
-                      ล้างค้นหา
+                      {isEn ? "Clear" : "ล้างค้นหา"}
                     </button>
                   )}
                 </div>
 
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   {filteredTopics.map((topic) => {
                     const isActive = activeTopic.id === topic.id;
                     const Icon = topic.icon;
+                    const topicTheme = CATEGORY_THEME_MAP[topic.category] || CATEGORY_THEME_MAP.overview;
 
                     return (
                       <button
@@ -1842,21 +2903,21 @@ export function HelpCenterClient() {
                         type="button"
                         onClick={() => selectTopic(topic.id)}
                         className={cn(
-                          "group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs transition cursor-pointer text-left",
+                          "group relative flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs transition-all duration-150 cursor-pointer text-left border",
                           isActive
-                            ? "bg-indigo-50 font-semibold text-indigo-700 shadow-sm border border-indigo-200/80 dark:bg-dusk-lavender/15 dark:border-dusk-lavender/30 dark:text-dusk-lavender"
-                            : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 border border-transparent dark:text-stone-400 dark:hover:bg-white/[0.04] dark:hover:text-stone-200"
+                            ? cn("font-semibold", topicTheme.activeSidebar)
+                            : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 border-transparent dark:text-stone-400 dark:hover:bg-white/[0.04] dark:hover:text-stone-200"
                         )}
                       >
                         {isActive && (
-                          <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 h-4 w-1 rounded-full bg-indigo-600 dark:bg-dusk-lavender" />
+                          <div className={cn("absolute -left-1 top-1/2 -translate-y-1/2 h-5 w-1 rounded-full", topicTheme.activeSidebarBar)} />
                         )}
 
                         <Icon
                           className={cn(
-                            "h-4 w-4 shrink-0 transition",
+                            "h-4 w-4 shrink-0 transition-colors",
                             isActive
-                              ? "text-indigo-600 dark:text-dusk-lavender"
+                              ? topicTheme.activeSidebarIcon
                               : "text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-300"
                           )}
                         />
@@ -1879,7 +2940,7 @@ export function HelpCenterClient() {
 
                   {filteredTopics.length === 0 && (
                     <div className="p-3 text-center text-xs text-stone-500 dark:text-stone-400">
-                      ไม่พบบทความที่ค้นหา
+                      {isEn ? "No matching articles found" : "ไม่พบบทความที่ค้นหา"}
                     </div>
                   )}
                 </div>
@@ -1892,7 +2953,9 @@ export function HelpCenterClient() {
                   <span>docs/system-guide.md</span>
                 </div>
                 <p className="leading-relaxed">
-                  คู่มือนี้ซิงค์ตรงกับมาตรฐาน AGENTS.md และสถาปัตยกรรมระบบ Retzlo v2.4
+                  {isEn
+                    ? "Synchronized with AGENTS.md standards and Retzlo v2.4 core architecture."
+                    : "คู่มือนี้ซิงค์ตรงกับมาตรฐาน AGENTS.md และสถาปัตยกรรมระบบ Retzlo v2.4"}
                 </p>
               </div>
             </div>
@@ -1907,7 +2970,10 @@ export function HelpCenterClient() {
           {viewMode === "docs" && (
             <div className="flex flex-col xl:flex-row gap-8 items-start">
               {/* Document Article Body */}
-              <article className="flex-1 min-w-0 lofi-panel rounded-3xl border border-stone-200/80 bg-white/95 p-6 sm:p-9 dark:border-white/10 dark:bg-ink-950/70 shadow-sm space-y-8">
+              <article
+                key={activeTopic.id}
+                className="flex-1 min-w-0 lofi-panel rounded-3xl border border-stone-200/80 bg-white/95 p-6 sm:p-8 lg:p-10 dark:border-white/10 dark:bg-ink-950/70 shadow-sm space-y-9 sm:space-y-10 animate-in fade-in-50 slide-in-from-bottom-1 duration-200 ease-out"
+              >
                 {/* Breadcrumbs */}
                 <nav className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
                   <Link href="/projects" className="hover:text-stone-900 dark:hover:text-stone-200">
@@ -1917,7 +2983,7 @@ export function HelpCenterClient() {
                   <button
                     type="button"
                     onClick={() => setSelectedCategory("all")}
-                    className="hover:text-stone-900 dark:hover:text-stone-200"
+                    className="hover:text-stone-900 dark:hover:text-stone-200 cursor-pointer"
                   >
                     Documentation
                   </button>
@@ -1928,8 +2994,19 @@ export function HelpCenterClient() {
                 </nav>
 
                 {/* Article Header & Lead Hero Card */}
-                <header className="space-y-4 border-b border-stone-200/80 pb-6 dark:border-white/10">
-                  <div className="flex flex-wrap items-center gap-2">
+                <header className="space-y-5 border-b border-stone-200/80 pb-7 sm:pb-8 dark:border-white/10">
+                  {/* Category Eyebrow Pill + Meta Badges */}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-2xs",
+                        categoryTheme.eyebrowBadge
+                      )}
+                    >
+                      <ActiveIcon className="h-3 w-3" />
+                      <span>{isEn ? categoryTheme.eyebrowEn : categoryTheme.eyebrowTh}</span>
+                    </span>
+
                     {activeTopic.badge && (
                       <span
                         className={cn(
@@ -1945,79 +3022,101 @@ export function HelpCenterClient() {
                         {activeTopic.scopeBadge}
                       </span>
                     )}
-                    <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 dark:bg-white/5 px-2.5 py-0.5 text-[11px] text-stone-600 dark:text-stone-400">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-stone-100/90 dark:bg-white/5 px-2.5 py-0.5 text-[11px] text-stone-600 dark:text-stone-400 font-mono">
                       <Clock className="h-3 w-3" />
-                      {activeTopic.readingTime || "อ่าน 3 นาที"}
+                      {activeTopic.readingTime || (isEn ? "3 min read" : "อ่าน 3 นาที")}
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 dark:bg-white/5 px-2.5 py-0.5 text-[11px] text-stone-600 dark:text-stone-400">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-stone-100/90 dark:bg-white/5 px-2.5 py-0.5 text-[11px] text-stone-600 dark:text-stone-400 font-mono">
                       <Calendar className="h-3 w-3" />
-                      {activeTopic.lastUpdated || "อัปเดต: 7 ต.ค. 2026"}
+                      {activeTopic.lastUpdated || (isEn ? "Oct 7, 2026" : "อัปเดต: 7 ต.ค. 2026")}
                     </span>
                   </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-indigo-100 bg-indigo-50/80 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender shadow-xs">
-                      <ActiveIcon className="h-6 w-6" />
+                  {/* Title & Category Icon Box */}
+                  <div className="flex items-start gap-4 sm:gap-5 pt-1">
+                    <div
+                      className={cn(
+                        "grid h-13 w-13 sm:h-14 sm:w-14 shrink-0 place-items-center rounded-2xl border shadow-xs transition-all duration-300",
+                        categoryTheme.iconBox
+                      )}
+                    >
+                      <ActiveIcon className="h-6 w-6 sm:h-7 sm:w-7" />
                     </div>
-                    <div>
+                    <div className="space-y-1 flex-1 min-w-0">
                       <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-100 leading-tight">
                         {activeTopic.title}
                       </h1>
                     </div>
                   </div>
 
-                  {/* Lead Summary Callout Banner */}
-                  <div className="rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50/70 via-indigo-50/30 to-white p-4 sm:p-5 text-xs sm:text-sm text-stone-700 leading-relaxed dark:border-dusk-lavender/25 dark:from-dusk-lavender/10 dark:via-dusk-lavender/5 dark:to-transparent dark:text-stone-200 shadow-xs">
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="h-4.5 w-4.5 text-indigo-600 dark:text-dusk-lavender shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-semibold text-stone-900 dark:text-stone-100 mb-1">
-                          สรุปสาระสำคัญ (Executive Summary)
+                  {/* Lead Summary Callout Banner with Category Theme */}
+                  <div
+                    className={cn(
+                      "rounded-2xl border p-4 sm:p-5 text-xs sm:text-sm text-stone-700 leading-relaxed dark:text-stone-200 shadow-xs transition-all",
+                      categoryTheme.summaryCard
+                    )}
+                  >
+                    <div className="flex items-start gap-3.5">
+                      <div
+                        className={cn(
+                          "grid h-7 w-7 place-items-center rounded-xl shrink-0 mt-0.5 shadow-2xs",
+                          categoryTheme.summaryIconBox
+                        )}
+                      >
+                        <Sparkles className={cn("h-4 w-4", categoryTheme.summarySparkleColor)} />
+                      </div>
+                      <div className="space-y-1 flex-1">
+                        <p className="font-bold text-stone-900 dark:text-stone-100">
+                          {isEn ? "Executive Summary" : "สรุปสาระสำคัญ (Executive Summary)"}
                         </p>
-                        <p>{activeTopic.summary}</p>
+                        <p className="leading-relaxed text-stone-600 dark:text-stone-300">{activeTopic.summary}</p>
                       </div>
                     </div>
                   </div>
                 </header>
 
-                {/* ── Interactive Feature Sandbox / Live Demo Widget (Topic-Tailored) ── */}
+                {/* ── Interactive Feature Sandbox / Live Demo Widget ── */}
                 {activeTopic.demoType && (
-                  <section id="live-demo" className="space-y-2 scroll-mt-24">
+                  <section id="live-demo" className="space-y-3 scroll-mt-24">
                     <div className="flex items-center justify-between">
-                      <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                        <Play className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
-                        <span>ตัวอย่างจำลองฟีเจอร์สด (Interactive Live Sandbox)</span>
-                      </h2>
+                      <div className="flex items-center gap-2.5">
+                        <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
+                          <Play className="h-4 w-4" />
+                        </div>
+                        <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100">
+                          <span>{isEn ? "Interactive Live Sandbox" : "ตัวอย่างจำลองฟีเจอร์สด (Interactive Live Sandbox)"}</span>
+                        </h2>
+                      </div>
                       <span className="text-[10px] text-stone-500 dark:text-stone-400">
-                        ลองคลิกใช้งานได้โดยตรง
+                        {isEn ? "Try interacting directly" : "ลองคลิกใช้งานได้โดยตรง"}
                       </span>
                     </div>
 
-                    {activeTopic.demoType === "ai-chat" && <InteractiveAiDemo />}
-                    {activeTopic.demoType === "kanban-table" && <InteractiveKanbanTableDemo />}
-                    {activeTopic.demoType === "priorities" && <InteractivePrioritiesDemo />}
-                    {activeTopic.demoType === "coffee" && <InteractiveCoffeeDemo />}
+                    {activeTopic.demoType === "ai-chat" && <InteractiveAiDemo isEn={isEn} />}
+                    {activeTopic.demoType === "kanban-table" && <InteractiveKanbanTableDemo isEn={isEn} />}
+                    {activeTopic.demoType === "priorities" && <InteractivePrioritiesDemo isEn={isEn} />}
+                    {activeTopic.demoType === "coffee" && <InteractiveCoffeeDemo isEn={isEn} />}
                     {activeTopic.demoType === "architecture" && (
                       <div className="rounded-2xl border border-stone-200/80 bg-stone-50/60 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.02] space-y-3">
                         <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                          สถาปัตยกรรมการประมวลผล Retzlo Architecture Pipeline
+                          {isEn ? "Retzlo Processing Pipeline Architecture" : "สถาปัตยกรรมการประมวลผล Retzlo Architecture Pipeline"}
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 text-center text-xs">
                           <div className="p-3 rounded-xl border border-stone-200 bg-white dark:border-white/10 dark:bg-stone-800/80 space-y-1">
                             <span className="font-bold text-indigo-600 dark:text-dusk-lavender">01. App Router</span>
-                            <p className="text-[10px] text-stone-500">Next.js React Client Components</p>
+                            <p className="text-[10px] text-stone-500">{isEn ? "React Server & Client Components" : "Next.js React Client Components"}</p>
                           </div>
                           <div className="p-3 rounded-xl border border-stone-200 bg-white dark:border-white/10 dark:bg-stone-800/80 space-y-1">
                             <span className="font-bold text-emerald-600 dark:text-emerald-400">02. Optimistic UI</span>
-                            <p className="text-[10px] text-stone-500">0ms State Sync & Auto Rollback</p>
+                            <p className="text-[10px] text-stone-500">{isEn ? "0ms State Transitions & Rollback" : "0ms State Sync & Auto Rollback"}</p>
                           </div>
                           <div className="p-3 rounded-xl border border-stone-200 bg-white dark:border-white/10 dark:bg-stone-800/80 space-y-1">
                             <span className="font-bold text-amber-600 dark:text-dusk-amber">03. Pusher WS</span>
-                            <p className="text-[10px] text-stone-500">Live Team Collaboration Broadcast</p>
+                            <p className="text-[10px] text-stone-500">{isEn ? "Live Teammate Collaboration" : "Live Team Collaboration Broadcast"}</p>
                           </div>
                           <div className="p-3 rounded-xl border border-stone-200 bg-white dark:border-white/10 dark:bg-stone-800/80 space-y-1">
                             <span className="font-bold text-purple-600 dark:text-purple-400">04. Neon & AI</span>
-                            <p className="text-[10px] text-stone-500">PostgreSQL + Built-in Intelligence</p>
+                            <p className="text-[10px] text-stone-500">{isEn ? "PostgreSQL & Built-in Intelligence" : "PostgreSQL + Built-in Intelligence"}</p>
                           </div>
                         </div>
                       </div>
@@ -2027,11 +3126,15 @@ export function HelpCenterClient() {
 
                 {/* Section 1: Overview & Concept */}
                 {activeTopic.concept && (
-                  <section id="overview" className="space-y-3 scroll-mt-24">
-                    <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                      <Compass className="h-4.5 w-4.5 text-indigo-600 dark:text-dusk-lavender" />
-                      <span>ภาพรวมและแนวคิดของฟีเจอร์</span>
-                    </h2>
+                  <section id="overview" className="space-y-3.5 scroll-mt-24">
+                    <div className="flex items-center gap-2.5">
+                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
+                        <Compass className="h-4 w-4" />
+                      </div>
+                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
+                        {isEn ? "Overview & Architectural Concept" : "ภาพรวมและแนวคิดของฟีเจอร์"}
+                      </h2>
+                    </div>
                     <div className="rounded-2xl border border-stone-200/80 bg-stone-50/50 p-4 sm:p-5 text-xs sm:text-sm text-stone-700 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-300 leading-relaxed">
                       {activeTopic.concept}
                     </div>
@@ -2041,12 +3144,16 @@ export function HelpCenterClient() {
                 {/* Section 2: Key Capabilities & Highlights Grid */}
                 <section id="capabilities" className="space-y-4 scroll-mt-24">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                      <Layers className="h-4.5 w-4.5 text-indigo-600 dark:text-dusk-lavender" />
-                      <span>คุณสมบัติและความสามารถหลัก (Key Capabilities)</span>
-                    </h2>
+                    <div className="flex items-center gap-2.5">
+                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
+                        <Layers className="h-4 w-4" />
+                      </div>
+                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
+                        {isEn ? "Key Capabilities" : "คุณสมบัติและความสามารถหลัก (Key Capabilities)"}
+                      </h2>
+                    </div>
                     <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
-                      {activeTopic.highlights.length} รายการ
+                      {activeTopic.highlights.length} {isEn ? "highlights" : "รายการ"}
                     </span>
                   </div>
 
@@ -2070,18 +3177,25 @@ export function HelpCenterClient() {
                 {/* Section 3: Step-by-Step Workflow Guide */}
                 {activeTopic.workflowSteps && activeTopic.workflowSteps.length > 0 && (
                   <section id="workflow" className="space-y-4 scroll-mt-24">
-                    <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                      <ListChecks className="h-4.5 w-4.5 text-indigo-600 dark:text-dusk-lavender" />
-                      <span>ขั้นตอนการใช้งานจริง (Step-by-Step Workflow Guide)</span>
-                    </h2>
+                    <div className="flex items-center gap-2.5">
+                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
+                        <ListChecks className="h-4 w-4" />
+                      </div>
+                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
+                        {isEn ? "Step-by-Step Workflow Guide" : "ขั้นตอนการใช้งานจริง (Step-by-Step Workflow Guide)"}
+                      </h2>
+                    </div>
 
                     <div className="grid gap-3">
                       {activeTopic.workflowSteps.map((stepItem, index) => (
                         <div
                           key={index}
-                          className="flex items-start gap-3.5 rounded-2xl border border-stone-200/80 bg-white p-4 dark:border-white/10 dark:bg-white/[0.02] shadow-xs"
+                          className="flex items-start gap-3.5 rounded-2xl border border-stone-200/80 bg-white p-4 sm:p-4.5 dark:border-white/10 dark:bg-white/[0.02] shadow-xs"
                         >
-                          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-indigo-50 font-mono text-xs font-bold text-indigo-700 border border-indigo-200/80 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:border-dusk-lavender/30">
+                          <div className={cn(
+                            "grid h-8 w-8 shrink-0 place-items-center rounded-xl font-mono text-xs font-bold border",
+                            categoryTheme.stepBadge
+                          )}>
                             {stepItem.step}
                           </div>
                           <div className="space-y-0.5">
@@ -2101,15 +3215,19 @@ export function HelpCenterClient() {
                 {/* Section 4: Technical Specifications */}
                 {activeTopic.technicalSpecs && activeTopic.technicalSpecs.length > 0 && (
                   <section id="technical-specs" className="space-y-3.5 scroll-mt-24">
-                    <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                      <Zap className="h-4.5 w-4.5 text-indigo-600 dark:text-dusk-lavender" />
-                      <span>ข้อมูลจำเพาะทางเทคนิค (Technical Specifications)</span>
-                    </h2>
+                    <div className="flex items-center gap-2.5">
+                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
+                        <Zap className="h-4 w-4" />
+                      </div>
+                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
+                        {isEn ? "Technical Specifications" : "ข้อมูลจำเพาะทางเทคนิค (Technical Specifications)"}
+                      </h2>
+                    </div>
 
-                    <div className="rounded-2xl border border-stone-200/80 bg-stone-50/50 p-3 sm:p-4 dark:border-white/10 dark:bg-white/[0.02]">
+                    <div className="rounded-2xl border border-stone-200/80 bg-stone-50/50 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.02]">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {activeTopic.technicalSpecs.map((spec, i) => (
-                          <div key={i} className="flex flex-col gap-0.5 bg-white/80 dark:bg-white/[0.04] p-3 rounded-xl border border-stone-200/60 dark:border-white/5">
+                          <div key={i} className="flex flex-col gap-1 bg-white/90 dark:bg-white/[0.04] p-3.5 rounded-xl border border-stone-200/70 dark:border-white/5 shadow-2xs">
                             <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                               {spec.label}
                             </span>
@@ -2125,24 +3243,34 @@ export function HelpCenterClient() {
 
                 {/* Section 5: Pro Tips Callout */}
                 {activeTopic.tips && (
-                  <section id="tips" className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4 sm:p-5 text-xs sm:text-sm text-amber-900 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber space-y-1.5 shadow-xs scroll-mt-24">
-                    <div className="flex items-center gap-2 font-bold text-amber-950 dark:text-dusk-amber">
-                      <span className="text-base">💡</span>
-                      <span>เคล็ดลับจากผู้เชี่ยวชาญ (Pro Tip)</span>
+                  <section id="tips" className="rounded-2xl border border-amber-200/90 bg-amber-50/70 p-4 sm:p-5 text-xs sm:text-sm dark:border-dusk-amber/30 dark:bg-dusk-amber/10 shadow-xs scroll-mt-24">
+                    <div className="flex items-start gap-3.5">
+                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-amber-100 text-amber-800 border border-amber-300/80 dark:bg-dusk-amber/20 dark:text-dusk-amber dark:border-dusk-amber/30 shrink-0 mt-0.5">
+                        <Lightbulb className="h-4.5 w-4.5 text-amber-600 dark:text-dusk-amber" />
+                      </div>
+                      <div className="space-y-1 flex-1">
+                        <h3 className="font-bold text-amber-950 dark:text-dusk-amber">
+                          {isEn ? "Pro Tip & Best Practice" : "เคล็ดลับจากผู้เชี่ยวชาญ (Pro Tip)"}
+                        </h3>
+                        <p className="leading-relaxed text-amber-900/90 dark:text-stone-300">
+                          {activeTopic.tips}
+                        </p>
+                      </div>
                     </div>
-                    <p className="leading-relaxed pl-6 text-amber-900/90 dark:text-stone-300">
-                      {activeTopic.tips}
-                    </p>
                   </section>
                 )}
 
                 {/* Section 6: Code / Keyboard Shortcut (if available) */}
                 {activeTopic.codeOrShortcut && (
-                  <section id="shortcuts" className="space-y-3 scroll-mt-24">
-                    <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                      <Keyboard className="h-4.5 w-4.5 text-indigo-600 dark:text-dusk-lavender" />
-                      <span>คีย์ลัดด่วน (Keyboard Shortcut)</span>
-                    </h2>
+                  <section id="shortcuts" className="space-y-3.5 scroll-mt-24">
+                    <div className="flex items-center gap-2.5">
+                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
+                        <Keyboard className="h-4 w-4" />
+                      </div>
+                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
+                        {isEn ? "Keyboard Shortcut" : "คีย์ลัดด่วน (Keyboard Shortcut)"}
+                      </h2>
+                    </div>
 
                     <div className="flex items-center justify-between rounded-2xl border border-stone-200/80 bg-stone-900 p-4 text-white dark:border-white/10 dark:bg-ink-950 shadow-inner">
                       <div className="flex items-center gap-2 font-mono text-xs sm:text-sm text-amber-300">
@@ -2153,17 +3281,17 @@ export function HelpCenterClient() {
                         type="button"
                         onClick={() => handleCopyShortcut(activeTopic.codeOrShortcut!)}
                         className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-medium text-stone-200 hover:bg-white/20 transition cursor-pointer"
-                        title="คัดลอกคีย์ลัด"
+                        title={isEn ? "Copy shortcut" : "คัดลอกคีย์ลัด"}
                       >
                         {copiedShortcut === activeTopic.codeOrShortcut ? (
                           <>
                             <Check className="h-3 w-3 text-emerald-400" />
-                            <span>คัดลอกแล้ว</span>
+                            <span>{isEn ? "Copied" : "คัดลอกแล้ว"}</span>
                           </>
                         ) : (
                           <>
                             <Copy className="h-3 w-3" />
-                            <span>คัดลอก</span>
+                            <span>{isEn ? "Copy" : "คัดลอก"}</span>
                           </>
                         )}
                       </button>
@@ -2173,28 +3301,31 @@ export function HelpCenterClient() {
 
                 {/* Section 7: Related Topics Navigation */}
                 {activeTopic.relatedTopicIds && activeTopic.relatedTopicIds.length > 0 && (
-                  <section className="space-y-3 pt-2">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                      บทความและโมดูลที่เกี่ยวข้อง
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <section className="space-y-3.5 pt-2">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                        {isEn ? "Related Modules & Articles" : "บทความและโมดูลที่เกี่ยวข้อง"}
+                      </h3>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {activeTopic.relatedTopicIds.map((relId) => {
-                        const relTopic = TOPICS.find((t) => t.id === relId);
+                        const relTopic = topics.find((t) => t.id === relId);
                         if (!relTopic) return null;
                         const RelIcon = relTopic.icon;
+                        const relTheme = CATEGORY_THEME_MAP[relTopic.category] || CATEGORY_THEME_MAP.overview;
 
                         return (
                           <button
                             key={relId}
                             type="button"
                             onClick={() => selectTopic(relId)}
-                            className="group flex items-center gap-3 p-3 rounded-xl border border-stone-200/80 bg-stone-50/50 hover:bg-white hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.04] transition cursor-pointer text-left"
+                            className="group flex items-center gap-3 p-3.5 rounded-2xl border border-stone-200/80 bg-stone-50/50 hover:bg-white hover:border-indigo-300 hover:shadow-xs dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.04] transition cursor-pointer text-left"
                           >
-                            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
-                              <RelIcon className="h-3.5 w-3.5" />
+                            <div className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-xl border", relTheme.sectionBadge)}>
+                              <RelIcon className="h-4 w-4" />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-xs font-semibold text-stone-900 dark:text-stone-100 group-hover:text-indigo-600 dark:group-hover:text-dusk-lavender truncate">
+                              <p className="text-xs font-semibold text-stone-900 dark:text-stone-100 group-hover:text-indigo-600 dark:group-hover:text-dusk-lavender transition truncate">
                                 {relTopic.title}
                               </p>
                               <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
@@ -2213,10 +3344,10 @@ export function HelpCenterClient() {
                 <div className="rounded-2xl border border-stone-200/80 bg-stone-50/60 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.02] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <h3 className="text-xs sm:text-sm font-semibold text-stone-900 dark:text-stone-100">
-                      บทความนี้มีประโยชน์กับคุณหรือไม่?
+                      {isEn ? "Was this article helpful?" : "บทความนี้มีประโยชน์กับคุณหรือไม่?"}
                     </h3>
                     <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                      คำติชมของคุณช่วยให้เราปรับปรุงคู่มือระบบได้ดียิ่งขึ้น
+                      {isEn ? "Your feedback helps us refine the system guide." : "คำติชมของคุณช่วยให้เราปรับปรุงคู่มือระบบได้ดียิ่งขึ้น"}
                     </p>
                   </div>
 
@@ -2224,7 +3355,7 @@ export function HelpCenterClient() {
                     {feedbackVote ? (
                       <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                         <Check className="h-3.5 w-3.5" />
-                        ขอบคุณสำหรับข้อเสนอแนะ!
+                        {isEn ? "Thanks for your feedback!" : "ขอบคุณสำหรับข้อเสนอแนะ!"}
                       </span>
                     ) : (
                       <>
@@ -2234,7 +3365,7 @@ export function HelpCenterClient() {
                           className="flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:border-emerald-300 hover:text-emerald-700 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-400 transition cursor-pointer shadow-sm"
                         >
                           <ThumbsUp className="h-3.5 w-3.5" />
-                          <span>มีประโยชน์</span>
+                          <span>{isEn ? "Helpful" : "มีประโยชน์"}</span>
                         </button>
                         <button
                           type="button"
@@ -2242,7 +3373,7 @@ export function HelpCenterClient() {
                           className="flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:border-rose-300 hover:text-rose-700 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 transition cursor-pointer shadow-sm"
                         >
                           <ThumbsDown className="h-3.5 w-3.5" />
-                          <span>ต้องปรับปรุง</span>
+                          <span>{isEn ? "Needs work" : "ต้องปรับปรุง"}</span>
                         </button>
                       </>
                     )}
@@ -2260,7 +3391,7 @@ export function HelpCenterClient() {
                       >
                         <span className="flex items-center gap-1 text-[11px] font-medium text-stone-500 dark:text-stone-400 group-hover:text-indigo-600 dark:group-hover:text-dusk-lavender">
                           <ChevronLeft className="h-3.5 w-3.5" />
-                          บทความก่อนหน้า
+                          {isEn ? "Previous Article" : "บทความก่อนหน้า"}
                         </span>
                         <span className="mt-1 text-xs sm:text-sm font-semibold text-stone-900 dark:text-stone-100 group-hover:text-indigo-600 dark:group-hover:text-dusk-lavender truncate w-full">
                           {prevTopic.title}
@@ -2277,7 +3408,7 @@ export function HelpCenterClient() {
                         className="group flex flex-col items-end p-4 rounded-xl border border-stone-200/80 bg-stone-50/50 hover:bg-white hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.05] transition cursor-pointer text-right shadow-sm"
                       >
                         <span className="flex items-center gap-1 text-[11px] font-medium text-stone-500 dark:text-stone-400 group-hover:text-indigo-600 dark:group-hover:text-dusk-lavender">
-                          บทความถัดไป
+                          {isEn ? "Next Article" : "บทความถัดไป"}
                           <ChevronRight className="h-3.5 w-3.5" />
                         </span>
                         <span className="mt-1 text-xs sm:text-sm font-semibold text-stone-900 dark:text-stone-100 group-hover:text-indigo-600 dark:group-hover:text-dusk-lavender truncate w-full">
@@ -2294,7 +3425,7 @@ export function HelpCenterClient() {
                 {/* On This Page Widget */}
                 <div className="lofi-panel rounded-2xl border border-stone-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-ink-950/40 space-y-3">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
-                    ในบทความนี้
+                    {isEn ? "On This Page" : "ในบทความนี้"}
                   </p>
                   <nav className="flex flex-col gap-1.5 text-xs text-stone-600 dark:text-stone-400">
                     {activeTopic.demoType && (
@@ -2303,7 +3434,7 @@ export function HelpCenterClient() {
                         className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate flex items-center gap-1.5 text-indigo-600 dark:text-dusk-lavender font-semibold"
                       >
                         <Play className="h-3 w-3" />
-                        <span>ตัวอย่างจำลองสด</span>
+                        <span>{isEn ? "Live Sandbox" : "ตัวอย่างจำลองสด"}</span>
                       </a>
                     )}
                     {activeTopic.concept && (
@@ -2311,21 +3442,21 @@ export function HelpCenterClient() {
                         href="#overview"
                         className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
                       >
-                        • ภาพรวมและแนวคิด
+                        • {isEn ? "Overview & Concept" : "ภาพรวมและแนวคิด"}
                       </a>
                     )}
                     <a
                       href="#capabilities"
                       className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
                     >
-                      • คุณสมบัติและความสามารถ
+                      • {isEn ? "Key Capabilities" : "คุณสมบัติและความสามารถ"}
                     </a>
                     {activeTopic.workflowSteps && activeTopic.workflowSteps.length > 0 && (
                       <a
                         href="#workflow"
                         className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
                       >
-                        • ขั้นตอนการใช้งานจริง
+                        • {isEn ? "Workflow Steps" : "ขั้นตอนการใช้งานจริง"}
                       </a>
                     )}
                     {activeTopic.technicalSpecs && activeTopic.technicalSpecs.length > 0 && (
@@ -2333,7 +3464,7 @@ export function HelpCenterClient() {
                         href="#technical-specs"
                         className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
                       >
-                        • ข้อมูลจำเพาะทางเทคนิค
+                        • {isEn ? "Technical Specs" : "ข้อมูลจำเพาะทางเทคนิค"}
                       </a>
                     )}
                     {activeTopic.tips && (
@@ -2341,7 +3472,7 @@ export function HelpCenterClient() {
                         href="#tips"
                         className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
                       >
-                        • เคล็ดลับจากผู้เชี่ยวชาญ
+                        • {isEn ? "Pro Tips" : "เคล็ดลับจากผู้เชี่ยวชาญ"}
                       </a>
                     )}
                     {activeTopic.codeOrShortcut && (
@@ -2349,7 +3480,7 @@ export function HelpCenterClient() {
                         href="#shortcuts"
                         className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
                       >
-                        • คีย์ลัดด่วน
+                        • {isEn ? "Quick Shortcut" : "คีย์ลัดด่วน"}
                       </a>
                     )}
                   </nav>
@@ -2359,10 +3490,12 @@ export function HelpCenterClient() {
                 <div className="lofi-panel rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4 text-stone-800 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-stone-200 space-y-2.5">
                   <div className="flex items-center gap-2 font-bold text-xs text-indigo-700 dark:text-dusk-lavender">
                     <Bot className="h-4 w-4" />
-                    <span>ต้องการความช่วยเหลือเพิ่มเติม?</span>
+                    <span>{isEn ? "Need More Assistance?" : "ต้องการความช่วยเหลือเพิ่มเติม?"}</span>
                   </div>
                   <p className="text-[11px] text-stone-600 dark:text-stone-400 leading-relaxed">
-                    ถามคำถามเกี่ยวกับฟีเจอร์หรือการใช้งานกับผู้ช่วย Retzlo AI ได้ทันทีในระบบ
+                    {isEn
+                      ? "Inquire about features, shortcuts, or board health directly with Retzlo AI."
+                      : "ถามคำถามเกี่ยวกับฟีเจอร์หรือการใช้งานกับผู้ช่วย Retzlo AI ได้ทันทีในระบบ"}
                   </p>
                   <button
                     type="button"
@@ -2370,13 +3503,13 @@ export function HelpCenterClient() {
                     className="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 transition cursor-pointer shadow-sm"
                   >
                     <Sparkles className="h-3.5 w-3.5 text-amber-300 dark:text-ink-950" />
-                    <span>ถาม AI Assistant</span>
+                    <span>{isEn ? "Ask Retzlo AI" : "ถาม AI Assistant"}</span>
                   </button>
                 </div>
 
                 {/* Quick Share Link */}
                 <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3 text-[11px] text-stone-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 flex items-center justify-between">
-                  <span>เวอร์ชัน Retzlo Docs</span>
+                  <span>Retzlo Docs</span>
                   <span className="font-mono font-semibold text-stone-700 dark:text-stone-300">2.4 Stable</span>
                 </div>
               </aside>
@@ -2390,10 +3523,12 @@ export function HelpCenterClient() {
                 <div>
                   <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <Play className="h-5 w-5 text-indigo-600 dark:text-dusk-lavender" />
-                    <span>ศูนย์จำลองฟีเจอร์สด (Interactive Playground)</span>
+                    <span>{isEn ? "Interactive Feature Playground" : "ศูนย์จำลองฟีเจอร์สด (Interactive Playground)"}</span>
                   </h2>
                   <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
-                    ทดลองสัมผัสระบบสำคัญของ Retzlo แบบสดๆ เพื่อทำความเข้าใจก่อนเริ่มทำงานจริง
+                    {isEn
+                      ? "Experience Retzlo's core innovations live to master the system before starting production work."
+                      : "ทดลองสัมผัสระบบสำคัญของ Retzlo แบบสดๆ เพื่อทำความเข้าใจก่อนเริ่มทำงานจริง"}
                   </p>
                 </div>
                 <button
@@ -2402,7 +3537,7 @@ export function HelpCenterClient() {
                   className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
                 >
                   <BookOpen className="h-3.5 w-3.5" />
-                  <span>กลับไปยังคู่มือบทความ</span>
+                  <span>{isEn ? "Return to Docs" : "กลับไปยังคู่มือบทความ"}</span>
                 </button>
               </div>
 
@@ -2410,33 +3545,33 @@ export function HelpCenterClient() {
                 {/* 1. Kanban & Spreadsheet Table */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-bold text-stone-800 dark:text-stone-200 flex items-center gap-2">
-                    <span>1. ระบบมุมมองคู่ (Kanban Board & Spreadsheet Table)</span>
+                    <span>{isEn ? "1. Dual View Engine (Kanban Board & Spreadsheet Table)" : "1. ระบบมุมมองคู่ (Kanban Board & Spreadsheet Table)"}</span>
                   </h3>
-                  <InteractiveKanbanTableDemo />
+                  <InteractiveKanbanTableDemo isEn={isEn} />
                 </div>
 
                 {/* 2. Retzlo AI */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-bold text-stone-800 dark:text-stone-200 flex items-center gap-2">
-                    <span>2. ผู้ช่วย Retzlo AI Simulator</span>
+                    <span>{isEn ? "2. Retzlo AI Interactive Assistant Simulator" : "2. ผู้ช่วย Retzlo AI Simulator"}</span>
                   </h3>
-                  <InteractiveAiDemo />
+                  <InteractiveAiDemo isEn={isEn} />
                 </div>
 
                 {/* 3. Custom Priorities */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-bold text-stone-800 dark:text-stone-200 flex items-center gap-2">
-                    <span>3. ปรับแต่งระดับความสำคัญ 10 ระดับ</span>
+                    <span>{isEn ? "3. 10-Level Custom Priorities & Retro Lofi Colors" : "3. ปรับแต่งระดับความสำคัญ 10 ระดับ"}</span>
                   </h3>
-                  <InteractivePrioritiesDemo />
+                  <InteractivePrioritiesDemo isEn={isEn} />
                 </div>
 
                 {/* 4. Coffee Cheers */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-bold text-stone-800 dark:text-stone-200 flex items-center gap-2">
-                    <span>4. ระบบ Coffee Cheers และ Coins Wallet</span>
+                    <span>{isEn ? "4. Coffee Cheers Morale & Coins Wallet" : "4. ระบบ Coffee Cheers และ Coins Wallet"}</span>
                   </h3>
-                  <InteractiveCoffeeDemo />
+                  <InteractiveCoffeeDemo isEn={isEn} />
                 </div>
               </div>
             </div>
@@ -2449,10 +3584,12 @@ export function HelpCenterClient() {
                 <div>
                   <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <Keyboard className="h-5 w-5 text-indigo-600 dark:text-dusk-lavender" />
-                    <span>คลังคีย์ลัดระบบ (Keyboard Shortcuts Matrix)</span>
+                    <span>{isEn ? "Keyboard Shortcuts Matrix" : "คลังคีย์ลัดระบบ (Keyboard Shortcuts Matrix)"}</span>
                   </h2>
                   <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
-                    เพิ่มความเร็วในการทำงานระดับ Power User ควบคุมระบบได้โดยไม่ต้องยกมือจากคีย์บอร์ด
+                    {isEn
+                      ? "Operate at peak velocity with power-user shortcuts without lifting hands from the keyboard."
+                      : "เพิ่มความเร็วในการทำงานระดับ Power User ควบคุมระบบได้โดยไม่ต้องยกมือจากคีย์บอร์ด"}
                   </p>
                 </div>
                 <button
@@ -2461,12 +3598,12 @@ export function HelpCenterClient() {
                   className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
                 >
                   <BookOpen className="h-3.5 w-3.5" />
-                  <span>กลับไปยังคู่มือบทความ</span>
+                  <span>{isEn ? "Return to Docs" : "กลับไปยังคู่มือบทความ"}</span>
                 </button>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                {KEYBOARD_SHORTCUTS_LIST.map((sc, index) => (
+                {shortcutsList.map((sc, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-4 rounded-2xl border border-stone-200/80 bg-white dark:border-white/10 dark:bg-ink-950/70 shadow-xs"
@@ -2489,7 +3626,7 @@ export function HelpCenterClient() {
                       type="button"
                       onClick={() => handleCopyShortcut(sc.key)}
                       className="ml-3 flex items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-2.5 py-1.5 font-mono text-xs font-bold text-indigo-600 hover:bg-indigo-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-dusk-amber transition cursor-pointer"
-                      title="คลิกเพื่อคัดลอกคีย์ลัด"
+                      title={isEn ? "Click to copy shortcut" : "คลิกเพื่อคัดลอกคีย์ลัด"}
                     >
                       {copiedShortcut === sc.key ? (
                         <Check className="h-3.5 w-3.5 text-emerald-500" />
@@ -2511,10 +3648,10 @@ export function HelpCenterClient() {
                 <div>
                   <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <HelpCircle className="h-5 w-5 text-indigo-600 dark:text-dusk-lavender" />
-                    <span>คำถามที่พบบ่อย (Frequently Asked Questions)</span>
+                    <span>{isEn ? "Frequently Asked Questions" : "คำถามที่พบบ่อย (Frequently Asked Questions)"}</span>
                   </h2>
                   <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
-                    คำตอบสำหรับคำถามยอดนิยมและแนวทางการแก้ปัญหาเบื้องต้น
+                    {isEn ? "Instant solutions for common inquiries and system troubleshooting." : "คำตอบสำหรับคำถามยอดนิยมและแนวทางการแก้ปัญหาเบื้องต้น"}
                   </p>
                 </div>
                 <button
@@ -2523,12 +3660,12 @@ export function HelpCenterClient() {
                   className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
                 >
                   <BookOpen className="h-3.5 w-3.5" />
-                  <span>กลับไปยังคู่มือบทความ</span>
+                  <span>{isEn ? "Return to Docs" : "กลับไปยังคู่มือบทความ"}</span>
                 </button>
               </div>
 
               <div className="space-y-3">
-                {FAQ_ITEMS.map((faq, idx) => {
+                {faqList.map((faq, idx) => {
                   const isOpen = openFaqIndex === idx;
                   return (
                     <div

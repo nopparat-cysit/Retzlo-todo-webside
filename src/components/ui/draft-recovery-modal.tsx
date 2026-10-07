@@ -5,6 +5,7 @@ import { FileText, RotateCcw, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModalPortal } from "@/components/ui/modal-portal";
 import { formatMediumDateTime } from "@/lib/date-format";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 interface DraftRecoveryModalProps {
   open: boolean;
@@ -22,6 +23,7 @@ export function DraftRecoveryModal({
   onClose
 }: DraftRecoveryModalProps) {
   const isBackdropPointerDownRef = useRef(false);
+  const { isEn } = useLanguage();
 
   useEffect(() => {
     if (!open) return;
@@ -81,13 +83,24 @@ export function DraftRecoveryModal({
             <div className="min-w-0 flex-1">
               <p className="text-[10px] uppercase tracking-[0.2em] text-dusk-amber">Draft Recovery</p>
               <h2 id="draft-recovery-title" className="text-lg font-semibold text-stone-100">
-                พบข้อมูลร่างที่ยังบันทึกไม่เสร็จ
+                {isEn ? "Unsaved Draft Found" : "พบข้อมูลร่างที่ยังบันทึกไม่เสร็จ"}
               </h2>
               <p className="mt-1 text-xs leading-relaxed text-stone-400">
-                ระบบตรวจพบข้อมูลที่คุณกรอกค้างไว้ก่อนหน้านี้
-                {formattedTime ? ` (บันทึกเมื่อ ${formattedTime})` : ""}
-                <br />
-                คุณต้องการกรอกข้อมูลต่อจากร่างเดิมไหม?
+                {isEn ? (
+                  <>
+                    We detected an unsaved draft from your previous session
+                    {formattedTime ? ` (saved at ${formattedTime})` : ""}.
+                    <br />
+                    Would you like to resume editing where you left off?
+                  </>
+                ) : (
+                  <>
+                    ระบบตรวจพบข้อมูลที่คุณกรอกค้างไว้ก่อนหน้านี้
+                    {formattedTime ? ` (บันทึกเมื่อ ${formattedTime})` : ""}
+                    <br />
+                    คุณต้องการกรอกข้อมูลต่อจากร่างเดิมไหม?
+                  </>
+                )}
               </p>
             </div>
             <button
@@ -112,7 +125,7 @@ export function DraftRecoveryModal({
               onClick={onDiscard}
             >
               <Trash2 className="h-3.5 w-3.5" />
-              ละทิ้งข้อมูลร่าง
+              {isEn ? "Discard Draft" : "ละทิ้งข้อมูลร่าง"}
             </Button>
             <Button
               type="button"
@@ -121,7 +134,7 @@ export function DraftRecoveryModal({
               onClick={onRestore}
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              กรอกข้อมูลต่อ
+              {isEn ? "Resume Draft" : "กรอกข้อมูลต่อ"}
             </Button>
           </div>
         </div>

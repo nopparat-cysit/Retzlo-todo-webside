@@ -33,6 +33,7 @@ import { useToast } from "@/components/ui/toast";
 import { formatMediumDate, formatShortDate } from "@/lib/date-format";
 import { cn } from "@/lib/utils";
 import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export interface ProjectMemberData {
   id: string;
@@ -110,6 +111,7 @@ export function ProjectMembersView({
   const [isUpdatingRole, setIsUpdatingRole] = useState(false);
 
   const { toast } = useToast();
+  const { isEn } = useLanguage();
   const isOwner = currentUserRole === "OWNER";
 
   // Filtered members list
@@ -471,7 +473,7 @@ export function ProjectMembersView({
                 )}
               >
                 <Users className="h-4 w-4" />
-                <span>สมาชิกในทีม (Members)</span>
+                <span>{isEn ? "Team Members" : "สมาชิกในทีม (Members)"}</span>
                 <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-bold dark:bg-white/10">
                   {totalCount}
                 </span>
@@ -488,7 +490,7 @@ export function ProjectMembersView({
                 )}
               >
                 <Mail className="h-4 w-4" />
-                <span>คำเชิญรอดำเนินการ (Invitations)</span>
+                <span>{isEn ? "Pending Invitations" : "คำเชิญรอดำเนินการ (Invitations)"}</span>
                 {pendingCount > 0 && (
                   <span className="rounded-full bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 px-1.5 py-0.2 text-[10px] font-bold">
                     {pendingCount}
@@ -507,7 +509,7 @@ export function ProjectMembersView({
                 )}
               >
                 <Shield className="h-4 w-4" />
-                <span>สิทธิ์และการเข้าถึง (Roles & Permissions)</span>
+                <span>{isEn ? "Roles & Permissions" : "สิทธิ์และการเข้าถึง (Roles & Permissions)"}</span>
               </button>
             </div>
 
@@ -518,7 +520,7 @@ export function ProjectMembersView({
               className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium cursor-pointer shrink-0 ml-auto"
             >
               <UserPlus className="h-3.5 w-3.5" />
-              <span>+ เชิญสมาชิกใหม่</span>
+              <span>{isEn ? "+ Invite Teammate" : "+ เชิญสมาชิกใหม่"}</span>
             </Button>
           </div>
 

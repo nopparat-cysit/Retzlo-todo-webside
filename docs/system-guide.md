@@ -1,11 +1,146 @@
 # Retzlo System Guide & Knowledge Base
 
-> **เอกสารคู่มือระบบและคลังความรู้แพลตฟอร์ม Retzlo**  
-> *กฎเหล็กการดูแล:* ทุกครั้งที่มีการพัฒนาฟีเจอร์ใหม่ แก้ไขพฤติกรรมของระบบ ปรับปรุงคีย์ลัด หรือเปลี่ยนแปลงสถาปัตยกรรม ต้องเข้ามาอัปเดตข้อมูลในเอกสารนี้และหน้าแอป `/help` (`src/components/help/help-center-client.tsx`) เสมอ
+> **Official Master System Documentation and Architecture Knowledge Base**  
+> *Maintenance Rule:* Whenever new features are built, system behaviors updated, keyboard shortcuts added, or architectural changes made, this document and the in-app guide `/help` (`src/components/help/help-center-client.tsx`) MUST be updated immediately.
 
 ---
 
-## 1. ภาพรวมระบบและสถาปัตยกรรม (Architecture Overview)
+## 1. System Architecture Overview
+
+Retzlo is a Modular Life and Work Management Platform designed with a warm, clean Retro Lofi Indigo aesthetic. Built for both professional project collaboration and everyday routine habit tracking.
+
+### Tech Stack
+- **Framework:** Next.js (App Router, Server Components + Client Components)
+- **Database & ORM:** PostgreSQL on Neon Serverless (`neon.tech`) + Prisma ORM
+- **Authentication:** NextAuth.js Credentials Provider
+- **Real-time Sync:** Pusher WebSocket Channels
+- **Styling & Design System:** Tailwind CSS + Semantic Theme Tokens (`retro lofi indigo` palette)
+- **AI Engine:** DeepSeek Chat API (`deepseek-v4-pro` default) with built-in server-side intelligence (Zero-Config Native Server Intelligence), ready out of the box with zero configuration required.
+
+---
+
+## 2. Core Features (English Master Guide)
+
+### 2.1 Built-in Retzlo AI Assistant
+- **Access Point:** Robot icon (`🤖`) on the top header, positioned to the left of the user profile avatar.
+- **Responsive Layout & Docking:**
+  - **Sidebar Mode (Desktop):** When opened on widescreen displays, it docks as a side panel on the right (380px–450px width), allowing uninterrupted side-by-side work with the board.
+  - **Responsive Floating Mode:** On smaller screens, mobile devices, or when toggled to Float mode, it shifts into a floating panel at the bottom-right corner.
+  - **Star FAB Automatic Displacement:** The floating action star button (`FabHub`) smoothly animates upward to hover above the AI chat panel via CSS transitions, preventing any overlapping or obstruction.
+- **Capabilities:**
+  - Full awareness of the active project and board context (Project Context Aware).
+  - Multi-turn conversational planning and intelligent assistance.
+  - Direct card suggestion and drafting to the board with ConfirmModal protection.
+  - Zero-config native server management for all workspaces.
+
+### 2.2 AI Task Breakdown & Executive Summary
+- **AI Task Breakdown:** `✨ AI Breakdown` button in the card modal automatically analyzes the task title and description to produce a 3–10 item actionable checklist in one click.
+- **AI Executive Summary:** `AI Summary` button on the board toolbar delivers a strategic overview of board progress, bottlenecks, and recommendations with quick copy and save-to-notes options.
+
+### 2.3 Kanban Board & Spreadsheet Table View
+- **Kanban Board:**
+  - Optimistic UI drag-and-drop for cards and columns.
+  - Real-time synchronization across all project members.
+  - Column settings and WIP (Work-In-Progress) limits.
+  - Reorder handle (`⁝⁝`) for clean column organization.
+  - **Card Density Switcher (Normal / Compact 2x):** Toggle density next to the view switcher (Normal: full spacing and comfort / Compact: double density, tighter borders, ideal for large backlogs).
+  - Cards display custom priority badges matching board configuration.
+- **Custom Statuses, Priorities & Story Points (Card Attributes & Workflow Templates):**
+  - **Card Statuses:** Ready-to-use workflow presets (Software Dev, Bug Triage, Content Pipeline, Growth Marketing, etc.) or create custom statuses with 8 color swatches; save as custom workflow templates.
+  - **Custom Board Priorities:** Up to 10 customizable priority levels with global templates (Classic 3-Level, P0–P4 Severity Scale, MoSCoW Prioritization, Eisenhower Matrix, Customer Support & SLA, Business Value Matrix) with 12 retro lofi colors.
+  - **Story Points Scales:** Weight scales (Retzlo Standard, Fibonacci Sequence, Linear/Hours, T-Shirt Sizes, Pomodoro Focus Blocks, Complexity & Risk Scale) or custom values 1–100.
+  - **Instant Inline Live Preview & Switch:** Click any template chip to preview workflow/points/priorities below in real-time ("changes immediately below") without nested popups. Includes Action Banner with 'Replace All' or 'Append New' modes.
+  - **Safety & Global Sync:** Every template application, edit, or reset is guarded by ConfirmModal, displays toast notifications, and dispatches reactive events across all views (Kanban Board, Column Settings, Card Modal, and Spreadsheet Table View).
+- **Spreadsheet Table View & Multi-Assignee Support:**
+  - Switch via `📊 Table` / `Spreadsheet` button on board toolbar (flat list and column-grouped views).
+  - **Row Order & Hover Checkbox (#):** First column displays row number (`1`, `2`, `3`...). Hovering over the number turns it into a checkbox to mark completion instantly, retaining a green checkmark (`[✓]`) for completed items.
+  - **Multi-Assignee & Real Avatars:** Assign tasks to multiple teammates with real avatar displays in cells and pickers.
+  - Inline title and status editing directly within table rows.
+  - Priority dropdown pill reflecting custom board priorities.
+  - Global Retro DatePicker for Start and Due dates with standardized `DD/MM/YYYY` format.
+  - Sorting support by Custom Priority Level (Level 1 urgent at the top).
+
+### 2.4 Gamification & Rewards
+- **Coffee Cheers (`☕`):** Cheer teammates by sending coffees when cards are moved to completed columns.
+- **Coins:** Earn coins for completing tasks, routines, and engaging with the workspace.
+- **Rewards Store:** Project-level rewards catalog where earned coins can be redeemed.
+
+### 2.5 Project Calendar & Day View Modal
+- **Project Calendar View (`/project/[id]/calendar`):**
+  - Month and week views aggregating Kanban cards, notes, and diary checklist items.
+  - **Day View Modal:** Clicking any date opens a retro lofi indigo Day Overview:
+    - **Header & Full Date:** `CalendarDays` icon in neon lavender container with full date name and `Today` badge.
+    - **KPI Summary & Progress Bar:** Summary of total items, completed items, and gradient progress indicator (`0% - 100%`).
+    - **Filter & Sort Toolbar:** Filter by type (Tasks / Notes / Diaries), status (Pending / Done), and sort by time, title, or priority.
+    - **Polished Item Cards:** Left accent bar by item color, interactive completion checkbox with strike-through animation, type badges, and direct links to board/diary.
+- **Global Retro DatePicker:** Retro lofi calendar picker with quick presets (Today, Tomorrow, Next Week, Clear).
+- **Intuitive TimePicker:**
+  - Direct typeable numeric inputs for hours and minutes with auto-advance and arrow steppers.
+  - Single-column linear scrollers for hours (00–23) and minutes (00–55) with auto-scroll.
+  - Quick time presets (🌅 09:00, ☀️ 12:00, ☕ 13:30, 💼 17:00, 🌙 20:00).
+  - Confirmation button (`Confirm` / `ตกลง`) and Clear button (`All Day / Clear` / `ตลอดวัน / ล้าง`).
+- **Due Date Indicators:** Visual warning colors for impending or overdue tasks.
+
+### 2.6 Professional Dedicated Board Export (Excel, CSV, PDF, PNG)
+- **Export Toolbar Button:** Accessible from board toolbar and table view toolbar with quick presets and full export modal.
+- **Dedicated Export Document Layout (`BoardExportDocument`):**
+  - Uses a dedicated full document renderer showing all columns and cards without scrollbars or UI controls.
+  - **Off-screen Staging Wrapper & Direct Ref:** Uses an off-screen staging container at `(0, 0)` coordinates to prevent blank canvas or white screen issues caused by negative coordinate foreignObjects.
+  - **Font Fallback Engine:** Automatic network and font fallback (`skipFonts: true`) ensures 100% reliable PDF and PNG generation.
+  - **Executive Document Header:** Official header with board name, project, export timestamp, and executive KPI cards (total tasks, story points, status distribution, overdue count, % completion).
+- **Layout Views:**
+  1. Full Panoramic Kanban: Side-by-side columns preserving card layout.
+  2. Executive Summary Table: Structured table report organized by column, formatted for presentation decks and A4.
+- **Theme Styles:**
+  1. Clean Light Paper: High contrast, clean paper style ideal for printing and PDF.
+  2. Dark Slate: Elegant dark theme matching retro lofi indigo.
+- **4 Formats:**
+  1. **PDF (.pdf):** Auto landscape A4 with multi-page pagination for tall boards.
+  2. **PNG (.png):** 2x Retina high-resolution render.
+  3. **Excel (.xlsx):** Auto-sized columns with assignees, dates, and priorities.
+  4. **CSV (.csv):** RFC 4180 standard with UTF-8 BOM (`\uFEFF`) preventing encoding distortion in any software.
+
+### 2.7 Notes Hub & Diary Hub
+- **Notes Hub:** Organized notebook with folders, pinned notes, and tag filters.
+- **Diary Hub:** Daily routine checklist, habit tracking, and streak counters.
+- **Draft Recovery:** Automatic draft preservation preventing accidental content loss.
+
+### 2.8 Keyboard Shortcuts
+- `Ctrl + K` / `Cmd + K`: Open Command Palette to search anywhere in the app.
+- `F`: Toggle Focus Mode to hide sidebars and distractions.
+- `Esc`: Close modals, dropdown menus, or AI assistant.
+- `Enter`: Submit forms or send messages.
+
+### 2.9 Project Members & Access Control
+- **Members Management (`/project/[id]/members`):**
+  - **Team Members:** List of members, online presence indicator, role badges, and earned Coffee Cheers.
+  - **Pending Invitations:** Outbound invites, expiration timers, and copy invitation link.
+  - **Roles & Permissions:** Detailed permission comparison matrix between Owner and Member.
+  - **Role Switching:** Project owners can promote or adjust roles with ConfirmModal verification.
+  - **Invite Modal:** Dedicated modal to generate invites by email with role assignment.
+- **Owner:** Full project governance, member management, danger zone controls.
+- **Member:** Collaborative access to create cards, notes, and participate in projects.
+
+### 2.10 Unified Card Attributes & Global Sync
+- **Unified in Board Settings:** Attributes tab manages Statuses, Priorities, and Story Points in one central hub.
+- **End-to-End Interconnection:** Adding a custom status immediately populates column default pickers, card modals, and table filters without page reloads.
+
+### 2.11 Scope-Grouped Project Settings (`/project/[id]/settings`)
+- Left sidebar grouped into 3 scopes: Project (General, Members), Boards (All boards, Details, Columns, Card attributes), and Personal (Theme & sound).
+- Master-detail layout with `SettingsSection` / `SettingsRow` standard primitives.
+
+### 2.12 Documentation & Help Hub (`/help`)
+- Interactive SaaS docs hub with Welcome Hero, 6-Pillar Bento Navigator, 10 categories in left tree, modular reader with live feature sandboxes, and full bilingual support (English & Thai).
+- Integrated Language Switcher (`EN` / `TH`) allowing one-click instant toggling.
+
+### 2.13 Help Dropdown, System Info & Contact Form (`/contact`)
+- Topbar `(?)` button with direct links to `/help`, System Info modal, `/contact` form with 7 quick templates, ticket tracking code, and instant AI Assistant launch.
+
+---
+
+## 3. Bilingual Reference & Thai Documentation (คู่มือระบบภาษาไทย)
+
+### 3.1 ภาพรวมระบบและสถาปัตยกรรม (Architecture Overview)
 
 Retzlo คือแพลตฟอร์มบริหารจัดการชีวิตและการทำงาน (Life & Work Management Platform) ในสไตล์ Retro Lofi Indigo ที่เน้นความเรียบง่าย สบายตา และมีประสิทธิภาพสูง
 
@@ -19,25 +154,25 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 
 ---
 
-## 2. ฟีเจอร์หลักของระบบ (Core Features)
+### 3.2 ฟีเจอร์หลักของระบบ (Core Features)
 
-### 2.1 ผู้ช่วยอัจฉริยะ Retzlo AI
+#### ผู้ช่วยอัจฉริยะ Retzlo AI
 - **ตำแหน่งการเรียกใช้:** ไอคอนหุ่นยนต์ (`🤖`) ที่แถบด้านบน (Topbar) ทางด้านซ้ายของรูปโปรไฟล์ผู้ใช้
 - **รูปแบบการแสดงผลและโหมดตอบสนอง (Responsive & Docking):**
-  - **เปิดครั้งแรกเริ่มที่ Sidebar:** เมื่อเปิดแชท AI ครั้งแรก ระบบจะเริ่มต้นในรูปแบบแถบข้าง **Sidebar (Side Panel)** ตรึงขอบขวาของจอ (กว้าง 380px–450px สไตล์ Gemini ใน Google Sheets)
+  - **เปิดครั้งแรกเริ่มที่ Sidebar:** เมื่อเปิดแชท AI ครั้งแรก ระบบจะเริ่มต้นในรูปแบบแถบข้าง **Sidebar (Side Panel)** ตรึงขอบขวาของจอ (กว้าง 380px–450px)
   - **ย่อจอแสดงที่ล่างขวา (Responsive Float):** เมื่อผู้ใช้ย่อหน้าต่างบราวเซอร์ จอแคบลง หรือใช้งานบนมือถือ/แท็บเล็ต (`< 1024px`) รวมถึงเมื่อเลือกสลับเป็นโหมดกล่องลอย (Float Mode) ระบบจะแสดงผลเป็นกล่องแชทลอยที่ **มุมล่างขวา (Bottom-Right)** โดยอัตโนมัติ
-  - **ระบบหลบอัตโนมัติของปุ่มดาว FAB (Star Displacement):** ปุ่มดาวล่างขวา (`FabHub`) จะขยับเลื่อนขึ้นไปลอยอยู่ **เหนือหน้าต่างแชท AI** โดยอัตโนมัติด้วย CSS Transition ที่ลื่นไหล ไม่ทับหรือบดบังช่องพิมพ์ข้อความ และหากอยู่ในโหมด Sidebar บนจอใหญ่ ปุ่มดาวจะขยับไปอยู่ทางซ้ายของแถบข้างอย่างเป็นระเบียบ
+  - **ระบบหลบอัตโนมัติของปุ่มดาว FAB (Star Displacement):** ปุ่มดาวล่างขวา (`FabHub`) จะขยับเลื่อนขึ้นไปลอยอยู่ **เหนือหน้าต่างแชท AI** โดยอัตโนมัติด้วย CSS Transition ที่ลื่นไหล ไม่ทับหรือบดบังช่องพิมพ์ข้อความ
 - **ความสามารถ:**
   - เข้าใจบริบทของโปรเจกต์ปัจจุบัน (Project Context Aware)
   - ตอบคำถามและให้คำแนะนำแบบหลายรอบ (Multi-turn conversation)
   - แนะนำและร่างการ์ดงานใหม่ลงในบอร์ดได้โดยตรงผ่านคำสั่งแชท (พร้อม Confirmation Modal)
   - ระบบประมวลผลอัจฉริยะในตัว (Built-in Server Management) พร้อมทำงานทันทีแบบ Zero-Config ในทุก Workspace
 
-### 2.2 ฟีเจอร์ AI Auto-Breakdown & Executive Summary
+#### ฟีเจอร์ AI Auto-Breakdown & Executive Summary
 - **AI Task Breakdown:** ปุ่ม `✨ AI Breakdown` ภายใน Modal ของการ์ด สั่งให้ AI วิเคราะห์ชื่องานและคำอธิบาย แล้วแตกเป็น Checklist 3–10 ข้อย่อยได้ในคลิกเดียว
 - **AI Executive Summary:** ปุ่ม `AI Summary` บน Toolbar ของหน้าบอร์ด สรุปภาพรวมสถานะบอร์ด ความคืบหน้า คอขวด และข้อเสนอแนะเชิงกลยุทธ์ พร้อมปุ่มคัดลอกหรือบันทึกลงใน Notes
 
-### 2.3 บอร์ดการทำงาน (Kanban Board & Spreadsheet Table View)
+#### บอร์ดการทำงาน (Kanban Board & Spreadsheet Table View)
 - **Kanban Board:**
   - ลากวางการ์ดและสลับคอลัมน์ด้วย Optimistic UI
   - Real-time Sync สดไปยังเพื่อนร่วมทีมทุกคนในโปรเจกต์
@@ -45,12 +180,12 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - ปุ่มจับลากสลับลำดับ (`⁝⁝`) อยู่ด้านหน้าของเมนูใน Sidebar
   - **Card Density Switcher (Normal / Compact 2x):** สลับความหนาแน่นของการ์ดได้ข้างปุ่มสลับมุมมองบอร์ด (Normal: แสดงรายละเอียดครบ สบายตา / Compact: แสดงการ์ดหนาแน่นขึ้น 2 เท่า ลดขนาดขอบและซ่อนรายละเอียดรอง เหมาะกับงานจำนวนมาก)
   - การ์ดแสดงป้าย Priority ตามระดับและสีที่บอร์ดกำหนด
-- **Custom Statuses, Priorities & Story Points (ศูนย์กลางคุณสมบัติการ์ดและแม่แบบ Workflow Templates):**
-  - **Card Statuses (สถานะการ์ด):** เลือกแม่แบบขั้นตอนงานสำเร็จรูป (Software Dev, Bug Triage, Content Pipeline, Growth Marketing ฯลฯ) หรือเพิ่ม/แก้ไขสถานะเองได้อิสระพร้อมเลือก 8 โทนสี สามารถบันทึกโฟลว์ที่ปรับแต่งเป็นแม่แบบส่วนตัว (Custom Status Template)
-  - **Custom Board Priorities (ระดับความสำคัญ):** ปรับแต่งได้สูงสุด 10 ระดับ พร้อมแม่แบบสากลสำเร็จรูป (Classic 3-Level, P0–P4 Severity Scale, MoSCoW Prioritization, Eisenhower Matrix, Customer Support & SLA, Business Value Matrix) เลือกสีได้ 12 โทนสี Retro Lofi และบันทึกเป็นแม่แบบส่วนตัว (Custom Priority Template)
-  - **Story Points Scale (สเกลคะแนนความยาก):** เลือกใช้สเกลประเมินน้ำหนักงานสำเร็จรูป (Retzlo Standard, Fibonacci Sequence, Linear/ชม., T-Shirt Sizes, Pomodoro Focus Blocks, Complexity & Risk Scale) หรือเพิ่มคะแนนอิสระ 1–100 และบันทึกสเกลเป็นแม่แบบส่วนตัว (Custom Story Points Template)
+- **Custom Statuses, Priorities & Story Points:**
+  - **Card Statuses (สถานะการ์ด):** เลือกแม่แบบขั้นตอนงานสำเร็จรูป หรือเพิ่ม/แก้ไขสถานะเองได้อิสระพร้อมเลือก 8 โทนสี สามารถบันทึกโฟลว์ที่ปรับแต่งเป็นแม่แบบส่วนตัว (Custom Status Template)
+  - **Custom Board Priorities (ระดับความสำคัญ):** ปรับแต่งได้สูงสุด 10 ระดับ พร้อมแม่แบบสากลสำเร็จรูป (Classic 3-Level, P0–P4 Severity Scale, MoSCoW Prioritization, Eisenhower Matrix, Customer Support & SLA, Business Value Matrix) เลือกสีได้ 12 โทนสี Retro Lofi และบันทึกเป็นแม่แบบส่วนตัว
+  - **Story Points Scale (สเกลคะแนนความยาก):** เลือกใช้สเกลประเมินน้ำหนักงานสำเร็จรูป (Retzlo Standard, Fibonacci Sequence, Linear/ชม., T-Shirt Sizes, Pomodoro Focus Blocks, Complexity & Risk Scale) หรือเพิ่มคะแนนอิสระ 1–100 และบันทึกสเกลเป็นแม่แบบส่วนตัว
   - **Instant Inline Live Preview & Switch (ดูตัวอย่างสดแบบอินไลน์):** คลิกเลือกชิปแม่แบบเพื่อดูตัวอย่างขั้นตอน/สเกลคะแนน/ระดับความสำคัญด้านล่างได้ทันทีแบบเรียลไทม์ ("ด้านล่างเปลี่ยนให้ดูเลย") โดยไม่ต้องเปิด-ปิดป๊อปอัป มีแถบ Action Banner ให้สลับโหมด 'แทนที่ทั้งหมด (Replace)' หรือ 'เพิ่มต่อท้าย (Append)' พร้อมปุ่มนำมาใช้และปุ่มคืนค่าเดิม
-  - **ความปลอดภัยและการซิงค์สด:** ทุกการนำแม่แบบมาใช้ แก้ไข ลบ หรือรีเซ็ต ได้รับการปกป้องด้วย ConfirmModal และแสดง Toast แจ้งเตือน พร้อมส่ง Custom Event ซิงค์สดไปยังทุกมุมมอง (Kanban Board, Column Settings, Card Detail Modal, และ Spreadsheet Table View) ทันที
+  - **ความปลอดภัยและการซิงค์สด:** ทุกการนำแม่แบบมาใช้ แก้ไข ลบ หรือรีเซ็ต ได้รับการปกป้องด้วย ConfirmModal และแสดง Toast แจ้งเตือน พร้อมส่ง Custom Event ซิงค์สดไปยังทุกมุมมองทันที
 - **Spreadsheet Table View & Multi-Assignee Support:**
   - สลับมุมมองตารางได้ที่ปุ่ม `📊 Table` / `Spreadsheet` ที่หัวบอร์ด (มีทั้งมุมมองตารางแบบเรียบ และมุมมองจัดกลุ่มตามคอลัมน์)
   - **ลำดับแถว & Hover Checkbox (#):** คอลัมน์แรกแสดงเลขแถว (`1`, `2`, `3`...) ตรงกลางอย่างเป็นระเบียบ เมื่อนำเมาส์ชี้แถว (Hover) จะสลับเป็น Checkbox ให้กดติ๊กเสร็จงานทันที และแสดงเครื่องหมายถูกสีเขียว (`[✓]`) คงไว้เมื่อการ์ดเสร็จสิ้น
@@ -60,167 +195,40 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - กำหนดวันเริ่มและวันส่ง (Start Date & Due Date) ด้วย Global Retro DatePicker ในตาราง แสดง Placeholder รูปแบบ `DD/MM/YYYY` สม่ำเสมอ
   - รองรับการเรียงลำดับ (Sorting) ตามระดับความสำคัญ Custom Priority Level (ระดับ 1 เร่งด่วนสุดอยู่บนสุด)
 
-### 2.4 ระบบ Coffee Cheers & เหรียญสะสม (Gamification & Rewards)
+#### ระบบ Coffee Cheers & เหรียญสะสม (Gamification & Rewards)
 - **Coffee Cheers (`☕`):** ปุ่มส่งกาแฟให้กำลังใจเมื่อการ์ดย้ายไปยังคอลัมน์ที่เสร็จสิ้น
 - **Coins:** ได้รับเหรียญรางวัลจากการทำภารกิจและการมีส่วนร่วม
 - **Rewards Store:** ร้านค้าแลกของรางวัลประจำโปรเจกต์
 
-### 2.5 ปฏิทินงานและตัวเลือกเวลา (Project Calendar & Day View Modal)
+#### ปฏิทินงานและตัวเลือกเวลา (Project Calendar & Day View Modal)
 - **Project Calendar View (`/project/[id]/calendar`):**
   - แสดงภาพรวมงานตามกำหนดส่งในมุมมองเดือน (Month) และสัปดาห์ (Week) ครอบคลุมทั้ง Kanban Cards, Notes และ Diary Checklist
-  - **Day View Modal:** เมื่อคลิกที่ช่องวันที่ใดๆ ในปฏิทิน จะเปิดหน้าต่าง Day Overview ขนาดใหญ่สไตล์ Retro Lofi Indigo:
-    - **Header & วันที่เต็ม:** แสดงไอคอน `CalendarDays` ในกรอบนีออนลอฟี่ลาเวนเดอร์ พร้อมชื่อวันแบบเต็ม (เช่น `Sunday, Oct 4, 2026`) และแท็ก `Today` เมื่อเป็นวันปัจจุบัน
-    - **KPI Summary & Progress Bar:** สรุปยอดรวมรายการ, รายการที่สำเร็จ, และหลอดความคืบหน้าแบบเกรเดียนต์ (`0% - 100%`)
-    - **Filter & Sort Toolbar:** กรองตามประเภท (Tasks / Notes / Diaries), สถานะ (Pending / Done), และเรียงลำดับตามเวลา, ชื่อ, หรือ Priority Level พร้อมปุ่ม Reset ตัวกรอง
-    - **Polished Item Cards:** การ์ดแต่ละรายการมีแถบสี Accent Bar ด้านซ้ายตามเฉดสีของงาน, ปุ่ม Interactive Checkbox ติ๊กสถานะสำเร็จแบบ Real-time พร้อมเอฟเฟกต์ขีดฆ่า, ป้ายประเภทและชิปเวลาคมชัด, และลิงก์ตรงไปยังบอร์ดหรือไดอารี่ (`Open in Diary`)
-- **Global Retro DatePicker:** ปฏิทินเลือกวันที่สไตล์ Retro Lofi Indigo พร้อม Presets ทางลัด (วันนี้, พรุ่งนี้, สุดสัปดาห์นี้, สัปดาห์หน้า)
-- **Intuitive TimePicker:** ตัวเลือกเวลาที่ออกแบบใหม่ให้ใช้งานง่าย ไม่สับสน
-  - **Typeable Inputs:** ช่องตัวเลขชั่วโมงและนาทีด้านบนสามารถคลิกแล้วพิมพ์ตัวเลขได้โดยตรง พร้อมระบบกระโดดโฟกัสอัตโนมัติ (พิมพ์ 2 หลักข้ามไปนาทีทันที) และปุ่มลูกศร `▲` `▼` ปรับขึ้นลง
-  - **Single-Column Linear Scroller:** รายการชั่วโมง (00–23) และนาที (00–55) เป็นแนวตั้งแถวเดียวตรงๆ ไม่งง ไม่ต้องกวาดสายตาแบบซิกแซก พร้อมระบบ Auto-scroll เลื่อนมายังเวลาปัจจุบันโดยอัตโนมัติ
-  - **เวลายอดนิยม (Presets):** ปุ่มเลือกเวลาด่วนพร้อมไอคอน (🌅 09:00 เช้า, ☀️ 12:00 เที่ยง, ☕ 13:30 บ่าย, 💼 17:00 เลิกงาน, 🌙 20:00 ค่ำ)
-  - **ปุ่มยืนยัน & ล้างเวลา:** มีปุ่ม "ตกลง" สำหรับบันทึกและปิดหน้าต่างทันที และปุ่ม "ตลอดวัน / ล้าง" เมื่อไม่ต้องการระบุเวลา
-- **Due Date Indicator:** สีเตือนความเร่งด่วนของงานที่ใกล้ถึงกำหนดส่ง
+  - **Day View Modal:** เมื่อคลิกที่ช่องวันที่ใดๆ ในปฏิทิน จะเปิดหน้าต่าง Day Overview ขนาดใหญ่สไตล์ Retro Lofi Indigo พร้อม KPI Summary, Progress Bar, ตัวกรอง Filter & Sort, และ Polished Item Cards
+- **Global Retro DatePicker:** ปฏิทินเลือกวันที่สไตล์ Retro Lofi Indigo พร้อม Presets ทางลัด (วันนี้/Today, พรุ่งนี้/Tomorrow, สุดสัปดาห์นี้, สัปดาห์หน้า/Next Week, ล้าง/Clear)
+- **Intuitive TimePicker:**
+  - ตัวเลือกเวลาที่ออกแบบใหม่ให้ใช้งานง่าย มีช่องตัวเลขชั่วโมงและนาทีพิมพ์ได้โดยตรง พร้อมระบบข้ามโฟกัสอัตโนมัติ
+  - รายการชั่วโมง (00–23) และนาที (00–55) เป็นแนวตั้งแถวเดียวตรงๆ ไม่งง พร้อมระบบ Auto-scroll
+  - เวลายอดนิยม: 🌅 09:00, ☀️ 12:00, ☕ 13:30, 💼 17:00, 🌙 20:00
+  - ปุ่มยืนยัน (ตกลง / Confirm) และปุ่มตลอดวัน/ล้าง (All Day / Clear)
 
-### 2.6 ระบบส่งออกข้อมูลบอร์ดระดับมืออาชีพ (Dedicated Board Export: Excel, CSV, PDF, PNG)
-- **ปุ่ม Export บน Toolbar:** เข้าถึงได้ทั้งจากแถบเครื่องมือหลักของบอร์ด และแถบเครื่องมือในมุมมองตาราง (Table View) พร้อม Dropdown เมนูด่วน และหน้าต่างปรับแต่งขั้นสูง
-- **เลย์เอาต์พิเศษสำหรับการส่งออกโดยเฉพาะ (Dedicated Export Document Layout):**
-  - ไม่ใช้การแคปหน้าจอจาก viewport เดิมที่มักถูกตัดขอบ แต่ใช้ตัวเรนเดอร์เอกสารเฉพาะ (`BoardExportDocument`) ที่แสดงผลครบทุกคอลัมน์และทุกการ์ด 100% ไม่มีแถบเลื่อนหรือปุ่มอินเตอร์แอคทีฟกวนสายตา
-  - **สถาปัตยกรรม Off-screen Staging Wrapper & Direct Ref:** แยกคอนเทนเนอร์แสดงตัวอย่างสำหรับการจับภาพไว้ใน Staging Container แบบ Off-screen จัดวางพิกัด `(0, 0)` เป็นอิสระจากหน้าจอผู้ใช้ ไม่ทำให้เกิดแถบเลื่อน และไม่เกิดปัญหาภาพว่างเปล่า (Blank Canvas / White Screen) จากตำแหน่งพิกัดลบใน SVG `<foreignObject>`
-  - **ระบบป้องกันข้อผิดพลาดฟอนต์และเครือข่าย (Font Fallback Engine):** มีระบบตรวจจับและ Fallback อัตโนมัติ (`skipFonts: true`) เมื่อฟอนต์ภายนอกหรือระบบเครือข่ายมีข้อจำกัด ทำให้การส่งออกภาพ PNG และเอกสาร PDF ทำงานได้สำเร็จ 100% เสมอ
-  - **Executive Document Header:** หัวเอกสารทางการระบุชื่อบอร์ด, ชื่อโปรเจกต์, วันที่และเวลาส่งออก, และแถบสรุปสถิติผู้บริหาร (KPI Cards) ครบถ้วน ได้แก่ งานทั้งหมด, แต้มความยากรวม, สถานะ To Do / Doing / Waiting / Done, งานเกินกำหนด, และ % ความคืบหน้าภาพรวม
+#### ระบบส่งออกข้อมูลบอร์ดระดับมืออาชีพ (Dedicated Board Export)
+- **Dedicated Export Document Layout (`BoardExportDocument`):**
+  - ไม่ใช้การแคปหน้าจอจาก viewport เดิม แต่ใช้ตัวเรนเดอร์เอกสารเฉพาะที่แสดงผลครบทุกคอลัมน์และทุกการ์ด 100%
+  - **Off-screen Staging Wrapper & Direct Ref:** แยกคอนเทนเนอร์แสดงตัวอย่างสำหรับการจับภาพไว้ที่พิกัด `(0, 0)` แบบอิสระ ป้องกันปัญหาภาพว่างเปล่า
+  - **Font Fallback Engine:** ตรวจจับและ Fallback อัตโนมัติ (`skipFonts: true`) เมื่อมีข้อจำกัดเครือข่าย
+  - **Executive Document Header:** หัวเอกสารทางการระบุสถิติผู้บริหาร (KPI Cards) ครบถ้วน
 - **รูปแบบการจัดวาง (Layout Views):**
-  1. **ภาพบอร์ดเต็มแผ่น (Full Panoramic Kanban):** จัดเรียงทุกคอลัมน์แนวกว้างตามจริง ครบทุกใบงาน ไม่มีการตัดทอน
-  2. **ตารางรายงานผู้บริหาร (Executive Summary Table):** สรุปเป็นตารางรายงานทางการแยกตามคอลัมน์ เหมาะสำหรับสไลด์นำเสนอและเอกสาร A4
-- **โทนสีเอกสาร (Export Theme Styles):**
-  1. **Clean Light Paper (กระดาษขาว):** โทนสีมาตรฐาน สว่าง ชัดเจน คอนทราสต์สูง เหมาะสำหรับการพิมพ์และ PDF
-  2. **Dark Slate (ดาร์กโหมดพรีเมียม):** โทนสียามค่ำคืน สวยหรู สไตล์ Retro Lofi
-- **รองรับ 4 รูปแบบไฟล์สมบูรณ์แบบ:**
-  1. **PDF (.pdf):** จัดหน้า A4 แนวนอนอัตโนมัติ พร้อมระบบตัดแบ่งหน้าหลายแผ่น (Multi-page Pagination) อัตโนมัติเมื่อเอกสารมีความยาวสูง
-  2. **PNG (.png):** ภาพเรนเดอร์ความละเอียดสูงระดับ 2x Retina ชัดเจนทุกตัวอักษร
-  3. **Excel (.xlsx):** สเปรดชีตจัดรูปแบบความกว้างคอลัมน์อัตโนมัติ พร้อมชื่อผู้รับผิดชอบ, วันที่, และระดับ Priority
-  4. **CSV (.csv):** ไฟล์มาตรฐาน RFC 4180 เข้ารหัส UTF-8 พร้อม BOM (`\uFEFF`) ป้องกันปัญหาภาษาไทยเพี้ยนในทุกโปรแกรม
-- **ตัวเลือกขอบเขตข้อมูล (Scope Selection):** เลือกส่งออกงานทั้งหมดในบอร์ด หรือส่งออกเฉพาะรายการที่กำลังกรองแสดงผลอยู่ พร้อมตัวอย่างเอกสารแบบพับเก็บได้ (Collapsible Live Preview)
-
-### 2.7 สมุดโน้ต (Notes) และบันทึกประจำวัน (Diary Hub)
-- **Notes Hub:** จดบันทึกแยกโฟลเดอร์ ปักหมุดโน้ตสำคัญ
-- **Diary Hub:** เช็คลิสต์กิจวัตรประจำวันและรักษาสถิติความต่อเนื่อง (Streaks)
-- **Draft Storage:** ระบบบันทึกร่างข้อมูลอัตโนมัติป้องกันข้อความหาย
-
-### 2.8 คีย์ลัดระบบ (Keyboard Shortcuts)
-- `Ctrl + K` / `Cmd + K`: เปิด Command Palette ค้นหาทุกสิ่งในระบบ
-- `F`: สลับโหมด Focus Mode ซ่อนองค์ประกอบที่ไม่จำเป็นเพื่อจดจ่อกับบอร์ด
-- `Esc`: ปิด Modal, เมนู หรือแชท AI
-- `Enter`: บันทึกข้อมูลหรือส่งข้อความแชท
-
-### 2.9 การจัดการสมาชิกและสิทธิ์การเข้าถึง (Project Members & Access Control)
-- **หน้าจัดการสมาชิกโปรเจกต์ (`/project/[id]/members`):**
-  - ปรับโฉมใหม่ด้วย 3 แท็บการใช้งานที่ชัดเจน:
-    - **สมาชิกในทีม (Team Members):** แสดงรายชื่อสมาชิกทั้งหมด ค้นหาตามชื่อหรืออีเมล ดูสถานะ Online/Busy/Offline (Presence Indicator) บทบาท และจำนวนกาแฟ Coffee Cheers ที่ได้รับ
-    - **คำเชิญรอดำเนินการ (Pending Invitations):** ดูรายการคำเชิญที่ส่งออกไป สถานะ วันหมดอายุ พร้อมปุ่มคัดลอกลิงก์หรือยกเลิกคำเชิญ
-    - **สิทธิ์และการเข้าถึง (Roles & Permissions):** ตารางเปรียบเทียบสิทธิ์โดยละเอียดระหว่าง Owner และ Member
-  - **การปรับเปลี่ยนบทบาท (Role Switching):** เจ้าของโปรเจกต์ (Owner) สามารถปรับเปลี่ยนบทบาทสมาชิกเป็น Owner หรือ Member ได้โดยตรงผ่านเมนูปรับสิทธิ์ พร้อมระบบป้องกันไม่ให้ลดสิทธิ์ของเจ้าของคนสุดท้าย และมีการยืนยันผ่าน `ConfirmModal`
-  - **หน้าต่างเชิญเพื่อนร่วมทีม (Invite Modal):** คลิกปุ่ม "Invite Teammate" เพื่อเปิดหน้าต่างโมดอลเฉพาะ สามารถระบุอีเมลและเลือกบทบาท (Member หรือ Owner) ได้ทันที พร้อมสร้างลิงก์คำเชิญที่คัดลอกส่งต่อได้อย่างรวดเร็ว
-  - **Skeleton Loading & Instant Transition:** แสดงผล `MembersSkeleton` อัตโนมัติระหว่างโหลดหน้า ทำให้การเปิดหน้าสมาชิกรวดเร็วและมี Shimmer Animation สอดคล้องกับธีม Retro Lofi
-- **Owner:** เจ้าของโปรเจกต์ มีสิทธิ์จัดการสมาชิก ลบโปรเจกต์ และตั้งค่าขั้นสูง
-- **Member:** สมาชิกทั่วไปที่ได้รับเชิญ มีสิทธิ์ร่วมทำงาน สร้างการ์ด และเขียนโน้ต
-- **Private Board:** บอร์ดส่วนตัวที่เข้าถึงได้เฉพาะผู้สร้างและสมาชิกที่ได้รับอนุญาต
-
-### 2.10 ระบบปรับแต่งตัวเลือกการ์ดและการเชื่อมโยงทุกจุดในระบบ (Unified Card Attributes & Global Sync)
-- **ศูนย์กลางการตั้งค่าคุณสมบัติงานในบอร์ด (Unified in Board Settings):**
-  - รวมการจัดการคุณสมบัติของการ์ด (Card Attributes) ทั้งหมดไว้ในหน้าต่าง **Board Settings Modal** ภายใต้แท็บ **คุณสมบัติการ์ด (Attributes)** โดยมี Sub-navigation Pills แบ่งเป็น 3 ส่วน: **สถานะ (Status)**, **ความสำคัญ (Priority)**, และ **คะแนนความยาก (Story Points)**
-  - สามารถเข้าถึงได้ทันทีจากปุ่ม **Attributes** บนแถบเครื่องมือของบอร์ด หรือคลิกปุ่ม `+` ท้ายหัวข้อ Status, Priority, หรือ Story Points ในหน้าต่างการ์ด (Card Modal) ซึ่งจะนำทางไปยังหน้า **Project Settings (`/project/[id]/settings?tab=attributes`)** ทันทีโดยไม่ต้องเปิดหน้าต่างซ้อนกัน
-- **การเชื่อมโยงสถานะไปยังทุกจุดของระบบ (End-to-End Status Interconnection):**
-  - **ตัวเลือกสถานะคอลัมน์ (ColumnStatusPicker):** เมื่อเพิ่มหรือแก้ไขสถานะกำหนดเอง (Custom Status) ในบอร์ด รายการสถานะใหม่จะแสดงเป็นปุ่มตัวเลือกในหน้าตั้งค่าคอลัมน์และหน้าสร้างคอลัมน์ใหม่ทันที สามารถกำหนดให้คอลัมน์มี Default Card Status เป็นสถานะใดๆ ก็ได้ พร้อมปุ่ม `+` และการ์ดกรอบประ `+ เพิ่มสถานะ` แบบ Quick Add ในหน้าต่างสร้าง/แก้ไขคอลัมน์ ให้พิมพ์ชื่อ เลือกสี และสร้างสถานะใหม่ได้ทันทีโดยไม่ต้องสลับหน้าและไม่สูญเสียข้อมูลคอลัมน์ที่กำลังกรอก
-  - **การซิงค์เรียลไทม์ (Reactive Event Sync):** ทุกการเพิ่ม แก้ไข ลบ หรือรีเซ็ตสถานะ จะส่ง Custom Event (`retzlo:statuses-updated`, `retzlo:story-points-updated`, `retzlo:priorities-updated`) ทำให้หน้า Kanban Board, Column Settings, Card Modal, และ Table View อัปเดตทันทีโดยไม่ต้องรีโหลดหน้าเว็บ
-  - **มุมมองตารางและแดชบอร์ด (Spreadsheet Table View):** ตารางจะดึงป้ายสีและชื่อของสถานะที่กำหนดเองมาแสดงผลอย่างถูกต้องผ่าน `getStatusMeta`
-- **แท็บ 1: สถานะ & แม่แบบขั้นตอนงาน (Status & Workflow Templates)**
-  - **แม่แบบขั้นตอนงานสำเร็จรูป (Workflow Templates):** เลือกดูพรีวิวและปรับใช้แม่แบบยอดนิยมได้ทันที ได้แก่ Classic Kanban, Software & IT, Agile & Scrum, Marketing & Content, Bug Tracker, Creative & Design, และ Sales Pipeline
-  - **รูปแบบการปรับใช้แม่แบบ:** เลือกได้ทั้งแบบแทนที่ทั้งหมด (Replace All) หรือเพิ่มต่อท้ายเฉพาะสถานะใหม่ (Append New)
-  - **ตกแต่งและปรับแต่งสถานะ (Decorate & Customize Status):** แก้ไขชื่อและเลือกเฉดสีของแต่ละสถานะได้อย่างอิสระผ่านอินไลน์ฟอร์ม (Inline Editor & 8 Color Swatches) พร้อมระบบยืนยันความปลอดภัย `ConfirmModal`
-  - **บันทึกแม่แบบส่วนตัว (Save as Custom Template):** บันทึกชุดขั้นตอนงานที่ปรับแต่งแล้วไว้ใช้งานซ้ำกับบอร์ดอื่นได้อย่างสะดวกรวดเร็ว
-  - เพิ่มสถานะใหม่, สลับจัดลำดับขึ้น/ลง (Move Up / Down), ลบสถานะ และรีเซ็ตสถานะกลับเป็นค่าเริ่มต้น
-- **แท็บ 2: ความสำคัญ (Priority)**
-  - จัดการระดับความสำคัญของบอร์ดได้สูงสุด 10 ระดับ
-  - เพิ่มระดับใหม่ ปรับระดับความเร่งด่วน และเลือกสีจาก 12 โทนสีมาตรฐาน
-  - จัดลำดับความสำคัญของแต่ละระดับขึ้น/ลง พร้อมตัวอย่างการแสดงผล Live Preview Pills
-  - บันทึกลงฐานข้อมูลของบอร์ดโดยตรง พร้อมแจ้งเตือน Toast
-- **แท็บ 3: คะแนนความยาก (Story Points)**
-  - เลือกชุดตัวเลขคะแนนสำเร็จรูป (Presets):
-    - **Retzlo Standard:** 1, 3, 5, 8, 16, 21
-    - **Fibonacci:** 1, 2, 3, 5, 8, 13, 21
-    - **Linear / ชั่วโมง:** 1, 2, 4, 8, 16, 24, 40 (ชั่วโมงทำงาน)
-    - **T-Shirt Sizes:** XS, S, M, L, XL, XXL
-  - เพิ่มหรือลบคะแนนแบบกำหนดเอง (Custom Points 1–100) พร้อมชื่อคำอธิบายและโทนสี
-  - ยืนยันการลบและรีเซ็ตด้วย `ConfirmModal` และแจ้งเตือนด้วย Toast ทุกครั้ง
-
-### 2.11 การตั้งค่าโปรเจกต์แบบจัดกลุ่มตามขอบเขต (Scope-grouped Project Settings - `/project/[id]/settings`)
-- **แถบนำทางด้านซ้าย (Left Sidebar Navigation) แบ่งตามขอบเขตการตั้งค่า (อัปเดต 7 ต.ค. 2026):**
-  - ส่วนหัวแถบแสดงปุ่ม `← Back to board` และชื่อ/ภาพปกโปรเจกต์ขนาดกะทัดรัด
-  - **3 กลุ่มหลัก 7 หน้า:**
-    1. **Project (ระดับโปรเจกต์):**
-       - **General (`identity`):** ชื่อ คำอธิบาย ภาพปก, สวิตช์ฟีเจอร์ (Board notes rail, Private item hiding) และ Danger Zone ลบโปรเจกต์ — รวมอยู่หน้าเดียว
-       - **Members (`access`):** รายชื่อสมาชิกแบบแถวกะทัดรัด บทบาท Owner/Member พร้อมลิงก์ไปหน้าจัดการสมาชิกและคำเชิญ (`/members`) และสรุปสิทธิ์ของแต่ละบทบาท
-    2. **Boards (ระดับบอร์ด):**
-       - **All boards (`boards`):** ค้นหา กรอง และจัดการบอร์ดทั้งหมด (ค่าเริ่มต้นเป็นมุมมองรายการ สลับเป็น Grid ได้) พร้อมปุ่ม `New board`
-       - **Board details (`board-general`):** ชื่อบอร์ด ความเป็นส่วนตัว (Public/Private) สมาชิกรายบอร์ด และ Danger Zone ลบบอร์ด
-       - **Columns (`board-columns`):** เพิ่ม/แก้ไข/ลบคอลัมน์, สถานะเริ่มต้น, ธีมสี, ไอคอน และ WIP Limits (ยืนยันด้วย `ConfirmModal` และแจ้ง Toast)
-       - **Card attributes (`attributes`):** ตัวจัดการ Status, Priority และ Story Points แบบ interactive (ตัดคู่มืออธิบายแบบคงที่ออกแล้ว — ดูคำอธิบายได้ที่ `/help`)
-       - หน้าในระดับบอร์ดใช้ **แถบเลือกบอร์ดเดียวร่วมกัน (Active Board scope bar)** ด้านบนเนื้อหา พร้อมป้าย Public/Private และลิงก์ `Open board`
-    3. **Personal (เฉพาะเครื่องนี้):**
-       - **Theme & sound (`preferences`):** โหมดธีม (Light / Dark / System) และเสียงตอบสนอง บันทึกเฉพาะเบราว์เซอร์นี้
-  - **รูปแบบมาตรฐาน Settings Row:** ทุกหน้าใช้ `SettingsSection` / `SettingsRow` (`src/components/settings/settings-section.tsx`) — Label + คำอธิบายด้านซ้าย, ตัวควบคุมด้านขวา, คั่นด้วยเส้นบาง ลดการเลื่อนหน้าจอ
-  - **Mobile Responsive Adaptive:** บนหน้าจอ `< lg` แถบนำทางพับเป็นแท็บแนวนอนเลื่อนได้
-  - **URL Query Param Synchronization:** ซิงค์แท็บกับ `?tab=...` และบอร์ดกับ `?boardId=...` ลิงก์เก่ายังใช้งานได้: `?tab=features` และ `?tab=all` → General, `?tab=board` → Board details, `?tab=columns` → Columns (ตรรกะอยู่ที่ `src/lib/settings/tabs.ts`)
-- **หน้าต่างตั้งค่าบอร์ดแบบรวมศูนย์ (Master-Detail Board Settings):**
-  - ไม่เปิดป๊อปอัปบังหน้าจอเมื่อกด Settings จากหน้ารวมบอร์ด แต่สลับเข้าสู่หน้าการตั้งค่าบอร์ดเต็มจอทันที
-  - กล่องโมดอล `BoardSettingsModal` ได้รับการปรับปรุงเป็นโครงสร้าง Master-Detail แถบซ้ายแนวตั้ง (ทั่วไป & สิทธิ์, ขั้นตอนงาน, คุณสมบัติการ์ด, จัดการบอร์ด) พร้อมลิงก์ "เปิดหน้าเต็มจอ (Full View)"
-  - บันทึกการเปลี่ยนแปลงได้ทันทีพร้อมแสดง Toast แจ้งเตือนความสำเร็จ และระบบยืนยันความปลอดภัยด้วย ConfirmModal เมื่อลบบอร์ด
-### 2.12 ศูนย์รวมเอกสารและคู่มือระบบ (Documentation & Help Hub - `/help`)
-- **สถาปัตยกรรมเว็บไซต์ Documentation สไตล์ Modern SaaS Hub:**
-  - **Welcome Hero & 6-Pillar Bento Navigator:** ส่วนหัวต้อนรับพร้อมแถบนำทาง Bento Grid 6 เสาหลักของระบบ (Work Module, Retzlo AI, Attributes & Export, Calendar & Time, Gamification, Life Hub) ช่วยให้ผู้ใช้เห็นภาพรวมระบบทั้งหมดและคลิกกระโดดข้ามหมวดหมู่ได้ในคลิกเดียว
-  - **Left Navigation Sidebar (Docs Tree):** แถบสารบัญด้านซ้ายแบ่งเป็น 10 หมวดหมู่ พร้อมตัวนับจำนวนบทความ ไอคอนประจำหมวด และป้ายกำกับ (Getting Started, AI Powered, Core Workflow, New Feature, Export, Customization, Updated) มีตัวระบุสถานะ Active Indicator ชัดเจน
-  - **Document Reader (พื้นที่อ่านเนื้อหาโครงสร้างใหม่แบบโมดูลาร์):**
-    - **Header & Lead Summary Banner:** การ์ดหัวเรื่องพร้อมไอคอนใหญ่ ป้ายหมวดหมู่ เวลาที่ใช้อ่าน วันที่อัปเดต และแบนเนอร์สรุปใจความสำคัญ (Summary)
-    - **Architecture & Concept Callout:** กรอบอธิบายภาพรวมและแนวคิดสถาปัตยกรรมของแต่ละฟีเจอร์อย่างลึกซึ้ง
-    - **Key Capabilities Grid:** การ์ดแสดงรายการความสามารถหลักแบบ Multi-column พร้อมป้ายสีและไอคอนแสดงความพร้อมใช้งาน
-    - **Step-by-Step Workflow Guide:** ขั้นตอนการใช้งานจริงแบบระบุลำดับ (`01`, `02`, `03`...) พร้อมคำแนะนำวิธีปฏิบัติจริงในระบบ
-    - **Technical Specifications Grid:** ตารางสเปกเทคนิค (Tech Stack, Protocol, Sync Latency, Supported Formats, Security Guard)
-    - **Pro Tips Callout (💡):** กล่องคำแนะนำจากผู้เชี่ยวชาญพร้อมไฮไลต์สีทอง
-    - **Keyboard Shortcuts Box (⌨️):** กล่องคีย์ลัดด่วนสไตล์ Terminal ดำทอง พร้อมปุ่มคัดลอก (Copy) และแจ้งเตือน Toast
-    - **Related Topics Quick Jump:** การ์ดเชื่อมโยงไปยังโมดูลและบทความที่เกี่ยวข้อง
-    - **Article Feedback Widget:** วิดเจ็ตฟีดแบ็ก "บทความนี้มีประโยชน์กับคุณหรือไม่?" (👍 มีประโยชน์ / 👎 ต้องปรับปรุง) พร้อม Toast แจ้งเตือน
-    - **Pagination (Prev / Next):** ปุ่มเปลี่ยนบทความก่อนหน้าและถัดไป
-  - **Right Sidebar (On this page TOC):** สำหรับหน้าจอ Desktop มีระบบสารบัญย่อยในหน้านี้ (#overview, #capabilities, #workflow, #technical-specs, #tips, #shortcuts) และกล่องด่วนสำหรับเรียกถามผู้ช่วย Retzlo AI Assistant
-  - **สลับโหมดการดู (View Modes):** รองรับทั้งโหมดอ่านบทความ (Docs Reader View) และโหมดดูภาพรวมการ์ดทั้งหมด (Overview Grid View)
-  - **การค้นหาด่วน & คีย์ลัด:** ช่องค้นหาพร้อมคีย์ลัด `Ctrl + K` กรองหัวข้อและเนื้อหาได้แบบ Real-time
-  - **Mobile Responsive Drawer:** รองรับปุ่มเมนูสารบัญแบบ Drawer สไลด์ออกบนหน้าจอมือถือและแท็บเล็ต
-
-### 2.13 เมนูความช่วยเหลือ รายละเอียดเว็บไซต์ และแบบฟอร์มติดต่อ (Help Dropdown & Contact Form)
-- **เมนูดรอปดาวน์ปุ่ม `(?)` (HelpButton Dropdown):**
-  - คลิกปุ่มวงกลม `(?)` ที่แถบด้านบนของโปรเจกต์และแดชบอร์ด จะเปิดเมนู Dropdown สไตล์ Retro Lofi:
-    1. **คู่มือ & ข้อมูลระบบ:** ลิงก์ตรงเข้าสู่หน้าเอกสาร `/help`
-    2. **รายละเอียดเว็บไซต์:** เปิด Modal สรุปข้อมูลแพลตฟอร์ม Retzlo เวอร์ชัน `v2.4`, สถาปัตยกรรม (Next.js, Tailwind, Neon PostgreSQL, Pusher), และสรุป 4 โมดูลหลัก
-    3. **ติดต่อเรา & แจ้งปัญหา:** ลิงก์ตรงเข้าสู่หน้าแบบฟอร์มติดต่อ `/contact`
-    4. **ถาม AI Assistant:** เรียกเปิดกล่องแชทผู้ช่วย AI สำหรับถามคำถามด่วน
-    5. **ลิงก์กฎหมาย:** ลิงก์ไปยังนโยบายความเป็นส่วนตัว (`/privacy`) และข้อกำหนดการใช้งาน (`/terms`)
-- **หน้าแบบฟอร์มติดต่อพร้อมระบบ Template Select (`/contact`):**
-  - **Template Select:** เมนูดรอปดาวน์และปุ่ม Pill ด่วนให้เลือกเทมเพลต 7 รูปแบบ:
-    - 🐛 **แจ้งปัญหาการใช้งาน (Bug Report):** เติมหัวข้อ `[Bug]` และโครงร่างข้อความ (รายละเอียด, ขั้นตอนทำให้เกิดปัญหา, อุปกรณ์/เบราว์เซอร์)
-    - 💡 **แนะนำฟีเจอร์ใหม่ (Feature Request):** เติมหัวข้อ `[Feature Request]` และโครงร่าง (ฟีเจอร์ที่ต้องการ, ปัญหาปัจจุบัน, ประโยชน์ที่จะได้รับ)
-    - 💬 **สอบถามการใช้งานทั่วไป (General Inquiry):** คำถามเกี่ยวกับโมดูลและวิธีใช้งาน
-    - 🤝 **ติดต่อทีมพัฒนา / ความร่วมมือ (Partnership & Feedback):** ประสานงานร่วมมือ
-    - ☕ **ข้อเสนอแนะ Gamification & รางวัล (Rewards Store):** ไอเทมของรางวัลหรือระบบ Cheers
-    - 🔒 **ความปลอดภัยและความเป็นส่วนตัว (Security & Privacy):** การจัดการสิทธิ์และการคุ้มครองข้อมูล
-    - ✏️ **กำหนดเอง (Custom Freeform):** พิมพ์ข้อความอิสระ
-  - **ช่องทางติดต่อและเวลาทำการ:** แสดงอีเมลทีมงาน `support@retzlo.com`, เวลาทำการ จันทร์-ศุกร์ 09:00 - 18:00 น., และปุ่มถาม Retzlo AI เพื่อคำตอบด่วน
-  - **ระบบส่งเรื่องและรหัสติดตาม:** ส่งผ่าน `POST /api/contact` พร้อมสร้างรหัส Ticket ID (เช่น `RETZLO-XXXXXX`) และแจ้งเตือน Toast ยืนยันผลทันที
+  1. ภาพบอร์ดเต็มแผ่น (Full Panoramic Kanban)
+  2. ตารางรายงานผู้บริหาร (Executive Summary Table)
+- **โทนสีเอกสาร:** Clean Light Paper (กระดาษขาว) และ Dark Slate (ดาร์กโหมดพรีเมียม)
+- **4 รูปแบบไฟล์:** PDF (.pdf พร้อมแบ่งหน้าอัตโนมัติ), PNG (.png 2x Retina), Excel (.xlsx จัดความกว้างคอลัมน์อัตโนมัติ), CSV (.csv RFC 4180 UTF-8 BOM)
 
 ---
 
-## 3. กฎเกณฑ์การบำรุงรักษาคลังความรู้ (Maintenance Protocol)
+## 4. กฎเกณฑ์การบำรุงรักษาคลังความรู้ (Maintenance Protocol)
 
 1. **เมื่อมีการเพิ่มหรือเปลี่ยนแปลงฟีเจอร์:**
-   - เพิ่มรายละเอียดของฟีเจอร์ลงในหัวข้อที่เกี่ยวข้องในเอกสารนี้ (`docs/system-guide.md`)
+   - เพิ่มรายละเอียดของฟีเจอร์ลงในหัวข้อที่เกี่ยวข้องในเอกสารนี้ (`docs/system-guide.md`) ทั้งภาษาอังกฤษและภาษาไทย
    - เพิ่มหรือปรับปรุงการ์ดคำอธิบายในหน้า `/help` (`src/components/help/help-center-client.tsx`)
 2. **รักษาความสอดคล้องด้านธีมและ UI:**
    - ทุกหน้าและคอมโพเนนต์ต้องเป็นไปตามแนวทาง Retro Lofi Indigo

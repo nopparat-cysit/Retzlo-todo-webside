@@ -693,7 +693,7 @@ export function BoardListView({
 
           {/* Export Button in Table Toolbar */}
           <BoardExportButton
-            boardTitle={boardTitle || "ตารางงาน"}
+            boardTitle={boardTitle || "Tasks Spreadsheet"}
             columns={allColumns || columns}
             filteredColumns={columns}
             members={members}
