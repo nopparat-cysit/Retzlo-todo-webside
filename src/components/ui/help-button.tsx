@@ -44,13 +44,13 @@ export function HelpButton({ className }: HelpButtonProps) {
           <button
             type="button"
             className={cn(
-              "relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-stone-400 transition-all hover:text-stone-100 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 active:scale-95 cursor-pointer",
+              "relative grid h-8 w-8 shrink-0 place-items-center rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-400 dark:hover:text-stone-100 dark:hover:bg-white/10 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 active:scale-95 cursor-pointer",
               className
             )}
             aria-label="ข้อมูลระบบ ความช่วยเหลือ และติดต่อเรา"
             title="ความช่วยเหลือ & เกี่ยวกับระบบ (Help & About)"
           >
-            <HelpCircle className="h-4.5 w-4.5" />
+            <HelpCircle className="h-4 w-4" />
           </button>
         </DropdownMenuTrigger>
 

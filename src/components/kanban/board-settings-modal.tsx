@@ -336,17 +336,20 @@ export function BoardSettingsModal({
         open={open}
         onClose={onClose}
         labelledBy="board-settings-title"
-        contentClassName="max-w-4xl w-full"
+        contentClassName="max-w-4xl lg:max-w-5xl w-full my-auto overflow-hidden rounded-2xl shadow-2xl p-0 border border-theme-border"
         hasUnsavedChanges={isDirty}
       >
-        <form className="lofi-panel w-full rounded-2xl p-5 sm:p-6" onSubmit={handleSaveIntent}>
+        <form
+          className="lofi-panel flex flex-col w-full h-[88vh] sm:h-[82vh] max-h-[720px] min-h-[500px] rounded-2xl overflow-hidden p-0 border-0 shadow-none bg-theme-panel text-theme-foreground"
+          onSubmit={handleSaveIntent}
+        >
           {/* Header */}
-          <div className="mb-4 flex items-center justify-between gap-3 border-b border-stone-200/80 pb-4 dark:border-white/10">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber">
-                <Settings className="h-5 w-5" />
+          <div className="px-5 py-3.5 border-b border-theme-border shrink-0 flex items-center justify-between gap-3 bg-theme-panel/90 backdrop-blur-sm">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber">
+                <Settings className="h-4.5 w-4.5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-dusk-amber">
                     Board Settings
@@ -362,13 +365,13 @@ export function BoardSettingsModal({
                     </span>
                   )}
                 </div>
-                <h2 id="board-settings-title" className="mt-0.5 text-xl font-bold text-stone-900 truncate max-w-sm sm:max-w-md dark:text-white">
+                <h2 id="board-settings-title" className="mt-0.5 text-base sm:text-lg font-bold text-stone-900 truncate max-w-xs sm:max-w-md dark:text-white">
                   {boardName}
                 </h2>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               {projectId && (
                 <Link
                   href={`/project/${projectId}/settings?tab=board-general&boardId=${boardId}`}
@@ -379,7 +382,7 @@ export function BoardSettingsModal({
                 </Link>
               )}
               <button
-                className="rounded-md p-1.5 text-stone-500 hover:bg-stone-100 hover:text-stone-900 transition dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer"
+                className="rounded-lg p-1.5 text-stone-500 hover:bg-stone-100 hover:text-stone-900 transition dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer"
                 type="button"
                 onClick={onClose}
                 aria-label="Close board settings"
@@ -389,75 +392,77 @@ export function BoardSettingsModal({
             </div>
           </div>
 
-          {/* Jira-style Master-Detail Layout */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col md:flex-row gap-5 items-start">
+          {/* Master-Detail Layout */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden w-full">
             {/* Left Sidebar */}
-            <aside className="w-full md:w-56 shrink-0 space-y-3">
-              <div className="hidden md:block px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
-                Board Settings
-              </div>
-              <TabsList className="flex flex-row md:flex-col w-full bg-stone-100/70 border border-stone-200/60 p-1.5 rounded-xl dark:border-white/5 dark:bg-white/[0.02] gap-1 h-auto overflow-x-auto md:overflow-visible">
-                <TabsTrigger
-                  value="general"
-                  className="w-full justify-start text-xs py-2 px-3 font-medium transition cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>⚙️</span>
-                    <span>ทั่วไป &amp; สิทธิ์</span>
-                  </span>
-                  {isPrivate && (
-                    <span className="ml-auto rounded-full bg-dusk-amber/20 px-1.5 text-[10px] font-mono text-dusk-amber font-semibold">
-                      {selectedMemberIds.length}
+            <aside className="w-full md:w-52 lg:w-56 shrink-0 border-b md:border-b-0 md:border-r border-stone-200/80 dark:border-white/10 bg-stone-50/50 dark:bg-white/[0.015] p-3 flex flex-col justify-between overflow-y-auto">
+              <div className="space-y-2.5">
+                <div className="hidden md:block px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
+                  Board Settings
+                </div>
+                <TabsList className="flex flex-row md:flex-col w-full bg-stone-100/70 border border-stone-200/60 p-1 rounded-xl dark:border-white/5 dark:bg-white/[0.02] gap-1 h-auto overflow-x-auto md:overflow-visible">
+                  <TabsTrigger
+                    value="general"
+                    className="w-full justify-start text-xs py-2 px-2.5 font-medium transition cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>⚙️</span>
+                      <span>ทั่วไป &amp; สิทธิ์</span>
                     </span>
-                  )}
-                </TabsTrigger>
+                    {isPrivate && (
+                      <span className="ml-auto rounded-full bg-dusk-amber/20 px-1.5 text-[10px] font-mono text-dusk-amber font-semibold">
+                        {selectedMemberIds.length}
+                      </span>
+                    )}
+                  </TabsTrigger>
 
-                <TabsTrigger
-                  value="columns"
-                  className="w-full justify-start text-xs py-2 px-3 font-medium transition cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>📋</span>
-                    <span>ขั้นตอนงาน</span>
-                  </span>
-                  <span className="ml-auto rounded-full bg-stone-200/80 px-1.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-stone-300 font-semibold">
-                    {columns.length}
-                  </span>
-                </TabsTrigger>
+                  <TabsTrigger
+                    value="columns"
+                    className="w-full justify-start text-xs py-2 px-2.5 font-medium transition cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>📋</span>
+                      <span>ขั้นตอนงาน</span>
+                    </span>
+                    <span className="ml-auto rounded-full bg-stone-200/80 px-1.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-stone-300 font-semibold">
+                      {columns.length}
+                    </span>
+                  </TabsTrigger>
 
-                <TabsTrigger
-                  value="attributes"
-                  className="w-full justify-start text-xs py-2 px-3 font-medium transition cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>🏷️</span>
-                    <span>คุณสมบัติการ์ด</span>
-                  </span>
-                  <span className="ml-auto rounded-full bg-indigo-500/15 px-1.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-semibold">
-                    {priorities.length}
-                  </span>
-                </TabsTrigger>
+                  <TabsTrigger
+                    value="attributes"
+                    className="w-full justify-start text-xs py-2 px-2.5 font-medium transition cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>🏷️</span>
+                      <span>คุณสมบัติการ์ด</span>
+                    </span>
+                    <span className="ml-auto rounded-full bg-indigo-500/15 px-1.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-semibold">
+                      {priorities.length}
+                    </span>
+                  </TabsTrigger>
 
-                <TabsTrigger
-                  value="danger"
-                  className="w-full justify-start text-xs py-2 px-3 font-medium text-red-500 hover:text-red-600 data-[state=active]:text-red-700 data-[state=active]:bg-red-50 dark:text-red-400 dark:data-[state=active]:text-red-300 dark:data-[state=active]:bg-red-400/15 transition cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>⚠️</span>
-                    <span>จัดการบอร์ด</span>
-                  </span>
-                </TabsTrigger>
-              </TabsList>
+                  <TabsTrigger
+                    value="danger"
+                    className="w-full justify-start text-xs py-2 px-2.5 font-medium text-red-500 hover:text-red-600 data-[state=active]:text-red-700 data-[state=active]:bg-red-50 dark:text-red-400 dark:data-[state=active]:text-red-300 dark:data-[state=active]:bg-red-400/15 transition cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>⚠️</span>
+                      <span>จัดการบอร์ด</span>
+                    </span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
               {/* Link to Full Page Settings */}
               {projectId && (
-                <div className="hidden md:block pt-2 border-t border-stone-200/70 dark:border-white/5">
+                <div className="hidden md:block pt-2 border-t border-stone-200/70 dark:border-white/5 mt-3">
                   <Link
                     href={`/project/${projectId}/settings?tab=board-general&boardId=${boardId}`}
                     onClick={onClose}
                     className="flex items-center gap-1.5 px-2 py-1.5 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-dusk-lavender dark:hover:text-white transition group"
                   >
-                    <span>เปิดหน้าเต็มจอ (Jira Style)</span>
+                    <span>เปิดหน้าเต็มจอ (Full View)</span>
                     <ExternalLink className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </div>
@@ -465,7 +470,7 @@ export function BoardSettingsModal({
             </aside>
 
             {/* Right Content Pane */}
-            <div className="flex-1 min-w-0 w-full space-y-4">
+            <div className="flex-1 min-h-0 min-w-0 p-4 sm:p-5 overflow-y-auto scrollbar-soft space-y-4">
               {/* TAB 1: General & Access */}
               <TabsContent value="general" className="mt-0">
                 <BoardGeneralTab
@@ -530,13 +535,13 @@ export function BoardSettingsModal({
                   onDeleteClick={() => setDeleteConfirmOpen(true)}
                 />
               </TabsContent>
+
+              {error ? <p className="mt-3 text-xs text-red-500 dark:text-red-400">{error}</p> : null}
             </div>
           </Tabs>
 
-          {error ? <p className="mt-3 text-xs text-red-500 dark:text-red-400">{error}</p> : null}
-
           {/* Footer Actions */}
-          <div className="mt-6 flex items-center justify-between gap-3 border-t border-stone-200/80 pt-4 dark:border-white/10">
+          <div className="px-5 py-3 border-t border-stone-200/80 dark:border-white/10 shrink-0 flex items-center justify-between gap-3 bg-stone-50/70 dark:bg-stone-900/60">
             <span className="text-[11px] text-stone-500">
               {isDirty ? "• มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก" : "ข้อมูลปัจจุบันได้รับการบันทึกแล้ว"}
             </span>

@@ -242,7 +242,26 @@ export function BoardSidebarDropdown({
           </span>
         </div>
 
-        <div className="sidebar-expanded-only flex items-center gap-1">
+        <div className="sidebar-expanded-only relative flex h-6 shrink-0 items-center justify-end max-md:gap-1 max-md:w-auto md:w-14">
+          {/* ChevronDown: "ของเดิม" sits at right-0, smoothly slides left on hover */}
+          <button
+            type="button"
+            aria-label={isExpanded ? "Collapse boards" : "Expand boards"}
+            className={cn(
+              "grid h-6 w-6 place-items-center rounded-md text-stone-500 hover:bg-white/10 hover:text-stone-200 transition-all duration-200 ease-out cursor-pointer",
+              "max-md:relative md:absolute md:right-0",
+              canManage && "md:group-hover/header:-translate-x-7"
+            )}
+          >
+            <ChevronDown
+              className={cn(
+                "h-3.5 w-3.5 transition-transform duration-200",
+                isExpanded ? "rotate-0" : "-rotate-90"
+              )}
+            />
+          </button>
+
+          {/* Plus icon: inserts/reveals on hover at the right edge */}
           {canManage && (
             <button
               type="button"
@@ -252,23 +271,15 @@ export function BoardSidebarDropdown({
               }}
               title="Create new board"
               aria-label="Create new board"
-              className="grid h-6 w-6 place-items-center rounded-md text-stone-400 hover:bg-white/10 hover:text-dusk-lavender transition cursor-pointer"
+              className={cn(
+                "grid h-6 w-6 place-items-center rounded-md text-stone-400 hover:bg-white/10 hover:text-dusk-lavender transition-all duration-200 ease-out cursor-pointer",
+                "max-md:relative md:absolute md:right-0",
+                "md:opacity-0 md:scale-75 md:pointer-events-none md:group-hover/header:opacity-100 md:group-hover/header:scale-100 md:group-hover/header:pointer-events-auto"
+              )}
             >
               <Plus className="h-3.5 w-3.5" />
             </button>
           )}
-          <button
-            type="button"
-            aria-label={isExpanded ? "Collapse boards" : "Expand boards"}
-            className="grid h-6 w-6 place-items-center rounded-md text-stone-500 hover:bg-white/10 hover:text-stone-200 transition cursor-pointer"
-          >
-            <ChevronDown
-              className={cn(
-                "h-3.5 w-3.5 transition-transform duration-200",
-                isExpanded ? "rotate-0" : "-rotate-90"
-              )}
-            />
-          </button>
         </div>
       </div>
 

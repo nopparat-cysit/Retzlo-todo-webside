@@ -73,7 +73,7 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(boardSource).toContain("2 เท่า");
   });
 
-  it("provides Jira-style table columns and status grouping in BoardListView", () => {
+  it("provides structured table columns and status grouping in BoardListView", () => {
     expect(listViewSource).toContain("Task Title");
     expect(listViewSource).toContain("Status");
     expect(listViewSource).toContain("Priority");

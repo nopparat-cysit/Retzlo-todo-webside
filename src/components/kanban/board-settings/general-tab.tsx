@@ -206,19 +206,19 @@ export function BoardGeneralTab({
             {/* Search Members */}
             {onSearchChange && (
               <div className="relative flex items-center">
-                <Search className="pointer-events-none absolute left-3 h-3.5 w-3.5 text-stone-400" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
                 <input
                   type="text"
                   value={memberSearchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
                   placeholder="ค้นหาสมาชิกด้วยชื่อ หรือ อีเมล..."
-                  className="h-8.5 w-full rounded-lg border border-stone-200 bg-white pl-9 pr-8 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:border-dusk-amber/60 focus:ring-1 focus:ring-dusk-amber/30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500"
+                  className="h-9 w-full rounded-lg border border-stone-200 bg-white pl-10 pr-8 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:border-dusk-amber/60 focus:ring-1 focus:ring-dusk-amber/30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500"
                 />
                 {memberSearchQuery && (
                   <button
                     type="button"
                     onClick={() => onSearchChange("")}
-                    className="absolute right-2.5 text-stone-400 hover:text-stone-200"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
                   >
                     <X className="h-3 w-3" />
                   </button>

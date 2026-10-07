@@ -586,19 +586,19 @@ export function BoardListView({
 
           {/* Search within table */}
           <div className="relative flex items-center">
-            <Search className="absolute left-2.5 h-3.5 w-3.5 text-stone-400" />
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
             <input
               type="text"
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
               placeholder="Search tasks..."
-              className="h-7 w-36 rounded-lg border border-stone-200 bg-white pl-8 pr-2 text-xs text-stone-800 placeholder:text-stone-400 focus:border-indigo-400 focus:outline-none dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 sm:w-48"
+              className="h-7 w-36 rounded-lg border border-stone-200 bg-white pl-8.5 pr-2 text-xs text-stone-800 placeholder:text-stone-400 focus:border-indigo-400 focus:outline-none dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 sm:w-48"
             />
             {tableSearch && (
               <button
                 type="button"
                 onClick={() => setTableSearch("")}
-                className="absolute right-2 grid h-4 w-4 place-items-center text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
               >
                 <X className="h-3 w-3" />
               </button>

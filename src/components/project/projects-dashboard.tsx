@@ -546,17 +546,21 @@ export function ProjectsDashboard({
     <main className="soft-grid-bg min-h-[100dvh] lg:h-screen w-full overflow-y-auto lg:overflow-hidden p-3 sm:p-4 lg:p-5">
       <div className="grid min-h-0 gap-4 lg:h-full lg:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)_360px]">
         <aside className="lofi-panel relative order-2 lg:order-1 flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 sm:p-5 lg:sticky lg:top-5 lg:h-[calc(100dvh-2.5rem)]">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/10 text-dusk-lavender">
-                <Sparkles className="h-5 w-5" />
+          <div className="flex items-center justify-between gap-1.5">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/10 text-dusk-lavender shadow-xs">
+                <Sparkles className="h-4 w-4" />
               </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-dusk-amber">Retzlo</p>
-                <h1 className="text-xl font-semibold">Workspaces</h1>
+              <div className="min-w-0">
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-dusk-amber leading-none mb-0.5">
+                  Retzlo
+                </p>
+                <h1 className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate leading-tight">
+                  Workspaces
+                </h1>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 shrink-0">
               <NotificationsPopover />
               <AiChatTrigger />
               {userProfile && (
@@ -1000,19 +1004,19 @@ export function ProjectsDashboard({
               /* Search and Category Filter Toolbar when in All Workspaces view */
               <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between border-t border-stone-200/90 dark:border-white/10">
                 <div className="group/search relative flex items-center flex-1 max-w-sm">
-                  <Search className="pointer-events-none absolute left-3 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+                  <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search workspaces..."
-                    className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-9.5 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
+                    className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-10 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
                   />
                   {searchQuery ? (
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      className="absolute right-2.5 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
                       aria-label="Clear search"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -1181,19 +1185,19 @@ export function ProjectsDashboard({
 
                 <div className="flex items-center gap-2">
                   <div className="group/search relative flex items-center w-full sm:w-64">
-                    <Search className="pointer-events-none absolute left-3 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+                    <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
                     <input
                       type="text"
                       value={boardSearchQuery}
                       onChange={(e) => setBoardSearchQuery(e.target.value)}
                       placeholder="Search boards..."
-                      className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-9.5 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
+                      className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-10 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
                     />
                     {boardSearchQuery ? (
                       <button
                         type="button"
                         onClick={() => setBoardSearchQuery("")}
-                        className="absolute right-2.5 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
                         aria-label="Clear board search"
                       >
                         <X className="h-3.5 w-3.5" />

@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { InvitationConfirmModal, type InvitationData } from "./invitation-confirm-modal";
+import { cn } from "@/lib/utils";
 
 interface NotificationItem {
   id: string;
@@ -23,7 +24,11 @@ interface NotificationItem {
   invitation?: InvitationData | null;
 }
 
-export function NotificationsPopover() {
+interface NotificationsPopoverProps {
+  className?: string;
+}
+
+export function NotificationsPopover({ className }: NotificationsPopoverProps = {}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -108,12 +113,15 @@ export function NotificationsPopover() {
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="relative grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50"
+            className={cn(
+              "relative grid h-8 w-8 shrink-0 place-items-center rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-400 dark:hover:text-stone-100 dark:hover:bg-white/10 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 cursor-pointer",
+              className
+            )}
             aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-dusk-amber px-1 text-[10px] font-bold text-ink-950 shadow-[0_0_8px_rgba(229,189,114,0.6)]">
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-dusk-amber px-1 text-[9px] font-bold text-ink-950 shadow-[0_0_8px_rgba(229,189,114,0.6)]">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}

@@ -15,7 +15,7 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 - **Authentication:** NextAuth.js Credentials Provider
 - **Real-time Sync:** Pusher WebSocket Channels
 - **Styling & Design System:** Tailwind CSS + Semantic Theme Tokens (`retro lofi indigo` palette)
-- **AI Engine:** DeepSeek Chat API (`deepseek-v4-pro` default) พร้อมโมเดลผู้ช่วยอัจฉริยะในตัว (Server-side Integrated Intelligence) ไม่ต้องตั้งค่า API Key เพิ่มเติม
+- **AI Engine:** DeepSeek Chat API (`deepseek-v4-pro` default) พร้อมโมเดลผู้ช่วยอัจฉริยะในตัว (Server-side Integrated Intelligence) พร้อมใช้งานทันทีแบบอัตโนมัติ 100%
 
 ---
 
@@ -31,7 +31,7 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - เข้าใจบริบทของโปรเจกต์ปัจจุบัน (Project Context Aware)
   - ตอบคำถามและให้คำแนะนำแบบหลายรอบ (Multi-turn conversation)
   - แนะนำและร่างการ์ดงานใหม่ลงในบอร์ดได้โดยตรงผ่านคำสั่งแชท (พร้อม Confirmation Modal)
-  - ระบบประมวลผลอัจฉริยะในตัว (Built-in Server Management) พร้อมทำงานทันทีโดยไม่ต้องตั้งค่าหรือกรอก API Key ใดๆ ทั้งสิ้น
+  - ระบบประมวลผลอัจฉริยะในตัว (Built-in Server Management) พร้อมทำงานทันทีแบบ Zero-Config ในทุก Workspace
 
 ### 2.2 ฟีเจอร์ AI Auto-Breakdown & Executive Summary
 - **AI Task Breakdown:** ปุ่ม `✨ AI Breakdown` ภายใน Modal ของการ์ด สั่งให้ AI วิเคราะห์ชื่องานและคำอธิบาย แล้วแตกเป็น Checklist 3–10 ข้อย่อยได้ในคลิกเดียว
@@ -47,7 +47,7 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - การ์ดแสดงป้าย Priority ตามระดับและสีที่บอร์ดกำหนด
 - **Custom Statuses, Priorities & Story Points (ศูนย์กลางคุณสมบัติการ์ดและแม่แบบ Workflow Templates):**
   - **Card Statuses (สถานะการ์ด):** เลือกแม่แบบขั้นตอนงานสำเร็จรูป (Software Dev, Bug Triage, Content Pipeline, Growth Marketing ฯลฯ) หรือเพิ่ม/แก้ไขสถานะเองได้อิสระพร้อมเลือก 8 โทนสี สามารถบันทึกโฟลว์ที่ปรับแต่งเป็นแม่แบบส่วนตัว (Custom Status Template)
-  - **Custom Board Priorities (ระดับความสำคัญ):** ปรับแต่งได้สูงสุด 10 ระดับ พร้อมแม่แบบสากลสำเร็จรูป (Classic 3-Level, Jira P0–P4 Scale, MoSCoW Prioritization, Eisenhower Matrix, Customer Support & SLA, Business Value Matrix) เลือกสีได้ 12 โทนสี Retro Lofi และบันทึกเป็นแม่แบบส่วนตัว (Custom Priority Template)
+  - **Custom Board Priorities (ระดับความสำคัญ):** ปรับแต่งได้สูงสุด 10 ระดับ พร้อมแม่แบบสากลสำเร็จรูป (Classic 3-Level, P0–P4 Severity Scale, MoSCoW Prioritization, Eisenhower Matrix, Customer Support & SLA, Business Value Matrix) เลือกสีได้ 12 โทนสี Retro Lofi และบันทึกเป็นแม่แบบส่วนตัว (Custom Priority Template)
   - **Story Points Scale (สเกลคะแนนความยาก):** เลือกใช้สเกลประเมินน้ำหนักงานสำเร็จรูป (Retzlo Standard, Fibonacci Sequence, Linear/ชม., T-Shirt Sizes, Pomodoro Focus Blocks, Complexity & Risk Scale) หรือเพิ่มคะแนนอิสระ 1–100 และบันทึกสเกลเป็นแม่แบบส่วนตัว (Custom Story Points Template)
   - **Instant Inline Live Preview & Switch (ดูตัวอย่างสดแบบอินไลน์):** คลิกเลือกชิปแม่แบบเพื่อดูตัวอย่างขั้นตอน/สเกลคะแนน/ระดับความสำคัญด้านล่างได้ทันทีแบบเรียลไทม์ ("ด้านล่างเปลี่ยนให้ดูเลย") โดยไม่ต้องเปิด-ปิดป๊อปอัป มีแถบ Action Banner ให้สลับโหมด 'แทนที่ทั้งหมด (Replace)' หรือ 'เพิ่มต่อท้าย (Append)' พร้อมปุ่มนำมาใช้และปุ่มคืนค่าเดิม
   - **ความปลอดภัยและการซิงค์สด:** ทุกการนำแม่แบบมาใช้ แก้ไข ลบ หรือรีเซ็ต ได้รับการปกป้องด้วย ConfirmModal และแสดง Toast แจ้งเตือน พร้อมส่ง Custom Event ซิงค์สดไปยังทุกมุมมอง (Kanban Board, Column Settings, Card Detail Modal, และ Spreadsheet Table View) ทันที
@@ -171,12 +171,12 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - **รูปแบบมาตรฐาน Settings Row:** ทุกหน้าใช้ `SettingsSection` / `SettingsRow` (`src/components/settings/settings-section.tsx`) — Label + คำอธิบายด้านซ้าย, ตัวควบคุมด้านขวา, คั่นด้วยเส้นบาง ลดการเลื่อนหน้าจอ
   - **Mobile Responsive Adaptive:** บนหน้าจอ `< lg` แถบนำทางพับเป็นแท็บแนวนอนเลื่อนได้
   - **URL Query Param Synchronization:** ซิงค์แท็บกับ `?tab=...` และบอร์ดกับ `?boardId=...` ลิงก์เก่ายังใช้งานได้: `?tab=features` และ `?tab=all` → General, `?tab=board` → Board details, `?tab=columns` → Columns (ตรรกะอยู่ที่ `src/lib/settings/tabs.ts`)
-- **หน้าต่างตั้งค่าบอร์ดสไตล์ Jira (Jira Master-Detail Board Settings):**
-  - ไม่เปิดป๊อปอัปบังหน้าจอเมื่อกด Settings จากหน้ารวมบอร์ด แต่สลับเข้าสู่หน้าการตั้งค่าบอร์ดเต็มจอแบบ Jira ทันที
-  - กล่องโมดอล `BoardSettingsModal` ได้รับการปรับปรุงเป็นโครงสร้าง Master-Detail แถบซ้ายแนวตั้งสไตล์ Jira (ทั่วไป & สิทธิ์, ขั้นตอนงาน, คุณสมบัติการ์ด, จัดการบอร์ด) พร้อมลิงก์ "เปิดหน้าเต็มจอ (Jira Style)"
+- **หน้าต่างตั้งค่าบอร์ดแบบรวมศูนย์ (Master-Detail Board Settings):**
+  - ไม่เปิดป๊อปอัปบังหน้าจอเมื่อกด Settings จากหน้ารวมบอร์ด แต่สลับเข้าสู่หน้าการตั้งค่าบอร์ดเต็มจอทันที
+  - กล่องโมดอล `BoardSettingsModal` ได้รับการปรับปรุงเป็นโครงสร้าง Master-Detail แถบซ้ายแนวตั้ง (ทั่วไป & สิทธิ์, ขั้นตอนงาน, คุณสมบัติการ์ด, จัดการบอร์ด) พร้อมลิงก์ "เปิดหน้าเต็มจอ (Full View)"
   - บันทึกการเปลี่ยนแปลงได้ทันทีพร้อมแสดง Toast แจ้งเตือนความสำเร็จ และระบบยืนยันความปลอดภัยด้วย ConfirmModal เมื่อลบบอร์ด
 ### 2.12 ศูนย์รวมเอกสารและคู่มือระบบ (Documentation & Help Hub - `/help`)
-- **สถาปัตยกรรมเว็บไซต์ Documentation สไตล์ Modern SaaS (Stripe/Linear Inspired):**
+- **สถาปัตยกรรมเว็บไซต์ Documentation สไตล์ Modern SaaS Hub:**
   - **Welcome Hero & 6-Pillar Bento Navigator:** ส่วนหัวต้อนรับพร้อมแถบนำทาง Bento Grid 6 เสาหลักของระบบ (Work Module, Retzlo AI, Attributes & Export, Calendar & Time, Gamification, Life Hub) ช่วยให้ผู้ใช้เห็นภาพรวมระบบทั้งหมดและคลิกกระโดดข้ามหมวดหมู่ได้ในคลิกเดียว
   - **Left Navigation Sidebar (Docs Tree):** แถบสารบัญด้านซ้ายแบ่งเป็น 10 หมวดหมู่ พร้อมตัวนับจำนวนบทความ ไอคอนประจำหมวด และป้ายกำกับ (Getting Started, AI Powered, Core Workflow, New Feature, Export, Customization, Updated) มีตัวระบุสถานะ Active Indicator ชัดเจน
   - **Document Reader (พื้นที่อ่านเนื้อหาโครงสร้างใหม่แบบโมดูลาร์):**

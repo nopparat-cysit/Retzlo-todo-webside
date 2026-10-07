@@ -22,6 +22,6 @@ describe("Avatar component", () => {
 
   it("supports status indicator styling", () => {
     expect(source).toContain("statusColor");
-    expect(source).toContain("ring-2 ring-ink-950");
+    expect(source).toContain("dark:ring-ink-950");
   });
 });

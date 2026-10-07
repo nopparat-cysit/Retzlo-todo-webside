@@ -6,7 +6,7 @@
 
 The platform is a modular life/work management app. The first module is the Work module, centered around project workspaces. A user logs in, chooses a project, and works inside that project's Todo Board or Calendar.
 
-The experience should feel like a retro lofi indigo workspace: quiet, focused, and slightly nostalgic, while still behaving like a practical Trello/Jira-style tool.
+The experience should feel like a retro lofi indigo workspace: quiet, focused, and slightly nostalgic, while still behaving like a practical modern task management tool.
 
 ## Goals
 
@@ -25,7 +25,7 @@ The experience should feel like a retro lofi indigo workspace: quiet, focused, a
 - Billing.
 - Chat.
 - Automation rules.
-- Advanced Jira-style issue types, sprint planning, or reporting.
+- Complex enterprise issue types, sprint planning, or reporting.
 
 ## Primary User Flow
 

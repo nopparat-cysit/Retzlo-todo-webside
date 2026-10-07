@@ -62,6 +62,10 @@ const config: Config = {
         glow: "0 0 40px rgba(169, 162, 255, 0.16)",
         lofi: "0 18px 54px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(245, 239, 230, 0.08)",
         panel: "0 8px 32px rgba(8, 8, 23, 0.4), inset 0 1px 0 rgba(245, 239, 230, 0.1)"
+      },
+      spacing: {
+        "8.5": "2.125rem",
+        "9.5": "2.375rem"
       }
     }
   },

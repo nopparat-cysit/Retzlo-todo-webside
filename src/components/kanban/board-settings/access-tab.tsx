@@ -91,19 +91,19 @@ export function BoardAccessTab({
 
       {/* Search members */}
       <div className="group/search relative flex items-center">
-        <Search className="pointer-events-none absolute left-3 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
         <input
           type="text"
           value={memberSearchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search workspace members..."
-          className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-9.5 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
+          className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-10 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
         />
         {memberSearchQuery ? (
           <button
             type="button"
             onClick={() => onSearchChange("")}
-            className="absolute right-2.5 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
             aria-label="Clear member search"
           >
             <X className="h-3.5 w-3.5" />

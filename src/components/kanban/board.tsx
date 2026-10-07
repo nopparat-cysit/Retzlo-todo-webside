@@ -1027,7 +1027,7 @@ export function KanbanBoard({
               </span>
             )}
 
-            {/* ── View Switcher: Board vs List (Jira Style) ── */}
+            {/* ── View Switcher: Board vs List ── */}
             <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/80 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04]">
               <button
                 type="button"
@@ -1275,18 +1275,18 @@ export function KanbanBoard({
         <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2 pt-1 border-t border-stone-200/60 dark:border-white/5">
           {/* Live Search */}
           <div className="group/search relative flex items-center flex-1 min-w-[130px] sm:flex-initial">
-            <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search cards..."
-              className="h-9 w-full sm:w-44 rounded-xl border border-stone-200/90 bg-white pl-8 pr-7 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/5 dark:focus:ring-dusk-lavender/20"
+              className="h-9 w-full sm:w-44 rounded-xl border border-stone-200/90 bg-white pl-8.5 pr-7 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/5 dark:focus:ring-dusk-lavender/20"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2 grid h-4 w-4 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+                className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
                 aria-label="Clear card search"
               >
                 <X className="h-3 w-3" />

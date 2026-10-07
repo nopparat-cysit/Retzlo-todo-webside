@@ -167,7 +167,7 @@ export const PRIORITY_WORKFLOW_TEMPLATES: Record<string, PriorityWorkflowTemplat
   },
   jira_p0_p4: {
     id: "jira_p0_p4",
-    name: "P0 - P4 Scale (Jira Standard)",
+    name: "P0 - P4 Scale (Severity Standard)",
     description: "สเกลความเร่งด่วน P0 บล็อกเกอร์ ถึง P4 รายละเอียดเล็กน้อย",
     category: "Agile",
     icon: "target",

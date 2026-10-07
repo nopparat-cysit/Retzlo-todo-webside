@@ -14,7 +14,7 @@ A Modular Life and Work Management Platform. It acts as a unified dashboard comb
 Cozy, focused, and nostalgic. A nocturnal retro-lofi workspace vibe with a quiet, comfortable tone (Lofi, Cozy, Focused).
 
 ## Anti-references
-Overly cluttered corporate-sterile dashboards, flashing neon SaaS elements, aggressive upsells, bloated Jira/Trello interfaces, or overly rounded "bubble" layouts.
+Overly cluttered corporate-sterile dashboards, flashing neon SaaS elements, aggressive upsells, bloated enterprise task interfaces, or overly rounded "bubble" layouts.
 
 ## Design Principles
 1. **Nocturnal Calm**: Muted dark backgrounds and low-strain pastel/indigo accent lighting to keep the eyes relaxed during long sessions.

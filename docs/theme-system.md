@@ -456,12 +456,12 @@ Template:
     - **Color & Sticker Pickers:** ตัวเลือกสีการ์ด 10 เฉดสีสไตล์ Retro Lofi และกริดเลือกสติกเกอร์ย้อนยุค (`sharedIconOptions`)
 - Reviewed: รันการทดสอบ Vitest ใน `src/components/notes/note-modals.test.ts` และ `src/components/notes/notes-panel.test.ts` ผ่าน 14/14 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
 
-### 2026-10-04 — ปรับโฉมหน้าตั้งค่าโปรเจกต์เป็น Master-Detail Left Sidebar สไตล์ Jira & Linear (Jira-style Space Settings Layout)
+### 2026-10-04 — ปรับโฉมหน้าตั้งค่าโปรเจกต์เป็น Master-Detail Left Sidebar (Space Settings Layout)
 - Added/changed: `src/components/project/project-settings-client.tsx`, `src/components/project/project-settings-client.test.ts`.
 - Tokens/variants:
-  - ปรับปรุงหน้าการตั้งค่า `/project/[id]/settings` จากแท็บแนวนอนเดิม ให้กลายเป็นสถาปัตยกรรม **Master-Detail Left Sidebar Navigation** ตามมาตรฐาน Jira Space Settings และ Linear:
+  - ปรับปรุงหน้าการตั้งค่า `/project/[id]/settings` จากแท็บแนวนอนเดิม ให้กลายเป็นสถาปัตยกรรม **Master-Detail Left Sidebar Navigation**:
     - **Sticky Left Sidebar (`lg:w-72`):** แถบด้านข้างตรึงตำแหน่ง แสดงปุ่มย้อนกลับ `← Back to board`, การ์ดอัตลักษณ์ Space Identity Card (ภาพปก/สติกเกอร์/อักษรย่อ, ชื่อโปรเจกต์, ป้าย Project Space, ตัวนับจำนวนบอร์ดและสมาชิก), และเมนูนำทางจัดกลุ่ม 4 หมวดหมู่ (General, Workflow, System & Privacy, Overview)
-    - **Active Pill Indicator:** ใช้สไตล์เมนูคลาสสิกของ Jira พร้อมขอบแท่งแอคเซนต์ด้านซ้าย (`before:w-1 before:bg-indigo-600 dark:before:bg-dusk-lavender`) และพื้นผิวไฮไลท์สีอ่อน (`bg-indigo-50 dark:bg-dusk-lavender/15`)
+    - **Active Pill Indicator:** ใช้สไตล์เมนูคลาสสิก พร้อมขอบแท่งแอคเซนต์ด้านซ้าย (`before:w-1 before:bg-indigo-600 dark:before:bg-dusk-lavender`) และพื้นผิวไฮไลท์สีอ่อน (`bg-indigo-50 dark:bg-dusk-lavender/15`)
     - **Mobile Adaptive Navigation:** บนหน้าจอต่ำกว่า `lg:` ย่อแถบนำทางเป็น Horizontal Scrollable Pills อย่างนุ่มนวล ไม่เปลืองพื้นที่
     - **New Section: Access & Team (`access`):** เพิ่มมุมมองภาพรวมสมาชิกในทีม, สถานะบทบาท Owner/Member, นโยบายการเข้าถึง, และปุ่มเปิดตัวจัดการสมาชิกแบบเต็ม (`/project/[id]/members`)
     - **New Section: Card Attributes & Types (`attributes`):** เพิ่มมุมมองสถานะงานมาตรฐาน (TODO, DOING, WAITING, DONE), ตารางลำดับความสำคัญ (P0–P4), ชุดประเมิน Story Points (Fibonacci, T-Shirt, Linear), และฟังก์ชันเสริมของการ์ด พร้อมปุ่มลัดไปยังบอร์ด
@@ -475,16 +475,16 @@ Template:
   - ผู้ใช้สามารถเพิ่ม/แก้ไขสถานะการ์ด, ปรับระดับความสำคัญ 10 ระดับ, และเลือก/ปรับแต่ง Story Points ได้อย่างสมบูรณ์แบบในหน้าเดียว
 - Reviewed: ตรวจสอบความถูกต้องทั้งธีม Dark และ Light, Vitest ผ่าน 22/22 การทดสอบ, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100%.
 
-### 2026-10-04 — ยกระดับการตั้งค่าบอร์ดเป็นสไตล์ Jira เต็มรูปแบบ ปราศจากโมดอลซ้อน (Jira Master-Detail Board Settings Integration)
+### 2026-10-04 — ยกระดับการตั้งค่าบอร์ดเป็นแบบรวมศูนย์ ปราศจากโมดอลซ้อน (Master-Detail Board Settings Integration)
 - Added/changed: `src/components/project/project-settings-client.tsx`, `src/components/project/project-boards-manager.tsx`, `src/components/kanban/board-settings-modal.tsx`, `src/components/kanban/board-sidebar-dropdown.tsx`, `src/components/project/project-settings-client.test.ts`.
 - Tokens/variants:
-  - ยกเลิกการเปิดป๊อปอัปโมดอล `BoardSettingsModal` ซ้อนทับหน้าตั้งค่าโปรเจกต์ (`/project/[id]/settings?tab=boards`) เมื่อผู้ใช้คลิกปุ่ม Settings หรือ Access บนการ์ดบอร์ด ให้เปลี่ยนเป็นการสลับเข้าสู่หน้าการตั้งค่าบอร์ดเต็มจอในเลย์เอาต์ Master-Detail แถบซ้ายสไตล์ Jira ทันที
+  - ยกเลิกการเปิดป๊อปอัปโมดอล `BoardSettingsModal` ซ้อนทับหน้าตั้งค่าโปรเจกต์ (`/project/[id]/settings?tab=boards`) เมื่อผู้ใช้คลิกปุ่ม Settings หรือ Access บนการ์ดบอร์ด ให้เปลี่ยนเป็นการสลับเข้าสู่หน้าการตั้งค่าบอร์ดเต็มจอในเลย์เอาต์ Master-Detail แถบซ้ายทันที
   - เพิ่มแท็บหลักในแถบเมนู Workflow & Boards:
     - **Board Details & Access (`board-general`):** ปรับชื่อบอร์ด, สลับความเป็นส่วนตัว (Public / Private), จัดการสิทธิ์สมาชิกในบอร์ดพร้อมช่องค้นหาและปุ่มเลือกทั้งหมด, บันทึกการตั้งค่าพร้อมแจ้งเตือน Toast, และ Danger Zone ลบบอร์ดพร้อม ConfirmModal
     - **Columns & Workflow (`board-columns`):** ดูขั้นตอนงานคอลัมน์, WIP Limits, ค่าสถานะเริ่มต้น, จำนวนการ์ด และปุ่มเปิดหน้ากระดาน Kanban
     - **Card Attributes & Types (`attributes`):** ปรับแต่งสถานะคอลัมน์, 10 ระดับความสำคัญ (Custom Priorities), และระดับ Story Points
   - เพิ่มแถบ **Active Board Selector Banner** ด้านบน พร้อมดรอปดาวน์สลับบอร์ดที่ต้องการตั้งค่าได้สะดวกรวดเร็ว
-  - ปรับปรุงเลย์เอาต์ของ `BoardSettingsModal` (กรณีเปิดจากที่อื่น) จากเดิมที่มีแท็บแนวนอน ให้กลายเป็น **Jira Master-Detail Left Sidebar Dialog** ขนาดใหญ่ กว้าง 4xl พร้อมปุ่มลัด "เปิดหน้า Settings เต็มจอ (Jira Style)"
+  - ปรับปรุงเลย์เอาต์ของ `BoardSettingsModal` (กรณีเปิดจากที่อื่น) จากเดิมที่มีแท็บแนวนอน ให้กลายเป็น **Master-Detail Left Sidebar Dialog** ขนาดใหญ่ กว้าง 4xl พร้อมปุ่มลัด "เปิดหน้า Settings เต็มจอ (Full View)"
 - Reviewed: Vitest 21/21 tests ผ่านฉลุย, ESLint 0 warnings/errors, Prisma validate ผ่าน, และ Next.js production build ผ่าน 100% (38/38 static pages).
 
 ### 2026-10-04 — แก้ไขสถาปัตยกรรมการจับภาพบอร์ด (Board Export Canvas Capture & Font Fallback Engine)

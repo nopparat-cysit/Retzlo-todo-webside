@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Shared settings primitives (Linear/GitHub-style):
+ * Shared settings primitives (Master-detail standard):
  * a bordered section with a compact header and divided rows.
  * Use semantic theme tokens only so light/dark stay consistent.
  */

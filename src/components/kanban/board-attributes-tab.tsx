@@ -624,7 +624,7 @@ export function BoardAttributesTab({
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-soft pb-1.5 pt-0.5">
               {allTemplates.map((tpl) => {
                 const isSelected = previewStatusTemplate?.id === tpl.id;
                 return (
@@ -633,7 +633,7 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectStatusTemplate(tpl)}
                     className={cn(
-                      "group inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
+                      "group shrink-0 inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
                       isSelected
                         ? "border-indigo-500 bg-indigo-600 text-white shadow-xs ring-1 ring-indigo-400/40"
                         : "border-stone-200/90 bg-white text-stone-700 hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10"
@@ -1031,7 +1031,7 @@ export function BoardAttributesTab({
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-soft pb-1.5 pt-0.5">
               {allPointTemplates.map((tpl) => {
                 const isSelected = previewPointTemplate?.id === tpl.id;
                 return (
@@ -1040,7 +1040,7 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectPointTemplate(tpl)}
                     className={cn(
-                      "group inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
+                      "group shrink-0 inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
                       isSelected
                         ? "border-amber-500 bg-amber-600 text-white shadow-xs ring-1 ring-amber-400/40"
                         : "border-stone-200/90 bg-white text-stone-700 hover:border-amber-400 hover:bg-amber-50/50 hover:text-amber-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-amber-400/50 dark:hover:bg-amber-500/10"

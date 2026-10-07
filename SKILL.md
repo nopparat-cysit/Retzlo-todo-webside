@@ -12,7 +12,7 @@ Use this project-local guide when designing, implementing, testing, or reviewing
 ## Product Shape
 
 - The first screen after login is project selection.
-- A project is a workspace, similar to Trello or Jira.
+- A project is a collaborative workspace for organizing tasks and boards.
 - Inside a project, the main work areas are Todo Board, Calendar, Members, and Settings.
 - The Work module must be built so future life/work modules can be added without colliding with existing code.
 

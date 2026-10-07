@@ -350,7 +350,7 @@ export function BoardPrioritiesTab({
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-soft pb-1.5 pt-0.5">
           {allTemplates.map((tpl) => {
             const isSelected = previewTemplate?.id === tpl.id;
             return (
@@ -359,7 +359,7 @@ export function BoardPrioritiesTab({
                 type="button"
                 onClick={() => handleSelectTemplate(tpl)}
                 className={cn(
-                  "group inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
+                  "group shrink-0 inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium shadow-2xs transition-all cursor-pointer",
                   isSelected
                     ? "border-rose-500 bg-rose-500 text-white shadow-xs ring-1 ring-rose-400/40 dark:bg-rose-600 dark:border-rose-600"
                     : "border-stone-200/90 bg-white text-stone-700 hover:border-rose-400 hover:bg-rose-50/50 hover:text-rose-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200 dark:hover:border-rose-400/50 dark:hover:bg-rose-500/10"
