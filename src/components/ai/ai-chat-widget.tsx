@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { usePathname } from "next/navigation";
 import {
-  Bot,
+  AlarmClock,
+  ArrowUp,
+  BarChart3,
   Check,
+  CircleAlert,
   Copy,
+  FolderKanban,
+  ListChecks,
   PanelRight,
   PanelRightClose,
+  PenLine,
   RotateCcw,
-  Send,
-  Sparkles,
   X
 } from "lucide-react";
 
@@ -18,10 +22,12 @@ import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { useAiChat } from "@/components/ai/ai-chat-context";
+import { AiMessageContent } from "@/components/ai/ai-message-content";
 import { getAiAuthHeaders, getClientAiModel } from "@/lib/ai/client-key";
 import type { AiCreateCardProposal } from "@/lib/ai/chat-actions";
 import { GeminiSparkleIcon } from "@/components/ai/gemini-sparkle-icon";
 import { getPriorityMeta } from "@/lib/kanban/priority";
+import { useLanguage } from "@/lib/i18n/language-context";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage {
@@ -29,6 +35,7 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: string;
+  isError?: boolean;
   createProposal?: AiCreateCardProposal;
   proposalStatus?: "created" | "cancelled";
   createdCardCount?: number;
@@ -46,25 +53,76 @@ interface CreateCardsResponse {
   createdCount?: number;
 }
 
-function formatProposalDueDate(value: string | null, allDay: boolean) {
-  if (!value) return "ไม่กำหนดวัน";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "วันที่ไม่ถูกต้อง";
-  return allDay
-    ? date.toLocaleDateString("th-TH", { dateStyle: "medium" })
-    : date.toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" });
+interface StarterPrompt {
+  icon: ComponentType<{ className?: string }>;
+  label: { th: string; en: string };
+  prompt: { th: string; en: string };
 }
 
-const STARTER_PROMPTS = [
-  "📊 สรุปสถานะและความคืบหน้าของบอร์ดนี้ให้หน่อย",
-  "💡 มีงานอะไรที่ควรทำเป็นลำดับถัดไปบ้าง?",
-  "⚠️ ตรวจสอบงานที่ใกล้กำหนดหรือเลยกำหนดให้หน่อย",
-  "📝 ช่วยคิดและร่างขั้นตอนสำหรับงานใหม่"
+const STARTER_PROMPTS: StarterPrompt[] = [
+  {
+    icon: BarChart3,
+    label: { th: "สรุปความคืบหน้า", en: "Summarize progress" },
+    prompt: {
+      th: "สรุปสถานะและความคืบหน้าของบอร์ดนี้ให้หน่อย",
+      en: "Summarize the status and progress of this board."
+    }
+  },
+  {
+    icon: ListChecks,
+    label: { th: "งานที่ควรทำต่อ", en: "Plan next steps" },
+    prompt: {
+      th: "มีงานอะไรที่ควรทำเป็นลำดับถัดไปบ้าง?",
+      en: "Which tasks should I work on next?"
+    }
+  },
+  {
+    icon: AlarmClock,
+    label: { th: "ตรวจงานใกล้กำหนด", en: "Check deadlines" },
+    prompt: {
+      th: "ตรวจสอบงานที่ใกล้กำหนดหรือเลยกำหนดให้หน่อย",
+      en: "Review tasks that are due soon or overdue."
+    }
+  },
+  {
+    icon: PenLine,
+    label: { th: "ร่างขั้นตอนงานใหม่", en: "Draft a new task" },
+    prompt: {
+      th: "ช่วยคิดและร่างขั้นตอนสำหรับงานใหม่",
+      en: "Help me outline the steps for a new task."
+    }
+  }
 ];
+
+const WELCOME_ID = "welcome";
+
+function nowTime() {
+  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function createWelcomeMessage(): ChatMessage {
+  return { id: WELCOME_ID, role: "assistant", content: "", timestamp: nowTime() };
+}
+
+function formatProposalDueDate(value: string | null, allDay: boolean, isEn: boolean) {
+  if (!value) return isEn ? "No due date" : "ไม่กำหนดวัน";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return isEn ? "Invalid date" : "วันที่ไม่ถูกต้อง";
+  const locale = isEn ? "en-US" : "th-TH";
+  return allDay
+    ? date.toLocaleDateString(locale, { dateStyle: "medium" })
+    : date.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" });
+}
+
+const iconButtonClass =
+  "grid h-7 w-7 place-items-center rounded-md text-theme-muted transition-colors hover:bg-theme-paper hover:text-theme-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-accent/40 cursor-pointer";
 
 export function AiChatWidget() {
   const pathname = usePathname();
   const { toast } = useToast();
+  const { language } = useLanguage();
+  const isEn = language === "en";
+  const tr = (th: string, en: string) => (isEn ? en : th);
 
   const { isOpen, setIsOpen, viewMode, setViewMode, isSmallScreen } = useAiChat();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -83,6 +141,7 @@ export function AiChatWidget() {
   // Extract projectId if currently inside a project route: /project/[id]/...
   const projectMatch = pathname?.match(/\/project\/([a-zA-Z0-9_-]+)/);
   const currentProjectId = projectMatch ? projectMatch[1] : undefined;
+  const storageKey = currentProjectId ? `retzlo_ai_chat_${currentProjectId}` : "retzlo_ai_chat_global";
 
   // Load active model & credits
   useEffect(() => {
@@ -115,41 +174,23 @@ export function AiChatWidget() {
   // Load chat history from sessionStorage
   useEffect(() => {
     try {
-      const storageKey = currentProjectId
-        ? `retzlo_ai_chat_${currentProjectId}`
-        : "retzlo_ai_chat_global";
       const saved = sessionStorage.getItem(storageKey);
-      if (saved) {
-        setMessages(JSON.parse(saved));
-      } else {
-        setMessages([
-          {
-            id: "welcome",
-            role: "assistant",
-            content:
-              "สวัสดีครับ! ผม **Retzlo AI** ผู้ช่วยวางแผนงานของคุณ 🤖✨\n\nสอบถามเกี่ยวกับงานในบอร์ด ปรึกษาขั้นตอนการทำงาน หรือให้ผมช่วยวิเคราะห์ความคืบหน้าได้ตลอดเวลาเลยครับ",
-            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-          }
-        ]);
-      }
+      setMessages(saved ? JSON.parse(saved) : [createWelcomeMessage()]);
     } catch {
-      // Ignore storage error
+      setMessages([createWelcomeMessage()]);
     }
-  }, [currentProjectId]);
+  }, [storageKey]);
 
   // Save chat history to sessionStorage
   useEffect(() => {
     if (messages.length > 0) {
       try {
-        const storageKey = currentProjectId
-          ? `retzlo_ai_chat_${currentProjectId}`
-          : "retzlo_ai_chat_global";
         sessionStorage.setItem(storageKey, JSON.stringify(messages));
       } catch {
         // Ignore
       }
     }
-  }, [messages, currentProjectId]);
+  }, [messages, storageKey]);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -165,6 +206,21 @@ export function AiChatWidget() {
     }
   }, [isOpen]);
 
+  // Auto-grow composer
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, [input]);
+
+  const pushAssistantError = (content: string) => {
+    setMessages((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "assistant", content, timestamp: nowTime(), isError: true }
+    ]);
+  };
+
   const handleSend = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
     if (!query || isLoading) return;
@@ -173,7 +229,7 @@ export function AiChatWidget() {
       id: crypto.randomUUID(),
       role: "user",
       content: query,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      timestamp: nowTime()
     };
 
     const nextMessages = [...messages, userMessage];
@@ -183,7 +239,7 @@ export function AiChatWidget() {
 
     try {
       const payloadMessages = nextMessages
-        .filter((m) => m.id !== "welcome")
+        .filter((m) => m.id !== WELCOME_ID && !m.isError)
         .map((m) => ({
           role: m.role,
           content: m.content
@@ -209,32 +265,20 @@ export function AiChatWidget() {
       } catch {
         // Vercel returns HTML on 504 timeout — not JSON-parseable
         const errorMsg = res.status === 504
-          ? "AI ตอบกลับช้าเกินกำหนดของเซิร์ฟเวอร์ (Timeout) — ลองส่งข้อความสั้นลงหรือลองใหม่"
-          : `เซิร์ฟเวอร์ตอบกลับผิดปกติ (HTTP ${res.status})`;
+          ? tr(
+              "AI ตอบกลับช้าเกินกำหนดของเซิร์ฟเวอร์ (Timeout) — ลองส่งข้อความสั้นลงหรือลองใหม่",
+              "The AI took too long to respond (timeout). Try a shorter message or retry."
+            )
+          : tr(`เซิร์ฟเวอร์ตอบกลับผิดปกติ (HTTP ${res.status})`, `Unexpected server response (HTTP ${res.status})`);
         toast({ message: errorMsg, type: "error" });
-        const errorMessage: ChatMessage = {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: `⚠️ ${errorMsg}`,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        };
-        setMessages((prev) => [...prev, errorMessage]);
+        pushAssistantError(errorMsg);
         return;
       }
 
       if (!res.ok) {
-        const errMsg = (data.error as string) || "ไม่สามารถติดต่อ AI ได้ในขณะนี้";
-        toast({
-          message: errMsg,
-          type: "error"
-        });
-        const errorMessage: ChatMessage = {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: `⚠️ เกิดข้อผิดพลาด: ${errMsg}`,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        };
-        setMessages((prev) => [...prev, errorMessage]);
+        const errMsg = data.error || tr("ไม่สามารถติดต่อ AI ได้ในขณะนี้", "The AI service is unavailable right now.");
+        toast({ message: errMsg, type: "error" });
+        pushAssistantError(errMsg);
         return;
       }
 
@@ -245,24 +289,23 @@ export function AiChatWidget() {
       const botReply: ChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: data.reply || "ขออภัยครับ ไม่พบคำตอบจากระบบ AI",
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        content: data.reply || tr("ขออภัย ไม่พบคำตอบจากระบบ AI", "Sorry, the AI returned an empty response."),
+        timestamp: nowTime(),
         ...(data.createProposal ? { createProposal: data.createProposal } : {})
       };
 
       setMessages((prev) => [...prev, botReply]);
     } catch {
       toast({
-        message: "เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์",
+        message: tr("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์", "Could not connect to the server."),
         type: "error"
       });
-      const netErrorMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "⚠️ ไม่สามารถเชื่อมต่อกับ AI Server ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่ครับ",
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-      };
-      setMessages((prev) => [...prev, netErrorMessage]);
+      pushAssistantError(
+        tr(
+          "ไม่สามารถเชื่อมต่อกับ AI Server ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่",
+          "Could not reach the AI server. Check your connection and try again."
+        )
+      );
     } finally {
       setIsLoading(false);
     }
@@ -307,7 +350,7 @@ export function AiChatWidget() {
       });
       const data = await response.json() as CreateCardsResponse;
       if (!response.ok) {
-        throw new Error(data.error || "สร้างการ์ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+        throw new Error(data.error || tr("สร้างการ์ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", "Failed to create cards. Please try again."));
       }
 
       const createdCount = data.createdCount ?? proposal.cards.length;
@@ -322,10 +365,13 @@ export function AiChatWidget() {
           : item
       ));
       setConfirmProposalId(null);
-      toast({ message: `เพิ่มการ์ด ${createdCount} ใบลงบอร์ดแล้ว`, type: "success" });
+      toast({
+        message: tr(`เพิ่มการ์ด ${createdCount} ใบลงบอร์ดแล้ว`, `Added ${createdCount} card(s) to the board`),
+        type: "success"
+      });
     } catch (error) {
       toast({
-        message: error instanceof Error ? error.message : "สร้างการ์ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+        message: error instanceof Error ? error.message : tr("สร้างการ์ดไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", "Failed to create cards. Please try again."),
         type: "error"
       });
     } finally {
@@ -335,37 +381,31 @@ export function AiChatWidget() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleSend();
     }
   };
 
   const handleClearChat = () => {
-    const welcome: ChatMessage = {
-      id: "welcome",
-      role: "assistant",
-      content:
-        "สวัสดีครับ! เริ่มต้นบทสนทนาใหม่เรียบร้อย มีอะไรให้ **Retzlo AI** ช่วยดูแลเกี่ยวกับงานหรือบอร์ดนี้ไหมครับ?",
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    };
-    setMessages([welcome]);
+    setMessages([createWelcomeMessage()]);
     try {
-      const storageKey = currentProjectId
-        ? `retzlo_ai_chat_${currentProjectId}`
-        : "retzlo_ai_chat_global";
       sessionStorage.removeItem(storageKey);
     } catch {
       // Ignore
     }
-    toast({ message: "ล้างประวัติการสนทนาเรียบร้อย", type: "info" });
+    toast({ message: tr("เริ่มบทสนทนาใหม่แล้ว", "Started a new conversation"), type: "info" });
   };
 
-  const handleCopy = (content: string, id: string) => {
-    navigator.clipboard.writeText(content);
-    setCopiedId(id);
-    toast({ message: "คัดลอกข้อความแล้ว", type: "success" });
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleCopy = async (content: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedId(id);
+      toast({ message: tr("คัดลอกข้อความแล้ว", "Copied to clipboard"), type: "success" });
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      toast({ message: tr("คัดลอกไม่สำเร็จ", "Copy failed"), type: "error" });
+    }
   };
 
   // Do not render on public auth pages
@@ -376,11 +416,18 @@ export function AiChatWidget() {
     pathname === "/reset-password";
   if (isAuthPage) return null;
 
+  const visibleMessages = messages.filter((message) => message.id !== WELCOME_ID);
+  const isEmpty = visibleMessages.length === 0;
+  const modelLabel = activeModel === "deepseek-flash" ? "Flash" : activeModel;
+
   const proposalForConfirmation = messages.find((message) =>
     message.id === confirmProposalId
   )?.createProposal;
   const confirmationSummary = proposalForConfirmation
-    ? `ยืนยันสร้าง ${proposalForConfirmation.cards.length} การ์ดลงบอร์ด “${proposalForConfirmation.boardName}” หรือไม่? รายการ: ${proposalForConfirmation.cards.map((card) => card.title).join("、")}`
+    ? tr(
+        `ยืนยันสร้าง ${proposalForConfirmation.cards.length} การ์ดลงบอร์ด “${proposalForConfirmation.boardName}” หรือไม่? รายการ: ${proposalForConfirmation.cards.map((card) => card.title).join(", ")}`,
+        `Create ${proposalForConfirmation.cards.length} card(s) on “${proposalForConfirmation.boardName}”? Items: ${proposalForConfirmation.cards.map((card) => card.title).join(", ")}`
+      )
     : "";
 
   return (
@@ -388,6 +435,8 @@ export function AiChatWidget() {
       {/* ─── AI Chat Window (Supports Float at Bottom-Right & Side Panel like Gemini) ─── */}
       {isOpen && (
         <div
+          role="dialog"
+          aria-label="Retzlo AI"
           className={cn(
             "z-50 flex flex-col border border-theme-border bg-theme-panel text-theme-foreground shadow-2xl backdrop-blur-xl transition-all duration-300",
             viewMode === "float" || isSmallScreen
@@ -396,30 +445,29 @@ export function AiChatWidget() {
           )}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-theme-border bg-theme-panel-strong px-4 py-3 shrink-0">
-            <div className="flex items-center gap-2.5">
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-xl border border-theme-border bg-theme-paper text-theme-accent">
-                <GeminiSparkleIcon className="h-4.5 w-4.5" />
-                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-theme-success ring-2 ring-theme-panel-strong" />
-              </div>
-              <div>
-                <h3 className="text-xs font-bold text-theme-foreground flex items-center gap-1">
-                  Retzlo AI Assistant
-                  <Sparkles className="h-3 w-3 text-theme-warning" />
-                </h3>
-                <p className="text-[10px] text-theme-muted font-medium">
-                  {activeModel === "deepseek-flash" ? "Fast Mode" : "Ready • ผู้ช่วยอัจฉริยะ"}
+          <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-theme-border px-4">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <GeminiSparkleIcon className="h-[18px] w-[18px] shrink-0" />
+              <div className="min-w-0 leading-tight">
+                <h3 className="text-[13px] font-semibold tracking-tight text-theme-foreground">Retzlo AI</h3>
+                <p className="flex items-center gap-1.5 truncate text-[11px] text-theme-muted">
+                  <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", isLoading ? "bg-theme-warning" : "bg-theme-success")} />
+                  {isLoading ? tr("กำลังประมวลผล", "Working") : tr("พร้อมใช้งาน", "Online")}
+                  <span aria-hidden className="text-theme-border">/</span>
+                  <span className="truncate font-mono">{modelLabel}</span>
                 </p>
               </div>
             </div>
 
             {/* Window Controls */}
-            <div className="flex items-center gap-1">
+            <div className="flex shrink-0 items-center gap-0.5">
               <button
                 type="button"
                 onClick={handleClearChat}
-                className="rounded-lg p-1.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
-                title="ล้างประวัติการสนทนา"
+                disabled={isEmpty}
+                className={cn(iconButtonClass, "disabled:pointer-events-none disabled:opacity-35")}
+                title={tr("เริ่มบทสนทนาใหม่", "New conversation")}
+                aria-label={tr("เริ่มบทสนทนาใหม่", "New conversation")}
               >
                 <RotateCcw className="h-3.5 w-3.5" />
               </button>
@@ -428,11 +476,11 @@ export function AiChatWidget() {
                 <button
                   type="button"
                   onClick={() => setViewMode(viewMode === "float" ? "sidepanel" : "float")}
-                  className="rounded-lg p-1.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
+                  className={iconButtonClass}
                   title={
                     viewMode === "float"
-                      ? "ตรึงแถบข้าง (Side Panel แบบ Gemini ใน Sheets)"
-                      : "สลับเป็นกล่องแชทลอย (ขวาล่าง)"
+                      ? tr("ตรึงแถบข้าง (Side Panel แบบ Gemini ใน Sheets)", "Dock to side panel")
+                      : tr("สลับเป็นกล่องแชทลอย (ขวาล่าง)", "Switch to floating window (bottom-right)")
                   }
                 >
                   {viewMode === "float" ? (
@@ -443,191 +491,249 @@ export function AiChatWidget() {
                 </button>
               )}
 
+              <span aria-hidden className="mx-1 h-4 w-px bg-theme-border" />
+
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="rounded-lg p-1.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
-                title="ปิดแชท"
+                className={iconButtonClass}
+                title={tr("ปิดแชท", "Close")}
+                aria-label={tr("ปิดแชท", "Close")}
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
+          </header>
+
+          {/* Context bar */}
+          <div className="flex h-8 shrink-0 items-center justify-between gap-2 border-b border-theme-border bg-theme-panel-strong/60 px-4 text-[11px] text-theme-muted">
+            <span className="flex min-w-0 items-center gap-1.5 truncate">
+              <FolderKanban className="h-3 w-3 shrink-0" />
+              {currentProjectId
+                ? tr("ใช้บริบทจากโปรเจกต์ปัจจุบัน", "Using current project context")
+                : tr("โหมดทั่วไป · ไม่มีบริบทโปรเจกต์", "General mode · no project context")}
+            </span>
+            {credits !== null && (
+              <span className="shrink-0 font-mono tabular-nums">
+                {credits} {tr("เครดิต", "credits")}
+              </span>
+            )}
           </div>
 
-          {/* Context Tag Banner */}
-          {currentProjectId && (
-            <div className="border-b border-theme-border bg-theme-paper px-3.5 py-1 text-[11px] text-theme-accent flex items-center justify-between">
-              <span>📍 เชื่อมต่อบริบทโปรเจกต์ปัจจุบัน</span>
-              {credits !== null && (
-                <span className="font-mono text-[10px] text-theme-muted">
-                  {credits} cr
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Messages Container */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs">
-            {messages.map((msg) => {
-              const isUser = msg.role === "user";
-              return (
-                <div
-                  key={msg.id}
-                  className={cn("flex flex-col group", isUser ? "items-end" : "items-start")}
-                >
-                  <div
-                    className={cn(
-                      "max-w-[85%] rounded-2xl px-3.5 py-2.5 leading-relaxed break-words shadow-xs relative",
-                      isUser
-                        ? "bg-theme-accent text-theme-background font-medium rounded-tr-xs"
-                        : "bg-theme-panel-strong border border-theme-border text-theme-foreground rounded-tl-xs"
-                    )}
-                  >
-                    {/* Message formatting */}
-                    <div className="whitespace-pre-wrap font-sans">
-                      {msg.content}
-                    </div>
-
-                    {/* Copy action for assistant messages */}
-                    {!isUser && msg.id !== "welcome" && (
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(msg.content, msg.id)}
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition p-1 rounded bg-theme-paper text-theme-muted hover:text-theme-foreground"
-                        title="คัดลอกคำตอบ"
-                      >
-                        {copiedId === msg.id ? (
-                          <Check className="h-3 w-3 text-theme-success" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
+          {/* Messages / Empty state */}
+          <div className="flex-1 overflow-y-auto">
+            {isEmpty ? (
+              <div className="flex min-h-full flex-col justify-end px-5 pb-4 pt-8">
+                <div className="mb-6">
+                  <GeminiSparkleIcon className="mb-4 h-6 w-6" />
+                  <h4 className="text-lg font-semibold tracking-tight text-theme-foreground">
+                    {tr("วันนี้ให้ช่วยอะไรดี?", "How can I help today?")}
+                  </h4>
+                  <p className="mt-1.5 max-w-[34ch] text-[13px] leading-relaxed text-theme-muted">
+                    {currentProjectId
+                      ? tr(
+                          "ถามเกี่ยวกับการ์ดในบอร์ด วางแผนลำดับงาน หรือให้ร่างการ์ดใหม่ให้ได้",
+                          "Ask about cards on this board, plan priorities, or have me draft new cards."
+                        )
+                      : tr(
+                          "เปิดโปรเจกต์เพื่อให้ AI อ่านบริบทบอร์ด หรือเริ่มถามคำถามทั่วไปได้เลย",
+                          "Open a project to give me board context, or start with a general question."
                         )}
+                  </p>
+                </div>
+
+                <div className="overflow-hidden rounded-xl border border-theme-border divide-y divide-theme-border">
+                  {STARTER_PROMPTS.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.label.en}
+                        type="button"
+                        onClick={() => handleSend(isEn ? item.prompt.en : item.prompt.th)}
+                        className="group flex w-full items-center gap-3 bg-theme-panel px-3.5 py-2.5 text-left transition-colors hover:bg-theme-paper focus:outline-none focus-visible:bg-theme-paper cursor-pointer"
+                      >
+                        <Icon className="h-4 w-4 shrink-0 text-theme-muted transition-colors group-hover:text-theme-accent" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-[13px] font-medium text-theme-foreground">
+                            {isEn ? item.label.en : item.label.th}
+                          </span>
+                          <span className="block truncate text-[11px] text-theme-muted">
+                            {isEn ? item.prompt.en : item.prompt.th}
+                          </span>
+                        </span>
+                        <ArrowUp className="h-3.5 w-3.5 shrink-0 rotate-45 text-theme-muted opacity-0 transition-opacity group-hover:opacity-100" />
                       </button>
-                    )}
-                  </div>
-                  <span className="text-[10px] text-theme-muted mt-1 px-1 font-mono">
-                    {msg.timestamp}
-                  </span>
-                  {msg.createProposal && (
-                    <div className="mt-2 w-full max-w-[85%] rounded-xl border border-stone-700 bg-stone-900 p-3 shadow-sm">
-                      <p className="text-xs font-semibold text-stone-100">
-                        ร่างการ์ด {msg.createProposal.cards.length} ใบ · {msg.createProposal.boardName}
-                      </p>
-                      <p className="mt-1 text-[11px] text-stone-400">
-                        ตรวจรายการ แล้วกดยืนยันก่อนบันทึกลงระบบ
-                      </p>
-                      <ul className="mt-2 max-h-36 space-y-2 overflow-y-auto">
-                        {msg.createProposal.cards.map((card, index) => (
-                          <li
-                            key={`${card.columnId}-${index}`}
-                            className="rounded-lg border border-stone-700 bg-stone-950 px-2.5 py-2"
-                          >
-                            <p className="text-xs font-medium text-stone-100">
-                              {index + 1}. {card.title}
-                            </p>
-                            {card.description && (
-                              <p className="mt-1 whitespace-pre-wrap text-[11px] text-stone-300">
-                                {card.description}
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-5 px-4 py-5 text-[13px] leading-relaxed">
+                {visibleMessages.map((msg) => {
+                  if (msg.role === "user") {
+                    return (
+                      <div key={msg.id} className="flex justify-end">
+                        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md border border-theme-border bg-theme-paper px-3.5 py-2 text-theme-foreground">
+                          {msg.content}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={msg.id} className="group flex gap-3">
+                      <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border border-theme-border bg-theme-panel-strong">
+                        {msg.isError ? (
+                          <CircleAlert className="h-3.5 w-3.5 text-theme-danger" />
+                        ) : (
+                          <GeminiSparkleIcon className="h-3.5 w-3.5" />
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        {msg.isError ? (
+                          <p className="rounded-lg border border-theme-danger-border bg-theme-danger-surface px-3 py-2 text-theme-danger">
+                            {msg.content.replace(/^\u26A0\uFE0F?\s*/, "")}
+                          </p>
+                        ) : (
+                          <AiMessageContent content={msg.content.replace(/^\u26A0\uFE0F?\s*/, "")} className="text-theme-foreground/90" />
+                        )}
+
+                        {msg.createProposal && (
+                          <div className="mt-3 overflow-hidden rounded-xl border border-theme-border bg-theme-panel-strong">
+                            <div className="flex items-baseline justify-between gap-2 border-b border-theme-border px-3.5 py-2.5">
+                              <p className="text-[12px] font-semibold text-theme-foreground">
+                                {tr("ร่างการ์ด", "Draft cards")} · {msg.createProposal.boardName}
                               </p>
-                            )}
-                            <p className="mt-1 text-[10px] text-stone-400">
-                              {card.columnName} · ความสำคัญ {getPriorityMeta(card.priority).label} · {formatProposalDueDate(card.dueDate, card.dueDateAllDay)}
-                            </p>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={() => setConfirmProposalId(msg.id)}
-                        >
-                          ตรวจรายการและยืนยัน
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => cancelCreateProposal(msg.id)}
-                        >
-                          ยกเลิกร่าง
-                        </Button>
+                              <span className="font-mono text-[11px] text-theme-muted">
+                                {msg.createProposal.cards.length} {tr("ใบ", "items")}
+                              </span>
+                            </div>
+                            <ul className="max-h-44 divide-y divide-theme-border overflow-y-auto">
+                              {msg.createProposal.cards.map((card, index) => (
+                                <li key={`${card.columnId}-${index}`} className="flex gap-2.5 px-3.5 py-2.5">
+                                  <span className="w-4 shrink-0 pt-px text-right font-mono text-[11px] text-theme-muted">
+                                    {index + 1}
+                                  </span>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-[12px] font-medium text-theme-foreground">{card.title}</p>
+                                    {card.description && (
+                                      <p className="mt-0.5 line-clamp-2 whitespace-pre-wrap text-[11px] text-theme-muted">
+                                        {card.description}
+                                      </p>
+                                    )}
+                                    <p className="mt-1 flex flex-wrap gap-x-2 text-[10px] uppercase tracking-wide text-theme-muted">
+                                      <span>{card.columnName}</span>
+                                      <span>·</span>
+                                      <span>{getPriorityMeta(card.priority).label}</span>
+                                      <span>·</span>
+                                      <span className="normal-case tracking-normal">
+                                        {formatProposalDueDate(card.dueDate, card.dueDateAllDay, isEn)}
+                                      </span>
+                                    </p>
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                            <div className="flex items-center justify-end gap-2 border-t border-theme-border px-3.5 py-2.5">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => cancelCreateProposal(msg.id)}
+                              >
+                                {tr("ยกเลิกร่าง", "Discard")}
+                              </Button>
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={() => setConfirmProposalId(msg.id)}
+                              >
+                                {tr("ตรวจและสร้างการ์ด", "Review & create")}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {msg.proposalStatus === "created" && (
+                          <p className="mt-3 flex items-center gap-1.5 text-[12px] text-theme-success">
+                            <Check className="h-3.5 w-3.5" />
+                            {tr(`สร้างการ์ด ${msg.createdCardCount ?? 0} ใบลงบอร์ดแล้ว`, `Created ${msg.createdCardCount ?? 0} card(s) on the board`)}
+                          </p>
+                        )}
+                        {msg.proposalStatus === "cancelled" && (
+                          <p className="mt-3 text-[12px] text-theme-muted">{tr("ยกเลิกร่างการ์ดแล้ว", "Draft discarded")}</p>
+                        )}
+
+                        <div className="mt-1.5 flex h-6 items-center gap-1 text-[10px] text-theme-muted">
+                          <span className="font-mono tabular-nums">{msg.timestamp}</span>
+                          {!msg.isError && (
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(msg.content, msg.id)}
+                              className="ml-1 flex items-center gap-1 rounded px-1.5 py-0.5 opacity-0 transition hover:bg-theme-paper hover:text-theme-foreground focus:opacity-100 group-hover:opacity-100 cursor-pointer"
+                              title={tr("คัดลอกคำตอบ", "Copy response")}
+                            >
+                              {copiedId === msg.id ? (
+                                <Check className="h-3 w-3 text-theme-success" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                              {copiedId === msg.id ? tr("คัดลอกแล้ว", "Copied") : tr("คัดลอก", "Copy")}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  )}
-                  {msg.proposalStatus === "created" && (
-                    <p className="mt-2 rounded-lg border border-emerald-700/50 bg-emerald-950/40 px-3 py-2 text-[11px] text-emerald-300">
-                      สร้างการ์ด {msg.createdCardCount ?? 0} ใบลงบอร์ดแล้ว
-                    </p>
-                  )}
-                  {msg.proposalStatus === "cancelled" && (
-                    <p className="mt-2 text-[11px] text-stone-400">ยกเลิกร่างการ์ดแล้ว</p>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
 
-            {/* Thinking indicator */}
-            {isLoading && (
-              <div className="flex items-start gap-2">
-                <div className="rounded-2xl rounded-tl-xs bg-theme-panel-strong border border-theme-border px-3.5 py-2.5 text-theme-muted flex items-center gap-2">
-                  <Bot className="h-3.5 w-3.5 text-theme-accent animate-pulse" />
-                  <span className="text-xs">กำลังคิดและวิเคราะห์...</span>
-                  <div className="flex gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-theme-accent animate-bounce" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-theme-accent animate-bounce [animation-delay:0.2s]" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-theme-accent animate-bounce [animation-delay:0.4s]" />
+                {/* Thinking indicator */}
+                {isLoading && (
+                  <div className="flex gap-3" aria-live="polite">
+                    <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border border-theme-border bg-theme-panel-strong">
+                      <GeminiSparkleIcon className="h-3.5 w-3.5 animate-spin [animation-duration:2.4s]" />
+                    </div>
+                    <div className="flex-1 space-y-2 pt-1">
+                      <p className="text-[12px] text-theme-muted">{tr("กำลังวิเคราะห์ข้อมูลบอร์ด…", "Analyzing your board…")}</p>
+                      <div className="h-2 w-3/4 animate-pulse rounded bg-theme-paper" />
+                      <div className="h-2 w-1/2 animate-pulse rounded bg-theme-paper [animation-delay:150ms]" />
+                    </div>
                   </div>
-                </div>
+                )}
+
+                <div ref={messagesEndRef} />
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick starter chips (shown when 1 message) */}
-          {messages.length <= 1 && (
-            <div className="px-4 pb-2 space-y-1.5">
-              <p className="text-[11px] font-semibold text-theme-muted">💡 คำถามด่วนที่แนะนำ:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {STARTER_PROMPTS.map((prompt, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSend(prompt)}
-                    className="text-left rounded-lg border border-theme-border bg-theme-paper hover:border-theme-accent hover:bg-theme-paper-strong px-2.5 py-1 text-[11px] text-theme-muted hover:text-theme-foreground transition cursor-pointer"
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Input Box */}
-          <div className="border-t border-theme-border bg-theme-panel-strong p-3 shrink-0">
-            <div className="relative flex items-center">
+          {/* Composer */}
+          <div className="shrink-0 px-3 pb-3 pt-2">
+            <div className="rounded-xl border border-theme-border bg-theme-background transition-colors focus-within:border-theme-accent/70 focus-within:ring-2 focus-within:ring-theme-accent/15">
               <textarea
                 ref={inputRef}
                 rows={1}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="พิมพ์ข้อความคุยกับ AI (Enter เพื่อส่ง)..."
-                className="w-full resize-none rounded-xl border border-theme-border bg-theme-background px-3.5 py-2.5 pr-10 text-xs text-theme-foreground placeholder:text-theme-muted focus:border-theme-accent focus:outline-none focus:ring-1 focus:ring-theme-accent"
+                placeholder={tr("ถาม Retzlo AI เกี่ยวกับงานของคุณ…", "Ask Retzlo AI about your work…")}
+                className="block max-h-40 w-full resize-none bg-transparent px-3.5 pt-3 text-[13px] leading-relaxed text-theme-foreground placeholder:text-theme-muted focus:outline-none"
               />
-              <button
-                type="button"
-                disabled={!input.trim() || isLoading}
-                onClick={() => handleSend()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-theme-accent hover:bg-theme-paper disabled:opacity-40 transition cursor-pointer"
-                title="ส่งข้อความ"
-              >
-                <Send className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="flex items-center justify-between mt-2 text-[10px] text-theme-muted px-1">
-              <span>หัก 1 เครดิต / ข้อความ</span>
-              <span>{activeModel}</span>
+              <div className="flex items-center justify-between gap-2 px-2 pb-2 pl-3.5">
+                <span className="truncate text-[10px] text-theme-muted">
+                  {tr("Enter ส่ง · Shift+Enter ขึ้นบรรทัด · 1 เครดิต/ข้อความ", "Enter to send · Shift+Enter for newline · 1 credit/msg")}
+                </span>
+                <button
+                  type="button"
+                  disabled={!input.trim() || isLoading}
+                  onClick={() => handleSend()}
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-theme-accent text-theme-background transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:bg-theme-paper disabled:text-theme-muted cursor-pointer"
+                  title={tr("ส่งข้อความ", "Send message")}
+                  aria-label={tr("ส่งข้อความ", "Send message")}
+                >
+                  <ArrowUp className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -635,10 +741,10 @@ export function AiChatWidget() {
 
       <ConfirmModal
         open={Boolean(proposalForConfirmation)}
-        title="ยืนยันสร้างการ์ดจาก AI?"
+        title={tr("ยืนยันสร้างการ์ดจาก AI?", "Create cards from AI?")}
         message={confirmationSummary}
-        confirmLabel="ยืนยันสร้าง"
-        cancelLabel="กลับไปตรวจรายการ"
+        confirmLabel={tr("ยืนยันสร้าง", "Create")}
+        cancelLabel={tr("กลับไปตรวจรายการ", "Back to review")}
         isLoading={isCreatingCards}
         onConfirm={confirmCreateProposal}
         onClose={() => setConfirmProposalId(null)}

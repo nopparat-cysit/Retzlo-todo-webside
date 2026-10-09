@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { CalendarDays } from "lucide-react";
 
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Panel } from "@/components/ui/panel";
 import { formatDiaryDate } from "@/lib/date-format";
 import { getCardColorMeta } from "@/lib/theme/card-colors";
@@ -45,15 +45,15 @@ export function DiaryTodo({ projectId, selectedDate, tasks, days = 5 }: DiaryTod
             Tasks arranged by day from the selected date.
           </p>
         </div>
-        <label className="space-y-2 text-sm text-stone-300">
+        <div className="space-y-2 text-sm text-stone-300">
           <span>Pick day</span>
-          <Input
+          <DatePicker
             className="w-52"
-            type="date"
+            placeholder="Pick day..."
             value={selectedDate}
-            onChange={(event) => changeDate(event.target.value)}
+            onChange={(nextDate) => nextDate && changeDate(nextDate)}
           />
-        </label>
+        </div>
       </Panel>
       <div className="grid gap-3">
         {dates.map((date) => {

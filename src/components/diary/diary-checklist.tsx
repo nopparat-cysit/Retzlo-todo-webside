@@ -3,8 +3,10 @@
 import { Calendar, CheckCircle2, Circle, Coins, Minus, Plus, Repeat, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input, Textarea } from "@/components/ui/input";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { TimePicker } from "@/components/ui/time-picker";
 import {
   isDiaryChecklistItemCompletedOnDate,
   isDiaryChecklistItemDueOnDate,
@@ -245,12 +247,10 @@ export function DiaryChecklistEditor({
                           </span>
                         ) : null}
                       </div>
-                      <Input
-                        className="h-9 font-mono text-xs sm:text-sm"
-                        type="date"
+                      <DatePicker
                         value={(item.startDate || defaultStartDate).slice(0, 10)}
-                        onChange={(event) => updateItem(item.id, { startDate: event.target.value })}
-                        required
+                        onChange={(nextDate) => updateItem(item.id, { startDate: nextDate })}
+                        triggerClassName="h-9 font-mono text-xs sm:text-sm"
                       />
                       {/* Quick Presets row */}
                       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
@@ -297,11 +297,10 @@ export function DiaryChecklistEditor({
                           <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-stone-400">ตลอดวัน</span>
                         )}
                       </div>
-                      <Input
-                        className="h-9 font-mono text-xs sm:text-sm"
-                        type="time"
-                        value={item.dueTime ?? ""}
-                        onChange={(event) => updateItem(item.id, { dueTime: event.target.value || null })}
+                      <TimePicker
+                        value={item.dueTime}
+                        onChange={(nextTime) => updateItem(item.id, { dueTime: nextTime || null })}
+                        triggerClassName="h-9 font-mono text-xs sm:text-sm"
                       />
                       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                         <span className="text-[11px] text-stone-500">ปุ่มลัด:</span>

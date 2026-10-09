@@ -26,6 +26,8 @@ export interface DatePickerProps {
   align?: "start" | "center" | "end";
   showShortcuts?: boolean;
   id?: string;
+  name?: string;
+  required?: boolean;
 }
 
 export interface CalendarViewProps {
@@ -372,7 +374,7 @@ export function CalendarView({
 export function DatePicker({
   value,
   onChange,
-  placeholder = "เลือกวันที่...",
+  placeholder,
   disabled = false,
   minDate,
   maxDate,
@@ -380,8 +382,14 @@ export function DatePicker({
   triggerClassName,
   align = "start",
   showShortcuts = true,
-  id
+  id,
+  name,
+  required
 }: DatePickerProps) {
+  const { isEn } = useLanguage();
+  const defaultPlaceholder = isEn ? "Select date..." : "เลือกวันที่...";
+  const resolvedPlaceholder = placeholder || defaultPlaceholder;
+
   const [open, setOpen] = useState(false);
   const generatedId = useId();
   const inputId = id || generatedId;
@@ -404,6 +412,7 @@ export function DatePicker({
 
   return (
     <div className={cn("relative inline-block w-full", className)}>
+      {name ? <input type="hidden" name={name} value={value ?? ""} required={required} /> : null}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
@@ -428,7 +437,7 @@ export function DatePicker({
                   {displayString}
                 </span>
               ) : (
-                <span className="text-stone-400 dark:text-stone-500">{placeholder}</span>
+                <span className="text-stone-400 dark:text-stone-500">{resolvedPlaceholder}</span>
               )}
             </div>
 

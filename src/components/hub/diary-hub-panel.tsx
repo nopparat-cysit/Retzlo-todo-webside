@@ -6,6 +6,7 @@ import { BookOpen, CheckCircle2, Coins, Eye, EyeOff, Pencil, Plus, Repeat, Save,
 import { DiaryChecklistEditor, DiaryChecklistPreview } from "@/components/diary/diary-checklist";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/state";
@@ -562,16 +563,16 @@ export function DiaryItemModal({
             {/* Schedule & Settings Card */}
             <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-dusk-cyan font-semibold">Schedule & Settings</p>
-              <label className="block space-y-1 text-xs text-stone-400">
+              <div className="block space-y-1 text-xs text-stone-400">
                 <span className="text-stone-300 font-medium">Start date (วันเริ่มต้นหลัก)</span>
-                <Input
+                <DatePicker
                   name="startDate"
-                  type="date"
-                  value={startDate}
-                  onChange={(event) => setStartDate(event.target.value)}
                   required
+                  value={startDate}
+                  onChange={(nextDate) => setStartDate(nextDate)}
+                  placeholder="เลือกวันเริ่มต้น..."
                 />
-              </label>
+              </div>
             </div>
 
             {/* Coins Placement: Milestone Reward Card */}

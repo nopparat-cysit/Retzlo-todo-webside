@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarView, formatDisplayDateShort } from "@/components/ui/date-picker";
 import { TimeView, formatDisplayTime } from "@/components/ui/time-picker";
 import { useOutsideClickDismiss } from "@/hooks/use-outside-click";
+import { useLanguage } from "@/lib/i18n/language-context";
 
 export interface DateTimePickerValue {
   date: string;
@@ -30,13 +31,17 @@ export interface DateTimePickerProps {
 export function DateTimePicker({
   value,
   onChange,
-  placeholder = "เลือกวันและเวลา...",
+  placeholder,
   disabled = false,
   className,
   triggerClassName,
   align = "start",
   id
 }: DateTimePickerProps) {
+  const { isEn } = useLanguage();
+  const defaultPlaceholder = isEn ? "Select date & time..." : "เลือกวันและเวลา...";
+  const resolvedPlaceholder = placeholder || defaultPlaceholder;
+
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"date" | "time">("date");
   const generatedId = useId();
@@ -99,7 +104,7 @@ export function DateTimePicker({
                   {displayLabel}
                 </span>
               ) : (
-                <span className="text-stone-400 dark:text-stone-500">{placeholder}</span>
+                <span className="text-stone-400 dark:text-stone-500">{resolvedPlaceholder}</span>
               )}
             </div>
 

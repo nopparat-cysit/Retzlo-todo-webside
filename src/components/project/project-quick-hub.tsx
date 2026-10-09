@@ -6,6 +6,7 @@ import { BookOpenCheck, FileText, Plus, Save, SlidersHorizontal, X } from "lucid
 import { DiaryChecklistEditor } from "@/components/diary/diary-checklist";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input, Textarea } from "@/components/ui/input";
 import { normalizeDiaryChecklist, type DiaryChecklistItem } from "@/lib/diary/checklist";
 import { cardColorOptions, getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
@@ -191,10 +192,10 @@ function QuickCreateModal({
           {isDiary ? (
             <aside className={cn("space-y-4 self-start rounded-lg border border-white/10 bg-white/[0.025] p-4", !isSettingsOpen && "hidden")}>
               <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Settings</p>
-              <label className="space-y-2 text-sm text-stone-300">
+              <div className="space-y-2 text-sm text-stone-300">
                 <span>Start date</span>
-                <Input name="startDate" type="date" value={diaryStartDate} onChange={(event) => setDiaryStartDate(event.target.value)} required />
-              </label>
+                <DatePicker name="startDate" value={diaryStartDate} onChange={setDiaryStartDate} />
+              </div>
               <label className={cn("flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-stone-300", !allowMemberPrivateItems && "opacity-60")}>
                 <span>Hide from other members</span>
                 <input

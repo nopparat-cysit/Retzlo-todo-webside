@@ -5,7 +5,9 @@ import { useRouter, useParams } from "next/navigation";
 import { BookOpen, CheckCircle2, ExternalLink, FileText, Pin, Plus, Save, SlidersHorizontal, Star, X } from "lucide-react";
 import { DiaryChecklistEditor, DiaryChecklistPreview, getStartDayOfMonth } from "@/components/diary/diary-checklist";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input, Textarea } from "@/components/ui/input";
+import { TimePicker } from "@/components/ui/time-picker";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -981,23 +983,23 @@ function FabCreateModal({
             <ColorPicker selectedColor={color} onChange={setColor} />
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="space-y-2 text-sm text-stone-300">
+              <div className="space-y-2 text-sm text-stone-300">
                 <span>Due date (optional)</span>
-                <Input
-                  type="date"
+                <DatePicker
+                  placeholder="Select due date..."
                   value={noteDate}
-                  onChange={(e) => setNoteDate(e.target.value)}
+                  onChange={setNoteDate}
                 />
-              </label>
-              <label className="space-y-2 text-sm text-stone-300">
+              </div>
+              <div className="space-y-2 text-sm text-stone-300">
                 <span>Due time (optional)</span>
-                <Input
-                  type="time"
+                <TimePicker
+                  placeholder="Select due time..."
                   value={noteTime}
                   disabled={!noteDate}
-                  onChange={(e) => setNoteTime(e.target.value)}
+                  onChange={setNoteTime}
                 />
-              </label>
+              </div>
             </div>
 
             {/* Privacy Checkbox */}
@@ -1054,15 +1056,15 @@ function FabCreateModal({
 
             <aside className={cn("space-y-4 self-start rounded-xl border border-white/10 bg-white/[0.025] p-4", !isSettingsOpen && "hidden")}>
               <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Settings</p>
-              <label className="space-y-2 text-sm text-stone-300">
+              <div className="space-y-2 text-sm text-stone-300">
                 <span>Start date</span>
-                <Input
-                  type="date"
+                <DatePicker
+                  placeholder="Select start date..."
                   value={diaryStartDate}
-                  onChange={(e) => setDiaryStartDate(e.target.value)}
-                  required
+                  onChange={setDiaryStartDate}
+                  name="startDate"
                 />
-              </label>
+              </div>
               {selectedProjectId !== "" && allowMemberPrivateItems ? (
                 <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-sm text-stone-300">
                   <span>Hide from other members</span>

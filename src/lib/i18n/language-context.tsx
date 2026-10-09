@@ -5,6 +5,7 @@ import { TRANSLATIONS, type SupportedLanguage, type TranslationDictionary } from
 
 interface LanguageContextType {
   language: SupportedLanguage;
+  isEn: boolean;
   setLanguage: (lang: SupportedLanguage) => void;
   toggleLanguage: () => void;
   t: TranslationDictionary;
@@ -15,6 +16,7 @@ const DEFAULT_LANGUAGE: SupportedLanguage = "en";
 
 const LanguageContext = createContext<LanguageContextType>({
   language: DEFAULT_LANGUAGE,
+  isEn: true,
   setLanguage: () => {},
   toggleLanguage: () => {},
   t: TRANSLATIONS[DEFAULT_LANGUAGE],
@@ -85,7 +87,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, isEn: language === "en", setLanguage, toggleLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );

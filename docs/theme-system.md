@@ -589,3 +589,31 @@ Template:
   - Checkbox ปุ่มเลือกสถานะ: ปรับจาก `border-white/25 bg-white/5` เป็น `border-2 border-stone-400 bg-white` ในโหมดสว่าง และเมื่อเสร็จสิ้นใช้ `border-emerald-600 bg-emerald-600` ชัดเจนมองเห็นได้ทันที
   - Progress & Summary Bar: ปรับจากแถบสีดำทึบเป็น `bg-stone-100/80 border-b border-stone-200/80` พร้อมตัวเลขและแถบเปอร์เซ็นต์สีสมดุลกับธีม
 - Reviewed: ตรวจสอบความถูกต้องของโค้ด, Vitest 90/90 files ผ่าน (470 tests ผ่าน), ESLint 0 errors/warnings, Prisma validate ผ่าน, Next.js build ผ่าน 100% (38/38 routes).
+
+### 2026-10-07 — รวมศูนย์มาตรฐาน DatePicker และ TimePicker ให้เป็นรูปแบบเดียวกันทั่วทั้งระบบ (System-Wide DatePicker & TimePicker Uniformity)
+- Added/changed:
+  - `src/components/ui/date-picker.tsx` (เพิ่มการรองรับ `name` และ `required` props สำหรับ form submission, และ localized placeholder ตามภาษาที่เลือก)
+  - `src/components/ui/time-picker.tsx` (เพิ่มการรองรับ `name` และ `required` props สำหรับ form submission, และ localized placeholder ตามภาษาที่เลือก)
+  - `src/components/ui/date-time-picker.tsx` (เพิ่ม localized placeholder ผ่าน `useLanguage`)
+  - `src/components/diary/diary-checklist.tsx` (แทนที่ native `type="date"` และ `type="time"` ในการกำหนด Start Date และ Due Time ของ Routine Checklist Item ด้วย `DatePicker` และ `TimePicker`)
+  - `src/components/diary/diary-list-panel.tsx` (แทนที่ native `type="date"` ใน Diary Create/Edit Dialog ด้วย `DatePicker`)
+  - `src/components/diary/diary-todo.tsx` (แทนที่ native `type="date"` ในตัวเลือก Pick day ด้วย `DatePicker`)
+  - `src/components/hub/diary-hub-panel.tsx` (แทนที่ native `type="date"` ใน Quick Diary modal ด้วย `DatePicker`)
+  - `src/components/hub/fab-hub.tsx` (แทนที่ native `type="date"` และ `type="time"` ใน Quick Create Tasks, Notes, และ Diaries ด้วย `DatePicker` และ `TimePicker`)
+  - `src/components/project/project-quick-hub.tsx` (แทนที่ native `type="date"` ใน Drawer ด้วย `DatePicker`)
+  - `src/components/ui/date-picker.test.ts` (เพิ่มชุดทดสอบยืนยันความเป็นอันหนึ่งอันเดียวกันของ DatePicker และ TimePicker ทั่วทุกโมดูล)
+- Tokens/variants:
+  - ทุกจุดในระบบใช้ Custom Popover เดียวกัน: Retro Lofi Card, `h-9` trigger, `rounded-xl`, high contrast border, clear icon, backdrop blur, และ bilingual presets
+  - ลบ native browser inputs (`type="date"`, `type="time"`) ออกทั้งหมด 100% ในฝั่ง Application UI
+- Reviewed: Vitest 90/90 files ผ่าน (472 passed tests), ESLint 0 errors/warnings, Prisma validate ผ่าน, Next.js production build ผ่าน 100% (38/38 routes).
+
+### 2026-10-09 - AI Chat Panel Professional Redesign (Retzlo AI Widget Polish)
+- Added/changed: `src/components/ai/ai-chat-widget.tsx`, `src/components/ai/ai-message-content.tsx` (new), `src/components/ai/ai-message-content.test.ts` (new), `src/lib/i18n/language-context.tsx`.
+- Visual direction: removed emoji decorations, bouncing-dot loader, duplicate sparkle icons and the saturated accent user bubble. Assistant replies now render as document-style text (Markdown subset: headings, bold, inline code, lists) next to a small icon tile; user messages use a subtle `bg-theme-paper` bubble.
+- Empty state: headline + description + icon-led prompt list (bordered, divided rows) instead of emoji chips.
+- Draft-card proposal panel moved from hardcoded `stone-*` palette to semantic tokens (`theme-panel-strong`, `theme-border`, `theme-muted`), so it follows light/dark modes.
+- Errors render with `theme-danger` surface/border tokens; created state uses `theme-success`.
+- Composer: auto-growing textarea, solid accent send button, keyboard hint row.
+- Theme modes reviewed: light and dark via token usage only; no new fixed palette values. Gemini rainbow sparkle remains the documented brand exception.
+- Shared change: `useLanguage()` now exposes `isEn`. This fixes components that already destructured `isEn` (`DatePicker`, `TimePicker`, `DateTimePicker`, `HelpButton`, `NotificationsPopover`, `ProjectMembersView`, `DraftRecoveryModal`) which were previously always rendering Thai copy.
+- Remaining gaps: `AiBreakdownModal` and `AiProjectSummaryModal` not restyled in this pass.
