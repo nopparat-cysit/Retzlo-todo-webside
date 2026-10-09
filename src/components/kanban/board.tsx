@@ -472,7 +472,7 @@ export function KanbanBoard({
 
   const { broadcastChange, syncNow } = useLiveSync({
     channelKey: board.projectId ? [`board:${board.id}`, `project:${board.projectId}`] : `board:${board.id}`,
-    intervalMs: 3000,
+    intervalMs: 2000,
     canSync: () => {
       if (!syncGuard.canSync()) return false;
       if (isPointerInteractingRef.current) return false;

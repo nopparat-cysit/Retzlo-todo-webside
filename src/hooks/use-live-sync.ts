@@ -11,7 +11,7 @@ export interface UseLiveSyncOptions {
   channelKey?: string | string[];
   /**
    * Polling interval in milliseconds when the tab is focused and visible.
-   * Default is 4000ms. Set to 0 to disable polling and rely only on focus/broadcast.
+   * Default is 2000ms. Set to 0 to disable polling and rely only on focus/broadcast.
    */
   intervalMs?: number;
   /**
@@ -31,7 +31,7 @@ export interface UseLiveSyncOptions {
 
 export function useLiveSync({
   channelKey,
-  intervalMs = 4000,
+  intervalMs = 2000,
   canSync,
   onSync,
   enabled = true,
