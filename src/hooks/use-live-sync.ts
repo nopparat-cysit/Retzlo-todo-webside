@@ -31,7 +31,7 @@ export interface UseLiveSyncOptions {
 
 export function useLiveSync({
   channelKey,
-  intervalMs = 2000,
+  intervalMs = 1000,
   canSync,
   onSync,
   enabled = true,
@@ -60,18 +60,45 @@ export function useLiveSync({
     keysRef.current = keys;
   }, [onSync, canSync, keys]);
 
+  const pendingSyncRef = useRef(false);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Safe executor that guards against concurrent syncs and interaction blocks
   const triggerSync = useCallback(async () => {
-    if (isSyncingRef.current) return;
+    // If interaction lock is active, do not discard: schedule a fast retry
+    if (canSyncRef.current && !canSyncRef.current()) {
+      if (!retryTimeoutRef.current) {
+        retryTimeoutRef.current = setTimeout(() => {
+          retryTimeoutRef.current = null;
+          void triggerSync();
+        }, 120);
+      }
+    }
     if (canSyncRef.current && !canSyncRef.current()) return;
 
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+
+    // If a sync is already in flight, queue a pending sync so latest updates are never dropped
+    if (isSyncingRef.current) {
+      pendingSyncRef.current = true;
+      return;
+    }
+
     isSyncingRef.current = true;
+    pendingSyncRef.current = false;
     try {
       await onSyncRef.current();
     } catch {
       // Silent error on background sync to avoid disrupting user
     } finally {
       isSyncingRef.current = false;
+      if (pendingSyncRef.current) {
+        pendingSyncRef.current = false;
+        void triggerSync();
+      }
     }
   }, []);
 

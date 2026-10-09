@@ -15,12 +15,15 @@ export function getPusherServer(): Pusher | null {
     return pusherServerInstance;
   }
 
-  const appId = process.env.PUSHER_APP_ID;
-  const key = process.env.PUSHER_KEY || process.env.NEXT_PUBLIC_PUSHER_KEY;
+  const appId = process.env.PUSHER_APP_ID || "2197657";
+  const key = process.env.PUSHER_KEY || process.env.NEXT_PUBLIC_PUSHER_KEY || "04eb8ab23285138cc58e";
   const secret = process.env.PUSHER_SECRET;
   const cluster = process.env.PUSHER_CLUSTER || process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "ap1";
 
   if (!appId || !key || !secret) {
+    if (!secret && process.env.NODE_ENV !== "test") {
+      console.warn("[Pusher Server] PUSHER_SECRET is not configured. Real-time WebSocket sync requires PUSHER_SECRET in environment variables.");
+    }
     return null;
   }
 

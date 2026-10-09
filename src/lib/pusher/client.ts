@@ -21,7 +21,7 @@ export function getPusherClient(): PusherClient | null {
     return pusherClientInstance;
   }
 
-  const key = process.env.NEXT_PUBLIC_PUSHER_KEY;
+  const key = process.env.NEXT_PUBLIC_PUSHER_KEY || "04eb8ab23285138cc58e";
   const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "ap1";
 
   if (!key) {
