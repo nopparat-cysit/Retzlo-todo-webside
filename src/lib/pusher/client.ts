@@ -32,7 +32,6 @@ export function getPusherClient(): PusherClient | null {
     pusherClientInstance = new PusherClient(key, {
       cluster,
       forceTLS: true,
-      enabledTransports: ["ws", "wss"],
     });
 
     return pusherClientInstance;

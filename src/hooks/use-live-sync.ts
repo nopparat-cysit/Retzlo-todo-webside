@@ -41,10 +41,16 @@ export function useLiveSync({
   const isSyncingRef = useRef(false);
   const channelRef = useRef<BroadcastChannel | null>(null);
 
+  const keysKey = Array.isArray(channelKey)
+    ? channelKey.filter(Boolean).sort().join("::")
+    : (channelKey ?? "");
+
   const keys = useMemo(() => {
     if (!channelKey) return [];
-    return Array.isArray(channelKey) ? channelKey : [channelKey];
-  }, [channelKey]);
+    const arr = Array.isArray(channelKey) ? channelKey : [channelKey];
+    return arr.filter(Boolean);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keysKey]);
   const keysRef = useRef(keys);
 
   // Keep callback refs fresh
@@ -152,7 +158,13 @@ export function useLiveSync({
       }
     });
 
+    const handleConnected = () => {
+      triggerSync();
+    };
+    pusher.connection.bind("connected", handleConnected);
+
     return () => {
+      pusher.connection.unbind("connected", handleConnected);
       subscribedChannels.forEach((channelName) => {
         try {
           const channel = pusher.channel(channelName);

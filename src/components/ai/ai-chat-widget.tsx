@@ -437,6 +437,7 @@ export function AiChatWidget() {
         <div
           role="dialog"
           aria-label="Retzlo AI"
+          data-ai-chat="true"
           className={cn(
             "z-50 flex flex-col border border-theme-border bg-theme-panel text-theme-foreground shadow-2xl backdrop-blur-xl transition-all duration-300",
             viewMode === "float" || isSmallScreen

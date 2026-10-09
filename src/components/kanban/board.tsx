@@ -455,7 +455,7 @@ export function KanbanBoard({
   const refreshBoard = useCallback(async () => {
     try {
       await syncGuard.sync(async () => {
-        const response = await fetch(`/api/boards/${board.id}`, {
+        const response = await fetch(`/api/boards/${board.id}?_t=${Date.now()}`, {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache", Pragma: "no-cache" }
         });
@@ -472,7 +472,7 @@ export function KanbanBoard({
 
   const { broadcastChange, syncNow } = useLiveSync({
     channelKey: board.projectId ? [`board:${board.id}`, `project:${board.projectId}`] : `board:${board.id}`,
-    intervalMs: 8000,
+    intervalMs: 3000,
     canSync: () => {
       if (!syncGuard.canSync()) return false;
       if (isPointerInteractingRef.current) return false;
@@ -481,7 +481,10 @@ export function KanbanBoard({
       if (isColumnModalOpen) return false;
       if (editingCard) return false;
       if (cardToDelete) return false;
-      if (typeof document !== "undefined" && document.querySelector("[role='dialog']")) return false;
+      if (typeof document !== "undefined") {
+        const dialog = document.querySelector("[role='dialog']");
+        if (dialog && !dialog.closest("[data-ai-chat]")) return false;
+      }
       return true;
     },
     onSync: refreshBoard,

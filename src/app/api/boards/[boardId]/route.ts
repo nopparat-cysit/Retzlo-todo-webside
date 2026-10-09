@@ -178,7 +178,7 @@ export async function PATCH(request: Request, { params }: { params: { boardId: s
       });
     });
 
-    triggerPusherEvent(
+    await triggerPusherEvent(
       [`retzlo-board-${params.boardId}`, `retzlo-project-${projectId}`],
       "retzlo:sync",
       { action: "BOARD_UPDATED", boardId: params.boardId, senderId: userId }
@@ -235,11 +235,11 @@ export async function DELETE(_request: Request, { params }: { params: { boardId:
     where: { id: params.boardId }
   });
 
-  triggerPusherEvent(
-    [`retzlo-board-${params.boardId}`, `retzlo-project-${projectId}`],
-    "retzlo:sync",
-    { action: "BOARD_DELETED", boardId: params.boardId, senderId: userId }
-  );
+    await triggerPusherEvent(
+      [`retzlo-board-${params.boardId}`, `retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "BOARD_DELETED", boardId: params.boardId, senderId: userId }
+    );
 
   return NextResponse.json({ success: true });
 }

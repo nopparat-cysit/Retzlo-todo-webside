@@ -63,7 +63,7 @@ export async function PATCH(request: Request, { params }: { params: { columnId: 
       }
     });
 
-    triggerPusherEvent(
+    await triggerPusherEvent(
       [`retzlo-board-${column.board.id}`, `retzlo-project-${column.board.projectId}`],
       "retzlo:sync",
       { action: "COLUMN_UPDATED", boardId: column.board.id, senderId: userId }
@@ -114,7 +114,7 @@ export async function DELETE(_request: Request, { params }: { params: { columnId
       })
     ]);
 
-    triggerPusherEvent(
+    await triggerPusherEvent(
       [`retzlo-board-${column.board.id}`, `retzlo-project-${column.board.projectId}`],
       "retzlo:sync",
       { action: "COLUMN_DELETED", boardId: column.board.id, senderId: userId }

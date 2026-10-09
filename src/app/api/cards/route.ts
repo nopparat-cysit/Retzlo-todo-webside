@@ -137,8 +137,13 @@ export async function POST(request: Request) {
       }
     });
 
-    triggerPusherEvent(
-      [`retzlo-project-${projectId}`],
+    const targetColumn = await prisma.column.findUnique({
+      where: { id: payload.columnId },
+      select: { boardId: true }
+    });
+
+    await triggerPusherEvent(
+      [`retzlo-project-${projectId}`, ...(targetColumn?.boardId ? [`retzlo-board-${targetColumn.boardId}`] : [])],
       "retzlo:sync",
       { action: "CARD_CREATED", cardId: card.id, senderId: userId }
     );
@@ -267,12 +272,15 @@ export async function PATCH(request: Request) {
           ...(nextPrivateCoins !== undefined && { privateCoins: nextPrivateCoins as any }),
           stickers: payload.stickers,
           ...(payload.isStarred !== undefined && { isStarred: payload.isStarred }),
+        },
+        include: {
+          column: { select: { boardId: true } }
         }
       });
     });
 
-    triggerPusherEvent(
-      [`retzlo-project-${projectId}`],
+    await triggerPusherEvent(
+      [`retzlo-project-${projectId}`, ...(card.column?.boardId ? [`retzlo-board-${card.column.boardId}`] : [])],
       "retzlo:sync",
       { action: "CARD_UPDATED", cardId: card.id, senderId: userId }
     );
@@ -319,7 +327,8 @@ export async function DELETE(request: Request) {
     const card = await prisma.card.delete({
       where: { id: parsedCardId.data },
       select: {
-        columnId: true
+        columnId: true,
+        column: { select: { boardId: true } }
       }
     });
     const remainingCards = await prisma.card.findMany({
@@ -337,8 +346,8 @@ export async function DELETE(request: Request) {
       )
     );
 
-    triggerPusherEvent(
-      [`retzlo-project-${projectId}`],
+    await triggerPusherEvent(
+      [`retzlo-project-${projectId}`, ...(card.column?.boardId ? [`retzlo-board-${card.column.boardId}`] : [])],
       "retzlo:sync",
       { action: "CARD_DELETED", cardId: parsedCardId.data, senderId: userId }
     );

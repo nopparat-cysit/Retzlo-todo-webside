@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       include: { cards: true }
     });
 
-    triggerPusherEvent(
+    await triggerPusherEvent(
       [`retzlo-board-${payload.boardId}`, `retzlo-project-${projectId}`],
       "retzlo:sync",
       { action: "COLUMN_CREATED", boardId: payload.boardId, senderId: userId }

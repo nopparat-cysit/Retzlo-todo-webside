@@ -41,7 +41,7 @@ export async function PATCH(request: Request) {
       )
     );
 
-    triggerPusherEvent(
+    await triggerPusherEvent(
       [`retzlo-board-${payload.boardId}`, `retzlo-project-${projectId}`],
       "retzlo:sync",
       { action: "COLUMN_REORDER", boardId: payload.boardId, senderId: userId }
