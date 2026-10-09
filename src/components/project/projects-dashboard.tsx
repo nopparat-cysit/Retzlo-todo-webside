@@ -547,22 +547,27 @@ export function ProjectsDashboard({
     <main className="soft-grid-bg min-h-[100dvh] lg:h-screen w-full overflow-y-auto lg:overflow-hidden p-3 sm:p-4 lg:p-5">
       <div className="grid min-h-0 gap-4 lg:h-full lg:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)_360px]">
         <aside className="lofi-panel relative order-2 lg:order-1 flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 sm:p-5 lg:sticky lg:top-5 lg:h-[calc(100dvh-2.5rem)]">
-          <div className="flex items-center justify-between gap-1.5">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/10 text-dusk-lavender shadow-xs">
-                <Sparkles className="h-4 w-4" />
+          {/* Top Brand Header (Dedicated Row, Never Truncates) */}
+          <div className="flex items-center justify-between border-b border-stone-200/80 pb-3.5 dark:border-white/10">
+            <Link href="/projects" className="flex items-center gap-3 min-w-0 group">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-xs group-hover:scale-105 transition-transform">
+                <Sparkles className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-dusk-amber leading-none mb-0.5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-dusk-amber leading-none mb-1">
                   Retzlo
                 </p>
-                <h1 className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate leading-tight">
+                <h1 className="text-base font-bold text-stone-900 dark:text-stone-100 leading-tight whitespace-nowrap">
                   Workspaces
                 </h1>
               </div>
-            </div>
+            </Link>
+          </div>
+
+          {/* Quick Actions & System Tools Bar */}
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-100/70 p-1.5 dark:border-white/10 dark:bg-white/[0.03] shadow-inner">
+            <LanguageSwitcher />
             <div className="flex items-center gap-1 shrink-0">
-              <LanguageSwitcher />
               <NotificationsPopover />
               <AiChatTrigger />
               {userProfile && (
@@ -591,7 +596,7 @@ export function ProjectsDashboard({
             </div>
           </div>
 
-          <div className="mt-5">
+          <div className="mt-4">
             <FilterSelect
               label="Active Project"
               value={selectedProjectId}
