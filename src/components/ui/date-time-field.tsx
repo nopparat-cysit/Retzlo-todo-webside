@@ -78,13 +78,13 @@ export function DateTimeField({
           disabled={disabled}
           value={value.date}
           onChange={(nextDate) => update({ date: nextDate })}
-          placeholder="เลือกวันที่..."
+          placeholder="Select date..."
         />
         <TimePicker
           disabled={disabled}
           value={value.time}
           onChange={(nextTime) => update({ time: nextTime })}
-          placeholder="เลือกเวลา (เว้นว่าง = ตลอดวัน)..."
+          placeholder="Select time (blank = all day)..."
         />
       </div>
       {description ? <p className="mt-2 text-xs text-stone-500">{description}</p> : null}

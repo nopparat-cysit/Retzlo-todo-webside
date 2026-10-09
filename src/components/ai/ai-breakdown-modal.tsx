@@ -44,10 +44,10 @@ interface GeneratedItem {
 }
 
 const STEP_COUNT_PRESETS = [
-  { count: 3, label: "3 ข้อ", subtitle: "รวบรัด / ด่วน", icon: Zap },
-  { count: 5, label: "5 ข้อ", subtitle: "มาตรฐาน (แนะนำ)", isRecommended: true, icon: Sparkles },
-  { count: 8, label: "8 ข้อ", subtitle: "ละเอียด ชัดเจน", icon: CheckSquare },
-  { count: 10, label: "10 ข้อ", subtitle: "ครอบคลุมครบถ้วน", icon: Layers }
+  { count: 3, label: "3 steps", subtitle: "Quick / Concise", icon: Zap },
+  { count: 5, label: "5 steps", subtitle: "Standard (Recommended)", isRecommended: true, icon: Sparkles },
+  { count: 8, label: "8 steps", subtitle: "Detailed / Thorough", icon: CheckSquare },
+  { count: 10, label: "10 steps", subtitle: "Comprehensive", icon: Layers }
 ];
 
 export function AiBreakdownModal({
@@ -115,7 +115,7 @@ export function AiBreakdownModal({
   const handleGenerate = async () => {
     if (!cardTitle.trim()) {
       toast({
-        message: "กรุณาระบุชื่องานก่อนแตกเช็กลิสต์",
+        message: "Please specify a task title before breaking down checklist",
         type: "error"
       });
       return;
@@ -141,15 +141,15 @@ export function AiBreakdownModal({
         data = await res.json();
       } catch {
         const errorMsg = res.status === 504
-          ? "AI ตอบกลับช้าเกินกำหนดของเซิร์ฟเวอร์ (Timeout) — ลองลดจำนวนข้อหรือลองใหม่"
-          : `เซิร์ฟเวอร์ตอบกลับผิดปกติ (HTTP ${res.status})`;
+          ? "AI response timed out — try fewer steps or try again"
+          : `Server returned error (HTTP ${res.status})`;
         toast({ message: errorMsg, type: "error" });
         return;
       }
 
       if (!res.ok) {
         toast({
-          message: (data.error as string) || "เกิดข้อผิดพลาดในการเรียกใช้ AI Assistant",
+          message: (data.error as string) || "Failed to communicate with AI Assistant",
           type: "error"
         });
         return;
@@ -170,18 +170,18 @@ export function AiBreakdownModal({
         setStep("preview");
 
         toast({
-          message: `✨ AI ร่าง ${data.items.length} ขั้นตอนสำเร็จ! กรุณาตรวจสอบและยืนยันก่อนใส่ในการ์ด`,
+          message: `✨ AI generated ${data.items.length} steps! Please review before applying.`,
           type: "success"
         });
       } else {
         toast({
-          message: "ไม่พบผลลัพธ์ขั้นตอนจาก AI กรุณาลองใหม่อีกครั้ง",
+          message: "No steps returned from AI. Please try again.",
           type: "error"
         });
       }
     } catch {
       toast({
-        message: "ไม่สามารถเชื่อมต่อกับ AI Server ได้ กรุณาลองใหม่",
+        message: "Unable to connect to AI server. Please try again.",
         type: "error"
       });
     } finally {
@@ -214,7 +214,7 @@ export function AiBreakdownModal({
 
     if (selected.length === 0) {
       toast({
-        message: "กรุณาเลือกอย่างน้อย 1 ขั้นตอนเพื่อนำไปใส่ในการ์ด",
+        message: "Please select at least 1 step to add to the card",
         type: "error"
       });
       return;
@@ -230,7 +230,7 @@ export function AiBreakdownModal({
     });
 
     toast({
-      message: `✨ ยืนยันเพิ่ม ${selected.length} ขั้นตอนลงในการ์ดเรียบร้อยแล้ว!`,
+      message: `✨ Added ${selected.length} steps to card successfully!`,
       type: "success"
     });
 
@@ -259,17 +259,17 @@ export function AiBreakdownModal({
                 aria-label="AI Auto-Breakdown Task"
                 className="text-base sm:text-lg font-bold tracking-tight text-stone-100 flex items-center gap-2"
               >
-                <span>สร้างเช็กลิสต์ด้วย AI</span>
+                <span>AI Checklist Breakdown</span>
                 {step === "preview" && (
                   <span className="rounded-md border border-theme-info-border bg-theme-info-surface px-2 py-0.5 text-xs font-medium text-theme-info">
-                    ตรวจสอบก่อนยืนยัน
+                    Review Before Applying
                   </span>
                 )}
               </h2>
               <p className="text-xs text-stone-400">
                 {step === "configure"
-                  ? "กำหนดจำนวนและยืนยันก่อนสร้างเช็กลิสต์"
-                  : "ตรวจสอบและปรับแต่งขั้นตอนก่อนนำไปใส่ในการ์ดจริง"}
+                  ? "Configure step count and preferences before generating"
+                  : "Review and refine steps before applying to the card"}
               </p>
             </div>
           </div>
@@ -278,7 +278,7 @@ export function AiBreakdownModal({
             {credits !== null && (
               <span
                 className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[11px] font-mono font-medium text-amber-300"
-                title={`โควตา AI Credits (${tier} Tier)`}
+                title={`AI Credits Quota (${tier} Tier)`}
               >
                 <Coins className="h-3 w-3" />
                 <span>{credits} cr</span>
@@ -301,10 +301,10 @@ export function AiBreakdownModal({
             {/* Card Title Preview */}
             <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3.5 space-y-1">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-400">
-                เป้าหมายของงาน (Task Title)
+                Task Goal (Title)
               </span>
               <p className="font-semibold text-stone-100 text-sm break-words line-clamp-2">
-                {cardTitle || "ยังไม่ได้ระบุชื่องาน"}
+                {cardTitle || "No task title specified"}
               </p>
             </div>
 
@@ -312,10 +312,10 @@ export function AiBreakdownModal({
             <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3.5 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-stone-200">
-                  จำนวนขั้นตอนที่ต้องการ (Step Count)
+                  Step Count
                 </span>
                 <span className="text-[11px] text-stone-400">
-                  มีคำแนะนำ & กำหนดจำนวนเองได้
+                  Recommended presets or custom count
                 </span>
               </div>
 
@@ -339,7 +339,7 @@ export function AiBreakdownModal({
                     >
                       {preset.isRecommended && (
                         <span className="absolute -top-2 right-2 rounded-full bg-dusk-amber/90 px-1.5 py-0.2 text-[9px] font-bold text-ink-950 uppercase tracking-wider shadow-xs">
-                          แนะนำ
+                          Recommended
                         </span>
                       )}
                       <div className="flex items-center gap-1">
@@ -354,7 +354,7 @@ export function AiBreakdownModal({
 
               {/* Custom Count Stepper */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-2.5">
-                <span className="text-xs text-stone-400">กำหนดจำนวนที่ต้องการเอง:</span>
+                <span className="text-xs text-stone-400">Custom count:</span>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center rounded-lg border border-white/10 bg-ink-950/60 p-0.5 shadow-inner">
                     <button
@@ -387,7 +387,7 @@ export function AiBreakdownModal({
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
-                  <span className="text-xs font-medium text-stone-300">ขั้นตอน (ข้อ)</span>
+                  <span className="text-xs font-medium text-stone-300">Steps</span>
                 </div>
               </div>
             </div>
@@ -395,13 +395,13 @@ export function AiBreakdownModal({
             {/* Optional Custom Focus Input */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-stone-300 flex items-center justify-between">
-                <span>พิมพ์เป้าหมายสั้นๆ หรือจุดที่ต้องการเน้น (ไม่บังคับ)</span>
+                <span>Specific focus or objective (Optional)</span>
                 <span className="text-[11px] text-stone-500">Optional</span>
               </label>
               <Input
                 value={customGoal}
                 onChange={(e) => setCustomGoal(e.target.value)}
-                placeholder="เช่น เน้นเรื่องความปลอดภัย, เขียน Test ครอบคลุม, หรือ สูตรพริกแห้ง..."
+                placeholder="e.g. Focus on security, comprehensive test coverage, or edge cases..."
                 disabled={isGenerating}
                 className="text-xs bg-ink-950/40 border-stone-700"
               />
@@ -410,7 +410,7 @@ export function AiBreakdownModal({
             {/* Insert Mode */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-stone-300">
-                การนำไปใส่ในเช็กลิสต์ของการ์ด
+                Card Checklist Insertion Mode
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -424,7 +424,7 @@ export function AiBreakdownModal({
                       : "border-white/10 bg-white/[0.02] text-stone-400 hover:text-stone-200"
                   )}
                 >
-                  <span>➕ เพิ่มต่อท้าย (Append)</span>
+                  <span>➕ Append to checklist</span>
                 </button>
                 <button
                   type="button"
@@ -437,7 +437,7 @@ export function AiBreakdownModal({
                       : "border-white/10 bg-white/[0.02] text-stone-400 hover:text-stone-200"
                   )}
                 >
-                  <span>🔄 แทนที่ของเดิม (Replace)</span>
+                  <span>🔄 Replace existing</span>
                 </button>
               </div>
             </div>
@@ -446,7 +446,7 @@ export function AiBreakdownModal({
             <div className="rounded-xl border border-dusk-cyan/30 bg-dusk-cyan/10 p-3 text-xs text-dusk-cyan flex items-start gap-2">
               <Sparkles className="h-4 w-4 shrink-0 text-dusk-cyan mt-0.5" />
               <span>
-                ระบบจะวิเคราะห์และสร้างเช็กลิสต์จำนวน <strong>{itemCount} ข้อ</strong> โดยจะมีหน้าต่างตรวจสอบผลลัพธ์ให้คุณยืนยันก่อนบันทึกจริง
+                AI will analyze and generate <strong>{itemCount} steps</strong>. You can review and refine the items before applying.
               </span>
             </div>
           </div>
@@ -461,7 +461,7 @@ export function AiBreakdownModal({
                 <span className="font-medium text-stone-200">{summary}</span>
                 {suggestedDifficulty && (
                   <span className="shrink-0 rounded-full border border-dusk-amber/35 bg-dusk-amber/15 px-2 py-0.5 text-[11px] font-semibold text-dusk-amber">
-                    ความยาก: {suggestedDifficulty}
+                    Difficulty: {suggestedDifficulty}
                   </span>
                 )}
               </div>
@@ -470,7 +470,7 @@ export function AiBreakdownModal({
             {/* Selection Toolbar */}
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-stone-300">
-                เลือกขั้นตอนที่ต้องการนำไปใช้ ({selectedCount}/{previewItems.length} ข้อ)
+                Select steps to apply ({selectedCount}/{previewItems.length} items)
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -478,7 +478,7 @@ export function AiBreakdownModal({
                   onClick={() => selectAll(true)}
                   className="text-dusk-lavender hover:underline font-medium text-xs cursor-pointer"
                 >
-                  เลือกทั้งหมด
+                  Select All
                 </button>
                 <span className="text-stone-600">|</span>
                 <button
@@ -486,7 +486,7 @@ export function AiBreakdownModal({
                   onClick={() => selectAll(false)}
                   className="text-stone-400 hover:underline font-medium text-xs cursor-pointer"
                 >
-                  ล้างการเลือก
+                  Deselect All
                 </button>
               </div>
             </div>
@@ -543,7 +543,7 @@ export function AiBreakdownModal({
             <>
               <span className="text-xs text-stone-400 flex items-center gap-1">
                 <Coins className="h-3.5 w-3.5 text-amber-400" />
-                <span>ใช้ 1 เครดิต</span>
+                <span>Costs 1 credit</span>
               </span>
 
               <div className="flex items-center gap-2">
@@ -554,7 +554,7 @@ export function AiBreakdownModal({
                   onClick={onClose}
                   disabled={isGenerating}
                 >
-                  ยกเลิก
+                  Cancel
                 </Button>
 
                 <Button
@@ -567,12 +567,12 @@ export function AiBreakdownModal({
                   {isGenerating ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>กำลังคิดขั้นตอน...</span>
+                      <span>Generating steps...</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="h-4 w-4 text-amber-700" />
-                      <span>ยืนยันสร้างเช็กลิสต์ ({itemCount} ข้อ)</span>
+                      <span>Generate Checklist ({itemCount} steps)</span>
                     </>
                   )}
                 </Button>
@@ -589,7 +589,7 @@ export function AiBreakdownModal({
                   className="text-theme-muted hover:text-theme-foreground text-xs gap-1"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
-                  <span>ตั้งค่าใหม่</span>
+                  <span>Reconfigure</span>
                 </Button>
 
                 <Button
@@ -599,14 +599,14 @@ export function AiBreakdownModal({
                   disabled={isGenerating}
                   onClick={handleGenerate}
                   className="text-stone-300 border-white/15 hover:bg-white/10 text-xs gap-1"
-                  title="สุ่มสร้างชุดใหม่ตามการตั้งค่าเดิม"
+                  title="Regenerate with same settings"
                 >
                   {isGenerating ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
                     <RefreshCw className="h-3.5 w-3.5" />
                   )}
-                  <span>สุ่มคิดใหม่</span>
+                  <span>Regenerate</span>
                 </Button>
               </div>
 
@@ -617,7 +617,7 @@ export function AiBreakdownModal({
                   size="sm"
                   onClick={onClose}
                 >
-                  ยกเลิก
+                  Cancel
                 </Button>
 
                 <Button
@@ -628,7 +628,7 @@ export function AiBreakdownModal({
                   className="gap-1.5 bg-emerald-500 text-stone-950 hover:bg-emerald-400 font-bold shadow-md transition-transform hover:scale-102 active:scale-98"
                 >
                   <Check className="h-4 w-4 stroke-[2.5]" />
-                  <span>ยืนยันนำไปใช้ ({selectedCount} ข้อ)</span>
+                  <span>Apply to Card ({selectedCount} items)</span>
                 </Button>
               </div>
             </>

@@ -28,11 +28,11 @@ export interface TimeViewProps {
 }
 
 export const PRESET_TIMES = [
-  { label: "09:00 เช้า", time: "09:00", value: "09:00", icon: "🌅" },
-  { label: "12:00 เที่ยง", time: "12:00", value: "12:00", icon: "☀️" },
-  { label: "13:30 บ่าย", time: "13:30", value: "13:30", icon: "☕" },
-  { label: "17:00 เลิกงาน", time: "17:00", value: "17:00", icon: "💼" },
-  { label: "20:00 ค่ำ", time: "20:00", value: "20:00", icon: "🌙" }
+  { label: "09:00 Morning", time: "09:00", value: "09:00", icon: "🌅" },
+  { label: "12:00 Noon", time: "12:00", value: "12:00", icon: "☀️" },
+  { label: "13:30 Afternoon", time: "13:30", value: "13:30", icon: "☕" },
+  { label: "17:00 End of Day", time: "17:00", value: "17:00", icon: "💼" },
+  { label: "20:00 Evening", time: "20:00", value: "20:00", icon: "🌙" }
 ];
 
 export const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
@@ -54,7 +54,7 @@ export function parseTimeString(timeStr: string | null | undefined): { hour: str
 export function formatDisplayTime(timeStr: string | null | undefined): string {
   const parsed = parseTimeString(timeStr);
   if (!parsed) return "";
-  return `${parsed.hour}:${parsed.minute} น.`;
+  return `${parsed.hour}:${parsed.minute}`;
 }
 
 /**
@@ -248,7 +248,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
             onBlur={handleHourInputBlur}
             onKeyDown={(e) => handleKeyDown(e, true)}
             onFocus={(e) => e.target.select()}
-            title="พิมพ์หรือกดลูกศรเพื่อเปลี่ยนชั่วโมง"
+            title="Type or press arrow keys to change hour"
             className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-2xs transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
           />
           <div className="flex flex-col gap-0.5">
@@ -256,7 +256,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
               type="button"
               onClick={() => stepHour(1)}
               className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
-              title="เพิ่มชั่วโมง (+1)"
+              title="Increase hour (+1)"
             >
               <ChevronUp className="h-3 w-3" />
             </button>
@@ -264,7 +264,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
               type="button"
               onClick={() => stepHour(-1)}
               className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
-              title="ลดชั่วโมง (-1)"
+              title="Decrease hour (-1)"
             >
               <ChevronDown className="h-3 w-3" />
             </button>
@@ -285,7 +285,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
             onBlur={handleMinuteInputBlur}
             onKeyDown={(e) => handleKeyDown(e, false)}
             onFocus={(e) => e.target.select()}
-            title="พิมพ์หรือกดลูกศรเพื่อเปลี่ยนนาที"
+            title="Type or press arrow keys to change minute"
             className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-2xs transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
           />
           <div className="flex flex-col gap-0.5">
@@ -293,7 +293,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
               type="button"
               onClick={() => stepMinute(5)}
               className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
-              title="เพิ่มนาที (+5)"
+              title="Increase minute (+5)"
             >
               <ChevronUp className="h-3 w-3" />
             </button>
@@ -301,7 +301,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
               type="button"
               onClick={() => stepMinute(-5)}
               className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
-              title="ลดนาที (-5)"
+              title="Decrease minute (-5)"
             >
               <ChevronDown className="h-3 w-3" />
             </button>
@@ -309,7 +309,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
         </div>
 
         <span className="font-mono text-xs font-semibold text-stone-400">
-          {isEn ? "hrs" : "น."}
+          hrs
         </span>
       </div>
 
@@ -318,7 +318,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
         {/* Hour Single Column */}
         <div>
           <div className="mb-1 text-center font-mono text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-            {isEn ? "Hour (HR)" : "ชั่วโมง (HR)"}
+            Hour (HR)
           </div>
           <div
             ref={hourListRef}
@@ -351,7 +351,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
         {/* Minute Single Column */}
         <div>
           <div className="mb-1 text-center font-mono text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-            {isEn ? "Minute (MIN)" : "นาที (MIN)"}
+            Minute (MIN)
           </div>
           <div
             ref={minuteListRef}
@@ -385,7 +385,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
       {/* ── Presets Grid ── */}
       <div className="mt-3 border-t border-stone-200/80 pt-2.5 dark:border-white/10">
         <div className="mb-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-          {isEn ? "Popular Times:" : "เวลายอดนิยม:"}
+          Popular Times:
         </div>
         <div className="grid grid-cols-3 gap-1">
           {PRESET_TIMES.map((preset) => {
@@ -417,7 +417,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
           onClick={handleClear}
           className="rounded-lg px-2 py-1 text-[11px] font-medium text-stone-400 hover:text-red-500 hover:bg-red-500/10 dark:hover:text-red-400 transition cursor-pointer"
         >
-          {isEn ? "All Day / Clear" : "ตลอดวัน / ล้าง"}
+          All Day / Clear
         </button>
 
         <button
@@ -426,7 +426,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
           className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 transition cursor-pointer"
         >
           <Check className="h-3.5 w-3.5" />
-          <span>{isEn ? "Confirm" : "ตกลง"}</span>
+          <span>Confirm</span>
         </button>
       </div>
     </div>
@@ -448,8 +448,7 @@ export function TimePicker({
   name,
   required
 }: TimePickerProps) {
-  const { isEn } = useLanguage();
-  const defaultPlaceholder = isEn ? "Select time..." : "เลือกเวลา...";
+  const defaultPlaceholder = "Select time...";
   const resolvedPlaceholder = placeholder || defaultPlaceholder;
 
   const [open, setOpen] = useState(false);

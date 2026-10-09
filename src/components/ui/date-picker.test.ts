@@ -39,8 +39,8 @@ describe("Custom DatePicker and TimePicker logic and contracts", () => {
   });
 
   it("formats display time correctly", () => {
-    expect(formatDisplayTime("14:30")).toBe("14:30 น.");
-    expect(formatDisplayTime("09:00")).toBe("09:00 น.");
+    expect(formatDisplayTime("14:30")).toBe("14:30");
+    expect(formatDisplayTime("09:00")).toBe("09:00");
     expect(formatDisplayTime("")).toBe("");
   });
 

@@ -35,11 +35,11 @@ export function getStartDayOfMonth(dateStr?: string): number {
 }
 
 const repeatPresets = [
-  { label: "Daily (ทุกวัน)", days: 1, unit: "DAY" as const },
-  { label: "3 days (3 วัน)", days: 3, unit: "DAY" as const },
-  { label: "Weekly (สัปดาห์)", days: 7, unit: "DAY" as const },
-  { label: "2 weeks (2 สัปดาห์)", days: 14, unit: "DAY" as const },
-  { label: "Monthly (ทุกเดือน)", days: 1, unit: "MONTH" as const }
+  { label: "Daily", days: 1, unit: "DAY" as const },
+  { label: "3 days", days: 3, unit: "DAY" as const },
+  { label: "Weekly", days: 7, unit: "DAY" as const },
+  { label: "2 weeks", days: 14, unit: "DAY" as const },
+  { label: "Monthly", days: 1, unit: "MONTH" as const }
 ];
 
 function toLocalDateString(date: Date = new Date()): string {
@@ -56,33 +56,33 @@ function getOffsetLocalDateString(offsetDays: number): string {
 }
 
 const START_DATE_PRESETS = [
-  { label: "วันนี้", offset: 0, title: "เริ่มตั้งแต่วันนี้" },
-  { label: "+1 วัน", offset: 1, title: "เริ่มพรุ่งนี้ (+1 วัน)" },
-  { label: "+3 วัน", offset: 3, title: "เริ่มในอีก 3 วัน" },
-  { label: "+7 วัน", offset: 7, title: "เริ่มในอีก 1 สัปดาห์" }
+  { label: "Today", offset: 0, title: "Start today" },
+  { label: "+1 day", offset: 1, title: "Start tomorrow (+1 day)" },
+  { label: "+3 days", offset: 3, title: "Start in 3 days" },
+  { label: "+7 days", offset: 7, title: "Start in 1 week" }
 ];
 
 const DUE_TIME_PRESETS = [
-  { label: "09:00 เช้า", time: "09:00" },
-  { label: "13:00 บ่าย", time: "13:00" },
-  { label: "18:00 เย็น", time: "18:00" },
-  { label: "21:00 ค่ำ", time: "21:00" }
+  { label: "09:00 Morning", time: "09:00" },
+  { label: "13:00 Afternoon", time: "13:00" },
+  { label: "18:00 Evening", time: "18:00" },
+  { label: "21:00 Night", time: "21:00" }
 ];
 
 const REPEAT_DAY_PRESETS = [
-  { label: "ทุกวัน", days: 1, title: "ทำซ้ำทุกวัน (1 วัน)" },
-  { label: "3 วัน", days: 3, title: "ทำซ้ำทุกๆ 3 วัน" },
-  { label: "7 วัน (1 สัปดาห์)", days: 7, title: "ทำซ้ำทุก 7 วัน" },
-  { label: "14 วัน (2 สัปดาห์)", days: 14, title: "ทำซ้ำทุก 14 วัน" },
-  { label: "30 วัน", days: 30, title: "ทำซ้ำทุก 30 วัน" }
+  { label: "Daily", days: 1, title: "Repeat every day (1 day)" },
+  { label: "3 days", days: 3, title: "Repeat every 3 days" },
+  { label: "7 days (1 week)", days: 7, title: "Repeat every 7 days" },
+  { label: "14 days (2 weeks)", days: 14, title: "Repeat every 14 days" },
+  { label: "30 days", days: 30, title: "Repeat every 30 days" }
 ];
 
 const REPEAT_MONTH_PRESETS = [
-  { label: "ทุกเดือน", days: 1, title: "ทำซ้ำทุก 1 เดือน" },
-  { label: "2 เดือน", days: 2, title: "ทำซ้ำทุก 2 เดือน" },
-  { label: "3 เดือน (ไตรมาส)", days: 3, title: "ทำซ้ำทุก 3 เดือน" },
-  { label: "6 เดือน (ครึ่งปี)", days: 6, title: "ทำซ้ำทุก 6 เดือน" },
-  { label: "1 ปี (12 เดือน)", days: 12, title: "ทำซ้ำทุก 12 เดือน" }
+  { label: "Monthly", days: 1, title: "Repeat every month" },
+  { label: "2 months", days: 2, title: "Repeat every 2 months" },
+  { label: "3 months (Quarter)", days: 3, title: "Repeat every 3 months" },
+  { label: "6 months (Half-year)", days: 6, title: "Repeat every 6 months" },
+  { label: "1 year (12 months)", days: 12, title: "Repeat every 12 months" }
 ];
 
 export function DiaryChecklistEditor({
@@ -236,14 +236,14 @@ export function DiaryChecklistEditor({
                     {/* Start Date */}
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-stone-300">วันเริ่มต้น (Start date)</span>
+                        <span className="font-medium text-stone-300">Start date</span>
                         {item.startDate ? (
                           <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-mono text-stone-400">
                             {item.startDate.slice(0, 10) === toLocalDateString()
-                              ? "🟢 วันนี้"
+                              ? "🟢 Today"
                               : item.startDate.slice(0, 10) > toLocalDateString()
-                                ? "⏳ ล่วงหน้า"
-                                : "เริ่มแล้ว"}
+                                ? "⏳ Upcoming"
+                                : "Started"}
                           </span>
                         ) : null}
                       </div>
@@ -254,7 +254,7 @@ export function DiaryChecklistEditor({
                       />
                       {/* Quick Presets row */}
                       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                        <span className="text-[11px] text-stone-500">ปุ่มลัด:</span>
+                        <span className="text-[11px] text-stone-500">Presets:</span>
                         {START_DATE_PRESETS.map((preset) => {
                           const targetDate = getOffsetLocalDateString(preset.offset);
                           const currentVal = (item.startDate || defaultStartDate).slice(0, 10);
@@ -282,19 +282,19 @@ export function DiaryChecklistEditor({
                     {/* Due Time */}
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-stone-300">เวลาที่กำหนด (Due time)</span>
+                        <span className="font-medium text-stone-300">Due time</span>
                         {item.dueTime ? (
                           <button
                             type="button"
                             onClick={() => updateItem(item.id, { dueTime: null })}
                             className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-theme-danger hover:bg-theme-danger-surface transition"
-                            title="คลิกเพื่อล้างเวลาและกำหนดเป็นตลอดวัน"
+                            title="Clear time and set to all day"
                           >
                             <X className="h-3 w-3" />
-                            <span>ล้างเวลา</span>
+                            <span>Clear time</span>
                           </button>
                         ) : (
-                          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-stone-400">ตลอดวัน</span>
+                          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-stone-400">All day</span>
                         )}
                       </div>
                       <TimePicker
@@ -303,7 +303,7 @@ export function DiaryChecklistEditor({
                         triggerClassName="h-9 font-mono text-xs sm:text-sm"
                       />
                       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                        <span className="text-[11px] text-stone-500">ปุ่มลัด:</span>
+                        <span className="text-[11px] text-stone-500">Presets:</span>
                         {DUE_TIME_PRESETS.map((preset) => {
                           const isSelected = item.dueTime === preset.time;
                           return (
@@ -331,7 +331,7 @@ export function DiaryChecklistEditor({
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-200">
                         <Repeat className="h-3.5 w-3.5 text-dusk-cyan" />
-                        <span>รอบการทำซ้ำ (Recurrence Schedule)</span>
+                        <span>Recurrence Schedule</span>
                       </div>
                       {/* Segmented Switch for Unit */}
                       <div className="flex items-center rounded-lg border border-white/10 bg-black/20 p-0.5 shadow-inner">
@@ -345,7 +345,7 @@ export function DiaryChecklistEditor({
                               : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
                           )}
                         >
-                          ☀️ รายวัน (Days)
+                          ☀️ Daily (Days)
                         </button>
                         <button
                           type="button"
@@ -357,7 +357,7 @@ export function DiaryChecklistEditor({
                               : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
                           )}
                         >
-                          🗓️ รายเดือน (Monthly)
+                          🗓️ Monthly
                         </button>
                       </div>
                     </div>
@@ -366,7 +366,7 @@ export function DiaryChecklistEditor({
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.025] px-3 py-2.5">
                       {/* Stepper Input */}
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-stone-400">ทำซ้ำทุก:</span>
+                        <span className="text-xs text-stone-400">Repeat every:</span>
                         <div className="flex items-center rounded-lg border border-white/10 bg-ink-950/60 p-0.5 shadow-inner">
                           <button
                             type="button"
@@ -395,13 +395,13 @@ export function DiaryChecklistEditor({
                           </button>
                         </div>
                         <span className="text-xs font-medium text-stone-300">
-                          {item.repeatUnit === "MONTH" ? "เดือน (months)" : "วัน (days)"}
+                          {item.repeatUnit === "MONTH" ? "month(s)" : "day(s)"}
                         </span>
                       </div>
 
                       {/* Contextual Presets */}
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-[11px] text-stone-500">ปุ่มลัดรอบ:</span>
+                        <span className="text-[11px] text-stone-500">Presets:</span>
                         {(item.repeatUnit === "MONTH" ? REPEAT_MONTH_PRESETS : REPEAT_DAY_PRESETS).map((preset) => {
                           const isSelected = item.intervalDays === preset.days;
                           return (
@@ -429,7 +429,7 @@ export function DiaryChecklistEditor({
                       <div className="flex items-center gap-2.5 rounded-lg border border-dusk-cyan/25 bg-dusk-cyan/10 px-3 py-2 text-xs text-dusk-cyan font-medium">
                         <Calendar className="h-4 w-4 shrink-0 text-dusk-cyan" />
                         <span>
-                          ทำซ้ำทุกวันที่ <strong>{getStartDayOfMonth(item.startDate || defaultStartDate)}</strong> ของเดือน (อิงตาม Start Date — หากเดือนใดมีวันไม่ถึง จะปัดเป็นวันสิ้นเดือนโดยอัตโนมัติ)
+                          Repeats every month on day <strong>{getStartDayOfMonth(item.startDate || defaultStartDate)}</strong> (based on Start Date — adjusted to month-end automatically if fewer days)
                         </span>
                       </div>
                     )}

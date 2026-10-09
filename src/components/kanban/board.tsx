@@ -1091,10 +1091,10 @@ export function KanbanBoard({
                     <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
                       <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                         <LayoutGrid className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                        <span>Normal View (การ์ดปกติ)</span>
+                        <span>Normal View</span>
                       </p>
                       <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-1 leading-relaxed">
-                        โหมดแสดงรายละเอียดครบถ้วน ทั้ง Checklist, วันครบกำหนด (Due Date), ผู้รับผิดชอบ และป้ายกำกับ
+                        Full details view with checklists, due dates, assignees, and labels.
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -1129,10 +1129,10 @@ export function KanbanBoard({
                     <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
                       <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                         <Rows3 className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                        <span>Compact View (โหมดย่อการ์ดกะทัดรัด)</span>
+                        <span>Compact View</span>
                       </p>
                       <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-1 leading-relaxed">
-                        ย่อขนาดการ์ดให้กระชับ ประหยัดพื้นที่ เหมาะกับบอร์ดที่มีงานเยอะ ช่วยให้กวาดสายตามองเห็นงานบนบอร์ดได้เพิ่มขึ้น 2 เท่าในหน้าจอเดียวโดยไม่ต้องเลื่อนบ่อยๆ
+                        Compact card density to fit more tasks on screen without excessive scrolling.
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -1210,7 +1210,7 @@ export function KanbanBoard({
                     ? "border-dusk-lavender/50 bg-dusk-lavender/20 text-dusk-lavender font-bold"
                     : "border-stone-300 bg-white text-stone-700 hover:border-dusk-lavender/40 hover:text-dusk-lavender dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20"
                 )}
-                title={isNotesOpen ? "Collapse notes panel (พับเก็บ)" : "Open notes panel (เปิดแถบโน้ต)"}
+                title={isNotesOpen ? "Collapse notes panel" : "Open notes panel"}
                 aria-label={isNotesOpen ? "Collapse notes" : "Open notes"}
               >
                 <FileText className="h-3.5 w-3.5 text-dusk-lavender" />
@@ -1251,7 +1251,7 @@ export function KanbanBoard({
                 type="button"
                 onClick={() => setIsAiSummaryOpen(true)}
                 className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-indigo-400/40 bg-indigo-500/10 px-2.5 text-xs font-semibold text-indigo-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:bg-indigo-500/20 active:scale-95 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
-                title="วิเคราะห์และสรุปภาพรวมความคืบหน้าของบอร์ดด้วย AI"
+                title="Analyze and summarize board progress with AI"
               >
                 <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
                 <span className="hidden sm:inline">AI Summary</span>

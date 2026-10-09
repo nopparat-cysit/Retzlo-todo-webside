@@ -20,8 +20,8 @@ export function AiChatTrigger({ className }: AiChatTriggerProps) {
         isOpen && "bg-indigo-50 dark:bg-white/[0.08] shadow-[0_0_12px_rgba(192,132,252,0.25)]",
         className
       )}
-      aria-label="เปิดแชทผู้ช่วย AI"
-      title="เปิดแชทผู้ช่วย AI (Retzlo AI Assistant)"
+      aria-label="Open AI Assistant Chat"
+      title="Open AI Assistant (Retzlo AI Assistant)"
     >
       <GeminiSparkleIcon
         className={cn(

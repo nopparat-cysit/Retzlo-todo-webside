@@ -130,15 +130,15 @@ describe("Card Attributes Edit Feature", () => {
           score: 13,
           label: "13",
           pointsLabel: "13 pts",
-          title: "ยากมากพิเศษ (13 pts)",
-          description: "งานขนาดใหญ่",
+          title: "Extra hard (13 pts)",
+          description: "Large task",
           color: "rose"
         }
       ];
 
       const meta = getDifficultyMetadata(13, customPoints);
       expect(meta).not.toBeNull();
-      expect(meta?.title).toBe("ยากมากพิเศษ (13 pts)");
+      expect(meta?.title).toBe("Extra hard (13 pts)");
       expect(meta?.badgeClass).toContain("rose");
     });
   });

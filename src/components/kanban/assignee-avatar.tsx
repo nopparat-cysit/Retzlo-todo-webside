@@ -45,10 +45,10 @@ export function AssigneeStack({
     return null;
   }
 
-  const names = assignees.map((a) => a.name?.trim() || a.email || "สมาชิก").join(", ");
+  const names = assignees.map((a) => a.name?.trim() || a.email || "Member").join(", ");
 
   return (
-    <div className="flex items-center gap-1.5" title={`ผู้รับผิดชอบ: ${names}`}>
+    <div className="flex items-center gap-1.5" title={`Assignees: ${names}`}>
       <AvatarStack
         users={assignees}
         max={max}

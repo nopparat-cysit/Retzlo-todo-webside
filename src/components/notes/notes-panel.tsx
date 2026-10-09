@@ -1393,7 +1393,7 @@ function NoteEditorModalContent({
               htmlFor="panel-note-title"
               className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
             >
-              Title (หัวข้อโน้ต) <span className="text-rose-500">*</span>
+              Title <span className="text-rose-500">*</span>
             </label>
             <div className="flex items-center gap-3">
               <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
@@ -1416,7 +1416,7 @@ function NoteEditorModalContent({
               htmlFor="panel-note-content"
               className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
             >
-              Description (รายละเอียดโน้ต)
+              Description
             </label>
             <Textarea
               id="panel-note-content"
@@ -1432,7 +1432,7 @@ function NoteEditorModalContent({
         <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
           {/* Folder Selector */}
           <div className="space-y-1.5 text-sm text-stone-300">
-            <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder (โฟลเดอร์)</span>
+            <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder</span>
             <Select
               value={selectedFolderId || "UNFILED"}
               onValueChange={(val) => setSelectedFolderId(val === "UNFILED" ? "" : val)}
@@ -1444,7 +1444,7 @@ function NoteEditorModalContent({
                 <div className="flex items-center gap-2 truncate">
                   <span className="shrink-0 text-base">{currentFolder?.icon || "📁"}</span>
                   <span className="truncate font-medium">
-                    {currentFolder ? currentFolder.name : "No folder (Unfiled / ไม่มีโฟลเดอร์)"}
+                    {currentFolder ? currentFolder.name : "No folder (Unfiled)"}
                   </span>
                 </div>
               </SelectTrigger>
@@ -1453,7 +1453,7 @@ function NoteEditorModalContent({
                   <SelectItem value="UNFILED" className="cursor-pointer text-xs">
                     <span className="flex items-center gap-2">
                       <span className="text-base">📁</span>
-                      <span>No folder (Unfiled / ไม่มีโฟลเดอร์)</span>
+                      <span>No folder (Unfiled)</span>
                     </span>
                   </SelectItem>
                 </SelectGroup>
@@ -1495,7 +1495,7 @@ function NoteEditorModalContent({
                       <span>Private Note</span>
                       <span className="rounded bg-dusk-amber/20 px-1 py-0.2 text-[9px] font-mono text-dusk-amber uppercase">Default</span>
                     </div>
-                    <p className="text-[10px] text-stone-500 font-normal">Only you can see this (โน้ตส่วนตัว)</p>
+                    <p className="text-[10px] text-stone-500 font-normal">Only you can see this (Private note)</p>
                   </div>
                 </div>
                 <input
@@ -1590,8 +1590,8 @@ function NoteEditorModalContent({
           </div>
 
           <DateTimeField
-            label="วันที่สิ้นสุด (Due / End Date)"
-            description="กำหนดวันสิ้นสุดหรือส่งงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+            label="Due / End Date"
+              description="Set note due or target date (no time specified = all day)"
             value={{ date, time }}
             onChange={(nextValue) => {
               setDate(nextValue.date);

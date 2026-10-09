@@ -13,28 +13,28 @@ export async function POST(request: Request) {
     // Validate required fields
     if (!name || typeof name !== "string" || !name.trim()) {
       return NextResponse.json(
-        { error: "กรุณาระบุชื่อผู้ติดต่อ (Name is required)" },
+        { error: "Name is required." },
         { status: 400 }
       );
     }
 
     if (!email || typeof email !== "string" || !email.includes("@")) {
       return NextResponse.json(
-        { error: "กรุณาระบุอีเมลที่ถูกต้อง (Valid email is required)" },
+        { error: "A valid email address is required." },
         { status: 400 }
       );
     }
 
     if (!subject || typeof subject !== "string" || !subject.trim()) {
       return NextResponse.json(
-        { error: "กรุณาระบุหัวข้อเรื่อง (Subject is required)" },
+        { error: "Subject is required." },
         { status: 400 }
       );
     }
 
     if (!message || typeof message !== "string" || !message.trim()) {
       return NextResponse.json(
-        { error: "กรุณากรอกข้อความหรือรายละเอียด (Message is required)" },
+        { error: "Message content is required." },
         { status: 400 }
       );
     }
@@ -57,12 +57,12 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       ticketId,
-      message: "เราได้รับข้อความติดต่อของคุณเรียบร้อยแล้ว ทีมงานจะดำเนินการตรวจสอบและติดต่อกลับโดยเร็วที่สุด",
+      message: "Your message has been received. Our team will review and follow up as soon as possible.",
     });
   } catch (error) {
     console.error("[CONTACT_API_ERROR]", error);
     return NextResponse.json(
-      { error: "เกิดข้อผิดพลาดในการส่งข้อความ กรุณาลองใหม่อีกครั้ง" },
+      { error: "An error occurred while sending your message. Please try again." },
       { status: 500 }
     );
   }

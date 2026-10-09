@@ -64,14 +64,14 @@ export function AiProjectSummaryModal({
         data = await res.json();
       } catch {
         const errorMsg = res.status === 504
-          ? "AI ตอบกลับช้าเกินกำหนดของเซิร์ฟเวอร์ (Timeout) — ลองใหม่อีกครั้ง"
-          : `เซิร์ฟเวอร์ตอบกลับผิดปกติ (HTTP ${res.status})`;
+          ? "AI response timed out — please try again"
+          : `Server returned error (HTTP ${res.status})`;
         toast({ message: errorMsg, type: "error" });
         return;
       }
       if (!res.ok) {
         toast({
-          message: (data.error as string) || "ไม่สามารถสรุปภาพรวมโปรเจกต์ได้",
+          message: (data.error as string) || "Unable to summarize project overview",
           type: "error"
         });
         return;
@@ -83,7 +83,7 @@ export function AiProjectSummaryModal({
       }
     } catch {
       toast({
-        message: "เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI Server",
+        message: "Error communicating with AI server",
         type: "error"
       });
     } finally {
@@ -100,25 +100,25 @@ export function AiProjectSummaryModal({
   const handleCopyMarkdown = () => {
     if (!summary) return;
 
-    const md = `📊 **สรุปความคืบหน้า: ${projectName} (${boardName})**
-สถานะ: ${summary.healthStatus === "HEALTHY" ? "🟢 ปกติ / แข็งแรง" : summary.healthStatus === "ATTENTION" ? "🟡 ต้องจับตาดู" : "🔴 วิกฤต / มีงานค้าง"} (เสร็จแล้ว ${summary.completionRatePercent}%)
+    const md = `📊 **Progress Summary: ${projectName} (${boardName})**
+Status: ${summary.healthStatus === "HEALTHY" ? "🟢 Healthy" : summary.healthStatus === "ATTENTION" ? "🟡 Attention Needed" : "🔴 Critical"} (${summary.completionRatePercent}% complete)
 
-📝 **ภาพรวม:**
+📝 **Overview:**
 ${summary.overview}
 
-🚀 **งานที่ทีมกำลังโฟกัส (DOING):**
-${summary.currentFocus.map((f) => `- ${f}`).join("\n") || "- ไม่มีงานที่ค้างในกระบวนการ"}
+🚀 **Current Focus (DOING):**
+${summary.currentFocus.map((f) => `- ${f}`).join("\n") || "- No active tasks in progress"}
 
-⚠️ **จุดเสี่ยง / งานที่ต้องระวัง (Bottlenecks):**
-${summary.bottlenecks.map((b) => `- ${b}`).join("\n") || "- ไม่มีจุดเสี่ยงสำคัญ"}
+⚠️ **Bottlenecks & Overdue:**
+${summary.bottlenecks.map((b) => `- ${b}`).join("\n") || "- No major bottlenecks"}
 
-💡 **ข้อเสนอแนะในการทำงานถัดไป:**
-${summary.recommendations.map((r) => `- ${r}`).join("\n") || "- ดำเนินการตามแผนงานต่อเนื่อง"}
+💡 **Next Action Recommendations:**
+${summary.recommendations.map((r) => `- ${r}`).join("\n") || "- Continue as planned"}
 `;
 
     navigator.clipboard.writeText(md);
     toast({
-      message: "📋 คัดลอกข้อความสรุป Markdown สำหรับส่งใน Line / Discord แล้ว!",
+      message: "📋 Copied Markdown summary to clipboard!",
       type: "success"
     });
   };
@@ -128,18 +128,18 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n") || "- ดำเนิ�
 
     setIsSavingNote(true);
     try {
-      const title = `🤖 AI Summary — ${boardName} (${new Date().toLocaleDateString("th-TH")})`;
-      const content = `### สถานะโครงการ: ${summary.healthStatus} (${summary.completionRatePercent}%)
+      const title = `🤖 AI Summary — ${boardName} (${new Date().toLocaleDateString("en-US")})`;
+      const content = `### Project Health: ${summary.healthStatus} (${summary.completionRatePercent}%)
 
 ${summary.overview}
 
-#### งานที่กำลังทำอยู่:
+#### Current Focus:
 ${summary.currentFocus.map((f) => `- ${f}`).join("\n")}
 
-#### จุดเสี่ยง & งานค้าง:
+#### Bottlenecks & Overdue:
 ${summary.bottlenecks.map((b) => `- ${b}`).join("\n")}
 
-#### คำแนะนำถัดไป:
+#### Recommendations:
 ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
 `;
 
@@ -159,12 +159,12 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
       }
 
       toast({
-        message: "💾 บันทึกรายงานสรุปลงในแท็บ Notes ของโปรเจกต์เรียบร้อยแล้ว!",
+        message: "💾 Saved summary report to project Notes!",
         type: "success"
       });
     } catch {
       toast({
-        message: "ไม่สามารถบันทึกลง Notes ได้ กรุณาลองใหม่อีกครั้ง",
+        message: "Failed to save note. Please try again.",
         type: "error"
       });
     } finally {
@@ -191,10 +191,10 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                 id="ai-summary-title"
                 className="text-base sm:text-lg font-bold tracking-tight text-stone-100 flex items-center gap-2"
               >
-                <span>🤖 สรุปความคืบหน้าของงาน (AI Summary)</span>
+                <span>🤖 Project Progress Summary (AI Summary)</span>
               </h2>
               <p className="text-xs text-stone-400">
-                วิเคราะห์สถานะ Sprint และความคืบหน้าของบอร์ด {boardName}
+                Analyze sprint status and progress on board {boardName}
               </p>
             </div>
           </div>
@@ -223,7 +223,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
             <div className="flex flex-col items-center justify-center py-12 space-y-3">
               <Loader2 className="h-8 w-8 animate-spin text-dusk-lavender" />
               <p className="text-sm font-medium text-stone-300 animate-pulse">
-                🐱 AI กำลังสแกนบอร์ดและวิเคราะห์ความคืบหน้า...
+                🐱 AI is scanning board and analyzing progress...
               </p>
             </div>
           ) : summary ? (
@@ -245,24 +245,24 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     <span>
                       {summary.healthStatus === "HEALTHY"
-                        ? "สุขภาพดี (Healthy)"
+                        ? "Healthy"
                         : summary.healthStatus === "ATTENTION"
-                          ? "ต้องติดตาม (Attention)"
-                          : "มีความเสี่ยง (Critical)"}
+                          ? "Attention Needed"
+                          : "Critical"}
                     </span>
                   </span>
                 </div>
 
                 <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-stone-300">
                   <TrendingUp className="h-4 w-4 text-dusk-cyan" />
-                  <span>เสร็จแล้ว {summary.completionRatePercent}%</span>
+                  <span>Completed {summary.completionRatePercent}%</span>
                 </div>
               </div>
 
               {/* Executive Overview */}
               <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3.5 space-y-1">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-dusk-amber flex items-center gap-1">
-                  <span>📊 ภาพรวมโครงการ</span>
+                  <span>📊 Project Overview</span>
                 </span>
                 <p className="text-stone-200 leading-relaxed break-words">
                   {summary.overview}
@@ -274,7 +274,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                 <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3.5 space-y-1.5">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-300 flex items-center gap-1">
                     <Flame className="h-3.5 w-3.5 text-indigo-400" />
-                    <span>งานที่ทีมกำลังโฟกัสอยู่ (DOING)</span>
+                    <span>Current Focus (DOING)</span>
                   </span>
                   <ul className="space-y-1 text-stone-300">
                     {summary.currentFocus.map((focus, idx) => (
@@ -292,7 +292,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                 <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3.5 space-y-1.5">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-300 flex items-center gap-1">
                     <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
-                    <span>จุดเสี่ยงและงานค้าง (Bottlenecks & Overdue)</span>
+                    <span>Bottlenecks & Overdue</span>
                   </span>
                   <ul className="space-y-1 text-stone-300">
                     {summary.bottlenecks.map((bottle, idx) => (
@@ -310,7 +310,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                 <div className="rounded-xl border border-teal-500/20 bg-teal-500/5 p-3.5 space-y-1.5">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-teal-300 flex items-center gap-1">
                     <Lightbulb className="h-3.5 w-3.5 text-teal-400" />
-                    <span>ข้อเสนอแนะในการทำงานถัดไป (Recommendations)</span>
+                    <span>Next Action Recommendations</span>
                   </span>
                   <ul className="space-y-1 text-stone-300">
                     {summary.recommendations.map((rec, idx) => (
@@ -325,7 +325,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
             </div>
           ) : (
             <div className="py-8 text-center text-stone-400">
-              กดปุ่มด้านล่างเพื่อเริ่มสร้างรายงานสรุป
+              Click the button below to generate a summary report
             </div>
           )}
         </div>
@@ -342,7 +342,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
               className="gap-1.5 text-xs"
             >
               <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
-              <span>สรุปใหม่ (ใช้ 2 cr)</span>
+              <span>Regenerate (Costs 2 cr)</span>
             </Button>
           </div>
 
@@ -358,7 +358,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                   className="gap-1.5 text-xs text-dusk-lavender hover:text-theme-foreground"
                 >
                   <FileText className="h-3.5 w-3.5" />
-                  <span>{isSavingNote ? "กำลังบันทึก..." : "บันทึกเป็น Note"}</span>
+                  <span>{isSavingNote ? "Saving..." : "Save as Note"}</span>
                 </Button>
 
                 <Button
@@ -369,7 +369,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                   className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium"
                 >
                   <ClipboardCopy className="h-3.5 w-3.5" />
-                  <span>คัดลอก Markdown</span>
+                  <span>Copy Markdown</span>
                 </Button>
               </>
             )}

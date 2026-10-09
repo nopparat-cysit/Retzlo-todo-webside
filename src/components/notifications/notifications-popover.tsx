@@ -79,11 +79,11 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
       });
       if (res.ok) {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-        toast({ message: isEn ? "Marked all as read" : "ทำเครื่องหมายอ่านแล้วทั้งหมด", type: "success" });
+        toast({ message: "Marked all as read", type: "success" });
         broadcastChange();
       }
     } catch {
-      toast({ message: isEn ? "Failed to update notifications status" : "ไม่สามารถอัปเดตสถานะได้", type: "error" });
+      toast({ message: "Failed to update notifications status", type: "error" });
     }
   }
 
@@ -139,11 +139,11 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
           <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-stone-100">
-                {isEn ? "Notifications" : "การแจ้งเตือน"}
+                Notifications
               </span>
               {unreadCount > 0 && (
                 <span className="rounded-full bg-dusk-lavender/20 px-2 py-0.5 text-[11px] font-medium text-dusk-lavender">
-                  {unreadCount} {isEn ? "new" : "ใหม่"}
+                  {unreadCount} new
                 </span>
               )}
             </div>
@@ -153,7 +153,7 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
                 onClick={markAllAsRead}
                 className="text-[11px] text-stone-400 hover:text-dusk-lavender transition cursor-pointer"
               >
-                {isEn ? "Mark all as read" : "อ่านทั้งหมด"}
+                Mark all as read
               </button>
             )}
           </div>
@@ -163,7 +163,7 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
             {notifications.length === 0 ? (
               <div className="py-8 text-center text-xs text-stone-500">
                 <Bell className="mx-auto mb-2 h-6 w-6 opacity-30 text-stone-400" />
-                <p>{isEn ? "No notifications at this time" : "ไม่มีการแจ้งเตือนในขณะนี้"}</p>
+                <p>No notifications at this time</p>
               </div>
             ) : (
               notifications.map((n) => (
@@ -224,14 +224,14 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
                             }}
                             className="rounded-lg bg-white/10 hover:bg-white/15 px-3 py-1 text-xs font-medium text-stone-200 transition cursor-pointer"
                           >
-                            👉 ไปที่การ์ดงาน
+                            👉 Go to task card
                           </button>
                           {!n.isRead && (
                             <button
                               type="button"
                               onClick={() => markAsRead(n.id)}
                               className="rounded p-1 text-stone-500 hover:text-stone-300 transition cursor-pointer"
-                              title="ทำเครื่องหมายว่าอ่านแล้ว"
+                              title="Mark as read"
                             >
                               <Check className="h-3.5 w-3.5" />
                             </button>
@@ -251,11 +251,11 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
                               }}
                               className="rounded-lg bg-gradient-to-r from-dusk-lavender to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:from-dusk-lavender/90 hover:to-indigo-500/90 transition cursor-pointer"
                             >
-                              👉 ดูคำเชิญ / เข้าร่วม
+                              👉 View invitation / Join
                             </button>
                           ) : (
                             <span className="text-[11px] text-stone-500 italic">
-                              (คำเชิญนี้หมดอายุแล้วหรือถูกตอบรับแล้ว)
+                              (This invitation has expired or was already accepted)
                             </span>
                           )}
                           {!n.isRead && (
@@ -263,7 +263,7 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
                               type="button"
                               onClick={() => markAsRead(n.id)}
                               className="rounded p-1 text-stone-500 hover:text-stone-300 transition cursor-pointer"
-                              title="ทำเครื่องหมายว่าอ่านแล้ว"
+                              title="Mark as read"
                             >
                               <Check className="h-3.5 w-3.5" />
                             </button>

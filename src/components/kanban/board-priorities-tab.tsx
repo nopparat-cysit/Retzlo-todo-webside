@@ -154,7 +154,7 @@ export function BoardPrioritiesTab({
     setSelectedTemplate(null);
     setPreviewTemplate(null);
     toast({
-      message: `นำแม่แบบ "${tpl.name}" มาปรับใช้เรียบร้อย (${nextList.length} ระดับ)`,
+      message: `Applied template "${tpl.name}" successfully (${nextList.length} levels)`,
       type: "success"
     });
   };
@@ -163,14 +163,14 @@ export function BoardPrioritiesTab({
     e.preventDefault();
     const trimmedName = customTemplateName.trim();
     if (!trimmedName) {
-      toast({ message: "กรุณาระบุชื่อแม่แบบ", type: "error" });
+      toast({ message: "Please specify a template name", type: "error" });
       return;
     }
 
     const newTemplate: PriorityWorkflowTemplate = {
       id: `custom_${Date.now()}`,
       name: trimmedName,
-      description: customTemplateDesc.trim() || `แม่แบบระดับความสำคัญกำหนดเอง (${priorities.length} ระดับ)`,
+      description: customTemplateDesc.trim() || `Custom priority template (${priorities.length} levels)`,
       category: "Custom",
       icon: "bookmark",
       priorities: [...priorities]
@@ -185,7 +185,7 @@ export function BoardPrioritiesTab({
     setIsSaveCustomTemplateOpen(false);
     setCustomTemplateName("");
     setCustomTemplateDesc("");
-    toast({ message: `บันทึกแม่แบบ "${trimmedName}" เรียบร้อยแล้ว`, type: "success" });
+    toast({ message: `Template "${trimmedName}" saved successfully`, type: "success" });
   };
 
   const handleAddPriority = () => {
@@ -213,7 +213,7 @@ export function BoardPrioritiesTab({
     onChange(nextList);
     setEditingId(newPriority.id);
     toast({
-      message: `เพิ่มระดับความสำคัญ "${newPriority.label}" เรียบร้อย`,
+      message: `Priority "${newPriority.label}" added successfully`,
       type: "success"
     });
   };
@@ -235,7 +235,7 @@ export function BoardPrioritiesTab({
   const handleConfirmDeletePriority = () => {
     if (!priorityToDelete || !canManage || previewTemplate) return;
     if (priorities.length <= MIN_BOARD_PRIORITIES) {
-      toast({ message: "ต้องมีระดับความสำคัญอย่างน้อย 1 ระดับ", type: "error" });
+      toast({ message: "Must have at least 1 priority level", type: "error" });
       setPriorityToDelete(null);
       return;
     }
@@ -248,7 +248,7 @@ export function BoardPrioritiesTab({
     onChange(reindexed);
     if (editingId === priorityToDelete.id) setEditingId(null);
     toast({
-      message: `ลบระดับความสำคัญ "${priorityToDelete.label}" เรียบร้อยแล้ว`,
+      message: `Priority "${priorityToDelete.label}" deleted successfully`,
       type: "success"
     });
     setPriorityToDelete(null);
@@ -289,7 +289,7 @@ export function BoardPrioritiesTab({
     setPreviewTemplate(null);
     setSelectedTemplate(null);
     setIsResetConfirmOpen(false);
-    toast({ message: "รีเซ็ตระดับความสำคัญกลับเป็นค่าเริ่มต้นแล้ว", type: "success" });
+    toast({ message: "Reset priority levels to default successfully", type: "success" });
   };
 
   return (
@@ -298,7 +298,7 @@ export function BoardPrioritiesTab({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
         <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
           <Sparkles className="h-3.5 w-3.5 text-dusk-lavender" />
-          <span>Custom Priority Levels (ระดับความสำคัญ)</span>
+          <span>Priority Levels</span>
         </span>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -310,17 +310,17 @@ export function BoardPrioritiesTab({
                 : "border-indigo-400/30 bg-indigo-500/10 text-indigo-700 dark:text-dusk-lavender"
             )}
           >
-            {displayedPriorities.length} / {MAX_BOARD_PRIORITIES} ระดับ
+            {displayedPriorities.length} / {MAX_BOARD_PRIORITIES} levels
           </span>
           <button
             type="button"
             onClick={() => setIsResetConfirmOpen(true)}
             disabled={!canManage}
-            title="รีเซ็ตกลับเป็นค่าเริ่มต้น (High, Medium, Low)"
+            title="Reset to default (High, Medium, Low)"
             className="flex items-center gap-1 rounded-lg border border-stone-200/80 bg-stone-50/60 px-2 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
           >
             <RotateCcw className="h-3 w-3" />
-            <span className="hidden sm:inline">รีเซ็ต</span>
+            <span className="hidden sm:inline">Reset</span>
           </button>
         </div>
       </div>
@@ -331,10 +331,10 @@ export function BoardPrioritiesTab({
           <div className="flex items-center gap-1.5 flex-wrap">
             <Wand2 className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
             <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-              แม่แบบระดับความสำคัญสำเร็จรูป (Priority Templates)
+              Preset Priority Templates
             </span>
             <span className="rounded-full bg-rose-100/70 border border-rose-200/60 px-2 py-0.2 text-[9px] font-semibold text-rose-700 dark:bg-rose-500/15 dark:border-rose-400/30 dark:text-rose-300">
-              คลิกเพื่อดูตัวอย่างทันที
+              Click to preview instantly
             </span>
           </div>
 
@@ -351,14 +351,14 @@ export function BoardPrioritiesTab({
                   setSelectedTemplate(null);
                 }
               }}
-              aria-label="เลือกแม่แบบระดับความสำคัญจากเมนู Dropdown"
+              aria-label="Select priority template from dropdown"
               className="h-7 text-[11px] font-medium rounded-lg border border-rose-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500"
-              title="เลือกดูแม่แบบระดับความสำคัญผ่าน Dropdown"
+              title="Select priority template from dropdown"
             >
-              <option value="">-- เลือกแม่แบบ (Dropdown) --</option>
+              <option value="">-- Select Template (Dropdown) --</option>
               {allTemplates.map((tpl) => (
                 <option key={tpl.id} value={tpl.id}>
-                  {tpl.name} ({tpl.priorities.length} ระดับ)
+                  {tpl.name} ({tpl.priorities.length} levels)
                 </option>
               ))}
             </select>
@@ -370,7 +370,7 @@ export function BoardPrioritiesTab({
                 className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:underline self-start sm:self-auto cursor-pointer"
               >
                 <Bookmark className="h-3 w-3" />
-                <span>+ บันทึกชุดนี้เป็นแม่แบบ</span>
+                <span>+ Save As Template</span>
               </button>
             )}
           </div>
@@ -440,13 +440,13 @@ export function BoardPrioritiesTab({
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-bold text-rose-950 dark:text-rose-200">
-                  กำลังดูตัวอย่าง: {previewTemplate.name}
+                  Previewing: {previewTemplate.name}
                 </span>
                 <span className="rounded-md border border-rose-300 bg-rose-100/80 px-2 py-0.2 font-mono text-[10px] font-bold text-rose-800 dark:border-rose-500/40 dark:bg-rose-500/20 dark:text-rose-300">
-                  {previewTemplate.priorities.length} ระดับ
+                  {previewTemplate.priorities.length} levels
                 </span>
                 <span className="text-[10px] text-rose-700 dark:text-rose-400">
-                  (คลิกแม่แบบอื่นด้านบนเพื่อสลับดูได้ทันที)
+                  (Click other templates above to preview)
                 </span>
               </div>
               <p className="text-[11px] text-rose-800/80 dark:text-rose-300/80 truncate mt-0.5">
@@ -468,7 +468,7 @@ export function BoardPrioritiesTab({
                     : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
                 )}
               >
-                แทนที่ทั้งหมด
+                Replace All
               </button>
               <button
                 type="button"
@@ -480,7 +480,7 @@ export function BoardPrioritiesTab({
                     : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
                 )}
               >
-                เพิ่มต่อท้าย
+                Append
               </button>
             </div>
 
@@ -495,7 +495,7 @@ export function BoardPrioritiesTab({
               className="h-7 text-xs px-2.5 gap-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs cursor-pointer"
             >
               <Check className="h-3.5 w-3.5 stroke-[2.5]" />
-              <span>นำแม่แบบนี้มาใช้</span>
+              <span>Apply Template</span>
             </Button>
 
             {/* Cancel preview */}
@@ -506,10 +506,10 @@ export function BoardPrioritiesTab({
                 setSelectedTemplate(null);
               }}
               className="flex h-7 items-center gap-1 rounded-lg border border-stone-200/80 bg-white/90 px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
-              title="ยกเลิกการดูตัวอย่าง (กลับสู่ระดับปัจจุบันของบอร์ด)"
+              title="Cancel preview (return to current board priorities)"
             >
               <X className="h-3.5 w-3.5" />
-              <span className="hidden xs:inline">คืนค่าเดิม</span>
+              <span className="hidden xs:inline">Revert</span>
             </button>
           </div>
         </div>
@@ -537,7 +537,7 @@ export function BoardPrioritiesTab({
                       ? "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400"
                       : "border-stone-200 bg-stone-100 text-stone-600 dark:border-white/10 dark:bg-white/[0.06] dark:text-stone-300"
                   )}
-                  title={`ระดับความสำคัญที่ ${index + 1}`}
+                  title={`Priority level ${index + 1}`}
                 >
                   {index + 1}
                 </div>
@@ -550,7 +550,7 @@ export function BoardPrioritiesTab({
                         {priority.label}
                       </span>
                       <span className="rounded-md border border-rose-300/60 bg-rose-100/60 px-1.5 py-0.2 text-[9px] font-semibold text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
-                        ตัวอย่าง
+                        Preview
                       </span>
                     </div>
                   ) : (
@@ -559,7 +559,7 @@ export function BoardPrioritiesTab({
                       value={priority.label}
                       onChange={(e) => handleUpdateLabel(priority.id, e.target.value)}
                       disabled={!canManage}
-                      placeholder="ชื่องาน/ระดับ..."
+                      placeholder="Priority label..."
                       maxLength={30}
                       className="h-7 w-full rounded-lg border border-stone-200/80 bg-white px-2 text-xs font-semibold text-stone-900 shadow-2xs placeholder:text-stone-400 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 dark:focus:border-dusk-lavender"
                     />
@@ -595,7 +595,7 @@ export function BoardPrioritiesTab({
                           type="button"
                           disabled={!canManage}
                           className="flex h-7 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/70 px-2 text-xs font-medium text-stone-700 hover:border-stone-300 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 cursor-pointer"
-                          title="เลือกสีระดับความสำคัญ"
+                          title="Select priority color"
                         >
                           <span className={cn("h-3 w-3 rounded-full shrink-0 shadow-2xs", colorConfig.swatchClass)} />
                           <span className="text-[11px] font-semibold">{colorConfig.name}</span>
@@ -604,7 +604,7 @@ export function BoardPrioritiesTab({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56 p-2 z-[1300]">
                         <div className="mb-2 px-1 text-[11px] font-bold text-stone-500 dark:text-stone-400">
-                          เลือกสีระดับความสำคัญ:
+                          Select priority color:
                         </div>
                         <div className="grid grid-cols-2 gap-1">
                           {Object.values(PRIORITY_COLOR_OPTIONS).map((option) => (
@@ -633,7 +633,7 @@ export function BoardPrioritiesTab({
                       onClick={() => handleMoveUp(index)}
                       disabled={isHighest || !canManage}
                       className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/[0.08] cursor-pointer"
-                      title="เลื่อนขึ้น (เพิ่มระดับความสำคัญ)"
+                      title="Move up (increase urgency)"
                       aria-label="Move priority up"
                     >
                       <ArrowUp className="h-3.5 w-3.5" />
@@ -645,7 +645,7 @@ export function BoardPrioritiesTab({
                       onClick={() => handleMoveDown(index)}
                       disabled={isLowest || !canManage}
                       className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/[0.08] cursor-pointer"
-                      title="เลื่อนลง (ลดระดับความสำคัญ)"
+                      title="Move down (decrease urgency)"
                       aria-label="Move priority down"
                     >
                       <ArrowDown className="h-3.5 w-3.5" />
@@ -657,7 +657,7 @@ export function BoardPrioritiesTab({
                       onClick={() => setPriorityToDelete(priority)}
                       disabled={isAtMin || !canManage}
                       className="grid h-7 w-7 place-items-center rounded-lg border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 dark:hover:bg-red-500/15 cursor-pointer"
-                      title={isAtMin ? "ต้องมีอย่างน้อย 1 ระดับ" : "ลบระดับความสำคัญนี้"}
+                      title={isAtMin ? "Must have at least 1 priority level" : "Delete this priority"}
                       aria-label="Delete priority"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -687,8 +687,8 @@ export function BoardPrioritiesTab({
             <Plus className="h-4 w-4" />
             <span>
               {isAtMax
-                ? `สร้างครบโควตา ${MAX_BOARD_PRIORITIES} ระดับแล้ว`
-                : `+ เพิ่มระดับความสำคัญใหม่ (${priorities.length}/${MAX_BOARD_PRIORITIES})`}
+                ? `Maximum ${MAX_BOARD_PRIORITIES} priority levels reached`
+                : `+ Add New Priority (${priorities.length}/${MAX_BOARD_PRIORITIES})`}
             </span>
           </button>
         </div>
@@ -700,8 +700,8 @@ export function BoardPrioritiesTab({
           <Palette className="h-3.5 w-3.5 text-dusk-amber" />
           <span>
             {previewTemplate
-              ? `ตัวอย่างการแสดงผลแม่แบบ "${previewTemplate.name}":`
-              : "ตัวอย่างการแสดงผลบนบอร์ดและตาราง Spreadsheet:"}
+              ? `Previewing template "${previewTemplate.name}":`
+              : "Preview on board and export view:"}
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -739,7 +739,7 @@ export function BoardPrioritiesTab({
                 <div className="flex items-center gap-2">
                   <Bookmark className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                   <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                    บันทึกระดับความสำคัญเป็นแม่แบบส่วนตัว
+                    Save Priorities as Custom Template
                   </h3>
                 </div>
                 <button
@@ -754,10 +754,10 @@ export function BoardPrioritiesTab({
               <div className="space-y-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                    ชื่อแม่แบบ <span className="text-red-500">*</span>
+                    Template Name <span className="text-red-500">*</span>
                   </label>
                   <Input
-                    placeholder="เช่น ลำดับความสำคัญฉุกเฉิน, คิวงาน Production..."
+                    placeholder="e.g. Incident Response, Production Queue..."
                     value={customTemplateName}
                     onChange={(e) => setCustomTemplateName(e.target.value)}
                     maxLength={50}
@@ -768,10 +768,10 @@ export function BoardPrioritiesTab({
 
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                    คำอธิบายสั้นๆ (ไม่บังคับ)
+                    Short Description (Optional)
                   </label>
                   <Input
-                    placeholder="อธิบายว่าแม่แบบนี้เหมาะกับงานแบบไหน..."
+                    placeholder="Describe what workflow this template is best suited for..."
                     value={customTemplateDesc}
                     onChange={(e) => setCustomTemplateDesc(e.target.value)}
                     maxLength={100}
@@ -781,7 +781,7 @@ export function BoardPrioritiesTab({
 
                 <div className="p-3 rounded-xl border border-stone-200/80 bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]">
                   <span className="text-[11px] text-stone-500 dark:text-stone-400">
-                    จะบันทึกระดับความสำคัญปัจจุบันทั้งหมด {priorities.length} ระดับเป็นแม่แบบส่วนตัวสำหรับเรียกใช้ในอนาคต
+                    Saves all {priorities.length} current priority levels as a custom template for future use.
                   </span>
                 </div>
               </div>
@@ -794,7 +794,7 @@ export function BoardPrioritiesTab({
                   onClick={() => setIsSaveCustomTemplateOpen(false)}
                   className="text-xs cursor-pointer"
                 >
-                  ยกเลิก
+                  Cancel
                 </Button>
                 <Button
                   type="submit"
@@ -802,7 +802,7 @@ export function BoardPrioritiesTab({
                   disabled={!customTemplateName.trim()}
                   className="text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium cursor-pointer"
                 >
-                  บันทึกแม่แบบ
+                  Save Template
                 </Button>
               </div>
             </form>
@@ -813,9 +813,9 @@ export function BoardPrioritiesTab({
       {/* Confirmation Modals per AGENTS.md */}
       <ConfirmModal
         open={priorityToDelete !== null}
-        title="ยืนยันการลบระดับความสำคัญ"
-        message={`ต้องการลบระดับความสำคัญ "${priorityToDelete?.label || "Priority"}" ออกจากรายการใช่หรือไม่?`}
-        confirmLabel="ลบระดับความสำคัญ"
+        title="Confirm Priority Deletion"
+        message={`Are you sure you want to delete priority "${priorityToDelete?.label || "Priority"}"?`}
+        confirmLabel="Delete Priority"
         variant="danger"
         onClose={() => setPriorityToDelete(null)}
         onConfirm={handleConfirmDeletePriority}
@@ -823,9 +823,9 @@ export function BoardPrioritiesTab({
 
       <ConfirmModal
         open={isResetConfirmOpen}
-        title="รีเซ็ตระดับความสำคัญกลับเป็นค่าเริ่มต้น"
-        message="ระดับความสำคัญทั้งหมดจะถูกรีเซ็ตกลับเป็น 3 ระดับมาตรฐาน (High, Medium, Low)"
-        confirmLabel="รีเซ็ต"
+        title="Reset Priorities to Default"
+        message="All priority levels will be reset to the 3 standard levels (High, Medium, Low)."
+        confirmLabel="Reset"
         variant="default"
         onClose={() => setIsResetConfirmOpen(false)}
         onConfirm={handleConfirmResetToDefault}
@@ -833,9 +833,9 @@ export function BoardPrioritiesTab({
 
       <ConfirmModal
         open={isApplyTemplateConfirmOpen}
-        title="ยืนยันการนำแม่แบบระดับความสำคัญมาใช้"
-        message={`คุณต้องการนำแม่แบบ "${(selectedTemplate || previewTemplate)?.name}" (${templateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
-        confirmLabel="นำแม่แบบมาใช้"
+        title="Confirm Apply Priority Template"
+        message={`Are you sure you want to apply template "${(selectedTemplate || previewTemplate)?.name}" (${templateApplyMode === "replace" ? "Replace All" : "Append"}) to this board?`}
+        confirmLabel="Apply Template"
         variant="default"
         onClose={() => setIsApplyTemplateConfirmOpen(false)}
         onConfirm={handleConfirmApplyTemplate}

@@ -38,8 +38,7 @@ export function DateTimePicker({
   align = "start",
   id
 }: DateTimePickerProps) {
-  const { isEn } = useLanguage();
-  const defaultPlaceholder = isEn ? "Select date & time..." : "เลือกวันและเวลา...";
+  const defaultPlaceholder = "Select date & time...";
   const resolvedPlaceholder = placeholder || defaultPlaceholder;
 
   const [open, setOpen] = useState(false);
@@ -58,7 +57,7 @@ export function DateTimePicker({
   if (dateString && timeString) {
     displayLabel = `${dateString} • ${timeString}`;
   } else if (dateString) {
-    displayLabel = `${dateString} (ตลอดวัน)`;
+    displayLabel = `${dateString} (All day)`;
   }
 
   const handleDateChange = (dateIso: string) => {
@@ -139,7 +138,7 @@ export function DateTimePicker({
               )}
             >
               <CalendarIcon className="h-3.5 w-3.5 text-dusk-amber" />
-              <span>วันที่ {value.date ? `(${formatDisplayDateShort(value.date)})` : ""}</span>
+              <span>Date {value.date ? `(${formatDisplayDateShort(value.date)})` : ""}</span>
             </button>
             <button
               type="button"
@@ -152,7 +151,7 @@ export function DateTimePicker({
               )}
             >
               <Clock className="h-3.5 w-3.5 text-dusk-lavender" />
-              <span>เวลา {value.time ? `(${formatDisplayTime(value.time)})` : "(ตลอดวัน)"}</span>
+              <span>Time {value.time ? `(${formatDisplayTime(value.time)})` : "(All day)"}</span>
             </button>
           </div>
 
@@ -173,14 +172,14 @@ export function DateTimePicker({
           {/* ── Done Button ── */}
           <div className="mt-3 flex items-center justify-between border-t border-stone-200/80 pt-2.5 dark:border-white/10">
             <span className="text-[11px] text-stone-400">
-              {value.date ? "กำหนดแล้ว" : "ยังไม่ได้เลือกวันที่"}
+              {value.date ? "Date selected" : "No date selected"}
             </span>
             <button
               type="button"
               onClick={() => setOpen(false)}
               className="rounded-lg bg-dusk-lavender px-3 py-1 text-xs font-bold text-stone-950 transition hover:bg-dusk-lavender/90 cursor-pointer"
             >
-              เสร็จสิ้น
+              Done
             </button>
           </div>
         </PopoverContent>

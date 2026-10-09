@@ -18,7 +18,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   rose: {
     id: "rose",
     name: "Rose / Red",
-    nameTh: "แดงกุหลาบ (ด่วนที่สุด)",
+    nameTh: "Rose Red (Critical / Blocker)",
     swatchClass: "bg-red-500",
     pillClass: "border-red-500/30 bg-red-500/15 text-red-600 dark:border-red-400/30 dark:bg-red-500/20 dark:text-red-300",
     textClass: "text-red-600 dark:text-red-400",
@@ -28,7 +28,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   orange: {
     id: "orange",
     name: "Orange",
-    nameTh: "ส้มสดใส (สำคัญมาก)",
+    nameTh: "Vibrant Orange (High Priority)",
     swatchClass: "bg-orange-500",
     pillClass: "border-orange-500/30 bg-orange-500/15 text-orange-600 dark:border-orange-400/30 dark:bg-orange-500/20 dark:text-orange-300",
     textClass: "text-orange-600 dark:text-orange-400",
@@ -38,7 +38,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   amber: {
     id: "amber",
     name: "Amber",
-    nameTh: "อำพันทอง (ระวัง/ด่วน)",
+    nameTh: "Golden Amber (Warning / Urgent)",
     swatchClass: "bg-amber-500",
     pillClass: "border-amber-500/30 bg-amber-500/15 text-amber-700 dark:border-amber-400/30 dark:bg-amber-500/20 dark:text-amber-300",
     textClass: "text-amber-600 dark:text-amber-400",
@@ -48,7 +48,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   yellow: {
     id: "yellow",
     name: "Yellow",
-    nameTh: "เหลืองอบอุ่น",
+    nameTh: "Warm Yellow (Attention)",
     swatchClass: "bg-yellow-400",
     pillClass: "border-yellow-500/30 bg-yellow-400/15 text-yellow-700 dark:border-yellow-400/30 dark:bg-yellow-400/20 dark:text-yellow-300",
     textClass: "text-yellow-600 dark:text-yellow-400",
@@ -58,7 +58,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   emerald: {
     id: "emerald",
     name: "Emerald",
-    nameTh: "เขียวมรกต (ปกติ/สำเร็จ)",
+    nameTh: "Emerald Green (Normal / Success)",
     swatchClass: "bg-emerald-500",
     pillClass: "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-500/20 dark:text-emerald-300",
     textClass: "text-emerald-600 dark:text-emerald-400",
@@ -68,7 +68,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   teal: {
     id: "teal",
     name: "Teal",
-    nameTh: "เขียวอมฟ้า",
+    nameTh: "Teal Blue-Green",
     swatchClass: "bg-teal-500",
     pillClass: "border-teal-500/30 bg-teal-500/15 text-teal-700 dark:border-teal-400/30 dark:bg-teal-500/20 dark:text-teal-300",
     textClass: "text-teal-600 dark:text-teal-400",
@@ -78,7 +78,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   sky: {
     id: "sky",
     name: "Sky Blue",
-    nameTh: "ฟ้าสว่าง (ความสำคัญต่ำ)",
+    nameTh: "Sky Blue (Low Priority)",
     swatchClass: "bg-sky-500",
     pillClass: "border-sky-500/30 bg-sky-500/15 text-sky-700 dark:border-sky-400/30 dark:bg-sky-500/20 dark:text-sky-300",
     textClass: "text-sky-600 dark:text-sky-400",
@@ -88,7 +88,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   blue: {
     id: "blue",
     name: "Classic Blue",
-    nameTh: "น้ำเงินคลาสสิก",
+    nameTh: "Classic Blue",
     swatchClass: "bg-blue-500",
     pillClass: "border-blue-500/30 bg-blue-500/15 text-blue-700 dark:border-blue-400/30 dark:bg-blue-500/20 dark:text-blue-300",
     textClass: "text-blue-600 dark:text-blue-400",
@@ -98,7 +98,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   indigo: {
     id: "indigo",
     name: "Indigo",
-    nameTh: "อินดิโก้ (ปานกลาง)",
+    nameTh: "Indigo (Medium)",
     swatchClass: "bg-indigo-500",
     pillClass: "border-indigo-500/30 bg-indigo-500/15 text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-500/20 dark:text-indigo-300",
     textClass: "text-indigo-600 dark:text-indigo-400",
@@ -108,7 +108,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   purple: {
     id: "purple",
     name: "Purple",
-    nameTh: "ม่วงลาเวนเดอร์",
+    nameTh: "Lavender Purple",
     swatchClass: "bg-purple-500",
     pillClass: "border-purple-500/30 bg-purple-500/15 text-purple-700 dark:border-purple-400/30 dark:bg-purple-500/20 dark:text-purple-300",
     textClass: "text-purple-600 dark:text-purple-400",
@@ -118,7 +118,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   pink: {
     id: "pink",
     name: "Pink",
-    nameTh: "ชมพูสดใส",
+    nameTh: "Vibrant Pink",
     swatchClass: "bg-pink-500",
     pillClass: "border-pink-500/30 bg-pink-500/15 text-pink-700 dark:border-pink-400/30 dark:bg-pink-500/20 dark:text-pink-300",
     textClass: "text-pink-600 dark:text-pink-400",
@@ -128,7 +128,7 @@ export const PRIORITY_COLOR_OPTIONS: Record<string, PriorityColorConfig> = {
   stone: {
     id: "stone",
     name: "Stone / Gray",
-    nameTh: "เทาศิลา (งานทั่วไป/Backlog)",
+    nameTh: "Stone Gray (General / Backlog)",
     swatchClass: "bg-stone-500",
     pillClass: "border-stone-400/30 bg-stone-500/15 text-stone-700 dark:border-stone-400/30 dark:bg-stone-500/20 dark:text-stone-300",
     textClass: "text-stone-600 dark:text-stone-400",
@@ -155,8 +155,8 @@ export interface PriorityWorkflowTemplate {
 export const PRIORITY_WORKFLOW_TEMPLATES: Record<string, PriorityWorkflowTemplate> = {
   classic_3: {
     id: "classic_3",
-    name: "Classic 3-Level (มาตรฐาน)",
-    description: "ระดับด่วน ด่วนมาก ปกติ และต่ำ เข้าใจง่าย เหมาะกับทุกทีม",
+    name: "Classic 3-Level (Standard)",
+    description: "High, Medium, and Low levels. Simple and suitable for all teams.",
     category: "Standard",
     icon: "flag",
     priorities: [
@@ -168,7 +168,7 @@ export const PRIORITY_WORKFLOW_TEMPLATES: Record<string, PriorityWorkflowTemplat
   jira_p0_p4: {
     id: "jira_p0_p4",
     name: "P0 - P4 Scale (Severity Standard)",
-    description: "สเกลความเร่งด่วน P0 บล็อกเกอร์ ถึง P4 รายละเอียดเล็กน้อย",
+    description: "Urgency scale from P0 Blocker down to P4 Trivial.",
     category: "Agile",
     icon: "target",
     priorities: [
@@ -182,7 +182,7 @@ export const PRIORITY_WORKFLOW_TEMPLATES: Record<string, PriorityWorkflowTemplat
   moscow: {
     id: "moscow",
     name: "MoSCoW Prioritization",
-    description: "หลักบริหารโครงการ Must Have, Should Have, Could Have, Won't Have",
+    description: "Project management framework: Must Have, Should Have, Could Have, Won't Have.",
     category: "Framework",
     icon: "sparkles",
     priorities: [
@@ -194,41 +194,41 @@ export const PRIORITY_WORKFLOW_TEMPLATES: Record<string, PriorityWorkflowTemplat
   },
   eisenhower: {
     id: "eisenhower",
-    name: "Eisenhower Matrix (จัดลำดับเวลา)",
-    description: "Do First (ด่วน&สำคัญ), Schedule (วางแผน), Delegate (ส่งต่อ), Don't Do (ละไว้)",
+    name: "Eisenhower Matrix (Time Management)",
+    description: "Do First (Urgent & Important), Schedule, Delegate, and Don't Do.",
     category: "Framework",
     icon: "bookmark",
     priorities: [
-      { id: "DO_FIRST", label: "Do First (ด่วนและสำคัญ)", color: "rose", level: 1 },
-      { id: "SCHEDULE", label: "Schedule (วางแผนทำ)", color: "indigo", level: 2 },
-      { id: "DELEGATE", label: "Delegate (มอบหมายงาน)", color: "amber", level: 3 },
-      { id: "ELIMINATE", label: "Don't Do (ตัดทิ้ง/ลดทอน)", color: "stone", level: 4 }
+      { id: "DO_FIRST", label: "Do First (Urgent & Important)", color: "rose", level: 1 },
+      { id: "SCHEDULE", label: "Schedule (Planned)", color: "indigo", level: 2 },
+      { id: "DELEGATE", label: "Delegate (Assigned)", color: "amber", level: 3 },
+      { id: "ELIMINATE", label: "Don't Do (Eliminate)", color: "stone", level: 4 }
     ]
   },
   sla_support: {
     id: "sla_support",
     name: "Customer Support & SLA",
-    description: "จัดคิวงานตามความเร็วในการตอบกลับและแก้ไขปัญหา (1hr, 4hr, 24hr, 72hr)",
+    description: "Queue tasks by resolution time commitments (1h, 4h, 24h, 72h).",
     category: "Support",
     icon: "briefcase",
     priorities: [
-      { id: "SLA_1H", label: "Critical (SLA 1 ชม.)", color: "rose", level: 1 },
-      { id: "SLA_4H", label: "High (SLA 4 ชม.)", color: "orange", level: 2 },
-      { id: "SLA_24H", label: "Normal (SLA 24 ชม.)", color: "teal", level: 3 },
-      { id: "SLA_72H", label: "Low (SLA 72 ชม.)", color: "stone", level: 4 }
+      { id: "SLA_1H", label: "Critical (SLA 1h)", color: "rose", level: 1 },
+      { id: "SLA_4H", label: "High (SLA 4h)", color: "orange", level: 2 },
+      { id: "SLA_24H", label: "Normal (SLA 24h)", color: "teal", level: 3 },
+      { id: "SLA_72H", label: "Low (SLA 72h)", color: "stone", level: 4 }
     ]
   },
   value_matrix: {
     id: "value_matrix",
     name: "Business Value Matrix",
-    description: "Quick Wins, Major Projects, Fill-ins และ Time Sinks",
+    description: "Quick Wins, Major Projects, Fill-ins, and Time Sinks.",
     category: "Strategy",
     icon: "palette",
     priorities: [
-      { id: "QUICK_WIN", label: "Quick Win (ได้ผลไว)", color: "emerald", level: 1 },
-      { id: "STRATEGIC", label: "Strategic (โปรเจกต์หลัก)", color: "indigo", level: 2 },
-      { id: "FILL_IN", label: "Fill-in (งานรอง)", color: "sky", level: 3 },
-      { id: "CONSIDER", label: "Time Sink (ใช้เวลามาก)", color: "stone", level: 4 }
+      { id: "QUICK_WIN", label: "Quick Win (High Impact)", color: "emerald", level: 1 },
+      { id: "STRATEGIC", label: "Strategic (Core Project)", color: "indigo", level: 2 },
+      { id: "FILL_IN", label: "Fill-in (Secondary)", color: "sky", level: 3 },
+      { id: "CONSIDER", label: "Time Sink (Low Value)", color: "stone", level: 4 }
     ]
   }
 };

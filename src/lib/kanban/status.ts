@@ -84,7 +84,7 @@ export const STATUS_WORKFLOW_TEMPLATES: Record<string, StatusWorkflowTemplate> =
   standard: {
     id: "standard",
     name: "Classic Kanban",
-    description: "โฟลว์ 4 ขั้นตอนมาตรฐาน สำหรับงานทั่วไป",
+    description: "Standard 4-step workflow for general tasks and workflows",
     category: "General",
     icon: "kanban",
     statuses: [
@@ -97,7 +97,7 @@ export const STATUS_WORKFLOW_TEMPLATES: Record<string, StatusWorkflowTemplate> =
   software: {
     id: "software",
     name: "Software & IT",
-    description: "กระบวนการพัฒนาซอฟต์แวร์ ตรวจโค้ด และทดสอบระบบ QA",
+    description: "Software development lifecycle, code review, and QA testing",
     category: "Engineering",
     icon: "code",
     statuses: [
@@ -112,7 +112,7 @@ export const STATUS_WORKFLOW_TEMPLATES: Record<string, StatusWorkflowTemplate> =
   scrum: {
     id: "scrum",
     name: "Agile & Scrum",
-    description: "บริหารสปรินต์ แยก Backlog, ติดขัด (Blocked) และตรวจรับ",
+    description: "Agile sprint management with Backlog, Blocked tasks, and Review",
     category: "Agile",
     icon: "target",
     statuses: [
@@ -127,7 +127,7 @@ export const STATUS_WORKFLOW_TEMPLATES: Record<string, StatusWorkflowTemplate> =
   marketing: {
     id: "marketing",
     name: "Marketing & Content",
-    description: "แคมเปญการตลาด ไอเดีย ร่างคอนเทนต์ และเผยแพร่",
+    description: "Marketing campaigns, ideas, content drafting, and publishing",
     category: "Marketing",
     icon: "sparkles",
     statuses: [
@@ -141,7 +141,7 @@ export const STATUS_WORKFLOW_TEMPLATES: Record<string, StatusWorkflowTemplate> =
   bug_tracker: {
     id: "bug_tracker",
     name: "Bug Tracker",
-    description: "ติดตามและแก้ไขบั๊ก จัดคิว ซ่อม ตรวจซ้ำ และปิดเคส",
+    description: "Bug tracking, triage, resolution, retesting, and closure",
     category: "Quality",
     icon: "bug",
     statuses: [
@@ -155,7 +155,7 @@ export const STATUS_WORKFLOW_TEMPLATES: Record<string, StatusWorkflowTemplate> =
   design: {
     id: "design",
     name: "Creative & Design",
-    description: "โฟลว์งานออกแบบ รีเสิร์ช ออกแบบ รับความคิดเห็น",
+    description: "Creative design process: research, wireframing, feedback, and approval",
     category: "Design",
     icon: "palette",
     statuses: [
@@ -169,7 +169,7 @@ export const STATUS_WORKFLOW_TEMPLATES: Record<string, StatusWorkflowTemplate> =
   sales: {
     id: "sales",
     name: "Sales Pipeline",
-    description: "โอกาสทางการขาย ลีด นำเสนอ เจรจา ปิดการขาย",
+    description: "Sales opportunities, leads, proposals, negotiations, and closed deals",
     category: "Business",
     icon: "briefcase",
     statuses: [

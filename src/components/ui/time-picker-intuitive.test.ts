@@ -17,7 +17,7 @@ describe("Intuitive TimePicker & TimeView Redesign", () => {
     expect(parseTimeString("12:60")).toBeNull();
     expect(parseTimeString(null)).toBeNull();
 
-    expect(formatDisplayTime("08:35")).toBe("08:35 น.");
+    expect(formatDisplayTime("08:35")).toBe("08:35");
     expect(formatDisplayTime("")).toBe("");
   });
 
@@ -56,7 +56,7 @@ describe("Intuitive TimePicker & TimeView Redesign", () => {
 
     // Must have explicit confirmation button
     expect(src).toContain("onConfirm");
-    expect(src).toContain("ตกลง");
-    expect(src).toContain("ตลอดวัน / ล้าง");
+    expect(src).toContain("Confirm");
+    expect(src).toContain("All Day / Clear");
   });
 });

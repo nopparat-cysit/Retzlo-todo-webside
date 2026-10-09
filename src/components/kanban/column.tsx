@@ -279,7 +279,7 @@ function KanbanColumnComponent({
           theme.columnClass
         )}
         onClick={toggleCollapse}
-        title={`คลิกเพื่อขยายคอลัมน์ ${column.name}`}
+        title={`Click to expand column ${column.name}`}
       >
         {/* Top Accent Strip */}
         <div className={cn("absolute top-0 left-0 right-0 h-[3px]", theme.accentBarClass)} />
@@ -315,7 +315,7 @@ function KanbanColumnComponent({
           {totalPoints > 0 && (
             <span
               className="inline-flex items-center gap-0.5 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400 select-none"
-              title={`คะแนนความยากรวม: ${totalPoints} pts`}
+              title={`Total story points: ${totalPoints} pts`}
             >
               <Zap className="h-3.5 w-3.5" />
               <span>{totalPoints}</span>
@@ -323,7 +323,7 @@ function KanbanColumnComponent({
           )}
           <span
             className="inline-grid min-w-[22px] place-items-center rounded-md bg-white/5 px-1.5 py-0.5 text-[11px] font-medium text-stone-400"
-            title={`การ์ดทั้งหมด: ${totalCards}`}
+            title={`Total cards: ${totalCards}`}
           >
             {totalCards}
           </span>
@@ -388,7 +388,7 @@ function KanbanColumnComponent({
           {totalPoints > 0 && (
             <span
               className="shrink-0 inline-flex items-center gap-0.5 rounded-md border border-amber-300 bg-amber-50 px-1 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400 select-none"
-              title={`คะแนนความยากรวม: ${totalPoints} pts`}
+              title={`Total story points: ${totalPoints} pts`}
             >
               <Zap className="h-3.5 w-3.5" />
               <span>{totalPoints}</span>
@@ -397,7 +397,7 @@ function KanbanColumnComponent({
 
           <span
             className="shrink-0 inline-grid min-w-[18px] place-items-center rounded-md border border-stone-200/80 bg-stone-100 px-1 py-0.5 text-[10px] font-medium text-stone-600 dark:border-transparent dark:bg-white/5 dark:text-stone-400"
-            title={doneCount > 0 ? `เสร็จแล้ว ${doneCount} จาก ${totalCards} ใบ` : `การ์ดทั้งหมด ${totalCards} ใบ`}
+            title={doneCount > 0 ? `Completed ${doneCount} of ${totalCards} cards` : `Total cards: ${totalCards}`}
           >
             {doneCount > 0 ? `${doneCount}/${totalCards}` : totalCards}
           </span>

@@ -8,7 +8,7 @@ describe("BoardColumnsTab Component Integration and Features", () => {
 
   it("verifies column creation UI and form elements", () => {
     // Button to trigger creation
-    expect(content).toContain("เพิ่มคอลัมน์ใหม่");
+    expect(content).toContain("Add New Column");
     expect(content).toContain("setIsAddingColumn");
 
     // Form fields

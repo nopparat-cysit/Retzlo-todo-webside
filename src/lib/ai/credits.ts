@@ -111,7 +111,7 @@ export async function deductUserAiCredit(
     return {
       ok: false,
       remainingCredits: currentCredits,
-      error: `โควตา AI Credits ไม่เพียงพอ (คงเหลือ ${currentCredits} เครดิต แต่ต้องใช้ ${cost} เครดิต)`
+      error: `Insufficient AI credits (${currentCredits} remaining, but ${cost} required).`
     };
   }
 

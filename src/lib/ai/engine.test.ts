@@ -13,8 +13,8 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
   it.runIf(SHOULD_RUN_LIVE)("generates structured checklist breakdown for Pad Kra Pao with real AI engine", async () => {
     process.env.AI_API_KEY = REAL_KEY;
     const result = await generateTaskBreakdown({
-      title: "วิธีทำผัดกะเพรา",
-      description: "สูตรผัดกะเพราหมูสับ พริกแห้ง รสเด็ด",
+      title: "Pad Kra Pao Recipe",
+      description: "Spicy stir-fried minced pork with basil and chilies",
       depth: "standard"
     });
 
@@ -28,8 +28,8 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
   it.runIf(SHOULD_RUN_LIVE)("generates 8-10 actionable steps for detailed software task", async () => {
     process.env.AI_API_KEY = REAL_KEY;
     const result = await generateTaskBreakdown({
-      title: "ทำระบบ Login ด้วย Google OAuth",
-      description: "เชื่อมต่อ NextAuth GoogleProvider และบันทึกบัญชีลง PostgreSQL",
+      title: "Google OAuth Login Flow",
+      description: "Configure NextAuth GoogleProvider and persist user sessions to PostgreSQL",
       depth: "detailed"
     });
 
@@ -99,7 +99,7 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
     delete process.env.DEEPSEEK_API_KEY;
     try {
       const reply = await chatWithAssistant({
-        messages: [{ role: "user", content: "สวัสดีครับ ขอคำแนะนำการทำงานหน่อย" }]
+        messages: [{ role: "user", content: "Hello, could you provide some task recommendations?" }]
       });
       expect(typeof reply).toBe("string");
       expect(reply.length).toBeGreaterThan(0);

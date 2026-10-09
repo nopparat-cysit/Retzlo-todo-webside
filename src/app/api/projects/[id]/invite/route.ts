@@ -76,7 +76,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     });
 
     if (targetUser) {
-      const inviterLabel = inviter?.name || inviter?.email || "เพื่อนร่วมทีม";
+      const inviterLabel = inviter?.name || inviter?.email || "A teammate";
       const projectName = project?.name || "Workspace";
 
       await prisma.notification.create({
@@ -84,8 +84,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
           userId: targetUser.id,
           projectId: params.id,
           type: "PROJECT_INVITATION",
-          title: "คำเชิญเข้าร่วมโปรเจกต์",
-          message: `${inviterLabel} ได้เชิญคุณเข้าร่วมโปรเจกต์ "${projectName}"`
+          title: "Project Invitation",
+          message: `${inviterLabel} invited you to join project "${projectName}"`
         }
       });
     }
@@ -99,7 +99,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     try {
       await sendProjectInvitationEmail({
         email,
-        inviterName: inviter?.name || inviter?.email || "เพื่อนร่วมทีม",
+        inviterName: inviter?.name || inviter?.email || "A teammate",
         projectName: project?.name || "Workspace",
         acceptUrl: fullAcceptUrl
       });

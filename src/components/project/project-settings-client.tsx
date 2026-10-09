@@ -219,7 +219,7 @@ export function ProjectSettingsClient({
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "เกิดข้อผิดพลาดในการบันทึกระดับความสำคัญ");
+        throw new Error(data.error || "Failed to save board priorities");
       }
       window.dispatchEvent(
         new CustomEvent("board-priorities-updated", {
@@ -227,7 +227,7 @@ export function ProjectSettingsClient({
         })
       );
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการบันทึกระดับความสำคัญ";
+      const msg = err instanceof Error ? err.message : "Failed to save board priorities";
       toast({ message: msg, type: "error" });
     }
   };
@@ -259,7 +259,7 @@ export function ProjectSettingsClient({
             : b
         )
       );
-      toast({ message: `บันทึกการตั้งค่าบอร์ด "${data.board.name}" สำเร็จ ✦`, type: "success" });
+      toast({ message: `Board settings saved for "${data.board.name}" ✦`, type: "success" });
       window.dispatchEvent(
         new CustomEvent("board-renamed", {
           detail: { id: selectedBoardId, name: data.board.name }
@@ -283,7 +283,7 @@ export function ProjectSettingsClient({
         const data = await res.json();
         throw new Error(data.error || "Failed to delete board");
       }
-      toast({ message: `ลบบอร์ดเรียบร้อยแล้ว`, type: "success" });
+      toast({ message: "Board deleted successfully", type: "success" });
       setDeleteConfirmOpen(false);
       const remaining = boardsList.filter((b) => b.id !== selectedBoardId);
       setBoardsList(remaining);
@@ -348,7 +348,7 @@ export function ProjectSettingsClient({
           label: "General",
           shortLabel: "General",
           icon: Sparkles,
-          description: "ชื่อ คำอธิบาย ภาพปก ฟีเจอร์ของโปรเจกต์ และการลบโปรเจกต์"
+          description: "Workspace name, description, cover image, features, and deletion."
         },
         {
           id: "access",
@@ -356,7 +356,7 @@ export function ProjectSettingsClient({
           shortLabel: "Members",
           icon: Users,
           badge: projectMembers.length,
-          description: "รายชื่อสมาชิก บทบาท และสิทธิ์การเข้าถึงโปรเจกต์"
+          description: "Member directory, assigned roles, and workspace access."
         }
       ]
     },
@@ -370,28 +370,28 @@ export function ProjectSettingsClient({
           shortLabel: "Boards",
           icon: FolderKanban,
           badge: boardsList.length,
-          description: "สร้าง ค้นหา และจัดการบอร์ดทั้งหมดในโปรเจกต์"
+          description: "Create, search, and manage all boards in this project."
         },
         {
           id: "board-general",
           label: "Board details",
           shortLabel: "Board",
           icon: Settings,
-          description: "ชื่อบอร์ด ความเป็นส่วนตัว และสมาชิกที่เข้าถึงบอร์ดนี้"
+          description: "Board title, privacy mode, and member access permissions."
         },
         {
           id: "board-columns",
           label: "Columns",
           shortLabel: "Columns",
           icon: Layers,
-          description: "ขั้นตอนการทำงาน WIP limits และการแมปสถานะของบอร์ดนี้"
+          description: "Column workflow, WIP limits, and board status mapping."
         },
         {
           id: "attributes",
           label: "Card attributes",
           shortLabel: "Attributes",
           icon: CheckSquare,
-          description: "Status, Priority และ Story Points ที่ใช้ในการ์ดของบอร์ดนี้"
+          description: "Status, priority levels, and story point attributes for this board."
         }
       ]
     },
@@ -404,7 +404,7 @@ export function ProjectSettingsClient({
           label: "Theme & sound",
           shortLabel: "Theme",
           icon: Palette,
-          description: "ตั้งค่าเฉพาะเบราว์เซอร์นี้ ไม่กระทบสมาชิกคนอื่น"
+          description: "Stored in this browser only, does not affect teammates."
         }
       ]
     }
@@ -414,13 +414,13 @@ export function ProjectSettingsClient({
   const currentTabInfo = allTabs.find((t) => t.id === activeTab) ?? allTabs[0];
   const isBoardTab = isBoardScopedTab(activeTab);
   const isNarrow = NARROW_TABS.includes(activeTab);
-  const displayBoardName = boardName || activeBoard?.name || "บอร์ดนี้";
+  const displayBoardName = boardName || activeBoard?.name || "this board";
 
   const noBoardsState = (
     <div className="rounded-xl border border-dashed border-theme-border p-8 text-center text-xs text-theme-muted">
-      ยังไม่มีบอร์ดในโปรเจกต์นี้ —{" "}
+      No boards found in this project —{" "}
       <button type="button" className="font-semibold text-theme-accent hover:underline" onClick={() => handleTabChange("boards")}>
-        สร้างบอร์ดใหม่
+        Create a new board
       </button>
     </div>
   );
@@ -545,7 +545,7 @@ export function ProjectSettingsClient({
               <span className="text-xs text-theme-muted">Active Board</span>
               {boardsList.length > 1 ? (
                 <select
-                  aria-label="เลือกบอร์ด"
+                  aria-label="Select board"
                   value={selectedBoardId}
                   onChange={(e) => handleBoardSelect(e.target.value)}
                   className="h-7 cursor-pointer rounded-md border border-theme-border bg-theme-panel px-2 text-xs font-semibold text-theme-foreground"
@@ -581,11 +581,11 @@ export function ProjectSettingsClient({
             <>
               <SettingsSection
                 title={`Space Members · ${projectMembers.length}`}
-                description="สมาชิกทุกคนเข้าถึงและทำงานร่วมกันในบอร์ดสาธารณะได้"
+                description="All workspace members can access and collaborate on this board."
                 actions={
                   <Link href={`/project/${projectId}/members`}>
                     <Button variant="secondary" size="sm">
-                      <span>จัดการสมาชิกและคำเชิญ</span>
+                      <span>Manage members and invitations</span>
                       <ExternalLink className="h-3 w-3" />
                     </Button>
                   </Link>
@@ -617,14 +617,14 @@ export function ProjectSettingsClient({
                 })}
               </SettingsSection>
 
-              <SettingsSection title="Roles" description="สิ่งที่แต่ละบทบาททำได้ในโปรเจกต์นี้">
+              <SettingsSection title="Roles" description="Permissions granted to each role in this workspace">
                 <SettingsRow
                   label="Owner"
-                  description="จัดการชื่อและภาพปก ตั้งค่าความเป็นส่วนตัว เชิญหรือถอนสมาชิก และลบโปรเจกต์"
+                  description="Manage workspace identity, privacy settings, invite members, and delete project."
                 />
                 <SettingsRow
                   label="Member"
-                  description="สร้างและจัดการการ์ด บันทึกโน้ต และสร้างไอเทมส่วนตัว (หากเปิดใช้งาน)"
+                  description="Create and manage cards, notes, and personal items (if enabled)."
                 />
               </SettingsSection>
             </>
@@ -655,7 +655,7 @@ export function ProjectSettingsClient({
                       disabled={!canManage || isSavingBoard || !boardName.trim()}
                       onClick={() => handleSaveBoardGeneral()}
                     >
-                      {isSavingBoard ? "กำลังบันทึก..." : "Save changes"}
+                      {isSavingBoard ? "Saving..." : "Save changes"}
                     </Button>
                   }
                 >
@@ -702,8 +702,8 @@ export function ProjectSettingsClient({
                       label="Delete this board"
                       description={
                         boardsList.length > 1
-                          ? `ลบ “${displayBoardName}” พร้อมคอลัมน์ การ์ด เช็กลิสต์ และคอมเมนต์ทั้งหมดอย่างถาวร`
-                          : "โปรเจกต์ต้องมีอย่างน้อย 1 บอร์ด จึงลบบอร์ดสุดท้ายไม่ได้"
+                          ? `Permanently delete “${displayBoardName}” along with all columns, cards, checklists, and comments.`
+                          : "Projects must have at least 1 board; the last board cannot be deleted."
                       }
                     >
                       <Button
@@ -727,7 +727,7 @@ export function ProjectSettingsClient({
           {/* TAB: Columns */}
           {activeTab === "board-columns" &&
             (selectedBoardId ? (
-              <SettingsSection title="Workflow columns" description="ลากเพื่อเรียงลำดับ ตั้ง WIP limit และสถานะเริ่มต้นของการ์ด" flush>
+              <SettingsSection title="Workflow columns" description="Drag to reorder, set WIP limits, and assign card starting status" flush>
                 <BoardColumnsTab
                   columns={boardColumns}
                   totalCards={boardColumns.reduce((acc, c) => acc + (c.cardCount ?? 0), 0)}
@@ -744,7 +744,7 @@ export function ProjectSettingsClient({
           {/* TAB: Card attributes */}
           {activeTab === "attributes" &&
             (selectedBoardId ? (
-              <SettingsSection title="Card attributes" description="ซิงค์กับ Kanban, Card modal และ Table view ทันที" flush>
+              <SettingsSection title="Card attributes" description="Instantly synchronized with Kanban, Card modal, and Table view" flush>
                 <BoardAttributesTab
                   key={`board-attr-${selectedBoardId}-${attributeSubTab}`}
                   boardId={selectedBoardId}
@@ -760,11 +760,11 @@ export function ProjectSettingsClient({
 
           {/* TAB: Personal preferences */}
           {activeTab === "preferences" && (
-            <SettingsSection title="Appearance & sound" description="บันทึกเฉพาะในเบราว์เซอร์นี้">
-              <SettingsRow label="Theme mode" description="Light, Dark หรือตามระบบปฏิบัติการ">
+            <SettingsSection title="Appearance & sound" description="Saved locally in this browser">
+              <SettingsRow label="Theme mode" description="Light, Dark, or follow system theme">
                 <div className="w-full sm:w-72">{themeToggleSlot}</div>
               </SettingsRow>
-              <SettingsRow label="Sound feedback" description="เสียงแจ้งเมื่อย้ายการ์ดไป Done และระดับเสียง" stacked>
+              <SettingsRow label="Sound feedback" description="Audio cues when moving cards to Done and volume control" stacked>
                 <SoundToggle />
               </SettingsRow>
             </SettingsSection>
@@ -774,10 +774,10 @@ export function ProjectSettingsClient({
 
       <ConfirmModal
         open={deleteConfirmOpen}
-        title={`ลบบอร์ด "${boardName || activeBoard?.name || ""}"`}
-        message="คุณแน่ใจหรือไม่ว่าต้องการลบบอร์ดนี้อย่างถาวร? การ์ดและขั้นตอนงานทั้งหมดในบอร์ดนี้จะถูกลบและไม่สามารถกู้คืนได้"
-        confirmLabel="ลบบอร์ดถาวร"
-        cancelLabel="ยกเลิก"
+        title={`Delete board "${boardName || activeBoard?.name || ""}"`}
+        message="Are you sure you want to permanently delete this board? All cards and workflow columns will be deleted and cannot be recovered."
+        confirmLabel="Delete board permanently"
+        cancelLabel="Cancel"
         variant="danger"
         isLoading={isDeletingBoard}
         onConfirm={handleDeleteBoard}

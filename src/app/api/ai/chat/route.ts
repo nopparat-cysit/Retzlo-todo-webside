@@ -15,11 +15,11 @@ export const maxDuration = 60;
 
 const chatMessageSchema = z.object({
   role: z.enum(["system", "user", "assistant"]),
-  content: z.string().trim().min(1, "ข้อความต้องไม่ว่างเปล่า")
+  content: z.string().trim().min(1, "Message content must not be empty")
 });
 
 const chatRequestSchema = z.object({
-  messages: z.array(chatMessageSchema).min(1, "ต้องมีข้อความอย่างน้อย 1 ข้อความ"),
+  messages: z.array(chatMessageSchema).min(1, "At least one message is required"),
   projectId: z.string().min(1).max(191).optional(),
   boardId: z.string().uuid().optional()
 });
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   try {
     const userId = await requireUserId();
     if (!userId) {
-      return jsonError("กรุณาเข้าสู่ระบบก่อนใช้งาน AI Assistant", 401);
+      return jsonError("Please sign in before using AI Assistant", 401);
     }
 
     const body = await request.json().catch(() => ({}));
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const quota = await getUserAiQuota(userId);
     if (!quota.unlimited && quota.credits < AI_CREDIT_COSTS.CHAT) {
       return jsonError(
-        `โควตา AI Credits ไม่เพียงพอ (คงเหลือ ${quota.credits} เครดิต)`,
+        `Insufficient AI credits (${quota.credits} remaining)`,
         402
       );
     }
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     if (payload.projectId) {
       const membership = await assertProjectMember(payload.projectId, userId);
       if (!membership) {
-        return jsonError("คุณไม่มีสิทธิ์เข้าถึงโปรเจกต์นี้", 403);
+        return jsonError("You do not have permission to access this project", 403);
       }
 
       const project = await prisma.project.findUnique({
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       });
 
       if (!project) {
-        return jsonError("ไม่พบโปรเจกต์นี้", 404);
+        return jsonError("Project not found", 404);
       }
 
       const accessibleBoards = project.boards.filter((board) =>
@@ -87,11 +87,11 @@ export async function POST(request: Request) {
         : accessibleBoards[0];
 
       if (payload.boardId && !activeBoard) {
-        return jsonError("คุณไม่มีสิทธิ์เข้าถึงบอร์ดนี้", 403);
+        return jsonError("You do not have permission to access this board", 403);
       }
 
       if (!activeBoard) {
-        projectContext = `ชื่อโปรเจกต์: "${project.name}"\nไม่มีบอร์ดที่ผู้ใช้เข้าถึงได้ ห้ามส่งข้อเสนอสร้างการ์ด และให้แนะนำผู้ใช้เปิดบอร์ดก่อน`;
+        projectContext = `Project Name: "${project.name}"\nNo boards accessible to the user. Do not propose creating cards, and recommend opening a board first.`;
       } else {
         const cards = await prisma.card.findMany({
           where: { column: { board: { id: activeBoard.id } } },
@@ -114,13 +114,13 @@ export async function POST(request: Request) {
           .map((card) => `- [${card.column.name} | ${card.status} | ${card.priority}] ${card.title}`)
           .join("\n");
 
-        projectContext = `ชื่อโปรเจกต์: "${project.name}"
-บอร์ดปัจจุบัน: "${activeBoard.name}"
-คอลัมน์ที่ใช้สร้างการ์ดได้ (ชื่อคอลัมน์ต้องตรงตามรายการ):
-${activeBoard.columns.map((column) => `- ${column.name} (สถานะเริ่มต้น ${column.defaultCardStatus})`).join("\n") || "ไม่มีคอลัมน์"}
-ภาพรวมการ์ดในบอร์ด (${cards.length} ใบ): TODO: ${todoCount}, กำลังทำ (DOING): ${doingCount}, รอตรวจสอบ (WAITING): ${waitingCount}, เสร็จแล้ว (DONE): ${doneCount}
-ตัวอย่างการ์ดในบอร์ด:
-${sampleCards || "ยังไม่มีการ์ดงาน"}`;
+        projectContext = `Project Name: "${project.name}"
+Current Board: "${activeBoard.name}"
+Available columns for creating cards (exact column names):
+${activeBoard.columns.map((column) => `- ${column.name} (default status: ${column.defaultCardStatus})`).join("\n") || "No columns"}
+Board cards overview (${cards.length} cards): TODO: ${todoCount}, DOING: ${doingCount}, WAITING: ${waitingCount}, DONE: ${doneCount}
+Sample cards on the board:
+${sampleCards || "No cards created yet"}`;
 
         proposalContext = {
           projectId: payload.projectId,
@@ -164,10 +164,10 @@ ${sampleCards || "ยังไม่มีการ์ดงาน"}`;
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return jsonError("ข้อมูลข้อความไม่ถูกต้อง", 422);
+      return jsonError("Invalid message payload", 422);
     }
     const message =
-      error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการประมวลผลแชท";
+      error instanceof Error ? error.message : "Error processing AI chat";
     return jsonError(message, 500);
   }
 }

@@ -24,71 +24,71 @@ export default function PrivacyPage() {
             <span>Data Protection & Privacy</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Privacy Policy</h1>
-          <p className="mt-2 text-sm text-stone-400">นโยบายความเป็นส่วนตัวและการคุ้มครองข้อมูลส่วนบุคคล (PDPA Compliance) (มีผลบังคับใช้ตั้งแต่วันที่ 20 กันยายน 2026)</p>
+          <p className="mt-2 text-sm text-stone-400">Personal Data Protection and Privacy Policy (Effective as of September 20, 2026)</p>
         </header>
 
         <article className="prose prose-invert max-w-none space-y-8 text-sm leading-relaxed text-stone-300">
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-cyan">1.</span> บทนำ (Introduction)
+              <span className="text-dusk-cyan">1.</span> Introduction
             </h2>
             <p>
-              Retzlo ให้ความสำคัญอย่างยิ่งต่อความเป็นส่วนตัวและการรักษาความมั่นคงปลอดภัยของข้อมูลส่วนบุคคลของท่าน นโยบายนี้อธิบายถึงประเภทของข้อมูลที่เราจัดเก็บ วิธีการประมวลผล และสิทธิของท่านตามกฎหมายว่าด้วยการคุ้มครองข้อมูลส่วนบุคคล (พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 / PDPA และมาตรฐานสากล)
+              Retzlo values your privacy and is committed to protecting your personal data. This policy explains what categories of data we collect, how it is processed, and your rights under applicable data protection regulations.
             </p>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-cyan">2.</span> ข้อมูลส่วนบุคคลที่เราจัดเก็บ (Data We Collect)
+              <span className="text-dusk-cyan">2.</span> Data We Collect
             </h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li><strong>ข้อมูลบัญชีผู้ใช้:</strong> อีเมล (Email), ชื่อผู้ใช้ (Username), ชื่อที่ใช้แสดง (Display Name), และรหัสผ่านที่ผ่านการแฮชแบบปลอดภัยด้วยอัลกอริทึมทางคริปโตกราฟี (เราไม่จัดเก็บรหัสผ่านตัวจริง)</li>
-              <li><strong>ข้อมูลโปรไฟล์และมีเดีย:</strong> รูปโปรไฟล์ (Avatar) และรูปหน้าปกโปรเจกต์ ที่ท่านอัปโหลด</li>
-              <li><strong>ข้อมูลเนื้อหาการทำงาน:</strong> รายการบอร์ด การ์ดงาน เช็กลิสต์ บันทึกโน้ต ไดอารี่ และข้อความคอมเมนต์</li>
-              <li><strong>ข้อมูลทางเทคนิค:</strong> ข้อมูลเซสชันการเข้าสู่ระบบ (Secure JWT Cookie) และที่อยู่ไอพี (IP Address) สำหรับการป้องกันการโจมตีและการจำกัดอัตราการเรียกใช้งาน (Rate Limiting)</li>
+              <li><strong>Account Credentials:</strong> Email address, username, display name, and passwords secured using industry-standard cryptographic hashing (we never store plain-text passwords).</li>
+              <li><strong>Profile & Media:</strong> Uploaded profile avatars and project cover images.</li>
+              <li><strong>Workspace & Content:</strong> Kanban boards, task cards, checklists, notes, habit diary entries, and card comments.</li>
+              <li><strong>Technical Metadata:</strong> Session authentication tokens (Secure JWT Cookie) and IP addresses used for rate limiting and threat prevention.</li>
             </ul>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-cyan">3.</span> วัตถุประสงค์ในการเก็บรวบรวมและใช้ข้อมูล (Purposes of Processing)
+              <span className="text-dusk-cyan">3.</span> Purposes of Processing
             </h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li>เพื่อให้บริการระบบจัดการงาน ปฏิทิน และการทำงานร่วมกันในทีมตามที่ท่านร้องขอ</li>
-              <li>เพื่อยืนยันตัวตน ตรวจสอบสิทธิ์การเข้าถึง และรักษาความปลอดภัยของระบบ</li>
-              <li>เพื่อส่งการแจ้งเตือนเกี่ยวกับงานหรือคำเชิญเข้าร่วมโปรเจกต์ผ่านทางอีเมล</li>
-              <li>เพื่อป้องกันการทุจริต การสแปมบอท และการโจมตีระบบรักษาความปลอดภัย</li>
+              <li>To provide workspace management, calendar scheduling, and team collaboration features as requested.</li>
+              <li>To authenticate user identity, verify access permissions, and maintain platform security.</li>
+              <li>To send essential transactional notifications and workspace invitations via email.</li>
+              <li>To prevent fraud, automated spam, and malicious cyber attacks.</li>
             </ul>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-cyan">4.</span> การเปิดเผยและการแบ่งปันข้อมูล (Data Sharing)
+              <span className="text-dusk-cyan">4.</span> Data Sharing & Third Parties
             </h2>
             <p>
-              <strong>เราไม่มีนโยบายขาย ให้เช่า หรือเปิดเผยข้อมูลส่วนบุคคลของท่านให้แก่บุคคลที่สามเพื่อการโฆษณา</strong> การแบ่งปันข้อมูลจะมีขึ้นเฉพาะกับผู้ให้บริการโครงสร้างพื้นฐานที่จำเป็นต่อการทำงานของระบบเท่านั้น (เช่น ระบบฐานข้อมูล Supabase, คลาวด์สตอเรจ Cloudinary สำหรับรูปภาพ, และบริการส่งอีเมลที่ปลอดภัย)
+              <strong>We do not sell, rent, or monetize your personal information to third parties for advertising.</strong> Data is shared strictly with essential infrastructure providers required to operate the service (such as Neon PostgreSQL database, Cloudinary media storage, and transactional email gateways).
             </p>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-cyan">5.</span> สิทธิของเจ้าของข้อมูลส่วนบุคคล (Your Rights)
+              <span className="text-dusk-cyan">5.</span> Your Rights
             </h2>
-            <p className="mb-2">ตามกฎหมายคุ้มครองข้อมูลส่วนบุคคล ท่านมีสิทธิดังต่อไปนี้:</p>
+            <p className="mb-2">Under privacy laws, you retain the following rights:</p>
             <ul className="list-disc pl-5 space-y-2">
-              <li>สิทธิในการเข้าถึงและขอรับสำเนาข้อมูลส่วนบุคคลของท่าน</li>
-              <li>สิทธิในการขอแก้ไขข้อมูลส่วนบุคคลให้ถูกต้อง เป็นปัจจุบัน และสมบูรณ์</li>
-              <li>สิทธิในการขอลบหรือทำลายข้อมูลส่วนบุคคล (ท่านสามารถลบโปรเจกต์ บอร์ด หรือขอลบบัญชีผู้ใช้ได้)</li>
-              <li>สิทธิในการเพิกถอนความยินยอมในการประมวลผลข้อมูล</li>
+              <li>Right to access and obtain a copy of your personal data.</li>
+              <li>Right to rectify inaccurate or incomplete information.</li>
+              <li>Right to erasure (you can delete cards, boards, or request full account deletion).</li>
+              <li>Right to withdraw processing consent at any time.</li>
             </ul>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-cyan">6.</span> การรักษาความมั่นคงปลอดภัย (Data Security)
+              <span className="text-dusk-cyan">6.</span> Data Security
             </h2>
             <p>
-              Retzlo ใช้มาตรการรักษาความปลอดภัยทางเทคนิคและการบริหารจัดการที่ได้มาตรฐาน เช่น การส่งผ่านข้อมูลด้วยการเข้ารหัส HTTPS/TLS, การแฮชรหัสผ่าน และการแยกฐานข้อมูลตามสิทธิ์การเข้าถึง เพื่อป้องกันไม่ให้ข้อมูลสูญหาย รั่วไหล หรือถูกเข้าถึงโดยมิชอบ
+              Retzlo employs technical and organizational safeguards including HTTPS/TLS encryption in transit, strict password hashing, and role-based access control to prevent unauthorized disclosure, alteration, or data loss.
             </p>
           </section>
         </article>

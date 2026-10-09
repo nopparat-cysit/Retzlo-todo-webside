@@ -179,7 +179,7 @@ export async function callAiChat(
       return generateFallbackResponse(options);
     }
     throw new Error(
-      "ระบบ AI ไม่พร้อมใช้งานชั่วคราว กรุณาติดต่อผู้ดูแลระบบ"
+      "AI service is temporarily unavailable. Please contact the administrator."
     );
   }
 
@@ -247,17 +247,17 @@ export async function callAiChat(
       const errText = await response.text().catch(() => "");
       if (response.status === 401) {
         throw new Error(
-          "การยืนยันตัวตน AI ล้มเหลว (401): ระบบ AI ไม่พร้อมใช้งานชั่วคราว กรุณาติดต่อผู้ดูแลระบบ"
+          "AI authentication failed (401): AI service is temporarily unavailable. Please contact the administrator."
         );
       }
       if (response.status === 402) {
         throw new Error(
-          "โควตา AI ประจำเซิร์ฟเวอร์หมดชั่วคราว กรุณาลองใหม่อีกครั้งในภายหลังหรือติดต่อผู้ดูแลระบบ"
+          "Server AI quota temporarily exhausted. Please try again later or contact the administrator."
         );
       }
       if (response.status === 429) {
         throw new Error(
-          "คำขอ AI ถูกจำกัด (Rate Limit) กรุณารอสักครู่แล้วลองใหม่อีกครั้ง"
+          "AI request rate limit reached. Please wait a moment and try again."
         );
       }
       throw new Error(
@@ -272,14 +272,14 @@ export async function callAiChat(
     const choice = data.choices?.[0];
     const content = choice?.message?.content || choice?.message?.reasoning_content;
     if (!content) {
-      throw new Error("AI ตอบกลับเป็นข้อความว่าง กรุณาลองอีกครั้ง");
+      throw new Error("AI returned an empty response. Please try again.");
     }
 
     return content;
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       throw new Error(
-        `AI ตอบกลับช้าเกินกำหนด (Timeout ${Math.round(timeoutMs / 1000)} วินาที) — ลองส่งข้อความสั้นลงหรือลองใหม่อีกครั้ง`
+        `AI response timed out (${Math.round(timeoutMs / 1000)}s) — please try a shorter message or retry.`
       );
     }
     throw error;
@@ -356,10 +356,10 @@ Generate high-quality, practical, sequential checklist todos starting with actio
     : "MEDIUM";
 
   return {
-    items: rawItems.length > 0 ? rawItems : [`เริ่มดำเนินการ: ${title}`],
+    items: rawItems.length > 0 ? rawItems : [`Start execution: ${title}`],
     suggestedDifficulty,
     suggestedPriority,
-    summary: parsed.summary || `แตกงาน ${rawItems.length} ขั้นตอนสำหรับ "${title}"`
+    summary: parsed.summary || `Broken down into ${rawItems.length} steps for "${title}"`
   };
 }
 
@@ -423,7 +423,7 @@ Generate an insightful executive summary in JSON format.`;
           : 0,
     overview:
       parsed.overview ||
-      `บอร์ด "${params.boardName}" ปัจจุบันมีความคืบหน้า ${params.doneCount}/${params.totalCards} การ์ด`,
+      `Board "${params.boardName}" is currently at ${params.doneCount}/${params.totalCards} cards completed.`,
     currentFocus: Array.isArray(parsed.currentFocus) ? parsed.currentFocus : [],
     bottlenecks: Array.isArray(parsed.bottlenecks) ? parsed.bottlenecks : [],
     recommendations: Array.isArray(parsed.recommendations)
@@ -442,7 +442,7 @@ export async function chatWithAssistant(params: {
   model?: string;
 }): Promise<string> {
   const systemPrompt = params.projectContext
-    ? `${AI_CHATBOT_SYSTEM_PROMPT}\n\n[ข้อมูลกระดานงานและโปรเจกต์ปัจจุบัน]:\n${params.projectContext}`
+    ? `${AI_CHATBOT_SYSTEM_PROMPT}\n\n[Current Project & Board Context]:\n${params.projectContext}`
     : AI_CHATBOT_SYSTEM_PROMPT;
 
   return callAiChat({
@@ -460,31 +460,31 @@ export async function chatWithAssistant(params: {
  */
 function generateFallbackResponse(options: AiChatOptions): string {
   if (options.messages && options.messages.length > 0) {
-    return "สวัสดีครับ! ผม Retzlo AI ผู้ช่วยวางแผนงานและกระดาน Kanban ของคุณ มีอะไรให้ผมช่วยดูแลเกี่ยวกับงานหรือโปรเจกต์ในตอนนี้ไหมครับ?";
+    return "Hello! I'm Retzlo AI, your agile project and task planning assistant. How can I help you with your work or board today?";
   }
 
   if (options.systemPrompt?.includes("Productivity Specialist")) {
     return JSON.stringify({
       items: [
-        "วิเคราะห์และกำหนดเป้าหมายของงาน",
-        "เตรียมทรัพยากรและเอกสารที่เกี่ยวข้อง",
-        "ดำเนินการพัฒนาหรือลงมือปฏิบัติงาน",
-        "ทดสอบและตรวจสอบความถูกต้องตามเกณฑ์",
-        "ส่งมอบงานและอัปเดตสถานะในบอร์ด"
+        "Analyze and define task objectives",
+        "Prepare relevant resources and documentation",
+        "Execute and implement core requirements",
+        "Test and verify criteria acceptance",
+        "Deliver completed work and update board status"
       ],
       suggestedDifficulty: 3,
       suggestedPriority: "MEDIUM",
-      summary: "แผนงานสรุป 5 ขั้นตอนมาตรฐานสำหรับดำเนินการ"
+      summary: "Standard 5-step action plan for task execution"
     });
   }
 
   return JSON.stringify({
     healthStatus: "HEALTHY",
     completionRatePercent: 60,
-    overview: "โครงการมีความคืบหน้าอย่างต่อเนื่อง งานส่วนใหญ่อยู่ในสถานะปกติ",
-    currentFocus: ["ติดตามงานสำคัญในบอร์ด"],
+    overview: "The project is progressing steadily, with most tasks on track.",
+    currentFocus: ["Monitor key tasks across active boards"],
     bottlenecks: [],
-    recommendations: ["ดำเนินการต่อตามแผนงาน"]
+    recommendations: ["Continue executing current sprint plan"]
   });
 }
 

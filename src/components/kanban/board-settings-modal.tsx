@@ -266,7 +266,7 @@ export function BoardSettingsModal({
         return;
       }
 
-      toast({ message: `บันทึกการตั้งค่าบอร์ด "${data.board.name}" สำเร็จ`, type: "success" });
+      toast({ message: `Board "${data.board.name}" settings saved successfully`, type: "success" });
       if (typeof window !== "undefined") {
         window.dispatchEvent(
           new CustomEvent("board-renamed", {
@@ -311,7 +311,7 @@ export function BoardSettingsModal({
         throw new Error(data.error || "Could not delete board");
       }
 
-      toast({ message: `ลบบอร์ด "${name}" เรียบร้อยแล้ว`, type: "success" });
+      toast({ message: `Board "${name}" deleted successfully`, type: "success" });
       if (onDeleted) {
         onDeleted(boardId);
       }
@@ -378,7 +378,7 @@ export function BoardSettingsModal({
                   onClick={onClose}
                   className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline dark:text-dusk-lavender mr-1"
                 >
-                  <span>เปิดหน้า Settings เต็มจอ ↗</span>
+                  <span>Open Full Settings ↗</span>
                 </Link>
               )}
               <button
@@ -407,7 +407,7 @@ export function BoardSettingsModal({
                   >
                     <span className="flex items-center gap-2">
                       <span>⚙️</span>
-                      <span>ทั่วไป &amp; สิทธิ์</span>
+                      <span>General &amp; Access</span>
                     </span>
                     {isPrivate && (
                       <span className="ml-auto rounded-full bg-dusk-amber/20 px-1.5 text-[10px] font-mono text-dusk-amber font-semibold">
@@ -422,7 +422,7 @@ export function BoardSettingsModal({
                   >
                     <span className="flex items-center gap-2">
                       <span>📋</span>
-                      <span>ขั้นตอนงาน</span>
+                      <span>Columns</span>
                     </span>
                     <span className="ml-auto rounded-full bg-stone-200/80 px-1.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-stone-300 font-semibold">
                       {columns.length}
@@ -435,7 +435,7 @@ export function BoardSettingsModal({
                   >
                     <span className="flex items-center gap-2">
                       <span>🏷️</span>
-                      <span>คุณสมบัติการ์ด</span>
+                      <span>Card Attributes</span>
                     </span>
                     <span className="ml-auto rounded-full bg-indigo-500/15 px-1.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-semibold">
                       {priorities.length}
@@ -448,7 +448,7 @@ export function BoardSettingsModal({
                   >
                     <span className="flex items-center gap-2">
                       <span>⚠️</span>
-                      <span>จัดการบอร์ด</span>
+                      <span>Danger Zone</span>
                     </span>
                   </TabsTrigger>
                 </TabsList>
@@ -462,7 +462,7 @@ export function BoardSettingsModal({
                     onClick={onClose}
                     className="flex items-center gap-1.5 px-2 py-1.5 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-dusk-lavender dark:hover:text-white transition group"
                   >
-                    <span>เปิดหน้าเต็มจอ (Full View)</span>
+                    <span>Open Full View</span>
                     <ExternalLink className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </div>
@@ -543,14 +543,14 @@ export function BoardSettingsModal({
           {/* Footer Actions */}
           <div className="px-5 py-3 border-t border-stone-200/80 dark:border-white/10 shrink-0 flex items-center justify-between gap-3 bg-stone-50/70 dark:bg-stone-900/60">
             <span className="text-[11px] text-stone-500">
-              {isDirty ? "• มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก" : "ข้อมูลปัจจุบันได้รับการบันทึกแล้ว"}
+              {isDirty ? "• Unsaved changes pending" : "All changes saved"}
             </span>
             <div className="flex items-center gap-2">
               <Button type="button" variant="ghost" onClick={onClose} disabled={isSaving}>
-                ยกเลิก (Cancel)
+                Cancel
               </Button>
               <Button disabled={isSaving || !name.trim() || !canManage} className="min-w-[120px]">
-                {isSaving ? "กำลังบันทึก..." : "บันทึกการตั้งค่า (Save)"}
+                {isSaving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>
@@ -560,12 +560,12 @@ export function BoardSettingsModal({
       {/* Confirm Delete Modal */}
       <ConfirmModal
         open={deleteConfirmOpen}
-        title={`ยืนยันการลบบอร์ด "${boardName}"`}
-        message={`การลบบอร์ดนี้จะลบงาน คอลัมน์ และเช็คลิสต์ทั้งหมดในบอร์ดอย่างถาวร หากต้องการยืนยัน โปรดพิมพ์ชื่อบอร์ดด้านล่าง`}
-        confirmLabel="ลบบอร์ดถาวร"
+        title={`Confirm Deletion of Board "${boardName}"`}
+        message={`Deleting this board will permanently remove all tasks, columns, and checklists in it. To confirm, type the board name below.`}
+        confirmLabel="Permanently Delete Board"
         variant="danger"
         validateText={boardName}
-        validatePlaceholder={`พิมพ์ "${boardName}" เพื่อยืนยัน`}
+        validatePlaceholder={`Type "${boardName}" to confirm`}
         isLoading={isDeleting}
         onClose={() => setDeleteConfirmOpen(false)}
         onConfirm={handleDeleteBoard}

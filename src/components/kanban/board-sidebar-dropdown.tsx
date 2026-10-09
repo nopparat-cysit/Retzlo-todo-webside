@@ -243,7 +243,7 @@ export function BoardSidebarDropdown({
         </div>
 
         <div className="sidebar-expanded-only relative flex h-6 shrink-0 items-center justify-end max-md:gap-1 max-md:w-auto md:w-14">
-          {/* ChevronDown: "ของเดิม" sits at right-0, smoothly slides left on hover */}
+          {/* ChevronDown: sits at right-0, smoothly slides left on hover */}
           <button
             type="button"
             aria-label={isExpanded ? "Collapse boards" : "Expand boards"}
@@ -356,7 +356,7 @@ export function BoardSidebarDropdown({
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
 
-                        {/* 1. กดดาว (Star / Unstar) */}
+                        {/* 1. Star / Unstar */}
                         <DropdownMenuItem
                           onClick={(e) => handleToggleStar(b.id, e)}
                           className="cursor-pointer text-xs"
@@ -370,7 +370,7 @@ export function BoardSidebarDropdown({
                           <span>{isStarred ? "Unstar board" : "Star board"}</span>
                         </DropdownMenuItem>
 
-                        {/* 2. เพิ่มคน (Add / Manage Members) */}
+                        {/* 2. Add / Manage Members */}
                         {canManage && (
                           <DropdownMenuItem
                             onClick={() => handleOpenSettingsModal(b, "access")}
@@ -381,7 +381,7 @@ export function BoardSidebarDropdown({
                           </DropdownMenuItem>
                         )}
 
-                        {/* 3. เซฟเทมเพลต (Save as Template) */}
+                        {/* 3. Save as Template */}
                         <DropdownMenuItem
                           onClick={(e) => handleSaveAsTemplate(b, e)}
                           className="cursor-pointer text-xs"
@@ -392,7 +392,7 @@ export function BoardSidebarDropdown({
 
                         <DropdownMenuSeparator />
 
-                        {/* 4. Settings -> ไปหน้า Settings ของบอร์ดนั้นทันที */}
+                        {/* 4. Board settings */}
                         <DropdownMenuItem
                           onClick={() => {
                             router.push(`/project/${projectId}/settings?tab=board-general&boardId=${encodeURIComponent(b.id)}`);

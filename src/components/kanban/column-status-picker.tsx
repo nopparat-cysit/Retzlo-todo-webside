@@ -108,7 +108,7 @@ export function ColumnStatusPicker({
     onChange(newStatus.value);
     setIsAddingStatus(false);
     setNewStatusLabel("");
-    toast({ message: `เพิ่มสถานะ "${newStatus.label}" เรียบร้อย`, type: "success" });
+    toast({ message: `Status "${newStatus.label}" added successfully`, type: "success" });
   };
 
   return (
@@ -120,7 +120,7 @@ export function ColumnStatusPicker({
             type="button"
             onClick={() => setIsAddingStatus((prev) => !prev)}
             className="grid h-5 w-5 place-items-center rounded-md text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
-            title="เพิ่มสถานะใหม่ (Add Status)"
+            title="Add Status"
             aria-label="Add Status"
           >
             <Plus className="h-3.5 w-3.5" />
@@ -137,7 +137,7 @@ export function ColumnStatusPicker({
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
               <Plus className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-              <span>เพิ่มสถานะใหม่ (Add Status)</span>
+              <span>Add Status</span>
             </span>
             <button
               type="button"
@@ -155,7 +155,7 @@ export function ColumnStatusPicker({
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <Input
               autoFocus
-              placeholder="ชื่อสถานะ เช่น In Review, QA, Blocked..."
+              placeholder="Status label, e.g. In Review, QA, Blocked..."
               value={newStatusLabel}
               onChange={(e) => setNewStatusLabel(e.target.value)}
               className="h-8 text-xs flex-1 bg-white dark:bg-stone-900"
@@ -206,7 +206,7 @@ export function ColumnStatusPicker({
               }}
               className="rounded-lg px-2.5 py-1 text-xs text-stone-500 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
             >
-              ยกเลิก
+              Cancel
             </button>
             <button
               type="button"
@@ -215,7 +215,7 @@ export function ColumnStatusPicker({
               className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 disabled:opacity-40 dark:bg-dusk-lavender dark:text-stone-950 dark:hover:bg-dusk-lavender/90 cursor-pointer"
             >
               <Check className="h-3.5 w-3.5" />
-              <span>บันทึกสถานะ</span>
+              <span>Save Status</span>
             </button>
           </div>
         </div>
@@ -253,11 +253,11 @@ export function ColumnStatusPicker({
           type="button"
           onClick={() => setIsAddingStatus(true)}
           className="flex items-center justify-center gap-1 rounded-lg border border-dashed border-stone-300/80 p-2 text-xs font-semibold text-stone-500 transition hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-700 dark:border-white/15 dark:text-stone-400 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10 dark:hover:text-dusk-lavender cursor-pointer text-center"
-          title="เพิ่มสถานะใหม่ (Add Status)"
+          title="Add Status"
           aria-label="Add custom status"
         >
           <Plus className="h-3.5 w-3.5" />
-          <span>เพิ่มสถานะ</span>
+          <span>Add Status</span>
         </button>
       </div>
     </div>

@@ -32,7 +32,7 @@ describe("auth-aware navigation", () => {
     expect(resetPasswordSource).not.toContain("PageShell");
 
     expect(acceptComponentSource).toContain('status === "ACCEPTED"');
-    expect(acceptComponentSource).toContain("คำเชิญนี้ได้รับการตอบรับแล้ว");
+    expect(acceptComponentSource).toContain("This invitation has already been accepted");
     expect(acceptComponentSource).toContain("<ProjectPreviewCard");
   });
 });

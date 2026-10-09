@@ -28,7 +28,7 @@ describe("Contact Templates System", () => {
     expect(bugTpl).toBeDefined();
     expect(bugTpl?.defaultSubject).toContain("[Bug]");
     expect(bugTpl?.templateBody).toContain("Steps to Reproduce");
-    expect(bugTpl?.templateBody).toContain("เบราว์เซอร์");
+    expect(bugTpl?.templateBody).toContain("Browser");
     expect(bugTpl?.defaultPriority).toBe("high");
   });
 
@@ -36,6 +36,6 @@ describe("Contact Templates System", () => {
     const featureTpl = CONTACT_TEMPLATES.find((t) => t.id === "feature-request");
     expect(featureTpl).toBeDefined();
     expect(featureTpl?.defaultSubject).toContain("[Feature Request]");
-    expect(featureTpl?.templateBody).toContain("ประโยชน์ที่คาดว่าจะได้รับ");
+    expect(featureTpl?.templateBody).toContain("Expected Benefits");
   });
 });

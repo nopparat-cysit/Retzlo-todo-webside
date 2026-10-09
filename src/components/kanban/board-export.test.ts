@@ -70,7 +70,7 @@ describe("Board Export System (Excel, CSV, PDF, PNG)", () => {
 
     expect(docSrc).toContain("export function BoardExportDocument");
     expect(docSrc).toContain("RETZLO WORKSPACE • PROJECT EXPORT");
-    expect(docSrc).toContain("ความคืบหน้ารวม");
+    expect(docSrc).toContain("Overall Progress");
     expect(docSrc).toContain("stats.totalCards");
     expect(docSrc).toContain("stats.completionRate");
     expect(docSrc).toContain("ExportCardItem");
@@ -89,8 +89,8 @@ describe("Board Export System (Excel, CSV, PDF, PNG)", () => {
     expect(modalSrc).toContain('id="retzlo-export-render-canvas-quick"');
     expect(modalSrc).toContain("exportLayout");
     expect(modalSrc).toContain("exportTheme");
-    expect(modalSrc).toContain("รูปแบบการจัดวาง");
-    expect(modalSrc).toContain("โทนสีเอกสาร");
+    expect(modalSrc).toContain("Layout View");
+    expect(modalSrc).toContain("Export Theme");
   });
 });
 

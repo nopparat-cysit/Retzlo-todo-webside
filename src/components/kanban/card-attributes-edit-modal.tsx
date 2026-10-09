@@ -102,13 +102,13 @@ export function CardAttributesEditModal({
   const handleAddStatus = () => {
     const trimmed = newStatusLabel.trim();
     if (!trimmed) {
-      toast({ message: "กรุณาระบุชื่อสถานะ", type: "error" });
+      toast({ message: "Please specify a status name", type: "error" });
       return;
     }
     const slug = trimmed.toUpperCase().replace(/\s+/g, "_").slice(0, 20);
     const exists = statuses.some((s) => s.value.toUpperCase() === slug);
     if (exists) {
-      toast({ message: "สถานะนี้มีอยู่แล้ว", type: "error" });
+      toast({ message: "This status already exists", type: "error" });
       return;
     }
 
@@ -119,7 +119,7 @@ export function CardAttributesEditModal({
     onUpdateStatuses(next);
     saveStoredStatuses(next, boardId);
     setNewStatusLabel("");
-    toast({ message: `เพิ่มสถานะ "${trimmed}" เรียบร้อย`, type: "success" });
+    toast({ message: `Status "${trimmed}" added successfully`, type: "success" });
   };
 
   const handleConfirmDeleteStatus = () => {
@@ -129,14 +129,14 @@ export function CardAttributesEditModal({
     onUpdateStatuses(next);
     saveStoredStatuses(next, boardId);
     setStatusToDelete(null);
-    toast({ message: `ลบสถานะ "${item?.label || statusToDelete}" แล้ว`, type: "success" });
+    toast({ message: `Status "${item?.label || statusToDelete}" deleted`, type: "success" });
   };
 
   const handleResetStatuses = () => {
     onUpdateStatuses(DEFAULT_STATUS_OPTIONS);
     saveStoredStatuses(DEFAULT_STATUS_OPTIONS, boardId);
     setIsResetStatusConfirmOpen(false);
-    toast({ message: "รีเซ็ตสถานะกลับเป็นค่าเริ่มต้นแล้ว", type: "success" });
+    toast({ message: "Status reset to default successfully", type: "success" });
   };
 
   /* -------------------------------------------------------------
@@ -145,7 +145,7 @@ export function CardAttributesEditModal({
   const handleAddPriority = async () => {
     const trimmed = newPriorityLabel.trim() || `Priority ${priorities.length + 1}`;
     if (priorities.length >= MAX_BOARD_PRIORITIES) {
-      toast({ message: `ระดับความสำคัญสูงสุดได้ไม่เกิน ${MAX_BOARD_PRIORITIES} ระดับ`, type: "error" });
+      toast({ message: `Maximum ${MAX_BOARD_PRIORITIES} priority levels allowed`, type: "error" });
       return;
     }
 
@@ -160,7 +160,7 @@ export function CardAttributesEditModal({
     const next = [...priorities, newP].map((p, idx) => ({ ...p, level: idx + 1 }));
     onUpdatePriorities(next);
     setNewPriorityLabel("");
-    toast({ message: `เพิ่มระดับ "${trimmed}" แล้ว`, type: "success" });
+    toast({ message: `Priority "${trimmed}" added`, type: "success" });
 
     // Sync to backend if boardId is available
     if (boardId) {
@@ -207,13 +207,13 @@ export function CardAttributesEditModal({
     if (boardId) {
       await persistPrioritiesToBackend(reindexed);
     }
-    toast({ message: `สลับลำดับความสำคัญสำเร็จ`, type: "success" });
+    toast({ message: "Priority order updated successfully", type: "success" });
   };
 
   const handleConfirmDeletePriority = async () => {
     if (!priorityToDelete) return;
     if (priorities.length <= MIN_BOARD_PRIORITIES) {
-      toast({ message: `ต้องมีระดับความสำคัญอย่างน้อย ${MIN_BOARD_PRIORITIES} ระดับ`, type: "error" });
+      toast({ message: `Must have at least ${MIN_BOARD_PRIORITIES} priority levels`, type: "error" });
       setPriorityToDelete(null);
       return;
     }
@@ -225,7 +225,7 @@ export function CardAttributesEditModal({
     if (boardId) {
       await persistPrioritiesToBackend(reindexed);
     }
-    toast({ message: "ลบระดับความสำคัญเรียบร้อย", type: "success" });
+    toast({ message: "Priority level deleted successfully", type: "success" });
   };
 
   const handleResetPriorities = async () => {
@@ -234,7 +234,7 @@ export function CardAttributesEditModal({
     if (boardId) {
       await persistPrioritiesToBackend(DEFAULT_PRIORITIES);
     }
-    toast({ message: "รีเซ็ตระดับความสำคัญกลับเป็นค่าเริ่มต้นแล้ว", type: "success" });
+    toast({ message: "Priority levels reset to default successfully", type: "success" });
   };
 
   /* -------------------------------------------------------------
@@ -243,12 +243,12 @@ export function CardAttributesEditModal({
   const handleAddStoryPoint = () => {
     const parsed = Number(newPointScore.trim());
     if (Number.isNaN(parsed) || parsed <= 0 || parsed > 100) {
-      toast({ message: "กรุณาระบุคะแนนเป็นตัวเลข 1 - 100", type: "error" });
+      toast({ message: "Please specify points as a number between 1 and 100", type: "error" });
       return;
     }
     const exists = storyPoints.some((p) => p.score === parsed);
     if (exists) {
-      toast({ message: `คะแนน ${parsed} pts มีอยู่แล้วในรายการ`, type: "error" });
+      toast({ message: `Points ${parsed} pts already exist in the list`, type: "error" });
       return;
     }
 
@@ -259,7 +259,7 @@ export function CardAttributesEditModal({
       label: String(parsed),
       pointsLabel: `${parsed} pts`,
       title: `${title} (${parsed} pts)`,
-      description: newPointDescription.trim() || `งานระดับ ${parsed} คะแนน`,
+      description: newPointDescription.trim() || `Task level: ${parsed} points`,
       color: newPointColor,
       ...colorConfig
     };
@@ -270,7 +270,7 @@ export function CardAttributesEditModal({
     setNewPointScore("");
     setNewPointTitle("");
     setNewPointDescription("");
-    toast({ message: `เพิ่มคะแนนความยาก ${parsed} เรียบร้อย`, type: "success" });
+    toast({ message: `Story points ${parsed} added successfully`, type: "success" });
   };
 
   const handleApplyPreset = (key: keyof typeof STORY_POINT_PRESETS) => {
@@ -278,13 +278,13 @@ export function CardAttributesEditModal({
     if (!preset) return;
     onUpdateStoryPoints(preset.points);
     saveStoredStoryPoints(preset.points, boardId);
-    toast({ message: `ปรับใช้สเกล "${preset.name}" แล้ว`, type: "success" });
+    toast({ message: `Applied scale "${preset.name}" successfully`, type: "success" });
   };
 
   const handleConfirmDeletePoint = () => {
     if (pointToDelete === null) return;
     if (storyPoints.length <= 1) {
-      toast({ message: "ต้องมีระดับคะแนนความยากอย่างน้อย 1 ระดับ", type: "error" });
+      toast({ message: "Must have at least 1 story point level", type: "error" });
       setPointToDelete(null);
       return;
     }
@@ -293,14 +293,14 @@ export function CardAttributesEditModal({
     onUpdateStoryPoints(next);
     saveStoredStoryPoints(next, boardId);
     setPointToDelete(null);
-    toast({ message: `ลบคะแนน ${pointToDelete} เรียบร้อย`, type: "success" });
+    toast({ message: `Points ${pointToDelete} deleted successfully`, type: "success" });
   };
 
   const handleResetStoryPoints = () => {
     onUpdateStoryPoints(DEFAULT_STORY_POINTS);
     saveStoredStoryPoints(DEFAULT_STORY_POINTS, boardId);
     setIsResetPointsConfirmOpen(false);
-    toast({ message: "รีเซ็ตคะแนนความยากกลับเป็นค่าเริ่มต้นแล้ว", type: "success" });
+    toast({ message: "Story points reset to default successfully", type: "success" });
   };
 
   return (
@@ -318,10 +318,10 @@ export function CardAttributesEditModal({
             </div>
             <div>
               <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
-                จัดการและแก้ไขคุณสมบัติงาน (Edit Task Attributes)
+                Edit Task Attributes
               </h2>
               <p className="text-xs text-stone-500 dark:text-stone-400">
-                ปรับแต่งสถานะ (Status), ระดับความสำคัญ (Priority), และคะแนนความยาก (Story Points)
+                Customize Status, Priority, and Story Points
               </p>
             </div>
           </div>
@@ -333,15 +333,15 @@ export function CardAttributesEditModal({
             <TabsList className="bg-stone-200/60 dark:bg-white/5">
               <TabsTrigger value="status" className="gap-1.5 text-xs">
                 <CheckSquare className="h-3.5 w-3.5" />
-                <span>Status (สถานะ)</span>
+                <span>Status</span>
               </TabsTrigger>
               <TabsTrigger value="priority" className="gap-1.5 text-xs">
                 <Flag className="h-3.5 w-3.5" />
-                <span>Priority (ความสำคัญ)</span>
+                <span>Priority</span>
               </TabsTrigger>
               <TabsTrigger value="story-points" className="gap-1.5 text-xs">
                 <Zap className="h-4 w-4" />
-                <span>Story Points (คะแนน)</span>
+                <span>Story Points</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -351,11 +351,11 @@ export function CardAttributesEditModal({
             <TabsContent value="status" className="m-0 space-y-4">
               <div className="rounded-xl border border-stone-200/80 bg-stone-50 p-4 space-y-3 dark:border-white/10 dark:bg-white/[0.02]">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                  + เพิ่มสถานะใหม่ (Add Status)
+                  + Add Status
                 </h3>
                 <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
                   <Input
-                    placeholder="เช่น Review, Testing, Blocked..."
+                    placeholder="e.g. Review, Testing, Blocked..."
                     value={newStatusLabel}
                     onChange={(e) => setNewStatusLabel(e.target.value)}
                     className="h-9 text-xs"
@@ -389,7 +389,7 @@ export function CardAttributesEditModal({
                   </div>
                   <Button type="button" size="sm" onClick={handleAddStatus} className="h-9 text-xs gap-1">
                     <Plus className="h-3.5 w-3.5" />
-                    <span>เพิ่มสถานะ</span>
+                    <span>Add Status</span>
                   </Button>
                 </div>
               </div>
@@ -397,14 +397,14 @@ export function CardAttributesEditModal({
               {/* Status List */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-stone-500">
-                  <span>รายการสถานะปัจจุบัน ({statuses.length} รายการ)</span>
+                  <span>Current Statuses ({statuses.length})</span>
                   <button
                     type="button"
                     onClick={() => setIsResetStatusConfirmOpen(true)}
                     className="flex items-center gap-1 text-[11px] text-stone-400 hover:text-stone-200 transition cursor-pointer"
                   >
                     <RotateCcw className="h-3 w-3" />
-                    <span>รีเซ็ตเป็นค่าเริ่มต้น</span>
+                    <span>Reset to Default</span>
                   </button>
                 </div>
 
@@ -425,14 +425,14 @@ export function CardAttributesEditModal({
                         <div className="flex items-center gap-2">
                           {isDefault ? (
                             <span className="text-[10px] text-stone-400 bg-stone-100 dark:bg-white/5 px-2 py-0.5 rounded">
-                              ระบบ
+                              System
                             </span>
                           ) : (
                             <button
                               type="button"
                               onClick={() => setStatusToDelete(st.value)}
                               className="text-stone-400 hover:text-red-500 p-1 transition cursor-pointer"
-                              title="ลบสถานะ"
+                              title="Delete status"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
@@ -449,11 +449,11 @@ export function CardAttributesEditModal({
             <TabsContent value="priority" className="m-0 space-y-4">
               <div className="rounded-xl border border-stone-200/80 bg-stone-50 p-4 space-y-3 dark:border-white/10 dark:bg-white/[0.02]">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                  + เพิ่มระดับความสำคัญ (Add Priority Level)
+                  + Add Priority Level
                 </h3>
                 <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
                   <Input
-                    placeholder={`เช่น P${priorities.length}, Blocker, ด่วนพิเศษ...`}
+                    placeholder={`e.g. P${priorities.length}, Blocker, Urgent...`}
                     value={newPriorityLabel}
                     onChange={(e) => setNewPriorityLabel(e.target.value)}
                     className="h-9 text-xs"
@@ -486,7 +486,7 @@ export function CardAttributesEditModal({
                     className="h-9 text-xs gap-1"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    <span>เพิ่มระดับ</span>
+                    <span>Add Level</span>
                   </Button>
                 </div>
               </div>
@@ -494,14 +494,14 @@ export function CardAttributesEditModal({
               {/* Priorities List */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-stone-500">
-                  <span>ระดับความสำคัญ (ระดับ 1 เร่งด่วนสุด)</span>
+                  <span>Priority Levels (Level 1 is most urgent)</span>
                   <button
                     type="button"
                     onClick={() => setIsResetPriorityConfirmOpen(true)}
                     className="flex items-center gap-1 text-[11px] text-stone-400 hover:text-stone-200 transition cursor-pointer"
                   >
                     <RotateCcw className="h-3 w-3" />
-                    <span>รีเซ็ตเป็นค่าเริ่มต้น</span>
+                    <span>Reset to Default</span>
                   </button>
                 </div>
 
@@ -525,7 +525,7 @@ export function CardAttributesEditModal({
                             disabled={idx === 0}
                             onClick={() => handleMovePriority(idx, "up")}
                             className="p-1 text-stone-400 hover:text-stone-200 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
-                            title="เลื่อนขึ้น (เร่งด่วนกว่าเดิม)"
+                            title="Move up (more urgent)"
                           >
                             <ArrowUp className="h-3.5 w-3.5" />
                           </button>
@@ -534,7 +534,7 @@ export function CardAttributesEditModal({
                             disabled={idx === priorities.length - 1}
                             onClick={() => handleMovePriority(idx, "down")}
                             className="p-1 text-stone-400 hover:text-stone-200 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
-                            title="เลื่อนลง (เร่งด่วนน้อยลง)"
+                            title="Move down (less urgent)"
                           >
                             <ArrowDown className="h-3.5 w-3.5" />
                           </button>
@@ -543,7 +543,7 @@ export function CardAttributesEditModal({
                             disabled={priorities.length <= MIN_BOARD_PRIORITIES}
                             onClick={() => setPriorityToDelete(item.id)}
                             className="p-1 text-stone-400 hover:text-red-500 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer ml-1"
-                            title="ลบระดับนี้"
+                            title="Delete this level"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -560,7 +560,7 @@ export function CardAttributesEditModal({
               {/* Presets Row */}
               <div className="space-y-2">
                 <span className="text-xs font-semibold text-stone-600 dark:text-stone-300">
-                  สลับสเกลคะแนนด่วน (Quick Presets)
+                  Quick Scale Presets
                 </span>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <button
@@ -584,7 +584,7 @@ export function CardAttributesEditModal({
                     onClick={() => handleApplyPreset("linear")}
                     className="p-2 rounded-lg border border-stone-200/80 bg-stone-50 hover:border-indigo-300 text-left transition cursor-pointer dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-dusk-lavender"
                   >
-                    <p className="text-xs font-bold text-stone-900 dark:text-stone-100">Linear / ชั่วโมง</p>
+                    <p className="text-xs font-bold text-stone-900 dark:text-stone-100">Linear / Hours</p>
                     <p className="text-[10px] text-stone-400 font-mono mt-0.5">1h, 2h, 4h, 8h, 16h...</p>
                   </button>
                   <button
@@ -601,32 +601,32 @@ export function CardAttributesEditModal({
               {/* Add Custom Point Form */}
               <div className="rounded-xl border border-stone-200/80 bg-stone-50 p-4 space-y-3 dark:border-white/10 dark:bg-white/[0.02]">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                  + เพิ่มระดับคะแนนความยาก (Add Custom Point)
+                  + Add Custom Points
                 </h3>
                 <div className="grid gap-2 sm:grid-cols-3">
                   <div>
-                    <label className="text-[11px] text-stone-500 font-medium">คะแนน (Points)</label>
+                    <label className="text-[11px] text-stone-500 font-medium">Points</label>
                     <Input
                       type="number"
-                      placeholder="เช่น 2, 10, 13..."
+                      placeholder="e.g. 2, 10, 13..."
                       value={newPointScore}
                       onChange={(e) => setNewPointScore(e.target.value)}
                       className="h-9 text-xs mt-1"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] text-stone-500 font-medium">ชื่อระดับ (Label)</label>
+                    <label className="text-[11px] text-stone-500 font-medium">Label</label>
                     <Input
-                      placeholder="เช่น ง่ายพิเศษ, ปานกลาง..."
+                      placeholder="e.g. Very Easy, Medium..."
                       value={newPointTitle}
                       onChange={(e) => setNewPointTitle(e.target.value)}
                       className="h-9 text-xs mt-1"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] text-stone-500 font-medium">คำอธิบายเวลา</label>
+                    <label className="text-[11px] text-stone-500 font-medium">Time Estimate</label>
                     <Input
-                      placeholder="เช่น 2-3 ชั่วโมง..."
+                      placeholder="e.g. 2-3 hours..."
                       value={newPointDescription}
                       onChange={(e) => setNewPointDescription(e.target.value)}
                       className="h-9 text-xs mt-1"
@@ -636,7 +636,7 @@ export function CardAttributesEditModal({
 
                 <div className="flex items-center justify-between pt-1">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-stone-400 mr-1">สี:</span>
+                    <span className="text-[11px] text-stone-400 mr-1">Color:</span>
                     {STORY_POINT_COLOR_KEYS.map((colKey) => (
                       <button
                         key={colKey}
@@ -664,7 +664,7 @@ export function CardAttributesEditModal({
 
                   <Button type="button" size="sm" onClick={handleAddStoryPoint} className="h-8 text-xs gap-1">
                     <Plus className="h-3 w-3" />
-                    <span>เพิ่มคะแนน</span>
+                    <span>Add Points</span>
                   </Button>
                 </div>
               </div>
@@ -672,14 +672,14 @@ export function CardAttributesEditModal({
               {/* Points List */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-stone-500">
-                  <span>ระดับคะแนนความยากที่เปิดใช้งาน ({storyPoints.length} ระดับ)</span>
+                  <span>Active Story Point Levels ({storyPoints.length})</span>
                   <button
                     type="button"
                     onClick={() => setIsResetPointsConfirmOpen(true)}
                     className="flex items-center gap-1 text-[11px] text-stone-400 hover:text-stone-200 transition cursor-pointer"
                   >
                     <RotateCcw className="h-3 w-3" />
-                    <span>รีเซ็ตเป็นค่าเริ่มต้น</span>
+                    <span>Reset to Default</span>
                   </button>
                 </div>
 
@@ -706,7 +706,7 @@ export function CardAttributesEditModal({
                           disabled={storyPoints.length <= 1}
                           onClick={() => setPointToDelete(pt.score)}
                           className="text-stone-400 hover:text-red-500 disabled:opacity-30 disabled:pointer-events-none p-1 transition cursor-pointer"
-                          title="ลบระดับคะแนนนี้"
+                          title="Delete this point level"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -722,7 +722,7 @@ export function CardAttributesEditModal({
         {/* Modal Footer */}
         <div className="border-t border-stone-200/80 px-5 py-3 flex justify-end bg-stone-50/50 dark:border-white/10 dark:bg-white/[0.02]">
           <Button type="button" onClick={onClose} className="h-8 text-xs px-4">
-            เสร็จสิ้น (Done)
+            Done
           </Button>
         </div>
       </AppModal>
@@ -730,9 +730,9 @@ export function CardAttributesEditModal({
       {/* Delete Status Confirmation */}
       <ConfirmModal
         open={Boolean(statusToDelete)}
-        title="ยืนยันการลบสถานะ"
-        message={`คุณแน่ใจหรือไม่ว่าต้องการลบสถานะ "${statusToDelete}"? การ์ดที่มีสถานะนี้จะไม่ถูกลบ`}
-        confirmLabel="ลบสถานะ"
+        title="Confirm Status Deletion"
+        message={`Are you sure you want to delete status "${statusToDelete}"? Existing cards with this status will not be deleted.`}
+        confirmLabel="Delete Status"
         variant="danger"
         onConfirm={handleConfirmDeleteStatus}
         onClose={() => setStatusToDelete(null)}
@@ -741,9 +741,9 @@ export function CardAttributesEditModal({
       {/* Reset Status Confirmation */}
       <ConfirmModal
         open={isResetStatusConfirmOpen}
-        title="รีเซ็ตสถานะเป็นค่าเริ่มต้น"
-        message="ต้องการรีเซ็ตสถานะทั้งหมดกลับเป็นค่าเริ่มต้น (Todo, Doing, Waiting, Done) หรือไม่?"
-        confirmLabel="รีเซ็ตสถานะ"
+        title="Reset Statuses to Default"
+        message="Are you sure you want to reset all statuses to the default standard (Todo, Doing, Waiting, Done)?"
+        confirmLabel="Reset Statuses"
         variant="default"
         onConfirm={handleResetStatuses}
         onClose={() => setIsResetStatusConfirmOpen(false)}
@@ -752,9 +752,9 @@ export function CardAttributesEditModal({
       {/* Delete Priority Confirmation */}
       <ConfirmModal
         open={Boolean(priorityToDelete)}
-        title="ยืนยันการลบระดับความสำคัญ"
-        message="คุณแน่ใจหรือไม่ว่าต้องการลบระดับความสำคัญนี้?"
-        confirmLabel="ลบระดับ"
+        title="Confirm Priority Deletion"
+        message="Are you sure you want to delete this priority level?"
+        confirmLabel="Delete Level"
         variant="danger"
         onConfirm={handleConfirmDeletePriority}
         onClose={() => setPriorityToDelete(null)}
@@ -763,9 +763,9 @@ export function CardAttributesEditModal({
       {/* Reset Priority Confirmation */}
       <ConfirmModal
         open={isResetPriorityConfirmOpen}
-        title="รีเซ็ตระดับความสำคัญ"
-        message="ต้องการรีเซ็ตระดับความสำคัญกลับเป็นค่าเริ่มต้น (High, Medium, Low) หรือไม่?"
-        confirmLabel="รีเซ็ตความสำคัญ"
+        title="Reset Priorities to Default"
+        message="Are you sure you want to reset priority levels to default (High, Medium, Low)?"
+        confirmLabel="Reset Priorities"
         variant="default"
         onConfirm={handleResetPriorities}
         onClose={() => setIsResetPriorityConfirmOpen(false)}
@@ -774,9 +774,9 @@ export function CardAttributesEditModal({
       {/* Delete Story Point Confirmation */}
       <ConfirmModal
         open={pointToDelete !== null}
-        title="ยืนยันการลบคะแนนความยาก"
-        message={`คุณแน่ใจหรือไม่ว่าต้องการลบคะแนน ${pointToDelete} ออกจากตัวเลือก?`}
-        confirmLabel="ลบคะแนน"
+        title="Confirm Story Points Deletion"
+        message={`Are you sure you want to delete score ${pointToDelete} from options?`}
+        confirmLabel="Delete Score"
         variant="danger"
         onConfirm={handleConfirmDeletePoint}
         onClose={() => setPointToDelete(null)}
@@ -785,9 +785,9 @@ export function CardAttributesEditModal({
       {/* Reset Points Confirmation */}
       <ConfirmModal
         open={isResetPointsConfirmOpen}
-        title="รีเซ็ตคะแนนความยาก"
-        message="ต้องการรีเซ็ตสเกลคะแนนความยากกลับเป็นค่าเริ่มต้น (1, 3, 5, 8, 16, 21) หรือไม่?"
-        confirmLabel="รีเซ็ตคะแนน"
+        title="Reset Story Points to Default"
+        message="Are you sure you want to reset story points scale to default (1, 3, 5, 8, 16, 21)?"
+        confirmLabel="Reset Points"
         variant="default"
         onConfirm={handleResetStoryPoints}
         onClose={() => setIsResetPointsConfirmOpen(false)}

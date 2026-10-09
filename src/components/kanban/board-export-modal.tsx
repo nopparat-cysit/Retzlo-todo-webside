@@ -118,7 +118,7 @@ export function BoardExportModal({
     const today = new Date().toISOString().split("T")[0];
     const safeTitle = (boardTitle || "board")
       .toLowerCase()
-      .replace(/[^a-z0-9ก-๙_-]+/gi, "-")
+      .replace(/[^a-z0-9_-]+/gi, "-")
       .replace(/^-+|-+$/g, "");
     const layoutSuffix = exportLayout === "table" ? "-table" : "-kanban";
     return `${safeTitle || "board"}${layoutSuffix}-export-${today}`;
@@ -133,7 +133,7 @@ export function BoardExportModal({
         const rows = prepareExportRows(activeColumns, members, boardPriorities);
         downloadExcel(rows, filename, boardTitle);
         toast({
-          message: `ส่งออกไฟล์ Excel (.xlsx) สำเร็จ! (${rows.length} รายการ) 📊`,
+          message: `Exported Excel (.xlsx) successfully! (${rows.length} items) 📊`,
           type: "success"
         });
         onClose();
@@ -141,7 +141,7 @@ export function BoardExportModal({
         const rows = prepareExportRows(activeColumns, members, boardPriorities);
         downloadCsv(rows, filename);
         toast({
-          message: `ส่งออกไฟล์ CSV (.csv) สำเร็จ! (${rows.length} รายการ) 📄`,
+          message: `Exported CSV (.csv) successfully! (${rows.length} items) 📄`,
           type: "success"
         });
         onClose();
@@ -150,14 +150,14 @@ export function BoardExportModal({
         const dedicatedEl = modalCanvasRef.current || document.getElementById("retzlo-export-render-canvas");
         const el = dedicatedEl || document.getElementById(viewportElementId) || document.getElementById("kanban-table-container");
         if (!el) {
-          throw new Error("ไม่พบคอนเทนเนอร์บอร์ดสำหรับจับภาพ");
+          throw new Error("Board container not found for capture");
         }
         await exportElementToPng(el, filename, {
           backgroundColor: exportTheme === "dark" ? "#0b0c1b" : "#ffffff",
           pixelRatio: 2.2
         });
         toast({
-          message: "ส่งออกรูปภาพ PNG (.png) ความละเอียดสูงสมบูรณ์แบบ! 🖼️",
+          message: "Exported high-resolution PNG (.png) successfully! 🖼️",
           type: "success"
         });
         onClose();
@@ -166,23 +166,23 @@ export function BoardExportModal({
         const dedicatedEl = modalCanvasRef.current || document.getElementById("retzlo-export-render-canvas");
         const el = dedicatedEl || document.getElementById(viewportElementId) || document.getElementById("kanban-table-container");
         if (!el) {
-          throw new Error("ไม่พบคอนเทนเนอร์บอร์ดสำหรับสร้าง PDF");
+          throw new Error("Board container not found for PDF generation");
         }
         await exportElementToPdf(el, filename, boardTitle, {
           backgroundColor: exportTheme === "dark" ? "#0b0c1b" : "#ffffff",
           orientation: "landscape"
         });
         toast({
-          message: "ส่งออกเอกสาร PDF (.pdf) จัดหน้าสวยงามเรียบร้อย! 📑",
+          message: "Exported formatted PDF (.pdf) successfully! 📑",
           type: "success"
         });
         onClose();
       }
     } catch (err: unknown) {
       console.error("Export error:", err);
-      const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการส่งออกไฟล์";
+      const msg = err instanceof Error ? err.message : "An error occurred during export";
       toast({
-        message: `ส่งออกไม่สำเร็จ: ${msg}`,
+        message: `Export failed: ${msg}`,
         type: "error"
       });
     } finally {
@@ -251,10 +251,10 @@ export function BoardExportModal({
             </div>
             <div>
               <h2 id="export-board-title" className="text-base font-bold text-stone-900 dark:text-stone-100">
-                ส่งออกข้อมูลบอร์ด (Export Board)
+                Export Board
               </h2>
               <p className="text-xs text-stone-500 dark:text-stone-400">
-                บอร์ด <span className="font-semibold text-indigo-600 dark:text-dusk-lavender">{boardTitle}</span> • {currentCount} รายการ ({activeColumns.length} คอลัมน์)
+                Board <span className="font-semibold text-indigo-600 dark:text-dusk-lavender">{boardTitle}</span> • {currentCount} tasks ({activeColumns.length} columns)
               </p>
             </div>
           </div>
@@ -274,10 +274,10 @@ export function BoardExportModal({
             <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 dark:border-amber-400/20 dark:bg-amber-500/10">
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-xs font-semibold text-amber-900 dark:text-amber-200">
-                  ขอบเขตข้อมูลที่ต้องการส่งออก:
+                  Export Scope:
                 </span>
                 <span className="text-[11px] font-mono text-amber-700 dark:text-amber-300">
-                  {exportScope === "filtered" ? `ตัวกรองปัจจุบัน (${filteredCardsCount})` : `ทั้งหมด (${allCardsCount})`}
+                  {exportScope === "filtered" ? `Filtered Tasks (${filteredCardsCount})` : `All Tasks (${allCardsCount})`}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -291,7 +291,7 @@ export function BoardExportModal({
                       : "border-transparent bg-transparent text-stone-600 hover:bg-white/50 dark:text-stone-400"
                   )}
                 >
-                  🔍 เฉพาะที่แสดงอยู่ ({filteredCardsCount} งาน)
+                  🔍 Filtered Tasks ({filteredCardsCount} tasks)
                 </button>
                 <button
                   type="button"
@@ -303,7 +303,7 @@ export function BoardExportModal({
                       : "border-transparent bg-transparent text-stone-600 hover:bg-white/50 dark:text-stone-400"
                   )}
                 >
-                  📋 งานทั้งหมดในบอร์ด ({allCardsCount} งาน)
+                  📋 All Tasks in Board ({allCardsCount} tasks)
                 </button>
               </div>
             </div>
@@ -315,7 +315,7 @@ export function BoardExportModal({
             <div className="rounded-xl border border-stone-200 bg-white/70 p-3.5 dark:border-white/10 dark:bg-white/[0.03]">
               <label className="text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5 mb-2">
                 <Layers className="h-3.5 w-3.5 text-indigo-500" />
-                รูปแบบการจัดวาง (Layout View)
+                Layout View
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -330,10 +330,10 @@ export function BoardExportModal({
                 >
                   <div className="flex items-center gap-1.5 font-bold">
                     <KanbanSquare className="h-3.5 w-3.5" />
-                    <span>บอร์ดเต็มแผ่น</span>
+                    <span>Full Board</span>
                   </div>
                   <span className="text-[10px] opacity-75 font-normal">
-                    ครบทุกคอลัมน์ 100%
+                    All columns 100%
                   </span>
                 </button>
 
@@ -349,10 +349,10 @@ export function BoardExportModal({
                 >
                   <div className="flex items-center gap-1.5 font-bold">
                     <TableIcon className="h-3.5 w-3.5" />
-                    <span>ตารางรายงาน</span>
+                    <span>Table Report</span>
                   </div>
                   <span className="text-[10px] opacity-75 font-normal">
-                    เหมาะสำหรับสไลด์/A4
+                    Suitable for slides & A4
                   </span>
                 </button>
               </div>
@@ -362,7 +362,7 @@ export function BoardExportModal({
             <div className="rounded-xl border border-stone-200 bg-white/70 p-3.5 dark:border-white/10 dark:bg-white/[0.03]">
               <label className="text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5 mb-2">
                 <SunMedium className="h-3.5 w-3.5 text-amber-500" />
-                โทนสีเอกสาร (Export Theme)
+                Export Theme
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -377,10 +377,10 @@ export function BoardExportModal({
                 >
                   <div className="flex items-center gap-1.5 font-bold">
                     <SunMedium className="h-3.5 w-3.5" />
-                    <span>กระดาษขาว</span>
+                    <span>Light Paper</span>
                   </div>
                   <span className="text-[10px] opacity-75 font-normal">
-                    แนะนำสำหรับ PDF/พิมพ์
+                    Recommended for PDF / Print
                   </span>
                 </button>
 
@@ -396,10 +396,10 @@ export function BoardExportModal({
                 >
                   <div className="flex items-center gap-1.5 font-bold">
                     <Moon className="h-3.5 w-3.5" />
-                    <span>ดาร์กโหมด</span>
+                    <span>Dark Theme</span>
                   </div>
                   <span className="text-[10px] opacity-75 font-normal">
-                    สไตล์ Retro Dark
+                    Retro Dark styling
                   </span>
                 </button>
               </div>
@@ -411,7 +411,7 @@ export function BoardExportModal({
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
-                สรุปสถิติที่จะถูกส่งออก (Executive Summary)
+                Executive Summary
               </span>
               <button
                 type="button"
@@ -419,21 +419,21 @@ export function BoardExportModal({
                 className="text-[11px] font-medium text-indigo-600 hover:underline dark:text-dusk-lavender flex items-center gap-1 cursor-pointer"
               >
                 {showPreview ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                <span>{showPreview ? "ซ่อนตัวอย่างเอกสาร" : "ดูตัวอย่างเอกสาร"}</span>
+                <span>{showPreview ? "Hide Document Preview" : "Show Document Preview"}</span>
               </button>
             </div>
 
             <div className="grid grid-cols-4 gap-2 text-center text-xs">
               <div className="p-2 rounded-lg bg-stone-100/70 dark:bg-white/5">
-                <span className="text-[10px] text-stone-500 dark:text-stone-400 block">งานทั้งหมด</span>
-                <span className="font-bold text-sm">{currentCount} งาน</span>
+                <span className="text-[10px] text-stone-500 dark:text-stone-400 block">Total Tasks</span>
+                <span className="font-bold text-sm">{currentCount} tasks</span>
               </div>
               <div className="p-2 rounded-lg bg-emerald-50/70 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">
-                <span className="text-[10px] opacity-75 block">เสร็จสิ้นแล้ว</span>
+                <span className="text-[10px] opacity-75 block">Completed</span>
                 <span className="font-bold text-sm">{summaryMetrics.done} ({summaryMetrics.percent}%)</span>
               </div>
               <div className="p-2 rounded-lg bg-indigo-50/70 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-300">
-                <span className="text-[10px] opacity-75 block">แต้มรวม</span>
+                <span className="text-[10px] opacity-75 block">Total Points</span>
                 <span className="font-bold text-sm">{summaryMetrics.points} pts</span>
               </div>
               <div className={cn(
@@ -442,8 +442,8 @@ export function BoardExportModal({
                   ? "bg-rose-50/80 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300 font-bold"
                   : "bg-stone-100/70 text-stone-500 dark:bg-white/5 dark:text-stone-400"
               )}>
-                <span className="text-[10px] opacity-75 block">เกินกำหนด</span>
-                <span className="font-bold text-sm">{summaryMetrics.overdue} งาน</span>
+                <span className="text-[10px] opacity-75 block">Overdue</span>
+                <span className="font-bold text-sm">{summaryMetrics.overdue} tasks</span>
               </div>
             </div>
 
@@ -496,14 +496,14 @@ export function BoardExportModal({
                   </span>
                 </div>
                 <span className="rounded bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-mono font-bold text-rose-700 dark:text-rose-300">
-                  เอกสารทางการ
+                  Formal Document
                 </span>
               </div>
               <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-                จัดหน้าเอกสาร A4 ปรับสเกลสวยงาม ไม่ตัดทอนคอลัมน์ พร้อมหัวตารางและสรุป KPI
+                Formatted A4 document scaled proportionally without clipping, with executive KPIs
               </p>
               <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-rose-600 group-hover:underline dark:text-rose-400">
-                <span>ดาวน์โหลด PDF</span>
+                <span>Download PDF</span>
                 <Download className="h-3 w-3" />
               </div>
             </button>
@@ -538,10 +538,10 @@ export function BoardExportModal({
                 </span>
               </div>
               <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-                ภาพความละเอียดสูงเต็มแผ่น ครบทุกคอลัมน์และใบงาน 100% เหมาะสำหรับนำเสนอสไลด์
+                High-res full panoramic canvas with all columns and cards, perfect for presentations
               </p>
               <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-purple-600 group-hover:underline dark:text-purple-400">
-                <span>ดาวน์โหลด PNG</span>
+                <span>Download PNG</span>
                 <Download className="h-3 w-3" />
               </div>
             </button>
@@ -572,14 +572,14 @@ export function BoardExportModal({
                   </span>
                 </div>
                 <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-mono font-bold text-emerald-700 dark:text-emerald-300">
-                  สเปรดชีต
+                  Spreadsheet
                 </span>
               </div>
               <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-                จัดรูปแบบคอลัมน์สมบูรณ์ พร้อมชื่อผู้รับผิดชอบ, วันที่, สถานะ, และระดับ Priority
+                Structured columns with assignees, dates, statuses, and priority rankings
               </p>
               <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-emerald-600 group-hover:underline dark:text-emerald-400">
-                <span>ดาวน์โหลด Excel</span>
+                <span>Download Excel</span>
                 <Download className="h-3 w-3" />
               </div>
             </button>
@@ -610,14 +610,14 @@ export function BoardExportModal({
                   </span>
                 </div>
                 <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-mono font-bold text-blue-700 dark:text-blue-300">
-                  สากล
+                  Universal
                 </span>
               </div>
               <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-                ไฟล์ข้อความสากล UTF-8 BOM รองรับภาษาไทยสมบูรณ์แบบ นำเข้า Google Sheets ได้ทันที
+                Standard UTF-8 BOM CSV compatible with Excel, Google Sheets, and databases
               </p>
               <div className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-blue-600 group-hover:underline dark:text-blue-400">
-                <span>ดาวน์โหลด CSV</span>
+                <span>Download CSV</span>
                 <Download className="h-3 w-3" />
               </div>
             </button>
@@ -626,14 +626,14 @@ export function BoardExportModal({
 
         <AppModalFooter className="flex items-center justify-between border-t border-stone-200/80 px-5 py-3 dark:border-white/10">
           <span className="text-[11px] text-stone-400">
-            ✨ เลย์เอาต์ถูกจัดรูปแบบสำหรับ Export โดยเฉพาะ (ครบ 100% ทุกคอลัมน์และใบงาน)
+            ✨ Layout is specifically formatted for export (100% unclipped columns & cards)
           </span>
           <button
             type="button"
             onClick={onClose}
             className="rounded-xl border border-stone-300 bg-white px-4 py-1.5 text-xs font-semibold text-stone-700 transition hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300 dark:hover:bg-white/[0.1] cursor-pointer"
           >
-            ปิด
+            Close
           </button>
         </AppModalFooter>
       </AppModal>
@@ -674,7 +674,7 @@ export function BoardExportButton({
     const today = new Date().toISOString().split("T")[0];
     const safeTitle = (boardTitle || "board")
       .toLowerCase()
-      .replace(/[^a-z0-9ก-๙_-]+/gi, "-")
+      .replace(/[^a-z0-9_-]+/gi, "-")
       .replace(/^-+|-+$/g, "");
     return `${safeTitle || "board"}-export-${today}`;
   };
@@ -691,44 +691,44 @@ export function BoardExportButton({
         const rows = prepareExportRows(activeColumns, members, boardPriorities);
         downloadExcel(rows, filename, boardTitle);
         toast({
-          message: `ส่งออก Excel (.xlsx) เรียบร้อย (${rows.length} รายการ) 📊`,
+          message: `Exported Excel (.xlsx) successfully (${rows.length} items) 📊`,
           type: "success"
         });
       } else if (format === "csv") {
         const rows = prepareExportRows(activeColumns, members, boardPriorities);
         downloadCsv(rows, filename);
         toast({
-          message: `ส่งออก CSV (.csv) เรียบร้อย (${rows.length} รายการ) 📄`,
+          message: `Exported CSV (.csv) successfully (${rows.length} items) 📄`,
           type: "success"
         });
       } else if (format === "png") {
         const dedicatedEl = quickCanvasRef.current || document.getElementById("retzlo-export-render-canvas-quick");
         const el = dedicatedEl || document.getElementById(viewportElementId) || document.getElementById("kanban-table-container");
-        if (!el) throw new Error("ไม่พบคอนเทนเนอร์บอร์ดสำหรับจับภาพ");
+        if (!el) throw new Error("Board container not found for capture");
         await exportElementToPng(el, filename, {
           backgroundColor: exportBg,
           pixelRatio: 2.2
         });
         toast({
-          message: "ส่งออกรูปภาพ PNG (.png) คุณภาพสูงเรียบร้อย 🖼️",
+          message: "Exported high quality PNG (.png) successfully 🖼️",
           type: "success"
         });
       } else if (format === "pdf") {
         const dedicatedEl = quickCanvasRef.current || document.getElementById("retzlo-export-render-canvas-quick");
         const el = dedicatedEl || document.getElementById(viewportElementId) || document.getElementById("kanban-table-container");
-        if (!el) throw new Error("ไม่พบคอนเทนเนอร์บอร์ดสำหรับสร้าง PDF");
+        if (!el) throw new Error("Board container not found for PDF generation");
         await exportElementToPdf(el, filename, boardTitle, {
           backgroundColor: exportBg,
           orientation: "landscape"
         });
         toast({
-          message: "ส่งออกเอกสาร PDF (.pdf) จัดหน้าสวยงามเรียบร้อย 📑",
+          message: "Exported formatted PDF (.pdf) successfully 📑",
           type: "success"
         });
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการส่งออก";
-      toast({ message: `ส่งออกไม่สำเร็จ: ${msg}`, type: "error" });
+      const msg = err instanceof Error ? err.message : "An error occurred during export";
+      toast({ message: `Export failed: ${msg}`, type: "error" });
     }
   };
 
@@ -784,7 +784,7 @@ export function BoardExportButton({
               "dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100",
               className
             )}
-            title="ส่งออกข้อมูลบอร์ด (Excel, CSV, PDF, PNG)"
+            title="Export Board (Excel, CSV, PDF, PNG)"
             aria-label="Export board"
           >
             <Download className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
@@ -796,7 +796,7 @@ export function BoardExportButton({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 z-[1100]">
           <DropdownMenuLabel className="text-xs font-bold text-stone-500 dark:text-stone-400">
-            ส่งออกข้อมูล (Export)
+            Export Board
           </DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => handleQuickExport("pdf")}
@@ -805,7 +805,7 @@ export function BoardExportButton({
             <FileDown className="h-4 w-4 text-rose-600 dark:text-rose-400" />
             <div className="flex flex-col">
               <span className="font-semibold text-xs">PDF (.pdf)</span>
-              <span className="text-[10px] text-stone-400">เอกสาร A4 จัดหน้าสวยงาม</span>
+              <span className="text-[10px] text-stone-400">Formatted A4 document</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -815,7 +815,7 @@ export function BoardExportButton({
             <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             <div className="flex flex-col">
               <span className="font-semibold text-xs">PNG (.png)</span>
-              <span className="text-[10px] text-stone-400">ภาพความละเอียดสูง 2x เต็มบอร์ด</span>
+              <span className="text-[10px] text-stone-400">High-res 2x panoramic image</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -825,7 +825,7 @@ export function BoardExportButton({
             <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <div className="flex flex-col">
               <span className="font-semibold text-xs">Excel (.xlsx)</span>
-              <span className="text-[10px] text-stone-400">สเปรดชีตจัดรูปแบบสมบูรณ์</span>
+              <span className="text-[10px] text-stone-400">Fully structured spreadsheet</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -835,7 +835,7 @@ export function BoardExportButton({
             <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             <div className="flex flex-col">
               <span className="font-semibold text-xs">CSV (.csv)</span>
-              <span className="text-[10px] text-stone-400">รองรับภาษาไทย UTF-8 BOM</span>
+              <span className="text-[10px] text-stone-400">Standard UTF-8 BOM CSV</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -844,7 +844,7 @@ export function BoardExportButton({
             className="flex items-center gap-2 cursor-pointer py-1.5 font-medium text-xs text-indigo-600 dark:text-dusk-lavender"
           >
             <Download className="h-3.5 w-3.5" />
-            <span>ปรับแต่งเลย์เอาต์ &amp; ตัวเลือกเพิ่มเติม...</span>
+            <span>Customize layout &amp; options...</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

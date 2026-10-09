@@ -82,17 +82,17 @@ describe("Export Board Utilities (CSV, Excel, PDF, PNG)", () => {
     expect(first.index).toBe(1);
     expect(first.title).toBe("Setup Discord Nitro Theme, with commas");
     expect(first.columnName).toBe("To Do");
-    expect(first.status).toContain("ยังไม่เริ่ม");
+    expect(first.status).toBe("To Do");
     expect(first.priorityCode).toBe("P0");
     expect(first.assignees).toBe("Alice, Bob");
-    expect(first.difficulty).toBe("3 แต้ม");
+    expect(first.difficulty).toBe("3 pts");
     expect(first.checklistProgress).toBe("1/2 (50%)");
     expect(first.isStarred).toContain("⭐");
 
     const second = rows[1];
     expect(second.index).toBe(2);
     expect(second.title).toBe("Simple Task");
-    expect(second.status).toContain("เสร็จสิ้น");
+    expect(second.status).toBe("Done");
     expect(second.assignees).toBe("-");
     expect(second.difficulty).toBe("-");
     expect(second.checklistProgress).toBe("-");
@@ -102,14 +102,14 @@ describe("Export Board Utilities (CSV, Excel, PDF, PNG)", () => {
     const rows = prepareExportRows(mockColumns, mockMembers);
     const csv = generateCsvContent(rows);
 
-    // Must start with UTF-8 BOM so Excel opens Thai correctly
+    // Must start with UTF-8 BOM so Excel opens UTF-8 correctly
     expect(csv.startsWith("\uFEFF")).toBe(true);
 
     // Headers must exist
-    expect(csv).toContain("ชื่องาน (Task Title)");
-    expect(csv).toContain("สถานะ (Status)");
-    expect(csv).toContain("ระดับความสำคัญ (Priority)");
-    expect(csv).toContain("ผู้รับผิดชอบ (Assignees)");
+    expect(csv).toContain("Task Title");
+    expect(csv).toContain("Status");
+    expect(csv).toContain("Priority");
+    expect(csv).toContain("Assignees");
 
     // Commas and quotes must be escaped
     expect(csv).toContain('"Setup Discord Nitro Theme, with commas"');

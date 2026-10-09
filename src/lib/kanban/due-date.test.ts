@@ -77,7 +77,7 @@ describe("due date helpers", () => {
         startDate: "2026-05-20T12:00:00.000Z",
         formatFn: formatMock
       })
-    ).toBe("เริ่ม: 05-20");
+    ).toBe("Start: 05-20");
 
     expect(
       formatCardDateRange({

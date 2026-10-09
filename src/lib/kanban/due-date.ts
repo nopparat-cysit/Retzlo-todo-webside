@@ -116,7 +116,7 @@ export function formatCardDateRange(params: {
     return `${format(startDate, startDateAllDay)} → ${format(dueDate, dueDateAllDay)}`;
   }
   if (startDate) {
-    return `เริ่ม: ${format(startDate, startDateAllDay)}`;
+    return `Start: ${format(startDate, startDateAllDay)}`;
   }
   if (dueDate) {
     return format(dueDate, dueDateAllDay);

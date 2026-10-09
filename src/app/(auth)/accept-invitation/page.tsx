@@ -15,7 +15,7 @@ export default function AcceptInvitationPage() {
         fallback={
           <div className="flex flex-col items-center justify-center py-8 text-stone-400">
             <div className="mb-3 h-7 w-7 animate-spin rounded-full border-2 border-dusk-lavender border-t-transparent" />
-            <p className="text-xs text-stone-400">กำลังตรวจสอบข้อมูลคำเชิญ...</p>
+            <p className="text-xs text-stone-400">Verifying invitation details...</p>
           </div>
         }
       >

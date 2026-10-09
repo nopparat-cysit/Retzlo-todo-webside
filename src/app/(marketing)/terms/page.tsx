@@ -24,68 +24,68 @@ export default function TermsPage() {
             <span>Legal & Agreements</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Terms of Service</h1>
-          <p className="mt-2 text-sm text-stone-400">ข้อกำหนดและเงื่อนไขการใช้บริการ Retzlo (มีผลบังคับใช้ตั้งแต่วันที่ 20 กันยายน 2026)</p>
+          <p className="mt-2 text-sm text-stone-400">Terms of Service and Acceptable Use Policy (Effective as of September 20, 2026)</p>
         </header>
 
         <article className="prose prose-invert max-w-none space-y-8 text-sm leading-relaxed text-stone-300">
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-lavender">1.</span> การยอมรับข้อกำหนด (Acceptance of Terms)
+              <span className="text-dusk-lavender">1.</span> Acceptance of Terms
             </h2>
             <p>
-              ยินดีต้อนรับสู่ Retzlo (&quot;เรา&quot; หรือ &quot;ระบบ&quot;) การเข้าถึงหรือใช้งานเว็บไซต์และแอปพลิเคชัน Retzlo ถือว่าท่านได้อ่าน ทำความเข้าใจ และตกลงที่จะผูกพันตามข้อกำหนดการให้บริการนี้ หากท่านไม่เห็นด้วยกับข้อกำหนดใดๆ โปรดยุติการเข้าใช้งานระบบทันที
+              Welcome to Retzlo (&quot;we&quot; or &quot;the platform&quot;). By accessing or using the Retzlo website and application, you acknowledge that you have read, understood, and agreed to be bound by these Terms of Service. If you do not agree to any part of these terms, please discontinue using the service immediately.
             </p>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-lavender">2.</span> บัญชีผู้ใช้และความปลอดภัย (User Account & Security)
+              <span className="text-dusk-lavender">2.</span> User Account & Security
             </h2>
             <ul className="list-disc pl-5 space-y-2">
-              <li>ท่านมีหน้าที่รักษาความลับของรหัสผ่านและข้อมูลเข้าสู่ระบบของตนเอง</li>
-              <li>การกระทำใดๆ ที่เกิดขึ้นภายใต้บัญชีของท่านถือเป็นความรับผิดชอบของท่านโดยตรง</li>
-              <li>หากพบการเข้าถึงโดยไม่ได้รับอนุญาต โปรดแจ้งผู้ดูแลระบบทันที</li>
-              <li>หนึ่งบุคคลสามารถมีบัญชีผู้ใช้เพื่อการทำงานส่วนบุคคลหรือการทำงานร่วมกันในทีมได้ตามความเหมาะสม</li>
+              <li>You are responsible for safeguarding your password and account credentials.</li>
+              <li>You are directly responsible for all activities and content created under your account.</li>
+              <li>If you suspect unauthorized access or security breaches, notify system administrators promptly.</li>
+              <li>Each individual may maintain an account for personal task management or team workspace collaboration.</li>
             </ul>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-lavender">3.</span> นโยบายการใช้งานที่ยอมรับได้ (Acceptable Use Policy)
+              <span className="text-dusk-lavender">3.</span> Acceptable Use Policy
             </h2>
-            <p className="mb-2">ท่านตกลงที่จะไม่กระทำการใดๆ ดังต่อไปนี้:</p>
+            <p className="mb-2">You agree not to engage in any of the following prohibited activities:</p>
             <ul className="list-disc pl-5 space-y-2">
-              <li>ส่งอีเมลสแปมหรือใช้ระบบส่งคำเชิญเพื่อรบกวนผู้อื่น (Email Bombing / Spamming)</li>
-              <li>ใช้ระบบเพื่ออัปโหลดเนื้อหาที่ผิดกฎหมาย ละเมิดสิทธิ หรือมีมัลแวร์</li>
-              <li>พยายามเจาะระบบ ขัดขวางการทำงาน หรือสร้างภาระเกินควรแก่ฐานข้อมูลและเซิร์ฟเวอร์ (DoS / Brute Force)</li>
-              <li>คัดลอกหรือดัดแปลงซอฟต์แวร์ของ Retzlo โดยไม่ได้รับอนุญาต</li>
+              <li>Sending unsolicited spam or using invitation systems to harass others (Email Bombing / Spamming).</li>
+              <li>Uploading unlawful, infringing, abusive content or malicious software.</li>
+              <li>Attempting to penetrate, disrupt, or place unreasonable load on servers and databases (DoS / Brute Force).</li>
+              <li>Copying, reverse engineering, or redistributing Retzlo software without explicit authorization.</li>
             </ul>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-lavender">4.</span> สิทธิและความเป็นเจ้าของในข้อมูล (User Content & Ownership)
+              <span className="text-dusk-lavender">4.</span> User Content & Ownership
             </h2>
             <p>
-              ข้อมูลทั้งหมดที่ท่านสร้างขึ้นใน Retzlo เช่น บอร์ด งาน โน้ต และไดอารี่ ยังคงเป็นทรัพย์สินและสิทธิของท่าน เราไม่มีสิทธิ์ในการนำข้อมูลงานของท่านไปเผยแพร่หรือขายต่อ ยกเว้นการประมวลผลเพื่อการให้บริการตามหน้าที่ของระบบเท่านั้น
+              All content you create within Retzlo, including boards, cards, notes, and diary entries, remains your intellectual property. We do not distribute or monetize your private workspace content, processing it solely to deliver platform functionality.
             </p>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-lavender">5.</span> ข้อจำกัดความรับผิดชอบ (Limitation of Liability)
+              <span className="text-dusk-lavender">5.</span> Limitation of Liability
             </h2>
             <p>
-              Retzlo ให้บริการตามสภาพที่เป็นอยู่ (&quot;as is&quot; and &quot;as available&quot;) เรามุ่งมั่นพัฒนาให้ระบบมีความเสถียรและปลอดภัยสูงสุด อย่างไรก็ดี เราไม่สามารถรับประกันได้ว่าระบบจะปราศจากข้อผิดพลาดหรือการหยุดชะงักอย่างสมบูรณ์แบบในทุกกรณี ผู้ใช้ควรสำรองข้อมูลสำคัญเป็นระยะ
+              Retzlo is provided &quot;as is&quot; and &quot;as available&quot;. While we strive for maximum reliability, uptime, and security, we do not warrant that operation will be entirely error-free or uninterrupted under all circumstances. Users are encouraged to maintain independent backups of critical records.
             </p>
           </section>
 
           <section className="lofi-panel rounded-2xl border border-white/10 p-6">
             <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <span className="text-dusk-lavender">6.</span> การติดต่อเรา (Contact Information)
+              <span className="text-dusk-lavender">6.</span> Contact & Inquiries
             </h2>
             <p>
-              หากท่านมีข้อสงสัยเกี่ยวกับข้อกำหนดการให้บริการนี้ สามารถติดต่อทีมงานผู้พัฒนาได้ทางช่องทางที่ระบุไว้ในหน้าหลักของ Retzlo
+              If you have questions regarding these terms, please contact our support team through the contact channels provided in the Retzlo platform.
             </p>
           </section>
         </article>

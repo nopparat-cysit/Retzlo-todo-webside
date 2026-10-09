@@ -49,8 +49,8 @@ export function HelpButton({ className }: HelpButtonProps) {
               "relative grid h-8 w-8 shrink-0 place-items-center rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-400 dark:hover:text-stone-100 dark:hover:bg-white/10 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 active:scale-95 cursor-pointer",
               className
             )}
-            aria-label={isEn ? "System Info, Help, and Contact" : "ข้อมูลระบบ ความช่วยเหลือ และติดต่อเรา"}
-            title={isEn ? "Help & About Retzlo" : "ความช่วยเหลือ & เกี่ยวกับระบบ (Help & About)"}
+            aria-label="System Info, Help, and Contact"
+            title="Help & About Retzlo"
           >
             <HelpCircle className="h-4 w-4" />
           </button>
@@ -58,10 +58,10 @@ export function HelpButton({ className }: HelpButtonProps) {
 
         <DropdownMenuContent align="end" sideOffset={8} className="w-64 p-1.5">
           <DropdownMenuLabel className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
-            {isEn ? "Help & System Guide" : "ความช่วยเหลือ & เกี่ยวกับระบบ"}
+            Help & System Guide
           </DropdownMenuLabel>
 
-          {/* 1. คู่มือระบบ & ข้อมูลการใช้งาน (/help) */}
+          {/* 1. System Guide & Documentation (/help) */}
           <DropdownMenuItem asChild>
             <Link
               href="/help"
@@ -72,16 +72,16 @@ export function HelpButton({ className }: HelpButtonProps) {
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-semibold text-stone-900 dark:text-stone-100">
-                  {isEn ? "Help & System Guide" : "คู่มือ & ข้อมูลระบบ"}
+                  Help & System Guide
                 </span>
                 <span className="text-[11px] text-stone-500 dark:text-stone-400 leading-tight">
-                  {isEn ? "Explore features, board, AI & shortcuts" : "ศึกษาฟีเจอร์ บอร์ด AI และคีย์ลัด"}
+                  Explore features, board, AI & shortcuts
                 </span>
               </div>
             </Link>
           </DropdownMenuItem>
 
-          {/* 2. รายละเอียดเว็บไซต์ (About Modal) */}
+          {/* 2. System Information (About Modal) */}
           <DropdownMenuItem
             onClick={() => setIsAboutOpen(true)}
             className="flex items-start gap-2.5 px-2.5 py-2 rounded-xl transition cursor-pointer"
@@ -91,15 +91,15 @@ export function HelpButton({ className }: HelpButtonProps) {
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-semibold text-stone-900 dark:text-stone-100">
-                {isEn ? "System Information" : "รายละเอียดเว็บไซต์"}
+                System Information
               </span>
               <span className="text-[11px] text-stone-500 dark:text-stone-400 leading-tight">
-                {isEn ? "About Retzlo v2.4 & architecture" : "เกี่ยวกับ Retzlo v2.4 และสถาปัตยกรรม"}
+                About Retzlo v2.4 & architecture
               </span>
             </div>
           </DropdownMenuItem>
 
-          {/* 3. ติดต่อเรา (/contact) */}
+          {/* 3. Contact & Support (/contact) */}
           <DropdownMenuItem asChild>
             <Link
               href="/contact"
@@ -110,16 +110,16 @@ export function HelpButton({ className }: HelpButtonProps) {
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-semibold text-stone-900 dark:text-stone-100">
-                  {isEn ? "Contact & Support" : "ติดต่อเรา & แจ้งปัญหา"}
+                  Contact & Support
                 </span>
                 <span className="text-[11px] text-stone-500 dark:text-stone-400 leading-tight">
-                  {isEn ? "Send inquiry with quick templates" : "แบบฟอร์มส่งข้อความ พร้อมเทมเพลตด่วน"}
+                  Send inquiry with quick templates
                 </span>
               </div>
             </Link>
           </DropdownMenuItem>
 
-          {/* 4. ถาม AI Assistant */}
+          {/* 4. Ask AI Assistant */}
           <DropdownMenuItem
             onClick={openAiChat}
             className="flex items-start gap-2.5 px-2.5 py-2 rounded-xl transition cursor-pointer"
@@ -129,11 +129,11 @@ export function HelpButton({ className }: HelpButtonProps) {
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <span>{isEn ? "Ask AI Assistant" : "ถาม AI Assistant"}</span>
+                <span>Ask AI Assistant</span>
                 <Sparkles className="h-3 w-3 text-amber-500 dark:text-dusk-amber" />
               </span>
               <span className="text-[11px] text-stone-500 dark:text-stone-400 leading-tight">
-                {isEn ? "Instant answers from built-in AI" : "ผู้ช่วยประจำระบบตอบคำถามทันที"}
+                Instant answers from built-in AI
               </span>
             </div>
           </DropdownMenuItem>
@@ -146,14 +146,14 @@ export function HelpButton({ className }: HelpButtonProps) {
               href="/privacy"
               className="hover:text-indigo-600 hover:underline dark:hover:text-dusk-lavender"
             >
-              {isEn ? "Privacy" : "ความเป็นส่วนตัว"}
+              Privacy
             </Link>
             <span>•</span>
             <Link
               href="/terms"
               className="hover:text-indigo-600 hover:underline dark:hover:text-dusk-lavender"
             >
-              {isEn ? "Terms" : "ข้อกำหนดการใช้งาน"}
+              Terms
             </Link>
             <span>•</span>
             <span className="font-mono text-[10px] text-stone-400">v2.4</span>
@@ -181,7 +181,7 @@ export function HelpButton({ className }: HelpButtonProps) {
                     id="website-details-title"
                     className="text-base font-bold text-stone-900 dark:text-stone-100"
                   >
-                    {isEn ? "Retzlo System Information" : "รายละเอียดเว็บไซต์ Retzlo"}
+                    Retzlo System Information
                   </h2>
                   <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:bg-dusk-lavender/15 dark:text-dusk-lavender">
                     v2.4 Production
@@ -204,22 +204,14 @@ export function HelpButton({ className }: HelpButtonProps) {
 
           {/* Description */}
           <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
-            {isEn ? (
-              <>
-                <strong>Retzlo</strong> is a modular life and work management platform designed with retro lofi indigo aesthetics. Built for both professional project collaboration and everyday routine habit tracking.
-              </>
-            ) : (
-              <>
-                <strong>Retzlo</strong> คือแพลตฟอร์มบริหารจัดการชีวิตและการทำงานที่ออกแบบภายใต้ปรัชญา Retro Lofi Indigo สบายตา รองรับทั้งการทำงานโปรเจกต์ระดับมืออาชีพ และการติดตามกิจวัตรส่วนตัวในชีวิตประจำวันอย่างลงตัว
-              </>
-            )}
+            <strong>Retzlo</strong> is a modular life and work management platform designed with retro lofi indigo aesthetics. Built for both professional project collaboration and everyday routine habit tracking.
           </p>
 
           {/* System Specs & Architecture */}
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                {isEn ? "System Architecture" : "สถาปัตยกรรมระบบ"}
+                System Architecture
               </span>
               <p className="font-semibold text-stone-800 dark:text-stone-200 mt-0.5">
                 Next.js 14 App Router
@@ -231,7 +223,7 @@ export function HelpButton({ className }: HelpButtonProps) {
 
             <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                {isEn ? "Built-in Intelligence" : "ปัญญาประดิษฐ์ (AI)"}
+                Built-in Intelligence
               </span>
               <p className="font-semibold text-indigo-600 dark:text-dusk-lavender mt-0.5">
                 Retzlo AI Assistant
@@ -243,7 +235,7 @@ export function HelpButton({ className }: HelpButtonProps) {
 
             <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                {isEn ? "Database & Cloud" : "ฐานข้อมูล & คลาวด์"}
+                Database & Cloud
               </span>
               <p className="font-semibold text-stone-800 dark:text-stone-200 mt-0.5">
                 PostgreSQL on Neon
@@ -255,7 +247,7 @@ export function HelpButton({ className }: HelpButtonProps) {
 
             <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                {isEn ? "Real-time Connectivity" : "การเชื่อมต่อเรียลไทม์"}
+                Real-time Connectivity
               </span>
               <p className="font-semibold text-stone-800 dark:text-stone-200 mt-0.5">
                 Pusher WebSocket
@@ -269,7 +261,7 @@ export function HelpButton({ className }: HelpButtonProps) {
           {/* Core Modules Highlights */}
           <div className="space-y-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-              {isEn ? "Core Modules" : "โมดูลการทำงานหลัก (Core Modules)"}
+              Core Modules
             </span>
             <div className="grid grid-cols-2 gap-1.5 text-[11px] text-stone-700 dark:text-stone-300">
               <div className="flex items-center gap-1.5">
@@ -299,7 +291,7 @@ export function HelpButton({ className }: HelpButtonProps) {
                 onClick={() => setIsAboutOpen(false)}
                 className="text-xs font-semibold text-indigo-600 hover:underline dark:text-dusk-lavender"
               >
-                {isEn ? "Open System Guide (/help)" : "เปิดคู่มือระบบ (/help)"}
+                Open System Guide (/help)
               </Link>
               <span className="text-stone-300 dark:text-stone-600">•</span>
               <Link
@@ -307,7 +299,7 @@ export function HelpButton({ className }: HelpButtonProps) {
                 onClick={() => setIsAboutOpen(false)}
                 className="text-xs font-semibold text-indigo-600 hover:underline dark:text-dusk-lavender"
               >
-                {isEn ? "Contact Support (/contact)" : "ส่งข้อความติดต่อ (/contact)"}
+                Contact Support (/contact)
               </Link>
             </div>
 
@@ -316,7 +308,7 @@ export function HelpButton({ className }: HelpButtonProps) {
               onClick={() => setIsAboutOpen(false)}
               className="rounded-xl border border-stone-200 bg-white px-3.5 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-white/[0.08] dark:bg-white/5 dark:text-stone-300 dark:hover:bg-white/10 transition cursor-pointer"
             >
-              {isEn ? "Close" : "ปิดหน้าต่าง"}
+              Close
             </button>
           </div>
         </div>

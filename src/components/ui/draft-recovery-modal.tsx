@@ -83,24 +83,13 @@ export function DraftRecoveryModal({
             <div className="min-w-0 flex-1">
               <p className="text-[10px] uppercase tracking-[0.2em] text-dusk-amber">Draft Recovery</p>
               <h2 id="draft-recovery-title" className="text-lg font-semibold text-stone-100">
-                {isEn ? "Unsaved Draft Found" : "พบข้อมูลร่างที่ยังบันทึกไม่เสร็จ"}
+                Unsaved Draft Found
               </h2>
               <p className="mt-1 text-xs leading-relaxed text-stone-400">
-                {isEn ? (
-                  <>
-                    We detected an unsaved draft from your previous session
-                    {formattedTime ? ` (saved at ${formattedTime})` : ""}.
-                    <br />
-                    Would you like to resume editing where you left off?
-                  </>
-                ) : (
-                  <>
-                    ระบบตรวจพบข้อมูลที่คุณกรอกค้างไว้ก่อนหน้านี้
-                    {formattedTime ? ` (บันทึกเมื่อ ${formattedTime})` : ""}
-                    <br />
-                    คุณต้องการกรอกข้อมูลต่อจากร่างเดิมไหม?
-                  </>
-                )}
+                We detected an unsaved draft from your previous session
+                {formattedTime ? ` (saved at ${formattedTime})` : ""}.
+                <br />
+                Would you like to resume editing where you left off?
               </p>
             </div>
             <button
@@ -125,7 +114,7 @@ export function DraftRecoveryModal({
               onClick={onDiscard}
             >
               <Trash2 className="h-3.5 w-3.5" />
-              {isEn ? "Discard Draft" : "ละทิ้งข้อมูลร่าง"}
+              Discard Draft
             </Button>
             <Button
               type="button"
@@ -134,7 +123,7 @@ export function DraftRecoveryModal({
               onClick={onRestore}
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              {isEn ? "Resume Draft" : "กรอกข้อมูลต่อ"}
+              Resume Draft
             </Button>
           </div>
         </div>

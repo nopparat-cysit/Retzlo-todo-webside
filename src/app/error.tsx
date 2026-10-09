@@ -23,9 +23,9 @@ export default function GlobalError({
           <AlertTriangle className="h-6 w-6" />
         </div>
 
-        <h2 className="text-lg font-bold text-stone-100">เกิดข้อผิดพลาดในการโหลดหน้าเว็บ</h2>
+        <h2 className="text-lg font-bold text-stone-100">Something went wrong</h2>
         <p className="mt-2 text-xs leading-relaxed text-stone-400">
-          ระบบพบข้อผิดพลาดที่ไม่คาดคิด คุณสามารถลองโหลดใหม่อีกครั้ง หรือกลับไปยังหน้าหลัก
+          An unexpected error occurred while loading this page. You can try again or return to the home page.
         </p>
 
         {process.env.NODE_ENV !== "production" && error.message ? (
@@ -54,7 +54,7 @@ export default function GlobalError({
             className="flex items-center gap-2 text-xs font-semibold"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            ลองใหม่อีกครั้ง
+            Try again
           </Button>
 
           <Link
@@ -62,7 +62,7 @@ export default function GlobalError({
             className="inline-flex h-9 items-center gap-2 rounded-xl border border-theme-border bg-theme-paper px-4 text-xs font-medium text-theme-muted transition hover:border-theme-accent hover:bg-theme-paper-strong hover:text-theme-foreground"
           >
             <Home className="h-3.5 w-3.5" />
-            หน้าหลัก
+            Home
           </Link>
         </div>
       </div>

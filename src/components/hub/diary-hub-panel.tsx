@@ -564,13 +564,13 @@ export function DiaryItemModal({
             <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-dusk-cyan font-semibold">Schedule & Settings</p>
               <div className="block space-y-1 text-xs text-stone-400">
-                <span className="text-stone-300 font-medium">Start date (วันเริ่มต้นหลัก)</span>
+                <span className="text-stone-300 font-medium">Start date</span>
                 <DatePicker
                   name="startDate"
                   required
                   value={startDate}
                   onChange={(nextDate) => setStartDate(nextDate)}
-                  placeholder="เลือกวันเริ่มต้น..."
+                  placeholder="Select start date..."
                 />
               </div>
             </div>
@@ -606,7 +606,7 @@ export function DiaryItemModal({
               {isRewardOpen ? (
                 <div className="space-y-3 pt-1">
                   <label className="block space-y-1 text-xs text-stone-400">
-                    <span className="text-stone-300 font-medium">Coins to award (จำนวนเหรียญที่จะมอบให้)</span>
+                    <span className="text-stone-300 font-medium">Coins to award</span>
                     <Input
                       max={100000}
                       min={0}
@@ -618,7 +618,7 @@ export function DiaryItemModal({
                   </label>
 
                   <div className="space-y-1.5 text-xs text-stone-400">
-                    <span className="text-stone-300 font-medium">Coin type (ประเภทเหรียญ)</span>
+                    <span className="text-stone-300 font-medium">Coin type</span>
                     <div className="grid grid-cols-2 gap-2">
                       {[
                         { value: "GLOBAL" as const, label: "Global coins", disabled: false },
@@ -646,7 +646,7 @@ export function DiaryItemModal({
                 </div>
               ) : (
                 <p className="text-xs text-stone-500">
-                  ตั้งค่าให้เหรียญรางวัลเมื่อทำ routine ครบทุกข้อในแต่ละวัน
+                  Configure bonus coins awarded when completing all routine tasks each day.
                 </p>
               )}
             </div>

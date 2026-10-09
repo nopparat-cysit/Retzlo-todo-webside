@@ -143,7 +143,7 @@ function KanbanCardComponent({
       }}
     >
       {isCompact ? (
-        /* ── Compact View (ย่อข้อมูล Minimalist & High Density) ── */
+        /* ── Compact View (Minimalist & High Density) ── */
         <div className="space-y-1.5">
           <div className="flex items-start justify-between gap-1.5">
             <div className="flex-1 min-w-0 flex items-start gap-1.5">
@@ -248,7 +248,7 @@ function KanbanCardComponent({
           </div>
         </div>
       ) : (
-        /* ── Comfortable View (สบายตา ปรับสัดส่วนให้ไม่บวมเกินไป) ── */
+        /* ── Comfortable View ── */
         <div className="space-y-2">
           <div className="flex items-start justify-between gap-1.5">
             <div className="flex-1 min-w-0">
@@ -349,11 +349,11 @@ function KanbanCardComponent({
                   className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800 dark:border-dusk-amber/20 dark:bg-dusk-amber/10 dark:text-dusk-amber whitespace-nowrap min-w-0 max-w-[70%]"
                   title={
                     card.startDate && card.dueDate
-                      ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)} — กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
+                      ? `Start: ${formatMediumDateTime(card.startDate, card.startDateAllDay)} — Due: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
                       : card.startDate
-                        ? `เริ่ม: ${formatMediumDateTime(card.startDate, card.startDateAllDay)}`
+                        ? `Start: ${formatMediumDateTime(card.startDate, card.startDateAllDay)}`
                         : card.dueDate
-                          ? `กำหนดส่ง: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
+                          ? `Due: ${formatMediumDateTime(card.dueDate, card.dueDateAllDay)}`
                           : undefined
                   }
                 >

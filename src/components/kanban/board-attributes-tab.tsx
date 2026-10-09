@@ -122,26 +122,26 @@ function getMockupSampleCards(status: CustomStatusOption, index: number): Mockup
     norm.includes("backlog") ||
     norm.includes("new") ||
     norm.includes("todo") ||
-    norm.includes("วางแผน") ||
-    norm.includes("รอดำเนินการ")
+    norm.includes("plan") || norm.includes("backlog") ||
+    norm.includes("pending") || norm.includes("waiting")
   ) {
     return [
       {
         code: `TSK-${100 + index * 10 + 1}`,
-        title: "ออกแบบ Wireframe ระบบสิทธิ์ผู้ใช้งาน",
+        title: "Design user permissions and wireframes",
         priority: "HIGH",
-        priorityLabel: "ด่วนมาก",
+        priorityLabel: "High",
         checklist: "1/4",
-        dueDate: "14 ต.ค.",
+        dueDate: "Oct 14",
         assignee: "NP"
       },
       {
         code: `TSK-${100 + index * 10 + 2}`,
-        title: "สำรวจความต้องการผู้ใช้และทำสรุปสเปกงาน",
+        title: "Gather user requirements and write specification",
         priority: "MEDIUM",
-        priorityLabel: "ปานกลาง",
+        priorityLabel: "Medium",
         checklist: "2/3",
-        dueDate: "18 ต.ค.",
+        dueDate: "Oct 18",
         assignee: "AI"
       }
     ];
@@ -150,27 +150,27 @@ function getMockupSampleCards(status: CustomStatusOption, index: number): Mockup
   if (
     norm.includes("doing") ||
     norm.includes("progress") ||
-    norm.includes("พัฒนา") ||
-    norm.includes("กำลังทำ") ||
+    norm.includes("dev") || norm.includes("develop") ||
+    norm.includes("doing") || norm.includes("progress") ||
     norm.includes("work")
   ) {
     return [
       {
         code: `DEV-${200 + index * 10 + 1}`,
-        title: "เชื่อมต่อ REST API และจัดโครงสร้าง State ของบอร์ด",
+        title: "Connect REST API and structure board state",
         priority: "HIGH",
-        priorityLabel: "ด่วนมาก",
+        priorityLabel: "High",
         checklist: "3/5",
-        dueDate: "วันนี้",
+        dueDate: "Today",
         assignee: "DEV"
       },
       {
         code: `DEV-${200 + index * 10 + 2}`,
-        title: "ปรับแต่ง Responsive Layout และ UX คอลัมน์",
+        title: "Refine responsive layout and column UX",
         priority: "MEDIUM",
-        priorityLabel: "ปานกลาง",
+        priorityLabel: "Medium",
         checklist: "2/2",
-        dueDate: "พรุ่งนี้",
+        dueDate: "Tomorrow",
         assignee: "NP"
       }
     ];
@@ -180,27 +180,27 @@ function getMockupSampleCards(status: CustomStatusOption, index: number): Mockup
     norm.includes("review") ||
     norm.includes("test") ||
     norm.includes("qa") ||
-    norm.includes("ตรวจ") ||
+    norm.includes("test") || norm.includes("review") ||
     norm.includes("wait") ||
-    norm.includes("รอ")
+    norm.includes("qa") || norm.includes("audit")
   ) {
     return [
       {
         code: `QA-${300 + index * 10 + 1}`,
-        title: "ทดสอบ Unit Test และ Security Vulnerabilities",
+        title: "Run unit tests and security vulnerability scans",
         priority: "HIGH",
-        priorityLabel: "ด่วนมาก",
+        priorityLabel: "High",
         checklist: "4/4",
-        dueDate: "12 ต.ค.",
+        dueDate: "Oct 12",
         assignee: "QA"
       },
       {
         code: `REV-${300 + index * 10 + 2}`,
-        title: "Code Review สถาปัตยกรรมและ Component Design",
+        title: "Code review architecture and component design",
         priority: "LOW",
-        priorityLabel: "ทั่วไป",
+        priorityLabel: "Low",
         checklist: "1/2",
-        dueDate: "15 ต.ค.",
+        dueDate: "Oct 15",
         assignee: "LD"
       }
     ];
@@ -209,18 +209,18 @@ function getMockupSampleCards(status: CustomStatusOption, index: number): Mockup
   if (
     norm.includes("done") ||
     norm.includes("complete") ||
-    norm.includes("เสร็จ") ||
+    norm.includes("done") || norm.includes("closed") ||
     norm.includes("release") ||
-    norm.includes("ปิดงาน")
+    norm.includes("complete") || norm.includes("released")
   ) {
     return [
       {
         code: `REL-${400 + index * 10 + 1}`,
-        title: "Release ระบบการจัดการบอร์ดขึ้น Production Server",
+        title: "Deploy board management to production server",
         priority: "MEDIUM",
-        priorityLabel: "ปานกลาง",
+        priorityLabel: "Medium",
         checklist: "6/6",
-        dueDate: "เสร็จสิ้น",
+        dueDate: "Completed",
         assignee: "OPS"
       }
     ];
@@ -229,11 +229,11 @@ function getMockupSampleCards(status: CustomStatusOption, index: number): Mockup
   return [
     {
       code: `TSK-${500 + index * 10 + 1}`,
-      title: `ดำเนินการและติดตามขั้นตอน: ${status.label}`,
+      title: `Track and execute workflow stage: ${status.label}`,
       priority: index % 2 === 0 ? "HIGH" : "MEDIUM",
-      priorityLabel: index % 2 === 0 ? "ด่วนมาก" : "ปานกลาง",
+      priorityLabel: index % 2 === 0 ? "High" : "Medium",
       checklist: "2/3",
-      dueDate: "16 ต.ค.",
+      dueDate: "Oct 16",
       assignee: "US"
     }
   ];
@@ -347,13 +347,13 @@ export function BoardAttributesTab({
     if (!canManage) return;
     const trimmed = newStatusLabel.trim();
     if (!trimmed) {
-      toast({ message: "กรุณาระบุชื่อสถานะ", type: "error" });
+      toast({ message: "Please specify a status name", type: "error" });
       return;
     }
     const slug = trimmed.toUpperCase().replace(/\s+/g, "_").slice(0, 30);
     const exists = statuses.some((s) => s.value.toUpperCase() === slug);
     if (exists) {
-      toast({ message: "สถานะนี้มีอยู่แล้ว", type: "error" });
+      toast({ message: "This status already exists", type: "error" });
       return;
     }
 
@@ -364,7 +364,7 @@ export function BoardAttributesTab({
     setStatuses(next);
     saveStoredStatuses(next, boardId);
     setNewStatusLabel("");
-    toast({ message: `เพิ่มสถานะ "${trimmed}" เรียบร้อย`, type: "success" });
+    toast({ message: `Status "${trimmed}" added successfully`, type: "success" });
   };
 
   const handleMoveStatus = (index: number, direction: "up" | "down") => {
@@ -378,7 +378,7 @@ export function BoardAttributesTab({
 
     setStatuses(copy);
     saveStoredStatuses(copy, boardId);
-    toast({ message: "สลับลำดับสถานะเรียบร้อย", type: "success" });
+    toast({ message: "Status order updated successfully", type: "success" });
   };
 
   const startEditStatus = (st: CustomStatusOption) => {
@@ -395,7 +395,7 @@ export function BoardAttributesTab({
     if (!editingStatusValue || !canManage) return;
     const trimmed = editingStatusLabel.trim();
     if (!trimmed) {
-      toast({ message: "กรุณาระบุชื่อสถานะ", type: "error" });
+      toast({ message: "Please specify a status name", type: "error" });
       return;
     }
 
@@ -409,7 +409,7 @@ export function BoardAttributesTab({
     saveStoredStatuses(next, boardId);
     setIsEditStatusConfirmOpen(false);
     setEditingStatusValue(null);
-    toast({ message: `แก้ไขสถานะ "${trimmed}" เรียบร้อย`, type: "success" });
+    toast({ message: `Status "${trimmed}" updated successfully`, type: "success" });
   };
 
   const handleConfirmDeleteStatus = () => {
@@ -419,7 +419,7 @@ export function BoardAttributesTab({
     setStatuses(next);
     saveStoredStatuses(next, boardId);
     setStatusToDelete(null);
-    toast({ message: `ลบสถานะ "${item?.label || statusToDelete}" แล้ว`, type: "success" });
+    toast({ message: `Status "${item?.label || statusToDelete}" deleted`, type: "success" });
   };
 
   const handleResetStatuses = () => {
@@ -427,7 +427,7 @@ export function BoardAttributesTab({
     setStatuses(DEFAULT_STATUS_OPTIONS);
     saveStoredStatuses(DEFAULT_STATUS_OPTIONS, boardId);
     setIsResetStatusConfirmOpen(false);
-    toast({ message: "รีเซ็ตสถานะกลับเป็นค่าเริ่มต้นแล้ว", type: "success" });
+    toast({ message: "Status reset to default successfully", type: "success" });
   };
 
   /* -------------------------------------------------------------
@@ -480,7 +480,7 @@ export function BoardAttributesTab({
     setSelectedTemplate(null);
     setPreviewStatusTemplate(null);
     toast({
-      message: `นำแม่แบบ "${tpl.name}" มาปรับใช้เรียบร้อย (${nextStatuses.length} สถานะ)`,
+      message: `Applied template "${tpl.name}" successfully (${nextStatuses.length} statuses)`,
       type: "success"
     });
   };
@@ -489,14 +489,14 @@ export function BoardAttributesTab({
     e.preventDefault();
     const trimmedName = customTemplateName.trim();
     if (!trimmedName) {
-      toast({ message: "กรุณาระบุชื่อแม่แบบ", type: "error" });
+      toast({ message: "Please specify a template name", type: "error" });
       return;
     }
 
     const newTemplate: StatusWorkflowTemplate = {
       id: `custom_${Date.now()}`,
       name: trimmedName,
-      description: customTemplateDesc.trim() || `แม่แบบกำหนดเอง (${statuses.length} สถานะ)`,
+      description: customTemplateDesc.trim() || `Custom template (${statuses.length} statuses)`,
       category: "Custom",
       icon: "bookmark",
       statuses: [...statuses]
@@ -511,7 +511,7 @@ export function BoardAttributesTab({
     setIsSaveCustomTemplateOpen(false);
     setCustomTemplateName("");
     setCustomTemplateDesc("");
-    toast({ message: `บันทึกแม่แบบ "${trimmedName}" เรียบร้อยแล้ว`, type: "success" });
+    toast({ message: `Template "${trimmedName}" saved successfully`, type: "success" });
   };
 
   /* -------------------------------------------------------------
@@ -521,12 +521,12 @@ export function BoardAttributesTab({
     if (!canManage) return;
     const parsed = Number(newPointScore.trim());
     if (Number.isNaN(parsed) || parsed <= 0 || parsed > 100) {
-      toast({ message: "กรุณาระบุคะแนนเป็นตัวเลข 1 - 100", type: "error" });
+      toast({ message: "Please specify points as a number between 1 and 100", type: "error" });
       return;
     }
     const exists = storyPoints.some((p) => p.score === parsed);
     if (exists) {
-      toast({ message: `คะแนน ${parsed} pts มีอยู่แล้วในรายการ`, type: "error" });
+      toast({ message: `Points ${parsed} pts already exist in the list`, type: "error" });
       return;
     }
 
@@ -537,7 +537,7 @@ export function BoardAttributesTab({
       label: String(parsed),
       pointsLabel: `${parsed} pts`,
       title: `${title} (${parsed} pts)`,
-      description: newPointDescription.trim() || `งานระดับ ${parsed} คะแนน`,
+      description: newPointDescription.trim() || `Task level: ${parsed} points`,
       color: newPointColor,
       ...colorConfig
     };
@@ -548,7 +548,7 @@ export function BoardAttributesTab({
     setNewPointScore("");
     setNewPointTitle("");
     setNewPointDescription("");
-    toast({ message: `เพิ่มคะแนนความยาก ${parsed} เรียบร้อย`, type: "success" });
+    toast({ message: `Story points ${parsed} added successfully`, type: "success" });
   };
 
   const allPointTemplates: StoryPointWorkflowTemplate[] = [
@@ -593,7 +593,7 @@ export function BoardAttributesTab({
     setSelectedPointTemplate(null);
     setPreviewPointTemplate(null);
     toast({
-      message: `นำสเกล Story Points "${tpl.name}" มาปรับใช้เรียบร้อย (${nextPoints.length} ระดับคะแนน)`,
+      message: `Applied Story Points scale "${tpl.name}" successfully (${nextPoints.length} levels)`,
       type: "success"
     });
   };
@@ -602,14 +602,14 @@ export function BoardAttributesTab({
     e.preventDefault();
     const trimmedName = customPointTemplateName.trim();
     if (!trimmedName) {
-      toast({ message: "กรุณาระบุชื่อแม่แบบ", type: "error" });
+      toast({ message: "Please specify a template name", type: "error" });
       return;
     }
 
     const newTemplate: StoryPointWorkflowTemplate = {
       id: `custom_${Date.now()}`,
       name: trimmedName,
-      description: customPointTemplateDesc.trim() || `แม่แบบ Story Points กำหนดเอง (${storyPoints.length} ระดับ)`,
+      description: customPointTemplateDesc.trim() || `Custom Story Points template (${storyPoints.length} levels)`,
       category: "Custom",
       icon: "bookmark",
       points: [...storyPoints]
@@ -624,7 +624,7 @@ export function BoardAttributesTab({
     setIsSaveCustomPointTemplateOpen(false);
     setCustomPointTemplateName("");
     setCustomPointTemplateDesc("");
-    toast({ message: `บันทึกสเกล Story Points "${trimmedName}" เรียบร้อยแล้ว`, type: "success" });
+    toast({ message: `Story Points scale "${trimmedName}" saved successfully`, type: "success" });
   };
 
   const handleApplyPreset = (key: keyof typeof STORY_POINT_PRESETS) => {
@@ -633,13 +633,13 @@ export function BoardAttributesTab({
     if (!preset) return;
     setStoryPoints(preset.points);
     saveStoredStoryPoints(preset.points, boardId);
-    toast({ message: `ปรับใช้สเกล "${preset.name}" แล้ว`, type: "success" });
+    toast({ message: `Applied scale "${preset.name}" successfully`, type: "success" });
   };
 
   const handleConfirmDeletePoint = () => {
     if (!pointToDelete || !canManage) return;
     if (storyPoints.length <= 1) {
-      toast({ message: "ต้องมีระดับคะแนนความยากอย่างน้อย 1 ระดับ", type: "error" });
+      toast({ message: "Must have at least 1 story point level", type: "error" });
       setPointToDelete(null);
       return;
     }
@@ -652,7 +652,7 @@ export function BoardAttributesTab({
     saveStoredStoryPoints(next, boardId);
     const deletedLabel = pointToDelete.title || `${pointToDelete.score} pts`;
     setPointToDelete(null);
-    toast({ message: `ลบคะแนน "${deletedLabel}" เรียบร้อยแล้ว`, type: "success" });
+    toast({ message: `Points "${deletedLabel}" deleted successfully`, type: "success" });
   };
 
   const handleResetStoryPoints = () => {
@@ -660,7 +660,7 @@ export function BoardAttributesTab({
     setStoryPoints(DEFAULT_STORY_POINTS);
     saveStoredStoryPoints(DEFAULT_STORY_POINTS, boardId);
     setIsResetPointsConfirmOpen(false);
-    toast({ message: "รีเซ็ตคะแนนความยากกลับเป็นค่าเริ่มต้นแล้ว", type: "success" });
+    toast({ message: "Story points reset to default successfully", type: "success" });
   };
 
   return (
@@ -678,7 +678,7 @@ export function BoardAttributesTab({
           )}
         >
           <CheckSquare className="h-3.5 w-3.5 text-indigo-500" />
-          <span>สถานะการ์ด (Status)</span>
+          <span>Card Status</span>
           <span className="rounded-full bg-indigo-500/10 px-1.5 text-[10px] font-mono text-indigo-600 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
             {statuses.length}
           </span>
@@ -695,7 +695,7 @@ export function BoardAttributesTab({
           )}
         >
           <Flag className="h-3.5 w-3.5 text-rose-500" />
-          <span>ระดับความสำคัญ (Priority)</span>
+          <span>Priority</span>
           <span className="rounded-full bg-rose-500/10 px-1.5 text-[10px] font-mono text-rose-600 dark:text-rose-400">
             {priorities.length}
           </span>
@@ -728,7 +728,7 @@ export function BoardAttributesTab({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
             <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
               <CheckSquare className="h-3.5 w-3.5 text-indigo-500" />
-              <span>Custom Card Statuses (จัดการสถานะการ์ด {statuses.length} รายการ)</span>
+              <span>Custom Card Statuses ({statuses.length} statuses)</span>
             </span>
 
             <button
@@ -738,7 +738,7 @@ export function BoardAttributesTab({
               className="flex items-center gap-1 self-start sm:self-auto rounded-lg border border-stone-200/80 bg-stone-50/60 px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
             >
               <RotateCcw className="h-3 w-3" />
-              <span>รีเซ็ตค่าเริ่มต้น</span>
+              <span>Reset Default</span>
             </button>
           </div>
 
@@ -748,10 +748,10 @@ export function BoardAttributesTab({
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Wand2 className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
                 <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                  แม่แบบสถานะสำเร็จรูป (Workflow Templates)
+                  Preset Status Templates
                 </span>
                 <span className="rounded-full bg-indigo-100/70 border border-indigo-200/60 px-2 py-0.2 text-[9px] font-semibold text-indigo-700 dark:bg-dusk-lavender/15 dark:border-dusk-lavender/30 dark:text-dusk-lavender">
-                  เลือกดู &amp; ปรับใช้
+                  Preview &amp; Apply
                 </span>
               </div>
 
@@ -769,14 +769,14 @@ export function BoardAttributesTab({
                       setMockupColumnFilter("all");
                     }
                   }}
-                  aria-label="เลือกแม่แบบสถานะสำเร็จรูปจากเมนู Dropdown"
+                  aria-label="Select status template from dropdown"
                   className="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  title="เลือกดูแม่แบบขั้นตอนงานด่วนผ่าน Dropdown"
+                  title="Select status template from dropdown"
                 >
-                  <option value="">-- เลือกแม่แบบ (Dropdown) --</option>
+                  <option value="">-- Select Template (Dropdown) --</option>
                   {allTemplates.map((tpl) => (
                     <option key={tpl.id} value={tpl.id}>
-                      {tpl.name} ({tpl.statuses.length} คอลัมน์)
+                      {tpl.name} ({tpl.statuses.length} columns)
                     </option>
                   ))}
                 </select>
@@ -788,7 +788,7 @@ export function BoardAttributesTab({
                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-dusk-lavender dark:hover:underline self-start sm:self-auto cursor-pointer"
                   >
                     <Bookmark className="h-3 w-3" />
-                    <span>+ บันทึกชุดนี้เป็นแม่แบบ</span>
+                    <span>+ Save As Template</span>
                   </button>
                 )}
               </div>
@@ -859,13 +859,13 @@ export function BoardAttributesTab({
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold text-indigo-950 dark:text-indigo-100">
-                        ตัวอย่างบอร์ดจำลอง (Kanban Mockup): {previewStatusTemplate.name}
+                        Kanban Mockup Preview: {previewStatusTemplate.name}
                       </span>
                       <span className="rounded-md border border-indigo-200/80 bg-white/90 px-1.5 py-0.2 text-[9px] font-bold text-indigo-700 dark:border-white/10 dark:bg-white/10 dark:text-dusk-lavender">
                         {previewStatusTemplate.category}
                       </span>
                       <span className="rounded-md bg-indigo-500/15 px-1.5 py-0.2 font-mono text-[10px] font-bold text-indigo-700 dark:text-dusk-lavender">
-                        {previewStatusTemplate.statuses.length} คอลัมน์
+                        {previewStatusTemplate.statuses.length} columns
                       </span>
                     </div>
                     <p className="text-[11px] text-indigo-900/80 dark:text-indigo-200/80 truncate mt-0.5">
@@ -878,17 +878,17 @@ export function BoardAttributesTab({
                   {/* Column Dropdown if columns are numerous or user wants to filter */}
                   {previewStatusTemplate.statuses.length > 3 && (
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400">คอลัมน์:</span>
+                      <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400">Column:</span>
                       <select
                         value={mockupColumnFilter}
                         onChange={(e) => setMockupColumnFilter(e.target.value)}
-                        aria-label="กรองคอลัมน์บอร์ดจำลอง"
+                        aria-label="Filter mockup columns"
                         className="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       >
-                        <option value="all">แสดงทุกคอลัมน์ ({previewStatusTemplate.statuses.length})</option>
+                        <option value="all">All Columns ({previewStatusTemplate.statuses.length})</option>
                         {previewStatusTemplate.statuses.map((st) => (
                           <option key={st.value} value={st.value}>
-                            คอลัมน์: {st.label}
+                            Column: {st.label}
                           </option>
                         ))}
                       </select>
@@ -907,7 +907,7 @@ export function BoardAttributesTab({
                           : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
                       )}
                     >
-                      แทนที่ทั้งหมด
+                      Replace All
                     </button>
                     <button
                       type="button"
@@ -919,7 +919,7 @@ export function BoardAttributesTab({
                           : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
                       )}
                     >
-                      เพิ่มต่อท้าย
+                      Append
                     </button>
                   </div>
 
@@ -934,7 +934,7 @@ export function BoardAttributesTab({
                     className="h-7 text-xs px-2.5 gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs cursor-pointer"
                   >
                     <Check className="h-3.5 w-3.5 stroke-[2.5]" />
-                    <span>นำแม่แบบนี้มาใช้</span>
+                    <span>Apply Template</span>
                   </Button>
 
                   {/* Cancel preview */}
@@ -946,10 +946,10 @@ export function BoardAttributesTab({
                       setMockupColumnFilter("all");
                     }}
                     className="flex h-7 items-center gap-1 rounded-lg border border-stone-200/80 bg-white/90 px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
-                    title="ยกเลิกการดูตัวอย่าง (กลับสู่สถานะปัจจุบันของบอร์ด)"
+                    title="Cancel preview (return to current board statuses)"
                   >
                     <X className="h-3.5 w-3.5" />
-                    <span className="hidden xs:inline">คืนค่าเดิม</span>
+                    <span className="hidden xs:inline">Revert</span>
                   </button>
                 </div>
               </div>
@@ -1034,18 +1034,18 @@ export function BoardAttributesTab({
                               {/* Bottom: Subtasks, Due Date, Assignee */}
                               <div className="flex items-center justify-between pt-1 border-t border-stone-100 dark:border-white/5 text-[10px] text-stone-500 dark:text-stone-400">
                                 <div className="flex items-center gap-2">
-                                  <span className="inline-flex items-center gap-1 font-mono text-[10px]" title="รายการงานย่อย (Checklist)">
+                                  <span className="inline-flex items-center gap-1 font-mono text-[10px]" title="Checklist items">
                                     <CheckSquare className="h-3 w-3 text-stone-400" />
                                     <span>{card.checklist}</span>
                                   </span>
-                                  <span className="inline-flex items-center gap-1 text-[10px]" title="กำหนดส่ง">
+                                  <span className="inline-flex items-center gap-1 text-[10px]" title="Due date">
                                     <Clock className="h-3 w-3 text-stone-400" />
                                     <span>{card.dueDate}</span>
                                   </span>
                                 </div>
                                 <div
                                   className="h-5 w-5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-bold text-[9px] grid place-items-center shrink-0 shadow-2xs"
-                                  title={`ผู้รับผิดชอบ: ${card.assignee}`}
+                                  title={`Assignee: ${card.assignee}`}
                                 >
                                   {card.assignee}
                                 </div>
@@ -1064,7 +1064,7 @@ export function BoardAttributesTab({
           {/* 2. Add Status Inline Bar */}
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 rounded-xl border border-stone-200/70 bg-stone-50/40 p-2 dark:border-white/10 dark:bg-white/[0.02]">
             <Input
-              placeholder="พิมพ์ชื่อสถานะใหม่ เช่น In Review, Testing, Blocked..."
+              placeholder="Type new status label, e.g. In Review, Testing, Blocked..."
               value={newStatusLabel}
               onChange={(e) => setNewStatusLabel(e.target.value)}
               disabled={!canManage || !!previewStatusTemplate}
@@ -1106,7 +1106,7 @@ export function BoardAttributesTab({
               className="h-8 text-xs gap-1 shrink-0"
             >
               <Plus className="h-3.5 w-3.5" />
-              <span>เพิ่มสถานะ</span>
+              <span>Add Status</span>
             </Button>
           </div>
 
@@ -1128,7 +1128,7 @@ export function BoardAttributesTab({
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
                         <Pencil className="h-3 w-3 text-indigo-500" />
-                        <span>แก้ไขสถานะ: {st.value}</span>
+                        <span>Edit Status: {st.value}</span>
                       </span>
                       <button
                         type="button"
@@ -1184,7 +1184,7 @@ export function BoardAttributesTab({
                           onClick={cancelEditStatus}
                           className="h-8 text-xs px-2.5 cursor-pointer"
                         >
-                          ยกเลิก
+                          Cancel
                         </Button>
                         <Button
                           type="button"
@@ -1194,7 +1194,7 @@ export function BoardAttributesTab({
                           className="h-8 text-xs gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 cursor-pointer"
                         >
                           <Check className="h-3 w-3" />
-                          <span>บันทึก</span>
+                          <span>Save</span>
                         </Button>
                       </div>
                     </div>
@@ -1220,7 +1220,7 @@ export function BoardAttributesTab({
                   <div className="flex items-center gap-1.5 shrink-0">
                     {previewStatusTemplate ? (
                       <span className="rounded bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:text-dusk-lavender">
-                        ตัวอย่างขั้นตอน
+                        Stage Preview
                       </span>
                     ) : (
                       <>
@@ -1230,7 +1230,7 @@ export function BoardAttributesTab({
                           onClick={() => handleMoveStatus(index, "up")}
                           disabled={isFirst || !canManage}
                           className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
-                          title="เลื่อนขึ้น"
+                          title="Move up"
                         >
                           <ArrowUp className="h-3.5 w-3.5" />
                         </button>
@@ -1239,7 +1239,7 @@ export function BoardAttributesTab({
                           onClick={() => handleMoveStatus(index, "down")}
                           disabled={isLast || !canManage}
                           className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 cursor-pointer"
-                          title="เลื่อนลง"
+                          title="Move down"
                         >
                           <ArrowDown className="h-3.5 w-3.5" />
                         </button>
@@ -1250,7 +1250,7 @@ export function BoardAttributesTab({
                             type="button"
                             onClick={() => startEditStatus(st)}
                             className="grid h-7 w-7 place-items-center rounded-md border border-stone-200/80 bg-white text-stone-500 transition hover:bg-indigo-50 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:text-dusk-lavender cursor-pointer"
-                            title="แก้ไขสถานะ"
+                            title="Edit status"
                           >
                             <Pencil className="h-3 w-3" />
                           </button>
@@ -1259,7 +1259,7 @@ export function BoardAttributesTab({
                         {/* Delete or System Tag */}
                         {isDefault ? (
                           <span className="rounded bg-stone-100 px-2 py-1 text-[10px] font-medium text-stone-400 dark:bg-white/5">
-                            ระบบ
+                            System
                           </span>
                         ) : (
                           <button
@@ -1267,7 +1267,7 @@ export function BoardAttributesTab({
                             onClick={() => setStatusToDelete(st.value)}
                             disabled={!canManage}
                             className="grid h-7 w-7 place-items-center rounded-md border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer"
-                            title="ลบสถานะ"
+                            title="Delete status"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -1302,7 +1302,7 @@ export function BoardAttributesTab({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
             <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
               <Zap className="h-4 w-4 text-amber-500" />
-              <span>Story Points Scale (สเกลคะแนนความยาก {storyPoints.length} ระดับ)</span>
+              <span>Story Points Scale ({storyPoints.length} levels)</span>
             </span>
 
             <button
@@ -1312,7 +1312,7 @@ export function BoardAttributesTab({
               className="flex items-center gap-1 self-start sm:self-auto rounded-lg border border-stone-200/80 bg-stone-50/60 px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-40 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08] cursor-pointer"
             >
               <RotateCcw className="h-3 w-3" />
-              <span>รีเซ็ต Story Points</span>
+              <span>Reset Story Points</span>
             </button>
           </div>
 
@@ -1322,10 +1322,10 @@ export function BoardAttributesTab({
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Wand2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                  แม่แบบสเกลคะแนนสำเร็จรูป (Story Point Templates)
+                  Preset Story Point Scales
                 </span>
                 <span className="rounded-full bg-amber-100/70 border border-amber-200/60 px-2 py-0.2 text-[9px] font-semibold text-amber-700 dark:bg-amber-500/15 dark:border-amber-400/30 dark:text-amber-300">
-                  เลือกดู &amp; ปรับใช้
+                  Preview &amp; Apply
                 </span>
               </div>
 
@@ -1342,14 +1342,14 @@ export function BoardAttributesTab({
                       setSelectedPointTemplate(null);
                     }
                   }}
-                  aria-label="เลือกแม่แบบสเกลคะแนนจากเมนู Dropdown"
+                  aria-label="Select point template from dropdown"
                   className="h-7 text-[11px] font-medium rounded-lg border border-amber-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  title="เลือกดูแม่แบบสเกลคะแนนผ่าน Dropdown"
+                  title="Select point template from dropdown"
                 >
-                  <option value="">-- เลือกสเกลคะแนน (Dropdown) --</option>
+                  <option value="">-- Select Point Scale (Dropdown) --</option>
                   {allPointTemplates.map((tpl) => (
                     <option key={tpl.id} value={tpl.id}>
-                      {tpl.name} ({tpl.points.length} ระดับ)
+                      {tpl.name} ({tpl.points.length} levels)
                     </option>
                   ))}
                 </select>
@@ -1361,7 +1361,7 @@ export function BoardAttributesTab({
                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:underline self-start sm:self-auto cursor-pointer"
                   >
                     <Bookmark className="h-3 w-3" />
-                    <span>+ บันทึกสเกลนี้เป็นแม่แบบ</span>
+                    <span>+ Save Scale As Template</span>
                   </button>
                 )}
               </div>
@@ -1431,13 +1431,13 @@ export function BoardAttributesTab({
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-bold text-amber-950 dark:text-amber-100">
-                      กำลังดูตัวอย่าง: {previewPointTemplate.name}
+                      Previewing: {previewPointTemplate.name}
                     </span>
                     <span className="rounded-md border border-amber-200/80 bg-white/90 px-1.5 py-0.2 text-[9px] font-bold text-amber-700 dark:border-white/10 dark:bg-white/10 dark:text-amber-300">
                       {previewPointTemplate.category}
                     </span>
                     <span className="rounded-md bg-amber-500/15 px-1.5 py-0.2 font-mono text-[10px] font-bold text-amber-700 dark:text-amber-300">
-                      {previewPointTemplate.points.length} ระดับคะแนน
+                      {previewPointTemplate.points.length} levels
                     </span>
                   </div>
                   <p className="text-[11px] text-amber-900/80 dark:text-amber-200/80 truncate mt-0.5">
@@ -1459,7 +1459,7 @@ export function BoardAttributesTab({
                         : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
                     )}
                   >
-                    แทนที่ทั้งหมด
+                    Replace All
                   </button>
                   <button
                     type="button"
@@ -1471,7 +1471,7 @@ export function BoardAttributesTab({
                         : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
                     )}
                   >
-                    เพิ่มต่อท้าย
+                    Append
                   </button>
                 </div>
 
@@ -1486,7 +1486,7 @@ export function BoardAttributesTab({
                   className="h-7 text-xs px-2.5 gap-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold shadow-xs cursor-pointer"
                 >
                   <Check className="h-3.5 w-3.5 stroke-[2.5]" />
-                  <span>นำสเกลนี้มาใช้</span>
+                  <span>Apply Scale</span>
                 </Button>
 
                 {/* Cancel preview */}
@@ -1497,10 +1497,10 @@ export function BoardAttributesTab({
                     setSelectedPointTemplate(null);
                   }}
                   className="flex h-7 items-center gap-1 rounded-lg border border-stone-200/80 bg-white/90 px-2 text-xs font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
-                  title="ยกเลิกการดูตัวอย่าง (กลับสู่สเกลปัจจุบันของบอร์ด)"
+                  title="Cancel preview (return to current board scale)"
                 >
                   <X className="h-3.5 w-3.5" />
-                  <span className="hidden xs:inline">คืนค่าเดิม</span>
+                  <span className="hidden xs:inline">Revert</span>
                 </button>
               </div>
             </div>
@@ -1512,21 +1512,21 @@ export function BoardAttributesTab({
               type="number"
               min={1}
               max={100}
-              placeholder="คะแนน"
+              placeholder="Score"
               value={newPointScore}
               onChange={(e) => setNewPointScore(e.target.value)}
               disabled={!canManage || !!previewPointTemplate}
               className="h-8 w-20 text-xs font-mono font-bold bg-white dark:bg-stone-900"
             />
             <Input
-              placeholder="ชื่อเรียก เช่น ปานกลาง (5 pts)"
+              placeholder="Label, e.g. Medium (5 pts)"
               value={newPointTitle}
               onChange={(e) => setNewPointTitle(e.target.value)}
               disabled={!canManage || !!previewPointTemplate}
               className="h-8 text-xs flex-1 min-w-[120px] bg-white dark:bg-stone-900"
             />
             <Input
-              placeholder="คำอธิบาย เช่น งาน 1 วัน"
+              placeholder="Description, e.g. 1-day task"
               value={newPointDescription}
               onChange={(e) => setNewPointDescription(e.target.value)}
               disabled={!canManage || !!previewPointTemplate}
@@ -1541,7 +1541,7 @@ export function BoardAttributesTab({
               className="h-8 text-xs gap-1 shrink-0"
             >
               <Plus className="h-3.5 w-3.5" />
-              <span>เพิ่มคะแนน</span>
+              <span>Add Points</span>
             </Button>
           </div>
 
@@ -1576,7 +1576,7 @@ export function BoardAttributesTab({
 
                   {previewPointTemplate ? (
                     <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
-                      ตัวอย่างสเกล
+                      Scale Preview
                     </span>
                   ) : (
                     <button
@@ -1584,7 +1584,7 @@ export function BoardAttributesTab({
                       onClick={() => setPointToDelete(pt)}
                       disabled={!canManage || storyPoints.length <= 1}
                       className="grid h-7 w-7 place-items-center rounded-md border border-red-200/80 bg-white text-red-500 transition hover:bg-red-50 hover:text-red-700 disabled:opacity-30 dark:border-red-500/20 dark:bg-white/[0.04] dark:text-red-400 cursor-pointer shrink-0"
-                      title="ลบคะแนน"
+                      title="Delete score"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -1599,11 +1599,11 @@ export function BoardAttributesTab({
             <div className="text-[11px] font-bold text-stone-600 dark:text-stone-300 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Palette className="h-3.5 w-3.5 text-amber-500" />
-                <span>ตัวอย่างการแสดงผลคะแนนความยาก (Story Points):</span>
+                <span>Story Points Preview:</span>
               </div>
               {previewPointTemplate && (
                 <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">
-                  (แสดงตัวอย่างตามสเกล: {previewPointTemplate.name})
+                  (Previewing scale: {previewPointTemplate.name})
                 </span>
               )}
             </div>
@@ -1650,7 +1650,7 @@ export function BoardAttributesTab({
                 <div className="flex items-center gap-2">
                   <Bookmark className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
                   <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                    บันทึกขั้นตอนงานเป็นแม่แบบส่วนตัว
+                    Save Statuses as Custom Template
                   </h3>
                 </div>
                 <button
@@ -1665,10 +1665,10 @@ export function BoardAttributesTab({
               <div className="space-y-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                    ชื่อแม่แบบ <span className="text-red-500">*</span>
+                    Template Name <span className="text-red-500">*</span>
                   </label>
                   <Input
-                    placeholder="เช่น ทีมคอนเทนต์ประจำสัปดาห์, โฟลว์ทดสอบระบบ..."
+                    placeholder="e.g. Weekly Content Team, QA Staging Pipeline..."
                     value={customTemplateName}
                     onChange={(e) => setCustomTemplateName(e.target.value)}
                     maxLength={50}
@@ -1679,10 +1679,10 @@ export function BoardAttributesTab({
 
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                    คำอธิบายสั้นๆ (ไม่บังคับ)
+                    Short Description (Optional)
                   </label>
                   <Input
-                    placeholder="อธิบายว่าแม่แบบนี้เหมาะกับงานแบบไหน..."
+                    placeholder="Describe what workflow this template is best suited for..."
                     value={customTemplateDesc}
                     onChange={(e) => setCustomTemplateDesc(e.target.value)}
                     maxLength={100}
@@ -1692,7 +1692,7 @@ export function BoardAttributesTab({
 
                 <div className="p-3 rounded-xl border border-stone-200/80 bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]">
                   <span className="text-[11px] text-stone-500 dark:text-stone-400">
-                    จะบันทึกสถานะปัจจุบันทั้งหมด {statuses.length} รายการเป็นแม่แบบสำหรับนำไปใช้กับบอร์ดอื่นได้อย่างรวดเร็ว
+                    Saves all {statuses.length} current statuses as a template to apply to other boards quickly.
                   </span>
                 </div>
               </div>
@@ -1705,7 +1705,7 @@ export function BoardAttributesTab({
                   onClick={() => setIsSaveCustomTemplateOpen(false)}
                   className="text-xs"
                 >
-                  ยกเลิก
+                  Cancel
                 </Button>
                 <Button
                   type="submit"
@@ -1713,7 +1713,7 @@ export function BoardAttributesTab({
                   disabled={!customTemplateName.trim()}
                   className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium"
                 >
-                  บันทึกแม่แบบ
+                  Save Template
                 </Button>
               </div>
             </form>
@@ -1741,7 +1741,7 @@ export function BoardAttributesTab({
                 <div className="flex items-center gap-2">
                   <Bookmark className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                   <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                    บันทึกสเกลคะแนนเป็นแม่แบบส่วนตัว
+                    Save Story Points as Custom Template
                   </h3>
                 </div>
                 <button
@@ -1756,10 +1756,10 @@ export function BoardAttributesTab({
               <div className="space-y-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                    ชื่อสเกลแม่แบบ <span className="text-red-500">*</span>
+                    Scale Template Name <span className="text-red-500">*</span>
                   </label>
                   <Input
-                    placeholder="เช่น สเกลประเมินงาน Backend, สเกลทีม Design..."
+                    placeholder="e.g. Backend Complexity Scale, Design Team Scale..."
                     value={customPointTemplateName}
                     onChange={(e) => setCustomPointTemplateName(e.target.value)}
                     maxLength={50}
@@ -1770,10 +1770,10 @@ export function BoardAttributesTab({
 
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                    คำอธิบายสั้นๆ (ไม่บังคับ)
+                    Short Description (Optional)
                   </label>
                   <Input
-                    placeholder="อธิบายว่าสเกลนี้เหมาะกับรูปแบบงานแบบไหน..."
+                    placeholder="Describe what workflow this scale is best suited for..."
                     value={customPointTemplateDesc}
                     onChange={(e) => setCustomPointTemplateDesc(e.target.value)}
                     maxLength={100}
@@ -1783,7 +1783,7 @@ export function BoardAttributesTab({
 
                 <div className="p-3 rounded-xl border border-stone-200/80 bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]">
                   <span className="text-[11px] text-stone-500 dark:text-stone-400">
-                    จะบันทึกสเกล Story Points ปัจจุบันทั้งหมด {storyPoints.length} ระดับเป็นแม่แบบส่วนตัวสำหรับนำไปใช้กับบอร์ดอื่นได้อย่างรวดเร็ว
+                    Saves all {storyPoints.length} current story point levels as a template to apply to other boards quickly.
                   </span>
                 </div>
               </div>
@@ -1796,7 +1796,7 @@ export function BoardAttributesTab({
                   onClick={() => setIsSaveCustomPointTemplateOpen(false)}
                   className="text-xs cursor-pointer"
                 >
-                  ยกเลิก
+                  Cancel
                 </Button>
                 <Button
                   type="submit"
@@ -1804,7 +1804,7 @@ export function BoardAttributesTab({
                   disabled={!customPointTemplateName.trim()}
                   className="text-xs bg-amber-600 hover:bg-amber-700 text-white font-medium cursor-pointer"
                 >
-                  บันทึกแม่แบบ
+                  Save Template
                 </Button>
               </div>
             </form>
@@ -1815,9 +1815,9 @@ export function BoardAttributesTab({
       {/* Confirmation Modals per AGENTS.md */}
       <ConfirmModal
         open={statusToDelete !== null}
-        title="ยืนยันการลบสถานะ"
-        message={`ต้องการลบสถานะ "${statuses.find((s) => s.value === statusToDelete)?.label || statusToDelete}" ใช่หรือไม่? การ์ดที่มีสถานะนี้จะยังคงอยู่`}
-        confirmLabel="ลบสถานะ"
+        title="Confirm Status Deletion"
+        message={`Are you sure you want to delete status "${statuses.find((s) => s.value === statusToDelete)?.label || statusToDelete}"? Existing cards with this status will remain.`}
+        confirmLabel="Delete Status"
         variant="danger"
         onClose={() => setStatusToDelete(null)}
         onConfirm={handleConfirmDeleteStatus}
@@ -1825,9 +1825,9 @@ export function BoardAttributesTab({
 
       <ConfirmModal
         open={isResetStatusConfirmOpen}
-        title="รีเซ็ตสถานะกลับเป็นค่าเริ่มต้น"
-        message="การตั้งค่าสถานะทั้งหมดจะถูกรีเซ็ตกลับเป็น 4 สถานะมาตรฐาน (Todo, Doing, Waiting, Done)"
-        confirmLabel="รีเซ็ตสถานะ"
+        title="Reset Statuses to Default"
+        message="All statuses will be reset to the 4 standard default statuses (Todo, Doing, Waiting, Done)."
+        confirmLabel="Reset Statuses"
         variant="default"
         onClose={() => setIsResetStatusConfirmOpen(false)}
         onConfirm={handleResetStatuses}
@@ -1835,9 +1835,9 @@ export function BoardAttributesTab({
 
       <ConfirmModal
         open={isApplyTemplateConfirmOpen}
-        title="ยืนยันการนำแม่แบบสถานะมาใช้"
-        message={`คุณต้องการนำแม่แบบ "${(selectedTemplate || previewStatusTemplate)?.name}" (${templateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
-        confirmLabel="นำแม่แบบมาใช้"
+        title="Confirm Apply Status Template"
+        message={`Are you sure you want to apply template "${(selectedTemplate || previewStatusTemplate)?.name}" (${templateApplyMode === "replace" ? "Replace All" : "Append"}) to this board?`}
+        confirmLabel="Apply Template"
         variant="default"
         onClose={() => setIsApplyTemplateConfirmOpen(false)}
         onConfirm={handleConfirmApplyTemplate}
@@ -1845,9 +1845,9 @@ export function BoardAttributesTab({
 
       <ConfirmModal
         open={isEditStatusConfirmOpen}
-        title="ยืนยันการแก้ไขสถานะ"
-        message={`คุณต้องการบันทึกการแก้ไขของสถานะ "${editingStatusLabel}" ใช่หรือไม่?`}
-        confirmLabel="บันทึก"
+        title="Confirm Edit Status"
+        message={`Are you sure you want to save changes to status "${editingStatusLabel}"?`}
+        confirmLabel="Save"
         variant="default"
         onClose={() => setIsEditStatusConfirmOpen(false)}
         onConfirm={handleConfirmEditStatus}
@@ -1855,9 +1855,9 @@ export function BoardAttributesTab({
 
       <ConfirmModal
         open={pointToDelete !== null}
-        title="ยืนยันการลบ Story Points"
-        message={`ต้องการลบคะแนน "${pointToDelete?.title || `${pointToDelete?.score} pts`}" ออกจากรายการใช่หรือไม่?`}
-        confirmLabel="ลบคะแนน"
+        title="Confirm Story Points Deletion"
+        message={`Are you sure you want to delete points "${pointToDelete?.title || `${pointToDelete?.score} pts`}"?`}
+        confirmLabel="Delete Points"
         variant="danger"
         onClose={() => setPointToDelete(null)}
         onConfirm={handleConfirmDeletePoint}
@@ -1865,9 +1865,9 @@ export function BoardAttributesTab({
 
       <ConfirmModal
         open={isResetPointsConfirmOpen}
-        title="รีเซ็ต Story Points กลับเป็นค่าเริ่มต้น"
-        message="ระดับคะแนนความยากทั้งหมดจะถูกรีเซ็ตกลับเป็นสเกล Retzlo มาตรฐาน (1, 3, 5, 8, 16, 21 pts)"
-        confirmLabel="รีเซ็ต Story Points"
+        title="Reset Story Points to Default"
+        message="All story point levels will be reset to the default standard scale (1, 3, 5, 8, 16, 21 pts)."
+        confirmLabel="Reset Story Points"
         variant="default"
         onClose={() => setIsResetPointsConfirmOpen(false)}
         onConfirm={handleResetStoryPoints}
@@ -1875,9 +1875,9 @@ export function BoardAttributesTab({
 
       <ConfirmModal
         open={isApplyPointTemplateConfirmOpen}
-        title="ยืนยันการนำแม่แบบ Story Points มาใช้"
-        message={`คุณต้องการนำสเกลแม่แบบ "${(selectedPointTemplate || previewPointTemplate)?.name}" (${pointTemplateApplyMode === "replace" ? "แทนที่ทั้งหมด" : "เพิ่มต่อท้าย"}) มาปรับใช้กับบอร์ดนี้ใช่หรือไม่?`}
-        confirmLabel="นำสเกลมาใช้"
+        title="Confirm Apply Story Points Template"
+        message={`Are you sure you want to apply story points template "${(selectedPointTemplate || previewPointTemplate)?.name}" (${pointTemplateApplyMode === "replace" ? "Replace All" : "Append"}) to this board?`}
+        confirmLabel="Apply Scale"
         variant="default"
         onClose={() => setIsApplyPointTemplateConfirmOpen(false)}
         onConfirm={handleConfirmApplyPointTemplate}

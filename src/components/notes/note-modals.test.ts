@@ -30,7 +30,7 @@ describe("note modal layering", () => {
   it("uses DateTimeField matching CardModal for due date selection", () => {
     expect(notesPanelSource).toContain('import { DateTimeField } from "@/components/ui/date-time-field"');
     expect(notesPanelSource).toContain("<DateTimeField");
-    expect(notesPanelSource).toContain('label="วันที่สิ้นสุด (Due / End Date)"');
+    expect(notesPanelSource).toContain('label="Due / End Date"');
   });
 
   it("uses Radix UI Select for folder and board selection without raw HTML select", () => {
@@ -43,22 +43,22 @@ describe("note modal layering", () => {
   it("defaults initial note scope to current board in board notes rail modal and provides full notes feature set", () => {
     expect(boardNotesRailSource).toContain('activeBoardId ? "board" : "private"');
     expect(boardNotesRailSource).toContain("<DateTimeField");
-    expect(boardNotesRailSource).toContain('label="วันที่สิ้นสุด (Due / End Date)"');
+    expect(boardNotesRailSource).toContain('label="Due / End Date"');
     expect(boardNotesRailSource).toContain("NoteStickerPicker");
-    expect(boardNotesRailSource).toContain("Folder (โฟลเดอร์)");
+    expect(boardNotesRailSource).toContain("Folder");
     expect(boardNotesRailSource).toContain('name="modal-scope"');
   });
 
   it("renders explicit labels for title and description sections in note modals", () => {
     // In notes panel modal
-    expect(notesPanelSource).toContain("Title (หัวข้อโน้ต)");
-    expect(notesPanelSource).toContain("Description (รายละเอียดโน้ต)");
+    expect(notesPanelSource).toContain("Title");
+    expect(notesPanelSource).toContain("Description");
     expect(notesPanelSource).toContain('htmlFor="panel-note-title"');
     expect(notesPanelSource).toContain('htmlFor="panel-note-content"');
 
     // In board notes rail create & edit modals
-    expect(boardNotesRailSource).toContain("Title (หัวข้อโน้ต)");
-    expect(boardNotesRailSource).toContain("Description (รายละเอียดโน้ต)");
+    expect(boardNotesRailSource).toContain("Title");
+    expect(boardNotesRailSource).toContain("Description");
     expect(boardNotesRailSource).toContain('htmlFor="rail-create-note-title"');
     expect(boardNotesRailSource).toContain('htmlFor="rail-create-note-content"');
     expect(boardNotesRailSource).toContain('htmlFor="rail-edit-note-title"');

@@ -23,9 +23,9 @@ export default function DashboardError({
           <AlertTriangle className="h-6 w-6" />
         </div>
 
-        <h2 className="text-lg font-bold text-stone-100">ไม่สามารถแสดงผลกระดานหรือข้อมูลได้</h2>
+        <h2 className="text-lg font-bold text-stone-100">Unable to load dashboard</h2>
         <p className="mt-2 text-xs leading-relaxed text-stone-400">
-          เกิดข้อผิดพลาดในการประมวลผลข้อมูลของโปรเจกต์ คุณสามารถกดลองใหม่อีกครั้งเพื่อโหลดข้อมูลใหม่
+          An error occurred while loading project data. You can try refreshing the data or go back to your workspaces.
         </p>
 
         {process.env.NODE_ENV !== "production" && error.message ? (
@@ -54,7 +54,7 @@ export default function DashboardError({
             className="flex items-center gap-2 text-xs font-semibold"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            ลองใหม่อีกครั้ง
+            Try again
           </Button>
 
           <Link
@@ -62,7 +62,7 @@ export default function DashboardError({
             className="inline-flex h-9 items-center gap-2 rounded-xl border border-theme-border bg-theme-paper px-4 text-xs font-medium text-theme-muted transition hover:border-theme-accent hover:bg-theme-paper-strong hover:text-theme-foreground"
           >
             <LayoutDashboard className="h-3.5 w-3.5" />
-            รายการโปรเจกต์
+            Workspaces
           </Link>
         </div>
       </div>

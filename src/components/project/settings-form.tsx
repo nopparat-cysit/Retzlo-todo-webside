@@ -197,10 +197,10 @@ export function SettingsForm({
       <form onSubmit={handleSubmitIntent}>
         <SettingsSection
           title="Project details"
-          description="ชื่อ คำอธิบาย และภาพปกที่สมาชิกเห็นทั่วทั้งโปรเจกต์"
+          description="Name, description, and cover image visible across the workspace."
           footer={
             <>
-              {isDirty ? <span className="mr-auto text-xs text-theme-muted">มีการแก้ไขที่ยังไม่บันทึก</span> : null}
+              {isDirty ? <span className="mr-auto text-xs text-theme-muted">Unsaved changes</span> : null}
               <Button disabled={isSaving || !name.trim() || !isDirty} size="sm" type="submit">
                 <Save className="h-3.5 w-3.5" />
                 {isSaving ? "Saving..." : "Save changes"}
@@ -208,7 +208,7 @@ export function SettingsForm({
             </>
           }
         >
-          <SettingsRow label="Project name" description="ชื่อที่แสดงในแถบด้านข้างและหน้ารวมโปรเจกต์" htmlFor="project-name">
+          <SettingsRow label="Project name" description="Display name shown in the sidebar and workspace overview." htmlFor="project-name">
             <Input
               className="h-9 w-full text-sm sm:w-80"
               id="project-name"
@@ -219,7 +219,7 @@ export function SettingsForm({
             />
           </SettingsRow>
 
-          <SettingsRow label="Description" description="สรุปสั้น ๆ ว่าพื้นที่ทำงานนี้ใช้ทำอะไร (สูงสุด 500 ตัวอักษร)" htmlFor="project-description" stacked>
+          <SettingsRow label="Description" description="Brief summary of what this workspace is used for (max 500 characters)." htmlFor="project-description" stacked>
             <Textarea
               className="min-h-20 resize-y text-sm"
               id="project-description"
@@ -230,7 +230,7 @@ export function SettingsForm({
             />
           </SettingsRow>
 
-          <SettingsRow label="Cover image" description="JPG, PNG, WebP หรือ GIF ขนาดไม่เกิน 5 MB">
+          <SettingsRow label="Cover image" description="JPG, PNG, WebP or GIF up to 5 MB.">
             <div className="flex items-center gap-3">
               <div className="relative aspect-[16/9] w-28 overflow-hidden rounded-lg border border-theme-border bg-theme-paper">
                 {coverPreview ? (
@@ -274,7 +274,7 @@ export function SettingsForm({
       {/* Features */}
       <SettingsSection
         title="Features & privacy"
-        description="เปิดเฉพาะโมดูลที่โปรเจกต์นี้ต้องใช้"
+        description="Enable only modules needed for this project."
         actions={
           !canManagePrivacy ? (
             <span className="inline-flex items-center gap-1 text-xs text-theme-muted">
@@ -283,7 +283,7 @@ export function SettingsForm({
           ) : undefined
         }
       >
-        <SettingsRow label="Board notes rail" description="แสดงหรือซ่อนแผงโน้ตด้านขวาของหน้า Board">
+        <SettingsRow label="Board notes rail" description="Show or hide the right notes panel on the board page.">
           <SettingsSwitch
             checked={notesEnabled}
             disabled={!canManagePrivacy || isSavingPrivacy}
@@ -291,7 +291,7 @@ export function SettingsForm({
             onToggle={() => requestToggle("notes", !notesEnabled)}
           />
         </SettingsRow>
-        <SettingsRow label="Private item hiding" description="ให้สมาชิกซ่อนไดอารี่และโน้ตของตัวเองจากสมาชิกคนอื่นได้">
+        <SettingsRow label="Private item hiding" description="Allow members to hide their personal diary entries and notes.">
           <SettingsSwitch
             checked={allowMemberPrivateItems}
             disabled={!canManagePrivacy || isSavingPrivacy}
@@ -306,7 +306,7 @@ export function SettingsForm({
         <SettingsSection title="Danger zone" tone="danger">
           <SettingsRow
             label="Delete project"
-            description="ลบโปรเจกต์พร้อมบอร์ด คอลัมน์ การ์ด ไดอารี่ และโน้ตทั้งหมดอย่างถาวร"
+            description="Permanently delete project along with all boards, columns, cards, diaries, and notes."
           >
             <Button size="sm" type="button" variant="danger" onClick={() => setDeleteOpen(true)}>
               <Trash2 className="h-3.5 w-3.5" />

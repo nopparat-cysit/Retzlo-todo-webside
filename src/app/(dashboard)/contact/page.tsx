@@ -4,8 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { ContactPageClient } from "@/components/contact/contact-page-client";
 
 export const metadata = {
-  title: "ติดต่อเรา & ศูนย์ช่วยเหลือ (Contact & Support) · Retzlo",
-  description: "แบบฟอร์มส่งข้อความติดต่อทีมงาน แจ้งปัญหาการใช้งาน หรือแนะนำฟีเจอร์ใหม่สำหรับ Retzlo Platform",
+  title: "Contact & Support · Retzlo",
+  description: "Send a message to our support team, report an issue, or suggest new features for Retzlo Platform.",
 };
 
 export default async function ContactPage() {

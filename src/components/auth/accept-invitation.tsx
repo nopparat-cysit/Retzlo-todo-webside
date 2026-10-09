@@ -64,7 +64,7 @@ function ProjectPreviewCard({
           <FolderKanban className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-theme-warning">โครงการที่ได้รับเชิญ</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-theme-warning">Invited Project</p>
           <h2 className="mt-0.5 truncate text-base font-bold tracking-tight text-theme-foreground">{project.name}</h2>
           {project.description ? (
             <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-theme-muted">{project.description}</p>
@@ -75,7 +75,7 @@ function ProjectPreviewCard({
       <div className="mt-3.5 flex items-center gap-2.5 rounded-xl border border-theme-border bg-theme-paper px-3 py-2 text-xs text-theme-muted">
         <Avatar src={inviter.avatar} name={inviter.name ?? inviter.email} size={24} />
         <span className="truncate">
-          เชิญโดย <strong className="font-medium text-theme-foreground">{inviter.name ?? inviter.email}</strong>
+          Invited by <strong className="font-medium text-theme-foreground">{inviter.name ?? inviter.email}</strong>
         </span>
       </div>
     </div>
@@ -98,7 +98,7 @@ export function AcceptInvitation() {
   useEffect(() => {
     async function fetchInvitation() {
       if (!token) {
-        setError("ไม่พบรหัสคำเชิญ (Missing invitation token)");
+        setError("Missing invitation token");
         setLoading(false);
         return;
       }
@@ -109,14 +109,14 @@ export function AcceptInvitation() {
         const result = (await res.json()) as InvitationResponse;
 
         if (!res.ok || !result.invitation) {
-          setError(result.error ?? "คำเชิญนี้ไม่ถูกต้องหรืออาจถูกยกเลิกแล้ว");
+          setError(result.error ?? "Invalid invitation link or invitation has been cancelled");
           setLoading(false);
           return;
         }
 
         setData(result);
       } catch {
-        setError("ไม่สามารถโหลดข้อมูลคำเชิญได้ กรุณาลองใหม่อีกครั้ง");
+        setError("Failed to load invitation. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -144,14 +144,14 @@ export function AcceptInvitation() {
 
       if (!response.ok || !resData.accepted || !resData.projectId) {
         toast({
-          message: resData.error ?? "ไม่สามารถตอบรับคำเชิญได้",
+          message: resData.error ?? "Failed to accept invitation",
           type: "error"
         });
         return;
       }
 
       toast({
-        message: `เข้าร่วมโปรเจกต์ "${resData.projectName ?? data?.invitation?.project.name}" เรียบร้อยแล้ว!`,
+        message: `Joined project "${resData.projectName ?? data?.invitation?.project.name}" successfully!`,
         type: "success"
       });
 
@@ -159,7 +159,7 @@ export function AcceptInvitation() {
       router.refresh();
     } catch {
       toast({
-        message: "เกิดข้อผิดพลาดในการตอบรับคำเชิญ กรุณาลองใหม่อีกครั้ง",
+        message: "Failed to accept invitation. Please try again.",
         type: "error"
       });
     } finally {
@@ -180,14 +180,14 @@ export function AcceptInvitation() {
 
       if (!response.ok) {
         toast({
-          message: "ไม่สามารถปฏิเสธคำเชิญได้",
+          message: "Failed to decline invitation",
           type: "error"
         });
         return;
       }
 
       toast({
-        message: "ปฏิเสธคำเชิญเรียบร้อยแล้ว",
+        message: "Invitation declined successfully",
         type: "info"
       });
 
@@ -195,7 +195,7 @@ export function AcceptInvitation() {
       router.refresh();
     } catch {
       toast({
-        message: "เกิดข้อผิดพลาดในการปฏิเสธคำเชิญ",
+        message: "Failed to decline invitation",
         type: "error"
       });
     } finally {
@@ -207,7 +207,7 @@ export function AcceptInvitation() {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-theme-muted">
         <div className="mb-3 h-7 w-7 animate-spin rounded-full border-2 border-theme-accent border-t-transparent" />
-        <p className="text-xs text-theme-muted">กำลังตรวจสอบข้อมูลคำเชิญ...</p>
+        <p className="text-xs text-theme-muted">Verifying invitation details...</p>
       </div>
     );
   }
@@ -220,16 +220,16 @@ export function AcceptInvitation() {
           <AlertCircle className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-theme-foreground">ไม่พบข้อมูลคำเชิญ</h2>
+          <h2 className="text-base font-bold text-theme-foreground">Invitation Not Found</h2>
           <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-theme-muted">
-            {error ?? "ลิงก์คำเชิญนี้ไม่ถูกต้อง หรืออาจถูกยกเลิกไปแล้ว"}
+            {error ?? "This invitation link is invalid or has been cancelled."}
           </p>
         </div>
 
         <div className="pt-2">
           <Link href="/projects" className="block w-full">
             <Button variant="secondary" className="w-full text-xs">
-              กลับสู่หน้ารวมโครงการ (Go to Projects)
+              Go to Projects
             </Button>
           </Link>
         </div>
@@ -248,9 +248,9 @@ export function AcceptInvitation() {
           <CheckCircle2 className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-theme-foreground">คำเชิญนี้ได้รับการตอบรับแล้ว</h2>
+          <h2 className="text-base font-bold text-theme-foreground">This invitation has already been accepted</h2>
           <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-theme-muted">
-            คุณหรือสมาชิกในทีมได้เข้าร่วมโปรเจกต์นี้เรียบร้อยแล้ว สามารถเข้าสู่หน้าจัดการโครงการได้ทันที
+            You or a teammate have already joined this project. You can access the workspace right away.
           </p>
         </div>
 
@@ -261,12 +261,12 @@ export function AcceptInvitation() {
         <div className="space-y-2 pt-2">
           <Link href={`/project/${invitation.project.id}/board`} className="block w-full">
             <Button className="w-full flex items-center justify-center gap-1.5 bg-dusk-lavender text-ink-950 font-semibold hover:bg-dusk-amber transition-all shadow-md">
-              <span>เข้าสู่หน้าโครงการ (Open Project)</span>
+              <span>Open Project</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </Link>
           <Link href="/projects" className="block pt-1 text-center text-xs text-theme-muted hover:text-theme-foreground transition-colors">
-            กลับสู่หน้ารวมโครงการทั้งหมด
+            Back to all projects
           </Link>
         </div>
       </div>
@@ -281,9 +281,9 @@ export function AcceptInvitation() {
           <XCircle className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-theme-foreground">คำเชิญนี้ถูกปฏิเสธแล้ว</h2>
+          <h2 className="text-base font-bold text-theme-foreground">This invitation has been declined</h2>
           <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-theme-muted">
-            คำเชิญนี้ถูกปฏิเสธไปก่อนหน้านี้ หากต้องการเข้าร่วม กรุณาขอรับคำเชิญใหม่จากผู้ดูแลโครงการ
+            This invitation was declined previously. If you wish to join, please request a new invite from the project manager.
           </p>
         </div>
 
@@ -294,7 +294,7 @@ export function AcceptInvitation() {
         <div className="pt-2">
           <Link href="/projects" className="block w-full">
             <Button variant="secondary" className="w-full text-xs">
-              กลับสู่หน้ารวมโครงการ (Go to Projects)
+              Go to Projects
             </Button>
           </Link>
         </div>
@@ -310,9 +310,9 @@ export function AcceptInvitation() {
           <Clock className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-base font-bold text-theme-foreground">คำเชิญหมดอายุแล้ว</h2>
+          <h2 className="text-base font-bold text-theme-foreground">Invitation Expired</h2>
           <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-theme-muted">
-            ลิงก์คำเชิญนี้มีอายุ 7 วันและหมดเวลาใช้งานแล้ว กรุณาติดต่อผู้ดูแลโครงการเพื่อขอรับคำเชิญใหม่
+            This invitation link was valid for 7 days and has expired. Please contact the project administrator for a new invite.
           </p>
         </div>
 
@@ -323,7 +323,7 @@ export function AcceptInvitation() {
         <div className="pt-2">
           <Link href="/projects" className="block w-full">
             <Button variant="secondary" className="w-full text-xs">
-              กลับสู่หน้ารวมโครงการ (Go to Projects)
+              Go to Projects
             </Button>
           </Link>
         </div>
@@ -338,20 +338,20 @@ export function AcceptInvitation() {
         <ProjectPreviewCard project={invitation.project} inviter={invitation.inviter} />
 
         <div className="rounded-xl border border-theme-info-border bg-theme-info-surface p-3 text-xs text-theme-info">
-          <p className="mb-0.5 font-semibold">คำเชิญสำหรับ: {invitation.email}</p>
-          <p className="text-theme-muted">กรุณาเข้าสู่ระบบหรือสร้างบัญชีด้วยอีเมลนี้เพื่อตอบรับคำเชิญเข้าร่วมโครงการ</p>
+          <p className="mb-0.5 font-semibold">Invitation for: {invitation.email}</p>
+          <p className="text-theme-muted">Please sign in or create an account with this email address to accept the invitation.</p>
         </div>
 
         <div className="space-y-2 pt-1">
           <Link href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="block w-full">
             <Button className="w-full flex items-center justify-center gap-2 bg-dusk-lavender text-ink-950 font-semibold hover:bg-dusk-amber transition-all">
               <LogIn className="h-4 w-4" />
-              <span>เข้าสู่ระบบ (Sign in)</span>
+              <span>Sign in</span>
             </Button>
           </Link>
           <Link href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="block w-full">
             <Button variant="ghost" className="w-full text-xs text-theme-muted hover:text-theme-foreground">
-              สร้างบัญชีใหม่ (Create account)
+              Create account
             </Button>
           </Link>
         </div>
@@ -368,22 +368,22 @@ export function AcceptInvitation() {
         <div className="space-y-1.5 rounded-xl border border-theme-warning-border bg-theme-warning-surface p-3.5 text-xs text-theme-foreground">
           <div className="flex items-center gap-2 font-semibold text-theme-warning">
             <AlertCircle className="h-4 w-4 shrink-0 text-theme-warning" />
-            <span>เข้าสู่ระบบด้วยบัญชีอื่น</span>
+            <span>Signed in with a different account</span>
           </div>
           <p className="leading-relaxed text-theme-foreground">
-            ปัจจุบันคุณกำลังเข้าสู่ระบบด้วย <strong>{currentUser?.email}</strong> แต่คำเชิญนี้ถูกส่งมายัง <strong>{invitation.email}</strong>
+            You are currently signed in as <strong>{currentUser?.email}</strong>, but this invitation was sent to <strong>{invitation.email}</strong>.
           </p>
         </div>
 
         <div className="space-y-2 pt-1">
           <Link href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="block w-full">
             <Button className="w-full bg-dusk-lavender text-ink-950 font-semibold hover:bg-dusk-amber transition-all">
-              สลับบัญชีผู้ใช้ (Switch Account)
+              Switch Account
             </Button>
           </Link>
           <Link href="/projects" className="block w-full">
             <Button variant="ghost" className="w-full text-xs text-theme-muted">
-              ยกเลิกและกลับสู่หน้าโครงการ
+              Cancel and return to projects
             </Button>
           </Link>
         </div>
@@ -397,10 +397,10 @@ export function AcceptInvitation() {
       <ProjectPreviewCard project={invitation.project} inviter={invitation.inviter} />
 
       <div className="flex items-center justify-between rounded-xl border border-theme-border bg-theme-paper px-3.5 py-2.5 text-xs text-theme-muted">
-        <span>บทบาทที่ได้รับมอบหมาย</span>
+        <span>Assigned Role</span>
         <span className="inline-flex items-center gap-1 rounded-full border border-theme-warning-border bg-theme-warning-surface px-2.5 py-0.5 text-[11px] font-semibold text-theme-warning">
           <UserPlus className="h-3 w-3" />
-          <span>สมาชิก (Member)</span>
+          <span>Member</span>
         </span>
       </div>
 
@@ -411,7 +411,7 @@ export function AcceptInvitation() {
           className="w-full flex items-center justify-center gap-1.5 bg-dusk-lavender text-ink-950 font-semibold hover:bg-dusk-amber transition-all shadow-[0_4px_20px_rgba(169,162,255,0.25)] h-10 text-sm"
         >
           <UserPlus className="h-4 w-4" />
-          <span>{isSubmitting ? "กำลังเข้าร่วมโครงการ..." : "ตอบรับคำเชิญ (Accept & Join)"}</span>
+          <span>{isSubmitting ? "Joining workspace..." : "Accept & Join"}</span>
         </Button>
 
         <Button
@@ -420,15 +420,15 @@ export function AcceptInvitation() {
           disabled={isSubmitting || isDeclining}
           className="w-full text-xs text-theme-muted hover:bg-theme-danger-surface hover:text-theme-danger"
         >
-          ปฏิเสธคำเชิญ (Decline)
+          Decline
         </Button>
       </div>
 
       <ConfirmModal
         open={isDeclineConfirmOpen}
-        title="ปฏิเสธคำเชิญ"
-        message={`คุณแน่ใจหรือไม่ว่าต้องการปฏิเสธคำเชิญเข้าร่วมโปรเจกต์ "${invitation.project.name}"?`}
-        confirmLabel="ปฏิเสธคำเชิญ"
+        title="Decline Invitation"
+        message={`Are you sure you want to decline the invitation to join "${invitation.project.name}"?`}
+        confirmLabel="Decline Invitation"
         variant="danger"
         isLoading={isDeclining}
         onConfirm={handleDecline}

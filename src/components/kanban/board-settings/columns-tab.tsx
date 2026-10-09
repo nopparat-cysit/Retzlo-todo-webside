@@ -44,28 +44,28 @@ const STATUS_PRESETS: Array<{
   {
     value: "TODO",
     label: "TODO",
-    desc: "รอเริ่มงาน",
+    desc: "Ready to start",
     badgeClass: "border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-dusk-lavender",
     dotClass: "bg-indigo-600 dark:bg-dusk-lavender"
   },
   {
     value: "DOING",
     label: "DOING",
-    desc: "กำลังทำ",
+    desc: "In progress",
     badgeClass: "border-teal-200 bg-teal-50 text-teal-700 dark:border-teal-400/30 dark:bg-teal-400/10 dark:text-dusk-cyan",
     dotClass: "bg-teal-600 dark:bg-dusk-cyan"
   },
   {
     value: "WAITING",
     label: "WAITING",
-    desc: "รอตรวจ/ติดขัด",
+    desc: "Review or blocked",
     badgeClass: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-dusk-amber",
     dotClass: "bg-amber-600 dark:bg-dusk-amber"
   },
   {
     value: "DONE",
     label: "DONE",
-    desc: "เสร็จสิ้น",
+    desc: "Completed",
     badgeClass: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300",
     dotClass: "bg-emerald-600 dark:bg-emerald-400"
   }
@@ -152,12 +152,12 @@ export function BoardColumnsTab({
   const handleCreateColumn = async (e: FormEvent) => {
     e.preventDefault();
     if (!boardId) {
-      toast({ message: "กรุณาเลือกบอร์ดก่อนเพิ่มคอลัมน์", type: "error" });
+      toast({ message: "Please select a board before adding a column", type: "error" });
       return;
     }
     const trimmedName = newColumnName.trim();
     if (!trimmedName) {
-      toast({ message: "กรุณาระบุชื่อคอลัมน์", type: "error" });
+      toast({ message: "Please specify a column name", type: "error" });
       return;
     }
 
@@ -165,7 +165,7 @@ export function BoardColumnsTab({
       ? parseInt(newColumnWipLimit.trim(), 10)
       : null;
     if (parsedWip !== null && (isNaN(parsedWip) || parsedWip < 1 || parsedWip > 99)) {
-      toast({ message: "ขีดจำกัด WIP Limit ต้องเป็นตัวเลขระหว่าง 1 - 99", type: "error" });
+      toast({ message: "WIP limit must be a number between 1 and 99", type: "error" });
       return;
     }
 
@@ -186,7 +186,7 @@ export function BoardColumnsTab({
 
       const data = await response.json();
       if (!response.ok || !data.column) {
-        throw new Error(data.error || "เกิดข้อผิดพลาดในการสร้างคอลัมน์");
+        throw new Error(data.error || "An error occurred while creating the column");
       }
 
       const created: BoardColumnInfo = {
@@ -208,10 +208,10 @@ export function BoardColumnsTab({
         new CustomEvent("board-columns-updated", { detail: { boardId } })
       );
 
-      toast({ message: `เพิ่มขั้นตอนงาน "${created.name}" เรียบร้อยแล้ว`, type: "success" });
+      toast({ message: `Workflow column "${created.name}" added successfully`, type: "success" });
       resetAddForm();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "ไม่สามารถสร้างคอลัมน์ได้";
+      const msg = err instanceof Error ? err.message : "Failed to create column";
       toast({ message: msg, type: "error" });
     } finally {
       setIsCreating(false);
@@ -223,13 +223,13 @@ export function BoardColumnsTab({
     if (!editingColumnId) return;
     const trimmedName = editName.trim();
     if (!trimmedName) {
-      toast({ message: "กรุณาระบุชื่อคอลัมน์", type: "error" });
+      toast({ message: "Please specify a column name", type: "error" });
       return;
     }
 
     const parsedWip = editWipLimit.trim() ? parseInt(editWipLimit.trim(), 10) : null;
     if (parsedWip !== null && (isNaN(parsedWip) || parsedWip < 1 || parsedWip > 99)) {
-      toast({ message: "ขีดจำกัด WIP Limit ต้องเป็นตัวเลขระหว่าง 1 - 99", type: "error" });
+      toast({ message: "WIP limit must be a number between 1 and 99", type: "error" });
       return;
     }
 
@@ -249,7 +249,7 @@ export function BoardColumnsTab({
 
       const data = await response.json();
       if (!response.ok || !data.column) {
-        throw new Error(data.error || "เกิดข้อผิดพลาดในการแก้ไขคอลัมน์");
+        throw new Error(data.error || "An error occurred while updating the column");
       }
 
       const updatedColumns = localColumns.map((col) =>
@@ -274,11 +274,11 @@ export function BoardColumnsTab({
         );
       }
 
-      toast({ message: `บันทึกการแก้ไขคอลัมน์ "${trimmedName}" เรียบร้อยแล้ว`, type: "success" });
+      toast({ message: `Column "${trimmedName}" updated successfully`, type: "success" });
       setConfirmEditOpen(false);
       setEditingColumnId(null);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "ไม่สามารถแก้ไขคอลัมน์ได้";
+      const msg = err instanceof Error ? err.message : "Failed to update column";
       toast({ message: msg, type: "error" });
     } finally {
       setIsUpdating(false);
@@ -289,7 +289,7 @@ export function BoardColumnsTab({
   const handleDeleteClick = (col: BoardColumnInfo) => {
     if (col.cardCount && col.cardCount > 0) {
       toast({
-        message: `ไม่สามารถลบคอลัมน์ "${col.name}" ได้เนื่องจากมี ${col.cardCount} การ์ดอยู่ด้านใน กรุณาย้ายหรือลบการ์ดออกก่อน`,
+        message: `Cannot delete column "${col.name}" because it contains ${col.cardCount} cards. Please move or delete the cards first.`,
         type: "error"
       });
       return;
@@ -308,7 +308,7 @@ export function BoardColumnsTab({
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "เกิดข้อผิดพลาดในการลบคอลัมน์");
+        throw new Error(data.error || "An error occurred while deleting the column");
       }
 
       const updatedColumns = localColumns.filter((c) => c.id !== columnToDelete.id);
@@ -321,11 +321,11 @@ export function BoardColumnsTab({
         );
       }
 
-      toast({ message: `ลบคอลัมน์ "${columnToDelete.name}" เรียบร้อยแล้ว`, type: "success" });
+      toast({ message: `Column "${columnToDelete.name}" deleted successfully`, type: "success" });
       setConfirmDeleteOpen(false);
       setColumnToDelete(null);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "ไม่สามารถลบคอลัมน์ได้";
+      const msg = err instanceof Error ? err.message : "Failed to delete column";
       toast({ message: msg, type: "error" });
     } finally {
       setIsDeleting(false);
@@ -339,10 +339,10 @@ export function BoardColumnsTab({
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
             <Layers className="h-4 w-4 text-dusk-lavender" />
-            <span>คอลัมน์ขั้นตอนการทำงาน ({localColumns.length})</span>
+            <span>Workflow Columns ({localColumns.length})</span>
           </span>
           <span className="rounded-full border border-stone-200/90 bg-stone-100/80 px-2 py-0.5 font-mono text-[10px] font-semibold text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300">
-            รวม {calculatedTotalCards} งาน
+            Total {calculatedTotalCards} tasks
           </span>
         </div>
 
@@ -359,7 +359,7 @@ export function BoardColumnsTab({
               className="inline-flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-xs h-7 px-3 cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5" />
-              <span>เพิ่มคอลัมน์ใหม่</span>
+              <span>Add New Column</span>
             </Button>
           )}
         </div>
@@ -377,7 +377,7 @@ export function BoardColumnsTab({
                 <Plus className="h-3.5 w-3.5" />
               </span>
               <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                เพิ่มคอลัมน์ใหม่ (New Workflow Stage)
+                Add New Column (New Workflow Stage)
               </span>
             </div>
             <button
@@ -393,12 +393,12 @@ export function BoardColumnsTab({
             {/* Column Name */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                ชื่อขั้นตอน / คอลัมน์ <span className="text-red-500">*</span>
+                Column Name <span className="text-red-500">*</span>
               </label>
               <Input
                 value={newColumnName}
                 onChange={(e) => setNewColumnName(e.target.value)}
-                placeholder="เช่น Testing, QA, Staging, Ready..."
+                placeholder="e.g. Testing, QA, Staging, Ready..."
                 maxLength={80}
                 autoFocus
                 className="text-xs"
@@ -408,7 +408,7 @@ export function BoardColumnsTab({
             {/* Default Status */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                สถานะมาตรฐาน (Default Card Status)
+                Default Card Status
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 {STATUS_PRESETS.map((status) => {
@@ -438,7 +438,7 @@ export function BoardColumnsTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
                 <Palette className="h-3.5 w-3.5 text-stone-500" />
-                <span>ธีมสีประจำขั้นตอน</span>
+                <span>Column Theme Color</span>
               </label>
               <div className="flex items-center gap-2 flex-wrap pt-0.5">
                 {columnThemeOptions.map((theme) => {
@@ -468,7 +468,7 @@ export function BoardColumnsTab({
             {/* Icon Picker Toggle */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                ไอคอนขั้นตอน
+                Column Icon
               </label>
               <div>
                 <button
@@ -481,7 +481,7 @@ export function BoardColumnsTab({
                     <span className="capitalize">{newColumnIcon}</span>
                   </div>
                   <span className="text-[10px] text-stone-400">
-                    {showAddIconPicker ? "ปิด" : "เลือก..."}
+                    {showAddIconPicker ? "Close" : "Select..."}
                   </span>
                 </button>
               </div>
@@ -490,7 +490,7 @@ export function BoardColumnsTab({
             {/* WIP Limit */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300">
-                WIP Limit (จำกัดจำนวนการ์ด)
+                WIP Limit (Card Limit)
               </label>
               <Input
                 type="number"
@@ -498,7 +498,7 @@ export function BoardColumnsTab({
                 max={99}
                 value={newColumnWipLimit}
                 onChange={(e) => setNewColumnWipLimit(e.target.value)}
-                placeholder="ไม่จำกัด (เว้นว่างได้)"
+                placeholder="No limit (leave blank)"
                 className="text-xs"
               />
             </div>
@@ -526,7 +526,7 @@ export function BoardColumnsTab({
               onClick={resetAddForm}
               className="text-xs h-8 px-3 cursor-pointer"
             >
-              ยกเลิก
+              Cancel
             </Button>
             <Button
               type="submit"
@@ -535,7 +535,7 @@ export function BoardColumnsTab({
               className="inline-flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium h-8 px-4 cursor-pointer"
             >
               {isCreating && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              <span>{isCreating ? "กำลังสร้าง..." : "สร้างคอลัมน์"}</span>
+              <span>{isCreating ? "Creating..." : "Create Column"}</span>
             </Button>
           </div>
         </form>
@@ -546,7 +546,7 @@ export function BoardColumnsTab({
         {localColumns.length === 0 ? (
           <div className="py-8 text-center space-y-2">
             <p className="text-xs text-stone-500 font-mono">
-              ยังไม่มีคอลัมน์ขั้นตอนงานบนบอร์ดนี้
+              No workflow columns on this board yet
             </p>
             {canManage && boardId && !isAddingColumn && (
               <Button
@@ -556,7 +556,7 @@ export function BoardColumnsTab({
                 className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5 mr-1" />
-                <span>เพิ่มคอลัมน์แรกเลย</span>
+                <span>Add the first column</span>
               </Button>
             )}
           </div>
@@ -573,7 +573,7 @@ export function BoardColumnsTab({
                   <div className="flex items-center justify-between border-b border-stone-100 dark:border-white/5 pb-2">
                     <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                       <Pencil className="h-3 w-3 text-dusk-lavender" />
-                      <span>แก้ไขคอลัมน์ #{index + 1}</span>
+                      <span>Edit Column #{index + 1}</span>
                     </span>
                     <button
                       type="button"
@@ -587,7 +587,7 @@ export function BoardColumnsTab({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-stone-600 dark:text-stone-400">
-                        ชื่อคอลัมน์
+                        Column Name
                       </label>
                       <Input
                         value={editName}
@@ -599,7 +599,7 @@ export function BoardColumnsTab({
 
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-stone-600 dark:text-stone-400">
-                        สถานะการ์ดเริ่มต้น
+                        Default Card Status
                       </label>
                       <div className="grid grid-cols-4 gap-1">
                         {STATUS_PRESETS.map((status) => (
@@ -624,7 +624,7 @@ export function BoardColumnsTab({
                     {/* Color Swatches */}
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-stone-600 dark:text-stone-400">
-                        ธีมสี
+                        Theme Color
                       </label>
                       <div className="flex items-center gap-1.5">
                         {columnThemeOptions.map((theme) => (
@@ -647,7 +647,7 @@ export function BoardColumnsTab({
                     {/* Icon Selector */}
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-stone-600 dark:text-stone-400">
-                        ไอคอน
+                        Icon
                       </label>
                       <button
                         type="button"
@@ -658,7 +658,7 @@ export function BoardColumnsTab({
                           <ColumnIconGlyph icon={editIcon} className="h-3.5 w-3.5 text-dusk-lavender" />
                           <span className="capitalize text-[11px]">{editIcon}</span>
                         </div>
-                        <span className="text-[10px] text-stone-400">เปลี่ยน...</span>
+                        <span className="text-[10px] text-stone-400">Change...</span>
                       </button>
                     </div>
 
@@ -673,7 +673,7 @@ export function BoardColumnsTab({
                         max={99}
                         value={editWipLimit}
                         onChange={(e) => setEditWipLimit(e.target.value)}
-                        placeholder="ไม่จำกัด"
+                        placeholder="No limit"
                         className="text-xs h-8"
                       />
                     </div>
@@ -699,7 +699,7 @@ export function BoardColumnsTab({
                       onClick={cancelEdit}
                       className="text-xs h-7 px-2.5 cursor-pointer"
                     >
-                      ยกเลิก
+                      Cancel
                     </Button>
                     <Button
                       type="button"
@@ -709,7 +709,7 @@ export function BoardColumnsTab({
                       className="inline-flex items-center gap-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white h-7 px-3 cursor-pointer"
                     >
                       <Check className="h-3 w-3" />
-                      <span>บันทึกการแก้ไข</span>
+                      <span>Save Changes</span>
                     </Button>
                   </div>
                 </div>
@@ -748,7 +748,7 @@ export function BoardColumnsTab({
                       )}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] text-stone-500 mt-0.5">
-                      <span>สถานะ: {col.defaultCardStatus ?? "TODO"}</span>
+                      <span>Status: {col.defaultCardStatus ?? "TODO"}</span>
                       {col.wipLimit ? (
                         <span className="text-amber-600 dark:text-dusk-amber font-semibold">
                           · WIP Limit: {col.wipLimit}
@@ -760,7 +760,7 @@ export function BoardColumnsTab({
 
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="rounded-full border border-stone-200/80 bg-stone-100 px-2 py-0.5 font-mono text-[10px] text-stone-700 font-semibold dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300">
-                    {col.cardCount ?? 0} การ์ด
+                    {col.cardCount ?? 0} cards
                   </span>
 
                   {canManage && (
@@ -768,7 +768,7 @@ export function BoardColumnsTab({
                       <button
                         type="button"
                         onClick={() => startEditColumn(col)}
-                        title="แก้ไขคอลัมน์"
+                        title="Edit column"
                         className="rounded-md p-1.5 text-stone-400 hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -779,8 +779,8 @@ export function BoardColumnsTab({
                         onClick={() => handleDeleteClick(col)}
                         title={
                           col.cardCount && col.cardCount > 0
-                            ? "ไม่สามารถลบได้เนื่องจากมีการ์ดอยู่"
-                            : "ลบคอลัมน์"
+                            ? "Cannot delete because cards exist"
+                            : "Delete column"
                         }
                         className={`rounded-md p-1.5 transition cursor-pointer ${
                           col.cardCount && col.cardCount > 0
@@ -802,7 +802,7 @@ export function BoardColumnsTab({
       {/* Footer hint & Link to Kanban */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1">
         <p className="text-[11px] text-stone-500 italic">
-          💡 สามารถเพิ่ม, แก้ไขชื่อ, กำหนด WIP Limit ได้โดยตรงที่นี่ หรือเปิดไปยังหน้ากระดาน Kanban เพื่อลากจัดเรียง
+          💡 You can add, edit names, and configure WIP limits here, or visit the Kanban board to drag and reorder.
         </p>
         {projectId ? (
           <Link
@@ -810,7 +810,7 @@ export function BoardColumnsTab({
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-dusk-lavender hover:underline shrink-0"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            เปิดหน้าบอร์ด →
+            Open Board View →
           </Link>
         ) : null}
       </div>
@@ -818,10 +818,10 @@ export function BoardColumnsTab({
       {/* CONFIRM MODAL FOR EDIT */}
       <ConfirmModal
         open={confirmEditOpen}
-        title="ยืนยันการแก้ไขคอลัมน์"
-        message={`คุณต้องการบันทึกการแก้ไขของคอลัมน์ "${editName}" ใช่หรือไม่?`}
-        confirmLabel="บันทึก"
-        cancelLabel="ยกเลิก"
+        title="Confirm Column Edit"
+        message={`Are you sure you want to save changes to column "${editName}"?`}
+        confirmLabel="Save"
+        cancelLabel="Cancel"
         isLoading={isUpdating}
         variant="default"
         onConfirm={handleConfirmUpdate}
@@ -831,10 +831,10 @@ export function BoardColumnsTab({
       {/* CONFIRM MODAL FOR DELETE */}
       <ConfirmModal
         open={confirmDeleteOpen}
-        title="ยืนยันการลบคอลัมน์"
-        message={`คุณต้องการลบคอลัมน์ "${columnToDelete?.name}" ออกจากบอร์ดนี้ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`}
-        confirmLabel="ลบคอลัมน์"
-        cancelLabel="ยกเลิก"
+        title="Confirm Column Deletion"
+        message={`Are you sure you want to delete column "${columnToDelete?.name}" from this board? This action cannot be undone.`}
+        confirmLabel="Delete Column"
+        cancelLabel="Cancel"
         isLoading={isDeleting}
         variant="danger"
         onConfirm={handleConfirmDelete}

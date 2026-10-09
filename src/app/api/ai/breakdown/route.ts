@@ -11,7 +11,7 @@ export const revalidate = 0;
 export const maxDuration = 60;
 
 const breakdownSchema = z.object({
-  title: z.string().trim().min(1, "กรุณาระบุชื่องานที่ต้องการแตกเช็กลิสต์"),
+  title: z.string().trim().min(1, "Please specify a task title for the checklist breakdown"),
   description: z.string().nullable().optional(),
   customGoal: z.string().nullable().optional(),
   depth: z.enum(["standard", "detailed"]).optional().default("detailed"),
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   try {
     const userId = await requireUserId();
     if (!userId) {
-      return jsonError("กรุณาเข้าสู่ระบบก่อนใช้งาน AI Assistant", 401);
+      return jsonError("Please sign in before using AI Assistant", 401);
     }
 
     const body = await request.json().catch(() => ({}));
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     // 1. Verify user has enough quota before calling AI
     const quota = await getUserAiQuota(userId);
     if (!quota.unlimited && quota.credits < AI_CREDIT_COSTS.BREAKDOWN) {
-      return jsonError(`โควตา AI Credits ไม่เพียงพอ (คงเหลือ ${quota.credits} เครดิต)`, 402);
+      return jsonError(`Insufficient AI credits (${quota.credits} remaining)`, 402);
     }
 
     const clientApiKey =
@@ -69,10 +69,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return jsonError("ข้อมูลที่ส่งมาไม่ถูกต้อง", 422);
+      return jsonError("Invalid request data", 422);
     }
     const message =
-      error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการประมวลผล AI";
+      error instanceof Error ? error.message : "Error processing AI task breakdown";
     return jsonError(message, 500);
   }
 }

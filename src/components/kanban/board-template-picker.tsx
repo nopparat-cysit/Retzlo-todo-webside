@@ -34,14 +34,14 @@ export function BoardTemplatePicker({
       <div className="flex items-center justify-between gap-2">
         <div>
           <h4 id="board-template-heading" className="text-xs font-semibold text-theme-foreground">
-            เลือกแม่แบบบอร์ดเริ่มต้น (Board Template)
+            Select Board Template
           </h4>
           <p className="mt-0.5 text-[11px] text-theme-muted">
-            เลือกโครงสร้างขั้นตอนงานที่ตรงกับประเภทโครงการของคุณ
+            Choose a workflow pipeline that matches your project needs
           </p>
         </div>
         <span className="rounded-full border border-theme-border bg-theme-paper px-2 py-0.5 font-mono text-[10px] text-theme-muted shrink-0">
-          5 แม่แบบ
+          5 Templates
         </span>
       </div>
 
@@ -86,7 +86,7 @@ export function BoardTemplatePicker({
                         : "border-theme-border bg-theme-panel text-theme-muted"
                     )}
                   >
-                    {template.columns.length} ขั้นตอน
+                    {template.columns.length} Steps
                   </span>
                 </div>
 
@@ -119,11 +119,11 @@ export function BoardTemplatePicker({
               {selectedTemplate.name}
             </span>
             <span className="rounded-md border border-theme-border bg-theme-paper px-1.5 py-0.2 font-mono text-[10px] text-theme-muted shrink-0">
-              {selectedTemplate.columns.length} ขั้นตอนงาน
+              {selectedTemplate.columns.length} Columns
             </span>
           </div>
           <span className="text-[10px] text-theme-muted hidden sm:inline shrink-0">
-            ลำดับขั้นตอนเริ่มต้น
+            Default Workflow Sequence
           </span>
         </div>
 
@@ -166,7 +166,7 @@ export function BoardTemplatePicker({
         </div>
       </div>
       <p className="text-[10px] leading-relaxed text-theme-muted">
-        💡 บอร์ดนี้จะสร้างด้วยขั้นตอนงานเริ่มต้นด้านบน คุณสามารถเพิ่ม ลบ หรือแก้ไขขั้นตอนได้ทุกเมื่อหลังสร้างเสร็จ
+        💡 This board will be created with the workflow columns shown above. You can add, remove, or customize columns at any time.
       </p>
     </section>
   );

@@ -71,8 +71,8 @@ export function extractAiCreateCardProposal(
 
   const cleanReply = reply.replace(markerPattern, "").trim();
   const invalidReply = context
-    ? "ผมจัดทำรายการสำหรับยืนยันไม่สำเร็จ ลองระบุชื่องานและคอลัมน์อีกครั้งนะครับ"
-    : "การสร้างการ์ดต้องทำจากโปรเจกต์ที่มีบอร์ด กรุณาเปิดบอร์ดก่อนครับ";
+    ? "I couldn't prepare the card creation draft. Please specify the task title and column name again."
+    : "Cards can only be created from a project with an active board. Please open a board first.";
 
   if (blocks.length !== 1 || !context || context.columns.length === 0) {
     return {
@@ -131,7 +131,7 @@ export function extractAiCreateCardProposal(
   }
 
   return {
-    reply: cleanReply || "เตรียมรายการให้แล้ว ตรวจรายละเอียดและยืนยันก่อนสร้างได้เลยครับ",
+    reply: cleanReply || "I have prepared the draft cards. Please review and confirm before creating.",
     proposal: {
       projectId: context.projectId,
       boardId: context.boardId,

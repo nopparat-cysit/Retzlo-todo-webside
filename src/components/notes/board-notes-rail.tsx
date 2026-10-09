@@ -278,7 +278,7 @@ export function BoardNotesRail({
               type="button"
               onClick={onClose}
               className="grid h-8 w-8 place-items-center rounded-lg border border-theme-border bg-theme-paper text-theme-muted transition hover:border-theme-accent hover:text-theme-foreground cursor-pointer"
-              title="Collapse notes panel (พับเก็บ)"
+              title="Collapse notes panel"
               aria-label="Collapse notes panel"
             >
               <PanelRightClose className="h-4 w-4" />
@@ -553,7 +553,7 @@ function NoteModal({
                 htmlFor="rail-create-note-title"
                 className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
               >
-                Title (หัวข้อโน้ต) <span className="text-rose-500">*</span>
+                Title <span className="text-rose-500">*</span>
               </label>
               <div className="flex items-center gap-3">
                 <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
@@ -576,7 +576,7 @@ function NoteModal({
                 htmlFor="rail-create-note-content"
                 className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
               >
-                Description (รายละเอียดโน้ต)
+                Description
               </label>
               <Textarea
                 id="rail-create-note-content"
@@ -592,7 +592,7 @@ function NoteModal({
           <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
             {/* Folder Selector */}
             <div className="space-y-1.5 text-sm text-stone-300">
-              <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder (โฟลเดอร์)</span>
+              <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder</span>
               <Select
                 value={selectedFolderId || "UNFILED"}
                 onValueChange={(val) => setSelectedFolderId(val === "UNFILED" ? "" : val)}
@@ -604,7 +604,7 @@ function NoteModal({
                   <div className="flex items-center gap-2 truncate">
                     <span className="shrink-0 text-base">{currentFolder?.icon || "📁"}</span>
                     <span className="truncate font-medium">
-                      {currentFolder ? currentFolder.name : "No folder (Unfiled / ไม่มีโฟลเดอร์)"}
+                      {currentFolder ? currentFolder.name : "No folder (Unfiled)"}
                     </span>
                   </div>
                 </SelectTrigger>
@@ -613,7 +613,7 @@ function NoteModal({
                     <SelectItem value="UNFILED" className="cursor-pointer text-xs">
                       <span className="flex items-center gap-2">
                         <span className="text-base">📁</span>
-                        <span>No folder (Unfiled / ไม่มีโฟลเดอร์)</span>
+                        <span>No folder (Unfiled)</span>
                       </span>
                     </SelectItem>
                   </SelectGroup>
@@ -661,7 +661,7 @@ function NoteModal({
                           </span>
                         </div>
                         <p className="text-[10px] text-stone-500 font-normal truncate">
-                          {activeBoardName ? `บอร์ดปัจจุบัน (${activeBoardName})` : "Members of selected board only"}
+                          {activeBoardName ? `Current board (${activeBoardName})` : "Members of selected board only"}
                         </p>
                       </div>
                     </div>
@@ -716,7 +716,7 @@ function NoteModal({
                       <div className="flex items-center gap-1.5">
                         <span>Private Note</span>
                       </div>
-                      <p className="text-[10px] text-stone-500 font-normal">Only you can see this (โน้ตส่วนตัว)</p>
+                      <p className="text-[10px] text-stone-500 font-normal">Only you can see this (Private note)</p>
                     </div>
                   </div>
                   <input
@@ -758,8 +758,8 @@ function NoteModal({
             </div>
 
             <DateTimeField
-              label="วันที่สิ้นสุด (Due / End Date)"
-              description="กำหนดวันสิ้นสุดหรือส่งงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+              label="Due / End Date"
+              description="Set note due or target date (no time specified = all day)"
               value={{ date, time }}
               onChange={(nextValue) => {
                 setDate(nextValue.date);
@@ -904,7 +904,7 @@ function EditNoteModal({
                   htmlFor="rail-edit-note-title"
                   className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
                 >
-                  Title (หัวข้อโน้ต) <span className="text-rose-500">*</span>
+                  Title <span className="text-rose-500">*</span>
                 </label>
                 <div className="flex items-center gap-3">
                   <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl">
@@ -927,7 +927,7 @@ function EditNoteModal({
                   htmlFor="rail-edit-note-content"
                   className="block font-medium text-xs text-stone-400 uppercase tracking-wider"
                 >
-                  Description (รายละเอียดโน้ต)
+                  Description
                 </label>
                 <Textarea
                   id="rail-edit-note-content"
@@ -943,7 +943,7 @@ function EditNoteModal({
             <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
               {/* Folder Selector */}
               <div className="space-y-1.5 text-sm text-stone-300">
-                <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder (โฟลเดอร์)</span>
+                <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder</span>
                 <Select
                   value={selectedFolderId || "UNFILED"}
                   onValueChange={(val) => setSelectedFolderId(val === "UNFILED" ? "" : val)}
@@ -955,7 +955,7 @@ function EditNoteModal({
                     <div className="flex items-center gap-2 truncate">
                       <span className="shrink-0 text-base">{currentFolder?.icon || "📁"}</span>
                       <span className="truncate font-medium">
-                        {currentFolder ? currentFolder.name : "No folder (Unfiled / ไม่มีโฟลเดอร์)"}
+                        {currentFolder ? currentFolder.name : "No folder (Unfiled)"}
                       </span>
                     </div>
                   </SelectTrigger>
@@ -964,7 +964,7 @@ function EditNoteModal({
                       <SelectItem value="UNFILED" className="cursor-pointer text-xs">
                         <span className="flex items-center gap-2">
                           <span className="text-base">📁</span>
-                          <span>No folder (Unfiled / ไม่มีโฟลเดอร์)</span>
+                          <span>No folder (Unfiled)</span>
                         </span>
                       </SelectItem>
                     </SelectGroup>
@@ -1005,7 +1005,7 @@ function EditNoteModal({
                       <Lock className="h-3.5 w-3.5 shrink-0" />
                       <div>
                         <span>Private Note</span>
-                        <p className="text-[10px] text-stone-500 font-normal">Only you can see this (โน้ตส่วนตัว)</p>
+                        <p className="text-[10px] text-stone-500 font-normal">Only you can see this (Private note)</p>
                       </div>
                     </div>
                     <input
@@ -1033,7 +1033,7 @@ function EditNoteModal({
                         <div className="min-w-0">
                           <span className="truncate block font-medium">Sub-project Board</span>
                           <p className="text-[10px] text-stone-500 font-normal truncate">
-                            {activeBoardName ? `บอร์ดปัจจุบัน (${activeBoardName})` : "Members of selected board only"}
+                            {activeBoardName ? `Current board (${activeBoardName})` : "Members of selected board only"}
                           </p>
                         </div>
                       </div>
@@ -1102,8 +1102,8 @@ function EditNoteModal({
               </div>
 
               <DateTimeField
-                label="วันที่สิ้นสุด (Due / End Date)"
-                description="กำหนดวันสิ้นสุดหรือส่งงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+                label="Due / End Date"
+              description="Set note due or target date (no time specified = all day)"
                 value={{ date, time }}
                 onChange={(nextValue) => {
                   setDate(nextValue.date);

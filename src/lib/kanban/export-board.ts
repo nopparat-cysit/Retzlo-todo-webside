@@ -67,13 +67,13 @@ export function prepareExportRows(
       // Map Status
       const statusLabel =
         card.status === "TODO"
-          ? "ยังไม่เริ่ม (To Do)"
+          ? "To Do"
           : card.status === "DOING"
-            ? "กำลังทำ (In Progress)"
+            ? "In Progress"
             : card.status === "DONE"
-              ? "เสร็จสิ้น (Done)"
+              ? "Done"
               : card.status === "WAITING"
-                ? "รอดำเนินการ (Waiting)"
+                ? "Waiting"
                 : card.status;
 
       // Map Priority
@@ -89,11 +89,11 @@ export function prepareExportRows(
       }
 
       // Overdue status
-      let isOverdue = "ปกติ";
+      let isOverdue = "On Track";
       if (card.dueDate && card.status !== "DONE") {
         const dueTime = new Date(card.dueDate).getTime();
         if (!isNaN(dueTime) && dueTime < Date.now()) {
-          isOverdue = "เกินกำหนด (Overdue)";
+          isOverdue = "Overdue";
         }
       }
 
@@ -109,13 +109,13 @@ export function prepareExportRows(
         priority: priorityLabel,
         priorityCode: code,
         assignees: assigneeNames,
-        difficulty: card.difficulty ? `${card.difficulty} แต้ม` : "-",
+        difficulty: card.difficulty ? `${card.difficulty} pts` : "-",
         difficultyScore: card.difficulty ?? null,
         startDate: formatDate(card.startDate),
         dueDate: formatDate(card.dueDate),
         isOverdue,
         checklistProgress,
-        isStarred: card.isStarred ? "⭐ ใช่" : "ไม่ใช่"
+        isStarred: card.isStarred ? "⭐ Yes" : "No"
       });
     }
   }
@@ -140,20 +140,20 @@ function escapeCsv(val: unknown): string {
  */
 export function generateCsvContent(rows: ExportCardRow[]): string {
   const headers = [
-    "ลำดับ",
-    "ชื่องาน (Task Title)",
-    "สถานะ (Status)",
-    "คอลัมน์ (Column)",
-    "ระดับความสำคัญ (Priority)",
-    "ผู้รับผิดชอบ (Assignees)",
-    "คะแนนความยาก (Points)",
-    "วันเริ่มต้น (Start Date)",
-    "วันครบกำหนด (Due Date)",
-    "สถานะส่งงาน",
-    "เช็คลิสต์ (Checklist)",
-    "ติดดาว (Starred)",
-    "รายละเอียด (Description)",
-    "โน้ต (Note)"
+    "No.",
+    "Task Title",
+    "Status",
+    "Column",
+    "Priority",
+    "Assignees",
+    "Story Points",
+    "Start Date",
+    "Due Date",
+    "Delivery Status",
+    "Checklist",
+    "Starred",
+    "Description",
+    "Note"
   ];
 
   const lines = [headers.map(escapeCsv).join(",")];
@@ -195,40 +195,40 @@ export function downloadCsv(rows: ExportCardRow[], filename: string) {
  */
 export function downloadExcel(rows: ExportCardRow[], filename: string, sheetTitle = "Tasks") {
   const sheetData = rows.map((r) => ({
-    "ลำดับ": r.index,
-    "ชื่องาน (Task Title)": r.title,
-    "สถานะ (Status)": r.status,
-    "คอลัมน์ (Column)": r.columnName,
-    "ระดับความสำคัญ (Priority)": r.priority,
-    "ผู้รับผิดชอบ (Assignees)": r.assignees,
-    "คะแนนความยาก (Points)": r.difficulty,
-    "วันเริ่มต้น (Start Date)": r.startDate,
-    "วันครบกำหนด (Due Date)": r.dueDate,
-    "สถานะส่งงาน": r.isOverdue,
-    "เช็คลิสต์": r.checklistProgress,
-    "ติดดาว": r.isStarred,
-    "รายละเอียด": r.description,
-    "โน้ต": r.note
+    "No.": r.index,
+    "Task Title": r.title,
+    "Status": r.status,
+    "Column": r.columnName,
+    "Priority": r.priority,
+    "Assignees": r.assignees,
+    "Story Points": r.difficulty,
+    "Start Date": r.startDate,
+    "Due Date": r.dueDate,
+    "Delivery Status": r.isOverdue,
+    "Checklist": r.checklistProgress,
+    "Starred": r.isStarred,
+    "Description": r.description,
+    "Note": r.note
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(sheetData);
 
   // Set optimal column widths
   worksheet["!cols"] = [
-    { wch: 8 },  // ลำดับ
-    { wch: 35 }, // ชื่องาน
-    { wch: 20 }, // สถานะ
-    { wch: 20 }, // คอลัมน์
-    { wch: 22 }, // ความสำคัญ
-    { wch: 25 }, // ผู้รับผิดชอบ
-    { wch: 14 }, // ความยาก
-    { wch: 16 }, // วันเริ่มต้น
-    { wch: 16 }, // วันครบกำหนด
-    { wch: 18 }, // สถานะส่งงาน
-    { wch: 16 }, // เช็คลิสต์
-    { wch: 10 }, // ติดดาว
-    { wch: 35 }, // รายละเอียด
-    { wch: 30 }  // โน้ต
+    { wch: 8 },  // No.
+    { wch: 35 }, // Task Title
+    { wch: 20 }, // Status
+    { wch: 20 }, // Column
+    { wch: 22 }, // Priority
+    { wch: 25 }, // Assignees
+    { wch: 14 }, // Story Points
+    { wch: 16 }, // Start Date
+    { wch: 16 }, // Due Date
+    { wch: 18 }, // Delivery Status
+    { wch: 16 }, // Checklist
+    { wch: 10 }, // Starred
+    { wch: 35 }, // Description
+    { wch: 30 }  // Note
   ];
 
   const workbook = XLSX.utils.book_new();
@@ -399,11 +399,11 @@ export async function exportElementToPdf(
   img.src = dataUrl;
   await new Promise<void>((resolve, reject) => {
     img.onload = () => resolve();
-    img.onerror = () => reject(new Error("ไม่สามารถประมวลผลรูปภาพสำหรับสร้าง PDF ได้"));
+    img.onerror = () => reject(new Error("Unable to process image for PDF generation"));
   });
 
   if (!img.width || !img.height) {
-    throw new Error("ขนาดของบอร์ดไม่ถูกต้อง ไม่สามารถแปลงเป็น PDF ได้");
+    throw new Error("Invalid board dimensions, cannot convert to PDF");
   }
 
   const preferredOrientation =

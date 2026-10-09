@@ -15,7 +15,7 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       // Verify BoardAttributesTab is imported and used
       expect(modalContent).toContain("BoardAttributesTab");
       expect(modalContent).toContain('value="attributes"');
-      expect(modalContent).toContain("คุณสมบัติการ์ด");
+      expect(modalContent).toContain("Card Attributes");
 
       // Verify resolveTabState handles various entry points
       expect(modalContent).toContain("resolveTabState");
@@ -29,8 +29,8 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       const attrContent = readFileSync(attrPath, "utf-8");
 
       // Verify sub-tabs
-      expect(attrContent).toContain("สถานะการ์ด (Status)");
-      expect(attrContent).toContain("ระดับความสำคัญ (Priority)");
+      expect(attrContent).toContain("Card Status");
+      expect(attrContent).toContain("Priority");
       expect(attrContent).toContain("Story Points");
 
       // Verify ConfirmModal for destructive actions per AGENTS.md
@@ -91,7 +91,7 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       expect(pickerContent).toContain("getStatusMeta");
       expect(pickerContent).toContain("isAddingStatus");
       expect(pickerContent).toContain("handleQuickAddStatus");
-      expect(pickerContent).toContain("เพิ่มสถานะ");
+      expect(pickerContent).toContain("Add Status");
     });
 
     it("verifies column.tsx and board.tsx pass boardId to ColumnStatusPicker", () => {

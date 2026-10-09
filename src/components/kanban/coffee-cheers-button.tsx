@@ -76,15 +76,15 @@ export function CoffeeCheersButton({
 
   const getTooltipText = (reason?: CheerDenialReason): string => {
     if (isSelf) {
-      return "🎉 คุณปิดงานนี้สำเร็จ! เพื่อนร่วมทีมสามารถเลี้ยงกาแฟให้กำลังใจคุณได้ (Anti-Cheat: ไม่สามารถเลี้ยงตัวเองได้)";
+      return "🎉 You completed this task! Teammates can send you coffee cheers (Anti-cheat: Cannot cheer yourself)";
     }
     if (hasCheered || reason === "ALREADY_CHEERED") {
-      return "☕ คุณได้เลี้ยงกาแฟให้งานนี้แล้ว ขอบคุณที่ร่วมส่งกำลังใจให้เพื่อน!";
+      return "☕ You've already cheered this task with coffee. Thank you for supporting your team!";
     }
     if (canCheer) {
-      return `☕ เลี้ยงกาแฟเพื่อนร่วมทีมเพื่อฉลองการปิดงาน "${cardTitle}" (คลิกเพื่อให้กำลังใจ)`;
+      return `☕ Cheer your teammate with coffee to celebrate completing "${cardTitle}" (Click to cheer)`;
     }
-    return "เลี้ยงกาแฟเมื่อปิดงานสำเร็จ ☕";
+    return "Coffee cheers for completed tasks ☕";
   };
 
   const handleCheer = async (e: React.MouseEvent) => {
@@ -114,12 +114,12 @@ export function CoffeeCheersButton({
         setCount((prev) => Math.max(0, prev - 1));
         setHasCheered(false);
         toast({
-          message: data.error || "ไม่สามารถเลี้ยงกาแฟได้ กรุณาลองใหม่อีกครั้ง",
+          message: data.error || "Unable to send coffee cheer. Please try again.",
           type: "error"
         });
       } else {
         toast({
-          message: `☕ เลี้ยงกาแฟสำเร็จ! ส่งกำลังใจให้เพื่อนสำหรับการปิดงาน "${cardTitle}" แล้ว 🎉`,
+          message: `☕ Coffee cheer sent! Celebrated completing "${cardTitle}" 🎉`,
           type: "success"
         });
         startTransition(() => {
@@ -130,7 +130,7 @@ export function CoffeeCheersButton({
       setCount((prev) => Math.max(0, prev - 1));
       setHasCheered(false);
       toast({
-        message: "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง",
+        message: "A network error occurred. Please try again.",
         type: "error"
       });
     } finally {
@@ -231,7 +231,7 @@ export function CoffeeCheersButton({
                 </span>
               ) : !compact && canCheer ? (
                 <span className="text-[11px] font-medium text-amber-800 dark:text-amber-300">
-                  เลี้ยงกาแฟ
+                  Coffee cheer
                 </span>
               ) : null}
             </button>

@@ -917,10 +917,10 @@ function DiaryFocusCard({
                   <span className="flex items-center gap-1.5 font-medium">
                     <Coins className="h-3.5 w-3.5" />
                     {rewardClaimed
-                      ? "รับเหรียญรางวัลประจำวันเรียบร้อยแล้ว!"
+                      ? "Daily reward coins claimed!"
                       : rewardReady
-                        ? "ทำครบทุกข้อแล้ว! พร้อมรับเหรียญรางวัล"
-                        : `ทำครบทุกข้อวันนี้เพื่อรับ +${item.rewardCoins} Coins`}
+                        ? "All items complete! Ready to claim reward"
+                        : `Complete all items today to get +${item.rewardCoins} Coins`}
                   </span>
                   <span className="font-mono text-[11px] opacity-80">
                     {completedDueCount}/{dueItems.length}
@@ -1428,7 +1428,7 @@ function DiaryItemModal({
               <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-dusk-cyan font-semibold">Schedule & Settings</p>
                 <div className="block space-y-1 text-xs text-stone-400">
-                  <span className="text-stone-300 font-medium">Start date (วันเริ่มต้นหลัก)</span>
+                  <span className="text-stone-300 font-medium">Start date</span>
                   <DatePicker name="startDate" value={startDate} onChange={(nextDate) => setStartDate(nextDate)} />
                 </div>
                 <label
@@ -1479,7 +1479,7 @@ function DiaryItemModal({
                 {isRewardOpen ? (
                   <div className="space-y-3 pt-1">
                     <label className="block space-y-1 text-xs text-stone-400">
-                      <span className="text-stone-300 font-medium">Coins to award (จำนวนเหรียญที่จะมอบให้)</span>
+                      <span className="text-stone-300 font-medium">Coins to award</span>
                       <Input
                         max={100000}
                         min={0}
@@ -1491,7 +1491,7 @@ function DiaryItemModal({
                     </label>
 
                     <div className="space-y-1.5 text-xs text-stone-400">
-                      <span className="text-stone-300 font-medium">Coin type (ประเภทเหรียญ)</span>
+                      <span className="text-stone-300 font-medium">Coin type</span>
                       <div className="grid grid-cols-2 gap-2">
                         {[
                           { value: "PROJECT" as const, label: "Project coins" },
@@ -1517,7 +1517,7 @@ function DiaryItemModal({
                   </div>
                 ) : (
                   <p className="text-xs text-stone-500">
-                    ตั้งค่าให้เหรียญรางวัลเมื่อทำ routine ครบทุกข้อในแต่ละวัน
+                    Configure bonus coins awarded when completing all routine tasks each day.
                   </p>
                 )}
               </div>

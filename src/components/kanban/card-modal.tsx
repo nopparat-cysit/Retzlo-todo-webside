@@ -341,7 +341,7 @@ export function CardModal({
     if (draft.checklist !== undefined) setChecklist(draft.checklist);
     if (draft.difficulty !== undefined) setDifficulty(draft.difficulty);
     if (draft.assigneeIds !== undefined) setAssigneeIds(draft.assigneeIds);
-    toast({ message: "กู้คืนข้อมูลร่างเรียบร้อยแล้ว", type: "success" });
+    toast({ message: "Draft recovered successfully", type: "success" });
   }, [toast]);
 
   const hasChanges = useMemo(() => {
@@ -846,7 +846,7 @@ export function CardModal({
                   type="button"
                   onClick={() => setAiBreakdownOpen(true)}
                   className="group inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/10 px-2.5 py-1 text-xs font-semibold text-dusk-lavender shadow-xs transition-all hover:border-dusk-lavender hover:bg-dusk-lavender/20 hover:scale-102 active:scale-98 cursor-pointer"
-                  title="สร้างเช็กลิสต์ด้วย AI มีจำนวนแนะนำ กำหนดจำนวนได้ และยืนยันก่อนสร้าง"
+                  title="Breakdown checklist with AI, configure count, and confirm before adding"
                 >
                   <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
                   <span>AI Breakdown</span>
@@ -975,7 +975,7 @@ export function CardModal({
               <div className="flex items-center gap-2">
                 <span className="flex items-center gap-1.5 font-medium">
                   <Zap className="h-4 w-4 text-amber-400" />
-                  <span>คะแนนความยาก (Story Points)</span>
+                  <span>Story Points</span>
                 </span>
                 {difficulty ? (
                   <span className="text-xs text-stone-400 font-medium">
@@ -1007,7 +1007,7 @@ export function CardModal({
                     : "border-white/10 text-stone-500 hover:text-stone-300 hover:border-white/20"
                 )}
                 onClick={() => setDifficulty(null)}
-                title="ไม่กำหนดคะแนนความยาก"
+                title="No story points assigned"
               >
                 -
               </button>
@@ -1041,12 +1041,12 @@ export function CardModal({
               </p>
             ) : (
               <p className="text-[11px] text-stone-500">
-                ระดับความยาก: {storyPoints.map((p) => p.label || p.score).join(", ")} pts
+                Available points: {storyPoints.map((p) => p.label || p.score).join(", ")} pts
               </p>
             )}
           </div>
 
-          {/* ผู้รับผิดชอบ (Assignees) */}
+          {/* Assignees */}
           <AssigneePicker
             members={members}
             selectedIds={assigneeIds}
@@ -1054,11 +1054,11 @@ export function CardModal({
             disabled={isSaving}
           />
 
-          {/* วันที่เริ่ม และ วันที่สิ้นสุด (Start Date & Due Date) */}
+          {/* Start Date & Due Date */}
           <div className="space-y-3">
             <DateTimeField
-              label="วันที่เริ่ม (Start Date)"
-              description="กำหนดวันเริ่มต้นของงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+              label="Start Date"
+              description="Start date of the task (No time = all day)"
               value={{ date: startDate, time: startTime }}
               onChange={(nextValue) => {
                 setStartDate(nextValue.date);
@@ -1067,8 +1067,8 @@ export function CardModal({
             />
 
             <DateTimeField
-              label="วันที่สิ้นสุด (Due / End Date)"
-              description="กำหนดวันสิ้นสุดหรือส่งงาน (ไม่มีเวลาระบุ = ตลอดวัน)"
+              label="Due Date"
+              description="Deadline or completion date (No time = all day)"
               value={{ date, time }}
               onChange={(nextValue) => {
                 setDate(nextValue.date);
@@ -1077,7 +1077,7 @@ export function CardModal({
             />
             {startDate && date && startDate > date ? (
               <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-300">
-                ⚠️ ข้อสังเกต: วันที่เริ่มต้น ({startDate}) อยู่หลังวันที่สิ้นสุด ({date})
+                ⚠️ Notice: Start date ({startDate}) is after due date ({date})
               </p>
             ) : null}
           </div>
@@ -1095,7 +1095,7 @@ export function CardModal({
               </div>
               <div className="space-y-3">
                 <label className="block space-y-1 text-xs text-stone-400">
-                  <span className="text-stone-700 dark:text-stone-300 font-medium">Project Coins (🪙 ของทีม)</span>
+                  <span className="text-stone-700 dark:text-stone-300 font-medium">Project Coins (🪙 Team)</span>
                   <input
                     type="number"
                     min="0"
@@ -1108,7 +1108,7 @@ export function CardModal({
                 </label>
 
                 <label className="block space-y-1 text-xs text-stone-400">
-                  <span className="text-stone-700 dark:text-stone-300 font-medium">My Private Coins (🪙 ส่วนตัว)</span>
+                  <span className="text-stone-700 dark:text-stone-300 font-medium">My Private Coins (🪙 Personal)</span>
                   <input
                     type="number"
                     min="0"

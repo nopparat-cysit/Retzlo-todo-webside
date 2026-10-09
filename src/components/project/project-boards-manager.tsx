@@ -501,10 +501,10 @@ export function ProjectBoardsManager({
                   <Link
                     href={`/project/${projectId}/board?boardId=${b.id}`}
                     className="flex h-7.5 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 text-xs font-semibold text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/10 hover:text-white"
-                    title="เปิดดูบอร์ดนี้ในมุมมอง Kanban"
+                    title="Open board in Kanban view"
                   >
                     <ExternalLink className="h-3.5 w-3.5 text-dusk-lavender" />
-                    <span>เปิดบอร์ด</span>
+                    <span>Open Board</span>
                   </Link>
 
                   {canManage && (
@@ -519,7 +519,7 @@ export function ProjectBoardsManager({
                           }
                         }}
                         className="flex h-7.5 items-center gap-1.5 rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 text-xs font-semibold text-dusk-amber transition hover:bg-dusk-amber/20 cursor-pointer"
-                        title="ตั้งค่าบอร์ด สิทธิ์สมาชิก และระดับความสำคัญ"
+                        title="Configure board settings, permissions, and priorities"
                       >
                         <Settings className="h-3.5 w-3.5" />
                         <span>Settings</span>
@@ -532,7 +532,7 @@ export function ProjectBoardsManager({
                           setEditName(b.name);
                         }}
                         className="grid h-7.5 w-7.5 place-items-center rounded-lg border border-white/10 text-stone-400 transition hover:bg-white/10 hover:text-stone-200 cursor-pointer"
-                        title="เปลี่ยนชื่อบอร์ด"
+                        title="Rename board"
                       >
                         <Edit3 className="h-3.5 w-3.5" />
                       </button>
@@ -549,7 +549,7 @@ export function ProjectBoardsManager({
                           }
                         }}
                         className="grid h-7.5 w-7.5 place-items-center rounded-lg border border-white/10 text-stone-400 transition hover:bg-white/10 hover:text-stone-200 cursor-pointer"
-                        title="กำหนดสิทธิ์สมาชิก (Access)"
+                        title="Set member access"
                       >
                         <Users className="h-3.5 w-3.5" />
                       </button>
@@ -559,7 +559,7 @@ export function ProjectBoardsManager({
                           type="button"
                           onClick={() => setDeletingBoard(b)}
                           className="grid h-7.5 w-7.5 place-items-center rounded-lg border border-red-500/20 text-red-400 transition hover:bg-red-500/10 hover:text-red-300 cursor-pointer"
-                          title="ลบบอร์ดนี้"
+                          title="Delete board"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -632,7 +632,7 @@ export function ProjectBoardsManager({
                           className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] font-medium text-stone-200 transition hover:border-dusk-lavender/40 hover:bg-white/10"
                         >
                           <ExternalLink className="h-3 w-3 text-dusk-lavender" />
-                          <span>เปิดบอร์ด</span>
+                          <span>Open Board</span>
                         </Link>
 
                         {canManage && (

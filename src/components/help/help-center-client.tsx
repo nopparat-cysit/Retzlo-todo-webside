@@ -1816,7 +1816,7 @@ export const TOPICS_TH: GuideTopic[] = [
   },
 ];
 
-export const TOPICS: GuideTopic[] = TOPICS_TH;
+export const TOPICS: GuideTopic[] = TOPICS_EN;
 
 export const KEYBOARD_SHORTCUTS_LIST_EN = [
   { key: "Ctrl + K / Cmd + K", title: "Open Command Palette", desc: "Instantly search cards, boards, or switch workspaces", cat: "Navigation" },

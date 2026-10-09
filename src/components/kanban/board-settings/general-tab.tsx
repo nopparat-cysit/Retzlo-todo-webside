@@ -53,7 +53,7 @@ export function BoardGeneralTab({
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs">
           <label htmlFor="board-name-input" className="font-semibold text-stone-700 dark:text-stone-200">
-            ชื่อบอร์ด (Board Name)
+            Board Name
           </label>
           <span className="text-stone-500 font-mono text-[11px]">{name.length}/80</span>
         </div>
@@ -63,7 +63,7 @@ export function BoardGeneralTab({
           onChange={(e) => onNameChange(e.target.value)}
           maxLength={80}
           required
-          placeholder="เช่น Sprint 1, Marketing Campaign, Backlog"
+          placeholder="e.g. Sprint 1, Marketing Campaign, Backlog"
           disabled={!canManage}
           className="h-9 text-xs"
         />
@@ -73,10 +73,10 @@ export function BoardGeneralTab({
       <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5 space-y-3 dark:border-white/10 dark:bg-white/[0.02]">
         <div>
           <p className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-            ระดับการเข้าถึง (Privacy & Access Mode)
+            Privacy & Access Mode
           </p>
           <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-            กำหนดว่าใครบ้างใน Workspace ที่สามารถมองเห็นและร่วมทำงานบนบอร์ดนี้ได้
+            Control who in this project workspace can view and collaborate on this board
           </p>
         </div>
 
@@ -107,12 +107,12 @@ export function BoardGeneralTab({
                 <p className="text-xs font-bold text-stone-900 dark:text-stone-100">Public Workspace Board</p>
                 {!isPrivate && (
                   <span className="rounded-full bg-dusk-lavender/20 px-1.5 py-0.2 text-[9px] font-bold text-dusk-lavender">
-                    เลือกอยู่
+                    Selected
                   </span>
                 )}
               </div>
               <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 leading-relaxed">
-                สมาชิกทุกคนในโปรเจกต์มองเห็นและร่วมทำงานได้ทันที
+                All project members can view and collaborate immediately
               </p>
             </div>
           </button>
@@ -143,12 +143,12 @@ export function BoardGeneralTab({
                 <p className="text-xs font-bold text-stone-900 dark:text-stone-100">Private Sub-Board</p>
                 {isPrivate && (
                   <span className="rounded-full bg-dusk-amber/20 px-1.5 py-0.2 text-[9px] font-bold text-dusk-amber">
-                    เลือกอยู่
+                    Selected
                   </span>
                 )}
               </div>
               <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 leading-relaxed">
-                จำกัดเฉพาะสมาชิกที่กำหนดเท่านั้นที่สามารถเข้าถึงได้
+                Only authorized members selected below can access this board
               </p>
             </div>
           </button>
@@ -159,7 +159,7 @@ export function BoardGeneralTab({
           <div className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-600 dark:text-emerald-400">
             <Check className="h-3.5 w-3.5 shrink-0" />
             <span>
-              บอร์ดนี้เปิดเป็นสาธารณะ สมาชิกทั้งหมด <strong>{totalCount}</strong> คนในโปรเจกต์สามารถเปิดใช้งานได้
+              This board is public to the project. All <strong>{totalCount}</strong> members can access it.
             </span>
           </div>
         )}
@@ -171,10 +171,10 @@ export function BoardGeneralTab({
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-dusk-amber" />
                 <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                  สมาชิกที่ได้รับสิทธิ์เข้าถึงบอร์ด (Authorized Members)
+                  Authorized Board Members
                 </span>
                 <span className="rounded-full bg-dusk-amber/20 px-2 py-0.5 text-[10px] font-bold font-mono text-dusk-amber">
-                  {activeSelectedCount} / {totalCount} คน
+                  {activeSelectedCount} / {totalCount} selected
                 </span>
               </div>
 
@@ -187,7 +187,7 @@ export function BoardGeneralTab({
                     className="h-6 px-2 text-[11px]"
                     onClick={onSelectAll}
                   >
-                    เลือกทุกคน
+                    Select All
                   </Button>
                   <span className="text-stone-400 dark:text-stone-600">·</span>
                   <Button
@@ -197,7 +197,7 @@ export function BoardGeneralTab({
                     className="h-6 px-2 text-[11px]"
                     onClick={onClearAll}
                   >
-                    ล้างทั้งหมด
+                    Clear All
                   </Button>
                 </div>
               )}
@@ -211,7 +211,7 @@ export function BoardGeneralTab({
                   type="text"
                   value={memberSearchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  placeholder="ค้นหาสมาชิกด้วยชื่อ หรือ อีเมล..."
+                  placeholder="Search members by name or email..."
                   className="h-9 w-full rounded-lg border border-stone-200 bg-white pl-10 pr-8 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:border-dusk-amber/60 focus:ring-1 focus:ring-dusk-amber/30 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500"
                 />
                 {memberSearchQuery && (
@@ -231,7 +231,7 @@ export function BoardGeneralTab({
               <div className="max-h-52 overflow-y-auto rounded-xl border border-stone-200 bg-white p-1 divide-y divide-stone-100 scrollbar-soft dark:border-white/10 dark:bg-black/20 dark:divide-white/5">
                 {filteredMembers.length === 0 ? (
                   <p className="py-6 text-center text-xs text-stone-500">
-                    ไม่พบสมาชิกที่ตรงกับคำค้นหา &ldquo;{memberSearchQuery}&rdquo;
+                    No members matching &ldquo;{memberSearchQuery}&rdquo;
                   </p>
                 ) : (
                   filteredMembers.map((member) => {
@@ -292,13 +292,13 @@ export function BoardGeneralTab({
               </div>
             ) : onGoToAccessTab ? (
               <div className="flex items-center justify-between rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 px-3 py-2 text-xs text-dusk-amber">
-                <span>🔒 กำหนดสิทธิ์แล้ว {selectedMemberCount} จาก {totalProjectMembersCount} คน</span>
+                <span>🔒 {selectedMemberCount} of {totalProjectMembersCount} members authorized</span>
                 <button
                   type="button"
                   onClick={onGoToAccessTab}
                   className="font-semibold underline hover:text-stone-900 transition dark:hover:text-white"
                 >
-                  จัดการสมาชิก →
+                  Manage Members →
                 </button>
               </div>
             ) : null}

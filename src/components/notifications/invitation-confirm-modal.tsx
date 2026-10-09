@@ -61,14 +61,14 @@ export function InvitationConfirmModal({
 
       if (!response.ok || !data.accepted || !data.projectId) {
         toast({
-          message: data.error ?? "ไม่สามารถตอบรับคำเชิญได้",
+          message: data.error ?? "Failed to accept invitation",
           type: "error"
         });
         return;
       }
 
       toast({
-        message: `เข้าร่วมโปรเจกต์ "${data.projectName ?? invitation.projectName}" เรียบร้อยแล้ว!`,
+        message: `Joined project "${data.projectName ?? invitation.projectName}" successfully!`,
         type: "success"
       });
 
@@ -80,7 +80,7 @@ export function InvitationConfirmModal({
       }
     } catch {
       toast({
-        message: "เกิดข้อผิดพลาดในการตอบรับคำเชิญ กรุณาลองใหม่อีกครั้ง",
+        message: "Failed to accept invitation. Please try again.",
         type: "error"
       });
     } finally {
@@ -99,14 +99,14 @@ export function InvitationConfirmModal({
 
       if (!response.ok) {
         toast({
-          message: "ไม่สามารถปฏิเสธคำเชิญได้",
+          message: "Failed to decline invitation",
           type: "error"
         });
         return;
       }
 
       toast({
-        message: "ปฏิเสธคำเชิญเรียบร้อยแล้ว",
+        message: "Invitation declined successfully",
         type: "info"
       });
 
@@ -114,7 +114,7 @@ export function InvitationConfirmModal({
       onDeclined?.();
     } catch {
       toast({
-        message: "เกิดข้อผิดพลาดในการปฏิเสธคำเชิญ",
+        message: "Failed to decline invitation",
         type: "error"
       });
     } finally {
@@ -171,7 +171,7 @@ export function InvitationConfirmModal({
                 Project Invitation
               </p>
               <h2 id="invitation-confirm-title" className="text-xl font-bold text-stone-100">
-                คำเชิญเข้าร่วมโปรเจกต์
+                Project Invitation
               </h2>
             </div>
           </div>
@@ -181,7 +181,7 @@ export function InvitationConfirmModal({
             <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
               <div className="flex items-center gap-2 text-xs text-stone-400 mb-2">
                 <FolderKanban className="h-3.5 w-3.5 text-dusk-lavender" />
-                <span>โปรเจกต์เป้าหมาย</span>
+                <span>Target Project</span>
               </div>
               <h3 className="text-lg font-semibold text-white tracking-wide">
                 {invitation.projectName}
@@ -193,7 +193,7 @@ export function InvitationConfirmModal({
               )}
               <div className="mt-3 flex items-center gap-2">
                 <span className="rounded-full border border-dusk-cyan/30 bg-dusk-cyan/10 px-2.5 py-0.5 text-[11px] font-medium text-dusk-cyan">
-                  บทบาท: {invitation.role ?? "MEMBER"}
+                  Role: {invitation.role ?? "MEMBER"}
                 </span>
               </div>
             </div>
@@ -206,7 +206,7 @@ export function InvitationConfirmModal({
                 size={36}
               />
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-stone-400">เชิญโดย</p>
+                <p className="text-xs text-stone-400">Invited by</p>
                 <p className="truncate text-sm font-medium text-stone-200">
                   {invitation.inviterName || invitation.inviterEmail}
                 </p>
@@ -220,7 +220,7 @@ export function InvitationConfirmModal({
           </div>
 
           <p className="text-xs text-stone-400 mb-6 leading-relaxed">
-            เมื่อคุณตอบรับคำเชิญ คุณจะสามารถเข้าถึงกระดาน Kanban, ปฏิทินงาน และระบบ Todo ของโปรเจกต์นี้ร่วมกับทีมได้ทันที
+            When you accept this invitation, you will immediately have access to the Kanban board, calendar, and task management alongside the team.
           </p>
 
           {/* Action Buttons */}
@@ -232,7 +232,7 @@ export function InvitationConfirmModal({
               onClick={handleDecline}
               className="text-theme-muted hover:bg-theme-danger-surface hover:text-theme-danger"
             >
-              {isDeclining ? "กำลังปฏิเสธ..." : "ปฏิเสธ (Decline)"}
+              {isDeclining ? "Declining..." : "Decline"}
             </Button>
             <Button
               type="button"
@@ -243,10 +243,10 @@ export function InvitationConfirmModal({
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 animate-spin" />
-                  กำลังเข้าร่วม...
+                  Joining...
                 </span>
               ) : (
-                "ยอมรับและเข้าร่วม (Accept & Join)"
+                "Accept & Join"
               )}
             </Button>
           </div>

@@ -111,11 +111,11 @@ export function DesignSystemPreview() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-[11px] font-medium text-stone-400">Standalone DatePicker</label>
-                <DatePicker value={standaloneDate} onChange={setStandaloneDate} placeholder="เลือกวันที่..." />
+                <DatePicker value={standaloneDate} onChange={setStandaloneDate} placeholder="Select date..." />
               </div>
               <div>
                 <label className="mb-1 block text-[11px] font-medium text-stone-400">Standalone TimePicker</label>
-                <TimePicker value={standaloneTime} onChange={setStandaloneTime} placeholder="เลือกเวลา..." />
+                <TimePicker value={standaloneTime} onChange={setStandaloneTime} placeholder="Select time..." />
               </div>
             </div>
           </div>

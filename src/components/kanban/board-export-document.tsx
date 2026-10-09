@@ -128,7 +128,7 @@ export function BoardExportDocument({
     const y = now.getFullYear();
     const hr = String(now.getHours()).padStart(2, "0");
     const min = String(now.getMinutes()).padStart(2, "0");
-    return `${d}/${m}/${y} ${hr}:${min} น.`;
+    return `${d}/${m}/${y} ${hr}:${min}`;
   }, [timestamp]);
 
   const isDark = themeStyle === "dark";
@@ -186,7 +186,7 @@ export function BoardExportDocument({
             </div>
 
             <h1 className="text-3xl font-extrabold tracking-tight">
-              {boardTitle || "กระดานงาน (Kanban Board)"}
+              {boardTitle || "Kanban Board"}
             </h1>
 
             <div className="flex flex-wrap items-center gap-3 mt-2 text-xs">
@@ -197,7 +197,7 @@ export function BoardExportDocument({
                 )}
               >
                 <CalendarDays className="h-3.5 w-3.5 opacity-70" />
-                ส่งออกเมื่อ: <span className="font-medium">{formattedTimestamp}</span>
+                Exported: <span className="font-medium">{formattedTimestamp}</span>
               </span>
               <span className="opacity-30">•</span>
               <span
@@ -207,9 +207,9 @@ export function BoardExportDocument({
                 )}
               >
                 <KanbanSquare className="h-3.5 w-3.5 opacity-70" />
-                ขอบเขต:{" "}
+                Scope:{" "}
                 <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                  {scope === "filtered" ? "ตัวกรองปัจจุบัน" : "งานทั้งหมดในบอร์ด"}
+                  {scope === "filtered" ? "Current Filter" : "All Tasks in Board"}
                 </span>
               </span>
               <span className="opacity-30">•</span>
@@ -219,7 +219,7 @@ export function BoardExportDocument({
                   isDark ? "text-stone-400" : "text-stone-500"
                 )}
               >
-                โครงสร้าง: <span className="font-medium">{columns.length} คอลัมน์</span>
+                Structure: <span className="font-medium">{columns.length} Columns</span>
               </span>
             </div>
           </div>
@@ -234,21 +234,21 @@ export function BoardExportDocument({
             )}
           >
             <span className="text-[11px] font-bold uppercase tracking-wider opacity-80">
-              ความคืบหน้ารวม
+              Overall Progress
             </span>
             <div className="flex items-baseline gap-1 my-0.5">
               <span className="text-3xl font-black">{stats.completionRate}</span>
               <span className="text-lg font-bold">%</span>
             </div>
             <span className="text-[10px] opacity-75">
-              เสร็จ {stats.doneCount} จาก {stats.totalCards} งาน
+              Completed {stats.doneCount} of {stats.totalCards} tasks
             </span>
           </div>
         </div>
 
         {/* ── KPI Stat Metrics Bar ── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-5">
-          {/* 1. งานทั้งหมด */}
+          {/* 1. Total tasks */}
           <div
             className={cn(
               "p-3 rounded-xl border flex flex-col justify-between",
@@ -256,7 +256,7 @@ export function BoardExportDocument({
             )}
           >
             <span className="text-[11px] font-medium text-stone-500 dark:text-stone-400">
-              งานทั้งหมด
+              Total Tasks
             </span>
             <div className="flex items-baseline justify-between mt-1">
               <span className="text-xl font-bold">{stats.totalCards}</span>
@@ -268,7 +268,7 @@ export function BoardExportDocument({
             </div>
           </div>
 
-          {/* 2. รอดำเนินการ (To Do) */}
+          {/* 2. To Do */}
           <div
             className={cn(
               "p-3 rounded-xl border flex flex-col justify-between",
@@ -276,7 +276,7 @@ export function BoardExportDocument({
             )}
           >
             <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400">
-              To Do (ยังไม่เริ่ม)
+              To Do
             </span>
             <div className="flex items-baseline justify-between mt-1">
               <span className="text-xl font-bold text-indigo-700 dark:text-indigo-300">
@@ -285,7 +285,7 @@ export function BoardExportDocument({
             </div>
           </div>
 
-          {/* 3. กำลังทำ (In Progress) */}
+          {/* 3. In Progress */}
           <div
             className={cn(
               "p-3 rounded-xl border flex flex-col justify-between",
@@ -293,7 +293,7 @@ export function BoardExportDocument({
             )}
           >
             <span className="text-[11px] font-medium text-teal-600 dark:text-teal-400">
-              กำลังทำ (In Progress)
+              In Progress
             </span>
             <div className="flex items-baseline justify-between mt-1">
               <span className="text-xl font-bold text-teal-700 dark:text-teal-300">
@@ -302,7 +302,7 @@ export function BoardExportDocument({
             </div>
           </div>
 
-          {/* 4. รอการตอบกลับ (Waiting) */}
+          {/* 4. Waiting */}
           <div
             className={cn(
               "p-3 rounded-xl border flex flex-col justify-between",
@@ -310,7 +310,7 @@ export function BoardExportDocument({
             )}
           >
             <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
-              รอดำเนินการ (Waiting)
+              Waiting
             </span>
             <div className="flex items-baseline justify-between mt-1">
               <span className="text-xl font-bold text-amber-700 dark:text-amber-300">
@@ -319,7 +319,7 @@ export function BoardExportDocument({
             </div>
           </div>
 
-          {/* 5. เสร็จสิ้น (Done) */}
+          {/* 5. Done */}
           <div
             className={cn(
               "p-3 rounded-xl border flex flex-col justify-between",
@@ -327,7 +327,7 @@ export function BoardExportDocument({
             )}
           >
             <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-              เสร็จสิ้น (Done)
+              Done
             </span>
             <div className="flex items-baseline justify-between mt-1">
               <span className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
@@ -339,7 +339,7 @@ export function BoardExportDocument({
             </div>
           </div>
 
-          {/* 6. เกินกำหนด (Overdue) */}
+          {/* 6. Overdue */}
           <div
             className={cn(
               "p-3 rounded-xl border flex flex-col justify-between",
@@ -354,7 +354,7 @@ export function BoardExportDocument({
           >
             <span className="text-[11px] font-medium flex items-center gap-1">
               {stats.overdueCount > 0 && <AlertTriangle className="h-3 w-3 text-rose-500" />}
-              เกินกำหนด (Overdue)
+              Overdue
             </span>
             <div className="flex items-baseline justify-between mt-1">
               <span className="text-xl font-bold">{stats.overdueCount}</span>
@@ -364,7 +364,7 @@ export function BoardExportDocument({
       </header>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          LAYOUT 1: FULL PANORAMIC KANBAN BOARD (ครบทุกคอลัมน์ 100%)
+          LAYOUT 1: FULL PANORAMIC KANBAN BOARD (100% Columns)
       ══════════════════════════════════════════════════════════════════════════ */}
       {layout === "kanban" && (
         <main className="flex items-start gap-4 overflow-visible pb-12">
@@ -427,7 +427,7 @@ export function BoardExportDocument({
                         isDark ? "border-white/10 text-stone-500" : "border-stone-300 text-stone-400"
                       )}
                     >
-                      ไม่มีการ์ดในคอลัมน์นี้
+                      No cards in this column
                     </div>
                   ) : (
                     column.cards.map((card) => (
@@ -448,7 +448,7 @@ export function BoardExportDocument({
       )}
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          LAYOUT 2: EXECUTIVE REPORT TABLE (ตารางรายงานสำหรับพิมพ์/ผู้บริหาร)
+          LAYOUT 2: EXECUTIVE REPORT TABLE
       ══════════════════════════════════════════════════════════════════════════ */}
       {layout === "table" && (
         <main
@@ -469,21 +469,21 @@ export function BoardExportDocument({
                   )}
                 >
                   <th className="py-3 px-3 w-12 text-center">#</th>
-                  <th className="py-3 px-3 w-32">คอลัมน์</th>
-                  <th className="py-3 px-4 min-w-[220px]">ชื่องาน</th>
-                  <th className="py-3 px-3 w-28 text-center">สถานะ</th>
-                  <th className="py-3 px-3 w-28 text-center">ความสำคัญ</th>
-                  <th className="py-3 px-3 w-36">ผู้รับผิดชอบ</th>
-                  <th className="py-3 px-3 w-28 text-center">วันครบกำหนด</th>
-                  <th className="py-3 px-3 w-24 text-center">เช็คลิสต์</th>
-                  <th className="py-3 px-3 w-16 text-center">แต้ม</th>
+                  <th className="py-3 px-3 w-32">Column</th>
+                  <th className="py-3 px-4 min-w-[220px]">Task Title</th>
+                  <th className="py-3 px-3 w-28 text-center">Status</th>
+                  <th className="py-3 px-3 w-28 text-center">Priority</th>
+                  <th className="py-3 px-3 w-36">Assignees</th>
+                  <th className="py-3 px-3 w-28 text-center">Due Date</th>
+                  <th className="py-3 px-3 w-24 text-center">Checklist</th>
+                  <th className="py-3 px-3 w-16 text-center">Points</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200/60 dark:divide-white/5">
                 {columns.flatMap((col) => col.cards.map((card, idx) => ({ card, col, idx }))).length === 0 ? (
                   <tr>
                     <td colSpan={9} className="py-12 text-center text-stone-400">
-                      ไม่พบข้อมูลการ์ดสำหรับส่งออก
+                      No task data found for export
                     </td>
                   </tr>
                 ) : (
@@ -580,7 +580,7 @@ export function BoardExportDocument({
                             )}
                           >
                             {formatExportDate(card.dueDate)}
-                            {isOverdue && <span className="block text-[9px]">⚠️ เกินกำหนด</span>}
+                            {isOverdue && <span className="block text-[9px]">⚠️ Overdue</span>}
                           </td>
                           <td className="py-2.5 px-3 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
                             {checklistProgress}
@@ -602,9 +602,9 @@ export function BoardExportDocument({
       {/* ── Document Footer ── */}
       <footer className="mt-8 pt-4 border-t border-stone-200/80 dark:border-white/10 flex items-center justify-between text-[11px] text-stone-400">
         <span>
-          ระบบบริหารงาน Retzlo Work &amp; Life Management • ออกแบบและจัดรูปแบบสำหรับเอกสารส่งออกโดยเฉพาะ
+          Retzlo Work &amp; Life Management • Formatted specifically for export documents
         </span>
-        <span>หน้า 1/1</span>
+        <span>Page 1/1</span>
       </footer>
     </div>
   );

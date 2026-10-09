@@ -59,7 +59,7 @@ describe("ProjectSettingsClient scope-grouped settings architecture", () => {
   it("integrates Members management with direct link to project members page", () => {
     expect(source).toContain("Space Members");
     expect(source).toContain("href={`/project/${projectId}/members`}");
-    expect(source).toContain("จัดการสมาชิกและคำเชิญ");
+    expect(source).toContain("Manage members and invitations");
     expect(source).toContain("Avatar user={member.user}");
   });
 

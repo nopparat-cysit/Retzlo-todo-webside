@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   try {
     const userId = await requireUserId();
     if (!userId) {
-      return jsonError("กรุณาเข้าสู่ระบบก่อนใช้งาน AI Assistant", 401);
+      return jsonError("Please sign in before using AI Assistant", 401);
     }
 
     const body = await request.json().catch(() => ({}));
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     const membership = await assertProjectMember(payload.projectId, userId);
     if (!membership) {
-      return jsonError("คุณไม่มีสิทธิ์เข้าถึงโปรเจกต์นี้", 403);
+      return jsonError("You do not have permission to access this project", 403);
     }
 
     const project = await prisma.project.findUnique({
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     });
 
     if (!project) {
-      return jsonError("ไม่พบโปรเจกต์ที่ระบุ", 404);
+      return jsonError("Specified project not found", 404);
     }
 
     let boardName = "Overview";
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     // 1. Verify quota before expensive AI analysis
     const quota = await getUserAiQuota(userId);
     if (!quota.unlimited && quota.credits < AI_CREDIT_COSTS.SUMMARY) {
-      return jsonError(`โควตา AI Credits ไม่เพียงพอ (คงเหลือ ${quota.credits} เครดิต)`, 402);
+      return jsonError(`Insufficient AI credits (${quota.credits} remaining)`, 402);
     }
 
     // 2. Fetch cards snapshot
@@ -122,10 +122,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return jsonError("ข้อมูลที่ส่งมาไม่ถูกต้อง", 422);
+      return jsonError("Invalid request data", 422);
     }
     const message =
-      error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการประมวลผล AI";
+      error instanceof Error ? error.message : "Error generating AI project summary";
     return jsonError(message, 500);
   }
 }

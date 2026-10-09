@@ -70,7 +70,7 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(boardSource).toContain("Normal");
     expect(boardSource).toContain("Compact");
     expect(boardSource).toContain("2x");
-    expect(boardSource).toContain("2 เท่า");
+    expect(boardSource).toContain("Compact card density");
   });
 
   it("provides structured table columns and status grouping in BoardListView", () => {

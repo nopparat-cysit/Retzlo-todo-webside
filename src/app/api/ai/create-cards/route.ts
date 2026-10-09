@@ -29,14 +29,14 @@ export async function POST(request: Request) {
   try {
     const userId = await requireUserId();
     if (!userId) {
-      return jsonError("กรุณาเข้าสู่ระบบก่อนสร้างการ์ด", 401);
+      return jsonError("Please sign in before creating cards", 401);
     }
 
     const body = await request.json().catch(() => null);
     const payload = createCardsSchema.parse(body);
     const membership = await assertProjectMember(payload.projectId, userId);
     if (!membership) {
-      return jsonError("คุณไม่มีสิทธิ์เข้าถึงโปรเจกต์นี้", 403);
+      return jsonError("You do not have permission to access this project", 403);
     }
 
     const board = await prisma.board.findUnique({
@@ -51,15 +51,15 @@ export async function POST(request: Request) {
     });
 
     if (!board || board.projectId !== payload.projectId) {
-      return jsonError("ไม่พบบอร์ดนี้ในโปรเจกต์ที่เลือก", 404);
+      return jsonError("Board not found in the specified project", 404);
     }
     if (!canAccessBoard(board, userId, membership.role)) {
-      return jsonError("คุณไม่มีสิทธิ์เข้าถึงบอร์ดนี้", 403);
+      return jsonError("You do not have permission to access this board", 403);
     }
 
     const columnsById = new Map(board.columns.map((column) => [column.id, column]));
     if (payload.cards.some((card) => !columnsById.has(card.columnId))) {
-      return jsonError("มีคอลัมน์ที่ไม่ได้อยู่ในบอร์ดนี้", 422);
+      return jsonError("Specified column does not belong to this board", 422);
     }
 
     const createdCards = await prisma.$transaction(async (tx) => {
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ createdCount: createdCards.length, cards: createdCards }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return jsonError("ข้อมูลการ์ดไม่ถูกต้อง ตรวจสอบชื่อ ความยาว และกำหนดส่งอีกครั้ง", 422);
+      return jsonError("Invalid card data. Please check title, description, and due date format.", 422);
     }
     return parseError(error);
   }
