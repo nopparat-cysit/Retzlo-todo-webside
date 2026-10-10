@@ -16,7 +16,6 @@ import {
   FileText,
   ListFilter,
   MoreVertical,
-  Paperclip,
   Plus,
   Search,
   Sparkles,
@@ -191,7 +190,7 @@ export function BoardListView({
   // Table filters & sorting
   const [tableSearch, setTableSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [sortField, setSortField] = useState<"title" | "priority" | "status" | "dueDate" | "startDate" | null>(null);
+  const [sortField, setSortField] = useState<"title" | "priority" | "status" | "dueDate" | "startDate" | "storyPoints" | "checklist" | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Quick inline creation
@@ -220,7 +219,9 @@ export function BoardListView({
     }));
   };
 
-  const handleSort = (field: "title" | "priority" | "status" | "dueDate" | "startDate") => {
+  type TableSortField = "title" | "priority" | "status" | "dueDate" | "startDate" | "storyPoints" | "checklist";
+
+  const handleSort = (field: TableSortField) => {
     if (sortField === field) {
       if (sortDirection === "asc") {
         setSortDirection("desc");
@@ -231,6 +232,17 @@ export function BoardListView({
       setSortField(field);
       setSortDirection("asc");
     }
+  };
+
+  const renderSortIcon = (field: TableSortField) => {
+    if (sortField !== field) {
+      return <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />;
+    }
+    return sortDirection === "asc" ? (
+      <ArrowUp className="h-3 w-3 text-indigo-500" />
+    ) : (
+      <ArrowDown className="h-3 w-3 text-indigo-500" />
+    );
   };
 
   // Quick add from group header or bottom row
@@ -549,11 +561,19 @@ export function BoardListView({
         } else if (sortField === "startDate") {
           valA = a.startDate ? new Date(a.startDate).getTime() : 0;
           valB = b.startDate ? new Date(b.startDate).getTime() : 0;
+        } else if (sortField === "storyPoints") {
+          const aPoints = a.difficulty !== null && a.difficulty !== undefined ? Number(a.difficulty) : (sortDirection === "asc" ? Infinity : -Infinity);
+          const bPoints = b.difficulty !== null && b.difficulty !== undefined ? Number(b.difficulty) : (sortDirection === "asc" ? Infinity : -Infinity);
+          valA = aPoints;
+          valB = bPoints;
+        } else if (sortField === "checklist") {
+          valA = a.checklist?.length ?? 0;
+          valB = b.checklist?.length ?? 0;
         }
 
         if (valA < valB) return sortDirection === "asc" ? -1 : 1;
         if (valA > valB) return sortDirection === "asc" ? 1 : -1;
-        return 0;
+        return (a.position ?? 0) - (b.position ?? 0);
       });
     }
 
@@ -720,11 +740,7 @@ export function BoardListView({
             >
               <span className="font-bold text-stone-500 dark:text-stone-400 text-[10px] font-mono">Tt</span>
               <span className="font-bold">Task Title</span>
-              {sortField === "title" ? (
-                <ArrowUpDown className="h-3 w-3 text-indigo-500" />
-              ) : (
-                <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
-              )}
+              {renderSortIcon("title")}
             </div>
 
             {/* 2. Priority */}
@@ -733,7 +749,7 @@ export function BoardListView({
               className="w-32 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
             >
               <span className="font-bold">Priority</span>
-              <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
+              {renderSortIcon("priority")}
             </div>
 
             {/* 3. Assignee */}
@@ -749,7 +765,7 @@ export function BoardListView({
               className="w-36 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
             >
               <span className="font-bold">Status</span>
-              <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
+              {renderSortIcon("status")}
             </div>
 
             {/* 5. Start Date */}
@@ -759,7 +775,7 @@ export function BoardListView({
             >
               <Calendar className="h-3 w-3 text-stone-400" />
               <span className="font-bold">Start Date</span>
-              <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
+              {renderSortIcon("startDate")}
             </div>
 
             {/* 6. Due Date */}
@@ -769,19 +785,27 @@ export function BoardListView({
             >
               <Calendar className="h-3 w-3 text-stone-400" />
               <span className="font-bold">Due Date</span>
-              <ChevronDown className="h-3 w-3 text-stone-400 opacity-60" />
+              {renderSortIcon("dueDate")}
             </div>
 
             {/* 7. Story Points */}
-            <div className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
+            <div
+              onClick={() => handleSort("storyPoints")}
+              className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
+            >
               <Zap className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
               <span className="font-bold">Story Points</span>
+              {renderSortIcon("storyPoints")}
             </div>
 
-            {/* 8. Files / Checklist */}
-            <div className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 select-none">
-              <Paperclip className="h-3 w-3 text-stone-400" />
-              <span className="font-bold">Files</span>
+            {/* 8. Checklist */}
+            <div
+              onClick={() => handleSort("checklist")}
+              className="w-28 px-2 py-2.5 flex items-center justify-center gap-1 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
+            >
+              <CheckSquare className="h-3 w-3 text-stone-400" />
+              <span className="font-bold">Checklist</span>
+              {renderSortIcon("checklist")}
             </div>
 
             {/* 9. Notes */}
@@ -1117,7 +1141,7 @@ export function BoardListView({
                       )}
                     </div>
 
-                    {/* 8. Files / Checklist */}
+                    {/* 8. Checklist */}
                     <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
                       {checklistTotal > 0 ? (
                         <span className="inline-flex items-center gap-1 rounded bg-stone-100 px-1.5 py-0.5 text-[10px] text-stone-600 dark:bg-white/10 dark:text-stone-400">
@@ -1127,10 +1151,7 @@ export function BoardListView({
                           </span>
                         </span>
                       ) : (
-                        <span className="text-stone-400 flex items-center justify-center gap-1">
-                          <Paperclip className="h-3 w-3 opacity-60" />
-                          <span>0 files</span>
-                        </span>
+                        <span className="text-stone-400">-</span>
                       )}
                     </div>
 
@@ -1532,7 +1553,16 @@ export function BoardListView({
                               </div>
 
                               <div className="w-28 px-2 py-1.5 text-center font-mono text-[11px] text-stone-500">
-                                {checklistTotal > 0 ? `${checklistDone}/${checklistTotal}` : "0 files"}
+                                {checklistTotal > 0 ? (
+                                  <span className="inline-flex items-center gap-1 rounded bg-stone-100 px-1.5 py-0.5 text-[10px] text-stone-600 dark:bg-white/10 dark:text-stone-400">
+                                    <CheckSquare className="h-3 w-3" />
+                                    <span>
+                                      {checklistDone}/{checklistTotal}
+                                    </span>
+                                  </span>
+                                ) : (
+                                  "-"
+                                )}
                               </div>
 
                               <div className="w-24 px-2 py-1.5 text-center text-stone-500">

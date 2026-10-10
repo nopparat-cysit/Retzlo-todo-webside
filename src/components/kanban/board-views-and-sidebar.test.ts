@@ -125,8 +125,11 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(listViewSource).toContain("Start Date");
     expect(listViewSource).toContain("Due Date");
     expect(listViewSource).toContain("Story Points");
-    expect(listViewSource).toContain("Files");
+    expect(listViewSource).toContain("Checklist");
     expect(listViewSource).toContain("Notes");
+    expect(listViewSource).toContain('handleSort("storyPoints")');
+    expect(listViewSource).toContain('handleSort("checklist")');
+    expect(listViewSource).not.toContain("0 files");
 
     // Priority pills with P0, P1, P2
     expect(listViewSource).toContain("P0");
@@ -174,5 +177,21 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     // Completed state renders checked button immediately
     expect(listViewSource).toContain("border-emerald-500 bg-emerald-500 text-white");
   });
+
+  it("enables sorting by story points and displays checklist column with subtask counts instead of files", () => {
+    // Story points sort handler and Zap icon
+    expect(listViewSource).toContain('handleSort("storyPoints")');
+    expect(listViewSource).toContain('sortField === "storyPoints"');
+
+    // Checklist column and sort handler
+    expect(listViewSource).toContain('handleSort("checklist")');
+    expect(listViewSource).toContain('sortField === "checklist"');
+
+    // Checklist subtask items are displayed as counts, not files
+    expect(listViewSource).toContain("{checklistDone}/{checklistTotal}");
+    expect(listViewSource).not.toContain("0 files");
+    expect(listViewSource).not.toContain("<Paperclip");
+  });
 });
+
 
