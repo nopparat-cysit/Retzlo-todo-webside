@@ -1,16 +1,17 @@
 "use client";
 
-import Link from "next/link";
+import { ArrowRight, AtSign, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { MixtapeField } from "./mixtape-field";
+import styles from "./login-scene.module.css";
+import { useToast } from "@/components/ui/toast";
 
 export function RegisterForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -28,7 +29,8 @@ export function RegisterForm() {
     const name = String(formData.get("name"));
 
     if (password !== confirmPassword) {
-      setError("The melodies must match. Please confirm your password.");
+      setError("Passwords do not match. Please check both fields.");
+      toast({ type: "error", message: "Please check your registration details." });
       setIsPending(false);
       return;
     }
@@ -47,98 +49,32 @@ export function RegisterForm() {
 
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
-      setError(data.error ?? "The ink didn't take. Please try again.");
+      setError(data.error ?? "Could not create your account. Please try again.");
+      toast({ type: "error", message: "Please check your registration details." });
       setIsPending(false);
       return;
     }
 
     await signIn("credentials", { email, identifier: email, password, redirect: false });
+    toast({ type: "success", message: "Your account is ready. Welcome to Retzlo!" });
     const destination = searchParams.get("callbackUrl") ?? "/projects";
     router.push(destination);
     router.refresh();
   }
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
-      <div className="space-y-1.5">
-        <Label htmlFor="name" className="text-theme-muted text-xs tracking-widest">YOUR NAME</Label>
-        <Input 
-          id="name" 
-          name="name" 
-          placeholder="Quiet dreamer" 
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
-        />
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <div className={styles.fieldRow}>
+        <MixtapeField id="name" name="name" label="Your name" icon={UserRound} placeholder="Your name" autoComplete="name" />
+        <MixtapeField id="username" name="username" label="Username" icon={AtSign} placeholder="yourname" autoComplete="username" autoCapitalize="none" spellCheck={false} required />
       </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="username" className="text-theme-muted text-xs tracking-widest">USERNAME</Label>
-        <Input 
-          id="username" 
-          name="username" 
-          placeholder="lofi_observer" 
-          required 
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-theme-muted text-xs tracking-widest">EMAIL</Label>
-        <Input 
-          id="email" 
-          name="email" 
-          type="email" 
-          placeholder="you@retzlo.space" 
-          required 
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-theme-muted text-xs tracking-widest">PASSWORD</Label>
-          <Input 
-            id="password" 
-            name="password" 
-            type="password" 
-            minLength={8}
-            placeholder="••••••••" 
-            required 
-            className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword" className="text-theme-muted text-xs tracking-widest">CONFIRM</Label>
-          <Input 
-            id="confirmPassword" 
-            name="confirmPassword" 
-            type="password" 
-            minLength={8}
-            placeholder="••••••••" 
-            required 
-            className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
-          />
-        </div>
-      </div>
-
-      {error ? (
-        <p className="rounded-xl border border-theme-danger-border bg-theme-danger-surface p-3 text-center text-sm text-theme-danger">
-          {error}
-        </p>
-      ) : null}
-
-      <Button 
-        className="w-full h-12 text-base font-medium motion-interactive bg-dusk-lavender hover:bg-dusk-amber text-ink-950 shadow-glow" 
-        disabled={isPending}
-      >
-        {isPending ? "Lighting the lantern..." : "Begin your archive"}
-      </Button>
-
-      <p className="mt-3 text-center text-xs text-theme-muted leading-relaxed">
-        By signing up, you agree to our{" "}
-        <Link href="/terms" className="underline hover:text-dusk-lavender transition-colors underline-offset-2">Terms of Service</Link>{" "}
-        and{" "}
-        <Link href="/privacy" className="underline hover:text-dusk-lavender transition-colors underline-offset-2">Privacy Policy</Link>.
-      </p>
+      <MixtapeField id="email" name="email" label="Email address" icon={Mail} type="email" placeholder="you@example.com" autoComplete="email" required />
+      <MixtapeField id="password" name="password" label="Password" icon={LockKeyhole} type="password" minLength={8} placeholder="At least 8 characters" autoComplete="new-password" required />
+      <MixtapeField id="confirmPassword" name="confirmPassword" label="Confirm password" icon={LockKeyhole} type="password" minLength={8} placeholder="Re-enter your password" autoComplete="new-password" required />
+      {error ? <p role="alert" className={styles.error}>{error}</p> : null}
+      <button type="submit" className={styles.submit} disabled={isPending} aria-busy={isPending}>
+        {isPending ? "Creating your account..." : <>Create account <ArrowRight size={16} /></>}
+      </button>
     </form>
   );
 }

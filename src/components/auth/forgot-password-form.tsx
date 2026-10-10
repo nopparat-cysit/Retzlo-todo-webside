@@ -3,11 +3,14 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ArrowRight, Mail } from "lucide-react";
+import { MixtapeField } from "./mixtape-field";
+import styles from "./login-scene.module.css";
+import { useToast } from "@/components/ui/toast";
 
 export function ForgotPasswordForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
@@ -28,19 +31,22 @@ export function ForgotPasswordForm() {
     if (!response.ok) {
       const data = (await response.json()) as { error?: string };
       setError(data.error ?? "Could not send OTP.");
+      toast({ type: "error", message: data.error ?? "Could not send OTP." });
       return;
     }
 
+    toast({ type: "success", message: "Check your email for the recovery code." });
     router.push(`/reset-password?email=${encodeURIComponent(email)}`);
   }
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <Input name="email" type="email" placeholder="you@example.com" required />
-      {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
-      <Button className="w-full" disabled={isPending}>
-        {isPending ? "Sending..." : "Send OTP"}
-      </Button>
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <MixtapeField id="recovery-email" name="email" label="Email address" icon={Mail} type="email" placeholder="you@example.com" autoComplete="email" required />
+      <p className={styles.fieldHint}>Use the email address linked to your Retzlo account.</p>
+      {error ? <p role="alert" className={styles.error}>{error}</p> : null}
+      <button type="submit" className={styles.submit} disabled={isPending} aria-busy={isPending}>
+        {isPending ? "Sending code..." : <>Send recovery code <ArrowRight size={16} /></>}
+      </button>
     </form>
   );
 }

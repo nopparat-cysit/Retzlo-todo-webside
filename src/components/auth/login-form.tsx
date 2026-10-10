@@ -4,14 +4,17 @@ import { getSession, signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import { ArrowRight, Eye, EyeOff, Loader2, LockKeyhole, UserRound } from "lucide-react";
+import styles from "./login-scene.module.css";
+
+
 import { getRememberedAccount, setRememberedAccount } from "@/lib/auth/remember-account";
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [identifier, setIdentifier] = useState("");
@@ -65,12 +68,11 @@ export function LoginForm() {
     setIsPending(false);
 
     if (!result || result.error) {
-      setError("The quiet night holds many paths. Try again with your details.");
+      setError("Unable to sign in. Check your username or email and password, then try again.");
       return;
     }
 
     setRememberedAccount(window.localStorage, submittedIdentifier, rememberAccount);
-
     const callbackUrl = searchParams.get("callbackUrl");
     const destination = callbackUrl ?? "/projects";
     router.push(destination);
@@ -78,55 +80,30 @@ export function LoginForm() {
   }
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit}>
-      <div className="space-y-1.5">
-        <Label htmlFor="identifier" className="text-theme-muted text-xs tracking-widest">IDENTIFIER</Label>
-        <Input
-          id="identifier"
-          name="email"
-          type="text"
-          placeholder="yourname or you@email.com"
-          required
-          value={identifier}
-          onChange={(event) => setIdentifier(event.target.value)}
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
-        />
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <div className={styles.field}>
+        <label htmlFor="identifier" className={styles.label}>Username or email</label>
+        <div className={styles.inputWrap}>
+          <UserRound size={16} aria-hidden="true" />
+          <input id="identifier" name="email" type="text" placeholder="yourname or you@email.com" autoComplete="username" autoCapitalize="none" spellCheck={false} required value={identifier} onChange={(event) => setIdentifier(event.target.value)} className={styles.input} aria-invalid={Boolean(error)} aria-describedby={error ? "login-error" : undefined} />
+        </div>
       </div>
-      
-      <div className="space-y-1.5">
-        <Label htmlFor="password" className="text-theme-muted text-xs tracking-widest">PASSWORD</Label>
-        <Input 
-          id="password" 
-          name="password" 
-          type="password" 
-          placeholder="password" 
-          required 
-          className="lofi-panel border-white/10 bg-white/[0.04] focus:border-dusk-lavender/60 text-theme-foreground"
-        />
+      <div className={styles.field}>
+        <label htmlFor="password" className={styles.label}>Password</label>
+        <div className={styles.inputWrap}>
+          <LockKeyhole size={16} aria-hidden="true" />
+          <input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Your password" autoComplete="current-password" required className={styles.input} aria-invalid={Boolean(error)} aria-describedby={error ? "login-error" : undefined} />
+          <button type="button" className={styles.reveal} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword((current) => !current)}>{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+        </div>
       </div>
-
-      <label className="flex items-center gap-2 text-sm text-theme-muted cursor-pointer hover:text-theme-foreground transition-colors">
-        <input
-          className="h-4 w-4 accent-dusk-lavender rounded-sm"
-          type="checkbox"
-          checked={rememberAccount}
-          onChange={(event) => setRememberAccount(event.target.checked)}
-        />
-        Remember me in this cozy corner
-      </label>
-
-      {error ? (
-        <p className="rounded-xl border border-theme-danger-border bg-theme-danger-surface p-3 text-center text-sm text-theme-danger">
-          {error}
-        </p>
-      ) : null}
-
-      <Button 
-        className="w-full h-12 text-base font-medium motion-interactive bg-dusk-lavender hover:bg-dusk-amber text-ink-950 shadow-glow" 
-        disabled={isPending}
-      >
-        {isPending ? "Walking the path..." : "Enter the workspace"}
-      </Button>
+      <div className={styles.options}>
+        <label className={styles.remember}><input type="checkbox" checked={rememberAccount} onChange={(event) => setRememberAccount(event.target.checked)} />Remember me</label>
+        <Link href="/forgot-password" className={styles.forgot}>Forgot password?</Link>
+      </div>
+      {error ? <p id="login-error" role="alert" className={styles.error}>{error}</p> : null}
+      <button type="submit" className={styles.submit} disabled={isPending} aria-busy={isPending}>
+        {isPending ? <><Loader2 size={16} className={styles.spinning} /> Signing in...</> : <>Sign in <ArrowRight size={16} /></>}
+      </button>
     </form>
   );
 }

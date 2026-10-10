@@ -186,6 +186,7 @@ Marketing home คงฉากหลังแบบ dark brand scene; ข้อ�
 |---|---|---|---|
 | Marketing home | `src/app/(marketing)/page.tsx` | ตรวจภาพ local light หลัง implementation; ตรวจ source และ dev server output | ใช้ fixed dark-scene foreground; stars deterministic; `fill` images มี `sizes` และ relative wrappers; production ยังเป็น dark brand scene โดยตั้งใจ |
 | Privacy / Terms | `src/app/(marketing)/privacy`, `terms` | ตรวจภาพ dark บนเว็บจริงและ light ใน local dev; ตรวจ source | พื้นและ legal panels อ่านได้; ยังคง dark brand palette ใน light preference; ตรวจ link/selection เพิ่มเมื่อมีการย้าย token |
+| Auth mixtape | `/login`, `/register`, `/forgot-password`: MixtapeAuthScene, MixtapeField and auth forms | Light/dark semantic form; desktop/mobile, focus, pending/error and reduced-motion checks recorded in session note | Fixed illustration palette; desktop-only board demo, mobile player control |
 | Auth | login, register, forgot/reset password, accept invitation | login ตรวจภาพ local light หลัง implementation; source review สำหรับ forms, all invitation states และอีก 4 routes | หัวข้อ/description/labels/forms/error/success ใช้ semantic tokens; valid invitation states ยังต้องตรวจ visual ด้วย test token |
 | Projects dashboard | `src/app/(dashboard)/projects` | ตรวจภาพ light/dark local desktop หลัง implementation; mobile light 390x844 จากรอบ audit ก่อนแก้ | Workspace hero ใช้ panel token และชื่อ switcher foreground token; mobile มี horizontal scroller ภายใน shortcut bar; retest mobile หลังแก้คงเหลือ |
 | Profile | `src/app/(dashboard)/profile` | ตรวจภาพ light/dark ในรอบ audit ก่อนแก้; source review รอบ implementation; mobile light 390x844 เดิม | Online/Busy/Offline และ status feedback เปลี่ยนเป็น semantic foreground/surface/border; ต้องตรวจ visual post-fix และ mobile ซ้ำ |
@@ -617,3 +618,43 @@ Template:
 - Theme modes reviewed: light and dark via token usage only; no new fixed palette values. Gemini rainbow sparkle remains the documented brand exception.
 - Shared change: `useLanguage()` now exposes `isEn`. This fixes components that already destructured `isEn` (`DatePicker`, `TimePicker`, `DateTimePicker`, `HelpButton`, `NotificationsPopover`, `ProjectMembersView`, `DraftRecoveryModal`) which were previously always rendering Thai copy.
 - Remaining gaps: `AiBreakdownModal` and `AiProjectSummaryModal` not restyled in this pass.
+
+### 2026-10-10 — Login mixtape scene
+- Coverage matrix addition: `/login` → `LoginScene`, `LoginForm`, `login-scene.module.css`; light/dark form, normal/focus/error/pending/disabled states, desktop board demo, mobile compact hero, and reduced motion.
+- Form uses existing semantic background/panel/paper/foreground/muted/border/accent/danger tokens; no shared tokens or primitives changed. Other authentication routes continue to use `AuthScene`.
+- Intentional fixed palette exception: generated cassette artwork and its decorative board/player/sticker use indigo, lilac, pink, cream, and yellow in both modes. These are brand illustration layers, not application surfaces.
+- Reviewed in installed Edge: desktop 1440x1000 and mobile 390x844 in resolved light/dark; focus, password reveal, demo card cycle, player, pending/error feedback (mocked response), and reduced motion verified. No horizontal overflow or page errors. Source and browser results are recorded in the session note; real successful credential sign-in was not exercised.
+- Inspiration: https://linear.app/docs/board-layout and https://www.awwwards.com/inspiration/3d-parallax-with-mouse-movement-soul-aether . Adapted as a small clickable preview and bounded pointer motion; no third-party scripts or copied site code.
+
+### 2026-10-10 — Login composition refinement
+- `/login` retains semantic form tokens and fixed brand artwork palette. No shared tokens or primitives changed.
+- Replaced the large three-column decorative board with one small floating card and active status indicators to preserve cassette visibility. Enlarged form typography and adjusted spacing; compact hero breakpoint is now 760px.
+- Light/dark desktop, mobile, keyboard, pending/error, and reduced-motion re-verification recorded in the work note.
+
+### 2026-10-10 — Playful login artwork
+- `/login`: replaced the cinematic city/cassette scene with a flat retro cassette illustration, lavender/pink gradient and sparse pixel clouds. Updated the image alt text and softened local overlays.
+- Brand illustration remains an intentional fixed-palette exception in both themes. No shared tokens/primitives changed; impact is scoped to `LoginScene` artwork and local overlay styles.
+- Desktop/mobile light/dark artwork crop and white-text contrast are reviewed in the work note; existing interaction verification is rerun with the new image.
+
+### 2026-10-10 — Shared authentication design
+- Coverage: `/login`, `/register`, `/forgot-password` now consume `MixtapeAuthScene` (`login-scene.tsx`) and shared CSS. Registration/recovery use `MixtapeField` for semantic inputs, label/focus states and password visibility.
+- Shared primitive impact: layout/copy and local CSS affect these three routes only. Existing global theme tokens remain unchanged; the cassette and demo/player palette remain documented fixed brand colors.
+- Registration uses a two-field name/username row on desktop and stacked fields on small screens; taller forms remain scrollable. Light/dark, desktop/mobile, validation/error/pending, and keyboard checks are recorded in the session note.
+- Reset-password and invitation flows continue using the existing `AuthScene`.
+
+### 2026-10-10 — Subtle player effects
+- Shared impact: `/login`, `/register`, `/forgot-password` via `MixtapeAuthScene` and local CSS only. Play adds restrained ambient glow/music notes/button halo; Pause removes all three. Mobile hides notes; reduced motion uses a static faint glow.
+- Decorative glow/note colors are part of the existing fixed artwork palette exception. Form surfaces, focus behavior and shared global tokens unchanged.
+- Playing/paused, desktop/mobile, light/dark, and reduced-motion checks are recorded in the work note.
+
+### 2026-10-10 — Auth cassette logo
+- Shared impact: MixtapeAuthScene on /login, /register, /forgot-password replaces the asterisk with a small cassette SVG and lowercase wordmark. Desktop/mobile sizing and keyboard focus are scoped to auth CSS.
+- SVG lilac/pink/cream/indigo values belong to the existing fixed brand-artwork exception. Global tokens and other logo consumers are unchanged. Light/dark and responsive review recorded in the work note.
+
+### 2026-10-10 — Idle auth logo motion
+- Shared coverage: /login, /register, /forgot-password use MixtapeLogoMark with local 6-second 3px float/2-degree tilt and 10-second reel rotation. Wordmark and layout remain still.
+- Light/dark artwork palette unchanged. Hover/focus pauses the mark; reduced motion disables both animations. Desktop/mobile and idle/paused/reduced states reviewed in the session note. Global tokens unchanged.
+
+### 2026-10-10 — Stable auth navigation frame
+- Shared impact: auth CSS keeps the same responsive desktop frame height across /login, /register, /forgot-password. Form panels scroll independently with a reserved scrollbar gutter. Mobile uses a top-anchored natural-height layout.
+- Palette/tokens unchanged. Review route navigation, light/dark, desktop/mobile, short viewport, registration errors and keyboard access in the work note.

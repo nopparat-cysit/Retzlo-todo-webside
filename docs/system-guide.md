@@ -235,3 +235,34 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
    - อ้างอิง Semantic Theme Tokens และหลีกเลี่ยง Hardcoded Colors
 3. **การทดสอบความถูกต้อง:**
    - รัน `npm run lint`, `npm run build` และ `npx prisma validate` ทุกครั้งก่อนปิดงาน
+
+### 2026-10-10 — Interactive mixtape login
+- `/login` uses a dedicated split scene: cassette illustration, subtle pointer parallax, compact sample Kanban board, and visual Play/Pause control. There is no audio playback.
+- Desktop: click the demo card (or focus it and press Enter/Space) to preview To do → In progress → Done → To do. This changes local presentation state only, never project data or stored account data.
+- Mobile: compact illustrated header; the sample board is hidden to prioritize the form. Play/Pause remains available.
+- Sign in with username/email and password; Remember me stores the account identifier only. Use Show/Hide password, Forgot password, or Create an account as needed. Existing authentication and callback behavior are retained.
+- Motion is opt-in for the player; pointer parallax and card transitions respect `prefers-reduced-motion`.
+
+### 2026-10-10 — Login composition refinement
+The login hero now gives the cassette illustration more room. A small floating task card with a three-stage indicator replaces the miniature multi-column board. Clicking cycles the same local-only demo states. Form labels, inputs, supporting text and controls are larger, with a narrower centered form column. Mobile switches to the compact layout at 760px.
+
+### 2026-10-10 — Playful login artwork
+`/login` now uses a flat illustrated purple/pink cassette with pixel clouds and a soft gradient instead of the detailed city/rooftop scene. The floating demo card, form and visual player interactions remain the same.
+
+### 2026-10-10 — Shared authentication design
+- `/login`, `/register`, and `/forgot-password` share `MixtapeAuthScene`: playful cassette artwork, local demo card, visual player, responsive form panel and mode-specific headings/navigation.
+- `MixtapeField` gives registration and recovery matching labels/icons, focus styling and accessible show/hide password controls. Register retains name, username, email, password and confirmation; remembered login and callback navigation are unchanged.
+- Registration and recovery display success/error toast notifications alongside inline errors. Recovery retains the same email payload and continues to the existing `/reset-password?email=...` OTP step.
+- `/reset-password` and invitation routes retain their existing layouts in this change.
+
+### 2026-10-10 — Subtle player effects
+On the shared login/register/forgot-password scene, Play adds a slow ambient glow, two quiet drifting music notes on desktop, and a soft halo around the player button. Pause stops the effects. On mobile the notes are hidden. Reduced-motion mode uses a static, faint glow only. The player remains visual-only and does not play audio.
+
+### 2026-10-10 — Auth logo
+The three shared auth pages use a lowercase Retzlo wordmark with a small purple/pink vector cassette mark. The logo links to home and has a visible keyboard focus outline.
+
+### 2026-10-10 — Idle logo motion
+The cassette logo gently floats and its reels turn automatically on all three shared auth pages, independently of Play/Pause. The wordmark stays still. Hovering or focusing the home logo pauses its motion; reduced-motion preference disables it entirely.
+
+### 2026-10-10 — Stable auth route layout
+Login, registration and password recovery share a viewport-responsive desktop frame height, so switching forms keeps the artwork and outer frame in place. Long desktop forms scroll within the form panel; mobile pages stay anchored at the top and scroll normally.
