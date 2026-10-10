@@ -52,8 +52,6 @@ import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
 import { ProjectAppearanceControls } from "@/components/project/project-appearance-controls";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
-import { AiChatTrigger } from "@/components/ai/ai-chat-trigger";
-import { HelpButton } from "@/components/ui/help-button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { defaultCalendarFilters, filterCalendarItems } from "@/lib/calendar/view";
 import { formatShortDue } from "@/lib/date-format";
@@ -567,9 +565,8 @@ export function ProjectsDashboard({
           {/* Quick Actions & System Tools Bar */}
           <div className="mt-3 flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-100/70 p-1.5 dark:border-white/10 dark:bg-white/[0.03] shadow-inner">
             <LanguageSwitcher />
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               <NotificationsPopover />
-              <AiChatTrigger />
               {userProfile && (
                 <UserProfilePopover
                   avatar={userProfile.avatar}
@@ -592,7 +589,6 @@ export function ProjectsDashboard({
                   variant="avatar"
                 />
               )}
-              <HelpButton />
             </div>
           </div>
 
