@@ -12,7 +12,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { CheckSquare, Coins, GripVertical, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
+import { AlertCircle, CheckSquare, Coins, GripVertical, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { playCardCreateSound } from "@/lib/sound";
@@ -29,6 +29,7 @@ import { CardChatTimeline } from "@/components/kanban/card-chat-timeline";
 import { AiBreakdownModal } from "@/components/ai/ai-breakdown-modal";
 import { getAiAuthHeaders } from "@/lib/ai/client-key";
 import { useFormDraft } from "@/hooks/use-form-draft";
+import { useLiveSync } from "@/hooks/use-live-sync";
 import { composeDueDate, composeStartDate } from "@/lib/kanban/due-date";
 import {
   DIFFICULTY_CONFIGS,
@@ -529,29 +530,104 @@ export function CardModal({
     setMounted(true);
   }, []);
 
+  const hasChangesRef = useRef(hasChanges);
+  hasChangesRef.current = hasChanges;
+
+  const [remoteConflictDetected, setRemoteConflictDetected] = useState(false);
+  const [pendingRemoteCard, setPendingRemoteCard] = useState<Card | null>(null);
+  const lastSyncedUpdatedAtRef = useRef<string | Date | undefined>(card?.updatedAt);
+  const cardIdRef = useRef<string | undefined>(card?.id);
+
+  const applyCardDataToForm = useCallback((targetCard?: Card) => {
+    setStartDate(startDateValue(targetCard));
+    setStartTime(startTimeValue(targetCard));
+    setDate(dateValue(targetCard));
+    setTime(timeValue(targetCard));
+    setSelectedStatus(targetCard?.status ?? "TODO");
+    setSelectedColor(normalizeCardColor(targetCard?.color));
+    setSelectedPriority(targetCard?.priority ?? "MEDIUM");
+    setDifficulty(targetCard?.difficulty ?? null);
+    setAssigneeIds(targetCard?.assigneeIds ?? []);
+    setIsStarred(targetCard?.isStarred ?? false);
+    setChecklist(targetCard?.checklist ?? []);
+    setNewChecklistItem("");
+    setTitle(targetCard?.title ?? "");
+    setDescription(targetCard?.description ?? "");
+    setRewardCoins(targetCard?.rewardCoins ?? 0);
+    setShowCoinRewards(Boolean(targetCard?.rewardCoins));
+    setStickers(normalizeRetroStickerSelection(targetCard?.stickers));
+    lastSyncedUpdatedAtRef.current = targetCard?.updatedAt;
+  }, []);
+
+  const handleRemoteCardUpdate = useCallback((incomingCard: Card) => {
+    if (!incomingCard || incomingCard.id !== cardIdRef.current) return;
+    const incomingTime = incomingCard.updatedAt ? new Date(incomingCard.updatedAt).getTime() : 0;
+    const lastTime = lastSyncedUpdatedAtRef.current ? new Date(lastSyncedUpdatedAtRef.current).getTime() : 0;
+
+    if (incomingTime > lastTime) {
+      if (hasChangesRef.current) {
+        setRemoteConflictDetected(true);
+        setPendingRemoteCard(incomingCard);
+      } else {
+        applyCardDataToForm(incomingCard);
+        setRemoteConflictDetected(false);
+        setPendingRemoteCard(null);
+      }
+    }
+  }, [applyCardDataToForm]);
+
+  const handleRemoteSync = useCallback(async () => {
+    if (!card?.id || !open) return;
+    try {
+      const res = await fetch(`/api/cards?cardId=${encodeURIComponent(card.id)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.card) {
+          handleRemoteCardUpdate(data.card);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [card?.id, open, handleRemoteCardUpdate]);
+
+  useLiveSync({
+    channelKey: open && card?.id ? `card:${card.id}` : [],
+    intervalMs: 0,
+    enabled: Boolean(open && card?.id),
+    onSync: handleRemoteSync
+  });
+
+  const handleLoadLatestChanges = useCallback(() => {
+    const target = pendingRemoteCard || card;
+    if (target) {
+      applyCardDataToForm(target);
+      setRemoteConflictDetected(false);
+      setPendingRemoteCard(null);
+      toast({ message: "Loaded latest changes from teammate", type: "info" });
+    }
+  }, [pendingRemoteCard, card, applyCardDataToForm, toast]);
+
+  const handleDismissConflict = useCallback(() => {
+    setRemoteConflictDetected(false);
+  }, []);
+
   useEffect(() => {
     if (!open) {
+      setRemoteConflictDetected(false);
+      setPendingRemoteCard(null);
       return;
     }
 
-    setStartDate(startDateValue(card));
-    setStartTime(startTimeValue(card));
-    setDate(dateValue(card));
-    setTime(timeValue(card));
-    setSelectedStatus(card?.status ?? "TODO");
-    setSelectedColor(normalizeCardColor(card?.color));
-    setSelectedPriority(card?.priority ?? "MEDIUM");
-    setDifficulty(card?.difficulty ?? null);
-    setAssigneeIds(card?.assigneeIds ?? []);
-    setIsStarred(card?.isStarred ?? false);
-    setChecklist(card?.checklist ?? []);
-    setNewChecklistItem("");
-    setTitle(card?.title ?? "");
-    setDescription(card?.description ?? "");
-
-    setRewardCoins(card?.rewardCoins ?? 0);
-    setShowCoinRewards(Boolean(card?.rewardCoins));
-    setStickers(normalizeRetroStickerSelection(card?.stickers));
+    if (cardIdRef.current !== card?.id) {
+      cardIdRef.current = card?.id;
+      lastSyncedUpdatedAtRef.current = card?.updatedAt;
+      setRemoteConflictDetected(false);
+      setPendingRemoteCard(null);
+      applyCardDataToForm(card);
+    } else if (card) {
+      handleRemoteCardUpdate(card);
+    }
 
     async function fetchUser() {
       try {
@@ -568,7 +644,7 @@ export function CardModal({
       } catch {}
     }
     void fetchUser();
-  }, [card, open]);
+  }, [card, open, applyCardDataToForm, handleRemoteCardUpdate]);
 
   if (!open || !mounted) {
     return null;
@@ -746,6 +822,33 @@ export function CardModal({
       </div>
 
         <div ref={modalBodyRef} className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-3.5 sm:p-5">
+        {remoteConflictDetected && (
+          <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200 shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
+              <span className="font-medium text-xs sm:text-sm">
+                Notice: This card was modified by a teammate while you were editing.
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleLoadLatestChanges}
+                className="h-7 text-xs bg-amber-500 hover:bg-amber-600 text-stone-900 font-bold border-0 cursor-pointer"
+              >
+                Load Latest Changes
+              </Button>
+              <button
+                type="button"
+                onClick={handleDismissConflict}
+                className="text-xs text-amber-300 hover:text-white px-2 py-1 transition cursor-pointer"
+              >
+                Keep My Changes
+              </button>
+            </div>
+          </div>
+        )}
         <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,2fr)] lg:items-start">
           <div className="grid gap-4">
           <div className="space-y-1.5">

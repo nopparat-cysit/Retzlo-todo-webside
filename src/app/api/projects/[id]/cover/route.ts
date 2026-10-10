@@ -4,6 +4,7 @@ import { jsonError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -41,6 +42,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
       where: { id: params.id },
       data: { coverImage },
     });
+
+    await triggerPusherEvent(
+      [`retzlo-project-${params.id}`],
+      "retzlo:sync",
+      { action: "PROJECT_COVER_UPDATED", projectId: params.id, coverImage, senderId: userId }
+    );
 
     return NextResponse.json({ coverImage });
   } catch (error) {

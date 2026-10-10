@@ -5,6 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { projectAppearanceUpdateSchema } from "@/lib/projects/appearance";
 import { assertProjectMember, isOwnerRole, requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const updateProjectSettingsSchema = z.object({
   allowMemberPrivateItems: z.boolean().optional(),
@@ -46,6 +47,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         sticker: true
       }
     });
+
+    await triggerPusherEvent(
+      [`retzlo-project-${params.id}`],
+      "retzlo:sync",
+      { action: "PROJECT_SETTINGS_UPDATED", projectId: params.id, senderId: userId }
+    );
 
     return NextResponse.json({ project });
   } catch (error) {

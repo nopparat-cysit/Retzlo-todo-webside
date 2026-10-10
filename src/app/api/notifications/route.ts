@@ -4,6 +4,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { extractAssigneeIds } from "@/lib/kanban/assignees";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const markReadSchema = z.object({
   notificationId: z.string().uuid().optional(),
@@ -180,6 +181,12 @@ export async function PATCH(request: Request) {
     } else {
       return jsonError("Either notificationId or all: true must be provided.", 400);
     }
+
+    await triggerPusherEvent(
+      ["retzlo-notifications"],
+      "retzlo:sync",
+      { action: "NOTIFICATIONS_READ", userId }
+    );
 
     return NextResponse.json({ ok: true });
   } catch (error) {

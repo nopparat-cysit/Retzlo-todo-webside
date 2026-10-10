@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, isOwnerRole, requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -54,6 +55,12 @@ export async function DELETE(
     await prisma.cardComment.delete({
       where: { id: params.commentId }
     });
+
+    await triggerPusherEvent(
+      [`retzlo-card-${params.cardId}-comments`, `retzlo-project-${projectId}`],
+      "retzlo:sync",
+      { action: "COMMENT_DELETED", cardId: params.cardId, commentId: params.commentId, senderId: userId }
+    );
 
     return NextResponse.json({ ok: true });
   } catch (error) {

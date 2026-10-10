@@ -915,6 +915,15 @@ export function KanbanBoard({
   const overdueCards = columns.reduce((acc, col) => acc + col.cards.filter((c) => c.dueDate && new Date(c.dueDate) < new Date() && c.status !== "DONE").length, 0);
   const doingCards = columns.reduce((acc, col) => acc + col.cards.filter((c) => c.status === "DOING").length, 0);
 
+  const activeEditingCard = useMemo(() => {
+    if (!editingCard) return null;
+    for (const col of columns) {
+      const match = col.cards.find((c) => c.id === editingCard.id);
+      if (match) return match;
+    }
+    return editingCard;
+  }, [editingCard, columns]);
+
   return (
     <div
       className="flex h-full min-h-0 min-w-0 max-w-full flex-col overflow-hidden"
@@ -1714,7 +1723,7 @@ export function KanbanBoard({
 
       {editingCard && (
         <CardModal
-          card={editingCard}
+          card={activeEditingCard || editingCard}
           mode="edit"
           open={Boolean(editingCard)}
           onClose={() => setEditingCard(null)}

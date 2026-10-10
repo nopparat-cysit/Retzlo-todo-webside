@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { jsonError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   const userId = await requireUserId();
@@ -77,6 +78,12 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       where: { id: memberId }
     });
 
+    await triggerPusherEvent(
+      [`retzlo-project-${params.id}`],
+      "retzlo:sync",
+      { action: "MEMBER_REMOVED", projectId: params.id, memberId, senderId: userId }
+    );
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     return jsonError("Failed to remove member.", 500);
@@ -133,6 +140,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         }
       }
     });
+
+    await triggerPusherEvent(
+      [`retzlo-project-${params.id}`],
+      "retzlo:sync",
+      { action: "MEMBER_ROLE_UPDATED", projectId: params.id, memberId, role, senderId: userId }
+    );
 
     return NextResponse.json({ ok: true, member: updated });
   } catch (error) {

@@ -5,6 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { projectAppearanceUpdateSchema } from "@/lib/projects/appearance";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const updateProjectSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
@@ -73,6 +74,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }
     });
 
+    await triggerPusherEvent(
+      [`retzlo-project-${params.id}`, `retzlo-dashboard-${params.id}`],
+      "retzlo:sync",
+      { action: "PROJECT_UPDATED", projectId: params.id, senderId: userId }
+    );
+
     return NextResponse.json({ project });
   } catch (error) {
     return parseError(error);
@@ -98,6 +105,12 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
     }
 
     await prisma.project.delete({ where: { id: params.id } });
+
+    await triggerPusherEvent(
+      [`retzlo-project-${params.id}`, `retzlo-dashboard-${params.id}`],
+      "retzlo:sync",
+      { action: "PROJECT_DELETED", projectId: params.id, senderId: userId }
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

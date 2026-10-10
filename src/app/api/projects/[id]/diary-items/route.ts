@@ -8,6 +8,7 @@ import { parseCreateDiaryItemPayload } from "@/lib/diary/validation";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, canToggleHiddenItem, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 function toDiaryItemResponse(
   item: {
@@ -179,6 +180,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
         }
       }
     });
+
+    await triggerPusherEvent(
+      [`retzlo-diary-${params.id}`, `retzlo-project-${params.id}`],
+      "retzlo:sync",
+      { action: "DIARY_ITEM_CREATED", itemId: item.id, senderId: userId }
+    );
 
     return NextResponse.json(
       {

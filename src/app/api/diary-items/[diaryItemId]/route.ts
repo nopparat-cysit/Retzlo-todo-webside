@@ -13,6 +13,7 @@ import {
   requireUserId
 } from "@/lib/project-auth";
 import { normalizeCardColor } from "@/lib/theme/card-colors";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 function toDiaryItemResponse(
   item: {
@@ -182,6 +183,14 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
       });
     });
 
+    if (item.projectId) {
+      await triggerPusherEvent(
+        [`retzlo-diary-${item.projectId}`, `retzlo-project-${item.projectId}`],
+        "retzlo:sync",
+        { action: "DIARY_ITEM_UPDATED", itemId: item.id, senderId: userId }
+      );
+    }
+
     return NextResponse.json({
       diaryItem: toDiaryItemResponse(item, {
         membership: context.membership,
@@ -219,6 +228,14 @@ export async function DELETE(_request: Request, { params }: { params: { diaryIte
     await prisma.diaryItem.delete({
       where: { id: params.diaryItemId }
     });
+
+    if (context.item.projectId) {
+      await triggerPusherEvent(
+        [`retzlo-diary-${context.item.projectId}`, `retzlo-project-${context.item.projectId}`],
+        "retzlo:sync",
+        { action: "DIARY_ITEM_DELETED", itemId: params.diaryItemId, senderId: userId }
+      );
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

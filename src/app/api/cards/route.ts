@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -86,6 +87,47 @@ const updateCardSchema = z.object({
   assigneeIds: z.array(z.string().trim().min(1)).optional(),
 });
 
+export async function GET(request: Request) {
+  try {
+    const userId = await requireUserId();
+
+    if (!userId) {
+      return jsonError("Please sign in to continue.", 401);
+    }
+
+    const { searchParams } = new URL(request.url);
+    const cardId = searchParams.get("cardId");
+
+    if (!cardId) {
+      return jsonError("Card ID is required.", 400);
+    }
+
+    const projectId = await getProjectIdForCard(cardId);
+
+    if (!projectId) {
+      return jsonError("Card not found.", 404);
+    }
+
+    const membership = await assertProjectMember(projectId, userId);
+
+    if (!membership) {
+      return jsonError("You do not have access to this project.", 403);
+    }
+
+    const card = await prisma.card.findUnique({
+      where: { id: cardId }
+    });
+
+    if (!card) {
+      return jsonError("Card not found.", 404);
+    }
+
+    return NextResponse.json({ card: serializeCard(card) });
+  } catch (error) {
+    return parseError(error, "Unable to fetch card.");
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const userId = await requireUserId();
@@ -148,6 +190,36 @@ export async function POST(request: Request) {
       { action: "CARD_CREATED", cardId: card.id, senderId: userId }
     );
 
+    const newAssignees = (payload.assigneeIds || []).filter((id) => id !== userId);
+    if (newAssignees.length > 0) {
+      try {
+        const creator = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { name: true, email: true }
+        });
+        const creatorName = creator?.name || creator?.email || "Teammate";
+        await prisma.notification.createMany({
+          data: newAssignees.map((recipientId) => ({
+            id: randomUUID(),
+            userId: recipientId,
+            projectId,
+            cardId: card.id,
+            type: "TASK_ASSIGNED",
+            title: `📋 Assigned to task: "${card.title}"`,
+            message: `${creatorName} assigned you to this task.`,
+            link: `/project/${projectId}/board?cardId=${card.id}`
+          }))
+        });
+        triggerPusherEvent(
+          ["retzlo-notifications"],
+          "retzlo:sync",
+          { action: "NEW_NOTIFICATION" }
+        );
+      } catch (notifErr) {
+        console.error("Failed to deliver assignment notification:", notifErr);
+      }
+    }
+
     return NextResponse.json({ card: serializeCard(card) }, { status: 201 });
   } catch (error) {
     return parseError(error);
@@ -175,6 +247,8 @@ export async function PATCH(request: Request) {
       return jsonError("You do not have access to this project.", 403);
     }
 
+    let newlyAssignedRecipients: string[] = [];
+
     const card = await prisma.$transaction(async (tx) => {
       if (payload.status === "DONE") {
         await processCardDonePayouts(tx, payload.cardId, userId, projectId);
@@ -189,7 +263,7 @@ export async function PATCH(request: Request) {
 
       const currentCard = await tx.card.findUnique({
         where: { id: payload.cardId },
-        select: { privateCoins: true, status: true, priority: true }
+        select: { title: true, privateCoins: true, status: true, priority: true }
       });
 
       if (payload.status && currentCard && payload.status !== currentCard.status) {
@@ -245,6 +319,10 @@ export async function PATCH(request: Request) {
         }
         if (payload.assigneeIds !== undefined) {
           mergedCoins = withAssignees(mergedCoins, payload.assigneeIds);
+          if (currentCard) {
+            const prevAssignees = extractAssigneeIds(currentCard.privateCoins);
+            newlyAssignedRecipients = payload.assigneeIds.filter((id) => !prevAssignees.includes(id) && id !== userId);
+          }
         }
         if (payload.startDate !== undefined || payload.startDateAllDay !== undefined) {
           mergedCoins = withStartDate(
@@ -284,6 +362,35 @@ export async function PATCH(request: Request) {
       "retzlo:sync",
       { action: "CARD_UPDATED", cardId: card.id, senderId: userId }
     );
+
+    if (newlyAssignedRecipients.length > 0) {
+      try {
+        const updater = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { name: true, email: true }
+        });
+        const updaterName = updater?.name || updater?.email || "Teammate";
+        await prisma.notification.createMany({
+          data: newlyAssignedRecipients.map((recipientId) => ({
+            id: randomUUID(),
+            userId: recipientId,
+            projectId,
+            cardId: card.id,
+            type: "TASK_ASSIGNED",
+            title: `📋 Assigned to task: "${card.title}"`,
+            message: `${updaterName} assigned you to this task.`,
+            link: `/project/${projectId}/board?cardId=${card.id}`
+          }))
+        });
+        triggerPusherEvent(
+          ["retzlo-notifications"],
+          "retzlo:sync",
+          { action: "NEW_NOTIFICATION" }
+        );
+      } catch (notifErr) {
+        console.error("Failed to deliver assignment notification:", notifErr);
+      }
+    }
 
     return NextResponse.json({ card: serializeCard(card) });
   } catch (error) {

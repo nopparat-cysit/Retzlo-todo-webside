@@ -4,6 +4,7 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
+import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const invitationTokenSchema = z.object({
   token: z.string().min(12)
@@ -119,6 +120,12 @@ export async function POST(request: Request) {
         data: { isRead: true }
       })
     ]);
+
+    await triggerPusherEvent(
+      [`retzlo-project-${invitation.projectId}`],
+      "retzlo:sync",
+      { action: "MEMBER_JOINED", projectId: invitation.projectId, userId, senderId: userId }
+    );
 
     return NextResponse.json({
       accepted: true,
