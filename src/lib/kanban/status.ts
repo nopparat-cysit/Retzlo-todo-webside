@@ -20,47 +20,56 @@ export const STATUS_COLOR_CONFIGS: Record<
     badgeClass: string;
     buttonClass: string;
     selectedButtonClass: string;
+    dot: string;
   }
 > = {
   indigo: {
     badgeClass: "border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-dusk-lavender/20 dark:bg-dusk-lavender/10 dark:text-dusk-lavender",
     buttonClass: "border-stone-200 bg-stone-50 text-stone-700 hover:border-indigo-300 dark:border-dusk-lavender/20 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:border-dusk-lavender/60",
-    selectedButtonClass: "border-indigo-600 bg-indigo-600 text-white dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950"
+    selectedButtonClass: "border-indigo-600 bg-indigo-600 text-white dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950",
+    dot: "bg-indigo-500"
   },
   teal: {
     badgeClass: "border-teal-200 bg-teal-50 text-teal-700 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan",
     buttonClass: "border-stone-200 bg-stone-50 text-stone-700 hover:border-teal-300 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan dark:hover:border-dusk-cyan/60",
-    selectedButtonClass: "border-teal-600 bg-teal-600 text-white dark:border-dusk-cyan dark:bg-dusk-cyan dark:text-ink-950"
+    selectedButtonClass: "border-teal-600 bg-teal-600 text-white dark:border-dusk-cyan dark:bg-dusk-cyan dark:text-ink-950",
+    dot: "bg-teal-500"
   },
   cyan: {
     badgeClass: "border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-400/20 dark:bg-cyan-400/10 dark:text-cyan-300",
     buttonClass: "border-stone-200 bg-stone-50 text-stone-700 hover:border-cyan-300 dark:border-cyan-400/20 dark:bg-cyan-400/10 dark:text-cyan-300 dark:hover:border-cyan-400/60",
-    selectedButtonClass: "border-cyan-600 bg-cyan-600 text-white dark:border-cyan-400 dark:bg-cyan-400 dark:text-ink-950"
+    selectedButtonClass: "border-cyan-600 bg-cyan-600 text-white dark:border-cyan-400 dark:bg-cyan-400 dark:text-ink-950",
+    dot: "bg-cyan-500"
   },
   amber: {
     badgeClass: "border-amber-200 bg-amber-50 text-amber-700 dark:border-dusk-amber/20 dark:bg-dusk-amber/10 dark:text-dusk-amber",
     buttonClass: "border-stone-200 bg-stone-50 text-stone-700 hover:border-amber-300 dark:border-dusk-amber/20 dark:bg-dusk-amber/10 dark:text-dusk-amber dark:hover:border-dusk-amber/60",
-    selectedButtonClass: "border-amber-600 bg-amber-600 text-white dark:border-dusk-amber dark:bg-dusk-amber dark:text-ink-950"
+    selectedButtonClass: "border-amber-600 bg-amber-600 text-white dark:border-dusk-amber dark:bg-dusk-amber dark:text-ink-950",
+    dot: "bg-amber-500"
   },
   emerald: {
     badgeClass: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-300/20 dark:bg-emerald-300/10 dark:text-emerald-200",
     buttonClass: "border-stone-200 bg-stone-50 text-stone-700 hover:border-emerald-300 dark:border-emerald-300/20 dark:bg-emerald-300/10 dark:text-emerald-200 dark:hover:border-emerald-300/60",
-    selectedButtonClass: "border-emerald-600 bg-emerald-600 text-white dark:border-emerald-300 dark:bg-emerald-300 dark:text-ink-950"
+    selectedButtonClass: "border-emerald-600 bg-emerald-600 text-white dark:border-emerald-300 dark:bg-emerald-300 dark:text-ink-950",
+    dot: "bg-emerald-500"
   },
   rose: {
     badgeClass: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/20 dark:bg-rose-400/10 dark:text-rose-300",
     buttonClass: "border-stone-200 bg-stone-50 text-stone-700 hover:border-rose-300 dark:border-rose-400/20 dark:bg-rose-400/10 dark:text-rose-300 dark:hover:border-rose-400/60",
-    selectedButtonClass: "border-rose-600 bg-rose-600 text-white dark:border-rose-400 dark:bg-rose-400 dark:text-ink-950"
+    selectedButtonClass: "border-rose-600 bg-rose-600 text-white dark:border-rose-400 dark:bg-rose-400 dark:text-ink-950",
+    dot: "bg-rose-500"
   },
   purple: {
     badgeClass: "border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-400/20 dark:bg-purple-400/10 dark:text-purple-300",
     buttonClass: "border-stone-200 bg-stone-50 text-stone-700 hover:border-purple-300 dark:border-purple-400/20 dark:bg-purple-400/10 dark:text-purple-300 dark:hover:border-purple-400/60",
-    selectedButtonClass: "border-purple-600 bg-purple-600 text-white dark:border-purple-400 dark:bg-purple-400 dark:text-ink-950"
+    selectedButtonClass: "border-purple-600 bg-purple-600 text-white dark:border-purple-400 dark:bg-purple-400 dark:text-ink-950",
+    dot: "bg-purple-500"
   },
   stone: {
     badgeClass: "border-stone-200 bg-stone-100 text-stone-700 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300",
     buttonClass: "border-stone-200 bg-stone-50 text-stone-700 hover:border-stone-400 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:hover:border-stone-600",
-    selectedButtonClass: "border-stone-600 bg-stone-600 text-white dark:border-stone-400 dark:bg-stone-400 dark:text-ink-950"
+    selectedButtonClass: "border-stone-600 bg-stone-600 text-white dark:border-stone-400 dark:bg-stone-400 dark:text-ink-950",
+    dot: "bg-stone-500"
   }
 };
 

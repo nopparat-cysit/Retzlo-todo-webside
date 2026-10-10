@@ -124,7 +124,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ card: serializeCard(card) });
   } catch (error) {
-    return parseError(error, "Unable to fetch card.");
+    return parseError(error);
   }
 }
 
@@ -358,7 +358,11 @@ export async function PATCH(request: Request) {
     });
 
     await triggerPusherEvent(
-      [`retzlo-project-${projectId}`, ...(card.column?.boardId ? [`retzlo-board-${card.column.boardId}`] : [])],
+      [
+        `retzlo-project-${projectId}`,
+        ...(card.column?.boardId ? [`retzlo-board-${card.column.boardId}`] : []),
+        `retzlo-card-${card.id}`
+      ],
       "retzlo:sync",
       { action: "CARD_UPDATED", cardId: card.id, senderId: userId }
     );

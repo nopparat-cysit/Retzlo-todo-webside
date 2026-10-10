@@ -36,6 +36,8 @@ export interface Card {
   difficulty?: DifficultyScore | null;
   assigneeIds?: string[];
   assignees?: CardAssignee[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type CardStatus = "TODO" | "DOING" | "WAITING" | "DONE" | string;
