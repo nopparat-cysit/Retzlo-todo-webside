@@ -658,3 +658,8 @@ Template:
 ### 2026-10-10 — Stable auth navigation frame
 - Shared impact: auth CSS keeps the same responsive desktop frame height across /login, /register, /forgot-password. Form panels scroll independently with a reserved scrollbar gutter. Mobile uses a top-anchored natural-height layout.
 - Palette/tokens unchanged. Review route navigation, light/dark, desktop/mobile, short viewport, registration errors and keyboard access in the work note.
+
+### 2026-10-10 — Layered auth artwork and board hover
+- Coverage: /login, /register, /forgot-password via MixtapeArtwork and shared auth CSS. Cassette PNG is a transparent cutout; gradient, pixel clouds and stars are separate layers with restrained independent idle/parallax motion.
+- Brand-artwork fixed palette exception now includes local backdrop gradient and SVG clouds/stars. Global tokens and semantic form colors unchanged.
+- Board captures its current transform on hover/focus so pointer movement cannot move the interaction target. Light/dark desktop/mobile, idle/parallax, hover/focus, reduced motion and stable navigation reviewed in the work note.

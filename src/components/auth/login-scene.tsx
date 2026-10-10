@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
+import { MixtapeArtwork } from "./mixtape-artwork";
 import Link from "next/link";
-import { useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { useRef, useState, type PointerEvent, type ReactNode, type SyntheticEvent } from "react";
 import { ArrowLeft, ArrowRight, Check, Circle, Disc3, LayoutGrid, Pause, Play, RotateCcw } from "lucide-react";
 import styles from "./login-scene.module.css";
 import { MixtapeLogoMark } from "./mixtape-logo-mark";
@@ -59,16 +59,30 @@ export function MixtapeAuthScene({ children, mode = "login" }: { children: React
     artRef.current?.style.setProperty("--scene-y", "0px");
   }
 
+  function freezeBoard(event: SyntheticEvent<HTMLDivElement>) {
+    const board = event.currentTarget;
+    if (board.dataset.frozen === "true") return;
+    board.style.transform = window.getComputedStyle(board).transform;
+    board.dataset.frozen = "true";
+  }
+
+  function resumeBoard(event: SyntheticEvent<HTMLDivElement>) {
+    const board = event.currentTarget;
+    if (board.matches(":hover, :focus-within")) return;
+    board.style.removeProperty("transform");
+    delete board.dataset.frozen;
+  }
+
   return (
     <main className={styles.page}>
       <div className={styles.shell}>
         <section ref={artRef} className={styles.art} data-playing={playing} onPointerMove={moveArtwork} onPointerLeave={resetArtwork}>
-          <Image className={styles.artImage} src="/images/login-mixtape-playful.png" alt="Playful purple and pink cassette illustration with pixel clouds" fill priority sizes="(max-width: 760px) 100vw, 55vw" />
+          <MixtapeArtwork />
           <div className={styles.shade} />
           <div className={styles.musicAmbience} aria-hidden="true"><span className={styles.noteOne}>♪</span><span className={styles.noteTwo}>♫</span></div>
           <header className={styles.brandRow}><Link href="/" className={styles.brand} aria-label="Retzlo home"><MixtapeLogoMark /><span>retzlo</span></Link><span>YOUR DAILY MIX</span></header>
           <div className={styles.headline}><span className={styles.eyebrow}>A LITTLE FOCUS. A GOOD FLOW.</span><h1>Life has a rhythm.<br />Find yours.</h1><p>A fresh mix of plans, ideas, and little wins.<br />All together in your own workspace.</p></div>
-          <div className={styles.board}>
+          <div className={styles.board} onPointerEnter={freezeBoard} onPointerLeave={resumeBoard} onFocusCapture={freezeBoard} onBlurCapture={resumeBoard}>
             <div className={styles.boardHeader}>
               <span><LayoutGrid size={13} /> MY DAILY BOARD</span>
               <span className={styles.demoBadge}>TRY IT</span>

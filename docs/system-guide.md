@@ -266,3 +266,6 @@ The cassette logo gently floats and its reels turn automatically on all three sh
 
 ### 2026-10-10 — Stable auth route layout
 Login, registration and password recovery share a viewport-responsive desktop frame height, so switching forms keeps the artwork and outer frame in place. Long desktop forms scroll within the form panel; mobile pages stay anchored at the top and scroll normally.
+
+### 2026-10-10 — Layered auth illustration
+The shared login/register/recovery artwork now separates the transparent cassette from the gradient backdrop and independent pixel clouds/stars. They gently float automatically and respond to mouse movement at different depths. The demo board freezes at its current position while hovered or keyboard-focused, then resumes pointer response after leaving. Reduced-motion disables decorative movement; mobile uses a compact, quieter composition.
