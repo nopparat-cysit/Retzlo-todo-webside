@@ -112,5 +112,30 @@ describe("Board Export System (Excel, CSV, PDF, PNG)", () => {
     expect(modalSrc).toContain("Layout View");
     expect(modalSrc).toContain("Export Theme");
   });
+
+  it("keeps the selected export and accessible preview controls in sync", () => {
+    const modalSrc = readFileSync(
+      join(process.cwd(), "src/components/kanban/board-export-modal.tsx"),
+      "utf8"
+    );
+
+    expect(modalSrc).toContain("format: selectedFormat");
+    expect(modalSrc).toContain("selection.kind === \"visual\"");
+    expect(modalSrc).toContain("prepareExportRows(activeColumns, members, boardPriorities)");
+    expect(modalSrc).toContain("downloadExcel(exportRows, filename, boardTitle)");
+    expect(modalSrc).toContain("downloadCsv(exportRows, filename)");
+    expect(modalSrc).toContain("layout={selection.layout}");
+    expect(modalSrc).toContain("themeStyle={selection.theme}");
+    expect(modalSrc).toContain('aria-label="Zoom in preview"');
+    expect(modalSrc).toContain('aria-label="Zoom out preview"');
+    expect(modalSrc).toContain('aria-label="Fit preview to panel"');
+    expect(modalSrc).toContain('aria-label={isExpanded ? "Restore export dialog size" : "Expand export preview"}');
+    expect(modalSrc).toContain("No cards in this scope");
+    expect(modalSrc).toContain("trapFocus");
+    expect(modalSrc).toContain('disabled={isExporting || currentCount === 0}');
+    expect(modalSrc).toContain('h-[min(64dvh,620px)]');
+    expect(modalSrc).toContain('overflow-auto overscroll-contain');
+    expect(modalSrc.match(/<AppModal\s/g) ?? []).toHaveLength(1);
+  });
 });
 

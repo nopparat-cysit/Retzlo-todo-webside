@@ -82,7 +82,9 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 - **Due Date Indicators:** Visual warning colors for impending or overdue tasks.
 
 ### 2.6 Professional Dedicated Board Export (Excel, CSV, PDF, PNG)
-- **Export Toolbar Button:** Accessible from board toolbar and table view toolbar with quick presets and full export modal.
+- **Export Toolbar Button:** Accessible from both board and table toolbars. Quick PDF/PNG follows the active board or table view; quick spreadsheet exports contain task rows.
+- **Live Export Dialog:** Choose one format, scope, and (for PDF/PNG) layout and document theme. The preview updates alongside the settings, while Excel/CSV show a read-only sheet sample from the same prepared rows as the download.
+- **Preview Controls:** Zoom in/out, fit to panel, expand/restore the dialog in place, and scroll horizontally or vertically. Empty scopes show an explanation and disable download.
 - **Dedicated Export Document Layout (`BoardExportDocument`):**
   - Uses a dedicated full document renderer showing all columns and cards without scrollbars or UI controls.
   - **Off-screen Staging Wrapper & Direct Ref:** Uses an off-screen staging container at `(0, 0)` coordinates to prevent blank canvas or white screen issues caused by negative coordinate foreignObjects.
@@ -212,6 +214,9 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
   - ปุ่มยืนยัน (ตกลง / Confirm) และปุ่มตลอดวัน/ล้าง (All Day / Clear)
 
 #### ระบบส่งออกข้อมูลบอร์ดระดับมืออาชีพ (Dedicated Board Export)
+- **เมนูส่งออกด่วน:** มีทั้งบนแถบเครื่องมือ Kanban และ Table; PDF/PNG แบบด่วนใช้รูปแบบมุมมองปัจจุบัน ส่วน Excel/CSV ส่งออกเป็นแถวข้อมูลการ์ด
+- **หน้าต่างส่งออกแบบ Live Preview:** เลือก PDF, PNG, Excel หรือ CSV พร้อมขอบเขตข้อมูล; PDF/PNG เลือกเลย์เอาต์บอร์ด/ตารางและธีมเอกสารได้ ส่วน Excel/CSV แสดงตัวอย่างตารางจากแถวเดียวกับที่ใช้ดาวน์โหลด
+- **ตัวควบคุม Preview:** ซูมเข้า/ออก, Fit, ขยาย/คืนขนาดหน้าต่างโดยไม่เปิดโมดอลซ้อน และเลื่อนดูตัวอย่างทั้งแนวนอน/แนวตั้ง หากขอบเขตไม่มีการ์ดจะแสดงสถานะว่างและปิดปุ่มดาวน์โหลด
 - **Dedicated Export Document Layout (`BoardExportDocument`):**
   - ไม่ใช้การแคปหน้าจอจาก viewport เดิม แต่ใช้ตัวเรนเดอร์เอกสารเฉพาะที่แสดงผลครบทุกคอลัมน์และทุกการ์ด 100%
   - **Off-screen Staging Wrapper & Direct Ref:** แยกคอนเทนเนอร์แสดงตัวอย่างสำหรับการจับภาพไว้ที่พิกัด `(0, 0)` แบบอิสระ ป้องกันปัญหาภาพว่างเปล่า

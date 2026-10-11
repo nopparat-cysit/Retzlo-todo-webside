@@ -21,4 +21,14 @@ describe("AppModal layering contract", () => {
     expect(source).toContain("<ConfirmModal");
     expect(source).toMatch(/event\.key === "Escape"[\s\S]*requestClose\(\)/);
   });
+
+  it("keeps focus trapping opt-in and cycles Tab in both directions", () => {
+    expect(source).toContain("trapFocus?: boolean;");
+    expect(source).toContain("trapFocus = false");
+    expect(source).toMatch(/event\.key === "Tab"[\s\S]*if \(!trapFocus\) return[\s\S]*event\.shiftKey/);
+    expect(source).toContain("firstFocusable.focus()");
+    expect(source).toContain("lastFocusable.focus()");
+    expect(source).toContain("focusableElements.includes(activeElement as HTMLElement)");
+    expect(source).toContain("modalContentRef");
+  });
 });

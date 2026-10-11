@@ -32,6 +32,8 @@ interface AppModalProps {
   discardMessage?: string;
   discardConfirmLabel?: string;
   closeOnOverlayClick?: boolean;
+  /** Contain Tab and Shift+Tab focus within this modal; disabled for existing consumers by default. */
+  trapFocus?: boolean;
 }
 
 export function AppModal({
@@ -46,10 +48,12 @@ export function AppModal({
   discardTitle = "Discard changes?",
   discardMessage = "You have unsaved changes. Are you sure you want to discard them?",
   discardConfirmLabel = "Discard changes",
-  closeOnOverlayClick = true
+  closeOnOverlayClick = true,
+  trapFocus = false
 }: AppModalProps) {
   const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
   const isPointerDownOnOverlayRef = useRef(false);
+  const modalContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open || !hasUnsavedChanges) return;
@@ -116,6 +120,45 @@ export function AppModal({
     if (event.key === "Escape") {
       event.preventDefault();
       requestClose();
+      return;
+    }
+
+    if (event.key === "Tab") {
+      if (!trapFocus) return;
+
+      const modalContent = modalContentRef.current;
+      if (!modalContent) return;
+
+      const focusableElements = Array.from(
+        modalContent.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]'
+        )
+      ).filter((element) => (
+        element.tabIndex >= 0 &&
+        !element.closest('[aria-hidden="true"]') &&
+        element.getClientRects().length > 0
+      ));
+
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+      if (!firstFocusable || !lastFocusable) {
+        event.preventDefault();
+        modalContent.focus();
+        return;
+      }
+
+      const activeElement = document.activeElement;
+      const focusIsOutsideDialog = (
+        !modalContent.contains(activeElement) ||
+        !focusableElements.includes(activeElement as HTMLElement)
+      );
+      if (event.shiftKey && (activeElement === firstFocusable || focusIsOutsideDialog)) {
+        event.preventDefault();
+        lastFocusable.focus();
+      } else if (!event.shiftKey && (activeElement === lastFocusable || focusIsOutsideDialog)) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
     }
   }
 
@@ -134,7 +177,13 @@ export function AppModal({
         onKeyDown={handleModalContentKeyDown}
       >
         <div
-          className={cn("motion-dialog-content relative w-full", contentClassName)}
+          ref={modalContentRef}
+          tabIndex={trapFocus ? -1 : undefined}
+          className={cn(
+            "motion-dialog-content relative w-full",
+            trapFocus && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-background",
+            contentClassName
+          )}
           onPointerDown={stopModalContentEvent}
           onClick={stopModalContentEvent}
           onKeyDown={handleModalContentKeyDown}

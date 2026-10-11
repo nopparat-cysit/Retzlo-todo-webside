@@ -1,6 +1,6 @@
 # Theme System Audit & Extension Guide
 
-อัปเดตล่าสุด: 2026-10-01
+อัปเดตล่าสุด: 2026-10-12
 
 เอกสารนี้เป็นแหล่งอ้างอิงหลักสำหรับตรวจ แก้ และเพิ่มธีมของ Retzlo ให้ใช้ต่อเนื่องได้ทุกโมดูล ทุกหน้าจอ และทุกคอมโพเนนต์ใหม่
 
@@ -192,6 +192,7 @@ Marketing home คงฉากหลังแบบ dark brand scene; ข้อ�
 | Profile | `src/app/(dashboard)/profile` | ตรวจภาพ light/dark ในรอบ audit ก่อนแก้; source review รอบ implementation; mobile light 390x844 เดิม | Online/Busy/Offline และ status feedback เปลี่ยนเป็น semantic foreground/surface/border; ต้องตรวจ visual post-fix และ mobile ซ้ำ |
 | Project shell | `src/app/(dashboard)/project/[id]/layout.tsx`, `src/components/project/` | ตรวจ light/dark desktop หลัง implementation; mobile light 390x844 ในรอบ audit ก่อนแก้ | แก้ drawer selector และ desktop row placement; desktop ยืนยัน sidebar/content อยู่ตำแหน่งถูก; ตรวจ drawer ที่ 390px/tablet และ keyboard focus หลังแก้ |
 | Kanban board | `src/app/(dashboard)/project/[id]/board`, `src/components/kanban/` | ตรวจภาพ light/dark desktop; mobile light 390x844 และ dark board shell; card details/notes rail light | document ไม่มี horizontal overflow ที่ 390px; card/status colors ดูสม่ำเสมอ; ตรวจ modal/overlay ใน dark และ error/success state เพิ่ม |
+| Board export dialog | `src/components/kanban/board-export-modal.tsx`, `src/components/kanban/board-export-document.tsx`, `src/components/ui/app-modal.tsx` | ตรวจ source, focused tests, lint และ TypeScript; screenshot QA light/dark desktop/mobile ยังไม่ได้รัน | Two-pane settings/live preview, semantic surfaces, independent scroll, measured zoom/fit, expand/restore, empty scope and keyboard focus are implemented. `AppModal` focus trapping is opt-in and enabled only for this dialog; every other consumer keeps the default `false`. ตรวจภาพจริงที่ 1440x900 และ 390x844 ทั้ง light/dark, Escape, Tab/Shift+Tab cycle, focus entry/return และ expanded restore เพิ่ม |
 | Board template picker | `src/components/kanban/board-template-picker.tsx`, `src/components/kanban/board-sidebar-dropdown.tsx`, `src/components/project/project-boards-manager.tsx`, `public/board-templates/` | ตรวจ source; ยังไม่ได้ตรวจภาพ light/dark/system หรือ mobile | Modal จำกัดความกว้างและ scroll ใน viewport; การ์ด template ใช้ภาพประกอบพื้นโปร่งใส; preview ของ template 5 ขั้นเรียงเป็น flow แนวนอนและ scroll ในจอแคบ; ตรวจ focus, mobile overflow, และ contrast ภาพบนแต่ละธีม |
 | Board selector in project sidebar | `src/components/kanban/board-sidebar-dropdown.tsx`, `src/components/project/project-sortable-nav.tsx`, `src/components/project/project-shell.tsx` | ตรวจ source และ private-board access filter; ยังไม่ได้ตรวจภาพ light/dark/system หรือ mobile หลังย้ายตำแหน่ง | รายการบอร์ดและ actions อยู่ใน dropdown ของเมนู Boards; uses shared dropdown primitives and semantic active state; ตรวจ focus, menu clipping, compact sidebar, และ mobile drawer |
 | Calendar | `src/app/(dashboard)/project/[id]/calendar` | ตรวจภาพ light/dark desktop; mobile light 390x844; source | ไม่มี document-level overflow ที่ 390px; day grid, today/selected; ตรวจ events/popovers เพิ่มเมื่อมีรายการจริง |
@@ -663,3 +664,8 @@ Template:
 - Coverage: /login, /register, /forgot-password via MixtapeArtwork and shared auth CSS. Cassette PNG is a transparent cutout; gradient, pixel clouds and stars are separate layers with restrained independent idle/parallax motion.
 - Brand-artwork fixed palette exception now includes local backdrop gradient and SVG clouds/stars. Global tokens and semantic form colors unchanged.
 - Board captures its current transform on hover/focus so pointer movement cannot move the interaction target. Light/dark desktop/mobile, idle/parallax, hover/focus, reduced motion and stable navigation reviewed in the work note.
+
+### 2026-10-12 — Interactive board export preview
+- Coverage: board export dialog in `src/components/kanban/board-export-modal.tsx` and document renderer in `src/components/kanban/board-export-document.tsx`; semantic theme tokens used for the application UI, with the existing light/dark document palettes kept as export artwork.
+- Added a responsive settings/preview split, format-aware preview, spreadsheet rows from the prepared export payload, measured zoom/fit, in-place expand/restore, bounded mobile preview scrolling, empty-scope feedback, and an opt-in focus trap. `src/components/ui/app-modal.tsx` adds `trapFocus` with a default of `false`; only `BoardExportModal` opts in, so other modal consumers are unchanged. Focus rings use the semantic accent token.
+- Reviewed source and focused tests; screenshot review of light/dark at desktop/mobile and live Escape/Tab/Shift+Tab/focus-return interaction remains outstanding because browser visual QA is unavailable in this session.
