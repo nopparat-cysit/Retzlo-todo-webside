@@ -3,6 +3,26 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Board Export System (Excel, CSV, PDF, PNG)", () => {
+  it("wires active view into both export entry points and resolves quick visual layout", () => {
+    const modalSrc = readFileSync(join(process.cwd(), "src/components/kanban/board-export-modal.tsx"), "utf8");
+    const boardSrc = readFileSync(join(process.cwd(), "src/components/kanban/board.tsx"), "utf8");
+    const listSrc = readFileSync(join(process.cwd(), "src/components/kanban/board-list-view.tsx"), "utf8");
+    const quickSrc = modalSrc.slice(modalSrc.indexOf("export function BoardExportButton"));
+
+    expect(modalSrc.match(/currentView: ExportView;/g) ?? []).toHaveLength(2);
+    expect(boardSrc).toContain('const currentView = viewMode === "list" ? "table" : "kanban"');
+    expect(boardSrc).toContain("currentView={currentView}");
+    expect(listSrc).toContain('currentView="table"');
+    expect(quickSrc).toContain("currentView={currentView}");
+    expect(quickSrc).toContain("resolveExportSelection({");
+    expect(quickSrc).toContain("layout={quickSelection.layout}");
+    expect(quickSrc).not.toContain('layout="kanban"');
+    expect(quickSrc).toContain('scope: isFiltered ? "filtered" : "all"');
+    expect(quickSrc).toContain("{quickScopeLabel}");
+    expect(modalSrc).toContain("useState<ExportLayout>(currentView)");
+    expect(modalSrc).toContain("setExportLayout(currentView)");
+  });
+
   it("verifies BoardExportModal presents all 4 requested export formats", () => {
     const src = readFileSync(
       join(process.cwd(), "src/components/kanban/board-export-modal.tsx"),

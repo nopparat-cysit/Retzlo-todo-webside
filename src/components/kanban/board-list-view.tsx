@@ -713,6 +713,7 @@ export function BoardListView({
 
           {/* Export Button in Table Toolbar */}
           <BoardExportButton
+            currentView="table"
             boardTitle={boardTitle || "Tasks Spreadsheet"}
             columns={allColumns || columns}
             filteredColumns={columns}

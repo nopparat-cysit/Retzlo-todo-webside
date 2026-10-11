@@ -126,6 +126,7 @@ export function KanbanBoard({
   const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
 
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
+  const currentView = viewMode === "list" ? "table" : "kanban";
   const [boardPriorities, setBoardPriorities] = useState<CustomPriority[] | undefined>(board.customPriorities ?? undefined);
   const [isBoardSettingsOpen, setIsBoardSettingsOpen] = useState(false);
   const [settingsDefaultTab, setSettingsDefaultTab] = useState<string>("general");
@@ -1272,6 +1273,7 @@ export function KanbanBoard({
 
             {/* Export Board Button (Excel, CSV, PDF, PNG) */}
             <BoardExportButton
+              currentView={currentView}
               boardTitle={board.name}
               columns={columns}
               filteredColumns={filteredColumns}

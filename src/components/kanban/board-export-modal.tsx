@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -41,8 +41,10 @@ import {
   prepareExportRows
 } from "@/lib/kanban/export-board";
 import { BoardExportDocument } from "@/components/kanban/board-export-document";
+import { resolveExportSelection, type ExportView } from "@/lib/kanban/export-config";
 
 export interface BoardExportModalProps {
+  currentView: ExportView;
   open: boolean;
   onClose: () => void;
   boardTitle: string;
@@ -60,6 +62,7 @@ export type ExportLayout = "kanban" | "table";
 export type ExportTheme = "light" | "dark";
 
 export function BoardExportModal({
+  currentView,
   open,
   onClose,
   boardTitle,
@@ -74,10 +77,14 @@ export function BoardExportModal({
   const { toast } = useToast();
   const modalCanvasRef = useRef<HTMLDivElement>(null);
   const [exportScope, setExportScope] = useState<"all" | "filtered">(isFiltered ? "filtered" : "all");
-  const [exportLayout, setExportLayout] = useState<ExportLayout>("kanban");
+  const [exportLayout, setExportLayout] = useState<ExportLayout>(currentView);
   const [exportTheme, setExportTheme] = useState<ExportTheme>("light");
   const [showPreview, setShowPreview] = useState(false);
   const [isExporting, setIsExporting] = useState<ExportFormat | null>(null);
+
+  useEffect(() => {
+    if (open) setExportLayout(currentView);
+  }, [open, currentView]);
 
   // Compute tasks count
   const allCardsCount = useMemo(
@@ -642,6 +649,7 @@ export function BoardExportModal({
 }
 
 export interface BoardExportButtonProps {
+  currentView: ExportView;
   boardTitle: string;
   projectName?: string;
   columns: ColumnWithCards[];
@@ -655,6 +663,7 @@ export interface BoardExportButtonProps {
 }
 
 export function BoardExportButton({
+  currentView,
   boardTitle,
   projectName,
   columns,
@@ -680,11 +689,25 @@ export function BoardExportButton({
   };
 
   const isDarkTheme = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  const activeColumns = isFiltered && filteredColumns ? filteredColumns : columns;
+  const quickSelection = resolveExportSelection({
+    format: "pdf",
+    currentView,
+    scope: isFiltered ? "filtered" : "all",
+    theme: isDarkTheme ? "dark" : "light"
+  });
+  const activeCount = activeColumns.reduce((count, column) => count + column.cards.length, 0);
+  const quickScopeLabel = `${currentView === "table" ? "Table view" : "Kanban view"}${isFiltered ? ` • ${activeCount} filtered items` : ""}`;
 
   const handleQuickExport = async (format: ExportFormat) => {
-    const activeColumns = isFiltered && filteredColumns ? filteredColumns : columns;
+    const selection = resolveExportSelection({
+      format,
+      currentView,
+      scope: isFiltered ? "filtered" : "all",
+      theme: isDarkTheme ? "dark" : "light"
+    });
     const filename = getFilename();
-    const exportBg = isDarkTheme ? "#0b0c1b" : "#ffffff";
+    const exportBg = selection.kind === "visual" && selection.theme === "dark" ? "#0b0c1b" : "#ffffff";
 
     try {
       if (format === "excel") {
@@ -761,16 +784,16 @@ export function BoardExportButton({
             display: "inline-block"
           }}
         >
-          <BoardExportDocument
+          {quickSelection.kind === "visual" && <BoardExportDocument
             boardTitle={boardTitle}
             projectName={projectName}
-            columns={isFiltered && filteredColumns ? filteredColumns : columns}
+            columns={activeColumns}
             members={members}
             boardPriorities={boardPriorities}
-            scope={isFiltered ? "filtered" : "all"}
-            layout="kanban"
-            themeStyle={isDarkTheme ? "dark" : "light"}
-          />
+            scope={quickSelection.scope}
+            layout={quickSelection.layout}
+            themeStyle={quickSelection.theme}
+          />}
         </div>
       </div>
 
@@ -805,7 +828,7 @@ export function BoardExportButton({
             <FileDown className="h-4 w-4 text-rose-600 dark:text-rose-400" />
             <div className="flex flex-col">
               <span className="font-semibold text-xs">PDF (.pdf)</span>
-              <span className="text-[10px] text-stone-400">Formatted A4 document</span>
+              <span className="text-[10px] text-stone-400">{quickScopeLabel}</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -815,7 +838,7 @@ export function BoardExportButton({
             <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             <div className="flex flex-col">
               <span className="font-semibold text-xs">PNG (.png)</span>
-              <span className="text-[10px] text-stone-400">High-res 2x panoramic image</span>
+              <span className="text-[10px] text-stone-400">{quickScopeLabel}</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -850,6 +873,7 @@ export function BoardExportButton({
       </DropdownMenu>
 
       <BoardExportModal
+        currentView={currentView}
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         boardTitle={boardTitle}
