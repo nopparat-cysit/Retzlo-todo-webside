@@ -4,13 +4,19 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { setAdminUserAiQuota, getUserAiQuota } from "@/lib/ai/credits";
+import { recordAdminAudit } from "@/lib/admin-system-state";
 
 export const dynamic = "force-dynamic";
 
 const updateUserSchema = z.object({
   userId: z.string().min(1),
+  name: z.string().trim().min(1).max(100).optional(),
   globalRole: z.enum(["USER", "ADMIN"]).optional(),
-  status: z.enum(["ONLINE", "OFFLINE", "BUSY", "SUSPENDED"]).optional()
+  status: z.enum(["ONLINE", "OFFLINE", "BUSY", "SUSPENDED"]).optional(),
+  globalCoins: z.number().int().min(0).max(999999).optional(),
+  aiTier: z.enum(["FREE", "PRO"]).optional(),
+  aiCredits: z.number().int().min(0).max(999999).optional()
 });
 
 export async function GET(request: Request) {
@@ -23,8 +29,9 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim() || "";
     const role = searchParams.get("role")?.trim() || "";
+    const status = searchParams.get("status")?.trim() || "";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
     const skip = (page - 1) * limit;
 
     const whereClause: Record<string, unknown> = {};
@@ -41,7 +48,11 @@ export async function GET(request: Request) {
       whereClause.globalRole = role;
     }
 
-    const [total, users] = await Promise.all([
+    if (status && status !== "ALL") {
+      whereClause.status = status;
+    }
+
+    const [total, rawUsers] = await Promise.all([
       prisma.user.count({ where: whereClause }),
       prisma.user.findMany({
         where: whereClause,
@@ -54,19 +65,43 @@ export async function GET(request: Request) {
           email: true,
           username: true,
           avatar: true,
+          bio: true,
           globalRole: true,
           status: true,
+          globalCoins: true,
+          zenGarden: true,
           createdAt: true,
           _count: {
             select: {
               memberships: true,
               notes: true,
-              diaryItems: true
+              diaryItems: true,
+              cardComments: true
             }
           }
         }
       })
     ]);
+
+    const users = await Promise.all(
+      rawUsers.map(async (u) => {
+        const aiQuota = await getUserAiQuota(u.id);
+        return {
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          username: u.username,
+          avatar: u.avatar,
+          bio: u.bio,
+          globalRole: u.globalRole,
+          status: u.status,
+          globalCoins: u.globalCoins,
+          aiQuota,
+          createdAt: u.createdAt,
+          counts: u._count
+        };
+      })
+    );
 
     return NextResponse.json({
       users,
@@ -94,20 +129,51 @@ export async function PATCH(request: Request) {
 
     const targetUser = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { id: true, globalRole: true, status: true }
+      select: { id: true, email: true, name: true, globalRole: true, status: true, globalCoins: true }
     });
 
     if (!targetUser) {
       return jsonError("User not found.", 404);
     }
 
-    const updateData: Record<string, string> = {};
-    if (payload.globalRole) updateData.globalRole = payload.globalRole;
-    if (payload.status) updateData.status = payload.status;
+    const updateData: Record<string, unknown> = {};
+    if (payload.name !== undefined) updateData.name = payload.name;
+    if (payload.globalRole !== undefined) updateData.globalRole = payload.globalRole;
+    if (payload.status !== undefined) updateData.status = payload.status;
+    if (payload.globalCoins !== undefined) updateData.globalCoins = payload.globalCoins;
 
-    const updatedUser = await prisma.user.update({
+    if (Object.keys(updateData).length > 0) {
+      await prisma.user.update({
+        where: { id: payload.userId },
+        data: updateData
+      });
+    }
+
+    if (payload.aiTier !== undefined || payload.aiCredits !== undefined) {
+      await setAdminUserAiQuota(payload.userId, {
+        tier: payload.aiTier,
+        credits: payload.aiCredits
+      });
+    }
+
+    // Log admin audit
+    recordAdminAudit({
+      adminEmail: admin.email,
+      action: "UPDATE_USER",
+      targetType: "USER",
+      targetId: payload.userId,
+      targetName: targetUser.email,
+      details: {
+        roleChanged: payload.globalRole,
+        statusChanged: payload.status,
+        coinsSet: payload.globalCoins,
+        aiTierSet: payload.aiTier,
+        aiCreditsSet: payload.aiCredits
+      }
+    });
+
+    const updatedUser = await prisma.user.findUnique({
       where: { id: payload.userId },
-      data: updateData,
       select: {
         id: true,
         name: true,
@@ -116,11 +182,19 @@ export async function PATCH(request: Request) {
         avatar: true,
         globalRole: true,
         status: true,
+        globalCoins: true,
         createdAt: true
       }
     });
 
-    return NextResponse.json({ user: updatedUser });
+    const aiQuota = await getUserAiQuota(payload.userId);
+
+    return NextResponse.json({
+      user: {
+        ...updatedUser,
+        aiQuota
+      }
+    });
   } catch (error) {
     return parseError(error);
   }

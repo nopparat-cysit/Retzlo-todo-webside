@@ -135,3 +135,54 @@ export async function deductUserAiCredit(
     remainingCredits: nextCredits
   };
 }
+
+/**
+ * Super Admin function to grant or adjust AI quota for any user.
+ */
+export async function setAdminUserAiQuota(
+  userId: string,
+  update: { tier?: AiTier; credits?: number }
+): Promise<UserAiQuota> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, globalRole: true, zenGarden: true }
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const zen = isRecord(user.zenGarden) ? { ...user.zenGarden } : {};
+  const currentAi = isRecord(zen.aiQuota) ? { ...zen.aiQuota } : {};
+
+  const nextTier: AiTier = update.tier || (currentAi.tier === "PRO" ? "PRO" : "FREE");
+  const maxCredits = AI_TIER_LIMITS[nextTier];
+  const nextCredits =
+    typeof update.credits === "number" && Number.isFinite(update.credits)
+      ? Math.max(0, Math.floor(update.credits))
+      : typeof currentAi.credits === "number"
+      ? currentAi.credits
+      : maxCredits;
+
+  zen.aiQuota = {
+    ...currentAi,
+    tier: nextTier,
+    credits: nextCredits,
+    updatedAt: new Date().toISOString()
+  };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      zenGarden: zen as object
+    }
+  });
+
+  return {
+    tier: nextTier,
+    credits: nextCredits,
+    maxCredits,
+    unlimited: user.globalRole === "ADMIN"
+  };
+}
+

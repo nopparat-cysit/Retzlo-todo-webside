@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CursorAura } from "@/components/ui/cursor-aura";
+import { GlobalBroadcastBanner } from "@/components/ui/global-broadcast-banner";
 import { ToastProvider } from "@/components/ui/toast";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { LanguageProvider } from "@/lib/i18n/language-context";
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <ThemeProvider>
           <LanguageProvider>
+            <GlobalBroadcastBanner />
             <CursorAura />
             <ToastProvider>
               <AiChatProvider>

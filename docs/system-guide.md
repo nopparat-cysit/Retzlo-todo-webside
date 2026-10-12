@@ -276,18 +276,57 @@ Login, registration and password recovery share a viewport-responsive desktop fr
 ### 2026-10-10 — Layered auth illustration
 The shared login/register/recovery artwork now separates the transparent cassette from the gradient backdrop and independent pixel clouds/stars. They gently float automatically and respond to mouse movement at different depths. The demo board freezes at its current position while hovered or keyboard-focused, then resumes pointer response after leaving. Reduced-motion disables decorative movement; mobile uses a compact, quieter composition.
 
-### 2026-10-12 — Super Admin Portal foundation
-A dedicated Super Admin Portal (`/admin-vault-9f8e`) provides platform-wide administrative oversight:
-- **3-Tier Defense-in-Depth Protection**:
-  1. Route Cloaking: Standard `/admin` and unauthorized visits to `/admin-vault-9f8e` immediately trigger `notFound()` returning a deceptive HTTP 404 response.
-  2. Obscured Hash Path: Secret slug `/admin-vault-9f8e` avoids automated crawler and reconnaissance scanning.
-  3. Server-Side Database Verification: Direct persistent lookup of `globalRole === "ADMIN"` is enforced on every request; token spoofing or revoked admins are rejected immediately.
-- **Portal Modules**:
-  - **Overview**: System metrics (Total Users, Active Sessions, Total Workspaces, Kanban Boards, Cards, Notes, and Diary items) plus recent platform registrations and workspaces.
-  - **User Management**: Searchable, role-filterable user roster with role toggles (`ADMIN` / `USER`) and status controls (`ONLINE` / `SUSPENDED`). Action triggers require `ConfirmModal` intent confirmation and notify via toasts.
-  - **Workspaces**: Platform-wide project and workspace inventory with ownership details, member counts, and direct inspection links.
-  - **System Health**: Connection diagnostics for Neon PostgreSQL, Pusher WebSockets, and runtime environment.
+### 2026-10-12 — Comprehensive 8-Hub Super Admin Command Center & Global Operations
+The Super Admin Portal (`/admin-vault-9f8e`) has evolved into a full-scale, 8-hub operational command center equipped with live telemetry, slide-over inspector drawers, bulk actions, and fine-grained system management:
+1. **⚡ Hub 1: Overview & Live Telemetry**:
+   - Real-time DB ping latency against Neon PostgreSQL.
+   - Live honeypot decoy hit counter with intruder pulse badge.
+   - Pending redemption claims badge and active broadcast indicator.
+   - Global metric tiles: Users, Workspaces, Boards, Cards, Attachments, and Economy coins circulation.
+   - Live activity stream powered by Prisma board activities.
+2. **👥 Hub 2: Users & Identity Management**:
+   - High-density user table with search by Name/Email/@username, role filters (`ADMIN`/`USER`), and status filters (`ONLINE`/`OFFLINE`/`BUSY`/`SUSPENDED`).
+   - **User Inspector Slide-Over Drawer (`UserInspectorDrawer`)**:
+     - Complete user profile, member counts, notes, and diary metrics.
+     - Role elevation (`USER` <-> `ADMIN`) with protection against self-demotion.
+     - Account suspension toggle (`ONLINE` / `SUSPENDED`).
+     - Global Coin adjustment with quick increment/decrement buttons (+10, +50, +100, +500, -50, Reset 0).
+     - AI Quota Control: Tier (`FREE` 50/day / `PRO` 500/day) and credit allowance balance adjuster.
+     - Protected by `ConfirmModal` and fires instant feedback toasts.
+3. **📁 Hub 3: Workspaces & Governance**:
+   - Global workspace catalog with search, owner profiles, member rosters, and board counts.
+   - **Workspace Inspector Slide-Over Drawer (`WorkspaceInspectorDrawer`)**:
+     - Workspace details editor (Name, description).
+     - Ownership governance: One-click transfer of ownership to any existing member.
+     - Board breakdown: Column counts, card volume, and board members.
+     - Danger Zone: Irreversible workspace purge requiring typed confirmation of project name.
+4. **🎁 Hub 4: Economy & Rewards Clearance**:
+   - Central approval queue for all coin rewards redeemed across workspaces.
+   - Status filters: `ALL`, `PENDING`, `APPROVED`, `REJECTED`.
+   - 1-Click "Approve" (marks redeemed and delivered) or "Reject & Refund" (prompts for rejection reason and automatically refunds coins back to user balance).
+5. **🤖 Hub 5: AI & Machine Intelligence**:
+   - Multi-model engine token economics and action unit costs breakdown.
+   - Quota Tier daily allowances (Free: 50 cr, Pro: 500 cr, Admin: Unlimited).
+   - Direct User Credit Refill Tool: Select any user to grant extra AI credits or elevate tier.
+   - Active AI intelligence consumers list with last-activity timestamps.
+6. **💾 Hub 6: Storage & Media Attachments**:
+   - Media directory tracking total uploaded files and aggregate storage size (KB/MB).
+   - Attachment table with thumbnail preview, file type, card context, and uploader profile.
+   - Direct download/preview link and permanent deletion with card slot de-linking.
+7. **🛡️ Hub 7: Fortress Defense & Security Audit**:
+   - **Honeypot Decoy Telemetry**: Real-time logging of intrusion attempts probing `/admin`. Captures bot IPs, User-Agent strings, and timestamps while serving a deceptive HTTP 404 cloak.
+   - Active Administrator roster tracking all elevated accounts.
+   - **Immutable Admin Action Audit Trail**: Centralized log recording every administrative modification (who did what, target, payload, timestamp).
+   - Password reset OTP activity and brute-force attempt monitor.
+8. **⚙️ Hub 8: Operations & Global Platform Broadcast**:
+   - **Global Broadcast Announcement Banner (`GlobalBroadcastBanner`)**:
+     - Deploys instant announcements to all connected users across the platform.
+     - Customizable message, notice severity (`info`, `warning`, `urgent`), and active state.
+     - Live in-editor preview before broadcasting.
+     - One-click clearing and session-dismissible banner in `RootLayout`.
+   - Real-time Neon PostgreSQL latency ping dial and runtime architecture diagnostics.
 - **Admin Entry Point**: When logged in with an ADMIN account, `UserProfilePopover` displays a prominent "Admin Portal" shortcut.
+
 
 ### 2026-10-12 — Phase 2: Card Archive, Activity Trail & Attachments
 - **Card Archive / Soft Delete**:
