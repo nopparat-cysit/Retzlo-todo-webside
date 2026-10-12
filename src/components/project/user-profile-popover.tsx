@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { HelpCircle, LogOut, User } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { HelpCircle, LogOut, ShieldCheck, User } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 
 import {
   DropdownMenu,
@@ -40,6 +40,8 @@ export function UserProfilePopover({
   statusColor,
   variant = "card",
 }: UserProfilePopoverProps) {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.globalRole === "ADMIN";
   const side = variant === "avatar" ? "bottom" : "top";
   const align = variant === "avatar" ? "end" : "start";
 
@@ -116,6 +118,22 @@ export function UserProfilePopover({
                 Help & System Guide
               </Link>
             </DropdownMenuItem>
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/admin-vault-9f8e"
+                  className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-sm text-purple-700 transition hover:bg-purple-50 focus:bg-purple-50 dark:text-purple-300 dark:hover:bg-purple-950/40 dark:focus:bg-purple-950/40 font-semibold"
+                >
+                  <span className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    Admin Portal
+                  </span>
+                  <span className="rounded-full bg-purple-500/20 px-1.5 py-0.2 text-[9px] font-mono uppercase tracking-wider text-purple-700 dark:text-purple-300">
+                    Vault
+                  </span>
+                </Link>
+              </DropdownMenuItem>
+            )}
           </div>
 
           <div className="mt-1 border-t border-stone-200/80 dark:border-white/10 pt-2">

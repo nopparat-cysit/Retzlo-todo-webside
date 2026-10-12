@@ -953,6 +953,53 @@ export const TOPICS_EN: GuideTopic[] = [
     demoType: "permissions",
   },
   {
+    id: "super-admin-portal",
+    category: "security",
+    icon: ShieldCheck,
+    title: "Super Admin Portal & 3-Tier Security",
+    badge: "New",
+    badgeColor: "border-purple-400/30 bg-purple-400/10 text-purple-600 dark:text-purple-300",
+    scopeBadge: "System Governance",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 12, 2026",
+    summary:
+      "Platform-wide governance portal protected by 3-tier defense-in-depth security, 404 route cloaking, and real-time oversight.",
+    concept:
+      "Super Admin access is strictly guarded through server-side database verification and route cloaking. Unauthorized visitors receive a 404 Not Found deception response, preventing automated reconnaissance.",
+    highlights: [
+      "3-Tier Defense: Route cloaking (deceptive 404 response), obscured hash slug, and direct persistent database verification on every request.",
+      "Platform Statistics: Real-time metrics covering total registered users, active sessions, workspaces, boards, cards, and database health.",
+      "User Administration: Filterable user directory with role promotion/demotion and account suspension controls guarded by ConfirmModal.",
+      "Workspace Registry: Platform-wide overview of all workspaces, member counts, board counts, and direct inspection links.",
+      "Dedicated Access: An 'Admin Portal' shortcut appears in the user profile menu exclusively when logged into an authorized Super Admin account.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Access Admin Portal",
+        desc: "Open your profile menu and click 'Admin Portal' (visible only to accounts with globalRole === 'ADMIN').",
+      },
+      {
+        step: "02",
+        title: "Monitor Platform Health",
+        desc: "Review system overview metrics, Neon database connectivity, and active user sessions.",
+      },
+      {
+        step: "03",
+        title: "Manage Users & Permissions",
+        desc: "Promote trusted team members to Admin or suspend accounts with full confirmation safeguards.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Security Architecture", value: "3-Tier Defense & Route Cloaking (404 Deception)" },
+      { label: "Authorization", value: "Persistent User Table Check (globalRole === 'ADMIN')" },
+      { label: "Audit Safeguards", value: "Self-demotion lock & mandatory ConfirmModal" },
+    ],
+    tips: "Standard /admin routes intentionally return 404 Not Found to prevent bot scanning and unauthorized discovery.",
+    relatedTopicIds: ["roles-and-security", "project-and-board-settings", "welcome-overview"],
+    demoType: "permissions",
+  },
+  {
     id: "project-and-board-settings",
     category: "security",
     icon: SlidersHorizontal,

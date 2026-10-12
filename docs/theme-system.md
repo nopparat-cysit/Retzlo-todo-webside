@@ -674,3 +674,9 @@ Template:
 - `BoardExportModal` now gives the preview roughly 65% of desktop width, opens at 90%, and provides visible 100% actual-size and Fit controls. The paper stage centers when it fits and remains scrollable when zoomed; the exported document and file contents are unchanged.
 - Uses existing semantic theme surfaces only; no shared tokens, primitives, or theme palette changed. Scope is limited to the export modal.
 - Reviewed source and focused export tests; light/dark desktop/mobile screenshot and keyboard interaction checks remain outstanding.
+
+### 2026-10-12 — Super Admin Portal foundation
+- Coverage: `/admin-vault-9f8e` layout and client dashboard (`src/components/admin/admin-dashboard-client.tsx`). Consumes existing semantic theme tokens for surface, border, text, and retro lofi indigo styling across light and dark modes.
+- Shared primitive impact: `UserProfilePopover` adds an admin-only portal link when session globalRole is ADMIN. No shared tokens or palette definitions changed.
+- 3-tier defense cloaking: unauthorized visits to `/admin` and `/admin-vault-9f8e` trigger 404 Not Found deception response.
+
