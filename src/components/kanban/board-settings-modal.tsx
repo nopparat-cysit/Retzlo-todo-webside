@@ -2,13 +2,22 @@
 
 import { FormEvent, useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
-import { AlertTriangle, ExternalLink, Layers, Lock, Settings, Sparkles, X, Zap } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, ExternalLink, KanbanSquare, Layers, Lock, Settings, Sparkles, X, Zap } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import {
   BoardGeneralTab,
   BoardAccessTab,
@@ -36,6 +45,12 @@ export interface BoardSettingsModalProps {
   customPriorities?: CustomPriority[] | null;
   defaultTab?: string;
   canManage?: boolean;
+  availableBoards?: Array<{
+    id: string;
+    name: string;
+    isPrivate?: boolean;
+  }>;
+  onBoardChange?: (newBoardId: string) => void;
   onSaved?: (updated: {
     id: string;
     name: string;
@@ -61,6 +76,8 @@ export function BoardSettingsModal({
   customPriorities: initialCustomPriorities,
   defaultTab = "general",
   canManage = true,
+  availableBoards,
+  onBoardChange,
   onSaved,
   onDeleted
 }: BoardSettingsModalProps) {
@@ -111,12 +128,74 @@ export function BoardSettingsModal({
   const prevOpenRef = useRef(false);
   const prevBoardIdRef = useRef(boardId);
 
+  const [activeBoardId, setActiveBoardId] = useState<string>(boardId);
+  const [boardsList, setBoardsList] = useState<Array<{ id: string; name: string; isPrivate?: boolean }>>(() => {
+    if (availableBoards && availableBoards.length > 0) {
+      return availableBoards;
+    }
+    return [{ id: boardId, name: boardName, isPrivate: initialIsPrivate }];
+  });
+  const [pendingSwitchBoardId, setPendingSwitchBoardId] = useState<string | null>(null);
+  const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
+
+  // Keep boardsList in sync with prop updates
+  useEffect(() => {
+    if (availableBoards && availableBoards.length > 0) {
+      setBoardsList(availableBoards);
+    }
+  }, [availableBoards]);
+
+  // Fetch project boards for the switcher dropdown
+  useEffect(() => {
+    if (!open || !projectId) return;
+
+    let isMounted = true;
+    fetch(`/api/projects/${projectId}/boards`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!isMounted) return;
+        if (data?.boards && Array.isArray(data.boards)) {
+          setBoardsList(
+            data.boards.map((b: { id: string; name: string; isPrivate?: boolean }) => ({
+              id: b.id,
+              name: b.name,
+              isPrivate: Boolean(b.isPrivate)
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, [open, projectId]);
+
+  // Listen to board-renamed events across the application
+  useEffect(() => {
+    const handleBoardRenamed = (e: Event) => {
+      const customEvent = e as CustomEvent<{ id: string; name: string }>;
+      if (customEvent.detail?.id && customEvent.detail?.name) {
+        setBoardsList((prev) =>
+          prev.map((b) => (b.id === customEvent.detail.id ? { ...b, name: customEvent.detail.name } : b))
+        );
+        if (customEvent.detail.id === activeBoardId) {
+          setName(customEvent.detail.name);
+          setBaseName(customEvent.detail.name);
+        }
+      }
+    };
+    window.addEventListener("board-renamed" as any, handleBoardRenamed);
+    return () => window.removeEventListener("board-renamed" as any, handleBoardRenamed);
+  }, [activeBoardId]);
+
   // Sync state ONLY when modal transitions to open or boardId changes
   useEffect(() => {
     const justOpened = open && !prevOpenRef.current;
     const boardChanged = open && prevBoardIdRef.current !== boardId;
 
     if (justOpened || boardChanged) {
+      setActiveBoardId(boardId);
       setName(boardName);
       setBaseName(boardName);
       setIsPrivate(initialIsPrivate);
@@ -149,7 +228,7 @@ export function BoardSettingsModal({
       fetch(`/api/projects/${projectId}/members`)
         .then((res) => (res.ok ? res.json() : { members: [] }))
         .catch(() => ({ members: [] })),
-      fetch(`/api/boards/${boardId}`)
+      fetch(`/api/boards/${activeBoardId}`)
         .then((res) => (res.ok ? res.json() : null))
         .catch(() => null)
     ]).then(([membersData, boardData]) => {
@@ -161,8 +240,13 @@ export function BoardSettingsModal({
       }
 
       if (boardData?.board) {
-        setName((prev) => (prev === boardName || !prev.trim() ? (boardData.board.name || prev) : prev));
-        setBaseName(boardData.board.name || boardName);
+        if (activeBoardId === boardId) {
+          setName((prev) => (prev === boardName || !prev.trim() ? (boardData.board.name || prev) : prev));
+          setBaseName(boardData.board.name || boardName);
+        } else {
+          setName(boardData.board.name || "");
+          setBaseName(boardData.board.name || "");
+        }
 
         if (typeof boardData.board.isPrivate === "boolean") {
           setIsPrivate(boardData.board.isPrivate);
@@ -201,7 +285,7 @@ export function BoardSettingsModal({
     return () => {
       isMounted = false;
     };
-  }, [open, projectId, boardId, boardName]);
+  }, [open, projectId, activeBoardId, boardId, boardName]);
 
   const isDirty = useMemo(() => {
     if (name.trim() !== baseName.trim()) return true;
@@ -238,6 +322,33 @@ export function BoardSettingsModal({
     setSelectedMemberIds([]);
   }
 
+  function handleSelectBoard(targetBoardId: string) {
+    if (targetBoardId === activeBoardId) return;
+
+    if (isDirty) {
+      setPendingSwitchBoardId(targetBoardId);
+      setDiscardConfirmOpen(true);
+      return;
+    }
+
+    applySwitchBoard(targetBoardId);
+  }
+
+  function applySwitchBoard(targetBoardId: string) {
+    const target = boardsList.find((b) => b.id === targetBoardId);
+    setActiveBoardId(targetBoardId);
+    if (target) {
+      setName(target.name);
+      setBaseName(target.name);
+      if (typeof target.isPrivate === "boolean") {
+        setIsPrivate(target.isPrivate);
+        setBaseIsPrivate(target.isPrivate);
+      }
+    }
+    setError(null);
+    onBoardChange?.(targetBoardId);
+  }
+
   async function handleSaveIntent(e: FormEvent) {
     e.preventDefault();
     if (!name.trim() || isSaving) return;
@@ -246,7 +357,7 @@ export function BoardSettingsModal({
     setIsSaving(true);
 
     try {
-      const res = await fetch(`/api/boards/${boardId}`, {
+      const res = await fetch(`/api/boards/${activeBoardId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -267,21 +378,28 @@ export function BoardSettingsModal({
       }
 
       toast({ message: `Board "${data.board.name}" settings saved successfully`, type: "success" });
+      setBoardsList((prev) =>
+        prev.map((b) =>
+          b.id === activeBoardId
+            ? { ...b, name: data.board.name, isPrivate: data.board.isPrivate }
+            : b
+        )
+      );
       if (typeof window !== "undefined") {
         window.dispatchEvent(
           new CustomEvent("board-renamed", {
-            detail: { id: boardId, name: data.board.name }
+            detail: { id: activeBoardId, name: data.board.name }
           })
         );
         window.dispatchEvent(
           new CustomEvent("board-priorities-updated", {
-            detail: { boardId, customPriorities: data.board.customPriorities }
+            detail: { boardId: activeBoardId, customPriorities: data.board.customPriorities }
           })
         );
       }
       if (onSaved) {
         onSaved({
-          id: boardId,
+          id: activeBoardId,
           name: data.board.name,
           isPrivate: data.board.isPrivate,
           memberUserIds: isPrivate ? selectedMemberIds : [],
@@ -302,7 +420,7 @@ export function BoardSettingsModal({
     setDeleteConfirmOpen(false);
 
     try {
-      const res = await fetch(`/api/boards/${boardId}`, {
+      const res = await fetch(`/api/boards/${activeBoardId}`, {
         method: "DELETE"
       });
 
@@ -312,10 +430,16 @@ export function BoardSettingsModal({
       }
 
       toast({ message: `Board "${name}" deleted successfully`, type: "success" });
+      const remaining = boardsList.filter((b) => b.id !== activeBoardId);
+      setBoardsList(remaining);
       if (onDeleted) {
-        onDeleted(boardId);
+        onDeleted(activeBoardId);
       }
-      onClose();
+      if (remaining.length > 0) {
+        applySwitchBoard(remaining[0].id);
+      } else {
+        onClose();
+      }
     } catch (err) {
       toast({
         message: err instanceof Error ? err.message : "Failed to delete board",
@@ -329,6 +453,12 @@ export function BoardSettingsModal({
   const totalCards = useMemo(() => {
     return columns.reduce((acc, col) => acc + (col.cardCount ?? 0), 0);
   }, [columns]);
+
+  const currentBoardItem = boardsList.find((b) => b.id === activeBoardId);
+  const currentBoardDisplayName =
+    activeBoardId === boardId
+      ? (name.trim() || currentBoardItem?.name || boardName)
+      : (name.trim() || currentBoardItem?.name || "Untitled Board");
 
   return (
     <>
@@ -365,16 +495,63 @@ export function BoardSettingsModal({
                     </span>
                   )}
                 </div>
-                <h2 id="board-settings-title" className="mt-0.5 text-base sm:text-lg font-bold text-stone-900 truncate max-w-xs sm:max-w-md dark:text-white">
-                  {boardName}
-                </h2>
+                <div className="flex items-center gap-1">
+                  <h2 id="board-settings-title" className="mt-0.5 text-base sm:text-lg font-bold text-stone-900 truncate max-w-xs sm:max-w-md dark:text-white">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="group inline-flex items-center gap-1.5 rounded-lg -ml-1 px-1.5 py-0.5 hover:bg-stone-100 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 max-w-xs sm:max-w-md cursor-pointer text-left font-inherit"
+                          title="Click to switch board"
+                          aria-label={`Current board: ${currentBoardDisplayName}. Click to switch board`}
+                        >
+                          <span className="truncate">{currentBoardDisplayName}</span>
+                          <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 group-hover:text-stone-700 dark:text-stone-400 dark:group-hover:text-stone-200 transition-transform group-data-[state=open]:rotate-180" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto p-1.5 z-[1300] bg-theme-panel border border-theme-border shadow-xl">
+                        <DropdownMenuLabel className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-400">
+                          Select Board ({boardsList.length})
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator className="my-1 bg-stone-200/60 dark:bg-white/10" />
+                        {boardsList.map((b) => {
+                          const isCurrent = b.id === activeBoardId;
+                          return (
+                            <DropdownMenuItem
+                              key={b.id}
+                              onClick={() => handleSelectBoard(b.id)}
+                              className={cn(
+                                "flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition",
+                                isCurrent
+                                  ? "bg-indigo-50 text-indigo-700 font-semibold dark:bg-white/10 dark:text-white"
+                                  : "text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/[0.06]"
+                              )}
+                            >
+                              <div className="flex items-center gap-2 min-w-0">
+                                {b.isPrivate ? (
+                                  <Lock className="h-3.5 w-3.5 shrink-0 text-dusk-amber" />
+                                ) : (
+                                  <KanbanSquare className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+                                )}
+                                <span className="truncate">{b.name}</span>
+                              </div>
+                              {isCurrent && (
+                                <Check className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
+                              )}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </h2>
+                </div>
               </div>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
               {projectId && (
                 <Link
-                  href={`/project/${projectId}/settings?tab=board-general&boardId=${boardId}`}
+                  href={`/project/${projectId}/settings?tab=board-general&boardId=${activeBoardId}`}
                   onClick={onClose}
                   className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline dark:text-dusk-lavender mr-1"
                 >
@@ -458,7 +635,7 @@ export function BoardSettingsModal({
               {projectId && (
                 <div className="hidden md:block pt-2 border-t border-stone-200/70 dark:border-white/5 mt-3">
                   <Link
-                    href={`/project/${projectId}/settings?tab=board-general&boardId=${boardId}`}
+                    href={`/project/${projectId}/settings?tab=board-general&boardId=${activeBoardId}`}
                     onClick={onClose}
                     className="flex items-center gap-1.5 px-2 py-1.5 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 dark:text-dusk-lavender dark:hover:text-white transition group"
                   >
@@ -495,7 +672,7 @@ export function BoardSettingsModal({
               {/* TAB 2: Card Attributes (Status, Priority, Story Points) */}
               <TabsContent value="attributes" className="mt-0">
                 <BoardAttributesTab
-                  boardId={boardId}
+                  boardId={activeBoardId}
                   canManage={canManage}
                   priorities={priorities}
                   onPrioritiesChange={setPriorities}
@@ -506,7 +683,7 @@ export function BoardSettingsModal({
               {/* Backward-compat alias for direct priorities tab */}
               <TabsContent value="priorities" className="mt-0">
                 <BoardAttributesTab
-                  boardId={boardId}
+                  boardId={activeBoardId}
                   canManage={canManage}
                   priorities={priorities}
                   onPrioritiesChange={setPriorities}
@@ -520,7 +697,7 @@ export function BoardSettingsModal({
                   columns={columns}
                   totalCards={totalCards}
                   projectId={projectId}
-                  boardId={boardId}
+                  boardId={activeBoardId}
                   canManage={canManage}
                   onColumnsChange={setColumns}
                 />
@@ -529,7 +706,7 @@ export function BoardSettingsModal({
               {/* TAB 4: Danger Zone */}
               <TabsContent value="danger" className="mt-0">
                 <BoardDangerTab
-                  boardName={boardName}
+                  boardName={currentBoardDisplayName}
                   canManage={canManage}
                   isDeleting={isDeleting}
                   onDeleteClick={() => setDeleteConfirmOpen(true)}
@@ -560,15 +737,35 @@ export function BoardSettingsModal({
       {/* Confirm Delete Modal */}
       <ConfirmModal
         open={deleteConfirmOpen}
-        title={`Confirm Deletion of Board "${boardName}"`}
+        title={`Confirm Deletion of Board "${currentBoardDisplayName}"`}
         message={`Deleting this board will permanently remove all tasks, columns, and checklists in it. To confirm, type the board name below.`}
         confirmLabel="Permanently Delete Board"
         variant="danger"
-        validateText={boardName}
-        validatePlaceholder={`Type "${boardName}" to confirm`}
+        validateText={currentBoardDisplayName}
+        validatePlaceholder={`Type "${currentBoardDisplayName}" to confirm`}
         isLoading={isDeleting}
         onClose={() => setDeleteConfirmOpen(false)}
         onConfirm={handleDeleteBoard}
+      />
+
+      {/* Confirm Discard Changes on Board Switch */}
+      <ConfirmModal
+        open={discardConfirmOpen}
+        title="Discard Unsaved Changes?"
+        message="You have unsaved changes on this board. Switching to another board will discard your current modifications. Are you sure you want to proceed?"
+        confirmLabel="Discard & Switch"
+        variant="default"
+        onClose={() => {
+          setDiscardConfirmOpen(false);
+          setPendingSwitchBoardId(null);
+        }}
+        onConfirm={() => {
+          if (pendingSwitchBoardId) {
+            applySwitchBoard(pendingSwitchBoardId);
+          }
+          setDiscardConfirmOpen(false);
+          setPendingSwitchBoardId(null);
+        }}
       />
     </>
   );

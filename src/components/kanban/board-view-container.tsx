@@ -94,6 +94,7 @@ export function BoardViewContainer({
           onToggleNotes={handleToggleNotes}
           density={density}
           onToggleDensity={handleToggleDensity}
+          availableBoards={availableBoards}
         />
       </div>
 

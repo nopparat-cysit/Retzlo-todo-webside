@@ -15,7 +15,7 @@ import { Archive, ArrowUpDown, CalendarClock, Check, CheckSquare, ChevronDown, E
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CardModal } from "@/components/kanban/card-modal";
 import { BoardListView } from "@/components/kanban/board-list-view";
 import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
@@ -114,7 +114,8 @@ export function KanbanBoard({
   notesCount = 0,
   onToggleNotes,
   density = "comfortable",
-  onToggleDensity
+  onToggleDensity,
+  availableBoards
 }: {
   board: BoardData;
   members?: CardAssignee[];
@@ -125,8 +126,11 @@ export function KanbanBoard({
   onToggleNotes?: () => void;
   density?: "comfortable" | "compact";
   onToggleDensity?: (target?: "comfortable" | "compact") => void;
+  availableBoards?: Array<{ id: string; name: string; isPrivate?: boolean }>;
 }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const [lastModalBoardId, setLastModalBoardId] = useState<string | null>(null);
   const cardIdFromUrl = searchParams.get("cardId");
   const [editingCard, setEditingCard] = useState<Card | null>(null);
   const [cardToDelete, setCardToDelete] = useState<Card | null>(null);
@@ -2056,7 +2060,18 @@ export function KanbanBoard({
       {board.projectId && isBoardSettingsOpen && (
         <BoardSettingsModal
           open={isBoardSettingsOpen}
-          onClose={() => setIsBoardSettingsOpen(false)}
+          onClose={() => {
+            setIsBoardSettingsOpen(false);
+            if (lastModalBoardId && lastModalBoardId !== board.id && board.projectId) {
+              window.dispatchEvent(
+                new CustomEvent("board-switching", {
+                  detail: { boardId: lastModalBoardId }
+                })
+              );
+              router.push(`/project/${board.projectId}/board?boardId=${lastModalBoardId}`);
+            }
+            setLastModalBoardId(null);
+          }}
           projectId={board.projectId}
           boardId={board.id}
           boardName={boardName}
@@ -2070,9 +2085,19 @@ export function KanbanBoard({
             color: c.color,
             cardCount: c.cards.length
           }))}
+          availableBoards={availableBoards}
+          onBoardChange={(newBoardId) => setLastModalBoardId(newBoardId)}
           onSaved={(updated) => {
-            if (updated.customPriorities !== undefined) {
+            if (updated.customPriorities !== undefined && updated.id === board.id) {
               setBoardPriorities(updated.customPriorities ?? undefined);
+            }
+            if (updated.id !== board.id && board.projectId) {
+              window.dispatchEvent(
+                new CustomEvent("board-switching", {
+                  detail: { boardId: updated.id }
+                })
+              );
+              router.push(`/project/${board.projectId}/board?boardId=${updated.id}`);
             }
           }}
         />

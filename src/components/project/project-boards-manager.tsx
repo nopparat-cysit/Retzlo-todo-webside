@@ -986,6 +986,7 @@ export function ProjectBoardsManager({
             []
           }
           canManage={canManage}
+          availableBoards={boards.map((b) => ({ id: b.id, name: b.name, isPrivate: b.isPrivate }))}
           onSaved={(updated) => {
             setBoards((prev) =>
               prev.map((b) =>

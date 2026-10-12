@@ -1334,6 +1334,7 @@ export function ProjectsDashboard({
           isPrivate={editingBoard.isPrivate}
           columnsPreview={editingBoard.columnsPreview}
           canManage={activeProject.isOwner !== false}
+          availableBoards={activeProject.boardsList?.map((b) => ({ id: b.id, name: b.name, isPrivate: b.isPrivate }))}
           onSaved={(updated) => {
             handleUpdateBoard({
               ...editingBoard,

@@ -438,6 +438,7 @@ export function BoardSidebarDropdown({
           boardName={targetSettingsBoard.name}
           isPrivate={targetSettingsBoard.isPrivate}
           canManage={canManage}
+          availableBoards={boardsList.map((b) => ({ id: b.id, name: b.name, isPrivate: b.isPrivate }))}
           onSaved={(updated) => {
             setBoardsList((prev) =>
               prev.map((b) =>

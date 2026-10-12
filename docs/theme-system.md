@@ -692,6 +692,9 @@ Template:
 - Theme Consistency: Fully preserves retro lofi indigo design tokens across light and dark modes with subtle borders, muted badges, and seamless dropdown styling.
 - Verification: Full test suite (94 suites, 495 tests), ESLint, Prisma schema, and Next.js 40-route production build passed with 0 errors.
 
-
-
-
+### 2026-10-12 — Board Switcher Dropdown in Board Settings Modal
+- Coverage: Header of `BoardSettingsModal` (`src/components/kanban/board-settings-modal.tsx`), integrated across Kanban Board (`board.tsx`), Sidebar Dropdown (`board-sidebar-dropdown.tsx`), and Project Boards Manager (`project-boards-manager.tsx`).
+- UI & Tokens: Transformed the static board title heading into an interactive Retro Lofi `DropdownMenu` trigger with a subtle `ChevronDown` indicator. The dropdown menu surfaces all project boards with privacy badges (Lock / KanbanSquare), current board checkmark, and accessible keyboard navigation.
+- Intent Verification: Switching boards with unsaved changes prompts a `ConfirmModal` ("Discard Unsaved Changes?") to safeguard user input per AGENTS.md rules.
+- State Synchronization: Switches board settings dynamically across tabs (General, Attributes, Columns, Danger Zone) without premature modal dismissal, and smoothly syncs active board navigation upon modal close or save.
+- Verification: 96 test suites passed (506 tests), TypeScript check 0 errors, ESLint 0 warnings, Prisma schema valid, and Next.js production build passed 100% (40/40 routes).

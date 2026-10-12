@@ -123,8 +123,9 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 - **Owner:** Full project governance, member management, danger zone controls.
 - **Member:** Collaborative access to create cards, notes, and participate in projects.
 
-### 2.10 Unified Card Attributes & Global Sync
+### 2.10 Unified Card Attributes, Board Settings & Switcher Dropdown
 - **Unified in Board Settings:** Attributes tab manages Statuses, Priorities, and Story Points in one central hub.
+- **Board Switcher Dropdown in Modal Header:** The board title heading in `BoardSettingsModal` functions as an interactive dropdown selector with ChevronDown, allowing users to switch between project boards dynamically without closing the dialog. Features unsaved change protection via `ConfirmModal`.
 - **End-to-End Interconnection:** Adding a custom status immediately populates column default pickers, card modals, and table filters without page reloads.
 
 ### 2.11 Scope-Grouped Project Settings (`/project/[id]/settings`)
