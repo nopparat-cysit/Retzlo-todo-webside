@@ -4,12 +4,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export function isAdminRole(role: string | null | undefined): boolean {
-  return role === "ADMIN";
+  return role === "ADMIN" || role === "SUPERADMIN";
 }
 
 /**
  * Validates that the current request has an active session
- * and that the user has globalRole === "ADMIN" in the database.
+ * and that the user has globalRole === "ADMIN" or "SUPERADMIN" in the database.
  * Returns the admin user record if authorized, or null otherwise.
  */
 export async function requireAdminUser() {
@@ -34,7 +34,7 @@ export async function requireAdminUser() {
     }
   });
 
-  if (!user || user.globalRole !== "ADMIN") {
+  if (!user || !isAdminRole(user.globalRole)) {
     return null;
   }
 

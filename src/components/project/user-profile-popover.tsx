@@ -41,7 +41,7 @@ export function UserProfilePopover({
   variant = "card",
 }: UserProfilePopoverProps) {
   const { data: session } = useSession();
-  const isAdmin = session?.user?.globalRole === "ADMIN";
+  const isAdmin = session?.user?.globalRole === "ADMIN" || session?.user?.globalRole === "SUPERADMIN";
   const side = variant === "avatar" ? "bottom" : "top";
   const align = variant === "avatar" ? "end" : "start";
 

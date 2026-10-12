@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import { isAdminRole } from "./admin-auth";
 
 describe("isAdminRole", () => {
-  it("returns true only when role is strictly ADMIN", () => {
+  it("returns true when role is ADMIN or SUPERADMIN", () => {
     expect(isAdminRole("ADMIN")).toBe(true);
+    expect(isAdminRole("SUPERADMIN")).toBe(true);
   });
 
   it("returns false for regular USER role", () => {
@@ -19,7 +20,7 @@ describe("isAdminRole", () => {
 
   it("returns false for case-mismatched or arbitrary strings", () => {
     expect(isAdminRole("admin")).toBe(false);
-    expect(isAdminRole("SUPERADMIN")).toBe(false);
     expect(isAdminRole("MEMBER")).toBe(false);
+    expect(isAdminRole("GUEST")).toBe(false);
   });
 });
