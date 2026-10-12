@@ -69,7 +69,7 @@ function getRedStar(): RedStar | null {
 
 export function FabHub() {
   const router = useRouter();
-  const { isOpen: isAiChatOpen, viewMode: aiViewMode, isSmallScreen } = useAiChat();
+  const { isOpen: isAiChatOpen, viewMode: aiViewMode, isSmallScreen, setIsFabOpen } = useAiChat();
   const isAiAtBottomRight = isAiChatOpen && (aiViewMode === "float" || isSmallScreen);
   const isAiChatOpenAndFloat = isAiChatOpen && aiViewMode === "float";
   const isAiChatOpenAndSidebar = isAiChatOpen && aiViewMode === "sidepanel";
@@ -83,6 +83,12 @@ export function FabHub() {
   const [displayLoading, setDisplayLoading] = useState(false);
   const [displayError, setDisplayError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Sync open state with AI chat context to push AI to the left when open
+  useEffect(() => {
+    setIsFabOpen(isOpen);
+    return () => setIsFabOpen(false);
+  }, [isOpen, setIsFabOpen]);
 
   // Load red star on mount
   useEffect(() => {
@@ -232,11 +238,13 @@ export function FabHub() {
         ref={containerRef}
         className={cn(
           "fixed bottom-safe z-[120] flex flex-col items-end gap-3 transition-all duration-300 ease-in-out",
-          isAiChatOpenAndFloat
-            ? "bottom-[calc(min(560px,85vh)+1.5rem)] right-4 sm:bottom-[calc(min(560px,85vh)+2rem)] sm:right-6"
-            : isAiChatOpenAndSidebar
-              ? "max-lg:bottom-[calc(min(560px,85vh)+1.5rem)] max-lg:right-4 max-lg:sm:bottom-[calc(min(560px,85vh)+2rem)] max-lg:sm:right-6 lg:bottom-6 lg:right-[calc(450px+1.5rem)]"
-              : "bottom-4 right-4 sm:bottom-6 sm:right-6"
+          isOpen
+            ? "bottom-4 right-4 sm:bottom-6 sm:right-6"
+            : isAiChatOpenAndFloat
+              ? "bottom-[calc(min(560px,85vh)+1.5rem)] right-4 sm:bottom-[calc(min(560px,85vh)+2rem)] sm:right-6"
+              : isAiChatOpenAndSidebar
+                ? "max-lg:bottom-[calc(min(560px,85vh)+1.5rem)] max-lg:right-4 max-lg:sm:bottom-[calc(min(560px,85vh)+2rem)] max-lg:sm:right-6 lg:bottom-6 lg:right-[calc(450px+1.5rem)]"
+                : "bottom-4 right-4 sm:bottom-6 sm:right-6"
         )}
       >
         {/* Action buttons */}
@@ -252,7 +260,7 @@ export function FabHub() {
               fallbackItem={redStar}
               isLoading={displayLoading}
               error={displayError}
-              compactTop={isAiAtBottomRight}
+              compactTop={!isOpen && isAiAtBottomRight}
               onOpen={() => navigateTo(redStar.href)}
               onChange={openPicker}
               onClear={clearDisplay}

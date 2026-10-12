@@ -32,6 +32,7 @@ export interface AssigneeStackProps {
   size?: number;
   className?: string;
   ringClass?: string;
+  showName?: boolean;
 }
 
 export function AssigneeStack({
@@ -39,7 +40,8 @@ export function AssigneeStack({
   max = 3,
   size = 22,
   className,
-  ringClass = "ring-2 ring-white dark:ring-[#0e0c1f]"
+  ringClass = "ring-2 ring-white dark:ring-[#0e0c1f]",
+  showName = false
 }: AssigneeStackProps) {
   if (!assignees || assignees.length === 0) {
     return null;
@@ -55,7 +57,7 @@ export function AssigneeStack({
         size={size}
         className={className}
       />
-      {assignees.length === 1 && (
+      {showName && assignees.length === 1 && (
         <span className="max-w-[100px] truncate text-xs font-medium text-stone-700 dark:text-stone-400">
           {assignees[0].name?.trim() || assignees[0].email?.split("@")[0] || ""}
         </span>

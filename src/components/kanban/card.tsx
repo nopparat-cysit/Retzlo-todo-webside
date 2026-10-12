@@ -152,7 +152,7 @@ function KanbanCardComponent({
                   {compactStickers.map((st, i) => (
                     <span
                       key={`${st}-${i}`}
-                      className="inline-grid h-4.5 w-4.5 cursor-default place-items-center"
+                      className="inline-grid h-[18px] w-[18px] shrink-0 cursor-default place-items-center"
                       title="Retro sticker"
                     >
                       <RetroStickerImage size={18} src={st} />
@@ -179,7 +179,7 @@ function KanbanCardComponent({
           <div className="flex flex-wrap items-center gap-1 pt-0.5">
             <span
               className={cn(
-                "rounded-md border px-1.5 py-0.2 text-[10px] uppercase font-semibold",
+                "rounded-md border px-1.5 py-0.5 text-[10px] uppercase font-semibold",
                 priorityMeta.pillClass
               )}
             >
@@ -189,7 +189,7 @@ function KanbanCardComponent({
             {card.difficulty ? (
               <span
                 className={cn(
-                  "inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.2 text-[10px] font-semibold select-none",
+                  "inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold select-none",
                   getDifficultyMetadata(card.difficulty)?.badgeClass
                 )}
                 title={getDifficultyMetadata(card.difficulty)?.title}
@@ -200,7 +200,7 @@ function KanbanCardComponent({
             ) : null}
 
             {card.checklist.length > 0 ? (
-              <span className="inline-flex items-center gap-0.5 rounded-md border border-teal-200 bg-teal-50 px-1.5 py-0.2 text-[10px] font-medium text-teal-700 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
+              <span className="inline-flex items-center gap-0.5 rounded-md border border-teal-200 bg-teal-50 px-1.5 py-0.5 text-[10px] font-medium text-teal-700 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
                 <CheckSquare className="h-2.5 w-2.5" />
                 {completedChecklist}/{card.checklist.length}
               </span>
@@ -208,7 +208,7 @@ function KanbanCardComponent({
 
             {card.attachments && card.attachments.length > 0 ? (
               <span
-                className="inline-flex items-center gap-0.5 rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-0.2 text-[10px] font-medium text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                className="inline-flex items-center gap-0.5 rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
                 title={`${card.attachments.length} attachment${card.attachments.length === 1 ? "" : "s"}`}
               >
                 <Paperclip className="h-2.5 w-2.5" />
@@ -230,7 +230,7 @@ function KanbanCardComponent({
 
 
             {(card.startDate || card.dueDate || (card.assignees && card.assignees.length > 0) || (card.assigneeIds && card.assigneeIds.length > 0)) && (
-              <div className="ml-auto flex items-center gap-1.5">
+              <div className="ml-auto flex items-center gap-1.5 shrink-0">
                 {(card.startDate || card.dueDate) && (
                   <span className="text-[10px] text-stone-500 font-mono">
                     {formatCardDateRange({

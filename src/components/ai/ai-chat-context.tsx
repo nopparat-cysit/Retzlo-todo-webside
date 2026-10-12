@@ -13,6 +13,8 @@ interface AiChatContextValue {
   viewMode: AiChatViewMode;
   setViewMode: (mode: AiChatViewMode) => void;
   isSmallScreen: boolean;
+  isFabOpen: boolean;
+  setIsFabOpen: (open: boolean) => void;
 }
 
 const AiChatContext = createContext<AiChatContextValue | null>(null);
@@ -22,6 +24,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   // Default to "sidepanel" initially as requested
   const [viewMode, setViewModeState] = useState<AiChatViewMode>("sidepanel");
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [isFabOpen, setIsFabOpen] = useState(false);
 
   // Sync isSmallScreen with window width (< 1024px)
   useEffect(() => {
@@ -52,6 +55,8 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
         viewMode,
         setViewMode,
         isSmallScreen,
+        isFabOpen,
+        setIsFabOpen,
       }}
     >
       {children}
@@ -71,6 +76,8 @@ export function useAiChat(): AiChatContextValue {
       viewMode: "sidepanel",
       setViewMode: () => {},
       isSmallScreen: false,
+      isFabOpen: false,
+      setIsFabOpen: () => {},
     };
   }
   return context;

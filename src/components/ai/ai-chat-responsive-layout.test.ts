@@ -38,6 +38,18 @@ describe("AI Chat Responsive & Sidebar Layout", () => {
     expect(fabSource).toContain("bottom-4 right-4 sm:bottom-6 sm:right-6");
   });
 
+  it("pushes AI chat to the left when the FAB display panel is open", () => {
+    const widgetSource = readFileSync(new URL("./ai-chat-widget.tsx", import.meta.url), "utf8");
+    const fabSource = readFileSync(new URL("../hub/fab-hub.tsx", import.meta.url), "utf8");
+
+    // Context & FabHub synchronization
+    expect(fabSource).toContain("setIsFabOpen(isOpen)");
+    expect(widgetSource).toContain("isFabOpen");
+
+    // Displacement to the left of the 24rem panel + margin
+    expect(widgetSource).toContain('isFabOpen && "sm:right-[calc(24rem+2rem)]"');
+  });
+
   it("renders rainbow Gemini sparkle icon and transparent background on topbar triggers", () => {
     const triggerSource = readFileSync(new URL("./ai-chat-trigger.tsx", import.meta.url), "utf8");
     const helpSource = readFileSync(new URL("../ui/help-button.tsx", import.meta.url), "utf8");

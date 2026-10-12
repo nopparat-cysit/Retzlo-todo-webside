@@ -24,6 +24,10 @@ import { calculateColumnPoints, type DifficultyScore } from "@/lib/kanban/diffic
 import { cn } from "@/lib/utils";
 import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem, ColumnWithCards, CustomPriority } from "@/types/kanban";
 
+export const DEFAULT_COLUMN_WIDTH = 335;
+export const MIN_COLUMN_WIDTH = 260;
+export const MAX_COLUMN_WIDTH = 600;
+
 export interface KanbanColumnProps {
   column: ColumnWithCards;
   boardId?: string;
@@ -128,6 +132,82 @@ function KanbanColumnComponent({
     const newState = !isCollapsed;
     setIsCollapsed(newState);
     localStorage.setItem(`column-collapsed-${column.id}`, String(newState));
+  };
+
+  const [columnWidth, setColumnWidth] = useState<number>(DEFAULT_COLUMN_WIDTH);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStartXRef = useRef(0);
+  const resizeStartWidthRef = useRef(DEFAULT_COLUMN_WIDTH);
+
+  useEffect(() => {
+    try {
+      const savedWidth = localStorage.getItem(`column-width-${column.id}`);
+      if (savedWidth) {
+        const parsed = parseInt(savedWidth, 10);
+        if (!isNaN(parsed) && parsed >= MIN_COLUMN_WIDTH && parsed <= MAX_COLUMN_WIDTH) {
+          setColumnWidth(parsed);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [column.id]);
+
+  const handleResizeStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    resizeStartXRef.current = e.clientX;
+    resizeStartWidthRef.current = columnWidth;
+    setIsResizing(true);
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      const deltaX = moveEvent.clientX - resizeStartXRef.current;
+      const nextWidth = Math.min(
+        Math.max(resizeStartWidthRef.current + deltaX, MIN_COLUMN_WIDTH),
+        MAX_COLUMN_WIDTH
+      );
+      setColumnWidth(nextWidth);
+    };
+
+    const onPointerUp = (upEvent: PointerEvent) => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+
+      const finalDelta = upEvent.clientX - resizeStartXRef.current;
+      const finalWidth = Math.min(
+        Math.max(resizeStartWidthRef.current + finalDelta, MIN_COLUMN_WIDTH),
+        MAX_COLUMN_WIDTH
+      );
+      setColumnWidth(finalWidth);
+      setIsResizing(false);
+      try {
+        localStorage.setItem(`column-width-${column.id}`, String(finalWidth));
+      } catch {
+        // ignore
+      }
+    };
+
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
+  };
+
+  const handleResetWidth = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setColumnWidth(DEFAULT_COLUMN_WIDTH);
+    try {
+      localStorage.removeItem(`column-width-${column.id}`);
+    } catch {
+      // ignore
+    }
   };
 
   useEffect(() => {
@@ -335,9 +415,15 @@ function KanbanColumnComponent({
   return (
     <section
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        width: isCollapsed ? undefined : `${columnWidth}px`,
+        maxWidth: isCollapsed ? undefined : `${columnWidth}px`,
+        minWidth: isCollapsed ? undefined : `${MIN_COLUMN_WIDTH}px`
+      }}
       className={cn(
-        "group flex h-full min-h-0 w-[84vw] sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)] transition",
+        "group relative flex h-full min-h-0 w-[84vw] sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
+        isResizing ? "transition-none select-none" : "transition duration-200",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
         isDropTarget &&
@@ -694,6 +780,53 @@ function KanbanColumnComponent({
         onConfirm={executeSaveSettings}
         onClose={() => setIsSaveConfirmOpen(false)}
       />
+      {/* ── Column Horizontal Resize Handle (Hover & Drag on X-axis) ── */}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label={`Resize column ${column.name}`}
+        title="Drag horizontally to resize column width (Double-click to reset)"
+        onPointerDown={handleResizeStart}
+        onDoubleClick={handleResetWidth}
+        className={cn(
+          "group/resize absolute top-0 right-0 bottom-0 z-30 flex w-3 cursor-col-resize items-center justify-center select-none touch-none",
+          isResizing ? "pointer-events-auto" : ""
+        )}
+      >
+        {/* Vertical Guide Line */}
+        <div
+          className={cn(
+            "h-full w-[2px] transition-colors duration-150",
+            isResizing
+              ? "bg-indigo-500 shadow-[0_0_8px_rgba(169,162,255,0.7)] dark:bg-dusk-lavender"
+              : "bg-transparent group-hover/resize:bg-indigo-400/50 dark:group-hover/resize:bg-dusk-lavender/50"
+          )}
+        />
+
+        {/* Center Grab Handle Pill */}
+        <div
+          className={cn(
+            "pointer-events-none absolute top-1/2 -translate-y-1/2 flex h-8 w-3.5 items-center justify-center rounded-full border shadow-xs transition-all duration-150",
+            isResizing
+              ? "scale-110 border-indigo-400 bg-indigo-600 text-white shadow-md dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950 opacity-100"
+              : "opacity-0 group-hover/resize:opacity-100 border-stone-300/80 bg-white/95 text-stone-500 dark:border-white/20 dark:bg-ink-900/95 dark:text-stone-300"
+          )}
+        >
+          {/* Grip dots pattern */}
+          <div className="flex flex-col gap-0.5">
+            <span className="h-0.5 w-0.5 rounded-full bg-current" />
+            <span className="h-0.5 w-0.5 rounded-full bg-current" />
+            <span className="h-0.5 w-0.5 rounded-full bg-current" />
+          </div>
+        </div>
+
+        {/* Width badge while dragging */}
+        {isResizing && (
+          <div className="pointer-events-none absolute top-1/2 -translate-y-12 right-2 rounded-md border border-white/10 bg-ink-950/95 px-2 py-0.5 text-[10px] font-mono font-medium text-white shadow-xl dark:border-dusk-lavender/30 dark:bg-ink-900 dark:text-dusk-lavender whitespace-nowrap z-50 animate-in fade-in zoom-in-95">
+            {columnWidth}px
+          </div>
+        )}
+      </div>
     </section>
   );
 }

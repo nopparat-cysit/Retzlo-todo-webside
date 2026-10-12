@@ -161,7 +161,7 @@ export function BoardActivityDrawer({
         {/* Drawer Panel */}
         <aside className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-stone-200/80 bg-stone-50/95 shadow-2xl backdrop-blur-md transition-all animate-in slide-in-from-right duration-250 dark:border-white/10 dark:bg-ink-950/95">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-stone-200/70 p-4.5 dark:border-white/10">
+        <div className="flex items-center justify-between border-b border-stone-200/70 px-5 py-4 dark:border-white/10">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
               <History className="h-5 w-5" />
@@ -185,14 +185,14 @@ export function BoardActivityDrawer({
             type="button"
             onClick={onClose}
             aria-label="Close activity log"
-            className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 transition hover:bg-stone-200/60 hover:text-stone-700 dark:text-stone-500 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer"
+            className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 transition hover:bg-stone-200/60 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Filter Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto border-b border-stone-200/60 p-2.5 scrollbar-none dark:border-white/5">
+        <div className="flex items-center gap-1.5 overflow-x-auto border-b border-stone-200/60 px-5 py-2.5 scrollbar-none dark:border-white/5">
           {(
             [
               { id: "ALL", label: "All" },
@@ -219,7 +219,7 @@ export function BoardActivityDrawer({
         </div>
 
         {/* Timeline Content */}
-        <div className="scrollbar-soft flex-1 overflow-y-auto p-4">
+        <div className="scrollbar-soft flex-1 overflow-y-auto px-5 py-4">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 text-stone-400">
               <Loader2 className="h-7 w-7 animate-spin text-indigo-500 dark:text-dusk-lavender" />
@@ -250,7 +250,7 @@ export function BoardActivityDrawer({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-stone-200/70 p-3.5 text-center text-[11px] text-stone-400 dark:border-white/10 dark:text-stone-500">
+        <div className="border-t border-stone-200/70 px-5 py-3 text-center text-[11px] text-stone-400 dark:border-white/10 dark:text-stone-500">
           Showing {filteredActivities.length} recent audit event{filteredActivities.length === 1 ? "" : "s"}
         </div>
       </aside>
