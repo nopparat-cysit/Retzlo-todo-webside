@@ -1,14 +1,24 @@
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { requireAdminUser } from "@/lib/admin-auth";
 import { recordDecoyHit } from "@/lib/admin-system-state";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Decoy route for /admin.
- * Logs reconnaissance attempt to honeypot telemetry and renders 404 Not Found.
+ * Route handler for /admin.
+ * If user is authenticated as ADMIN, redirects seamlessly to the Super Admin Command Center (/admin-vault-9f8e).
+ * Otherwise, acts as a Honeypot Decoy: records intrusion probe and renders 404 Not Found cloak.
  */
-export default function AdminDecoyPage() {
+export default async function AdminDecoyPage() {
+  const admin = await requireAdminUser();
+
+  // If user is authenticated with ADMIN role, redirect to the real vault command center!
+  if (admin) {
+    redirect("/admin-vault-9f8e");
+  }
+
+  // Honeypot Decoy: capture bot/scanner probe telemetry and cloak with 404
   const headerList = headers();
   const forwardedFor = headerList.get("x-forwarded-for");
   const realIp = headerList.get("x-real-ip");
