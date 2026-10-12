@@ -22,6 +22,7 @@ import {
 import { getPusherClient, sanitizePusherChannel } from "@/lib/pusher/client";
 import type { BoardActivityItem } from "@/types/kanban";
 import { cn } from "@/lib/utils";
+import { ModalPortal } from "@/components/ui/modal-portal";
 
 interface BoardActivityDrawerProps {
   open: boolean;
@@ -117,6 +118,16 @@ export function BoardActivityDrawer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    if (!open) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [open]);
+
   // Filter activities
   const filteredActivities = useMemo(() => {
     if (filter === "ALL") return activities;
@@ -139,15 +150,16 @@ export function BoardActivityDrawer({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/45 backdrop-blur-[2px] transition-opacity animate-in fade-in duration-200"
-        onClick={onClose}
-      />
+    <ModalPortal>
+      <div className="fixed inset-0 z-[300] flex justify-end">
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 bg-black/55 backdrop-blur-[2px] transition-opacity animate-in fade-in duration-200"
+          onClick={onClose}
+        />
 
-      {/* Drawer Panel */}
-      <aside className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-stone-200/80 bg-stone-50/95 shadow-2xl backdrop-blur-md transition-all animate-in slide-in-from-right duration-250 dark:border-white/10 dark:bg-ink-950/95">
+        {/* Drawer Panel */}
+        <aside className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-stone-200/80 bg-stone-50/95 shadow-2xl backdrop-blur-md transition-all animate-in slide-in-from-right duration-250 dark:border-white/10 dark:bg-ink-950/95">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-stone-200/70 p-4.5 dark:border-white/10">
           <div className="flex items-center gap-3">
@@ -173,7 +185,7 @@ export function BoardActivityDrawer({
             type="button"
             onClick={onClose}
             aria-label="Close activity log"
-            className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 transition hover:bg-stone-200/60 hover:text-stone-700 dark:text-stone-500 dark:hover:bg-white/10 dark:hover:text-stone-200"
+            className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 transition hover:bg-stone-200/60 hover:text-stone-700 dark:text-stone-500 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -243,6 +255,7 @@ export function BoardActivityDrawer({
         </div>
       </aside>
     </div>
+  </ModalPortal>
   );
 }
 
