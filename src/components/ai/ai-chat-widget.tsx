@@ -442,7 +442,7 @@ export function AiChatWidget() {
             "z-50 flex flex-col border border-theme-border bg-theme-panel text-theme-foreground shadow-2xl backdrop-blur-xl transition-all duration-300",
             viewMode === "float" || isSmallScreen
               ? cn(
-                  "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[min(calc(100vw-2rem),420px)] h-[560px] max-h-[85vh] rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6 transition-all duration-300",
+                  "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[min(calc(100vw-2rem),420px)] h-[560px] max-h-[min(85vh,calc(100dvh-5.5rem))] rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6 transition-all duration-300",
                   isFabOpen && "sm:right-[calc(24rem+2rem)]"
                 )
               : "fixed top-0 right-0 bottom-0 w-[380px] sm:w-[450px] max-w-full border-l border-theme-border rounded-none overflow-hidden animate-in fade-in slide-in-from-right-6"

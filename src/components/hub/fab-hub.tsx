@@ -110,6 +110,8 @@ export function FabHub() {
 
   // Close menu on click outside
   useEffect(() => {
+    if (!isOpen) return;
+
     function onPointerDown(e: PointerEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
@@ -118,7 +120,7 @@ export function FabHub() {
 
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen || !redStar) {
@@ -237,7 +239,7 @@ export function FabHub() {
       <div
         ref={containerRef}
         className={cn(
-          "fixed bottom-safe z-[120] flex flex-col items-end gap-3 transition-all duration-300 ease-in-out",
+          "fixed bottom-safe z-[120] pointer-events-none flex flex-col items-end gap-3 transition-all duration-300 ease-in-out",
           isOpen
             ? "bottom-4 right-4 sm:bottom-6 sm:right-6"
             : isAiChatOpenAndFloat
@@ -251,10 +253,10 @@ export function FabHub() {
         <div
           className={cn(
             "flex flex-col items-end gap-2 transition-all duration-300",
-            isOpen ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+            isOpen ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0 hidden"
           )}
         >
-          {redStar ? (
+          {isOpen && redStar ? (
             <PinnedDisplayPanel
               activeItem={activeDisplayItem}
               fallbackItem={redStar}
@@ -276,7 +278,7 @@ export function FabHub() {
           id="fab-hub-btn"
           aria-label={redStar ? (isOpen ? "Close display panel" : "Open display panel") : "Choose display"}
           className={cn(
-            "fab-main grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-full border shadow-[0_4px_24px_rgba(0,0,0,0.35)] transition-all duration-300",
+            "pointer-events-auto fab-main grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-full border shadow-[0_4px_24px_rgba(0,0,0,0.35)] transition-all duration-300",
             isOpen
               ? "border-dusk-rose/40 bg-dusk-rose/20 text-dusk-rose hover:bg-dusk-rose/30 rotate-45"
               : "border-dusk-lavender/30 bg-dusk-lavender/15 text-dusk-lavender hover:border-dusk-lavender/60 hover:bg-dusk-lavender/25"

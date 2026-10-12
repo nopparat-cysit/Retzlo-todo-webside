@@ -24,7 +24,7 @@ describe("AI Chat Responsive & Sidebar Layout", () => {
     expect(widgetSource).toContain("สลับเป็นกล่องแชทลอย (ขวาล่าง)");
   });
 
-  it("shifts the Star FAB button above the chat when AI chat is open at bottom right", () => {
+  it("shifts the Star FAB button above the chat when AI chat is open at bottom right without blocking top menus", () => {
     const fabSource = readFileSync(new URL("../hub/fab-hub.tsx", import.meta.url), "utf8");
 
     expect(fabSource).toContain("useAiChat");
@@ -36,6 +36,11 @@ describe("AI Chat Responsive & Sidebar Layout", () => {
     expect(fabSource).toContain("lg:bottom-6 lg:right-[calc(450px+1.5rem)]");
     // Normal resting state when AI chat is closed
     expect(fabSource).toContain("bottom-4 right-4 sm:bottom-6 sm:right-6");
+    // Must have pointer-events-none on outer container to prevent blocking clicks on topbar/board actions
+    expect(fabSource).toContain("pointer-events-none flex flex-col items-end gap-3");
+    expect(fabSource).toContain("pointer-events-auto fab-main");
+    // Pinned display must only render and occupy layout when isOpen is true
+    expect(fabSource).toContain("isOpen && redStar ?");
   });
 
   it("pushes AI chat to the left when the FAB display panel is open", () => {
