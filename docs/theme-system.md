@@ -680,13 +680,18 @@ Template:
 
 ### 2026-10-12 — Super Admin Portal foundation
 - Coverage: `/admin-vault-9f8e` layout and client dashboard (`src/components/admin/admin-dashboard-client.tsx`). Consumes existing semantic theme tokens for surface, border, text, and retro lofi indigo styling across light and dark modes.
-- Shared primitive impact: `UserProfilePopover` adds an admin-only portal link when session globalRole is ADMIN. No shared tokens or palette definitions changed.
-- 3-tier defense cloaking: unauthorized visits to `/admin` and `/admin-vault-9f8e` trigger 404 Not Found deception response.
-
 ### 2026-10-12 — Phase 2: Card Archive, Activity Trail & Attachments
 - Coverage: `ArchivedCardsModal`, `BoardActivityDrawer`, and `CardAttachmentsSection` in `src/components/kanban/`.
 - UI & Tokens: Uses standard `AppModal`, responsive slide-over drawer with backdrop, and semantic theme tokens (`border-stone-200` / `dark:border-white/10`, `bg-stone-50` / `dark:bg-ink-950`, retro lofi indigo & lavender accents).
 - Intent Verification: Delete permanently and remove attachment operations require `ConfirmModal`.
 - Toast Feedback: All archive, restore, upload, and remove actions fire instant success or error toasts.
+
+### 2026-10-12 — Kanban toolbar declutter & UX polish
+- Coverage: Kanban board top toolbar and controls in `src/components/kanban/board.tsx`.
+- UI & Tokens: Streamlined density toggle, unified segmented status pill for Total/Prog/Done/Overdue indicators, and consolidated secondary actions (`Activity Log`, `Archived Cards`, `Board Attributes`) into a sleek `•••` (`MoreHorizontal`) dropdown menu. Aligned search and quick filters to the left, and anchored `+ Column` to the right.
+- Theme Consistency: Fully preserves retro lofi indigo design tokens across light and dark modes with subtle borders, muted badges, and seamless dropdown styling.
+- Verification: Full test suite (94 suites, 495 tests), ESLint, Prisma schema, and Next.js 40-route production build passed with 0 errors.
+
+
 
 

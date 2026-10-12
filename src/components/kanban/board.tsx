@@ -11,7 +11,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { Archive, ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, History, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X, Zap } from "lucide-react";
+import { Archive, ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, History, KanbanSquare, LayoutGrid, ListFilter, MoreHorizontal, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X, Zap } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -33,6 +33,13 @@ import { BoardSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -1082,10 +1089,6 @@ export function KanbanBoard({
             {/* ── Card Size / Density Companion Toggle (Board View) ── */}
             {viewMode === "board" && onToggleDensity && (
               <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/80 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04] animate-in fade-in zoom-in-95 duration-150">
-                <span className="hidden xl:inline-flex items-center px-1.5 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 font-mono select-none">
-                  Cards:
-                </span>
-
                 <TooltipProvider delayDuration={150}>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -1094,14 +1097,14 @@ export function KanbanBoard({
                         onClick={() => onToggleDensity("comfortable")}
                         aria-label="Normal card view"
                         className={cn(
-                          "flex h-7 items-center gap-1.5 rounded-lg px-2 sm:px-2.5 text-xs font-semibold transition-all cursor-pointer select-none",
+                          "flex h-7 items-center gap-1 rounded-lg px-2 text-xs font-semibold transition-all cursor-pointer select-none",
                           density === "comfortable"
                             ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                             : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                         )}
                       >
                         <LayoutGrid className={cn("h-3.5 w-3.5", density === "comfortable" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
-                        <span className="hidden sm:inline">Normal</span>
+                        <span className="hidden xl:inline text-[11px]">Normal</span>
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
@@ -1124,14 +1127,14 @@ export function KanbanBoard({
                         onClick={() => onToggleDensity("compact")}
                         aria-label="Compact card view (see 2x more tasks)"
                         className={cn(
-                          "flex h-7 items-center gap-1.5 rounded-lg px-2 sm:px-2.5 text-xs font-semibold transition-all cursor-pointer select-none",
+                          "flex h-7 items-center gap-1 rounded-lg px-2 text-xs font-semibold transition-all cursor-pointer select-none",
                           density === "compact"
                             ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                             : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                         )}
                       >
                         <Rows3 className={cn("h-3.5 w-3.5", density === "compact" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
-                        <span className="hidden sm:inline">Compact</span>
+                        <span className="hidden xl:inline text-[11px]">Compact</span>
                         <span className={cn(
                           "rounded px-1 py-0.2 text-[9px] font-mono font-bold transition",
                           density === "compact"
@@ -1155,65 +1158,81 @@ export function KanbanBoard({
                 </TooltipProvider>
               </div>
             )}
-          </div>
 
-          {/* ── Premium Control Bar ── */}
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            {/* Stats Pills */}
-            <div className="flex items-center gap-1 sm:gap-1.5 text-xs font-semibold">
-              <div className="flex h-9 items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-2.5 shadow-xs dark:border-white/10 dark:bg-white/[0.03]">
+            {/* ── Premium Control Bar: Unified Stats & Overdue ── */}
+            <div className="hidden lg:flex items-center rounded-xl border border-stone-200/80 bg-stone-100/70 p-0.5 text-xs dark:border-white/10 dark:bg-white/[0.03] select-none">
+              <div className="flex h-7 items-center gap-1.5 px-2.5 rounded-lg">
                 <span className="text-[10px] uppercase text-stone-500 font-mono">Total</span>
-                <span className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-200">{totalCards}</span>
+                <span className="text-xs font-bold text-stone-900 dark:text-stone-200">{totalCards}</span>
               </div>
-              <div className="flex h-9 items-center gap-1.5 rounded-xl border border-indigo-200/80 bg-indigo-50/50 px-2.5 shadow-xs dark:border-indigo-500/20 dark:bg-indigo-500/10">
+              <div className="h-3.5 w-[1px] bg-stone-200 dark:bg-white/10" />
+              <div className="flex h-7 items-center gap-1.5 px-2 rounded-lg">
                 <span className="flex items-center text-[10px] uppercase text-indigo-600 dark:text-dusk-lavender font-mono">
                   <span className="mr-1 h-1.5 w-1.5 rounded-full bg-indigo-500 dark:bg-dusk-lavender shrink-0" />
                   Prog
                 </span>
-                <span className="text-xs sm:text-sm font-bold text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
+                <span className="text-xs font-bold text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
               </div>
-              <div className="flex h-9 items-center gap-1.5 rounded-xl border border-amber-200/80 bg-amber-50/50 px-2.5 shadow-xs dark:border-amber-500/20 dark:bg-amber-500/10">
+              <div className="h-3.5 w-[1px] bg-stone-200 dark:bg-white/10" />
+              <div className="flex h-7 items-center gap-1.5 px-2 rounded-lg">
                 <span className="flex items-center text-[10px] uppercase text-amber-600 dark:text-dusk-amber font-mono">
                   <span className="mr-1 h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-dusk-amber shrink-0" />
                   Done
                 </span>
-                <span className="text-xs sm:text-sm font-bold text-amber-600 dark:text-dusk-amber">{doneCards}</span>
+                <span className="text-xs font-bold text-amber-600 dark:text-dusk-amber">{doneCards}</span>
               </div>
-
-              {/* Overdue Indicator Icon */}
-              {overdueCards > 0 && (
-                <TooltipProvider delayDuration={150}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => setIsTodayFilterActive((prev) => !prev)}
-                        className={cn(
-                          "group relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
-                          isTodayFilterActive
-                            ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
-                            : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
-                        )}
-                        aria-label={`${overdueCards} overdue cards`}
-                      >
-                        <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
-                        <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
-                          <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[8px] font-bold text-white shadow-xs">
-                            {overdueCards > 99 ? "99+" : overdueCards}
-                          </span>
-                        </span>
-                        <span className="sr-only">{overdueCards} overdue</span>
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" align="end" className="text-xs">
-                      {overdueCards} overdue task(s)
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
             </div>
 
-            <div className="h-5 w-[1px] bg-stone-300 dark:bg-white/10 hidden sm:block" />
+            {/* Overdue Indicator Icon */}
+            {overdueCards > 0 && (
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => setIsTodayFilterActive((prev) => !prev)}
+                      className={cn(
+                        "group relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
+                        isTodayFilterActive
+                          ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
+                          : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
+                      )}
+                      aria-label={`${overdueCards} overdue cards`}
+                    >
+                      <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
+                        <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[8px] font-bold text-white shadow-xs">
+                          {overdueCards > 99 ? "99+" : overdueCards}
+                        </span>
+                      </span>
+                      <span className="sr-only">{overdueCards} overdue</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" align="end" className="text-xs">
+                    {overdueCards} overdue task(s)
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+
+          {/* ── Action Toolbar: AI Summary, Notes, Export & More Actions ── */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* AI Project Summary Button */}
+            {board.projectId && (
+              <button
+                type="button"
+                onClick={() => setIsAiSummaryOpen(true)}
+                className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-indigo-400/40 bg-indigo-500/10 px-2.5 text-xs font-semibold text-indigo-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:bg-indigo-500/20 active:scale-95 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
+                title="Analyze and summarize board progress with AI"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
+                <span className="hidden sm:inline">AI Summary</span>
+                <span className="rounded bg-indigo-500/20 px-1 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                  2 cr
+                </span>
+              </button>
+            )}
 
             {/* Notes Toggle */}
             {notesEnabled && (
@@ -1239,68 +1258,6 @@ export function KanbanBoard({
               </button>
             )}
 
-            {/* Attributes Configuration Button */}
-            {board.projectId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSettingsDefaultTab("attributes");
-                  setIsBoardSettingsOpen(true);
-                }}
-                className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
-                title="Configure custom status, priorities, and story points for this board"
-                aria-label="Board attributes settings"
-              >
-                <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                <span className="hidden sm:inline">Attributes</span>
-                {boardPriorities && boardPriorities.length > 0 && (
-                  <span className="rounded bg-indigo-500/10 px-1 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
-                    {boardPriorities.length}
-                  </span>
-                )}
-              </button>
-            )}
-
-            {/* AI Project Summary Button */}
-            {board.projectId && (
-              <button
-                type="button"
-                onClick={() => setIsAiSummaryOpen(true)}
-                className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-indigo-400/40 bg-indigo-500/10 px-2.5 text-xs font-semibold text-indigo-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:bg-indigo-500/20 active:scale-95 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
-                title="Analyze and summarize board progress with AI"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
-                <span className="hidden sm:inline">AI Summary</span>
-                <span className="rounded bg-indigo-500/20 px-1 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
-                  2 cr
-                </span>
-              </button>
-            )}
-
-            {/* Activity Log Button */}
-            <button
-              type="button"
-              onClick={() => setIsActivityDrawerOpen(true)}
-              className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
-              title="View real-time audit trail and activity log"
-              aria-label="Board activity log"
-            >
-              <History className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-              <span className="hidden sm:inline">Activity</span>
-            </button>
-
-            {/* Archive Button */}
-            <button
-              type="button"
-              onClick={() => setIsArchiveModalOpen(true)}
-              className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
-              title="View and restore archived cards"
-              aria-label="Archived cards"
-            >
-              <Archive className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-              <span className="hidden sm:inline">Archive</span>
-            </button>
-
             {/* Export Board Button (Excel, CSV, PDF, PNG) */}
             <BoardExportButton
               currentView={currentView}
@@ -1312,12 +1269,79 @@ export function KanbanBoard({
               viewportElementId={viewMode === "list" ? "kanban-table-container" : "kanban-main-viewport"}
               isFiltered={activeFilterCount > 0}
             />
+
+            {/* Consolidated More Board Actions Menu (Activity, Archive, Attributes) */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-300 bg-white text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
+                  title="More board actions"
+                  aria-label="More board actions"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 z-[1100]">
+                {/* Activity Log */}
+                <DropdownMenuItem
+                  onClick={() => setIsActivityDrawerOpen(true)}
+                  className="flex items-center gap-2.5 cursor-pointer py-2"
+                >
+                  <History className="h-4 w-4 text-indigo-500 dark:text-dusk-lavender shrink-0" />
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Activity Log</span>
+                    <span className="text-[10px] text-stone-400">View real-time audit trail</span>
+                  </div>
+                </DropdownMenuItem>
+
+                {/* Archived Cards */}
+                <DropdownMenuItem
+                  onClick={() => setIsArchiveModalOpen(true)}
+                  className="flex items-center gap-2.5 cursor-pointer py-2"
+                >
+                  <Archive className="h-4 w-4 text-indigo-500 dark:text-dusk-lavender shrink-0" />
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Archived Cards</span>
+                    <span className="text-[10px] text-stone-400">Restore or delete from trash</span>
+                  </div>
+                </DropdownMenuItem>
+
+                {board.projectId && <DropdownMenuSeparator />}
+
+                {/* Board Attributes & Settings */}
+                {board.projectId && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSettingsDefaultTab("attributes");
+                      setIsBoardSettingsOpen(true);
+                    }}
+                    title="Configure custom status, priorities, and story points for this board"
+                    className="flex items-center gap-2.5 cursor-pointer py-2"
+                  >
+                    <SlidersHorizontal className="h-4 w-4 text-indigo-500 dark:text-dusk-lavender shrink-0" />
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Board Attributes</span>
+                        {boardPriorities && boardPriorities.length > 0 && (
+                          <span className="rounded bg-indigo-500/10 px-1 py-0.2 text-[9px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                            {boardPriorities.length}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-stone-400">Status, priorities & points</span>
+                    </div>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
         {/* Bottom Row: Filters, Search, Sort & Actions */}
-        <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2 pt-1 border-t border-stone-200/60 dark:border-white/5">
-          {/* Live Search */}
+        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 pt-1 border-t border-stone-200/60 dark:border-white/5">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+            {/* Live Search */}
           <div className="group/search relative flex items-center flex-1 min-w-[130px] sm:flex-initial">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
             <input
@@ -1518,33 +1542,36 @@ export function KanbanBoard({
             </button>
           )}
 
-          {/* Undo */}
-          <button
-            type="button"
-            disabled={moveHistory.length === 0 || isSavingReorder || Boolean(activeCardId)}
-            onClick={undoLastMove}
-            className={cn(
-              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 select-none",
-              moveHistory.length > 0
-                ? "cursor-pointer border-teal-400 bg-teal-50 text-teal-800 hover:bg-teal-100 hover:border-teal-500 hover:shadow-xs active:scale-95 dark:border-dusk-cyan/50 dark:bg-dusk-cyan/15 dark:text-dusk-cyan dark:hover:bg-dusk-cyan/25"
-                : "cursor-not-allowed border-stone-200/50 bg-stone-100/60 text-stone-400/80 opacity-50 dark:border-white/5 dark:bg-white/[0.01] dark:text-stone-600"
-            )}
-            title="Undo last card move (Ctrl+Z)"
-          >
-            <RotateCcw className={cn("h-3.5 w-3.5", moveHistory.length > 0 ? "text-teal-600 dark:text-dusk-cyan" : "text-stone-400/80")} />
-            <span className="hidden sm:inline">Undo</span>
-          </button>
+            {/* Undo */}
+            <button
+              type="button"
+              disabled={moveHistory.length === 0 || isSavingReorder || Boolean(activeCardId)}
+              onClick={undoLastMove}
+              className={cn(
+                "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 select-none",
+                moveHistory.length > 0
+                  ? "cursor-pointer border-teal-400 bg-teal-50 text-teal-800 hover:bg-teal-100 hover:border-teal-500 hover:shadow-xs active:scale-95 dark:border-dusk-cyan/50 dark:bg-dusk-cyan/15 dark:text-dusk-cyan dark:hover:bg-dusk-cyan/25"
+                  : "cursor-not-allowed border-stone-200/50 bg-stone-100/60 text-stone-400/80 opacity-50 dark:border-white/5 dark:bg-white/[0.01] dark:text-stone-600"
+              )}
+              title="Undo last card move (Ctrl+Z)"
+            >
+              <RotateCcw className={cn("h-3.5 w-3.5", moveHistory.length > 0 ? "text-teal-600 dark:text-dusk-cyan" : "text-stone-400/80")} />
+              <span className="hidden sm:inline">Undo</span>
+            </button>
+          </div>
 
           {/* Add Column Form */}
-          <Button
-            className="h-9 shrink-0 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs hover:shadow-sm"
-            type="button"
-            aria-label="Add column"
-            onClick={openCreateColumnModal}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span className="hidden min-[360px]:inline">Column</span>
-          </Button>
+          <div className="shrink-0 ml-auto sm:ml-0">
+            <Button
+              className="h-9 shrink-0 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs hover:shadow-sm"
+              type="button"
+              aria-label="Add column"
+              onClick={openCreateColumnModal}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span className="hidden min-[360px]:inline">Column</span>
+            </Button>
+          </div>
         </div>
       </div>
 
