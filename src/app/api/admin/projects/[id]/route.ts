@@ -5,6 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { recordAdminAudit } from "@/lib/admin-system-state";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -150,6 +151,56 @@ export async function PATCH(
       });
     }
 
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : (request.headers.get("x-real-ip") || null);
+    const userAgent = request.headers.get("user-agent") || null;
+
+    if (payload.transferOwnerId) {
+      void createAuditLog({
+        actorId: admin.id,
+        actorEmail: admin.email,
+        actorName: admin.name,
+        actorRole: admin.globalRole,
+        ipAddress: ip,
+        userAgent,
+        requestPath: `/api/admin/projects/${params.id}`,
+        requestMethod: "PATCH",
+        category: "PROJECT",
+        action: "WORKSPACE_OWNERSHIP_TRANSFERRED",
+        severity: "WARNING",
+        status: "SUCCESS",
+        targetType: "PROJECT",
+        targetId: params.id,
+        targetName: project.name,
+        summary: `Admin ${admin.email} transferred ownership of workspace "${project.name}" to user ID ${payload.transferOwnerId}`,
+        metadata: { newOwnerId: payload.transferOwnerId }
+      });
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      void createAuditLog({
+        actorId: admin.id,
+        actorEmail: admin.email,
+        actorName: admin.name,
+        actorRole: admin.globalRole,
+        ipAddress: ip,
+        userAgent,
+        requestPath: `/api/admin/projects/${params.id}`,
+        requestMethod: "PATCH",
+        category: "PROJECT",
+        action: "WORKSPACE_UPDATED",
+        severity: "NOTICE",
+        status: "SUCCESS",
+        targetType: "PROJECT",
+        targetId: params.id,
+        targetName: project.name,
+        summary: `Admin ${admin.email} modified workspace details for "${project.name}"`,
+        beforeState: project,
+        afterState: { ...project, ...updateData },
+        metadata: updateData
+      });
+    }
+
     return NextResponse.json({ ok: true, message: "Workspace updated successfully" });
   } catch (error) {
     return parseError(error);
@@ -157,7 +208,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -185,6 +236,31 @@ export async function DELETE(
       targetType: "PROJECT",
       targetId: params.id,
       targetName: project.name
+    });
+
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : (request.headers.get("x-real-ip") || null);
+    const userAgent = request.headers.get("user-agent") || null;
+
+    void createAuditLog({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      actorName: admin.name,
+      actorRole: admin.globalRole,
+      ipAddress: ip,
+      userAgent,
+      requestPath: `/api/admin/projects/${params.id}`,
+      requestMethod: "DELETE",
+      category: "PROJECT",
+      action: "WORKSPACE_DELETED",
+      severity: "CRITICAL",
+      status: "SUCCESS",
+      targetType: "PROJECT",
+      targetId: params.id,
+      targetName: project.name,
+      summary: `Admin ${admin.email} PERMANENTLY DELETED workspace "${project.name}" (ID: ${project.id})`,
+      beforeState: project,
+      metadata: { deletedWorkspaceId: params.id, name: project.name }
     });
 
     return NextResponse.json({ ok: true, message: `Workspace "${project.name}" permanently deleted.` });

@@ -9,6 +9,7 @@ import {
   clearSystemBroadcast,
   recordAdminAudit
 } from "@/lib/admin-system-state";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,10 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : (request.headers.get("x-real-ip") || null);
+    const userAgent = request.headers.get("user-agent") || null;
+
     if (body.clear === true) {
       clearSystemBroadcast();
       recordAdminAudit({
@@ -43,6 +48,24 @@ export async function POST(request: Request) {
         action: "CLEAR_BROADCAST",
         targetType: "BROADCAST"
       });
+
+      void createAuditLog({
+        actorId: admin.id,
+        actorEmail: admin.email,
+        actorName: admin.name,
+        actorRole: admin.globalRole,
+        ipAddress: ip,
+        userAgent,
+        requestPath: "/api/admin/broadcast",
+        requestMethod: "POST",
+        category: "SYSTEM",
+        action: "SYSTEM_BROADCAST_CLEARED",
+        severity: "NOTICE",
+        status: "SUCCESS",
+        targetType: "BROADCAST",
+        summary: `Admin ${admin.email} deactivated and cleared active system broadcast banner`
+      });
+
       return NextResponse.json({ ok: true, broadcast: null });
     }
 
@@ -60,6 +83,29 @@ export async function POST(request: Request) {
       action: "SET_BROADCAST",
       targetType: "BROADCAST",
       details: {
+        message: payload.message,
+        type: payload.type,
+        active: payload.active
+      }
+    });
+
+    void createAuditLog({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      actorName: admin.name,
+      actorRole: admin.globalRole,
+      ipAddress: ip,
+      userAgent,
+      requestPath: "/api/admin/broadcast",
+      requestMethod: "POST",
+      category: "SYSTEM",
+      action: "SYSTEM_BROADCAST_PUBLISHED",
+      severity: payload.type === "urgent" ? "WARNING" : "NOTICE",
+      status: "SUCCESS",
+      targetType: "BROADCAST",
+      summary: `Admin ${admin.email} published [${payload.type.toUpperCase()}] broadcast: "${payload.message}"`,
+      afterState: record as unknown as Record<string, unknown>,
+      metadata: {
         message: payload.message,
         type: payload.type,
         active: payload.active

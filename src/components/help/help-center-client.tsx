@@ -1003,6 +1003,54 @@ export const TOPICS_EN: GuideTopic[] = [
     demoType: "permissions",
   },
   {
+    id: "audit-logging-hub",
+    category: "security",
+    icon: ShieldCheck,
+    title: "Forensic Audit Logging & Privacy Compliance Hub",
+    badge: "New Enterprise",
+    badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-indigo-400",
+    scopeBadge: "Legal & Forensics",
+    readingTime: "4 min read",
+    lastUpdated: "Oct 12, 2026",
+    summary:
+      "Enterprise-grade, append-only forensic audit hub complying with Thai PDPA Section 24(5), Thai Computer Crime Act Section 26, and GDPR Art 6(1)(f) with automated zero-PII sanitization and side-by-side state diffs.",
+    concept:
+      "The Audit Log Explorer (/admin-vault-9f8e -> Audit Logs & Forensics) captures all system mutations, security events, and administrative interventions across dual persistence (Neon PostgreSQL + memory circular fallback buffer) with strict data minimization protecting user privacy.",
+    highlights: [
+      "Strict Legal Privacy Compliance: Compliant with Thai PDPA Sec 24(5) (Legitimate Interests) and Thai Computer Crime Act Sec 26 (90-day traffic data retention).",
+      "Zero-PII & Secret Sanitization: Passwords, OTPs, auth tokens, session cookies, and private note/diary reflections are automatically masked or minimized.",
+      "Slide-Over Forensic Drawer: Inspect any event with side-by-side Before/After state mutation diffs, sanitized stack traces, and 1-click 'Copy Forensic JSON'.",
+      "Multi-Dimension Filtering: Search by keyword, category (AUTH, USER, PROJECT, REWARD, AI, SECURITY, etc.), severity, status, or date range.",
+      "Export & Immutability: Append-only ledger with cryptographically signed CSV and JSON export tools (exports themselves are audited).",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Audit Explorer",
+        desc: "Navigate to the Super Admin Command Center (/admin-vault-9f8e) and select the 'Audit Logs & Forensics' tab.",
+      },
+      {
+        step: "02",
+        title: "Filter & Investigate",
+        desc: "Use search terms, preset chips (Security, Failures, Users, AI), or category dropdowns to locate specific incident traces.",
+      },
+      {
+        step: "03",
+        title: "Inspect State Mutation Diffs",
+        desc: "Click any log row to open the slide-over drawer and review the exact before/after field changes, actor identity, and IP address origin.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Legal Framework", value: "Thai PDPA Sec 24(5), Computer Crime Act Sec 26, GDPR Art 6(1)(f)" },
+      { label: "Data Retention", value: ">= 90 Days UTC Timestamp Synchronized" },
+      { label: "Sanitization Engine", value: "Recursive Regex Secret & Token Redaction ([REDACTED])" },
+      { label: "Dual Persistence", value: "Neon PostgreSQL (AuditLog) + In-Memory Circular Buffer" },
+    ],
+    tips: "Audit records are immutable and append-only. There are no delete or update routes for audit entries to ensure uncompromised forensic validity.",
+    relatedTopicIds: ["super-admin-portal", "roles-and-security"],
+    demoType: "permissions",
+  },
+  {
     id: "project-and-board-settings",
     category: "security",
     icon: SlidersHorizontal,
@@ -1734,6 +1782,101 @@ export const TOPICS_TH: GuideTopic[] = [
     ],
     tips: "สามารถคลิกการ์ดสถิติ (Total Members, Active Now, Pending, Total Coffees) ที่ด้านบนเพื่อสลับแท็บหรือกรองสมาชิกได้อย่างสะดวกรวดเร็ว",
     relatedTopicIds: ["project-and-board-settings", "welcome-overview", "coffee-cheers-rewards"],
+    demoType: "permissions",
+  },
+  {
+    id: "super-admin-portal",
+    category: "security",
+    icon: ShieldCheck,
+    title: "ศูนย์บัญชาการ Super Admin และการกำกับดูแล 8 ฮับ",
+    badge: "อัปเดตใหญ่",
+    badgeColor: "border-purple-400/30 bg-purple-400/10 text-purple-600 dark:text-purple-300",
+    scopeBadge: "การกำกับดูแลระบบ",
+    readingTime: "อ่าน 4 นาที",
+    lastUpdated: "12 ต.ค. 2026",
+    summary:
+      "ศูนย์บัญชาการ Super Admin Command Center (/admin-vault-9f8e) ครอบคลุม 8 ฮับการทำงาน พร้อมระบบโทรมาตรสด, ลิ้นชักตรวจสอบข้อมูล, ระบบดักจับบอท Honeypot และแถบประกาศรวมทั้งระบบ",
+    concept:
+      "รวบรวมอำนาจการบริหารจัดการระบบไว้ที่เดียว: โทรมาตรสด, ผู้ใช้, พื้นที่ทำงาน, เศรษฐกิจเหรียญรางวัล, AI Intelligence, พื้นที่จัดเก็บไฟล์, ระบบความปลอดภัย และปฏิบัติการถ่ายทอดสด",
+    highlights: [
+      "8 ฮับบริหารจัดการเฉพาะทาง: Overview, Users, Workspaces, Rewards, AI Intel, Storage, Security, และ Operations",
+      "ลิ้นชักตรวจสอบข้อมูล (Slide-Over Drawers): ตรวจสอบและแก้ไขสิทธิ์ผู้ใช้, จัดการเหรียญ, ระงับบัญชี และโอนความเป็นเจ้าของโปรเจกต์ได้แบบทันที",
+      "ระบบป้องกัน Honeypot Decoy: ล่อลวงบอทและสแกนเนอร์ที่พยายามเข้า /admin ให้เห็นหน้า 404 พร้อมบันทึก IP, User-Agent และเวลาลงระบบ",
+      "แถบประกาศรวมทั้งระบบ (Global Broadcast Banner): เผยแพร่ข้อความด่วนไปยังผู้ใช้ทุกคน พร้อมตัวอย่างสดย้อนหลัง",
+      "การจัดการของรางวัลและ AI: อนุมัติหรือปฏิเสธพร้อมคืนเหรียญอัตโนมัติ และปรับเพิ่มโควตาเครดิต AI ได้ทันที",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "เข้าสู่หน้า Command Center",
+        desc: "เปิดเมนูโปรไฟล์ของผู้ใช้ แล้วคลิก 'Admin Portal' (เข้าถึงได้เฉพาะบัญชีที่มี globalRole เป็น ADMIN)",
+      },
+      {
+        step: "02",
+        title: "ตรวจสอบผู้ใช้และพื้นที่ทำงาน",
+        desc: "คลิกแถวผู้ใช้หรือพื้นที่ทำงานเพื่อเปิด Drawer ปรับเปลี่ยนบทบาท, สถานะ หรือโควตา AI",
+      },
+      {
+        step: "03",
+        title: "จัดการประกาศและอนุมัติของรางวัล",
+        desc: "เปิดใช้งานแบนเนอร์แจ้งเตือนด่วน หรือตรวจสอบและอนุมัติคำขอแลกของรางวัล",
+      },
+    ],
+    technicalSpecs: [
+      { label: "สถาปัตยกรรมความปลอดภัย", value: "3-Tier Defense & Route Cloaking (404 Deception)" },
+      { label: "ฮับการทำงาน", value: "8 Modules (Overview, Users, Projects, Rewards, AI, Storage, Security, Ops)" },
+      { label: "ระบบ Audit", value: "ป้องกันการลดสิทธิ์ตนเอง และต้องยืนยัน ConfirmModal ทุกการกระทำ" },
+    ],
+    tips: "เส้นทาง /admin เดิมถูกออกแบบให้เป็น Honeypot แบบเงียบ ส่งกลับ 404 เพื่อตรวจจับผู้บุกรุกโดยไม่เปิดเผยตำแหน่ง vault ที่แท้จริง",
+    relatedTopicIds: ["roles-and-security", "project-and-board-settings"],
+    demoType: "permissions",
+  },
+  {
+    id: "audit-logging-hub",
+    category: "security",
+    icon: ShieldCheck,
+    title: "ศูนย์บันทึกประวัติการตรวจสอบและการคุ้มครองข้อมูล (Forensic Audit Log Hub)",
+    badge: "ฟีเจอร์ใหม่",
+    badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-indigo-400",
+    scopeBadge: "ความปลอดภัยและกฎหมาย",
+    readingTime: "อ่าน 4 นาที",
+    lastUpdated: "12 ต.ค. 2026",
+    summary:
+      "ระบบบันทึกประวัติการตรวจสอบระดับองค์กร (Audit Log Engine) ถูกต้องตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA มาตรา 24(5)) และ พ.ร.บ. คอมพิวเตอร์ฯ มาตรา 26 พร้อมระบบเซ็นเซอร์ข้อมูลส่วนบุคคลอัตโนมัติ (Zero-PII) และตัวเปรียบเทียบ Before/After Diff",
+    concept:
+      "ศูนย์บันทึกประวัติและนิติวิทยาศาสตร์ดิจิทัลใน Super Admin Vault (/admin-vault-9f8e -> Audit Logs & Forensics) บันทึกทุกการเปลี่ยนแปลงสำคัญในระบบแบบไม่สามารถแก้ไขหรือลบได้ (Append-Only) บันทึกลง Neon PostgreSQL ควบคู่หน่วยความจำสำรอง (Memory Buffer) โดยไม่ละเมิดสิทธิหรือเก็บความลับของผู้ใช้",
+    highlights: [
+      "ถูกต้องตามกฎหมาย 100%: ปฏิบัติตาม พ.ร.บ. คอมพิวเตอร์ฯ มาตรา 26 (เก็บข้อมูลจราจรทางคอมพิวเตอร์อย่างน้อย 90 วัน) และ PDPA มาตรา 24(5) ฐานประโยชน์โดยชอบด้วยกฎหมาย",
+      "การปกป้องข้อมูลส่วนบุคคล (Zero-PII Sanitization): รหัสผ่าน, OTP, โทเค็น, และเนื้อหาไดอารี่/โน้ตส่วนตัวจะถูกเซ็นเซอร์เป็น [REDACTED] หรือย่อเฉพาะเมทาดาทาอัตโนมัติ",
+      "Slide-Over Forensic Drawer: คลิกดูรายละเอียดเหตุการณ์พร้อมแถบเปรียบเทียบความเปลี่ยนแปลงก่อน-หลัง (Before/After Diff) แยกสีชัดเจน และปุ่มคัดลอก Forensic JSON",
+      "ระบบค้นหาและฟิลเตอร์หลายมิติ: ค้นหาคำ, เลือกหมวดหมู่ (AUTH, USER, PROJECT, REWARD, AI, SECURITY, SYSTEM), ระดับความรุนแรง, สถานะสำเร็จ/ล้มเหลว หรือช่วงวันที่",
+      "ส่งออกข้อมูลโปร่งใส: ส่งออกเป็น CSV และ JSON ได้ทันที โดยระบบจะบันทึกประวัติการส่งออกไว้เพื่อความโปร่งใสสูงสุด",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "เข้าสู่ศูนย์ Audit Log",
+        desc: "ไปที่ Super Admin Command Center (/admin-vault-9f8e) แล้วเลือกแท็บ 'Audit Logs & Forensics'",
+      },
+      {
+        step: "02",
+        title: "ค้นหาและคัดกรองข้อมูล",
+        desc: "พิมพ์ค้นหา หรือเลือกชิปทางลัด (Security, Errors, Users, AI) หรือเลือกหมวดหมู่และช่วงวันที่เพื่อเจาะจงเหตุการณ์ที่ต้องการตรวจสอบ",
+      },
+      {
+        step: "03",
+        title: "เปิดดูรายละเอียดเชิงลึก (Forensic Inspection)",
+        desc: "คลิกที่แถวรายการเพื่อเปิด Drawer ด้านข้าง ดูผู้กระทำ (Actor), IP Address, อุปกรณ์ (User Agent) และค่าที่เปลี่ยนแปลงก่อน-หลังอย่างละเอียด",
+      },
+    ],
+    technicalSpecs: [
+      { label: "มาตรฐานกฎหมาย", value: "พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคลฯ ม.24(5), พ.ร.บ. คอมพิวเตอร์ฯ ม.26, GDPR ม.6(1)(f)" },
+      { label: "ระยะเวลาจัดเก็บ", value: "ไม่น้อยกว่า 90 วัน ซิงค์เวลาตามมาตรฐาน UTC สากล" },
+      { label: "ระบบกรองข้อมูลลับ", value: "Recursive Sanitizer ตรวจจับและแทนที่รหัสผ่าน/โทเค็นเป็น [REDACTED] อัตโนมัติ" },
+      { label: "สถาปัตยกรรมจัดเก็บ", value: "Dual Persistence: Neon PostgreSQL (ตาราง AuditLog) + Circular In-Memory Buffer" },
+    ],
+    tips: "ข้อมูล Audit Log เป็นระบบ Append-Only อย่างแท้จริง ไม่มีปุ่มหรือคำสั่งแก้ไข/ลบข้อมูลใดๆ เพื่อให้มีความน่าเชื่อถือและสามารถใช้ตรวจสอบทางกฎหมายได้",
+    relatedTopicIds: ["super-admin-portal", "roles-and-security"],
     demoType: "permissions",
   },
   {

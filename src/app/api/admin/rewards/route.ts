@@ -5,6 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { recordAdminAudit } from "@/lib/admin-system-state";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -129,6 +130,36 @@ export async function PATCH(request: Request) {
       targetId: redemption.id,
       targetName: redemption.reward.name,
       details: {
+        userId: redemption.userId,
+        cost: redemption.cost,
+        reason: payload.rejectionReason
+      }
+    });
+
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : (request.headers.get("x-real-ip") || null);
+    const userAgent = request.headers.get("user-agent") || null;
+
+    void createAuditLog({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      actorName: admin.name,
+      actorRole: admin.globalRole,
+      ipAddress: ip,
+      userAgent,
+      requestPath: "/api/admin/rewards",
+      requestMethod: "PATCH",
+      category: "REWARDS",
+      action: payload.status === "APPROVED" ? "REDEMPTION_APPROVED" : "REDEMPTION_REJECTED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "REWARD",
+      targetId: redemption.id,
+      targetName: redemption.reward.name,
+      summary: `Admin ${admin.email} ${payload.status.toLowerCase()} reward redemption of "${redemption.reward.name}" (${redemption.cost} coins) for user ${redemption.user.email}`,
+      beforeState: { status: redemption.status },
+      afterState: { status: payload.status, rejectionReason: payload.rejectionReason },
+      metadata: {
         userId: redemption.userId,
         cost: redemption.cost,
         reason: payload.rejectionReason

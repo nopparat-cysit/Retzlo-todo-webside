@@ -219,6 +219,36 @@ export interface AdminOverviewData {
   };
 }
 
+export interface AdminAuditLog {
+  id: string;
+  timestamp: string;
+  actorId: string | null;
+  actorEmail: string | null;
+  actorName: string | null;
+  actorRole: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  requestPath: string | null;
+  requestMethod: string | null;
+  category: string;
+  action: string;
+  severity: string;
+  status: string;
+  targetType: string | null;
+  targetId: string | null;
+  targetName: string | null;
+  summary: string;
+  diff: Record<string, unknown> | null;
+  metadata: Record<string, unknown> | null;
+  errorMessage: string | null;
+}
+
+export interface AdminAuditMetrics {
+  total24h: number;
+  errorsCount: number;
+  securityBlocksCount: number;
+}
+
 export type AdminTab =
   | "overview"
   | "users"
@@ -227,4 +257,5 @@ export type AdminTab =
   | "ai"
   | "storage"
   | "security"
-  | "operations";
+  | "operations"
+  | "audit";

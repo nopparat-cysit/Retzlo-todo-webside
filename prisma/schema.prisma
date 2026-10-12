@@ -760,3 +760,44 @@ model OfficeAgentMemory {
   @@index([projectId, kind])
   @@index([agentId, kind])
 }
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  timestamp     DateTime @default(now())
+
+  // Actor
+  actorId       String?
+  actorEmail    String?
+  actorName     String?
+  actorRole     String?  // "ADMIN" | "USER" | "SYSTEM" | "ANONYMOUS"
+
+  // Network & Client Context (PDPA / CCA Compliant)
+  ipAddress     String?
+  userAgent     String?
+  requestPath   String?
+  requestMethod String?  // "GET" | "POST" | "PATCH" | "DELETE"
+
+  // Categorization & Classification
+  category      String   // "AUTH" | "USER" | "PROJECT" | "BOARD" | "CARD" | "REWARDS" | "FINANCE" | "AI" | "SECURITY" | "SYSTEM"
+  action        String   // e.g. "USER_ROLE_UPDATED", "PROJECT_DELETED", "CARD_MOVED", "COINS_GRANTED"
+  severity      String   @default("INFO") // "INFO" | "NOTICE" | "WARNING" | "ERROR" | "CRITICAL"
+  status        String   @default("SUCCESS") // "SUCCESS" | "FAILED" | "DENIED"
+
+  // Affected Target Entity
+  targetType    String?  // "User" | "Project" | "Board" | "Card" | "Reward" | "Attachment" | "Broadcast" | "System"
+  targetId      String?
+  targetName    String?
+
+  // Deep Diagnostic Payloads
+  summary       String   // Plain-language readable description
+  diff          Json?    // { before: {...}, after: {...} } sanitized
+  metadata      Json?    // Execution time, route context, headers
+  errorMessage  String?  // Sanitized error message and code if failed
+
+  @@index([timestamp(sort: Desc)])
+  @@index([actorId])
+  @@index([category, action])
+  @@index([targetType, targetId])
+  @@index([severity])
+  @@index([status])
+}

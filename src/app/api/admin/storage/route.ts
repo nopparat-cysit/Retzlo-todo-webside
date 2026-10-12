@@ -5,6 +5,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { recordAdminAudit } from "@/lib/admin-system-state";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -119,6 +120,31 @@ export async function DELETE(request: Request) {
       targetId: attachment.id,
       targetName: attachment.name,
       details: { sizeBytes: attachment.size }
+    });
+
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : (request.headers.get("x-real-ip") || null);
+    const userAgent = request.headers.get("user-agent") || null;
+
+    void createAuditLog({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      actorName: admin.name,
+      actorRole: admin.globalRole,
+      ipAddress: ip,
+      userAgent,
+      requestPath: "/api/admin/storage",
+      requestMethod: "DELETE",
+      category: "SYSTEM",
+      action: "STORAGE_ATTACHMENT_DELETED",
+      severity: "WARNING",
+      status: "SUCCESS",
+      targetType: "STORAGE",
+      targetId: attachment.id,
+      targetName: attachment.name,
+      summary: `Admin ${admin.email} purged stored attachment "${attachment.name}" (${attachment.size} bytes)`,
+      beforeState: attachment,
+      metadata: { sizeBytes: attachment.size }
     });
 
     return NextResponse.json({

@@ -66,6 +66,14 @@ docs/
 - When changing shared design-system components or tokens, document the expected impact on pages/components that consume those shared primitives.
 - All delete and update operations triggered by user action must present a `ConfirmModal` to verify the user's intent.
 - All CUD (Create, Update, Delete) operations must trigger a success or error Toast notification upon completion to provide immediate visual feedback.
+- All mutation API routes (POST, PUT, PATCH, DELETE), security events, financial/coin transactions, and sensitive operations MUST instrument an audit log via `createAuditLog()` in accordance with `docs/audit-logging-standard.md`.
+- Strictly enforce legal privacy compliance (Thai PDPA Section 24(5), Computer Crime Act Section 26, GDPR Art 6(1)(f)). Passwords, hashes, OTPs, session tokens, and raw private journal text MUST NEVER be written into audit payloads.
+
+## Audit Logging & Privacy Standards
+
+- Read `docs/audit-logging-standard.md` before creating or modifying API mutation routes or administrative operations.
+- Always sanitize inputs with `sanitizeAuditPayload()`, capture client network metadata (`ipAddress`, `userAgent`), and provide before/after state diffs for traceability.
+- Audit records are strictly append-only; never create update or delete routes for audit records.
 
 ## Theme Documentation
 

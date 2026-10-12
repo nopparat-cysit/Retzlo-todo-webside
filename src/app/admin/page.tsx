@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { recordDecoyHit } from "@/lib/admin-system-state";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -26,5 +27,19 @@ export default async function AdminDecoyPage() {
   const userAgent = headerList.get("user-agent") || "unknown";
 
   recordDecoyHit(ip, userAgent);
+
+  void createAuditLog({
+    category: "SECURITY",
+    action: "HONEYPOT_DECOY_TRIGGERED",
+    severity: "WARNING",
+    status: "DENIED",
+    ipAddress: ip,
+    userAgent,
+    requestPath: "/admin",
+    requestMethod: "GET",
+    summary: `Unauthorized probe triggered /admin honeypot decoy (${ip})`,
+    metadata: { ip, userAgent }
+  });
+
   notFound();
 }

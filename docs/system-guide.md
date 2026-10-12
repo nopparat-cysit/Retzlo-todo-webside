@@ -343,4 +343,26 @@ The Super Admin Portal (`/admin-vault-9f8e`) has evolved into a full-scale, 8-hu
   - Safe removal with `ConfirmModal` verification and instant visual toast feedback.
   - Kanban card surface displays a `Paperclip` badge indicator with total attachment count.
 
+### 2026-10-12 — Legally Compliant Forensic Audit Logging & Investigation Hub (Hub 9)
+Retzlo now features an enterprise-grade, append-only **Audit Logging & Forensic Investigation Hub** integrated into the Super Admin Command Center (`/admin-vault-9f8e`) and across the entire backend:
+- **Legal Compliance Framework**:
+  - **Thai PDPA Section 24(5)** (Legitimate Interests): Operational telemetry for threat detection, fraud deterrence, and technical debugging without requiring per-action consent.
+  - **Thai Computer Crime Act Section 26**: Retains network traffic data (`actorId`, `ipAddress`, `userAgent`, `requestPath`, `requestMethod`, and precise UTC timestamp) for no less than 90 days.
+  - **GDPR Article 6(1)(f) & Article 32**: Mandatory security monitoring with automated zero-PII redaction.
+- **Zero-PII & Secret Sanitization**:
+  - Passwords, hashes, OTP codes, session tokens, and credit card numbers are strictly barred from logs and automatically masked to `[REDACTED]`.
+  - Personal private diaries, reflections, and emotional note contents are minimized to metadata only (`{ habitTitle, completed }`, `{ title, wordCount }`).
+- **Resilient Dual-Persistence Architecture**:
+  - Primary store: Neon PostgreSQL `AuditLog` table with 6 compound B-tree indexes.
+  - Fallback: In-memory circular buffer (capacity 500 records) ensures zero log drop during cold starts or transient network partitions.
+- **Forensic Explorer UI (`AuditTab` & `AuditDetailDrawer`)**:
+  - Live metric tiles: 24h Event Volume, Failed Operations, and Security Violations & Blocks.
+  - Multi-dimension search & filter: Free-text search, Category dropdown, Severity dropdown, Status dropdown, and Date Range filter.
+  - Quick-preset chips: `All Activity`, `Security & Intrusion`, `Errors & Failures`, `User Modifications`, and `AI Intelligence`.
+  - Slide-over `AuditDetailDrawer`: Visual Before vs After state mutation diff viewer (emerald for created/added attributes, rose for deleted/removed, amber for modified), sanitized error stack diagnostics, and 1-click "Copy Forensic JSON" button.
+  - Encrypted/signed CSV and JSON export capability (exports themselves generate audit log records).
+- **Authoritative Engineering Standards**:
+  - Established `docs/audit-logging-standard.md` as mandatory policy.
+  - Added enforceable audit logging rules to `AGENTS.md`.
+
 

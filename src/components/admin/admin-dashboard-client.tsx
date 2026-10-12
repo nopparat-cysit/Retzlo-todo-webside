@@ -17,7 +17,8 @@ import {
   Shield,
   ShieldAlert,
   Users,
-  Zap
+  Zap,
+  FileSearch
 } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
@@ -41,6 +42,7 @@ import { AiHubTab } from "./tabs/ai-hub-tab";
 import { StorageTab } from "./tabs/storage-tab";
 import { SecurityTab } from "./tabs/security-tab";
 import { OperationsTab } from "./tabs/operations-tab";
+import { AuditTab } from "./tabs/audit-tab";
 
 interface AdminDashboardClientProps {
   currentAdminEmail?: string;
@@ -192,6 +194,11 @@ export function AdminDashboardClient({
       icon: Radio,
       badge: overview?.broadcast?.active ? "Live" : null,
       badgeVariant: "indigo"
+    },
+    {
+      id: "audit",
+      label: "Audit Logs & Forensics",
+      icon: FileSearch
     }
   ];
 
@@ -337,6 +344,8 @@ export function AdminDashboardClient({
         {activeTab === "security" && <SecurityTab />}
 
         {activeTab === "operations" && <OperationsTab />}
+ 
+        {activeTab === "audit" && <AuditTab />}
       </main>
 
       {/* Slide-over User Inspector Drawer */}

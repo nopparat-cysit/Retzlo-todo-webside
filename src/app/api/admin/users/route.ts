@@ -6,6 +6,7 @@ import { requireAdminUser } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { setAdminUserAiQuota, getUserAiQuota } from "@/lib/ai/credits";
 import { recordAdminAudit } from "@/lib/admin-system-state";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -164,6 +165,43 @@ export async function PATCH(request: Request) {
       targetId: payload.userId,
       targetName: targetUser.email,
       details: {
+        roleChanged: payload.globalRole,
+        statusChanged: payload.status,
+        coinsSet: payload.globalCoins,
+        aiTierSet: payload.aiTier,
+        aiCreditsSet: payload.aiCredits
+      }
+    });
+
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : (request.headers.get("x-real-ip") || null);
+    const userAgent = request.headers.get("user-agent") || null;
+
+    void createAuditLog({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      actorName: admin.name,
+      actorRole: admin.globalRole,
+      ipAddress: ip,
+      userAgent,
+      requestPath: "/api/admin/users",
+      requestMethod: "PATCH",
+      category: "USER",
+      action: "ADMIN_USER_UPDATED",
+      severity: payload.status === "SUSPENDED" || payload.globalRole ? "WARNING" : "NOTICE",
+      status: "SUCCESS",
+      targetType: "USER",
+      targetId: payload.userId,
+      targetName: targetUser.email,
+      summary: `Admin ${admin.email} modified settings for user ${targetUser.email} (Role: ${payload.globalRole || targetUser.globalRole}, Status: ${payload.status || targetUser.status})`,
+      beforeState: targetUser,
+      afterState: {
+        ...targetUser,
+        ...updateData,
+        aiTier: payload.aiTier,
+        aiCredits: payload.aiCredits
+      },
+      metadata: {
         roleChanged: payload.globalRole,
         statusChanged: payload.status,
         coinsSet: payload.globalCoins,

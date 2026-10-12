@@ -6,6 +6,7 @@ import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { seedWelcomeWorkspace } from "@/lib/onboarding";
+import { createAuditLog } from "@/lib/audit/audit-logger";
 
 export async function POST(request: Request) {
   try {
@@ -54,6 +55,26 @@ export async function POST(request: Request) {
     } catch (seedError) {
       console.error("Failed to seed welcome workspace on user registration:", seedError);
     }
+
+    void createAuditLog({
+      actorId: user.id,
+      actorEmail: user.email,
+      actorName: user.name,
+      actorRole: "USER",
+      ipAddress: ip,
+      userAgent: request.headers.get("user-agent") || null,
+      requestPath: "/api/auth/register",
+      requestMethod: "POST",
+      category: "AUTH",
+      action: "USER_REGISTERED",
+      severity: "NOTICE",
+      status: "SUCCESS",
+      targetType: "USER",
+      targetId: user.id,
+      targetName: user.email,
+      summary: `New account registered for ${user.email} (@${user.username})`,
+      afterState: { id: user.id, email: user.email, username: user.username, name: user.name }
+    });
 
     return NextResponse.json({ user }, { status: 201 });
   } catch (error) {
