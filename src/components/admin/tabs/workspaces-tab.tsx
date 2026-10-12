@@ -5,6 +5,7 @@ import { Eye, FolderGit2, Kanban, Search, Users } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Panel } from "@/components/ui/panel";
 import type { AdminProject } from "../types";
 
 interface WorkspacesTabProps {
@@ -27,7 +28,7 @@ export function WorkspacesTab({
   return (
     <div className="space-y-4">
       {/* Controls Bar: Search */}
-      <div className="flex flex-col gap-3 rounded-xl border border-stone-200/80 bg-white p-4 dark:border-white/10 dark:bg-[#0c0d18] sm:flex-row sm:items-center sm:justify-between">
+      <Panel className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <Input
@@ -41,7 +42,7 @@ export function WorkspacesTab({
         <div className="font-mono text-xs text-stone-400">
           Workspaces: <span className="font-bold text-stone-800 dark:text-stone-200">{total}</span>
         </div>
-      </div>
+      </Panel>
 
       {/* Workspaces Data Table */}
       <div className="overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">

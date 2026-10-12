@@ -16,7 +16,9 @@ import {
 
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
+import { Panel } from "@/components/ui/panel";
 import type { AdminUser } from "../types";
 
 interface UsersTabProps {
@@ -47,7 +49,7 @@ export function UsersTab({
   return (
     <div className="space-y-4">
       {/* Controls Bar: Search & Filters */}
-      <div className="flex flex-col gap-3 rounded-xl border border-stone-200/80 bg-white p-4 dark:border-white/10 dark:bg-[#0c0d18] sm:flex-row sm:items-center sm:justify-between">
+      <Panel className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <Input
@@ -60,42 +62,36 @@ export function UsersTab({
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Role Filter */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5">
-            <Shield className="h-3.5 w-3.5 text-stone-400" />
-            <select
-              value={roleFilter}
-              onChange={(e) => onRoleFilterChange(e.target.value)}
-              aria-label="Filter by global role"
-              className="bg-transparent text-xs text-stone-700 outline-none dark:text-stone-300"
-            >
-              <option value="ALL">All Roles</option>
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div>
+          <FilterSelect
+            value={roleFilter}
+            options={[
+              { value: "ALL", label: "All Roles" },
+              { value: "USER", label: "User" },
+              { value: "ADMIN", label: "Admin" }
+            ]}
+            onValueChange={onRoleFilterChange}
+            triggerClassName="h-9 text-xs min-w-[120px]"
+          />
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5">
-            <Filter className="h-3.5 w-3.5 text-stone-400" />
-            <select
-              value={statusFilter}
-              onChange={(e) => onStatusFilterChange(e.target.value)}
-              aria-label="Filter by account status"
-              className="bg-transparent text-xs text-stone-700 outline-none dark:text-stone-300"
-            >
-              <option value="ALL">All Status</option>
-              <option value="ONLINE">Online</option>
-              <option value="OFFLINE">Offline</option>
-              <option value="BUSY">Busy</option>
-              <option value="SUSPENDED">Suspended</option>
-            </select>
-          </div>
+          <FilterSelect
+            value={statusFilter}
+            options={[
+              { value: "ALL", label: "All Status" },
+              { value: "ONLINE", label: "Online" },
+              { value: "OFFLINE", label: "Offline" },
+              { value: "BUSY", label: "Busy" },
+              { value: "SUSPENDED", label: "Suspended" }
+            ]}
+            onValueChange={onStatusFilterChange}
+            triggerClassName="h-9 text-xs min-w-[130px]"
+          />
 
           <div className="font-mono text-xs text-stone-400">
             Total: <span className="font-bold text-stone-800 dark:text-stone-200">{total}</span>
           </div>
         </div>
-      </div>
+      </Panel>
 
       {/* Users Data Table */}
       <div className="overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">

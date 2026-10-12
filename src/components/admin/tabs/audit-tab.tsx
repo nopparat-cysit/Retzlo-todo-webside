@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useTransition } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Activity,
   AlertOctagon,
@@ -17,13 +17,17 @@ import {
   Search,
   Shield,
   ShieldAlert,
-  SlidersHorizontal,
-  Terminal,
-  UserCheck
+  SlidersHorizontal
 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import { FilterSelect, type FilterSelectOption } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
+import { Panel } from "@/components/ui/panel";
+import { Separator } from "@/components/ui/separator";
+import { EmptyState, LoadingState } from "@/components/ui/state";
 import { useToast } from "@/components/ui/toast";
 import type { AdminAuditLog, AdminAuditMetrics } from "../types";
 import { AuditDetailDrawer } from "../drawers/audit-detail-drawer";
@@ -48,7 +52,6 @@ const STATUSES = ["ALL", "SUCCESS", "FAILED", "DENIED"];
 
 export function AuditTab() {
   const { toast } = useToast();
-  const [isPending, startTransition] = useTransition();
 
   // Data state
   const [logs, setLogs] = useState<AdminAuditLog[]>([]);
@@ -72,6 +75,33 @@ export function AuditTab() {
 
   // Inspect state
   const [selectedLog, setSelectedLog] = useState<AdminAuditLog | null>(null);
+
+  const categoryOptions: FilterSelectOption[] = useMemo(
+    () =>
+      CATEGORIES.map((c) => ({
+        value: c,
+        label: c === "ALL" ? "All Categories" : c
+      })),
+    []
+  );
+
+  const severityOptions: FilterSelectOption[] = useMemo(
+    () =>
+      SEVERITIES.map((s) => ({
+        value: s,
+        label: s === "ALL" ? "All Severities" : s
+      })),
+    []
+  );
+
+  const statusOptions: FilterSelectOption[] = useMemo(
+    () =>
+      STATUSES.map((st) => ({
+        value: st,
+        label: st === "ALL" ? "All Statuses" : st
+      })),
+    []
+  );
 
   const fetchLogs = useCallback(
     async (targetPage = 1) => {
@@ -168,38 +198,39 @@ export function AuditTab() {
     });
   };
 
-  const getSeverityBadgeClass = (sev: string) => {
+  const getSeverityBadgeVariant = (sev: string): "default" | "amber" | "rose" | "cyan" | "danger" | "muted" => {
     switch (sev.toUpperCase()) {
       case "CRITICAL":
-        return "bg-red-500/15 text-red-600 border-red-500/30 dark:bg-red-950/40 dark:text-red-400";
+        return "danger";
       case "ERROR":
-        return "bg-rose-500/15 text-rose-600 border-rose-500/30 dark:bg-rose-950/40 dark:text-rose-400";
+        return "rose";
       case "WARNING":
-        return "bg-amber-500/15 text-amber-600 border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-400";
+        return "amber";
       case "NOTICE":
-        return "bg-purple-500/15 text-purple-600 border-purple-500/30 dark:bg-purple-950/40 dark:text-purple-400";
+        return "default";
+      case "INFO":
       default:
-        return "bg-indigo-500/15 text-indigo-600 border-indigo-500/30 dark:bg-indigo-950/40 dark:text-indigo-400";
+        return "cyan";
     }
   };
 
-  const getStatusBadgeClass = (stat: string) => {
+  const getStatusBadgeVariant = (stat: string): "default" | "amber" | "rose" | "cyan" | "danger" | "muted" => {
     switch (stat.toUpperCase()) {
       case "SUCCESS":
-        return "bg-emerald-500/15 text-emerald-600 border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-400";
+        return "cyan";
       case "DENIED":
-        return "bg-amber-500/15 text-amber-600 border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-400";
+        return "amber";
       case "FAILED":
       default:
-        return "bg-rose-500/15 text-rose-600 border-rose-500/30 dark:bg-rose-950/40 dark:text-rose-400";
+        return "rose";
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Metric Tiles */}
+      {/* Metric Tiles using Global Panel Primitive */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-stone-200/80 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
+        <Panel className="p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-stone-500 dark:text-stone-400">
@@ -213,13 +244,15 @@ export function AuditTab() {
               <Activity className="h-6 w-6" />
             </div>
           </div>
-          <p className="mt-3 text-[11px] text-stone-500 dark:text-stone-400 flex items-center gap-1.5">
+          <div className="mt-3 flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Neon PostgreSQL + Memory Buffer Active
-          </p>
-        </div>
+            <span className="text-[11px] text-stone-500 dark:text-stone-400">
+              Neon PostgreSQL + Memory Buffer Active
+            </span>
+          </div>
+        </Panel>
 
-        <div className="rounded-xl border border-stone-200/80 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
+        <Panel className="p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-stone-500 dark:text-stone-400">
@@ -236,9 +269,9 @@ export function AuditTab() {
           <p className="mt-3 text-[11px] text-stone-500 dark:text-stone-400">
             System errors and unhandled exceptions
           </p>
-        </div>
+        </Panel>
 
-        <div className="rounded-xl border border-stone-200/80 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
+        <Panel className="p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-stone-500 dark:text-stone-400">
@@ -255,71 +288,61 @@ export function AuditTab() {
           <p className="mt-3 text-[11px] text-stone-500 dark:text-stone-400">
             Honeypots, rate-limits & auth denials
           </p>
-        </div>
+        </Panel>
       </div>
 
-      {/* Filter Presets Chips */}
+      {/* Filter Presets Chips using Global Button & Badge Primitives */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs font-semibold text-stone-500 dark:text-stone-400 mr-1 flex items-center gap-1">
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Presets:
         </span>
-        <button
+        <Button
+          variant={category === "ALL" && status === "ALL" && severity === "ALL" ? "primary" : "outline"}
+          size="sm"
           onClick={() => applyPreset("ALL")}
-          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-            category === "ALL" && status === "ALL" && severity === "ALL"
-              ? "bg-indigo-600 text-white font-semibold"
-              : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
-          }`}
+          className="h-7 text-xs"
         >
           All Activity
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={category === "SECURITY" ? "primary" : "outline"}
+          size="sm"
           onClick={() => applyPreset("SECURITY")}
-          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-            category === "SECURITY"
-              ? "bg-indigo-600 text-white font-semibold"
-              : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
-          }`}
+          className="h-7 text-xs"
         >
           Security & Intrusion
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={status === "FAILED" ? "danger" : "outline"}
+          size="sm"
           onClick={() => applyPreset("FAILURES")}
-          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-            status === "FAILED"
-              ? "bg-rose-600 text-white font-semibold"
-              : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
-          }`}
+          className="h-7 text-xs"
         >
           Errors & Failures
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={category === "USER" ? "primary" : "outline"}
+          size="sm"
           onClick={() => applyPreset("USERS")}
-          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-            category === "USER"
-              ? "bg-indigo-600 text-white font-semibold"
-              : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
-          }`}
+          className="h-7 text-xs"
         >
           User Modifications
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={category === "AI" ? "primary" : "outline"}
+          size="sm"
           onClick={() => applyPreset("AI")}
-          className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-            category === "AI"
-              ? "bg-indigo-600 text-white font-semibold"
-              : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
-          }`}
+          className="h-7 text-xs"
         >
           AI Intelligence
-        </button>
+        </Button>
       </div>
 
-      {/* Forensic Search & Multi-dimension Filter Bar */}
-      <div className="rounded-xl border border-stone-200/80 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#0c0d18] space-y-3">
+      {/* Forensic Search & Filter Bar with Global Primitives */}
+      <Panel className="p-4 space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          {/* Search Field */}
+          {/* Search Input using Global Input */}
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
             <Input
@@ -330,13 +353,13 @@ export function AuditTab() {
             />
           </div>
 
-          {/* Export Actions & Refresh */}
+          {/* Export Actions & Refresh using Global Button */}
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleExport("csv")}
-              className="text-xs font-medium"
+              className="h-9 text-xs font-medium"
               title="Export filtered logs as CSV"
             >
               <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5 text-emerald-600 dark:text-emerald-400" />
@@ -346,7 +369,7 @@ export function AuditTab() {
               variant="outline"
               size="sm"
               onClick={() => handleExport("json")}
-              className="text-xs font-medium"
+              className="h-9 text-xs font-medium"
               title="Export filtered logs as JSON"
             >
               <Download className="h-3.5 w-3.5 mr-1.5 text-indigo-600 dark:text-indigo-400" />
@@ -358,113 +381,94 @@ export function AuditTab() {
               onClick={() => fetchLogs(page)}
               disabled={isLoading}
               title="Refresh Audit Telemetry"
+              className="h-9 w-9 p-0"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
             </Button>
           </div>
         </div>
 
-        {/* Dropdowns Row: Category, Severity, Status, Date */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-100 dark:border-white/5">
-          {/* Category Dropdown */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5">
-            <Layers className="h-3.5 w-3.5 text-stone-400" />
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              aria-label="Filter by category"
-              className="bg-transparent text-xs text-stone-700 outline-none dark:text-stone-300"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c === "ALL" ? "All Categories" : c}
-                </option>
-              ))}
-            </select>
-          </div>
+        <Separator />
 
-          {/* Severity Dropdown */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5">
-            <AlertOctagon className="h-3.5 w-3.5 text-stone-400" />
-            <select
-              value={severity}
-              onChange={(e) => setSeverity(e.target.value)}
-              aria-label="Filter by severity"
-              className="bg-transparent text-xs text-stone-700 outline-none dark:text-stone-300"
-            >
-              {SEVERITIES.map((s) => (
-                <option key={s} value={s}>
-                  {s === "ALL" ? "All Severities" : s}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Global FilterSelect & DatePicker Row */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Category FilterSelect */}
+          <FilterSelect
+            value={category}
+            options={categoryOptions}
+            onValueChange={setCategory}
+            triggerClassName="h-9 text-xs min-w-[150px]"
+          />
 
-          {/* Status Dropdown */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5">
-            <Filter className="h-3.5 w-3.5 text-stone-400" />
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              aria-label="Filter by status"
-              className="bg-transparent text-xs text-stone-700 outline-none dark:text-stone-300"
-            >
-              {STATUSES.map((st) => (
-                <option key={st} value={st}>
-                  {st === "ALL" ? "All Statuses" : st}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Severity FilterSelect */}
+          <FilterSelect
+            value={severity}
+            options={severityOptions}
+            onValueChange={setSeverity}
+            triggerClassName="h-9 text-xs min-w-[140px]"
+          />
 
-          {/* Date Range Start */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5">
-            <Calendar className="h-3.5 w-3.5 text-stone-400" />
-            <span className="text-[10px] text-stone-400">From:</span>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="bg-transparent text-xs text-stone-700 outline-none dark:text-stone-300"
+          {/* Status FilterSelect */}
+          <FilterSelect
+            value={status}
+            options={statusOptions}
+            onValueChange={setStatus}
+            triggerClassName="h-9 text-xs min-w-[130px]"
+          />
+
+          {/* Start Date using Global DatePicker */}
+          <div className="flex items-center gap-1.5">
+            <DatePicker
+              value={startDate || null}
+              onChange={(val) => setStartDate(val || "")}
+              placeholder="From date"
+              className="w-36"
+              triggerClassName="h-9 text-xs"
+              showShortcuts
             />
           </div>
 
-          {/* Date Range End */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5">
-            <Calendar className="h-3.5 w-3.5 text-stone-400" />
-            <span className="text-[10px] text-stone-400">To:</span>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="bg-transparent text-xs text-stone-700 outline-none dark:text-stone-300"
+          {/* End Date using Global DatePicker */}
+          <div className="flex items-center gap-1.5">
+            <DatePicker
+              value={endDate || null}
+              onChange={(val) => setEndDate(val || "")}
+              placeholder="To date"
+              className="w-36"
+              triggerClassName="h-9 text-xs"
+              showShortcuts
             />
           </div>
 
-          {/* Clear Dates if set */}
+          {/* Clear Dates Button */}
           {(startDate || endDate) && (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 setStartDate("");
                 setEndDate("");
               }}
-              className="text-[11px] font-mono text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 underline"
+              className="h-8 px-2 text-xs font-mono text-stone-500 hover:text-stone-900 dark:hover:text-stone-200"
             >
               Clear Dates
-            </button>
+            </Button>
           )}
 
-          <div className="ml-auto font-mono text-xs text-stone-400">
-            Total Matches: <span className="font-bold text-stone-800 dark:text-stone-200">{total}</span>
+          <div className="ml-auto flex items-center gap-1 font-mono text-xs text-stone-400">
+            <span>Matches:</span>
+            <Badge variant="muted" className="font-mono text-xs">
+              {total}
+            </Badge>
           </div>
         </div>
-      </div>
+      </Panel>
 
-      {/* Audit Log Table */}
-      <div className="overflow-hidden rounded-xl border border-stone-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-[#0c0d18]">
+      {/* Audit Log Table in Global Panel */}
+      <Panel className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-stone-200 bg-stone-50/80 font-mono text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+            <thead className="border-b border-border/60 bg-stone-50/80 font-mono text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">Timestamp</th>
                 <th className="px-4 py-3 font-semibold">Status & Severity</th>
@@ -475,19 +479,24 @@ export function AuditTab() {
                 <th className="px-4 py-3 font-semibold text-right">Inspect</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100 dark:divide-white/5 font-sans">
+            <tbody className="divide-y divide-border/40 dark:divide-white/5 font-sans">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-stone-400">
-                    <RefreshCw className="mx-auto h-6 w-6 animate-spin text-indigo-500 mb-2" />
-                    Loading forensic audit trail...
+                  <td colSpan={7} className="p-10">
+                    <LoadingState
+                      title="Loading forensic audit trail..."
+                      message="Querying PostgreSQL table & circular buffer"
+                    />
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-stone-400">
-                    <Shield className="mx-auto h-8 w-8 text-stone-300 dark:text-stone-700 mb-2" />
-                    No audit records match the current filters.
+                  <td colSpan={7} className="p-10">
+                    <EmptyState
+                      title="No audit records match the current filters"
+                      message="Try broadening your search terms, preset filters, or date range."
+                      icon={<Shield className="h-6 w-6 text-stone-400" />}
+                    />
                   </td>
                 </tr>
               ) : (
@@ -505,23 +514,21 @@ export function AuditTab() {
                       </div>
                     </td>
 
-                    {/* Status & Severity */}
+                    {/* Status & Severity with Global Badge */}
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex flex-col gap-1 items-start">
-                        <span
-                          className={`rounded border px-1.5 py-0.5 font-mono text-[10px] font-bold ${getStatusBadgeClass(
-                            log.status
-                          )}`}
+                        <Badge
+                          variant={getStatusBadgeVariant(log.status)}
+                          className="font-mono text-[10px] uppercase font-bold"
                         >
                           {log.status}
-                        </span>
-                        <span
-                          className={`rounded border px-1.5 py-0.5 font-mono text-[10px] font-bold ${getSeverityBadgeClass(
-                            log.severity
-                          )}`}
+                        </Badge>
+                        <Badge
+                          variant={getSeverityBadgeVariant(log.severity)}
+                          className="font-mono text-[10px] uppercase font-bold"
                         >
                           {log.severity}
-                        </span>
+                        </Badge>
                       </div>
                     </td>
 
@@ -530,9 +537,9 @@ export function AuditTab() {
                       <div className="font-mono font-bold text-stone-800 dark:text-stone-100">
                         {log.action}
                       </div>
-                      <div className="text-[11px] font-mono text-stone-400">
+                      <Badge variant="muted" className="mt-1 font-mono text-[10px]">
                         {log.category}
-                      </div>
+                      </Badge>
                     </td>
 
                     {/* Actor */}
@@ -568,7 +575,7 @@ export function AuditTab() {
                       </p>
                     </td>
 
-                    {/* Inspect Button */}
+                    {/* Inspect Button with Global Button */}
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <Button
                         variant="ghost"
@@ -577,7 +584,7 @@ export function AuditTab() {
                           e.stopPropagation();
                           setSelectedLog(log);
                         }}
-                        className="h-7 px-2 text-stone-500 hover:text-indigo-600 dark:hover:text-indigo-400"
+                        className="h-8 w-8 p-0 text-stone-500 hover:text-indigo-600 dark:hover:text-indigo-400"
                         title="View Full Forensic Inspection"
                       >
                         <Eye className="h-4 w-4" />
@@ -591,7 +598,7 @@ export function AuditTab() {
         </div>
 
         {/* Pagination Bar */}
-        <div className="flex items-center justify-between border-t border-stone-200 px-4 py-3 dark:border-white/10 sm:px-6">
+        <div className="flex items-center justify-between border-t border-border/60 px-4 py-3 dark:border-white/10 sm:px-6">
           <div className="font-mono text-xs text-stone-500 dark:text-stone-400">
             Page <span className="font-bold text-stone-800 dark:text-stone-200">{page}</span> of{" "}
             <span className="font-bold text-stone-800 dark:text-stone-200">{totalPages}</span> ({total}{" "}
@@ -621,10 +628,10 @@ export function AuditTab() {
             </Button>
           </div>
         </div>
-      </div>
+      </Panel>
 
       {/* Legal & Compliance Safeguards Footer Banner */}
-      <div className="rounded-xl border border-stone-200/80 bg-stone-50/80 p-4 dark:border-white/10 dark:bg-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+      <Panel className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2.5 text-stone-600 dark:text-stone-300">
           <Lock className="h-4 w-4 text-indigo-500 shrink-0" />
           <span>
@@ -633,10 +640,10 @@ export function AuditTab() {
             with Section 26 of the Thai Computer Crime Act B.E. 2550/2560.
           </span>
         </div>
-        <span className="shrink-0 rounded bg-indigo-500/10 px-2 py-1 font-mono text-[11px] font-semibold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+        <Badge variant="cyan" className="font-mono text-[11px] shrink-0 font-semibold">
           Zero-PII Secrets Redaction Active
-        </span>
-      </div>
+        </Badge>
+      </Panel>
 
       {/* Slide-over Inspection Drawer */}
       <AuditDetailDrawer

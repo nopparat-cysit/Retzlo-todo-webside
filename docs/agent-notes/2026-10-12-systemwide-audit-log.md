@@ -53,6 +53,15 @@
    - Audit records cannot be edited or deleted by any API route or interface control.
 5. **Dual Persistence Guarantee:**
    - Writes to Neon PostgreSQL `AuditLog` table with immediate fallback to an in-memory circular buffer (capacity 500) if database connectivity drops.
+6. **Global UI Design System Refactoring:**
+   - Refactored `AuditTab` and `AuditDetailDrawer` to strictly consume shared global UI primitives:
+     - `FilterSelect` (`@/components/ui/filter-select`) replaces all raw `<select>` elements with accessible Radix Select popovers.
+     - `DatePicker` (`@/components/ui/date-picker`) replaces raw HTML5 date inputs with Retzlo's retro lofi calendar popover & quick shortcuts.
+     - `Badge` (`@/components/ui/badge`) replaces raw custom spans for status, severity, category, and match counters.
+     - `Panel` (`@/components/ui/panel`) replaces raw card wrapper divs.
+     - `LoadingState` & `EmptyState` (`@/components/ui/state`) provide polished table states.
+     - `Separator` (`@/components/ui/separator`) provides clean division lines.
+   - Concurrently unified `UsersTab` and `WorkspacesTab` with `FilterSelect` and `Panel`.
 
 ---
 
