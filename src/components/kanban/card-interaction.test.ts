@@ -44,12 +44,12 @@ describe("kanban card interactions", () => {
     expect(boardSource).toContain("<ConfirmModal");
   });
 
-  it("renders accessible Radix UI select and avatar badges for assignee filtering without raw HTML select", () => {
-    expect(boardSource).toContain("<Select value={assigneeFilter}");
-    expect(boardSource).toContain("<SelectTrigger");
-    expect(boardSource).toContain("<AssigneeAvatar");
-    expect(boardSource).not.toContain("<select");
-    expect(boardSource).not.toContain("border-primary-400");
+  it("renders accessible Radix UI dropdown with checkboxes and avatar badges for assignee filtering without raw HTML select", () => {
+    const freshBoardSource = readFileSync(new URL("./board.tsx", import.meta.url), "utf8");
+    expect(freshBoardSource).toContain("selectedAssigneeIds");
+    expect(freshBoardSource).toContain("<AssigneeAvatar");
+    expect(freshBoardSource).not.toContain("<select");
+    expect(freshBoardSource).not.toContain("border-primary-400");
   });
 
   it("provides consolidated filter clear button and empty board onboarding", () => {

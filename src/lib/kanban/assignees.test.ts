@@ -123,5 +123,20 @@ describe("assignees module", () => {
       const myCards = filterCardsByAssignee(cards, "ME", null);
       expect(myCards).toEqual(cards);
     });
+
+    it("filters by multiple assignees using an array of userIds", () => {
+      const result = filterCardsByAssignee(cards, ["u1", "u3"]);
+      expect(result.map((c) => c.id)).toEqual(["c1", "c5"]);
+    });
+
+    it("filters by multiple assignees using comma-separated string", () => {
+      const result = filterCardsByAssignee(cards, "u1,u3");
+      expect(result.map((c) => c.id)).toEqual(["c1", "c5"]);
+    });
+
+    it("supports combining UNASSIGNED with specific userIds", () => {
+      const result = filterCardsByAssignee(cards, ["UNASSIGNED", "u3"]);
+      expect(result.map((c) => c.id)).toEqual(["c3", "c4", "c5"]);
+    });
   });
 });

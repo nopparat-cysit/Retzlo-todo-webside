@@ -79,25 +79,51 @@ export function resolveAssignees(
  * - `null` or `"ALL"`: returns all cards.
  * - `"UNASSIGNED"`: returns cards with no assignees.
  * - `"ME"`: returns cards assigned to currentUserId.
- * - specific userId: returns cards assigned to that user.
+ * - specific userId or array / comma-separated userIds: returns cards assigned to any of those users.
  */
 export function filterCardsByAssignee<T extends { assigneeIds?: string[] }>(
   cards: T[],
-  filterAssigneeId: string | null | undefined,
+  filterAssigneeId: string | string[] | null | undefined,
   currentUserId?: string | null
 ): T[] {
-  if (!filterAssigneeId || filterAssigneeId === "ALL") {
+  if (!filterAssigneeId) {
     return cards;
   }
 
-  if (filterAssigneeId === "UNASSIGNED") {
-    return cards.filter((c) => !c.assigneeIds || c.assigneeIds.length === 0);
-  }
+  const ids: string[] = Array.isArray(filterAssigneeId)
+    ? filterAssigneeId.map((id) => (typeof id === "string" ? id.trim() : "")).filter(Boolean)
+    : filterAssigneeId.includes(",")
+      ? filterAssigneeId.split(",").map((s) => s.trim()).filter(Boolean)
+      : [filterAssigneeId.trim()];
 
-  const targetId = filterAssigneeId === "ME" ? currentUserId : filterAssigneeId;
-  if (!targetId) {
+  if (ids.length === 0 || ids.includes("ALL")) {
     return cards;
   }
 
-  return cards.filter((c) => Array.isArray(c.assigneeIds) && c.assigneeIds.includes(targetId));
+  if (ids.length === 1 && ids[0] === "ME" && !currentUserId) {
+    return cards;
+  }
+
+  const hasUnassigned = ids.includes("UNASSIGNED");
+  const targetIds = new Set(
+    ids
+      .filter((id) => id !== "UNASSIGNED" && id !== "ALL")
+      .map((id) => (id === "ME" ? (currentUserId ?? "") : id))
+      .filter(Boolean)
+  );
+
+  return cards.filter((card) => {
+    const cardAssignees = Array.isArray(card.assigneeIds) ? card.assigneeIds : [];
+    const isUnassigned = cardAssignees.length === 0;
+
+    if (hasUnassigned && isUnassigned) {
+      return true;
+    }
+
+    if (targetIds.size > 0 && cardAssignees.some((assigneeId) => targetIds.has(assigneeId))) {
+      return true;
+    }
+
+    return false;
+  });
 }

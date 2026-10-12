@@ -11,7 +11,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { Archive, ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, History, KanbanSquare, LayoutGrid, ListFilter, MoreHorizontal, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X, Zap } from "lucide-react";
+import { Archive, ArrowUpDown, CalendarClock, Check, CheckSquare, ChevronDown, Edit3, FileText, Flag, History, KanbanSquare, LayoutGrid, ListFilter, MoreHorizontal, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X, Zap } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -259,12 +259,23 @@ export function KanbanBoard({
   // Premium Features States
   const [searchQuery, setSearchQuery] = useState("");
   const [isTodayFilterActive, setIsTodayFilterActive] = useState(false);
-  const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
+  const [selectedAssigneeIds, setSelectedAssigneeIds] = useState<string[]>([]);
+  const assigneeFilter = selectedAssigneeIds.length === 0 ? "ALL" : selectedAssigneeIds.join(",");
   const [cardSort, setCardSort] = useState<CardSortOption>("manual");
-  const selectedAssignee = useMemo(
-    () => members.find((m) => m.id === assigneeFilter),
-    [members, assigneeFilter]
+  const selectedMembers = useMemo(
+    () => members.filter((m) => selectedAssigneeIds.includes(m.id)),
+    [members, selectedAssigneeIds]
   );
+  const isUnassignedSelected = selectedAssigneeIds.includes("UNASSIGNED");
+  const toggleAssignee = useCallback((id: string) => {
+    if (id === "ALL") {
+      setSelectedAssigneeIds([]);
+      return;
+    }
+    setSelectedAssigneeIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  }, []);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [moveHistory, setMoveHistory] = useState<MoveAction[]>([]);
   const [isSwitchingBoard, setIsSwitchingBoard] = useState(false);
@@ -276,10 +287,15 @@ export function KanbanBoard({
     const saved = loadSavedBoardFilters(board.id, board.projectId, currentUserId);
     if (saved) {
       setIsTodayFilterActive(saved.isTodayFilterActive);
-      setAssigneeFilter(saved.assigneeFilter);
+      const parsedIds =
+        saved.assigneeFilter === "ALL" || !saved.assigneeFilter.trim()
+          ? []
+          : saved.assigneeFilter.split(",").map((s) => s.trim()).filter(Boolean);
+      setSelectedAssigneeIds(parsedIds);
       setCardSort(saved.cardSort);
       lastSavedFiltersRef.current = JSON.stringify(saved);
     } else {
+      setSelectedAssigneeIds([]);
       lastSavedFiltersRef.current = JSON.stringify({
         assigneeFilter: "ALL",
         isTodayFilterActive: false,
@@ -902,7 +918,7 @@ export function KanbanBoard({
           return matchesSearch && matchesToday;
         });
 
-        const assigneeFiltered = filterCardsByAssignee(baseCards, assigneeFilter);
+        const assigneeFiltered = filterCardsByAssignee(baseCards, selectedAssigneeIds);
         return {
           ...column,
           cards: sortCards(assigneeFiltered, cardSort, boardPriorities)
@@ -913,13 +929,13 @@ export function KanbanBoard({
   const activeFilterCount =
     (searchQuery.trim() ? 1 : 0) +
     (isTodayFilterActive ? 1 : 0) +
-    (assigneeFilter !== "ALL" ? 1 : 0) +
+    (selectedAssigneeIds.length > 0 ? 1 : 0) +
     (cardSort !== "manual" ? 1 : 0);
 
   const resetAllFilters = () => {
     setSearchQuery("");
     setIsTodayFilterActive(false);
-    setAssigneeFilter("ALL");
+    setSelectedAssigneeIds([]);
     setCardSort("manual");
   };
 
@@ -1382,71 +1398,183 @@ export function KanbanBoard({
             <button
               type="button"
               onClick={() => {
-                setAssigneeFilter((prev) => (prev === currentUserId ? "ALL" : currentUserId));
+                setSelectedAssigneeIds((prev) =>
+                  prev.length === 1 && prev[0] === currentUserId ? [] : [currentUserId]
+                );
               }}
               className={cn(
                 "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
-                assigneeFilter === currentUserId
+                selectedAssigneeIds.length === 1 && selectedAssigneeIds[0] === currentUserId
                   ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 shadow-xs dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
                   : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
               )}
             >
-              <User className={cn("h-3.5 w-3.5 transition-colors", assigneeFilter === currentUserId ? "text-indigo-700 dark:text-dusk-lavender" : "text-indigo-600 dark:text-dusk-lavender")} />
+              <User className={cn("h-3.5 w-3.5 transition-colors", selectedAssigneeIds.length === 1 && selectedAssigneeIds[0] === currentUserId ? "text-indigo-700 dark:text-dusk-lavender" : "text-indigo-600 dark:text-dusk-lavender")} />
               <span>My Tasks</span>
             </button>
           )}
 
-          {/* Assignee Filter */}
+          {/* Assignee Filter (Multi-select Checkbox) */}
           <div className="flex items-center gap-1.5">
-            <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
-              <SelectTrigger
-                aria-label="Filter cards by assignee"
-                className={cn(
-                  "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[180px] sm:max-w-[210px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
-                  assigneeFilter !== "ALL"
-                    ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 [&>svg]:text-indigo-700 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender dark:[&>svg]:text-dusk-lavender"
-                    : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
-                )}
-              >
-                <span className="flex items-center gap-1.5 min-w-0">
-                  {selectedAssignee ? (
-                    <AssigneeAvatar user={selectedAssignee} size={16} />
-                  ) : assigneeFilter === "UNASSIGNED" ? (
-                    <UserX className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
-                  ) : (
-                    <Users className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Filter cards by assignee"
+                  className={cn(
+                    "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[210px] sm:max-w-[260px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 flex items-center justify-between",
+                    selectedAssigneeIds.length > 0
+                      ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                      : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                   )}
-                  <SelectValue placeholder="All Assignees" />
-                </span>
-              </SelectTrigger>
-              <SelectContent align="start" className="min-w-[15rem] max-w-[22rem]">
-                <SelectGroup>
-                  <SelectItem value="ALL" className="cursor-pointer">
-                    All Assignees
-                  </SelectItem>
-                  <SelectItem value="UNASSIGNED" className="cursor-pointer">
-                    Unassigned
-                  </SelectItem>
-                </SelectGroup>
+                >
+                  <span className="flex items-center gap-1.5 min-w-0">
+                    {selectedAssigneeIds.length === 0 ? (
+                      <>
+                        <Users className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
+                        <span className="truncate">All Assignees</span>
+                      </>
+                    ) : selectedAssigneeIds.length === 1 && isUnassignedSelected ? (
+                      <>
+                        <UserX className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
+                        <span className="truncate">Unassigned</span>
+                      </>
+                    ) : selectedMembers.length === 1 && !isUnassignedSelected ? (
+                      <>
+                        <AssigneeAvatar user={selectedMembers[0]} size={16} />
+                        <span className="truncate">
+                          {selectedMembers[0].name ? `${selectedMembers[0].name} (${selectedMembers[0].email})` : selectedMembers[0].email}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex -space-x-1.5 shrink-0 items-center">
+                          {selectedMembers.slice(0, 3).map((m) => (
+                            <AssigneeAvatar key={m.id} user={m} size={16} />
+                          ))}
+                          {isUnassignedSelected && (
+                            <div className="grid h-4 w-4 place-items-center rounded-full bg-stone-200 dark:bg-white/10 text-[9px] text-stone-600 dark:text-stone-300">
+                              <UserX className="h-2.5 w-2.5" />
+                            </div>
+                          )}
+                        </div>
+                        <span className="truncate font-semibold">
+                          {selectedAssigneeIds.length} assignees
+                        </span>
+                      </>
+                    )}
+                  </span>
+                  <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60 ml-0.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-[17rem] max-w-[24rem] p-1.5 z-[1100]">
+                {/* All Assignees */}
+                <DropdownMenuItem
+                  onClick={() => setSelectedAssigneeIds([])}
+                  className="flex items-center gap-2.5 cursor-pointer py-1.5 px-2.5 rounded-lg"
+                >
+                  <div
+                    className={cn(
+                      "grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors",
+                      selectedAssigneeIds.length === 0
+                        ? "border-indigo-600 bg-indigo-600 dark:border-dusk-lavender dark:bg-dusk-lavender text-white dark:text-[#0e1025]"
+                        : "border-stone-300 dark:border-white/20 bg-transparent"
+                    )}
+                  >
+                    {selectedAssigneeIds.length === 0 && <Check className="h-3 w-3 stroke-[3]" />}
+                  </div>
+                  <Users className="h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
+                  <span className="font-medium text-xs text-stone-900 dark:text-stone-100 flex-1">All Assignees</span>
+                  {selectedAssigneeIds.length === 0 && (
+                    <span className="text-[10px] text-stone-400 font-mono">Active</span>
+                  )}
+                </DropdownMenuItem>
+
+                {/* Unassigned */}
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleAssignee("UNASSIGNED");
+                  }}
+                  className="flex items-center gap-2.5 cursor-pointer py-1.5 px-2.5 rounded-lg"
+                >
+                  <div
+                    className={cn(
+                      "grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors",
+                      selectedAssigneeIds.includes("UNASSIGNED")
+                        ? "border-indigo-600 bg-indigo-600 dark:border-dusk-lavender dark:bg-dusk-lavender text-white dark:text-[#0e1025]"
+                        : "border-stone-300 dark:border-white/20 bg-transparent"
+                    )}
+                  >
+                    {selectedAssigneeIds.includes("UNASSIGNED") && <Check className="h-3 w-3 stroke-[3]" />}
+                  </div>
+                  <UserX className="h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
+                  <span className="font-medium text-xs text-stone-900 dark:text-stone-100 flex-1">Unassigned</span>
+                </DropdownMenuItem>
+
                 {members.length > 0 && (
                   <>
-                    <SelectSeparator />
-                    <SelectGroup>
-                      <SelectLabel>Members ({members.length})</SelectLabel>
-                      {members.map((member) => (
-                        <SelectItem key={member.id} value={member.id} className="cursor-pointer">
-                          {member.name ? `${member.name} (${member.email})` : member.email}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
+                    <DropdownMenuSeparator className="my-1" />
+                    <div className="flex items-center justify-between px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">
+                      <span>Members ({members.length})</span>
+                      {selectedAssigneeIds.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedAssigneeIds([]);
+                          }}
+                          className="text-[10px] lowercase tracking-normal text-indigo-600 dark:text-dusk-lavender hover:underline cursor-pointer"
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-56 overflow-y-auto space-y-0.5 scrollbar-soft">
+                      {members.map((member) => {
+                        const isChecked = selectedAssigneeIds.includes(member.id);
+                        return (
+                          <DropdownMenuItem
+                            key={member.id}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              toggleAssignee(member.id);
+                            }}
+                            className="flex items-center gap-2.5 cursor-pointer py-1.5 px-2.5 rounded-lg"
+                          >
+                            <div
+                              className={cn(
+                                "grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors",
+                                isChecked
+                                  ? "border-indigo-600 bg-indigo-600 dark:border-dusk-lavender dark:bg-dusk-lavender text-white dark:text-[#0e1025]"
+                                  : "border-stone-300 dark:border-white/20 bg-transparent"
+                              )}
+                            >
+                              {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
+                            </div>
+                            <AssigneeAvatar user={member} size={18} />
+                            <div className="min-w-0 flex-1 flex flex-col text-left">
+                              <span className="truncate text-xs font-medium text-stone-900 dark:text-stone-100">
+                                {member.name || member.email}
+                              </span>
+                              {member.name && (
+                                <span className="truncate text-[10px] text-stone-500 dark:text-stone-400">
+                                  {member.email}
+                                </span>
+                              )}
+                            </div>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </div>
                   </>
                 )}
-              </SelectContent>
-            </Select>
-            {assigneeFilter !== "ALL" && (
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {selectedAssigneeIds.length > 0 && (
               <button
                 type="button"
-                onClick={() => setAssigneeFilter("ALL")}
+                onClick={() => setSelectedAssigneeIds([])}
                 className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-300/80 bg-white text-stone-600 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white"
                 title="Clear assignee filter"
                 aria-label="Clear assignee filter"
