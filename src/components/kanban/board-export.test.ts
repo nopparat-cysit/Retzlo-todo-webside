@@ -3,6 +3,20 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Board Export System (Excel, CSV, PDF, PNG)", () => {
+  it("prioritizes readability in the export preview controls and layout", () => {
+    const src = readFileSync(
+      join(process.cwd(), "src/components/kanban/board-export-modal.tsx"),
+      "utf8"
+    );
+
+    expect(src).toContain("useState(EXPORT_PREVIEW_DEFAULT_ZOOM)");
+    expect(src).toContain('aria-label="Set preview to actual size"');
+    expect(src).toMatch(/>\s*100%\s*<\/Button>/);
+    expect(src).toContain('aria-label="Fit preview to panel"');
+    expect(src).toContain("lg:grid-cols-[minmax(17rem,0.7fr)_minmax(0,1.3fr)]");
+    expect(src).toContain("m-auto w-max shrink-0");
+  });
+
   it("wires active view into both export entry points and resolves quick visual layout", () => {
     const modalSrc = readFileSync(join(process.cwd(), "src/components/kanban/board-export-modal.tsx"), "utf8");
     const boardSrc = readFileSync(join(process.cwd(), "src/components/kanban/board.tsx"), "utf8");

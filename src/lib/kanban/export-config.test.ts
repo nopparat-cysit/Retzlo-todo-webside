@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   adjustExportPreviewZoom,
   clampExportPreviewZoom,
+  EXPORT_PREVIEW_DEFAULT_ZOOM,
   getExportPreviewFitZoom,
   resolveExportSelection
 } from "@/lib/kanban/export-config";
@@ -49,6 +50,10 @@ describe("resolveExportSelection", () => {
 });
 
 describe("export preview zoom", () => {
+  it("opens at a readable near-size zoom by default", () => {
+    expect(EXPORT_PREVIEW_DEFAULT_ZOOM).toBe(0.9);
+  });
+
   it("keeps preview zoom within the accessible viewing range", () => {
     expect(clampExportPreviewZoom(0.1)).toBe(0.25);
     expect(clampExportPreviewZoom(3)).toBe(1.8);

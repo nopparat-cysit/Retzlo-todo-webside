@@ -48,6 +48,7 @@ import type { ExportCardRow } from "@/lib/kanban/export-board";
 import { BoardExportDocument } from "@/components/kanban/board-export-document";
 import {
   adjustExportPreviewZoom,
+  EXPORT_PREVIEW_DEFAULT_ZOOM,
   EXPORT_PREVIEW_ZOOM_MAX,
   EXPORT_PREVIEW_ZOOM_MIN,
   getExportPreviewFitZoom,
@@ -127,7 +128,7 @@ export function BoardExportModal({
   const [exportLayout, setExportLayout] = useState<ExportLayout>(currentView);
   const [exportTheme, setExportTheme] = useState<ExportTheme>("light");
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>("pdf");
-  const [previewZoom, setPreviewZoom] = useState(0.7);
+  const [previewZoom, setPreviewZoom] = useState(EXPORT_PREVIEW_DEFAULT_ZOOM);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [previewViewport, setPreviewViewport] = useState({ width: 0, height: 0 });
@@ -138,7 +139,7 @@ export function BoardExportModal({
     setExportScope(isFiltered ? "filtered" : "all");
     setExportLayout(currentView);
     setSelectedFormat("pdf");
-    setPreviewZoom(0.7);
+    setPreviewZoom(EXPORT_PREVIEW_DEFAULT_ZOOM);
     setIsExpanded(false);
 
     const frame = window.requestAnimationFrame(() => dialogTitleRef.current?.focus());
@@ -307,7 +308,7 @@ export function BoardExportModal({
     "flex w-full flex-col overflow-hidden rounded-none border border-theme-border bg-theme-background text-theme-foreground shadow-2xl sm:rounded-2xl",
     isExpanded
       ? "m-2 h-[calc(100dvh-1rem)] max-h-none max-w-none sm:m-3 sm:h-[calc(100dvh-1.5rem)]"
-      : "h-[90dvh] max-h-[100dvh] max-w-[1320px] sm:max-h-[calc(100dvh-2rem)]"
+      : "h-[90dvh] max-h-[100dvh] max-w-[1480px] sm:max-h-[calc(100dvh-2rem)]"
   );
 
   return (
@@ -384,8 +385,8 @@ export function BoardExportModal({
           </button>
         </header>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(19rem,0.82fr)_minmax(0,1.18fr)] lg:overflow-hidden">
-          <section aria-label="Export settings" className="min-h-0 space-y-5 p-4 sm:p-5 lg:overflow-y-auto">
+        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(17rem,0.7fr)_minmax(0,1.3fr)] lg:overflow-hidden">
+          <section aria-label="Export settings" className="min-h-0 space-y-4 p-4 sm:p-5 lg:overflow-y-auto">
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
                 <h3 className="text-sm font-semibold">Choose a format</h3>
@@ -588,13 +589,25 @@ export function BoardExportModal({
                 <Button
                   type="button"
                   variant="ghost"
-                  size="icon"
-                  className={previewToolbarButtonClass}
+                  size="sm"
+                  className="h-8 rounded-lg px-2 text-[11px] font-semibold text-theme-muted hover:bg-theme-paper-strong hover:text-theme-foreground focus-visible:ring-offset-theme-panel"
+                  onClick={() => setPreviewZoom(1)}
+                  aria-label="Set preview to actual size"
+                  title="Actual size"
+                >
+                  100%
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 rounded-lg px-2 text-[11px] font-semibold text-theme-muted hover:bg-theme-paper-strong hover:text-theme-foreground focus-visible:ring-offset-theme-panel"
                   onClick={fitPreview}
                   aria-label="Fit preview to panel"
-                  title="Fit preview"
+                  title="Fit page"
                 >
-                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                  <RotateCcw className="mr-1 h-3.5 w-3.5" aria-hidden="true" />
+                  Fit
                 </Button>
                 <span className="mx-1 h-5 w-px bg-theme-border" aria-hidden="true" />
                 <Button
@@ -616,11 +629,15 @@ export function BoardExportModal({
 
             <div
               ref={previewScrollRef}
-              className="min-h-0 flex-1 overflow-auto overscroll-contain p-3 sm:p-4"
+              className="min-h-0 flex flex-1 flex-col overflow-auto overscroll-contain bg-theme-background/45 p-3 sm:p-4 lg:p-5"
               tabIndex={0}
               aria-label="Scrollable export preview"
             >
-              <div ref={previewContentRef} style={{ zoom: previewZoom, width: "max-content" }}>
+              <div
+                ref={previewContentRef}
+                className="m-auto w-max shrink-0 overflow-hidden rounded-xl border border-theme-border bg-theme-background shadow-xl ring-1 ring-black/5"
+                style={{ zoom: previewZoom, width: "max-content" }}
+              >
                 {currentCount === 0 ? (
                   <div className="grid min-h-[360px] w-[min(80vw,520px)] place-items-center rounded-xl border border-dashed border-theme-border bg-theme-background p-6 text-center">
                     <div className="max-w-sm">

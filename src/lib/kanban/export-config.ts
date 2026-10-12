@@ -30,6 +30,7 @@ export type ExportSelection = VisualExportSelection | DataExportSelection;
 export const EXPORT_PREVIEW_ZOOM_MIN = 0.25;
 export const EXPORT_PREVIEW_ZOOM_MAX = 1.8;
 export const EXPORT_PREVIEW_ZOOM_STEP = 0.1;
+export const EXPORT_PREVIEW_DEFAULT_ZOOM = 0.9;
 
 export function clampExportPreviewZoom(zoom: number): number {
   const bounded = Math.min(EXPORT_PREVIEW_ZOOM_MAX, Math.max(EXPORT_PREVIEW_ZOOM_MIN, zoom));

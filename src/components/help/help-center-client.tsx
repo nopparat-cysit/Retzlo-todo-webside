@@ -682,7 +682,7 @@ export const TOPICS_EN: GuideTopic[] = [
       "Quick Export: PDF/PNG follows the active Kanban or Table view; quick spreadsheet exports contain task rows.",
       "Live Preview: The export dialog previews the selected PDF/PNG document or a read-only Excel/CSV sheet sample from the same prepared rows as the download.",
       "Layout and Theme Options: PDF/PNG can use Full Panoramic Kanban or Executive Table with Clean Light Paper or Dark Slate styling.",
-      "Preview Controls: Zoom, fit, expand/restore in place, and scroll through wide or tall previews. Empty scopes explain why there is no preview and disable download.",
+      "Preview Controls: Opens at a larger 90% zoom; choose 100% for actual size, Fit to see the full page, or zoom and scroll through wide or tall previews. Empty scopes explain why there is no preview and disable download.",
       "Multi-Page A4 PDF: Automatic pagination prevents awkward breaks across large deliverables.",
       "Retina PNG (2x): Ultra-sharp imagery suitable for executive slide decks.",
       "Excel & UTF-8 CSV: Fully formatted spreadsheets with proper column widths and character encoding.",
@@ -701,7 +701,7 @@ export const TOPICS_EN: GuideTopic[] = [
       {
         step: "03",
         title: "Live Preview & Download",
-        desc: "Review the live preview beside the settings. Zoom, fit, expand or restore the dialog, then download the selected format.",
+        desc: "Review the larger live preview beside the settings. Choose 100% for actual size or Fit to see the full page, then zoom, expand or restore the dialog and download.",
       },
     ],
     technicalSpecs: [
@@ -1411,7 +1411,7 @@ export const TOPICS_TH: GuideTopic[] = [
       "ส่งออกด่วน: PDF/PNG ใช้มุมมอง Kanban หรือ Table ที่เปิดอยู่ ส่วน Excel/CSV ส่งออกเป็นแถวข้อมูลการ์ด",
       "Live Preview: หน้าต่างส่งออกแสดงเอกสาร PDF/PNG หรือตัวอย่างชีต Excel/CSV แบบอ่านอย่างเดียวจากแถวชุดเดียวกับไฟล์ดาวน์โหลด",
       "ตัวเลือกเลย์เอาต์และธีม: PDF/PNG เลือกภาพบอร์ดเต็มแผ่น (Full Panoramic Kanban) หรือตารางรายงาน (Executive Table) พร้อมธีม Clean Light Paper หรือ Dark Slate",
-      "ตัวควบคุม Preview: ซูม, Fit, ขยาย/คืนขนาดหน้าต่าง และเลื่อนดูตัวอย่างกว้างหรือยาวได้ หากไม่พบการ์ดในขอบเขตที่เลือกจะแสดงคำอธิบายและปิดปุ่มดาวน์โหลด",
+      "ตัวควบคุม Preview: เริ่มที่ขนาด 90% เพื่อให้อ่านง่ายขึ้น; กด 100% เพื่อดูขนาดจริง หรือ Fit เพื่อดูทั้งหน้า แล้วซูมหรือเลื่อนดูตัวอย่างกว้าง/ยาวได้ พร้อมขยาย/คืนขนาดหน้าต่าง หากไม่มีการ์ดจะแสดงคำอธิบายและปิดปุ่มดาวน์โหลด",
       "PDF (.pdf): จัดหน้า A4 แนวนอนอัตโนมัติ พร้อมระบบตัดแบ่งหน้าหลายแผ่น (Multi-page Pagination) เมื่อเอกสารมีความยาวสูง",
       "PNG (.png): บันทึกภาพความละเอียดสูงระดับ 2x Retina ชัดเจนทุกตัวอักษร เหมาะสำหรับใส่สไลด์นำเสนอ",
       "Excel (.xlsx) & CSV (.csv): สเปรดชีตจัดรูปแบบสมบูรณ์และไฟล์ UTF-8 BOM ภาษาไทยไม่เพี้ยน 100%",
