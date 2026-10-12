@@ -14,10 +14,14 @@
 - [`src/components/kanban/board-activity-drawer.tsx`](file:///c:/Users/Nopparat/Documents/Todo/src/components/kanban/board-activity-drawer.tsx):
   - Portaled slide-over drawer to `document.body` via `<ModalPortal>` with `z-[300]`, resolving stacking-context occlusion by the app topbar and floating action button.
   - Added background body scroll lock when drawer is active and added `cursor-pointer` to close button.
+- [`src/components/kanban/archived-cards-modal.tsx`](file:///c:/Users/Nopparat/Documents/Todo/src/components/kanban/archived-cards-modal.tsx):
+  - Moved width and background styling from the overlay wrapper to `contentClassName`, fixing the backdrop coverage bug where the right third of the screen was left un-dimmed.
+  - Added solid opaque retro lofi dark background (`bg-white/98 dark:bg-[#0e1025]`), rounded borders (`rounded-2xl`), and elevation shadow (`shadow-2xl`), resolving transparency bleed-through where cards behind the modal were visible through the modal body.
 
 ## Important Behavior Changes
 - **No Lost Functionality**: All features (Activity Drawer, Archive Modal, Board Attributes Modal, Export Modal, Density switching, Quick Filters) remain fully operational and easily accessible.
 - **Drawer Z-Index & Header Accessibility**: The Activity Log drawer now displays cleanly above all navigation bars and overlays with unobstructed header title, live badge, filter chips, and close button.
+- **Archived Cards Modal Presentation**: The modal now features 100% full-screen dimming and blur backdrop, solid retro lofi panel surface with zero card bleed-through, and centered dialog positioning.
 - **Improved Visual Hierarchy**: Clear distinction between informational metrics (Total/Prog/Done/Overdue), primary navigation/density controls, primary action (`+ Column`), and secondary settings (`•••` menu).
 - **Responsive Adaptability**: On tablet and smaller screens, the header gracefully prevents horizontal overflow and wraps without visual clashing.
 

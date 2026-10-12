@@ -115,7 +115,7 @@ export function ArchivedCardsModal({
       <AppModal
         open={open}
         onClose={onClose}
-        className="max-w-2xl"
+        contentClassName="max-w-2xl w-full mx-auto overflow-hidden rounded-2xl border border-stone-200/80 bg-white/98 text-stone-900 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[#0e1025] dark:text-stone-100"
         labelledBy="archived-cards-modal-title"
       >
         <div className="flex h-full max-h-[85vh] flex-col overflow-hidden">
@@ -140,7 +140,8 @@ export function ArchivedCardsModal({
             <button
               type="button"
               onClick={onClose}
-              className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 transition hover:bg-stone-100 hover:text-stone-600 dark:text-stone-500 dark:hover:bg-white/10 dark:hover:text-stone-200"
+              aria-label="Close archived cards modal"
+              className="grid h-8 w-8 place-items-center rounded-lg text-stone-400 transition hover:bg-stone-100 hover:text-stone-600 dark:text-stone-500 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -264,7 +265,7 @@ export function ArchivedCardsModal({
           {/* Footer */}
           <div className="flex items-center justify-between border-t border-stone-200/70 p-4 text-xs text-stone-500 dark:border-white/10 dark:text-stone-400">
             <span>{cards.length} card{cards.length === 1 ? "" : "s"} archived</span>
-            <Button type="button" variant="ghost" onClick={onClose}>
+            <Button type="button" variant="ghost" onClick={onClose} className="cursor-pointer">
               Close
             </Button>
           </div>
