@@ -12,7 +12,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { AlertCircle, CheckSquare, Coins, GripVertical, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
+import { AlertCircle, Archive, CheckSquare, Coins, GripVertical, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { playCardCreateSound } from "@/lib/sound";
@@ -26,6 +26,8 @@ import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { RetroStickerPicker } from "@/components/ui/retro-sticker-picker";
 import { AssigneePicker } from "./assignee-picker";
 import { CardChatTimeline } from "@/components/kanban/card-chat-timeline";
+import { CardAttachmentsSection } from "./card-attachments-section";
+import type { CardAttachmentItem } from "@/types/kanban";
 import { AiBreakdownModal } from "@/components/ai/ai-breakdown-modal";
 import { getAiAuthHeaders } from "@/lib/ai/client-key";
 import { useFormDraft } from "@/hooks/use-form-draft";
@@ -54,6 +56,8 @@ interface CardModalProps {
   open: boolean;
   onClose: () => void;
   onDelete?: () => Promise<void>;
+  onArchive?: () => Promise<void>;
+  onAttachmentsChange?: (attachments: CardAttachmentItem[]) => void;
   footerAction?: ReactNode;
   members?: CardAssignee[];
   currentUserId?: string;
@@ -128,6 +132,8 @@ export function CardModal({
   open,
   onClose,
   onDelete,
+  onArchive,
+  onAttachmentsChange,
   footerAction,
   members = [],
   currentUserId,
@@ -139,6 +145,17 @@ export function CardModal({
   const router = useRouter();
   const params = useParams();
   const activeProjectId = projectId || (params?.id as string) || "";
+
+  const [attachments, setAttachments] = useState<CardAttachmentItem[]>(() => card?.attachments || []);
+
+  useEffect(() => {
+    setAttachments(card?.attachments || []);
+  }, [card?.attachments, card?.id]);
+
+  const handleAttachmentsChange = useCallback((nextAttachments: CardAttachmentItem[]) => {
+    setAttachments(nextAttachments);
+    onAttachmentsChange?.(nextAttachments);
+  }, [onAttachmentsChange]);
 
   const [startDate, setStartDate] = useState(startDateValue(card));
   const [startTime, setStartTime] = useState(startTimeValue(card));
@@ -992,6 +1009,15 @@ export function CardModal({
           </div>
 
           {mode === "edit" && card?.id ? (
+            <CardAttachmentsSection
+              cardId={card.id}
+              attachments={attachments}
+              onAttachmentsChange={handleAttachmentsChange}
+              disabled={isSaving}
+            />
+          ) : null}
+
+          {mode === "edit" && card?.id ? (
             <CardChatTimeline
               cardId={card.id}
               currentUserId={activeUserId ?? currentUserId ?? undefined}
@@ -1235,6 +1261,17 @@ export function CardModal({
 
         <div className="flex shrink-0 flex-wrap sm:flex-nowrap justify-end gap-2 border-t border-white/10 p-3.5 sm:p-5 pb-safe">
           {footerAction}
+          {mode === "edit" && onArchive ? (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onArchive}
+              className="gap-1.5 text-xs"
+            >
+              <Archive className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              Archive
+            </Button>
+          ) : null}
           {mode === "edit" && onDelete ? (
             <Button type="button" variant="danger" onClick={onDelete}>
               <Trash2 className="h-4 w-4" />

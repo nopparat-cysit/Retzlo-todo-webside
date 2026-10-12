@@ -265,7 +265,7 @@ export function AdminDashboardClient({
           >
             <RefreshCw className={cn("h-4 w-4", (isLoading || isPending) && "animate-spin")} />
           </button>
-          <ThemeToggle variant="header" />
+          <ThemeToggle variant="icon" />
           <div className="hidden text-right sm:block">
             <p className="text-xs font-bold leading-none">{currentAdminName || "Administrator"}</p>
             <p className="mt-0.5 text-[10px] text-stone-500 dark:text-stone-400">{currentAdminEmail}</p>

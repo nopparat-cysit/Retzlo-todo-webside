@@ -2,7 +2,7 @@
 
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
-import { CalendarClock, CheckSquare, Clock, Star, Zap } from "lucide-react";
+import { CalendarClock, CheckSquare, Clock, Paperclip, Star, Zap } from "lucide-react";
 import { memo, useEffect, useState } from "react";
 
 import { AssigneeStack } from "@/components/kanban/assignee-avatar";
@@ -203,6 +203,16 @@ function KanbanCardComponent({
               <span className="inline-flex items-center gap-0.5 rounded-md border border-teal-200 bg-teal-50 px-1.5 py-0.2 text-[10px] font-medium text-teal-700 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
                 <CheckSquare className="h-2.5 w-2.5" />
                 {completedChecklist}/{card.checklist.length}
+              </span>
+            ) : null}
+
+            {card.attachments && card.attachments.length > 0 ? (
+              <span
+                className="inline-flex items-center gap-0.5 rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-0.2 text-[10px] font-medium text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                title={`${card.attachments.length} attachment${card.attachments.length === 1 ? "" : "s"}`}
+              >
+                <Paperclip className="h-2.5 w-2.5" />
+                {card.attachments.length}
               </span>
             ) : null}
 

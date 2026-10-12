@@ -288,3 +288,19 @@ A dedicated Super Admin Portal (`/admin-vault-9f8e`) provides platform-wide admi
   - **System Health**: Connection diagnostics for Neon PostgreSQL, Pusher WebSockets, and runtime environment.
 - **Admin Entry Point**: When logged in with an ADMIN account, `UserProfilePopover` displays a prominent "Admin Portal" shortcut.
 
+### 2026-10-12 — Phase 2: Card Archive, Activity Trail & Attachments
+- **Card Archive / Soft Delete**:
+  - Cards can be archived directly from the Card Modal via the "Archive" action with an intent `ConfirmModal`.
+  - Archived cards are automatically excluded from active board columns and preserved in the board archive.
+  - An "Archive" toolbar button opens `ArchivedCardsModal`, enabling users to search, restore cards back to their board columns, or permanently delete them with a danger `ConfirmModal`.
+- **Real-Time Board Activity Log & Audit Trail**:
+  - Automatically records board-level actions including `CARD_CREATED`, `CARD_MOVED`, `CARD_UPDATED`, `CARD_ARCHIVED`, `CARD_RESTORED`, `CARD_DELETED`, `ATTACHMENT_ADDED`, and `ATTACHMENT_REMOVED`.
+  - An "Activity" toolbar button opens `BoardActivityDrawer` with live WebSocket streaming via Pusher channels (`retzlo-board-[id]-activity`).
+  - Supports filter chips (All, Moves, Cards, Archive, Files) and color-coded action badges with user avatar and relative timestamps.
+- **Card Attachments**:
+  - Full support for file uploads (images, PDFs, documents) via Cloudinary and external web links directly in `CardModal`.
+  - Displays thumbnail previews for image files and formatted file size / date metadata.
+  - Safe removal with `ConfirmModal` verification and instant visual toast feedback.
+  - Kanban card surface displays a `Paperclip` badge indicator with total attachment count.
+
+

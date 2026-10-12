@@ -1,4 +1,3 @@
-import { ReactNode } from "next/navigation";
 import { notFound } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin-auth";

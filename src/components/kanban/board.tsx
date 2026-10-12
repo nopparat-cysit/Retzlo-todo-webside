@@ -11,7 +11,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X, Zap } from "lucide-react";
+import { Archive, ArrowUpDown, CalendarClock, Check, CheckSquare, Edit3, FileText, Flag, History, KanbanSquare, LayoutGrid, ListFilter, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X, Zap } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -21,6 +21,8 @@ import { BoardListView } from "@/components/kanban/board-list-view";
 import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
 import { AiProjectSummaryModal } from "@/components/ai/ai-project-summary-modal";
 import { BoardExportButton } from "@/components/kanban/board-export-modal";
+import { ArchivedCardsModal } from "@/components/kanban/archived-cards-modal";
+import { BoardActivityDrawer } from "@/components/kanban/board-activity-drawer";
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
 import { KanbanColumn } from "@/components/kanban/column";
 import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
@@ -122,6 +124,10 @@ export function KanbanBoard({
   const [editingCard, setEditingCard] = useState<Card | null>(null);
   const [cardToDelete, setCardToDelete] = useState<Card | null>(null);
   const [isDeletingCard, setIsDeletingCard] = useState(false);
+  const [cardToArchive, setCardToArchive] = useState<Card | null>(null);
+  const [isArchivingCard, setIsArchivingCard] = useState(false);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isActivityDrawerOpen, setIsActivityDrawerOpen] = useState(false);
   const [isAiSummaryOpen, setIsAiSummaryOpen] = useState(false);
   const [columns, setColumns] = useState(() => board.columns.map((col) => normalizeColumn(col, members)));
 
@@ -1271,6 +1277,30 @@ export function KanbanBoard({
               </button>
             )}
 
+            {/* Activity Log Button */}
+            <button
+              type="button"
+              onClick={() => setIsActivityDrawerOpen(true)}
+              className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
+              title="View real-time audit trail and activity log"
+              aria-label="Board activity log"
+            >
+              <History className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+              <span className="hidden sm:inline">Activity</span>
+            </button>
+
+            {/* Archive Button */}
+            <button
+              type="button"
+              onClick={() => setIsArchiveModalOpen(true)}
+              className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
+              title="View and restore archived cards"
+              aria-label="Archived cards"
+            >
+              <Archive className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+              <span className="hidden sm:inline">Archive</span>
+            </button>
+
             {/* Export Board Button (Excel, CSV, PDF, PNG) */}
             <BoardExportButton
               currentView={currentView}
@@ -1734,6 +1764,18 @@ export function KanbanBoard({
           boardId={board.id}
           projectId={board.projectId}
           boardPriorities={boardPriorities}
+          onArchive={async () => {
+            const toArchive = editingCard;
+            setEditingCard(null);
+            setCardToArchive(toArchive);
+          }}
+          onAttachmentsChange={(attachments) => {
+            if (editingCard) {
+              const updated = { ...editingCard, attachments };
+              saveCard(updated);
+              setEditingCard(updated);
+            }
+          }}
           onDelete={async () => {
             const toDelete = editingCard;
             setEditingCard(null);
@@ -1756,6 +1798,54 @@ export function KanbanBoard({
           }}
         />
       )}
+
+      {/* Archive Card Confirmation Modal */}
+      <ConfirmModal
+        open={Boolean(cardToArchive)}
+        title="Archive card"
+        message={`Are you sure you want to archive "${cardToArchive?.title}"? You can restore it anytime from the board archive.`}
+        confirmLabel="Archive card"
+        variant="default"
+        isLoading={isArchivingCard}
+        onConfirm={async () => {
+          if (!cardToArchive) return;
+          setIsArchivingCard(true);
+          try {
+            const response = await fetch(`/api/cards/${cardToArchive.id}/archive`, {
+              method: "POST"
+            });
+            if (response.ok) {
+              deleteCard(cardToArchive.id);
+              setCardToArchive(null);
+              toast({ message: "Card archived.", type: "success" });
+            } else {
+              const data = await response.json().catch(() => ({}));
+              toast({ message: data.error ?? "Could not archive card.", type: "error" });
+            }
+          } finally {
+            setIsArchivingCard(false);
+          }
+        }}
+        onClose={() => setCardToArchive(null)}
+      />
+
+      {/* Archived Cards Modal */}
+      <ArchivedCardsModal
+        open={isArchiveModalOpen}
+        onClose={() => setIsArchiveModalOpen(false)}
+        boardId={board.id}
+        onRestoreCard={(card) => {
+          saveCard(card);
+        }}
+      />
+
+      {/* Real-time Board Activity Drawer */}
+      <BoardActivityDrawer
+        open={isActivityDrawerOpen}
+        onClose={() => setIsActivityDrawerOpen(false)}
+        boardId={board.id}
+        boardTitle={board.name}
+      />
 
       <ConfirmModal
         open={Boolean(cardToDelete)}

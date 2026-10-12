@@ -203,7 +203,10 @@ Marketing home คงฉากหลังแบบ dark brand scene; ข้อ�
 | Settings | `src/app/(dashboard)/project/[id]/settings` | ตรวจภาพ light/dark desktop; mobile light 390x844; source | ไม่มี document-level overflow ที่ 390px; theme controls, forms, feature panels ดูสม่ำเสมอในภาพที่เห็น |
 | AI Chat widget | `src/components/ai/ai-chat-widget.tsx` | ตรวจภาพ local 1280×720: Light side panel; Dark float และ side panel; ตรวจ source ของร่างสร้างการ์ดและ ConfirmModal | Launcher, welcome/assistant bubble, quick prompts, input และ controls อ่านได้ทั้งสองธีม; UI ยืนยันสร้างการ์ดใช้ semantic tokens แต่ยังไม่ได้เปิดภาพ state นี้; context/credit banner ยังไม่ยืนยันด้วยภาพเพราะ local DB ใช้งานไม่ได้; mobile/focus ยังเหลือ |
 | Shared overlay/status UI | `src/components/ui/` | ตรวจ source; Design System light visual หลัง implementation สำหรับ error/success/card samples, modal, toast; profile menu light/dark | Status tokens ใช้กับ shared states, Button, ConfirmModal และ toast; tooltip, keyboard focus, skeleton และทุก destructive state ยังต้องไล่ visual เพิ่ม |
-| Card attributes edit modal | `src/components/kanban/card-attributes-edit-modal.tsx`, `src/components/kanban/card-modal.tsx` | ตรวจ source, vitest unit tests, tsc, lint, และ build ผ่าน; รองรับ 3 tabs (Status, Priority, Story Points) | ใช้ semantic modal tokens, retro lofi color swatches, ConfirmModal, และ responsive tabs |
+| Super Admin Portal | `src/app/(admin)/admin-vault-9f8e`, `src/components/admin/admin-dashboard-client.tsx` | ตรวจ source, tsc, lint, build ผ่าน | รองรับ light/dark/system ผ่าน ThemeToggle, retro lofi slate/indigo palette, badges และ status dots |
+| Card Archive & Trash bin | `src/components/kanban/archived-cards-modal.tsx` | ตรวจ source, tsc, lint, build ผ่าน | AppModal, retro lofi palette, ConfirmModal for permanent deletion |
+| Board Activity Log drawer | `src/components/kanban/board-activity-drawer.tsx` | ตรวจ source, tsc, lint, build ผ่าน | Slide-over drawer, retro lofi timeline, color-coded badges, dark/light backdrop |
+| Card Attachments section | `src/components/kanban/card-attachments-section.tsx` | ตรวจ source, tsc, lint, build ผ่าน | CardModal integration, Cloudinary thumbnail preview, ConfirmModal deletion |
 | โมดูล/หน้าที่เพิ่มในอนาคต | เพิ่ม pathจริงเมื่อสร้าง | ยังไม่มี | ต้องเพิ่มแถวก่อนปิดงาน feature |
 
 ## วิธีบันทึกเมื่อเพิ่มหน้า/ส่วน UI ใหม่
@@ -679,4 +682,11 @@ Template:
 - Coverage: `/admin-vault-9f8e` layout and client dashboard (`src/components/admin/admin-dashboard-client.tsx`). Consumes existing semantic theme tokens for surface, border, text, and retro lofi indigo styling across light and dark modes.
 - Shared primitive impact: `UserProfilePopover` adds an admin-only portal link when session globalRole is ADMIN. No shared tokens or palette definitions changed.
 - 3-tier defense cloaking: unauthorized visits to `/admin` and `/admin-vault-9f8e` trigger 404 Not Found deception response.
+
+### 2026-10-12 — Phase 2: Card Archive, Activity Trail & Attachments
+- Coverage: `ArchivedCardsModal`, `BoardActivityDrawer`, and `CardAttachmentsSection` in `src/components/kanban/`.
+- UI & Tokens: Uses standard `AppModal`, responsive slide-over drawer with backdrop, and semantic theme tokens (`border-stone-200` / `dark:border-white/10`, `bg-stone-50` / `dark:bg-ink-950`, retro lofi indigo & lavender accents).
+- Intent Verification: Delete permanently and remove attachment operations require `ConfirmModal`.
+- Toast Feedback: All archive, restore, upload, and remove actions fire instant success or error toasts.
+
 

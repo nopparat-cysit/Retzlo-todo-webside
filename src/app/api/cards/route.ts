@@ -13,6 +13,7 @@ import {
   requireUserId
 } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { logBoardActivity } from "@/lib/kanban/activity-logger";
 import { processCardDonePayouts } from "@/lib/kanban/payout";
 import { serializeCard } from "@/lib/kanban/serialize-card";
 import { normalizeRetroStickerSelection } from "@/lib/stickers/retro-stickers";
@@ -189,6 +190,16 @@ export async function POST(request: Request) {
       "retzlo:sync",
       { action: "CARD_CREATED", cardId: card.id, senderId: userId }
     );
+
+    if (targetColumn?.boardId) {
+      void logBoardActivity({
+        boardId: targetColumn.boardId,
+        userId,
+        cardId: card.id,
+        action: "CARD_CREATED",
+        details: { cardTitle: card.title, columnId: payload.columnId }
+      });
+    }
 
     const newAssignees = (payload.assigneeIds || []).filter((id) => id !== userId);
     if (newAssignees.length > 0) {
@@ -367,6 +378,16 @@ export async function PATCH(request: Request) {
       { action: "CARD_UPDATED", cardId: card.id, senderId: userId }
     );
 
+    if (card.column?.boardId) {
+      void logBoardActivity({
+        boardId: card.column.boardId,
+        userId,
+        cardId: card.id,
+        action: "CARD_UPDATED",
+        details: { cardTitle: card.title, status: card.status, priority: card.priority }
+      });
+    }
+
     if (newlyAssignedRecipients.length > 0) {
       try {
         const updater = await prisma.user.findUnique({
@@ -438,6 +459,7 @@ export async function DELETE(request: Request) {
     const card = await prisma.card.delete({
       where: { id: parsedCardId.data },
       select: {
+        title: true,
         columnId: true,
         column: { select: { boardId: true } }
       }
@@ -462,6 +484,16 @@ export async function DELETE(request: Request) {
       "retzlo:sync",
       { action: "CARD_DELETED", cardId: parsedCardId.data, senderId: userId }
     );
+
+    if (card.column?.boardId) {
+      void logBoardActivity({
+        boardId: card.column.boardId,
+        userId,
+        cardId: parsedCardId.data,
+        action: "CARD_DELETED",
+        details: { cardTitle: card.title }
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

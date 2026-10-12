@@ -36,8 +36,44 @@ export interface Card {
   difficulty?: DifficultyScore | null;
   assigneeIds?: string[];
   assignees?: CardAssignee[];
+  isArchived?: boolean;
+  archivedAt?: string | null;
+  attachments?: CardAttachmentItem[];
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface CardAttachmentItem {
+  id: string;
+  cardId: string;
+  userId: string;
+  name: string;
+  url: string;
+  size?: number | null;
+  fileType?: string | null;
+  createdAt: string;
+  user?: {
+    id: string;
+    name: string | null;
+    email: string;
+    avatar?: string | null;
+  };
+}
+
+export interface BoardActivityItem {
+  id: string;
+  boardId: string;
+  userId: string;
+  cardId?: string | null;
+  action: string;
+  details?: Record<string, unknown> | null;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string | null;
+    email: string;
+    avatar?: string | null;
+  };
 }
 
 export type CardStatus = "TODO" | "DOING" | "WAITING" | "DONE" | string;

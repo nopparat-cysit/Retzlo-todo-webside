@@ -50,6 +50,21 @@ export function serializeCard<T extends {
     stickers: normalizeRetroStickerSelection(stickers),
     difficulty: extractDifficulty(card.privateCoins),
     assigneeIds: extractAssigneeIds(card.privateCoins),
+    isArchived: Boolean((rest as { isArchived?: boolean }).isArchived),
+    archivedAt: (rest as { archivedAt?: Date | string | null }).archivedAt
+      ? new Date((rest as { archivedAt?: Date | string | null }).archivedAt!).toISOString()
+      : null,
+    attachments: Array.isArray((rest as { attachments?: unknown[] }).attachments)
+      ? ((rest as { attachments?: any[] }).attachments!.map((att) => ({
+          ...att,
+          createdAt:
+            att.createdAt instanceof Date
+              ? att.createdAt.toISOString()
+              : typeof att.createdAt === "string"
+                ? att.createdAt
+                : new Date(att.createdAt).toISOString()
+        })))
+      : [],
     createdAt: (rest as { createdAt?: Date | string }).createdAt
       ? new Date((rest as { createdAt?: Date | string }).createdAt!).toISOString()
       : undefined,

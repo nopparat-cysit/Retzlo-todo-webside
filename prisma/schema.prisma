@@ -42,6 +42,8 @@ model User {
   coffeeBrews     CoffeeBrew[]
   boardMemberships BoardMember[]
   cardComments    CardComment[]
+  boardActivities BoardActivity[]
+  cardAttachments CardAttachment[]
 }
 
 model Project {
@@ -118,6 +120,7 @@ model Board {
   columns          Column[]
   members          BoardMember[]
   notes            Note[]
+  activities       BoardActivity[]
 
   @@index([projectId])
 }
@@ -167,14 +170,49 @@ model Card {
   rewardCoins   Int       @default(0)
   privateCoins  Json?
   stickers      Json?
+  isArchived    Boolean   @default(false)
+  archivedAt    DateTime?
   columnId      String
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   column        Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
   comments      CardComment[]
+  attachments   CardAttachment[]
 
   @@index([columnId, position])
+  @@index([columnId, isArchived])
   @@index([dueDate])
+}
+
+model BoardActivity {
+  id        String   @id @default(uuid())
+  boardId   String
+  userId    String
+  cardId    String?
+  action    String
+  details   Json?
+  createdAt DateTime @default(now())
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([boardId, createdAt])
+  @@index([userId])
+}
+
+model CardAttachment {
+  id        String   @id @default(uuid())
+  cardId    String
+  userId    String
+  name      String
+  url       String
+  size      Int?
+  fileType  String?
+  createdAt DateTime @default(now())
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([cardId, createdAt])
+  @@index([userId])
 }
 
 model CardComment {

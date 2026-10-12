@@ -6,6 +6,7 @@ import { processCardDonePayouts } from "@/lib/kanban/payout";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { logBoardActivity } from "@/lib/kanban/activity-logger";
 
 const reorderCardsSchema = z.object({
   cardId: z.string().uuid(),
@@ -37,6 +38,9 @@ export async function PATCH(request: Request) {
     }
 
     let targetBoardId: string | null = null;
+    let movedCardTitle: string = "";
+    let destinationColName: string = "";
+    let sourceColName: string = "";
 
     await prisma.$transaction(async (tx) => {
       const columns = await tx.column.findMany({
@@ -44,7 +48,7 @@ export async function PATCH(request: Request) {
           id: { in: [payload.sourceColumnId, payload.destinationColumnId] },
           board: { projectId }
         },
-        select: { id: true }
+        select: { id: true, name: true }
       });
 
       if (columns.length !== (payload.sourceColumnId === payload.destinationColumnId ? 1 : 2)) {
@@ -61,8 +65,17 @@ export async function PATCH(request: Request) {
       }
 
       targetBoardId = destinationColumn.boardId;
+      destinationColName = destinationColumn.name;
+      const sourceColumn = columns.find((c) => c.id === payload.sourceColumnId);
+      sourceColName = sourceColumn?.name || "";
 
       if (payload.sourceColumnId !== payload.destinationColumnId) {
+        const movedCard = await tx.card.findUnique({
+          where: { id: payload.cardId },
+          select: { title: true }
+        });
+        movedCardTitle = movedCard?.title || "";
+
         if (destinationColumn.defaultCardStatus === "DONE") {
           await processCardDonePayouts(tx, payload.cardId, userId, projectId);
         }
@@ -122,6 +135,20 @@ export async function PATCH(request: Request) {
         "retzlo:sync",
         { action: "CARD_REORDER", cardId: payload.cardId, senderId: userId }
       );
+
+      if (payload.sourceColumnId !== payload.destinationColumnId) {
+        void logBoardActivity({
+          boardId: targetBoardId,
+          userId,
+          cardId: payload.cardId,
+          action: "CARD_MOVED",
+          details: {
+            cardTitle: movedCardTitle,
+            fromColumn: sourceColName,
+            toColumn: destinationColName
+          }
+        });
+      }
     }
 
     return NextResponse.json({ ok: true });

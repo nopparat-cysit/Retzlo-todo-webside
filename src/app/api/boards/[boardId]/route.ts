@@ -58,7 +58,23 @@ export async function GET(_request: Request, { params }: { params: { boardId: st
         orderBy: { position: "asc" },
         include: {
           cards: {
-            orderBy: { position: "asc" }
+            where: { isArchived: false },
+            orderBy: { position: "asc" },
+            include: {
+              attachments: {
+                orderBy: { createdAt: "desc" },
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true,
+                      avatar: true
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

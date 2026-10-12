@@ -531,8 +531,10 @@ export const TOPICS_EN: GuideTopic[] = [
     highlights: [
       "Optimistic Drag & Drop: Instantaneous card transitions without network latency or UI stutter.",
       "Real-time Collaboration: Live card movement updates for all connected project members via Pusher WebSockets.",
+      "Real-time Board Activity Log: Complete audit trail tracking card creation, movements, updates, archives, and attachments in real time.",
+      "Card Archive & Restore: Safely archive cards to a dedicated trash bin with instant restoration back to the board.",
+      "File & Link Attachments: Attach image previews, PDFs, and documents with Cloudinary or add external web links directly to cards.",
       "Column Settings & WIP Limits: Set Work-In-Progress limits on active columns to identify team bottlenecks early.",
-      "Front Sort Handles (⁝⁝): Convenient front drag handles on sidebar items for effortless reordering.",
       "Card Density Switcher (Normal / Compact 2x): Toggle between spacious standard cards and ultra-compact 2x views for dense backlogs.",
     ],
     workflowSteps: [
@@ -1306,8 +1308,10 @@ export const TOPICS_TH: GuideTopic[] = [
     highlights: [
       "Optimistic Drag & Drop: ลากวางการ์ดสลับคอลัมน์หรือเปลี่ยนลำดับได้ทันที ไร้อาการหน่วงหรือกระตุก",
       "Real-time Collaboration: การ์ดขยับและอัปเดตแบบสดๆ ไปยังหน้าจอเพื่อนร่วมทีมทุกคนในโปรเจกต์ด้วย Pusher WebSocket",
+      "Live Activity Log & Audit Trail: บันทึกและแสดงประวัติการกระทำบนบอร์ดแบบเรียลไทม์ (สร้าง, ย้าย, อัปเดต, แนบไฟล์, กู้คืนการ์ด)",
+      "Card Archive (ถังขยะกู้คืนการ์ด): ย้ายการ์ดเข้าคลังจัดเก็บอย่างปลอดภัย พร้อมปุ่มเปิดดูและกู้คืน (Restore) กลับสู่บอร์ดได้ตลอดเวลา",
+      "File & Link Attachments: รองรับการอัปโหลดไฟล์รูปภาพ เอกสาร PDF ผ่าน Cloudinary และแนบลิงก์ภายนอกบนการ์ด",
       "Column Settings & WIP Limit: ปรับเปลี่ยนชื่อคอลัมน์ และกำหนดขีดจำกัดงานระหว่างทำ (WIP Limit) เพื่อป้องกันงานคั่งค้าง",
-      "Sort Handle ด้านหน้า (⁝⁝): จับลากจุดที่ด้านหน้าเมนูในแถบข้างเพื่อจัดลำดับบอร์ดและเครื่องมือตามใจชอบ",
       "Card Density (Normal / Compact 2x): ปุ่มปรับความหนาแน่นของการ์ดระหว่างโหมด Normal (มาตรฐาน) และ Compact 2x (แสดงข้อมูลแน่นขึ้น 2 เท่า)",
     ],
     workflowSteps: [
