@@ -169,6 +169,7 @@ export interface UserProfile {
   avatar: string | null;
   status: string;
   email: string;
+  isAdmin?: boolean;
 }
 
 export function ProjectsDashboard({
@@ -587,6 +588,7 @@ export function ProjectsDashboard({
                       : "bg-stone-500"
                   }
                   variant="avatar"
+                  isAdmin={userProfile.isAdmin}
                 />
               )}
             </div>

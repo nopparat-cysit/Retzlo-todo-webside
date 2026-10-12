@@ -32,8 +32,10 @@ Implement Phase 2 of the platform enhancement roadmap:
 - `src/components/kanban/card.tsx`: Added `Paperclip` attachment badge counter.
 - `src/components/kanban/board.tsx`: Added Activity Log and Archive buttons in toolbar, wired up `ArchivedCardsModal`, `BoardActivityDrawer`, and `cardToArchive` `ConfirmModal`.
 - `src/components/help/help-center-client.tsx`: Updated English & Thai documentation for Kanban features.
-- `docs/system-guide.md`: Appended Phase 2 specifications.
-- `docs/theme-system.md`: Updated coverage matrix and changelog.
+- `src/components/project/user-profile-popover.tsx`: Removed direct `useSession` hook which caused client runtime crashes without `<SessionProvider>`, and switched to explicit `isAdmin` prop passed down from server layouts.
+- `src/components/project/project-shell.tsx`: Extracted `isGlobalAdmin` from server session and passed as `isAdmin` prop to `UserProfilePopover`.
+- `src/components/project/projects-dashboard.tsx`: Passed `isAdmin` prop to `UserProfilePopover`.
+- `src/app/(dashboard)/project/[id]/board/page.tsx`: Filtered `isArchived: false` in server query, included attachments, and mapped cards with `serializeCard` to avoid date serialization issues.
 
 ## Database & Schema Changes
 - `Card`: Added `isArchived Boolean @default(false)`, `archivedAt DateTime?`, `attachments CardAttachment[]`, index `@@index([columnId, isArchived])`.
@@ -48,6 +50,7 @@ Implement Phase 2 of the platform enhancement roadmap:
 - Users can attach files (images, documents, PDFs) or web URLs to cards. Cards with attachments display a paperclip badge with the total attachment count.
 - All destructive operations (permanent deletion, removing attachments) enforce `ConfirmModal` intent confirmation.
 - All CUD operations trigger immediate toast feedback.
+- Fixed "Unable to load dashboard" error boundary trigger caused by `useSession` invocation in `UserProfilePopover`.
 
 ## Verification Commands & Results
 - `npx prisma validate`: Passed (The schema at prisma\schema.prisma is valid 🚀)
@@ -58,4 +61,6 @@ Implement Phase 2 of the platform enhancement roadmap:
 
 ## Follow-ups & Deployment Notes
 - Neon DB schema was pushed and validated.
+- Cloudinary environment variables (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`) are active. If not configured in any local clone, web links are still supported seamlessly.
+
 - Cloudinary environment variables (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`) are active. If not configured in any local clone, web links are still supported seamlessly.

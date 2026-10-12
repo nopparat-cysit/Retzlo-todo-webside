@@ -20,38 +20,13 @@ import { normalizeCardColor } from "@/lib/theme/card-colors";
 import { extractDifficulty } from "@/lib/kanban/difficulty";
 import { extractAssigneeIds, resolveAssignees } from "@/lib/kanban/assignees";
 import { extractStartDate, extractStartDateAllDay } from "@/lib/kanban/due-date";
+import { serializeCard } from "@/lib/kanban/serialize-card";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
 import type { CardAssignee, CardStatus, ChecklistItem, ColumnWithCards } from "@/types/kanban";
 import type { ProjectNote } from "@/types/note";
 
 function toColumns(
-  columns: Array<{
-    id: string;
-    name: string;
-    position: number;
-    color?: string | null;
-    icon?: string | null;
-    defaultCardStatus?: string | null;
-    wipLimit?: number | null;
-    cards: Array<{
-      id: string;
-      title: string;
-      description: string | null;
-      note: string | null;
-      position: number;
-      status: string;
-      color: string;
-      checklist: unknown;
-      dueDate: Date | null;
-      dueDateAllDay: boolean;
-      priority: string;
-      isStarred: boolean;
-      columnId: string;
-      rewardCoins: number;
-      privateCoins: unknown;
-      stickers: unknown;
-    }>;
-  }>,
+  columns: any[],
   members: CardAssignee[] = []
 ): ColumnWithCards[] {
   return columns.map((column) => ({
@@ -62,25 +37,11 @@ function toColumns(
     icon: getColumnIconOption(column.icon).id,
     defaultCardStatus: (column.defaultCardStatus ?? "TODO") as CardStatus,
     wipLimit: column.wipLimit ?? null,
-    cards: column.cards.map((card) => {
-      const assigneeIds = extractAssigneeIds(card.privateCoins);
+    cards: (column.cards || []).map((card: any) => {
+      const serialized = serializeCard(card);
       return {
-        ...card,
-        status: card.status as CardStatus,
-        color: normalizeCardColor(card.color),
-        checklist: Array.isArray(card.checklist) ? (card.checklist as ChecklistItem[]) : [],
-        startDate: extractStartDate(card.privateCoins),
-        startDateAllDay: extractStartDateAllDay(card.privateCoins),
-        dueDate: card.dueDate ? card.dueDate.toISOString() : null,
-        dueDateAllDay: card.dueDateAllDay,
-        priority: card.priority as "LOW" | "MEDIUM" | "HIGH",
-        isStarred: card.isStarred,
-        rewardCoins: card.rewardCoins,
-        privateCoins: card.privateCoins,
-        stickers: Array.isArray(card.stickers) ? (card.stickers as string[]) : [],
-        difficulty: extractDifficulty(card.privateCoins),
-        assigneeIds,
-        assignees: resolveAssignees(assigneeIds, members)
+        ...serialized,
+        assignees: resolveAssignees(serialized.assigneeIds, members)
       };
     })
   }));
@@ -239,7 +200,24 @@ export default async function BoardPage({
           columns: {
             orderBy: { position: "asc" },
             include: {
-              cards: { orderBy: { position: "asc" } }
+              cards: {
+                where: { isArchived: false },
+                include: {
+                  attachments: {
+                    include: {
+                      user: {
+                        select: {
+                          id: true,
+                          name: true,
+                          email: true,
+                          avatar: true
+                        }
+                      }
+                    }
+                  }
+                },
+                orderBy: { position: "asc" }
+              }
             }
           }
         }

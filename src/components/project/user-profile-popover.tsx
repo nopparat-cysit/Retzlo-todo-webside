@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { HelpCircle, LogOut, ShieldCheck, User } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 
 import {
   DropdownMenu,
@@ -23,6 +23,7 @@ interface UserProfilePopoverProps {
   status: string | null | undefined;
   statusColor: string;
   variant?: "avatar" | "card";
+  isAdmin?: boolean;
 }
 
 function statusLabel(status: string | null | undefined) {
@@ -39,9 +40,8 @@ export function UserProfilePopover({
   status,
   statusColor,
   variant = "card",
+  isAdmin = false,
 }: UserProfilePopoverProps) {
-  const { data: session } = useSession();
-  const isAdmin = session?.user?.globalRole === "ADMIN" || session?.user?.globalRole === "SUPERADMIN";
   const side = variant === "avatar" ? "bottom" : "top";
   const align = variant === "avatar" ? "end" : "start";
 

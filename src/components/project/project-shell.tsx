@@ -123,6 +123,7 @@ export async function ProjectShell({
   const dotColor = projectDotColor(project.name);
   const statusColor = STATUS_COLORS[userRecord?.status ?? "ONLINE"] ?? "bg-stone-500";
   const isProjectOwner = project.members[0]?.role === "OWNER";
+  const isGlobalAdmin = session?.user?.globalRole === "ADMIN" || session?.user?.globalRole === "SUPERADMIN";
   const accessibleBoards = project.boards
     .filter((board) => canAccessBoard(board, session.user.id, project.members[0]?.role ?? "MEMBER"))
     .map(({ id, name, isPrivate }) => ({ id, name, isPrivate }));
@@ -266,6 +267,7 @@ export async function ProjectShell({
                 status={userRecord?.status}
                 statusColor={statusColor}
                 variant="avatar"
+                isAdmin={isGlobalAdmin}
               />
               <HelpButton />
             </div>

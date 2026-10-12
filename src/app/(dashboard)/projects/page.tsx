@@ -154,6 +154,7 @@ export default async function ProjectsPage() {
     avatar: userRecord?.avatar ?? null,
     status: userRecord?.status ?? "ONLINE",
     email: userRecord?.email ?? session.user.email ?? "",
+    isAdmin: session.user.globalRole === "ADMIN" || session.user.globalRole === "SUPERADMIN",
   };
 
   return (
