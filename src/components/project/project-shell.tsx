@@ -7,7 +7,6 @@ import { Building2, Menu, PanelLeftClose } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BackButton } from "@/components/ui/back-button";
-import { CommandPalette } from "@/components/ui/command-palette";
 import { ProjectSidebarGreeting } from "@/components/project/project-sidebar-greeting";
 import { ProjectNavLink } from "@/components/project/project-nav-link";
 import { ProjectSortableNav, type ProjectNavItem } from "@/components/project/project-sortable-nav";
@@ -275,8 +274,6 @@ export async function ProjectShell({
           <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 overflow-hidden">{children}</div>
         </section>
       </div>
-
-      <CommandPalette projectId={projectId} projectName={project.name} />
     </main>
   );
 }

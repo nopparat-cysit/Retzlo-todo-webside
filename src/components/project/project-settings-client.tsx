@@ -20,6 +20,7 @@ import {
 
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { BoardAttributesTab } from "@/components/kanban/board-attributes-tab";
@@ -544,18 +545,12 @@ export function ProjectSettingsClient({
               <FolderKanban className="h-3.5 w-3.5 text-theme-accent" />
               <span className="text-xs text-theme-muted">Active Board</span>
               {boardsList.length > 1 ? (
-                <select
-                  aria-label="Select board"
+                <FilterSelect
                   value={selectedBoardId}
-                  onChange={(e) => handleBoardSelect(e.target.value)}
-                  className="h-7 cursor-pointer rounded-md border border-theme-border bg-theme-panel px-2 text-xs font-semibold text-theme-foreground"
-                >
-                  {boardsList.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name}
-                    </option>
-                  ))}
-                </select>
+                  options={boardsList.map((b) => ({ value: b.id, label: b.name }))}
+                  onValueChange={handleBoardSelect}
+                  triggerClassName="h-7 min-w-[120px] rounded-md border-theme-border bg-theme-panel text-xs font-semibold text-theme-foreground"
+                />
               ) : (
                 <span className="text-xs font-semibold text-theme-foreground">{displayBoardName}</span>
               )}

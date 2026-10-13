@@ -38,7 +38,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
           </div>
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-dusk-amber">Account</p>
-            <h1 className="text-2xl font-semibold text-stone-100">Profile Settings</h1>
+            <h1 className="text-2xl font-semibold text-theme-foreground">Profile Settings</h1>
           </div>
         </div>
 
@@ -58,7 +58,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
             <div className="w-full min-w-0">
               {/* Email read-only badge */}
               <div className="mb-4 flex items-center gap-2">
-                <span className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-stone-400">
+                <span className="rounded-md border border-theme-border bg-theme-paper px-3 py-1.5 text-xs text-theme-muted">
                   {user.email}
                 </span>
                 <span className="rounded-full border border-theme-success-border bg-theme-success-surface px-2 py-0.5 text-[10px] font-medium text-theme-success">
@@ -85,9 +85,9 @@ export function ProfileClient({ user }: ProfileClientProps) {
 
         {/* Account info */}
         <Panel className="p-4">
-          <p className="text-xs text-stone-600">
+          <p className="text-xs text-theme-muted">
             Member since{" "}
-            <span className="text-stone-400">
+            <span className="font-medium text-theme-foreground">
               {formatMediumDate(user.createdAt)}
             </span>
           </p>

@@ -22,8 +22,8 @@ function PasswordInput({
   const [show, setShow] = useState(false);
 
   return (
-    <label className="block space-y-1.5 text-sm text-stone-300">
-      <span className="text-xs font-medium uppercase tracking-[0.15em] text-stone-500">
+    <label className="block space-y-1.5 text-sm text-theme-foreground">
+      <span className="text-xs font-medium uppercase tracking-[0.15em] text-theme-muted">
         {label}
       </span>
       <div className="relative">
@@ -38,7 +38,7 @@ function PasswordInput({
         />
         <button
           type="button"
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 transition hover:text-stone-200"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-muted transition hover:text-theme-foreground"
           onClick={() => setShow((v) => !v)}
           aria-label={show ? "Hide password" : "Show password"}
         >
@@ -76,12 +76,12 @@ function StrengthBar({ password }: { password: string }) {
             key={i}
             className={cn(
               "h-1 flex-1 rounded-full transition-all duration-300",
-              i <= score ? colors[score] : "bg-white/10"
+              i <= score ? colors[score] : "bg-theme-border"
             )}
           />
         ))}
       </div>
-      <p className="text-[11px] text-stone-500">{labels[score]}</p>
+      <p className="text-[11px] text-theme-muted">{labels[score]}</p>
     </div>
   );
 }
@@ -125,7 +125,7 @@ export function ChangePasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="flex items-center gap-2 text-sm font-medium text-stone-200">
+      <div className="flex items-center gap-2 text-sm font-medium text-theme-foreground">
         <Lock className="h-4 w-4 text-dusk-lavender" />
         Change password
       </div>

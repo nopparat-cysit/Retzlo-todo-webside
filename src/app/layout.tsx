@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { LanguageProvider } from "@/lib/i18n/language-context";
 import { AiChatProvider } from "@/components/ai/ai-chat-context";
 import { AiChatWidget } from "@/components/ai/ai-chat-widget";
+import { CommandPalette } from "@/components/ui/command-palette";
 
 import "./globals.css";
 
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <AiChatProvider>
                 {children}
                 <AiChatWidget />
+                <CommandPalette />
               </AiChatProvider>
             </ToastProvider>
           </LanguageProvider>

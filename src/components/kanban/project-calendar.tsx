@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { BookOpen, CalendarDays, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, RotateCcw, SlidersHorizontal, X } from "lucide-react";
+import { BookOpen, CalendarDays, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, Plus, RotateCcw, SlidersHorizontal, X } from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { CardModal } from "@/components/kanban/card-modal";
@@ -1360,6 +1360,13 @@ export function ProjectCalendar({
               )}
             </div>
             <div className="flex items-center gap-2">
+              <Link
+                href={`/project/${projectId}/board?date=${selectedDayKey}`}
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-dusk-lavender/40 bg-dusk-lavender/10 px-3 text-xs font-semibold text-dusk-lavender transition hover:bg-dusk-lavender/20 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add Task for this date
+              </Link>
               <Link
                 href={`/project/${projectId}/board`}
                 className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { BackButton } from "@/components/ui/back-button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { useAiChat } from "@/components/ai/ai-chat-context";
 import { useToast } from "@/components/ui/toast";
 import { CONTACT_TEMPLATES, type ContactTemplate } from "@/lib/contact-templates";
@@ -252,21 +253,15 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
                   </div>
 
                   {/* Dropdown Select */}
-                  <select
-                    id="template-select"
+                  <FilterSelect
                     value={selectedTemplateId}
-                    onChange={(e) => {
-                      const t = CONTACT_TEMPLATES.find((tpl) => tpl.id === e.target.value);
+                    options={CONTACT_TEMPLATES.map((tpl) => ({ value: tpl.id, label: tpl.label }))}
+                    onValueChange={(val) => {
+                      const t = CONTACT_TEMPLATES.find((tpl) => tpl.id === val);
                       if (t) handleSelectTemplate(t);
                     }}
-                    className="w-full h-10 rounded-xl border border-stone-200/90 bg-white px-3 text-xs font-semibold text-stone-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-ink-950 dark:text-stone-100 cursor-pointer"
-                  >
-                    {CONTACT_TEMPLATES.map((tpl) => (
-                      <option key={tpl.id} value={tpl.id}>
-                        {tpl.label}
-                      </option>
-                    ))}
-                  </select>
+                    triggerClassName="w-full h-10 rounded-xl border border-stone-200/90 bg-white px-3 text-xs font-semibold text-stone-900 dark:border-white/10 dark:bg-ink-950 dark:text-stone-100"
+                  />
 
                   {/* Quick Pill Buttons */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-1">
@@ -346,16 +341,17 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
                     <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
                       Priority Level
                     </label>
-                    <select
+                    <FilterSelect
                       value={priority}
-                      onChange={(e) => setPriority(e.target.value as any)}
-                      className="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 px-3 text-xs text-stone-900 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 cursor-pointer"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Normal</option>
-                      <option value="high">High</option>
-                      <option value="urgent">Urgent</option>
-                    </select>
+                      options={[
+                        { value: "low", label: "Low" },
+                        { value: "medium", label: "Normal" },
+                        { value: "high", label: "High" },
+                        { value: "urgent", label: "Urgent" }
+                      ]}
+                      onValueChange={(val) => setPriority(val as any)}
+                      triggerClassName="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 px-3 text-xs text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100"
+                    />
                   </div>
                 </div>
 

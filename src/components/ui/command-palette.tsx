@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CalendarDays,
@@ -67,8 +67,11 @@ interface SearchResults {
 // Component
 // ---------------------------------------------------------------------------
 
-export function CommandPalette({ projectId, projectName }: CommandPaletteProps) {
+export function CommandPalette({ projectId: explicitProjectId, projectName }: CommandPaletteProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const projectMatch = pathname?.match(/^\/project\/([^/]+)/);
+  const projectId = explicitProjectId || (projectMatch ? projectMatch[1] : undefined);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -182,10 +185,17 @@ export function CommandPalette({ projectId, projectName }: CommandPaletteProps) 
           href: `/project/${projectId}/calendar`
         },
         {
+          id: "nav-diary",
+          label: "Go to Diary",
+          group: "Navigation",
+          icon: <FileText className="h-4 w-4 text-dusk-lavender" />,
+          href: `/project/${projectId}/diary`
+        },
+        {
           id: "nav-notes",
           label: "Go to Note Studio",
           group: "Navigation",
-          icon: <FileText className="h-4 w-4 text-dusk-lavender" />,
+          icon: <FileText className="h-4 w-4 text-dusk-amber" />,
           href: `/project/${projectId}/notes`
         },
         {
@@ -201,6 +211,40 @@ export function CommandPalette({ projectId, projectName }: CommandPaletteProps) 
           group: "Navigation",
           icon: <Settings className="h-4 w-4 text-dusk-rose" />,
           href: `/project/${projectId}/settings`
+        }
+      ]
+    });
+  } else {
+    allGroups.push({
+      label: "Navigation",
+      items: [
+        {
+          id: "nav-projects",
+          label: "Go to Workspaces Hub",
+          group: "Navigation",
+          icon: <LayoutGrid className="h-4 w-4 text-dusk-amber" />,
+          href: "/projects"
+        },
+        {
+          id: "nav-rewards",
+          label: "Go to Rewards Store",
+          group: "Navigation",
+          icon: <Sparkles className="h-4 w-4 text-dusk-lavender" />,
+          href: "/projects/rewards"
+        },
+        {
+          id: "nav-profile",
+          label: "Go to Profile Settings",
+          group: "Navigation",
+          icon: <Settings className="h-4 w-4 text-dusk-rose" />,
+          href: "/profile"
+        },
+        {
+          id: "nav-help",
+          label: "Help & System Guide",
+          group: "Navigation",
+          icon: <FileText className="h-4 w-4 text-dusk-cyan" />,
+          href: "/help"
         }
       ]
     });

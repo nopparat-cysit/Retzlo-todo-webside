@@ -33,6 +33,7 @@ import { getPriorityColorConfig, getPriorityMeta, resolveBoardPriorities } from 
 import { playCardDoneSound } from "@/lib/sound";
 import { useToast } from "@/components/ui/toast";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
   DropdownMenu,
@@ -1227,17 +1228,12 @@ export function BoardListView({
                   <span className="text-[10px] text-stone-400 italic">Unassigned</span>
                 </div>
                 <div className="w-36 px-2">
-                  <select
+                  <FilterSelect
                     value={bottomSelectedColumnId}
-                    onChange={(e) => setBottomSelectedColumnId(e.target.value)}
-                    className="h-7 w-full rounded border border-stone-200 bg-white px-1.5 text-[11px] font-medium text-stone-700 outline-none dark:border-white/10 dark:bg-stone-800 dark:text-stone-300"
-                  >
-                    {columns.map((col) => (
-                      <option key={col.id} value={col.id}>
-                        {col.name}
-                      </option>
-                    ))}
-                  </select>
+                    options={columns.map((col) => ({ value: col.id, label: col.name }))}
+                    onValueChange={setBottomSelectedColumnId}
+                    triggerClassName="h-7 w-full rounded border border-stone-200 bg-white px-1.5 text-[11px] font-medium text-stone-700 dark:border-white/10 dark:bg-stone-800 dark:text-stone-300"
+                  />
                 </div>
                 <div className="w-36 px-2 text-center text-[10px] text-stone-400">-</div>
                 <div className="w-36 px-2 text-center text-[10px] text-stone-400">-</div>

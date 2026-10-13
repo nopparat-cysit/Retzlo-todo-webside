@@ -13,6 +13,7 @@ import {
 
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -114,19 +115,18 @@ export function RewardsTab() {
 
         <div className="flex items-center gap-2">
           {/* Status Filter */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5">
-            <span className="text-stone-400">Status:</span>
-            <select
+          <div className="flex items-center gap-1.5">
+            <FilterSelect
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              aria-label="Filter by redemption status"
-              className="bg-transparent text-xs text-stone-700 outline-none dark:text-stone-300"
-            >
-              <option value="ALL">All ({redemptions.length})</option>
-              <option value="PENDING">Pending Only ({pendingCount})</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
+              options={[
+                { value: "ALL", label: `All (${redemptions.length})` },
+                { value: "PENDING", label: `Pending Only (${pendingCount})` },
+                { value: "APPROVED", label: "Approved" },
+                { value: "REJECTED", label: "Rejected" },
+              ]}
+              onValueChange={setStatusFilter}
+              triggerClassName="h-8 rounded-lg border-stone-200 bg-stone-50/80 px-2 text-xs text-stone-700 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
+            />
           </div>
 
           <Button variant="ghost" size="sm" onClick={fetchRedemptions} disabled={isLoading}>

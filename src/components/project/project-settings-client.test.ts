@@ -46,7 +46,7 @@ describe("ProjectSettingsClient scope-grouped settings architecture", () => {
   });
 
   it("renders a single shared board scope bar for board-level tabs", () => {
-    expect(source.match(/<select/g)?.length ?? 0).toBe(1);
+    expect(source.match(/<FilterSelect/g)?.length ?? 0).toBe(1);
     expect(source).toContain("Active Board");
   });
 

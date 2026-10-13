@@ -39,6 +39,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
+import { AiChatTrigger } from "@/components/ai/ai-chat-trigger";
 import { AppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { EntityCard } from "@/components/ui/entity-card";
@@ -934,6 +935,7 @@ export function ProjectsDashboard({
 
               {/* Primary action & workspace metrics */}
               <div className="flex items-center gap-2 shrink-0">
+                <AiChatTrigger className="h-9 w-9 rounded-xl border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]" />
                 {viewMode === "boards" && activeProject ? (
                   <div className="flex items-center gap-2.5 sm:gap-3">
                     {/* Compact Workspace Progress Pill */}

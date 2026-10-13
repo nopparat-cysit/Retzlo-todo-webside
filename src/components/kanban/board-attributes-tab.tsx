@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import { ModalPortal } from "@/components/ui/modal-portal";
@@ -757,10 +758,23 @@ export function BoardAttributesTab({
 
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Dropdown for quick template selection */}
-                <select
-                  value={previewStatusTemplate?.id || ""}
-                  onChange={(e) => {
-                    const found = allTemplates.find((t) => t.id === e.target.value);
+                <FilterSelect
+                  value={previewStatusTemplate?.id || "NONE"}
+                  options={[
+                    { value: "NONE", label: "-- Select Template --" },
+                    ...allTemplates.map((tpl) => ({
+                      value: tpl.id,
+                      label: `${tpl.name} (${tpl.statuses.length} columns)`
+                    }))
+                  ]}
+                  onValueChange={(val) => {
+                    if (val === "NONE") {
+                      setPreviewStatusTemplate(null);
+                      setSelectedTemplate(null);
+                      setMockupColumnFilter("all");
+                      return;
+                    }
+                    const found = allTemplates.find((t) => t.id === val);
                     if (found) {
                       handleSelectStatusTemplate(found);
                     } else {
@@ -769,17 +783,8 @@ export function BoardAttributesTab({
                       setMockupColumnFilter("all");
                     }
                   }}
-                  aria-label="Select status template from dropdown"
-                  className="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  title="Select status template from dropdown"
-                >
-                  <option value="">-- Select Template (Dropdown) --</option>
-                  {allTemplates.map((tpl) => (
-                    <option key={tpl.id} value={tpl.id}>
-                      {tpl.name} ({tpl.statuses.length} columns)
-                    </option>
-                  ))}
-                </select>
+                  triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
+                />
 
                 {canManage && (
                   <button
@@ -879,19 +884,18 @@ export function BoardAttributesTab({
                   {previewStatusTemplate.statuses.length > 3 && (
                     <div className="flex items-center gap-1">
                       <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400">Column:</span>
-                      <select
+                      <FilterSelect
                         value={mockupColumnFilter}
-                        onChange={(e) => setMockupColumnFilter(e.target.value)}
-                        aria-label="Filter mockup columns"
-                        className="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                      >
-                        <option value="all">All Columns ({previewStatusTemplate.statuses.length})</option>
-                        {previewStatusTemplate.statuses.map((st) => (
-                          <option key={st.value} value={st.value}>
-                            Column: {st.label}
-                          </option>
-                        ))}
-                      </select>
+                        options={[
+                          { value: "all", label: `All Columns (${previewStatusTemplate.statuses.length})` },
+                          ...previewStatusTemplate.statuses.map((st) => ({
+                            value: st.value,
+                            label: `Column: ${st.label}`
+                          }))
+                        ]}
+                        onValueChange={setMockupColumnFilter}
+                        triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
+                      />
                     </div>
                   )}
 
@@ -1331,10 +1335,22 @@ export function BoardAttributesTab({
 
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Dropdown for quick story points template selection */}
-                <select
-                  value={previewPointTemplate?.id || ""}
-                  onChange={(e) => {
-                    const found = allPointTemplates.find((t) => t.id === e.target.value);
+                <FilterSelect
+                  value={previewPointTemplate?.id || "NONE"}
+                  options={[
+                    { value: "NONE", label: "-- Select Point Scale --" },
+                    ...allPointTemplates.map((tpl) => ({
+                      value: tpl.id,
+                      label: `${tpl.name} (${tpl.points.length} levels)`
+                    }))
+                  ]}
+                  onValueChange={(val) => {
+                    if (val === "NONE") {
+                      setPreviewPointTemplate(null);
+                      setSelectedPointTemplate(null);
+                      return;
+                    }
+                    const found = allPointTemplates.find((t) => t.id === val);
                     if (found) {
                       handleSelectPointTemplate(found);
                     } else {
@@ -1342,17 +1358,8 @@ export function BoardAttributesTab({
                       setSelectedPointTemplate(null);
                     }
                   }}
-                  aria-label="Select point template from dropdown"
-                  className="h-7 text-[11px] font-medium rounded-lg border border-amber-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  title="Select point template from dropdown"
-                >
-                  <option value="">-- Select Point Scale (Dropdown) --</option>
-                  {allPointTemplates.map((tpl) => (
-                    <option key={tpl.id} value={tpl.id}>
-                      {tpl.name} ({tpl.points.length} levels)
-                    </option>
-                  ))}
-                </select>
+                  triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-amber-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
+                />
 
                 {canManage && (
                   <button

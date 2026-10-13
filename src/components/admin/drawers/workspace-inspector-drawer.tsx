@@ -15,6 +15,7 @@ import {
 
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
@@ -222,20 +223,20 @@ export function WorkspaceInspectorDrawer({
                   <label className="text-[11px] font-medium text-stone-500 dark:text-stone-400">
                     Transfer Ownership to another Member:
                   </label>
-                  <select
+                  <FilterSelect
                     value={transferOwnerId}
-                    onChange={(e) => setTransferOwnerId(e.target.value)}
-                    className="w-full rounded-md border border-stone-300 bg-white p-2 text-xs text-stone-800 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100"
-                  >
-                    <option value="">Keep current owner</option>
-                    {detail?.members
-                      .filter((m) => m.role !== "OWNER")
-                      .map((m) => (
-                        <option key={m.user.id} value={m.user.id}>
-                          {m.user.name || m.user.email} ({m.role})
-                        </option>
-                      ))}
-                  </select>
+                    options={[
+                      { value: "", label: "Keep current owner" },
+                      ...(detail?.members
+                        .filter((m) => m.role !== "OWNER")
+                        .map((m) => ({
+                          value: m.user.id,
+                          label: `${m.user.name || m.user.email} (${m.role})`
+                        })) ?? [])
+                    ]}
+                    onValueChange={setTransferOwnerId}
+                    triggerClassName="w-full h-9 rounded-md border border-stone-300 bg-white p-2 text-xs text-stone-800 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100"
+                  />
                 </div>
               </div>
 
