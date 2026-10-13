@@ -136,6 +136,7 @@ function KanbanColumnComponent({
 
   const [columnWidth, setColumnWidth] = useState<number>(DEFAULT_COLUMN_WIDTH);
   const [isResizing, setIsResizing] = useState(false);
+  const [isHandleHovered, setIsHandleHovered] = useState(false);
   const resizeStartXRef = useRef(0);
   const resizeStartWidthRef = useRef(DEFAULT_COLUMN_WIDTH);
 
@@ -422,7 +423,7 @@ function KanbanColumnComponent({
         minWidth: isCollapsed ? undefined : `${MIN_COLUMN_WIDTH}px`
       }}
       className={cn(
-        "group relative flex h-full min-h-0 w-[84vw] sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
+        "group relative flex h-full min-h-0 w-[84vw] sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 snap-center flex-col rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
         isResizing ? "transition-none select-none" : "transition duration-200",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
@@ -431,8 +432,9 @@ function KanbanColumnComponent({
         isDragging && "opacity-70"
       )}
     >
-      {/* ── Top Color Accent Strip ── */}
-      <div className={cn("h-[3px] w-full shrink-0", theme.accentBarClass)} />
+      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl">
+        {/* ── Top Color Accent Strip ── */}
+        <div className={cn("h-[3px] w-full shrink-0", theme.accentBarClass)} />
 
       {/* ── Header ── */}
       <header className={cn("flex items-center gap-1.5 border-b px-2.5 py-2 select-none", theme.headerClass)}>
@@ -780,6 +782,8 @@ function KanbanColumnComponent({
         onConfirm={executeSaveSettings}
         onClose={() => setIsSaveConfirmOpen(false)}
       />
+      </div>
+
       {/* ── Column Horizontal Resize Handle (Hover & Drag on X-axis) ── */}
       <div
         role="separator"
@@ -788,42 +792,64 @@ function KanbanColumnComponent({
         title="Drag horizontally to resize column width (Double-click to reset)"
         onPointerDown={handleResizeStart}
         onDoubleClick={handleResetWidth}
+        onMouseEnter={() => setIsHandleHovered(true)}
+        onMouseLeave={() => setIsHandleHovered(false)}
         className={cn(
-          "group/resize absolute top-0 right-0 bottom-0 z-30 flex w-3 cursor-col-resize items-center justify-center select-none touch-none",
+          "group/resize absolute top-0 -right-2 bottom-0 z-40 flex w-4 cursor-col-resize items-center justify-center select-none touch-none",
           isResizing ? "pointer-events-auto" : ""
         )}
       >
-        {/* Vertical Guide Line */}
+        {/* Vertical Guide Line - perfectly centered at x = 0 (column right border) */}
         <div
           className={cn(
-            "h-full w-[2px] transition-colors duration-150",
+            "pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[2px] transition-all duration-150",
             isResizing
-              ? "bg-indigo-500 shadow-[0_0_8px_rgba(169,162,255,0.7)] dark:bg-dusk-lavender"
-              : "bg-transparent group-hover/resize:bg-indigo-400/50 dark:group-hover/resize:bg-dusk-lavender/50"
+              ? "bg-indigo-500 shadow-[0_0_10px_rgba(169,162,255,0.8)] dark:bg-dusk-lavender"
+              : "bg-transparent group-hover/resize:bg-indigo-400/80 group-hover/resize:shadow-[0_0_6px_rgba(169,162,255,0.4)] dark:group-hover/resize:bg-dusk-lavender/80"
           )}
         />
 
-        {/* Center Grab Handle Pill */}
+        {/* Center Grab Handle Pill - elevated, tactile, and floating above border */}
         <div
           className={cn(
-            "pointer-events-none absolute top-1/2 -translate-y-1/2 flex h-8 w-3.5 items-center justify-center rounded-full border shadow-xs transition-all duration-150",
+            "pointer-events-none absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 flex h-9 w-4 items-center justify-center rounded-full border-2 transition-all duration-150 z-50",
             isResizing
-              ? "scale-110 border-indigo-400 bg-indigo-600 text-white shadow-md dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950 opacity-100"
-              : "opacity-0 group-hover/resize:opacity-100 border-stone-300/80 bg-white/95 text-stone-500 dark:border-white/20 dark:bg-ink-900/95 dark:text-stone-300"
+              ? "scale-110 border-indigo-400 bg-indigo-600 text-white shadow-[0_0_16px_rgba(99,102,241,0.6)] dark:border-white/50 dark:bg-dusk-lavender dark:text-ink-950 opacity-100"
+              : cn(
+                  "border-indigo-300/80 bg-white text-indigo-600 shadow-md dark:border-dusk-lavender/60 dark:bg-[#16172e] dark:text-dusk-lavender dark:shadow-[0_4px_16px_rgba(0,0,0,0.6),0_0_10px_rgba(169,162,255,0.3)]",
+                  isHandleHovered ? "opacity-100 scale-105" : "opacity-0 group-hover/resize:opacity-100"
+                )
           )}
         >
-          {/* Grip dots pattern */}
-          <div className="flex flex-col gap-0.5">
-            <span className="h-0.5 w-0.5 rounded-full bg-current" />
-            <span className="h-0.5 w-0.5 rounded-full bg-current" />
-            <span className="h-0.5 w-0.5 rounded-full bg-current" />
-          </div>
+          <GripVertical className="h-3 w-3 text-current" />
         </div>
 
-        {/* Width badge while dragging */}
+        {/* Live width badge while dragging */}
         {isResizing && (
-          <div className="pointer-events-none absolute top-1/2 -translate-y-12 right-2 rounded-md border border-white/10 bg-ink-950/95 px-2 py-0.5 text-[10px] font-mono font-medium text-white shadow-xl dark:border-dusk-lavender/30 dark:bg-ink-900 dark:text-dusk-lavender whitespace-nowrap z-50 animate-in fade-in zoom-in-95">
+          <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-6 rounded-lg border border-indigo-300/40 bg-ink-950/95 px-2.5 py-1 text-xs font-mono font-bold text-white shadow-2xl dark:border-dusk-lavender/40 dark:bg-[#0c0d1e] dark:text-dusk-lavender whitespace-nowrap z-50 animate-in fade-in zoom-in-95">
             {columnWidth}px
+          </div>
+        )}
+
+        {/* Hover Tooltip: Explains drag to resize & double-click to reset */}
+        {isHandleHovered && !isResizing && (
+          <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-6 z-50 flex flex-col gap-1 rounded-xl border border-stone-200/90 bg-white/98 p-2.5 text-left shadow-2xl backdrop-blur-xl dark:border-dusk-lavender/35 dark:bg-[#0c0d1e]/98 dark:shadow-[0_16px_36px_rgba(0,0,0,0.7),0_0_20px_rgba(169,162,255,0.15)] animate-in fade-in zoom-in-95 duration-150 whitespace-nowrap">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-stone-900 dark:text-stone-100">
+              <span className="flex h-4 w-4 items-center justify-center rounded bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender text-[10px]">
+                ↔
+              </span>
+              <span>ปรับขนาดคอลัมน์ ({columnWidth}px)</span>
+            </div>
+            <div className="flex flex-col gap-0.5 text-[10px] text-stone-500 dark:text-stone-400">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block h-1 w-1 rounded-full bg-indigo-500 dark:bg-dusk-lavender" />
+                <span>คลิกค้างแล้วลากซ้าย-ขวาเพื่อขยาย/ย่อ</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block h-1 w-1 rounded-full bg-teal-500 dark:bg-dusk-cyan" />
+                <span>ดับเบิลคลิกเพื่อคืนค่าเริ่มต้น ({DEFAULT_COLUMN_WIDTH}px)</span>
+              </div>
+            </div>
           </div>
         )}
       </div>

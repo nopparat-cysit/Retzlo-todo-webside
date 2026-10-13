@@ -13,7 +13,7 @@ export const buttonVariants = cva(
         secondary:
           "border border-theme-border bg-theme-paper text-theme-foreground hover:border-dusk-lavender/35 hover:bg-theme-paper-strong",
         ghost:
-          "border border-theme-border bg-theme-paper text-theme-foreground hover:border-dusk-lavender/45 hover:bg-theme-paper-strong",
+          "border border-transparent bg-transparent text-theme-foreground hover:bg-theme-paper hover:text-theme-foreground",
         outline:
           "border border-theme-border bg-transparent text-theme-foreground hover:border-dusk-lavender/45 hover:bg-theme-paper",
         danger:

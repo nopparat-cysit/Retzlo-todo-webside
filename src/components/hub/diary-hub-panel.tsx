@@ -42,6 +42,7 @@ export interface DiaryPayload {
   description: string;
   color: CardColor;
   intervalDays: number;
+  repeatUnit?: "DAY" | "MONTH";
   startDate: string;
   checklist: DiaryChecklistItem[];
   rewardCoins: number;
@@ -408,6 +409,8 @@ export function DiaryItemModal({
 }) {
   const [color, setColor] = useState<CardColor>(normalizeCardColor(item?.color));
   const [intervalDays, setIntervalDays] = useState(item?.intervalDays ?? 1);
+  const [repeatUnit, setRepeatUnit] = useState<"DAY" | "MONTH">(item?.repeatUnit ?? "DAY");
+  const [dueTime, setDueTime] = useState<string | null>(item?.dueTime ?? null);
   const [startDate, setStartDate] = useState(item?.startDate.slice(0, 10) ?? selectedDate);
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const [isRewardOpen, setIsRewardOpen] = useState((item?.rewardCoins ?? 0) > 0);
@@ -427,6 +430,8 @@ export function DiaryItemModal({
         titleVal.trim() !== "" ||
         descriptionVal.trim() !== "" ||
         intervalDays !== 1 ||
+        repeatUnit !== "DAY" ||
+        dueTime !== null ||
         startDate !== selectedDate ||
         rewardCoins > 0 ||
         checklist.length > 0
@@ -437,6 +442,8 @@ export function DiaryItemModal({
     const initialDesc = item.description ?? "";
     const initialColor = normalizeCardColor(item.color);
     const initialInterval = item.intervalDays ?? 1;
+    const initialRepeatUnit = item.repeatUnit ?? "DAY";
+    const initialDueTime = item.dueTime ?? null;
     const initialStart = item.startDate.slice(0, 10);
     const initialReward = item.rewardCoins ?? 0;
     const initialRewardType = item.rewardCoinType ?? (isPersonal ? "GLOBAL" : "PROJECT");
@@ -458,6 +465,8 @@ export function DiaryItemModal({
       descriptionVal !== initialDesc ||
       color !== initialColor ||
       intervalDays !== initialInterval ||
+      repeatUnit !== initialRepeatUnit ||
+      dueTime !== initialDueTime ||
       startDate !== initialStart ||
       rewardCoins !== initialReward ||
       rewardCoinType !== initialRewardType ||
@@ -469,6 +478,8 @@ export function DiaryItemModal({
     descriptionVal,
     color,
     intervalDays,
+    repeatUnit,
+    dueTime,
     startDate,
     selectedDate,
     rewardCoins,
@@ -503,6 +514,7 @@ export function DiaryItemModal({
       description: descriptionVal,
       color,
       intervalDays,
+      repeatUnit,
       startDate,
       checklist: normalizeDiaryChecklist(checklist, startDate),
       rewardCoins: isRewardOpen ? rewardCoins : 0,
@@ -510,7 +522,7 @@ export function DiaryItemModal({
       rewardClaimedDates: item?.rewardClaimedDates ?? [],
       isStarred: item?.isStarred ?? false,
       isHidden: false,
-      dueTime: null
+      dueTime
     });
   }
 
@@ -562,16 +574,70 @@ export function DiaryItemModal({
 
             {/* Schedule & Settings Card */}
             <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-dusk-cyan font-semibold">Schedule & Settings</p>
-              <div className="block space-y-1 text-xs text-stone-400">
-                <span className="text-stone-300 font-medium">Start date</span>
-                <DatePicker
-                  name="startDate"
-                  required
-                  value={startDate}
-                  onChange={(nextDate) => setStartDate(nextDate)}
-                  placeholder="Select start date..."
-                />
+              <p className="text-xs uppercase tracking-[0.2em] text-dusk-cyan font-semibold">Schedule & Recurrence</p>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRepeatUnit("DAY")}
+                  className={cn(
+                    "rounded-lg border px-3 py-2 text-left text-xs transition",
+                    repeatUnit === "DAY"
+                      ? "border-dusk-cyan bg-dusk-cyan/15 text-dusk-cyan font-semibold"
+                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
+                  )}
+                >
+                  <p className="font-bold">Daily / Days</p>
+                  <p className="text-[10px] opacity-75">Every N days</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRepeatUnit("MONTH")}
+                  className={cn(
+                    "rounded-lg border px-3 py-2 text-left text-xs transition",
+                    repeatUnit === "MONTH"
+                      ? "border-dusk-cyan bg-dusk-cyan/15 text-dusk-cyan font-semibold"
+                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:border-white/20"
+                  )}
+                >
+                  <p className="font-bold">Monthly</p>
+                  <p className="text-[10px] opacity-75">Same day each month</p>
+                </button>
+              </div>
+
+              {repeatUnit === "DAY" ? (
+                <label className="block space-y-1 text-xs text-stone-400">
+                  <span className="text-stone-300 font-medium">Repeat Interval (Days)</span>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={365}
+                    value={intervalDays}
+                    onChange={(e) => setIntervalDays(Math.max(1, Number(e.target.value) || 1))}
+                  />
+                </label>
+              ) : null}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="block space-y-1 text-xs text-stone-400">
+                  <span className="text-stone-300 font-medium">Start date</span>
+                  <DatePicker
+                    name="startDate"
+                    required
+                    value={startDate}
+                    onChange={(nextDate) => setStartDate(nextDate)}
+                    placeholder="Select start date..."
+                  />
+                </div>
+
+                <div className="block space-y-1 text-xs text-stone-400">
+                  <span className="text-stone-300 font-medium">Target Time (Optional)</span>
+                  <Input
+                    type="time"
+                    value={dueTime ?? ""}
+                    onChange={(e) => setDueTime(e.target.value || null)}
+                  />
+                </div>
               </div>
             </div>
 

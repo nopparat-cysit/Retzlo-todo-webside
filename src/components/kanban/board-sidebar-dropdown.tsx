@@ -30,8 +30,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
-import { BoardTemplatePicker } from "@/components/kanban/board-template-picker";
-import { DEFAULT_BOARD_TEMPLATE_ID, type BoardTemplateId } from "@/lib/kanban/board-templates";
+import { CreateBoardModal } from "@/components/kanban/create-board-modal";
 
 interface BoardTabItem {
   id: string;
@@ -65,9 +64,6 @@ export function BoardSidebarDropdown({
   const [settingsInitialTab, setSettingsInitialTab] = useState<"general" | "access">("general");
 
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
-  const [newBoardName, setNewBoardName] = useState("");
-  const [newBoardTemplateId, setNewBoardTemplateId] = useState<BoardTemplateId>(DEFAULT_BOARD_TEMPLATE_ID);
-  const [isCreatingBoard, setIsCreatingBoard] = useState(false);
 
   const [boardsList, setBoardsList] = useState<BoardTabItem[]>(boards);
   const [switchingBoardId, setSwitchingBoardId] = useState<string | null>(null);
@@ -177,44 +173,6 @@ export function BoardSidebarDropdown({
     setSettingsInitialTab(tab);
     setIsSettingsOpen(true);
   };
-
-  async function handleCreateBoard(e: React.FormEvent) {
-    e.preventDefault();
-    if (!newBoardName.trim() || isCreatingBoard) return;
-
-    setIsCreatingBoard(true);
-    try {
-      const response = await fetch(`/api/projects/${projectId}/boards`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newBoardName.trim(),
-          isPrivate: false,
-          templateId: newBoardTemplateId
-        })
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to create board");
-      }
-
-      setBoardsList((prev) => [...prev, data.board]);
-      setIsCreateBoardOpen(false);
-      setNewBoardName("");
-      setNewBoardTemplateId(DEFAULT_BOARD_TEMPLATE_ID);
-      toast({ message: `Board "${data.board.name}" created! ✦`, type: "success" });
-      router.push(`/project/${projectId}/board?boardId=${data.board.id}`);
-      router.refresh();
-    } catch (err) {
-      toast({
-        message: err instanceof Error ? err.message : "Failed to create board",
-        type: "error"
-      });
-    } finally {
-      setIsCreatingBoard(false);
-    }
-  }
 
   return (
     <div className="w-full select-none">
@@ -468,77 +426,22 @@ export function BoardSidebarDropdown({
 
       {/* ── Create Board Modal ── */}
       {canManage && (
-        <AppModal
+        <CreateBoardModal
           open={isCreateBoardOpen}
-          onClose={() => {
-            if (!isCreatingBoard) {
-              setIsCreateBoardOpen(false);
-              setNewBoardName("");
-              setNewBoardTemplateId(DEFAULT_BOARD_TEMPLATE_ID);
-            }
+          projectId={projectId}
+          onClose={() => setIsCreateBoardOpen(false)}
+          autoNavigate={true}
+          onCreated={(newBoard) => {
+            setBoardsList((prev) => [
+              ...prev,
+              {
+                id: newBoard.id,
+                name: newBoard.name,
+                isPrivate: newBoard.isPrivate
+              }
+            ]);
           }}
-          labelledBy="create-board-modal-title"
-          contentClassName="w-full max-w-3xl overflow-hidden rounded-2xl"
-        >
-          <form
-            onSubmit={handleCreateBoard}
-            className="max-h-[calc(100dvh-2rem)] space-y-3.5 overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-4 text-theme-foreground shadow-2xl sm:p-5"
-          >
-            <div>
-              <h3
-                id="create-board-modal-title"
-                className="flex items-center gap-2 text-lg font-semibold text-theme-foreground"
-              >
-                <FolderKanban className="h-5 w-5 text-theme-accent" />
-                Create New Board
-              </h3>
-              <p className="mt-1 text-xs text-theme-muted">
-                Add a new board channel to organize tasks in this project.
-              </p>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-theme-foreground">
-                Board Name
-              </label>
-              <Input
-                value={newBoardName}
-                onChange={(e) => setNewBoardName(e.target.value)}
-                placeholder="e.g. Marketing Roadmap, Sprint 2..."
-                maxLength={80}
-                autoFocus
-                required
-                disabled={isCreatingBoard}
-              />
-            </div>
-            <BoardTemplatePicker
-              selectedId={newBoardTemplateId}
-              onSelect={setNewBoardTemplateId}
-              disabled={isCreatingBoard}
-            />
-            <div className="flex items-center justify-end gap-2 border-t border-theme-border pt-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setIsCreateBoardOpen(false);
-                  setNewBoardName("");
-                  setNewBoardTemplateId(DEFAULT_BOARD_TEMPLATE_ID);
-                }}
-                disabled={isCreatingBoard}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!newBoardName.trim() || isCreatingBoard}
-                variant="primary"
-                className="font-semibold"
-              >
-                {isCreatingBoard ? "Creating..." : "Create Board"}
-              </Button>
-            </div>
-          </form>
-        </AppModal>
+        />
       )}
     </div>
   );

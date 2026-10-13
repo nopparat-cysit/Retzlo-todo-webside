@@ -42,7 +42,7 @@ export function BackButton({ className, label = "Back" }: BackButtonProps) {
     } else if (pathname === "/profile") {
       router.push("/projects");
     } else if (pathname === "/help" || pathname === "/contact") {
-      router.push("/");
+      router.push("/projects");
     } else if (
       pathname === "/forgot-password" ||
       pathname === "/reset-password" ||
