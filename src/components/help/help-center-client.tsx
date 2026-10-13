@@ -38,6 +38,21 @@ import {
   ThumbsUp,
   X,
   Zap,
+  Activity,
+  AlertTriangle,
+  ArrowUpRight,
+  Code2,
+  Cpu,
+  Database,
+  ExternalLink,
+  Globe,
+  Link as LinkIcon,
+  Lock,
+  Network,
+  PanelLeft,
+  PanelLeftClose,
+  Share2,
+  Workflow,
 } from "lucide-react";
 
 import { BackButton } from "@/components/ui/back-button";
@@ -2651,6 +2666,526 @@ function InteractiveCoffeeDemo({ isEn }: { isEn: boolean }) {
   );
 }
 
+/* ── Handoff-inspired Callout Component ── */
+
+export function DocsCallout({
+  type = "info",
+  title,
+  children,
+  className,
+}: {
+  type?: "info" | "tip" | "warning" | "security" | "architecture";
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const config = {
+    info: {
+      bar: "bg-cyan-500 dark:bg-dusk-cyan",
+      badge: "border-cyan-200 bg-cyan-50 text-cyan-800 dark:border-cyan-500/30 dark:bg-cyan-500/10 dark:text-cyan-300",
+      icon: Compass,
+      iconColor: "text-cyan-600 dark:text-cyan-400",
+      card: "border-cyan-200/80 bg-gradient-to-r from-cyan-50/70 via-cyan-50/20 to-white dark:border-cyan-500/25 dark:from-cyan-500/10 dark:via-cyan-500/5 dark:to-transparent",
+    },
+    tip: {
+      bar: "bg-amber-500 dark:bg-dusk-amber",
+      badge: "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-dusk-amber",
+      icon: Lightbulb,
+      iconColor: "text-amber-600 dark:text-dusk-amber",
+      card: "border-amber-200/80 bg-gradient-to-r from-amber-50/70 via-amber-50/20 to-white dark:border-amber-500/25 dark:from-amber-500/10 dark:via-amber-500/5 dark:to-transparent",
+    },
+    warning: {
+      bar: "bg-rose-500 dark:bg-rose-400",
+      badge: "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300",
+      icon: AlertTriangle,
+      iconColor: "text-rose-600 dark:text-rose-400",
+      card: "border-rose-200/80 bg-gradient-to-r from-rose-50/70 via-rose-50/20 to-white dark:border-rose-500/25 dark:from-rose-500/10 dark:via-rose-500/5 dark:to-transparent",
+    },
+    security: {
+      bar: "bg-emerald-500 dark:bg-emerald-400",
+      badge: "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300",
+      icon: ShieldCheck,
+      iconColor: "text-emerald-600 dark:text-emerald-400",
+      card: "border-emerald-200/80 bg-gradient-to-r from-emerald-50/70 via-emerald-50/20 to-white dark:border-emerald-500/25 dark:from-emerald-500/10 dark:via-emerald-500/5 dark:to-transparent",
+    },
+    architecture: {
+      bar: "bg-indigo-500 dark:bg-dusk-lavender",
+      badge: "border-indigo-200 bg-indigo-50 text-indigo-800 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender",
+      icon: Layers,
+      iconColor: "text-indigo-600 dark:text-dusk-lavender",
+      card: "border-indigo-200/80 bg-gradient-to-r from-indigo-50/70 via-indigo-50/20 to-white dark:border-dusk-lavender/25 dark:from-dusk-lavender/10 dark:via-dusk-lavender/5 dark:to-transparent",
+    },
+  }[type];
+
+  const Icon = config.icon;
+
+  return (
+    <div
+      className={cn(
+        "relative my-4 flex gap-3.5 rounded-2xl border p-4 text-xs sm:text-sm shadow-xs transition-all",
+        config.card,
+        className
+      )}
+    >
+      <div className={cn("w-1 shrink-0 rounded-full", config.bar)} />
+      <div className="flex-1 space-y-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <Icon className={cn("h-4 w-4 shrink-0", config.iconColor)} />
+          {title && (
+            <p className="font-bold text-stone-900 dark:text-stone-100">
+              {title}
+            </p>
+          )}
+        </div>
+        <div className="leading-relaxed text-stone-600 dark:text-stone-300">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Heading Anchor Component with Copy Link Button ── */
+
+export function DocsHeading({
+  id,
+  title,
+  subtitle,
+  icon: Icon,
+  badgeClass,
+  isEn,
+}: {
+  id: string;
+  title: string;
+  subtitle?: string;
+  icon?: typeof Compass;
+  badgeClass?: string;
+  isEn: boolean;
+}) {
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
+
+  const copyAnchor = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window !== "undefined") {
+      const url = `${window.location.origin}${window.location.pathname}#${id}`;
+      navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast({
+        message: isEn ? `Copied link to section: ${title}` : `คัดลอกลิงก์ส่วน: ${title}`,
+        type: "success",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <div id={id} className="group/heading scroll-m-28 flex items-center justify-between gap-3 pt-2">
+      <div className="flex items-center gap-2.5">
+        {Icon && (
+          <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", badgeClass)}>
+            <Icon className="h-4 w-4" />
+          </div>
+        )}
+        <div>
+          <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+            <span>{title}</span>
+            <button
+              type="button"
+              onClick={copyAnchor}
+              className="opacity-0 group-hover/heading:opacity-100 transition-opacity p-1 text-stone-400 hover:text-indigo-600 dark:hover:text-dusk-lavender rounded cursor-pointer"
+              title={isEn ? "Copy anchor link" : "คัดลอกลิงก์ส่วนนี้"}
+              aria-label={isEn ? "Copy anchor link" : "คัดลอกลิงก์ส่วนนี้"}
+            >
+              {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <LinkIcon className="h-3.5 w-3.5" />}
+            </button>
+          </h2>
+          {subtitle && (
+            <p className="text-xs text-stone-500 dark:text-stone-400">{subtitle}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Interactive Retzlo Platform Architecture Hub Diagram ── */
+
+export function RetzloHubDiagram({ isEn }: { isEn: boolean }) {
+  const [selectedNode, setSelectedNode] = useState<string>("hub");
+
+  const nodes = [
+    {
+      id: "kanban",
+      title: isEn ? "Kanban Board" : "กระดาน Kanban",
+      badge: isEn ? "Live" : "พร้อมใช้",
+      type: "source",
+      icon: FolderKanban,
+      color: "border-indigo-400 bg-indigo-50 text-indigo-700 dark:bg-dusk-lavender/15 dark:text-dusk-lavender",
+      stack: "Next.js App Router + dnd-kit",
+      latency: "0ms Optimistic UI",
+      details: isEn
+        ? "Drag-and-drop workflow stages with WIP limits, story points, and 0ms optimistic UI state transitions."
+        : "กระดานลากวางแบ่งสเตจงาน พร้อม WIP Limits, Story Points และ Optimistic UI 0ms",
+    },
+    {
+      id: "table",
+      title: isEn ? "Spreadsheet Table" : "ตาราง Spreadsheet",
+      badge: isEn ? "Live" : "พร้อมใช้",
+      type: "source",
+      icon: Table,
+      color: "border-emerald-400 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+      stack: "React Virtualized + Prisma",
+      latency: "0ms Inline Edits",
+      details: isEn
+        ? "High-speed multi-assignee task editing grid with 10 custom priority tiers and quick density switching."
+        : "ตารางแก้ไขงานด่วนแบบ Inline กำหนดผู้รับผิดชอบหลายคน และ Priority 10 ระดับ",
+    },
+    {
+      id: "calendar",
+      title: isEn ? "Calendar & Deadlines" : "ปฏิทิน & วันส่งมอบ",
+      badge: isEn ? "Live" : "พร้อมใช้",
+      type: "source",
+      icon: Calendar,
+      color: "border-purple-400 bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300",
+      stack: "CSS Grid + Date-fns",
+      latency: "< 10ms Client Parse",
+      details: isEn
+        ? "Card due-date scheduler with sprint roadmap view and instant day creation overview."
+        : "จัดตารางและวันครบกำหนดของการ์ด พร้อมมุมมองภาพรวมรายวันสร้างงานด่วน",
+    },
+    {
+      id: "notes",
+      title: isEn ? "Notes & Diary Hub" : "บันทึก & ไดอารี่",
+      badge: isEn ? "Live" : "พร้อมใช้",
+      type: "source",
+      icon: StickyNote,
+      color: "border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+      stack: "Markdown + Draft Storage",
+      latency: "Local Auto-save",
+      details: isEn
+        ? "Personal markdown knowledge base with folder trees, tag filters, and recurring habit streaks."
+        : "คลังความรู้ส่วนตัวรองรับ Markdown โครงสร้างโฟลเดอร์ และเช็กลิสต์ประจำวัน",
+    },
+    {
+      id: "hub",
+      title: isEn ? "Retzlo Realtime Data Hub" : "ศูนย์ข้อมูลกลาง Retzlo Data Hub",
+      badge: isEn ? "Core Engine" : "แกนหลักระบบ",
+      type: "hub",
+      icon: Database,
+      color: "border-indigo-500 bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 dark:bg-dusk-lavender dark:text-ink-950",
+      stack: "PostgreSQL (Neon) + Prisma ORM + Pusher WS",
+      latency: "~25ms Server Query",
+      details: isEn
+        ? "Central Postgres database hosted on Neon with Prisma transactions, Pusher WebSockets for 0ms broadcast, and encrypted legal audit logs."
+        : "ฐานข้อมูลกลาง PostgreSQL บน Neon ควบคุมด้วย Prisma Transactions, Pusher WebSocket 0ms broadcast และระบบบันทึก Audit Log ทางกฎหมาย",
+    },
+    {
+      id: "workbench",
+      title: isEn ? "Work Workbench (UI)" : "หน้าต่างทำงาน (Dual UI)",
+      badge: isEn ? "Live" : "พร้อมใช้",
+      type: "surface",
+      icon: LayoutGrid,
+      color: "border-indigo-400 bg-indigo-50 text-indigo-700 dark:bg-dusk-lavender/15 dark:text-dusk-lavender",
+      stack: "Tailwind CSS + Retro Lofi Indigo",
+      latency: "Responsive 60fps",
+      details: isEn
+        ? "Unified dual-view UI allowing instant switching between visual Kanban and dense Spreadsheet table."
+        : "หน้าต่างทำงานหลักที่สลับได้ระหว่างบอร์ด Kanban เชิงภาพ และ Spreadsheet Table ทันที",
+    },
+    {
+      id: "ai",
+      title: isEn ? "Built-in Server AI" : "ผู้ช่วยอัจฉริยะ Server AI",
+      badge: isEn ? "Live Zero-Config" : "พร้อมใช้ทันที",
+      type: "surface",
+      icon: Bot,
+      color: "border-purple-400 bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300",
+      stack: "DeepSeek V4 Pro + Native Context",
+      latency: "~0.4s Contextual Gen",
+      details: isEn
+        ? "Context-aware AI Copilot reading live card statuses, generating task checklists, and analyzing project health."
+        : "AI Copilot ฉลาดรับรู้บริบทของการ์ดในโปรเจกต์สด ช่วยแตกย่อยงาน และให้คำแนะนำ",
+    },
+    {
+      id: "realtime",
+      title: isEn ? "Pusher 0ms Sync" : "Pusher 0ms Real-time",
+      badge: isEn ? "Live" : "พร้อมใช้",
+      type: "surface",
+      icon: Activity,
+      color: "border-cyan-400 bg-cyan-50 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300",
+      stack: "WebSocket Pusher Protocol",
+      latency: "0ms Teammate Sync",
+      details: isEn
+        ? "WebSocket broadcast channels instantly transmitting card moves, cheers, and edits to teammates."
+        : "ช่องทาง WebSocket ที่ส่งผ่านการย้ายการ์ด กด Cheers และการแก้ไขงานให้เพื่อนร่วมทีมทันที 0ms",
+    },
+    {
+      id: "rewards",
+      title: isEn ? "Coffee Cheers Economy" : "ระบบเหรียญ Coffee Cheers",
+      badge: isEn ? "Live" : "พร้อมใช้",
+      type: "surface",
+      icon: Coffee,
+      color: "border-rose-400 bg-rose-50 text-rose-700 dark:bg-dusk-rose/15 dark:text-dusk-rose",
+      stack: "Gamification Wallet + Rewards Store",
+      latency: "Instant Balance Update",
+      details: isEn
+        ? "Recognition loop rewarding completed cards with +5 coins for redeeming custom project store items."
+        : "ระบบส่งกำลังใจแก่งานที่เสร็จสิ้น สะสมเหรียญรางวัล +5 นำไปแลกของรางวัลในร้านค้า",
+    },
+    {
+      id: "audit",
+      title: isEn ? "Encrypted Audit Vault" : "ระบบ Audit Log ตามกฎหมาย",
+      badge: isEn ? "PDPA & CCA" : "PDPA พ.ร.บ.คอมฯ",
+      type: "surface",
+      icon: ShieldCheck,
+      color: "border-emerald-400 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+      stack: "Append-Only Immutable Ledger",
+      latency: "Legal Grade Logging",
+      details: isEn
+        ? "Append-only immutable audit trail compliant with Thai PDPA Sec 24(5), Computer Crime Act Sec 26, and GDPR Art 6(1)(f)."
+        : "บันทึกประวัติการเปลี่ยนแปลงแบบ Append-Only ปลอดภัยตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) และ พ.ร.บ. คอมพิวเตอร์",
+    },
+    {
+      id: "exports",
+      title: isEn ? "Universal Exporter" : "ระบบส่งออกข้อมูล",
+      badge: isEn ? "Live" : "พร้อมใช้",
+      type: "surface",
+      icon: Download,
+      color: "border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+      stack: "JSON / CSV / Markdown Engine",
+      latency: "Instant Client Download",
+      details: isEn
+        ? "Export boards, spreadsheets, and notes into clean JSON, CSV, Markdown, or print views."
+        : "ส่งออกข้อมูลบอร์ด ตาราง และโน้ตเป็นไฟล์ JSON, CSV, Markdown หรือพิมพ์ลงกระดาษ",
+    },
+    {
+      id: "mcp",
+      title: isEn ? "MCP / AI Connectors" : "ส่วนต่อขยาย MCP Connectors",
+      badge: isEn ? "Planned Roadmap" : "กำลังพัฒนา",
+      type: "planned",
+      icon: Network,
+      color: "border-dashed border-stone-300 bg-stone-50 text-stone-600 dark:border-white/20 dark:bg-white/[0.03] dark:text-stone-400",
+      stack: "Model Context Protocol Spec",
+      latency: "External Agent Ready",
+      details: isEn
+        ? "Roadmap extension enabling external AI agents (Claude, Cursor, ChatGPT) to query this exact data hub via Model Context Protocol."
+        : "แผนการพัฒนาในอนาคต: เชื่อมต่อ AI Agent ภายนอกผ่าน Model Context Protocol (MCP) เข้ากับ Data Hub",
+    },
+  ];
+
+  const activeNodeInfo = nodes.find((n) => n.id === selectedNode) || nodes[4];
+  const ActiveNodeIcon = activeNodeInfo.icon;
+
+  return (
+    <div className="rounded-3xl border border-stone-200/90 bg-gradient-to-b from-stone-50/80 via-white to-stone-50/30 p-5 sm:p-7 dark:border-white/10 dark:from-ink-950/80 dark:via-ink-950/50 dark:to-ink-950/20 shadow-sm space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-stone-200/80 dark:border-white/10 pb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              {isEn ? "System Architecture Map" : "แผนผังสถาปัตยกรรมระบบ"}
+            </span>
+          </div>
+          <h3 className="mt-1 text-base sm:text-lg font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+            <Workflow className="h-4.5 w-4.5 text-indigo-600 dark:text-dusk-lavender" />
+            <span>{isEn ? "Retzlo Platform Data Hub Architecture" : "ศูนย์ข้อมูลกลาง Retzlo Platform Data Hub"}</span>
+          </h3>
+          <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5">
+            {isEn
+              ? "All workspace inputs feed into one unified Postgres hub, powering three main surfaces in real time."
+              : "ทุกข้อมูลใน Workspace เชื่อมโยงเข้าสู่ Data Hub ศูนย์กลางจุดเดียว เพื่อกระจายสู่พื้นผิวการทำงานแบบ Real-time"}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 text-[10px] text-stone-500 dark:text-stone-400">
+          <span className="inline-flex items-center gap-1 font-semibold text-stone-700 dark:text-stone-300">
+            <span className="h-2 w-2 rounded-full bg-indigo-500" />
+            <span>{isEn ? "Solid = Live" : "เส้นทึบ = ใช้งานได้จริง"}</span>
+          </span>
+          <span>•</span>
+          <span className="inline-flex items-center gap-1 font-semibold text-stone-500 dark:text-stone-400">
+            <span className="h-2 w-2 rounded-full border border-stone-400 border-dashed" />
+            <span>{isEn ? "Dashed = Roadmap" : "เส้นประ = กำลังพัฒนา"}</span>
+          </span>
+        </div>
+      </div>
+
+      {/* 3-Column Architecture Canvas */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+        {/* Left Column: Workspace Sources (Inputs) */}
+        <div className="lg:col-span-3 space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 px-1">
+            {isEn ? "1. Inputs & Sources" : "1. แหล่งข้อมูล (Inputs)"}
+          </p>
+          <div className="flex flex-col gap-2">
+            {nodes.filter((n) => n.type === "source").map((node) => {
+              const Icon = node.icon;
+              const isSelected = selectedNode === node.id;
+              return (
+                <button
+                  key={node.id}
+                  type="button"
+                  onClick={() => setSelectedNode(node.id)}
+                  className={cn(
+                    "flex items-center justify-between p-2.5 rounded-xl border text-left transition-all cursor-pointer text-xs",
+                    isSelected
+                      ? "ring-2 ring-indigo-500/30 border-indigo-400 bg-indigo-50/90 dark:bg-dusk-lavender/20 shadow-xs font-semibold"
+                      : "border-stone-200/90 bg-white hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
+                  )}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className={cn("grid h-6 w-6 place-items-center rounded-lg border shrink-0", node.color)}>
+                      <Icon className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="truncate text-stone-900 dark:text-stone-100">{node.title}</span>
+                  </div>
+                  <ArrowRight className="h-3 w-3 text-stone-400 shrink-0" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Center Column: Retzlo Data Hub */}
+        <div className="lg:col-span-4 flex flex-col items-center justify-center p-2">
+          <button
+            type="button"
+            onClick={() => setSelectedNode("hub")}
+            className={cn(
+              "w-full relative group p-5 rounded-2xl border-2 text-center transition-all cursor-pointer shadow-md",
+              selectedNode === "hub"
+                ? "border-indigo-500 bg-gradient-to-b from-indigo-600 to-indigo-700 text-white shadow-xl shadow-indigo-500/20 dark:from-[#211f46] dark:to-[#161533] dark:border-dusk-lavender"
+                : "border-indigo-300/80 bg-white hover:border-indigo-500 dark:border-white/20 dark:bg-ink-950/80"
+            )}
+          >
+            {/* Glowing Accent Ring */}
+            <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500" />
+            </div>
+
+            <div className="grid h-12 w-12 mx-auto place-items-center rounded-2xl bg-white/20 text-white backdrop-blur-xs mb-3 shadow-inner">
+              <Database className="h-6 w-6" />
+            </div>
+
+            <span className="inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider mb-1 bg-white/20 text-white dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+              PostgreSQL on Neon
+            </span>
+            <h4 className="text-sm sm:text-base font-extrabold leading-tight">
+              {isEn ? "Retzlo Realtime Data Hub" : "ศูนย์ข้อมูลกลาง Retzlo Data Hub"}
+            </h4>
+            <p className="mt-1.5 text-[11px] leading-relaxed opacity-90 max-w-xs mx-auto">
+              {isEn
+                ? "Single Postgres store holding cards, statuses, priorities, logs & tokens."
+                : "แกนข้อมูลเดี่ยวที่บันทึกการ์ด, สถานะ, ความสำคัญ, Audit Log และเหรียญรางวัล"}
+            </p>
+
+            <div className="mt-3 pt-2.5 border-t border-white/20 flex items-center justify-center gap-3 text-[10px] font-mono opacity-80">
+              <span>Prisma ORM</span>
+              <span>•</span>
+              <span>Pusher 0ms</span>
+              <span>•</span>
+              <span>PDPA Audit</span>
+            </div>
+          </button>
+        </div>
+
+        {/* Right Column: Output Surfaces & Workbenches */}
+        <div className="lg:col-span-5 space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 px-1">
+            {isEn ? "2. Surfaces & Intelligence (Outputs)" : "2. ผลลัพธ์ & พื้นผิวการทำงาน (Outputs)"}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {nodes.filter((n) => n.type === "surface" || n.type === "planned").map((node) => {
+              const Icon = node.icon;
+              const isSelected = selectedNode === node.id;
+              const isPlanned = node.type === "planned";
+
+              return (
+                <button
+                  key={node.id}
+                  type="button"
+                  onClick={() => setSelectedNode(node.id)}
+                  className={cn(
+                    "flex items-center justify-between p-2.5 rounded-xl border text-left transition-all cursor-pointer text-xs",
+                    isSelected
+                      ? "ring-2 ring-indigo-500/30 border-indigo-400 bg-indigo-50/90 dark:bg-dusk-lavender/20 shadow-xs font-semibold"
+                      : isPlanned
+                      ? "border-dashed border-stone-300 bg-stone-50/70 hover:bg-stone-100 dark:border-white/15 dark:bg-white/[0.02]"
+                      : "border-stone-200/90 bg-white hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
+                  )}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className={cn("grid h-6 w-6 place-items-center rounded-lg border shrink-0", node.color)}>
+                      <Icon className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="block truncate text-stone-900 dark:text-stone-100 font-medium">
+                        {node.title}
+                      </span>
+                      <span className="block text-[9px] text-stone-500 dark:text-stone-400 truncate">
+                        {node.badge}
+                      </span>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="h-3 w-3 text-stone-400 shrink-0" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Node Technical Inspector Card */}
+      <div className="rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-white/10 dark:bg-ink-950/70 shadow-xs space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 dark:border-white/10 pb-2.5">
+          <div className="flex items-center gap-2">
+            <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", activeNodeInfo.color)}>
+              <ActiveNodeIcon className="h-4 w-4" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
+                {activeNodeInfo.title}
+              </span>
+              <span className="ms-2 rounded-full bg-stone-100 px-2 py-0.5 text-[9px] font-semibold text-stone-600 dark:bg-white/10 dark:text-stone-400">
+                {activeNodeInfo.badge}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 text-[11px] font-mono text-stone-500 dark:text-stone-400">
+            <span>Stack: <strong className="text-stone-800 dark:text-stone-200">{activeNodeInfo.stack}</strong></span>
+            <span>•</span>
+            <span>Speed: <strong className="text-emerald-600 dark:text-emerald-400">{activeNodeInfo.latency}</strong></span>
+          </div>
+        </div>
+
+        <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+          {activeNodeInfo.details}
+        </p>
+      </div>
+
+      {/* Handoff-inspired Callout Box: Solid vs. Dashed */}
+      <DocsCallout
+        type="info"
+        title={isEn ? "Solid vs. dashed: what's real today across Retzlo" : "เส้นทึบ vs. เส้นประ: สถาปัตยกรรมที่พร้อมใช้งานจริงวันนี้"}
+      >
+        {isEn ? (
+          <p>
+            The <strong>solid nodes</strong> (PostgreSQL on Neon, Prisma ORM, 0ms Optimistic UI, Pusher WebSockets, Dual-View Kanban & Spreadsheet, Server AI Copilot, Coffee Cheers Economy, and Encrypted Legal Audit Vault) are <strong>100% live in production today</strong>. The <strong>dashed nodes</strong> (external Model Context Protocol MCP connectors and third-party integrations) represent our architectural roadmap, designed to read and build upon this exact same unified data hub without schema changes.
+          </p>
+        ) : (
+          <p>
+            <strong>โหนดเส้นทึบ</strong> (PostgreSQL บน Neon, Prisma ORM, Optimistic UI 0ms, Pusher WebSockets, ระบบมุมมองคู่ Kanban & Spreadsheet, Server AI Copilot, ระบบเหรียญ Coffee Cheers และ Audit Log เข้ารหัสตามกฎหมาย) <strong>เปิดใช้งานจริงในระบบ 100% แล้วในวันนี้</strong> ส่วน<strong>โหนดเส้นประ</strong> (การเชื่อมต่อ Model Context Protocol MCP และเครื่องมือภายนอก) คือทิศทาง Roadmap ที่ออกแบบบนฐานข้อมูล Hub เดียวกันนี้โดยไม่ต้องเปลี่ยนโครงสร้าง
+          </p>
+        )}
+      </DocsCallout>
+    </div>
+  );
+}
+
 /* ── Main Help Center Client Component ── */
 
 export function HelpCenterClient() {
@@ -2668,6 +3203,10 @@ export function HelpCenterClient() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"docs" | "interactive" | "shortcuts" | "faq">("docs");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeHeadingId, setActiveHeadingId] = useState<string>("overview");
   const [copiedShortcut, setCopiedShortcut] = useState<string | null>(null);
   const [feedbackVote, setFeedbackVote] = useState<"helpful" | "unhelpful" | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
@@ -2677,17 +3216,67 @@ export function HelpCenterClient() {
   const { openAiChat } = useAiChat();
   const { toast } = useToast();
 
-  // Keyboard shortcut listener (Ctrl+K or Cmd+K focuses search)
+  // Keyboard shortcut listener (Ctrl+K focuses search, [ toggles sidebar)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         searchInputRef.current?.focus();
       }
+      if (e.key === "[" && !["input", "textarea"].includes((e.target as HTMLElement)?.tagName?.toLowerCase())) {
+        e.preventDefault();
+        setIsSidebarCollapsed((prev) => !prev);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Scroll progress listener for top hairline bar and TOC circular ring
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollTop || document.body.scrollTop;
+      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      if (windowHeight > 0) {
+        const scroll = Math.min(100, Math.max(0, (totalScroll / windowHeight) * 100));
+        setScrollProgress(scroll);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // IntersectionObserver for Section Scroll-Spy in Table of Contents
+  useEffect(() => {
+    const sectionIds = [
+      "overview",
+      "architecture-hub",
+      "live-demo",
+      "capabilities",
+      "workflow",
+      "technical-specs",
+      "tips",
+      "shortcuts",
+    ];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveHeadingId(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-80px 0px -50% 0px" }
+    );
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [activeTopicId, viewMode]);
 
   // Filter topics based on category and search query
   const filteredTopics = useMemo(() => {
@@ -2705,6 +3294,23 @@ export function HelpCenterClient() {
       return matchesCategory && matchesSearch;
     });
   }, [topics, selectedCategory, searchQuery]);
+
+  // Group topics by category for Handoff-style collapsible tree sidebar
+  const topicsByCategory = useMemo(() => {
+    const map: Record<string, GuideTopic[]> = {};
+    filteredTopics.forEach((t) => {
+      if (!map[t.category]) map[t.category] = [];
+      map[t.category].push(t);
+    });
+    return map;
+  }, [filteredTopics]);
+
+  const toggleCategoryCollapse = (catId: string) => {
+    setCollapsedCategories((prev) => ({
+      ...prev,
+      [catId]: !prev[catId],
+    }));
+  };
 
   // Current active topic in reader view
   const activeTopic = useMemo(() => {
@@ -2782,6 +3388,17 @@ export function HelpCenterClient() {
               title="Toggle docs navigation"
             >
               {isMobileSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+
+            {/* Desktop Sidebar Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setIsSidebarCollapsed((prev) => !prev)}
+              className="hidden lg:flex items-center justify-center h-9 w-9 rounded-xl border border-stone-200/80 bg-stone-100/80 text-stone-700 hover:bg-stone-200 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300 dark:hover:bg-white/10 transition cursor-pointer"
+              aria-label={isEn ? "Toggle sidebar ([)" : "ย่อ/ขยายแถบข้าง ([)"}
+              title={isEn ? "Toggle sidebar ([)" : "ย่อ/ขยายแถบข้าง ([)"}
+            >
+              {isSidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
             </button>
 
             <div className="flex items-center gap-2.5">
@@ -2927,6 +3544,14 @@ export function HelpCenterClient() {
             </Link>
           </div>
         </div>
+
+        {/* Hairline Reading Scroll Progress Bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-stone-200/50 dark:bg-white/5 overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 dark:from-dusk-lavender dark:via-purple-400 dark:to-dusk-amber transition-all duration-150"
+            style={{ width: `${scrollProgress}%` }}
+          />
+        </div>
       </header>
 
       {/* ── Welcome Hero Banner & System Pillars Bento ── */}
@@ -3008,8 +3633,9 @@ export function HelpCenterClient() {
         {viewMode === "docs" && (
           <aside
             className={cn(
-              "fixed inset-y-0 left-0 z-40 w-72 transform bg-white/95 p-5 border-r border-stone-200/80 backdrop-blur-xl transition-transform duration-200 ease-in-out dark:bg-ink-950/95 dark:border-white/10 lg:static lg:z-auto lg:w-64 lg:shrink-0 lg:border-none lg:bg-transparent lg:p-0 lg:backdrop-blur-none lg:translate-x-0 flex flex-col",
-              isMobileSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+              "fixed inset-y-0 left-0 z-40 w-72 transform bg-white/95 p-5 border-r border-stone-200/80 backdrop-blur-xl transition-all duration-200 ease-in-out dark:bg-ink-950/95 dark:border-white/10 lg:static lg:z-auto lg:border-none lg:bg-transparent lg:p-0 lg:backdrop-blur-none flex flex-col",
+              isMobileSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
+              isSidebarCollapsed ? "lg:hidden" : "lg:w-64 lg:shrink-0"
             )}
           >
             {/* Mobile Sidebar Header */}
@@ -3075,7 +3701,7 @@ export function HelpCenterClient() {
 
               <div className="h-px bg-stone-200/80 dark:bg-white/10 my-3" />
 
-              {/* Document Topics Tree */}
+              {/* Document Topics Tree (Handoff-style Collapsible Folders) */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between px-2">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
@@ -3092,52 +3718,121 @@ export function HelpCenterClient() {
                   )}
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  {filteredTopics.map((topic) => {
-                    const isActive = activeTopic.id === topic.id;
-                    const Icon = topic.icon;
-                    const topicTheme = CATEGORY_THEME_MAP[topic.category] || CATEGORY_THEME_MAP.overview;
+                <div className="flex flex-col gap-2">
+                  {selectedCategory === "all" && !searchQuery ? (
+                    categories
+                      .filter((c) => c.id !== "all")
+                      .map((cat) => {
+                        const catTopics = topicsByCategory[cat.id] || [];
+                        if (catTopics.length === 0) return null;
+                        const isCollapsed = !!collapsedCategories[cat.id];
 
-                    return (
-                      <button
-                        key={topic.id}
-                        type="button"
-                        onClick={() => selectTopic(topic.id)}
-                        className={cn(
-                          "group relative flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs transition-all duration-150 cursor-pointer text-left border",
-                          isActive
-                            ? cn("font-semibold", topicTheme.activeSidebar)
-                            : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 border-transparent dark:text-stone-400 dark:hover:bg-white/[0.04] dark:hover:text-stone-200"
-                        )}
-                      >
-                        {isActive && (
-                          <div className={cn("absolute -left-1 top-1/2 -translate-y-1/2 h-5 w-1 rounded-full", topicTheme.activeSidebarBar)} />
-                        )}
+                        return (
+                          <div key={cat.id} className="space-y-1">
+                            {/* Category Folder Header */}
+                            <button
+                              type="button"
+                              onClick={() => toggleCategoryCollapse(cat.id)}
+                              className="group flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-[11px] font-bold text-stone-700 hover:text-stone-900 dark:text-stone-300 dark:hover:text-stone-100 hover:bg-stone-100/70 dark:hover:bg-white/[0.04] transition cursor-pointer"
+                            >
+                              <span className="flex items-center gap-1.5 truncate">
+                                {isCollapsed ? (
+                                  <ChevronRight className="h-3 w-3 text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-300 shrink-0 transition" />
+                                ) : (
+                                  <ChevronDown className="h-3 w-3 text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-300 shrink-0 transition" />
+                                )}
+                                <span className="uppercase tracking-wider">{cat.label}</span>
+                              </span>
+                              <span className="rounded-full bg-stone-100 px-1.5 py-0.2 text-[9px] font-mono text-stone-500 dark:bg-white/10 dark:text-stone-400">
+                                {catTopics.length}
+                              </span>
+                            </button>
 
-                        <Icon
-                          className={cn(
-                            "h-4 w-4 shrink-0 transition-colors",
-                            isActive
-                              ? topicTheme.activeSidebarIcon
-                              : "text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-300"
-                          )}
-                        />
+                            {/* Topics List within Category */}
+                            {!isCollapsed && (
+                              <div className="flex flex-col gap-1 pl-2 border-l border-stone-200/80 dark:border-white/10 ml-2">
+                                {catTopics.map((topic) => {
+                                  const isActive = activeTopic.id === topic.id;
+                                  const Icon = topic.icon;
+                                  const topicTheme = CATEGORY_THEME_MAP[topic.category] || CATEGORY_THEME_MAP.overview;
 
-                        <span className="flex-1 truncate">{topic.title}</span>
-
-                        {topic.badge && (
-                          <span
-                            className={cn(
-                              "rounded-md px-1.5 py-0.5 text-[9px] font-medium shrink-0",
-                              topic.badgeColor
+                                  return (
+                                    <button
+                                      key={topic.id}
+                                      type="button"
+                                      onClick={() => selectTopic(topic.id)}
+                                      className={cn(
+                                        "group relative flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs transition-all duration-150 cursor-pointer text-left border",
+                                        isActive
+                                          ? cn("font-semibold", topicTheme.activeSidebar)
+                                          : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 border-transparent dark:text-stone-400 dark:hover:bg-white/[0.04] dark:hover:text-stone-200"
+                                      )}
+                                    >
+                                      {isActive && (
+                                        <div className={cn("absolute -left-2.5 top-1/2 -translate-y-1/2 h-4 w-1 rounded-full", topicTheme.activeSidebarBar)} />
+                                      )}
+                                      <Icon
+                                        className={cn(
+                                          "h-3.5 w-3.5 shrink-0 transition-colors",
+                                          isActive
+                                            ? topicTheme.activeSidebarIcon
+                                            : "text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-300"
+                                        )}
+                                      />
+                                      <span className="flex-1 truncate">{topic.title}</span>
+                                      {topic.badge && (
+                                        <span className={cn("rounded-md px-1.5 py-0.5 text-[9px] font-medium shrink-0", topic.badgeColor)}>
+                                          {topic.badge}
+                                        </span>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
                             )}
-                          >
-                            {topic.badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                          </div>
+                        );
+                      })
+                  ) : (
+                    /* Flat filtered list when category selected or searching */
+                    filteredTopics.map((topic) => {
+                      const isActive = activeTopic.id === topic.id;
+                      const Icon = topic.icon;
+                      const topicTheme = CATEGORY_THEME_MAP[topic.category] || CATEGORY_THEME_MAP.overview;
+
+                      return (
+                        <button
+                          key={topic.id}
+                          type="button"
+                          onClick={() => selectTopic(topic.id)}
+                          className={cn(
+                            "group relative flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs transition-all duration-150 cursor-pointer text-left border",
+                            isActive
+                              ? cn("font-semibold", topicTheme.activeSidebar)
+                              : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 border-transparent dark:text-stone-400 dark:hover:bg-white/[0.04] dark:hover:text-stone-200"
+                          )}
+                        >
+                          {isActive && (
+                            <div className={cn("absolute -left-1 top-1/2 -translate-y-1/2 h-5 w-1 rounded-full", topicTheme.activeSidebarBar)} />
+                          )}
+                          <Icon
+                            className={cn(
+                              "h-4 w-4 shrink-0 transition-colors",
+                              isActive
+                                ? topicTheme.activeSidebarIcon
+                                : "text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-300"
+                            )}
+                          />
+                          <span className="flex-1 truncate">{topic.title}</span>
+                          {topic.badge && (
+                            <span className={cn("rounded-md px-1.5 py-0.5 text-[9px] font-medium shrink-0", topic.badgeColor)}>
+                              {topic.badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })
+                  )}
 
                   {filteredTopics.length === 0 && (
                     <div className="p-3 text-center text-xs text-stone-500 dark:text-stone-400">
@@ -3279,19 +3974,14 @@ export function HelpCenterClient() {
                 {/* ── Interactive Feature Sandbox / Live Demo Widget ── */}
                 {activeTopic.demoType && (
                   <section id="live-demo" className="space-y-3 scroll-mt-24">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
-                          <Play className="h-4 w-4" />
-                        </div>
-                        <h2 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100">
-                          <span>{isEn ? "Interactive Live Sandbox" : "ตัวอย่างจำลองฟีเจอร์สด (Interactive Live Sandbox)"}</span>
-                        </h2>
-                      </div>
-                      <span className="text-[10px] text-stone-500 dark:text-stone-400">
-                        {isEn ? "Try interacting directly" : "ลองคลิกใช้งานได้โดยตรง"}
-                      </span>
-                    </div>
+                    <DocsHeading
+                      id="live-demo"
+                      title={isEn ? "Interactive Live Sandbox" : "ตัวอย่างจำลองฟีเจอร์สด (Interactive Live Sandbox)"}
+                      subtitle={isEn ? "Try interacting directly" : "ลองคลิกใช้งานได้โดยตรง"}
+                      icon={Play}
+                      badgeClass={categoryTheme.sectionBadge}
+                      isEn={isEn}
+                    />
 
                     {activeTopic.demoType === "ai-chat" && <InteractiveAiDemo isEn={isEn} />}
                     {activeTopic.demoType === "kanban-table" && <InteractiveKanbanTableDemo isEn={isEn} />}
@@ -3325,17 +4015,23 @@ export function HelpCenterClient() {
                   </section>
                 )}
 
+                {/* ── Architecture Data Hub (Featured on Welcome Overview) ── */}
+                {activeTopic.id === "welcome-overview" && (
+                  <div id="architecture-hub" className="scroll-mt-24 space-y-3 pt-2">
+                    <RetzloHubDiagram isEn={isEn} />
+                  </div>
+                )}
+
                 {/* Section 1: Overview & Concept */}
                 {activeTopic.concept && (
                   <section id="overview" className="space-y-3.5 scroll-mt-24">
-                    <div className="flex items-center gap-2.5">
-                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
-                        <Compass className="h-4 w-4" />
-                      </div>
-                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
-                        {isEn ? "Overview & Architectural Concept" : "ภาพรวมและแนวคิดของฟีเจอร์"}
-                      </h2>
-                    </div>
+                    <DocsHeading
+                      id="overview"
+                      title={isEn ? "Overview & Architectural Concept" : "ภาพรวมและแนวคิดของฟีเจอร์"}
+                      icon={Compass}
+                      badgeClass={categoryTheme.sectionBadge}
+                      isEn={isEn}
+                    />
                     <div className="rounded-2xl border border-stone-200/80 bg-stone-50/50 p-4 sm:p-5 text-xs sm:text-sm text-stone-700 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-300 leading-relaxed">
                       {activeTopic.concept}
                     </div>
@@ -3344,19 +4040,14 @@ export function HelpCenterClient() {
 
                 {/* Section 2: Key Capabilities & Highlights Grid */}
                 <section id="capabilities" className="space-y-4 scroll-mt-24">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
-                        <Layers className="h-4 w-4" />
-                      </div>
-                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
-                        {isEn ? "Key Capabilities" : "คุณสมบัติและความสามารถหลัก (Key Capabilities)"}
-                      </h2>
-                    </div>
-                    <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
-                      {activeTopic.highlights.length} {isEn ? "highlights" : "รายการ"}
-                    </span>
-                  </div>
+                  <DocsHeading
+                    id="capabilities"
+                    title={isEn ? "Key Capabilities" : "คุณสมบัติและความสามารถหลัก (Key Capabilities)"}
+                    subtitle={`${activeTopic.highlights.length} ${isEn ? "highlights" : "รายการ"}`}
+                    icon={Layers}
+                    badgeClass={categoryTheme.sectionBadge}
+                    isEn={isEn}
+                  />
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     {activeTopic.highlights.map((highlight, index) => (
@@ -3378,14 +4069,13 @@ export function HelpCenterClient() {
                 {/* Section 3: Step-by-Step Workflow Guide */}
                 {activeTopic.workflowSteps && activeTopic.workflowSteps.length > 0 && (
                   <section id="workflow" className="space-y-4 scroll-mt-24">
-                    <div className="flex items-center gap-2.5">
-                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
-                        <ListChecks className="h-4 w-4" />
-                      </div>
-                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
-                        {isEn ? "Step-by-Step Workflow Guide" : "ขั้นตอนการใช้งานจริง (Step-by-Step Workflow Guide)"}
-                      </h2>
-                    </div>
+                    <DocsHeading
+                      id="workflow"
+                      title={isEn ? "Step-by-Step Workflow Guide" : "ขั้นตอนการใช้งานจริง (Step-by-Step Workflow Guide)"}
+                      icon={ListChecks}
+                      badgeClass={categoryTheme.sectionBadge}
+                      isEn={isEn}
+                    />
 
                     <div className="grid gap-3">
                       {activeTopic.workflowSteps.map((stepItem, index) => (
@@ -3416,14 +4106,13 @@ export function HelpCenterClient() {
                 {/* Section 4: Technical Specifications */}
                 {activeTopic.technicalSpecs && activeTopic.technicalSpecs.length > 0 && (
                   <section id="technical-specs" className="space-y-3.5 scroll-mt-24">
-                    <div className="flex items-center gap-2.5">
-                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
-                        <Zap className="h-4 w-4" />
-                      </div>
-                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
-                        {isEn ? "Technical Specifications" : "ข้อมูลจำเพาะทางเทคนิค (Technical Specifications)"}
-                      </h2>
-                    </div>
+                    <DocsHeading
+                      id="technical-specs"
+                      title={isEn ? "Technical Specifications" : "ข้อมูลจำเพาะทางเทคนิค (Technical Specifications)"}
+                      icon={Zap}
+                      badgeClass={categoryTheme.sectionBadge}
+                      isEn={isEn}
+                    />
 
                     <div className="rounded-2xl border border-stone-200/80 bg-stone-50/50 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.02]">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -3444,34 +4133,26 @@ export function HelpCenterClient() {
 
                 {/* Section 5: Pro Tips Callout */}
                 {activeTopic.tips && (
-                  <section id="tips" className="rounded-2xl border border-amber-200/90 bg-amber-50/70 p-4 sm:p-5 text-xs sm:text-sm dark:border-dusk-amber/30 dark:bg-dusk-amber/10 shadow-xs scroll-mt-24">
-                    <div className="flex items-start gap-3.5">
-                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-amber-100 text-amber-800 border border-amber-300/80 dark:bg-dusk-amber/20 dark:text-dusk-amber dark:border-dusk-amber/30 shrink-0 mt-0.5">
-                        <Lightbulb className="h-4.5 w-4.5 text-amber-600 dark:text-dusk-amber" />
-                      </div>
-                      <div className="space-y-1 flex-1">
-                        <h3 className="font-bold text-amber-950 dark:text-dusk-amber">
-                          {isEn ? "Pro Tip & Best Practice" : "เคล็ดลับจากผู้เชี่ยวชาญ (Pro Tip)"}
-                        </h3>
-                        <p className="leading-relaxed text-amber-900/90 dark:text-stone-300">
-                          {activeTopic.tips}
-                        </p>
-                      </div>
-                    </div>
-                  </section>
+                  <div id="tips" className="scroll-mt-24">
+                    <DocsCallout
+                      type="tip"
+                      title={isEn ? "Pro Tip & Best Practice" : "เคล็ดลับจากผู้เชี่ยวชาญ (Pro Tip)"}
+                    >
+                      <p>{activeTopic.tips}</p>
+                    </DocsCallout>
+                  </div>
                 )}
 
                 {/* Section 6: Code / Keyboard Shortcut (if available) */}
                 {activeTopic.codeOrShortcut && (
                   <section id="shortcuts" className="space-y-3.5 scroll-mt-24">
-                    <div className="flex items-center gap-2.5">
-                      <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", categoryTheme.sectionBadge)}>
-                        <Keyboard className="h-4 w-4" />
-                      </div>
-                      <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100">
-                        {isEn ? "Keyboard Shortcut" : "คีย์ลัดด่วน (Keyboard Shortcut)"}
-                      </h2>
-                    </div>
+                    <DocsHeading
+                      id="shortcuts"
+                      title={isEn ? "Keyboard Shortcut" : "คีย์ลัดด่วน (Keyboard Shortcut)"}
+                      icon={Keyboard}
+                      badgeClass={categoryTheme.sectionBadge}
+                      isEn={isEn}
+                    />
 
                     <div className="flex items-center justify-between rounded-2xl border border-stone-200/80 bg-stone-900 p-4 text-white dark:border-white/10 dark:bg-ink-950 shadow-inner">
                       <div className="flex items-center gap-2 font-mono text-xs sm:text-sm text-amber-300">
@@ -3624,64 +4305,160 @@ export function HelpCenterClient() {
               {/* ── Right Column: Table of Contents & Support (Desktop Only) ── */}
               <aside className="hidden xl:block w-64 shrink-0 sticky top-24 space-y-5">
                 {/* On This Page Widget */}
-                <div className="lofi-panel rounded-2xl border border-stone-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-ink-950/40 space-y-3">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
-                    {isEn ? "On This Page" : "ในบทความนี้"}
-                  </p>
-                  <nav className="flex flex-col gap-1.5 text-xs text-stone-600 dark:text-stone-400">
+                <div className="lofi-panel rounded-2xl border border-stone-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-ink-950/40 space-y-3 shadow-2xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-stone-200/80 dark:border-white/10">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
+                      {isEn ? "On This Page" : "ในบทความนี้"}
+                    </p>
+                    <div
+                      className="flex items-center gap-1.5"
+                      title={isEn ? `Reading Progress: ${Math.round(scrollProgress)}%` : `ความคืบหน้าการอ่าน: ${Math.round(scrollProgress)}%`}
+                    >
+                      <svg
+                        className="h-4 w-4 -rotate-90"
+                        viewBox="0 0 20 20"
+                        role="progressbar"
+                        aria-valuenow={Math.round(scrollProgress)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      >
+                        <circle
+                          cx="10"
+                          cy="10"
+                          r="7.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          className="text-stone-200 dark:text-white/10"
+                        />
+                        <circle
+                          cx="10"
+                          cy="10"
+                          r="7.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeDasharray="47.12"
+                          strokeDashoffset={47.12 - (47.12 * scrollProgress) / 100}
+                          strokeLinecap="round"
+                          className="text-indigo-600 dark:text-dusk-lavender transition-all duration-150"
+                        />
+                      </svg>
+                      <span className="font-mono text-[10px] text-stone-500 dark:text-stone-400 font-medium">
+                        {Math.round(scrollProgress)}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <nav className="flex flex-col gap-1 text-xs">
                     {activeTopic.demoType && (
                       <a
                         href="#live-demo"
-                        className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate flex items-center gap-1.5 text-indigo-600 dark:text-dusk-lavender font-semibold"
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "live-demo"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                        )}
                       >
-                        <Play className="h-3 w-3" />
+                        <Play className="h-3 w-3 shrink-0" />
                         <span>{isEn ? "Live Sandbox" : "ตัวอย่างจำลองสด"}</span>
+                      </a>
+                    )}
+                    {activeTopic.id === "welcome-overview" && (
+                      <a
+                        href="#architecture-hub"
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "architecture-hub"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                        )}
+                      >
+                        <Workflow className="h-3 w-3 shrink-0" />
+                        <span>{isEn ? "Data Hub Architecture" : "ผังสถาปัตยกรรม Data Hub"}</span>
                       </a>
                     )}
                     {activeTopic.concept && (
                       <a
                         href="#overview"
-                        className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "overview"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                        )}
                       >
-                        • {isEn ? "Overview & Concept" : "ภาพรวมและแนวคิด"}
+                        <span>•</span>
+                        <span className="truncate">{isEn ? "Overview & Concept" : "ภาพรวมและแนวคิด"}</span>
                       </a>
                     )}
                     <a
                       href="#capabilities"
-                      className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
+                      className={cn(
+                        "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                        activeHeadingId === "capabilities"
+                          ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                          : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                      )}
                     >
-                      • {isEn ? "Key Capabilities" : "คุณสมบัติและความสามารถ"}
+                      <span>•</span>
+                      <span className="truncate">{isEn ? "Key Capabilities" : "คุณสมบัติและความสามารถ"}</span>
                     </a>
                     {activeTopic.workflowSteps && activeTopic.workflowSteps.length > 0 && (
                       <a
                         href="#workflow"
-                        className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "workflow"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                        )}
                       >
-                        • {isEn ? "Workflow Steps" : "ขั้นตอนการใช้งานจริง"}
+                        <span>•</span>
+                        <span className="truncate">{isEn ? "Workflow Steps" : "ขั้นตอนการใช้งานจริง"}</span>
                       </a>
                     )}
                     {activeTopic.technicalSpecs && activeTopic.technicalSpecs.length > 0 && (
                       <a
                         href="#technical-specs"
-                        className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
-                      >
-                        • {isEn ? "Technical Specs" : "ข้อมูลจำเพาะทางเทคนิค"}
-                      </a>
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "technical-specs"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                      )}
+                    >
+                      <span>•</span>
+                      <span className="truncate">{isEn ? "Technical Specs" : "ข้อมูลจำเพาะทางเทคนิค"}</span>
+                    </a>
                     )}
                     {activeTopic.tips && (
                       <a
                         href="#tips"
-                        className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "tips"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                        )}
                       >
-                        • {isEn ? "Pro Tips" : "เคล็ดลับจากผู้เชี่ยวชาญ"}
+                        <span>•</span>
+                        <span className="truncate">{isEn ? "Pro Tips" : "เคล็ดลับจากผู้เชี่ยวชาญ"}</span>
                       </a>
                     )}
                     {activeTopic.codeOrShortcut && (
                       <a
                         href="#shortcuts"
-                        className="hover:text-indigo-600 dark:hover:text-dusk-lavender transition truncate"
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "shortcuts"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                        )}
                       >
-                        • {isEn ? "Quick Shortcut" : "คีย์ลัดด่วน"}
+                        <span>•</span>
+                        <span className="truncate">{isEn ? "Quick Shortcut" : "คีย์ลัดด่วน"}</span>
                       </a>
                     )}
                   </nav>

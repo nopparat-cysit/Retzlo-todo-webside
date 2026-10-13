@@ -132,9 +132,30 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 - Left sidebar grouped into 3 scopes: Project (General, Members), Boards (All boards, Details, Columns, Card attributes), and Personal (Theme & sound).
 - Master-detail layout with `SettingsSection` / `SettingsRow` standard primitives.
 
-### 2.12 Documentation & Help Hub (`/help`)
-- Interactive SaaS docs hub with Welcome Hero, 6-Pillar Bento Navigator, 10 categories in left tree, modular reader with live feature sandboxes, and full bilingual support (English & Thai).
-- Integrated Language Switcher (`EN` / `TH`) allowing one-click instant toggling.
+### 2.12 World-Class Documentation & Help Portal (`/docs` & `/help`)
+- **Dual-Route SaaS Documentation Portal**: Accessible from both `/docs` and `/help`, inspired by Handoff's modern docs architecture (`handoff.com/docs`) and tailored to Retzlo's Retro Lofi Indigo aesthetic.
+- **Top Navigation Bar**:
+  - Sticky glassmorphic header with hairline scroll progress indicator (`scrollProgress %`).
+  - Desktop sidebar toggle (`PanelLeft` / `[` keyboard shortcut) enabling distraction-free full-width reading.
+  - Global `Ctrl+K` search bar with instant keyword matching across titles, summaries, highlights, and shortcuts.
+  - View Switcher segmented tabs: **Docs** (Reader), **Playground** (Live interactive sandboxes), **Shortcuts** (Matrix), and **FAQ**.
+  - One-click bilingual language switcher (`EN` / `TH`).
+- **Collapsible Category Folder Tree (Left Sidebar)**:
+  - Folders grouped by category with ChevronDown/ChevronRight expand/collapse toggles and category badge counters.
+  - Visual active topic indicator with retro lofi indigo left accent bars.
+  - Category filter pills for rapid narrowing of topics.
+- **Retzlo Platform Data Hub Architecture Map (`RetzloHubDiagram`)**:
+  - Interactive 3-tier diagram: **Workspace Inputs** (Kanban, Table, Calendar, Notes) → **Central Neon PostgreSQL + Pusher WebSockets Hub** → **Surfaces & Engines** (Dual UI, Server AI Copilot, Realtime Broadcast, Coffee Cheers Economy, Legal Audit Vault, Exporters, and MCP Connectors).
+  - Clickable technical node inspector displaying tech stack, latency tiers, and architectural role.
+  - Handoff-style callout: "Solid vs. dashed: what's real today across Retzlo" highlighting live production systems vs. planned MCP agent connectors.
+- **Article Reader & Callout System**:
+  - Category eyebrow badge, reading time, and last updated timestamps.
+  - `DocsCallout` component with 5 semantic themes: info, tip, warning, security, architecture with left accent bars.
+  - `DocsHeading` component with copyable `#id` anchor link buttons and toast notifications.
+- **Reading Progress Ring & Scroll-Spy Table of Contents (Right Sidebar)**:
+  - SVG circular reading progress indicator (`<svg role="progressbar">`) displaying real-time reading completion percentage.
+  - IntersectionObserver-powered Scroll-Spy highlighting the active section in real-time.
+  - Embedded AI Copilot quick-launch card with one-click Retzlo AI assistant prompt.
 
 ### 2.13 Help Dropdown, System Info & Contact Form (`/contact`)
 - Topbar `(?)` button with direct links to `/help`, System Info modal, `/contact` form with 7 quick templates, ticket tracking code, and instant AI Assistant launch.
@@ -364,5 +385,14 @@ Retzlo now features an enterprise-grade, append-only **Audit Logging & Forensic 
 - **Authoritative Engineering Standards**:
   - Established `docs/audit-logging-standard.md` as mandatory policy.
   - Added enforceable audit logging rules to `AGENTS.md`.
+
+### 2026-10-13 — Handoff-Inspired World-Class Documentation Portal (/docs & /help)
+Retzlo now features a modern, world-class documentation portal inspired by `handoff.com/docs`, adhering to the retro lofi indigo aesthetic:
+- **Dual Routes**: First-class `/docs` route alongside `/help`.
+- **Top Navigation**: Sticky glassmorphic navbar with hairline scroll progress indicator, desktop sidebar toggle (`[`), global search (`Ctrl+K`), and view modes.
+- **Collapsible Category Folders**: Left sidebar organized into expandable category folders with Chevron toggles and badge counts.
+- **Retzlo Platform Data Hub Architecture Map**: Interactive 3-tier diagram illustrating Inputs → Central PostgreSQL Hub → Surfaces & AI Engines, with technical node inspector and Handoff-style "Solid vs. Dashed" real-world telemetry callouts.
+- **Enhanced Reading Experience**: Circular SVG reading progress ring (`<svg role="progressbar">`), IntersectionObserver scroll-spy in Table of Contents, `DocsCallout` boxes (info, tip, warning, security, architecture), and copyable `#id` heading anchors.
+
 
 
