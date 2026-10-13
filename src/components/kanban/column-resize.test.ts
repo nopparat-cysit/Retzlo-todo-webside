@@ -42,4 +42,20 @@ describe("Kanban Column Resizing on X-axis", () => {
     // Must disable transitions while resizing for silky 60fps performance
     expect(columnSource).toContain('isResizing ? "transition-none select-none" : "transition duration-200"');
   });
+
+  it("renders curved vector guide lines that hug rounded-2xl top and bottom corners", () => {
+    const columnSource = readFileSync(new URL("./column.tsx", import.meta.url), "utf8");
+
+    // Must define highlight active state on hover or resize
+    expect(columnSource).toContain("isHighlightActive = isHandleHovered || isResizing");
+
+    // Must render curved top-right corner arc matching rounded-2xl geometry
+    expect(columnSource).toContain('M 0 1 A 15 15 0 0 1 15 16');
+
+    // Must render vertical middle line connecting top and bottom curves
+    expect(columnSource).toContain('top-[15px] bottom-[15px] -right-px w-[2px]');
+
+    // Must render curved bottom-right corner arc matching rounded-2xl geometry
+    expect(columnSource).toContain('M 15 0 A 15 15 0 0 1 0 15');
+  });
 });

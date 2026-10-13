@@ -137,6 +137,7 @@ function KanbanColumnComponent({
   const [columnWidth, setColumnWidth] = useState<number>(DEFAULT_COLUMN_WIDTH);
   const [isResizing, setIsResizing] = useState(false);
   const [isHandleHovered, setIsHandleHovered] = useState(false);
+  const isHighlightActive = isHandleHovered || isResizing;
   const resizeStartXRef = useRef(0);
   const resizeStartWidthRef = useRef(DEFAULT_COLUMN_WIDTH);
 
@@ -784,6 +785,60 @@ function KanbanColumnComponent({
       />
       </div>
 
+      {/* ── Curved Column Resize Guide Line (Top & Bottom Arcs + Vertical Middle) ── */}
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 z-30 transition-opacity duration-150",
+          isHighlightActive ? "opacity-100" : "opacity-0"
+        )}
+      >
+        {/* Top-Right Corner Arc following rounded-2xl border */}
+        <svg
+          className={cn(
+            "pointer-events-none absolute -top-px -right-px h-4 w-4 overflow-visible transition-colors duration-150",
+            isResizing
+              ? "text-indigo-500 drop-shadow-[0_0_10px_rgba(169,162,255,0.8)] dark:text-dusk-lavender"
+              : "text-indigo-400/80 drop-shadow-[0_0_6px_rgba(169,162,255,0.4)] dark:text-dusk-lavender/80"
+          )}
+          viewBox="0 0 16 16"
+          fill="none"
+        >
+          <path
+            d="M 0 1 A 15 15 0 0 1 15 16"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+        </svg>
+
+        {/* Vertical Middle Line running flush along right border */}
+        <div
+          className={cn(
+            "pointer-events-none absolute top-[15px] bottom-[15px] -right-px w-[2px] transition-all duration-150",
+            isResizing
+              ? "bg-indigo-500 shadow-[0_0_10px_rgba(169,162,255,0.8)] dark:bg-dusk-lavender"
+              : "bg-indigo-400/80 shadow-[0_0_6px_rgba(169,162,255,0.4)] dark:bg-dusk-lavender/80"
+          )}
+        />
+
+        {/* Bottom-Right Corner Arc following rounded-2xl border */}
+        <svg
+          className={cn(
+            "pointer-events-none absolute -bottom-px -right-px h-4 w-4 overflow-visible transition-colors duration-150",
+            isResizing
+              ? "text-indigo-500 drop-shadow-[0_0_10px_rgba(169,162,255,0.8)] dark:text-dusk-lavender"
+              : "text-indigo-400/80 drop-shadow-[0_0_6px_rgba(169,162,255,0.4)] dark:text-dusk-lavender/80"
+          )}
+          viewBox="0 0 16 16"
+          fill="none"
+        >
+          <path
+            d="M 15 0 A 15 15 0 0 1 0 15"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+        </svg>
+      </div>
+
       {/* ── Column Horizontal Resize Handle (Hover & Drag on X-axis) ── */}
       <div
         role="separator"
@@ -799,15 +854,6 @@ function KanbanColumnComponent({
           isResizing ? "pointer-events-auto" : ""
         )}
       >
-        {/* Vertical Guide Line - perfectly centered at x = 0 (column right border) */}
-        <div
-          className={cn(
-            "pointer-events-none absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[2px] transition-all duration-150",
-            isResizing
-              ? "bg-indigo-500 shadow-[0_0_10px_rgba(169,162,255,0.8)] dark:bg-dusk-lavender"
-              : "bg-transparent group-hover/resize:bg-indigo-400/80 group-hover/resize:shadow-[0_0_6px_rgba(169,162,255,0.4)] dark:group-hover/resize:bg-dusk-lavender/80"
-          )}
-        />
 
         {/* Center Grab Handle Pill - elevated, tactile, and floating above border */}
         <div
