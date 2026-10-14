@@ -44,9 +44,15 @@
 - `npm run lint`: Passed (`✔ No ESLint warnings or errors`).
 - `node -e "fetch('http://localhost:3000/docs')..."`: Passed (Status 200, includes `core-pillars`, `architecture-hub`, `max-w-[1600px]`).
 - `node -e "fetch('http://localhost:3000/help')..."`: Passed (Status 200, includes `core-pillars`, `architecture-hub`, `max-w-[1600px]`).
+- Verified static assets HTTP 200 OK:
+  - `layout.css`: 200 OK (398 KB)
+  - `main-app.js`: 200 OK
+  - `docs/page.js`: 200 OK
 
 ---
 
-## Known Follow-ups, Blockers, or Deployment Notes
+## Incident & Dev-Server Resolution Notes
 
-- None. Ready for production commit and push.
+- **Symptom in Screenshot:** Browser rendered raw unstyled HTML (plain Times New Roman, unstyled buttons) on `localhost:3000/docs`.
+- **Root Cause:** Running `npx next build` while `npm run dev` was running in the background wiped dev server manifest cache files, causing `/_next/static/css/app/layout.css` and chunk requests to return 404.
+- **Resolution:** Terminated background dev process, cleaned `.next` cache directory, and restarted `npm run dev`. Verified all CSS and JS chunks now return HTTP 200 OK.
