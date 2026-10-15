@@ -57,5 +57,12 @@ describe("Kanban Column Resizing on X-axis", () => {
 
     // Must render curved bottom-right corner arc matching rounded-2xl geometry
     expect(columnSource).toContain('M 15 0 A 15 15 0 0 1 0 15');
+
+    // Must fade out guide line ends smoothly with linearGradient and strokeLinecap="round"
+    expect(columnSource).toContain('top-arc-fade');
+    expect(columnSource).toContain('bottom-arc-fade');
+    expect(columnSource).toContain('strokeLinecap="round"');
+    expect(columnSource).toContain('stopOpacity="0"');
+    expect(columnSource).toContain('stopOpacity="1"');
   });
 });

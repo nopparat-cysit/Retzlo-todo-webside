@@ -792,7 +792,7 @@ function KanbanColumnComponent({
           isHighlightActive ? "opacity-100" : "opacity-0"
         )}
       >
-        {/* Top-Right Corner Arc following rounded-2xl border */}
+        {/* Top-Right Corner Arc following rounded-2xl border with smooth fade-out tip */}
         <svg
           className={cn(
             "pointer-events-none absolute -top-px -right-px h-4 w-4 overflow-visible transition-colors duration-150",
@@ -803,10 +803,19 @@ function KanbanColumnComponent({
           viewBox="0 0 16 16"
           fill="none"
         >
+          <defs>
+            <linearGradient id={`top-arc-fade-${column.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
+              <stop offset="30%" stopColor="currentColor" stopOpacity="0.3" />
+              <stop offset="70%" stopColor="currentColor" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="currentColor" stopOpacity="1" />
+            </linearGradient>
+          </defs>
           <path
             d="M 0 1 A 15 15 0 0 1 15 16"
-            stroke="currentColor"
+            stroke={`url(#top-arc-fade-${column.id})`}
             strokeWidth="2"
+            strokeLinecap="round"
           />
         </svg>
 
@@ -820,7 +829,7 @@ function KanbanColumnComponent({
           )}
         />
 
-        {/* Bottom-Right Corner Arc following rounded-2xl border */}
+        {/* Bottom-Right Corner Arc following rounded-2xl border with smooth fade-out tip */}
         <svg
           className={cn(
             "pointer-events-none absolute -bottom-px -right-px h-4 w-4 overflow-visible transition-colors duration-150",
@@ -831,10 +840,19 @@ function KanbanColumnComponent({
           viewBox="0 0 16 16"
           fill="none"
         >
+          <defs>
+            <linearGradient id={`bottom-arc-fade-${column.id}`} x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
+              <stop offset="30%" stopColor="currentColor" stopOpacity="0.8" />
+              <stop offset="70%" stopColor="currentColor" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+            </linearGradient>
+          </defs>
           <path
             d="M 15 0 A 15 15 0 0 1 0 15"
-            stroke="currentColor"
+            stroke={`url(#bottom-arc-fade-${column.id})`}
             strokeWidth="2"
+            strokeLinecap="round"
           />
         </svg>
       </div>

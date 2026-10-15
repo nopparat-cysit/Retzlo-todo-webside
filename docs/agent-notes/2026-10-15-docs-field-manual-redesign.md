@@ -28,6 +28,8 @@
 - `src/components/kanban/board-template-picker.tsx`: Re-exported `BoardTemplateId` type.
 - `src/components/project/project-boards-manager.tsx`: Added `createdAt` timestamp to newly appended boards.
 - `src/components/project/projects-dashboard.tsx`: Correctly mapped `CreatedBoardResult` to `ProjectBoardSummary` and passed `open` prop to `CreateBoardModal`.
+- `src/components/kanban/column.tsx`: Updated curved column resize guide line corner arcs (`top-arc-fade` and `bottom-arc-fade`) with SVG `linearGradient` and `strokeLinecap="round"`, creating a soft luminous fade-out at the tips.
+- `src/components/kanban/column-resize.test.ts`: Added unit assertions to verify corner arc gradient fade-out and rounded linecap geometry.
 - `docs/theme-system.md`: Documented the new theme tokens and added change log entry.
 
 ## Important Behavior & Design Changes
@@ -41,10 +43,11 @@
    - **Kanban & Spreadsheet Table Topics:** Features `ComparisonMatrix` comparing Kanban vs Table across 6 architectural dimensions (Focus, Interaction, Density, Speed, Metrics, Batch ops).
    - **Member Roles & Security Topics:** Features `ComparisonMatrix` detailing RBAC permissions across Governance, Access, Boards, Cards, Privacy, and Audit trail.
 4. **Data Hygiene:** Eliminated the runaway 15-line auth changelog dump in `welcome-overview` highlights, restoring balanced typography and preventing jagged card heights.
-5. **Cassette Brand Artwork & Mechanical Tape Counter:** Integrated `MixtapeLogoMark` SVG cassette artwork into the top header and replaced the generic SVG circle in the Table of Contents with a retro 3-digit `TapeCounter` (`000` to `100`).
-6. **Natural Pedagogical Reading Flow:** Users now read the Overview & Concept first, immediately followed by the live interactive test-bench (`DocsSandboxDeck`), before exploring workflows and technical matrices.
-7. **Interactive Sandboxes Intact:** All 4 interactive sandboxes (`InteractiveAiDemo`, `InteractiveKanbanTableDemo`, `InteractivePrioritiesDemo`, `InteractiveCoffeeDemo`) and `RetzloHubDiagram` remain fully interactive and bug-free.
-8. **Sticky Navbar & Sidebar Fix:** Replaced `overflow-x: hidden` with `overflow-x: clip` in `globals.css` on `html` and `body` rules to restore browser-level `position: sticky` functionality. Configured the documentation header as `sticky top-0 z-40` and the sidebar as `lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-5.5rem)]` with independent scrollable topic navigation and pinned footer, ensuring both stay firmly anchored in view while scrolling.
+5. **Column Resize Guide Line Fade-Out:** Replaced blunt, hard-clipped corner arc ends on the column horizontal resize guide line with smooth `linearGradient` transitions fading to 0 opacity and `strokeLinecap="round"`, eliminating harsh edges on column borders.
+6. **Cassette Brand Artwork & Mechanical Tape Counter:** Integrated `MixtapeLogoMark` SVG cassette artwork into the top header and replaced the generic SVG circle in the Table of Contents with a retro 3-digit `TapeCounter` (`000` to `100`).
+7. **Natural Pedagogical Reading Flow:** Users now read the Overview & Concept first, immediately followed by the live interactive test-bench (`DocsSandboxDeck`), before exploring workflows and technical matrices.
+8. **Interactive Sandboxes Intact:** All 4 interactive sandboxes (`InteractiveAiDemo`, `InteractiveKanbanTableDemo`, `InteractivePrioritiesDemo`, `InteractiveCoffeeDemo`) and `RetzloHubDiagram` remain fully interactive and bug-free.
+9. **Sticky Navbar & Sidebar Fix:** Replaced `overflow-x: hidden` with `overflow-x: clip` in `globals.css` on `html` and `body` rules to restore browser-level `position: sticky` functionality. Configured the documentation header as `sticky top-0 z-40` and the sidebar as `lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-5.5rem)]` with independent scrollable topic navigation and pinned footer, ensuring both stay firmly anchored in view while scrolling.
 
 ## Database / Schema Changes
 - None.
@@ -52,6 +55,7 @@
 ## Verification Commands Run & Results
 - `npx tsc --noEmit`: Exited with code 0 (zero TypeScript errors across the entire codebase).
 - `npx vitest run src/components/help/help-center.test.ts`: Passed (5/5 tests).
+- `npx vitest run src/components/kanban/column-resize.test.ts`: Passed (3/3 tests).
 - `npm run lint`: Exited with code 0 (No ESLint warnings or errors).
 - `npm run build`: Exited with code 0 (production build compiled successfully, 41/41 static pages generated).
 - `npx prisma validate`: The schema at `prisma/schema.prisma` is valid.
