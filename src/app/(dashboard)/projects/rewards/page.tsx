@@ -23,7 +23,14 @@ export default async function GlobalRewardsPage() {
     const [user, memberships] = await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+          status: true,
+          globalRole: true,
+        },
       }),
       prisma.projectMember.findMany({
         where: { userId: session.user.id },
@@ -50,20 +57,24 @@ export default async function GlobalRewardsPage() {
       isProjectAdmin: ["OWNER", "ADMIN"].includes(m.role),
     }));
 
-    return (
-      <main className="min-h-screen w-screen overflow-x-hidden px-4 py-6 sm:px-6">
-        <div className="mx-auto mb-5 max-w-7xl">
-          <BackToProjectsLink />
-        </div>
+    const userProfile = {
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      status: (user.status ?? "ONLINE") as "ONLINE" | "BUSY" | "OFFLINE",
+      isAdmin: user.globalRole === "SUPER_ADMIN" || user.globalRole === "ADMIN",
+    };
 
-        <div className="mx-auto max-w-7xl">
-          <RewardsStore userProjects={userProjects} />
+    return (
+      <main className="soft-grid-bg min-h-[100dvh] w-full overflow-y-auto p-3 sm:p-5 lg:p-6">
+        <div className="max-w-[1720px] mx-auto space-y-5">
+          <RewardsStore userProjects={userProjects} userProfile={userProfile} />
         </div>
       </main>
     );
   } catch (error) {
     return (
-      <main className="min-h-screen w-screen overflow-x-hidden px-4 py-6 sm:px-6">
+      <main className="soft-grid-bg min-h-[100dvh] w-full overflow-y-auto p-3 sm:p-5 lg:p-6">
         <div className="mx-auto mb-5 max-w-7xl">
           <BackToProjectsLink />
         </div>

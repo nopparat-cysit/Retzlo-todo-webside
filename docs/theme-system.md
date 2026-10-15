@@ -744,3 +744,13 @@ Template:
   - Standardized section headers with uppercase tracking, `Palette` icon, and a live mini color dot pill badge indicating the active color label.
 - Verification: Vitest full suite (99 test files, 525 passed), `ColorSwatchPicker` tests (3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), Prisma validation passed.
 
+### 2026-10-16 — Rewards Lounge UX/UI Redesign & Presets Architecture
+- Coverage: `/projects/rewards` and `/project/[id]/rewards` (`RewardsStore` and rewards page server container).
+- Design System & Tokens:
+  - Topbar Command Header: Added standalone topbar on `/projects/rewards` featuring the retro brand mark (`MixtapeLogoMark`), back navigation to workspaces, responsive search bar, `LanguageSwitcher`, `AiChatTrigger`, `HelpButton`, and `UserProfilePopover`.
+  - Responsive Grid & Surface Canvas: Upgraded outer container from constrained narrow layout to full-width `soft-grid-bg min-h-[100dvh] w-full p-3 sm:p-5 lg:p-6` with `max-w-[1720px] mx-auto` matching the Workspaces hub.
+  - 2-Column Catalog Layout: Replaced cramped 3-column split with an ergonomic 72% Catalog Shelf (`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3.5`) and a 28% sticky Right Rail Ledger (`Pending Requests` and `Redemption History` tabs).
+  - Empty Catalog Starter Showcase: Integrated a 5-item starter reward showcase with one-click "Add All 5 Presets" and individual "+ Add to Store" presets (`Coffee Break`, `Gaming Session`, `Movie Ticket`, `Pocket Cash`, `Rest Pass`).
+  - Strict Action Confirmations & Toast Feedback: Integrated `ConfirmModal` for user redemption, approval, and starter presets seeding, alongside real-time `useToast` feedback.
+- Verification: Vitest full suite (99 test files, 525 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (41/41 routes).
+

@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
+  ArrowLeft,
   Bell,
   Check,
   CheckCircle2,
@@ -17,14 +19,21 @@ import {
   Search,
   Sparkles,
   Store,
+  Wallet,
   X
 } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/state";
+import { useToast } from "@/components/ui/toast";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { AiChatTrigger } from "@/components/ai/ai-chat-trigger";
+import { HelpButton } from "@/components/ui/help-button";
+import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { formatMediumDate } from "@/lib/date-format";
 import { getRewardIconForName, getRewardIconOption, rewardIconOptions } from "@/lib/rewards/reward-icons";
 import { cn } from "@/lib/utils";
@@ -120,20 +129,32 @@ interface Notification {
 
 type CatalogFilter = "all" | "affordable" | "team" | "global";
 
-export function RewardsStore({
-  projectId,
-  projectName,
-  isProjectAdmin = false,
-  userProjects
-}: {
+export interface RewardsStoreProps {
   projectId?: string;
   projectName?: string;
   projectCoinName?: string;
   projectCoinSymbol?: string;
   isProjectAdmin?: boolean;
   userProjects?: Array<{ id: string; name: string; isProjectAdmin: boolean }>;
-}) {
+  userProfile?: {
+    name: string | null;
+    email: string;
+    avatar: string | null;
+    status: "ONLINE" | "BUSY" | "OFFLINE";
+    isAdmin?: boolean;
+  };
+}
+
+export function RewardsStore({
+  projectId,
+  projectName,
+  isProjectAdmin = false,
+  userProjects,
+  userProfile
+}: RewardsStoreProps) {
   const router = useRouter();
+  const { toast } = useToast();
+
   const [activeProjectId, setActiveProjectId] = useState<string | undefined>(projectId);
   const [activeProjectName, setActiveProjectName] = useState<string | undefined>(projectName);
   const [activeIsProjectAdmin, setActiveIsProjectAdmin] = useState<boolean>(isProjectAdmin);
@@ -148,9 +169,12 @@ export function RewardsStore({
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [ledgerTab, setLedgerTab] = useState<"pending" | "history">("pending");
   const [loading, setLoading] = useState(true);
+  const [isSeeding, setIsSeeding] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Form states
   const [rewardName, setRewardName] = useState("");
   const [rewardDesc, setRewardDesc] = useState("");
   const [rewardPrice, setRewardPrice] = useState(10);
@@ -159,12 +183,15 @@ export function RewardsStore({
   const [rewardDuration, setRewardDuration] = useState("");
   const [rewardIconSrc, setRewardIconSrc] = useState<string>(defaultRewardIcon.src);
 
+  // Modals & confirmation intents
+  const [confirmRedeemReward, setConfirmRedeemReward] = useState<Reward | null>(null);
+  const [confirmApproveRedemption, setConfirmApproveRedemption] = useState<Redemption | null>(null);
+  const [confirmSeedPresets, setConfirmSeedPresets] = useState(false);
   const [rejectingRedemptionId, setRejectingRedemptionId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
   const activeScopeLabel = activeProjectId ? activeProjectName ?? "Project" : "Personal";
   const balanceLabel = activeProjectId ? "Team Coins" : "Global Coins";
-  const coinSymbol = activeProjectId ? "coin" : "spark";
   const canManageRewards = !activeProjectId || activeIsProjectAdmin;
 
   const pendingRedemptions = useMemo(
@@ -174,6 +201,11 @@ export function RewardsStore({
   const pastRedemptions = useMemo(
     () => redemptions.filter((redemption) => redemption.status !== "PENDING"),
     [redemptions]
+  );
+
+  const affordableCount = useMemo(
+    () => rewards.filter((r) => balance >= r.price && (!r.hasQuantity || (r.quantity ?? 0) > 0)).length,
+    [rewards, balance]
   );
 
   const filteredRewards = useMemo(() => {
@@ -250,7 +282,7 @@ export function RewardsStore({
 
   function playBell() {
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const audioContext = new AudioContextClass();
       const osc = audioContext.createOscillator();
       const gain = audioContext.createGain();
@@ -305,17 +337,81 @@ export function RewardsStore({
         setRewardQuantity(5);
         setRewardDuration("");
         setRewardIconSrc(defaultRewardIcon.src);
+        toast({ message: "Reward created successfully!", type: "success" });
         await loadData();
       } else {
         const err = (await res.json()) as { error?: string };
-        setErrorMsg(err.error ?? "Failed to create reward.");
+        toast({ message: err.error ?? "Failed to create reward.", type: "error" });
       }
     } catch {
-      setErrorMsg("Connection failure while creating reward.");
+      toast({ message: "Connection failure while creating reward.", type: "error" });
     }
   }
 
-  async function handleRedeem(rewardId: string) {
+  async function handleSeedAllPresets() {
+    try {
+      setIsSeeding(true);
+      for (const preset of REWARD_PRESETS) {
+        await fetch("/api/rewards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: preset.name,
+            description: preset.description,
+            price: preset.price,
+            hasQuantity: preset.hasQuantity,
+            quantity: preset.quantity,
+            duration: null,
+            image: preset.iconSrc,
+            projectId: activeProjectId || null
+          })
+        });
+      }
+      toast({ message: "Added 5 starter rewards to catalog!", type: "success" });
+      await loadData();
+      router.refresh();
+    } catch {
+      toast({ message: "Failed to seed starter rewards.", type: "error" });
+    } finally {
+      setIsSeeding(false);
+      setConfirmSeedPresets(false);
+    }
+  }
+
+  async function handleSeedSinglePreset(preset: (typeof REWARD_PRESETS)[number]) {
+    try {
+      const res = await fetch("/api/rewards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: preset.name,
+          description: preset.description,
+          price: preset.price,
+          hasQuantity: preset.hasQuantity,
+          quantity: preset.quantity,
+          duration: null,
+          image: preset.iconSrc,
+          projectId: activeProjectId || null
+        })
+      });
+
+      if (res.ok) {
+        toast({ message: `Added "${preset.name}" to catalog!`, type: "success" });
+        await loadData();
+        router.refresh();
+      } else {
+        toast({ message: "Failed to add reward.", type: "error" });
+      }
+    } catch {
+      toast({ message: "Network error adding reward.", type: "error" });
+    }
+  }
+
+  async function handleExecuteRedeem() {
+    if (!confirmRedeemReward) return;
+    const rewardId = confirmRedeemReward.id;
+    const rewardName = confirmRedeemReward.name;
+
     try {
       const res = await fetch("/api/rewards/redeem", {
         method: "POST",
@@ -325,18 +421,24 @@ export function RewardsStore({
 
       if (res.ok) {
         playBell();
+        toast({ message: `🎉 You redeemed "${rewardName}"!`, type: "success" });
         await loadData();
         router.refresh();
       } else {
         const err = (await res.json()) as { error?: string };
-        setErrorMsg(err.error ?? "Failed to redeem reward.");
+        toast({ message: err.error ?? "Failed to redeem reward.", type: "error" });
       }
     } catch {
-      setErrorMsg("Redemption failed due to network error.");
+      toast({ message: "Redemption failed due to network error.", type: "error" });
+    } finally {
+      setConfirmRedeemReward(null);
     }
   }
 
-  async function handleApprove(redemptionId: string) {
+  async function handleExecuteApprove() {
+    if (!confirmApproveRedemption) return;
+    const redemptionId = confirmApproveRedemption.id;
+
     try {
       const res = await fetch("/api/rewards/redeem", {
         method: "PATCH",
@@ -346,14 +448,17 @@ export function RewardsStore({
 
       if (res.ok) {
         playBell();
+        toast({ message: "Redemption approved successfully.", type: "success" });
         await loadData();
         router.refresh();
       } else {
         const err = (await res.json()) as { error?: string };
-        setErrorMsg(err.error ?? "Failed to approve redemption.");
+        toast({ message: err.error ?? "Failed to approve redemption.", type: "error" });
       }
     } catch {
-      setErrorMsg("Network error during approval.");
+      toast({ message: "Network error during approval.", type: "error" });
+    } finally {
+      setConfirmApproveRedemption(null);
     }
   }
 
@@ -375,14 +480,15 @@ export function RewardsStore({
       if (res.ok) {
         setRejectingRedemptionId(null);
         setRejectionReason("");
+        toast({ message: "Redemption rejected and coins refunded.", type: "info" });
         await loadData();
         router.refresh();
       } else {
         const err = (await res.json()) as { error?: string };
-        setErrorMsg(err.error ?? "Failed to reject redemption.");
+        toast({ message: err.error ?? "Failed to reject redemption.", type: "error" });
       }
     } catch {
-      setErrorMsg("Network error during rejection.");
+      toast({ message: "Network error during rejection.", type: "error" });
     }
   }
 
@@ -393,128 +499,453 @@ export function RewardsStore({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ all: true })
       });
-      if (res.ok) setNotifications([]);
-    } catch {}
+      if (res.ok) {
+        setNotifications([]);
+        toast({ message: "Notifications cleared.", type: "info" });
+      }
+    } catch {
+      toast({ message: "Failed to clear notifications.", type: "error" });
+    }
   }
 
   return (
     <div className="space-y-5">
-      <section className="lofi-panel overflow-visible rounded-xl p-4 sm:p-5">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-dusk-amber">
-              <Gift className="h-4 w-4" />
-              Reward Exchange
+      {/* Standalone Topbar Header (Only on /projects/rewards when not embedded in project shell) */}
+      {!projectId && (
+        <header className="lofi-panel flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl p-3.5 sm:px-5 sm:py-3.5 backdrop-blur-xl border border-stone-200/80 dark:border-white/10 bg-white/80 dark:bg-ink-950/75 shadow-xs">
+          <div className="flex items-center justify-between sm:justify-start gap-3">
+            <Link href="/projects" className="flex items-center gap-2.5 group">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber shadow-xs group-hover:scale-105 transition-transform">
+                <Gift className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-dusk-amber">
+                  <Sparkles className="h-3 w-3" />
+                  <span>Retzlo Arcade</span>
+                </div>
+                <h1 className="text-base font-bold text-stone-900 dark:text-stone-100 leading-tight whitespace-nowrap">
+                  Reward Lounge
+                </h1>
+              </div>
+            </Link>
+
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-100/60 px-2.5 py-1 text-xs font-medium text-stone-600 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:text-stone-200 transition"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Back to Workspaces</span>
+            </Link>
+          </div>
+
+          {/* Quick Search */}
+          <div className="relative flex-1 max-w-md mx-0 sm:mx-4">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+            <input
+              type="text"
+              placeholder="Search rewards, treats, perks..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-xl border border-stone-200/80 bg-stone-100/70 pl-9 pr-8 py-2 text-xs text-stone-800 placeholder-stone-400 focus:border-amber-400 focus:bg-white focus:outline-none dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder-stone-500 dark:focus:border-dusk-amber/50 dark:focus:bg-white/[0.07] transition shadow-inner"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Desktop Right Utilities Bar */}
+          <div className="flex items-center gap-2 shrink-0 justify-end">
+            <LanguageSwitcher />
+            <AiChatTrigger className="h-9 w-9 rounded-xl border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04] hover:scale-105 transition-transform" />
+            <HelpButton />
+            {userProfile && (
+              <UserProfilePopover
+                avatar={userProfile.avatar}
+                email={userProfile.email}
+                initials={(userProfile.name ?? userProfile.email)
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)}
+                name={userProfile.name ?? userProfile.email}
+                status={userProfile.status}
+                statusColor={
+                  userProfile.status === "ONLINE"
+                    ? "bg-emerald-400"
+                    : userProfile.status === "BUSY"
+                    ? "bg-dusk-amber"
+                    : "bg-stone-500"
+                }
+                variant="avatar"
+                isAdmin={userProfile.isAdmin}
+              />
+            )}
+          </div>
+        </header>
+      )}
+
+      {/* Hero Arcade Banner */}
+      <section className="lofi-panel overflow-visible rounded-2xl p-4 sm:p-6 border border-stone-200/80 dark:border-white/10 bg-white/70 dark:bg-ink-950/70 backdrop-blur-md">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-3 py-1 text-xs font-semibold text-dusk-amber">
+              <Gift className="h-3.5 w-3.5" />
+              <span>Reward Exchange · แลกของรางวัลและความสำเร็จ</span>
             </div>
-            <h2 className="mt-2 text-2xl font-semibold text-stone-100">
-              {activeProjectId ? `${activeScopeLabel} rewards` : "Personal rewards"}
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+              {activeProjectId ? `${activeScopeLabel} Team Shop` : "Personal Reward Lounge"}
             </h2>
-            <p className="mt-1 max-w-2xl text-sm text-stone-400">
-              Redeem cozy milestones, review requests, and keep the reward catalog tidy.
+            <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+              Earn coins through focused work streaks and rituals. Redeem cozy milestones, track requests, and celebrate wins.
             </p>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <StatPill label={balanceLabel} value={balance.toString()} tone="coin" />
-            <StatPill label="Pending" value={pendingRedemptions.length.toString()} tone="rose" />
-            <StatPill label="Redeemed" value={pastRedemptions.length.toString()} tone="cyan" />
-            {canManageRewards ? (
-              <Button onClick={() => setIsCreateOpen(true)}>
-                <Plus className="h-4 w-4" />
-                New Reward
-              </Button>
-            ) : null}
-          </div>
-        </div>
+            {/* Scope Switcher */}
+            {userProjects && userProjects.length > 0 ? (
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <div className="inline-flex rounded-xl border border-stone-200/80 bg-stone-100/80 p-1 dark:border-white/10 dark:bg-ink-950/60 shadow-inner">
+                  <ScopeButton
+                    active={storeMode === "global"}
+                    label="Global Arcade"
+                    onClick={() => {
+                      setStoreMode("global");
+                      setActiveProjectId(undefined);
+                      setActiveProjectName(undefined);
+                      setActiveIsProjectAdmin(false);
+                      setCatalogFilter("all");
+                    }}
+                  />
+                  <ScopeButton
+                    active={storeMode === "project"}
+                    label="Team Shop"
+                    onClick={() => {
+                      setStoreMode("project");
+                      const firstProject = userProjects[0];
+                      setActiveProjectId(firstProject.id);
+                      setActiveProjectName(firstProject.name);
+                      setActiveIsProjectAdmin(firstProject.isProjectAdmin);
+                      setCatalogFilter("all");
+                    }}
+                  />
+                </div>
 
-        {userProjects && userProjects.length > 0 ? (
-          <div className="mt-5 flex flex-col gap-3 border-t border-white/10 pt-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="inline-flex w-fit rounded-lg border border-white/10 bg-ink-950/55 p-1">
-              <ScopeButton
-                active={storeMode === "global"}
-                label="Global"
-                onClick={() => {
-                  setStoreMode("global");
-                  setActiveProjectId(undefined);
-                  setActiveProjectName(undefined);
-                  setActiveIsProjectAdmin(false);
-                  setCatalogFilter("all");
-                }}
-              />
-              <ScopeButton
-                active={storeMode === "project"}
-                label="Team"
-                onClick={() => {
-                  setStoreMode("project");
-                  const firstProject = userProjects[0];
-                  setActiveProjectId(firstProject.id);
-                  setActiveProjectName(firstProject.name);
-                  setActiveIsProjectAdmin(firstProject.isProjectAdmin);
-                  setCatalogFilter("all");
-                }}
-              />
-            </div>
-
-            {storeMode === "project" ? (
-              <div className="w-full max-w-sm">
-                <FilterSelect
-                  value={activeProjectId || ""}
-                  options={userProjects.map((project) => ({
-                    value: project.id,
-                    label: `${project.name}${project.isProjectAdmin ? " (Admin)" : ""}`
-                  }))}
-                  onValueChange={(projectId) => {
-                    const project = userProjects.find((item) => item.id === projectId);
-                    if (!project) return;
-                    setActiveProjectId(project.id);
-                    setActiveProjectName(project.name);
-                    setActiveIsProjectAdmin(project.isProjectAdmin);
-                  }}
-                />
+                {storeMode === "project" ? (
+                  <div className="min-w-[200px] max-w-xs">
+                    <FilterSelect
+                      value={activeProjectId || ""}
+                      options={userProjects.map((project) => ({
+                        value: project.id,
+                        label: `${project.name}${project.isProjectAdmin ? " (Admin)" : ""}`
+                      }))}
+                      onValueChange={(projectId) => {
+                        const project = userProjects.find((item) => item.id === projectId);
+                        if (!project) return;
+                        setActiveProjectId(project.id);
+                        setActiveProjectName(project.name);
+                        setActiveIsProjectAdmin(project.isProjectAdmin);
+                      }}
+                    />
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>
-        ) : null}
+
+          {/* Coin Vault Card */}
+          <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3.5 bg-stone-50/70 dark:bg-white/[0.03] p-4 sm:p-5 rounded-2xl border border-stone-200/70 dark:border-white/10 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="grid h-12 w-12 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 shadow-xs">
+                <RewardIcon src={coinRewardIcon.src} label="Coins" size="sm" />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">
+                  {balanceLabel}
+                </p>
+                <p className="text-3xl font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                  <span>{balance}</span>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-dusk-amber/15 text-dusk-amber">
+                    Coins
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 w-full pt-1">
+              {canManageRewards && (
+                <Button size="sm" onClick={() => setIsCreateOpen(true)} className="flex-1">
+                  <Plus className="h-3.5 w-3.5" />
+                  New Reward
+                </Button>
+              )}
+              {canManageRewards && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setConfirmSeedPresets(true)}
+                  disabled={isSeeding}
+                  className="flex-1"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-dusk-amber" />
+                  {isSeeding ? "Seeding..." : "Seed Presets"}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
       </section>
 
       {errorMsg ? (
-        <div className="flex items-center gap-2 rounded-lg border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">
+        <div className="flex items-center gap-2 rounded-xl border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <p>{errorMsg}</p>
-          <button className="ml-auto text-xs text-theme-danger hover:underline" onClick={() => setErrorMsg(null)}>
+          <button className="ml-auto text-xs text-theme-danger hover:underline cursor-pointer" onClick={() => setErrorMsg(null)}>
             Dismiss
           </button>
         </div>
       ) : null}
 
-      <div className="grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)_20rem]">
-        <aside className="space-y-4">
-          <section className="lofi-panel rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">My Wallet</p>
-                <p className="mt-2 text-4xl font-semibold text-stone-100">{balance}</p>
-                <p className="text-xs text-stone-500">{balanceLabel}</p>
+      {/* Main Store Layout (72% Main Shelf + 28% Sidebar Ledger) */}
+      <div className="grid gap-5 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px]">
+        {/* Main Catalog Shelf */}
+        <section className="lofi-panel rounded-2xl p-4 sm:p-5 border border-stone-200/80 dark:border-white/10 bg-white/70 dark:bg-ink-950/70 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-stone-200/80 dark:border-white/10 pb-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-dusk-lavender font-semibold">
+                <Store className="h-4 w-4" />
+                <span>Catalog Shelf</span>
               </div>
-              <div className="grid h-16 w-16 place-items-center rounded-xl border border-dusk-amber/20 bg-dusk-amber/10">
-                <RewardIcon src={coinSymbol === "coin" ? coinRewardIcon.src : walletRewardIcon.src} label="Balance" size="lg" />
+              <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">Reward Catalog</h3>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex flex-wrap gap-1.5">
+              {([
+                ["all", `All (${rewards.length})`],
+                ["affordable", `Can Redeem (${affordableCount})`],
+                ["team", "Team"],
+                ["global", "Global"]
+              ] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  className={cn(
+                    "rounded-xl border px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none",
+                    catalogFilter === value
+                      ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber shadow-2xs"
+                      : "border-stone-200/80 bg-stone-100/50 text-stone-600 hover:border-stone-300 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
+                  )}
+                  onClick={() => setCatalogFilter(value)}
+                  type="button"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="grid min-h-[20rem] place-items-center text-sm text-stone-500">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 animate-spin text-dusk-amber" />
+                <span>Syncing catalog...</span>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-              <WalletMetric label="Available" value={filteredRewards.length.toString()} />
-              <WalletMetric label="Requests" value={pendingRedemptions.length.toString()} />
+          ) : filteredRewards.length === 0 ? (
+            /* Starter Presets Showcase when Catalog is Empty */
+            <div className="space-y-4 py-3">
+              <div className="rounded-2xl border border-dashed border-stone-300 dark:border-white/15 bg-stone-50/60 dark:bg-white/[0.02] p-6 sm:p-8 text-center space-y-3">
+                <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-dusk-amber/25 bg-dusk-amber/10 shadow-xs">
+                  <RewardIcon src={emptyRewardIcon.src} label="Empty Catalog" size="lg" />
+                </div>
+                <h4 className="text-lg font-bold text-stone-900 dark:text-stone-100">
+                  {canManageRewards ? "Your Reward Lounge is Ready to Stock!" : "No rewards available right now."}
+                </h4>
+                <p className="text-xs sm:text-sm text-stone-500 max-w-md mx-auto">
+                  {canManageRewards
+                    ? "Add cozy milestones for you and your team. You can seed the store with 5 popular starter presets in one click:"
+                    : "Check back later or ask your workspace admin to add items to the store."}
+                </p>
+
+                {canManageRewards && (
+                  <div className="pt-2 flex flex-wrap justify-center gap-2">
+                    <Button onClick={() => setConfirmSeedPresets(true)} disabled={isSeeding}>
+                      <Sparkles className="h-4 w-4" />
+                      Add All 5 Starter Rewards (คลิกเดียวเพิ่มทั้งหมด)
+                    </Button>
+                    <Button variant="secondary" onClick={() => setIsCreateOpen(true)}>
+                      <Plus className="h-4 w-4" />
+                      Create Custom Reward
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Starter Presets Cards Grid */}
+              {canManageRewards && (
+                <div className="space-y-2 pt-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">
+                    Starter Reward Ideas · ไอเดียรางวัลเริ่มต้น
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {REWARD_PRESETS.map((preset) => (
+                      <div
+                        key={preset.name}
+                        className="flex flex-col justify-between rounded-xl border border-stone-200/80 bg-white/60 p-4 shadow-xs transition hover:border-dusk-amber/40 hover:bg-white dark:border-white/10 dark:bg-white/[0.035] dark:hover:bg-white/[0.06]"
+                      >
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="grid h-12 w-12 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/40">
+                              <RewardIcon label={preset.name} size="sm" src={preset.iconSrc} />
+                            </div>
+                            <span className="inline-flex items-center gap-1 rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-xs font-bold text-dusk-amber">
+                              <Coins className="h-3 w-3" />
+                              {preset.price}c
+                            </span>
+                          </div>
+                          <h5 className="mt-3 text-sm font-bold text-stone-900 dark:text-stone-100">{preset.name}</h5>
+                          <p className="mt-1 line-clamp-2 text-xs text-stone-500 leading-relaxed">{preset.description}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="mt-3 w-full"
+                          onClick={() => handleSeedSinglePreset(preset)}
+                        >
+                          <Plus className="h-3 w-3" />
+                          Add to Catalog
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Active Catalog Items Grid */
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {filteredRewards.map((reward) => (
+                <RewardCard
+                  key={reward.id}
+                  activeProjectId={activeProjectId}
+                  balance={balance}
+                  reward={reward}
+                  onRedeem={(reward) => setConfirmRedeemReward(reward)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Right Sidebar Passbook & Ledger */}
+        <aside className="space-y-4">
+          {/* Wallet Passbook Card */}
+          <section className="lofi-panel rounded-2xl p-4 sm:p-5 border border-stone-200/80 dark:border-white/10 bg-white/70 dark:bg-ink-950/70 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Wallet className="h-4 w-4 text-dusk-amber" />
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
+                  Passbook
+                </p>
+              </div>
+              <span className="text-xs font-medium text-stone-500">{activeScopeLabel}</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-center pt-1">
+              <div className="rounded-xl border border-stone-200/80 bg-stone-100/50 p-2.5 dark:border-white/10 dark:bg-white/[0.035]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500">Catalog</p>
+                <p className="mt-1 text-base font-bold text-stone-900 dark:text-stone-100">{rewards.length}</p>
+              </div>
+              <div className="rounded-xl border border-stone-200/80 bg-stone-100/50 p-2.5 dark:border-white/10 dark:bg-white/[0.035]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500">Pending</p>
+                <p className="mt-1 text-base font-bold text-dusk-rose">{pendingRedemptions.length}</p>
+              </div>
+              <div className="rounded-xl border border-stone-200/80 bg-stone-100/50 p-2.5 dark:border-white/10 dark:bg-white/[0.035]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500">Claimed</p>
+                <p className="mt-1 text-base font-bold text-theme-success">{pastRedemptions.length}</p>
+              </div>
             </div>
           </section>
 
-          <section className="lofi-panel rounded-xl p-4">
+          {/* Unified Ledger Tabs (Pending Queue | History) */}
+          <section className="lofi-panel rounded-2xl p-4 sm:p-5 border border-stone-200/80 dark:border-white/10 bg-white/70 dark:bg-ink-950/70 space-y-3">
+            <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-3">
+              <div className="inline-flex rounded-xl border border-stone-200/80 bg-stone-100/80 p-1 dark:border-white/10 dark:bg-ink-950/60 shadow-inner w-full">
+                <button
+                  type="button"
+                  onClick={() => setLedgerTab("pending")}
+                  className={cn(
+                    "flex-1 rounded-lg py-1 text-xs font-semibold transition cursor-pointer text-center",
+                    ledgerTab === "pending"
+                      ? "bg-white text-stone-900 shadow-xs dark:bg-white/10 dark:text-stone-100"
+                      : "text-stone-500 hover:text-stone-900 dark:hover:text-stone-300"
+                  )}
+                >
+                  Pending ({pendingRedemptions.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLedgerTab("history")}
+                  className={cn(
+                    "flex-1 rounded-lg py-1 text-xs font-semibold transition cursor-pointer text-center",
+                    ledgerTab === "history"
+                      ? "bg-white text-stone-900 shadow-xs dark:bg-white/10 dark:text-stone-100"
+                      : "text-stone-500 hover:text-stone-900 dark:hover:text-stone-300"
+                  )}
+                >
+                  History ({pastRedemptions.length})
+                </button>
+              </div>
+            </div>
+
+            {ledgerTab === "pending" ? (
+              <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                {pendingRedemptions.length === 0 ? (
+                  <EmptySmall text="No pending redemptions. All caught up!" />
+                ) : (
+                  pendingRedemptions.map((redemption) => (
+                    <PendingItem
+                      key={redemption.id}
+                      isAdmin={Boolean(activeProjectId && activeIsProjectAdmin)}
+                      redemption={redemption}
+                      onApprove={(redemption) => setConfirmApproveRedemption(redemption)}
+                      onReject={(id) => setRejectingRedemptionId(id)}
+                    />
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                {pastRedemptions.length === 0 ? (
+                  <EmptySmall text="No completed redemptions yet." />
+                ) : (
+                  pastRedemptions.slice(0, 10).map((redemption) => (
+                    <HistoryItem key={redemption.id} redemption={redemption} />
+                  ))
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Activity Updates / Notifications */}
+          <section className="lofi-panel rounded-2xl p-4 border border-stone-200/80 dark:border-white/10 bg-white/70 dark:bg-ink-950/70">
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.2em] text-stone-400">Notifications</p>
+              <div className="flex items-center gap-2">
+                <Bell className="h-4 w-4 text-stone-400" />
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
+                  Updates
+                </p>
+              </div>
               <button
                 type="button"
-                className="relative grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender"
+                className="relative grid h-7 w-7 place-items-center rounded-lg border border-stone-200/80 bg-stone-100/60 text-stone-600 transition hover:border-dusk-lavender/45 hover:text-dusk-lavender dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-300 cursor-pointer"
                 onClick={() => setShowNotifications((value) => !value)}
               >
-                <Bell className="h-4 w-4" />
+                <Bell className="h-3.5 w-3.5" />
                 {notifications.length > 0 ? (
                   <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-dusk-rose px-1 text-[9px] font-bold text-ink-950">
                     {notifications.length}
@@ -522,158 +953,33 @@ export function RewardsStore({
                 ) : null}
               </button>
             </div>
-            {showNotifications ? (
-              <div className="mt-3 space-y-2">
+            {showNotifications && (
+              <div className="mt-3 space-y-2 border-t border-stone-200/80 dark:border-white/10 pt-3">
                 {notifications.length === 0 ? (
-                  <p className="rounded-lg border border-white/10 bg-white/[0.035] p-3 text-xs text-stone-500">
+                  <p className="rounded-xl border border-stone-200/80 bg-stone-100/50 p-2.5 text-xs text-stone-500 dark:border-white/10 dark:bg-white/[0.035]">
                     No new reward updates.
                   </p>
                 ) : (
                   notifications.slice(0, 4).map((notification) => (
-                    <div key={notification.id} className="rounded-lg border border-white/10 bg-white/[0.035] p-3">
-                      <p className="text-xs font-semibold text-stone-200">{notification.title}</p>
-                      <p className="mt-1 line-clamp-2 text-xs text-stone-500">{notification.message}</p>
+                    <div key={notification.id} className="rounded-xl border border-stone-200/80 bg-stone-100/50 p-2.5 dark:border-white/10 dark:bg-white/[0.035]">
+                      <p className="text-xs font-bold text-stone-900 dark:text-stone-200">{notification.title}</p>
+                      <p className="mt-0.5 line-clamp-2 text-xs text-stone-500">{notification.message}</p>
                     </div>
                   ))
                 )}
-                {notifications.length > 0 ? (
+                {notifications.length > 0 && (
                   <Button className="w-full" size="sm" variant="ghost" onClick={handleClearNotifications}>
                     Clear updates
                   </Button>
-                ) : null}
-              </div>
-            ) : null}
-          </section>
-        </aside>
-
-        <section className="lofi-panel rounded-xl p-4 sm:p-5">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-dusk-lavender">
-                <Store className="h-4 w-4" />
-                Catalog
-              </div>
-              <h3 className="mt-1 text-xl font-semibold text-stone-100">Reward catalog</h3>
-            </div>
-            <label className="relative block w-full lg:max-w-xs">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
-              <Input
-                className="pl-9"
-                placeholder="Search rewards..."
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-              />
-            </label>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {([
-              ["all", "All"],
-              ["affordable", "Affordable"],
-              ["team", "Team"],
-              ["global", "Global"]
-            ] as const).map(([value, label]) => (
-              <button
-                key={value}
-                className={cn(
-                  "rounded-lg border px-3 py-1.5 text-xs font-medium transition",
-                  catalogFilter === value
-                    ? "border-dusk-lavender/50 bg-dusk-lavender/20 text-dusk-lavender"
-                    : "border-white/10 bg-white/[0.035] text-stone-400 hover:border-white/20 hover:text-stone-200"
                 )}
-                onClick={() => setCatalogFilter(value)}
-                type="button"
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {loading ? (
-            <div className="grid min-h-[22rem] place-items-center text-sm text-stone-500">
-              Syncing rewards...
-            </div>
-          ) : filteredRewards.length === 0 ? (
-            <div className="mt-5 grid min-h-[22rem] place-items-center">
-              <EmptyState
-                className="w-full max-w-lg border-dashed bg-white/[0.02] p-8"
-                visual={<RewardIcon src={emptyRewardIcon.src} label="Empty catalog" size="xl" />}
-                title="No rewards here yet"
-                message={canManageRewards ? "Create a reward or choose a preset to seed the catalog." : "The owner has not added rewards in this scope yet."}
-                action={
-                  canManageRewards ? (
-                    <Button size="sm" onClick={() => setIsCreateOpen(true)}>
-                      <Plus className="h-4 w-4" />
-                      Create reward
-                    </Button>
-                  ) : null
-                }
-              />
-            </div>
-          ) : (
-            <div className="mt-5 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
-              {filteredRewards.map((reward) => (
-                <RewardCard
-                  key={reward.id}
-                  activeProjectId={activeProjectId}
-                  balance={balance}
-                  reward={reward}
-                  onRedeem={handleRedeem}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-
-        <aside className="space-y-4">
-          <section className="lofi-panel rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Pending</p>
-                <h3 className="mt-1 text-lg font-semibold text-stone-100">Approval queue</h3>
               </div>
-              <Inbox className="h-5 w-5 text-dusk-amber" />
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {pendingRedemptions.length === 0 ? (
-                <EmptySmall text="No pending redemptions." />
-              ) : (
-                pendingRedemptions.slice(0, 5).map((redemption) => (
-                  <PendingItem
-                    key={redemption.id}
-                    isAdmin={Boolean(activeProjectId && activeIsProjectAdmin)}
-                    redemption={redemption}
-                    onApprove={handleApprove}
-                    onReject={setRejectingRedemptionId}
-                  />
-                ))
-              )}
-            </div>
-          </section>
-
-          <section className="lofi-panel rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-dusk-cyan">Recent</p>
-                <h3 className="mt-1 text-lg font-semibold text-stone-100">Redemptions</h3>
-              </div>
-              <CheckCircle2 className="h-5 w-5 text-dusk-cyan" />
-            </div>
-            <div className="mt-4 space-y-2">
-              {pastRedemptions.length === 0 ? (
-                <EmptySmall text="No completed redemptions yet." />
-              ) : (
-                pastRedemptions.slice(0, 6).map((redemption) => (
-                  <HistoryItem key={redemption.id} redemption={redemption} />
-                ))
-              )}
-            </div>
+            )}
           </section>
         </aside>
       </div>
 
-      {isCreateOpen ? (
+      {/* Create Reward Modal */}
+      {isCreateOpen && (
         <CreateRewardModal
           activeProjectId={activeProjectId}
           rewardDesc={rewardDesc}
@@ -694,9 +1000,10 @@ export function RewardsStore({
           onRewardIconChange={setRewardIconSrc}
           onSubmit={handleCreateReward}
         />
-      ) : null}
+      )}
 
-      {rejectingRedemptionId ? (
+      {/* Reject Reason Modal */}
+      {rejectingRedemptionId && (
         <RejectRewardModal
           rejectionReason={rejectionReason}
           onClose={() => {
@@ -706,7 +1013,46 @@ export function RewardsStore({
           onReasonChange={setRejectionReason}
           onSubmit={handleReject}
         />
-      ) : null}
+      )}
+
+      {/* Intent Confirm: Redeem Reward */}
+      {confirmRedeemReward && (
+        <ConfirmModal
+          open={true}
+          title={`Redeem "${confirmRedeemReward.name}"?`}
+          message={`Are you sure you want to spend ${confirmRedeemReward.price} ${balanceLabel} from your balance to claim this reward?`}
+          confirmLabel={`Redeem for ${confirmRedeemReward.price} coins`}
+          variant="default"
+          onClose={() => setConfirmRedeemReward(null)}
+          onConfirm={handleExecuteRedeem}
+        />
+      )}
+
+      {/* Intent Confirm: Approve Redemption */}
+      {confirmApproveRedemption && (
+        <ConfirmModal
+          open={true}
+          title={`Approve Redemption for "${confirmApproveRedemption.reward.name}"?`}
+          message={`Approve request submitted by ${confirmApproveRedemption.user?.name || confirmApproveRedemption.user?.email || "team member"}?`}
+          confirmLabel="Approve Redemption"
+          variant="default"
+          onClose={() => setConfirmApproveRedemption(null)}
+          onConfirm={handleExecuteApprove}
+        />
+      )}
+
+      {/* Intent Confirm: Seed Presets */}
+      {confirmSeedPresets && (
+        <ConfirmModal
+          open={true}
+          title="Seed 5 Starter Rewards?"
+          message="This will add 5 popular starter rewards (Coffee Break, Gaming Session, Movie Ticket, Pocket Cash, and Rest Pass) to your catalog shelf."
+          confirmLabel="Add All 5 Presets"
+          variant="default"
+          onClose={() => setConfirmSeedPresets(false)}
+          onConfirm={handleSeedAllPresets}
+        />
+      )}
     </div>
   );
 }
@@ -726,43 +1072,20 @@ function RewardIcon({ label, size = "md", src }: { label: string; size?: "sm" | 
   );
 }
 
-function StatPill({ label, tone, value }: { label: string; tone: "coin" | "rose" | "cyan"; value: string }) {
-  return (
-    <div
-      className={cn(
-        "rounded-lg border px-3 py-2",
-        tone === "coin" && "border-dusk-amber/20 bg-dusk-amber/10 text-dusk-amber",
-        tone === "rose" && "border-dusk-rose/20 bg-dusk-rose/10 text-dusk-rose",
-        tone === "cyan" && "border-dusk-cyan/20 bg-dusk-cyan/10 text-dusk-cyan"
-      )}
-    >
-      <p className="text-[10px] uppercase tracking-[0.18em] opacity-75">{label}</p>
-      <p className="text-lg font-semibold text-stone-100">{value}</p>
-    </div>
-  );
-}
-
 function ScopeButton({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
   return (
     <button
       className={cn(
-        "rounded-md px-3 py-1.5 text-xs font-semibold transition",
-        active ? "bg-dusk-lavender text-ink-950" : "text-stone-400 hover:text-stone-100"
+        "rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none",
+        active
+          ? "bg-dusk-amber text-ink-950 font-bold shadow-xs"
+          : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
       )}
       onClick={onClick}
       type="button"
     >
       {label}
     </button>
-  );
-}
-
-function WalletMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.035] p-2">
-      <p className="text-[10px] uppercase tracking-[0.16em] text-stone-500">{label}</p>
-      <p className="mt-1 text-base font-semibold text-stone-100">{value}</p>
-    </div>
   );
 }
 
@@ -774,7 +1097,7 @@ function RewardCard({
 }: {
   activeProjectId?: string;
   balance: number;
-  onRedeem: (rewardId: string) => void;
+  onRedeem: (reward: Reward) => void;
   reward: Reward;
 }) {
   const isAffordable = balance >= reward.price;
@@ -783,40 +1106,42 @@ function RewardCard({
   const iconSrc = reward.image || icon.src;
 
   return (
-    <article className="group flex min-h-[13.5rem] flex-col justify-between rounded-xl border border-white/10 bg-white/[0.035] p-4 transition hover:-translate-y-0.5 hover:border-dusk-lavender/35 hover:bg-white/[0.055]">
+    <article className="group flex min-h-[14rem] flex-col justify-between rounded-2xl border border-stone-200/80 bg-white/70 p-4 transition-all hover:-translate-y-0.5 hover:border-dusk-amber/40 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-dusk-amber/30 dark:hover:bg-white/[0.055]">
       <div>
         <div className="flex items-start justify-between gap-3">
-          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-white/10 bg-ink-950/35">
+          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/35 shadow-2xs">
             <RewardIcon label={icon.label} src={iconSrc} />
           </div>
-          <span className="inline-flex items-center gap-1 rounded-lg border border-dusk-amber/20 bg-dusk-amber/10 px-2 py-1 text-xs font-semibold text-dusk-amber">
+          <span className="inline-flex items-center gap-1 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-1 text-xs font-bold text-dusk-amber shadow-2xs">
             <Coins className="h-3 w-3" />
-            {reward.price}
+            {reward.price} Coins
           </span>
         </div>
-        <h4 className="mt-3 line-clamp-1 text-base font-semibold text-stone-100">{reward.name}</h4>
-        <p className="mt-1 line-clamp-2 text-sm leading-6 text-stone-400">{reward.description ?? "No description."}</p>
+        <h4 className="mt-3 line-clamp-1 text-base font-bold text-stone-900 dark:text-stone-100">{reward.name}</h4>
+        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+          {reward.description ?? "No description."}
+        </p>
       </div>
 
-      <div className="mt-4 space-y-3 border-t border-white/10 pt-3">
-        <div className="flex flex-wrap gap-2">
+      <div className="mt-4 space-y-3 border-t border-stone-200/80 dark:border-white/10 pt-3">
+        <div className="flex flex-wrap gap-1.5">
           {reward.duration ? (
-            <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.035] px-2 py-1 text-[11px] text-stone-400">
+            <span className="inline-flex items-center gap-1 rounded-md border border-stone-200/80 bg-stone-100/50 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400">
               <Clock className="h-3 w-3" />
               {reward.duration}
             </span>
           ) : null}
           <span
             className={cn(
-              "rounded-md border px-2 py-1 text-[11px]",
+              "rounded-md border px-2 py-0.5 text-[10px] font-medium",
               isOutOfStock
                 ? "border-theme-danger-border bg-theme-danger-surface text-theme-danger"
-                : "border-white/10 bg-white/[0.035] text-stone-400"
+                : "border-stone-200/80 bg-stone-100/50 text-stone-500 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400"
             )}
           >
-            {reward.hasQuantity ? (isOutOfStock ? "Out of stock" : `Stock ${reward.quantity}`) : "Unlimited"}
+            {reward.hasQuantity ? (isOutOfStock ? "Out of stock" : `Stock: ${reward.quantity}`) : "Unlimited"}
           </span>
-          <span className="rounded-md border border-white/10 bg-white/[0.035] px-2 py-1 text-[11px] text-stone-400">
+          <span className="rounded-md border border-stone-200/80 bg-stone-100/50 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400">
             {activeProjectId ? "Team" : reward.projectId ? "Team" : "Global"}
           </span>
         </div>
@@ -826,9 +1151,9 @@ function RewardCard({
           disabled={!isAffordable || isOutOfStock}
           size="sm"
           variant={isAffordable && !isOutOfStock ? "primary" : "secondary"}
-          onClick={() => onRedeem(reward.id)}
+          onClick={() => onRedeem(reward)}
         >
-          {isOutOfStock ? "Sold Out" : isAffordable ? "Redeem" : "Locked"}
+          {isOutOfStock ? "Sold Out" : isAffordable ? `Redeem (${reward.price} Coins)` : `Need ${reward.price - balance} more coins`}
         </Button>
       </div>
     </article>
@@ -842,22 +1167,24 @@ function PendingItem({
   redemption
 }: {
   isAdmin: boolean;
-  onApprove: (redemptionId: string) => void;
+  onApprove: (redemption: Redemption) => void;
   onReject: (redemptionId: string) => void;
   redemption: Redemption;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+    <div className="rounded-xl border border-stone-200/80 bg-stone-50/70 p-3 dark:border-white/10 dark:bg-white/[0.035]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="line-clamp-1 text-sm font-semibold text-stone-100">{redemption.reward.name}</p>
-          <p className="mt-1 text-xs text-stone-500">{redemption.user?.name || redemption.user?.email || "Member"}</p>
+          <p className="line-clamp-1 text-sm font-bold text-stone-900 dark:text-stone-100">{redemption.reward.name}</p>
+          <p className="mt-0.5 text-xs text-stone-500">{redemption.user?.name || redemption.user?.email || "Member"}</p>
         </div>
-        <span className="rounded-md bg-dusk-amber/10 px-2 py-1 text-xs text-dusk-amber">{redemption.cost}</span>
+        <span className="rounded-lg bg-dusk-amber/10 px-2 py-0.5 text-xs font-bold text-dusk-amber">
+          {redemption.cost}c
+        </span>
       </div>
       {isAdmin ? (
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <Button size="sm" onClick={() => onApprove(redemption.id)}>
+          <Button size="sm" onClick={() => onApprove(redemption)}>
             <Check className="h-3 w-3" />
             Approve
           </Button>
@@ -866,7 +1193,12 @@ function PendingItem({
             Reject
           </Button>
         </div>
-      ) : null}
+      ) : (
+        <div className="mt-2 flex items-center gap-1 text-[11px] text-dusk-amber">
+          <Clock className="h-3 w-3" />
+          <span>Waiting for admin approval</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -875,15 +1207,15 @@ function HistoryItem({ redemption }: { redemption: Redemption }) {
   const isApproved = redemption.status === "APPROVED";
 
   return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+    <div className="rounded-xl border border-stone-200/80 bg-stone-50/70 p-2.5 dark:border-white/10 dark:bg-white/[0.03]">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="line-clamp-1 text-sm font-medium text-stone-200">{redemption.reward.name}</p>
-          <p className="mt-1 text-[11px] text-stone-500">{formatMediumDate(redemption.createdAt)}</p>
+          <p className="line-clamp-1 text-xs font-bold text-stone-900 dark:text-stone-200">{redemption.reward.name}</p>
+          <p className="mt-0.5 text-[10px] text-stone-400">{formatMediumDate(redemption.createdAt)}</p>
         </div>
         <span
           className={cn(
-            "rounded-md px-2 py-1 text-[10px] font-semibold",
+            "rounded-md px-1.5 py-0.5 text-[10px] font-bold shrink-0",
             isApproved
               ? "bg-theme-success-surface text-theme-success"
               : "bg-theme-danger-surface text-theme-danger"
@@ -893,7 +1225,7 @@ function HistoryItem({ redemption }: { redemption: Redemption }) {
         </span>
       </div>
       {redemption.rejectionReason ? (
-        <p className="mt-2 line-clamp-2 text-xs text-stone-500">{redemption.rejectionReason}</p>
+        <p className="mt-1 line-clamp-2 text-[11px] text-stone-500 italic">&ldquo;{redemption.rejectionReason}&rdquo;</p>
       ) : null}
     </div>
   );
@@ -901,8 +1233,8 @@ function HistoryItem({ redemption }: { redemption: Redemption }) {
 
 function EmptySmall({ text }: { text: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-4 text-center">
-      <PackageOpen className="mx-auto h-5 w-5 text-stone-600" />
+    <div className="rounded-xl border border-dashed border-stone-300 dark:border-white/10 bg-stone-50/50 dark:bg-white/[0.02] p-4 text-center">
+      <PackageOpen className="mx-auto h-5 w-5 text-stone-400" />
       <p className="mt-2 text-xs text-stone-500">{text}</p>
     </div>
   );
@@ -956,40 +1288,42 @@ function CreateRewardModal({
       labelledBy="create-reward-title"
       contentClassName="max-w-3xl"
     >
-      <form className="lofi-panel w-full max-w-3xl rounded-xl p-5" onSubmit={onSubmit}>
-        <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
+      <form className="lofi-panel w-full max-w-3xl rounded-2xl p-5 sm:p-6" onSubmit={onSubmit}>
+        <div className="flex items-start justify-between gap-3 border-b border-stone-200/80 dark:border-white/10 pb-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber">Catalog editor</p>
-            <h2 id="create-reward-title" className="mt-1 text-xl font-semibold text-stone-100">Create reward</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber font-semibold">Catalog Editor</p>
+            <h2 id="create-reward-title" className="mt-1 text-xl font-bold text-stone-900 dark:text-stone-100">
+              Create New Reward
+            </h2>
           </div>
-          <button className="rounded-lg p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
+          <button className="rounded-lg p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1.2fr]">
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-stone-500">Quick presets</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-stone-500 font-semibold">Quick Presets</p>
             <div className="mt-3 grid grid-cols-2 gap-2">
               {REWARD_PRESETS.map((preset) => (
                 <button
                   key={preset.name}
-                  className="rounded-xl border border-white/10 bg-white/[0.035] p-3 text-left transition hover:border-dusk-lavender/35 hover:bg-white/[0.055]"
+                  className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 text-left transition hover:border-dusk-amber/35 hover:bg-white dark:border-white/10 dark:bg-white/[0.035] dark:hover:bg-white/[0.055] cursor-pointer"
                   type="button"
                   onClick={() => onApplyPreset(preset)}
                 >
                   <RewardIcon label={preset.name} size="sm" src={preset.iconSrc} />
-                  <p className="mt-2 text-xs font-semibold text-stone-100">{preset.name}</p>
-                  <p className="mt-1 text-[11px] text-stone-500">{preset.price} coins</p>
+                  <p className="mt-2 text-xs font-bold text-stone-900 dark:text-stone-100">{preset.name}</p>
+                  <p className="mt-0.5 text-[11px] text-dusk-amber font-semibold">{preset.price} coins</p>
                 </button>
               ))}
             </div>
 
-            <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.025] p-3">
+            <div className="mt-4 rounded-xl border border-stone-200/80 bg-stone-50/50 p-3 dark:border-white/10 dark:bg-white/[0.025]">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-stone-500">Reward icon</p>
-                  <p className="mt-1 text-xs text-stone-400">{selectedIcon.label}</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-stone-500 font-semibold">Reward Icon</p>
+                  <p className="mt-0.5 text-xs text-stone-700 dark:text-stone-300 font-medium">{selectedIcon.label}</p>
                 </div>
                 <RewardIcon label={selectedIcon.label} size="sm" src={selectedIcon.src} />
               </div>
@@ -999,10 +1333,10 @@ function CreateRewardModal({
                     key={icon.id}
                     aria-label={`Use ${icon.label} icon`}
                     className={cn(
-                      "grid h-11 w-full place-items-center rounded-lg border bg-ink-950/35 transition hover:-translate-y-0.5 hover:border-dusk-lavender/45 hover:bg-white/[0.06]",
+                      "grid h-11 w-full place-items-center rounded-xl border transition hover:-translate-y-0.5 cursor-pointer",
                       icon.src === rewardIconSrc
-                        ? "border-dusk-amber bg-dusk-amber/10 shadow-[0_0_0_2px_rgba(249,199,132,0.18)]"
-                        : "border-white/10"
+                        ? "border-dusk-amber bg-dusk-amber/15 shadow-[0_0_0_2px_rgba(249,199,132,0.18)]"
+                        : "border-stone-200/80 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/35"
                     )}
                     title={icon.label}
                     type="button"
@@ -1024,7 +1358,9 @@ function CreateRewardModal({
 
           <div className="space-y-4">
             <label className="block space-y-1.5">
-              <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Reward title</span>
+              <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400 font-semibold">
+                Reward Title
+              </span>
               <Input
                 maxLength={120}
                 placeholder="Coffee Break"
@@ -1035,7 +1371,9 @@ function CreateRewardModal({
             </label>
 
             <label className="block space-y-1.5">
-              <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Description</span>
+              <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400 font-semibold">
+                Description
+              </span>
               <Textarea
                 className="resize-none"
                 maxLength={500}
@@ -1047,7 +1385,7 @@ function CreateRewardModal({
 
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block space-y-1.5">
-                <span className="text-xs uppercase tracking-[0.16em] text-stone-400">
+                <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400 font-semibold">
                   Cost ({activeProjectId ? "Team Coins" : "Global Coins"})
                 </span>
                 <Input
@@ -1060,7 +1398,9 @@ function CreateRewardModal({
               </label>
 
               <label className="block space-y-1.5">
-                <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Cooldown</span>
+                <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400 font-semibold">
+                  Cooldown
+                </span>
                 <Input
                   placeholder="Once per week"
                   value={rewardDuration}
@@ -1069,19 +1409,21 @@ function CreateRewardModal({
               </label>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3 dark:border-white/10 dark:bg-white/[0.035]">
               <label className="flex cursor-pointer items-center justify-between gap-3">
-                <span className="text-sm font-medium text-stone-200">Limit stock</span>
+                <span className="text-sm font-semibold text-stone-800 dark:text-stone-200">Limit stock quantity</span>
                 <input
                   checked={rewardHasQuantity}
-                  className="h-4 w-4 accent-dusk-lavender"
+                  className="h-4 w-4 accent-amber-500 cursor-pointer"
                   type="checkbox"
                   onChange={(event) => onHasQuantityChange(event.target.checked)}
                 />
               </label>
               {rewardHasQuantity ? (
                 <label className="mt-3 block space-y-1.5">
-                  <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Quantity</span>
+                  <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400 font-semibold">
+                    Stock Quantity
+                  </span>
                   <Input
                     min={0}
                     required
@@ -1095,7 +1437,7 @@ function CreateRewardModal({
           </div>
         </div>
 
-        <div className="mt-5 flex justify-end gap-2 border-t border-white/10 pt-4">
+        <div className="mt-6 flex justify-end gap-2 border-t border-stone-200/80 dark:border-white/10 pt-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
@@ -1124,18 +1466,22 @@ function RejectRewardModal({
       labelledBy="reject-reward-title"
       contentClassName="max-w-md"
     >
-      <form className="lofi-panel w-full max-w-md rounded-xl p-5" onSubmit={onSubmit}>
-        <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
+      <form className="lofi-panel w-full max-w-md rounded-2xl p-5" onSubmit={onSubmit}>
+        <div className="flex items-start justify-between gap-3 border-b border-stone-200/80 dark:border-white/10 pb-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-theme-danger">Reject request</p>
-            <h2 id="reject-reward-title" className="mt-1 text-lg font-semibold text-stone-100">Add a reason</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-theme-danger font-semibold">Reject Request</p>
+            <h2 id="reject-reward-title" className="mt-1 text-lg font-bold text-stone-900 dark:text-stone-100">
+              Provide Reason
+            </h2>
           </div>
-          <button className="rounded-lg p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
+          <button className="rounded-lg p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
           </button>
         </div>
         <label className="mt-4 block space-y-1.5">
-          <span className="text-xs uppercase tracking-[0.16em] text-stone-400">Reason</span>
+          <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400 font-semibold">
+            Reason for Rejection
+          </span>
           <Textarea
             className="resize-none"
             maxLength={500}
@@ -1145,7 +1491,7 @@ function RejectRewardModal({
             onChange={(event) => onReasonChange(event.target.value)}
           />
         </label>
-        <div className="mt-5 flex justify-end gap-2 border-t border-white/10 pt-4">
+        <div className="mt-5 flex justify-end gap-2 border-t border-stone-200/80 dark:border-white/10 pt-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
