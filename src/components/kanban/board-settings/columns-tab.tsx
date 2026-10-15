@@ -17,9 +17,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { ColumnIconGlyph, ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import {
   columnThemeOptions,
+  columnThemeSwatchOptions,
   type ColumnThemeId,
   type ColumnIconId
 } from "@/lib/kanban/column-settings";
@@ -436,33 +438,13 @@ export function BoardColumnsTab({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
             {/* Theme Color */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
-                <Palette className="h-3.5 w-3.5 text-stone-500" />
-                <span>Column Theme Color</span>
-              </label>
-              <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                {columnThemeOptions.map((theme) => {
-                  const isSelected = newColumnColor === theme.id;
-                  return (
-                    <button
-                      key={theme.id}
-                      type="button"
-                      onClick={() => setNewColumnColor(theme.id)}
-                      className={`group relative grid h-7 w-7 place-items-center rounded-lg border transition cursor-pointer ${
-                        isSelected
-                          ? "border-stone-900 ring-2 ring-indigo-500 ring-offset-2 dark:border-white dark:ring-offset-stone-900"
-                          : "border-stone-200 hover:border-stone-400 dark:border-white/10"
-                      }`}
-                      title={theme.label}
-                    >
-                      <span className={`h-4 w-4 rounded-full ${theme.swatchClass}`} />
-                      {isSelected && (
-                        <Check className="absolute h-2.5 w-2.5 text-white drop-shadow-sm" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+              <ColorSwatchPicker
+                value={newColumnColor}
+                onChange={(val) => setNewColumnColor(val as ColumnThemeId)}
+                options={columnThemeSwatchOptions}
+                label="Column Theme Color"
+                size="sm"
+              />
             </div>
 
             {/* Icon Picker Toggle */}
@@ -623,25 +605,13 @@ export function BoardColumnsTab({
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {/* Color Swatches */}
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-stone-600 dark:text-stone-400">
-                        Theme Color
-                      </label>
-                      <div className="flex items-center gap-1.5">
-                        {columnThemeOptions.map((theme) => (
-                          <button
-                            key={theme.id}
-                            type="button"
-                            onClick={() => setEditColor(theme.id)}
-                            className={`grid h-6 w-6 place-items-center rounded-md border cursor-pointer ${
-                              editColor === theme.id
-                                ? "border-stone-900 ring-2 ring-indigo-500 ring-offset-1 dark:border-white"
-                                : "border-stone-200 dark:border-white/10"
-                            }`}
-                          >
-                            <span className={`h-3.5 w-3.5 rounded-full ${theme.swatchClass}`} />
-                          </button>
-                        ))}
-                      </div>
+                      <ColorSwatchPicker
+                        value={editColor}
+                        onChange={(val) => setEditColor(val as ColumnThemeId)}
+                        options={columnThemeSwatchOptions}
+                        label="Theme Color"
+                        size="sm"
+                      />
                     </div>
 
                     {/* Icon Selector */}

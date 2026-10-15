@@ -96,6 +96,12 @@ export const columnStatusOptions: Array<{ value: CardStatus; label: string }> = 
 export type ColumnThemeId = (typeof columnThemeOptions)[number]["id"];
 export type ColumnIconId = (typeof columnIconOptions)[number]["id"];
 
+export const columnThemeSwatchOptions = columnThemeOptions.map((option) => ({
+  value: option.id,
+  label: option.label,
+  swatchClass: option.swatchClass
+}));
+
 const columnThemeIds = columnThemeOptions.map((option) => option.id) as [ColumnThemeId, ...ColumnThemeId[]];
 const columnIconIds = columnIconOptions.map((option) => option.id) as [ColumnIconId, ...ColumnIconId[]];
 const columnStatusIds = columnStatusOptions.map((option) => option.value) as [CardStatus, ...CardStatus[]];

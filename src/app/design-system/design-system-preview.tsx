@@ -53,6 +53,7 @@ export function DesignSystemPreview() {
   const [dateValue, setDateValue] = useState<DateTimeFieldValue>({ date: "", time: "" });
   const [standaloneDate, setStandaloneDate] = useState("2026-10-03");
   const [standaloneTime, setStandaloneTime] = useState("14:30");
+  const [swatchColor, setSwatchColor] = useState("LAVENDER");
   const [modalOpen, setModalOpen] = useState(false);
   const { toast } = useToast();
 
@@ -104,8 +105,8 @@ export function DesignSystemPreview() {
 
           <DateTimeField value={dateValue} onChange={setDateValue} />
 
-          <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3">
-            <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-dusk-lavender">
+          <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-dusk-lavender">
               Custom Global Pickers (Retro Lofi Theme)
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -117,6 +118,13 @@ export function DesignSystemPreview() {
                 <label className="mb-1 block text-[11px] font-medium text-stone-400">Standalone TimePicker</label>
                 <TimePicker value={standaloneTime} onChange={setStandaloneTime} placeholder="Select time..." />
               </div>
+            </div>
+            <div className="border-t border-white/10 pt-3">
+              <ColorSwatchPicker
+                label="Global ColorSwatchPicker"
+                value={swatchColor}
+                onChange={setSwatchColor}
+              />
             </div>
           </div>
         </div>

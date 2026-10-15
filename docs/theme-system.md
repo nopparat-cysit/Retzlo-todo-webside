@@ -735,3 +735,12 @@ Template:
 - Modular Refactoring: Decomposed monolithic 4,700-line client into modular domain files under `src/components/help/` (`data/`, `sandboxes.tsx`, `hub-diagram.tsx`, `docs-primitives.tsx`).
 - Verification: Vitest full suite (99 test files, 525 passed), TypeScript check (0 errors), ESLint (0 errors/warnings), Prisma validation passed.
 
+### 2026-10-16 — Global Color Picker Unification & Swatch Contrast Enhancement
+- Coverage: Platform-wide color selection components across Workspaces, Kanban cards, Columns, Notes, Folders, Diary, FAB quick-action hub, and Design System (`ColorSwatchPicker`, `ProjectAppearanceControls`, `card-modal`, `columns-tab`, `board`, `column`, `board-notes-rail`, `notes-panel`, `folder-modal`, `diary-hub-panel`, `fab-hub`, `project-quick-hub`, `design-system-preview`).
+- Design System & Tokens:
+  - Eliminated the washed-out `bg-*-100` pale swatch tints in `src/lib/theme/card-colors.ts` and replaced them with solid, recognizable 400-shade colors in light mode (`bg-stone-300`, `bg-indigo-400`, `bg-teal-400`, `bg-amber-400`, `bg-rose-400`, `bg-emerald-400`, `bg-violet-400`, `bg-sky-400`, `bg-pink-400`, `bg-slate-400`) and rich retro tokens in dark mode. Swatches now render as vivid, solid discs in both light (Warm Paper) and dark (Retro Lofi Indigo) modes, eliminating the hollow/invisible ring effect.
+  - Standardized all color picker UI on the unified `ColorSwatchPicker` primitive. Replaced stretched oblong pill shapes with responsive, tactile square tiles (`aspect-square max-w-[44px] rounded-xl border`).
+  - Added centered high-contrast `Check` icon indicator inside the selected swatch circle with subtle shadow.
+  - Standardized section headers with uppercase tracking, `Palette` icon, and a live mini color dot pill badge indicating the active color label.
+- Verification: Vitest full suite (99 test files, 525 passed), `ColorSwatchPicker` tests (3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), Prisma validation passed.
+

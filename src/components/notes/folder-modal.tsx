@@ -5,6 +5,7 @@ import { Folder, X } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { Input } from "@/components/ui/input";
 import { cardColorOptions } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
@@ -116,28 +117,11 @@ export function FolderModal({ folder, open, onClose, onSave }: FolderModalProps)
             </div>
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-stone-400">
-              Theme Color
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {cardColorOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setColor(opt.value)}
-                  className={cn(
-                    "h-7 w-7 rounded-full border-2 transition",
-                    opt.swatchClass,
-                    color === opt.value
-                      ? "ring-2 ring-dusk-lavender ring-offset-2 ring-offset-ink-950 scale-110"
-                      : "opacity-80 hover:opacity-100"
-                  )}
-                  title={opt.label}
-                />
-              ))}
-            </div>
-          </div>
+          <ColorSwatchPicker
+            label="Folder color"
+            value={color}
+            onChange={(c) => setColor(c)}
+          />
         </div>
 
         <div className="flex items-center justify-end gap-2 border-t border-white/10 bg-white/[0.02] px-5 py-3">

@@ -6,6 +6,7 @@ import { BookOpenCheck, FileText, Plus, Save, SlidersHorizontal, X } from "lucid
 import { DiaryChecklistEditor } from "@/components/diary/diary-checklist";
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
+import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input, Textarea } from "@/components/ui/input";
 import { normalizeDiaryChecklist, type DiaryChecklistItem } from "@/lib/diary/checklist";
@@ -232,30 +233,10 @@ function ColorPicker({
   onChange: (color: CardColor) => void;
 }) {
   return (
-    <div className="space-y-2 text-sm text-stone-300">
-      <span>Color</span>
-      <div className="flex flex-wrap gap-2">
-        {cardColorOptions.map((option) => {
-          const meta = getCardColorMeta(option.value);
-
-          return (
-            <button
-              key={option.value}
-              className={cn(
-                "grid h-8 w-8 place-items-center rounded-full border bg-white/[0.035] transition hover:scale-105 hover:border-white/25",
-                selectedColor === option.value
-                  ? "border-dusk-amber ring-2 ring-dusk-amber/45 ring-offset-2 ring-offset-ink-950"
-                  : "border-white/10"
-              )}
-              title={option.label}
-              type="button"
-              onClick={() => onChange(normalizeCardColor(option.value))}
-            >
-              <span className={cn("h-5 w-5 rounded-full border", meta.swatchClass)} />
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <ColorSwatchPicker
+      label="Color"
+      value={selectedColor}
+      onChange={onChange}
+    />
   );
 }

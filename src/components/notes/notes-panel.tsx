@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { RetzloUiIcon, type RetzloUiIconName } from "@/components/ui/retzlo-ui-icon";
 import { AppModal } from "@/components/ui/app-modal";
 import { useAppModal } from "@/components/ui/app-modal";
+import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { FilterSelect } from "@/components/ui/filter-select";
@@ -1648,31 +1649,11 @@ function ColorPicker({
   onChange: (color: CardColor) => void;
 }) {
   return (
-    <div className="space-y-2 text-sm text-stone-300">
-      <span>Note color</span>
-      <div className="flex flex-wrap gap-2">
-        {cardColorOptions.map((option) => {
-          const meta = getCardColorMeta(option.value);
-
-          return (
-            <button
-              key={option.value}
-              className={cn(
-                "grid h-8 w-8 place-items-center rounded-full border bg-white/[0.035] transition hover:scale-105 hover:border-white/25",
-                selectedColor === option.value
-                  ? "border-dusk-amber ring-2 ring-dusk-amber/45 ring-offset-2 ring-offset-ink-950"
-                  : "border-white/10"
-              )}
-              title={option.label}
-              type="button"
-              onClick={() => onChange(option.value)}
-            >
-              <span className={cn("h-5 w-5 rounded-full border", meta.swatchClass)} />
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <ColorSwatchPicker
+      label="Note color"
+      value={selectedColor}
+      onChange={onChange}
+    />
   );
 }
 
