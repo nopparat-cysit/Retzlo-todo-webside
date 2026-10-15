@@ -86,3 +86,211 @@ export const FAQ_ITEMS_TH = [
   },
 ];
 
+export interface MatrixRowItem {
+  dimension: string;
+  primary: string;
+  secondary: string;
+  badge?: string;
+}
+
+export const KANBAN_VS_TABLE_MATRIX_EN: MatrixRowItem[] = [
+  {
+    dimension: "Primary Focus",
+    primary: "Visual Stage Flow (WIP limits, column states)",
+    secondary: "Data Density & Fast Multi-Row Scanning",
+    badge: "WORKFLOW",
+  },
+  {
+    dimension: "Interaction Model",
+    primary: "Drag-and-drop cards between swimlanes",
+    secondary: "Inline cell editing (press Enter/Tab)",
+    badge: "INTERACTION",
+  },
+  {
+    dimension: "Information Density",
+    primary: "Rich card preview with cover art & sub-task bars",
+    secondary: "Ultra-compact spreadsheet rows (up to 50 tasks per screen)",
+    badge: "DENSITY",
+  },
+  {
+    dimension: "Multi-Field Editing",
+    primary: "Requires card detail modal dialog",
+    secondary: "Instant inline edits across Status, Priority & Assignee",
+    badge: "SPEED",
+  },
+  {
+    dimension: "Story Points & Estimates",
+    primary: "Column sum header badge (e.g. 18 pts)",
+    secondary: "Total sum aggregation footer bar",
+    badge: "METRICS",
+  },
+  {
+    dimension: "Bulk Operations",
+    primary: "Single card drag or batch column archive",
+    secondary: "Multi-select checkboxes with bulk status & delete actions",
+    badge: "BATCH",
+  },
+];
+
+export const KANBAN_VS_TABLE_MATRIX_TH: MatrixRowItem[] = [
+  {
+    dimension: "จุดเด่นหลัก (Primary Focus)",
+    primary: "ดูโฟลว์การไหลของงานตามสถานะและคอลัมน์",
+    secondary: "กวาดดูข้อมูลความหนาแน่นสูงและเปรียบเทียบหลายงานพร้อมกัน",
+    badge: "WORKFLOW",
+  },
+  {
+    dimension: "รูปแบบการโต้ตอบ",
+    primary: "ลากและวาง (Drag & Drop) ข้ามคอลัมน์ได้อย่างลื่นไหล",
+    secondary: "แก้ไขข้อมูลในตารางทันที (Inline Editing กด Enter/Tab)",
+    badge: "INTERACTION",
+  },
+  {
+    dimension: "ความหนาแน่นข้อมูล",
+    primary: "การ์ดสวยงาม เห็นภาพปก ลิสต์ย่อย และความสำคัญชัดเจน",
+    secondary: "ตารางสเปรดชีตแสดงงานได้มากถึง 50 งานในหน้าจอเดียว",
+    badge: "DENSITY",
+  },
+  {
+    dimension: "การแก้ไขฟิลด์งาน",
+    primary: "เปิดหน้าต่าง Modal เพื่อปรับเปลี่ยนรายละเอียดเต็ม",
+    secondary: "คลิกแก้ไขสถานะ ความสำคัญ ผู้รับผิดชอบ ได้ทันทีจากเซลล์ตาราง",
+    badge: "SPEED",
+  },
+  {
+    dimension: "คะแนน Story Points",
+    primary: "สรุปผลรวมบนหัวคอลัมน์ (เช่น 18 pts)",
+    secondary: "คำนวณผลรวมอัตโนมัติในแถบสรุปข้อมูลท้ายตาราง",
+    badge: "METRICS",
+  },
+  {
+    dimension: "การจัดการหลายงานพร้อมกัน",
+    primary: "ลากย้ายทีละการ์ด หรือจัดเก็บทั้งคอลัมน์",
+    secondary: "ติ๊ก Checkbox เลือกหลายแถวเพื่อเปลี่ยนสถานะหรือลบพร้อมกัน",
+    badge: "BATCH",
+  },
+];
+
+export const RBAC_PERMISSIONS_MATRIX_EN: MatrixRowItem[] = [
+  {
+    dimension: "Delete / Rename Project",
+    primary: "Workspace Owner Only",
+    secondary: "Restricted (Owner only)",
+    badge: "GOVERNANCE",
+  },
+  {
+    dimension: "Manage Roles & Invitations",
+    primary: "Owner & Admin",
+    secondary: "Read-only team list",
+    badge: "ACCESS",
+  },
+  {
+    dimension: "Create / Archive Boards",
+    primary: "Full Rights (Public & Private)",
+    secondary: "Can create within assigned project",
+    badge: "BOARDS",
+  },
+  {
+    dimension: "Edit Cards & Story Points",
+    primary: "Full Rights (Any card)",
+    secondary: "Editable (Assigned or open cards)",
+    badge: "CARDS",
+  },
+  {
+    dimension: "Access Private Boards",
+    primary: "Owner + Explicit Invitees",
+    secondary: "Only if explicitly invited by Owner",
+    badge: "PRIVACY",
+  },
+  {
+    dimension: "Audit Log & Security Trail",
+    primary: "Full Audit History Inspection",
+    secondary: "No access to administrative audit logs",
+    badge: "COMPLIANCE",
+  },
+];
+
+export const RBAC_PERMISSIONS_MATRIX_TH: MatrixRowItem[] = [
+  {
+    dimension: "ลบหรือเปลี่ยนชื่อโปรเจกต์",
+    primary: "Workspace Owner เท่านั้น",
+    secondary: "ไม่มีสิทธิ์ (จำกัดเฉพาะเจ้าของ Workspace)",
+    badge: "GOVERNANCE",
+  },
+  {
+    dimension: "จัดการบทบาทและส่งคำเชิญ",
+    primary: "Owner และ Admin",
+    secondary: "ดูรายชื่อทีมได้เท่านั้น ไม่สามารถเชิญหรือเปลี่ยนสิทธิ์",
+    badge: "ACCESS",
+  },
+  {
+    dimension: "สร้างหรือจัดเก็บบอร์ด",
+    primary: "สิทธิ์เต็ม (ทั้ง Public และ Private)",
+    secondary: "สร้างบอร์ดและจัดเก็บบอร์ดของตนเองได้",
+    badge: "BOARDS",
+  },
+  {
+    dimension: "แก้ไขการ์ดและ Story Points",
+    primary: "สิทธิ์เต็มในทุกการ์ดบนโปรเจกต์",
+    secondary: "แก้ไขการ์ดที่ตนรับผิดชอบ หรือการ์ดเปิดทั่วไป",
+    badge: "CARDS",
+  },
+  {
+    dimension: "เข้าถึงบอร์ด Private",
+    primary: "Owner + สมาชิกที่ได้รับเชิญเฉพาะเจาะจง",
+    secondary: "มองเห็นเฉพาะบอร์ด Private ที่ตนได้รับเชิญเท่านั้น",
+    badge: "PRIVACY",
+  },
+  {
+    dimension: "ตรวจสอบประวัติ Audit Log",
+    primary: "เข้าดูประวัติ Audit Trail กิจกรรมทั้งหมดได้",
+    secondary: "ไม่มีสิทธิ์เข้าถึงบันทึก Audit ระดับผู้ดูแล",
+    badge: "COMPLIANCE",
+  },
+];
+
+export interface PromptRecipeItem {
+  titleEn: string;
+  titleTh: string;
+  tag: string;
+  prompt: string;
+  descEn: string;
+  descTh: string;
+}
+
+export const AI_PROMPT_RECIPES: PromptRecipeItem[] = [
+  {
+    titleEn: "Decompose Epic into 3-10 Sub-tasks",
+    titleTh: "แตกงานใหญ่เป็นงานย่อย 3-10 รายการ",
+    tag: "CHECKLIST",
+    prompt: "Break down the task 'Implement User Onboarding Funnel' into 5 actionable, sequential checklist steps with estimated story points.",
+    descEn: "Generates an atomic checklist ready to be imported directly into card sub-tasks.",
+    descTh: "สร้างรายการงานย่อยที่ปฏิบัติได้จริง พร้อมค่า Story Points นำเข้าสู่การ์ดได้ทันที",
+  },
+  {
+    titleEn: "Identify Sprint Bottlenecks & Risk Audit",
+    titleTh: "วิเคราะห์จุดติดขัดและความเสี่ยงใน Sprint",
+    tag: "RISK_AUDIT",
+    prompt: "Review the current Sprint board with 8 in-progress tasks. Identify potential delivery bottlenecks and suggest mitigation tactics for overdue items.",
+    descEn: "Analyzes task distribution and flags overdue dependencies before sprint cutoff.",
+    descTh: "ประเมินการกระจายตัวของงาน และแจ้งเตือนความเสี่ยงของงานที่อาจส่งมอบไม่ทัน",
+  },
+  {
+    titleEn: "Generate User Acceptance Criteria (Gherkin)",
+    titleTh: "สร้างเกณฑ์การตรวจรับงาน (Acceptance Criteria)",
+    tag: "SPEC_GEN",
+    prompt: "Write 3 acceptance criteria in Given-When-Then format for the feature: 'Offline Draft Auto-Recovery when network connection is restored'.",
+    descEn: "Creates standard QA acceptance criteria to ensure definition of done is met.",
+    descTh: "ร่างเงื่อนไขตรวจรับงานในรูปแบบ Given-When-Then สำหรับทีม QA และนักพัฒนา",
+  },
+  {
+    titleEn: "Executive Sprint Progress Summary",
+    titleTh: "สรุปผลงานภาพรวมสำหรับผู้บริหาร",
+    tag: "EXECUTIVE",
+    prompt: "Summarize the 14 completed tasks this sprint into a 3-bullet executive briefing highlighting business impact and shipped capabilities.",
+    descEn: "Condenses detailed technical work into high-level business stakeholder updates.",
+    descTh: "กลั่นกรองงานเทคนิคที่เสร็จสิ้น ให้กลายเป็นบทสรุปสำหรับผู้บริหาร 3 ข้อสั้นกระชับ",
+  },
+];
+
+

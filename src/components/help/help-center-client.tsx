@@ -33,6 +33,7 @@ import {
   PanelLeft,
   PanelLeftClose,
   Workflow,
+  Shield,
 } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
@@ -44,9 +45,30 @@ import type { GuideTopic } from "./data/types";
 import { CATEGORY_THEME_MAP, CATEGORIES_EN, CATEGORIES_TH, SYSTEM_PILLARS_EN, SYSTEM_PILLARS_TH } from "./data/categories";
 import { TOPICS_EN } from "./data/topics-en";
 import { TOPICS_TH } from "./data/topics-th";
-import { KEYBOARD_SHORTCUTS_LIST_EN, KEYBOARD_SHORTCUTS_LIST_TH, FAQ_ITEMS_EN, FAQ_ITEMS_TH } from "./data/reference";
+import {
+  KEYBOARD_SHORTCUTS_LIST_EN,
+  KEYBOARD_SHORTCUTS_LIST_TH,
+  FAQ_ITEMS_EN,
+  FAQ_ITEMS_TH,
+  KANBAN_VS_TABLE_MATRIX_EN,
+  KANBAN_VS_TABLE_MATRIX_TH,
+  RBAC_PERMISSIONS_MATRIX_EN,
+  RBAC_PERMISSIONS_MATRIX_TH,
+  AI_PROMPT_RECIPES,
+} from "./data/reference";
 import { InteractiveAiDemo, InteractiveKanbanTableDemo, InteractivePrioritiesDemo, InteractiveCoffeeDemo } from "./sandboxes";
-import { DocsHeading, DocsCallout, DocsSandboxDeck, TapeCounter, MixtapeLogoMark } from "./docs-primitives";
+import {
+  DocsHeading,
+  DocsCallout,
+  DocsSandboxDeck,
+  TapeCounter,
+  MixtapeLogoMark,
+  FeatureTakeaways,
+  WorkflowTimeline,
+  SpecsLedger,
+  ComparisonMatrix,
+  PromptCookbook,
+} from "./docs-primitives";
 import { RetzloHubDiagram } from "./hub-diagram";
 
 export function HelpCenterClient() {
@@ -116,6 +138,9 @@ export function HelpCenterClient() {
       "capabilities",
       "workflow",
       "technical-specs",
+      "prompt-cookbook",
+      "view-comparison",
+      "rbac-matrix",
       "tips",
       "shortcuts",
     ];
@@ -873,7 +898,7 @@ export function HelpCenterClient() {
                   </section>
                 )}
 
-                {/* Section 2: Key Capabilities & Highlights Grid */}
+                {/* Section 2: Key Capabilities & Highlights */}
                 <section id="capabilities" className="space-y-4 scroll-mt-24">
                   <DocsHeading
                     id="capabilities"
@@ -884,21 +909,7 @@ export function HelpCenterClient() {
                     isEn={isEn}
                   />
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {activeTopic.highlights.map((highlight, index) => (
-                      <div
-                        key={index}
-                        className="group flex items-start gap-3 rounded-2xl border border-stone-200/80 bg-stone-50/40 p-4 transition hover:border-indigo-300 hover:bg-white dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.04] shadow-xs"
-                      >
-                        <div className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/80 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 mt-0.5">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                        </div>
-                        <div className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-snug">
-                          {highlight}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <FeatureTakeaways items={activeTopic.highlights} isEn={isEn} />
                 </section>
 
                 {/* Section 3: Step-by-Step Workflow Guide */}
@@ -912,29 +923,7 @@ export function HelpCenterClient() {
                       isEn={isEn}
                     />
 
-                    <div className="grid gap-3">
-                      {activeTopic.workflowSteps.map((stepItem, index) => (
-                        <div
-                          key={index}
-                          className="flex items-start gap-3.5 rounded-2xl border border-stone-200/80 bg-white p-4 sm:p-4.5 dark:border-white/10 dark:bg-white/[0.02] shadow-xs"
-                        >
-                          <div className={cn(
-                            "grid h-8 w-8 shrink-0 place-items-center rounded-xl font-mono text-xs font-bold border",
-                            categoryTheme.stepBadge
-                          )}>
-                            {stepItem.step}
-                          </div>
-                          <div className="space-y-0.5">
-                            <h3 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100">
-                              {stepItem.title}
-                            </h3>
-                            <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
-                              {stepItem.desc}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    <WorkflowTimeline steps={activeTopic.workflowSteps} isEn={isEn} />
                   </section>
                 )}
 
@@ -949,20 +938,66 @@ export function HelpCenterClient() {
                       isEn={isEn}
                     />
 
-                    <div className="rounded-2xl border border-stone-200/80 bg-stone-50/50 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.02]">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {activeTopic.technicalSpecs.map((spec, i) => (
-                          <div key={i} className="flex flex-col gap-1 bg-white/90 dark:bg-white/[0.04] p-3.5 rounded-xl border border-stone-200/70 dark:border-white/5 shadow-2xs">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                              {spec.label}
-                            </span>
-                            <span className="text-xs font-semibold text-stone-900 dark:text-stone-200 font-mono">
-                              {spec.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    <SpecsLedger specs={activeTopic.technicalSpecs} isEn={isEn} />
+                  </section>
+                )}
+
+                {/* ── Topic-Specific Rich Dynamic Modules ── */}
+
+                {/* AI Module: Prompt Cookbook */}
+                {(activeTopic.category === "ai" || activeTopic.id === "ai-assistant") && (
+                  <section id="prompt-cookbook" className="space-y-4 scroll-mt-24 pt-2">
+                    <DocsHeading
+                      id="prompt-cookbook"
+                      title={isEn ? "Curated Prompt Cookbook & Recipes" : "ตำราคำสั่งและสูตรพรอมต์สำเร็จรูป (Prompt Cookbook)"}
+                      subtitle={isEn ? "Battle-tested prompt templates optimized for deepseek-v4-pro" : "สูตรคำสั่งที่ผ่านการทดสอบและปรับจูนเพื่อ deepseek-v4-pro"}
+                      icon={Bot}
+                      badgeClass={categoryTheme.sectionBadge}
+                      isEn={isEn}
+                    />
+                    <PromptCookbook recipes={AI_PROMPT_RECIPES} isEn={isEn} />
+                  </section>
+                )}
+
+                {/* Kanban / Table Module: Viewport Comparison Matrix */}
+                {(activeTopic.id === "kanban-boards" || activeTopic.id === "spreadsheet-table-view") && (
+                  <section id="view-comparison" className="space-y-4 scroll-mt-24 pt-2">
+                    <DocsHeading
+                      id="view-comparison"
+                      title={isEn ? "Dual-View Comparison: Kanban vs Spreadsheet Table" : "ตารางเปรียบเทียบ: Kanban Board vs Spreadsheet Table"}
+                      subtitle={isEn ? "Choosing the optimal view for your workflow density" : "เลือกมุมมองที่เหมาะสมกับความหนาแน่นและลักษณะงานของคุณ"}
+                      icon={Table}
+                      badgeClass={categoryTheme.sectionBadge}
+                      isEn={isEn}
+                    />
+                    <ComparisonMatrix
+                      title={isEn ? "Viewport Architecture Matrix" : "ตารางเปรียบเทียบมุมมองสถาปัตยกรรม"}
+                      primaryColumn={isEn ? "Kanban Board View" : "มุมมอง Kanban Board"}
+                      secondaryColumn={isEn ? "Spreadsheet Table View" : "มุมมอง Spreadsheet Table"}
+                      rows={isEn ? KANBAN_VS_TABLE_MATRIX_EN : KANBAN_VS_TABLE_MATRIX_TH}
+                      isEn={isEn}
+                    />
+                  </section>
+                )}
+
+                {/* Security Module: Role-Based Access Control (RBAC) Matrix */}
+                {activeTopic.id === "member-roles-security" && (
+                  <section id="rbac-matrix" className="space-y-4 scroll-mt-24 pt-2">
+                    <DocsHeading
+                      id="rbac-matrix"
+                      title={isEn ? "Role-Based Access Control (RBAC) Matrix" : "ตารางสิทธิ์การเข้าถึงตามบทบาท (RBAC Permission Matrix)"}
+                      subtitle={isEn ? "Workspace Owner vs Project Member privilege boundaries" : "ขอบเขตอำนาจหน้าที่ระหว่าง Workspace Owner และสมาชิกโปรเจกต์"}
+                      icon={Shield}
+                      badgeClass={categoryTheme.sectionBadge}
+                      isEn={isEn}
+                    />
+                    <ComparisonMatrix
+                      title={isEn ? "Access Governance Matrix" : "ตารางกำกับดูแลสิทธิ์การเข้าถึง"}
+                      primaryColumn={isEn ? "Workspace Owner / Admin" : "Workspace Owner / ผู้ดูแล"}
+                      secondaryColumn={isEn ? "Project Member / Contributor" : "สมาชิกโปรเจกต์ / ผู้ร่วมงาน"}
+                      rows={isEn ? RBAC_PERMISSIONS_MATRIX_EN : RBAC_PERMISSIONS_MATRIX_TH}
+                      isEn={isEn}
+                    />
                   </section>
                 )}
 
@@ -1256,6 +1291,48 @@ export function HelpCenterClient() {
                       <span>•</span>
                       <span className="truncate">{isEn ? "Technical Specs" : "ข้อมูลจำเพาะทางเทคนิค"}</span>
                     </a>
+                    )}
+                    {(activeTopic.category === "ai" || activeTopic.id === "ai-assistant") && (
+                      <a
+                        href="#prompt-cookbook"
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "prompt-cookbook"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                        )}
+                      >
+                        <Bot className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{isEn ? "Prompt Recipes" : "สูตรคำสั่ง AI"}</span>
+                      </a>
+                    )}
+                    {(activeTopic.id === "kanban-boards" || activeTopic.id === "spreadsheet-table-view") && (
+                      <a
+                        href="#view-comparison"
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "view-comparison"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                        )}
+                      >
+                        <Table className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{isEn ? "Dual-View Matrix" : "ตารางเปรียบเทียบมุมมอง"}</span>
+                      </a>
+                    )}
+                    {activeTopic.id === "member-roles-security" && (
+                      <a
+                        href="#rbac-matrix"
+                        className={cn(
+                          "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
+                          activeHeadingId === "rbac-matrix"
+                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                        )}
+                      >
+                        <Shield className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{isEn ? "RBAC Matrix" : "ตารางสิทธิ์เข้าถึง RBAC"}</span>
+                      </a>
                     )}
                     {activeTopic.tips && (
                       <a

@@ -17,7 +17,11 @@
 - `docs/agent-notes/2026-10-15-docs-field-manual-redesign.md`: This work note.
 
 ### Modified
-- `src/components/help/help-center-client.tsx`: Decomposed from monolithic ~4,700 lines down to ~1,500 lines. Integrated `MixtapeLogoMark`, `TapeCounter`, and `DocsSandboxDeck`. Reordered reading sections so Concept/Overview is read first before the interactive sandbox test bench.
+- `src/components/help/docs-primitives.tsx`: Added `FeatureTakeaways`, `WorkflowTimeline`, `SpecsLedger`, `ComparisonMatrix`, and `PromptCookbook` components.
+- `src/components/help/data/reference.ts`: Added `KANBAN_VS_TABLE_MATRIX_EN/TH`, `RBAC_PERMISSIONS_MATRIX_EN/TH`, and `AI_PROMPT_RECIPES` datasets.
+- `src/components/help/data/topics-en.ts`: Cleaned up runaway 15-line developer changelog text in `welcome-overview` highlights into a concise, punchy highlight bullet.
+- `src/components/help/data/topics-th.ts`: Cleaned up runaway changelog paragraph in Thai `welcome-overview` highlights.
+- `src/components/help/help-center-client.tsx`: Deconstructed repetitive card-in-card containers. Integrated `FeatureTakeaways`, `WorkflowTimeline`, `SpecsLedger`, and conditionally rendered topic-tailored modules (`PromptCookbook` for AI topics, `ComparisonMatrix` for Kanban/Table and Member Roles/RBAC). Updated right sidebar "On This Page" scroll-spy links.
 - `src/components/help/help-center.test.ts`: Updated to verify topic strings across the modular help directory.
 - `src/app/globals.css`: Imported `JetBrains Mono` and `Plus Jakarta Sans` from Google Fonts.
 - `tailwind.config.ts`: Configured `fontFamily.mono` (`JetBrains Mono`) and `fontFamily.sans` (`Plus Jakarta Sans`).
@@ -28,20 +32,28 @@
 
 ## Important Behavior & Design Changes
 1. **Cohesive Retro Lofi Indigo Identity:** Eliminated the 9-color rainbow theme soup and replaced with a formal Retro Lofi Indigo palette with subtle accent indicators.
-2. **Technical Track Numbering:** Removed cartoon emojis from category titles and replaced with clean track numbering (`00 · ทั้งหมด`, `01 · ภาพรวมระบบ`, `02 · ผู้ช่วย AI`, `03 · บอร์ด & ตาราง`, etc.).
-3. **Cassette Brand Artwork & Mechanical Tape Counter:** Integrated `MixtapeLogoMark` SVG cassette artwork into the top header and replaced the generic SVG circle in the Table of Contents with a retro 3-digit `TapeCounter` (`000` to `100`).
-4. **Natural Pedagogical Reading Flow:** Users now read the Overview & Concept first, immediately followed by the live interactive test-bench (`DocsSandboxDeck`), before exploring workflows and technical matrices.
-5. **Interactive Sandboxes Intact:** All 4 interactive sandboxes (`InteractiveAiDemo`, `InteractiveKanbanTableDemo`, `InteractivePrioritiesDemo`, `InteractiveCoffeeDemo`) and `RetzloHubDiagram` remain fully interactive and bug-free.
-6. **Sticky Navbar & Sidebar Fix:** Replaced `overflow-x: hidden` with `overflow-x: clip` in `globals.css` on `html` and `body` rules to restore browser-level `position: sticky` functionality. Configured the documentation header as `sticky top-0 z-40` and the sidebar as `lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-5.5rem)]` with independent scrollable topic navigation and pinned footer, ensuring both stay firmly anchored in view while scrolling.
+2. **De-cardification & Editorial Variety (No More Boring Repeated Structure):**
+   - **Feature Takeaways:** Replaced generic 2-column grey card stacks with an editorial takeaway layout with subtle hover highlights, left accent markers, bold keyword titles, and fluid body copy.
+   - **Connected Vertical Workflow Timeline:** Replaced disconnected numbered cards with an authentic continuous vertical timeline featuring gradient connector tracks and monospace step badges (`01`, `02`, `03`...).
+   - **Engineering Specs Ledger:** Replaced bulky card boxes with a monospace key-value ledger table featuring click-to-copy values and toast feedback.
+3. **Topic-Specific Visual Modules:**
+   - **AI Copilot Topics:** Features `PromptCookbook` with 4 battle-tested, copy-to-clipboard prompt recipes (Sub-task Decomposition, Risk Audit, Acceptance Criteria, Executive Summary).
+   - **Kanban & Spreadsheet Table Topics:** Features `ComparisonMatrix` comparing Kanban vs Table across 6 architectural dimensions (Focus, Interaction, Density, Speed, Metrics, Batch ops).
+   - **Member Roles & Security Topics:** Features `ComparisonMatrix` detailing RBAC permissions across Governance, Access, Boards, Cards, Privacy, and Audit trail.
+4. **Data Hygiene:** Eliminated the runaway 15-line auth changelog dump in `welcome-overview` highlights, restoring balanced typography and preventing jagged card heights.
+5. **Cassette Brand Artwork & Mechanical Tape Counter:** Integrated `MixtapeLogoMark` SVG cassette artwork into the top header and replaced the generic SVG circle in the Table of Contents with a retro 3-digit `TapeCounter` (`000` to `100`).
+6. **Natural Pedagogical Reading Flow:** Users now read the Overview & Concept first, immediately followed by the live interactive test-bench (`DocsSandboxDeck`), before exploring workflows and technical matrices.
+7. **Interactive Sandboxes Intact:** All 4 interactive sandboxes (`InteractiveAiDemo`, `InteractiveKanbanTableDemo`, `InteractivePrioritiesDemo`, `InteractiveCoffeeDemo`) and `RetzloHubDiagram` remain fully interactive and bug-free.
+8. **Sticky Navbar & Sidebar Fix:** Replaced `overflow-x: hidden` with `overflow-x: clip` in `globals.css` on `html` and `body` rules to restore browser-level `position: sticky` functionality. Configured the documentation header as `sticky top-0 z-40` and the sidebar as `lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-5.5rem)]` with independent scrollable topic navigation and pinned footer, ensuring both stay firmly anchored in view while scrolling.
 
 ## Database / Schema Changes
 - None.
 
 ## Verification Commands Run & Results
 - `npx tsc --noEmit`: Exited with code 0 (zero TypeScript errors across the entire codebase).
-- `npx vitest run src/components/help/help-center.test.ts`: Passed (5/5 tests in 10ms).
-- `npx vitest run`: Passed (99 test files, 525 passed, 3 skipped, 0 failed).
-- `npm run lint`: Exited with code 0 (zero ESLint errors or warnings).
+- `npx vitest run src/components/help/help-center.test.ts`: Passed (5/5 tests).
+- `npm run lint`: Exited with code 0 (No ESLint warnings or errors).
+- `npm run build`: Exited with code 0 (production build compiled successfully, 41/41 static pages generated).
 - `npx prisma validate`: The schema at `prisma/schema.prisma` is valid.
 
 ## Known Follow-ups, Blockers, or Deployment Notes
