@@ -890,7 +890,7 @@ function KanbanColumnComponent({
 
         {/* Live width badge while dragging */}
         {isResizing && (
-          <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-6 rounded-lg border border-indigo-300/40 bg-ink-950/95 px-2.5 py-1 text-xs font-mono font-bold text-white shadow-2xl dark:border-dusk-lavender/40 dark:bg-[#0c0d1e] dark:text-dusk-lavender whitespace-nowrap z-50 animate-in fade-in zoom-in-95">
+          <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-6 rounded-lg border border-stone-800 bg-stone-900 px-2.5 py-1 text-xs font-mono font-bold text-stone-100 shadow-2xl dark:border-dusk-lavender/40 dark:bg-[#0c0d1e] dark:text-dusk-lavender whitespace-nowrap z-50 animate-in fade-in zoom-in-95">
             {columnWidth}px
           </div>
         )}
