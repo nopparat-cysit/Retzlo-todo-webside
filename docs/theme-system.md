@@ -754,3 +754,13 @@ Template:
   - Strict Action Confirmations & Toast Feedback: Integrated `ConfirmModal` for user redemption, approval, and starter presets seeding, alongside real-time `useToast` feedback.
 - Verification: Vitest full suite (99 test files, 525 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (41/41 routes).
 
+### 2026-10-16 — Solitary Zen Garden: Living Terrarium & Micro-Sanctuary
+- Coverage: Topbar Studio Tools (`ProjectTopbarTools`), `ZenGarden` component (`src/components/project/zen-garden.tsx`), and Zen Garden state API (`/api/zen-garden`).
+- Design System & Tokens:
+  - Dual Theme Consistency: Upgraded popover frame from hardcoded dark `#020208` to semantic tokens `border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18]`, seamlessly rendering across both Warm Paper (Light) and Retro Lofi Indigo (Dark).
+  - Living Terrarium Sandbox: Integrated tactile Japanese sand rock garden (*Karesansui*) with subtle concentric sand ridges, ambient sakura petal drift, and interactive click/touch ripple wave physics paired with procedural water drop chimes.
+  - Multi-Tier Botanical Catalog (10 Flora): Expanded flora collection from 4 capped plants (100c) to 10 progressive specimens across 3 Tiers (Dawn Grove, Lotus Spring, Celestial Sanctuary) up to 1,000c with Solfeggio frequencies and full un-truncated bilingual labels.
+  - Mindful Box Breathing (4-4-4-4): Added guided 1-minute meditation with an expanding/contracting sacred lotus mandala and phase instructions in Thai & English.
+  - Daily Nurture & Database Persistence: Added daily water streak tracking (+5c serenity reward), audit logging, and JSON persistence to `User.zenGarden`.
+- Verification: Vitest full suite (100 test files, 533 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (42/42 routes).
+

@@ -168,17 +168,66 @@ export function playKeyboardTickSound(isEnter = false): void {
  * Procedural Zen singing bowl chime: warm harmonics (432 Hz, 864 Hz, 1296 Hz) with smooth decay.
  */
 export function playZenChimeSound(): void {
-  if (!isSoundEnabled()) return;
+  playZenSingingBowlHarmonic(false, 432);
+}
+
+/**
+ * Procedural Zen singing bowl with multi-harmonic richness (432 Hz, 864 Hz, 1296 Hz, 528 Hz).
+ * Allows forcePlay when explicitly triggered by user inside Zen Garden.
+ */
+export function playZenSingingBowlHarmonic(forcePlay = false, customFreq = 432): void {
+  if (!forcePlay && !isSoundEnabled()) return;
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
 
     const now = ctx.currentTime;
-    playTone(ctx, 432, now, 1.2, 0.14, "sine");
-    playTone(ctx, 864, now, 0.8, 0.06, "sine");
-    playTone(ctx, 1296, now, 0.4, 0.03, "sine");
+    const vol = getSoundVolume();
+    // Fundamental tone with resonant decay
+    playTone(ctx, customFreq, now, 2.2, 0.2 * vol, "sine");
+    // Octave overtone
+    playTone(ctx, customFreq * 2, now + 0.02, 1.4, 0.08 * vol, "sine");
+    // Fifth overtone
+    playTone(ctx, customFreq * 1.5, now + 0.04, 1.0, 0.05 * vol, "sine");
+    // Shimmer overtone
+    playTone(ctx, customFreq * 3, now + 0.06, 0.6, 0.02 * vol, "triangle");
 
-    setTimeout(() => void ctx.close(), 1400);
+    setTimeout(() => void ctx.close(), 2400);
+  } catch {
+    // Audio might be blocked — silently ignore
+  }
+}
+
+/**
+ * Procedural tranquil water drop ripple sound for Zen sand / water basin interaction.
+ */
+export function playZenWaterDrop(forcePlay = false): void {
+  if (!forcePlay && !isSoundEnabled()) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const vol = getSoundVolume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(550, now);
+    osc.frequency.exponentialRampToValueAtTime(1300, now + 0.035);
+    osc.frequency.exponentialRampToValueAtTime(420, now + 0.11);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.16 * vol, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.14);
+
+    setTimeout(() => void ctx.close(), 250);
   } catch {
     // Audio might be blocked — silently ignore
   }
