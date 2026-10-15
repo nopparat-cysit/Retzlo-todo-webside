@@ -51,7 +51,7 @@ import { useToast } from "@/components/ui/toast";
 import { DiaryItemModal, type DiaryPayload, type HubDiaryItem } from "@/components/hub/diary-hub-panel";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
-import { CreateBoardModal } from "@/components/kanban/create-board-modal";
+import { CreateBoardModal, type CreatedBoardResult } from "@/components/kanban/create-board-modal";
 import { ProjectAppearanceControls } from "@/components/project/project-appearance-controls";
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
@@ -341,8 +341,17 @@ export function ProjectsDashboard({
     broadcastChange();
   }
 
-  function handleCreateBoard(newBoard: ProjectBoardSummary) {
+  function handleCreateBoard(result: CreatedBoardResult) {
     if (!activeProject) return;
+    const newBoard: ProjectBoardSummary = {
+      id: result.id,
+      name: result.name,
+      isPrivate: result.isPrivate,
+      columnCount: result.columnCount ?? result.columnsPreview?.length ?? 0,
+      totalCards: result.totalCards ?? result.cardCount ?? 0,
+      doneCards: result.doneCards ?? 0,
+      columnsPreview: result.columnsPreview ?? []
+    };
     setProjectList((prev) =>
       prev.map((p) => {
         if (p.id !== activeProject.id) return p;
@@ -1379,6 +1388,7 @@ export function ProjectsDashboard({
       ) : null}
       {isCreateBoardOpen && activeProject ? (
         <CreateBoardModal
+          open={isCreateBoardOpen}
           projectId={activeProject.id}
           projectName={activeProject.name}
           onClose={() => setIsCreateBoardOpen(false)}

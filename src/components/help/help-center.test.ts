@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -46,19 +46,29 @@ describe("Help & System Guide integration", () => {
       join(process.cwd(), "src/app/(dashboard)/help/page.tsx"),
       "utf8"
     );
-    const clientSource = readFileSync(
-      join(process.cwd(), "src/components/help/help-center-client.tsx"),
-      "utf8"
-    );
+    const helpDir = join(process.cwd(), "src/components/help");
+    const readHelpFiles = (dir: string): string => {
+      let combined = "";
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const fullPath = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          combined += readHelpFiles(fullPath);
+        } else if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
+          combined += readFileSync(fullPath, "utf8") + "\n";
+        }
+      }
+      return combined;
+    };
+    const helpModuleSource = readHelpFiles(helpDir);
 
     expect(pageSource).toContain("HelpCenterClient");
-    expect(clientSource).toContain("ข้อมูลระบบ & คู่มือการใช้งาน");
-    expect(clientSource).toContain("ผู้ช่วยอัจฉริยะ Retzlo AI");
-    expect(clientSource).toContain("Spreadsheet Table View");
-    expect(clientSource).toContain("Card Density (Normal / Compact 2x)");
-    expect(clientSource).toContain("Hover Checkbox");
-    expect(clientSource).toContain("Coffee Cheers");
-    expect(clientSource).toContain("useAiChat");
+    expect(helpModuleSource).toContain("ข้อมูลระบบ & คู่มือการใช้งาน");
+    expect(helpModuleSource).toContain("ผู้ช่วยอัจฉริยะ Retzlo AI");
+    expect(helpModuleSource).toContain("Spreadsheet Table View");
+    expect(helpModuleSource).toContain("Card Density (Normal / Compact 2x)");
+    expect(helpModuleSource).toContain("Hover Checkbox");
+    expect(helpModuleSource).toContain("Coffee Cheers");
+    expect(helpModuleSource).toContain("useAiChat");
   });
 
   it("provides system documentation and maintainer instructions in docs/system-guide.md and AGENTS.md", () => {

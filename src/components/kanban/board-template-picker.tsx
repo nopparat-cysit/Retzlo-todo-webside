@@ -7,6 +7,7 @@ import Image from "next/image";
 import { ColumnIconGlyph } from "@/components/kanban/column-icon-picker";
 import { cn } from "@/lib/utils";
 import { BOARD_TEMPLATES, type BoardTemplateId } from "@/lib/kanban/board-templates";
+export type { BoardTemplateId };
 import { getColumnThemeOption, columnIconOptions, columnStatusOptions } from "@/lib/kanban/column-settings";
 import { getStatusMeta } from "@/lib/kanban/status";
 

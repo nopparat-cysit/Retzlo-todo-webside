@@ -722,3 +722,16 @@ Template:
 - Legal Safeguards: Full compliance with Thai PDPA Section 24(5) (Legitimate Interests), Thai Computer Crime Act Section 26 (90-day traffic metadata retention), and GDPR Art 6(1)(f). Automated recursive zero-PII sanitization eliminates passwords, tokens, OTPs, and private journal contents.
 - Verification: Vitest unit tests (`src/lib/audit/audit-logger.test.ts`) 100% passed, TypeScript check 0 errors, ESLint 0 warnings, Prisma schema valid, and Next.js production build passed.
 
+### 2026-10-15 — Retzlo Field Manual Redesign & Typography Overhaul
+- Coverage: `/help` and `/docs` documentation center (`src/components/help/`).
+- Design System & Tokens:
+  - Eliminated the 9-color rainbow theme soup and unified under the cohesive Retro Lofi Indigo + Warm Paper palette.
+  - Replaced cartoonish emojis with formal technical track numbering (`00 · ทั้งหมด`, `01 · ภาพรวมระบบ`, `02 · ผู้ช่วย AI`, `03 · บอร์ด & ตาราง`, etc.).
+  - Added Google Font `JetBrains Mono` and `Plus Jakarta Sans` for crisp, engineering-grade typography and monospace technical metrics.
+  - Introduced `MixtapeLogoMark` vintage cassette branding in the documentation header.
+  - Built `DocsSandboxDeck` (cassette-deck test bench frame with LED status, live buffer specs, and reset control) wrapping all 4 interactive sandboxes (`InteractiveAiDemo`, `InteractiveKanbanTableDemo`, `InteractivePrioritiesDemo`, `InteractiveCoffeeDemo`).
+  - Built `TapeCounter` (3-digit mechanical cassette roller counter) powering the reading progress and Table of Contents.
+  - Reordered documentation reading flow: Overview & Concept is read first, followed immediately by the Interactive Live Sandbox deck, then Key Capabilities, Workflows, Technical Matrix, Pro Tips, and Keyboard Shortcuts.
+- Modular Refactoring: Decomposed monolithic 4,700-line client into modular domain files under `src/components/help/` (`data/`, `sandboxes.tsx`, `hub-diagram.tsx`, `docs-primitives.tsx`).
+- Verification: Vitest full suite (99 test files, 525 passed), TypeScript check (0 errors), ESLint (0 errors/warnings), Prisma validation passed.
+

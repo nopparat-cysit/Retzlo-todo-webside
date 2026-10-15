@@ -647,7 +647,8 @@ export function ProjectBoardsManager({
                 projectId: newBoard.projectId,
                 isPrivate: newBoard.isPrivate,
                 cardCount: 0,
-                memberUserIds: newBoard.memberUserIds ?? []
+                memberUserIds: newBoard.memberUserIds ?? [],
+                createdAt: new Date().toISOString()
               }
             ]);
           }}
