@@ -32,6 +32,7 @@
 3. **Cassette Brand Artwork & Mechanical Tape Counter:** Integrated `MixtapeLogoMark` SVG cassette artwork into the top header and replaced the generic SVG circle in the Table of Contents with a retro 3-digit `TapeCounter` (`000` to `100`).
 4. **Natural Pedagogical Reading Flow:** Users now read the Overview & Concept first, immediately followed by the live interactive test-bench (`DocsSandboxDeck`), before exploring workflows and technical matrices.
 5. **Interactive Sandboxes Intact:** All 4 interactive sandboxes (`InteractiveAiDemo`, `InteractiveKanbanTableDemo`, `InteractivePrioritiesDemo`, `InteractiveCoffeeDemo`) and `RetzloHubDiagram` remain fully interactive and bug-free.
+6. **Sticky Navbar & Sidebar Fix:** Replaced `overflow-x: hidden` with `overflow-x: clip` in `globals.css` on `html` and `body` rules to restore browser-level `position: sticky` functionality. Configured the documentation header as `sticky top-0 z-40` and the sidebar as `lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-5.5rem)]` with independent scrollable topic navigation and pinned footer, ensuring both stay firmly anchored in view while scrolling.
 
 ## Database / Schema Changes
 - None.

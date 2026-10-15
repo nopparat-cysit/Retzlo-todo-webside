@@ -231,7 +231,7 @@ export function HelpCenterClient() {
   return (
     <main className="soft-grid-bg min-h-screen w-full text-stone-900 dark:text-stone-100 flex flex-col">
       {/* ── Top Header / Navbar ── */}
-      <header className="sticky top-0 z-30 border-b border-stone-200/80 bg-white/90 backdrop-blur-md dark:border-white/10 dark:bg-ink-950/90 transition-colors">
+      <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/95 backdrop-blur-md dark:border-white/10 dark:bg-ink-950/95 transition-colors shadow-xs">
         <div className="mx-auto flex h-16 max-w-[1600px] w-full items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Left: Back & Title */}
           <div className="flex items-center gap-3">
@@ -411,18 +411,18 @@ export function HelpCenterClient() {
       </header>
 
       {/* ── Main Layout Body ── */}
-      <div className="mx-auto flex w-full max-w-[1600px] flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 gap-8 lg:gap-10">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 gap-8 lg:gap-10 items-start">
         {/* ── Left Sidebar (Only in Docs view) ── */}
         {viewMode === "docs" && (
           <aside
             className={cn(
-              "fixed inset-y-0 left-0 z-40 w-72 transform bg-white/95 p-5 border-r border-stone-200/80 backdrop-blur-xl transition-all duration-200 ease-in-out dark:bg-ink-950/95 dark:border-white/10 lg:static lg:z-auto lg:border-none lg:bg-transparent lg:p-0 lg:backdrop-blur-none flex flex-col",
+              "fixed inset-y-0 left-0 z-40 w-72 transform bg-white/95 p-5 border-r border-stone-200/80 backdrop-blur-xl transition-all duration-200 ease-in-out dark:bg-ink-950/95 dark:border-white/10 lg:sticky lg:top-20 lg:z-20 lg:border-none lg:bg-transparent lg:p-0 lg:backdrop-blur-none lg:h-[calc(100vh-5.5rem)] lg:flex lg:flex-col lg:self-start",
               isMobileSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
               isSidebarCollapsed ? "lg:hidden" : "lg:w-72 lg:shrink-0"
             )}
           >
             {/* Mobile Sidebar Header */}
-            <div className="flex lg:hidden items-center justify-between pb-4 border-b border-stone-200 dark:border-white/10 mb-4">
+            <div className="flex lg:hidden items-center justify-between pb-4 border-b border-stone-200 dark:border-white/10 mb-4 shrink-0">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
                 <span className="font-bold text-sm text-stone-900 dark:text-stone-100">
@@ -438,32 +438,30 @@ export function HelpCenterClient() {
               </button>
             </div>
 
-            {/* Sticky container on desktop */}
-            <div className="lg:sticky lg:top-24 flex flex-col gap-4 max-h-[calc(100vh-7rem)] overflow-y-auto pr-1.5 scrollbar-thin">
-              {/* Quick Filter Search Bar */}
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={isEn ? "Quick filter docs..." : "ค้นหาในคู่มือ..."}
-                  className="w-full h-8.5 rounded-xl border border-stone-200/90 bg-stone-100/70 pl-9 pr-8 text-xs text-stone-900 placeholder:text-stone-400 focus:border-indigo-500 focus:bg-white focus:outline-none dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 transition"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
-                    title={isEn ? "Clear filter" : "ล้างการค้นหา"}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                )}
-              </div>
+            {/* Quick Filter Search Bar */}
+            <div className="relative shrink-0 mb-3">
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={isEn ? "Quick filter docs..." : "ค้นหาในคู่มือ..."}
+                className="w-full h-8.5 rounded-xl border border-stone-200/90 bg-stone-100/70 pl-9 pr-8 text-xs text-stone-900 placeholder:text-stone-400 focus:border-indigo-500 focus:bg-white focus:outline-none dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 transition"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
+                  title={isEn ? "Clear filter" : "ล้างการค้นหา"}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
 
-              {/* Document Topics Navigation (Collapsible Folders) */}
-              <div className="space-y-3">
+            {/* Document Topics Navigation (Collapsible Folders) */}
+            <div className="flex-1 min-h-0 overflow-y-auto pr-1.5 space-y-3 scrollbar-thin">
                 {!searchQuery ? (
                   categories
                     .filter((c) => c.id !== "all")
@@ -598,17 +596,16 @@ export function HelpCenterClient() {
                 )}
               </div>
 
-              {/* System Guide Reference Footer */}
-              <div className="mt-auto pt-4 border-t border-stone-200/80 dark:border-white/10">
-                <div className="rounded-xl border border-stone-200/70 bg-stone-50/60 p-2.5 text-[11px] text-stone-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 font-mono text-[10px]">
-                    <FileText className="h-3 w-3 text-indigo-500 dark:text-dusk-lavender" />
-                    <span>system-guide.md</span>
-                  </span>
-                  <span className="rounded bg-stone-200/60 dark:bg-white/10 px-1.5 py-0.2 text-[9px] font-semibold text-stone-600 dark:text-stone-300">
-                    v2.4 LTS
-                  </span>
-                </div>
+            {/* System Guide Reference Footer */}
+            <div className="shrink-0 pt-3 border-t border-stone-200/80 dark:border-white/10 mt-2">
+              <div className="rounded-xl border border-stone-200/70 bg-stone-50/60 p-2.5 text-[11px] text-stone-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 flex items-center justify-between">
+                <span className="flex items-center gap-1.5 font-mono text-[10px]">
+                  <FileText className="h-3 w-3 text-indigo-500 dark:text-dusk-lavender" />
+                  <span>system-guide.md</span>
+                </span>
+                <span className="rounded bg-stone-200/60 dark:bg-white/10 px-1.5 py-0.2 text-[9px] font-semibold text-stone-600 dark:text-stone-300">
+                  v2.4 LTS
+                </span>
               </div>
             </div>
           </aside>
@@ -1141,7 +1138,7 @@ export function HelpCenterClient() {
               </article>
 
               {/* ── Right Column: Table of Contents & Support (Desktop Only) ── */}
-              <aside className="hidden xl:block w-64 shrink-0 sticky top-24 space-y-5">
+              <aside className="hidden xl:block w-64 shrink-0 sticky top-20 self-start space-y-5">
                 {/* On This Page Widget */}
                 <div className="lofi-panel rounded-2xl border border-stone-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-ink-950/40 space-y-3 shadow-2xs">
                   <div className="flex items-center justify-between pb-2 border-b border-stone-200/80 dark:border-white/10">
