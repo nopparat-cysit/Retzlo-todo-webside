@@ -22,14 +22,14 @@ describe("Help & System Guide integration", () => {
     expect(profileIndex).toBeLessThan(helpIndex);
   });
 
-  it("renders a decluttered toolbar with UserProfilePopover in ProjectsDashboard", () => {
+  it("renders UserProfilePopover, AiChatTrigger, and HelpButton in ProjectsDashboard", () => {
     const dashboardSource = readFileSync(
       join(process.cwd(), "src/components/project/projects-dashboard.tsx"),
       "utf8"
     );
     expect(dashboardSource).toContain("<UserProfilePopover");
-    expect(dashboardSource).not.toContain("<AiChatTrigger />");
-    expect(dashboardSource).not.toContain("<HelpButton />");
+    expect(dashboardSource).toContain("<AiChatTrigger");
+    expect(dashboardSource).toContain("<HelpButton");
   });
 
   it("provides Help & System Guide navigation item in UserProfilePopover dropdown", () => {

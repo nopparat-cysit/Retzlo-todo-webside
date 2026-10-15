@@ -56,6 +56,7 @@ import { ProjectAppearanceControls } from "@/components/project/project-appearan
 import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { HelpButton } from "@/components/ui/help-button";
 import { defaultCalendarFilters, filterCalendarItems } from "@/lib/calendar/view";
 import { formatShortDue } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
@@ -601,29 +602,34 @@ export function ProjectsDashboard({
             <LanguageSwitcher />
             <div className="flex items-center gap-1.5 shrink-0">
               <NotificationsPopover />
-              {userProfile && (
-                <UserProfilePopover
-                  avatar={userProfile.avatar}
-                  email={userProfile.email}
-                  initials={(userProfile.name ?? userProfile.email)
-                    .split(" ")
-                    .map((w) => w[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)}
-                  name={userProfile.name ?? userProfile.email}
-                  status={userProfile.status}
-                  statusColor={
-                    userProfile.status === "ONLINE"
-                      ? "bg-emerald-400"
-                      : userProfile.status === "BUSY"
-                      ? "bg-dusk-amber"
-                      : "bg-stone-500"
-                  }
-                  variant="avatar"
-                  isAdmin={userProfile.isAdmin}
-                />
-              )}
+              {/* On screens smaller than 2xl (where Studio Pulse right rail is hidden), show AI, Profile & Help here */}
+              <div className="flex 2xl:hidden items-center gap-1.5">
+                <AiChatTrigger className="h-8 w-8 rounded-lg border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]" />
+                {userProfile && (
+                  <UserProfilePopover
+                    avatar={userProfile.avatar}
+                    email={userProfile.email}
+                    initials={(userProfile.name ?? userProfile.email)
+                      .split(" ")
+                      .map((w) => w[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)}
+                    name={userProfile.name ?? userProfile.email}
+                    status={userProfile.status}
+                    statusColor={
+                      userProfile.status === "ONLINE"
+                        ? "bg-emerald-400"
+                        : userProfile.status === "BUSY"
+                        ? "bg-dusk-amber"
+                        : "bg-stone-500"
+                    }
+                    variant="avatar"
+                    isAdmin={userProfile.isAdmin}
+                  />
+                )}
+                <HelpButton />
+              </div>
             </div>
           </div>
 
@@ -944,7 +950,6 @@ export function ProjectsDashboard({
 
               {/* Primary action & workspace metrics */}
               <div className="flex items-center gap-2 shrink-0">
-                <AiChatTrigger className="h-9 w-9 rounded-xl border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]" />
                 {viewMode === "boards" && activeProject ? (
                   <div className="flex items-center gap-2.5 sm:gap-3">
                     {/* Compact Workspace Progress Pill */}
@@ -1371,7 +1376,11 @@ export function ProjectsDashboard({
           )}
         </section>
 
-        {projectList.length > 0 ? <ProjectSupportColumn projects={sortedProjects} calendarCards={filteredCalendarCards} /> : null}
+        <ProjectSupportColumn
+          projects={sortedProjects}
+          calendarCards={filteredCalendarCards}
+          userProfile={userProfile}
+        />
       </div>
 
       {isCreateOpen ? <CreateProjectModal onClose={() => setIsCreateOpen(false)} onCreated={broadcastChange} /> : null}
@@ -1465,10 +1474,12 @@ export function ProjectsDashboard({
 
 function ProjectSupportColumn({
   projects,
-  calendarCards
+  calendarCards,
+  userProfile,
 }: {
   projects: ProjectDashboardItem[];
   calendarCards: Array<GlobalCalendarCard & { type: "card" }>;
+  userProfile?: UserProfile;
 }) {
   const totalCards = projects.reduce(
     (count, project) => count + (project.board?.columns.reduce((sum, column) => sum + column.cards.length, 0) ?? 0),
@@ -1480,8 +1491,45 @@ function ProjectSupportColumn({
   const rhythmItems = calendarCards.slice(0, 4);
 
   return (
-    <aside className="hidden min-h-0 min-w-0 2xl:sticky 2xl:top-5 2xl:block 2xl:h-[calc(100vh-2.5rem)] order-3 2xl:order-3">
-      <section className="lofi-panel relative flex h-full min-h-0 flex-col overflow-hidden rounded-2xl p-5 border border-white/10">
+    <aside className="hidden min-h-0 min-w-0 2xl:sticky 2xl:top-5 2xl:flex 2xl:flex-col 2xl:gap-3 2xl:h-[calc(100vh-2.5rem)] order-3 2xl:order-3">
+      {/* Top Utilities Header (User Profile, AI, Help) directly above Studio Pulse */}
+      <div className="flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-100/70 p-1.5 dark:border-white/10 dark:bg-white/[0.03] shadow-inner shrink-0">
+        <div className="flex items-center gap-2 pl-2 min-w-0">
+          <div className="h-2 w-2 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
+          <span className="truncate text-xs font-semibold text-stone-700 dark:text-stone-300">
+            {userProfile?.name?.split(" ")[0] ?? "Studio"}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <AiChatTrigger className="h-8 w-8 rounded-lg border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04] shadow-xs hover:border-dusk-lavender/40 hover:bg-white dark:hover:bg-white/10" />
+          <HelpButton className="h-8 w-8 rounded-lg border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04] shadow-xs hover:border-dusk-lavender/40 hover:bg-white dark:hover:bg-white/10" />
+          {userProfile && (
+            <UserProfilePopover
+              avatar={userProfile.avatar}
+              email={userProfile.email}
+              initials={(userProfile.name ?? userProfile.email)
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2)}
+              name={userProfile.name ?? userProfile.email}
+              status={userProfile.status}
+              statusColor={
+                userProfile.status === "ONLINE"
+                  ? "bg-emerald-400"
+                  : userProfile.status === "BUSY"
+                  ? "bg-dusk-amber"
+                  : "bg-stone-500"
+              }
+              variant="avatar"
+              isAdmin={userProfile.isAdmin}
+            />
+          )}
+        </div>
+      </div>
+
+      <section className="lofi-panel relative flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl p-5 border border-white/10">
         <div className="shrink-0">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>

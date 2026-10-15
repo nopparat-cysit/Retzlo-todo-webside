@@ -22,12 +22,12 @@
 - `src/components/help/data/topics-en.ts`: Cleaned up runaway 15-line developer changelog text in `welcome-overview` highlights into a concise, punchy highlight bullet.
 - `src/components/help/data/topics-th.ts`: Cleaned up runaway changelog paragraph in Thai `welcome-overview` highlights.
 - `src/components/help/help-center-client.tsx`: Deconstructed repetitive card-in-card containers. Integrated `FeatureTakeaways`, `WorkflowTimeline`, `SpecsLedger`, and conditionally rendered topic-tailored modules (`PromptCookbook` for AI topics, `ComparisonMatrix` for Kanban/Table and Member Roles/RBAC). Updated right sidebar "On This Page" scroll-spy links.
-- `src/components/help/help-center.test.ts`: Updated to verify topic strings across the modular help directory.
+- `src/components/help/help-center.test.ts`: Updated to verify topic strings across the modular help directory and assert presence of `UserProfilePopover`, `AiChatTrigger`, and `HelpButton` in `ProjectsDashboard`.
 - `src/app/globals.css`: Imported `JetBrains Mono` and `Plus Jakarta Sans` from Google Fonts.
 - `tailwind.config.ts`: Configured `fontFamily.mono` (`JetBrains Mono`) and `fontFamily.sans` (`Plus Jakarta Sans`).
 - `src/components/kanban/board-template-picker.tsx`: Re-exported `BoardTemplateId` type.
 - `src/components/project/project-boards-manager.tsx`: Added `createdAt` timestamp to newly appended boards.
-- `src/components/project/projects-dashboard.tsx`: Correctly mapped `CreatedBoardResult` to `ProjectBoardSummary` and passed `open` prop to `CreateBoardModal`.
+- `src/components/project/projects-dashboard.tsx`: Repositioned user profile avatar popover, Retzlo AI assistant trigger, and Help button (`?`) into a dedicated top utilities toolbar directly above the Studio Pulse right rail (`ProjectSupportColumn`), removed redundant middle-header AI trigger, and preserved responsive fallbacks on `< 2xl` screens.
 - `src/components/kanban/column.tsx`: Updated curved column resize guide line corner arcs (`top-arc-fade` and `bottom-arc-fade`) with SVG `linearGradient` and `strokeLinecap="round"`, creating a soft luminous fade-out at the tips.
 - `src/components/kanban/column-resize.test.ts`: Added unit assertions to verify corner arc gradient fade-out and rounded linecap geometry.
 - `docs/theme-system.md`: Documented the new theme tokens and added change log entry.
@@ -49,6 +49,7 @@
 8. **Natural Pedagogical Reading Flow:** Users now read the Overview & Concept first, immediately followed by the live interactive test-bench (`DocsSandboxDeck`), before exploring workflows and technical matrices.
 9. **Interactive Sandboxes Intact:** All 4 interactive sandboxes (`InteractiveAiDemo`, `InteractiveKanbanTableDemo`, `InteractivePrioritiesDemo`, `InteractiveCoffeeDemo`) and `RetzloHubDiagram` remain fully interactive and bug-free.
 10. **Sticky Navbar & Sidebar Fix:** Replaced `overflow-x: hidden` with `overflow-x: clip` in `globals.css` on `html` and `body` rules to restore browser-level `position: sticky` functionality. Configured the documentation header as `sticky top-0 z-40` and the sidebar as `lg:sticky lg:top-20 lg:self-start lg:h-[calc(100vh-5.5rem)]` with independent scrollable topic navigation and pinned footer, ensuring both stay firmly anchored in view while scrolling.
+11. **Dashboard Top Utilities Toolbar (Profile, AI, Help):** Moved the user profile avatar popover, AI assistant trigger, and Help button (`?`) to a dedicated top toolbar in the right rail directly above the Studio Pulse card. Removed the redundant AI trigger from the middle column workspace header (which was cramped between workspace switch and progress metrics), and kept responsive fallbacks for `< 2xl` screens in the left sidebar quick actions bar.
 
 ## Database / Schema Changes
 - None.
