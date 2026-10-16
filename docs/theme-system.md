@@ -784,11 +784,11 @@ Template:
   - Mac Retina Typography: Added `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;` to `body` for razor-sharp typography on high-DPI displays in both Warm Paper and Retro Lofi Indigo themes.
 - Verification: Vitest full suite (100 test files, 533 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (42/42 routes).
 
-### 2026-10-16 — Marketing Landing Page Redesign (Authentic Retzlo Retro Lofi Indigo Glassmorphism)
+### 2026-10-16 — Marketing Landing Page Redesign (Editorial Mixtape & Paper Aesthetic)
 - Coverage: `/` (`src/app/(marketing)/page.tsx`, `src/app/(marketing)/landing-data.ts`, `src/app/(marketing)/walkthrough-mockup.tsx`).
 - Design Direction & Tokens:
-  - Authentic Retzlo Retro Lofi Indigo Aesthetic: Uses Retzlo's core landing page classes (`.retzlo-nav`, `.retzlo-hero-orb-1/2/3`, `.retzlo-grid-beam-x/y`, `.retzlo-bento-card`, `.retzlo-quote-card`, `.retzlo-badge`, `.retzlo-gradient-text`, `.retzlo-cta-primary`, `.retzlo-cta-ghost`, `.retzlo-section-line`) and dusk palette (`#a9a2ff` lavender, `#e5bd72` amber, `#89c7d6` cyan, `#d59ab3` rose on `#070715` deep midnight indigo).
-  - Clean, Uncluttered Composition: Adapts the persuasive storytelling structure (Hero with live Typewriter, Pain-Point Console Tabs, 7-Module Interactive Walkthrough, Lofi Focus Studio with 3D Cassette Deck, Readiness Fit Check, Before/After & 3-Way Comparison Matrix, Community Reviews, 2-Column FAQ Accordion, and Subtle Floating Audio/CTA Bar) into spacious, breathable glassmorphic Bento panels.
-  - Light/Dark Theme Immunity: Uses explicit dark indigo surfaces (`#070715`, `#0b0a1d`, `#121026`) and `border-[#a9a2ff]/15` so `[data-theme="light"]` utility overrides in `globals.css` never wash out contrast.
+  - Unified with `MixtapeAuthScene` (`/login`, `/register`): Uses semantic theme tokens (`var(--background)`, `var(--foreground)`, `var(--panel-strong)`, `var(--paper)`, `var(--border)`, `var(--muted)`, `var(--accent)`), `Georgia, 'Times New Roman', serif` display typography, `MixtapeLogoMark`, and `MixtapeArtwork` (`/images/login-cassette-cutout.png`, pixel clouds, stars, and tilted `#ffecb1` paper note callout).
+  - Zero AI SaaS Clichés: Removed glowing neon orbs, laser grid beams, fake hacker terminal prompts, pulsing dot badges, and emoji spam. Replaced with calm, understated Thai editorial copy, clean hairlines (`1px solid var(--border)`), and bespoke `/stickers/ui-icons-retzlo/` illustrations.
+  - Native Dual-Theme Support: Supports both Warm Paper (Light) and Retro Lofi Indigo (Dark) via `ThemeToggle` in the top header.
 - Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed.
 
