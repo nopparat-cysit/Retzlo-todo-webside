@@ -11,5 +11,5 @@ export default async function ProjectIndexPage({ params }: { params: { id: strin
     redirect(`/project/${params.id}/diary`);
   }
 
-  redirect(`/projects?projectId=${params.id}`);
+  redirect(`/project/${params.id}/board`);
 }

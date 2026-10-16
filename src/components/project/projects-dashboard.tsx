@@ -5,10 +5,8 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useRef, useState, useCallback, type CSSProperties, type MouseEvent } from "react";
 import { useLiveSync } from "@/hooks/use-live-sync";
 import {
-  ArrowLeft,
   ArrowRight,
   BookOpenCheck,
-  Building2,
   CalendarDays,
   Check,
   ChevronDown,
@@ -184,14 +182,12 @@ export function ProjectsDashboard({
   calendarDiaries = [],
   userProfile,
   databaseWarning,
-  initialSelectedProjectId,
 }: {
   projects: ProjectDashboardItem[];
   calendarCards: GlobalCalendarCard[];
   calendarDiaries?: GlobalCalendarDiaryRaw[];
   userProfile?: UserProfile;
   databaseWarning?: string;
-  initialSelectedProjectId?: string;
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -205,8 +201,8 @@ export function ProjectsDashboard({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilterTab, setActiveFilterTab] = useState<"all" | "starred" | "work" | "diary">("all");
 
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(initialSelectedProjectId ?? null);
-  const [activeProjectId, setActiveProjectId] = useState<string>(initialSelectedProjectId ?? projects[0]?.id ?? "");
+  const [activeProjectId, setActiveProjectId] = useState<string>(projects[0]?.id ?? "");
+  const [viewMode, setViewMode] = useState<"boards" | "workspaces">("boards");
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
   const [boardSearchQuery, setBoardSearchQuery] = useState("");
   const [editingBoard, setEditingBoard] = useState<ProjectBoardSummary | null>(null);
@@ -214,56 +210,6 @@ export function ProjectsDashboard({
   const [editingProjectForSettings, setEditingProjectForSettings] = useState<ProjectDashboardItem | null>(null);
   const [workspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
   const [boardViewMode, setBoardViewMode] = useState<"grid" | "list">("grid");
-
-  const handleSelectProject = useCallback((projectId: string) => {
-    setSelectedProjectId(projectId);
-    setActiveProjectId(projectId);
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.set("projectId", projectId);
-      window.history.pushState({}, "", url.toString());
-    } catch {
-      // ignore
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  const handleBackToCompanies = useCallback(() => {
-    setSelectedProjectId(null);
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("projectId");
-      url.searchParams.delete("companyId");
-      window.history.pushState({}, "", url.pathname);
-    } catch {
-      // ignore
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  useEffect(() => {
-    const handlePopState = () => {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const pid = params.get("projectId") || params.get("companyId");
-        setSelectedProjectId(pid || null);
-        if (pid) {
-          setActiveProjectId(pid);
-        }
-      } catch {
-        // ignore
-      }
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  useEffect(() => {
-    if (initialSelectedProjectId) {
-      setSelectedProjectId(initialSelectedProjectId);
-      setActiveProjectId(initialSelectedProjectId);
-    }
-  }, [initialSelectedProjectId]);
 
   useEffect(() => {
     try {
@@ -294,11 +240,9 @@ export function ProjectsDashboard({
 
   const sortedProjects = useMemo(() => sortProjectsByStarred(projectList, starredProjectIds), [projectList, starredProjectIds]);
   const activeProject = useMemo(() => {
-    if (selectedProjectId) {
-      return projectList.find((p) => p.id === selectedProjectId) ?? sortedProjects[0] ?? null;
-    }
     return projectList.find((p) => p.id === activeProjectId) ?? sortedProjects[0] ?? null;
-  }, [projectList, selectedProjectId, activeProjectId, sortedProjects]);
+  }, [projectList, activeProjectId, sortedProjects]);
+  const selectedProjectId = activeProject?.id ?? sortedProjects[0]?.id ?? "";
 
   const starredCount = useMemo(() => projectList.filter((p) => starredProjectIds.has(p.id)).length, [projectList, starredProjectIds]);
   const workCount = useMemo(() => projectList.filter((p) => p.type !== "DIARY").length, [projectList]);
@@ -461,23 +405,6 @@ export function ProjectsDashboard({
       })
     );
     broadcastChange();
-  }
-
-  async function handleConfirmDeleteBoard() {
-    if (!deletingBoard || !activeProject) return;
-    try {
-      const res = await fetch(`/api/boards/${deletingBoard.id}`, { method: "DELETE" });
-      if (res.ok) {
-        handleDeleteBoard(deletingBoard.id);
-        toast({ message: `Board "${deletingBoard.name}" deleted.`, type: "success" });
-      } else {
-        toast({ message: "Failed to delete board.", type: "error" });
-      }
-    } catch {
-      toast({ message: "An unexpected error occurred.", type: "error" });
-    } finally {
-      setDeletingBoard(null);
-    }
   }
 
   useEffect(() => {
@@ -649,636 +576,811 @@ export function ProjectsDashboard({
     }
   }
 
-  const totalCards = useMemo(() => {
-    return projectList.reduce(
-      (count, project) => count + (project.board?.columns.reduce((sum, column) => sum + column.cards.length, 0) ?? 0),
-      0
-    );
-  }, [projectList]);
-
-  const totalBoards = useMemo(() => {
-    return projectList.reduce((count, project) => count + project.counts.boards, 0);
-  }, [projectList]);
-
-  const totalMembers = useMemo(() => {
-    return projectList.reduce((count, project) => count + project.counts.members, 0);
-  }, [projectList]);
-
-
   return (
-    <main className="soft-grid-bg min-h-[100dvh] w-full overflow-y-auto p-3 sm:p-5 lg:p-6">
-      <div className="max-w-[1720px] mx-auto space-y-5 sm:space-y-6">
-        {databaseWarning ? (
-          <div className="rounded-2xl border border-dusk-rose/25 bg-dusk-rose/10 px-4 py-3 text-sm leading-6 text-dusk-rose">
-            {databaseWarning}
-          </div>
-        ) : null}
-
-        {/* Global Company Hub Header */}
-        <header className="lofi-panel flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl p-3.5 sm:px-5 sm:py-3.5 backdrop-blur-xl border border-stone-200/80 dark:border-white/10 bg-white/80 dark:bg-ink-950/75 shadow-xs">
-          <div className="flex items-center justify-between sm:justify-start gap-3">
-            <Link href="/projects" className="flex items-center gap-2.5 group">
+    <main className="soft-grid-bg min-h-[100dvh] lg:h-screen w-full overflow-y-auto lg:overflow-hidden p-3 sm:p-4 lg:p-5">
+      <div className="grid min-h-0 gap-4 lg:h-full lg:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,1fr)_360px]">
+        <aside className="lofi-panel relative order-2 lg:order-1 flex min-h-0 flex-col overflow-hidden rounded-2xl p-4 sm:p-5 lg:sticky lg:top-5 lg:h-[calc(100dvh-2.5rem)]">
+          {/* Top Brand Header (Dedicated Row, Never Truncates) */}
+          <div className="flex items-center justify-between border-b border-stone-200/80 pb-3.5 dark:border-white/10">
+            <Link href="/projects" className="flex items-center gap-3 min-w-0 group">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-xs group-hover:scale-105 transition-transform">
-                <Building2 className="h-5 w-5" />
+                <Sparkles className="h-5 w-5" />
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-dusk-amber leading-none mb-1">
                   Retzlo
                 </p>
                 <h1 className="text-base font-bold text-stone-900 dark:text-stone-100 leading-tight whitespace-nowrap">
-                  Companies & Workspaces
+                  Workspaces
                 </h1>
               </div>
             </Link>
-
-            {/* Mobile quick tools */}
-            <div className="flex 2xl:hidden items-center gap-1.5 sm:hidden">
-              <AiChatTrigger className="h-8 w-8 rounded-lg border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]" />
-              <HelpButton />
-              {userProfile && (
-                <UserProfilePopover
-                  avatar={userProfile.avatar}
-                  email={userProfile.email}
-                  initials={(userProfile.name ?? userProfile.email)
-                    .split(" ")
-                    .map((w) => w[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)}
-                  name={userProfile.name ?? userProfile.email}
-                  status={userProfile.status}
-                  statusColor={
-                    userProfile.status === "ONLINE"
-                      ? "bg-emerald-400"
-                      : userProfile.status === "BUSY"
-                      ? "bg-dusk-amber"
-                      : "bg-stone-500"
-                  }
-                  variant="avatar"
-                  isAdmin={userProfile.isAdmin}
-                />
-              )}
-            </div>
           </div>
 
-          {/* Search bar */}
-          <div className="relative flex-1 max-w-lg mx-0 sm:mx-4">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
-            <input
-              type="text"
-              placeholder="Search companies, blueprints, tags... (Ctrl + K)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-stone-200/80 bg-stone-100/70 pl-9 pr-8 py-2 text-xs text-stone-800 placeholder-stone-400 focus:border-indigo-400 focus:bg-white focus:outline-none dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder-stone-500 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] transition shadow-inner"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 cursor-pointer"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Desktop Right Utilities Bar */}
-          <div className="hidden sm:flex items-center gap-2 shrink-0">
-            <Link
-              href="/projects/rewards"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-3 py-1.5 text-xs font-semibold text-dusk-amber transition hover:border-dusk-amber/60 hover:bg-dusk-amber/20 shadow-2xs"
-            >
-              <Gift className="h-3.5 w-3.5" />
-              <span>Arcade</span>
-            </Link>
-
+          {/* Quick Actions & System Tools Bar */}
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-100/70 p-1.5 dark:border-white/10 dark:bg-white/[0.03] shadow-inner">
             <LanguageSwitcher />
-            <NotificationsPopover />
-
-            {/* On < 2xl screens, show AI, Help & User Profile in topbar */}
-            <div className="flex 2xl:hidden items-center gap-1.5">
-              <AiChatTrigger className="h-8 w-8 rounded-lg border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]" />
-              <HelpButton />
-              {userProfile && (
-                <UserProfilePopover
-                  avatar={userProfile.avatar}
-                  email={userProfile.email}
-                  initials={(userProfile.name ?? userProfile.email)
-                    .split(" ")
-                    .map((w) => w[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)}
-                  name={userProfile.name ?? userProfile.email}
-                  status={userProfile.status}
-                  statusColor={
-                    userProfile.status === "ONLINE"
-                      ? "bg-emerald-400"
-                      : userProfile.status === "BUSY"
-                      ? "bg-dusk-amber"
-                      : "bg-stone-500"
-                  }
-                  variant="avatar"
-                  isAdmin={userProfile.isAdmin}
-                />
-              )}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <NotificationsPopover />
+              {/* On screens smaller than 2xl (where Studio Pulse right rail is hidden), show AI, Profile & Help here */}
+              <div className="flex 2xl:hidden items-center gap-1.5">
+                <AiChatTrigger className="h-8 w-8 rounded-lg border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]" />
+                {userProfile && (
+                  <UserProfilePopover
+                    avatar={userProfile.avatar}
+                    email={userProfile.email}
+                    initials={(userProfile.name ?? userProfile.email)
+                      .split(" ")
+                      .map((w) => w[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)}
+                    name={userProfile.name ?? userProfile.email}
+                    status={userProfile.status}
+                    statusColor={
+                      userProfile.status === "ONLINE"
+                        ? "bg-emerald-400"
+                        : userProfile.status === "BUSY"
+                        ? "bg-dusk-amber"
+                        : "bg-stone-500"
+                    }
+                    variant="avatar"
+                    isAdmin={userProfile.isAdmin}
+                  />
+                )}
+                <HelpButton />
+              </div>
             </div>
           </div>
-        </header>
 
-        {selectedProjectId && activeProject ? (
-          /* =========================================================================
-           * SCREEN 2: DEDICATED WORKSPACE & BOARD SELECTION PAGE (หน้าเลือกบอร์ด)
-           * ========================================================================= */
-          <div className="space-y-6">
-            {/* Top Navigation & Workspace Switcher Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={handleBackToCompanies}
-                className="inline-flex items-center gap-2 rounded-xl border border-stone-200/90 bg-white/80 px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-indigo-300 hover:bg-stone-50 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.08] dark:hover:text-dusk-lavender cursor-pointer"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>กลับไปหน้ารวมบริษัท (All Workspaces)</span>
-              </button>
+          <div className="mt-4">
+            <FilterSelect
+              label="Active Project"
+              value={selectedProjectId}
+              options={[
+                ...(projects.length === 0 ? [{ value: "", label: "No projects" }] : []),
+                ...sortedProjects.map((project) => ({ value: project.id, label: project.name }))
+              ]}
+              onValueChange={(value) => {
+                if (value) {
+                  setActiveProjectId(value);
+                  setViewMode("boards");
+                }
+              }}
+            />
+          </div>
 
-              {/* Quick Workspace Switcher Dropdown */}
-              <div className="relative">
+          <Link
+            href="/projects/rewards"
+            className="group mt-4 flex items-center justify-between rounded-xl border border-dusk-amber/30 bg-gradient-to-r from-dusk-amber/10 via-dusk-amber/5 to-transparent px-4 py-3 text-sm font-semibold text-dusk-amber transition hover:border-dusk-amber/60 hover:from-dusk-amber/20 hover:shadow-[0_4px_16px_rgba(229,189,114,0.15)]"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="grid h-7 w-7 place-items-center rounded-lg bg-dusk-amber/20 text-dusk-amber transition group-hover:scale-110">
+                <Gift className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-dusk-amber">Arcade Store</p>
+                <p className="text-stone-200 text-xs font-medium">Redeem Rewards</p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-dusk-amber transition group-hover:translate-x-0.5" />
+          </Link>
+
+          <div className="mt-4 flex min-h-0 flex-1 flex-col rounded-2xl border border-white/10 bg-white/[0.035] p-3.5 backdrop-blur">
+            <div className="mb-2.5 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-200">
+                <CalendarDays className="h-3.5 w-3.5 text-dusk-cyan" />
+                Agenda & Deadlines
+              </div>
+              <span className="rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] font-mono font-medium text-dusk-cyan">
+                {filteredCalendarItems.length}
+              </span>
+            </div>
+
+            {/* Segmented Range Selector */}
+            <div className="mb-2 flex rounded-lg border border-white/10 bg-black/20 p-0.5">
+              {(["7", "30", "all"] as const).map((range) => (
                 <button
+                  key={range}
                   type="button"
-                  onClick={() => setWorkspaceDropdownOpen((prev) => !prev)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-stone-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-stone-800 transition hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 cursor-pointer shadow-2xs"
+                  onClick={() => setCalendarRange(range)}
+                  className={cn(
+                    "flex-1 rounded-md py-1 text-center text-[11px] font-medium transition",
+                    calendarRange === range
+                      ? "bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-sm border border-dusk-cyan/30"
+                      : "text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]"
+                  )}
                 >
-                  <Building2 className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-                  <span className="truncate max-w-[180px] font-bold">{activeProject.name}</span>
-                  <ChevronDown className="h-3.5 w-3.5 text-stone-400" />
+                  {range === "7" ? "7 Days" : range === "30" ? "30 Days" : "All"}
                 </button>
+              ))}
+            </div>
 
-                {workspaceDropdownOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setWorkspaceDropdownOpen(false)}
-                    />
-                    <div className="absolute right-0 top-full mt-1.5 z-50 w-64 rounded-xl border border-stone-200 bg-white p-1.5 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-ink-950/95 max-h-72 overflow-y-auto">
-                      <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">
-                        Switch Workspace
+            {/* Status Pills Filter */}
+            <div className="mb-2.5 grid grid-cols-2 gap-1">
+              {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
+                const meta = getStatusMeta(status);
+                const isChecked = calendarStatusFilters[status];
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() =>
+                      setCalendarStatusFilters((current) => ({
+                        ...current,
+                        [status]: !current[status]
+                      }))
+                    }
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] font-medium transition text-left",
+                      isChecked
+                        ? "border-white/15 bg-white/[0.08] text-stone-200"
+                        : "border-transparent bg-white/[0.02] text-stone-500 opacity-50 hover:opacity-100"
+                    )}
+                  >
+                    <span className={cn("h-1.5 w-1.5 rounded-full border shrink-0", meta.badgeClass)} />
+                    <span className="truncate">{meta.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
+              {filteredCalendarItems.slice(0, 8).map((item) => {
+                if (item.type === "card") {
+                  const status = getStatusMeta(item.status);
+                  return (
+                    <Link
+                      key={item.id}
+                      className="block rounded-xl border border-white/10 bg-white/[0.04] p-3 transition hover:border-dusk-lavender/45 hover:bg-white/[0.065]"
+                      href={`/project/${item.project.id}/calendar`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="line-clamp-2 text-sm font-medium text-stone-100">{item.title}</p>
+                        <span className={cn("shrink-0 rounded border px-1.5 py-0.5 text-[10px]", status.badgeClass)}>
+                          {status.label}
+                        </span>
                       </div>
-                      {sortedProjects.map((p) => (
+                      <p className="mt-2 flex items-center gap-1 text-xs text-dusk-cyan">
+                        <Clock className="h-3 w-3" />
+                        {formatDue(item)}
+                      </p>
+                      <p className="mt-1 truncate text-xs text-stone-500">{item.project.name}</p>
+                    </Link>
+                  );
+                } else {
+                  const diaryItem = item as Required<Pick<GlobalCalendarDiary, "checklistSummary" | "dueDate" | "dueTime" | "title" | "id" | "rawItem">> & { project: GlobalCalendarDiary["project"] };
+                  const highlight = getDiaryHighlightStatus(diaryItem);
+                  let borderClass = "border-white/10 bg-white/[0.04] hover:border-dusk-lavender/45 hover:bg-white/[0.065]";
+                  if (highlight === "warn-red") {
+                    borderClass = "border-red-500/40 bg-red-500/5 hover:border-red-500/60";
+                  } else if (highlight === "completed") {
+                    borderClass = "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/50";
+                  }
+
+                  return (
+                    <button
+                      key={diaryItem.id}
+                      type="button"
+                      className={cn("block w-full text-left rounded-xl border p-3 transition", borderClass)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (!diaryItem.rawItem) return;
+                        const hubItem: HubDiaryItem = {
+                          ...diaryItem.rawItem,
+                          color: normalizeCardColor(diaryItem.rawItem.color),
+                          authorId: "",
+                          createdAt: diaryItem.rawItem.startDate,
+                          updatedAt: diaryItem.rawItem.startDate,
+                          canManage: true,
+                          canToggleHidden: true,
+                          author: { name: null, email: "" },
+                          projectName: diaryItem.rawItem.project?.name ?? null
+                        };
+                        setSelectedDiary(hubItem);
+                      }}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="line-clamp-2 text-sm font-medium text-stone-100">{diaryItem.title}</p>
+                        {diaryItem.checklistSummary.dueCount > 0 ? (
+                          <span className="shrink-0 rounded border border-dusk-cyan/20 bg-dusk-cyan/10 px-1.5 py-0.5 text-[10px] text-dusk-cyan font-mono">
+                            {diaryItem.checklistSummary.completedCount}/{diaryItem.checklistSummary.dueCount}
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="mt-2 flex items-center gap-1 text-xs text-dusk-cyan">
+                        <Clock className="h-3 w-3" />
+                        {diaryItem.dueTime ? `${diaryItem.dueDate} ${diaryItem.dueTime}` : `${diaryItem.dueDate}`}
+                      </p>
+                      <p className="mt-1 truncate text-xs text-stone-500">
+                        {diaryItem.project ? diaryItem.project.name : "Personal Diary"}
+                      </p>
+                    </button>
+                  );
+                }
+              })}
+              {filteredCalendarItems.length === 0 ? (
+                <EmptyState
+                  className="border-dashed bg-white/[0.02] p-4 text-left"
+                  title="No calendar matches"
+                  message="No cards or diaries match the selected filters."
+                />
+              ) : null}
+            </div>
+          </div>
+        </aside>
+
+        <section className="order-1 lg:order-2 flex min-h-0 min-w-0 flex-col">
+          {databaseWarning ? (
+            <div className="mb-4 rounded-2xl border border-dusk-rose/25 bg-dusk-rose/10 px-4 py-3 text-sm leading-6 text-dusk-rose">
+              {databaseWarning}
+            </div>
+          ) : null}
+
+          {/* Unified Studio Command Header */}
+          <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col gap-3.5 rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-white/10 bg-ink-950/75 shadow-lg">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div className="flex min-w-0 items-center gap-3">
+                <BackButton />
+                {activeProject ? (
+                  <Popover open={workspaceDropdownOpen} onOpenChange={setWorkspaceDropdownOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="group flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-left transition hover:border-dusk-lavender/50 hover:bg-white/[0.07] data-[state=open]:border-dusk-lavender/50 data-[state=open]:bg-white/[0.07]"
+                        aria-label="Switch active workspace"
+                      >
+                        <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shrink-0">
+                          {activeProject.sticker ? (
+                            <RetroStickerImage alt={activeProject.name} size={24} src={activeProject.sticker} />
+                          ) : (
+                            <FolderKanban className="h-4 w-4" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
+                              Active Workspace
+                            </span>
+                            <span className="text-[10px] text-stone-500">· {projectList.length} total</span>
+                          </div>
+                          <h2 className="flex items-center gap-1.5 truncate text-base sm:text-lg font-bold tracking-tight text-theme-foreground group-hover:text-theme-accent transition-colors">
+                            <span className="truncate">{activeProject.name}</span>
+                            <ChevronDown
+                              className={cn(
+                                "h-4 w-4 shrink-0 text-stone-400 group-hover:text-stone-200 transition-transform duration-200",
+                                workspaceDropdownOpen && "rotate-180 text-dusk-lavender"
+                              )}
+                            />
+                          </h2>
+                        </div>
+                      </button>
+                    </PopoverTrigger>
+
+                    <PopoverContent
+                      align="start"
+                      sideOffset={8}
+                      className="w-72 sm:w-80 overflow-hidden rounded-2xl border border-dusk-lavender/30 bg-[#080714]/98 p-2 shadow-2xl backdrop-blur-xl z-[750]"
+                    >
+                      <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
+                        Switch Workspace
+                      </p>
+                      <div className="max-h-60 overflow-y-auto space-y-1 scrollbar-soft pr-1">
+                        {sortedProjects.map((p) => {
+                          const isSelected = p.id === activeProject.id;
+                          return (
+                            <div
+                              key={p.id}
+                              className={cn(
+                                "group flex w-full items-center justify-between gap-1.5 rounded-xl p-1 transition select-none",
+                                isSelected
+                                  ? "border border-dusk-lavender/30 bg-dusk-lavender/15 text-white font-semibold"
+                                  : "text-theme-muted hover:bg-theme-paper hover:text-theme-foreground"
+                              )}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveProjectId(p.id);
+                                  setViewMode("boards");
+                                  setWorkspaceDropdownOpen(false);
+                                }}
+                                className="flex items-center gap-2.5 min-w-0 flex-1 px-2 py-1.5 text-left text-xs"
+                              >
+                                <div className="h-7 w-7 shrink-0 place-items-center grid rounded-lg bg-white/5 border border-white/10">
+                                  {p.sticker ? (
+                                    <RetroStickerImage alt={p.name} size={20} src={p.sticker} />
+                                  ) : (
+                                    <FolderKanban className="h-3.5 w-3.5 text-stone-400" />
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="truncate font-semibold">{p.name}</p>
+                                  <p className="text-[10px] text-stone-500 font-mono">
+                                    {p.counts.boards} {p.counts.boards === 1 ? "board" : "boards"}
+                                  </p>
+                                </div>
+                                {isSelected && <Check className="h-4 w-4 text-dusk-lavender shrink-0 ml-1" />}
+                              </button>
+
+                              <Link
+                                href={`/project/${p.id}/${p.type === "DIARY" ? "diary" : "board"}`}
+                                onClick={() => setWorkspaceDropdownOpen(false)}
+                                className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-stone-400 opacity-70 hover:opacity-100 hover:border-dusk-lavender/50 hover:bg-dusk-lavender/20 hover:text-dusk-lavender transition shrink-0"
+                                title={`Launch ${p.name}`}
+                              >
+                                <ArrowRight className="h-3.5 w-3.5" />
+                              </Link>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-2 border-t border-white/10 pt-2 space-y-1">
                         <button
-                          key={p.id}
                           type="button"
                           onClick={() => {
-                            handleSelectProject(p.id);
                             setWorkspaceDropdownOpen(false);
+                            setIsCreateOpen(true);
                           }}
-                          className={cn(
-                            "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
-                            p.id === activeProject.id
-                              ? "bg-indigo-50 text-indigo-700 dark:bg-dusk-lavender/15 dark:text-dusk-lavender font-bold"
-                              : "text-stone-700 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-white/5"
-                          )}
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-dusk-amber hover:bg-dusk-amber/10 transition"
                         >
-                          <span className="truncate">{p.name}</span>
-                          {p.id === activeProject.id && <Check className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />}
+                          <Plus className="h-3.5 w-3.5" />
+                          <span>Create New Workspace</span>
                         </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Active Workspace Identity Hero */}
-            <section className="lofi-panel relative overflow-hidden rounded-2xl border border-stone-200/80 dark:border-white/10 bg-white dark:bg-ink-950/40 shadow-sm">
-              <div className="relative h-36 sm:h-44 w-full overflow-hidden border-b border-stone-200/80 dark:border-white/10">
-                {activeProject.coverImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={activeProject.coverImage}
-                    alt={activeProject.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-[radial-gradient(circle_at_22%_20%,rgba(229,189,114,0.25),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(213,154,179,0.22),transparent_32%),linear-gradient(135deg,rgba(35,31,68,0.86),rgba(63,46,86,0.78)_48%,rgba(11,13,31,0.94))]" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-
-                {/* Sticker if present */}
-                {activeProject.sticker ? (
-                  <div className="absolute bottom-3 right-4 drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
-                    <RetroStickerImage alt={activeProject.name} size={48} src={activeProject.sticker} />
-                  </div>
-                ) : null}
-
-                {/* Name & Type Badge inside hero */}
-                <div className="absolute bottom-3 left-4 right-20">
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-dusk-amber backdrop-blur-md mb-1.5">
-                    {activeProject.type === "DIARY" ? <BookOpenCheck className="h-3 w-3" /> : <KanbanSquare className="h-3 w-3" />}
-                    <span>{activeProject.type === "DIARY" ? "Diary Studio" : "Work Studio"}</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white drop-shadow-sm truncate">
-                    {activeProject.name}
-                  </h2>
-                </div>
-              </div>
-
-              {/* Workspace Details & Action Toolbar */}
-              <div className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="max-w-2xl min-w-0">
-                  <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed line-clamp-2">
-                    {activeProject.description || "A dedicated workspace pipeline for task boards, notes, calendars, and team collaboration."}
-                  </p>
-
-                  <div className="mt-3 flex items-center gap-3">
-                    <div className="flex-1 max-w-xs h-2 rounded-full overflow-hidden bg-stone-200 dark:bg-white/10">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-teal-500 via-indigo-500 to-indigo-600 dark:from-dusk-cyan dark:to-dusk-lavender transition-all duration-500"
-                        style={{ width: `${activeProjectProgress}%` }}
-                      />
-                    </div>
-                    <span className="font-mono text-xs font-semibold text-teal-600 dark:text-dusk-cyan">
-                      {activeProjectProgress}% done ({activeProjectDoneCards}/{activeProjectTotalCards} tasks)
-                    </span>
-                  </div>
-                </div>
-
-                {/* Workspace Shortcuts */}
-                <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                  <Link
-                    href={`/project/${activeProject.id}/calendar`}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 transition"
-                  >
-                    <CalendarDays className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
-                    <span>Calendar</span>
-                  </Link>
-                  <Link
-                    href={`/project/${activeProject.id}/notes`}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 transition"
-                  >
-                    <FileText className="h-3.5 w-3.5 text-rose-500 dark:text-dusk-rose" />
-                    <span>Notes ({activeProject.counts.notes})</span>
-                  </Link>
-                  <Link
-                    href={`/project/${activeProject.id}/members`}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 transition"
-                  >
-                    <Users className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                    <span>Members ({activeProject.counts.members})</span>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => setEditingProjectForSettings(activeProject)}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 transition cursor-pointer"
-                    title="Workspace Settings"
-                  >
-                    <Settings className="h-3.5 w-3.5 text-stone-500" />
-                    <span>Settings</span>
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            {/* Boards Layout Grid + Studio Pulse on 2xl */}
-            <div className="grid grid-cols-1 2xl:grid-cols-[1fr_360px] gap-6 items-start">
-              <div className="space-y-4 min-w-0">
-                {activeProject.type === "DIARY" ? (
-                  <div className="lofi-panel rounded-2xl border border-stone-200/80 dark:border-white/10 p-6 sm:p-8 text-center bg-white dark:bg-ink-950/40">
-                    <div className="mx-auto mb-3 h-16 w-16 grid place-items-center rounded-2xl bg-rose-50 text-rose-500 dark:bg-dusk-rose/10 dark:text-dusk-rose">
-                      <BookOpenCheck className="h-8 w-8" />
-                    </div>
-                    <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">Life & Diary Studio</h3>
-                    <p className="mt-1 text-xs sm:text-sm text-stone-500 dark:text-stone-400 max-w-md mx-auto">
-                      This workspace is configured as a daily life and personal journal studio. Manage your daily reflections, checklist, and rhythm.
-                    </p>
-                    <div className="mt-5 flex items-center justify-center gap-3">
-                      <Link
-                        href={`/project/${activeProject.id}/diary`}
-                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-amber transition"
-                      >
-                        <span>Open Diary Studio</span>
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Link>
-                      <Link
-                        href={`/project/${activeProject.id}/calendar`}
-                        className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 transition"
-                      >
-                        <CalendarDays className="h-3.5 w-3.5" />
-                        <span>View Diary Calendar</span>
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {/* Boards Toolbar */}
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-indigo-200/80 bg-indigo-50 text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-dusk-lavender">
-                          <KanbanSquare className="h-4 w-4" />
-                        </div>
-                        <h3 className="text-base sm:text-lg font-bold tracking-tight text-stone-900 truncate dark:text-stone-100 flex items-center gap-2">
-                          <span>Workspace Boards · หน้าเลือกบอร์ด</span>
-                          <span className="shrink-0 rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-xs font-mono font-medium text-stone-700 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300">
-                            {activeProjectBoards.length}
-                          </span>
-                        </h3>
-                      </div>
-
-                      <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
-                        <div className="group/search relative flex items-center w-full sm:w-60">
-                          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
-                          <input
-                            type="text"
-                            value={boardSearchQuery}
-                            onChange={(e) => setBoardSearchQuery(e.target.value)}
-                            placeholder="Search boards..."
-                            className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-10 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
-                          />
-                          {boardSearchQuery ? (
-                            <button
-                              type="button"
-                              onClick={() => setBoardSearchQuery("")}
-                              className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer"
-                              aria-label="Clear board search"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </button>
-                          ) : null}
-                        </div>
-
-                        {/* View Mode Toggle: Grid vs List */}
-                        <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/90 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04]">
-                          <button
-                            type="button"
-                            onClick={() => handleSetBoardViewMode("grid")}
-                            className={cn(
-                              "grid h-8.5 w-8.5 place-items-center rounded-lg transition-all cursor-pointer",
-                              boardViewMode === "grid"
-                                ? "bg-white text-indigo-600 shadow-xs dark:bg-white/10 dark:text-dusk-lavender font-bold"
-                                : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
-                            )}
-                            title="Grid view"
-                            aria-label="Switch to grid view"
-                          >
-                            <LayoutGrid className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleSetBoardViewMode("list")}
-                            className={cn(
-                              "grid h-8.5 w-8.5 place-items-center rounded-lg transition-all cursor-pointer",
-                              boardViewMode === "list"
-                                ? "bg-white text-indigo-600 shadow-xs dark:bg-white/10 dark:text-dusk-lavender font-bold"
-                                : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
-                            )}
-                            title="List view"
-                            aria-label="Switch to list view"
-                          >
-                            <List className="h-4 w-4" />
-                          </button>
-                        </div>
-
-                        <Button
+                        <button
                           type="button"
-                          onClick={() => setIsCreateBoardOpen(true)}
-                          className="h-9.5 shrink-0 rounded-xl bg-indigo-600 px-3.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:hover:bg-dusk-amber cursor-pointer"
+                          onClick={() => {
+                            setWorkspaceDropdownOpen(false);
+                            setViewMode("workspaces");
+                          }}
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-stone-400 hover:bg-white/5 hover:text-stone-200 transition"
                         >
-                          <Plus className="h-3.5 w-3.5 mr-1" />
-                          <span>New Board</span>
-                        </Button>
+                          <LayoutGrid className="h-3.5 w-3.5" />
+                          <span>View All Workspaces Grid</span>
+                        </button>
                       </div>
-                    </div>
-
-                    {/* Boards Content */}
-                    {activeProjectBoards.length === 0 && boardSearchQuery ? (
-                      <div className="lofi-panel grid min-h-[220px] place-items-center rounded-2xl border border-stone-200/80 dark:border-white/10 p-6 text-center">
-                        <div>
-                          <h4 className="text-base font-bold text-stone-900 dark:text-stone-200">
-                            No boards match &ldquo;{boardSearchQuery}&rdquo;
-                          </h4>
-                          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                            Try another search term or clear the filter.
-                          </p>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="mt-3 text-xs cursor-pointer"
-                            onClick={() => setBoardSearchQuery("")}
-                          >
-                            Clear search
-                          </Button>
-                        </div>
-                      </div>
-                    ) : boardViewMode === "list" ? (
-                      <div className="flex flex-col gap-3 pb-4">
-                        {activeProjectBoards.map((board) => (
-                          <WorkspaceBoardRow
-                            key={board.id}
-                            board={board}
-                            projectId={activeProject.id}
-                            onEdit={(b) => setEditingBoard(b)}
-                            onDelete={(b) => setDeletingBoard(b)}
-                            canManage={activeProject.isOwner !== false}
-                          />
-                        ))}
-                        <QuickCreateBoardBlueprintRow
-                          projectName={activeProject.name}
-                          onCreateClick={() => setIsCreateBoardOpen(true)}
-                        />
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 pb-4">
-                        {activeProjectBoards.map((board) => (
-                          <WorkspaceBoardCard
-                            key={board.id}
-                            board={board}
-                            projectId={activeProject.id}
-                            onEdit={(b) => setEditingBoard(b)}
-                            onDelete={(b) => setDeletingBoard(b)}
-                            canManage={activeProject.isOwner !== false}
-                          />
-                        ))}
-                        <QuickCreateBoardBlueprintCard
-                          projectName={activeProject.name}
-                          onCreateClick={() => setIsCreateBoardOpen(true)}
-                        />
-                      </div>
-                    )}
-                  </>
+                    </PopoverContent>
+                  </Popover>
+                ) : (
+                  <div className="min-w-0">
+                    <h2 className="text-xl font-bold tracking-tight text-white">Workspaces</h2>
+                  </div>
                 )}
               </div>
 
-              {/* Right Rail: Studio Pulse on 2xl */}
-              <ProjectSupportColumn
-                projects={sortedProjects}
-                calendarCards={filteredCalendarCards}
-                userProfile={userProfile}
-              />
-            </div>
-          </div>
-        ) : (
-          /* =========================================================================
-           * SCREEN 1: COMPANY DIRECTORY HUB (หน้ารวมบริษัท)
-           * ========================================================================= */
-          <>
-            {/* Hero Banner with Quick Insights */}
-            <section className="lofi-panel relative overflow-hidden rounded-2xl p-5 sm:p-6 lg:p-7 border border-stone-200/80 dark:border-white/10 bg-gradient-to-br from-indigo-50/40 via-white/80 to-purple-50/30 dark:from-indigo-950/25 dark:via-ink-950/60 dark:to-purple-950/15 shadow-sm backdrop-blur-xl">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-                <div className="max-w-2xl">
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-dusk-amber">
-                    <Sparkles className="h-3 w-3" />
-                    <span>Enterprise & Workspace Hub · หน้ารวมบริษัท</span>
-                  </div>
-                  <h2 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
-                    Workspaces & Organizations
-                  </h2>
-                  <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                    Select a workspace to enter its project pipeline, Kanban boards, and documents — or build a new company blueprint.
-                  </p>
-                </div>
+              {/* Primary action & workspace metrics */}
+              <div className="flex items-center gap-2 shrink-0">
+                {viewMode === "boards" && activeProject ? (
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    {/* Compact Workspace Progress Pill */}
+                    <div className="hidden sm:flex items-center gap-3 rounded-xl border border-stone-200/90 bg-stone-50/80 px-3 py-1.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.035]">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">Tasks</span>
+                        <span className="font-mono font-bold text-stone-800 dark:text-stone-200">{activeProjectTotalCards}</span>
+                        <span className="text-stone-300 dark:text-white/20">·</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-teal-600 dark:text-dusk-cyan">Done</span>
+                        <span className="font-mono font-bold text-teal-600 dark:text-dusk-cyan">{activeProjectDoneCards}</span>
+                      </div>
+                      <div className="h-3 w-px bg-stone-200 dark:bg-white/10" />
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-12 sm:w-16 overflow-hidden rounded-full bg-stone-200 dark:bg-white/10">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-teal-400 transition-all duration-300 dark:from-dusk-lavender dark:to-dusk-cyan"
+                            style={{ width: `${Math.min(100, activeProjectProgress)}%` }}
+                          />
+                        </div>
+                        <span className="font-mono text-xs font-bold text-indigo-600 dark:text-dusk-lavender">
+                          {activeProjectProgress}%
+                        </span>
+                      </div>
+                    </div>
 
-                <div className="flex items-center gap-3 shrink-0">
+                    {/* Launch Board CTA */}
+                    <Link
+                      href={`/project/${activeProject.id}/${activeProject.type === "DIARY" ? "diary" : "board"}`}
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-3.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber"
+                    >
+                      <span>{activeProject.type === "DIARY" ? "Open Diary" : "Launch Board"}</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                ) : (
                   <Button
                     type="button"
                     onClick={() => setIsCreateOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-amber font-bold px-4 py-2 text-xs shadow-md transition-all active:scale-95 cursor-pointer"
+                    className="shrink-0 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber transition-all shadow-[0_10px_26px_rgba(169,162,255,0.2)] font-semibold px-2.5 sm:px-4"
                   >
                     <Plus className="h-4 w-4" />
-                    <span>Create Workspace</span>
+                    <span className="hidden sm:inline">New Project</span>
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Sub-navigation bar when viewing active workspace boards */}
+            {viewMode === "boards" && activeProject ? (
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 pt-2 border-t border-white/10 scrollbar-none">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("boards")}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                >
+                  <KanbanSquare className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                  <span>Boards Hub</span>
+                  <span className="rounded-full bg-indigo-100 px-1.5 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender">
+                    {activeProject.boardsList?.length ?? activeProject.counts.boards}
+                  </span>
+                </button>
+
+                <Link
+                  href={`/project/${activeProject.id}/calendar`}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-cyan/40 dark:hover:bg-dusk-cyan/10 dark:hover:text-dusk-cyan"
+                >
+                  <CalendarDays className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
+                  <span>Calendar</span>
+                </Link>
+
+                <Link
+                  href={`/project/${activeProject.id}/diary`}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
+                >
+                  <BookOpenCheck className="h-3.5 w-3.5 text-amber-500 dark:text-dusk-amber" />
+                  <span>Diary</span>
+                </Link>
+
+                <Link
+                  href={`/project/${activeProject.id}/notes`}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-rose/40 dark:hover:bg-dusk-rose/10 dark:hover:text-dusk-rose"
+                >
+                  <FileText className="h-3.5 w-3.5 text-rose-500 dark:text-dusk-rose" />
+                  <span>Notes</span>
+                  <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
+                    {activeProject.counts.notes}
+                  </span>
+                </Link>
+
+                <Link
+                  href={`/project/${activeProject.id}/members`}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-stone-300 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
+                >
+                  <Users className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
+                  <span>Members</span>
+                  <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
+                    {activeProject.counts.members}
+                  </span>
+                </Link>
+
+                <Link
+                  href={`/project/${activeProject.id}/rewards`}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
+                >
+                  <Gift className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
+                  <span>Rewards</span>
+                </Link>
+
+                <div className="ml-auto flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("workspaces")}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-600 shadow-xs transition hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
+                    title="View all workspaces in grid"
+                  >
+                    <LayoutGrid className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
+                    <span className="hidden sm:inline">All Workspaces</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEditingProjectForSettings(activeProject)}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 shadow-xs transition hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
+                  >
+                    <Settings className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
+                    <span className="hidden sm:inline">Settings</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Search and Category Filter Toolbar when in All Workspaces view */
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between border-t border-stone-200/90 dark:border-white/10">
+                <div className="group/search relative flex items-center flex-1 max-w-sm">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search workspaces..."
+                    className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-10 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
+                  />
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+                      aria-label="Clear search"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilterTab("all")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
+                      activeFilterTab === "all"
+                        ? "border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                        : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
+                    )}
+                  >
+                    <LayoutGrid className="h-3 w-3" />
+                    <span>All</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{projectList.length}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilterTab("starred")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
+                      activeFilterTab === "starred"
+                        ? "border-amber-500 bg-amber-50 text-amber-700 font-semibold shadow-xs dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber"
+                        : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
+                    )}
+                  >
+                    <Star className="h-3 w-3 fill-current" />
+                    <span>Starred</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{starredCount}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilterTab("work")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
+                      activeFilterTab === "work"
+                        ? "border-teal-500 bg-teal-50 text-teal-700 font-semibold shadow-xs dark:border-dusk-cyan/40 dark:bg-dusk-cyan/15 dark:text-dusk-cyan"
+                        : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
+                    )}
+                  >
+                    <KanbanSquare className="h-3 w-3" />
+                    <span>Work</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{workCount}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilterTab("diary")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
+                      activeFilterTab === "diary"
+                        ? "border-rose-400 bg-rose-50 text-rose-700 font-semibold shadow-xs dark:border-dusk-rose/40 dark:bg-dusk-rose/15 dark:text-dusk-rose"
+                        : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
+                    )}
+                  >
+                    <BookOpenCheck className="h-3 w-3" />
+                    <span>Diary</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{diaryCount}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {projectList.length === 0 ? (
+            <div className="lofi-panel grid min-h-0 flex-1 place-items-center overflow-hidden rounded-2xl p-8 text-center">
+              <div className="max-w-md">
+                <div className="mx-auto mb-2 h-24 w-24">
+                  <RetroStickerImage alt="Paper note sticker" size={96} src="/stickers/retro/retro-sticker-12-paper-note.png" />
+                </div>
+                <h3 className="mt-4 text-2xl font-semibold">No projects yet</h3>
+                <p className="mt-2 text-sm text-stone-400">Create the first workspace and Retzlo will open its board for you.</p>
+                <Button
+                  type="button"
+                  onClick={() => setIsCreateOpen(true)}
+                  className="mt-5 bg-dusk-lavender text-ink-950 font-bold hover:bg-dusk-amber transition"
+                >
+                  <Plus className="h-4 w-4 mr-1.5" />
+                  Create Workspace
+                </Button>
+              </div>
+            </div>
+          ) : viewMode === "boards" && activeProject ? (
+            /* BOARDS HUB VIEW FOR ACTIVE WORKSPACE */
+            <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
+              {/* Optional Workspace Description Bar if provided */}
+              {activeProject.description ? (
+                <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-stone-200/80 bg-stone-50/80 px-4 py-2.5 text-xs text-stone-600 shadow-2xs dark:border-white/5 dark:bg-white/[0.02] dark:text-stone-400">
+                  <p className="line-clamp-2 sm:line-clamp-1 flex-1 font-medium leading-relaxed">
+                    {activeProject.description}
+                  </p>
+                </div>
+              ) : null}
+
+              {/* Boards in Active Workspace Header + Filter Toolbar */}
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-stone-200 bg-stone-100 text-stone-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-dusk-lavender">
+                    <KanbanSquare className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold tracking-tight text-stone-900 truncate dark:text-stone-100">
+                    Workspace Boards
+                  </h3>
+                  <span className="shrink-0 rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-xs font-mono font-medium text-stone-700 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300">
+                    {activeProjectBoards.length}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+                  <div className="group/search relative flex items-center w-full sm:w-60">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+                    <input
+                      type="text"
+                      value={boardSearchQuery}
+                      onChange={(e) => setBoardSearchQuery(e.target.value)}
+                      placeholder="Search boards..."
+                      className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-10 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
+                    />
+                    {boardSearchQuery ? (
+                      <button
+                        type="button"
+                        onClick={() => setBoardSearchQuery("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+                        aria-label="Clear board search"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    ) : null}
+                  </div>
+
+                  {/* View Mode Toggle: Grid vs List */}
+                  <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/90 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04]">
+                    <button
+                      type="button"
+                      onClick={() => handleSetBoardViewMode("grid")}
+                      className={cn(
+                        "grid h-8.5 w-8.5 place-items-center rounded-lg transition-all",
+                        boardViewMode === "grid"
+                          ? "bg-white text-indigo-600 shadow-xs dark:bg-white/10 dark:text-dusk-lavender font-bold"
+                          : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
+                      )}
+                      title="Grid view"
+                      aria-label="Switch to grid view"
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSetBoardViewMode("list")}
+                      className={cn(
+                        "grid h-8.5 w-8.5 place-items-center rounded-lg transition-all",
+                        boardViewMode === "list"
+                          ? "bg-white text-indigo-600 shadow-xs dark:bg-white/10 dark:text-dusk-lavender font-bold"
+                          : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
+                      )}
+                      title="List view"
+                      aria-label="Switch to list view"
+                    >
+                      <List className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={() => setIsCreateBoardOpen(true)}
+                    className="h-9.5 shrink-0 rounded-xl bg-indigo-600 px-3.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:hover:bg-dusk-amber"
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    <span>New Board</span>
                   </Button>
                 </div>
               </div>
 
-              {/* Quick Metrics Bar */}
-              <div className="mt-5 pt-4 border-t border-stone-200/80 dark:border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <ProjectStatusMetric label="Workspaces" value={projectList.length} tone="lavender" compact />
-                <ProjectStatusMetric label="Total Boards" value={totalBoards} tone="amber" compact />
-                <ProjectStatusMetric label="Active Tasks" value={totalCards} tone="cyan" compact />
-                <ProjectStatusMetric label="Team Members" value={totalMembers} tone="rose" compact />
-              </div>
-            </section>
-
-            {/* Main Workspaces Layout (Cards Grid + Studio Pulse on 2xl) */}
-            <div className="grid grid-cols-1 2xl:grid-cols-[1fr_360px] gap-6 items-start">
-              <div className="space-y-4 min-w-0">
-                {/* Filter Tabs & Count */}
-                <div className="flex flex-wrap items-center justify-between gap-2.5">
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                    <button
+              {/* Boards Content: Grid or List */}
+              {activeProjectBoards.length === 0 && boardSearchQuery ? (
+                <div className="lofi-panel grid min-h-[220px] place-items-center rounded-2xl border border-white/10 p-6 text-center">
+                  <div>
+                    <h4 className="text-base font-bold text-stone-200">No boards match &ldquo;{boardSearchQuery}&rdquo;</h4>
+                    <p className="mt-1 text-xs text-stone-400">Try another search term or clear the filter.</p>
+                    <Button
                       type="button"
-                      onClick={() => setActiveFilterTab("all")}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
-                        activeFilterTab === "all"
-                          ? "border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender shadow-2xs"
-                          : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
-                      )}
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 text-xs"
+                      onClick={() => setBoardSearchQuery("")}
                     >
-                      <Building2 className="h-3.5 w-3.5" />
-                      <span>All Workspaces</span>
-                      <span className="font-mono text-[10px] opacity-75">({projectList.length})</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveFilterTab("starred")}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
-                        activeFilterTab === "starred"
-                          ? "border border-amber-200 bg-amber-50 text-amber-700 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber shadow-2xs"
-                          : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
-                      )}
-                    >
-                      <Star className="h-3.5 w-3.5 fill-current" />
-                      <span>Starred</span>
-                      <span className="font-mono text-[10px] opacity-75">({starredCount})</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveFilterTab("work")}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
-                        activeFilterTab === "work"
-                          ? "border border-teal-200 bg-teal-50 text-teal-700 dark:border-dusk-cyan/40 dark:bg-dusk-cyan/15 dark:text-dusk-cyan shadow-2xs"
-                          : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
-                      )}
-                    >
-                      <KanbanSquare className="h-3.5 w-3.5" />
-                      <span>Work Studios</span>
-                      <span className="font-mono text-[10px] opacity-75">({workCount})</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveFilterTab("diary")}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
-                        activeFilterTab === "diary"
-                          ? "border border-rose-200 bg-rose-50 text-rose-700 dark:border-dusk-rose/40 dark:bg-dusk-rose/15 dark:text-dusk-rose shadow-2xs"
-                          : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
-                      )}
-                    >
-                      <BookOpenCheck className="h-3.5 w-3.5" />
-                      <span>Life & Diary</span>
-                      <span className="font-mono text-[10px] opacity-75">({diaryCount})</span>
-                    </button>
+                      Clear search
+                    </Button>
                   </div>
-
-                  <p className="text-xs text-stone-500 font-mono">
-                    Showing {displayedProjects.length} of {projectList.length}
-                  </p>
                 </div>
-
-                {/* Company Cards Grid */}
-                {displayedProjects.length === 0 ? (
-                  <div className="lofi-panel grid min-h-[340px] place-items-center overflow-hidden rounded-2xl p-8 text-center border border-stone-200/80 dark:border-white/10">
-                    <div className="max-w-md">
-                      <div className="mx-auto mb-3 h-20 w-20">
-                        <RetroStickerImage alt="Empty sticker" size={80} src="/stickers/retro/retro-sticker-12-paper-note.png" />
-                      </div>
-                      <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">No matching workspaces</h3>
-                      <p className="mt-1.5 text-xs sm:text-sm text-stone-500 dark:text-stone-400">
-                        {searchQuery ? `No workspaces matching "${searchQuery}".` : "No workspaces in this category yet."}
-                      </p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="mt-4 text-xs cursor-pointer"
-                        onClick={() => { setSearchQuery(""); setActiveFilterTab("all"); }}
-                      >
-                        Clear filters
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                    {displayedProjects.map((project) => (
-                      <ProjectCard
-                        key={project.id}
-                        isStarred={starredProjectIds.has(project.id)}
-                        project={project}
-                        onToggleStar={() => toggleProjectStar(project.id)}
-                        onSelectProject={handleSelectProject}
-                        onUpdateProject={handleUpdateProject}
-                        onDeleteProject={handleDeleteProject}
-                      />
-                    ))}
-                    <QuickCreateBlueprintCard onCreateClick={() => setIsCreateOpen(true)} />
-                  </div>
-                )}
-              </div>
-
-              {/* Right Rail: Studio Pulse (Upcoming Deadlines & Top Utilities) */}
-              <ProjectSupportColumn
-                projects={sortedProjects}
-                calendarCards={filteredCalendarCards}
-                userProfile={userProfile}
-              />
+              ) : boardViewMode === "list" ? (
+                /* LIST VIEW */
+                <div className="flex flex-col gap-3 pb-4">
+                  {activeProjectBoards.map((board) => (
+                    <WorkspaceBoardRow
+                      key={board.id}
+                      board={board}
+                      projectId={activeProject.id}
+                      onEdit={(b) => setEditingBoard(b)}
+                      onDelete={(b) => setDeletingBoard(b)}
+                      canManage={activeProject.isOwner !== false}
+                    />
+                  ))}
+                  <QuickCreateBoardBlueprintRow
+                    projectName={activeProject.name}
+                    onCreateClick={() => setIsCreateBoardOpen(true)}
+                  />
+                </div>
+              ) : (
+                /* GRID VIEW */
+                <div className="grid min-w-0 items-stretch gap-4 pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                  {activeProjectBoards.map((board) => (
+                    <WorkspaceBoardCard
+                      key={board.id}
+                      board={board}
+                      projectId={activeProject.id}
+                      onEdit={(b) => setEditingBoard(b)}
+                      onDelete={(b) => setDeletingBoard(b)}
+                      canManage={activeProject.isOwner !== false}
+                    />
+                  ))}
+                  <QuickCreateBoardBlueprintCard
+                    projectName={activeProject.name}
+                    onCreateClick={() => setIsCreateBoardOpen(true)}
+                  />
+                </div>
+              )}
             </div>
-          </>
-        )}
+          ) : (
+            /* ALL WORKSPACES GRID VIEW */
+            displayedProjects.length === 0 ? (
+              <div className="lofi-panel grid min-h-[320px] flex-1 place-items-center overflow-hidden rounded-2xl p-8 text-center border border-white/10">
+                <div className="max-w-md">
+                  <div className="mx-auto mb-3 h-20 w-20">
+                    <RetroStickerImage alt="Empty sticker" size={80} src="/stickers/retro/retro-sticker-12-paper-note.png" />
+                  </div>
+                  <h3 className="text-xl font-bold text-stone-100">No matching workspaces</h3>
+                  <p className="mt-1.5 text-sm text-stone-400">
+                    {searchQuery ? `No workspaces matching "${searchQuery}".` : "No workspaces in this category yet."}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-4 text-xs"
+                    onClick={() => { setSearchQuery(""); setActiveFilterTab("all"); }}
+                  >
+                    Clear filters
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
+                <div className="grid min-w-0 content-start gap-4 pb-4 xl:grid-cols-2">
+                  {displayedProjects.map((project) => (
+                    <ProjectCard
+                      key={project.id}
+                      isStarred={starredProjectIds.has(project.id)}
+                      project={project}
+                      onToggleStar={() => toggleProjectStar(project.id)}
+                      onUpdateProject={handleUpdateProject}
+                      onDeleteProject={handleDeleteProject}
+                    />
+                  ))}
+                  {displayedProjects.length === 1 ? (
+                    <QuickCreateBlueprintCard onCreateClick={() => setIsCreateOpen(true)} />
+                  ) : null}
+                </div>
+              </div>
+            )
+          )}
+        </section>
+
+        <ProjectSupportColumn
+          projects={sortedProjects}
+          calendarCards={filteredCalendarCards}
+          userProfile={userProfile}
+        />
       </div>
 
       {isCreateOpen ? <CreateProjectModal onClose={() => setIsCreateOpen(false)} onCreated={broadcastChange} /> : null}
@@ -1291,19 +1393,6 @@ export function ProjectsDashboard({
           onClose={() => setSelectedDiary(null)}
           onDelete={handleDeleteDiary}
           onSubmit={handleSaveDiary}
-        />
-      ) : null}
-      {editingProjectForSettings ? (
-        <EditProjectModal
-          project={editingProjectForSettings}
-          onClose={() => setEditingProjectForSettings(null)}
-          onSaved={(updated) => {
-            setEditingProjectForSettings(null);
-            if (updated) {
-              handleUpdateProject(updated);
-            }
-            router.refresh();
-          }}
         />
       ) : null}
       {isCreateBoardOpen && activeProject ? (
@@ -1351,8 +1440,32 @@ export function ProjectsDashboard({
           variant="danger"
           validateText={deletingBoard.name}
           validatePlaceholder={`Type "${deletingBoard.name}" to confirm`}
-          onConfirm={handleConfirmDeleteBoard}
+          onConfirm={async () => {
+            const res = await fetch(`/api/boards/${deletingBoard.id}`, { method: "DELETE" });
+            if (res.ok) {
+              handleDeleteBoard(deletingBoard.id);
+              toast({ message: `Board "${deletingBoard.name}" deleted.`, type: "success" });
+              setDeletingBoard(null);
+              router.refresh();
+            } else {
+              const data = await res.json().catch(() => ({}));
+              toast({ message: data.error ?? "Could not delete board.", type: "error" });
+            }
+          }}
           onClose={() => setDeletingBoard(null)}
+        />
+      ) : null}
+      {editingProjectForSettings ? (
+        <EditProjectModal
+          project={editingProjectForSettings}
+          onClose={() => setEditingProjectForSettings(null)}
+          onSaved={(updated) => {
+            setEditingProjectForSettings(null);
+            if (updated) {
+              handleUpdateProject(updated);
+            }
+            router.refresh();
+          }}
         />
       ) : null}
     </main>
@@ -2030,14 +2143,12 @@ function ProjectCard({
   isStarred,
   project,
   onToggleStar,
-  onSelectProject,
   onUpdateProject,
   onDeleteProject,
 }: {
   isStarred: boolean;
   project: ProjectDashboardItem;
   onToggleStar: () => void;
-  onSelectProject?: (projectId: string) => void;
   onUpdateProject?: (updated: ProjectDashboardItem) => void;
   onDeleteProject?: (id: string) => void;
 }) {
@@ -2066,15 +2177,7 @@ function ProjectCard({
     setMenuOpen((value) => !value);
   }
 
-  const targetUrl = isDiaryProject ? `/project/${project.id}/diary` : `/projects?projectId=${project.id}`;
-
-  function handleProjectClick(e: MouseEvent<HTMLElement>) {
-    if (isDiaryProject) return;
-    if (onSelectProject) {
-      e.preventDefault();
-      onSelectProject(project.id);
-    }
-  }
+  const targetUrl = `/project/${project.id}/${isDiaryProject ? "diary" : "board"}`;
 
   return (
     <>
@@ -2086,8 +2189,7 @@ function ProjectCard({
         <div className="relative h-44 sm:h-48 overflow-hidden border-b border-white/10">
           <Link
             href={targetUrl}
-            onClick={handleProjectClick}
-            className="absolute inset-0 block z-0 cursor-pointer"
+            className="absolute inset-0 block z-0"
             tabIndex={-1}
             aria-hidden="true"
           >
@@ -2114,7 +2216,7 @@ function ProjectCard({
               type="button"
               onClick={onToggleStar}
               className={cn(
-                "grid h-8 w-8 place-items-center rounded-xl border bg-ink-950/60 text-stone-200 backdrop-blur-md transition hover:border-dusk-amber/55 hover:bg-ink-950/80 hover:text-dusk-amber cursor-pointer",
+                "grid h-8 w-8 place-items-center rounded-xl border bg-ink-950/60 text-stone-200 backdrop-blur-md transition hover:border-dusk-amber/55 hover:bg-ink-950/80 hover:text-dusk-amber",
                 isStarred && "border-dusk-amber/55 bg-dusk-amber/15 text-dusk-amber"
               )}
               aria-label={isStarred ? "Unstar project" : "Star project"}
@@ -2127,7 +2229,7 @@ function ProjectCard({
               type="button"
               onClick={toggleProjectMenu}
               className={cn(
-                "grid h-8 w-8 place-items-center rounded-xl border backdrop-blur-md transition cursor-pointer",
+                "grid h-8 w-8 place-items-center rounded-xl border backdrop-blur-md transition",
                 menuOpen
                   ? "border-dusk-amber/55 bg-ink-950/90 text-dusk-amber shadow-[0_10px_26px_rgba(0,0,0,0.35)]"
                   : "border-white/15 bg-ink-950/60 text-stone-200 hover:border-dusk-lavender/55 hover:bg-ink-950/80 hover:text-dusk-lavender"
@@ -2150,8 +2252,7 @@ function ProjectCard({
           <div className="absolute bottom-3 left-4 right-16 z-10">
             <Link
               href={targetUrl}
-              onClick={handleProjectClick}
-              className="block truncate text-xl font-bold tracking-tight text-white drop-shadow-md hover:text-dusk-lavender transition-colors cursor-pointer"
+              className="block truncate text-xl font-bold tracking-tight text-white drop-shadow-md hover:text-dusk-lavender transition-colors"
             >
               {project.name}
             </Link>
@@ -2159,7 +2260,7 @@ function ProjectCard({
         </div>
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
-          <Link href={targetUrl} onClick={handleProjectClick} className="block group/details cursor-pointer">
+          <Link href={targetUrl} className="block group/details">
             <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-600 group-hover/details:text-stone-900 transition-colors dark:text-stone-400 dark:group-hover/details:text-stone-300">
               {project.description ?? "A quiet project workspace for tasks, notes, due dates, and rewards."}
             </p>
@@ -2207,11 +2308,10 @@ function ProjectCard({
           {/* Quick-Launch Action Hub */}
           <div className="mt-auto pt-4 border-t border-stone-200/80 flex items-center gap-2 dark:border-white/10">
             <Link
-              href={targetUrl}
-              onClick={handleProjectClick}
-              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-sm transition hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber dark:hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)] cursor-pointer"
+              href={`/project/${project.id}/${isDiaryProject ? "diary" : "board"}`}
+              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-sm transition hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber dark:hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
             >
-              <span>{isDiaryProject ? "Open Diary" : "Select Board · เข้าสู่บอร์ด"}</span>
+              <span>{isDiaryProject ? "Open Diary" : "Launch Board"}</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
 

@@ -18,11 +18,7 @@ import { prisma } from "@/lib/prisma";
 import { getDatabaseErrorMessage } from "@/lib/safe-db";
 import type { CardStatus } from "@/types/kanban";
 
-export default async function ProjectsPage({
-  searchParams,
-}: {
-  searchParams?: { projectId?: string; companyId?: string };
-}) {
+export default async function ProjectsPage() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -169,7 +165,6 @@ export default async function ProjectsPage({
         calendarDiaries={(diaryItems ?? []).map(toGlobalCalendarDiary)}
         userProfile={userProfile}
         databaseWarning={databaseWarning}
-        initialSelectedProjectId={searchParams?.projectId || searchParams?.companyId}
       />
       <FabHub />
     </>
