@@ -764,3 +764,15 @@ Template:
   - Daily Nurture & Database Persistence: Added daily water streak tracking (+5c serenity reward), audit logging, and JSON persistence to `User.zenGarden`.
 - Verification: Vitest full suite (100 test files, 533 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (42/42 routes).
 
+### 2026-10-16 — Workspace Board Selection Hub Restoration & Two-Tier Company Navigation
+- Coverage: `/projects`, `/project/[id]`, `ProjectsDashboard` (`src/components/project/projects-dashboard.tsx`), and `ProjectCard`.
+- Design System & Tokens:
+  - Two-Tier Navigation Flow: Restored clear hierarchy between Standalone Company Directory Hub (`selectedProjectId === null`) and Dedicated Workspace & Board Selection Page (`selectedProjectId !== null` or `?projectId=...`).
+  - Breadcrumb & Switcher Navigation: Added tactile retro back button (`← กลับไปหน้ารวมบริษัท (All Workspaces)`) and compact workspace dropdown switcher for immediate transitions.
+  - Workspace Identity Hero: Rendered workspace identity card with cover banner, sticker stamp, type badge, description, and multi-color task pipeline progress bar.
+  - Board Management Bar: Added board count badge, live search input with clear button, Grid/List layout toggle, and `+ New Board` button.
+  - Grid & List Views: Supported both `WorkspaceBoardCard` and `WorkspaceBoardRow` layouts with task progress bar, column pills, and 3-dots management menu (`BoardSettingsModal` and `ConfirmModal` for deletion).
+  - Clean Action Buttons: Updated `ProjectCard` CTA to "Select Board · เข้าสู่บอร์ด", ensuring clicking any company card opens that company's board selection screen immediately.
+- Verification: Vitest full suite (100 test files, 533 passed), `projects-dashboard.test.ts` (5 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (42/42 routes).
+
+

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useRef, useState, useCallback, type CSSProperties, type MouseEvent } from "react";
 import { useLiveSync } from "@/hooks/use-live-sync";
 import {
+  ArrowLeft,
   ArrowRight,
   BookOpenCheck,
   Building2,
@@ -183,12 +184,14 @@ export function ProjectsDashboard({
   calendarDiaries = [],
   userProfile,
   databaseWarning,
+  initialSelectedProjectId,
 }: {
   projects: ProjectDashboardItem[];
   calendarCards: GlobalCalendarCard[];
   calendarDiaries?: GlobalCalendarDiaryRaw[];
   userProfile?: UserProfile;
   databaseWarning?: string;
+  initialSelectedProjectId?: string;
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -202,8 +205,8 @@ export function ProjectsDashboard({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilterTab, setActiveFilterTab] = useState<"all" | "starred" | "work" | "diary">("all");
 
-  const [activeProjectId, setActiveProjectId] = useState<string>(projects[0]?.id ?? "");
-  const [viewMode, setViewMode] = useState<"boards" | "workspaces">("boards");
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(initialSelectedProjectId ?? null);
+  const [activeProjectId, setActiveProjectId] = useState<string>(initialSelectedProjectId ?? projects[0]?.id ?? "");
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
   const [boardSearchQuery, setBoardSearchQuery] = useState("");
   const [editingBoard, setEditingBoard] = useState<ProjectBoardSummary | null>(null);
@@ -211,6 +214,56 @@ export function ProjectsDashboard({
   const [editingProjectForSettings, setEditingProjectForSettings] = useState<ProjectDashboardItem | null>(null);
   const [workspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
   const [boardViewMode, setBoardViewMode] = useState<"grid" | "list">("grid");
+
+  const handleSelectProject = useCallback((projectId: string) => {
+    setSelectedProjectId(projectId);
+    setActiveProjectId(projectId);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("projectId", projectId);
+      window.history.pushState({}, "", url.toString());
+    } catch {
+      // ignore
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const handleBackToCompanies = useCallback(() => {
+    setSelectedProjectId(null);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("projectId");
+      url.searchParams.delete("companyId");
+      window.history.pushState({}, "", url.pathname);
+    } catch {
+      // ignore
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const pid = params.get("projectId") || params.get("companyId");
+        setSelectedProjectId(pid || null);
+        if (pid) {
+          setActiveProjectId(pid);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (initialSelectedProjectId) {
+      setSelectedProjectId(initialSelectedProjectId);
+      setActiveProjectId(initialSelectedProjectId);
+    }
+  }, [initialSelectedProjectId]);
 
   useEffect(() => {
     try {
@@ -241,9 +294,11 @@ export function ProjectsDashboard({
 
   const sortedProjects = useMemo(() => sortProjectsByStarred(projectList, starredProjectIds), [projectList, starredProjectIds]);
   const activeProject = useMemo(() => {
+    if (selectedProjectId) {
+      return projectList.find((p) => p.id === selectedProjectId) ?? sortedProjects[0] ?? null;
+    }
     return projectList.find((p) => p.id === activeProjectId) ?? sortedProjects[0] ?? null;
-  }, [projectList, activeProjectId, sortedProjects]);
-  const selectedProjectId = activeProject?.id ?? sortedProjects[0]?.id ?? "";
+  }, [projectList, selectedProjectId, activeProjectId, sortedProjects]);
 
   const starredCount = useMemo(() => projectList.filter((p) => starredProjectIds.has(p.id)).length, [projectList, starredProjectIds]);
   const workCount = useMemo(() => projectList.filter((p) => p.type !== "DIARY").length, [projectList]);
@@ -406,6 +461,23 @@ export function ProjectsDashboard({
       })
     );
     broadcastChange();
+  }
+
+  async function handleConfirmDeleteBoard() {
+    if (!deletingBoard || !activeProject) return;
+    try {
+      const res = await fetch(`/api/boards/${deletingBoard.id}`, { method: "DELETE" });
+      if (res.ok) {
+        handleDeleteBoard(deletingBoard.id);
+        toast({ message: `Board "${deletingBoard.name}" deleted.`, type: "success" });
+      } else {
+        toast({ message: "Failed to delete board.", type: "error" });
+      }
+    } catch {
+      toast({ message: "An unexpected error occurred.", type: "error" });
+    } finally {
+      setDeletingBoard(null);
+    }
   }
 
   useEffect(() => {
@@ -714,160 +786,499 @@ export function ProjectsDashboard({
           </div>
         </header>
 
-        {/* Hero Banner with Quick Insights */}
-        <section className="lofi-panel relative overflow-hidden rounded-2xl p-5 sm:p-6 lg:p-7 border border-stone-200/80 dark:border-white/10 bg-gradient-to-br from-indigo-50/40 via-white/80 to-purple-50/30 dark:from-indigo-950/25 dark:via-ink-950/60 dark:to-purple-950/15 shadow-sm backdrop-blur-xl">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-dusk-amber">
-                <Sparkles className="h-3 w-3" />
-                <span>Enterprise & Workspace Hub · หน้ารวมบริษัท</span>
-              </div>
-              <h2 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
-                Workspaces & Organizations
-              </h2>
-              <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                Select a workspace to enter its project pipeline, Kanban boards, and documents — or build a new company blueprint.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3 shrink-0">
-              <Button
+        {selectedProjectId && activeProject ? (
+          /* =========================================================================
+           * SCREEN 2: DEDICATED WORKSPACE & BOARD SELECTION PAGE (หน้าเลือกบอร์ด)
+           * ========================================================================= */
+          <div className="space-y-6">
+            {/* Top Navigation & Workspace Switcher Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <button
                 type="button"
-                onClick={() => setIsCreateOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-amber font-bold px-4 py-2 text-xs shadow-md transition-all active:scale-95 cursor-pointer"
+                onClick={handleBackToCompanies}
+                className="inline-flex items-center gap-2 rounded-xl border border-stone-200/90 bg-white/80 px-3.5 py-2 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-indigo-300 hover:bg-stone-50 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.08] dark:hover:text-dusk-lavender cursor-pointer"
               >
-                <Plus className="h-4 w-4" />
-                <span>Create Workspace</span>
-              </Button>
+                <ArrowLeft className="h-4 w-4" />
+                <span>กลับไปหน้ารวมบริษัท (All Workspaces)</span>
+              </button>
+
+              {/* Quick Workspace Switcher Dropdown */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setWorkspaceDropdownOpen((prev) => !prev)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-stone-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-stone-800 transition hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 cursor-pointer shadow-2xs"
+                >
+                  <Building2 className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                  <span className="truncate max-w-[180px] font-bold">{activeProject.name}</span>
+                  <ChevronDown className="h-3.5 w-3.5 text-stone-400" />
+                </button>
+
+                {workspaceDropdownOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setWorkspaceDropdownOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-1.5 z-50 w-64 rounded-xl border border-stone-200 bg-white p-1.5 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-ink-950/95 max-h-72 overflow-y-auto">
+                      <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                        Switch Workspace
+                      </div>
+                      {sortedProjects.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => {
+                            handleSelectProject(p.id);
+                            setWorkspaceDropdownOpen(false);
+                          }}
+                          className={cn(
+                            "flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
+                            p.id === activeProject.id
+                              ? "bg-indigo-50 text-indigo-700 dark:bg-dusk-lavender/15 dark:text-dusk-lavender font-bold"
+                              : "text-stone-700 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-white/5"
+                          )}
+                        >
+                          <span className="truncate">{p.name}</span>
+                          {p.id === activeProject.id && <Check className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Quick Metrics Bar */}
-          <div className="mt-5 pt-4 border-t border-stone-200/80 dark:border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <ProjectStatusMetric label="Workspaces" value={projectList.length} tone="lavender" compact />
-            <ProjectStatusMetric label="Total Boards" value={totalBoards} tone="amber" compact />
-            <ProjectStatusMetric label="Active Tasks" value={totalCards} tone="cyan" compact />
-            <ProjectStatusMetric label="Team Members" value={totalMembers} tone="rose" compact />
-          </div>
-        </section>
+            {/* Active Workspace Identity Hero */}
+            <section className="lofi-panel relative overflow-hidden rounded-2xl border border-stone-200/80 dark:border-white/10 bg-white dark:bg-ink-950/40 shadow-sm">
+              <div className="relative h-36 sm:h-44 w-full overflow-hidden border-b border-stone-200/80 dark:border-white/10">
+                {activeProject.coverImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={activeProject.coverImage}
+                    alt={activeProject.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-[radial-gradient(circle_at_22%_20%,rgba(229,189,114,0.25),transparent_34%),radial-gradient(circle_at_82%_22%,rgba(213,154,179,0.22),transparent_32%),linear-gradient(135deg,rgba(35,31,68,0.86),rgba(63,46,86,0.78)_48%,rgba(11,13,31,0.94))]" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-        {/* Main Workspaces Layout (Cards Grid + Studio Pulse on 2xl) */}
-        <div className="grid grid-cols-1 2xl:grid-cols-[1fr_360px] gap-6 items-start">
-          <div className="space-y-4 min-w-0">
-            {/* Filter Tabs & Count */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5">
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                <button
-                  type="button"
-                  onClick={() => setActiveFilterTab("all")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
-                    activeFilterTab === "all"
-                      ? "border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender shadow-2xs"
-                      : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
-                  )}
-                >
-                  <Building2 className="h-3.5 w-3.5" />
-                  <span>All Workspaces</span>
-                  <span className="font-mono text-[10px] opacity-75">({projectList.length})</span>
-                </button>
+                {/* Sticker if present */}
+                {activeProject.sticker ? (
+                  <div className="absolute bottom-3 right-4 drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
+                    <RetroStickerImage alt={activeProject.name} size={48} src={activeProject.sticker} />
+                  </div>
+                ) : null}
 
-                <button
-                  type="button"
-                  onClick={() => setActiveFilterTab("starred")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
-                    activeFilterTab === "starred"
-                      ? "border border-amber-200 bg-amber-50 text-amber-700 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber shadow-2xs"
-                      : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
-                  )}
-                >
-                  <Star className="h-3.5 w-3.5 fill-current" />
-                  <span>Starred</span>
-                  <span className="font-mono text-[10px] opacity-75">({starredCount})</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveFilterTab("work")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
-                    activeFilterTab === "work"
-                      ? "border border-teal-200 bg-teal-50 text-teal-700 dark:border-dusk-cyan/40 dark:bg-dusk-cyan/15 dark:text-dusk-cyan shadow-2xs"
-                      : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
-                  )}
-                >
-                  <KanbanSquare className="h-3.5 w-3.5" />
-                  <span>Work Studios</span>
-                  <span className="font-mono text-[10px] opacity-75">({workCount})</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveFilterTab("diary")}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
-                    activeFilterTab === "diary"
-                      ? "border border-rose-200 bg-rose-50 text-rose-700 dark:border-dusk-rose/40 dark:bg-dusk-rose/15 dark:text-dusk-rose shadow-2xs"
-                      : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
-                  )}
-                >
-                  <BookOpenCheck className="h-3.5 w-3.5" />
-                  <span>Life & Diary</span>
-                  <span className="font-mono text-[10px] opacity-75">({diaryCount})</span>
-                </button>
+                {/* Name & Type Badge inside hero */}
+                <div className="absolute bottom-3 left-4 right-20">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-dusk-amber backdrop-blur-md mb-1.5">
+                    {activeProject.type === "DIARY" ? <BookOpenCheck className="h-3 w-3" /> : <KanbanSquare className="h-3 w-3" />}
+                    <span>{activeProject.type === "DIARY" ? "Diary Studio" : "Work Studio"}</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white drop-shadow-sm truncate">
+                    {activeProject.name}
+                  </h2>
+                </div>
               </div>
 
-              <p className="text-xs text-stone-500 font-mono">
-                Showing {displayedProjects.length} of {projectList.length}
-              </p>
-            </div>
-
-            {/* Company Cards Grid */}
-            {displayedProjects.length === 0 ? (
-              <div className="lofi-panel grid min-h-[340px] place-items-center overflow-hidden rounded-2xl p-8 text-center border border-stone-200/80 dark:border-white/10">
-                <div className="max-w-md">
-                  <div className="mx-auto mb-3 h-20 w-20">
-                    <RetroStickerImage alt="Empty sticker" size={80} src="/stickers/retro/retro-sticker-12-paper-note.png" />
-                  </div>
-                  <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">No matching workspaces</h3>
-                  <p className="mt-1.5 text-xs sm:text-sm text-stone-500 dark:text-stone-400">
-                    {searchQuery ? `No workspaces matching "${searchQuery}".` : "No workspaces in this category yet."}
+              {/* Workspace Details & Action Toolbar */}
+              <div className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="max-w-2xl min-w-0">
+                  <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed line-clamp-2">
+                    {activeProject.description || "A dedicated workspace pipeline for task boards, notes, calendars, and team collaboration."}
                   </p>
+
+                  <div className="mt-3 flex items-center gap-3">
+                    <div className="flex-1 max-w-xs h-2 rounded-full overflow-hidden bg-stone-200 dark:bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-teal-500 via-indigo-500 to-indigo-600 dark:from-dusk-cyan dark:to-dusk-lavender transition-all duration-500"
+                        style={{ width: `${activeProjectProgress}%` }}
+                      />
+                    </div>
+                    <span className="font-mono text-xs font-semibold text-teal-600 dark:text-dusk-cyan">
+                      {activeProjectProgress}% done ({activeProjectDoneCards}/{activeProjectTotalCards} tasks)
+                    </span>
+                  </div>
+                </div>
+
+                {/* Workspace Shortcuts */}
+                <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                  <Link
+                    href={`/project/${activeProject.id}/calendar`}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 transition"
+                  >
+                    <CalendarDays className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
+                    <span>Calendar</span>
+                  </Link>
+                  <Link
+                    href={`/project/${activeProject.id}/notes`}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 transition"
+                  >
+                    <FileText className="h-3.5 w-3.5 text-rose-500 dark:text-dusk-rose" />
+                    <span>Notes ({activeProject.counts.notes})</span>
+                  </Link>
+                  <Link
+                    href={`/project/${activeProject.id}/members`}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 transition"
+                  >
+                    <Users className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                    <span>Members ({activeProject.counts.members})</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setEditingProjectForSettings(activeProject)}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 transition cursor-pointer"
+                    title="Workspace Settings"
+                  >
+                    <Settings className="h-3.5 w-3.5 text-stone-500" />
+                    <span>Settings</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* Boards Layout Grid + Studio Pulse on 2xl */}
+            <div className="grid grid-cols-1 2xl:grid-cols-[1fr_360px] gap-6 items-start">
+              <div className="space-y-4 min-w-0">
+                {activeProject.type === "DIARY" ? (
+                  <div className="lofi-panel rounded-2xl border border-stone-200/80 dark:border-white/10 p-6 sm:p-8 text-center bg-white dark:bg-ink-950/40">
+                    <div className="mx-auto mb-3 h-16 w-16 grid place-items-center rounded-2xl bg-rose-50 text-rose-500 dark:bg-dusk-rose/10 dark:text-dusk-rose">
+                      <BookOpenCheck className="h-8 w-8" />
+                    </div>
+                    <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">Life & Diary Studio</h3>
+                    <p className="mt-1 text-xs sm:text-sm text-stone-500 dark:text-stone-400 max-w-md mx-auto">
+                      This workspace is configured as a daily life and personal journal studio. Manage your daily reflections, checklist, and rhythm.
+                    </p>
+                    <div className="mt-5 flex items-center justify-center gap-3">
+                      <Link
+                        href={`/project/${activeProject.id}/diary`}
+                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-amber transition"
+                      >
+                        <span>Open Diary Studio</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                      <Link
+                        href={`/project/${activeProject.id}/calendar`}
+                        className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 transition"
+                      >
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        <span>View Diary Calendar</span>
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Boards Toolbar */}
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-indigo-200/80 bg-indigo-50 text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-dusk-lavender">
+                          <KanbanSquare className="h-4 w-4" />
+                        </div>
+                        <h3 className="text-base sm:text-lg font-bold tracking-tight text-stone-900 truncate dark:text-stone-100 flex items-center gap-2">
+                          <span>Workspace Boards · หน้าเลือกบอร์ด</span>
+                          <span className="shrink-0 rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-xs font-mono font-medium text-stone-700 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300">
+                            {activeProjectBoards.length}
+                          </span>
+                        </h3>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+                        <div className="group/search relative flex items-center w-full sm:w-60">
+                          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+                          <input
+                            type="text"
+                            value={boardSearchQuery}
+                            onChange={(e) => setBoardSearchQuery(e.target.value)}
+                            placeholder="Search boards..."
+                            className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-10 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
+                          />
+                          {boardSearchQuery ? (
+                            <button
+                              type="button"
+                              onClick={() => setBoardSearchQuery("")}
+                              className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-5 w-5 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer"
+                              aria-label="Clear board search"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          ) : null}
+                        </div>
+
+                        {/* View Mode Toggle: Grid vs List */}
+                        <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/90 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04]">
+                          <button
+                            type="button"
+                            onClick={() => handleSetBoardViewMode("grid")}
+                            className={cn(
+                              "grid h-8.5 w-8.5 place-items-center rounded-lg transition-all cursor-pointer",
+                              boardViewMode === "grid"
+                                ? "bg-white text-indigo-600 shadow-xs dark:bg-white/10 dark:text-dusk-lavender font-bold"
+                                : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
+                            )}
+                            title="Grid view"
+                            aria-label="Switch to grid view"
+                          >
+                            <LayoutGrid className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSetBoardViewMode("list")}
+                            className={cn(
+                              "grid h-8.5 w-8.5 place-items-center rounded-lg transition-all cursor-pointer",
+                              boardViewMode === "list"
+                                ? "bg-white text-indigo-600 shadow-xs dark:bg-white/10 dark:text-dusk-lavender font-bold"
+                                : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
+                            )}
+                            title="List view"
+                            aria-label="Switch to list view"
+                          >
+                            <List className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <Button
+                          type="button"
+                          onClick={() => setIsCreateBoardOpen(true)}
+                          className="h-9.5 shrink-0 rounded-xl bg-indigo-600 px-3.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:hover:bg-dusk-amber cursor-pointer"
+                        >
+                          <Plus className="h-3.5 w-3.5 mr-1" />
+                          <span>New Board</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Boards Content */}
+                    {activeProjectBoards.length === 0 && boardSearchQuery ? (
+                      <div className="lofi-panel grid min-h-[220px] place-items-center rounded-2xl border border-stone-200/80 dark:border-white/10 p-6 text-center">
+                        <div>
+                          <h4 className="text-base font-bold text-stone-900 dark:text-stone-200">
+                            No boards match &ldquo;{boardSearchQuery}&rdquo;
+                          </h4>
+                          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                            Try another search term or clear the filter.
+                          </p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="mt-3 text-xs cursor-pointer"
+                            onClick={() => setBoardSearchQuery("")}
+                          >
+                            Clear search
+                          </Button>
+                        </div>
+                      </div>
+                    ) : boardViewMode === "list" ? (
+                      <div className="flex flex-col gap-3 pb-4">
+                        {activeProjectBoards.map((board) => (
+                          <WorkspaceBoardRow
+                            key={board.id}
+                            board={board}
+                            projectId={activeProject.id}
+                            onEdit={(b) => setEditingBoard(b)}
+                            onDelete={(b) => setDeletingBoard(b)}
+                            canManage={activeProject.isOwner !== false}
+                          />
+                        ))}
+                        <QuickCreateBoardBlueprintRow
+                          projectName={activeProject.name}
+                          onCreateClick={() => setIsCreateBoardOpen(true)}
+                        />
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 pb-4">
+                        {activeProjectBoards.map((board) => (
+                          <WorkspaceBoardCard
+                            key={board.id}
+                            board={board}
+                            projectId={activeProject.id}
+                            onEdit={(b) => setEditingBoard(b)}
+                            onDelete={(b) => setDeletingBoard(b)}
+                            canManage={activeProject.isOwner !== false}
+                          />
+                        ))}
+                        <QuickCreateBoardBlueprintCard
+                          projectName={activeProject.name}
+                          onCreateClick={() => setIsCreateBoardOpen(true)}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Right Rail: Studio Pulse on 2xl */}
+              <ProjectSupportColumn
+                projects={sortedProjects}
+                calendarCards={filteredCalendarCards}
+                userProfile={userProfile}
+              />
+            </div>
+          </div>
+        ) : (
+          /* =========================================================================
+           * SCREEN 1: COMPANY DIRECTORY HUB (หน้ารวมบริษัท)
+           * ========================================================================= */
+          <>
+            {/* Hero Banner with Quick Insights */}
+            <section className="lofi-panel relative overflow-hidden rounded-2xl p-5 sm:p-6 lg:p-7 border border-stone-200/80 dark:border-white/10 bg-gradient-to-br from-indigo-50/40 via-white/80 to-purple-50/30 dark:from-indigo-950/25 dark:via-ink-950/60 dark:to-purple-950/15 shadow-sm backdrop-blur-xl">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                <div className="max-w-2xl">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-dusk-amber">
+                    <Sparkles className="h-3 w-3" />
+                    <span>Enterprise & Workspace Hub · หน้ารวมบริษัท</span>
+                  </div>
+                  <h2 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+                    Workspaces & Organizations
+                  </h2>
+                  <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                    Select a workspace to enter its project pipeline, Kanban boards, and documents — or build a new company blueprint.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
                   <Button
                     type="button"
-                    variant="outline"
-                    className="mt-4 text-xs cursor-pointer"
-                    onClick={() => { setSearchQuery(""); setActiveFilterTab("all"); }}
+                    onClick={() => setIsCreateOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-amber font-bold px-4 py-2 text-xs shadow-md transition-all active:scale-95 cursor-pointer"
                   >
-                    Clear filters
+                    <Plus className="h-4 w-4" />
+                    <span>Create Workspace</span>
                   </Button>
                 </div>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {displayedProjects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    isStarred={starredProjectIds.has(project.id)}
-                    project={project}
-                    onToggleStar={() => toggleProjectStar(project.id)}
-                    onUpdateProject={handleUpdateProject}
-                    onDeleteProject={handleDeleteProject}
-                  />
-                ))}
-                <QuickCreateBlueprintCard onCreateClick={() => setIsCreateOpen(true)} />
-              </div>
-            )}
-          </div>
 
-          {/* Right Rail: Studio Pulse (Upcoming Deadlines & Top Utilities) */}
-          <ProjectSupportColumn
-            projects={sortedProjects}
-            calendarCards={filteredCalendarCards}
-            userProfile={userProfile}
-          />
-        </div>
+              {/* Quick Metrics Bar */}
+              <div className="mt-5 pt-4 border-t border-stone-200/80 dark:border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <ProjectStatusMetric label="Workspaces" value={projectList.length} tone="lavender" compact />
+                <ProjectStatusMetric label="Total Boards" value={totalBoards} tone="amber" compact />
+                <ProjectStatusMetric label="Active Tasks" value={totalCards} tone="cyan" compact />
+                <ProjectStatusMetric label="Team Members" value={totalMembers} tone="rose" compact />
+              </div>
+            </section>
+
+            {/* Main Workspaces Layout (Cards Grid + Studio Pulse on 2xl) */}
+            <div className="grid grid-cols-1 2xl:grid-cols-[1fr_360px] gap-6 items-start">
+              <div className="space-y-4 min-w-0">
+                {/* Filter Tabs & Count */}
+                <div className="flex flex-wrap items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                    <button
+                      type="button"
+                      onClick={() => setActiveFilterTab("all")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
+                        activeFilterTab === "all"
+                          ? "border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender shadow-2xs"
+                          : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
+                      )}
+                    >
+                      <Building2 className="h-3.5 w-3.5" />
+                      <span>All Workspaces</span>
+                      <span className="font-mono text-[10px] opacity-75">({projectList.length})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveFilterTab("starred")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
+                        activeFilterTab === "starred"
+                          ? "border border-amber-200 bg-amber-50 text-amber-700 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber shadow-2xs"
+                          : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
+                      )}
+                    >
+                      <Star className="h-3.5 w-3.5 fill-current" />
+                      <span>Starred</span>
+                      <span className="font-mono text-[10px] opacity-75">({starredCount})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveFilterTab("work")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
+                        activeFilterTab === "work"
+                          ? "border border-teal-200 bg-teal-50 text-teal-700 dark:border-dusk-cyan/40 dark:bg-dusk-cyan/15 dark:text-dusk-cyan shadow-2xs"
+                          : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
+                      )}
+                    >
+                      <KanbanSquare className="h-3.5 w-3.5" />
+                      <span>Work Studios</span>
+                      <span className="font-mono text-[10px] opacity-75">({workCount})</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveFilterTab("diary")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0",
+                        activeFilterTab === "diary"
+                          ? "border border-rose-200 bg-rose-50 text-rose-700 dark:border-dusk-rose/40 dark:bg-dusk-rose/15 dark:text-dusk-rose shadow-2xs"
+                          : "border border-stone-200/80 bg-white/70 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:bg-white/[0.06]"
+                      )}
+                    >
+                      <BookOpenCheck className="h-3.5 w-3.5" />
+                      <span>Life & Diary</span>
+                      <span className="font-mono text-[10px] opacity-75">({diaryCount})</span>
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-stone-500 font-mono">
+                    Showing {displayedProjects.length} of {projectList.length}
+                  </p>
+                </div>
+
+                {/* Company Cards Grid */}
+                {displayedProjects.length === 0 ? (
+                  <div className="lofi-panel grid min-h-[340px] place-items-center overflow-hidden rounded-2xl p-8 text-center border border-stone-200/80 dark:border-white/10">
+                    <div className="max-w-md">
+                      <div className="mx-auto mb-3 h-20 w-20">
+                        <RetroStickerImage alt="Empty sticker" size={80} src="/stickers/retro/retro-sticker-12-paper-note.png" />
+                      </div>
+                      <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">No matching workspaces</h3>
+                      <p className="mt-1.5 text-xs sm:text-sm text-stone-500 dark:text-stone-400">
+                        {searchQuery ? `No workspaces matching "${searchQuery}".` : "No workspaces in this category yet."}
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="mt-4 text-xs cursor-pointer"
+                        onClick={() => { setSearchQuery(""); setActiveFilterTab("all"); }}
+                      >
+                        Clear filters
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {displayedProjects.map((project) => (
+                      <ProjectCard
+                        key={project.id}
+                        isStarred={starredProjectIds.has(project.id)}
+                        project={project}
+                        onToggleStar={() => toggleProjectStar(project.id)}
+                        onSelectProject={handleSelectProject}
+                        onUpdateProject={handleUpdateProject}
+                        onDeleteProject={handleDeleteProject}
+                      />
+                    ))}
+                    <QuickCreateBlueprintCard onCreateClick={() => setIsCreateOpen(true)} />
+                  </div>
+                )}
+              </div>
+
+              {/* Right Rail: Studio Pulse (Upcoming Deadlines & Top Utilities) */}
+              <ProjectSupportColumn
+                projects={sortedProjects}
+                calendarCards={filteredCalendarCards}
+                userProfile={userProfile}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {isCreateOpen ? <CreateProjectModal onClose={() => setIsCreateOpen(false)} onCreated={broadcastChange} /> : null}
@@ -894,7 +1305,57 @@ export function ProjectsDashboard({
             router.refresh();
           }}
         />
-      ) : null}    </main>
+      ) : null}
+      {isCreateBoardOpen && activeProject ? (
+        <CreateBoardModal
+          open={isCreateBoardOpen}
+          projectId={activeProject.id}
+          projectName={activeProject.name}
+          onClose={() => setIsCreateBoardOpen(false)}
+          onCreated={handleCreateBoard}
+        />
+      ) : null}
+      {editingBoard && activeProject ? (
+        <BoardSettingsModal
+          open={Boolean(editingBoard)}
+          onClose={() => setEditingBoard(null)}
+          projectId={activeProject.id}
+          boardId={editingBoard.id}
+          boardName={editingBoard.name}
+          isPrivate={editingBoard.isPrivate}
+          columnsPreview={editingBoard.columnsPreview}
+          canManage={activeProject.isOwner !== false}
+          availableBoards={activeProject.boardsList?.map((b) => ({ id: b.id, name: b.name, isPrivate: b.isPrivate }))}
+          onSaved={(updated) => {
+            handleUpdateBoard({
+              ...editingBoard,
+              name: updated.name,
+              isPrivate: updated.isPrivate
+            });
+            setEditingBoard(null);
+            router.refresh();
+          }}
+          onDeleted={(boardId) => {
+            handleDeleteBoard(boardId);
+            setEditingBoard(null);
+            router.refresh();
+          }}
+        />
+      ) : null}
+      {deletingBoard ? (
+        <ConfirmModal
+          open={Boolean(deletingBoard)}
+          title="Delete board"
+          message={`This will permanently delete "${deletingBoard.name}" and all its columns and cards. This action cannot be undone.`}
+          confirmLabel="Delete board"
+          variant="danger"
+          validateText={deletingBoard.name}
+          validatePlaceholder={`Type "${deletingBoard.name}" to confirm`}
+          onConfirm={handleConfirmDeleteBoard}
+          onClose={() => setDeletingBoard(null)}
+        />
+      ) : null}
+    </main>
   );
 }
 
@@ -1569,12 +2030,14 @@ function ProjectCard({
   isStarred,
   project,
   onToggleStar,
+  onSelectProject,
   onUpdateProject,
   onDeleteProject,
 }: {
   isStarred: boolean;
   project: ProjectDashboardItem;
   onToggleStar: () => void;
+  onSelectProject?: (projectId: string) => void;
   onUpdateProject?: (updated: ProjectDashboardItem) => void;
   onDeleteProject?: (id: string) => void;
 }) {
@@ -1603,7 +2066,15 @@ function ProjectCard({
     setMenuOpen((value) => !value);
   }
 
-  const targetUrl = `/project/${project.id}/${isDiaryProject ? "diary" : "board"}`;
+  const targetUrl = isDiaryProject ? `/project/${project.id}/diary` : `/projects?projectId=${project.id}`;
+
+  function handleProjectClick(e: MouseEvent<HTMLElement>) {
+    if (isDiaryProject) return;
+    if (onSelectProject) {
+      e.preventDefault();
+      onSelectProject(project.id);
+    }
+  }
 
   return (
     <>
@@ -1615,7 +2086,8 @@ function ProjectCard({
         <div className="relative h-44 sm:h-48 overflow-hidden border-b border-white/10">
           <Link
             href={targetUrl}
-            className="absolute inset-0 block z-0"
+            onClick={handleProjectClick}
+            className="absolute inset-0 block z-0 cursor-pointer"
             tabIndex={-1}
             aria-hidden="true"
           >
@@ -1642,7 +2114,7 @@ function ProjectCard({
               type="button"
               onClick={onToggleStar}
               className={cn(
-                "grid h-8 w-8 place-items-center rounded-xl border bg-ink-950/60 text-stone-200 backdrop-blur-md transition hover:border-dusk-amber/55 hover:bg-ink-950/80 hover:text-dusk-amber",
+                "grid h-8 w-8 place-items-center rounded-xl border bg-ink-950/60 text-stone-200 backdrop-blur-md transition hover:border-dusk-amber/55 hover:bg-ink-950/80 hover:text-dusk-amber cursor-pointer",
                 isStarred && "border-dusk-amber/55 bg-dusk-amber/15 text-dusk-amber"
               )}
               aria-label={isStarred ? "Unstar project" : "Star project"}
@@ -1655,7 +2127,7 @@ function ProjectCard({
               type="button"
               onClick={toggleProjectMenu}
               className={cn(
-                "grid h-8 w-8 place-items-center rounded-xl border backdrop-blur-md transition",
+                "grid h-8 w-8 place-items-center rounded-xl border backdrop-blur-md transition cursor-pointer",
                 menuOpen
                   ? "border-dusk-amber/55 bg-ink-950/90 text-dusk-amber shadow-[0_10px_26px_rgba(0,0,0,0.35)]"
                   : "border-white/15 bg-ink-950/60 text-stone-200 hover:border-dusk-lavender/55 hover:bg-ink-950/80 hover:text-dusk-lavender"
@@ -1678,7 +2150,8 @@ function ProjectCard({
           <div className="absolute bottom-3 left-4 right-16 z-10">
             <Link
               href={targetUrl}
-              className="block truncate text-xl font-bold tracking-tight text-white drop-shadow-md hover:text-dusk-lavender transition-colors"
+              onClick={handleProjectClick}
+              className="block truncate text-xl font-bold tracking-tight text-white drop-shadow-md hover:text-dusk-lavender transition-colors cursor-pointer"
             >
               {project.name}
             </Link>
@@ -1686,7 +2159,7 @@ function ProjectCard({
         </div>
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
-          <Link href={targetUrl} className="block group/details">
+          <Link href={targetUrl} onClick={handleProjectClick} className="block group/details cursor-pointer">
             <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-600 group-hover/details:text-stone-900 transition-colors dark:text-stone-400 dark:group-hover/details:text-stone-300">
               {project.description ?? "A quiet project workspace for tasks, notes, due dates, and rewards."}
             </p>
@@ -1734,10 +2207,11 @@ function ProjectCard({
           {/* Quick-Launch Action Hub */}
           <div className="mt-auto pt-4 border-t border-stone-200/80 flex items-center gap-2 dark:border-white/10">
             <Link
-              href={`/project/${project.id}/${isDiaryProject ? "diary" : "board"}`}
-              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-sm transition hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber dark:hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
+              href={targetUrl}
+              onClick={handleProjectClick}
+              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-sm transition hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber dark:hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)] cursor-pointer"
             >
-              <span>{isDiaryProject ? "Open Diary" : "Enter Workspace"}</span>
+              <span>{isDiaryProject ? "Open Diary" : "Select Board · เข้าสู่บอร์ด"}</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
 
