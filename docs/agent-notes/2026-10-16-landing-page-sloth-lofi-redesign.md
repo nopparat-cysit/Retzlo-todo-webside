@@ -39,6 +39,12 @@ Redesign the marketing landing page (`/`) so it is genuinely **fun, tactile, col
       - Replaced invisible 5% opacity grid with tactile retro graph-paper drafting grid (`linear-gradient(rgba(120, 88, 212, 0.12))` in 48px grid) and micro dot-matrix paper pattern (`radial-gradient(1.2px)` in 24px grid).
       - Layered deep multi-point radiant aurora glow washes across the entire page height (top, middle, and bottom).
       - Added floating animated studio doodles (sparkle crosses `✦`, stars `✧`, music notes `♪`, `♫`, cassette tape tags `SIDE A · 45 MIN`, `24/7 LOFI VIBES`, `ZEN FOCUS · SAKURA`, `BPM: 72 · CHILL`, `RETZLO STUDIO`) visible across tablet and desktop viewports.
+    - **Airy Navbar Decluttering ("navbar อึดอัดมาก แก้ไข"):**
+      - Aligned `<header>` inner container to `w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12` matching the Hero section.
+      - Removed clunky nested pill wrapper with 12px padding and bulky borders; converted navigation to clean, breathable typography (`gap-6 xl:gap-8 text-[13.5px] font-medium`).
+      - Removed noisy `STUDIO v2.4` badge beside the logo to give the brand logo room to breathe.
+      - Compacted right controls: converted bulky 130px Lofi radio pill into an elegant 36px circular button with vinyl/equalizer icon (`w-9 h-9`), and streamlined the Coin Wallet pill into a minimal cute badge (`🪙 {walletCoins}`).
+      - Refined "Enter Workspace" button into a comfortable `h-[38px] px-4.5` button with neobrutalist retro shadow, giving over 500px of negative space across standard desktop and laptop screens.
   - `src/app/(marketing)/walkthrough-mockup.tsx`:
     - Replaced duplicate stickers in Room 01 with `retro-sticker-64-team-group.png` and `retro-sticker-37-tiny-house.png`.
     - Replaced repeated hero image in Room 06 with `hero-lofi-mascot.png`.

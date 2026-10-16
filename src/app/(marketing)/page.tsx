@@ -686,107 +686,74 @@ export default function LandingPage() {
           }}
         />
 
-        <div className="w-full px-4 sm:px-8 lg:px-12 h-16 flex items-center justify-between gap-4">
-          {/* Brand Logo + Live Studio Dot */}
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2.5"
-              style={{
-                fontSize: "25px",
-                fontWeight: 800,
-                letterSpacing: "-1.2px",
-                color: "var(--foreground)"
-              }}
-            >
-              <MixtapeLogoMark />
-              <span>retzlo</span>
-            </Link>
-            <span
-              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider"
-              style={{
-                background: "rgba(120, 88, 212, 0.12)",
-                color: "#7858d4",
-                border: "1px solid rgba(120, 88, 212, 0.28)"
-              }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>STUDIO v2.4</span>
-            </span>
-          </div>
-
-          {/* Desktop Navigation with Tactile Rounded Pills */}
-          <nav
-            className="hidden lg:flex items-center gap-1 p-1 rounded-full border border-[var(--border)]"
+        <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 h-16 flex items-center justify-between gap-6">
+          {/* Brand Logo */}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2.5 shrink-0"
             style={{
-              background: "var(--paper)",
-              fontSize: "12.5px",
-              fontWeight: 600
+              fontSize: "24px",
+              fontWeight: 800,
+              letterSpacing: "-1px",
+              color: "var(--foreground)"
             }}
           >
+            <MixtapeLogoMark />
+            <span>retzlo</span>
+          </Link>
+
+          {/* Clean Airy Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[13.5px] font-medium text-[var(--muted)]">
             <a
-              href="#playground"
-              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10 flex items-center gap-1.5 font-bold"
-              style={{ color: "var(--accent-2, #d97706)" }}
+              href="#walkthrough"
+              className="transition-colors hover:text-[var(--foreground)]"
             >
-              <span>🎮 ลองเล่นมินิเกม</span>
+              ฟีเจอร์เด่น
             </a>
             <a
               href="#pain-tabs"
-              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10"
-              style={{ color: "var(--muted)" }}
+              className="transition-colors hover:text-[var(--foreground)]"
             >
               ปัญหาที่แก้
             </a>
             <a
-              href="#walkthrough"
-              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10"
-              style={{ color: "var(--muted)" }}
+              href="#playground"
+              className="transition-colors hover:text-[var(--foreground)] flex items-center gap-1.5"
             >
-              ทัวร์ 6 ห้อง
+              <span>มินิเกมสะสมเหรียญ</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             </a>
             <a
               href="#comparison"
-              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10"
-              style={{ color: "var(--muted)" }}
+              className="transition-colors hover:text-[var(--foreground)]"
             >
               เหมาะกับใคร
             </a>
             <a
               href="#faq"
-              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10"
-              style={{ color: "var(--muted)" }}
+              className="transition-colors hover:text-[var(--foreground)]"
             >
               คำถามพบบ่อย
             </a>
           </nav>
 
-          {/* Right Actions: Interactive Coin Wallet Pill + Lofi Radio Deck + Auth */}
-          <div className="hidden md:flex items-center gap-2.5">
-            {/* Live Interactive Coin Pill */}
+          {/* Right Actions: Compact, Spacious, Elegant */}
+          <div className="hidden md:flex items-center gap-3 shrink-0">
+            {/* Live Interactive Coin Pill (Compact & Cute) */}
             <div className="relative">
               <a
                 href="#playground"
                 title="กระเป๋าเหรียญสะสมจากการทดลองกดเล่นบนหน้าเว็บ (คลิกเพื่อไปที่มินิเกม)"
-                className="lp-press-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black"
+                className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold"
                 style={{
                   background: "#ffecb1",
                   color: "#432369",
-                  border: "2px solid #54356b",
-                  boxShadow: "2.5px 2.5px 0 rgba(84, 53, 107, 0.28)"
+                  border: "1.5px solid #54356b",
+                  boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.22)"
                 }}
               >
-                <div className="relative w-4 h-4 shrink-0">
-                  <Image
-                    src="/stickers/rewards/reward-icon-01-coin.png"
-                    alt=""
-                    fill
-                    sizes="16px"
-                    className="object-contain"
-                  />
-                </div>
-                <span className="font-mono tracking-tight font-black">{walletCoins}</span>
-                <span className="text-[10px] tracking-wider uppercase opacity-80">Coins</span>
+                <span>🪙</span>
+                <span className="font-mono font-black">{walletCoins}</span>
               </a>
 
               {/* Floating +Coin / -Coin Burst Particles */}
@@ -805,12 +772,12 @@ export default function LandingPage() {
               ))}
             </div>
 
-            {/* Lofi Radio Synthesizer Toggle with Animated Equalizer Bars */}
+            {/* Compact Lofi Audio Synthesizer Icon Button */}
             <button
               type="button"
               onClick={handlePlayToggle}
               title={isPlaying ? "พักเสียงดนตรี Lofi" : "เปิดฟังเสียงคอร์ด Lofi สดจากเบราว์เซอร์"}
-              className="lp-press-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold"
+              className="lp-press-btn inline-flex items-center justify-center w-9 h-9 rounded-full"
               style={{
                 border: isPlaying
                   ? "1.5px solid #7858d4"
@@ -818,29 +785,29 @@ export default function LandingPage() {
                 background: isPlaying
                   ? "rgba(120, 88, 212, 0.15)"
                   : "var(--paper)",
-                color: isPlaying ? "#7858d4" : "var(--foreground)"
+                color: isPlaying ? "#7858d4" : "var(--muted)"
               }}
             >
               {isPlaying ? (
-                <span className="flex items-center gap-0.5 h-3.5 text-[#7858d4]">
+                <span className="flex items-center gap-0.5 h-3 text-[#7858d4]">
                   <span className="lp-eq-bar" />
                   <span className="lp-eq-bar" />
                   <span className="lp-eq-bar" />
                 </span>
               ) : (
-                <Disc3 size={15} />
+                <Disc3 size={16} />
               )}
-              <span>{isPlaying ? "Lofi Playing" : "Lofi Radio"}</span>
             </button>
 
             <ThemeToggle variant="icon" />
 
+            {/* Auth Buttons */}
             {currentUser ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <Link
                   href="/profile"
                   style={{ fontSize: "13px", color: "var(--muted)" }}
-                  className="px-2.5 py-1.5 truncate max-w-[140px]"
+                  className="px-2 py-1 truncate max-w-[130px] hover:text-[var(--foreground)] transition-colors"
                 >
                   {currentUser.name || currentUser.email || "Workspace user"}
                 </Link>
@@ -848,14 +815,15 @@ export default function LandingPage() {
                   <button
                     className="lp-press-btn"
                     style={{
-                      padding: "9px 18px",
+                      height: "38px",
+                      padding: "0 18px",
                       borderRadius: "12px",
-                      border: "2px solid #54356b",
+                      border: "1.5px solid #54356b",
                       background: "var(--accent)",
                       color: "var(--background)",
-                      fontSize: "12px",
+                      fontSize: "12.5px",
                       fontWeight: 800,
-                      boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.25)"
+                      boxShadow: "2.5px 2.5px 0 rgba(84, 53, 107, 0.25)"
                     }}
                   >
                     Enter Workspace
@@ -863,15 +831,15 @@ export default function LandingPage() {
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Link
                   href="/login"
                   style={{
                     fontSize: "13px",
                     fontWeight: 600,
-                    color: "var(--muted)",
-                    padding: "8px 10px"
+                    color: "var(--muted)"
                   }}
+                  className="px-2 py-1 hover:text-[var(--foreground)] transition-colors"
                 >
                   Sign In
                 </Link>
@@ -879,14 +847,15 @@ export default function LandingPage() {
                   <button
                     className="lp-press-btn"
                     style={{
-                      padding: "9px 18px",
+                      height: "38px",
+                      padding: "0 18px",
                       borderRadius: "12px",
-                      border: "2px solid #54356b",
+                      border: "1.5px solid #54356b",
                       background: "var(--accent)",
                       color: "var(--background)",
-                      fontSize: "12px",
+                      fontSize: "12.5px",
                       fontWeight: 800,
-                      boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.25)"
+                      boxShadow: "2.5px 2.5px 0 rgba(84, 53, 107, 0.25)"
                     }}
                   >
                     Enter Workspace
@@ -900,7 +869,7 @@ export default function LandingPage() {
           <div className="flex md:hidden items-center gap-2">
             <a
               href="#playground"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black"
               style={{
                 background: "#ffecb1",
                 color: "#432369",
