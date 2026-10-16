@@ -220,7 +220,7 @@ export async function ProjectShell({
         </aside>
 
         <section className="row-start-1 flex min-h-0 min-w-0 flex-col rounded-2xl lg:row-start-auto">
-          <header className="lofi-panel relative z-40 mb-3 flex min-h-14 items-center justify-between gap-2 sm:gap-3 overflow-visible rounded-2xl px-2.5 sm:px-4">
+          <header className="lofi-panel relative z-40 mb-3 flex min-h-14 flex-nowrap items-center justify-between gap-2 sm:gap-3 overflow-visible rounded-2xl px-2.5 sm:px-4">
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
               <label
                 htmlFor="project-sidebar-toggle"
@@ -245,13 +245,13 @@ export async function ProjectShell({
                   <span className="text-stone-700">/</span>
                   <span className="text-dusk-amber">Retzlo</span>
                 </div>
-                <h2 className="truncate text-sm sm:text-base font-semibold text-stone-100 max-w-[120px] min-[400px]:max-w-[180px] sm:max-w-[240px] md:max-w-[280px] lg:max-w-[200px] xl:max-w-[320px] 2xl:max-w-none">{project.name}</h2>
+                <h2 className="truncate text-sm sm:text-base font-semibold text-stone-100 max-w-[120px] min-[400px]:max-w-[160px] sm:max-w-[200px] md:max-w-[240px] lg:max-w-[180px] xl:max-w-[220px] 2xl:max-w-none">{project.name}</h2>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <ProjectTopbarTools />
               <FocusModeToggle />
-              <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 xl:flex">
+              <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 2xl:flex">
                 <span className="text-stone-400">Command</span>
                 <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
               </div>

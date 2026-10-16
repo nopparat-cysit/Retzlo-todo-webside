@@ -773,6 +773,15 @@ Template:
   - Board Management Bar: Added board count badge, live search input with clear button, Grid/List layout toggle, and `+ New Board` button.
   - Grid & List Views: Supported both `WorkspaceBoardCard` and `WorkspaceBoardRow` layouts with task progress bar, column pills, and 3-dots management menu (`BoardSettingsModal` and `ConfirmModal` for deletion).
   - Clean Action Buttons: Updated `ProjectCard` CTA to "Select Board · เข้าสู่บอร์ด", ensuring clicking any company card opens that company's board selection screen immediately.
-- Verification: Vitest full suite (100 test files, 533 passed), `projects-dashboard.test.ts` (5 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (42/42 routes).
+### 2026-10-16 — macOS & Safari Responsive Viewport & Glassmorphism Optimization
+- Coverage: Global theme styles (`globals.css`), Project Shell topbar (`project-shell.tsx`, `project-topbar-tools.tsx`), and Workspaces Hub (`projects-dashboard.tsx`).
+- Responsive & Layout Refinements:
+  - Scaled Viewport Adaptation: Calibrated breakpoints from `xl` (1280px) to `2xl` (1536px) for expanded topbar tool suites and shortcut badges. MacBooks (13", 14", 15") running default display scaling (1280px–1512px CSS width) now render clean, uncrowded single-line topbars with the compact Studio Tools popover trigger (`✨`), preventing header wrapping and element collisions with the board title.
+  - Safari Flexbox Bug Fix: Resolved WebKit `ml-auto` detachment bug inside `overflow-x-auto` sub-navigation by separating navigation links into an auto-scrolling flex strip and a static action cluster (`All Workspaces` + `Settings`).
+  - Active Workspace Switcher Bounds: Constrained the workspace dropdown trigger width with `min-w-0 max-w-[200px] min-[400px]:max-w-[260px] sm:max-w-xs md:max-w-sm` to prevent long workspace titles from dislocating action buttons.
+- Design System & Glassmorphism:
+  - WebKit Backdrop Filter Compatibility: Added `-webkit-backdrop-filter` rules across all glassmorphic components (`.lofi-panel`, `.project-sidebar`, `.auth-card`, `.retzlo-badge`, `.retzlo-bento-card`, `.retzlo-quote-card`), guaranteeing hardware-accelerated translucent background blurs in Safari on macOS and iOS.
+  - Mac Retina Typography: Added `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;` to `body` for razor-sharp typography on high-DPI displays in both Warm Paper and Retro Lofi Indigo themes.
+- Verification: Vitest full suite (100 test files, 533 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (42/42 routes).
 
 

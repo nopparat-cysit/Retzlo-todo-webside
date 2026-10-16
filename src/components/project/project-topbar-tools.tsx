@@ -33,8 +33,8 @@ export function ProjectTopbarTools() {
 
   return (
     <TooltipProvider delayDuration={250}>
-      {/* Compact (< xl): Single Studio Tools button to avoid topbar overlap */}
-      <div className="xl:hidden">
+      {/* Compact (< 2xl): Single Studio Tools button to avoid topbar overlap on Mac/laptops */}
+      <div className="2xl:hidden">
         <Popover open={mobileOpen} onOpenChange={setMobileOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -86,8 +86,8 @@ export function ProjectTopbarTools() {
         </Popover>
       </div>
 
-      {/* Wide Desktop (xl+): Expanded separate tool buttons */}
-      <div className="relative hidden xl:flex items-center gap-1.5">
+      {/* Wide Desktop (2xl+): Expanded separate tool buttons */}
+      <div className="relative hidden 2xl:flex items-center gap-1.5">
         {tools.map((tool) => {
           const Icon = tool.icon;
           const isActive = activeTool === tool.id;

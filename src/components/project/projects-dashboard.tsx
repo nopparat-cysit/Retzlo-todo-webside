@@ -826,7 +826,7 @@ export function ProjectsDashboard({
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="group flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-left transition hover:border-dusk-lavender/50 hover:bg-white/[0.07] data-[state=open]:border-dusk-lavender/50 data-[state=open]:bg-white/[0.07]"
+                        className="group flex min-w-0 max-w-[200px] min-[400px]:max-w-[260px] sm:max-w-xs md:max-w-sm items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-left transition hover:border-dusk-lavender/50 hover:bg-white/[0.07] data-[state=open]:border-dusk-lavender/50 data-[state=open]:bg-white/[0.07]"
                         aria-label="Switch active workspace"
                       >
                         <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shrink-0">
@@ -999,66 +999,68 @@ export function ProjectsDashboard({
 
             {/* Sub-navigation bar when viewing active workspace boards */}
             {viewMode === "boards" && activeProject ? (
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 pt-2 border-t border-white/10 scrollbar-none">
-                <button
-                  type="button"
-                  onClick={() => setViewMode("boards")}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
-                >
-                  <KanbanSquare className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-                  <span>Boards Hub</span>
-                  <span className="rounded-full bg-indigo-100 px-1.5 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender">
-                    {activeProject.boardsList?.length ?? activeProject.counts.boards}
-                  </span>
-                </button>
+              <div className="flex items-center justify-between gap-2 border-t border-stone-200/90 dark:border-white/10 pt-2 pb-0.5">
+                <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto scrollbar-none">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("boards")}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                  >
+                    <KanbanSquare className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                    <span>Boards Hub</span>
+                    <span className="rounded-full bg-indigo-100 px-1.5 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender">
+                      {activeProject.boardsList?.length ?? activeProject.counts.boards}
+                    </span>
+                  </button>
 
-                <Link
-                  href={`/project/${activeProject.id}/calendar`}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-cyan/40 dark:hover:bg-dusk-cyan/10 dark:hover:text-dusk-cyan"
-                >
-                  <CalendarDays className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
-                  <span>Calendar</span>
-                </Link>
+                  <Link
+                    href={`/project/${activeProject.id}/calendar`}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-cyan/40 dark:hover:bg-dusk-cyan/10 dark:hover:text-dusk-cyan"
+                  >
+                    <CalendarDays className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
+                    <span>Calendar</span>
+                  </Link>
 
-                <Link
-                  href={`/project/${activeProject.id}/diary`}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
-                >
-                  <BookOpenCheck className="h-3.5 w-3.5 text-amber-500 dark:text-dusk-amber" />
-                  <span>Diary</span>
-                </Link>
+                  <Link
+                    href={`/project/${activeProject.id}/diary`}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
+                  >
+                    <BookOpenCheck className="h-3.5 w-3.5 text-amber-500 dark:text-dusk-amber" />
+                    <span>Diary</span>
+                  </Link>
 
-                <Link
-                  href={`/project/${activeProject.id}/notes`}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-rose/40 dark:hover:bg-dusk-rose/10 dark:hover:text-dusk-rose"
-                >
-                  <FileText className="h-3.5 w-3.5 text-rose-500 dark:text-dusk-rose" />
-                  <span>Notes</span>
-                  <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
-                    {activeProject.counts.notes}
-                  </span>
-                </Link>
+                  <Link
+                    href={`/project/${activeProject.id}/notes`}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-rose/40 dark:hover:bg-dusk-rose/10 dark:hover:text-dusk-rose"
+                  >
+                    <FileText className="h-3.5 w-3.5 text-rose-500 dark:text-dusk-rose" />
+                    <span>Notes</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
+                      {activeProject.counts.notes}
+                    </span>
+                  </Link>
 
-                <Link
-                  href={`/project/${activeProject.id}/members`}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-stone-300 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
-                >
-                  <Users className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
-                  <span>Members</span>
-                  <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
-                    {activeProject.counts.members}
-                  </span>
-                </Link>
+                  <Link
+                    href={`/project/${activeProject.id}/members`}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-stone-300 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
+                  >
+                    <Users className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
+                    <span>Members</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
+                      {activeProject.counts.members}
+                    </span>
+                  </Link>
 
-                <Link
-                  href={`/project/${activeProject.id}/rewards`}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
-                >
-                  <Gift className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
-                  <span>Rewards</span>
-                </Link>
+                  <Link
+                    href={`/project/${activeProject.id}/rewards`}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/60 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-amber/40 dark:hover:bg-dusk-amber/10 dark:hover:text-dusk-amber"
+                  >
+                    <Gift className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
+                    <span>Rewards</span>
+                  </Link>
+                </div>
 
-                <div className="ml-auto flex items-center gap-1.5">
+                <div className="flex shrink-0 items-center gap-1.5 border-l border-stone-200/80 pl-2 dark:border-white/10">
                   <button
                     type="button"
                     onClick={() => setViewMode("workspaces")}
