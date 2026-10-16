@@ -1,627 +1,1060 @@
 "use client";
 
 import Image from "next/image";
-import { Check, Circle, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import {
+  Check,
+  Circle,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Pin,
+  Disc3,
+  Play,
+  Pause,
+  RotateCcw,
+  Sparkles
+} from "lucide-react";
 import type { WalkthroughSlide } from "./landing-data";
+
+interface KanbanDemoCard {
+  id: string;
+  title: string;
+  tag: string;
+  tagBg: string;
+  tagColor: string;
+  coins: number;
+  stage: 0 | 1 | 2;
+}
+
+const INITIAL_KANBAN_CARDS: KanbanDemoCard[] = [
+  {
+    id: "k1",
+    title: "ออกแบบหน้าปก Mixtape ซีซันใหม่",
+    tag: "Design",
+    tagBg: "#ede9fe",
+    tagColor: "#6d28d9",
+    coins: 20,
+    stage: 0
+  },
+  {
+    id: "k2",
+    title: "เขียนบรีฟแคมเปญเปิดตัวในสมุดโน้ต",
+    tag: "Content",
+    tagBg: "#fef3c7",
+    tagColor: "#b45309",
+    coins: 15,
+    stage: 0
+  },
+  {
+    id: "k3",
+    title: "ปรับจังหวะการ์ดและติดสติกเกอร์หน้าแรก",
+    tag: "Frontend",
+    tagBg: "#fce7f3",
+    tagColor: "#be185d",
+    coins: 25,
+    stage: 1
+  },
+  {
+    id: "k4",
+    title: "ซิงก์กำหนดส่งขึ้นปฏิทินประจำเดือน",
+    tag: "System",
+    tagBg: "#d1fae5",
+    tagColor: "#047857",
+    coins: 20,
+    stage: 2
+  }
+];
+
+const NOTE_PALETTES = [
+  { name: "Buttercream", bg: "#fff6d6", border: "#e6c97a", text: "#4a3712", tag: "#b45309" },
+  { name: "Sakura Pink", bg: "#ffeaf3", border: "#f2b6d0", text: "#522139", tag: "#be185d" },
+  { name: "Mint Sage", bg: "#e6faef", border: "#98dfb9", text: "#164630", tag: "#047857" },
+  { name: "Dusk Lilac", bg: "#f1ebff", border: "#c7b3f7", text: "#351f63", tag: "#6d28d9" }
+];
 
 export function WalkthroughMockupScreen({
   slide,
   isPlaying,
-  onToggleAudio
+  onToggleAudio,
+  onEarnCoin
 }: {
   slide: WalkthroughSlide;
   isPlaying: boolean;
   onToggleAudio: () => void;
+  onEarnCoin?: (amount: number, label: string) => void;
 }) {
+  // Room 01 state: Workspace switcher & 7-day agenda
+  const [selectedWs, setSelectedWs] = useState<"work" | "personal">("work");
+  const [agendaDone, setAgendaDone] = useState<string[]>(["ag-1"]);
+
+  // Room 02 state: Interactive Kanban cards & view mode
+  const [kanbanMode, setKanbanMode] = useState<"board" | "table">("board");
+  const [kanbanCards, setKanbanCards] = useState<KanbanDemoCard[]>(INITIAL_KANBAN_CARDS);
+
+  // Room 03 state: Interactive Calendar day selector
+  const [selectedDay, setSelectedDay] = useState<number>(2);
+  const [calTasksDone, setCalTasksDone] = useState<string[]>(["c-mon"]);
+
+  // Room 04 state: Note color picker & pin toggle
+  const [noteColorIdx, setNoteColorIdx] = useState<number>(0);
+  const [pinnedNotes, setPinnedNotes] = useState<string[]>(["note-1"]);
+
+  // Room 05 state: Diary privacy lock & routine checklist
+  const [isDiaryMasked, setIsDiaryMasked] = useState<boolean>(false);
+  const [habitsDone, setHabitsDone] = useState<number[]>([0, 1]);
+
+  // Room 06 state: Cassette mood selector
+  const [cassetteMood, setCassetteMood] = useState<number>(0);
+
+  const toggleAgenda = (id: string) => {
+    const isNowDone = !agendaDone.includes(id);
+    setAgendaDone((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+    if (isNowDone && onEarnCoin) {
+      onEarnCoin(15, "เคลียร์งานใน 7-Day Agenda!");
+    }
+  };
+
+  const advanceKanbanCard = (id: string) => {
+    setKanbanCards((prev) =>
+      prev.map((card) => {
+        if (card.id !== id) return card;
+        const nextStage = ((card.stage + 1) % 3) as 0 | 1 | 2;
+        if (nextStage === 2 && onEarnCoin) {
+          onEarnCoin(card.coins, `ย้าย "${card.title.slice(0, 18)}..." ไป Done!`);
+        }
+        return { ...card, stage: nextStage };
+      })
+    );
+  };
+
+  const resetKanban = () => setKanbanCards(INITIAL_KANBAN_CARDS);
+
+  const toggleHabit = (idx: number) => {
+    const isNowDone = !habitsDone.includes(idx);
+    setHabitsDone((prev) =>
+      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+    );
+    if (isNowDone && onEarnCoin) {
+      onEarnCoin(10, "เช็กกิจวัตรประจำวันสำเร็จ!");
+    }
+  };
+
+  const calendarDays = [
+    {
+      day: "Mon 12",
+      badge: "เสร็จแล้ว",
+      color: "#10b981",
+      tasks: [
+        { id: "c-mon", title: "ทบทวนแผนประจำสัปดาห์ 15 นาที", time: "09:30", coins: 15 }
+      ]
+    },
+    {
+      day: "Tue 13",
+      badge: "มีโน้ต",
+      color: "#8b5cf6",
+      tasks: [
+        { id: "c-tue", title: "จดสรุปเรฟสีและมู้ดบอร์ด", time: "13:00", coins: 15 }
+      ]
+    },
+    {
+      day: "Wed 14",
+      badge: "2 งานวันนี้",
+      color: "#ec4899",
+      tasks: [
+        { id: "c-wed-1", title: "ส่งมอบงานออกแบบหน้าแรก", time: "14:00", coins: 25 },
+        { id: "c-wed-2", title: "เขียนบันทึกไดอารี่กลางสัปดาห์", time: "20:00", coins: 15 }
+      ]
+    },
+    {
+      day: "Thu 15",
+      badge: "นัดทีม",
+      color: "#f59e0b",
+      tasks: [
+        { id: "c-thu", title: "คุยสรุปฟีดแบ็กและจิบกาแฟบ่าย", time: "15:30", coins: 20 }
+      ]
+    },
+    {
+      day: "Fri 16",
+      badge: "ปิดสัปดาห์",
+      color: "#6366f1",
+      tasks: [
+        { id: "c-fri", title: "เคลียร์บอร์ดประจำสัปดาห์ & แลกรางวัล", time: "17:00", coins: 30 }
+      ]
+    }
+  ];
+
+  const activeDayObj = calendarDays[selectedDay] || calendarDays[2];
+  const activeNoteTheme = NOTE_PALETTES[noteColorIdx] || NOTE_PALETTES[0];
+
   return (
     <div
       style={{
-        border: "1px solid var(--border)",
-        borderRadius: "20px",
+        border: "2px solid var(--border-strong, var(--border))",
+        borderRadius: "24px",
         background: "var(--panel-strong)",
-        boxShadow: "var(--shadow-panel)",
+        boxShadow: "8px 8px 0 rgba(84, 53, 107, 0.14), var(--shadow-panel)",
         overflow: "hidden"
       }}
     >
-      {/* Top Window Bar */}
+      {/* Tactile Studio Window Bar */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "10px",
           padding: "14px 20px",
           borderBottom: "1px solid var(--border)",
-          background: "var(--paper)"
+          background:
+            "linear-gradient(90deg, rgba(120, 88, 212, 0.12) 0%, rgba(255, 180, 213, 0.14) 100%), var(--paper)"
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ position: "relative", width: "20px", height: "20px" }}>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-[#fb7185] inline-block border border-black/15" />
+            <span className="w-3 h-3 rounded-full bg-[#fbbf24] inline-block border border-black/15" />
+            <span className="w-3 h-3 rounded-full bg-[#34d399] inline-block border border-black/15" />
+          </div>
+          <div className="h-4 w-[1px] bg-[var(--border)] mx-0.5" />
+          <div style={{ position: "relative", width: "22px", height: "22px" }}>
             <Image
-              src={slide.iconSrc}
+              src={slide.stickerSrc || slide.iconSrc}
               alt=""
               fill
-              sizes="20px"
+              sizes="22px"
               className="object-contain"
             />
           </div>
           <span
             style={{
               fontSize: "12px",
-              fontWeight: 600,
+              fontWeight: 700,
               color: "var(--foreground)"
             }}
           >
             {slide.subtitle}
           </span>
         </div>
+
         <span
           style={{
             fontSize: "10px",
-            letterSpacing: "1.6px",
-            color: "var(--muted)",
-            fontWeight: 600
+            letterSpacing: "1.2px",
+            padding: "4px 10px",
+            borderRadius: "999px",
+            background: "#ffecb1",
+            color: "#54356b",
+            border: "1px solid rgba(84, 53, 107, 0.35)",
+            fontWeight: 700
           }}
         >
-          {slide.chapter}
+          INTERACTIVE PREVIEW · ลองกดเล่นได้!
         </span>
       </div>
 
-      {/* Main Sheet Body */}
-      <div style={{ padding: "24px" }}>
+      {/* Main Interactive Stage */}
+      <div style={{ padding: "22px" }} className="space-y-4">
+        {/* ── ROOM 01: WORKSPACES ── */}
         {slide.id === "workspaces" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              {
-                tag: "WORK PROJECT",
-                name: "Retzlo Product Studio",
-                meta: "4 บอร์ดงาน · 18 การ์ด",
-                progress: "75%",
-                note: "อัปเดตล่าสุดเมื่อ 10 นาทีที่แล้ว"
-              },
-              {
-                tag: "PERSONAL SPACE",
-                name: "สมุดบันทึกและเป้าหมายปีนี้",
-                meta: "3 โฟลเดอร์โน้ต · บันทึกรายวัน",
-                progress: "90%",
-                note: "พื้นที่ส่วนตัวเฉพาะคุณ"
-              }
-            ].map((ws) => (
-              <div
-                key={ws.name}
-                style={{
-                  border: "1px solid var(--border)",
-                  borderRadius: "14px",
-                  padding: "18px",
-                  background: "var(--paper)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  gap: "16px"
-                }}
-              >
-                <div>
-                  <span
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {[
+                {
+                  id: "work" as const,
+                  tag: "WORK STUDIO",
+                  name: "Retzlo Product Launch",
+                  meta: "4 บอร์ดงาน · 18 การ์ด · ทีม 5 คน",
+                  progress: 78,
+                  accent: "#7858d4",
+                  tint: "rgba(120, 88, 212, 0.08)",
+                  sticker: "/stickers/retro/retro-sticker-13-project-folder.png"
+                },
+                {
+                  id: "personal" as const,
+                  tag: "PERSONAL COZY SPACE",
+                  name: "สมุดบันทึก & เป้าหมายปี 2026",
+                  meta: "3 โฟลเดอร์โน้ต · ไดอารี่ส่วนตัว",
+                  progress: 92,
+                  accent: "#db2777",
+                  tint: "rgba(219, 39, 119, 0.08)",
+                  sticker: "/stickers/retro/retro-sticker-02-diary-notebook.png"
+                }
+              ].map((ws) => {
+                const active = selectedWs === ws.id;
+                return (
+                  <button
+                    key={ws.id}
+                    type="button"
+                    onClick={() => setSelectedWs(ws.id)}
+                    className="text-left transition-transform active:translate-y-0.5"
                     style={{
-                      fontSize: "9px",
-                      letterSpacing: "1.4px",
-                      color: "var(--accent)",
-                      fontWeight: 600
+                      border: active
+                        ? `2px solid ${ws.accent}`
+                        : "1px solid var(--border)",
+                      borderRadius: "16px",
+                      padding: "16px",
+                      background: active ? ws.tint : "var(--paper)",
+                      boxShadow: active
+                        ? "4px 4px 0 rgba(84, 53, 107, 0.16)"
+                        : "none",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      gap: "12px"
                     }}
                   >
-                    {ws.tag}
-                  </span>
-                  <h4
-                    style={{
-                      fontFamily: "Georgia, 'Times New Roman', serif",
-                      fontSize: "19px",
-                      fontWeight: 500,
-                      marginTop: "6px",
-                      color: "var(--foreground)"
-                    }}
-                  >
-                    {ws.name}
-                  </h4>
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      color: "var(--muted)",
-                      marginTop: "4px"
-                    }}
-                  >
-                    {ws.meta}
-                  </p>
-                </div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span
+                          style={{
+                            fontSize: "9px",
+                            letterSpacing: "1.4px",
+                            color: ws.accent,
+                            fontWeight: 700
+                          }}
+                        >
+                          {ws.tag}
+                        </span>
+                        <h4
+                          style={{
+                            fontFamily: "Georgia, 'Times New Roman', serif",
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            marginTop: "4px",
+                            color: "var(--foreground)"
+                          }}
+                        >
+                          {ws.name}
+                        </h4>
+                        <p
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--muted)",
+                            marginTop: "2px"
+                          }}
+                        >
+                          {ws.meta}
+                        </p>
+                      </div>
+                      <div className="relative w-10 h-10 shrink-0">
+                        <Image
+                          src={ws.sticker}
+                          alt=""
+                          fill
+                          sizes="40px"
+                          className="object-contain"
+                        />
+                      </div>
+                    </div>
 
-                <div
-                  style={{
-                    borderTop: "1px solid var(--border)",
-                    paddingTop: "12px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    fontSize: "11px",
-                    color: "var(--muted)"
-                  }}
-                >
-                  <span>{ws.note}</span>
-                  <strong style={{ color: "var(--foreground)" }}>
-                    {ws.progress}
-                  </strong>
-                </div>
+                    <div className="space-y-1.5 w-full">
+                      <div className="flex justify-between text-[11px]">
+                        <span style={{ color: "var(--muted)" }}>ความคืบหน้าสัปดาห์นี้</span>
+                        <strong style={{ color: ws.accent }}>{ws.progress}%</strong>
+                      </div>
+                      <div
+                        style={{
+                          height: "7px",
+                          borderRadius: "999px",
+                          background: "var(--border)",
+                          overflow: "hidden"
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${ws.progress}%`,
+                            height: "100%",
+                            background: ws.accent,
+                            borderRadius: "999px"
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Interactive 7-Day Agenda Strip */}
+            <div
+              style={{
+                border: "1px solid var(--border)",
+                borderRadius: "14px",
+                padding: "14px 16px",
+                background: "var(--paper)"
+              }}
+            >
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
+                  {selectedWs === "work"
+                    ? "กำหนดการ 7 วันข้างหน้า · Retzlo Product Launch"
+                    : "รายการส่วนตัวสัปดาห์นี้ · สมุดบันทึก & เป้าหมาย"}
+                </span>
+                <span className="text-[11px]" style={{ color: "var(--accent)" }}>
+                  คลิกติ๊กเพื่อรับ +15 เหรียญ
+                </span>
               </div>
-            ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {(selectedWs === "work"
+                  ? [
+                      { id: "ag-1", label: "สรุปโครงสร้างหน้าแรกกับทีมดีไซน์", day: "วันนี้ · 14:00" },
+                      { id: "ag-2", label: "ตรวจเช็กความเรียบร้อยก่อนปล่อยอัปเดต", day: "พรุ่งนี้ · 11:00" }
+                    ]
+                  : [
+                      { id: "ag-3", label: "อ่านหนังสือที่ซื้อเก็บไว้อย่างน้อย 1 บท", day: "คืนนี้ · 21:00" },
+                      { id: "ag-4", label: "จัดกระเป๋าและวางแผนทริปสุดสัปดาห์", day: "วันศุกร์ · 18:00" }
+                    ]
+                ).map((item) => {
+                  const done = agendaDone.includes(item.id);
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => toggleAgenda(item.id)}
+                      className="flex items-center justify-between gap-2 p-2.5 rounded-xl text-left transition-colors"
+                      style={{
+                        border: "1px solid var(--border)",
+                        background: done
+                          ? "rgba(16, 185, 129, 0.1)"
+                          : "var(--panel-strong)"
+                      }}
+                    >
+                      <span className="flex items-center gap-2 text-xs min-w-0">
+                        {done ? (
+                          <Check size={14} className="text-emerald-600 shrink-0" />
+                        ) : (
+                          <Circle size={14} className="opacity-50 shrink-0" />
+                        )}
+                        <span
+                          className="truncate"
+                          style={{
+                            textDecoration: done ? "line-through" : "none",
+                            opacity: done ? 0.7 : 1
+                          }}
+                        >
+                          {item.label}
+                        </span>
+                      </span>
+                      <span className="text-[10px] shrink-0 px-2 py-0.5 rounded-full bg-black/5">
+                        {item.day}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
 
+        {/* ── ROOM 02: INTERACTIVE KANBAN & TABLE ── */}
         {slide.id === "kanban" && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            {[
-              {
-                stage: "To do",
-                dot: "#c4b5fd",
-                items: [
-                  { title: "เรียบเรียงเนื้อหาคู่มือเริ่มต้น", sub: "กำหนดส่ง พรุ่งนี้" },
-                  { title: "เตรียมภาพประกอบหน้าหลัก", sub: "2 รายการย่อย" }
-                ]
-              },
-              {
-                stage: "In progress",
-                dot: "#f6c976",
-                items: [
-                  { title: "ปรับปรุงหน้าแนะนำการใช้งาน", sub: "กำลังดำเนินการ" }
-                ]
-              },
-              {
-                stage: "Done",
-                dot: "#92d9bb",
-                items: [
-                  { title: "ตั้งค่าโครงสร้างโปรเจกต์หลัก", sub: "เสร็จสมบูรณ์" },
-                  { title: "เชื่อมปฏิทินวันครบกำหนด", sub: "เสร็จสมบูรณ์" }
-                ]
-              }
-            ].map((col) => (
+          <div className="space-y-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="inline-flex rounded-xl p-1 border border-[var(--border)] bg-[var(--paper)]">
+                <button
+                  type="button"
+                  onClick={() => setKanbanMode("board")}
+                  className="px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
+                  style={{
+                    background: kanbanMode === "board" ? "#7858d4" : "transparent",
+                    color: kanbanMode === "board" ? "#fff" : "var(--muted)"
+                  }}
+                >
+                  Kanban Board
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setKanbanMode("table")}
+                  className="px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
+                  style={{
+                    background: kanbanMode === "table" ? "#7858d4" : "transparent",
+                    color: kanbanMode === "table" ? "#fff" : "var(--muted)"
+                  }}
+                >
+                  Table View
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-[11px]" style={{ color: "var(--muted)" }}>
+                  คลิกการ์ดเพื่อขยับคอลัมน์ →
+                </span>
+                <button
+                  type="button"
+                  onClick={resetKanban}
+                  className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border border-[var(--border)] bg-[var(--paper)]"
+                >
+                  <RotateCcw size={11} /> รีเซ็ต
+                </button>
+              </div>
+            </div>
+
+            {kanbanMode === "board" ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { stage: 0 as const, label: "To do", dot: "#a78bfa", bg: "rgba(167, 139, 250, 0.08)" },
+                  { stage: 1 as const, label: "In progress", dot: "#f59e0b", bg: "rgba(245, 158, 11, 0.08)" },
+                  { stage: 2 as const, label: "Done (+Coins!)", dot: "#10b981", bg: "rgba(16, 185, 129, 0.1)" }
+                ].map((col) => {
+                  const colCards = kanbanCards.filter((c) => c.stage === col.stage);
+                  return (
+                    <div
+                      key={col.label}
+                      style={{
+                        border: "1px solid var(--border)",
+                        borderRadius: "14px",
+                        padding: "12px",
+                        background: col.bg,
+                        minHeight: "195px"
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-2.5">
+                        <span className="flex items-center gap-1.5 text-xs font-bold">
+                          <span
+                            style={{
+                              width: "8px",
+                              height: "8px",
+                              borderRadius: "50%",
+                              background: col.dot
+                            }}
+                          />
+                          {col.label}
+                        </span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-black/5 font-semibold">
+                          {colCards.length}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {colCards.map((card) => (
+                          <button
+                            key={card.id}
+                            type="button"
+                            onClick={() => advanceKanbanCard(card.id)}
+                            className="w-full text-left p-2.5 rounded-xl transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                            style={{
+                              border: "1px solid var(--border)",
+                              background: "var(--panel-strong)",
+                              boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.12)"
+                            }}
+                          >
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <span
+                                style={{
+                                  fontSize: "9px",
+                                  fontWeight: 700,
+                                  padding: "2px 6px",
+                                  borderRadius: "6px",
+                                  background: card.tagBg,
+                                  color: card.tagColor
+                                }}
+                              >
+                                {card.tag}
+                              </span>
+                              <span className="text-[10px] font-bold text-amber-600">
+                                +{card.coins}c
+                              </span>
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: 600,
+                                lineHeight: 1.35,
+                                color: "var(--foreground)"
+                              }}
+                            >
+                              {card.title}
+                            </div>
+                            <div
+                              className="flex items-center justify-between mt-2 text-[10px]"
+                              style={{ color: "var(--muted)" }}
+                            >
+                              <span>
+                                {card.stage === 2 ? "เสร็จสมบูรณ์!" : "คลิกเพื่อขยับ →"}
+                              </span>
+                              <ArrowRight size={11} />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
               <div
-                key={col.stage}
                 style={{
                   border: "1px solid var(--border)",
-                  borderRadius: "12px",
-                  padding: "14px",
+                  borderRadius: "14px",
+                  overflow: "hidden",
                   background: "var(--paper)"
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "7px",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "var(--foreground)",
-                    marginBottom: "12px"
-                  }}
-                >
-                  <span
+                {kanbanCards.map((card) => (
+                  <button
+                    key={card.id}
+                    type="button"
+                    onClick={() => advanceKanbanCard(card.id)}
+                    className="w-full text-left flex items-center justify-between gap-3 px-4 py-3 border-b border-[var(--border)] last:border-b-0 hover:bg-black/5"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "6px",
+                          background: card.tagBg,
+                          color: card.tagColor
+                        }}
+                      >
+                        {card.tag}
+                      </span>
+                      <span className="text-xs font-semibold truncate">{card.title}</span>
+                    </div>
+                    <span className="text-[11px] font-semibold shrink-0 px-2.5 py-1 rounded-full border border-[var(--border)] bg-[var(--panel-strong)]">
+                      {card.stage === 0
+                        ? "To do"
+                        : card.stage === 1
+                          ? "In progress"
+                          : "Done ✓"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── ROOM 03: INTERACTIVE CALENDAR ── */}
+        {slide.id === "calendar" && (
+          <div className="space-y-3.5">
+            <div className="grid grid-cols-5 gap-2">
+              {calendarDays.map((d, idx) => {
+                const isSelected = idx === selectedDay;
+                return (
+                  <button
+                    key={d.day}
+                    type="button"
+                    onClick={() => setSelectedDay(idx)}
+                    className="text-left p-2.5 rounded-xl transition-all"
                     style={{
-                      width: "7px",
-                      height: "7px",
-                      borderRadius: "50%",
-                      background: col.dot
+                      border: isSelected
+                        ? `2px solid ${d.color}`
+                        : "1px solid var(--border)",
+                      background: isSelected ? "var(--paper)" : "var(--panel-strong)",
+                      boxShadow: isSelected
+                        ? "3px 3px 0 rgba(84, 53, 107, 0.15)"
+                        : "none"
                     }}
-                  />
-                  <span>{col.stage}</span>
-                </div>
-                <div style={{ display: "grid", gap: "8px" }}>
-                  {col.items.map((card) => (
+                  >
+                    <div className="text-[10px] font-bold" style={{ color: "var(--muted)" }}>
+                      {d.day}
+                    </div>
                     <div
-                      key={card.title}
+                      className="mt-2 inline-block text-[10px] font-bold px-2 py-0.5 rounded-md"
+                      style={{
+                        background: `${d.color}18`,
+                        color: d.color
+                      }}
+                    >
+                      {d.badge}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div
+              style={{
+                border: "1px solid var(--border)",
+                borderRadius: "14px",
+                padding: "16px",
+                background: "var(--paper)"
+              }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold">
+                  รายการของวัน {activeDayObj.day}
+                </span>
+                <span className="text-[11px]" style={{ color: "var(--muted)" }}>
+                  คลิกติ๊กเสร็จจากหน้าปฏิทินได้ทันที
+                </span>
+              </div>
+              <div className="space-y-2">
+                {activeDayObj.tasks.map((t) => {
+                  const done = calTasksDone.includes(t.id);
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => {
+                        const willBeDone = !done;
+                        setCalTasksDone((prev) =>
+                          prev.includes(t.id)
+                            ? prev.filter((x) => x !== t.id)
+                            : [...prev, t.id]
+                        );
+                        if (willBeDone && onEarnCoin) {
+                          onEarnCoin(t.coins, `เคลียร์ตารางวัน ${activeDayObj.day}!`);
+                        }
+                      }}
+                      className="w-full flex items-center justify-between p-3 rounded-xl text-left"
                       style={{
                         border: "1px solid var(--border)",
-                        borderRadius: "9px",
-                        padding: "11px 12px",
                         background: "var(--panel-strong)"
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          fontWeight: 500,
-                          color: "var(--foreground)",
-                          lineHeight: 1.4
-                        }}
-                      >
-                        {card.title}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "10px",
-                          color: "var(--muted)",
-                          marginTop: "6px"
-                        }}
-                      >
-                        {card.sub}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      <span className="flex items-center gap-2.5 text-xs font-medium">
+                        {done ? (
+                          <Check size={15} className="text-emerald-600" />
+                        ) : (
+                          <Circle size={15} className="opacity-50" />
+                        )}
+                        <span
+                          style={{
+                            textDecoration: done ? "line-through" : "none",
+                            opacity: done ? 0.65 : 1
+                          }}
+                        >
+                          {t.title}
+                        </span>
+                      </span>
+                      <span className="text-[11px] font-semibold text-amber-600">
+                        {t.time} · +{t.coins}c
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-            ))}
+            </div>
           </div>
         )}
 
-        {slide.id === "calendar" && (
-          <div
-            style={{
-              border: "1px solid var(--border)",
-              borderRadius: "14px",
-              padding: "16px",
-              background: "var(--paper)"
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "14px"
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "17px",
-                  color: "var(--foreground)"
-                }}
-              >
-                October · ตารางกำหนดส่งรายสัปดาห์
+        {/* ── ROOM 04: COLOR-CODED NOTES ── */}
+        {slide.id === "notes" && (
+          <div className="space-y-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
+                เลือกสีกระดาษโน้ตที่คุณชอบ:
               </span>
-              <span style={{ fontSize: "11px", color: "var(--muted)" }}>
-                ซิงก์จากการ์ดงานอัตโนมัติ
-              </span>
-            </div>
-            <div className="grid grid-cols-5 gap-2.5">
-              {[
-                { day: "Mon 12", task: "ทบทวนแผนประจำสัปดาห์", done: true },
-                { day: "Tue 13", task: null, done: false },
-                { day: "Wed 14", task: "ส่งมอบงานออกแบบรอบแรก", done: false },
-                { day: "Thu 15", task: "นัดคุยสรุปรายละเอียด", done: false },
-                { day: "Fri 16", task: "บันทึกสรุปงานปลายสัปดาห์", done: false }
-              ].map((cell) => (
-                <div
-                  key={cell.day}
-                  style={{
-                    border: "1px solid var(--border)",
-                    borderRadius: "10px",
-                    padding: "10px",
-                    minHeight: "92px",
-                    background: "var(--panel-strong)",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <span
+              <div className="flex items-center gap-2">
+                {NOTE_PALETTES.map((p, idx) => (
+                  <button
+                    key={p.name}
+                    type="button"
+                    onClick={() => setNoteColorIdx(idx)}
+                    className="px-2.5 py-1 rounded-full text-[11px] font-bold transition-transform"
                     style={{
-                      fontSize: "10px",
-                      fontWeight: 600,
-                      color: "var(--muted)"
+                      background: p.bg,
+                      color: p.text,
+                      border:
+                        noteColorIdx === idx
+                          ? `2px solid ${p.tag}`
+                          : `1px solid ${p.border}`,
+                      transform: noteColorIdx === idx ? "scale(1.05)" : "scale(1)"
                     }}
                   >
-                    {cell.day}
-                  </span>
-                  {cell.task ? (
-                    <div
-                      style={{
-                        fontSize: "11px",
-                        lineHeight: 1.35,
-                        padding: "6px 8px",
-                        borderRadius: "6px",
-                        background: "var(--paper)",
-                        border: "1px solid var(--border)",
-                        color: "var(--foreground)"
-                      }}
-                    >
-                      {cell.task}
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {[
+                {
+                  id: "note-1",
+                  folder: "BRAND STORY",
+                  title: "ไอเดียออกแบบหน้า Landing Page สไตล์ Mixtape",
+                  body: "ใช้สติกเกอร์วาดมือคู่กับกระดาษโน้ตโทนอุ่น ให้คนเข้ามาลองกดเล่นลูปสะสมเหรียญได้จริงบนหน้าเว็บ"
+                },
+                {
+                  id: "note-2",
+                  folder: "WEEKLY SYNC",
+                  title: "เช็กลิสต์สิ่งที่ต้องเตรียมก่อนปล่อยอัปเดต",
+                  body: "ตรวจความเรียบร้อยทั้งโหมดสว่าง Warm Paper และโหมดมืด Lofi Indigo พร้อมทดสอบเสียงคอร์ดสังเคราะห์"
+                }
+              ].map((note) => {
+                const pinned = pinnedNotes.includes(note.id);
+                return (
+                  <div
+                    key={note.id}
+                    style={{
+                      border: `2px solid ${activeNoteTheme.border}`,
+                      borderRadius: "16px",
+                      padding: "16px",
+                      background: activeNoteTheme.bg,
+                      color: activeNoteTheme.text,
+                      boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.12)"
+                    }}
+                    className="flex flex-col justify-between gap-3"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span
+                          style={{
+                            fontSize: "9px",
+                            letterSpacing: "1.3px",
+                            fontWeight: 800,
+                            color: activeNoteTheme.tag
+                          }}
+                        >
+                          {note.folder}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPinnedNotes((prev) =>
+                              prev.includes(note.id)
+                                ? prev.filter((x) => x !== note.id)
+                                : [...prev, note.id]
+                            )
+                          }
+                          className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70"
+                        >
+                          <Pin size={11} />
+                          {pinned ? "ปักหมุดแล้ว" : "ปักหมุด"}
+                        </button>
+                      </div>
+                      <h4
+                        style={{
+                          fontFamily: "Georgia, 'Times New Roman', serif",
+                          fontSize: "17px",
+                          fontWeight: 600,
+                          lineHeight: 1.3
+                        }}
+                      >
+                        {note.title}
+                      </h4>
+                      <p className="text-xs mt-2 leading-relaxed opacity-85">
+                        {note.body}
+                      </p>
                     </div>
-                  ) : (
-                    <span style={{ fontSize: "10px", color: "var(--muted)", opacity: 0.5 }}>
-                      ว่าง
-                    </span>
-                  )}
-                </div>
-              ))}
+                    <div className="text-[10px] font-semibold opacity-75 pt-2 border-t border-black/10">
+                      เปิดเทียบข้างบอร์ดงานได้ในคลิกเดียว
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {slide.id === "notes" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              {
-                folder: "PROJECT BRIEF",
-                title: "แนวทางการเขียนและน้ำเสียงของแบรนด์",
-                body: "เน้นภาษาที่อ่านเข้าใจง่าย เป็นธรรมชาติ ไม่ใช้คำโฆษณาเกินจริง และเว้นจังหวะบรรทัดให้สบายตา"
-              },
-              {
-                folder: "MEETING NOTES",
-                title: "สรุปประเด็นสำคัญจากการคุยทีมประจำสัปดาห์",
-                body: "แยกบอร์ดงานหลักออกจากรายการไอเดียสำรอง เพื่อให้หน้าบอร์ดไม่แน่นจนเกินไป"
-              }
-            ].map((note) => (
-              <div
-                key={note.title}
-                style={{
-                  border: "1px solid var(--border)",
-                  borderRadius: "14px",
-                  padding: "18px",
-                  background: "var(--paper)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px"
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "9px",
-                    letterSpacing: "1.4px",
-                    color: "var(--accent)",
-                    fontWeight: 600
-                  }}
-                >
-                  {note.folder}
-                </span>
-                <h4
-                  style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    fontSize: "17px",
-                    fontWeight: 500,
-                    color: "var(--foreground)"
-                  }}
-                >
-                  {note.title}
-                </h4>
-                <p
-                  style={{
-                    fontSize: "12px",
-                    lineHeight: 1.65,
-                    color: "var(--muted)"
-                  }}
-                >
-                  {note.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
+        {/* ── ROOM 05: DIARY & HABITS ── */}
         {slide.id === "diary" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div
               style={{
                 border: "1px solid var(--border)",
-                borderRadius: "14px",
+                borderRadius: "16px",
                 padding: "18px",
                 background: "var(--paper)"
               }}
+              className="flex flex-col justify-between gap-3"
             >
-              <span
-                style={{
-                  fontSize: "9px",
-                  letterSpacing: "1.4px",
-                  color: "var(--accent)",
-                  fontWeight: 600
-                }}
-              >
-                FRIDAY JOURNAL
-              </span>
-              <h4
-                style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "18px",
-                  fontWeight: 500,
-                  margin: "8px 0",
-                  color: "var(--foreground)"
-                }}
-              >
-                บันทึกท้ายวันศุกร์
-              </h4>
-              <p
-                style={{
-                  fontSize: "12px",
-                  lineHeight: 1.7,
-                  color: "var(--muted)"
-                }}
-              >
-                &ldquo;วันนี้เลือกทำเฉพาะ 3 งานหลักที่ตั้งใจไว้ตอนเช้า พอไม่ต้องคอยสลับหน้าจอไปมาแล้วเสร็จเร็วกว่าที่คิด มีเวลาเหลือช่วงเย็นได้พักอ่านหนังสือเงียบๆ&rdquo;
-              </p>
-            </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span
+                    style={{
+                      fontSize: "9px",
+                      letterSpacing: "1.4px",
+                      color: "var(--accent)",
+                      fontWeight: 700
+                    }}
+                  >
+                    FRIDAY NIGHT JOURNAL
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsDiaryMasked(!isDiaryMasked)}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-[var(--border)] bg-[var(--panel-strong)]"
+                  >
+                    {isDiaryMasked ? <Eye size={12} /> : <EyeOff size={12} />}
+                    {isDiaryMasked ? "แสดงเนื้อหา" : "ซ่อนเนื้อหาส่วนตัว"}
+                  </button>
+                </div>
 
-            <div
-              style={{
-                border: "1px solid var(--border)",
-                borderRadius: "14px",
-                padding: "18px",
-                background: "var(--paper)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                gap: "10px"
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "9px",
-                  letterSpacing: "1.4px",
-                  color: "var(--muted)",
-                  fontWeight: 600
-                }}
-              >
-                DAILY ROUTINE
-              </span>
-              {[
-                { text: "จัดลำดับ 3 งานสำคัญตอนเช้า", done: true },
-                { text: "โฟกัสงานหลักโดยไม่เปิดแชต 1 ชั่วโมง", done: true },
-                { text: "สรุปโน้ตสั้นๆ ก่อนปิดคอมพิวเตอร์", done: false }
-              ].map((item) => (
-                <div
-                  key={item.text}
+                <h4
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "9px",
-                    fontSize: "12px",
-                    padding: "8px 10px",
-                    borderRadius: "8px",
-                    background: "var(--panel-strong)",
-                    border: "1px solid var(--border)",
+                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontSize: "18px",
+                    fontWeight: 600,
+                    margin: "6px 0",
                     color: "var(--foreground)"
                   }}
                 >
-                  {item.done ? (
-                    <Check size={14} style={{ color: "var(--accent)" }} />
-                  ) : (
-                    <Circle size={14} style={{ color: "var(--muted)" }} />
-                  )}
-                  <span
-                    style={{
-                      textDecoration: item.done ? "line-through" : "none",
-                      opacity: item.done ? 0.7 : 1
-                    }}
-                  >
-                    {item.text}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                  บันทึกท้ายวันศุกร์ที่แสนสงบ
+                </h4>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    lineHeight: 1.7,
+                    color: "var(--muted)",
+                    filter: isDiaryMasked ? "blur(5px)" : "none",
+                    userSelect: isDiaryMasked ? "none" : "auto",
+                    transition: "filter 200ms ease"
+                  }}
+                >
+                  &ldquo;วันนี้ลองโฟกัสทีละการ์ดพร้อมเปิดเสียงฝนคลอเบาๆ พอไม่สลับหน้าจอไปดูแชตแล้วงานเสร็จไวกว่าที่คิดเยอะเลย ได้แลกตั๋วดริปกาแฟตอนบ่ายด้วย&rdquo;
+                </p>
+              </div>
 
-        {slide.id === "zen-lofi" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch">
+              <div className="text-[11px] pt-2 border-t border-[var(--border)]" style={{ color: "var(--muted)" }}>
+                🔒 โหมดส่วนตัวเฉพาะคุณคนเดียว (PDPA Compliant)
+              </div>
+            </div>
+
             <div
               style={{
                 border: "1px solid var(--border)",
-                borderRadius: "14px",
+                borderRadius: "16px",
                 padding: "18px",
-                background: "var(--paper)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                gap: "14px"
+                background: "var(--paper)"
               }}
+              className="flex flex-col justify-between gap-2.5"
             >
-              <div>
+              <div className="flex items-center justify-between">
                 <span
                   style={{
                     fontSize: "9px",
                     letterSpacing: "1.4px",
                     color: "var(--accent)",
-                    fontWeight: 600
+                    fontWeight: 700
                   }}
                 >
-                  SIDE A · THE EVERYDAY MIX
+                  DAILY HABIT CHECKLIST
                 </span>
-                <h4
-                  style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    fontSize: "19px",
-                    fontWeight: 500,
-                    marginTop: "6px",
-                    color: "var(--foreground)"
-                  }}
-                >
-                  เสียงดนตรีบรรเลงขณะทำงาน
-                </h4>
-                <p
-                  style={{
-                    fontSize: "12px",
-                    lineHeight: 1.65,
-                    color: "var(--muted)",
-                    marginTop: "6px"
-                  }}
-                >
-                  สังเคราะห์เสียงคอร์ดนุ่มๆ และเสียงแผ่นเสียงเบาๆ จากเบราว์เซอร์โดยตรง ช่วยสร้างบรรยากาศที่สงบเวลาต้องใช้สมาธิ
-                </p>
+                <span className="text-[11px] font-bold text-emerald-600">
+                  สำเร็จ {habitsDone.length}/3
+                </span>
               </div>
 
+              {[
+                "เลือก 3 งานสำคัญที่สุดของวันตอนเช้า",
+                "โฟกัสงานหลักโดยไม่สลับแอป 25 นาที",
+                "เขียนไดอารี่สรุปวันสั้นๆ ก่อนเข้านอน"
+              ].map((text, idx) => {
+                const done = habitsDone.includes(idx);
+                return (
+                  <button
+                    key={text}
+                    type="button"
+                    onClick={() => toggleHabit(idx)}
+                    className="w-full text-left flex items-center justify-between gap-2 p-2.5 rounded-xl"
+                    style={{
+                      border: "1px solid var(--border)",
+                      background: done
+                        ? "rgba(16, 185, 129, 0.1)"
+                        : "var(--panel-strong)"
+                    }}
+                  >
+                    <span className="flex items-center gap-2 text-xs">
+                      {done ? (
+                        <Check size={14} className="text-emerald-600 shrink-0" />
+                      ) : (
+                        <Circle size={14} className="opacity-50 shrink-0" />
+                      )}
+                      <span
+                        style={{
+                          textDecoration: done ? "line-through" : "none",
+                          opacity: done ? 0.7 : 1
+                        }}
+                      >
+                        {text}
+                      </span>
+                    </span>
+                    <span className="text-[10px] font-bold text-amber-600">+10c</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── ROOM 06: MIXTAPE & ZEN GARDEN ── */}
+        {slide.id === "zen-lofi" && (
+          <div
+            style={{
+              borderRadius: "18px",
+              padding: "20px",
+              background:
+                "linear-gradient(135deg, #5942b8 0%, #7858d4 50%, #b184e7 100%)",
+              color: "#fff5ff"
+            }}
+            className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center"
+          >
+            <div className="sm:col-span-7 space-y-3.5">
+              <div className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-full bg-white/15">
+                <Sparkles size={12} /> BUILT-IN LOFI SYNTHESIZER
+              </div>
+              <h4
+                style={{
+                  fontFamily: "Georgia, 'Times New Roman', serif",
+                  fontSize: "22px",
+                  fontWeight: 500
+                }}
+              >
+                เลือกมู้ดเทปคาสเซ็ตที่เข้ากับจังหวะงานของคุณ
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {["01 · Rainy Cafe", "02 · Midnight Study", "03 · Sunday Vinyl"].map(
+                  (mood, idx) => (
+                    <button
+                      key={mood}
+                      type="button"
+                      onClick={() => setCassetteMood(idx)}
+                      className="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                      style={{
+                        background:
+                          cassetteMood === idx
+                            ? "#ffecb1"
+                            : "rgba(255, 255, 255, 0.14)",
+                        color: cassetteMood === idx ? "#432369" : "#fff5ff",
+                        border: "1px solid rgba(255, 255, 255, 0.28)"
+                      }}
+                    >
+                      {mood}
+                    </button>
+                  )
+                )}
+              </div>
               <button
                 type="button"
                 onClick={onToggleAudio}
+                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-transform active:translate-y-0.5"
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  padding: "11px 14px",
-                  borderRadius: "10px",
-                  border: "1px solid var(--border)",
-                  background: "var(--panel-strong)",
-                  color: "var(--foreground)",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  cursor: "pointer"
+                  background: "#fff5fc",
+                  color: "#432369",
+                  boxShadow: "4px 4px 0 rgba(26, 11, 69, 0.3)"
                 }}
               >
+                {isPlaying ? <Pause size={15} /> : <Play size={15} />}
                 <span>
-                  {isPlaying ? "กำลังเล่นเพลงบรรเลง (คลิกเพื่อหยุด)" : "ลองเปิดฟังเสียงเพลงบรรเลง"}
+                  {isPlaying
+                    ? "กำลังบรรเลงคอร์ด Lofi สดๆ (คลิกเพื่อพัก)"
+                    : "กดเปิดฟังเสียงคอร์ด Lofi ตอนนี้เลย"}
                 </span>
-                <ArrowRight size={14} />
               </button>
             </div>
 
-            <div
-              style={{
-                border: "1px solid var(--border)",
-                borderRadius: "14px",
-                padding: "18px",
-                background: "var(--paper)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                gap: "12px"
-              }}
-            >
-              <div>
-                <span
-                  style={{
-                    fontSize: "9px",
-                    letterSpacing: "1.4px",
-                    color: "var(--muted)",
-                    fontWeight: 600
-                  }}
-                >
-                  LITTLE REWARDS
-                </span>
-                <h4
-                  style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    fontSize: "19px",
-                    fontWeight: 500,
-                    marginTop: "6px",
-                    color: "var(--foreground)"
-                  }}
-                >
-                  รางวัลเล็กๆ หลังจบงาน
-                </h4>
-                <p
-                  style={{
-                    fontSize: "12px",
-                    lineHeight: 1.65,
-                    color: "var(--muted)",
-                    marginTop: "6px"
-                  }}
-                >
-                  นำคะแนนที่สะสมจากการเคลียร์การ์ดงานไปแลกเวลาพักดื่มกาแฟ ดูภาพยนตร์ หรือดูแลต้นไม้ในมุมสวนหินญี่ปุ่น
-                </p>
+            <div className="sm:col-span-5 flex flex-col items-center justify-center p-4 rounded-2xl bg-white/10 border border-white/20">
+              <div className="relative w-36 h-24">
+                <Image
+                  src="/images/login-cassette-cutout.png"
+                  alt="Retzlo Lofi Cassette"
+                  fill
+                  sizes="144px"
+                  className="object-contain drop-shadow-lg"
+                />
               </div>
-              <div
-                style={{
-                  fontSize: "11px",
-                  color: "var(--muted)",
-                  borderTop: "1px solid var(--border)",
-                  paddingTop: "10px"
-                }}
-              >
-                ช่วยให้การเคลียร์งานแต่ละวันมีจุดหมายที่จับต้องได้
+              <div className="flex items-center gap-2 mt-2 text-xs text-[#ffecb1] font-semibold">
+                <Disc3 size={14} className={isPlaying ? "animate-spin" : undefined} />
+                <span>Side A · Ready to Play</span>
               </div>
             </div>
           </div>

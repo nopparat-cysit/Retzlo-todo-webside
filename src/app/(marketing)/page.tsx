@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect, useRef, type PointerEvent } from "react";
+import { useState, useEffect, useRef, type PointerEvent, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -15,7 +15,10 @@ import {
   Play,
   RotateCcw,
   X,
-  ChevronDown
+  ChevronDown,
+  Sparkles,
+  Volume2,
+  VolumeX
 } from "lucide-react";
 import { MixtapeArtwork } from "@/components/auth/mixtape-artwork";
 import { MixtapeLogoMark } from "@/components/auth/mixtape-logo-mark";
@@ -23,6 +26,8 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
   PAIN_POINT_TABS,
   WALKTHROUGH_SLIDES,
+  PLAYGROUND_TASKS,
+  PLAYGROUND_REWARDS,
   SUITABLE_FOR_LIST,
   NOT_SUITABLE_FOR_LIST,
   COMPARISON_ROWS,
@@ -35,7 +40,44 @@ interface MarketingSessionUser {
   email?: string | null;
 }
 
+interface ZenRipple {
+  id: number;
+  x: number;
+  y: number;
+}
+
 const HERO_STAGES = ["To do", "In progress", "Done"] as const;
+
+const SAKURA_STAGES = [
+  {
+    level: 1,
+    name: "Stage 1 · ต้นอ่อนเพิ่งงอก",
+    desc: "กดที่ผืนทรายหรือปุ่มรดน้ำเพื่อเติมพลังใจ",
+    canopySize: 48,
+    blossoms: 3
+  },
+  {
+    level: 2,
+    name: "Stage 2 · แตกกิ่งรับแสงเช้า",
+    desc: "ต้นไม้เริ่มโตตามจังหวะงานที่คุณเคลียร์สำเร็จ",
+    canopySize: 68,
+    blossoms: 7
+  },
+  {
+    level: 3,
+    name: "Stage 3 · ดอกตูมสีชมพูอ่อน",
+    desc: "อีกนิดเดียวซากุระก็จะบานเต็มต้นแล้ว!",
+    canopySize: 88,
+    blossoms: 14
+  },
+  {
+    level: 4,
+    name: "Stage 4 · ซากุระบานสะพรั่งเต็มสวน!",
+    desc: "บรรยากาศโต๊ะทำงานสดชื่นพร้อมลุยวันต่อไป",
+    canopySize: 112,
+    blossoms: 24
+  }
+];
 
 export default function LandingPage() {
   const router = useRouter();
@@ -43,15 +85,38 @@ export default function LandingPage() {
   const [currentUser, setCurrentUser] = useState<MarketingSessionUser | null>(null);
   const [defaultDestination, setDefaultDestination] = useState<string>("/projects");
 
-  // Interactive Hero state (matching MixtapeAuthScene)
+  // Interactive Hero state
   const artRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [heroStage, setHeroStage] = useState(0);
 
+  // Interactive Playground & Live Coin Wallet state
+  const [walletCoins, setWalletCoins] = useState<number>(45);
+  const [completedTaskIds, setCompletedTaskIds] = useState<string[]>(["task-brief"]);
+  const [redeemedRewards, setRedeemedRewards] = useState<Record<string, number>>({});
+  const [toastBanner, setToastBanner] = useState<string | null>(
+    "ลองคลิกเคลียร์งานหรือกดเล่นสวนหินด้านล่างเพื่อสะสมเหรียญ!"
+  );
+  const [sfxEnabled, setSfxEnabled] = useState<boolean>(true);
+
+  // Interactive Zen Garden state
+  const [sakuraStageIdx, setSakuraStageIdx] = useState<number>(1);
+  const [zenRipples, setZenRipples] = useState<ZenRipple[]>([]);
+  const [waterDrops, setWaterDrops] = useState<number>(2);
+
   // Interactive sections state
   const [activePainIndex, setActivePainIndex] = useState(0);
+  const [painCheckedMap, setPainCheckedMap] = useState<Record<string, boolean>>({
+    "scattered-0": true,
+    "morning-start-0": true,
+    "deadlines-0": true,
+    "burnout-0": true,
+    "burnout-1": true,
+    "setup-fatigue-0": true,
+    "setup-fatigue-1": true
+  });
   const [activeWalkthroughIndex, setActiveWalkthroughIndex] = useState(0);
-  const [checkedReadiness, setCheckedReadiness] = useState<number[]>([0, 1]);
+  const [checkedReadiness, setCheckedReadiness] = useState<number[]>([0, 2, 3]);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   // Web Audio API refs for warm Lofi chord player
@@ -91,6 +156,115 @@ export default function LandingPage() {
     };
   }, [router]);
 
+  // Tactile Web Audio Chime for interactive clicks
+  const playChime = (type: "coin" | "reward" | "ripple" | "click" = "coin") => {
+    if (!sfxEnabled) return;
+    try {
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      const ctx = new AudioCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === "coin") {
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.07);
+        osc.frequency.setValueAtTime(783.99, now + 0.14);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.36);
+      } else if (type === "reward") {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(554.37, now + 0.08);
+        osc.frequency.setValueAtTime(659.25, now + 0.16);
+        osc.frequency.setValueAtTime(880, now + 0.24);
+        gain.gain.setValueAtTime(0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        osc.start(now);
+        osc.stop(now + 0.46);
+      } else if (type === "ripple") {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(340, now);
+        osc.frequency.exponentialRampToValueAtTime(620, now + 0.22);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else {
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(380, now);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      }
+
+      setTimeout(() => {
+        ctx.close().catch(() => {});
+      }, 600);
+    } catch {
+      // Ignore audio block
+    }
+  };
+
+  const triggerEarnCoin = (amount: number, message: string) => {
+    setWalletCoins((prev) => prev + amount);
+    setToastBanner(`+${amount} Coins · ${message}`);
+    playChime("coin");
+  };
+
+  const handleTogglePlaygroundTask = (taskId: string, coins: number, title: string) => {
+    const alreadyDone = completedTaskIds.includes(taskId);
+    if (alreadyDone) {
+      setCompletedTaskIds((prev) => prev.filter((id) => id !== taskId));
+      playChime("click");
+    } else {
+      setCompletedTaskIds((prev) => [...prev, taskId]);
+      triggerEarnCoin(coins, `เคลียร์ "${title.slice(0, 22)}..." สำเร็จ!`);
+    }
+  };
+
+  const handleRedeemReward = (rewardId: string, cost: number, title: string) => {
+    if (walletCoins < cost) {
+      setToastBanner(`เหรียญยังไม่พอ (ขาดอีก ${cost - walletCoins} เหรียญ) · ลองติ๊กงานด้านซ้ายเพิ่มสิ!`);
+      playChime("click");
+      return;
+    }
+    setWalletCoins((prev) => prev - cost);
+    setRedeemedRewards((prev) => ({
+      ...prev,
+      [rewardId]: (prev[rewardId] || 0) + 1
+    }));
+    setToastBanner(`แลกรางวัลสำเร็จ! 🎟️ "${title}"`);
+    playChime("reward");
+  };
+
+  const handleZenPondClick = (e: MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const id = Date.now() + Math.random();
+
+    setZenRipples((prev) => [...prev.slice(-4), { id, x, y }]);
+    setWaterDrops((prev) => {
+      const next = prev + 1;
+      if (next % 2 === 0) {
+        setSakuraStageIdx((stage) => (stage + 1) % SAKURA_STAGES.length);
+      }
+      return next;
+    });
+    playChime("ripple");
+  };
+
   function moveArtwork(event: PointerEvent<HTMLDivElement>) {
     if (
       event.pointerType !== "mouse" ||
@@ -125,7 +299,7 @@ export default function LandingPage() {
 
       const filter = audioCtx.createBiquadFilter();
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+      filter.frequency.setValueAtTime(420, audioCtx.currentTime);
       filter.Q.setValueAtTime(1.1, audioCtx.currentTime);
       filter.connect(masterGain);
 
@@ -206,6 +380,7 @@ export default function LandingPage() {
     } else {
       startSynth();
       setIsPlaying(true);
+      setToastBanner("กำลังเล่นคอร์ดดนตรี Lofi สังเคราะห์สดจากเบราว์เซอร์ 🎵");
     }
   };
 
@@ -224,6 +399,7 @@ export default function LandingPage() {
   }, []);
 
   const toggleReadinessItem = (idx: number) => {
+    playChime("click");
     setCheckedReadiness((prev) =>
       prev.includes(idx) ? prev.filter((item) => item !== idx) : [...prev, idx]
     );
@@ -232,17 +408,18 @@ export default function LandingPage() {
   const activePain = PAIN_POINT_TABS[activePainIndex] || PAIN_POINT_TABS[0];
   const activeSlide =
     WALKTHROUGH_SLIDES[activeWalkthroughIndex] || WALKTHROUGH_SLIDES[0];
+  const currentSakura = SAKURA_STAGES[sakuraStageIdx] || SAKURA_STAGES[0];
 
   return (
     <main
       style={{
         minHeight: "100svh",
         background:
-          "radial-gradient(ellipse at 10% 6%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%), var(--background)",
+          "radial-gradient(circle at 12% 4%, rgba(120, 88, 212, 0.14), transparent 42%), radial-gradient(circle at 88% 18%, rgba(255, 180, 213, 0.16), transparent 45%), var(--background)",
         color: "var(--foreground)"
       }}
     >
-      {/* ── Top Navigation Bar ──────────────────────────────────────── */}
+      {/* ── Top Navigation Bar with Live Coin Counter ─────────────────── */}
       <header
         style={{
           position: "sticky",
@@ -254,13 +431,13 @@ export default function LandingPage() {
           WebkitBackdropFilter: "blur(14px)"
         }}
       >
-        <div className="max-w-[1240px] mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
+        <div className="max-w-[1240px] mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-3">
           <Link
             href="/"
             className="inline-flex items-center gap-2.5"
             style={{
               fontSize: "26px",
-              fontWeight: 750,
+              fontWeight: 800,
               letterSpacing: "-1.2px",
               color: "var(--foreground)"
             }}
@@ -271,33 +448,73 @@ export default function LandingPage() {
 
           {/* Desktop Navigation */}
           <nav
-            className="hidden md:flex items-center gap-7"
-            style={{ fontSize: "13px", color: "var(--muted)" }}
+            className="hidden lg:flex items-center gap-6"
+            style={{ fontSize: "13px", fontWeight: 500, color: "var(--muted)" }}
           >
+            <a href="#playground" className="hover:opacity-100 transition-opacity">
+              ลองเล่นมินิเกม
+            </a>
             <a href="#pain-tabs" className="hover:opacity-100 transition-opacity">
               ปัญหาที่อยากแก้
             </a>
             <a href="#walkthrough" className="hover:opacity-100 transition-opacity">
-              พาชมห้องทำงาน
+              ทัวร์ 6 ห้องทำงาน
             </a>
             <a href="#comparison" className="hover:opacity-100 transition-opacity">
-              ความเหมาะสม
+              เหมาะกับใคร
             </a>
             <a href="#faq" className="hover:opacity-100 transition-opacity">
-              คำถามที่พบบ่อย
+              คำถามพบบ่อย
             </a>
           </nav>
 
-          {/* Right Actions */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* Right Actions + Live Interactive Coin Pill */}
+          <div className="hidden md:flex items-center gap-2.5">
+            <a
+              href="#playground"
+              title="เหรียญสะสมจากการทดลองกดเล่นบนหน้าเว็บ"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-transform hover:scale-105"
+              style={{
+                background: "#fff3c4",
+                color: "#54356b",
+                border: "1.5px solid #54356b",
+                boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.22)"
+              }}
+            >
+              <div className="relative w-4 h-4">
+                <Image
+                  src="/stickers/rewards/reward-icon-01-coin.png"
+                  alt=""
+                  fill
+                  sizes="16px"
+                  className="object-contain"
+                />
+              </div>
+              <span>{walletCoins} Coins</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={handlePlayToggle}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+              style={{
+                border: "1px solid var(--border)",
+                background: isPlaying ? "#ede9fe" : "var(--paper)",
+                color: isPlaying ? "#5b21b6" : "var(--foreground)"
+              }}
+            >
+              <Disc3 size={14} className={isPlaying ? "animate-spin" : undefined} />
+              <span>{isPlaying ? "Lofi On" : "Lofi Radio"}</span>
+            </button>
+
             <ThemeToggle variant="icon" />
 
             {currentUser ? (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <Link
                   href="/profile"
                   style={{ fontSize: "13px", color: "var(--muted)" }}
-                  className="px-3 py-1.5 truncate max-w-[150px]"
+                  className="px-2.5 py-1.5 truncate max-w-[140px]"
                 >
                   {currentUser.name || currentUser.email || "Workspace user"}
                 </Link>
@@ -305,12 +522,13 @@ export default function LandingPage() {
                   <button
                     style={{
                       padding: "9px 16px",
-                      borderRadius: "10px",
-                      border: "1px solid var(--accent)",
+                      borderRadius: "12px",
+                      border: "1.5px solid #54356b",
                       background: "var(--accent)",
                       color: "var(--background)",
                       fontSize: "12px",
-                      fontWeight: 600
+                      fontWeight: 700,
+                      boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.2)"
                     }}
                   >
                     Enter Workspace
@@ -323,9 +541,9 @@ export default function LandingPage() {
                   href="/login"
                   style={{
                     fontSize: "13px",
-                    fontWeight: 500,
+                    fontWeight: 600,
                     color: "var(--muted)",
-                    padding: "8px 12px"
+                    padding: "8px 10px"
                   }}
                 >
                   Sign In
@@ -334,12 +552,13 @@ export default function LandingPage() {
                   <button
                     style={{
                       padding: "9px 16px",
-                      borderRadius: "10px",
-                      border: "1px solid var(--accent)",
+                      borderRadius: "12px",
+                      border: "1.5px solid #54356b",
                       background: "var(--accent)",
                       color: "var(--background)",
                       fontSize: "12px",
-                      fontWeight: 600
+                      fontWeight: 700,
+                      boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.2)"
                     }}
                   >
                     Enter Workspace
@@ -351,6 +570,17 @@ export default function LandingPage() {
 
           {/* Mobile Menu Toggle */}
           <div className="flex md:hidden items-center gap-2">
+            <a
+              href="#playground"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold"
+              style={{
+                background: "#fff3c4",
+                color: "#54356b",
+                border: "1px solid #54356b"
+              }}
+            >
+              <span>🪙 {walletCoins}</span>
+            </a>
             <ThemeToggle variant="icon" />
             <button
               type="button"
@@ -373,6 +603,13 @@ export default function LandingPage() {
             }}
           >
             <a
+              href="#playground"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-sm font-semibold"
+            >
+              🎮 ลองเล่นมินิเกมสะสมเหรียญ
+            </a>
+            <a
               href="#pain-tabs"
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 text-sm"
@@ -384,7 +621,7 @@ export default function LandingPage() {
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 text-sm"
             >
-              พาชมห้องทำงาน
+              ทัวร์ 6 ห้องทำงาน
             </a>
             <a
               href="#comparison"
@@ -452,45 +689,64 @@ export default function LandingPage() {
         )}
       </header>
 
-      {/* ── Section 1: Editorial Mixtape Hero (#cp-hero) ────────────── */}
-      <section id="cp-hero" className="max-w-[1240px] mx-auto px-5 sm:px-8 pt-6 pb-16 sm:py-12">
+      {/* ── Section 1: Cozy Mixtape Studio Hero (#cp-hero) ──────────── */}
+      <section id="cp-hero" className="max-w-[1240px] mx-auto px-5 sm:px-8 pt-6 pb-12 sm:py-10">
         <div
           className="grid grid-cols-1 lg:grid-cols-12 overflow-hidden"
           style={{
-            border: "1px solid var(--border)",
-            borderRadius: "28px",
-            boxShadow: "var(--shadow-floating)",
+            border: "2px solid var(--border-strong, var(--border))",
+            borderRadius: "30px",
+            boxShadow: "10px 10px 0 rgba(84, 53, 107, 0.14), var(--shadow-floating)",
             background: "var(--panel-strong)"
           }}
         >
-          {/* Left 6 Cols: Editorial Copy */}
-          <div className="lg:col-span-6 p-7 sm:p-12 md:p-14 flex flex-col justify-between gap-10">
+          {/* Left 6 Cols: Tactile Studio Copy + Retro Sticker Dock */}
+          <div className="lg:col-span-6 p-7 sm:p-11 md:p-14 flex flex-col justify-between gap-8">
             <div className="space-y-6">
-              <span
-                style={{
-                  display: "inline-block",
-                  fontSize: "10px",
-                  fontWeight: 600,
-                  letterSpacing: "2px",
-                  color: "var(--accent)"
-                }}
-              >
-                A QUIET WORKSPACE FOR EVERYDAY FLOW
-              </span>
+              {/* Tilted Buttercream Tape Tag */}
+              <div className="inline-flex items-center gap-2">
+                <span
+                  style={{
+                    display: "inline-block",
+                    transform: "rotate(-1.5deg)",
+                    padding: "5px 12px",
+                    borderRadius: "8px",
+                    background: "#ffecb1",
+                    border: "1.5px solid #54356b",
+                    color: "#54356b",
+                    fontSize: "11px",
+                    fontWeight: 800,
+                    letterSpacing: "1.4px",
+                    boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.2)"
+                  }}
+                >
+                  SIDE A · COZY WORK &amp; LIFE STUDIO
+                </span>
+              </div>
 
               <h1
                 style={{
                   fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "clamp(36px, 4.2vw, 54px)",
+                  fontSize: "clamp(34px, 4.1vw, 52px)",
                   lineHeight: 1.12,
-                  letterSpacing: "-1.8px",
-                  fontWeight: 500,
+                  letterSpacing: "-1.5px",
+                  fontWeight: 600,
                   color: "var(--foreground)"
                 }}
               >
-                จัดระเบียบงานและชีวิต
+                เปลี่ยนวันที่งานกองเต็มหัว
                 <br />
-                ในจังหวะที่ไม่เร่งรีบ
+                ให้เป็นจังหวะที่{" "}
+                <span
+                  style={{
+                    background:
+                      "linear-gradient(180deg, transparent 62%, rgba(255, 180, 213, 0.55) 62%)",
+                    padding: "0 4px"
+                  }}
+                >
+                  ค่อยๆ เคลียร์สนุกขึ้น
+                </span>
+                ทุกวัน
               </h1>
 
               <p
@@ -498,83 +754,135 @@ export default function LandingPage() {
                   fontSize: "15px",
                   lineHeight: 1.75,
                   color: "var(--muted)",
-                  maxWidth: "46ch"
+                  maxWidth: "48ch"
                 }}
               >
-                พื้นที่ทำงานที่รวมบอร์ดงาน ปฏิทินกำหนดส่ง สมุดโน้ต
-                และบันทึกประจำวันไว้ในห้องเดียวกัน เปิดเพลงคลอเบาๆ
-                แล้วค่อยๆ ขยับงานทีละชิ้นให้จบในแต่ละวันโดยไม่ต้องสลับหลายแอป
+                เคยไหม? เปิดคอมมาจะทำงาน แต่ต้องไล่หาบรีฟในแชต หาลิงก์ในโน้ต
+                สลับหน้าจอไปมาจนหมดแรง... <strong>Retzlo</strong> รวมบอร์ดงาน ปฏิทิน
+                สมุดโน้ต ไดอารี่ และเพลง Lofi ไว้ในห้องเดียว เคลียร์งานเสร็จรับเหรียญไปแลกรางวัลหรือปลูกซากุระต่อได้เลย!
               </p>
 
-              <div className="flex flex-wrap items-center gap-3 pt-2">
+              {/* Tactile Buttons */}
+              <div className="flex flex-wrap items-center gap-3.5 pt-1">
                 <Link href={defaultDestination}>
                   <button
+                    className="transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "10px",
-                      height: "50px",
+                      height: "52px",
                       padding: "0 24px",
-                      borderRadius: "12px",
-                      border: "1px solid var(--accent)",
-                      background: "var(--accent)",
-                      color: "var(--background)",
+                      borderRadius: "14px",
+                      border: "2px solid #54356b",
+                      background: "#7858d4",
+                      color: "#fff5ff",
                       fontSize: "14px",
-                      fontWeight: 600
+                      fontWeight: 700,
+                      boxShadow: "4px 4px 0 #54356b"
                     }}
                   >
-                    <span>เริ่มจัดพื้นที่ของคุณ</span>
-                    <ArrowRight size={15} />
+                    <span>เริ่มจัดโต๊ะทำงานของคุณฟรี</span>
+                    <ArrowRight size={16} />
                   </button>
                 </Link>
 
                 <a
-                  href="#walkthrough"
+                  href="#playground"
+                  className="transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
-                    height: "50px",
+                    gap: "8px",
+                    height: "52px",
                     padding: "0 20px",
-                    borderRadius: "12px",
-                    border: "1px solid var(--border)",
+                    borderRadius: "14px",
+                    border: "2px solid var(--border-strong, var(--border))",
                     background: "var(--paper)",
                     color: "var(--foreground)",
                     fontSize: "14px",
-                    fontWeight: 500
+                    fontWeight: 700,
+                    boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.12)"
                   }}
                 >
-                  ดูห้องทำงานทั้ง 6 ส่วน
+                  <span>🎮 ลองกดเล่นลูปแลกรางวัล</span>
                 </a>
               </div>
             </div>
 
-            {/* Quiet Footnote */}
+            {/* Hand-Drawn Retro Sticker Strip */}
             <div
               style={{
-                borderTop: "1px solid var(--border)",
-                paddingTop: "18px",
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "20px",
-                fontSize: "12px",
-                color: "var(--muted)"
+                borderTop: "1px dashed var(--border)",
+                paddingTop: "18px"
               }}
             >
-              <span>บอร์ดงาน · ตาราง · ปฏิทิน · สมุดโน้ต · ไดอารี่</span>
-              <span>·</span>
-              <span>พร้อมใช้งานทันทีบนเว็บ</span>
+              <div className="text-[11px] font-bold tracking-wider uppercase mb-3" style={{ color: "var(--muted)" }}>
+                ครบทั้ง 5 มุมในโต๊ะทำงานเดียว (ไม่ต้องสลับแอป):
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                {[
+                  {
+                    label: "Kanban & Table",
+                    sticker: "/stickers/retro/retro-sticker-03-checklist.png",
+                    rot: "-2deg"
+                  },
+                  {
+                    label: "Unified Calendar",
+                    sticker: "/stickers/retro/retro-sticker-04-calendar.png",
+                    rot: "1.5deg"
+                  },
+                  {
+                    label: "Side Notes",
+                    sticker: "/stickers/retro/retro-sticker-12-paper-note.png",
+                    rot: "-1deg"
+                  },
+                  {
+                    label: "Private Diary",
+                    sticker: "/stickers/retro/retro-sticker-02-diary-notebook.png",
+                    rot: "2deg"
+                  },
+                  {
+                    label: "Lofi & Rewards",
+                    sticker: "/stickers/retro/retro-sticker-01-coin-reward.png",
+                    rot: "-1.5deg"
+                  }
+                ].map((badge) => (
+                  <div
+                    key={badge.label}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-transform hover:scale-105"
+                    style={{
+                      transform: `rotate(${badge.rot})`,
+                      background: "var(--paper)",
+                      border: "1px solid var(--border)",
+                      boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.1)"
+                    }}
+                  >
+                    <div className="relative w-5 h-5 shrink-0">
+                      <Image
+                        src={badge.sticker}
+                        alt=""
+                        fill
+                        sizes="20px"
+                        className="object-contain"
+                      />
+                    </div>
+                    <span>{badge.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Right 6 Cols: Interactive Mixtape Scene (Shared with Login/Register) */}
+          {/* Right 6 Cols: Interactive Mixtape Scene with Floating Stickers */}
           <div
             ref={artRef}
             onPointerMove={moveArtwork}
             onPointerLeave={resetArtwork}
-            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-7 sm:p-10 min-h-[460px] lg:min-h-[580px]"
+            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-7 sm:p-10 min-h-[480px] lg:min-h-[590px]"
             style={{
               background:
-                "linear-gradient(180deg, #5942b8 0%, #7858d4 42%, #b184e7 65%, #ffb4d5 100%)",
+                "linear-gradient(180deg, #5942b8 0%, #7858d4 42%, #b184e7 68%, #ffb4d5 100%)",
               color: "#fff5ff",
               isolation: "isolate"
             }}
@@ -582,36 +890,66 @@ export default function LandingPage() {
             <MixtapeArtwork />
 
             {/* Top Scene Header */}
-            <div className="relative z-10 flex items-center justify-between text-[10px] tracking-[2px] text-[#e4d2f8]">
-              <span>SIDE A · YOUR DAILY MIX</span>
-              <span>VOL. 01</span>
+            <div className="relative z-10 flex items-center justify-between text-[10px] tracking-[2px] font-bold text-[#f3e8ff]">
+              <span>SIDE A · YOUR DAILY MIXTAPE</span>
+              <span className="px-2.5 py-1 rounded-full bg-black/20 border border-white/20">
+                🪙 WALLET: {walletCoins} COINS
+              </span>
+            </div>
+
+            {/* Decorative Floating Hand-Drawn Stickers */}
+            <div
+              className="hidden sm:flex items-center gap-2 absolute top-14 left-7 z-10 px-3 py-2 rounded-2xl"
+              style={{
+                transform: "rotate(-6deg)",
+                background: "rgba(255, 248, 231, 0.92)",
+                color: "#432369",
+                border: "1.5px solid #54356b",
+                boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.28)"
+              }}
+            >
+              <div className="relative w-8 h-8">
+                <Image
+                  src="/stickers/retro/retro-sticker-10-coffee-cup.png"
+                  alt=""
+                  fill
+                  sizes="32px"
+                  className="object-contain"
+                />
+              </div>
+              <div className="text-[11px] leading-tight">
+                <div className="font-extrabold">Coffee Cheer!</div>
+                <div className="opacity-75">ส่งกาแฟให้กำลังใจทีม</div>
+              </div>
             </div>
 
             {/* Interactive Floating Board Card + Tilted Paper Sticker */}
             <div className="relative z-10 my-auto py-8 flex flex-col items-end">
               <div
                 style={{
-                  width: "min(270px, 100%)",
-                  padding: "15px",
-                  border: "1px solid rgba(231, 214, 255, 0.55)",
-                  borderRadius: "14px",
-                  background: "rgba(93, 59, 139, 0.9)",
-                  boxShadow: "0 14px 36px rgba(26, 11, 69, 0.25)",
+                  width: "min(290px, 100%)",
+                  padding: "16px",
+                  border: "1.5px solid rgba(255, 240, 255, 0.75)",
+                  borderRadius: "18px",
+                  background: "rgba(85, 51, 133, 0.92)",
+                  boxShadow: "0 18px 40px rgba(26, 11, 69, 0.32)",
                   backdropFilter: "blur(16px)"
                 }}
               >
-                <div className="flex items-center justify-between text-[9px] tracking-[1px] mb-3 text-[#eadcf8]">
+                <div className="flex items-center justify-between text-[10px] tracking-[1px] font-bold mb-3 text-[#f3e8ff]">
                   <span className="flex items-center gap-1.5">
-                    <LayoutGrid size={12} /> MY DAILY BOARD
+                    <LayoutGrid size={13} /> MY DAILY BOARD
                   </span>
-                  <span>TRY CLICKING</span>
+                  <span className="px-2 py-0.5 rounded-full bg-[#ffecb1] text-[#432369]">
+                    ลองกดขยับการ์ด!
+                  </span>
                 </div>
 
                 <div className="flex justify-between gap-1 mb-3">
                   {HERO_STAGES.map((name, idx) => (
                     <span
                       key={name}
-                      className="flex items-center gap-1 text-[9px]"
+                      className="flex items-center gap-1 text-[10px] font-semibold"
                       style={{
                         color: idx === heroStage ? "#fff5ff" : "#d7c1ec",
                         opacity: idx === heroStage ? 1 : 0.65
@@ -619,15 +957,15 @@ export default function LandingPage() {
                     >
                       <span
                         style={{
-                          width: "5px",
-                          height: "5px",
+                          width: "6px",
+                          height: "6px",
                           borderRadius: "50%",
                           background:
                             idx === 0
                               ? "#c4b5fd"
                               : idx === 1
                                 ? "#f6c976"
-                                : "#92d9bb"
+                                : "#6ee7b7"
                         }}
                       />
                       {name}
@@ -637,46 +975,66 @@ export default function LandingPage() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setHeroStage((current) => (current + 1) % HERO_STAGES.length)
-                  }
+                  onClick={() => {
+                    const next = (heroStage + 1) % HERO_STAGES.length;
+                    setHeroStage(next);
+                    if (next === 2) {
+                      triggerEarnCoin(25, "ขยับการ์ดหน้า Hero ไป Done สำเร็จ!");
+                    } else {
+                      playChime("click");
+                    }
+                  }}
+                  className="transition-transform active:translate-y-0.5"
                   style={{
                     display: "flex",
                     flexDirection: "column",
                     textAlign: "left",
-                    gap: "10px",
+                    gap: "9px",
                     width: "100%",
-                    padding: "14px 13px",
-                    borderRadius: "9px",
-                    border: "1px solid #f6e6ff",
-                    background: "#fff5fc",
+                    padding: "14px",
+                    borderRadius: "12px",
+                    border: "2px solid #54356b",
+                    background: "#fff7fc",
                     color: "#432369",
+                    boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.25)",
                     cursor: "pointer"
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: "8px",
-                      letterSpacing: "1px",
-                      color: "#9164a0"
-                    }}
-                  >
-                    TODAY&apos;S FOCUS CARD
-                  </span>
-                  <strong style={{ fontSize: "13px", lineHeight: 1.35 }}>
+                  <div className="flex items-center justify-between w-full">
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        fontWeight: 800,
+                        letterSpacing: "1px",
+                        color: "#8b5cf6"
+                      }}
+                    >
+                      TODAY&apos;S FOCUS CARD
+                    </span>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#fff0b8] text-[#78350f]">
+                      +25 Coins
+                    </span>
+                  </div>
+                  <strong style={{ fontSize: "14px", lineHeight: 1.35 }}>
                     {heroStage === 2
-                      ? "เสร็จไปอีกหนึ่งชิ้น พักดื่มกาแฟได้เลย"
-                      : "จัดลำดับ 3 งานสำคัญของวันนี้"}
+                      ? "🎉 เสร็จเรียบร้อย! รับ +25 เหรียญไปแลกกาแฟได้เลย"
+                      : heroStage === 1
+                        ? "กำลังโฟกัส: จัดลำดับ 3 งานสำคัญของวันนี้"
+                        : "จัดลำดับ 3 งานสำคัญของวันนี้"}
                   </strong>
                   <span
-                    className="flex items-center gap-1.5 text-[10px] mt-1"
-                    style={{ color: "#846393" }}
+                    className="flex items-center gap-1.5 text-[11px] font-semibold mt-0.5"
+                    style={{ color: "#6d4c7d" }}
                   >
-                    {heroStage === 2 ? <Check size={12} /> : <Circle size={12} />}
+                    {heroStage === 2 ? (
+                      <Check size={13} className="text-emerald-600" />
+                    ) : (
+                      <Circle size={13} />
+                    )}
                     <span>
                       {heroStage === 2
-                        ? "Done for today"
-                        : "คลิกเพื่อขยับสถานะการ์ด"}
+                        ? "คลิกอีกครั้งเพื่อเริ่มรอบใหม่"
+                        : "คลิกเพื่อขยับสถานะการ์ด →"}
                     </span>
                     <span className="ml-auto">
                       {heroStage === 2 ? (
@@ -691,51 +1049,70 @@ export default function LandingPage() {
 
               {/* Tilted Paper Callout Sticker */}
               <div
-                className="mt-4 mr-4"
+                className="mt-4 mr-3 flex items-center gap-2.5"
                 style={{
-                  transform: "rotate(-6deg)",
+                  transform: "rotate(-5deg)",
                   background: "#ffecb1",
-                  border: "1px solid #54356b",
+                  border: "2px solid #54356b",
                   color: "#54356b",
                   padding: "10px 18px",
+                  borderRadius: "10px",
                   fontFamily: "Georgia, 'Times New Roman', serif",
                   fontStyle: "italic",
                   fontSize: "19px",
                   lineHeight: 1.15,
-                  boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.2)"
+                  boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.28)"
                 }}
               >
-                less rush,
-                <br />
-                <strong>more rhythm.</strong>
+                <div className="relative w-7 h-7 not-italic">
+                  <Image
+                    src="/stickers/retro/retro-sticker-01-coin-reward.png"
+                    alt=""
+                    fill
+                    sizes="28px"
+                    className="object-contain"
+                  />
+                </div>
+                <div>
+                  less rush,
+                  <br />
+                  <strong>more rhythm.</strong>
+                </div>
               </div>
             </div>
 
             {/* Bottom Audio Cassette Bar */}
-            <div className="relative z-10 flex items-center justify-between gap-4 pt-2">
+            <div
+              className="relative z-10 flex items-center justify-between gap-4 p-3.5 rounded-2xl"
+              style={{
+                background: "rgba(255, 245, 255, 0.34)",
+                border: "1px solid rgba(84, 53, 107, 0.3)",
+                backdropFilter: "blur(10px)"
+              }}
+            >
               <div>
                 <span
                   style={{
                     display: "block",
                     fontSize: "9px",
                     letterSpacing: "1.8px",
-                    color: "#4f3179",
-                    fontWeight: 600
+                    color: "#3b1d61",
+                    fontWeight: 800
                   }}
                 >
-                  LOFI CHORD SYNTHESIZER
+                  BUILT-IN LOFI SYNTHESIZER
                 </span>
                 <span
-                  className="flex items-center gap-2 mt-1.5 text-xs font-medium"
-                  style={{ color: "#432369" }}
+                  className="flex items-center gap-2 mt-1 text-xs font-bold"
+                  style={{ color: "#3b1d61" }}
                 >
                   <Disc3
                     size={15}
                     className={isPlaying ? "animate-spin" : undefined}
                   />
                   {isPlaying
-                    ? "กำลังบรรเลงเสียงคอร์ด Lofi..."
-                    : "กดปุ่มขวาเพื่อเปิดเสียงเพลงคลอเบาๆ"}
+                    ? "กำลังบรรเลงคอร์ด Lofi อุ่นๆ..."
+                    : "กดปุ่ม Play เพื่อเปิดเพลงคลอระหว่างดูเว็บ"}
                 </span>
               </div>
 
@@ -743,15 +1120,17 @@ export default function LandingPage() {
                 type="button"
                 onClick={handlePlayToggle}
                 aria-label={isPlaying ? "Pause Lofi audio" : "Play Lofi audio"}
+                className="transition-transform hover:scale-105 active:scale-95"
                 style={{
                   display: "grid",
                   placeItems: "center",
                   width: "44px",
                   height: "44px",
                   borderRadius: "50%",
-                  border: "1px solid rgba(101, 64, 143, 0.45)",
-                  background: "rgba(255, 245, 255, 0.45)",
+                  border: "2px solid #432369",
+                  background: "#ffecb1",
                   color: "#432369",
+                  boxShadow: "3px 3px 0 rgba(67, 35, 105, 0.3)",
                   cursor: "pointer"
                 }}
               >
@@ -762,16 +1141,479 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 2: Everyday Friction Index (#pain-tabs) ─────────── */}
+      {/* ── Section 2: Interactive "Try the Retzlo Loop" Playground (#playground) ── */}
+      <section
+        id="playground"
+        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-12 sm:py-16"
+      >
+        <div
+          style={{
+            border: "2px solid var(--border-strong, var(--border))",
+            borderRadius: "28px",
+            padding: "28px 24px",
+            background:
+              "linear-gradient(135deg, rgba(120, 88, 212, 0.09) 0%, rgba(255, 236, 177, 0.18) 50%, rgba(255, 180, 213, 0.12) 100%), var(--panel-strong)",
+            boxShadow: "8px 8px 0 rgba(84, 53, 107, 0.14)"
+          }}
+        >
+          {/* Playground Header Bar */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[var(--border)]">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2">
+                <span
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    letterSpacing: "1.6px",
+                    padding: "4px 10px",
+                    borderRadius: "999px",
+                    background: "#7858d4",
+                    color: "#fff"
+                  }}
+                >
+                  INTERACTIVE MINI-PLAYGROUND
+                </span>
+                <span className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
+                  ไม่ต้องสมัครสมาชิกก็ลองกดเล่นได้เดี๋ยวนี้!
+                </span>
+              </div>
+              <h2
+                style={{
+                  fontFamily: "Georgia, 'Times New Roman', serif",
+                  fontSize: "clamp(26px, 3vw, 36px)",
+                  lineHeight: 1.18,
+                  fontWeight: 600
+                }}
+              >
+                ทำไมคนใช้ Retzlo ถึงไม่เบื่อ? ลองเล่น &ldquo;ลูปความสุข 3 ขั้นตอน&rdquo; ดูสิ
+              </h2>
+            </div>
+
+            {/* Live Wallet & Sound Toggle */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setSfxEnabled(!sfxEnabled)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-[var(--border)] bg-[var(--paper)]"
+              >
+                {sfxEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
+                <span>{sfxEnabled ? "เสียงเอฟเฟกต์: เปิด" : "เสียงเอฟเฟกต์: ปิด"}</span>
+              </button>
+
+              <div
+                className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-extrabold"
+                style={{
+                  background: "#ffecb1",
+                  color: "#432369",
+                  border: "2px solid #54356b",
+                  boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.22)"
+                }}
+              >
+                <div className="relative w-5 h-5">
+                  <Image
+                    src="/stickers/rewards/reward-icon-01-coin.png"
+                    alt=""
+                    fill
+                    sizes="20px"
+                    className="object-contain"
+                  />
+                </div>
+                <span>กระเป๋าเหรียญของคุณ: {walletCoins} Coins</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Feedback Banner */}
+          {toastBanner && (
+            <div
+              className="mt-4 px-4 py-2.5 rounded-xl flex items-center justify-between gap-2 text-xs font-bold"
+              style={{
+                background: "var(--paper)",
+                border: "1.5px dashed #7858d4",
+                color: "var(--foreground)"
+              }}
+            >
+              <span className="flex items-center gap-2">
+                <Sparkles size={14} style={{ color: "#7858d4" }} />
+                {toastBanner}
+              </span>
+              <span className="text-[11px] opacity-70 hidden sm:inline">
+                Interactive Demo
+              </span>
+            </div>
+          )}
+
+          {/* 3-Step Playable Columns */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-6">
+            {/* STEP 1: Clear Tasks & Coffee Cheer */}
+            <div
+              style={{
+                border: "1.5px solid var(--border)",
+                borderRadius: "20px",
+                padding: "20px",
+                background: "var(--paper)",
+                boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.08)"
+              }}
+              className="flex flex-col justify-between gap-4"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: 800,
+                      letterSpacing: "1.4px",
+                      color: "#7858d4"
+                    }}
+                  >
+                    STEP 01 · CLEAR &amp; CHEER
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCompletedTaskIds([]);
+                      playChime("click");
+                    }}
+                    className="text-[11px] font-semibold underline opacity-75 hover:opacity-100"
+                  >
+                    รีเซ็ตภารกิจ
+                  </button>
+                </div>
+                <h3 className="text-base font-bold">
+                  1. คลิกเคลียร์งานเพื่อรับเหรียญรางวัล
+                </h3>
+
+                <div className="space-y-2.5 pt-1">
+                  {PLAYGROUND_TASKS.map((task) => {
+                    const isDone = completedTaskIds.includes(task.id);
+                    return (
+                      <button
+                        key={task.id}
+                        type="button"
+                        onClick={() =>
+                          handleTogglePlaygroundTask(task.id, task.coins, task.title)
+                        }
+                        className="w-full text-left p-3 rounded-xl flex items-center justify-between gap-3 transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                        style={{
+                          border: isDone
+                            ? "1.5px solid #10b981"
+                            : "1px solid var(--border)",
+                          background: isDone
+                            ? "rgba(16, 185, 129, 0.1)"
+                            : "var(--panel-strong)",
+                          boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.08)"
+                        }}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="relative w-7 h-7 shrink-0">
+                            <Image
+                              src={task.stickerSrc}
+                              alt=""
+                              fill
+                              sizes="28px"
+                              className="object-contain"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <div
+                              className="text-xs font-bold truncate"
+                              style={{
+                                textDecoration: isDone ? "line-through" : "none",
+                                opacity: isDone ? 0.65 : 1
+                              }}
+                            >
+                              {task.title}
+                            </div>
+                            <span
+                              style={{
+                                fontSize: "9px",
+                                fontWeight: 700,
+                                color: task.tagColor
+                              }}
+                            >
+                              {task.tag}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span
+                          className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-extrabold"
+                          style={{
+                            background: isDone ? "#10b981" : "#fff3c4",
+                            color: isDone ? "#fff" : "#78350f",
+                            border: "1px solid rgba(84, 53, 107, 0.2)"
+                          }}
+                        >
+                          {isDone ? "✓ รับแล้ว" : `+${task.coins}c`}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="text-[11px] pt-2 border-t border-[var(--border)]" style={{ color: "var(--muted)" }}>
+                💡 ในแอปจริง ทุกการ์ดที่ลากไปช่อง Done จะได้เหรียญสะสมอัตโนมัติ
+              </div>
+            </div>
+
+            {/* STEP 2: Redeem Rewards in the Mini Arcade Shop */}
+            <div
+              style={{
+                border: "1.5px solid var(--border)",
+                borderRadius: "20px",
+                padding: "20px",
+                background: "var(--paper)",
+                boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.08)"
+              }}
+              className="flex flex-col justify-between gap-4"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: 800,
+                      letterSpacing: "1.4px",
+                      color: "#db2777"
+                    }}
+                  >
+                    STEP 02 · REWARD ARCADE
+                  </span>
+                  <span className="text-[11px] font-bold text-pink-600">
+                    แลกแล้ว{" "}
+                    {Object.values(redeemedRewards).reduce((a, b) => a + b, 0)}{" "}
+                    ใบ
+                  </span>
+                </div>
+                <h3 className="text-base font-bold">
+                  2. นำเหรียญมาแลกตั๋วพักผ่อนที่คุณตั้งเอง
+                </h3>
+
+                <div className="space-y-2.5 pt-1">
+                  {PLAYGROUND_REWARDS.map((reward) => {
+                    const count = redeemedRewards[reward.id] || 0;
+                    const canAfford = walletCoins >= reward.cost;
+                    return (
+                      <div
+                        key={reward.id}
+                        style={{
+                          border: "1.5px dashed rgba(84, 53, 107, 0.3)",
+                          borderRadius: "14px",
+                          padding: "12px",
+                          background: reward.bgTint,
+                          color: "#3b1d61"
+                        }}
+                        className="flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="relative w-9 h-9 shrink-0">
+                            <Image
+                              src={reward.iconSrc}
+                              alt=""
+                              fill
+                              sizes="36px"
+                              className="object-contain"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-extrabold truncate">
+                              {reward.title}
+                            </div>
+                            <div className="text-[11px] opacity-75 truncate">
+                              {reward.subtitle}
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleRedeemReward(reward.id, reward.cost, reward.title)
+                          }
+                          className="shrink-0 px-3 py-1.5 rounded-xl text-xs font-extrabold transition-transform active:scale-95"
+                          style={{
+                            background: canAfford ? "#54356b" : "rgba(84, 53, 107, 0.2)",
+                            color: canAfford ? "#ffecb1" : "#54356b",
+                            cursor: "pointer"
+                          }}
+                        >
+                          {count > 0
+                            ? `แลกเพิ่ม (${reward.cost}c) · x${count}`
+                            : `แลก ${reward.cost}c`}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="text-[11px] pt-2 border-t border-[var(--border)]" style={{ color: "var(--muted)" }}>
+                🎟️ ตั้งรางวัลร่วมกับทีมหรือตั้งรางวัลให้ตัวเองก็ได้ตามใจชอบ
+              </div>
+            </div>
+
+            {/* STEP 3: Interactive Zen Sand Garden & Sakura Tree */}
+            <div
+              style={{
+                border: "1.5px solid var(--border)",
+                borderRadius: "20px",
+                padding: "20px",
+                background: "var(--paper)",
+                boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.08)"
+              }}
+              className="flex flex-col justify-between gap-4"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: 800,
+                      letterSpacing: "1.4px",
+                      color: "#059669"
+                    }}
+                  >
+                    STEP 03 · MINI ZEN GARDEN
+                  </span>
+                  <span className="text-[11px] font-bold text-emerald-700">
+                    รดน้ำแล้ว {waterDrops} ครั้ง
+                  </span>
+                </div>
+                <h3 className="text-base font-bold">
+                  3. คลิกผืนทรายเพื่อสร้างคลื่นน้ำ &amp; ปลูกซากุระ
+                </h3>
+
+                {/* Clickable Zen Sand Box */}
+                <div
+                  onClick={handleZenPondClick}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setSakuraStageIdx((s) => (s + 1) % SAKURA_STAGES.length);
+                      playChime("ripple");
+                    }
+                  }}
+                  className="relative overflow-hidden rounded-2xl cursor-pointer select-none flex flex-col items-center justify-center p-4 min-h-[190px]"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 50% 50%, #f7efe2 0%, #eadbc5 100%)",
+                    border: "2px solid #c9b293",
+                    boxShadow: "inset 0 2px 12px rgba(92, 68, 38, 0.15)"
+                  }}
+                >
+                  {/* Concentric Zen Sand Groove Lines */}
+                  <div
+                    className="absolute inset-3 rounded-xl pointer-events-none"
+                    style={{
+                      border: "1px dashed rgba(138, 109, 75, 0.35)"
+                    }}
+                  />
+                  <div
+                    className="absolute inset-7 rounded-full pointer-events-none"
+                    style={{
+                      border: "1px solid rgba(138, 109, 75, 0.25)"
+                    }}
+                  />
+
+                  {/* Dynamic Click Ripples */}
+                  {zenRipples.map((r) => (
+                    <span
+                      key={r.id}
+                      className="animate-ping pointer-events-none"
+                      style={{
+                        position: "absolute",
+                        left: `${r.x}%`,
+                        top: `${r.y}%`,
+                        width: "44px",
+                        height: "44px",
+                        marginLeft: "-22px",
+                        marginTop: "-22px",
+                        borderRadius: "50%",
+                        border: "2px solid #7858d4",
+                        opacity: 0.55
+                      }}
+                    />
+                  ))}
+
+                  {/* Growing Sakura Tree Visual */}
+                  <div className="relative z-10 flex flex-col items-center text-center">
+                    <div
+                      className="relative flex items-center justify-center rounded-full transition-all duration-300"
+                      style={{
+                        width: `${currentSakura.canopySize}px`,
+                        height: `${currentSakura.canopySize}px`,
+                        background:
+                          sakuraStageIdx === 0
+                            ? "radial-gradient(circle, #a7f3d0 0%, #34d399 100%)"
+                            : "radial-gradient(circle, #ffe4ef 0%, #f472b6 100%)",
+                        border: "2px solid #54356b",
+                        boxShadow: "0 8px 20px rgba(244, 114, 182, 0.35)"
+                      }}
+                    >
+                      <div className="relative w-10 h-10">
+                        <Image
+                          src={
+                            sakuraStageIdx === 0
+                              ? "/stickers/retro/retro-sticker-44-leaf-sprout.png"
+                              : "/stickers/rewards/reward-icon-09-plant.png"
+                          }
+                          alt=""
+                          fill
+                          sizes="40px"
+                          className="object-contain"
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className="mt-2.5 px-3 py-1 rounded-full text-xs font-extrabold"
+                      style={{
+                        background: "rgba(255, 255, 255, 0.85)",
+                        color: "#432369",
+                        border: "1px solid rgba(84, 53, 107, 0.25)"
+                      }}
+                    >
+                      {currentSakura.name}
+                    </div>
+                    <div className="text-[11px] mt-1 font-medium" style={{ color: "#5c4426" }}>
+                      {currentSakura.desc}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] pt-2 border-t border-[var(--border)]">
+                <span style={{ color: "var(--muted)" }}>
+                  🌸 แตะที่สวนหินเพื่อสร้างคลื่นน้ำและเร่งดอกซากุระ
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSakuraStageIdx((s) => (s + 1) % SAKURA_STAGES.length);
+                    triggerEarnCoin(10, "ดูแลต้นซากุระในสวนหิน!");
+                  }}
+                  className="font-bold text-emerald-700 underline"
+                >
+                  +รดน้ำซากุระ
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 3: Everyday Friction Folder-Tabs (#pain-tabs) ─────── */}
       <section
         id="pain-tabs"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-16 sm:py-24"
+        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20"
       >
         <div className="max-w-2xl space-y-3 mb-10">
           <span
             style={{
               fontSize: "10px",
-              fontWeight: 600,
+              fontWeight: 800,
               letterSpacing: "2px",
               color: "var(--accent)"
             }}
@@ -784,63 +1626,82 @@ export default function LandingPage() {
               fontSize: "clamp(28px, 3.2vw, 40px)",
               lineHeight: 1.18,
               letterSpacing: "-1.2px",
-              fontWeight: 500
+              fontWeight: 600
             }}
           >
-            ปัญหาเล็กๆ ในแต่ละวันที่ทำให้เราเหนื่อยกว่าที่ควร
+            5 อาการปวดหัวของคนทำงานหน้าจอ ที่ Retzlo ตั้งใจมาแก้ให้จบ
           </h2>
           <p style={{ fontSize: "14px", color: "var(--muted)", lineHeight: 1.7 }}>
-            หลายครั้งที่งานไม่เดิน ไม่ใช่เพราะเราไม่ตั้งใจ
-            แต่เป็นเพราะข้อมูลและเครื่องมือกระจัดกระจายอยู่คนละที่
+            ลองกดเลือกอาการที่คุณเจอบ่อยที่สุดจากแถบด้านซ้าย แล้วดูว่าเมื่อย้ายเข้ามาอยู่ในสตูดิโอของ Retzlo ชีวิตจะเบาลงอย่างไร
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left 5 Cols: Vertical Index List */}
-          <div className="lg:col-span-5 flex flex-col gap-2">
+          {/* Left 5 Cols: Tactile Folder Tabs */}
+          <div className="lg:col-span-5 flex flex-col gap-2.5">
             {PAIN_POINT_TABS.map((tab, idx) => {
               const isSelected = idx === activePainIndex;
               return (
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActivePainIndex(idx)}
-                  className="text-left transition-colors"
+                  onClick={() => {
+                    setActivePainIndex(idx);
+                    playChime("click");
+                  }}
+                  className="text-left transition-all"
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "14px",
-                    padding: "16px 18px",
-                    borderRadius: "14px",
-                    border: "1px solid var(--border)",
-                    background: isSelected ? "var(--panel-strong)" : "transparent",
-                    boxShadow: isSelected ? "var(--shadow-panel)" : "none"
+                    gap: "12px",
+                    padding: "14px 16px",
+                    borderRadius: "16px",
+                    border: isSelected
+                      ? `2px solid ${tab.accentColor}`
+                      : "1px solid var(--border)",
+                    background: isSelected ? "var(--panel-strong)" : "var(--paper)",
+                    boxShadow: isSelected
+                      ? "5px 5px 0 rgba(84, 53, 107, 0.14)"
+                      : "none"
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: 600,
-                      color: isSelected ? "var(--accent)" : "var(--muted)"
-                    }}
-                  >
-                    {tab.num}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: isSelected ? 600 : 400,
-                      color: isSelected ? "var(--foreground)" : "var(--muted)"
-                    }}
-                  >
-                    {tab.tabLabel}
-                  </span>
+                  <div className="relative w-8 h-8 shrink-0">
+                    <Image
+                      src={tab.stickerSrc}
+                      alt=""
+                      fill
+                      sizes="32px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div
+                      style={{
+                        fontSize: "9px",
+                        fontWeight: 800,
+                        letterSpacing: "1.2px",
+                        color: tab.accentColor
+                      }}
+                    >
+                      CASE {tab.num} · {tab.badgeText}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: isSelected ? 700 : 500,
+                        color: "var(--foreground)",
+                        marginTop: "2px"
+                      }}
+                    >
+                      {tab.tabLabel}
+                    </div>
+                  </div>
                   <ArrowRight
-                    size={14}
-                    className="ml-auto shrink-0"
+                    size={15}
+                    className="shrink-0"
                     style={{
-                      opacity: isSelected ? 1 : 0,
-                      color: "var(--accent)"
+                      opacity: isSelected ? 1 : 0.3,
+                      color: tab.accentColor
                     }}
                   />
                 </button>
@@ -848,33 +1709,60 @@ export default function LandingPage() {
             })}
           </div>
 
-          {/* Right 7 Cols: Editorial Paper Sheet */}
+          {/* Right 7 Cols: Before vs After Collage Board */}
           <div
-            className="lg:col-span-7 p-6 sm:p-9 space-y-7"
+            className="lg:col-span-7 p-6 sm:p-8 space-y-6"
             style={{
-              border: "1px solid var(--border)",
-              borderRadius: "20px",
+              border: `2px solid ${activePain.accentColor}`,
+              borderRadius: "24px",
               background: "var(--panel-strong)",
-              boxShadow: "var(--shadow-panel)"
+              boxShadow: "8px 8px 0 rgba(84, 53, 107, 0.14)"
             }}
           >
-            {/* Before */}
-            <div className="space-y-2.5">
-              <span
-                style={{
-                  fontSize: "10px",
-                  letterSpacing: "1.6px",
-                  color: "var(--muted)",
-                  fontWeight: 600
-                }}
-              >
-                ภาพที่คุ้นเคย
-              </span>
+            {/* Before Box with Tilted Quote Sticker */}
+            <div
+              className="p-5 rounded-2xl space-y-3"
+              style={{
+                background: "var(--paper)",
+                border: "1px dashed var(--border)"
+              }}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span
+                  style={{
+                    fontSize: "10px",
+                    letterSpacing: "1.5px",
+                    fontWeight: 800,
+                    padding: "3px 9px",
+                    borderRadius: "6px",
+                    background: "rgba(239, 68, 68, 0.12)",
+                    color: "#dc2626"
+                  }}
+                >
+                  BEFORE · ภาพที่คุ้นเคย
+                </span>
+
+                <span
+                  style={{
+                    transform: "rotate(-1.5deg)",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    padding: "4px 10px",
+                    borderRadius: "8px",
+                    background: "#ffecb1",
+                    color: "#54356b",
+                    border: "1px solid rgba(84, 53, 107, 0.3)"
+                  }}
+                >
+                  {activePain.beforeQuote}
+                </span>
+              </div>
+
               <h3
                 style={{
                   fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "22px",
-                  fontWeight: 500,
+                  fontSize: "21px",
+                  fontWeight: 600,
                   lineHeight: 1.3,
                   color: "var(--foreground)"
                 }}
@@ -883,7 +1771,7 @@ export default function LandingPage() {
               </h3>
               <p
                 style={{
-                  fontSize: "14px",
+                  fontSize: "13.5px",
                   lineHeight: 1.7,
                   color: "var(--muted)"
                 }}
@@ -892,48 +1780,44 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Divider */}
-            <div
-              style={{
-                borderTop: "1px solid var(--border)",
-                paddingTop: "22px"
-              }}
-              className="space-y-4"
-            >
-              <div className="flex items-center gap-2.5">
-                <div style={{ position: "relative", width: "22px", height: "22px" }}>
+            {/* After Box with Interactive Checklist */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="relative w-9 h-9 shrink-0">
                   <Image
-                    src={activePain.iconSrc}
+                    src={activePain.stickerSrc}
                     alt=""
                     fill
-                    sizes="22px"
+                    sizes="36px"
                     className="object-contain"
                   />
                 </div>
-                <span
-                  style={{
-                    fontSize: "10px",
-                    letterSpacing: "1.6px",
-                    color: "var(--accent)",
-                    fontWeight: 600
-                  }}
-                >
-                  เมื่อย้ายมาอยู่ใน RETZLO
-                </span>
+                <div>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      letterSpacing: "1.6px",
+                      color: activePain.accentColor,
+                      fontWeight: 800
+                    }}
+                  >
+                    AFTER · เมื่อย้ายมาอยู่ใน RETZLO
+                  </span>
+                  <h4
+                    style={{
+                      fontSize: "17px",
+                      fontWeight: 700,
+                      color: "var(--foreground)"
+                    }}
+                  >
+                    {activePain.afterTitle}
+                  </h4>
+                </div>
               </div>
 
-              <h4
-                style={{
-                  fontSize: "17px",
-                  fontWeight: 600,
-                  color: "var(--foreground)"
-                }}
-              >
-                {activePain.afterTitle}
-              </h4>
               <p
                 style={{
-                  fontSize: "14px",
+                  fontSize: "13.5px",
                   lineHeight: 1.7,
                   color: "var(--muted)"
                 }}
@@ -941,61 +1825,95 @@ export default function LandingPage() {
                 {activePain.afterText}
               </p>
 
-              {/* Mini Paper Preview */}
+              {/* Clickable Mini Preview */}
               <div
                 style={{
-                  border: "1px solid var(--border)",
-                  borderRadius: "12px",
+                  border: "1.5px solid var(--border)",
+                  borderRadius: "16px",
                   padding: "16px",
-                  background: "var(--paper)",
-                  marginTop: "12px"
+                  background: "var(--paper)"
                 }}
               >
-                <div
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "var(--muted)",
-                    marginBottom: "10px"
-                  }}
-                >
-                  {activePain.previewTitle}
+                <div className="flex items-center justify-between mb-2.5">
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: "var(--foreground)"
+                    }}
+                  >
+                    {activePain.previewTitle}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      color: activePain.accentColor
+                    }}
+                  >
+                    ลองกดติ๊กเพื่อรับเหรียญ!
+                  </span>
                 </div>
                 <div className="space-y-2">
-                  {activePain.previewItems.map((item) => (
-                    <div
-                      key={item.label}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: "12px",
-                        padding: "9px 12px",
-                        borderRadius: "8px",
-                        background: "var(--panel-strong)",
-                        border: "1px solid var(--border)",
-                        fontSize: "12px"
-                      }}
-                    >
-                      <span className="flex items-center gap-2.5 min-w-0">
-                        {item.done ? (
-                          <Check size={14} style={{ color: "var(--accent)" }} />
-                        ) : (
-                          <Circle size={14} style={{ color: "var(--muted)" }} />
-                        )}
-                        <span className="truncate">{item.label}</span>
-                      </span>
-                      <span
+                  {activePain.previewItems.map((item, itemIdx) => {
+                    const mapKey = `${activePain.id}-${itemIdx}`;
+                    const isDone = Boolean(painCheckedMap[mapKey]);
+                    return (
+                      <button
+                        key={item.label}
+                        type="button"
+                        onClick={() => {
+                          const nextState = !isDone;
+                          setPainCheckedMap((prev) => ({
+                            ...prev,
+                            [mapKey]: nextState
+                          }));
+                          if (nextState) {
+                            triggerEarnCoin(
+                              item.coin || 15,
+                              `เคลียร์ "${item.label.slice(0, 20)}..."`
+                            );
+                          } else {
+                            playChime("click");
+                          }
+                        }}
+                        className="w-full text-left flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl transition-transform hover:-translate-y-0.5"
                         style={{
-                          fontSize: "11px",
-                          color: "var(--muted)",
-                          flexShrink: 0
+                          background: isDone
+                            ? "rgba(16, 185, 129, 0.1)"
+                            : "var(--panel-strong)",
+                          border: "1px solid var(--border)",
+                          fontSize: "12px"
                         }}
                       >
-                        {item.meta}
-                      </span>
-                    </div>
-                  ))}
+                        <span className="flex items-center gap-2.5 min-w-0 font-medium">
+                          {isDone ? (
+                            <Check size={14} className="text-emerald-600 shrink-0" />
+                          ) : (
+                            <Circle size={14} className="opacity-50 shrink-0" />
+                          )}
+                          <span
+                            className="truncate"
+                            style={{
+                              textDecoration: isDone ? "line-through" : "none",
+                              opacity: isDone ? 0.7 : 1
+                            }}
+                          >
+                            {item.label}
+                          </span>
+                        </span>
+                        <span
+                          className="text-[11px] font-bold shrink-0 px-2 py-0.5 rounded-full"
+                          style={{
+                            background: isDone ? "#10b981" : "#fff3c4",
+                            color: isDone ? "#fff" : "#78350f"
+                          }}
+                        >
+                          {isDone ? "✓ เสร็จแล้ว" : item.meta}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -1003,17 +1921,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 3: A Tour of the Workspace (#walkthrough) ────────── */}
+      {/* ── Section 4: Interactive 6-Room Studio Tour (#walkthrough) ──── */}
       <section
         id="walkthrough"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-16 sm:py-24"
+        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="max-w-2xl space-y-3 mb-8">
           <span
             style={{
               fontSize: "10px",
-              fontWeight: 600,
+              fontWeight: 800,
               letterSpacing: "2px",
               color: "var(--accent)"
             }}
@@ -1026,62 +1944,82 @@ export default function LandingPage() {
               fontSize: "clamp(28px, 3.2vw, 40px)",
               lineHeight: 1.18,
               letterSpacing: "-1.2px",
-              fontWeight: 500
+              fontWeight: 600
             }}
           >
-            ทุกอย่างที่จำเป็นสำหรับจัดการงาน อยู่ในห้องเดียวกัน
+            พาชม 6 ห้องทำงานใน Retzlo (กดทดลองเล่นได้ทุกห้อง!)
           </h2>
         </div>
 
-        {/* Clean Chapter Tabs */}
-        <div
-          className="flex items-center gap-2 overflow-x-auto pb-4 mb-8"
-          style={{ borderBottom: "1px solid var(--border)" }}
-        >
+        {/* Tactile Room Tabs with Sticker Icons */}
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-4 mb-8">
           {WALKTHROUGH_SLIDES.map((slide, idx) => {
             const isActive = idx === activeWalkthroughIndex;
             return (
               <button
                 key={slide.id}
                 type="button"
-                onClick={() => setActiveWalkthroughIndex(idx)}
+                onClick={() => {
+                  setActiveWalkthroughIndex(idx);
+                  playChime("click");
+                }}
+                className="inline-flex items-center gap-2 transition-transform active:translate-y-0.5"
                 style={{
-                  padding: "9px 16px",
-                  borderRadius: "10px",
-                  border: "1px solid var(--border)",
-                  background: isActive ? "var(--foreground)" : "var(--paper)",
-                  color: isActive ? "var(--background)" : "var(--foreground)",
+                  padding: "10px 16px",
+                  borderRadius: "14px",
+                  border: isActive
+                    ? `2px solid ${slide.accentColor}`
+                    : "1px solid var(--border)",
+                  background: isActive ? "var(--panel-strong)" : "var(--paper)",
+                  color: "var(--foreground)",
                   fontSize: "12px",
-                  fontWeight: isActive ? 600 : 500,
-                  whiteSpace: "nowrap"
+                  fontWeight: isActive ? 800 : 600,
+                  whiteSpace: "nowrap",
+                  boxShadow: isActive
+                    ? "4px 4px 0 rgba(84, 53, 107, 0.15)"
+                    : "none"
                 }}
               >
-                {slide.tabName}
+                <div className="relative w-5 h-5 shrink-0">
+                  <Image
+                    src={slide.stickerSrc}
+                    alt=""
+                    fill
+                    sizes="20px"
+                    className="object-contain"
+                  />
+                </div>
+                <span>{slide.tabName}</span>
               </button>
             );
           })}
         </div>
 
-        {/* 5 / 7 Editorial Split */}
+        {/* 5 / 7 Split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-5 space-y-5">
-            <span
-              style={{
-                fontSize: "10px",
-                fontWeight: 600,
-                letterSpacing: "1.8px",
-                color: "var(--muted)"
-              }}
-            >
-              {activeSlide.chapter}
-            </span>
+            <div className="inline-flex items-center gap-2">
+              <span
+                style={{
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "1.6px",
+                  padding: "4px 10px",
+                  borderRadius: "8px",
+                  background: `${activeSlide.accentColor}18`,
+                  color: activeSlide.accentColor
+                }}
+              >
+                {activeSlide.chapter}
+              </span>
+            </div>
 
             <h3
               style={{
                 fontFamily: "Georgia, 'Times New Roman', serif",
                 fontSize: "26px",
                 lineHeight: 1.25,
-                fontWeight: 500
+                fontWeight: 600
               }}
             >
               {activeSlide.title}
@@ -1097,6 +2035,22 @@ export default function LandingPage() {
               {activeSlide.description}
             </p>
 
+            {/* Try Hint Callout */}
+            <div
+              style={{
+                padding: "10px 14px",
+                borderRadius: "12px",
+                background: "#ffecb1",
+                border: "1.5px solid #54356b",
+                color: "#54356b",
+                fontSize: "12px",
+                fontWeight: 700,
+                boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.16)"
+              }}
+            >
+              ✨ {activeSlide.tryHint}
+            </div>
+
             <ul
               className="space-y-3 pt-4"
               style={{ borderTop: "1px solid var(--border)" }}
@@ -1110,7 +2064,7 @@ export default function LandingPage() {
                   <Check
                     size={15}
                     className="mt-1 shrink-0"
-                    style={{ color: "var(--accent)" }}
+                    style={{ color: activeSlide.accentColor }}
                   />
                   <span>{detail}</span>
                 </li>
@@ -1123,27 +2077,28 @@ export default function LandingPage() {
               slide={activeSlide}
               isPlaying={isPlaying}
               onToggleAudio={handlePlayToggle}
+              onEarnCoin={triggerEarnCoin}
             />
           </div>
         </div>
       </section>
 
-      {/* ── Section 4: Honest Fit & Ledger Comparison (#comparison) ──── */}
+      {/* ── Section 5: Interactive Fit Check & Comparison (#comparison) ── */}
       <section
         id="comparison"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-16 sm:py-24 space-y-16"
+        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20 space-y-14"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="max-w-2xl space-y-3">
           <span
             style={{
               fontSize: "10px",
-              fontWeight: 600,
+              fontWeight: 800,
               letterSpacing: "2px",
               color: "var(--accent)"
             }}
           >
-            03 / IS IT FOR YOU?
+            03 / FIT CHECK &amp; COMPARISON
           </span>
           <h2
             style={{
@@ -1151,10 +2106,10 @@ export default function LandingPage() {
               fontSize: "clamp(28px, 3.2vw, 40px)",
               lineHeight: 1.18,
               letterSpacing: "-1.2px",
-              fontWeight: 500
+              fontWeight: 600
             }}
           >
-            ออกแบบมาให้พอดีกับคนที่อยากทำงานอย่างสบายใจ
+            เช็กดูว่า Retzlo เข้ากับสไตล์การทำงานของคุณไหม?
           </h2>
         </div>
 
@@ -1162,117 +2117,179 @@ export default function LandingPage() {
         <div id="check-readiness" className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div
             style={{
-              border: "1px solid var(--border)",
-              borderRadius: "20px",
-              padding: "28px",
-              background: "var(--panel-strong)"
+              border: "2px solid #7858d4",
+              borderRadius: "24px",
+              padding: "26px",
+              background: "var(--panel-strong)",
+              boxShadow: "6px 6px 0 rgba(120, 88, 212, 0.16)"
             }}
+            className="flex flex-col justify-between gap-5"
           >
-            <div className="flex items-center justify-between mb-5">
-              <h3
-                style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "21px",
-                  fontWeight: 500
-                }}
-              >
-                เหมาะกับคุณ ถ้า...
-              </h3>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--accent)",
-                  fontWeight: 600
-                }}
-              >
-                เลือกตรงกับคุณ {checkedReadiness.length}/
-                {SUITABLE_FOR_LIST.length} ข้อ
-              </span>
-            </div>
-
-            <div className="space-y-2.5">
-              {SUITABLE_FOR_LIST.map((item, idx) => {
-                const isChecked = checkedReadiness.includes(idx);
-                return (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => toggleReadinessItem(idx)}
-                    className="w-full text-left flex items-start gap-3 p-3 rounded-xl transition-colors"
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="relative w-7 h-7">
+                    <Image
+                      src="/stickers/retro/retro-sticker-03-checklist.png"
+                      alt=""
+                      fill
+                      sizes="28px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <h3
                     style={{
-                      border: "1px solid var(--border)",
-                      background: isChecked ? "var(--paper)" : "transparent"
+                      fontFamily: "Georgia, 'Times New Roman', serif",
+                      fontSize: "21px",
+                      fontWeight: 600
                     }}
                   >
-                    <span
-                      className="mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0"
+                    เหมาะกับคุณมาก ถ้า... (ลองคลิกติ๊กดู)
+                  </h3>
+                </div>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    padding: "4px 10px",
+                    borderRadius: "999px",
+                    background: "#ede9fe",
+                    color: "#5b21b6",
+                    fontWeight: 800
+                  }}
+                >
+                  ตรง {checkedReadiness.length}/{SUITABLE_FOR_LIST.length} ข้อ
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {SUITABLE_FOR_LIST.map((item, idx) => {
+                  const isChecked = checkedReadiness.includes(idx);
+                  return (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => toggleReadinessItem(idx)}
+                      className="w-full text-left flex items-start gap-3 p-3 rounded-xl transition-all"
                       style={{
-                        border: "1px solid var(--accent)",
-                        background: isChecked ? "var(--accent)" : "transparent",
-                        color: "var(--background)"
+                        border: isChecked
+                          ? "1.5px solid #7858d4"
+                          : "1px solid var(--border)",
+                        background: isChecked ? "var(--paper)" : "transparent"
                       }}
                     >
-                      {isChecked && <Check size={11} strokeWidth={3} />}
-                    </span>
-                    <span style={{ fontSize: "13px", lineHeight: 1.6 }}>
-                      {item}
-                    </span>
-                  </button>
-                );
-              })}
+                      <span
+                        className="mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0"
+                        style={{
+                          border: "1.5px solid #7858d4",
+                          background: isChecked ? "#7858d4" : "transparent",
+                          color: "#fff"
+                        }}
+                      >
+                        {isChecked && <Check size={11} strokeWidth={3} />}
+                      </span>
+                      <span style={{ fontSize: "13px", lineHeight: 1.6, fontWeight: isChecked ? 600 : 400 }}>
+                        {item}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Dynamic Fit Score Badge */}
+            <div
+              style={{
+                padding: "12px 16px",
+                borderRadius: "14px",
+                background: "#ffecb1",
+                border: "1.5px solid #54356b",
+                color: "#432369",
+                fontSize: "12px",
+                fontWeight: 700
+              }}
+            >
+              {checkedReadiness.length >= 3
+                ? `🎯 ตรงถึง ${checkedReadiness.length} ข้อ! คุณคือสาย Cozy Achiever ที่เหมาะกับ Retzlo สุดๆ`
+                : "💡 ลองติ๊กข้อที่ตรงกับนิสัยการทำงานของคุณเพื่อดูผลลัพธ์"}
             </div>
           </div>
 
           <div
             style={{
               border: "1px solid var(--border)",
-              borderRadius: "20px",
-              padding: "28px",
+              borderRadius: "24px",
+              padding: "26px",
               background: "var(--panel-strong)"
             }}
+            className="flex flex-col justify-between gap-5"
           >
-            <div className="flex items-center justify-between mb-5">
-              <h3
-                style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "21px",
-                  fontWeight: 500
-                }}
-              >
-                อาจยังไม่จำเป็น ถ้า...
-              </h3>
-              <span style={{ fontSize: "11px", color: "var(--muted)" }}>
-                ตรงไปตรงมา
-              </span>
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="relative w-7 h-7">
+                    <Image
+                      src="/stickers/retro/retro-sticker-47-sleepy-cloud.png"
+                      alt=""
+                      fill
+                      sizes="28px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <h3
+                    style={{
+                      fontFamily: "Georgia, 'Times New Roman', serif",
+                      fontSize: "21px",
+                      fontWeight: 600
+                    }}
+                  >
+                    อาจยังไม่จำเป็นต้องใช้ ถ้า...
+                  </h3>
+                </div>
+                <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: 600 }}>
+                  บอกกันตรงไปตรงมา
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {NOT_SUITABLE_FOR_LIST.map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 p-3.5 rounded-xl"
+                    style={{
+                      border: "1px solid var(--border)",
+                      background: "var(--paper)",
+                      color: "var(--muted)"
+                    }}
+                  >
+                    <span style={{ fontSize: "13px", lineHeight: 1.65 }}>
+                      — {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-3">
-              {NOT_SUITABLE_FOR_LIST.map((item) => (
-                <div
-                  key={item}
-                  className="flex items-start gap-3 p-3.5 rounded-xl"
-                  style={{
-                    border: "1px solid var(--border)",
-                    background: "var(--paper)",
-                    color: "var(--muted)"
-                  }}
-                >
-                  <span style={{ fontSize: "13px", lineHeight: 1.6 }}>
-                    — {item}
-                  </span>
-                </div>
-              ))}
+            <div
+              className="p-3.5 rounded-xl text-xs"
+              style={{
+                background: "var(--paper)",
+                border: "1px dashed var(--border)",
+                color: "var(--muted)"
+              }}
+            >
+              เราตั้งใจออกแบบ Retzlo ให้เป็นพื้นที่ทำงานที่อบอุ่นและพอดีตัว ไม่ใช่โปรแกรมองค์กรขนาดยักษ์ที่ซับซ้อนเกินจำเป็น
             </div>
           </div>
         </div>
 
-        {/* Clean Ledger Table */}
+        {/* Highlighted Comparison Table */}
         <div
           style={{
-            border: "1px solid var(--border)",
-            borderRadius: "20px",
+            border: "2px solid var(--border-strong, var(--border))",
+            borderRadius: "24px",
             overflow: "hidden",
-            background: "var(--panel-strong)"
+            background: "var(--panel-strong)",
+            boxShadow: "6px 6px 0 rgba(84, 53, 107, 0.1)"
           }}
         >
           <div className="overflow-x-auto">
@@ -1282,18 +2299,21 @@ export default function LandingPage() {
                   style={{
                     borderBottom: "1px solid var(--border)",
                     background: "var(--paper)",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     color: "var(--muted)"
                   }}
                 >
-                  <th className="py-4 px-5 font-semibold">มุมมองเปรียบเทียบ</th>
-                  <th className="py-4 px-5 font-semibold">สร้างตารางเองจากศูนย์</th>
-                  <th className="py-4 px-5 font-semibold">ใช้หลายแอปแยกกัน</th>
+                  <th className="py-4 px-5 font-bold">มุมมองเปรียบเทียบ</th>
+                  <th className="py-4 px-5 font-semibold">สร้างหน้าเพจผูกสูตรเอง</th>
+                  <th className="py-4 px-5 font-semibold">ใช้ 4–5 แอปแยกกัน</th>
                   <th
-                    className="py-4 px-5 font-semibold"
-                    style={{ color: "var(--foreground)" }}
+                    className="py-4 px-5 font-extrabold"
+                    style={{
+                      background: "rgba(120, 88, 212, 0.12)",
+                      color: "var(--foreground)"
+                    }}
                   >
-                    Retzlo
+                    ✨ Retzlo Studio
                   </th>
                 </tr>
               </thead>
@@ -1306,20 +2326,22 @@ export default function LandingPage() {
                       fontSize: "13px"
                     }}
                   >
-                    <td className="py-4 px-5 font-medium">{row.feature}</td>
-                    <td
-                      className="py-4 px-5"
-                      style={{ color: "var(--muted)" }}
-                    >
+                    <td className="py-4 px-5 font-bold">{row.feature}</td>
+                    <td className="py-4 px-5" style={{ color: "var(--muted)" }}>
                       {row.diy}
                     </td>
-                    <td
-                      className="py-4 px-5"
-                      style={{ color: "var(--muted)" }}
-                    >
+                    <td className="py-4 px-5" style={{ color: "var(--muted)" }}>
                       {row.multiApp}
                     </td>
-                    <td className="py-4 px-5 font-medium">{row.retzlo}</td>
+                    <td
+                      className="py-4 px-5 font-bold"
+                      style={{
+                        background: "rgba(120, 88, 212, 0.07)",
+                        color: "var(--foreground)"
+                      }}
+                    >
+                      {row.retzlo}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -1328,18 +2350,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 5: Common Questions (#faq) ─────────────────────── */}
+      {/* ── Section 6: Common Questions (#faq) ─────────────────────── */}
       <section
         id="faq"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-16 sm:py-24"
+        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-4 space-y-3">
+          <div className="lg:col-span-4 space-y-4">
             <span
               style={{
                 fontSize: "10px",
-                fontWeight: 600,
+                fontWeight: 800,
                 letterSpacing: "2px",
                 color: "var(--accent)"
               }}
@@ -1352,17 +2374,18 @@ export default function LandingPage() {
                 fontSize: "clamp(28px, 3vw, 36px)",
                 lineHeight: 1.18,
                 letterSpacing: "-1px",
-                fontWeight: 500
+                fontWeight: 600
               }}
             >
               คำถามที่พบบ่อย
             </h2>
-            <p style={{ fontSize: "13px", color: "var(--muted)", lineHeight: 1.7 }}>
-              หากต้องการดูรายละเอียดของแต่ละฟีเจอร์เพิ่มเติม สามารถเปิดอ่านใน{" "}
+            <p style={{ fontSize: "13.5px", color: "var(--muted)", lineHeight: 1.7 }}>
+              อยากดูวิธีใช้งานแต่ละฟีเจอร์แบบละเอียด สามารถเปิดอ่านใน{" "}
               <Link
                 href="/help"
                 style={{
                   color: "var(--foreground)",
+                  fontWeight: 700,
                   textDecoration: "underline",
                   textUnderlineOffset: "3px"
                 }}
@@ -1373,30 +2396,40 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-8 space-y-2.5">
             {FAQ_ITEMS.map((faq, idx) => {
               const isOpen = openFaqIndex === idx;
               return (
                 <div
                   key={faq.num}
-                  style={{ borderBottom: "1px solid var(--border)" }}
+                  style={{
+                    border: isOpen
+                      ? "1.5px solid #7858d4"
+                      : "1px solid var(--border)",
+                    borderRadius: "16px",
+                    background: isOpen ? "var(--panel-strong)" : "var(--paper)",
+                    padding: "0 18px"
+                  }}
                 >
                   <button
                     type="button"
-                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                    className="w-full py-5 text-left flex items-center justify-between gap-4"
+                    onClick={() => {
+                      setOpenFaqIndex(isOpen ? null : idx);
+                      playChime("click");
+                    }}
+                    className="w-full py-4 text-left flex items-center justify-between gap-4"
                   >
-                    <div className="flex items-baseline gap-4">
+                    <div className="flex items-baseline gap-3.5">
                       <span
                         style={{
                           fontSize: "11px",
-                          color: "var(--muted)",
-                          fontWeight: 600
+                          color: "var(--accent)",
+                          fontWeight: 800
                         }}
                       >
                         {faq.num}
                       </span>
-                      <span style={{ fontSize: "15px", fontWeight: 500 }}>
+                      <span style={{ fontSize: "15px", fontWeight: 600 }}>
                         {faq.question}
                       </span>
                     </div>
@@ -1411,9 +2444,9 @@ export default function LandingPage() {
                   </button>
                   {isOpen && (
                     <div
-                      className="pb-5 pl-8 pr-4"
+                      className="pb-4 pl-7 pr-4"
                       style={{
-                        fontSize: "14px",
+                        fontSize: "13.5px",
                         lineHeight: 1.75,
                         color: "var(--muted)"
                       }}
@@ -1428,84 +2461,125 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 6: Closing Postcard CTA (#buy) ──────────────────── */}
+      {/* ── Section 7: Mixtape Studio Pass Closing Ticket CTA (#buy) ── */}
       <section
         id="buy"
         className="max-w-[1240px] mx-auto px-5 sm:px-8 pb-20 pt-6"
       >
         <div
-          className="p-8 sm:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8"
+          className="relative overflow-hidden p-8 sm:p-12 md:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
           style={{
-            border: "1px solid var(--border)",
-            borderRadius: "24px",
-            background: "var(--panel-strong)",
-            boxShadow: "var(--shadow-panel)"
+            border: "2px solid #54356b",
+            borderRadius: "28px",
+            background:
+              "linear-gradient(125deg, #5942b8 0%, #7858d4 48%, #b184e7 82%, #ffb4d5 100%)",
+            color: "#fff5ff",
+            boxShadow: "10px 10px 0 rgba(84, 53, 107, 0.22)"
           }}
         >
-          <div className="space-y-3 max-w-xl">
-            <span
-              style={{
-                fontSize: "10px",
-                fontWeight: 600,
-                letterSpacing: "2px",
-                color: "var(--accent)"
-              }}
-            >
-              MAKE SPACE FOR YOUR NEXT CHAPTER
-            </span>
+          <div className="lg:col-span-8 space-y-4 relative z-10">
+            <div className="inline-flex items-center gap-2">
+              <span
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: "999px",
+                  background: "#ffecb1",
+                  color: "#432369",
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "1.6px"
+                }}
+              >
+                ADMIT ONE · YOUR COZY WORKSPACE PASS
+              </span>
+            </div>
+
             <h2
               style={{
                 fontFamily: "Georgia, 'Times New Roman', serif",
-                fontSize: "clamp(28px, 3.4vw, 42px)",
+                fontSize: "clamp(28px, 3.5vw, 44px)",
                 lineHeight: 1.15,
-                letterSpacing: "-1.4px",
-                fontWeight: 500
+                letterSpacing: "-1.2px",
+                fontWeight: 600
               }}
             >
-              ลองจัดพื้นที่ทำงานในแบบที่สบายใจสำหรับคุณ
+              พร้อมเปลี่ยนโต๊ะทำงานที่วุ่นวาย ให้กลายเป็นมุมโปรดของคุณหรือยัง?
             </h2>
-            <p style={{ fontSize: "14px", color: "var(--muted)", lineHeight: 1.7 }}>
-              สร้างโปรเจกต์แรกได้ฟรี มีบอร์ดงาน ปฏิทิน สมุดโน้ต และบันทึกประจำวันพร้อมให้เริ่มทันที
+
+            <p
+              style={{
+                fontSize: "15px",
+                color: "rgba(255, 245, 255, 0.88)",
+                lineHeight: 1.7,
+                maxWidth: "54ch"
+              }}
+            >
+              เข้ามาสร้างโปรเจกต์แรกได้ฟรี มีบอร์ดงาน ตาราง ปฏิทิน สมุดโน้ต ไดอารี่
+              เครื่องเล่นเทป Lofi และสวนหินญี่ปุ่นรอให้คุณเข้ามาจัดจังหวะชีวิตในแบบของตัวเอง
             </p>
+
+            <div className="flex flex-wrap items-center gap-3.5 pt-2">
+              <Link href={defaultDestination}>
+                <button
+                  className="transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    height: "52px",
+                    padding: "0 26px",
+                    borderRadius: "14px",
+                    border: "2px solid #432369",
+                    background: "#ffecb1",
+                    color: "#432369",
+                    fontSize: "14px",
+                    fontWeight: 800,
+                    boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.35)"
+                  }}
+                >
+                  <span>Enter Workspace</span>
+                  <ArrowRight size={16} />
+                </button>
+              </Link>
+
+              <Link href="/help">
+                <button
+                  style={{
+                    height: "52px",
+                    padding: "0 20px",
+                    borderRadius: "14px",
+                    border: "1.5px solid rgba(255, 255, 255, 0.45)",
+                    background: "rgba(255, 255, 255, 0.14)",
+                    color: "#fff5ff",
+                    fontSize: "14px",
+                    fontWeight: 600
+                  }}
+                >
+                  อ่านคู่มือการใช้งาน
+                </button>
+              </Link>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <Link href={defaultDestination}>
-              <button
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  height: "50px",
-                  padding: "0 24px",
-                  borderRadius: "12px",
-                  border: "1px solid var(--accent)",
-                  background: "var(--accent)",
-                  color: "var(--background)",
-                  fontSize: "14px",
-                  fontWeight: 600
-                }}
-              >
-                <span>Enter Workspace</span>
-                <ArrowRight size={15} />
-              </button>
-            </Link>
-            <Link href="/help">
-              <button
-                style={{
-                  height: "50px",
-                  padding: "0 20px",
-                  borderRadius: "12px",
-                  border: "1px solid var(--border)",
-                  background: "var(--paper)",
-                  color: "var(--foreground)",
-                  fontSize: "14px",
-                  fontWeight: 500
-                }}
-              >
-                อ่านคู่มือระบบ
-              </button>
-            </Link>
+          {/* Right Ticket Stub with Cassette & Stickers */}
+          <div className="lg:col-span-4 relative z-10 flex flex-col items-center justify-center p-5 rounded-2xl bg-white/15 border border-white/30 backdrop-blur-md">
+            <div className="relative w-44 h-28">
+              <Image
+                src="/images/login-cassette-cutout.png"
+                alt="Retzlo Mixtape Pass"
+                fill
+                sizes="176px"
+                className="object-contain drop-shadow-xl"
+              />
+            </div>
+            <div className="mt-3 text-center">
+              <div className="text-xs font-extrabold tracking-wider text-[#ffecb1]">
+                RETZLO MIXTAPE EDITION
+              </div>
+              <div className="text-[11px] opacity-85 mt-0.5">
+                ที่คุณทดลองสะสมไว้บนหน้านี้: <strong>{walletCoins} Coins</strong>
+              </div>
+            </div>
           </div>
         </div>
       </section>
