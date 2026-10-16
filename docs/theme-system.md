@@ -785,13 +785,15 @@ Template:
 - Verification: Vitest full suite (100 test files, 533 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (42/42 routes).
 
 ### 2026-10-16 — Marketing Landing Page Redesign (Cozy Lofi Mixtape Studio, Custom Illustrations & Smooth Physics)
-- Coverage: `/` (`src/app/(marketing)/page.tsx`, `src/app/(marketing)/landing-data.ts`, `src/app/(marketing)/walkthrough-mockup.tsx`, `src/app/globals.css`, `public/images/landing/*.jpg`).
+- Coverage: `/` (`src/app/(marketing)/page.tsx`, `src/app/(marketing)/landing-data.ts`, `src/app/(marketing)/walkthrough-mockup.tsx`, `src/app/globals.css`, `public/images/landing/*.png`).
 - Design Direction & Tokens:
   - Thai & Display Typography (`src/app/globals.css`): Added `Anuphan`, `IBM Plex Sans Thai`, and `Instrument Serif` alongside `Plus Jakarta Sans` (`--font-sans`, `--font-display`, `--font-editorial`), eliminating Latin-only serif fallback mismatches on Thai headlines and ensuring balanced line-height (`1.24`–`1.35`) for Thai tone marks.
-  - Bespoke Hand-Drawn Illustrations (`public/images/landing/`): Added 4 custom watercolor-and-ink lofi studio illustrations (`cozy-desk-hero.jpg`, `before-chaos-desk.jpg`, `after-flow-desk.jpg`, and `zen-sakura-terrarium.jpg`) alongside `/stickers/retro/` and `/stickers/rewards/` assets.
+  - Bespoke Hand-Drawn Illustrations (`public/images/landing/`): Generated, sliced, and background-cut 14 transparent die-cut PNG illustrations (`zen-stage-1..4.png`, `case-01..05.png`, `hero-lofi-mascot.png`, `fit-cozy-achiever.png`, `fit-heavy-erp.png`, `before-chaos-cutout.png`, `after-flow-cutout.png`). Zero repeated illustrations or stickers across the landing page.
+  - Tactile Studio Herobar: Multi-color accent tape, live pulse indicator (`STUDIO v2.4`), tactile navigation pills, live Coin Wallet pill with auto-expiring burst particles, and Lofi radio mini player with animated 3-bar equalizer (`.lp-eq-bar`).
+  - Bug Fixes for Scoring & Task Completion: Unchecking tasks now reverses coins to prevent infinite farming across Playground Step 1, Pain Point checklist, and Walkthrough rooms. Hero Focus Card now rotates through real focus tasks with separate advance/reset actions and single-award coin logic.
   - 60fps Spring Micro-Interactions: Added `.lp-spring-card`, `.lp-press-btn`, `.lp-float-sticker`, `.lp-tab-stage` tab cross-fade/slide transitions, `.lp-coin-burst` floating coin particles, `.lp-ripple-ring` Karesansui water ripples, and smooth CSS Grid FAQ accordions (`grid-template-rows: 0fr -> 1fr`).
   - Native Dual-Theme Support: Supports both Warm Paper (Light) and Retro Lofi Indigo (Dark) via `ThemeToggle` in the top header.
-- Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed.
+- Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed (42/42 routes).
 
 
 

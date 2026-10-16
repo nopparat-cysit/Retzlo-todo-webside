@@ -60,32 +60,64 @@ interface CoinBurst {
 
 const HERO_STAGES = ["To do", "In progress", "Done"] as const;
 
+interface HeroFocusTask {
+  id: string;
+  title: string;
+  tag: string;
+  coins: number;
+}
+
+const HERO_FOCUS_TASKS: HeroFocusTask[] = [
+  {
+    id: "hf-1",
+    title: "จัดลำดับ 3 งานสำคัญที่สุดของวันนี้",
+    tag: "TODAY'S FOCUS",
+    coins: 25
+  },
+  {
+    id: "hf-2",
+    title: "เปิดโหมดโฟกัส 25 นาที เคลียร์งานหลัก",
+    tag: "DEEP WORK",
+    coins: 25
+  },
+  {
+    id: "hf-3",
+    title: "เขียนสรุปความคืบหน้าสั้นๆ ในสมุดโน้ต",
+    tag: "DAILY SYNC",
+    coins: 20
+  }
+];
+
 const SAKURA_STAGES = [
   {
     level: 1,
-    name: "Stage 1 · ต้นอ่อนเพิ่งผลิใบ",
-    desc: "คลิกที่สวนหินเพื่อสร้างคลื่นน้ำและเติมพลังใจ",
-    scale: 0.94,
+    name: "Stage 1 · สวนทราย & ต้นอ่อนผลิใบ",
+    desc: "สวนหินพร้อมต้นกล้าเล็กๆ รอรับน้ำและความใส่ใจ",
+    imgSrc: "/images/landing/zen-stage-1.png",
+    scale: 0.96,
     petals: 3
   },
   {
     level: 2,
-    name: "Stage 2 · แตกกิ่งรับแสงเช้า",
-    desc: "ต้นไม้เริ่มโตตามจังหวะงานที่คุณเคลียร์สำเร็จ",
-    scale: 0.98,
+    name: "Stage 2 · ต้นบอนไซเริ่มแตกกิ่งก้าน",
+    desc: "ต้นไม้ค่อยๆ โตขึ้นตามภารกิจที่คุณเคลียร์ในแต่ละวัน",
+    imgSrc: "/images/landing/zen-stage-2.png",
+    scale: 1.0,
     petals: 6
   },
   {
     level: 3,
-    name: "Stage 3 · ดอกตูมสีชมพูอ่อน",
-    desc: "อีกนิดเดียวซากุระก็จะบานเต็มต้นแล้ว!",
-    scale: 1.02,
+    name: "Stage 3 · ดอกตูมซากุระพร้อมสะพานไม้",
+    desc: "บรรยากาศสวนเริ่มร่มรื่น ดอกตูมสีชมพูกำลังจะบาน",
+    imgSrc: "/images/landing/zen-stage-3.png",
+    scale: 1.03,
     petals: 10
   },
   {
     level: 4,
-    name: "Stage 4 · ซากุระบานสะพรั่งเต็มสวน!",
-    desc: "บรรยากาศโต๊ะทำงานสดชื่นพร้อมลุยวันต่อไป",
+    name: "Stage 4 · ซากุระบานสะพรั่งคู่เสาโทริอิ!",
+    desc: "สวนเซนสมบูรณ์แบบพร้อมเหรียญทองแห่งความสำเร็จ",
+    imgSrc: "/images/landing/zen-stage-4.png",
     scale: 1.06,
     petals: 16
   }
@@ -101,6 +133,8 @@ export default function LandingPage() {
   const artRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [heroStage, setHeroStage] = useState(0);
+  const [heroTaskIdx, setHeroTaskIdx] = useState(0);
+  const [heroCompletedTasks, setHeroCompletedTasks] = useState<string[]>([]);
 
   // Interactive Playground & Live Coin Wallet state
   const [walletCoins, setWalletCoins] = useState<number>(45);
@@ -231,20 +265,29 @@ export default function LandingPage() {
 
   const triggerEarnCoin = (amount: number, message: string) => {
     const burstId = Date.now() + Math.random();
-    setWalletCoins((prev) => prev + amount);
+    setWalletCoins((prev) => Math.max(0, prev + amount));
     setCoinBursts((prev) => [...prev.slice(-3), { id: burstId, amount }]);
-    setToastBanner(`+${amount} Coins · ${message}`);
-    playChime("coin");
+    if (amount > 0) {
+      setToastBanner(`+${amount} Coins · ${message}`);
+      playChime("coin");
+    } else {
+      setToastBanner(`${amount} Coins · ${message}`);
+      playChime("click");
+    }
+
+    setTimeout(() => {
+      setCoinBursts((prev) => prev.filter((b) => b.id !== burstId));
+    }, 1200);
   };
 
   const handleTogglePlaygroundTask = (taskId: string, coins: number, title: string) => {
     const alreadyDone = completedTaskIds.includes(taskId);
     if (alreadyDone) {
       setCompletedTaskIds((prev) => prev.filter((id) => id !== taskId));
-      playChime("click");
+      triggerEarnCoin(-coins, `ยกเลิก "${title.slice(0, 18)}..."`);
     } else {
       setCompletedTaskIds((prev) => [...prev, taskId]);
-      triggerEarnCoin(coins, `เคลียร์ "${title.slice(0, 22)}..." สำเร็จ!`);
+      triggerEarnCoin(coins, `เคลียร์ "${title.slice(0, 18)}..." สำเร็จ!`);
     }
   };
 
@@ -273,11 +316,48 @@ export default function LandingPage() {
     setWaterDrops((prev) => {
       const next = prev + 1;
       if (next % 2 === 0) {
-        setSakuraStageIdx((stage) => (stage + 1) % SAKURA_STAGES.length);
+        setSakuraStageIdx((stage) => {
+          const nextStage = (stage + 1) % SAKURA_STAGES.length;
+          if (nextStage === 3) {
+            triggerEarnCoin(20, "ซากุระบานสะพรั่งเต็มสวนเซน! 🌸");
+          } else {
+            triggerEarnCoin(10, `ซากุระเติบโตสู่ ${SAKURA_STAGES[nextStage].name}!`);
+          }
+          return nextStage;
+        });
+      } else {
+        playChime("ripple");
       }
       return next;
     });
-    playChime("ripple");
+  };
+
+  const currentHeroTask = HERO_FOCUS_TASKS[heroTaskIdx] || HERO_FOCUS_TASKS[0];
+  const isHeroTaskAwarded = heroCompletedTasks.includes(currentHeroTask.id);
+
+  const advanceHeroTask = () => {
+    if (heroStage === 0) {
+      setHeroStage(1);
+      playChime("click");
+    } else if (heroStage === 1) {
+      setHeroStage(2);
+      if (!isHeroTaskAwarded) {
+        setHeroCompletedTasks((prev) => [...prev, currentHeroTask.id]);
+        triggerEarnCoin(currentHeroTask.coins, `ทำภารกิจ "${currentHeroTask.title.slice(0, 18)}..." สำเร็จ!`);
+      } else {
+        playChime("reward");
+        setToastBanner("ภารกิจนี้ทำเสร็จแล้ว · รับเหรียญไปแล้ว 🪙");
+      }
+    } else {
+      setHeroTaskIdx((prev) => (prev + 1) % HERO_FOCUS_TASKS.length);
+      setHeroStage(0);
+      playChime("click");
+    }
+  };
+
+  const resetHeroTask = () => {
+    setHeroStage(0);
+    playChime("click");
   };
 
   function moveArtwork(event: PointerEvent<HTMLDivElement>) {
@@ -435,69 +515,120 @@ export default function LandingPage() {
       }}
     >
       {/* ── Top Navigation Bar with Live Coin Counter & Burst ─────────── */}
+      {/* ── Tactile Studio Herobar with Live Coin Wallet & Equalizer ── */}
       <header
         style={{
           position: "sticky",
           top: 0,
           zIndex: 50,
-          borderBottom: "1px solid var(--border)",
-          background: "color-mix(in srgb, var(--background) 88%, transparent)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)"
+          borderBottom: "1.5px solid var(--border)",
+          background: "color-mix(in srgb, var(--background) 86%, transparent)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)"
         }}
       >
+        {/* Retro Multi-Color Accent Tape on top */}
+        <div
+          style={{
+            height: "3px",
+            background:
+              "linear-gradient(90deg, #7858d4 0%, #db2777 35%, #f59e0b 70%, #10b981 100%)",
+            opacity: 0.85
+          }}
+        />
+
         <div className="max-w-[1240px] mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-3">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2.5"
+          {/* Brand Logo + Live Studio Dot */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2.5"
+              style={{
+                fontSize: "25px",
+                fontWeight: 800,
+                letterSpacing: "-1.2px",
+                color: "var(--foreground)"
+              }}
+            >
+              <MixtapeLogoMark />
+              <span>retzlo</span>
+            </Link>
+            <span
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider"
+              style={{
+                background: "rgba(120, 88, 212, 0.12)",
+                color: "#7858d4",
+                border: "1px solid rgba(120, 88, 212, 0.28)"
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>STUDIO v2.4</span>
+            </span>
+          </div>
+
+          {/* Desktop Navigation with Tactile Rounded Pills */}
+          <nav
+            className="hidden lg:flex items-center gap-1 p-1 rounded-full border border-[var(--border)]"
             style={{
-              fontSize: "26px",
-              fontWeight: 800,
-              letterSpacing: "-1.2px",
-              color: "var(--foreground)"
+              background: "var(--paper)",
+              fontSize: "12.5px",
+              fontWeight: 600
             }}
           >
-            <MixtapeLogoMark />
-            <span>retzlo</span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav
-            className="hidden lg:flex items-center gap-6"
-            style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--muted)" }}
-          >
-            <a href="#playground" className="hover:opacity-100 transition-opacity">
-              ลองเล่นมินิเกม
+            <a
+              href="#playground"
+              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10 flex items-center gap-1.5 font-bold"
+              style={{ color: "var(--accent-2, #d97706)" }}
+            >
+              <span>🎮 ลองเล่นมินิเกม</span>
             </a>
-            <a href="#pain-tabs" className="hover:opacity-100 transition-opacity">
-              ปัญหาที่อยากแก้
+            <a
+              href="#pain-tabs"
+              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10"
+              style={{ color: "var(--muted)" }}
+            >
+              ปัญหาที่แก้
             </a>
-            <a href="#walkthrough" className="hover:opacity-100 transition-opacity">
-              ทัวร์ 6 ห้องทำงาน
+            <a
+              href="#walkthrough"
+              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10"
+              style={{ color: "var(--muted)" }}
+            >
+              ทัวร์ 6 ห้อง
             </a>
-            <a href="#comparison" className="hover:opacity-100 transition-opacity">
+            <a
+              href="#comparison"
+              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10"
+              style={{ color: "var(--muted)" }}
+            >
               เหมาะกับใคร
             </a>
-            <a href="#faq" className="hover:opacity-100 transition-opacity">
+            <a
+              href="#faq"
+              className="px-3 py-1 rounded-full transition-all hover:bg-black/5 dark:hover:bg-white/10"
+              style={{ color: "var(--muted)" }}
+            >
               คำถามพบบ่อย
             </a>
           </nav>
 
-          {/* Right Actions + Live Interactive Coin Pill */}
+          {/* Right Actions: Interactive Coin Wallet Pill + Lofi Radio Deck + Auth */}
           <div className="hidden md:flex items-center gap-2.5">
+            {/* Live Interactive Coin Pill */}
             <div className="relative">
               <a
                 href="#playground"
-                title="เหรียญสะสมจากการทดลองกดเล่นบนหน้าเว็บ"
-                className="lp-press-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold"
+                title="กระเป๋าเหรียญสะสมจากการทดลองกดเล่นบนหน้าเว็บ (คลิกเพื่อไปที่มินิเกม)"
+                className="lp-press-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black"
                 style={{
-                  background: "#fff3c4",
-                  color: "#54356b",
-                  border: "1.5px solid #54356b",
-                  boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.22)"
+                  background: "#ffecb1",
+                  color: "#432369",
+                  border: "2px solid #54356b",
+                  boxShadow: "2.5px 2.5px 0 rgba(84, 53, 107, 0.28)"
                 }}
               >
-                <div className="relative w-4 h-4">
+                <div className="relative w-4 h-4 shrink-0">
                   <Image
                     src="/stickers/rewards/reward-icon-01-coin.png"
                     alt=""
@@ -506,36 +637,52 @@ export default function LandingPage() {
                     className="object-contain"
                   />
                 </div>
-                <span>{walletCoins} Coins</span>
+                <span className="font-mono tracking-tight font-black">{walletCoins}</span>
+                <span className="text-[10px] tracking-wider uppercase opacity-80">Coins</span>
               </a>
 
-              {/* Floating +Coin Burst Particles */}
+              {/* Floating +Coin / -Coin Burst Particles */}
               {coinBursts.map((b) => (
                 <span
                   key={b.id}
-                  className="lp-coin-burst pointer-events-none absolute -top-2 right-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold shadow-sm"
+                  className="lp-coin-burst pointer-events-none absolute -top-3.5 right-0 px-2.5 py-0.5 rounded-full text-[11px] font-black shadow-md"
                   style={{
-                    background: "#10b981",
-                    color: "#ffffff"
+                    background: b.amount > 0 ? "#10b981" : "#ef4444",
+                    color: "#ffffff",
+                    border: "1.5px solid rgba(255, 255, 255, 0.5)"
                   }}
                 >
-                  +{b.amount}c
+                  {b.amount > 0 ? `+${b.amount}c` : `${b.amount}c`}
                 </span>
               ))}
             </div>
 
+            {/* Lofi Radio Synthesizer Toggle with Animated Equalizer Bars */}
             <button
               type="button"
               onClick={handlePlayToggle}
-              className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+              title={isPlaying ? "พักเสียงดนตรี Lofi" : "เปิดฟังเสียงคอร์ด Lofi สดจากเบราว์เซอร์"}
+              className="lp-press-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold"
               style={{
-                border: "1px solid var(--border)",
-                background: isPlaying ? "#ede9fe" : "var(--paper)",
-                color: isPlaying ? "#5b21b6" : "var(--foreground)"
+                border: isPlaying
+                  ? "1.5px solid #7858d4"
+                  : "1px solid var(--border)",
+                background: isPlaying
+                  ? "rgba(120, 88, 212, 0.15)"
+                  : "var(--paper)",
+                color: isPlaying ? "#7858d4" : "var(--foreground)"
               }}
             >
-              <Disc3 size={14} className={isPlaying ? "animate-spin" : undefined} />
-              <span>{isPlaying ? "Lofi On" : "Lofi Radio"}</span>
+              {isPlaying ? (
+                <span className="flex items-center gap-0.5 h-3.5 text-[#7858d4]">
+                  <span className="lp-eq-bar" />
+                  <span className="lp-eq-bar" />
+                  <span className="lp-eq-bar" />
+                </span>
+              ) : (
+                <Disc3 size={15} />
+              )}
+              <span>{isPlaying ? "Lofi Playing" : "Lofi Radio"}</span>
             </button>
 
             <ThemeToggle variant="icon" />
@@ -553,14 +700,14 @@ export default function LandingPage() {
                   <button
                     className="lp-press-btn"
                     style={{
-                      padding: "9px 16px",
+                      padding: "9px 18px",
                       borderRadius: "12px",
-                      border: "1.5px solid #54356b",
+                      border: "2px solid #54356b",
                       background: "var(--accent)",
                       color: "var(--background)",
                       fontSize: "12px",
-                      fontWeight: 700,
-                      boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.2)"
+                      fontWeight: 800,
+                      boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.25)"
                     }}
                   >
                     Enter Workspace
@@ -568,7 +715,7 @@ export default function LandingPage() {
                 </Link>
               </div>
             ) : (
-              <>
+              <div className="flex items-center gap-2">
                 <Link
                   href="/login"
                   style={{
@@ -584,32 +731,32 @@ export default function LandingPage() {
                   <button
                     className="lp-press-btn"
                     style={{
-                      padding: "9px 16px",
+                      padding: "9px 18px",
                       borderRadius: "12px",
-                      border: "1.5px solid #54356b",
+                      border: "2px solid #54356b",
                       background: "var(--accent)",
                       color: "var(--background)",
                       fontSize: "12px",
-                      fontWeight: 700,
-                      boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.2)"
+                      fontWeight: 800,
+                      boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.25)"
                     }}
                   >
                     Enter Workspace
                   </button>
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Actions */}
           <div className="flex md:hidden items-center gap-2">
             <a
               href="#playground"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black"
               style={{
-                background: "#fff3c4",
-                color: "#54356b",
-                border: "1px solid #54356b"
+                background: "#ffecb1",
+                color: "#432369",
+                border: "1.5px solid #54356b"
               }}
             >
               <span>🪙 {walletCoins}</span>
@@ -1011,18 +1158,8 @@ export default function LandingPage() {
                   ))}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = (heroStage + 1) % HERO_STAGES.length;
-                    setHeroStage(next);
-                    if (next === 2) {
-                      triggerEarnCoin(25, "ขยับการ์ดหน้า Hero ไป Done สำเร็จ!");
-                    } else {
-                      playChime("click");
-                    }
-                  }}
-                  className="lp-press-btn"
+                <div
+                  className="lp-spring-card"
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -1030,12 +1167,11 @@ export default function LandingPage() {
                     gap: "9px",
                     width: "100%",
                     padding: "14px",
-                    borderRadius: "12px",
+                    borderRadius: "14px",
                     border: "2px solid #54356b",
-                    background: "#fff7fc",
+                    background: heroStage === 2 ? "#f0fdf4" : "#fff7fc",
                     color: "#432369",
-                    boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.25)",
-                    cursor: "pointer"
+                    boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.25)"
                   }}
                 >
                   <div className="flex items-center justify-between w-full">
@@ -1044,45 +1180,81 @@ export default function LandingPage() {
                         fontSize: "9px",
                         fontWeight: 800,
                         letterSpacing: "1px",
-                        color: "#8b5cf6"
+                        color: heroStage === 2 ? "#15803d" : "#8b5cf6"
                       }}
                     >
-                      TODAY&apos;S FOCUS CARD
+                      {currentHeroTask.tag} · {heroTaskIdx + 1}/3
                     </span>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#fff0b8] text-[#78350f]">
-                      +25 Coins
+                    <span
+                      className="text-[10px] font-extrabold px-2 py-0.5 rounded-full"
+                      style={{
+                        background: heroStage === 2 ? "#dcfce7" : "#fff0b8",
+                        color: heroStage === 2 ? "#166534" : "#78350f"
+                      }}
+                    >
+                      {isHeroTaskAwarded && heroStage === 2
+                        ? "✓ รับแล้ว +25c"
+                        : `+${currentHeroTask.coins} Coins`}
                     </span>
                   </div>
+
                   <strong style={{ fontSize: "14px", lineHeight: 1.4 }}>
                     {heroStage === 2
-                      ? "🎉 เสร็จเรียบร้อย! รับ +25 เหรียญไปแลกกาแฟได้เลย"
+                      ? `🎉 เสร็จเรียบร้อย! "${currentHeroTask.title}"`
                       : heroStage === 1
-                        ? "กำลังโฟกัส: จัดลำดับ 3 งานสำคัญของวันนี้"
-                        : "จัดลำดับ 3 งานสำคัญของวันนี้"}
+                        ? `กำลังทำ: ${currentHeroTask.title}`
+                        : currentHeroTask.title}
                   </strong>
-                  <span
-                    className="flex items-center gap-1.5 text-[11px] font-semibold mt-0.5"
-                    style={{ color: "#6d4c7d" }}
-                  >
-                    {heroStage === 2 ? (
-                      <Check size={13} className="text-emerald-600" />
-                    ) : (
-                      <Circle size={13} />
-                    )}
-                    <span>
-                      {heroStage === 2
-                        ? "คลิกอีกครั้งเพื่อเริ่มรอบใหม่"
-                        : "คลิกเพื่อขยับสถานะการ์ด →"}
-                    </span>
-                    <span className="ml-auto">
-                      {heroStage === 2 ? (
-                        <RotateCcw size={13} />
-                      ) : (
+
+                  {heroStage === 2 ? (
+                    <div className="flex items-center gap-2 pt-1 border-t border-black/10">
+                      <button
+                        type="button"
+                        onClick={advanceHeroTask}
+                        className="lp-press-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
+                        style={{
+                          background: "#54356b",
+                          color: "#ffecb1",
+                          border: "1px solid #432369"
+                        }}
+                      >
+                        <span>งานถัดไป ({heroTaskIdx + 2 > 3 ? 1 : heroTaskIdx + 2}/3)</span>
                         <ArrowRight size={13} />
-                      )}
-                    </span>
-                  </span>
-                </button>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetHeroTask}
+                        className="lp-press-btn py-1.5 px-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1"
+                        style={{
+                          background: "#ffffff",
+                          color: "#54356b",
+                          border: "1px solid rgba(84, 53, 107, 0.3)"
+                        }}
+                        title="เริ่มขยับการ์ดใบนี้ใหม่อีกรอบ"
+                      >
+                        <RotateCcw size={13} />
+                        <span>รีเซ็ต</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={advanceHeroTask}
+                      className="lp-press-btn flex items-center justify-between w-full pt-1 text-[11px] font-bold"
+                      style={{ color: "#6d4c7d" }}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <Circle size={13} />
+                        <span>
+                          {heroStage === 0
+                            ? "คลิกเพื่อเริ่มทำ (To do → In progress)"
+                            : "คลิกเพื่อทำให้เสร็จ (In progress → Done ✓)"}
+                        </span>
+                      </span>
+                      <ArrowRight size={13} />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Tilted Paper Callout Sticker */}
@@ -1540,19 +1712,19 @@ export default function LandingPage() {
                     boxShadow: "inset 0 2px 12px rgba(92, 68, 38, 0.18)"
                   }}
                 >
-                  {/* Custom Hand-Drawn Zen Sakura Terrarium Illustration */}
+                  {/* Custom Hand-Drawn Zen Sakura 4-Stage Illustration */}
                   <div
-                    className="absolute inset-0 transition-transform duration-500 ease-out"
+                    className="absolute inset-0 flex items-center justify-center p-3 transition-transform duration-500 ease-out"
                     style={{
                       transform: `scale(${currentSakura.scale})`
                     }}
                   >
                     <Image
-                      src="/images/landing/zen-sakura-terrarium.jpg"
-                      alt="Japanese Zen Sand Garden & Sakura Bonsai"
+                      src={currentSakura.imgSrc}
+                      alt={currentSakura.name}
                       fill
-                      sizes="360px"
-                      className="object-cover"
+                      sizes="340px"
+                      className="object-contain drop-shadow-lg"
                     />
                   </div>
 
@@ -1598,10 +1770,18 @@ export default function LandingPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setSakuraStageIdx((s) => (s + 1) % SAKURA_STAGES.length);
-                    triggerEarnCoin(10, "ดูแลต้นซากุระในสวนหิน!");
+                    setWaterDrops((prev) => prev + 1);
+                    setSakuraStageIdx((s) => {
+                      const nextStage = (s + 1) % SAKURA_STAGES.length;
+                      if (nextStage === 3) {
+                        triggerEarnCoin(20, "ซากุระบานสะพรั่งเต็มสวนเซน! 🌸");
+                      } else {
+                        triggerEarnCoin(10, `ซากุระเติบโตสู่ ${SAKURA_STAGES[nextStage].name}!`);
+                      }
+                      return nextStage;
+                    });
                   }}
-                  className="font-bold text-emerald-700 underline"
+                  className="font-bold text-emerald-700 dark:text-emerald-400 underline hover:opacity-80"
                 >
                   +รดน้ำซากุระ (+10c)
                 </button>
@@ -1790,7 +1970,7 @@ export default function LandingPage() {
               {/* Hand-Drawn "Before Chaos" Spot Illustration */}
               <div className="sm:col-span-4 flex justify-center">
                 <div
-                  className="relative w-36 h-36 rounded-2xl overflow-hidden p-1.5"
+                  className="relative w-36 h-36 rounded-2xl overflow-hidden p-2 flex items-center justify-center"
                   style={{
                     transform: "rotate(2deg)",
                     background: "#fffaf0",
@@ -1799,11 +1979,11 @@ export default function LandingPage() {
                   }}
                 >
                   <Image
-                    src="/images/landing/before-chaos-desk.jpg"
-                    alt="Before Retzlo Chaos Desk"
+                    src={activePain.beforeIllustSrc}
+                    alt={`Before: ${activePain.title}`}
                     fill
                     sizes="144px"
-                    className="object-cover rounded-xl"
+                    className="object-contain p-1.5 drop-shadow-md"
                   />
                 </div>
               </div>
@@ -1815,7 +1995,7 @@ export default function LandingPage() {
                 {/* Hand-Drawn "After Flow" Spot Illustration */}
                 <div className="sm:col-span-4 flex justify-center order-2 sm:order-1">
                   <div
-                    className="relative w-36 h-36 rounded-2xl overflow-hidden p-1.5"
+                    className="relative w-36 h-36 rounded-2xl overflow-hidden p-2 flex items-center justify-center"
                     style={{
                       transform: "rotate(-2deg)",
                       background: "#fffaf0",
@@ -1824,11 +2004,11 @@ export default function LandingPage() {
                     }}
                   >
                     <Image
-                      src="/images/landing/after-flow-desk.jpg"
-                      alt="After Retzlo Calm Flow Desk"
+                      src={activePain.afterIllustSrc}
+                      alt={`After: ${activePain.afterTitle}`}
                       fill
                       sizes="144px"
-                      className="object-cover rounded-xl"
+                      className="object-contain p-1.5 drop-shadow-md"
                     />
                   </div>
                 </div>
@@ -1928,7 +2108,10 @@ export default function LandingPage() {
                               `เคลียร์ "${item.label.slice(0, 20)}..."`
                             );
                           } else {
-                            playChime("click");
+                            triggerEarnCoin(
+                              -(item.coin || 15),
+                              `ยกเลิก "${item.label.slice(0, 20)}..."`
+                            );
                           }
                         }}
                         className="lp-spring-card w-full text-left flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl"
@@ -2211,6 +2394,27 @@ export default function LandingPage() {
                 </span>
               </div>
 
+              {/* Cozy Achiever Feature Spot Banner */}
+              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-purple-300/30 mb-4">
+                <div className="relative w-16 h-16 shrink-0">
+                  <Image
+                    src="/images/landing/fit-cozy-achiever.png"
+                    alt="Cozy Achiever Fit Illustration"
+                    fill
+                    sizes="64px"
+                    className="object-contain drop-shadow-md"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] font-extrabold tracking-wider text-purple-600 dark:text-purple-300 uppercase">
+                    COZY ACHIEVER · จังหวะที่พอดี
+                  </span>
+                  <div className="text-xs font-bold text-[var(--foreground)] mt-0.5">
+                    ชอบความเรียบง่าย บอร์ดสะอาดตา มีสมุดโน้ตและเพลงคลอ
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-2.5">
                 {SUITABLE_FOR_LIST.map((item, idx) => {
                   const isChecked = checkedReadiness.includes(idx);
@@ -2298,6 +2502,27 @@ export default function LandingPage() {
                 <span style={{ fontSize: "11px", color: "var(--muted)", fontWeight: 600 }}>
                   บอกกันตรงไปตรงมา
                 </span>
+              </div>
+
+              {/* Heavy ERP Scale Feature Spot Banner */}
+              <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-amber-300/30 mb-4">
+                <div className="relative w-16 h-16 shrink-0">
+                  <Image
+                    src="/images/landing/fit-heavy-erp.png"
+                    alt="Heavy Enterprise Machine Illustration"
+                    fill
+                    sizes="64px"
+                    className="object-contain drop-shadow-md"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] font-extrabold tracking-wider text-amber-600 dark:text-amber-400 uppercase">
+                    ENTERPRISE SCALE · สูตรซับซ้อน
+                  </span>
+                  <div className="text-xs font-bold text-[var(--foreground)] mt-0.5">
+                    ต้องการโรงงานสูตรหลายร้อยตารางหรือระบบ ERP ขนาดมหึมา
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-3">

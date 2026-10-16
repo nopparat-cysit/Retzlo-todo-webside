@@ -6,6 +6,8 @@ export interface PainPointTab {
   accentColor: string;
   paperTint: string;
   stickerSrc: string;
+  beforeIllustSrc: string;
+  afterIllustSrc: string;
   title: string;
   beforeQuote: string;
   beforeText: string;
@@ -68,7 +70,7 @@ export const PLAYGROUND_TASKS: PlaygroundTask[] = [
     tag: "Side Note",
     tagColor: "#7858d4",
     coins: 20,
-    stickerSrc: "/stickers/retro/retro-sticker-12-paper-note.png"
+    stickerSrc: "/stickers/retro/retro-sticker-32-idea-lamp.png"
   },
   {
     id: "task-focus",
@@ -76,7 +78,7 @@ export const PLAYGROUND_TASKS: PlaygroundTask[] = [
     tag: "Focus 25m",
     tagColor: "#d97706",
     coins: 30,
-    stickerSrc: "/stickers/retro/retro-sticker-24-focus-timer.png"
+    stickerSrc: "/stickers/retro/retro-sticker-42-hourglass.png"
   },
   {
     id: "task-cheer",
@@ -84,7 +86,7 @@ export const PLAYGROUND_TASKS: PlaygroundTask[] = [
     tag: "Coffee Cheer",
     tagColor: "#db2777",
     coins: 15,
-    stickerSrc: "/stickers/retro/retro-sticker-10-coffee-cup.png"
+    stickerSrc: "/stickers/retro/retro-sticker-19-heart.png"
   },
   {
     id: "task-diary",
@@ -92,7 +94,7 @@ export const PLAYGROUND_TASKS: PlaygroundTask[] = [
     tag: "Daily Diary",
     tagColor: "#059669",
     coins: 25,
-    stickerSrc: "/stickers/retro/retro-sticker-02-diary-notebook.png"
+    stickerSrc: "/stickers/retro/retro-sticker-34-paint-palette.png"
   }
 ];
 
@@ -131,7 +133,9 @@ export const PAIN_POINT_TABS: PainPointTab[] = [
     badgeText: "APP HOPPING SYNDROME",
     accentColor: "#7858d4",
     paperTint: "#f5f0ff",
-    stickerSrc: "/stickers/retro/retro-sticker-13-project-folder.png",
+    stickerSrc: "/stickers/retro/retro-sticker-39-phone-chat.png",
+    beforeIllustSrc: "/images/landing/case-01-scattered.png",
+    afterIllustSrc: "/images/landing/after-flow-cutout.png",
     title: "งานอยู่ในบอร์ดหนึ่ง บรีฟไหลไปในแชต ส่วนไอเดียเมื่อคืนอยู่ในโน้ตมือถือ",
     beforeQuote: "“จำได้ว่าเคยจดลิงก์เรฟไว้... แต่อยู่ในแชตหรือโน้ตนะ?”",
     beforeText:
@@ -155,6 +159,8 @@ export const PAIN_POINT_TABS: PainPointTab[] = [
     accentColor: "#d97706",
     paperTint: "#fff8e6",
     stickerSrc: "/stickers/retro/retro-sticker-24-focus-timer.png",
+    beforeIllustSrc: "/images/landing/case-02-morning.png",
+    afterIllustSrc: "/images/landing/hero-lofi-mascot.png",
     title: "การ์ดงานกองเป็นภูเขา จนสุดท้ายเผลอไปนั่งตอบแชตแทนทำงานหลัก",
     beforeQuote: "“งานเยอะไปหมด เริ่มเคลียร์อันง่ายๆ ก่อนละกัน... อ้าว หมดเช้าแล้ว”",
     beforeText:
@@ -177,7 +183,9 @@ export const PAIN_POINT_TABS: PainPointTab[] = [
     badgeText: "BLIND DEADLINES",
     accentColor: "#db2777",
     paperTint: "#fff0f6",
-    stickerSrc: "/stickers/retro/retro-sticker-04-calendar.png",
+    stickerSrc: "/stickers/retro/retro-sticker-58-priority-flag.png",
+    beforeIllustSrc: "/images/landing/case-03-deadlines.png",
+    afterIllustSrc: "/images/landing/case-05-ready.png",
     title: "ดูงานเป็นลิสต์ยาวๆ แล้วมองไม่เห็นภาพรวมของสัปดาห์",
     beforeQuote: "“รับปากเพิ่มไปอีกงาน เพิ่งเห็นว่ากำหนดส่งวันพุธมีรออยู่แล้ว 4 ชิ้น!”",
     beforeText:
@@ -201,6 +209,8 @@ export const PAIN_POINT_TABS: PainPointTab[] = [
     accentColor: "#059669",
     paperTint: "#edfcf5",
     stickerSrc: "/stickers/retro/retro-sticker-10-coffee-cup.png",
+    beforeIllustSrc: "/images/landing/before-chaos-cutout.png",
+    afterIllustSrc: "/images/landing/case-04-burnout.png",
     title: "แอปทำงานส่วนใหญ่หน้าตาเหมือนตารางบัญชี ยิ่งเปิดยิ่งเครียด",
     beforeQuote: "“ทำเสร็จไป 10 งาน ก็แค่มีงานใหม่เติมเข้ามาอีก 10 งาน...”",
     beforeText:
@@ -223,7 +233,9 @@ export const PAIN_POINT_TABS: PainPointTab[] = [
     badgeText: "TEMPLATE FATIGUE",
     accentColor: "#4f46e5",
     paperTint: "#eef2ff",
-    stickerSrc: "/stickers/retro/retro-sticker-16-tape.png",
+    stickerSrc: "/stickers/retro/retro-sticker-33-magic-wand.png",
+    beforeIllustSrc: "/images/landing/fit-heavy-erp.png",
+    afterIllustSrc: "/images/landing/fit-cozy-achiever.png",
     title: "ตั้งใจจะจัดระบบงานใหม่ แต่หมดแรงตั้งแต่ตอนนั่งผูกสูตรฐานข้อมูล",
     beforeQuote: "“แต่งหน้าเพจไปครึ่งวัน สุดท้ายตารางพัง เลยกลับไปจดใส่เศษกระดาษเหมือนเดิม”",
     beforeText:

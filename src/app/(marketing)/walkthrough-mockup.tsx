@@ -112,8 +112,12 @@ export function WalkthroughMockupScreen({
     setAgendaDone((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
-    if (isNowDone && onEarnCoin) {
-      onEarnCoin(15, "เคลียร์งานใน 7-Day Agenda!");
+    if (onEarnCoin) {
+      if (isNowDone) {
+        onEarnCoin(15, "เคลียร์งานใน 7-Day Agenda!");
+      } else {
+        onEarnCoin(-15, "ยกเลิกงานใน 7-Day Agenda");
+      }
     }
   };
 
@@ -122,23 +126,39 @@ export function WalkthroughMockupScreen({
       prev.map((card) => {
         if (card.id !== id) return card;
         const nextStage = ((card.stage + 1) % 3) as 0 | 1 | 2;
-        if (nextStage === 2 && onEarnCoin) {
-          onEarnCoin(card.coins, `ย้าย "${card.title.slice(0, 18)}..." ไป Done!`);
+        if (onEarnCoin) {
+          if (nextStage === 2) {
+            onEarnCoin(card.coins, `ย้าย "${card.title.slice(0, 18)}..." ไป Done!`);
+          } else if (card.stage === 2 && nextStage === 0) {
+            onEarnCoin(-card.coins, `รีเซ็ตการ์ดกลับไป To do`);
+          }
         }
         return { ...card, stage: nextStage };
       })
     );
   };
 
-  const resetKanban = () => setKanbanCards(INITIAL_KANBAN_CARDS);
+  const resetKanban = () => {
+    const doneCoins = kanbanCards
+      .filter((c) => c.stage === 2)
+      .reduce((sum, c) => sum + c.coins, 0);
+    setKanbanCards(INITIAL_KANBAN_CARDS);
+    if (doneCoins > 0 && onEarnCoin) {
+      onEarnCoin(-doneCoins, "รีเซ็ตสถานะบอร์ดการ์ดทั้งหมด");
+    }
+  };
 
   const toggleHabit = (idx: number) => {
     const isNowDone = !habitsDone.includes(idx);
     setHabitsDone((prev) =>
       prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
     );
-    if (isNowDone && onEarnCoin) {
-      onEarnCoin(10, "เช็กกิจวัตรประจำวันสำเร็จ!");
+    if (onEarnCoin) {
+      if (isNowDone) {
+        onEarnCoin(10, "เช็กกิจวัตรประจำวันสำเร็จ!");
+      } else {
+        onEarnCoin(-10, "ยกเลิกการเช็กกิจวัตร");
+      }
     }
   };
 
@@ -273,7 +293,7 @@ export function WalkthroughMockupScreen({
                   progress: 78,
                   accent: "#7858d4",
                   tint: "rgba(120, 88, 212, 0.08)",
-                  sticker: "/stickers/retro/retro-sticker-13-project-folder.png"
+                  sticker: "/stickers/retro/retro-sticker-64-team-group.png"
                 },
                 {
                   id: "personal" as const,
@@ -283,7 +303,7 @@ export function WalkthroughMockupScreen({
                   progress: 92,
                   accent: "#db2777",
                   tint: "rgba(219, 39, 119, 0.08)",
-                  sticker: "/stickers/retro/retro-sticker-02-diary-notebook.png"
+                  sticker: "/stickers/retro/retro-sticker-37-tiny-house.png"
                 }
               ].map((ws) => {
                 const active = selectedWs === ws.id;
@@ -702,8 +722,12 @@ export function WalkthroughMockupScreen({
                             ? prev.filter((x) => x !== t.id)
                             : [...prev, t.id]
                         );
-                        if (willBeDone && onEarnCoin) {
-                          onEarnCoin(t.coins, `เคลียร์ตารางวัน ${activeDayObj.day}!`);
+                        if (onEarnCoin) {
+                          if (willBeDone) {
+                            onEarnCoin(t.coins, `เคลียร์ตารางวัน ${activeDayObj.day}!`);
+                          } else {
+                            onEarnCoin(-t.coins, `ยกเลิกรายการวัน ${activeDayObj.day}`);
+                          }
                         }
                       }}
                       className="lp-spring-card w-full flex items-center justify-between p-3 rounded-xl text-left"
@@ -1046,13 +1070,13 @@ export function WalkthroughMockupScreen({
             </div>
 
             <div className="sm:col-span-5 flex flex-col items-center justify-center p-3 rounded-2xl bg-white/15 border border-white/25 overflow-hidden">
-              <div className="relative w-full h-36 rounded-xl overflow-hidden border border-white/30">
+              <div className="relative w-full h-36 rounded-xl overflow-hidden border border-white/30 flex items-center justify-center">
                 <Image
-                  src="/images/landing/cozy-desk-hero.jpg"
-                  alt="Cozy Lofi Desk Studio"
+                  src="/images/landing/hero-lofi-mascot.png"
+                  alt="Cozy Lofi Desk Studio Mascot"
                   fill
                   sizes="260px"
-                  className="object-cover"
+                  className="object-contain p-1.5 drop-shadow-md"
                 />
               </div>
               <div className="flex items-center gap-2 mt-2.5 text-xs text-[#ffecb1] font-semibold">
