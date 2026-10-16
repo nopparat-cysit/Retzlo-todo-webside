@@ -45,11 +45,15 @@ Redesign the marketing landing page (`/`) so it is genuinely **fun, tactile, col
       - Removed noisy `STUDIO v2.4` badge beside the logo to give the brand logo room to breathe.
       - Compacted right controls: converted bulky 130px Lofi radio pill into an elegant 36px circular button with vinyl/equalizer icon (`w-9 h-9`), and streamlined the Coin Wallet pill into a minimal cute badge (`🪙 {walletCoins}`).
       - Refined "Enter Workspace" button into a comfortable `h-[38px] px-4.5` button with neobrutalist retro shadow, giving over 500px of negative space across standard desktop and laptop screens.
-    - **Interactive Mixtape VIP Pass Redemption Terminal ("เอาแต้มแลกทดลองใช้ฟรี"):**
-      - Added interactive coin redemption system in Section 7 (`#buy` Mixtape Edition) requiring 50 Coins (`TICKET_COST = 50`).
-      - When `walletCoins >= 50`: Shows "แต้มของคุณพร้อมแลกรับสิทธิ์แล้ว!" callout with gold border and CTA button `🎟️ ใช้ 50 Coins แลกรับสิทธิ์ VIP Pass ฟรี`.
-      - Upon redemption: Deducts 50 Coins with fanfare chime (`playChime("reward")`), spawns coin burst particle (-50c), reveals the `[ ★ CLAIMED VIP ★ ]` die-cut ink stamp on the cassette artwork, updates status pill to `ปลดล็อกสิทธิ์ VIP สำเร็จแล้ว`, and provides direct VIP entry button (`Enter Workspace (เริ่มใช้งานสิทธิ์ VIP ทันที) →`).
-      - When `walletCoins < 50`: Shows an active progress bar with `{walletCoins} / 50 Coins`, remaining coins needed, and a quick-jump button `🎮 ย้อนไปกดเล่นเก็บแต้มให้ครบ 50c` back to the mini-games.
+    - **Ultra-Prominent Golden VIP Pass Redemption Station ("มันไม่เด่นเลยอะแบบ แลกสิทธื์ใช้ฟรีอะ ขอเด่นๆ สวยๆ"):**
+      - Overhauled Section 7 (`#buy`) from a subdued closing card into a dedicated **Golden VIP Ticket Pavilion & Arcade Prize Booth**.
+      - Added high-visibility section eyebrow (`ARCADE REWARD BOOTH · จุดแลกสิทธิ์ VIP PASS ฟรี`) and bold display heading (`นำ Coins ที่สะสม แลกรับ VIP Pass ฟรี ที่นี่!`).
+      - Styled the grand container with a golden border (`3px solid #f6c976`), deep twilight radial aurora glow, decorative ticket punch notches on the outer edges, and perforated golden ticket aesthetics.
+      - Embedded 3 VIP perks highlight cards: `⭐ ฟรีเต็มระบบ`, `🎧 Mixtape Studio`, and `🪙 โบนัส +100 Coins`.
+      - Built a high-contrast Coin HUD terminal with animated coin balance, segmented retro progress gauge with milestone markers (0c, 25c, 50c GOAL), and a one-click bonus booster (`✨ แตะรับโบนัสทันใจ +15c`) for immediate satisfaction.
+      - Elevated the CTA to a giant, pulsing Neobrutalist Golden Button (`h-14 sm:h-16`, `font-black`, `bg-gradient-to-r from-[#ffe484] via-[#fcd34d] to-[#f59e0b]`, `border-3 border-[#3b185f]`, `shadow-[6px_6px_0_#2b0f47]`).
+      - Upgraded the collector's ticket stub on the right with authentic serial number (`NO. RZ-2026-VIP`), ambient golden backlight glow behind the cassette, rotated rubber ink stamp (`★ CLAIMED VIP ★`), and retro barcode graphic (`0050-VIP-FREE`).
+      - Connected the playground and navbar to Section 7: added VIP redemption link in the playground rewards card footer, added `แลก VIP ฟรี 🎟️` link to desktop navbar and mobile menu dropdown, and linked the navbar coin pill directly to `#buy`.
   - `src/app/(marketing)/walkthrough-mockup.tsx`:
     - Replaced duplicate stickers in Room 01 with `retro-sticker-64-team-group.png` and `retro-sticker-37-tiny-house.png`.
     - Replaced repeated hero image in Room 06 with `hero-lofi-mascot.png`.
@@ -60,6 +64,7 @@ Redesign the marketing landing page (`/`) so it is genuinely **fun, tactile, col
 ## Verification
 - `npx tsc --noEmit`: Passed (0 errors)
 - `npx vitest run src/components/auth/auth-navigation.test.ts`: Passed (3/3 tests)
+- `npx vitest run`: Passed (100/100 test files, 533 passed)
 - `npm run lint`: Passed (0 warnings, 0 errors)
 - `npx prisma validate`: Passed (schema is valid)
 - `npm run build`: Passed (42/42 static and dynamic pages generated successfully)
