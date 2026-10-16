@@ -59,10 +59,19 @@ Redesign the marketing landing page (`/`) so it is genuinely **fun, tactile, col
         - Upgraded status badge into a luminous emerald & gold jewel pill with live pulsing ping indicator.
         - Added 3 ticket feature punch marks (`✓ WORKSPACE`, `✓ LOFI SYNTH`, `✓ 0฿ PERPETUAL`).
         - Added realistic varied-width SVG barcode with serialized code (`RZ-VIP-2026-PERPETUAL`).
+      - Fixed **Light Theme Contrast & Override Bug ("ธีมขาว ส่วนนี้ พัง")**:
+        - Isolated Section 7 from global `[data-theme="light"] .bg-black/40` and `.bg-white/10` rules that were converting inner containers into tan cream (`#ede7da`) with low-contrast white/yellow text.
+        - Created dedicated scoped classes (`.lp-booth-stage`, `.lp-booth-perk`, `.lp-booth-terminal-box`, `.lp-booth-gauge-bg`, `.lp-booth-glass-btn`, `.lp-booth-pill`, `.lp-booth-ticket-card`, `.lp-booth-punch-tag`) guaranteeing rich dark velvet backgrounds and high-contrast gold/white typography in both light and dark themes.
+      - Fixed **Click Stutter & Layout Jitter ("ตกกดแล้ว มันกระตุกนิดหน่อย แก้ไขให สมูด")**:
+        - Eliminated Web Audio thread blocking by caching and reusing a persistent `sfxCtxRef` AudioContext across clicks, avoiding repeated synchronous `new AudioCtx()` driver re-initialization.
+        - Prevented layout reflow by reserving a stable `min-h-[96px]` container for the redemption action buttons, and switching the outer grid alignment to `items-start`.
+        - Resolved CSS transform collision between `.lp-press-btn` and Tailwind `hover:translate` / `active:translate` with unified, hardware-accelerated transforms (`hover:-translate-y-0.5 active:translate-y-0.5`).
+        - Added `.lp-stamp-drop` with spring curve (`cubic-bezier(0.175, 0.885, 0.32, 1.275)`) so the VIP claimed seal slams down smoothly rather than jumping abruptly.
       - Connected the playground and navbar to Section 7: added VIP redemption link in the playground rewards card footer, added `แลก VIP ฟรี 🎟️` link to desktop navbar and mobile menu dropdown, and linked the navbar coin pill directly to `#buy`.
   - `src/app/globals.css`:
     - Added `@keyframes lpGoldShimmer` and `.lp-gold-shimmer` sweep effect.
     - Added `@keyframes lpVinylSpin` and `.lp-vinyl-spin` 24s rotating vinyl grooves animation.
+    - Added `.lp-booth-*` scoped classes and `@keyframes lpStampDrop`.
   - `src/app/(marketing)/walkthrough-mockup.tsx`:
     - Replaced duplicate stickers in Room 01 with `retro-sticker-64-team-group.png` and `retro-sticker-37-tiny-house.png`.
     - Replaced repeated hero image in Room 06 with `hero-lofi-mascot.png`.

@@ -2846,6 +2846,84 @@ textarea.quick-add-textarea:focus,
   animation: lpVinylSpin 24s linear infinite;
 }
 
+/* ── Section 7 Mixtape VIP Booth Scoped Styles (100% theme-isolated for light & dark) ── */
+.lp-booth-stage {
+  border: 3px solid #f6c976 !important;
+  background: radial-gradient(circle at 85% 15%, rgba(246, 201, 118, 0.25) 0%, transparent 55%),
+              radial-gradient(circle at 15% 85%, rgba(120, 88, 212, 0.35) 0%, transparent 60%),
+              linear-gradient(135deg, #24133b 0%, #3e1f5f 38%, #523485 75%, #2a1343 100%) !important;
+  color: #fff5ff !important;
+  box-shadow: 0 0 60px rgba(246, 201, 118, 0.25), 10px 10px 0 rgba(40, 19, 66, 0.45) !important;
+}
+
+.lp-booth-perk {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+  color: #fff5ff !important;
+  backdrop-filter: blur(8px);
+}
+
+.lp-booth-terminal-box {
+  background-color: rgba(18, 7, 32, 0.72) !important;
+  border: 2px solid rgba(246, 201, 118, 0.65) !important;
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.6) !important;
+  color: #fff5ff !important;
+}
+
+.lp-booth-gauge-bg {
+  background-color: rgba(8, 2, 16, 0.85) !important;
+  border: 1px solid rgba(246, 201, 118, 0.45) !important;
+}
+
+.lp-booth-glass-btn {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lp-booth-glass-btn:hover {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  transform: translateY(-2px);
+}
+
+.lp-booth-pill {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+}
+
+.lp-booth-ticket-card {
+  background: linear-gradient(150deg, #2a1445 0%, #1c0b30 45%, #2d1348 100%) !important;
+  border: 2.5px solid #f6c976 !important;
+  box-shadow: 0 0 35px rgba(246, 201, 118, 0.3), 8px 8px 0 #1b072c !important;
+  color: #fff5ff !important;
+}
+
+.lp-booth-punch-tag {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #ffecb1 !important;
+}
+
+@keyframes lpStampDrop {
+  0% {
+    opacity: 0;
+    transform: scale(1.6) rotate(-22deg);
+  }
+  65% {
+    transform: scale(0.96) rotate(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-12deg);
+  }
+}
+
+.lp-stamp-drop {
+  animation: lpStampDrop 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lp-float-sticker,
   .lp-tab-stage,
@@ -2855,7 +2933,8 @@ textarea.quick-add-textarea:focus,
   .lp-bg-sparkle,
   .lp-bg-drift,
   .lp-gold-shimmer,
-  .lp-vinyl-spin {
+  .lp-vinyl-spin,
+  .lp-stamp-drop {
     animation: none !important;
   }
 }

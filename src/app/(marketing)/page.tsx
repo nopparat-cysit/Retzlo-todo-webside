@@ -167,8 +167,9 @@ export default function LandingPage() {
   const [checkedReadiness, setCheckedReadiness] = useState<number[]>([0, 2, 3]);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  // Web Audio API refs for warm Lofi chord player
+  // Web Audio API refs for warm Lofi chord player & sound effects
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const sfxCtxRef = useRef<AudioContext | null>(null);
 
   // Session check (preserves auth-navigation.test.ts contract)
   useEffect(() => {
@@ -204,7 +205,7 @@ export default function LandingPage() {
     };
   }, [router]);
 
-  // Tactile Web Audio Chime for interactive clicks
+  // Tactile Web Audio Chime for interactive clicks (reusing audio context for 60fps instant response without lag)
   const playChime = (type: "coin" | "reward" | "ripple" | "click" = "coin") => {
     if (!sfxEnabled) return;
     try {
@@ -212,7 +213,13 @@ export default function LandingPage() {
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext })
           .webkitAudioContext;
-      const ctx = new AudioCtx();
+      if (!sfxCtxRef.current || sfxCtxRef.current.state === "closed") {
+        sfxCtxRef.current = new AudioCtx();
+      }
+      const ctx = sfxCtxRef.current;
+      if (ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
+      }
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -255,10 +262,6 @@ export default function LandingPage() {
         osc.start(now);
         osc.stop(now + 0.1);
       }
-
-      setTimeout(() => {
-        ctx.close().catch(() => {});
-      }, 600);
     } catch {
       // Ignore audio block
     }
@@ -2906,15 +2909,7 @@ export default function LandingPage() {
 
         {/* Grand Golden VIP Ticket Pavilion */}
         <div
-          className="relative overflow-hidden p-6 sm:p-10 md:p-12 lg:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center rounded-[32px]"
-          style={{
-            border: "3px solid #f6c976",
-            background:
-              "radial-gradient(circle at 85% 15%, rgba(246, 201, 118, 0.25) 0%, transparent 55%), radial-gradient(circle at 15% 85%, rgba(120, 88, 212, 0.35) 0%, transparent 60%), linear-gradient(135deg, #24133b 0%, #3e1f5f 38%, #523485 75%, #2a1343 100%)",
-            color: "#fff5ff",
-            boxShadow:
-              "0 0 60px rgba(246, 201, 118, 0.25), 10px 10px 0 rgba(40, 19, 66, 0.45)"
-          }}
+          className="relative overflow-hidden p-6 sm:p-10 md:p-12 lg:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start rounded-[32px] lp-booth-stage"
         >
           {/* Decorative Ticket Punch Notches on sides */}
           <div
@@ -2941,7 +2936,7 @@ export default function LandingPage() {
               <span className="px-3.5 py-1 rounded-full bg-[#f6c976] text-[#3d185f] text-[11px] font-black tracking-widest uppercase shadow-sm">
                 🎟️ SPECIAL VIP REDEMPTION
               </span>
-              <span className="px-3 py-1 rounded-full bg-white/10 text-white/90 border border-white/20 text-[11px] font-mono font-bold">
+              <span className="px-3 py-1 rounded-full lp-booth-pill text-[11px] font-mono font-bold">
                 TICKET COST: {TICKET_COST} COINS
               </span>
             </div>
@@ -2957,58 +2952,58 @@ export default function LandingPage() {
                     ? "✨ ยินดีด้วย! แต้มสะสมของคุณพร้อมแลกรับสิทธิ์แล้ว"
                     : `🪙 สะสมอีกเพียง ${TICKET_COST - walletCoins} Coins แลกรับ VIP Pass ฟรีทันที`}
               </h3>
-              <p className="text-xs sm:text-sm text-white/85 leading-relaxed max-w-2xl">
+              <p className="text-xs sm:text-sm text-white/90 leading-relaxed max-w-2xl">
                 รับสิทธิ์เข้าใช้งานโปรเจกต์ในบรรยากาศ Cozy Retro Lofi จัดการบอร์ดงาน ตาราง ปฏิทิน และสมุดบันทึก โดยไม่มีโฆษณาคั่นและไม่มีค่าบริการแอบแฝง
               </p>
             </div>
 
             {/* 3 VIP Perks Highlights */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm space-y-1">
-                <div className="text-sm font-black text-[#f6c976] flex items-center gap-1.5">
+              <div className="p-3 sm:p-3.5 rounded-2xl lp-booth-perk space-y-1">
+                <div className="text-sm font-black text-[#ffecb1] flex items-center gap-1.5">
                   <span>⭐</span>
                   <span>ฟรีเต็มระบบ</span>
                 </div>
-                <div className="text-[11px] text-white/80 leading-snug">
+                <div className="text-[11px] text-white/90 leading-snug">
                   ไม่จำกัดบอร์ด Kanban, ปฏิทิน และสมุดโน้ต
                 </div>
               </div>
 
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm space-y-1">
-                <div className="text-sm font-black text-[#f6c976] flex items-center gap-1.5">
+              <div className="p-3 sm:p-3.5 rounded-2xl lp-booth-perk space-y-1">
+                <div className="text-sm font-black text-[#ffecb1] flex items-center gap-1.5">
                   <span>🎧</span>
                   <span>Mixtape Studio</span>
                 </div>
-                <div className="text-[11px] text-white/80 leading-snug">
+                <div className="text-[11px] text-white/90 leading-snug">
                   ซินธ์คอร์ด Lofi สด พร้อมเสียงฝนและคาเฟ่
                 </div>
               </div>
 
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm space-y-1">
-                <div className="text-sm font-black text-[#f6c976] flex items-center gap-1.5">
+              <div className="p-3 sm:p-3.5 rounded-2xl lp-booth-perk space-y-1">
+                <div className="text-sm font-black text-[#ffecb1] flex items-center gap-1.5">
                   <span>🪙</span>
                   <span>โบนัส +100 Coins</span>
                 </div>
-                <div className="text-[11px] text-white/80 leading-snug">
+                <div className="text-[11px] text-white/90 leading-snug">
                   เหรียญตั้งต้นสำหรับสวนหินเซนและสติกเกอร์
                 </div>
               </div>
             </div>
 
             {/* Interactive Coin HUD Terminal Box */}
-            <div className="p-5 sm:p-6 rounded-2xl border-2 border-[#f6c976]/70 bg-black/40 backdrop-blur-md space-y-4 shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)]">
+            <div className="p-5 sm:p-6 rounded-2xl lp-booth-terminal-box space-y-4">
               {/* Wallet Status Header */}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <div className="text-[11px] font-bold text-amber-200/80 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="text-[11px] font-bold text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="inline-block animate-bounce">🪙</span>
                     <span>กระเป๋าเหรียญสะสมของคุณ (Live Wallet)</span>
                   </div>
                   <div className="flex items-baseline gap-2 mt-0.5">
-                    <span className="font-mono text-3xl sm:text-4xl font-black text-[#ffecb1]">
+                    <span className="font-mono text-3xl sm:text-4xl font-black text-[#ffe07a]">
                       {walletCoins}
                     </span>
-                    <span className="text-sm font-bold text-amber-300/80 font-mono">
+                    <span className="text-sm font-bold text-amber-200/90 font-mono">
                       / {TICKET_COST} Coins
                     </span>
                   </div>
@@ -3016,7 +3011,7 @@ export default function LandingPage() {
 
                 <div>
                   {ticketClaimed ? (
-                    <span className="px-3 py-1.5 rounded-full bg-emerald-400/25 border border-emerald-300 text-emerald-200 text-xs font-black flex items-center gap-1.5">
+                    <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/25 border border-emerald-400 text-emerald-100 text-xs font-black flex items-center gap-1.5 shadow-sm">
                       <Check size={14} /> VIP PASS ACTIVATED
                     </span>
                   ) : walletCoins >= TICKET_COST ? (
@@ -3024,7 +3019,7 @@ export default function LandingPage() {
                       <Sparkles size={14} /> แต้มครบแล้ว แลกได้เลย!
                     </span>
                   ) : (
-                    <span className="px-3 py-1.5 rounded-full bg-white/15 border border-white/30 text-white/90 text-xs font-bold">
+                    <span className="px-3.5 py-1.5 rounded-full lp-booth-pill text-xs font-bold">
                       ขาดอีก {TICKET_COST - walletCoins} Coins
                     </span>
                   )}
@@ -3033,7 +3028,7 @@ export default function LandingPage() {
 
               {/* Chunky Retro Gauge Progress Bar */}
               <div className="space-y-1.5">
-                <div className="w-full h-3.5 bg-black/60 rounded-full overflow-hidden p-0.5 border border-[#f6c976]/40 shadow-inner">
+                <div className="w-full h-3.5 lp-booth-gauge-bg rounded-full overflow-hidden p-0.5 shadow-inner">
                   <div
                     className="h-full bg-gradient-to-r from-amber-400 via-yellow-300 to-emerald-400 rounded-full transition-all duration-500 shadow-md"
                     style={{
@@ -3041,25 +3036,26 @@ export default function LandingPage() {
                     }}
                   />
                 </div>
-                <div className="flex items-center justify-between text-[10px] font-mono text-white/60">
+                <div className="flex items-center justify-between text-[10px] font-mono text-white/70">
                   <span>0c</span>
                   <span>25c</span>
-                  <span className="text-[#f6c976] font-bold">50c (GOAL: VIP PASS)</span>
+                  <span className="text-[#ffe07a] font-bold">50c (GOAL: VIP PASS)</span>
                 </div>
               </div>
 
-              {/* Action Buttons based on Claim / Coin State */}
-              <div className="pt-2">
+              {/* Action Buttons based on Claim / Coin State (min-height prevents layout shift) */}
+              <div className="pt-2 min-h-[96px] flex flex-col justify-center transition-all duration-300">
                 {ticketClaimed ? (
                   <div className="space-y-3">
-                    <p className="text-xs sm:text-sm text-emerald-200 font-medium">
-                      ✓ ตั๋ว VIP ของคุณเปิดใช้งานเรียบร้อยแล้ว! สามารถกดเข้า Workspace เพื่อเริ่มทำงานได้ทันที
+                    <p className="text-xs sm:text-sm text-emerald-300 font-semibold flex items-center gap-1.5">
+                      <Check size={16} className="text-emerald-300" />
+                      <span>ตั๋ว VIP ของคุณเปิดใช้งานเรียบร้อยแล้ว! สามารถกดเข้า Workspace เพื่อเริ่มทำงานได้ทันที</span>
                     </p>
                     <div className="flex flex-wrap items-center gap-3">
                       <Link href={defaultDestination} className="w-full sm:w-auto">
                         <button
                           type="button"
-                          className="lp-press-btn w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 rounded-2xl font-black text-base sm:text-lg text-[#3b185f] bg-gradient-to-r from-[#ffe484] via-[#fcd34d] to-[#f59e0b] border-3 border-[#3b185f] shadow-[6px_6px_0_#2b0f47] hover:translate-y-[-2px] hover:shadow-[8px_8px_0_#2b0f47] transition-all cursor-pointer"
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 rounded-2xl font-black text-base sm:text-lg text-[#3b185f] bg-gradient-to-r from-[#ffe484] via-[#fcd34d] to-[#f59e0b] border-3 border-[#3b185f] shadow-[5px_5px_0_#2b0f47] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#2b0f47] active:translate-y-0.5 active:shadow-[2px_2px_0_#2b0f47] cursor-pointer"
                         >
                           <Sparkles className="w-5 h-5 text-[#3b185f]" />
                           <span>Enter Workspace (เริ่มใช้งานสิทธิ์ VIP ทันที)</span>
@@ -3069,7 +3065,7 @@ export default function LandingPage() {
                       <Link href="/help">
                         <button
                           type="button"
-                          className="lp-press-btn h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm border-2 border-white/30 bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer"
+                          className="lp-booth-glass-btn h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
                         >
                           คู่มือการใช้งานระบบ
                         </button>
@@ -3082,7 +3078,7 @@ export default function LandingPage() {
                       <button
                         type="button"
                         onClick={handleClaimMixtapePass}
-                        className="lp-press-btn w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#3b185f] bg-gradient-to-r from-[#ffe484] via-[#fcd34d] to-[#f59e0b] border-3 border-[#3b185f] shadow-[6px_6px_0_#2b0f47] hover:translate-y-[-3px] hover:shadow-[10px_10px_0_#2b0f47] active:translate-y-[2px] transition-all cursor-pointer animate-pulse"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#3b185f] bg-gradient-to-r from-[#ffe484] via-[#fcd34d] to-[#f59e0b] border-3 border-[#3b185f] shadow-[5px_5px_0_#2b0f47] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#2b0f47] active:translate-y-0.5 active:shadow-[2px_2px_0_#2b0f47] cursor-pointer animate-pulse"
                       >
                         <span className="text-2xl">🎟️</span>
                         <span className="tracking-wide">
@@ -3094,7 +3090,7 @@ export default function LandingPage() {
                       <Link href={defaultDestination}>
                         <button
                           type="button"
-                          className="lp-press-btn inline-flex items-center gap-2 h-14 px-6 rounded-2xl font-bold text-xs sm:text-sm text-white/90 border-2 border-white/30 bg-white/10 hover:bg-white/20 transition-all cursor-pointer"
+                          className="lp-booth-glass-btn inline-flex items-center gap-2 h-14 px-6 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
                         >
                           <span>Enter Workspace</span>
                           <ArrowRight className="w-4 h-4" />
@@ -3108,7 +3104,7 @@ export default function LandingPage() {
                       <a href="#playground" className="w-full sm:w-auto">
                         <button
                           type="button"
-                          className="lp-press-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 h-13 sm:h-14 px-6 rounded-2xl font-black text-sm text-[#432369] bg-[#ffecb1] border-2 border-[#432369] shadow-[4px_4px_0_rgba(43,19,77,0.4)] cursor-pointer"
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-13 sm:h-14 px-6 rounded-2xl font-black text-sm text-[#432369] bg-[#ffecb1] border-2 border-[#432369] shadow-[4px_4px_0_rgba(43,19,77,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_rgba(43,19,77,0.4)] active:translate-y-0.5 cursor-pointer"
                         >
                           <span>🎮 ไปทดลองเล่นเก็บแต้มให้ครบ {TICKET_COST}c</span>
                           <ArrowRight size={16} />
@@ -3120,7 +3116,7 @@ export default function LandingPage() {
                         onClick={() =>
                           triggerEarnCoin(15, "รับโบนัสสเตชั่น Mixtape! 🎶")
                         }
-                        className="lp-press-btn inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm text-amber-200 border-2 border-amber-300/40 bg-amber-400/15 hover:bg-amber-400/25 transition-all cursor-pointer"
+                        className="inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm text-amber-200 border-2 border-amber-300/50 bg-amber-400/20 hover:bg-amber-400/30 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer"
                         title="คลิกเพื่อรับเหรียญโบนัสทดลองทันที"
                       >
                         <span>✨ แตะรับโบนัสทันใจ +15c</span>
@@ -3129,7 +3125,7 @@ export default function LandingPage() {
                       <Link href={defaultDestination}>
                         <button
                           type="button"
-                          className="lp-press-btn inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm text-white/80 border border-white/25 bg-white/10 hover:bg-white/20"
+                          className="lp-booth-glass-btn inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
                         >
                           <span>Enter Workspace (เข้าใช้แบบปกติ)</span>
                         </button>
@@ -3145,10 +3141,10 @@ export default function LandingPage() {
           <div
             className={`lg:col-span-4 relative z-10 flex flex-col items-center justify-between p-6 sm:p-7 rounded-[28px] overflow-hidden group transition-all duration-300 lg:border-l-2 lg:border-dashed lg:border-[#f6c976]/40 lg:pl-8 ${
               ticketClaimed
-                ? "bg-gradient-to-b from-[#2a1347] via-[#1c0a32] to-[#2b1248] border-2 border-[#f6c976] shadow-[0_0_40px_rgba(246,201,118,0.35),8px_8px_0_#1a0628]"
+                ? "lp-booth-ticket-card shadow-[0_0_40px_rgba(246,201,118,0.35),8px_8px_0_#1a0628]"
                 : walletCoins >= TICKET_COST
-                  ? "bg-gradient-to-b from-[#261040] via-[#1a082d] to-[#250f3d] border-2 border-[#f6c976]/80 shadow-[0_0_30px_rgba(246,201,118,0.25),6px_6px_0_#1a0628]"
-                  : "bg-gradient-to-b from-[#200c36] via-[#160626] to-[#1f0b33] border border-white/25 shadow-xl"
+                  ? "lp-booth-ticket-card shadow-[0_0_30px_rgba(246,201,118,0.25),6px_6px_0_#1a0628]"
+                  : "lp-booth-ticket-card opacity-90 shadow-xl"
             }`}
           >
             {/* Shimmering Gold Light Sweep */}
@@ -3223,7 +3219,7 @@ export default function LandingPage() {
                 {ticketClaimed && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
                     <div
-                      className="relative transform -rotate-12 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-105"
+                      className="lp-stamp-drop relative transform -rotate-12 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-105"
                       style={{ filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.9))" }}
                     >
                       <div
@@ -3287,22 +3283,22 @@ export default function LandingPage() {
                     <span>พร้อมแลกตั๋ว VIP (ครบ 50c แล้ว!)</span>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white/90 border border-white/20 text-xs font-medium">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full lp-booth-pill text-xs font-medium">
                     <span>แต้มของคุณ:</span>
-                    <strong className="text-[#ffecb1] font-mono">{walletCoins} Coins</strong>
+                    <strong className="text-[#ffe07a] font-mono">{walletCoins} Coins</strong>
                   </div>
                 )}
               </div>
 
               {/* 3 VIP All-Access Punch Badges */}
               <div className="flex items-center justify-center gap-1.5 pt-1 text-[10px] font-mono">
-                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/15 text-[#ffecb1]/90">
+                <span className="px-2 py-0.5 rounded-md lp-booth-punch-tag">
                   ✓ WORKSPACE
                 </span>
-                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/15 text-[#ffecb1]/90">
+                <span className="px-2 py-0.5 rounded-md lp-booth-punch-tag">
                   ✓ LOFI SYNTH
                 </span>
-                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/15 text-[#ffecb1]/90">
+                <span className="px-2 py-0.5 rounded-md lp-booth-punch-tag">
                   ✓ 0฿ PERPETUAL
                 </span>
               </div>
