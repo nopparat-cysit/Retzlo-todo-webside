@@ -784,13 +784,14 @@ Template:
   - Mac Retina Typography: Added `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;` to `body` for razor-sharp typography on high-DPI displays in both Warm Paper and Retro Lofi Indigo themes.
 - Verification: Vitest full suite (100 test files, 533 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (42/42 routes).
 
-### 2026-10-16 — Marketing Landing Page Redesign (Cozy Lofi Mixtape Studio & Interactive Playground)
-- Coverage: `/` (`src/app/(marketing)/page.tsx`, `src/app/(marketing)/landing-data.ts`, `src/app/(marketing)/walkthrough-mockup.tsx`).
+### 2026-10-16 — Marketing Landing Page Redesign (Cozy Lofi Mixtape Studio, Custom Illustrations & Smooth Physics)
+- Coverage: `/` (`src/app/(marketing)/page.tsx`, `src/app/(marketing)/landing-data.ts`, `src/app/(marketing)/walkthrough-mockup.tsx`, `src/app/globals.css`, `public/images/landing/*.jpg`).
 - Design Direction & Tokens:
-  - Cozy Lofi Mixtape & Tactile Studio Identity: Combines semantic theme tokens (`var(--background)`, `var(--foreground)`, `var(--panel-strong)`, `var(--paper)`, `var(--border)`, `var(--muted)`, `var(--accent)`) with our signature Mixtape Dusk palette (`#5942b8`, `#7858d4`, `#b184e7`, `#ffb4d5`, `#ffecb1` buttercream post-it notes), tactile offset shadows (`4px 4px 0 rgba(84, 53, 107, 0.22)`), and bespoke hand-drawn `/stickers/retro/` and `/stickers/rewards/` illustrations.
-  - Playable 3-Step Retzlo Dopamine Loop (`#playground`): Visitors can interactively clear tasks and send Coffee Cheers to earn live **Retzlo Coins** (tracked in the sticky topbar wallet with Web Audio chimes), redeem rewards in the mini Arcade Shop, and click the Zen Sand Garden to spawn concentric water ripples and grow a Sakura tree through 4 stages.
-  - Interactive 6-Room Studio Tour (`WalkthroughMockupScreen`): Every room preview is playable (clickable Kanban cards that move across columns, Board/Table switcher, interactive Calendar days, Note paper color swatches, Diary privacy mask toggle, and Cassette mood presets).
+  - Thai & Display Typography (`src/app/globals.css`): Added `Anuphan`, `IBM Plex Sans Thai`, and `Instrument Serif` alongside `Plus Jakarta Sans` (`--font-sans`, `--font-display`, `--font-editorial`), eliminating Latin-only serif fallback mismatches on Thai headlines and ensuring balanced line-height (`1.24`–`1.35`) for Thai tone marks.
+  - Bespoke Hand-Drawn Illustrations (`public/images/landing/`): Added 4 custom watercolor-and-ink lofi studio illustrations (`cozy-desk-hero.jpg`, `before-chaos-desk.jpg`, `after-flow-desk.jpg`, and `zen-sakura-terrarium.jpg`) alongside `/stickers/retro/` and `/stickers/rewards/` assets.
+  - 60fps Spring Micro-Interactions: Added `.lp-spring-card`, `.lp-press-btn`, `.lp-float-sticker`, `.lp-tab-stage` tab cross-fade/slide transitions, `.lp-coin-burst` floating coin particles, `.lp-ripple-ring` Karesansui water ripples, and smooth CSS Grid FAQ accordions (`grid-template-rows: 0fr -> 1fr`).
   - Native Dual-Theme Support: Supports both Warm Paper (Light) and Retro Lofi Indigo (Dark) via `ThemeToggle` in the top header.
 - Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed.
+
 
 

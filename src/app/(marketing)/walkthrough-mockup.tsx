@@ -191,6 +191,8 @@ export function WalkthroughMockupScreen({
 
   return (
     <div
+      key={slide.id}
+      className="lp-tab-stage"
       style={{
         border: "2px solid var(--border-strong, var(--border))",
         borderRadius: "24px",
@@ -243,7 +245,7 @@ export function WalkthroughMockupScreen({
         <span
           style={{
             fontSize: "10px",
-            letterSpacing: "1.2px",
+            letterSpacing: "1px",
             padding: "4px 10px",
             borderRadius: "999px",
             background: "#ffecb1",
@@ -290,7 +292,7 @@ export function WalkthroughMockupScreen({
                     key={ws.id}
                     type="button"
                     onClick={() => setSelectedWs(ws.id)}
-                    className="text-left transition-transform active:translate-y-0.5"
+                    className="lp-spring-card text-left"
                     style={{
                       border: active
                         ? `2px solid ${ws.accent}`
@@ -320,10 +322,10 @@ export function WalkthroughMockupScreen({
                           {ws.tag}
                         </span>
                         <h4
+                          className="lp-font-display"
                           style={{
-                            fontFamily: "Georgia, 'Times New Roman', serif",
-                            fontSize: "18px",
-                            fontWeight: 600,
+                            fontSize: "17px",
+                            fontWeight: 700,
                             marginTop: "4px",
                             color: "var(--foreground)"
                           }}
@@ -369,7 +371,8 @@ export function WalkthroughMockupScreen({
                             width: `${ws.progress}%`,
                             height: "100%",
                             background: ws.accent,
-                            borderRadius: "999px"
+                            borderRadius: "999px",
+                            transition: "width 400ms cubic-bezier(0.22, 1, 0.36, 1)"
                           }}
                         />
                       </div>
@@ -394,7 +397,7 @@ export function WalkthroughMockupScreen({
                     ? "กำหนดการ 7 วันข้างหน้า · Retzlo Product Launch"
                     : "รายการส่วนตัวสัปดาห์นี้ · สมุดบันทึก & เป้าหมาย"}
                 </span>
-                <span className="text-[11px]" style={{ color: "var(--accent)" }}>
+                <span className="text-[11px] font-semibold" style={{ color: "var(--accent)" }}>
                   คลิกติ๊กเพื่อรับ +15 เหรียญ
                 </span>
               </div>
@@ -415,7 +418,7 @@ export function WalkthroughMockupScreen({
                       key={item.id}
                       type="button"
                       onClick={() => toggleAgenda(item.id)}
-                      className="flex items-center justify-between gap-2 p-2.5 rounded-xl text-left transition-colors"
+                      className="lp-spring-card flex items-center justify-between gap-2 p-2.5 rounded-xl text-left"
                       style={{
                         border: "1px solid var(--border)",
                         background: done
@@ -458,7 +461,7 @@ export function WalkthroughMockupScreen({
                 <button
                   type="button"
                   onClick={() => setKanbanMode("board")}
-                  className="px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
+                  className="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
                   style={{
                     background: kanbanMode === "board" ? "#7858d4" : "transparent",
                     color: kanbanMode === "board" ? "#fff" : "var(--muted)"
@@ -469,7 +472,7 @@ export function WalkthroughMockupScreen({
                 <button
                   type="button"
                   onClick={() => setKanbanMode("table")}
-                  className="px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
+                  className="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
                   style={{
                     background: kanbanMode === "table" ? "#7858d4" : "transparent",
                     color: kanbanMode === "table" ? "#fff" : "var(--muted)"
@@ -535,7 +538,7 @@ export function WalkthroughMockupScreen({
                             key={card.id}
                             type="button"
                             onClick={() => advanceKanbanCard(card.id)}
-                            className="w-full text-left p-2.5 rounded-xl transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                            className="lp-spring-card w-full text-left p-2.5 rounded-xl"
                             style={{
                               border: "1px solid var(--border)",
                               background: "var(--panel-strong)",
@@ -563,7 +566,7 @@ export function WalkthroughMockupScreen({
                               style={{
                                 fontSize: "12px",
                                 fontWeight: 600,
-                                lineHeight: 1.35,
+                                lineHeight: 1.4,
                                 color: "var(--foreground)"
                               }}
                             >
@@ -599,7 +602,7 @@ export function WalkthroughMockupScreen({
                     key={card.id}
                     type="button"
                     onClick={() => advanceKanbanCard(card.id)}
-                    className="w-full text-left flex items-center justify-between gap-3 px-4 py-3 border-b border-[var(--border)] last:border-b-0 hover:bg-black/5"
+                    className="w-full text-left flex items-center justify-between gap-3 px-4 py-3 border-b border-[var(--border)] last:border-b-0 hover:bg-black/5 transition-colors"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span
@@ -641,7 +644,7 @@ export function WalkthroughMockupScreen({
                     key={d.day}
                     type="button"
                     onClick={() => setSelectedDay(idx)}
-                    className="text-left p-2.5 rounded-xl transition-all"
+                    className="lp-spring-card text-left p-2.5 rounded-xl"
                     style={{
                       border: isSelected
                         ? `2px solid ${d.color}`
@@ -703,7 +706,7 @@ export function WalkthroughMockupScreen({
                           onEarnCoin(t.coins, `เคลียร์ตารางวัน ${activeDayObj.day}!`);
                         }
                       }}
-                      className="w-full flex items-center justify-between p-3 rounded-xl text-left"
+                      className="lp-spring-card w-full flex items-center justify-between p-3 rounded-xl text-left"
                       style={{
                         border: "1px solid var(--border)",
                         background: "var(--panel-strong)"
@@ -784,6 +787,7 @@ export function WalkthroughMockupScreen({
                 return (
                   <div
                     key={note.id}
+                    className="lp-spring-card flex flex-col justify-between gap-3"
                     style={{
                       border: `2px solid ${activeNoteTheme.border}`,
                       borderRadius: "16px",
@@ -792,7 +796,6 @@ export function WalkthroughMockupScreen({
                       color: activeNoteTheme.text,
                       boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.12)"
                     }}
-                    className="flex flex-col justify-between gap-3"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -822,11 +825,11 @@ export function WalkthroughMockupScreen({
                         </button>
                       </div>
                       <h4
+                        className="lp-font-display"
                         style={{
-                          fontFamily: "Georgia, 'Times New Roman', serif",
-                          fontSize: "17px",
-                          fontWeight: 600,
-                          lineHeight: 1.3
+                          fontSize: "16px",
+                          fontWeight: 700,
+                          lineHeight: 1.35
                         }}
                       >
                         {note.title}
@@ -880,10 +883,10 @@ export function WalkthroughMockupScreen({
                 </div>
 
                 <h4
+                  className="lp-font-display"
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    fontSize: "18px",
-                    fontWeight: 600,
+                    fontSize: "17px",
+                    fontWeight: 700,
                     margin: "6px 0",
                     color: "var(--foreground)"
                   }}
@@ -892,12 +895,12 @@ export function WalkthroughMockupScreen({
                 </h4>
                 <p
                   style={{
-                    fontSize: "12px",
+                    fontSize: "12.5px",
                     lineHeight: 1.7,
                     color: "var(--muted)",
                     filter: isDiaryMasked ? "blur(5px)" : "none",
                     userSelect: isDiaryMasked ? "none" : "auto",
-                    transition: "filter 200ms ease"
+                    transition: "filter 220ms ease"
                   }}
                 >
                   &ldquo;วันนี้ลองโฟกัสทีละการ์ดพร้อมเปิดเสียงฝนคลอเบาๆ พอไม่สลับหน้าจอไปดูแชตแล้วงานเสร็จไวกว่าที่คิดเยอะเลย ได้แลกตั๋วดริปกาแฟตอนบ่ายด้วย&rdquo;
@@ -945,7 +948,7 @@ export function WalkthroughMockupScreen({
                     key={text}
                     type="button"
                     onClick={() => toggleHabit(idx)}
-                    className="w-full text-left flex items-center justify-between gap-2 p-2.5 rounded-xl"
+                    className="lp-spring-card w-full text-left flex items-center justify-between gap-2 p-2.5 rounded-xl"
                     style={{
                       border: "1px solid var(--border)",
                       background: done
@@ -993,10 +996,10 @@ export function WalkthroughMockupScreen({
                 <Sparkles size={12} /> BUILT-IN LOFI SYNTHESIZER
               </div>
               <h4
+                className="lp-font-display"
                 style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "22px",
-                  fontWeight: 500
+                  fontSize: "20px",
+                  fontWeight: 700
                 }}
               >
                 เลือกมู้ดเทปคาสเซ็ตที่เข้ากับจังหวะงานของคุณ
@@ -1026,7 +1029,7 @@ export function WalkthroughMockupScreen({
               <button
                 type="button"
                 onClick={onToggleAudio}
-                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-transform active:translate-y-0.5"
+                className="lp-press-btn inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold"
                 style={{
                   background: "#fff5fc",
                   color: "#432369",
@@ -1042,19 +1045,19 @@ export function WalkthroughMockupScreen({
               </button>
             </div>
 
-            <div className="sm:col-span-5 flex flex-col items-center justify-center p-4 rounded-2xl bg-white/10 border border-white/20">
-              <div className="relative w-36 h-24">
+            <div className="sm:col-span-5 flex flex-col items-center justify-center p-3 rounded-2xl bg-white/15 border border-white/25 overflow-hidden">
+              <div className="relative w-full h-36 rounded-xl overflow-hidden border border-white/30">
                 <Image
-                  src="/images/login-cassette-cutout.png"
-                  alt="Retzlo Lofi Cassette"
+                  src="/images/landing/cozy-desk-hero.jpg"
+                  alt="Cozy Lofi Desk Studio"
                   fill
-                  sizes="144px"
-                  className="object-contain drop-shadow-lg"
+                  sizes="260px"
+                  className="object-cover"
                 />
               </div>
-              <div className="flex items-center gap-2 mt-2 text-xs text-[#ffecb1] font-semibold">
+              <div className="flex items-center gap-2 mt-2.5 text-xs text-[#ffecb1] font-semibold">
                 <Disc3 size={14} className={isPlaying ? "animate-spin" : undefined} />
-                <span>Side A · Ready to Play</span>
+                <span>Side A · Cozy Twilight Desk</span>
               </div>
             </div>
           </div>

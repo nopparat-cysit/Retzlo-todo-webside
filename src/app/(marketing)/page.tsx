@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect, useRef, type PointerEvent, type MouseEvent } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  type PointerEvent,
+  type MouseEvent,
+  type CSSProperties
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -46,36 +53,41 @@ interface ZenRipple {
   y: number;
 }
 
+interface CoinBurst {
+  id: number;
+  amount: number;
+}
+
 const HERO_STAGES = ["To do", "In progress", "Done"] as const;
 
 const SAKURA_STAGES = [
   {
     level: 1,
-    name: "Stage 1 · ต้นอ่อนเพิ่งงอก",
-    desc: "กดที่ผืนทรายหรือปุ่มรดน้ำเพื่อเติมพลังใจ",
-    canopySize: 48,
-    blossoms: 3
+    name: "Stage 1 · ต้นอ่อนเพิ่งผลิใบ",
+    desc: "คลิกที่สวนหินเพื่อสร้างคลื่นน้ำและเติมพลังใจ",
+    scale: 0.94,
+    petals: 3
   },
   {
     level: 2,
     name: "Stage 2 · แตกกิ่งรับแสงเช้า",
     desc: "ต้นไม้เริ่มโตตามจังหวะงานที่คุณเคลียร์สำเร็จ",
-    canopySize: 68,
-    blossoms: 7
+    scale: 0.98,
+    petals: 6
   },
   {
     level: 3,
     name: "Stage 3 · ดอกตูมสีชมพูอ่อน",
     desc: "อีกนิดเดียวซากุระก็จะบานเต็มต้นแล้ว!",
-    canopySize: 88,
-    blossoms: 14
+    scale: 1.02,
+    petals: 10
   },
   {
     level: 4,
     name: "Stage 4 · ซากุระบานสะพรั่งเต็มสวน!",
     desc: "บรรยากาศโต๊ะทำงานสดชื่นพร้อมลุยวันต่อไป",
-    canopySize: 112,
-    blossoms: 24
+    scale: 1.06,
+    petals: 16
   }
 ];
 
@@ -92,17 +104,18 @@ export default function LandingPage() {
 
   // Interactive Playground & Live Coin Wallet state
   const [walletCoins, setWalletCoins] = useState<number>(45);
+  const [coinBursts, setCoinBursts] = useState<CoinBurst[]>([]);
   const [completedTaskIds, setCompletedTaskIds] = useState<string[]>(["task-brief"]);
   const [redeemedRewards, setRedeemedRewards] = useState<Record<string, number>>({});
   const [toastBanner, setToastBanner] = useState<string | null>(
-    "ลองคลิกเคลียร์งานหรือกดเล่นสวนหินด้านล่างเพื่อสะสมเหรียญ!"
+    "ลองคลิกเคลียร์งานหรือแตะที่ภาพสวนหินญี่ปุ่นด้านล่างเพื่อสะสมเหรียญ!"
   );
   const [sfxEnabled, setSfxEnabled] = useState<boolean>(true);
 
   // Interactive Zen Garden state
-  const [sakuraStageIdx, setSakuraStageIdx] = useState<number>(1);
+  const [sakuraStageIdx, setSakuraStageIdx] = useState<number>(2);
   const [zenRipples, setZenRipples] = useState<ZenRipple[]>([]);
-  const [waterDrops, setWaterDrops] = useState<number>(2);
+  const [waterDrops, setWaterDrops] = useState<number>(3);
 
   // Interactive sections state
   const [activePainIndex, setActivePainIndex] = useState(0);
@@ -217,7 +230,9 @@ export default function LandingPage() {
   };
 
   const triggerEarnCoin = (amount: number, message: string) => {
+    const burstId = Date.now() + Math.random();
     setWalletCoins((prev) => prev + amount);
+    setCoinBursts((prev) => [...prev.slice(-3), { id: burstId, amount }]);
     setToastBanner(`+${amount} Coins · ${message}`);
     playChime("coin");
   };
@@ -408,7 +423,7 @@ export default function LandingPage() {
   const activePain = PAIN_POINT_TABS[activePainIndex] || PAIN_POINT_TABS[0];
   const activeSlide =
     WALKTHROUGH_SLIDES[activeWalkthroughIndex] || WALKTHROUGH_SLIDES[0];
-  const currentSakura = SAKURA_STAGES[sakuraStageIdx] || SAKURA_STAGES[0];
+  const currentSakura = SAKURA_STAGES[sakuraStageIdx] || SAKURA_STAGES[2];
 
   return (
     <main
@@ -419,7 +434,7 @@ export default function LandingPage() {
         color: "var(--foreground)"
       }}
     >
-      {/* ── Top Navigation Bar with Live Coin Counter ─────────────────── */}
+      {/* ── Top Navigation Bar with Live Coin Counter & Burst ─────────── */}
       <header
         style={{
           position: "sticky",
@@ -449,7 +464,7 @@ export default function LandingPage() {
           {/* Desktop Navigation */}
           <nav
             className="hidden lg:flex items-center gap-6"
-            style={{ fontSize: "13px", fontWeight: 500, color: "var(--muted)" }}
+            style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--muted)" }}
           >
             <a href="#playground" className="hover:opacity-100 transition-opacity">
               ลองเล่นมินิเกม
@@ -470,33 +485,49 @@ export default function LandingPage() {
 
           {/* Right Actions + Live Interactive Coin Pill */}
           <div className="hidden md:flex items-center gap-2.5">
-            <a
-              href="#playground"
-              title="เหรียญสะสมจากการทดลองกดเล่นบนหน้าเว็บ"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-transform hover:scale-105"
-              style={{
-                background: "#fff3c4",
-                color: "#54356b",
-                border: "1.5px solid #54356b",
-                boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.22)"
-              }}
-            >
-              <div className="relative w-4 h-4">
-                <Image
-                  src="/stickers/rewards/reward-icon-01-coin.png"
-                  alt=""
-                  fill
-                  sizes="16px"
-                  className="object-contain"
-                />
-              </div>
-              <span>{walletCoins} Coins</span>
-            </a>
+            <div className="relative">
+              <a
+                href="#playground"
+                title="เหรียญสะสมจากการทดลองกดเล่นบนหน้าเว็บ"
+                className="lp-press-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold"
+                style={{
+                  background: "#fff3c4",
+                  color: "#54356b",
+                  border: "1.5px solid #54356b",
+                  boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.22)"
+                }}
+              >
+                <div className="relative w-4 h-4">
+                  <Image
+                    src="/stickers/rewards/reward-icon-01-coin.png"
+                    alt=""
+                    fill
+                    sizes="16px"
+                    className="object-contain"
+                  />
+                </div>
+                <span>{walletCoins} Coins</span>
+              </a>
+
+              {/* Floating +Coin Burst Particles */}
+              {coinBursts.map((b) => (
+                <span
+                  key={b.id}
+                  className="lp-coin-burst pointer-events-none absolute -top-2 right-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold shadow-sm"
+                  style={{
+                    background: "#10b981",
+                    color: "#ffffff"
+                  }}
+                >
+                  +{b.amount}c
+                </span>
+              ))}
+            </div>
 
             <button
               type="button"
               onClick={handlePlayToggle}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+              className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
               style={{
                 border: "1px solid var(--border)",
                 background: isPlaying ? "#ede9fe" : "var(--paper)",
@@ -520,6 +551,7 @@ export default function LandingPage() {
                 </Link>
                 <Link href={defaultDestination}>
                   <button
+                    className="lp-press-btn"
                     style={{
                       padding: "9px 16px",
                       borderRadius: "12px",
@@ -550,6 +582,7 @@ export default function LandingPage() {
                 </Link>
                 <Link href={defaultDestination}>
                   <button
+                    className="lp-press-btn"
                     style={{
                       padding: "9px 16px",
                       borderRadius: "12px",
@@ -716,7 +749,7 @@ export default function LandingPage() {
                     color: "#54356b",
                     fontSize: "11px",
                     fontWeight: 800,
-                    letterSpacing: "1.4px",
+                    letterSpacing: "1.2px",
                     boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.2)"
                   }}
                 >
@@ -725,12 +758,11 @@ export default function LandingPage() {
               </div>
 
               <h1
+                className="lp-font-display"
                 style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "clamp(34px, 4.1vw, 52px)",
-                  lineHeight: 1.12,
-                  letterSpacing: "-1.5px",
-                  fontWeight: 600,
+                  fontSize: "clamp(32px, 3.8vw, 48px)",
+                  lineHeight: 1.24,
+                  fontWeight: 700,
                   color: "var(--foreground)"
                 }}
               >
@@ -740,8 +772,9 @@ export default function LandingPage() {
                 <span
                   style={{
                     background:
-                      "linear-gradient(180deg, transparent 62%, rgba(255, 180, 213, 0.55) 62%)",
-                    padding: "0 4px"
+                      "linear-gradient(180deg, transparent 58%, rgba(255, 180, 213, 0.58) 58%)",
+                    padding: "0 6px",
+                    borderRadius: "4px"
                   }}
                 >
                   ค่อยๆ เคลียร์สนุกขึ้น
@@ -751,8 +784,8 @@ export default function LandingPage() {
 
               <p
                 style={{
-                  fontSize: "15px",
-                  lineHeight: 1.75,
+                  fontSize: "15.5px",
+                  lineHeight: 1.8,
                   color: "var(--muted)",
                   maxWidth: "48ch"
                 }}
@@ -766,7 +799,7 @@ export default function LandingPage() {
               <div className="flex flex-wrap items-center gap-3.5 pt-1">
                 <Link href={defaultDestination}>
                   <button
-                    className="transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+                    className="lp-press-btn"
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -789,7 +822,7 @@ export default function LandingPage() {
 
                 <a
                   href="#playground"
-                  className="transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+                  className="lp-press-btn"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -850,7 +883,7 @@ export default function LandingPage() {
                 ].map((badge) => (
                   <div
                     key={badge.label}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-transform hover:scale-105"
+                    className="lp-spring-card inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
                     style={{
                       transform: `rotate(${badge.rot})`,
                       background: "var(--paper)",
@@ -874,12 +907,12 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right 6 Cols: Interactive Mixtape Scene with Floating Stickers */}
+          {/* Right 6 Cols: Interactive Mixtape Scene + Hand-Drawn Polaroid Desk Art */}
           <div
             ref={artRef}
             onPointerMove={moveArtwork}
             onPointerLeave={resetArtwork}
-            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-7 sm:p-10 min-h-[480px] lg:min-h-[590px]"
+            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-7 sm:p-10 min-h-[500px] lg:min-h-[610px]"
             style={{
               background:
                 "linear-gradient(180deg, #5942b8 0%, #7858d4 42%, #b184e7 68%, #ffb4d5 100%)",
@@ -892,47 +925,52 @@ export default function LandingPage() {
             {/* Top Scene Header */}
             <div className="relative z-10 flex items-center justify-between text-[10px] tracking-[2px] font-bold text-[#f3e8ff]">
               <span>SIDE A · YOUR DAILY MIXTAPE</span>
-              <span className="px-2.5 py-1 rounded-full bg-black/20 border border-white/20">
+              <span className="px-2.5 py-1 rounded-full bg-black/25 border border-white/25">
                 🪙 WALLET: {walletCoins} COINS
               </span>
             </div>
 
-            {/* Decorative Floating Hand-Drawn Stickers */}
+            {/* Tilted Hand-Drawn Studio Polaroid Frame (Top-Left) */}
             <div
-              className="hidden sm:flex items-center gap-2 absolute top-14 left-7 z-10 px-3 py-2 rounded-2xl"
-              style={{
-                transform: "rotate(-6deg)",
-                background: "rgba(255, 248, 231, 0.92)",
-                color: "#432369",
-                border: "1.5px solid #54356b",
-                boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.28)"
-              }}
+              className="hidden sm:block absolute top-14 left-6 z-10 p-2 pb-3 rounded-2xl lp-float-sticker"
+              style={
+                {
+                  "--lp-rot": "-5deg",
+                  width: "215px",
+                  background: "#fffaf0",
+                  color: "#432369",
+                  border: "2px solid #54356b",
+                  boxShadow: "6px 6px 0 rgba(36, 15, 69, 0.32)"
+                } as CSSProperties
+              }
             >
-              <div className="relative w-8 h-8">
+              <div className="relative w-full h-28 rounded-xl overflow-hidden border border-[#54356b]/20">
                 <Image
-                  src="/stickers/retro/retro-sticker-10-coffee-cup.png"
-                  alt=""
+                  src="/images/landing/cozy-desk-hero.jpg"
+                  alt="Cozy Lofi Desk Illustration"
                   fill
-                  sizes="32px"
-                  className="object-contain"
+                  sizes="215px"
+                  className="object-cover"
+                  priority
                 />
               </div>
-              <div className="text-[11px] leading-tight">
-                <div className="font-extrabold">Coffee Cheer!</div>
-                <div className="opacity-75">ส่งกาแฟให้กำลังใจทีม</div>
+              <div className="mt-2 px-1 flex items-center justify-between text-[10px] font-extrabold">
+                <span>🎨 Cozy Studio Desk</span>
+                <span className="text-pink-600">Side A</span>
               </div>
             </div>
 
             {/* Interactive Floating Board Card + Tilted Paper Sticker */}
             <div className="relative z-10 my-auto py-8 flex flex-col items-end">
               <div
+                className="lp-spring-card"
                 style={{
-                  width: "min(290px, 100%)",
+                  width: "min(295px, 100%)",
                   padding: "16px",
-                  border: "1.5px solid rgba(255, 240, 255, 0.75)",
+                  border: "1.5px solid rgba(255, 240, 255, 0.78)",
                   borderRadius: "18px",
                   background: "rgba(85, 51, 133, 0.92)",
-                  boxShadow: "0 18px 40px rgba(26, 11, 69, 0.32)",
+                  boxShadow: "0 18px 40px rgba(26, 11, 69, 0.34)",
                   backdropFilter: "blur(16px)"
                 }}
               >
@@ -949,7 +987,7 @@ export default function LandingPage() {
                   {HERO_STAGES.map((name, idx) => (
                     <span
                       key={name}
-                      className="flex items-center gap-1 text-[10px] font-semibold"
+                      className="flex items-center gap-1 text-[10px] font-semibold transition-opacity"
                       style={{
                         color: idx === heroStage ? "#fff5ff" : "#d7c1ec",
                         opacity: idx === heroStage ? 1 : 0.65
@@ -984,7 +1022,7 @@ export default function LandingPage() {
                       playChime("click");
                     }
                   }}
-                  className="transition-transform active:translate-y-0.5"
+                  className="lp-press-btn"
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -1015,7 +1053,7 @@ export default function LandingPage() {
                       +25 Coins
                     </span>
                   </div>
-                  <strong style={{ fontSize: "14px", lineHeight: 1.35 }}>
+                  <strong style={{ fontSize: "14px", lineHeight: 1.4 }}>
                     {heroStage === 2
                       ? "🎉 เสร็จเรียบร้อย! รับ +25 เหรียญไปแลกกาแฟได้เลย"
                       : heroStage === 1
@@ -1049,20 +1087,22 @@ export default function LandingPage() {
 
               {/* Tilted Paper Callout Sticker */}
               <div
-                className="mt-4 mr-3 flex items-center gap-2.5"
-                style={{
-                  transform: "rotate(-5deg)",
-                  background: "#ffecb1",
-                  border: "2px solid #54356b",
-                  color: "#54356b",
-                  padding: "10px 18px",
-                  borderRadius: "10px",
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontStyle: "italic",
-                  fontSize: "19px",
-                  lineHeight: 1.15,
-                  boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.28)"
-                }}
+                className="mt-4 mr-3 flex items-center gap-2.5 lp-float-sticker"
+                style={
+                  {
+                    "--lp-rot": "-5deg",
+                    background: "#ffecb1",
+                    border: "2px solid #54356b",
+                    color: "#54356b",
+                    padding: "10px 18px",
+                    borderRadius: "10px",
+                    fontFamily: "var(--font-editorial)",
+                    fontStyle: "italic",
+                    fontSize: "21px",
+                    lineHeight: 1.1,
+                    boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.28)"
+                  } as CSSProperties
+                }
               >
                 <div className="relative w-7 h-7 not-italic">
                   <Image
@@ -1085,7 +1125,7 @@ export default function LandingPage() {
             <div
               className="relative z-10 flex items-center justify-between gap-4 p-3.5 rounded-2xl"
               style={{
-                background: "rgba(255, 245, 255, 0.34)",
+                background: "rgba(255, 245, 255, 0.36)",
                 border: "1px solid rgba(84, 53, 107, 0.3)",
                 backdropFilter: "blur(10px)"
               }}
@@ -1120,7 +1160,7 @@ export default function LandingPage() {
                 type="button"
                 onClick={handlePlayToggle}
                 aria-label={isPlaying ? "Pause Lofi audio" : "Play Lofi audio"}
-                className="transition-transform hover:scale-105 active:scale-95"
+                className="lp-press-btn"
                 style={{
                   display: "grid",
                   placeItems: "center",
@@ -1164,7 +1204,7 @@ export default function LandingPage() {
                   style={{
                     fontSize: "10px",
                     fontWeight: 800,
-                    letterSpacing: "1.6px",
+                    letterSpacing: "1.4px",
                     padding: "4px 10px",
                     borderRadius: "999px",
                     background: "#7858d4",
@@ -1178,11 +1218,10 @@ export default function LandingPage() {
                 </span>
               </div>
               <h2
+                className="lp-font-display"
                 style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "clamp(26px, 3vw, 36px)",
-                  lineHeight: 1.18,
-                  fontWeight: 600
+                  fontSize: "clamp(24px, 2.8vw, 34px)",
+                  fontWeight: 700
                 }}
               >
                 ทำไมคนใช้ Retzlo ถึงไม่เบื่อ? ลองเล่น &ldquo;ลูปความสุข 3 ขั้นตอน&rdquo; ดูสิ
@@ -1194,14 +1233,14 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={() => setSfxEnabled(!sfxEnabled)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-[var(--border)] bg-[var(--paper)]"
+                className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-[var(--border)] bg-[var(--paper)]"
               >
                 {sfxEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
                 <span>{sfxEnabled ? "เสียงเอฟเฟกต์: เปิด" : "เสียงเอฟเฟกต์: ปิด"}</span>
               </button>
 
               <div
-                className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-extrabold"
+                className="relative inline-flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-extrabold"
                 style={{
                   background: "#ffecb1",
                   color: "#432369",
@@ -1293,7 +1332,7 @@ export default function LandingPage() {
                         onClick={() =>
                           handleTogglePlaygroundTask(task.id, task.coins, task.title)
                         }
-                        className="w-full text-left p-3 rounded-xl flex items-center justify-between gap-3 transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                        className="lp-spring-card w-full text-left p-3 rounded-xl flex items-center justify-between gap-3"
                         style={{
                           border: isDone
                             ? "1.5px solid #10b981"
@@ -1404,7 +1443,7 @@ export default function LandingPage() {
                           background: reward.bgTint,
                           color: "#3b1d61"
                         }}
-                        className="flex items-center justify-between gap-3"
+                        className="lp-spring-card flex items-center justify-between gap-3"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="relative w-9 h-9 shrink-0">
@@ -1431,7 +1470,7 @@ export default function LandingPage() {
                           onClick={() =>
                             handleRedeemReward(reward.id, reward.cost, reward.title)
                           }
-                          className="shrink-0 px-3 py-1.5 rounded-xl text-xs font-extrabold transition-transform active:scale-95"
+                          className="lp-press-btn shrink-0 px-3 py-1.5 rounded-xl text-xs font-extrabold"
                           style={{
                             background: canAfford ? "#54356b" : "rgba(84, 53, 107, 0.2)",
                             color: canAfford ? "#ffecb1" : "#54356b",
@@ -1453,7 +1492,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* STEP 3: Interactive Zen Sand Garden & Sakura Tree */}
+            {/* STEP 3: Interactive Zen Sand Garden & Hand-Drawn Sakura Terrarium */}
             <div
               style={{
                 border: "1.5px solid var(--border)",
@@ -1481,10 +1520,10 @@ export default function LandingPage() {
                   </span>
                 </div>
                 <h3 className="text-base font-bold">
-                  3. คลิกผืนทรายเพื่อสร้างคลื่นน้ำ &amp; ปลูกซากุระ
+                  3. แตะที่สวนหินญี่ปุ่นเพื่อสร้างคลื่นน้ำ &amp; ปลูกซากุระ
                 </h3>
 
-                {/* Clickable Zen Sand Box */}
+                {/* Clickable Hand-Drawn Zen Terrarium Box */}
                 <div
                   onClick={handleZenPondClick}
                   role="button"
@@ -1495,98 +1534,66 @@ export default function LandingPage() {
                       playChime("ripple");
                     }
                   }}
-                  className="relative overflow-hidden rounded-2xl cursor-pointer select-none flex flex-col items-center justify-center p-4 min-h-[190px]"
+                  className="relative overflow-hidden rounded-2xl cursor-pointer select-none flex flex-col justify-end p-3.5 min-h-[215px]"
                   style={{
-                    background:
-                      "radial-gradient(circle at 50% 50%, #f7efe2 0%, #eadbc5 100%)",
                     border: "2px solid #c9b293",
-                    boxShadow: "inset 0 2px 12px rgba(92, 68, 38, 0.15)"
+                    boxShadow: "inset 0 2px 12px rgba(92, 68, 38, 0.18)"
                   }}
                 >
-                  {/* Concentric Zen Sand Groove Lines */}
+                  {/* Custom Hand-Drawn Zen Sakura Terrarium Illustration */}
                   <div
-                    className="absolute inset-3 rounded-xl pointer-events-none"
+                    className="absolute inset-0 transition-transform duration-500 ease-out"
                     style={{
-                      border: "1px dashed rgba(138, 109, 75, 0.35)"
+                      transform: `scale(${currentSakura.scale})`
                     }}
-                  />
-                  <div
-                    className="absolute inset-7 rounded-full pointer-events-none"
-                    style={{
-                      border: "1px solid rgba(138, 109, 75, 0.25)"
-                    }}
-                  />
+                  >
+                    <Image
+                      src="/images/landing/zen-sakura-terrarium.jpg"
+                      alt="Japanese Zen Sand Garden & Sakura Bonsai"
+                      fill
+                      sizes="360px"
+                      className="object-cover"
+                    />
+                  </div>
 
                   {/* Dynamic Click Ripples */}
                   {zenRipples.map((r) => (
                     <span
                       key={r.id}
-                      className="animate-ping pointer-events-none"
+                      className="lp-ripple-ring pointer-events-none"
                       style={{
                         position: "absolute",
                         left: `${r.x}%`,
                         top: `${r.y}%`,
-                        width: "44px",
-                        height: "44px",
-                        marginLeft: "-22px",
-                        marginTop: "-22px",
+                        width: "52px",
+                        height: "52px",
+                        marginLeft: "-26px",
+                        marginTop: "-26px",
                         borderRadius: "50%",
-                        border: "2px solid #7858d4",
-                        opacity: 0.55
+                        border: "2.5px solid rgba(120, 88, 212, 0.85)",
+                        boxShadow: "0 0 12px rgba(255, 180, 213, 0.8)"
                       }}
                     />
                   ))}
 
-                  {/* Growing Sakura Tree Visual */}
-                  <div className="relative z-10 flex flex-col items-center text-center">
-                    <div
-                      className="relative flex items-center justify-center rounded-full transition-all duration-300"
-                      style={{
-                        width: `${currentSakura.canopySize}px`,
-                        height: `${currentSakura.canopySize}px`,
-                        background:
-                          sakuraStageIdx === 0
-                            ? "radial-gradient(circle, #a7f3d0 0%, #34d399 100%)"
-                            : "radial-gradient(circle, #ffe4ef 0%, #f472b6 100%)",
-                        border: "2px solid #54356b",
-                        boxShadow: "0 8px 20px rgba(244, 114, 182, 0.35)"
-                      }}
-                    >
-                      <div className="relative w-10 h-10">
-                        <Image
-                          src={
-                            sakuraStageIdx === 0
-                              ? "/stickers/retro/retro-sticker-44-leaf-sprout.png"
-                              : "/stickers/rewards/reward-icon-09-plant.png"
-                          }
-                          alt=""
-                          fill
-                          sizes="40px"
-                          className="object-contain"
-                        />
-                      </div>
-                    </div>
-
-                    <div
-                      className="mt-2.5 px-3 py-1 rounded-full text-xs font-extrabold"
-                      style={{
-                        background: "rgba(255, 255, 255, 0.85)",
-                        color: "#432369",
-                        border: "1px solid rgba(84, 53, 107, 0.25)"
-                      }}
-                    >
-                      {currentSakura.name}
-                    </div>
-                    <div className="text-[11px] mt-1 font-medium" style={{ color: "#5c4426" }}>
-                      {currentSakura.desc}
-                    </div>
+                  {/* Stage Status Overlay Pill */}
+                  <div
+                    className="relative z-10 px-3 py-2 rounded-xl text-center backdrop-blur-md"
+                    style={{
+                      background: "rgba(255, 251, 245, 0.9)",
+                      border: "1.5px solid rgba(84, 53, 107, 0.28)",
+                      color: "#3b1d61"
+                    }}
+                  >
+                    <div className="text-xs font-extrabold">{currentSakura.name}</div>
+                    <div className="text-[11px] opacity-80">{currentSakura.desc}</div>
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center justify-between text-[11px] pt-2 border-t border-[var(--border)]">
                 <span style={{ color: "var(--muted)" }}>
-                  🌸 แตะที่สวนหินเพื่อสร้างคลื่นน้ำและเร่งดอกซากุระ
+                  🌸 แตะที่ภาพสวนหินเพื่อสร้างคลื่นน้ำ
                 </span>
                 <button
                   type="button"
@@ -1596,7 +1603,7 @@ export default function LandingPage() {
                   }}
                   className="font-bold text-emerald-700 underline"
                 >
-                  +รดน้ำซากุระ
+                  +รดน้ำซากุระ (+10c)
                 </button>
               </div>
             </div>
@@ -1621,17 +1628,15 @@ export default function LandingPage() {
             01 / EVERYDAY FRICTION
           </span>
           <h2
+            className="lp-font-display"
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: "clamp(28px, 3.2vw, 40px)",
-              lineHeight: 1.18,
-              letterSpacing: "-1.2px",
-              fontWeight: 600
+              fontSize: "clamp(26px, 3vw, 38px)",
+              fontWeight: 700
             }}
           >
             5 อาการปวดหัวของคนทำงานหน้าจอ ที่ Retzlo ตั้งใจมาแก้ให้จบ
           </h2>
-          <p style={{ fontSize: "14px", color: "var(--muted)", lineHeight: 1.7 }}>
+          <p style={{ fontSize: "14.5px", color: "var(--muted)", lineHeight: 1.75 }}>
             ลองกดเลือกอาการที่คุณเจอบ่อยที่สุดจากแถบด้านซ้าย แล้วดูว่าเมื่อย้ายเข้ามาอยู่ในสตูดิโอของ Retzlo ชีวิตจะเบาลงอย่างไร
           </p>
         </div>
@@ -1649,7 +1654,7 @@ export default function LandingPage() {
                     setActivePainIndex(idx);
                     playChime("click");
                   }}
-                  className="text-left transition-all"
+                  className="lp-spring-card text-left"
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -1687,7 +1692,7 @@ export default function LandingPage() {
                     </div>
                     <div
                       style={{
-                        fontSize: "13px",
+                        fontSize: "13.5px",
                         fontWeight: isSelected ? 700 : 500,
                         color: "var(--foreground)",
                         marginTop: "2px"
@@ -1709,9 +1714,10 @@ export default function LandingPage() {
             })}
           </div>
 
-          {/* Right 7 Cols: Before vs After Collage Board */}
+          {/* Right 7 Cols: Before vs After Collage Board with Hand-Drawn Illustrations */}
           <div
-            className="lg:col-span-7 p-6 sm:p-8 space-y-6"
+            key={activePain.id}
+            className="lg:col-span-7 p-6 sm:p-8 space-y-6 lp-tab-stage"
             style={{
               border: `2px solid ${activePain.accentColor}`,
               borderRadius: "24px",
@@ -1719,111 +1725,159 @@ export default function LandingPage() {
               boxShadow: "8px 8px 0 rgba(84, 53, 107, 0.14)"
             }}
           >
-            {/* Before Box with Tilted Quote Sticker */}
+            {/* Before Box with Hand-Drawn Chaos Illustration & Tilted Quote Sticker */}
             <div
-              className="p-5 rounded-2xl space-y-3"
+              className="p-5 rounded-2xl grid grid-cols-1 sm:grid-cols-12 gap-5 items-center"
               style={{
                 background: "var(--paper)",
                 border: "1px dashed var(--border)"
               }}
             >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span
-                  style={{
-                    fontSize: "10px",
-                    letterSpacing: "1.5px",
-                    fontWeight: 800,
-                    padding: "3px 9px",
-                    borderRadius: "6px",
-                    background: "rgba(239, 68, 68, 0.12)",
-                    color: "#dc2626"
-                  }}
-                >
-                  BEFORE · ภาพที่คุ้นเคย
-                </span>
-
-                <span
-                  style={{
-                    transform: "rotate(-1.5deg)",
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    padding: "4px 10px",
-                    borderRadius: "8px",
-                    background: "#ffecb1",
-                    color: "#54356b",
-                    border: "1px solid rgba(84, 53, 107, 0.3)"
-                  }}
-                >
-                  {activePain.beforeQuote}
-                </span>
-              </div>
-
-              <h3
-                style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "21px",
-                  fontWeight: 600,
-                  lineHeight: 1.3,
-                  color: "var(--foreground)"
-                }}
-              >
-                {activePain.title}
-              </h3>
-              <p
-                style={{
-                  fontSize: "13.5px",
-                  lineHeight: 1.7,
-                  color: "var(--muted)"
-                }}
-              >
-                {activePain.beforeText}
-              </p>
-            </div>
-
-            {/* After Box with Interactive Checklist */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="relative w-9 h-9 shrink-0">
-                  <Image
-                    src={activePain.stickerSrc}
-                    alt=""
-                    fill
-                    sizes="36px"
-                    className="object-contain"
-                  />
-                </div>
-                <div>
+              <div className="sm:col-span-8 space-y-2.5">
+                <div className="flex flex-wrap items-center gap-2">
                   <span
                     style={{
                       fontSize: "10px",
-                      letterSpacing: "1.6px",
-                      color: activePain.accentColor,
-                      fontWeight: 800
+                      letterSpacing: "1.4px",
+                      fontWeight: 800,
+                      padding: "3px 9px",
+                      borderRadius: "6px",
+                      background: "rgba(239, 68, 68, 0.12)",
+                      color: "#dc2626"
                     }}
                   >
-                    AFTER · เมื่อย้ายมาอยู่ใน RETZLO
+                    BEFORE · ภาพที่คุ้นเคย
                   </span>
-                  <h4
+
+                  <span
                     style={{
-                      fontSize: "17px",
+                      transform: "rotate(-1deg)",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      padding: "3px 10px",
+                      borderRadius: "8px",
+                      background: "#ffecb1",
+                      color: "#54356b",
+                      border: "1px solid rgba(84, 53, 107, 0.3)"
+                    }}
+                  >
+                    {activePain.beforeQuote}
+                  </span>
+                </div>
+
+                <h3
+                  className="lp-font-display"
+                  style={{
+                    fontSize: "19px",
+                    fontWeight: 700,
+                    lineHeight: 1.35,
+                    color: "var(--foreground)"
+                  }}
+                >
+                  {activePain.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "13.5px",
+                    lineHeight: 1.7,
+                    color: "var(--muted)"
+                  }}
+                >
+                  {activePain.beforeText}
+                </p>
+              </div>
+
+              {/* Hand-Drawn "Before Chaos" Spot Illustration */}
+              <div className="sm:col-span-4 flex justify-center">
+                <div
+                  className="relative w-36 h-36 rounded-2xl overflow-hidden p-1.5"
+                  style={{
+                    transform: "rotate(2deg)",
+                    background: "#fffaf0",
+                    border: "1.5px solid rgba(84, 53, 107, 0.25)",
+                    boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.12)"
+                  }}
+                >
+                  <Image
+                    src="/images/landing/before-chaos-desk.jpg"
+                    alt="Before Retzlo Chaos Desk"
+                    fill
+                    sizes="144px"
+                    className="object-cover rounded-xl"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* After Box with Hand-Drawn Flow Illustration & Interactive Checklist */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
+                {/* Hand-Drawn "After Flow" Spot Illustration */}
+                <div className="sm:col-span-4 flex justify-center order-2 sm:order-1">
+                  <div
+                    className="relative w-36 h-36 rounded-2xl overflow-hidden p-1.5"
+                    style={{
+                      transform: "rotate(-2deg)",
+                      background: "#fffaf0",
+                      border: `2px solid ${activePain.accentColor}`,
+                      boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.14)"
+                    }}
+                  >
+                    <Image
+                      src="/images/landing/after-flow-desk.jpg"
+                      alt="After Retzlo Calm Flow Desk"
+                      fill
+                      sizes="144px"
+                      className="object-cover rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-8 space-y-2 order-1 sm:order-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative w-7 h-7 shrink-0">
+                      <Image
+                        src={activePain.stickerSrc}
+                        alt=""
+                        fill
+                        sizes="28px"
+                        className="object-contain"
+                      />
+                    </div>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        letterSpacing: "1.5px",
+                        color: activePain.accentColor,
+                        fontWeight: 800
+                      }}
+                    >
+                      AFTER · เมื่อย้ายมาอยู่ใน RETZLO
+                    </span>
+                  </div>
+
+                  <h4
+                    className="lp-font-display"
+                    style={{
+                      fontSize: "18px",
                       fontWeight: 700,
                       color: "var(--foreground)"
                     }}
                   >
                     {activePain.afterTitle}
                   </h4>
+
+                  <p
+                    style={{
+                      fontSize: "13.5px",
+                      lineHeight: 1.7,
+                      color: "var(--muted)"
+                    }}
+                  >
+                    {activePain.afterText}
+                  </p>
                 </div>
               </div>
-
-              <p
-                style={{
-                  fontSize: "13.5px",
-                  lineHeight: 1.7,
-                  color: "var(--muted)"
-                }}
-              >
-                {activePain.afterText}
-              </p>
 
               {/* Clickable Mini Preview */}
               <div
@@ -1877,13 +1931,13 @@ export default function LandingPage() {
                             playChime("click");
                           }
                         }}
-                        className="w-full text-left flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl transition-transform hover:-translate-y-0.5"
+                        className="lp-spring-card w-full text-left flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl"
                         style={{
                           background: isDone
                             ? "rgba(16, 185, 129, 0.1)"
                             : "var(--panel-strong)",
                           border: "1px solid var(--border)",
-                          fontSize: "12px"
+                          fontSize: "12.5px"
                         }}
                       >
                         <span className="flex items-center gap-2.5 min-w-0 font-medium">
@@ -1939,12 +1993,10 @@ export default function LandingPage() {
             02 / INSIDE THE WORKSPACE
           </span>
           <h2
+            className="lp-font-display"
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: "clamp(28px, 3.2vw, 40px)",
-              lineHeight: 1.18,
-              letterSpacing: "-1.2px",
-              fontWeight: 600
+              fontSize: "clamp(26px, 3vw, 38px)",
+              fontWeight: 700
             }}
           >
             พาชม 6 ห้องทำงานใน Retzlo (กดทดลองเล่นได้ทุกห้อง!)
@@ -1963,7 +2015,7 @@ export default function LandingPage() {
                   setActiveWalkthroughIndex(idx);
                   playChime("click");
                 }}
-                className="inline-flex items-center gap-2 transition-transform active:translate-y-0.5"
+                className="lp-press-btn inline-flex items-center gap-2"
                 style={{
                   padding: "10px 16px",
                   borderRadius: "14px",
@@ -1972,7 +2024,7 @@ export default function LandingPage() {
                     : "1px solid var(--border)",
                   background: isActive ? "var(--panel-strong)" : "var(--paper)",
                   color: "var(--foreground)",
-                  fontSize: "12px",
+                  fontSize: "12.5px",
                   fontWeight: isActive ? 800 : 600,
                   whiteSpace: "nowrap",
                   boxShadow: isActive
@@ -1997,7 +2049,7 @@ export default function LandingPage() {
 
         {/* 5 / 7 Split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-5 space-y-5">
+          <div key={activeSlide.id} className="lg:col-span-5 space-y-5 lp-tab-stage">
             <div className="inline-flex items-center gap-2">
               <span
                 style={{
@@ -2015,11 +2067,11 @@ export default function LandingPage() {
             </div>
 
             <h3
+              className="lp-font-display"
               style={{
-                fontFamily: "Georgia, 'Times New Roman', serif",
-                fontSize: "26px",
-                lineHeight: 1.25,
-                fontWeight: 600
+                fontSize: "24px",
+                lineHeight: 1.32,
+                fontWeight: 700
               }}
             >
               {activeSlide.title}
@@ -2027,7 +2079,7 @@ export default function LandingPage() {
 
             <p
               style={{
-                fontSize: "14px",
+                fontSize: "14.5px",
                 lineHeight: 1.75,
                 color: "var(--muted)"
               }}
@@ -2043,7 +2095,7 @@ export default function LandingPage() {
                 background: "#ffecb1",
                 border: "1.5px solid #54356b",
                 color: "#54356b",
-                fontSize: "12px",
+                fontSize: "12.5px",
                 fontWeight: 700,
                 boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.16)"
               }}
@@ -2059,7 +2111,7 @@ export default function LandingPage() {
                 <li
                   key={detail}
                   className="flex items-start gap-2.5"
-                  style={{ fontSize: "13px", lineHeight: 1.6 }}
+                  style={{ fontSize: "13.5px", lineHeight: 1.65 }}
                 >
                   <Check
                     size={15}
@@ -2101,12 +2153,10 @@ export default function LandingPage() {
             03 / FIT CHECK &amp; COMPARISON
           </span>
           <h2
+            className="lp-font-display"
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: "clamp(28px, 3.2vw, 40px)",
-              lineHeight: 1.18,
-              letterSpacing: "-1.2px",
-              fontWeight: 600
+              fontSize: "clamp(26px, 3vw, 38px)",
+              fontWeight: 700
             }}
           >
             เช็กดูว่า Retzlo เข้ากับสไตล์การทำงานของคุณไหม?
@@ -2138,10 +2188,10 @@ export default function LandingPage() {
                     />
                   </div>
                   <h3
+                    className="lp-font-display"
                     style={{
-                      fontFamily: "Georgia, 'Times New Roman', serif",
-                      fontSize: "21px",
-                      fontWeight: 600
+                      fontSize: "19px",
+                      fontWeight: 700
                     }}
                   >
                     เหมาะกับคุณมาก ถ้า... (ลองคลิกติ๊กดู)
@@ -2169,7 +2219,7 @@ export default function LandingPage() {
                       key={item}
                       type="button"
                       onClick={() => toggleReadinessItem(idx)}
-                      className="w-full text-left flex items-start gap-3 p-3 rounded-xl transition-all"
+                      className="lp-spring-card w-full text-left flex items-start gap-3 p-3 rounded-xl"
                       style={{
                         border: isChecked
                           ? "1.5px solid #7858d4"
@@ -2187,7 +2237,7 @@ export default function LandingPage() {
                       >
                         {isChecked && <Check size={11} strokeWidth={3} />}
                       </span>
-                      <span style={{ fontSize: "13px", lineHeight: 1.6, fontWeight: isChecked ? 600 : 400 }}>
+                      <span style={{ fontSize: "13.5px", lineHeight: 1.6, fontWeight: isChecked ? 600 : 400 }}>
                         {item}
                       </span>
                     </button>
@@ -2204,7 +2254,7 @@ export default function LandingPage() {
                 background: "#ffecb1",
                 border: "1.5px solid #54356b",
                 color: "#432369",
-                fontSize: "12px",
+                fontSize: "12.5px",
                 fontWeight: 700
               }}
             >
@@ -2236,10 +2286,10 @@ export default function LandingPage() {
                     />
                   </div>
                   <h3
+                    className="lp-font-display"
                     style={{
-                      fontFamily: "Georgia, 'Times New Roman', serif",
-                      fontSize: "21px",
-                      fontWeight: 600
+                      fontSize: "19px",
+                      fontWeight: 700
                     }}
                   >
                     อาจยังไม่จำเป็นต้องใช้ ถ้า...
@@ -2261,7 +2311,7 @@ export default function LandingPage() {
                       color: "var(--muted)"
                     }}
                   >
-                    <span style={{ fontSize: "13px", lineHeight: 1.65 }}>
+                    <span style={{ fontSize: "13.5px", lineHeight: 1.65 }}>
                       — {item}
                     </span>
                   </div>
@@ -2299,7 +2349,7 @@ export default function LandingPage() {
                   style={{
                     borderBottom: "1px solid var(--border)",
                     background: "var(--paper)",
-                    fontSize: "12px",
+                    fontSize: "12.5px",
                     color: "var(--muted)"
                   }}
                 >
@@ -2323,7 +2373,7 @@ export default function LandingPage() {
                     key={row.feature}
                     style={{
                       borderBottom: "1px solid var(--border)",
-                      fontSize: "13px"
+                      fontSize: "13.5px"
                     }}
                   >
                     <td className="py-4 px-5 font-bold">{row.feature}</td>
@@ -2350,7 +2400,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 6: Common Questions (#faq) ─────────────────────── */}
+      {/* ── Section 6: Smooth Accordion Questions (#faq) ─────────────── */}
       <section
         id="faq"
         className="max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20"
@@ -2369,17 +2419,15 @@ export default function LandingPage() {
               04 / QUESTIONS &amp; ANSWERS
             </span>
             <h2
+              className="lp-font-display"
               style={{
-                fontFamily: "Georgia, 'Times New Roman', serif",
-                fontSize: "clamp(28px, 3vw, 36px)",
-                lineHeight: 1.18,
-                letterSpacing: "-1px",
-                fontWeight: 600
+                fontSize: "clamp(26px, 2.8vw, 34px)",
+                fontWeight: 700
               }}
             >
               คำถามที่พบบ่อย
             </h2>
-            <p style={{ fontSize: "13.5px", color: "var(--muted)", lineHeight: 1.7 }}>
+            <p style={{ fontSize: "14px", color: "var(--muted)", lineHeight: 1.75 }}>
               อยากดูวิธีใช้งานแต่ละฟีเจอร์แบบละเอียด สามารถเปิดอ่านใน{" "}
               <Link
                 href="/help"
@@ -2402,6 +2450,7 @@ export default function LandingPage() {
               return (
                 <div
                   key={faq.num}
+                  className="transition-colors duration-200"
                   style={{
                     border: isOpen
                       ? "1.5px solid #7858d4"
@@ -2438,22 +2487,30 @@ export default function LandingPage() {
                       style={{
                         color: "var(--muted)",
                         transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                        transition: "transform 180ms ease"
+                        transition: "transform 260ms cubic-bezier(0.22, 1, 0.36, 1)"
                       }}
                     />
                   </button>
-                  {isOpen && (
-                    <div
-                      className="pb-4 pl-7 pr-4"
-                      style={{
-                        fontSize: "13.5px",
-                        lineHeight: 1.75,
-                        color: "var(--muted)"
-                      }}
-                    >
-                      {faq.answer}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateRows: isOpen ? "1fr" : "0fr",
+                      transition: "grid-template-rows 280ms cubic-bezier(0.22, 1, 0.36, 1)"
+                    }}
+                  >
+                    <div className="overflow-hidden">
+                      <div
+                        className="pb-4 pl-7 pr-4"
+                        style={{
+                          fontSize: "14px",
+                          lineHeight: 1.75,
+                          color: "var(--muted)"
+                        }}
+                      >
+                        {faq.answer}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}
@@ -2487,7 +2544,7 @@ export default function LandingPage() {
                   color: "#432369",
                   fontSize: "10px",
                   fontWeight: 800,
-                  letterSpacing: "1.6px"
+                  letterSpacing: "1.4px"
                 }}
               >
                 ADMIT ONE · YOUR COZY WORKSPACE PASS
@@ -2495,12 +2552,10 @@ export default function LandingPage() {
             </div>
 
             <h2
+              className="lp-font-display"
               style={{
-                fontFamily: "Georgia, 'Times New Roman', serif",
-                fontSize: "clamp(28px, 3.5vw, 44px)",
-                lineHeight: 1.15,
-                letterSpacing: "-1.2px",
-                fontWeight: 600
+                fontSize: "clamp(26px, 3.2vw, 40px)",
+                fontWeight: 700
               }}
             >
               พร้อมเปลี่ยนโต๊ะทำงานที่วุ่นวาย ให้กลายเป็นมุมโปรดของคุณหรือยัง?
@@ -2509,8 +2564,8 @@ export default function LandingPage() {
             <p
               style={{
                 fontSize: "15px",
-                color: "rgba(255, 245, 255, 0.88)",
-                lineHeight: 1.7,
+                color: "rgba(255, 245, 255, 0.9)",
+                lineHeight: 1.75,
                 maxWidth: "54ch"
               }}
             >
@@ -2521,7 +2576,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-center gap-3.5 pt-2">
               <Link href={defaultDestination}>
                 <button
-                  className="transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
+                  className="lp-press-btn"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -2544,6 +2599,7 @@ export default function LandingPage() {
 
               <Link href="/help">
                 <button
+                  className="lp-press-btn"
                   style={{
                     height: "52px",
                     padding: "0 20px",
@@ -2563,7 +2619,7 @@ export default function LandingPage() {
 
           {/* Right Ticket Stub with Cassette & Stickers */}
           <div className="lg:col-span-4 relative z-10 flex flex-col items-center justify-center p-5 rounded-2xl bg-white/15 border border-white/30 backdrop-blur-md">
-            <div className="relative w-44 h-28">
+            <div className="relative w-44 h-28 lp-float-sticker">
               <Image
                 src="/images/login-cassette-cutout.png"
                 alt="Retzlo Mixtape Pass"
