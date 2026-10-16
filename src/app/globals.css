@@ -2811,6 +2811,41 @@ textarea.quick-add-textarea:focus,
   animation: lpDriftSlow 8.5s ease-in-out infinite;
 }
 
+@keyframes lpGoldShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.lp-gold-shimmer {
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 236, 177, 0.08) 35%,
+    rgba(255, 236, 177, 0.4) 50%,
+    rgba(255, 236, 177, 0.08) 65%,
+    transparent 100%
+  );
+  background-size: 250% 100%;
+  animation: lpGoldShimmer 4.8s ease-in-out infinite;
+}
+
+@keyframes lpVinylSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lp-vinyl-spin {
+  animation: lpVinylSpin 24s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lp-float-sticker,
   .lp-tab-stage,
@@ -2818,7 +2853,9 @@ textarea.quick-add-textarea:focus,
   .lp-ripple-ring,
   .lp-eq-bar,
   .lp-bg-sparkle,
-  .lp-bg-drift {
+  .lp-bg-drift,
+  .lp-gold-shimmer,
+  .lp-vinyl-spin {
     animation: none !important;
   }
 }

@@ -3143,88 +3143,202 @@ export default function LandingPage() {
 
           {/* Right Ticket Stub: Authentic Vintage Golden VIP Pass */}
           <div
-            className={`lg:col-span-4 relative z-10 flex flex-col items-center justify-center p-6 sm:p-7 rounded-3xl backdrop-blur-md transition-all duration-300 lg:border-l-2 lg:border-dashed lg:border-[#f6c976]/40 lg:pl-8 ${
+            className={`lg:col-span-4 relative z-10 flex flex-col items-center justify-between p-6 sm:p-7 rounded-[28px] overflow-hidden group transition-all duration-300 lg:border-l-2 lg:border-dashed lg:border-[#f6c976]/40 lg:pl-8 ${
               ticketClaimed
-                ? "bg-black/45 border-2 border-[#f6c976] shadow-[0_0_35px_rgba(246,201,118,0.35)]"
+                ? "bg-gradient-to-b from-[#2a1347] via-[#1c0a32] to-[#2b1248] border-2 border-[#f6c976] shadow-[0_0_40px_rgba(246,201,118,0.35),8px_8px_0_#1a0628]"
                 : walletCoins >= TICKET_COST
-                  ? "bg-black/30 border-2 border-[#f6c976]/80 shadow-2xl"
-                  : "bg-black/25 border border-white/25"
+                  ? "bg-gradient-to-b from-[#261040] via-[#1a082d] to-[#250f3d] border-2 border-[#f6c976]/80 shadow-[0_0_30px_rgba(246,201,118,0.25),6px_6px_0_#1a0628]"
+                  : "bg-gradient-to-b from-[#200c36] via-[#160626] to-[#1f0b33] border border-white/25 shadow-xl"
             }`}
           >
+            {/* Shimmering Gold Light Sweep */}
+            <div
+              aria-hidden="true"
+              className="lp-gold-shimmer absolute inset-0 pointer-events-none z-10 opacity-70"
+            />
+
+            {/* Inner Golden Hairline Frame */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-1.5 rounded-[22px] border border-[#f6c976]/25 pointer-events-none z-10"
+            />
+
+            {/* Corner Decorative Star Rivets */}
+            <span aria-hidden="true" className="absolute top-2.5 left-2.5 text-[9px] text-[#f6c976]/60 select-none z-20">✦</span>
+            <span aria-hidden="true" className="absolute top-2.5 right-2.5 text-[9px] text-[#f6c976]/60 select-none z-20">✦</span>
+            <span aria-hidden="true" className="absolute bottom-2.5 left-2.5 text-[9px] text-[#f6c976]/60 select-none z-20">✦</span>
+            <span aria-hidden="true" className="absolute bottom-2.5 right-2.5 text-[9px] text-[#f6c976]/60 select-none z-20">✦</span>
+
             {/* VIP Pass Stub Header */}
-            <div className="w-full flex items-center justify-between text-[10px] font-mono tracking-widest text-[#f6c976] uppercase pb-3 border-b border-white/15 mb-4">
-              <span>RETZLO VIP PASS</span>
-              <span>NO. RZ-2026-VIP</span>
+            <div className="w-full flex items-center justify-between text-[11px] font-mono tracking-widest text-[#f6c976] uppercase pb-3 border-b border-[#f6c976]/25 relative z-20">
+              <div className="flex items-center gap-1.5 font-black">
+                <span className="text-amber-300">★</span>
+                <span>VIP ALL-ACCESS PASS</span>
+              </div>
+              <span className="text-amber-200/70 font-semibold text-[10px]">
+                № 00842 · SIDE A
+              </span>
             </div>
 
-            {/* Glowing Cassette Graphic with Die-Cut Stamp */}
-            <div className="relative w-56 h-36 lp-float-sticker my-2">
+            {/* Glowing Cassette Soundstage */}
+            <div className="relative w-full py-4 flex items-center justify-center my-1">
+              {/* Radiant Backlight Aura */}
               <div
                 aria-hidden="true"
-                className="absolute inset-0 rounded-full blur-2xl opacity-40"
+                className="absolute w-44 h-44 rounded-full blur-2xl opacity-45 pointer-events-none"
                 style={{
                   background: ticketClaimed
-                    ? "radial-gradient(circle, #f6c976 0%, #10b981 80%)"
-                    : "#f6c976"
+                    ? "radial-gradient(circle, #f6c976 0%, #10b981 65%, transparent 100%)"
+                    : "radial-gradient(circle, #f6c976 0%, #7858d4 65%, transparent 100%)"
                 }}
               />
-              <Image
-                src="/images/login-cassette-cutout.png"
-                alt="Retzlo Mixtape VIP Pass"
-                fill
-                sizes="224px"
-                className="object-contain drop-shadow-2xl relative z-10"
-              />
 
-              {/* Ink Rubber Stamp Overlay when Claimed */}
-              {ticketClaimed && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                  <div
-                    className="px-4 py-2 rounded-xl border-3 border-[#ffecb1] bg-[#432369]/95 text-[#ffecb1] text-xs font-black tracking-widest uppercase transform -rotate-12 shadow-[0_0_20px_rgba(0,0,0,0.8)]"
-                    style={{
-                      letterSpacing: "2.5px",
-                      textShadow: "0 2px 8px rgba(0,0,0,0.6)"
-                    }}
-                  >
-                    ★ CLAIMED VIP ★
-                  </div>
+              {/* Rotating Vinyl Grooves / Radial Stage */}
+              <div
+                aria-hidden="true"
+                className="absolute w-44 h-44 rounded-full border border-amber-300/20 lp-vinyl-spin pointer-events-none flex items-center justify-center select-none"
+              >
+                <div className="w-32 h-32 rounded-full border border-dashed border-amber-300/25 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full border border-amber-300/20" />
                 </div>
-              )}
-            </div>
-
-            {/* Ticket Stub Footer Details */}
-            <div className="mt-3 text-center w-full space-y-2">
-              <div className="text-xs font-black tracking-wider text-[#ffecb1]">
-                COZY MIXTAPE EDITION
               </div>
 
-              {ticketClaimed ? (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-400/20 text-emerald-200 border border-emerald-400/40 text-[11px] font-bold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>สิทธิ์ VIP พร้อมใช้งานแล้ว</span>
-                </div>
-              ) : walletCoins >= TICKET_COST ? (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/25 text-amber-200 border border-amber-400/50 text-[11px] font-bold">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                  <span>พร้อมแลกตั๋ว VIP (ครบ 50c แล้ว!)</span>
-                </div>
-              ) : (
-                <div className="text-[11px] text-white/80">
-                  แต้มของคุณตอนนี้:{" "}
-                  <strong className="text-[#ffecb1] font-mono text-xs">
-                    {walletCoins} Coins
-                  </strong>
-                </div>
-              )}
+              {/* Floating Decorative Notes & Sparkles */}
+              <span aria-hidden="true" className="absolute top-1 left-4 text-xs text-amber-300/70 lp-bg-sparkle">✦</span>
+              <span aria-hidden="true" className="absolute bottom-2 right-4 text-xs text-pink-300/70 lp-bg-sparkle" style={{ animationDelay: "1.4s" }}>♪</span>
+              <span aria-hidden="true" className="absolute top-3 right-6 text-[10px] text-amber-200/60 lp-bg-sparkle" style={{ animationDelay: "2.5s" }}>✧</span>
+              <span aria-hidden="true" className="absolute bottom-4 left-6 text-xs text-purple-300/70 lp-bg-sparkle" style={{ animationDelay: "0.8s" }}>♫</span>
 
-              {/* Decorative Retro Barcode */}
-              <div className="pt-2 border-t border-white/10 flex flex-col items-center gap-0.5 opacity-65">
-                <div className="font-mono text-[9px] tracking-[4px] text-white/80 select-none">
-                  ||| | | |||| | ||| ||||| | ||
+              {/* Cassette Graphic with Floating Animation */}
+              <div className="relative w-56 h-36 lp-float-sticker z-20">
+                <Image
+                  src="/images/login-cassette-cutout.png"
+                  alt="Retzlo Mixtape VIP Pass"
+                  fill
+                  sizes="224px"
+                  className="object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)]"
+                />
+
+                {/* Luxury Golden Foil Embossed Seal when Claimed */}
+                {ticketClaimed && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+                    <div
+                      className="relative transform -rotate-12 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-105"
+                      style={{ filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.9))" }}
+                    >
+                      <div
+                        className="px-5 py-2 rounded-xl text-center relative overflow-hidden"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #fffbeb 0%, #fde047 30%, #f59e0b 70%, #d97706 100%)",
+                          border: "2.5px solid #2b0f47",
+                          boxShadow:
+                            "inset 0 1px 2px rgba(255,255,255,0.8), 4px 4px 0 #1b072c, 0 0 24px rgba(245,158,11,0.6)"
+                        }}
+                      >
+                        {/* Inner Dashed Ring */}
+                        <div className="absolute inset-1 rounded-lg border border-dashed border-[#78350f]/60 pointer-events-none" />
+
+                        <div className="relative z-10 flex flex-col items-center leading-none py-0.5">
+                          <div className="flex items-center gap-1.5 text-[#2b0f47] font-black text-xs sm:text-[13px] tracking-[2px] uppercase">
+                            <span className="text-amber-800">★</span>
+                            <span>CLAIMED VIP</span>
+                            <span className="text-amber-800">★</span>
+                          </div>
+                          <div className="text-[8px] font-mono tracking-widest text-[#78350f] uppercase mt-1 font-extrabold">
+                            VERIFIED · LIFETIME PASS
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Ticket Details & Status Body */}
+            <div className="w-full text-center space-y-2.5 relative z-20">
+              <div>
+                <div
+                  className="font-extrabold text-sm sm:text-base tracking-[2px] text-[#ffecb1] uppercase"
+                  style={{ textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}
+                >
+                  RETZLO MIXTAPE STUDIO
                 </div>
-                <div className="text-[9px] text-white/60 font-mono tracking-wider uppercase">
-                  ADMIT ONE · 0฿ PERPETUAL VIP TIER
+                <div className="text-[10px] font-mono tracking-wider text-amber-200/70">
+                  COLLECTOR&apos;S EDITION PASS
                 </div>
+              </div>
+
+              {/* Luminous Status Badge */}
+              <div className="pt-0.5 flex justify-center">
+                {ticketClaimed ? (
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] text-xs font-bold">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                    </span>
+                    <span>สิทธิ์ VIP พร้อมใช้งานแล้ว</span>
+                    <span className="text-amber-300">★</span>
+                  </div>
+                ) : walletCoins >= TICKET_COST ? (
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/25 text-amber-200 border border-amber-400/60 shadow-[0_0_15px_rgba(245,158,11,0.35)] text-xs font-bold animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                    <span>พร้อมแลกตั๋ว VIP (ครบ 50c แล้ว!)</span>
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white/90 border border-white/20 text-xs font-medium">
+                    <span>แต้มของคุณ:</span>
+                    <strong className="text-[#ffecb1] font-mono">{walletCoins} Coins</strong>
+                  </div>
+                )}
+              </div>
+
+              {/* 3 VIP All-Access Punch Badges */}
+              <div className="flex items-center justify-center gap-1.5 pt-1 text-[10px] font-mono">
+                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/15 text-[#ffecb1]/90">
+                  ✓ WORKSPACE
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/15 text-[#ffecb1]/90">
+                  ✓ LOFI SYNTH
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/15 text-[#ffecb1]/90">
+                  ✓ 0฿ PERPETUAL
+                </span>
+              </div>
+            </div>
+
+            {/* Bottom Perforated Stub Tear-Line & Barcode */}
+            <div className="w-full pt-3 mt-3 border-t-2 border-dashed border-[#f6c976]/35 relative z-20 flex flex-col items-center gap-1.5">
+              {/* Authentic Barcode SVG Lines with Varied Widths */}
+              <div
+                className="flex items-center justify-center gap-0.5 h-6 opacity-75 select-none"
+                aria-hidden="true"
+              >
+                <span className="w-0.5 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-1 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-0.5 h-4 bg-white/90 rounded-sm inline-block" />
+                <span className="w-1.5 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-0.5 h-5 bg-white/90 rounded-sm inline-block" />
+                <span className="w-1 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-0.5 h-4 bg-white/90 rounded-sm inline-block" />
+                <span className="w-2 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-0.5 h-5 bg-white/90 rounded-sm inline-block" />
+                <span className="w-1 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-0.5 h-4 bg-white/90 rounded-sm inline-block" />
+                <span className="w-1.5 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-0.5 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-1 h-5 bg-white/90 rounded-sm inline-block" />
+                <span className="w-0.5 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-2 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-0.5 h-4 bg-white/90 rounded-sm inline-block" />
+                <span className="w-1 h-6 bg-white/90 rounded-sm inline-block" />
+              </div>
+              <div className="font-mono text-[9px] tracking-[3px] text-[#f6c976]/90 uppercase font-semibold">
+                RZ-VIP-2026-PERPETUAL
+              </div>
+              <div className="text-[8px] font-mono tracking-wider text-white/50 uppercase">
+                ADMIT ONE CREATOR · NO EXPIRY · VIP TIER
               </div>
             </div>
           </div>

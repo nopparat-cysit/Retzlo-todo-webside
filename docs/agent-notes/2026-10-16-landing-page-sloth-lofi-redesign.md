@@ -52,8 +52,17 @@ Redesign the marketing landing page (`/`) so it is genuinely **fun, tactile, col
       - Embedded 3 VIP perks highlight cards: `⭐ ฟรีเต็มระบบ`, `🎧 Mixtape Studio`, and `🪙 โบนัส +100 Coins`.
       - Built a high-contrast Coin HUD terminal with animated coin balance, segmented retro progress gauge with milestone markers (0c, 25c, 50c GOAL), and a one-click bonus booster (`✨ แตะรับโบนัสทันใจ +15c`) for immediate satisfaction.
       - Elevated the CTA to a giant, pulsing Neobrutalist Golden Button (`h-14 sm:h-16`, `font-black`, `bg-gradient-to-r from-[#ffe484] via-[#fcd34d] to-[#f59e0b]`, `border-3 border-[#3b185f]`, `shadow-[6px_6px_0_#2b0f47]`).
-      - Upgraded the collector's ticket stub on the right with authentic serial number (`NO. RZ-2026-VIP`), ambient golden backlight glow behind the cassette, rotated rubber ink stamp (`★ CLAIMED VIP ★`), and retro barcode graphic (`0050-VIP-FREE`).
+      - Upgraded the collector's ticket stub on the right into a luxury **Retro VIP All-Access Pass**:
+        - Inner golden hairline frame with decorative corner star rivets (`✦`), perforated notch cutouts, and light sweep animation (`lp-gold-shimmer`).
+        - Rotating concentric vinyl soundstage grooves (`lp-vinyl-spin`) behind the cassette with floating musical notes and sparkles (`♪`, `♫`, `✦`, `✧`).
+        - Replaced the plain dark rectangle stamp with an authentic **Luxury Gold Foil Embossed Seal** (`★ CLAIMED VIP ★`), featuring a double border, inner dashed ring, embossed purple typography, and 3D neobrutalist drop shadow.
+        - Upgraded status badge into a luminous emerald & gold jewel pill with live pulsing ping indicator.
+        - Added 3 ticket feature punch marks (`✓ WORKSPACE`, `✓ LOFI SYNTH`, `✓ 0฿ PERPETUAL`).
+        - Added realistic varied-width SVG barcode with serialized code (`RZ-VIP-2026-PERPETUAL`).
       - Connected the playground and navbar to Section 7: added VIP redemption link in the playground rewards card footer, added `แลก VIP ฟรี 🎟️` link to desktop navbar and mobile menu dropdown, and linked the navbar coin pill directly to `#buy`.
+  - `src/app/globals.css`:
+    - Added `@keyframes lpGoldShimmer` and `.lp-gold-shimmer` sweep effect.
+    - Added `@keyframes lpVinylSpin` and `.lp-vinyl-spin` 24s rotating vinyl grooves animation.
   - `src/app/(marketing)/walkthrough-mockup.tsx`:
     - Replaced duplicate stickers in Room 01 with `retro-sticker-64-team-group.png` and `retro-sticker-37-tiny-house.png`.
     - Replaced repeated hero image in Room 06 with `hero-lofi-mascot.png`.
