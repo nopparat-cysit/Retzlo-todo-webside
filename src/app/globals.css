@@ -2769,6 +2769,26 @@ textarea.quick-add-textarea:focus,
   50% { height: 14px; }
 }
 
+@keyframes lpSparkleTwinkle {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.88) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.15) rotate(12deg);
+  }
+}
+
+@keyframes lpDriftSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(var(--lp-rot, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(calc(var(--lp-rot, 0deg) + 2.5deg));
+  }
+}
+
 .lp-eq-bar {
   width: 2.5px;
   border-radius: 2px;
@@ -2783,12 +2803,22 @@ textarea.quick-add-textarea:focus,
   animation-delay: 0.44s;
 }
 
+.lp-bg-sparkle {
+  animation: lpSparkleTwinkle 4.2s ease-in-out infinite;
+}
+
+.lp-bg-drift {
+  animation: lpDriftSlow 8.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lp-float-sticker,
   .lp-tab-stage,
   .lp-coin-burst,
   .lp-ripple-ring,
-  .lp-eq-bar {
+  .lp-eq-bar,
+  .lp-bg-sparkle,
+  .lp-bg-drift {
     animation: none !important;
   }
 }

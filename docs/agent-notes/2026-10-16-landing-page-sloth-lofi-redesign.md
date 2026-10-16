@@ -30,6 +30,15 @@ Redesign the marketing landing page (`/`) so it is genuinely **fun, tactile, col
     - Wired up **Zen Garden 4-stage visual growth** (`zen-stage-1.png` → `zen-stage-4.png`) with water ripples and milestone coin awards.
     - Wired up **Unique Before/After Illustrations** across all 5 Pain Point tabs.
     - Added **Custom Fit Check illustrations** (`fit-cozy-achiever.png` & `fit-heavy-erp.png`).
+    - Expanded **Herobar and All Section Containers** from cramped `max-w-[1240px]` to expansive `w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12`, with the sticky `<header>` container spanning full width edge-to-edge.
+    - Upgraded **Hero Section Right Column** from awkward disparate coordinates to a cohesive **Dual-Panel Studio Workstation Stage**:
+      - Left Panel (`sm:col-span-5`): Framed Cozy Studio Desk Monitor (`/images/landing/cozy-desk-hero.jpg`) with retro cream border, `SIDE A` pill, and tilted `less rush, more rhythm.` tag.
+      - Right Panel (`sm:col-span-7`): Interactive Daily Board Runner card with 3-stage dots (`To do`, `In progress`, `Done ✓`), direct one-click stage progression, celebratory chime and coin burst (+25 Coins), Next Task rotation, and Reset action.
+      - Bottom: Integrated Lofi Cassette Synthesizer Bar with vinyl spinning animation, real-time equalizer bars, and Play/Pause control.
+    - Enriched **Page Background & Atmospheric Studio Decor** ("BG มันดูโล่งๆไป"):
+      - Replaced invisible 5% opacity grid with tactile retro graph-paper drafting grid (`linear-gradient(rgba(120, 88, 212, 0.12))` in 48px grid) and micro dot-matrix paper pattern (`radial-gradient(1.2px)` in 24px grid).
+      - Layered deep multi-point radiant aurora glow washes across the entire page height (top, middle, and bottom).
+      - Added floating animated studio doodles (sparkle crosses `✦`, stars `✧`, music notes `♪`, `♫`, cassette tape tags `SIDE A · 45 MIN`, `24/7 LOFI VIBES`, `ZEN FOCUS · SAKURA`, `BPM: 72 · CHILL`, `RETZLO STUDIO`) visible across tablet and desktop viewports.
   - `src/app/(marketing)/walkthrough-mockup.tsx`:
     - Replaced duplicate stickers in Room 01 with `retro-sticker-64-team-group.png` and `retro-sticker-37-tiny-house.png`.
     - Replaced repeated hero image in Room 06 with `hero-lofi-mascot.png`.
@@ -41,5 +50,5 @@ Redesign the marketing landing page (`/`) so it is genuinely **fun, tactile, col
 - `npx tsc --noEmit`: Passed (0 errors)
 - `npx vitest run src/components/auth/auth-navigation.test.ts`: Passed (3/3 tests)
 - `npm run lint`: Passed (0 warnings, 0 errors)
-- `npx prisma validate`: Passed
-- `npm run build`: Passed
+- `npx prisma validate`: Passed (schema is valid)
+- `npm run build`: Passed (42/42 static and dynamic pages generated successfully)

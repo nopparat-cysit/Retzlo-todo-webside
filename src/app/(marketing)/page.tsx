@@ -507,15 +507,163 @@ export default function LandingPage() {
 
   return (
     <main
+      className="relative overflow-x-hidden"
       style={{
         minHeight: "100svh",
-        background:
-          "radial-gradient(circle at 12% 4%, rgba(120, 88, 212, 0.14), transparent 42%), radial-gradient(circle at 88% 18%, rgba(255, 180, 213, 0.16), transparent 45%), var(--background)",
+        background: `
+          /* 1. Visible retro graph drafting grid */
+          linear-gradient(to right, rgba(120, 88, 212, 0.12) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(120, 88, 212, 0.12) 1px, transparent 1px),
+          /* 2. Micro dot-matrix tactile drafting paper */
+          radial-gradient(circle, rgba(120, 88, 212, 0.18) 1.2px, transparent 1.2px),
+          /* 3. Deep radiant aurora glow blooms across entire page height */
+          radial-gradient(circle at 10% 3%, rgba(120, 88, 212, 0.28) 0%, transparent 45rem),
+          radial-gradient(circle at 90% 7%, rgba(255, 180, 213, 0.26) 0%, transparent 48rem),
+          radial-gradient(circle at 50% 25%, rgba(246, 201, 118, 0.18) 0%, transparent 48rem),
+          radial-gradient(circle at 8% 48%, rgba(120, 88, 212, 0.24) 0%, transparent 50rem),
+          radial-gradient(circle at 92% 64%, rgba(219, 39, 119, 0.22) 0%, transparent 52rem),
+          radial-gradient(circle at 35% 82%, rgba(52, 211, 153, 0.18) 0%, transparent 48rem),
+          radial-gradient(circle at 85% 94%, rgba(120, 88, 212, 0.24) 0%, transparent 54rem),
+          var(--background)
+        `,
+        backgroundSize: "48px 48px, 48px 48px, 24px 24px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%",
         color: "var(--foreground)"
       }}
     >
+      {/* ── Ambient Studio Atmospheric Elements & Floating Doodles ── */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute inset-0 overflow-hidden z-0"
+      >
+        {/* Soft Ambient Aurora Gradient Blobs */}
+        <div
+          className="absolute -top-24 -left-24 w-[620px] h-[620px] rounded-full blur-[110px]"
+          style={{ background: "rgba(120, 88, 212, 0.32)" }}
+        />
+        <div
+          className="absolute top-28 -right-28 w-[680px] h-[680px] rounded-full blur-[120px]"
+          style={{ background: "rgba(255, 180, 213, 0.28)" }}
+        />
+        <div
+          className="absolute top-[1100px] left-1/2 -translate-x-1/2 w-[760px] h-[760px] rounded-full blur-[140px]"
+          style={{ background: "rgba(246, 201, 118, 0.18)" }}
+        />
+        <div
+          className="absolute top-[2000px] -left-32 w-[680px] h-[680px] rounded-full blur-[130px]"
+          style={{ background: "rgba(120, 88, 212, 0.24)" }}
+        />
+        <div
+          className="absolute top-[2900px] -right-32 w-[720px] h-[720px] rounded-full blur-[130px]"
+          style={{ background: "rgba(219, 39, 119, 0.22)" }}
+        />
+        <div
+          className="absolute top-[3800px] -left-28 w-[680px] h-[680px] rounded-full blur-[130px]"
+          style={{ background: "rgba(52, 211, 153, 0.18)" }}
+        />
+        <div
+          className="absolute bottom-20 -right-28 w-[720px] h-[720px] rounded-full blur-[130px]"
+          style={{ background: "rgba(120, 88, 212, 0.26)" }}
+        />
+
+        {/* Ambient Corner Crosshairs & Studio Watermarks */}
+        <div className="absolute top-20 left-4 text-xs font-mono text-purple-400/40 select-none hidden md:block">
+          + RETZLO STUDIO · 2026 +
+        </div>
+        <div className="absolute top-20 right-4 text-xs font-mono text-pink-400/40 select-none hidden md:block">
+          + 24/7 LOFI VIBES +
+        </div>
+
+        {/* Floating Sparkles, Notes, and Cassette Tags down the page */}
+        <div className="absolute top-36 left-4 sm:left-8 text-2xl text-purple-400/50 lp-bg-sparkle hidden sm:block">
+          ✦
+        </div>
+        <div
+          className="absolute top-72 left-6 sm:left-12 text-base text-pink-400/50 lp-bg-drift hidden sm:block"
+          style={{ "--lp-rot": "-8deg" } as CSSProperties}
+        >
+          ♪
+        </div>
+        <div
+          className="absolute top-[520px] left-3 sm:left-8 p-1.5 px-3 rounded-md border border-purple-400/30 bg-purple-500/15 text-[10px] font-mono tracking-widest text-purple-300/70 lp-bg-drift hidden md:block"
+          style={{ "--lp-rot": "-5deg" } as CSSProperties}
+        >
+          SIDE A · 45 MIN
+        </div>
+
+        <div
+          className="absolute top-48 right-4 sm:right-10 text-2xl text-pink-400/55 lp-bg-sparkle hidden sm:block"
+          style={{ animationDelay: "1.5s" }}
+        >
+          ✧
+        </div>
+        <div
+          className="absolute top-96 right-6 sm:right-14 text-lg text-amber-400/50 lp-bg-drift hidden sm:block"
+          style={{ "--lp-rot": "10deg", animationDelay: "1s" } as CSSProperties}
+        >
+          ♫
+        </div>
+        <div
+          className="absolute top-[680px] right-3 sm:right-8 p-1.5 px-3 rounded-md border border-amber-400/30 bg-amber-500/15 text-[10px] font-mono tracking-widest text-amber-300/70 lp-bg-drift hidden md:block"
+          style={{ "--lp-rot": "4deg", animationDelay: "2s" } as CSSProperties}
+        >
+          24/7 LOFI VIBES
+        </div>
+
+        <div
+          className="absolute top-[1350px] left-4 sm:left-8 text-xl text-emerald-400/50 lp-bg-sparkle hidden sm:block"
+          style={{ animationDelay: "2.5s" }}
+        >
+          ✦
+        </div>
+        <div
+          className="absolute top-[1600px] left-3 sm:left-8 p-1.5 px-3 rounded-md border border-emerald-400/30 bg-emerald-500/15 text-[10px] font-mono tracking-widest text-emerald-300/70 lp-bg-drift hidden md:block"
+          style={{ "--lp-rot": "-3deg", animationDelay: "1.2s" } as CSSProperties}
+        >
+          ZEN FOCUS · SAKURA
+        </div>
+
+        <div
+          className="absolute top-[2200px] right-4 sm:right-10 text-xl text-purple-400/50 lp-bg-sparkle hidden sm:block"
+          style={{ animationDelay: "3s" }}
+        >
+          ✧
+        </div>
+        <div
+          className="absolute top-[2500px] right-3 sm:right-8 p-1.5 px-3 rounded-md border border-pink-400/30 bg-pink-500/15 text-[10px] font-mono tracking-widest text-pink-300/70 lp-bg-drift hidden md:block"
+          style={{ "--lp-rot": "5deg", animationDelay: "2.8s" } as CSSProperties}
+        >
+          BPM: 72 · CHILL
+        </div>
+
+        <div
+          className="absolute top-[3200px] left-4 sm:left-8 text-xl text-amber-400/50 lp-bg-sparkle hidden sm:block"
+          style={{ animationDelay: "1.8s" }}
+        >
+          ✦
+        </div>
+        <div
+          className="absolute top-[3500px] left-3 sm:left-8 p-1.5 px-3 rounded-md border border-purple-400/30 bg-purple-500/15 text-[10px] font-mono tracking-widest text-purple-300/70 lp-bg-drift hidden md:block"
+          style={{ "--lp-rot": "-4deg", animationDelay: "3.5s" } as CSSProperties}
+        >
+          RETZLO STUDIO
+        </div>
+
+        <div
+          className="absolute top-[4200px] right-4 sm:right-10 text-xl text-pink-400/50 lp-bg-sparkle hidden sm:block"
+          style={{ animationDelay: "0.8s" }}
+        >
+          ✧
+        </div>
+        <div
+          className="absolute top-[4500px] right-3 sm:right-8 p-1.5 px-3 rounded-md border border-emerald-400/30 bg-emerald-500/15 text-[10px] font-mono tracking-widest text-emerald-300/70 lp-bg-drift hidden md:block"
+          style={{ "--lp-rot": "3deg", animationDelay: "1.5s" } as CSSProperties}
+        >
+          LESS RUSH · MORE RHYTHM
+        </div>
+      </div>
+
       {/* ── Top Navigation Bar with Live Coin Counter & Burst ─────────── */}
-      {/* ── Tactile Studio Herobar with Live Coin Wallet & Equalizer ── */}
+      {/* ── Tactile Studio Herobar with Live Coin Wallet & Equalizer (w-full) ── */}
       <header
         style={{
           position: "sticky",
@@ -538,7 +686,7 @@ export default function LandingPage() {
           }}
         />
 
-        <div className="max-w-[1240px] mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-3">
+        <div className="w-full px-4 sm:px-8 lg:px-12 h-16 flex items-center justify-between gap-4">
           {/* Brand Logo + Live Studio Dot */}
           <div className="flex items-center gap-3">
             <Link
@@ -870,9 +1018,9 @@ export default function LandingPage() {
       </header>
 
       {/* ── Section 1: Cozy Mixtape Studio Hero (#cp-hero) ──────────── */}
-      <section id="cp-hero" className="max-w-[1240px] mx-auto px-5 sm:px-8 pt-6 pb-12 sm:py-10">
+      <section id="cp-hero" className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-4 pb-12 sm:py-8">
         <div
-          className="grid grid-cols-1 lg:grid-cols-12 overflow-hidden"
+          className="w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden"
           style={{
             border: "2px solid var(--border-strong, var(--border))",
             borderRadius: "30px",
@@ -881,7 +1029,7 @@ export default function LandingPage() {
           }}
         >
           {/* Left 6 Cols: Tactile Studio Copy + Retro Sticker Dock */}
-          <div className="lg:col-span-6 p-7 sm:p-11 md:p-14 flex flex-col justify-between gap-8">
+          <div className="lg:col-span-6 p-7 sm:p-10 lg:p-12 xl:p-14 flex flex-col justify-between gap-8">
             <div className="space-y-6">
               {/* Tilted Buttercream Tape Tag */}
               <div className="inline-flex items-center gap-2">
@@ -1054,12 +1202,12 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right 6 Cols: Interactive Mixtape Scene + Hand-Drawn Polaroid Desk Art */}
+          {/* Right 6 Cols: Dual-Panel Interactive Studio Workstation Showcase */}
           <div
             ref={artRef}
             onPointerMove={moveArtwork}
             onPointerLeave={resetArtwork}
-            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-7 sm:p-10 min-h-[500px] lg:min-h-[610px]"
+            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-6 sm:p-8 lg:p-10 min-h-[520px] lg:min-h-[620px]"
             style={{
               background:
                 "linear-gradient(180deg, #5942b8 0%, #7858d4 42%, #b184e7 68%, #ffb4d5 100%)",
@@ -1070,236 +1218,219 @@ export default function LandingPage() {
             <MixtapeArtwork />
 
             {/* Top Scene Header */}
-            <div className="relative z-10 flex items-center justify-between text-[10px] tracking-[2px] font-bold text-[#f3e8ff]">
-              <span>SIDE A · YOUR DAILY MIXTAPE</span>
-              <span className="px-2.5 py-1 rounded-full bg-black/25 border border-white/25">
+            <div className="relative z-10 flex items-center justify-between text-[11px] tracking-[1.8px] font-bold text-[#f3e8ff]">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>SIDE A · YOUR DAILY MIXTAPE</span>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-black/30 border border-white/25 text-xs font-black shadow-sm">
                 🪙 WALLET: {walletCoins} COINS
               </span>
             </div>
 
-            {/* Tilted Hand-Drawn Studio Polaroid Frame (Top-Left) */}
-            <div
-              className="hidden sm:block absolute top-14 left-6 z-10 p-2 pb-3 rounded-2xl lp-float-sticker"
-              style={
-                {
-                  "--lp-rot": "-5deg",
-                  width: "215px",
-                  background: "#fffaf0",
-                  color: "#432369",
-                  border: "2px solid #54356b",
-                  boxShadow: "6px 6px 0 rgba(36, 15, 69, 0.32)"
-                } as CSSProperties
-              }
-            >
-              <div className="relative w-full h-28 rounded-xl overflow-hidden border border-[#54356b]/20">
-                <Image
-                  src="/images/landing/cozy-desk-hero.jpg"
-                  alt="Cozy Lofi Desk Illustration"
-                  fill
-                  sizes="215px"
-                  className="object-cover"
-                  priority
-                />
-              </div>
-              <div className="mt-2 px-1 flex items-center justify-between text-[10px] font-extrabold">
-                <span>🎨 Cozy Studio Desk</span>
-                <span className="text-pink-600">Side A</span>
-              </div>
-            </div>
-
-            {/* Interactive Floating Board Card + Tilted Paper Sticker */}
-            <div className="relative z-10 my-auto py-8 flex flex-col items-end">
+            {/* Center: Cohesive 2-Panel Studio Workstation Showcase */}
+            <div className="relative z-10 my-auto py-5 sm:py-6 grid grid-cols-1 sm:grid-cols-12 gap-4 lg:gap-5 items-center">
+              {/* Left Panel: Framed Cozy Studio Desk Monitor */}
               <div
-                className="lp-spring-card"
-                style={{
-                  width: "min(295px, 100%)",
-                  padding: "16px",
-                  border: "1.5px solid rgba(255, 240, 255, 0.78)",
-                  borderRadius: "18px",
-                  background: "rgba(85, 51, 133, 0.92)",
-                  boxShadow: "0 18px 40px rgba(26, 11, 69, 0.34)",
-                  backdropFilter: "blur(16px)"
-                }}
-              >
-                <div className="flex items-center justify-between text-[10px] tracking-[1px] font-bold mb-3 text-[#f3e8ff]">
-                  <span className="flex items-center gap-1.5">
-                    <LayoutGrid size={13} /> MY DAILY BOARD
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full bg-[#ffecb1] text-[#432369]">
-                    ลองกดขยับการ์ด!
-                  </span>
-                </div>
-
-                <div className="flex justify-between gap-1 mb-3">
-                  {HERO_STAGES.map((name, idx) => (
-                    <span
-                      key={name}
-                      className="flex items-center gap-1 text-[10px] font-semibold transition-opacity"
-                      style={{
-                        color: idx === heroStage ? "#fff5ff" : "#d7c1ec",
-                        opacity: idx === heroStage ? 1 : 0.65
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: "6px",
-                          height: "6px",
-                          borderRadius: "50%",
-                          background:
-                            idx === 0
-                              ? "#c4b5fd"
-                              : idx === 1
-                                ? "#f6c976"
-                                : "#6ee7b7"
-                        }}
-                      />
-                      {name}
-                    </span>
-                  ))}
-                </div>
-
-                <div
-                  className="lp-spring-card"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    textAlign: "left",
-                    gap: "9px",
-                    width: "100%",
-                    padding: "14px",
-                    borderRadius: "14px",
-                    border: "2px solid #54356b",
-                    background: heroStage === 2 ? "#f0fdf4" : "#fff7fc",
-                    color: "#432369",
-                    boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.25)"
-                  }}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span
-                      style={{
-                        fontSize: "9px",
-                        fontWeight: 800,
-                        letterSpacing: "1px",
-                        color: heroStage === 2 ? "#15803d" : "#8b5cf6"
-                      }}
-                    >
-                      {currentHeroTask.tag} · {heroTaskIdx + 1}/3
-                    </span>
-                    <span
-                      className="text-[10px] font-extrabold px-2 py-0.5 rounded-full"
-                      style={{
-                        background: heroStage === 2 ? "#dcfce7" : "#fff0b8",
-                        color: heroStage === 2 ? "#166534" : "#78350f"
-                      }}
-                    >
-                      {isHeroTaskAwarded && heroStage === 2
-                        ? "✓ รับแล้ว +25c"
-                        : `+${currentHeroTask.coins} Coins`}
-                    </span>
-                  </div>
-
-                  <strong style={{ fontSize: "14px", lineHeight: 1.4 }}>
-                    {heroStage === 2
-                      ? `🎉 เสร็จเรียบร้อย! "${currentHeroTask.title}"`
-                      : heroStage === 1
-                        ? `กำลังทำ: ${currentHeroTask.title}`
-                        : currentHeroTask.title}
-                  </strong>
-
-                  {heroStage === 2 ? (
-                    <div className="flex items-center gap-2 pt-1 border-t border-black/10">
-                      <button
-                        type="button"
-                        onClick={advanceHeroTask}
-                        className="lp-press-btn flex-1 py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
-                        style={{
-                          background: "#54356b",
-                          color: "#ffecb1",
-                          border: "1px solid #432369"
-                        }}
-                      >
-                        <span>งานถัดไป ({heroTaskIdx + 2 > 3 ? 1 : heroTaskIdx + 2}/3)</span>
-                        <ArrowRight size={13} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={resetHeroTask}
-                        className="lp-press-btn py-1.5 px-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1"
-                        style={{
-                          background: "#ffffff",
-                          color: "#54356b",
-                          border: "1px solid rgba(84, 53, 107, 0.3)"
-                        }}
-                        title="เริ่มขยับการ์ดใบนี้ใหม่อีกรอบ"
-                      >
-                        <RotateCcw size={13} />
-                        <span>รีเซ็ต</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={advanceHeroTask}
-                      className="lp-press-btn flex items-center justify-between w-full pt-1 text-[11px] font-bold"
-                      style={{ color: "#6d4c7d" }}
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <Circle size={13} />
-                        <span>
-                          {heroStage === 0
-                            ? "คลิกเพื่อเริ่มทำ (To do → In progress)"
-                            : "คลิกเพื่อทำให้เสร็จ (In progress → Done ✓)"}
-                        </span>
-                      </span>
-                      <ArrowRight size={13} />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Tilted Paper Callout Sticker */}
-              <div
-                className="mt-4 mr-3 flex items-center gap-2.5 lp-float-sticker"
+                className="sm:col-span-5 flex flex-col lp-float-sticker"
                 style={
                   {
-                    "--lp-rot": "-5deg",
-                    background: "#ffecb1",
+                    "--lp-rot": "-2.5deg",
+                    background: "#fffaf0",
+                    color: "#432369",
+                    padding: "10px",
+                    borderRadius: "18px",
                     border: "2px solid #54356b",
-                    color: "#54356b",
-                    padding: "10px 18px",
-                    borderRadius: "10px",
-                    fontFamily: "var(--font-editorial)",
-                    fontStyle: "italic",
-                    fontSize: "21px",
-                    lineHeight: 1.1,
-                    boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.28)"
+                    boxShadow: "5px 5px 0 rgba(36, 15, 69, 0.32)"
                   } as CSSProperties
                 }
               >
-                <div className="relative w-7 h-7 not-italic">
+                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-[#54356b]/20 bg-purple-900/10">
                   <Image
-                    src="/stickers/retro/retro-sticker-01-coin-reward.png"
-                    alt=""
+                    src="/images/landing/cozy-desk-hero.jpg"
+                    alt="Cozy Lofi Desk Illustration"
                     fill
-                    sizes="28px"
-                    className="object-contain"
+                    sizes="(max-width: 640px) 100vw, 240px"
+                    className="object-cover"
+                    priority
                   />
                 </div>
-                <div>
-                  less rush,
-                  <br />
-                  <strong>more rhythm.</strong>
+                <div className="mt-2.5 px-1 flex items-center justify-between text-[10px] font-black tracking-wide">
+                  <span>🎨 Cozy Studio Desk</span>
+                  <span className="text-pink-600 font-mono">SIDE A</span>
+                </div>
+                {/* Micro Tilted Tag */}
+                <div
+                  className="mt-2 p-1.5 rounded-lg text-center text-[10px] font-bold"
+                  style={{
+                    background: "#ffecb1",
+                    color: "#54356b",
+                    border: "1px dashed #54356b"
+                  }}
+                >
+                  less rush, <strong>more rhythm.</strong>
+                </div>
+              </div>
+
+              {/* Right Panel: Interactive Floating Board Card */}
+              <div className="sm:col-span-7 flex flex-col">
+                <div
+                  className="lp-spring-card"
+                  style={{
+                    width: "100%",
+                    padding: "18px",
+                    border: "1.5px solid rgba(255, 240, 255, 0.78)",
+                    borderRadius: "20px",
+                    background: "rgba(85, 51, 133, 0.94)",
+                    boxShadow: "0 18px 40px rgba(26, 11, 69, 0.34)",
+                    backdropFilter: "blur(16px)"
+                  }}
+                >
+                  <div className="flex items-center justify-between text-[11px] tracking-[1px] font-bold mb-3 text-[#f3e8ff]">
+                    <span className="flex items-center gap-1.5">
+                      <LayoutGrid size={13} /> MY DAILY BOARD
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#ffecb1] text-[#432369] text-[10px] font-extrabold shadow-sm">
+                      ลองกดขยับการ์ด!
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between gap-1 mb-3">
+                    {HERO_STAGES.map((name, idx) => (
+                      <span
+                        key={name}
+                        className="flex items-center gap-1 text-[10px] font-semibold transition-opacity"
+                        style={{
+                          color: idx === heroStage ? "#fff5ff" : "#d7c1ec",
+                          opacity: idx === heroStage ? 1 : 0.65
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: "6px",
+                            height: "6px",
+                            borderRadius: "50%",
+                            background:
+                              idx === 0
+                                ? "#c4b5fd"
+                                : idx === 1
+                                  ? "#f6c976"
+                                  : "#6ee7b7"
+                          }}
+                        />
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div
+                    className="lp-spring-card"
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      textAlign: "left",
+                      gap: "10px",
+                      width: "100%",
+                      padding: "16px",
+                      borderRadius: "16px",
+                      border: "2px solid #54356b",
+                      background: heroStage === 2 ? "#f0fdf4" : "#fff7fc",
+                      color: "#432369",
+                      boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.25)"
+                    }}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: 800,
+                          letterSpacing: "1px",
+                          color: heroStage === 2 ? "#15803d" : "#8b5cf6"
+                        }}
+                      >
+                        {currentHeroTask.tag} · {heroTaskIdx + 1}/3
+                      </span>
+                      <span
+                        className="text-[11px] font-black px-2.5 py-0.5 rounded-full"
+                        style={{
+                          background: heroStage === 2 ? "#dcfce7" : "#fff0b8",
+                          color: heroStage === 2 ? "#166534" : "#78350f"
+                        }}
+                      >
+                        {isHeroTaskAwarded && heroStage === 2
+                          ? "✓ รับแล้ว +25c"
+                          : `+${currentHeroTask.coins} Coins`}
+                      </span>
+                    </div>
+
+                    <strong style={{ fontSize: "14.5px", lineHeight: 1.45 }}>
+                      {heroStage === 2
+                        ? `🎉 เสร็จเรียบร้อย! "${currentHeroTask.title}"`
+                        : heroStage === 1
+                          ? `กำลังทำ: ${currentHeroTask.title}`
+                          : currentHeroTask.title}
+                    </strong>
+
+                    {heroStage === 2 ? (
+                      <div className="flex items-center gap-2 pt-1.5 border-t border-black/10">
+                        <button
+                          type="button"
+                          onClick={advanceHeroTask}
+                          className="lp-press-btn flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5"
+                          style={{
+                            background: "#54356b",
+                            color: "#ffecb1",
+                            border: "1px solid #432369"
+                          }}
+                        >
+                          <span>งานถัดไป ({heroTaskIdx + 2 > 3 ? 1 : heroTaskIdx + 2}/3)</span>
+                          <ArrowRight size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={resetHeroTask}
+                          className="lp-press-btn py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1"
+                          style={{
+                            background: "#ffffff",
+                            color: "#54356b",
+                            border: "1px solid rgba(84, 53, 107, 0.3)"
+                          }}
+                          title="เริ่มขยับการ์ดใบนี้ใหม่อีกรอบ"
+                        >
+                          <RotateCcw size={13} />
+                          <span>รีเซ็ต</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={advanceHeroTask}
+                        className="lp-press-btn flex items-center justify-between w-full pt-1.5 text-xs font-extrabold"
+                        style={{ color: "#6d4c7d" }}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Circle size={14} />
+                          <span>
+                            {heroStage === 0
+                              ? "คลิกเพื่อเริ่มทำ (To do → In progress)"
+                              : "คลิกเพื่อทำให้เสร็จ (In progress → Done ✓)"}
+                          </span>
+                        </span>
+                        <ArrowRight size={14} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Bottom Audio Cassette Bar */}
             <div
-              className="relative z-10 flex items-center justify-between gap-4 p-3.5 rounded-2xl"
+              className="relative z-10 flex items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl"
               style={{
-                background: "rgba(255, 245, 255, 0.36)",
+                background: "rgba(255, 245, 255, 0.38)",
                 border: "1px solid rgba(84, 53, 107, 0.3)",
-                backdropFilter: "blur(10px)"
+                backdropFilter: "blur(12px)"
               }}
             >
               <div>
@@ -1319,7 +1450,7 @@ export default function LandingPage() {
                   style={{ color: "#3b1d61" }}
                 >
                   <Disc3
-                    size={15}
+                    size={16}
                     className={isPlaying ? "animate-spin" : undefined}
                   />
                   {isPlaying
@@ -1356,7 +1487,7 @@ export default function LandingPage() {
       {/* ── Section 2: Interactive "Try the Retzlo Loop" Playground (#playground) ── */}
       <section
         id="playground"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-12 sm:py-16"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-12 sm:py-16"
       >
         <div
           style={{
@@ -1794,7 +1925,7 @@ export default function LandingPage() {
       {/* ── Section 3: Everyday Friction Folder-Tabs (#pain-tabs) ─────── */}
       <section
         id="pain-tabs"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20"
       >
         <div className="max-w-2xl space-y-3 mb-10">
           <span
@@ -2161,7 +2292,7 @@ export default function LandingPage() {
       {/* ── Section 4: Interactive 6-Room Studio Tour (#walkthrough) ──── */}
       <section
         id="walkthrough"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="max-w-2xl space-y-3 mb-8">
@@ -2321,7 +2452,7 @@ export default function LandingPage() {
       {/* ── Section 5: Interactive Fit Check & Comparison (#comparison) ── */}
       <section
         id="comparison"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20 space-y-14"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 space-y-14"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="max-w-2xl space-y-3">
@@ -2628,7 +2759,7 @@ export default function LandingPage() {
       {/* ── Section 6: Smooth Accordion Questions (#faq) ─────────────── */}
       <section
         id="faq"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -2746,7 +2877,7 @@ export default function LandingPage() {
       {/* ── Section 7: Mixtape Studio Pass Closing Ticket CTA (#buy) ── */}
       <section
         id="buy"
-        className="max-w-[1240px] mx-auto px-5 sm:px-8 pb-20 pt-6"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-20 pt-6"
       >
         <div
           className="relative overflow-hidden p-8 sm:p-12 md:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
@@ -2874,7 +3005,7 @@ export default function LandingPage() {
           color: "var(--muted)"
         }}
       >
-        <div className="max-w-[1240px] mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <strong style={{ color: "var(--foreground)" }}>retzlo</strong>
             <span>·</span>
