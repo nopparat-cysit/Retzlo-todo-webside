@@ -4,27 +4,40 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  ArrowRight, 
-  Sparkles, 
-  Kanban, 
-  Calendar, 
-  DollarSign, 
-  Play, 
-  Pause, 
-  Music, 
-  Layers, 
-  ChevronRight, 
-  CheckCircle2, 
+import {
+  ArrowRight,
+  Sparkles,
+  Play,
+  Pause,
+  Music,
+  CheckCircle2,
   Volume2,
   Menu,
   X,
   Tv,
   Coffee,
-  Disc
+  Disc,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  Zap,
+  ShieldCheck,
+  Clock
 } from "lucide-react";
+import {
+  HERO_TYPEWRITER_LINES,
+  PAIN_POINT_TABS,
+  WALKTHROUGH_SLIDES,
+  SUITABLE_FOR_LIST,
+  NOT_SUITABLE_FOR_LIST,
+  BEFORE_AFTER_ROWS,
+  COMPARISON_ROWS,
+  FAQ_ROW_1,
+  FAQ_ROW_2,
+  COMMUNITY_TESTIMONIALS
+} from "./landing-data";
+import { WalkthroughMockupScreen } from "./walkthrough-mockup";
 
-// Types for cursor particles
 interface Particle {
   id: number;
   x: number;
@@ -41,339 +54,15 @@ interface MarketingSessionUser {
   email?: string | null;
 }
 
-// â”€â”€ 3D Projection Helpers for LofiCassette3D â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-interface Point3D {
-  x: number;
-  y: number;
-  z: number;
-}
-
-function rotateX(p: Point3D, angle: number): Point3D {
-  const cos = Math.cos(angle);
-  const sin = Math.sin(angle);
-  return {
-    x: p.x,
-    y: p.y * cos - p.z * sin,
-    z: p.y * sin + p.z * cos
-  };
-}
-
-function rotateY(p: Point3D, angle: number): Point3D {
-  const cos = Math.cos(angle);
-  const sin = Math.sin(angle);
-  return {
-    x: p.x * cos + p.z * sin,
-    y: p.y,
-    z: -p.x * sin + p.z * cos
-  };
-}
-
-function project(
-  p: Point3D, 
-  width: number, 
-  height: number, 
-  scale: number, 
-  distance: number
-): { x: number; y: number; z: number } {
-  const factor = scale / (distance + p.z);
-  return {
-    x: width / 2 + p.x * factor,
-    y: height / 2 + p.y * factor,
-    z: p.z
-  };
-}
-
-// â”€â”€ Interactive 3D Spinning Cassette Deck Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function LofiCassette3D({ isPlaying, onClick }: { isPlaying: boolean; onClick: () => void }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef({ targetX: 0.25, targetY: 0.5 });
-  const isDraggingRef = useRef(false);
-  const prevMouseRef = useRef({ x: 0, y: 0 });
-
-  // Update target rotation based on hover tilt
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDraggingRef.current) return;
-      const x = (e.clientX / window.innerWidth - 0.5) * 1.5;
-      const y = (e.clientY / window.innerHeight - 0.5) * 1.5;
-      mouseRef.current.targetX = y * 0.5 + 0.25; // tilt x
-      mouseRef.current.targetY = x * 0.5 + 0.5;  // tilt y
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  // Set up 3D render loop inside canvas
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animId: number;
-    let autoAngle = 0;
-
-    // Define 3D vertices of the cassette case (120 x 76 x 10)
-    const halfW = 60;
-    const halfH = 38;
-    const halfD = 6;
-
-    const vertices: Point3D[] = [
-      { x: -halfW, y: -halfH, z: -halfD }, // 0: back top left
-      { x: halfW, y: -halfH, z: -halfD },  // 1: back top right
-      { x: halfW, y: halfH, z: -halfD },   // 2: back bottom right
-      { x: -halfW, y: halfH, z: -halfD },  // 3: back bottom left
-      { x: -halfW, y: -halfH, z: halfD },  // 4: front top left
-      { x: halfW, y: -halfH, z: halfD },   // 5: front top right
-      { x: halfW, y: halfH, z: halfD },    // 6: front bottom right
-      { x: -halfW, y: halfH, z: halfD }     // 7: front bottom left
-    ];
-
-    // Label coordinates
-    const labelW = 44;
-    const labelH = 22;
-    const labelVertices: Point3D[] = [
-      { x: -labelW, y: -labelH, z: halfD + 0.2 },
-      { x: labelW, y: -labelH, z: halfD + 0.2 },
-      { x: labelW, y: labelH, z: halfD + 0.2 },
-      { x: -labelW, y: labelH, z: halfD + 0.2 }
-    ];
-
-    // Spools (left & right centers)
-    const spoolRadius = 11;
-    const leftSpoolCenter: Point3D = { x: -22, y: 0, z: halfD + 0.2 };
-    const rightSpoolCenter: Point3D = { x: 22, y: 0, z: halfD + 0.2 };
-
-    // Orbit particles data
-    const particleCount = 45;
-    const particles: { angle: number; radius: number; speed: number; yOffset: number; size: number; color: string }[] = [];
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        angle: Math.random() * Math.PI * 2,
-        radius: 80 + Math.random() * 40,
-        speed: 0.003 + Math.random() * 0.007,
-        yOffset: (Math.random() - 0.5) * 35,
-        size: Math.random() * 1.5 + 0.5,
-        color: Math.random() > 0.45 ? "#a9a2ff" : "#e5bd72"
-      });
-    }
-
-    const render = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Spin variables
-      if (!isDraggingRef.current) {
-        if (isPlaying) {
-          mouseRef.current.targetY += 0.008; // slow spin
-        }
-        autoAngle += 0.006;
-      }
-
-      const rx = mouseRef.current.targetX + Math.sin(autoAngle) * 0.03; // idle sway
-      const ry = mouseRef.current.targetY;
-
-      const scale = 2.0;
-      const distance = 250;
-      const w = canvas.width;
-      const h = canvas.height;
-
-      const projectPoint = (p: Point3D) => {
-        let rotated = rotateX(p, rx);
-        rotated = rotateY(rotated, ry);
-        return project(rotated, w, h, scale * 100, distance);
-      };
-
-      // Draw background dust particles (z < 0)
-      ctx.shadowBlur = 6;
-      particles.forEach(p => {
-        if (!isDraggingRef.current) {
-          p.angle += p.speed * (isPlaying ? 2.5 : 1);
-        }
-        const px = Math.cos(p.angle) * p.radius;
-        const pz = Math.sin(p.angle) * p.radius;
-        const pt: Point3D = { x: px, y: p.yOffset, z: pz };
-        let rotated = rotateX(pt, rx);
-        rotated = rotateY(rotated, ry);
-
-        if (rotated.z < 0) {
-          const projP = project(rotated, w, h, scale * 100, distance);
-          ctx.beginPath();
-          ctx.arc(projP.x, projP.y, p.size, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.shadowColor = p.color;
-          ctx.fill();
-        }
-      });
-      ctx.shadowBlur = 0;
-
-      // Project casing
-      const proj = vertices.map(projectPoint);
-
-      // Draw Casing transparent solid backs
-      ctx.fillStyle = "rgba(10, 8, 30, 0.7)";
-      ctx.beginPath();
-      ctx.moveTo(proj[0].x, proj[0].y);
-      for (let i = 1; i < 4; i++) ctx.lineTo(proj[i].x, proj[i].y);
-      ctx.closePath();
-      ctx.fill();
-
-      const drawEdge = (i: number, j: number, color: string, width = 1) => {
-        ctx.beginPath();
-        ctx.moveTo(proj[i].x, proj[i].y);
-        ctx.lineTo(proj[j].x, proj[j].y);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = width;
-        ctx.stroke();
-      };
-
-      // Back frame edges (dim)
-      drawEdge(0, 1, "rgba(169, 162, 255, 0.15)");
-      drawEdge(1, 2, "rgba(169, 162, 255, 0.15)");
-      drawEdge(2, 3, "rgba(169, 162, 255, 0.15)");
-      drawEdge(3, 0, "rgba(169, 162, 255, 0.15)");
-
-      // Thickness edges
-      drawEdge(0, 4, "rgba(169, 162, 255, 0.2)");
-      drawEdge(1, 5, "rgba(169, 162, 255, 0.2)");
-      drawEdge(2, 6, "rgba(169, 162, 255, 0.2)");
-      drawEdge(3, 7, "rgba(169, 162, 255, 0.2)");
-
-      // Front Face
-      ctx.fillStyle = "rgba(15, 14, 40, 0.85)";
-      ctx.beginPath();
-      ctx.moveTo(proj[4].x, proj[4].y);
-      for (let i = 5; i < 8; i++) ctx.lineTo(proj[i].x, proj[i].y);
-      ctx.closePath();
-      ctx.fill();
-
-      // Front edges (glowing purple)
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = "#a9a2ff";
-      drawEdge(4, 5, "#a9a2ff", 1.5);
-      drawEdge(5, 6, "#a9a2ff", 1.5);
-      drawEdge(6, 7, "#a9a2ff", 1.5);
-      drawEdge(7, 4, "#a9a2ff", 1.5);
-      ctx.shadowBlur = 0;
-
-      // Project & Draw Label
-      const projLabel = labelVertices.map(projectPoint);
-      ctx.fillStyle = "rgba(229, 189, 114, 0.08)";
-      ctx.beginPath();
-      ctx.moveTo(projLabel[0].x, projLabel[0].y);
-      for (let i = 1; i < 4; i++) ctx.lineTo(projLabel[i].x, projLabel[i].y);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.strokeStyle = "rgba(229, 189, 114, 0.35)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      // Draw spool reels
-      const spoolAngle = autoAngle * (isPlaying ? 3.5 : 0.8);
-      const drawSpool = (center: Point3D) => {
-        const projCenter = projectPoint(center);
-        
-        ctx.beginPath();
-        ctx.strokeStyle = "#e5bd72";
-        ctx.lineWidth = 1;
-        const numPoints = 12;
-        for (let i = 0; i <= numPoints; i++) {
-          const a = (i / numPoints) * Math.PI * 2;
-          const px = center.x + Math.cos(a) * spoolRadius;
-          const py = center.y + Math.sin(a) * spoolRadius;
-          const projP = projectPoint({ x: px, y: py, z: center.z });
-          if (i === 0) ctx.moveTo(projP.x, projP.y);
-          else ctx.lineTo(projP.x, projP.y);
-        }
-        ctx.stroke();
-
-        // Spoke lines
-        ctx.strokeStyle = "rgba(229, 189, 114, 0.5)";
-        for (let i = 0; i < 4; i++) {
-          const a = spoolAngle + (i * Math.PI / 2);
-          const px = center.x + Math.cos(a) * spoolRadius;
-          const py = center.y + Math.sin(a) * spoolRadius;
-          const projP = projectPoint({ x: px, y: py, z: center.z });
-          ctx.beginPath();
-          ctx.moveTo(projCenter.x, projCenter.y);
-          ctx.lineTo(projP.x, projP.y);
-          ctx.stroke();
-        }
-      };
-
-      drawSpool(leftSpoolCenter);
-      drawSpool(rightSpoolCenter);
-
-      // Draw foreground dust particles (z >= 0)
-      ctx.shadowBlur = 6;
-      particles.forEach(p => {
-        const px = Math.cos(p.angle) * p.radius;
-        const pz = Math.sin(p.angle) * p.radius;
-        const pt: Point3D = { x: px, y: p.yOffset, z: pz };
-        let rotated = rotateX(pt, rx);
-        rotated = rotateY(rotated, ry);
-
-        if (rotated.z >= 0) {
-          const projP = project(rotated, w, h, scale * 100, distance);
-          ctx.beginPath();
-          ctx.arc(projP.x, projP.y, p.size, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.shadowColor = p.color;
-          ctx.fill();
-        }
-      });
-      ctx.shadowBlur = 0;
-
-      animId = requestAnimationFrame(render);
-    };
-
-    render();
-    return () => cancelAnimationFrame(animId);
-  }, [isPlaying]);
-
-  // Handle Drag-to-spin handlers
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    isDraggingRef.current = true;
-    prevMouseRef.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDraggingRef.current) return;
-    const deltaX = e.clientX - prevMouseRef.current.x;
-    const deltaY = e.clientY - prevMouseRef.current.y;
-    mouseRef.current.targetY += deltaX * 0.008;
-    mouseRef.current.targetX += deltaY * 0.008;
-    prevMouseRef.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleMouseUpOrLeave = () => {
-    isDraggingRef.current = false;
-  };
-
-  return (
-    <canvas 
-      ref={canvasRef} 
-      width={240} 
-      height={180} 
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUpOrLeave}
-      onMouseLeave={handleMouseUpOrLeave}
-      onClick={(e) => {
-        // Prevent toggling if it was a dragging motion
-        if (Math.abs(e.clientX - prevMouseRef.current.x) < 2) {
-          onClick();
-        }
-      }}
-      className="max-w-full h-auto cursor-grab active:cursor-grabbing select-none pointer-events-auto"
-    />
-  );
-}
-
-// â”€â”€ Retro Synthwave Visual Hero (HTML/CSS) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlayToggle: () => void }) {
+// ── Retro Synthwave Visual Hero (Interactive Cockpit) ────────────────────
+function SynthwaveHero({
+  isPlaying,
+  onPlayToggle
+}: {
+  isPlaying: boolean;
+  onPlayToggle: () => void;
+}) {
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
-  const heroRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -385,22 +74,27 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
 
   return (
     <div
-      ref={heroRef}
-      className="relative w-full h-full overflow-hidden select-none cursor-pointer"
+      className="relative w-full h-full min-h-[420px] overflow-hidden select-none cursor-pointer rounded-3xl border-2 border-[#a9a2ff]/35 shadow-[8px_8px_0_rgba(169,162,255,0.22)]"
       style={{ perspective: "1200px" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={onPlayToggle}
     >
-      {/* â”€â”€ Sky gradient background â”€â”€ */}
-      <div className="absolute inset-0" style={{
-        background: "linear-gradient(to bottom, #06040f 0%, #0e0728 38%, #1a0a3c 55%, #2d0d52 62%, #3d0f5a 65%, #1a0530 80%, #07061a 100%)"
-      }} />
+      {/* Sky gradient background */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to bottom, #06040f 0%, #0e0728 38%, #1a0a3c 55%, #2d0d52 62%, #3d0f5a 65%, #1a0530 80%, #07061a 100%)"
+        }}
+      />
 
-      {/* â”€â”€ Stars â”€â”€ */}
+      {/* Deterministic Stars (Zero hydration mismatch) */}
       <div className="absolute inset-0 overflow-hidden">
-        {Array.from({ length: 55 }).map((_, i) => (
-          <div key={i} className="absolute rounded-full bg-white synth-star"
+        {Array.from({ length: 48 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-white synth-star"
             style={{
               width: i % 9 === 0 ? 2 : 1,
               height: i % 9 === 0 ? 2 : 1,
@@ -408,223 +102,217 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
               top: `${(i * 19 + 7) % 58}%`,
               opacity: 0.3 + ((i * 13) % 60) / 100,
               animationDelay: `${((i * 7) % 40) / 10}s`,
-              animationDuration: `${2 + ((i * 11) % 30) / 10}s`,
+              animationDuration: `${2 + ((i * 11) % 30) / 10}s`
             }}
           />
         ))}
       </div>
 
-      {/* â”€â”€ Retro synthwave sun (right-center) â”€â”€ */}
-      <div className="absolute" style={{ bottom: "40%", left: "62%", transform: "translateX(-50%)" }}>
-        <div className="relative" style={{ width: 220, height: 110, overflow: "hidden" }}>
-          {/* Sun body */}
-          <div className="absolute inset-0 rounded-t-full" style={{
-            background: "linear-gradient(to bottom, #ff6ec7 0%, #ff9a3c 40%, #e5bd72 70%, #ffd700 100%)",
-            boxShadow: "0 0 80px 30px rgba(255,110,199,0.35), 0 0 160px 60px rgba(229,189,114,0.18)",
-          }} />
-          {/* Horizontal scan lines over sun */}
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="absolute left-0 right-0 bg-[#06040f]"
-              style={{ height: 3, top: `${15 + i * 8.5}%`, opacity: 0.55 }}
+      {/* Retro synthwave sun */}
+      <div
+        className="absolute"
+        style={{ bottom: "38%", left: "54%", transform: "translateX(-50%)" }}
+      >
+        <div className="relative" style={{ width: 210, height: 105, overflow: "hidden" }}>
+          <div
+            className="absolute inset-0 rounded-t-full"
+            style={{
+              background:
+                "linear-gradient(to bottom, #ff6ec7 0%, #ff9a3c 40%, #e5bd72 70%, #ffd700 100%)",
+              boxShadow:
+                "0 0 80px 30px rgba(255,110,199,0.35), 0 0 160px 60px rgba(229,189,114,0.18)"
+            }}
+          />
+          {Array.from({ length: 9 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute left-0 right-0 bg-[#06040f]"
+              style={{ height: 3, top: `${15 + i * 9}%`, opacity: 0.55 }}
             />
           ))}
         </div>
       </div>
 
-      {/* â”€â”€ Horizon neon glow (full width) â”€â”€ */}
-      <div className="absolute" style={{
-        bottom: "40%",
-        left: 0,
-        right: 0,
-        height: 3,
-        background: "linear-gradient(90deg, transparent, #ff6ec7 20%, #a9a2ff 50%, #ff6ec7 80%, transparent)",
-        boxShadow: "0 0 24px 8px rgba(255,110,199,0.55), 0 0 60px 20px rgba(169,162,255,0.3)",
-        animation: "synth-pulse 3s ease-in-out infinite"
-      }} />
+      {/* Horizon neon glow */}
+      <div
+        className="absolute"
+        style={{
+          bottom: "38%",
+          left: 0,
+          right: 0,
+          height: 3,
+          background:
+            "linear-gradient(90deg, transparent, #ff6ec7 20%, #a9a2ff 50%, #ff6ec7 80%, transparent)",
+          boxShadow:
+            "0 0 24px 8px rgba(255,110,199,0.55), 0 0 60px 20px rgba(169,162,255,0.3)",
+          animation: "synth-pulse 3s ease-in-out infinite"
+        }}
+      />
 
-      {/* â”€â”€ Perspective grid floor (full width) â”€â”€ */}
-      <div className="absolute bottom-0" style={{ left: 0, right: 0, height: "43%", perspective: "300px", perspectiveOrigin: "50% 0%" }}>
-        <div className="absolute inset-0" style={{
-          backgroundImage:
-            "linear-gradient(to bottom, rgba(169,162,255,0.55) 1px, transparent 1px), linear-gradient(to right, rgba(169,162,255,0.35) 1px, transparent 1px)",
-          backgroundSize: "10% 22%",
-          transform: "rotateX(55deg)",
-          transformOrigin: "top center",
-          maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%)",
-        }} />
-        <div className="absolute inset-0" style={{
-          background: "linear-gradient(to top, rgba(169,162,255,0.05) 0%, transparent 60%)"
-        }} />
+      {/* Perspective grid floor */}
+      <div
+        className="absolute bottom-0"
+        style={{
+          left: 0,
+          right: 0,
+          height: "41%",
+          perspective: "300px",
+          perspectiveOrigin: "50% 0%"
+        }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(to bottom, rgba(169,162,255,0.55) 1px, transparent 1px), linear-gradient(to right, rgba(169,162,255,0.35) 1px, transparent 1px)",
+            backgroundSize: "10% 22%",
+            transform: "rotateX(55deg)",
+            transformOrigin: "top center",
+            maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%)"
+          }}
+        />
       </div>
 
-      {/* Cinematic mascot command scene */}
-      <div className="absolute inset-0 z-[1] hidden lg:block pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#06040f] via-[#06040f]/35 to-transparent" />
+      {/* Floating 3D Mission Board inside Hero */}
+      <div className="relative z-10 flex items-center justify-center p-5 sm:p-7 h-full">
         <div
-          className="absolute right-[6%] top-[12%] h-[510px] w-[580px] max-w-[45vw] transition-transform duration-200 ease-out"
+          className="w-full max-w-[440px] rounded-2xl border border-[#d8d4ff]/25 bg-[#050511]/85 p-4 backdrop-blur-md transition-transform duration-200 ease-out shadow-[0_32px_80px_rgba(0,0,0,0.75)]"
           style={{
-            transform: `perspective(1200px) rotateX(${tilt.rx * 0.2}deg) rotateY(${tilt.ry * 0.24}deg) translate3d(${tilt.ry * 0.45}px, ${tilt.rx * -0.4}px, 0)`,
-            transformStyle: "preserve-3d",
+            transform: `perspective(1000px) rotateX(${tilt.rx * 0.4}deg) rotateY(${tilt.ry * 0.4}deg)`
           }}
         >
-          <div className="absolute left-[46%] top-[52%] h-[330px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#a9a2ff]/18 blur-[76px]" />
-          <div className="absolute left-[28%] top-[23%] h-40 w-40 rounded-full bg-[#e5bd72]/14 blur-[46px]" />
-          <div className="absolute right-[12%] top-[26%] h-52 w-52 rounded-full bg-[#89c7d6]/13 blur-[62px]" />
-
-          <div
-            className="retzlo-hero-board-float absolute left-[8%] top-[18%] h-[345px] w-[405px] rounded-[28px] border border-[#d8d4ff]/22 bg-[#050511]/58 p-4 backdrop-blur-md"
-            style={{
-              clipPath: "polygon(5% 0, 100% 8%, 94% 100%, 0 90%)",
-              transform: "translateZ(48px) rotateY(-13deg) rotateX(4deg)",
-              boxShadow: "0 42px 110px rgba(0,0,0,0.68), 0 0 80px rgba(169,162,255,0.2), inset 0 1px 0 rgba(255,255,255,0.12)",
-            }}
-          >
-            <div className="absolute -inset-px rounded-[26px] bg-[linear-gradient(135deg,rgba(229,189,114,0.38),transparent_28%,rgba(137,199,214,0.32)_72%,transparent)] opacity-60" />
-            <div className="relative h-full overflow-hidden rounded-[18px] border border-white/10 bg-[#050511]/86">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_16%,rgba(137,199,214,0.24),transparent_34%),radial-gradient(circle_at_18%_86%,rgba(229,189,114,0.16),transparent_32%)]" />
-              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 7px, rgba(255,255,255,0.09) 8px)" }} />
-
-              <div className="absolute left-5 right-5 top-4 flex items-center justify-between">
-                <div>
-                  <div className="text-[9px] font-mono uppercase tracking-[0.32em] text-[#e5bd72]">Retzlo cockpit</div>
-                  <div className="mt-1 text-xl font-semibold text-white">Mission board</div>
+          <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="relative w-7 h-7">
+                <Image
+                  src="/stickers/retro/retro-sticker-09-headphones.png"
+                  alt="Retzlo Studio"
+                  fill
+                  sizes="28px"
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <div className="text-[9px] font-mono uppercase tracking-[0.28em] text-[#e5bd72]">
+                  RETZLO SECOND BRAIN
                 </div>
-                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1.5">
-                  <span className={`h-2 w-2 rounded-full ${isPlaying ? "bg-emerald-300" : "bg-[#a9a2ff]"}`} style={{ boxShadow: isPlaying ? "0 0 16px rgba(110,231,183,0.85)" : "0 0 14px rgba(169,162,255,0.62)" }} />
-                  <span className="text-[9px] font-mono uppercase tracking-widest text-[#d6d3d1]">{isPlaying ? "live" : "ready"}</span>
+                <div className="text-sm sm:text-base font-bold text-white">
+                  Today Focus Cockpit
                 </div>
               </div>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1">
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  isPlaying ? "bg-emerald-400 animate-pulse" : "bg-[#a9a2ff]"
+                }`}
+              />
+              <span className="text-[9px] font-mono uppercase tracking-widest text-[#e7e5e4]">
+                {isPlaying ? "LOFI LIVE" : "READY"}
+              </span>
+            </div>
+          </div>
 
-              <div className="absolute left-5 right-5 top-[86px] grid grid-cols-3 gap-3">
-                {[
-                  { label: "Todo", color: "#a9a2ff", cards: ["Map idea", "Invite team"] },
-                  { label: "Doing", color: "#e5bd72", cards: ["Tune flow", "Ship UI"] },
-                  { label: "Done", color: "#89c7d6", cards: ["Payout +24", "Focus loop"] },
-                ].map((column, columnIndex) => (
-                  <div key={column.label} className="min-h-[178px] rounded-[16px] border border-white/10 bg-white/[0.045] p-2.5">
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="text-[9px] font-mono uppercase tracking-[0.22em]" style={{ color: column.color }}>{column.label}</span>
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: column.color, boxShadow: `0 0 12px ${column.color}` }} />
+          {/* 3 Mini Kanban Columns */}
+          <div className="grid grid-cols-3 gap-2.5">
+            {[
+              {
+                label: "INBOX / TODO",
+                color: "#a9a2ff",
+                cards: ["โยนงานออกจากหัว", "AI แตกขั้นตอน"]
+              },
+              {
+                label: "DOING NOW",
+                color: "#ff8a4c",
+                cards: ["โฟกัสงานหลัก", "เปิดเพลง Lofi"]
+              },
+              {
+                label: "DONE (+COINS)",
+                color: "#34d399",
+                cards: ["รับ +24 Coins 🪙", "แลกรางวัลพักใจ"]
+              }
+            ].map((column, columnIndex) => (
+              <div
+                key={column.label}
+                className="rounded-xl border border-white/10 bg-white/[0.04] p-2"
+              >
+                <div className="mb-2 flex items-center justify-between">
+                  <span
+                    className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-wider truncate"
+                    style={{ color: column.color }}
+                  >
+                    {column.label}
+                  </span>
+                  <span
+                    className="h-1.5 w-1.5 rounded-full shrink-0"
+                    style={{ background: column.color }}
+                  />
+                </div>
+                {column.cards.map((card, cardIndex) => (
+                  <div
+                    key={card}
+                    className="mb-1.5 last:mb-0 rounded-lg border border-white/10 bg-[#09081a]/90 px-2 py-1.5 transition-transform duration-500"
+                    style={{
+                      transform:
+                        isPlaying && columnIndex === 1 && cardIndex === 0
+                          ? "translateY(-3px) scale(1.02)"
+                          : "translateY(0)"
+                    }}
+                  >
+                    <div
+                      className="mb-1 h-1 w-8 rounded-full"
+                      style={{ background: `${column.color}99` }}
+                    />
+                    <div className="text-[10px] sm:text-[11px] font-medium text-[#f5f5f4] leading-snug">
+                      {card}
                     </div>
-                    {column.cards.map((card, cardIndex) => (
-                      <div
-                        key={card}
-                        className="retzlo-hero-card-glow mb-2 rounded-[10px] border border-white/10 bg-[#08081a]/88 px-2.5 py-2 shadow-[0_12px_22px_rgba(0,0,0,0.22)] transition-transform duration-500"
-                        style={{
-                          transform: isPlaying && columnIndex === 1 && cardIndex === 1 ? "translateY(-5px)" : "translateY(0)",
-                          boxShadow: isPlaying && columnIndex === 2 && cardIndex === 0 ? `0 0 24px ${column.color}55` : "0 12px 22px rgba(0,0,0,0.22)",
-                        }}
-                      >
-                        <div className="mb-2 h-1.5 w-10 rounded-full" style={{ background: `${column.color}88` }} />
-                        <div className="text-[11px] font-medium text-[#f5f5f4]">{card}</div>
-                      </div>
-                    ))}
                   </div>
                 ))}
               </div>
-
-              <div className="absolute bottom-4 left-5 right-5 flex items-center justify-between rounded-[14px] border border-white/10 bg-[#03030c]/76 px-3 py-2">
-                <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#a8a29e]">
-                  <Music className="h-3.5 w-3.5 text-[#e5bd72]" />
-                  {isPlaying ? "cards moving" : "click to animate"}
-                </div>
-                <div className="flex items-end gap-1">
-                  {Array.from({ length: 14 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className="retzlo-hero-vu-bar w-1 rounded-full transition-all duration-300"
-                      style={{
-                        height: isPlaying ? `${9 + ((i * 9) % 26)}px` : `${5 + (i % 5) * 2}px`,
-                        background: i > 9 ? "#e5bd72" : i > 5 ? "#89c7d6" : "#a9a2ff",
-                        opacity: isPlaying ? 0.9 : 0.38,
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
-          <div
-            className="retzlo-hero-beam-pulse absolute left-[45%] top-[33%] h-[150px] w-[220px] opacity-70"
-            style={{
-              transform: "translateZ(82px) rotate(-10deg)",
-              background: "linear-gradient(100deg, rgba(229,189,114,0.42), rgba(137,199,214,0.15) 55%, transparent 78%)",
-              clipPath: "polygon(0 40%, 100% 0, 100% 100%, 0 60%)",
-              filter: "blur(0.5px) drop-shadow(0 0 24px rgba(229,189,114,0.28))",
-            }}
-          />
-          <div
-            className="retzlo-hero-beam-pulse retzlo-hero-beam-delay absolute left-[50%] top-[48%] h-[108px] w-[190px] opacity-55"
-            style={{
-              transform: "translateZ(76px) rotate(8deg)",
-              background: "linear-gradient(100deg, rgba(169,162,255,0.38), rgba(137,199,214,0.14) 54%, transparent 76%)",
-              clipPath: "polygon(0 42%, 100% 4%, 100% 92%, 0 62%)",
-              filter: "drop-shadow(0 0 22px rgba(169,162,255,0.26))",
-            }}
-          />
-          <div
-            className="absolute right-[11%] top-[56%] h-[104px] w-[104px] rounded-full border border-[#e5bd72]/35 bg-[#07030d]/54 p-0 backdrop-blur"
-            style={{
-              transform: "translateZ(118px)",
-              boxShadow: "0 0 42px rgba(229,189,114,0.22), inset 0 0 28px rgba(229,189,114,0.1)",
-            }}
-          >
-            <div className="retzlo-hero-coin-ring absolute inset-3 rounded-full border border-[#e5bd72]/30" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-xl font-semibold text-white">+24</div>
-              <div className="text-[8px] font-mono uppercase tracking-widest text-[#e5bd72]">coins</div>
+          {/* Bottom Interactive Audio Bar inside Hero Card */}
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-[#03030c]/90 px-3 py-2">
+            <div className="flex items-center gap-2 text-[10px] font-mono text-[#e5bd72]">
+              {isPlaying ? (
+                <Pause className="h-3.5 w-3.5 text-emerald-400" />
+              ) : (
+                <Play className="h-3.5 w-3.5 text-[#e5bd72]" />
+              )}
+              <span>
+                {isPlaying
+                  ? "กำลังบรรเลงเพลง Lofi สด (คลิกเพื่อพัก)"
+                  : "คลิกที่นี่เพื่อเปิดเพลง Lofi & ขยับบอร์ด"}
+              </span>
+            </div>
+            <div className="flex items-end gap-1 h-4">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <span
+                  key={i}
+                  className="w-1 rounded-full transition-all duration-300"
+                  style={{
+                    height: isPlaying ? `${6 + ((i * 7) % 12)}px` : `${4 + (i % 3) * 2}px`,
+                    background: i > 6 ? "#e5bd72" : i > 3 ? "#89c7d6" : "#a9a2ff",
+                    opacity: isPlaying ? 0.95 : 0.4
+                  }}
+                />
+              ))}
             </div>
           </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); onPlayToggle(); }}
-            className="pointer-events-auto absolute bottom-[17%] right-[26%] flex h-14 w-14 items-center justify-center rounded-full border transition-transform hover:scale-105"
-            style={{
-              transform: "translateZ(145px)",
-              background: isPlaying ? "rgba(52,211,153,0.2)" : "rgba(169,162,255,0.18)",
-              borderColor: isPlaying ? "rgba(52,211,153,0.5)" : "rgba(169,162,255,0.48)",
-              boxShadow: isPlaying ? "0 0 34px rgba(52,211,153,0.42)" : "0 0 30px rgba(169,162,255,0.32)",
-            }}
-            aria-label={isPlaying ? "Pause Retzlo scene" : "Play Retzlo scene"}
-          >
-            {isPlaying ? <Pause className="h-5 w-5 text-emerald-200" /> : <Play className="h-5 w-5 text-[#ebe8ff]" />}
-          </button>
-
-          {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="absolute rounded-full border border-[#a9a2ff]/22"
-              style={{
-                left: `${56 + i * 6}%`,
-                top: `${22 + i * 11}%`,
-                width: `${48 + i * 13}px`,
-                height: `${48 + i * 13}px`,
-                transform: `translateZ(${30 + i * 22}px) translate(${tilt.ry * (i + 1) * 0.7}px, ${tilt.rx * -(i + 1) * 0.7}px)`,
-                boxShadow: "0 0 26px rgba(169,162,255,0.18)",
-              }}
-            />
-          ))}
         </div>
       </div>
 
-      {/* â”€â”€ Scan line overlay â”€â”€ */}
-      <div className="absolute inset-0 pointer-events-none rounded-2xl" style={{
-        backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)",
-      }} />
-
-      {/* â”€â”€ Bottom fade â”€â”€ */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none" style={{
-        background: "linear-gradient(to top, rgba(8,6,23,0.7), transparent)"
-      }} />
-
-      {/* â”€â”€ Play hint overlay â”€â”€ */}
-      <div className="absolute top-3 right-3 pointer-events-none">
-        <span className={`text-[8px] font-mono tracking-widest uppercase px-2 py-1 rounded border ${
-          isPlaying
-            ? "text-emerald-400 border-emerald-400/30 bg-emerald-400/10"
-            : "text-[#78716c] border-white/10 bg-white/5"
-        }`}>
-          {isPlaying ? "â–¶ PLAYING" : "â¸ CLICK TO PLAY"}
+      {/* Top right status badge */}
+      <div className="absolute top-3 right-3 z-20 pointer-events-none">
+        <span
+          className={`text-[10px] font-mono tracking-widest uppercase px-2.5 py-1 rounded-full border ${
+            isPlaying
+              ? "text-emerald-300 border-emerald-400/40 bg-emerald-500/20"
+              : "text-[#e5bd72] border-[#e5bd72]/30 bg-[#080817]/80"
+          }`}
+        >
+          {isPlaying ? "▶ LOFI SYNTH PLAYING" : "🎧 CLICK SCENE FOR SOUND"}
         </span>
       </div>
     </div>
@@ -634,12 +322,26 @@ function SynthwaveHero({ isPlaying, onPlayToggle }: { isPlaying: boolean; onPlay
 export default function LandingPage() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [currentUser, setCurrentUser] = useState<MarketingSessionUser | null>(null);
   const [defaultDestination, setDefaultDestination] = useState<string>("/projects");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [crtMode, setCrtMode] = useState(true); // Default CRT mode ON for lofi vibes
+  const [crtMode, setCrtMode] = useState(false);
   const [steamHovered, setSteamHovered] = useState(false);
 
+  // Interactive states for Sloth-inspired sections
+  const [activePainTabIndex, setActivePainTabIndex] = useState(0);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [checkedSuitability, setCheckedSuitability] = useState<number[]>([0, 1, 3, 5]);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  // Typewriter effect state
+  const [typewriterText, setTypewriterText] = useState(HERO_TYPEWRITER_LINES[0]);
+  const [lineIndex, setLineIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Session check (Preserves auth-navigation.test.ts contract)
   useEffect(() => {
     let isMounted = true;
     setDefaultDestination("/projects");
@@ -673,127 +375,75 @@ export default function LandingPage() {
       isMounted = false;
     };
   }, [router]);
-  
-  // Scroll and Bento reveal states
-  const [scrollPercent, setScrollPercent] = useState(0);
-  const [bentoVisible, setBentoVisible] = useState(false);
-  const bentoRef = useRef<HTMLDivElement>(null);
 
-  // Calculate scroll progress percentage
+  // Typewriter animation loop
+  useEffect(() => {
+    const currentFullLine = HERO_TYPEWRITER_LINES[lineIndex];
+    const speed = isDeleting ? 22 : 42;
+
+    const timer = setTimeout(() => {
+      if (!isDeleting && charIndex < currentFullLine.length) {
+        setTypewriterText(currentFullLine.slice(0, charIndex + 1));
+        setCharIndex((c) => c + 1);
+      } else if (!isDeleting && charIndex === currentFullLine.length) {
+        setTimeout(() => setIsDeleting(true), 2200);
+      } else if (isDeleting && charIndex > 0) {
+        setTypewriterText(currentFullLine.slice(0, charIndex - 1));
+        setCharIndex((c) => c - 1);
+      } else if (isDeleting && charIndex === 0) {
+        setIsDeleting(false);
+        setLineIndex((l) => (l + 1) % HERO_TYPEWRITER_LINES.length);
+      }
+    }, speed);
+
+    return () => clearTimeout(timer);
+  }, [charIndex, isDeleting, lineIndex]);
+
+  // Scroll tracking for sticky bottom bar
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = docHeight > 0 ? scrollTop / docHeight : 0;
-      setScrollPercent(pct);
+      setShowStickyBar(window.scrollY > 520);
     };
-    window.addEventListener("scroll", handleScroll);
-    // Initial run
+    window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Intersection observer for Bento Grid staggered reveal
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setBentoVisible(true);
-        }
-      },
-      { threshold: 0.05 }
-    );
-    if (bentoRef.current) {
-      observer.observe(bentoRef.current);
-    }
-    return () => observer.disconnect();
-  }, []);
-
-  // VU Needle Wakeup State and Observer
-  const [wiggleActive, setWiggleActive] = useState(false);
-  const focusSectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isPlaying) {
-          setWiggleActive(true);
-          timer = setTimeout(() => {
-            setWiggleActive(false);
-          }, 1500);
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (focusSectionRef.current) {
-      observer.observe(focusSectionRef.current);
-    }
-    return () => {
-      observer.disconnect();
-      clearTimeout(timer);
-    };
-  }, [isPlaying]);
-
-  // Parallax tilt states for elements
-  const [heroTilt, setHeroTilt] = useState({ rx: 0, ry: 0 });
-  const [bentoTilt1, setBentoTilt1] = useState({ rx: 0, ry: 0 });
-  const [bentoTilt2, setBentoTilt2] = useState({ rx: 0, ry: 0 });
-  const [bentoTilt3, setBentoTilt3] = useState({ rx: 0, ry: 0 });
-  const [bentoTilt4, setBentoTilt4] = useState({ rx: 0, ry: 0 });
-
-  // Cursor trails particles state
+  // Cursor sparkle trail particles
   const [particles, setParticles] = useState<Particle[]>([]);
   const particleIdCounter = useRef(0);
 
-  // VU Meter state
-  const [vuLevelL, setVuLevelL] = useState(15);
-  const [vuLevelR, setVuLevelR] = useState(25);
-
-  // Synthesizer Audio Refs
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const synthNodesRef = useRef<{
-    oscillators: OscillatorNode[];
-    gainNode: GainNode;
-    filterNode: BiquadFilterNode;
-    noiseNode: AudioWorkletNode | ScriptProcessorNode | AudioBufferSourceNode | null;
-  } | null>(null);
-
-  // Track Mouse Trail
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (Math.random() > 0.35) return; // Limit particles density
-
-      const stars = ["âœ¦", "âœ§", "â˜…", "â€¢"];
-      const colors = ["#a9a2ff", "#e5bd72", "#89c7d6", "#d59ab3"];
+      if (Math.random() > 0.28) return;
+      const stars = ["✦", "✧", "★", "•"];
+      const colors = ["#a9a2ff", "#e5bd72", "#89c7d6", "#ff8a4c"];
       const newParticle: Particle = {
         id: particleIdCounter.current++,
         x: e.clientX,
-        y: e.clientY,
+        y: e.clientY + window.scrollY,
         char: stars[Math.floor(Math.random() * stars.length)],
         color: colors[Math.floor(Math.random() * colors.length)],
-        size: Math.floor(Math.random() * 12) + 8,
+        size: Math.floor(Math.random() * 10) + 8,
         rot: Math.random() * 360,
         opacity: 1
       };
-
-      setParticles((prev) => [...prev.slice(-35), newParticle]); // Cap at 35 particles
+      setParticles((prev) => [...prev.slice(-24), newParticle]);
     };
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Update particles fade out
   useEffect(() => {
     const interval = setInterval(() => {
-      setParticles((prev) => 
+      setParticles((prev) =>
         prev
           .map((p) => ({
             ...p,
-            y: p.y + 1.2, // Drift downward
+            y: p.y + 1.1,
             rot: p.rot + 1.5,
-            opacity: p.opacity - 0.05
+            opacity: p.opacity - 0.06
           }))
           .filter((p) => p.opacity > 0)
       );
@@ -801,102 +451,59 @@ export default function LandingPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Parallax Tilt Function
-  const handleTilt = (
-    e: React.MouseEvent<HTMLDivElement>, 
-    setTilt: React.Dispatch<React.SetStateAction<{ rx: number; ry: number }>>
-  ) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    // Rotate max 8 degrees
-    const rx = -(y / (rect.height / 2)) * 8;
-    const ry = (x / (rect.width / 2)) * 8;
-    setTilt({ rx, ry });
-  };
+  // VU Meter & Web Audio Synthesizer
+  const [vuLevelL, setVuLevelL] = useState(12);
+  const [vuLevelR, setVuLevelR] = useState(18);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
-  const resetTilt = (setTilt: React.Dispatch<React.SetStateAction<{ rx: number; ry: number }>>) => {
-    setTilt({ rx: 0, ry: 0 });
-  };
-
-  // Web Audio Lofi Synth Loop
   const startSynth = () => {
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const audioCtx = new AudioContextClass();
       audioCtxRef.current = audioCtx;
 
-      // Master output volume control
       const masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(0.18, audioCtx.currentTime); // Low output level for background lofi
+      masterGain.gain.setValueAtTime(0.16, audioCtx.currentTime);
 
-      // Lowpass Filter node for cozy muffled vibe
       const filter = audioCtx.createBiquadFilter();
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(450, audioCtx.currentTime); // Cutoff 450Hz
+      filter.frequency.setValueAtTime(460, audioCtx.currentTime);
       filter.Q.setValueAtTime(1, audioCtx.currentTime);
 
       filter.connect(masterGain);
       masterGain.connect(audioCtx.destination);
 
-      // Play tape click sound effect
-      const clickOsc = audioCtx.createOscillator();
-      const clickGain = audioCtx.createGain();
-      clickOsc.type = "sine";
-      clickOsc.frequency.setValueAtTime(120, audioCtx.currentTime);
-      clickOsc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.08);
-      clickGain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-      clickGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.08);
-      clickOsc.connect(clickGain);
-      clickGain.connect(audioCtx.destination);
-      clickOsc.start();
-      clickOsc.stop(audioCtx.currentTime + 0.08);
-
-      // Create warm lofi chord oscillators
-      // Mellow chord progression (Cmaj7 -> Am7 -> Dm7 -> G7)
       const chords = [
-        [130.81, 164.81, 196.00, 246.94], // C3, E3, G3, B3 (Cmaj7)
-        [110.00, 130.81, 164.81, 196.00], // A2, C3, E3, G3 (Am7)
-        [146.83, 174.61, 220.00, 261.63], // D3, F3, A3, C4 (Dm7)
-        [98.00,  123.47, 146.83, 174.61]  // G2, B2, D3, F3 (G7)
+        [130.81, 164.81, 196.0, 246.94], // Cmaj7
+        [110.0, 130.81, 164.81, 196.0], // Am7
+        [146.83, 174.61, 220.0, 261.63], // Dm7
+        [98.0, 123.47, 146.83, 174.61] // G7
       ];
 
       const oscillators: OscillatorNode[] = [];
       const oscGains: GainNode[] = [];
 
-      // Create 4 oscillators for the 4 voices of a chord
       for (let i = 0; i < 4; i++) {
         const osc = audioCtx.createOscillator();
         const oscGain = audioCtx.createGain();
-        
-        // Triangle wave for smooth, warm flute-like tones
         osc.type = "triangle";
-        oscGain.gain.setValueAtTime(0, audioCtx.currentTime); // Start quiet
-
+        oscGain.gain.setValueAtTime(0, audioCtx.currentTime);
         osc.connect(oscGain);
         oscGain.connect(filter);
-        
         osc.start();
-
         oscillators.push(osc);
         oscGains.push(oscGain);
       }
 
-      // Vinyl crackle noise buffer
-      const bufferSize = audioCtx.sampleRate * 2; // 2 seconds buffer
+      const bufferSize = audioCtx.sampleRate * 2;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
-      
-      // Generate vinyl pops and rain crackle math-wise
       for (let i = 0; i < bufferSize; i++) {
-        const randomVal = Math.random() * 2 - 1;
-        // White noise base
-        let val = randomVal * 0.008;
-        
-        // Random pops
+        let val = (Math.random() * 2 - 1) * 0.007;
         if (Math.random() > 0.9995) {
-          // Sharp impulse pop
-          val += (Math.random() > 0.5 ? 0.35 : -0.35);
+          val += Math.random() > 0.5 ? 0.3 : -0.3;
         }
         output[i] = val;
       }
@@ -905,57 +512,32 @@ export default function LandingPage() {
       noiseSource.buffer = noiseBuffer;
       noiseSource.loop = true;
       const noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(0.12, audioCtx.currentTime); // soft volume
+      noiseGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
       noiseSource.connect(noiseGain);
       noiseGain.connect(masterGain);
       noiseSource.start();
 
       let currentChordIdx = 0;
-
-      // Function to trigger chord transitions
       const playChord = () => {
         const chord = chords[currentChordIdx];
-        const transitionTime = 0.8; // smooth fade in/out
-
         oscillators.forEach((osc, idx) => {
-          const freq = chord[idx];
-          // Detune slightly for lofi chorus/wow-flutter effect
-          const detuneVal = (Math.random() * 12) - 6;
-
-          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-          osc.detune.setValueAtTime(detuneVal, audioCtx.currentTime);
-
-          // Voice fade-in
-          const targetVoiceGain = 0.28;
+          osc.frequency.setValueAtTime(chord[idx], audioCtx.currentTime);
+          osc.detune.setValueAtTime(Math.random() * 10 - 5, audioCtx.currentTime);
           oscGains[idx].gain.cancelScheduledValues(audioCtx.currentTime);
           oscGains[idx].gain.setValueAtTime(oscGains[idx].gain.value, audioCtx.currentTime);
-          oscGains[idx].gain.linearRampToValueAtTime(targetVoiceGain, audioCtx.currentTime + transitionTime);
+          oscGains[idx].gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.8);
         });
-
-        // Modulate filter cutoff slowly over time (warm sweeps)
-        const nextSweepFreq = 380 + Math.random() * 140;
-        filter.frequency.linearRampToValueAtTime(nextSweepFreq, audioCtx.currentTime + 3.5);
-
         currentChordIdx = (currentChordIdx + 1) % chords.length;
       };
 
-      // Loop chord scheduling
       playChord();
       const chordScheduler = setInterval(() => {
         if (audioCtx.state === "suspended") return;
         playChord();
       }, 4000);
 
-      synthNodesRef.current = {
-        oscillators,
-        gainNode: masterGain,
-        filterNode: filter,
-        noiseNode: noiseSource
-      };
-
-      // Store scheduler interval on the context object so we can clear it
-      (audioCtx as any)._chordScheduler = chordScheduler;
-
+      (audioCtx as unknown as { _chordScheduler: ReturnType<typeof setInterval> })._chordScheduler =
+        chordScheduler;
     } catch (err) {
       console.error("Failed to start Web Audio Synthesizer:", err);
     }
@@ -963,34 +545,17 @@ export default function LandingPage() {
 
   const stopSynth = () => {
     if (audioCtxRef.current) {
-      // Play stop mechanical click
-      try {
-        const clickOsc = audioCtxRef.current.createOscillator();
-        const clickGain = audioCtxRef.current.createGain();
-        clickOsc.type = "sine";
-        clickOsc.frequency.setValueAtTime(90, audioCtxRef.current.currentTime);
-        clickOsc.frequency.linearRampToValueAtTime(20, audioCtxRef.current.currentTime + 0.05);
-        clickGain.gain.setValueAtTime(0.3, audioCtxRef.current.currentTime);
-        clickGain.gain.linearRampToValueAtTime(0, audioCtxRef.current.currentTime + 0.05);
-        clickOsc.connect(clickGain);
-        clickGain.connect(audioCtxRef.current.destination);
-        clickOsc.start();
-        clickOsc.stop(audioCtxRef.current.currentTime + 0.05);
-      } catch (e) {}
-
-      // Clear progression timer
-      if ((audioCtxRef.current as any)._chordScheduler) {
-        clearInterval((audioCtxRef.current as any)._chordScheduler);
+      const ctxWithTimer = audioCtxRef.current as unknown as {
+        _chordScheduler?: ReturnType<typeof setInterval>;
+      };
+      if (ctxWithTimer._chordScheduler) {
+        clearInterval(ctxWithTimer._chordScheduler);
       }
-
-      // Close context
       audioCtxRef.current.close();
       audioCtxRef.current = null;
-      synthNodesRef.current = null;
     }
   };
 
-  // Toggle Synthesizer play state
   const handlePlayToggle = () => {
     if (isPlaying) {
       stopSynth();
@@ -1001,133 +566,54 @@ export default function LandingPage() {
     }
   };
 
-  // Clean up audio on unmount
   useEffect(() => {
     return () => {
       if (audioCtxRef.current) {
-        if ((audioCtxRef.current as any)._chordScheduler) {
-          clearInterval((audioCtxRef.current as any)._chordScheduler);
+        const ctxWithTimer = audioCtxRef.current as unknown as {
+          _chordScheduler?: ReturnType<typeof setInterval>;
+        };
+        if (ctxWithTimer._chordScheduler) {
+          clearInterval(ctxWithTimer._chordScheduler);
         }
         audioCtxRef.current.close();
       }
     };
   }, []);
 
-  // VU needle animation loop when active
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isPlaying) {
       interval = setInterval(() => {
         setVuLevelL(Math.floor(Math.random() * 45) + 12);
         setVuLevelR(Math.floor(Math.random() * 50) + 15);
-      }, 100);
-    } else if (wiggleActive) {
-      interval = setInterval(() => {
-        setVuLevelL(Math.floor(Math.random() * 32) + 8);
-        setVuLevelR(Math.floor(Math.random() * 36) + 10);
-      }, 100);
+      }, 110);
     } else {
-      setVuLevelL(5);
-      setVuLevelR(5);
+      setVuLevelL(6);
+      setVuLevelR(8);
     }
     return () => clearInterval(interval);
-  }, [isPlaying, wiggleActive]);
+  }, [isPlaying]);
+
+  const toggleSuitabilityItem = (idx: number) => {
+    setCheckedSuitability((prev) =>
+      prev.includes(idx) ? prev.filter((item) => item !== idx) : [...prev, idx]
+    );
+  };
+
+  const activePainTab = PAIN_POINT_TABS[activePainTabIndex] ?? PAIN_POINT_TABS[0];
+  const activeSlide = WALKTHROUGH_SLIDES[activeSlideIndex] ?? WALKTHROUGH_SLIDES[0];
 
   return (
-    <main className="min-h-screen bg-[#080817] text-[#f5f5f4] font-sans relative overflow-hidden selection:bg-[#a9a2ff]/30 selection:text-white">
-      
-      {/* â”€â”€ Background Glow Orbs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="retzlo-hero-orb-1" />
-      <div className="retzlo-hero-orb-2" />
-      <div className="retzlo-hero-orb-3" />
-      
-      {/* â”€â”€ Grid Pattern Overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
-
-      {/* â”€â”€ Background Shooting Grid Beams â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="retzlo-grid-beam-x top-[20%] w-[200px]" style={{ animationDelay: "0s", animationDuration: "8s" }} />
-        <div className="retzlo-grid-beam-x top-[60%] w-[150px]" style={{ animationDelay: "3s", animationDuration: "11s" }} />
-        <div className="retzlo-grid-beam-y left-[30%] h-[180px]" style={{ animationDelay: "1s", animationDuration: "10s" }} />
-        <div className="retzlo-grid-beam-y left-[75%] h-[220px]" style={{ animationDelay: "5s", animationDuration: "13s" }} />
-      </div>
-      
-      {/* â”€â”€ Scroll-Drawn Connecting Neon Wire â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <svg 
-          className="absolute left-1/2 -translate-x-1/2 w-[1000px] h-[6600px] opacity-[0.12] overflow-visible"
-          viewBox="0 0 1000 6600" 
-          preserveAspectRatio="xMidYMin slice"
-        >
-          <defs>
-            <linearGradient id="neon-wire-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#a9a2ff" />
-              <stop offset="45%" stopColor="#e5bd72" />
-              <stop offset="75%" stopColor="#d59ab3" />
-              <stop offset="100%" stopColor="#89c7d6" />
-            </linearGradient>
-            <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="6" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          <path
-            d="M 500,450 C 700,1200 300,2000 500,2800 C 700,3600 300,4400 500,5200 C 650,5800 450,6200 500,6600"
-            fill="none"
-            stroke="url(#neon-wire-grad)"
-            strokeWidth="3.5"
-            filter="url(#neon-glow)"
-            strokeDasharray="10000"
-            strokeDashoffset={10000 - Math.min(scrollPercent * 1.5, 1) * 10000}
-            className="transition-[stroke-dashoffset] duration-150 ease-out"
-          />
-        </svg>
-      </div>
-
-      {/* â”€â”€ Parallax Side Margin Stickers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden hidden xl:block">
-        <div 
-          className="absolute left-[7%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
-          style={{ transform: `translateY(${scrollPercent * -320}px) rotate(12deg)`, top: "1350px" }}
-        >
-          <div className="relative w-full h-full sticker-float-slow">
-            <Image src="/stickers/retro/retro-sticker-47-sleepy-cloud.png" alt="Sleepy Cloud Sticker" fill sizes="80px" className="object-contain select-none pointer-events-none" />
-          </div>
-        </div>
-        <div 
-          className="absolute right-[7%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
-          style={{ transform: `translateY(${scrollPercent * -420}px) rotate(-15deg)`, top: "2500px" }}
-        >
-          <div className="relative w-full h-full sticker-float-medium">
-            <Image src="/stickers/retro/retro-sticker-21-music-note.png" alt="Music Note Sticker" fill sizes="80px" className="object-contain select-none pointer-events-none" />
-          </div>
-        </div>
-        <div 
-          className="absolute left-[5%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
-          style={{ transform: `translateY(${scrollPercent * -280}px) rotate(8deg)`, top: "3700px" }}
-        >
-          <div className="relative w-full h-full sticker-float-fast">
-            <Image src="/stickers/retro/retro-sticker-27-ramen-bowl.png" alt="Ramen Bowl Sticker" fill sizes="80px" className="object-contain select-none pointer-events-none" />
-          </div>
-        </div>
-        <div 
-          className="absolute right-[6%] w-20 h-20 opacity-[0.22] transition-transform duration-300 ease-out"
-          style={{ transform: `translateY(${scrollPercent * -360}px) rotate(-10deg)`, top: "4800px" }}
-        >
-          <div className="relative w-full h-full sticker-float-slow">
-            <Image src="/stickers/retro/retro-sticker-33-magic-wand.png" alt="Magic Wand Sticker" fill sizes="80px" className="object-contain select-none pointer-events-none" />
-          </div>
-        </div>
-      </div>
-
-      {/* â”€â”€ Floating Cursor Sparkle Trail Elements â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+    <main
+      className={`min-h-screen bg-[#080817] text-[#f5efe6] font-sans relative overflow-x-hidden selection:bg-[#a9a2ff]/30 selection:text-white ${
+        crtMode ? "crt-screen-overlay" : ""
+      }`}
+    >
+      {/* ── Cursor Sparkles ── */}
       {particles.map((p) => (
         <span
           key={p.id}
-          className="absolute pointer-events-none z-50 select-none transition-opacity duration-300 font-mono"
+          className="absolute pointer-events-none z-50 select-none font-mono"
           style={{
             left: p.x,
             top: p.y,
@@ -1142,12 +628,48 @@ export default function LandingPage() {
         </span>
       ))}
 
-      {/* â”€â”€ Navigation Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <nav className="retzlo-nav px-6 py-4 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center group">
-              <div className="relative h-10 w-24 transition-transform duration-300 group-hover:scale-105">
+      {/* ── 1. Top Dismissible Announcement Marquee Bar (Sloth-style) ── */}
+      {announcementOpen && (
+        <aside
+          aria-label="ข้อความประกาศ"
+          className="relative z-50 w-full bg-[#14122b] border-b border-[#a9a2ff]/25 py-2.5 pr-12 overflow-hidden"
+        >
+          <div className="retzlo-marquee-track flex items-center whitespace-nowrap text-xs sm:text-sm font-medium text-[#f5efe6]">
+            {[0, 1].map((dup) => (
+              <div key={dup} className="flex items-center gap-8 pr-8" aria-hidden={dup === 1}>
+                <span>
+                  🔥 เปิดตัว <strong className="text-[#e5bd72]">Retzlo Second Brain & Lofi OS 2.0</strong> — ปลดล็อกสมองที่ล้า ให้ระบบช่วยจำและจัดระเบียบแทนคุณ
+                </span>
+                <span className="text-[#ff8a4c]">✳</span>
+                <span>
+                  ใช้งานฟรี 100% · มี <strong className="text-[#a9a2ff]">AI Breakdown</strong> ช่วยแตกโปรเจกต์เป็นงานย่อยในคลิกเดียว
+                </span>
+                <span className="text-[#ff8a4c]">✳</span>
+                <span>
+                  ทำงานเสร็จรับเหรียญ <strong className="text-[#34d399]">Coin แลกรางวัล</strong> พร้อมวิทยุ Lofi C-60 และสวนเซนบำบัดใจ
+                </span>
+                <span className="text-[#ff8a4c]">✳</span>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setAnnouncementOpen(false)}
+            aria-label="ปิดแถบประกาศ"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[#080817]/80 border border-white/15 text-[#d6d3d1] hover:text-white flex items-center justify-center text-base cursor-pointer"
+          >
+            ×
+          </button>
+        </aside>
+      )}
+
+      {/* ── 2. Sticky Editorial & Lofi Studio Pill Header ── */}
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#080817]/90 backdrop-blur-xl px-4 sm:px-6 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          {/* Left Brand + Tag */}
+          <div className="flex items-center gap-3">
+            <Link href="#cp-hero" className="flex items-center group">
+              <div className="relative h-9 w-24 transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/brand/retzlo-logo.png"
                   alt="Retzlo"
@@ -1158,44 +680,124 @@ export default function LandingPage() {
                 />
               </div>
             </Link>
-            
-            <div className="hidden md:flex items-center gap-6 text-sm text-[#d6d3d1] font-medium">
-              <a href="#features" className="hover:text-[#a9a2ff] transition-colors">Product</a>
-              <a href="#workflow" className="hover:text-[#a9a2ff] transition-colors">Workflow</a>
-              <a href="#lofi-focus" className="hover:text-[#a9a2ff] transition-colors">Focus</a>
-            </div>
+            <span className="hidden xl:inline-block text-xs font-mono text-[#a8a29e]">
+              · The Lofi Second Brain
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border-2 border-[#080817] bg-[#faf6ef] px-3 py-0.5 text-[11px] font-mono font-bold text-[#1c1917] shadow-[2px_2px_0_#a9a2ff]">
+              <Sparkles className="w-3 h-3 text-[#ff8a4c]" />
+              LIFE & WORK OS
+            </span>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          {/* Center Pill Navigation (Sloth cp-navpill style) */}
+          <nav
+            aria-label="เมนูนำทางหลัก"
+            className="hidden lg:flex items-center gap-1 rounded-full border border-white/15 bg-[#13112c]/90 p-1 text-xs font-medium text-[#d6d3d1]"
+          >
+            <a
+              href="#pain-tabs"
+              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+            >
+              ทำไมต้องมีระบบ
+            </a>
+            <a
+              href="#walkthrough"
+              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+            >
+              ดูข้างใน (7 โมดูล)
+            </a>
+            <a
+              href="#check-readiness"
+              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+            >
+              เหมาะกับใคร
+            </a>
+            <a
+              href="#lofi-focus"
+              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+            >
+              วิทยุ Lofi
+            </a>
+            <a
+              href="#offer"
+              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+            >
+              เปรียบเทียบ
+            </a>
+            <a
+              href="#faq"
+              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+            >
+              คำถาม (FAQ)
+            </a>
+          </nav>
+
+          {/* Right Audio Toggle + Auth Actions */}
+          <div className="hidden md:flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={handlePlayToggle}
+              className={`px-3 py-1.5 rounded-full border text-xs font-mono flex items-center gap-1.5 cursor-pointer transition ${
+                isPlaying
+                  ? "border-emerald-400/50 bg-emerald-500/15 text-emerald-300"
+                  : "border-white/15 bg-white/[0.04] text-[#d6d3d1] hover:border-[#e5bd72]/50 hover:text-[#e5bd72]"
+              }`}
+            >
+              {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+              <span>{isPlaying ? "Lofi: ON" : "Lofi Radio"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCrtMode(!crtMode)}
+              className={`px-2.5 py-1.5 text-xs font-mono rounded-full border flex items-center gap-1.5 cursor-pointer transition ${
+                crtMode
+                  ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
+                  : "bg-white/5 border-white/10 text-[#a8a29e] hover:text-white"
+              }`}
+              title="สลับเอฟเฟกต์หน้าจอเรโทร CRT"
+            >
+              <Tv className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline">CRT</span>
+            </button>
+
             {currentUser ? (
-              <div className="flex items-center gap-3">
-                <Link href="/profile" className="max-w-[180px] truncate px-3 py-2 text-sm font-medium text-[#d6d3d1] transition-colors hover:text-white">
+              <div className="flex items-center gap-2.5">
+                <Link
+                  href="/profile"
+                  className="max-w-[160px] truncate px-2.5 py-1.5 text-xs font-medium text-[#d6d3d1] transition-colors hover:text-white"
+                >
                   {currentUser.name || currentUser.email || "Workspace user"}
                 </Link>
                 <Link href={defaultDestination}>
-                  <button className="retzlo-cta-ghost px-5 py-2.5 text-xs font-semibold uppercase tracking-wider">
+                  <button className="rounded-full border-2 border-[#080817] bg-[#ff8a4c] px-4 py-1.5 text-xs font-bold text-[#080817] shadow-[3px_3px_0_#f5efe6] hover:translate-y-[-1px] transition cursor-pointer">
                     Enter Workspace
                   </button>
                 </Link>
               </div>
             ) : (
-              <>
-                <Link href="/login" className="px-4 py-2 text-sm text-[#d6d3d1] hover:text-white font-medium transition-colors">
-                  Sign In
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/login"
+                  className="px-3 py-1.5 text-xs sm:text-sm text-[#d6d3d1] hover:text-white font-medium transition-colors"
+                >
+                  เข้าสู่ระบบ
                 </Link>
                 <Link href={defaultDestination}>
-                  <button className="retzlo-cta-ghost px-5 py-2.5 text-xs font-semibold uppercase tracking-wider">
+                  <button className="rounded-full border-2 border-[#080817] bg-[#ff8a4c] px-4 py-1.5 text-xs font-bold text-[#080817] shadow-[3px_3px_0_#f5efe6] hover:translate-y-[-1px] transition cursor-pointer">
                     Enter Workspace
                   </button>
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button 
+          {/* Mobile Hamburger */}
+          <button
+            type="button"
             className="md:hidden p-2 text-[#d6d3d1] hover:text-white transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="เปิดเมนู"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -1203,52 +805,66 @@ export default function LandingPage() {
 
         {/* Mobile Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-[73px] left-0 right-0 border-b border-white/5 bg-[#0b0b20]/95 backdrop-blur-xl px-6 py-6 space-y-4 animate-fade-in">
-            <a 
-              href="#features" 
-              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2 border-b border-white/5"
+          <div className="md:hidden mt-3 border-t border-white/10 bg-[#0d0c22] px-4 py-5 space-y-3 rounded-2xl">
+            <a
+              href="#pain-tabs"
+              className="block text-sm text-[#f5efe6] py-1.5 border-b border-white/5"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Product
+              ทำไมต้องมีระบบ (6 ปัญหาคนทำงาน)
             </a>
-            <a 
-              href="#lofi-focus" 
-              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2 border-b border-white/5"
+            <a
+              href="#walkthrough"
+              className="block text-sm text-[#f5efe6] py-1.5 border-b border-white/5"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Workflow
+              ดูข้างในระบบ (7 โมดูล)
             </a>
-            <a 
-              href="#tech" 
-              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2"
+            <a
+              href="#check-readiness"
+              className="block text-sm text-[#f5efe6] py-1.5 border-b border-white/5"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Focus
+              เช็กความพร้อม
             </a>
-            <div className="pt-4 flex flex-col gap-2">
+            <a
+              href="#lofi-focus"
+              className="block text-sm text-[#f5efe6] py-1.5 border-b border-white/5"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              วิทยุ Lofi C-60
+            </a>
+            <a
+              href="#faq"
+              className="block text-sm text-[#f5efe6] py-1.5"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              คำถามที่พบบ่อย (FAQ)
+            </a>
+            <div className="pt-3 flex flex-col gap-2">
               {currentUser ? (
                 <>
                   <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full truncate text-center py-2.5 text-sm text-[#d6d3d1] hover:text-white transition-colors">
+                    <button className="w-full py-2 text-xs text-[#d6d3d1]">
                       {currentUser.name || currentUser.email || "Workspace user"}
                     </button>
                   </Link>
                   <Link href={defaultDestination} onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full text-center bg-[#a9a2ff] text-[#080817] font-semibold py-2.5 rounded-lg text-sm">
-                      Enter workspace
+                    <button className="w-full bg-[#ff8a4c] text-[#080817] font-bold py-2.5 rounded-full text-sm">
+                      Enter Workspace
                     </button>
                   </Link>
                 </>
               ) : (
                 <>
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full text-center py-2.5 text-sm text-[#d6d3d1] hover:text-white transition-colors">
-                      Sign In
+                    <button className="w-full py-2 text-sm text-[#d6d3d1] border border-white/15 rounded-full">
+                      เข้าสู่ระบบ (Sign In)
                     </button>
                   </Link>
                   <Link href={defaultDestination} onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full text-center bg-[#a9a2ff] text-[#080817] font-semibold py-2.5 rounded-lg text-sm">
-                      Start planning
+                    <button className="w-full bg-[#ff8a4c] text-[#080817] font-bold py-2.5 rounded-full text-sm">
+                      เริ่มต้นใช้งานฟรีทันที
                     </button>
                   </Link>
                 </>
@@ -1256,535 +872,1297 @@ export default function LandingPage() {
             </div>
           </div>
         )}
-      </nav>
+      </header>
 
-      {/* â”€â”€ Hero Section â€” Synthwave Fullscreen BG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <section className="relative min-h-[92vh] overflow-hidden flex flex-col">
-
-        {/* â”€â”€ Synthwave scene fills entire section as background â”€â”€ */}
-        <div className="absolute inset-0 z-0">
-          <SynthwaveHero isPlaying={isPlaying} onPlayToggle={handlePlayToggle} />
-        </div>
-
-        {/* â”€â”€ Dark gradient mask â€” heavy left, fades to transparent right â”€â”€ */}
-        <div className="absolute inset-0 z-10 pointer-events-none" style={{
-          background: "linear-gradient(to right, rgba(6,4,15,0.80) 0%, rgba(6,4,15,0.65) 25%, rgba(6,4,15,0.30) 50%, transparent 75%)"
-        }} />
-
-        {/* â”€â”€ Floating CRT Toggle â”€â”€ */}
-        <div className="absolute top-6 right-6 z-30 hidden sm:block">
-          <button
-            onClick={() => setCrtMode(!crtMode)}
-            className={`px-4 py-2 text-xs font-mono rounded-lg border flex items-center gap-2 backdrop-blur-md transition-all ${
-              crtMode
-                ? "bg-emerald-500/10 border-emerald-500/35 text-emerald-400"
-                : "bg-white/5 border-white/10 text-[#a8a29e]"
-            }`}
-          >
-            <Tv className="w-3.5 h-3.5" />
-            CRT Vibe: {crtMode ? "ON" : "OFF"}
-          </button>
-        </div>
-
-        {/* â”€â”€ Left-column text content â”€â”€ */}
-        <div className="relative z-20 w-full max-w-7xl mx-auto flex-1 flex items-center px-6">
-          <div className="w-full max-w-xl space-y-7 pt-28 pb-16">
-            {/* Badge */}
-            <div>
-              <div className="retzlo-badge inline-flex">
-                <span className="retzlo-badge-dot" />
-                <span>Retzlo Work Module</span>
+      {/* ── 3. Hero Section (#cp-hero) — Sloth Storytelling × Retzlo Lofi Studio ── */}
+      <section
+        id="cp-hero"
+        className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-16 md:pt-16 md:pb-24"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          {/* Left Storytelling Column (7 cols) */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* Tactile Pill Tag */}
+            <div className="inline-flex items-center gap-2.5 rounded-full border-2 border-[#080817] bg-[#faf6ef] px-4 py-1.5 text-xs sm:text-sm font-bold text-[#1c1917] shadow-[4px_4px_0_#a9a2ff]">
+              <div className="relative w-4 h-4">
+                <Image
+                  src="/stickers/retro/retro-sticker-20-sparkles.png"
+                  alt=""
+                  fill
+                  sizes="16px"
+                  className="object-contain"
+                />
               </div>
+              <span>All-in-One Second Brain · ใช้งานฟรีเต็มระบบ</span>
             </div>
 
-            {/* Heading */}
-            <h1
-              className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-[1.1] retzlo-fade-up-d1"
-              style={{ textShadow: "0 2px 30px rgba(0,0,0,0.9)" }}
-            >
-              Retzlo
-              <span className="block retzlo-gradient-text">calm project workspaces.</span>
-            </h1>
+            {/* Main Headline with Floating Handwritten Script Label */}
+            <div className="relative pt-2">
+              <span
+                aria-hidden="true"
+                className="hidden sm:inline-block absolute right-4 -top-4 font-serif italic text-2xl md:text-3xl text-[#e5bd72] -rotate-3 select-none pointer-events-none"
+              >
+                second brain · lofi studio
+              </span>
 
-            {/* Subtitle */}
-            <p
-              className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed retzlo-fade-up-d2"
-              style={{ textShadow: "0 1px 12px rgba(0,0,0,0.9)" }}
-            >
-              Plan projects, move cards across status lanes, and see due dates in one quiet retro-lofi workspace built for focused teams.
-            </p>
-
-            {/* Actions */}
-            <div className="flex flex-wrap gap-3 retzlo-fade-up-d3">
-              <Link href="/projects">
-                <button className="retzlo-cta-primary px-7 py-3 flex items-center gap-2 group text-sm">
-                  Start planning
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </Link>
-              <Link href="/register">
-                <button className="retzlo-cta-ghost px-6 py-3 text-sm">
-                  Create account
-                </button>
-              </Link>
+              <h1 className="text-3xl sm:text-5xl md:text-[54px] font-extrabold tracking-tight text-white leading-[1.28]">
+                <span className="block">คุณไม่ได้ “ขี้เกียจ”</span>
+                <span className="block text-[#ff8a4c] mt-1">
+                  คุณแค่ยังไม่มี “ระบบ”
+                </span>
+                <span className="block text-lg sm:text-2xl md:text-[26px] font-semibold text-[#e7e5e4] mt-3 leading-[1.5]">
+                  ที่ช่วยให้จัดการทุกงาน โปรเจกต์ และชีวิตได้ด้วยตัวคนเดียว (หรือทำกับทีม) โดยไม่เหนื่อยล้าจนหมดไฟ
+                </span>
+              </h1>
             </div>
 
-            {/* Social proof micro-row */}
-            <div className="flex items-center gap-3 pt-1 retzlo-fade-up-d4">
-              <div className="flex -space-x-2">
-                {["#a9a2ff","#e5bd72","#89c7d6","#d59ab3"].map((c,i) => (
-                  <div key={i} className="w-7 h-7 rounded-full border-2 border-[#07061a]" style={{ background: `${c}55` }} />
-                ))}
-              </div>
-              <p className="text-xs text-[#a8a29e]">
-                <span className="text-white font-semibold">Board, calendar, and members</span> ready from the first project
+            {/* Live Typewriter Box */}
+            <div className="rounded-2xl border border-white/15 bg-[#121029]/85 px-4 py-3.5 max-w-xl">
+              <p className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed min-h-[3rem]">
+                <span>{typewriterText}</span>
+                <span className="inline-block w-0.5 h-4 bg-[#ff8a4c] align-middle ml-1 animate-pulse" />
               </p>
             </div>
+
+            {/* Neo-Retro Sticker CTA Button & Secondary Action */}
+            <div className="pt-1 space-y-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+                <Link href={defaultDestination} className="inline-block">
+                  <button
+                    type="button"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full border-2 border-[#080817] bg-[#ff8a4c] hover:bg-[#ff9b64] px-7 py-4 text-base sm:text-lg font-extrabold text-[#080817] shadow-[6px_6px_0_#faf6ef] hover:translate-y-[-2px] active:translate-y-[1px] transition-all cursor-pointer"
+                  >
+                    <span>เริ่มต้นจัดระเบียบชีวิต — ใช้งานฟรีทันที</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </Link>
+                <a
+                  href="#walkthrough"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/[0.05] hover:bg-white/[0.1] px-6 py-4 text-sm font-semibold text-[#f5efe6] transition"
+                >
+                  <span>ส่องข้างในระบบ (7 โมดูล)</span>
+                </a>
+              </div>
+
+              {/* 5-Star Rating & Checkmarks */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="text-[#ff8a4c] text-sm tracking-widest">★★★★★</span>
+                  <span className="text-xs sm:text-sm font-semibold text-[#f5efe6]">
+                    4.9/5 จากนักพัฒนา ฟรีแลนซ์ และคนทำงานที่รักความสงบ
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-[#a8a29e]">
+                  ✓ ไม่ต้องผูกบัตรเครดิต · ✓ มี AI ช่วยแตก Task อัตโนมัติ · ✓ มีวิทยุ Lofi & สวนเซนในตัว
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Interactive Synthwave Cockpit Column (5 cols) */}
+          <div className="lg:col-span-5">
+            <SynthwaveHero isPlaying={isPlaying} onPlayToggle={handlePlayToggle} />
           </div>
         </div>
       </section>
 
-{/* Workflow Proof Strip */}
-      <section id="workflow" className="border-y border-white/[0.04] bg-white/[0.018] py-8 overflow-hidden select-none">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="retzlo-marquee-track">
-            {/* Slide block 1 */}
-            <div className="flex items-center gap-12 text-xs font-mono tracking-widest text-[#78716c] uppercase">
-              <span>Create project</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
-              <span>Add backlog cards</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#e5bd72]" />
-              <span>Move through status lanes</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#89c7d6]" />
-              <span>Check calendar due dates</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#d59ab3]" />
-              <span>Invite members</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-stone-700" />
-              <span>Finish work calmly</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
-            </div>
-            {/* Duplicate slide block for infinite animation */}
-            <div className="flex items-center gap-12 text-xs font-mono tracking-widest text-[#78716c] uppercase pl-12">
-              <span>Create project</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
-              <span>Add backlog cards</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#e5bd72]" />
-              <span>Move through status lanes</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#89c7d6]" />
-              <span>Check calendar due dates</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#d59ab3]" />
-              <span>Invite members</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-stone-700" />
-              <span>Finish work calmly</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#a9a2ff]" />
-            </div>
+      {/* ── 4. Eyebrow Showcase Banner ("THE LOFI SECOND BRAIN 2.0") ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-16">
+        <div className="flex items-center gap-4 mb-5 flex-wrap">
+          <div className="flex items-center gap-3 flex-1 min-w-[140px]">
+            <span className="rounded-md bg-[#a9a2ff]/15 border border-[#a9a2ff]/30 px-2.5 py-1 text-xs font-mono font-bold uppercase tracking-widest text-[#a9a2ff]">
+              Life & Work OS
+            </span>
+            <div className="flex-1 h-px bg-white/15" />
           </div>
-        </div>
-      </section>
-
-      {/* â”€â”€ Features Bento Grid with 3D Tilt and Border Beams â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <section ref={bentoRef} id="features" className="max-w-7xl mx-auto px-6 py-24 md:py-32 space-y-16">
-        <div className="text-center max-w-2xl mx-auto space-y-4">
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white">
-            Designed for the <span className="text-[#a9a2ff]">late-night builder</span>
+          <h2 className="text-lg sm:text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-white">
+            Retzlo Second Brain <span className="text-[#ff8a4c]">2.0</span>
           </h2>
-          <p className="text-[#a8a29e] text-sm md:text-base leading-relaxed">
-            Beautifully modular workspaces that feel organic, cozy, and completely tailored to your daily focus.
+        </div>
+
+        {/* All-in-One Module Strip Card */}
+        <div className="rounded-3xl border-2 border-[#faf6ef]/20 bg-gradient-to-b from-[#151332] to-[#0d0c20] p-5 sm:p-7 shadow-[0_24px_60px_rgba(0,0,0,0.45)]">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {[
+              {
+                title: "Kanban & Table",
+                sub: "ลากวางงานไว 60fps",
+                sticker: "/stickers/retro/retro-sticker-03-checklist.png",
+                color: "#a9a2ff"
+              },
+              {
+                title: "AI Breakdown",
+                sub: "แตกงานใหญ่ใน 5 วิ",
+                sticker: "/stickers/retro/retro-sticker-33-magic-wand.png",
+                color: "#ff8a4c"
+              },
+              {
+                title: "Sync Calendar",
+                sub: "ปฏิทินรวมกำหนดส่ง",
+                sticker: "/stickers/retro/retro-sticker-04-calendar.png",
+                color: "#89c7d6"
+              },
+              {
+                title: "Notes & Diary",
+                sub: "สมองที่สองเก็บความรู้",
+                sticker: "/stickers/retro/retro-sticker-12-paper-note.png",
+                color: "#d59ab3"
+              },
+              {
+                title: "Coin Rewards",
+                sub: "ทำงานจบแลกรางวัล",
+                sticker: "/stickers/retro/retro-sticker-01-coin-reward.png",
+                color: "#e5bd72"
+              },
+              {
+                title: "Lofi & Zen Garden",
+                sub: "เพลงโฟกัส & สวนหิน",
+                sticker: "/stickers/retro/retro-sticker-09-headphones.png",
+                color: "#34d399"
+              }
+            ].map((mod) => (
+              <div
+                key={mod.title}
+                className="rounded-2xl border border-white/10 bg-[#090819]/80 p-3.5 flex flex-col items-center text-center gap-2 hover:border-[#a9a2ff]/45 hover:translate-y-[-2px] transition"
+              >
+                <div className="relative w-11 h-11">
+                  <Image
+                    src={mod.sticker}
+                    alt={mod.title}
+                    fill
+                    sizes="44px"
+                    className="object-contain"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs sm:text-sm font-bold text-white">{mod.title}</div>
+                  <div className="text-[11px] text-[#a8a29e] mt-0.5">{mod.sub}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-sm sm:text-lg font-bold text-[#f5efe6] mt-6">
+            ระบบจัดการงานและชีวิต All-in-One — รวมทุกเรื่องสำคัญไว้ในสตูดิโอเดียว ไม่ต้องสลับแอปไปมา
+          </p>
+        </div>
+      </section>
+
+      {/* ── 5. Interactive Browser Tab Window (#pain-tabs — "เคยไหม? วางแผนไว้ดิบดี… แต่สุดท้ายไม่ได้ทำ") ── */}
+      <section id="pain-tabs" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <span className="text-xs font-mono uppercase tracking-widest text-[#ff8a4c]">
+              SOUND FAMILIAR? · ปัญหาที่คนทำงานเจอทุกวัน
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white mt-2 leading-snug">
+              เคยไหม? วางแผนไว้ดิบดี…
+              <br />
+              แต่สุดท้าย <span className="text-[#ff8a4c]">“ไม่ได้ทำ”</span>
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-[#a8a29e] font-mono">
+            👇 ลองคลิกเลือกแท็บปัญหาที่คุณกำลังเผชิญอยู่ด้านล่างนี้:
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Card 1: Kanban Board */}
-          <div 
-            className={`border-beam-wrapper rounded-2xl md:col-span-2 transition-all duration-[800ms] ease-out ${
-              bentoVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-            }`}
-            onMouseMove={(e) => handleTilt(e, setBentoTilt1)}
-            onMouseLeave={() => resetTilt(setBentoTilt1)}
-            style={{ 
-              transform: `perspective(800px) rotateX(${bentoTilt1.rx}deg) rotateY(${bentoTilt1.ry}deg)`,
-              transitionDelay: "0ms"
-            }}
-          >
-            <div className="bg-[#111029]/80 h-full p-8 flex flex-col justify-between min-h-[320px] rounded-2xl border border-white/5 relative z-10">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-[#a9a2ff]/10 border border-[#a9a2ff]/20 flex items-center justify-center text-[#a9a2ff] group-hover:scale-110 transition-transform">
-                  <Kanban className="w-6 h-6 animate-pulse" />
-                </div>
-                <h3 className="text-2xl font-semibold text-white">Interactive Kanban Boards</h3>
-                <p className="text-[#a8a29e] text-sm leading-relaxed max-w-xl">
-                  Organize projects with zero friction. Create boards, drag-and-drop tasks, set status lanes, assign priorities, and watch updates persist instantly via optimistic client-side UI cycles.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-2 text-xs font-mono text-[#a9a2ff] cursor-pointer group">
-                <span>EXPLORE WORK MODULE</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
+        {/* Neo-Brutalist Cream Browser Window (Inspired by Sloth tbWin) */}
+        <div className="rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] shadow-[8px_8px_0_#a9a2ff] overflow-hidden">
+          {/* Browser Title Bar */}
+          <div className="flex items-center gap-2 bg-[#ffffff] border-b border-[#e5dec9] px-4 py-2.5">
+            <span className="w-3 h-3 rounded-full bg-[#FF5F57] inline-block" />
+            <span className="w-3 h-3 rounded-full bg-[#FEBC2E] inline-block" />
+            <span className="w-3 h-3 rounded-full bg-[#28C840] inline-block" />
+            <span className="flex-1 text-center text-xs font-mono font-medium text-[#78716c]">
+              Retzlo — The Lofi Second Brain OS
+            </span>
+          </div>
+
+          {/* Browser URL Bar */}
+          <div className="flex items-center gap-3 bg-[#ffffff] px-4 py-2 border-b border-[#e5dec9]">
+            <span className="text-xs font-mono text-[#78716c]">← → ⟳</span>
+            <div className="flex-1 rounded-full bg-[#f4efe3] px-4 py-1 text-xs font-mono text-[#292524] truncate">
+              🔒 retzlo.studio/why-you-need-a-system/{activePainTab.id}
             </div>
           </div>
 
-          {/* Card 2: Calendar Engine */}
-          <div 
-            className={`border-beam-wrapper rounded-2xl transition-all duration-[800ms] ease-out ${
-              bentoVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-            }`}
-            onMouseMove={(e) => handleTilt(e, setBentoTilt2)}
-            onMouseLeave={() => resetTilt(setBentoTilt2)}
-            style={{ 
-              transform: `perspective(800px) rotateX(${bentoTilt2.rx}deg) rotateY(${bentoTilt2.ry}deg)`,
-              transitionDelay: "150ms"
-            }}
-          >
-            <div className="bg-[#111029]/80 h-full p-8 flex flex-col justify-between min-h-[320px] rounded-2xl border border-white/5 relative z-10">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-[#e5bd72]/10 border border-[#e5bd72]/20 flex items-center justify-center text-[#e5bd72] group-hover:-rotate-6 transition-transform">
-                  <Calendar className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-white">Sync Due Dates</h3>
-                <p className="text-[#a8a29e] text-sm leading-relaxed">
-                  A unified calendar view. Task due dates mapped out across a tidy grid, giving you visual perspective on what&apos;s due tomorrow, next week, or deep in memory lane.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-2 text-xs font-mono text-[#e5bd72] cursor-pointer group">
-                <span>VIEW SCHEDULES</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3: Personal Finance */}
-          <div 
-            className={`border-beam-wrapper rounded-2xl transition-all duration-[800ms] ease-out ${
-              bentoVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-            }`}
-            onMouseMove={(e) => handleTilt(e, setBentoTilt3)}
-            onMouseLeave={() => resetTilt(setBentoTilt3)}
-            style={{ 
-              transform: `perspective(800px) rotateX(${bentoTilt3.rx}deg) rotateY(${bentoTilt3.ry}deg)`,
-              transitionDelay: "300ms"
-            }}
-          >
-            <div className="bg-[#111029]/80 h-full p-8 flex flex-col justify-between min-h-[320px] rounded-2xl border border-white/5 relative z-10">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-[#89c7d6]/10 border border-[#89c7d6]/20 flex items-center justify-center text-[#89c7d6] group-hover:translate-y-[-2px] transition-transform">
-                  <DollarSign className="w-6 h-6 animate-bounce" />
-                </div>
-                <h3 className="text-xl font-semibold text-white">Double-Entry Ledgers</h3>
-                <p className="text-[#a8a29e] text-sm leading-relaxed">
-                  Log income, track recurring subscriptions, set budgets, and display balances. Curated to look like a physical accounting booklet with tactile pastel colors.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-2 text-xs font-mono text-[#89c7d6] cursor-pointer group">
-                <span>EXPLORE FINANCE MODULE</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </div>
-
-          {/* Card 4: Retro Aesthetics / Customizations */}
-          <div 
-            className={`border-beam-wrapper rounded-2xl md:col-span-2 transition-all duration-[800ms] ease-out ${
-              bentoVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-            }`}
-            onMouseMove={(e) => handleTilt(e, setBentoTilt4)}
-            onMouseLeave={() => resetTilt(setBentoTilt4)}
-            style={{ 
-              transform: `perspective(800px) rotateX(${bentoTilt4.rx}deg) rotateY(${bentoTilt4.ry}deg)`,
-              transitionDelay: "450ms"
-            }}
-          >
-            <div className="bg-[#111029]/80 h-full p-8 flex flex-col justify-between min-h-[320px] rounded-2xl border border-white/5 relative z-10">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-[#d59ab3]/10 border border-[#d59ab3]/20 flex items-center justify-center text-[#d59ab3] group-hover:scale-105 transition-transform">
-                  <Layers className="w-6 h-6" />
-                </div>
-                <h3 className="text-2xl font-semibold text-white">Retro Lofi Theme Engine</h3>
-                <p className="text-[#a8a29e] text-sm leading-relaxed max-w-xl">
-                  Cozy design tokens built for developers, designers, and late-night enthusiasts. Soft gradients, glass panels, subtle border trims, and glow effects that make typing a satisfying habit.
-                </p>
-              </div>
-              <div className="pt-6 flex items-center gap-2 text-xs font-mono text-[#d59ab3] cursor-pointer group">
-                <span>DISCOVER PALETTES</span>
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <div className="retzlo-section-line" />
-
-      {/* â”€â”€ Focus Station Interactive Cassette Player â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <section ref={focusSectionRef} id="lofi-focus" className="max-w-7xl mx-auto px-6 py-24 md:py-32">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#a9a2ff]/20 bg-[#a9a2ff]/5 px-3 py-1.5 text-xs text-[#a9a2ff] font-mono uppercase tracking-widest">
-              <Music className="w-3.5 h-3.5" />
-              Focus Companion
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white leading-tight">
-              Get in the zone with <br />
-              <span className="text-[#e5bd72]">Retzlo Cassette Radio</span>
-            </h2>
-            <p className="text-[#a8a29e] text-sm md:text-base leading-relaxed">
-              Every productive session needs a calm soundtrack. Retzlo integrates ambient audio support directly inside your header tools. Toggle focus mode and work with synthesized background rhythms.
-            </p>
-            
-            {/* Interactive Coffee Steam Entity */}
-            <div 
-              className="p-4 rounded-xl border border-white/5 bg-[#14122d]/65 backdrop-blur-md inline-flex items-center gap-4 cursor-default select-none relative group"
-              onMouseEnter={() => setSteamHovered(true)}
-              onMouseLeave={() => setSteamHovered(false)}
-            >
-              <div className="relative">
-                <Coffee className="w-8 h-8 text-[#e5bd72] transition-transform duration-300 group-hover:scale-110" />
-                
-                {/* SVG Steam Wave Particles */}
-                <svg className="absolute -top-6 left-1.5 w-6 h-6 overflow-visible pointer-events-none" viewBox="0 0 24 24">
-                  <path 
-                    className={`coffee-steam-path stroke-[#e5bd72] stroke-2 fill-none ${steamHovered ? "running" : ""}`} 
-                    d="M 6,24 C 6,18 10,14 10,10 C 10,6 6,4 6,0" 
-                    style={{ animationDuration: "3.5s" }}
-                  />
-                  <path 
-                    className={`coffee-steam-path stroke-[#a9a2ff] stroke-2 fill-none ${steamHovered ? "running" : ""}`} 
-                    d="M 12,24 C 12,19 8,16 8,11 C 8,6 12,4 12,0" 
-                    style={{ animationDuration: "5s", animationDelay: "1s" }}
-                  />
-                  <path 
-                    className={`coffee-steam-path stroke-[#89c7d6] stroke-2 fill-none ${steamHovered ? "running" : ""}`} 
-                    d="M 18,24 C 18,17 14,14 14,9 C 14,4 18,3 18,0" 
-                    style={{ animationDuration: "4s", animationDelay: "0.5s" }}
-                  />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-white uppercase tracking-wider">Mellow Focus Brew</p>
-                <p className="text-[10px] text-[#78716c] font-mono">Hover to release hot lofi steam</p>
-              </div>
-            </div>
-
-            <ul className="space-y-3 pt-2">
-              {[
-                "Synthesized chord loop player (Web Audio API)",
-                "Soft crackle vinyl tape noise filter",
-                "Fully interactive spinning spools cassette animation",
-                "Needle VU meters bouncing in sync"
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm text-[#d6d3d1]">
-                  <CheckCircle2 className="w-5 h-5 text-[#89c7d6] shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Interactive Player Showcase Cassette Card */}
-          <div className="flex justify-center">
-            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-gradient-to-br from-[#1d1a37]/80 to-[#121024]/90 p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-              
-              <div className="flex items-center justify-between pb-6 border-b border-white/5">
-                <div className="flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-[#78716c]" />
-                  <span className="text-xs font-mono uppercase tracking-widest text-[#78716c]">Focus Channel</span>
-                </div>
-                <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${isPlaying ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)] animate-pulse" : "bg-stone-600"}`} />
-              </div>
-
-              {/* â”€â”€ Vintage Cassette Deck HTML Illustration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-              <div className="my-8 bg-[#090817] border-2 border-white/10 rounded-xl p-4 relative overflow-hidden">
-                {/* Cassette Slot Window */}
-                <div className="relative h-32 bg-[#121022] rounded-lg border border-white/5 overflow-hidden flex items-center justify-center">
-                  
-                  {/* Backdrop lights */}
-                  <div className={`absolute inset-0 transition-opacity duration-500 bg-[#a9a2ff]/5 ${isPlaying ? "opacity-100" : "opacity-0"}`} />
-
-                  {/* Cassette Tape itself */}
-                  <div className={`w-48 h-28 bg-[#18172e] border border-white/10 rounded-md relative flex flex-col justify-between p-2 shadow-inner transition-transform duration-700 ${
-                    isPlaying ? "translate-y-0 scale-100" : "translate-y-4 scale-95 opacity-80"
-                  }`}>
-                    {/* Cassette Label */}
-                    <div className="h-10 bg-gradient-to-r from-[#a9a2ff]/20 via-[#e5bd72]/20 to-[#d59ab3]/20 border border-white/10 rounded flex items-center justify-center">
-                      <span className="text-[10px] font-mono tracking-widest text-[#a9a2ff] uppercase">RETZLO TAPE C-60</span>
-                    </div>
-
-                    {/* Spool Windows */}
-                    <div className="flex justify-around items-center my-1.5">
-                      {/* Left Spool */}
-                      <div className="w-10 h-10 rounded-full bg-[#090817] border border-white/10 flex items-center justify-center relative">
-                        <Disc className={`w-8 h-8 text-[#78716c] ${isPlaying ? "animate-spin [animation-duration:8s]" : ""}`} />
-                        <div className="absolute w-2 h-2 rounded-full bg-[#121022]" />
-                      </div>
-
-                      {/* Center window */}
-                      <div className="w-12 h-6 bg-[#090817]/80 rounded border border-white/5 flex items-center justify-center font-mono text-[9px] text-[#57534e]">
-                        {isPlaying ? "PLAYING" : "STOPPED"}
-                      </div>
-
-                      {/* Right Spool */}
-                      <div className="w-10 h-10 rounded-full bg-[#090817] border border-white/10 flex items-center justify-center relative">
-                        <Disc className={`w-8 h-8 text-[#78716c] ${isPlaying ? "animate-spin [animation-duration:8s]" : ""}`} />
-                        <div className="absolute w-2 h-2 rounded-full bg-[#121022]" />
-                      </div>
-                    </div>
-
-                    {/* Bottom tape teeth holes */}
-                    <div className="h-4 bg-[#0d0c1b] rounded flex justify-center gap-4 items-center">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#090817]" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#090817]" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Analog needle VU Meters */}
-                <div className="flex gap-4 mt-4 px-2">
-                  {/* Left VU */}
-                  <div className="flex-1 bg-[#121022] border border-white/5 rounded p-2 relative h-10 overflow-hidden">
-                    <div className="absolute left-2 top-1 font-mono text-[8px] text-[#78716c]">VU-L</div>
-                    {/* Needle */}
-                    <div 
-                      className="absolute bottom-0 left-1/2 w-0.5 h-8 bg-rose-500 origin-bottom transition-transform duration-100"
-                      style={{ transform: `translateX(-50%) rotate(${vuLevelL - 30}deg)` }}
+          {/* Browser Clickable Tabs Strip */}
+          <div className="flex items-end gap-1.5 bg-[#ece6d7] px-3 pt-2.5 overflow-x-auto scrollbar-none">
+            {PAIN_POINT_TABS.map((tab, idx) => {
+              const isSelected = idx === activePainTabIndex;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActivePainTabIndex(idx)}
+                  style={{ flex: isSelected ? "2.2 1 0%" : "1 1 0%" }}
+                  className={`min-w-[125px] inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-t-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer border border-b-0 ${
+                    isSelected
+                      ? "bg-[#ff8a4c] text-[#ffffff] border-[#1c1917] shadow-xs"
+                      : "bg-[#e2dac8]/70 text-[#57534e] border-transparent hover:bg-[#e2dac8] hover:text-[#1c1917]"
+                  }`}
+                >
+                  <div className="relative w-4 h-4 shrink-0 rounded-full bg-white p-0.5">
+                    <Image
+                      src={tab.sticker}
+                      alt=""
+                      fill
+                      sizes="16px"
+                      className="object-contain"
                     />
                   </div>
-                  {/* Right VU */}
-                  <div className="flex-1 bg-[#121022] border border-white/5 rounded p-2 relative h-10 overflow-hidden">
-                    <div className="absolute left-2 top-1 font-mono text-[8px] text-[#78716c]">VU-R</div>
-                    {/* Needle */}
-                    <div 
-                      className="absolute bottom-0 left-1/2 w-0.5 h-8 bg-rose-500 origin-bottom transition-transform duration-100"
-                      style={{ transform: `translateX(-50%) rotate(${vuLevelR - 30}deg)` }}
-                    />
-                  </div>
-                </div>
-              </div>
+                  <span className="truncate">{tab.tabLabel}</span>
+                </button>
+              );
+            })}
+          </div>
 
-              {/* Player control button */}
-              <button 
-                onClick={handlePlayToggle}
-                className={`w-full py-4 rounded-xl font-semibold text-sm tracking-wider uppercase transition-all flex items-center justify-center gap-2 ${
-                  isPlaying 
-                    ? "bg-rose-500/10 border border-rose-500/25 text-rose-300 hover:bg-rose-500/20" 
-                    : "bg-[#a9a2ff] text-[#080817] hover:scale-[1.02] shadow-lg shadow-[#a9a2ff]/10"
-                }`}
-              >
-                {isPlaying ? (
-                  <>
-                    <Pause className="w-4 h-4 fill-current" />
-                    <span>Stop Tape Radio</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 fill-current" />
-                    <span>Play Focus Beats</span>
-                  </>
-                )}
-              </button>
-              
-              <p className="text-center text-[10px] text-[#78716c] font-mono mt-4">
-                {isPlaying 
-                  ? "Playing live synthesized warm Lofi pads & vinyl pops..." 
-                  : "Requires Web Audio. Synthesizes sounds dynamically."}
+          {/* Browser Tab Content Body */}
+          <div className="border-t-2 border-[#1c1917] bg-[#f7f3ea] p-6 sm:p-9 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            {/* Left Problem & Solution Copy */}
+            <div className="lg:col-span-7 space-y-5">
+              <span className="inline-block rounded-full bg-[#1c1917] px-3 py-1 text-[11px] font-mono font-bold uppercase tracking-wider text-[#f7f3ea]">
+                PROBLEM 0{activePainTabIndex + 1} · {activePainTab.badge}
+              </span>
+              <h3 className="text-xl sm:text-3xl font-extrabold text-[#1c1917] leading-snug">
+                {activePainTab.title}
+              </h3>
+              <p className="text-sm sm:text-base text-[#44403c] leading-relaxed">
+                {activePainTab.description}
               </p>
+
+              {/* Solution Box inside Tab */}
+              <div className="rounded-2xl border-2 border-[#1c1917] bg-[#ffffff] p-4 sm:p-5 shadow-[4px_4px_0_#1c1917]">
+                <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#15803d] mb-1">
+                  ✓ วิธีที่ Retzlo แก้ปัญหานี้ให้คุณทันที:
+                </div>
+                <div className="text-base sm:text-lg font-extrabold text-[#1c1917]">
+                  {activePainTab.solutionTitle}
+                </div>
+                <p className="text-xs sm:text-sm text-[#44403c] mt-1.5 leading-relaxed">
+                  {activePainTab.solutionDesc}
+                </p>
+              </div>
+            </div>
+
+            {/* Right Interactive Visual Preview Card */}
+            <div className="lg:col-span-5">
+              <div className="rounded-2xl border-2 border-[#1c1917] bg-[#111029] text-[#f5efe6] p-5 shadow-[6px_6px_0_#1c1917] space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-12 h-12 rounded-xl bg-white/10 p-1.5 border border-white/15">
+                      <Image
+                        src={activePainTab.sticker}
+                        alt={activePainTab.tabLabel}
+                        fill
+                        sizes="48px"
+                        className="object-contain"
+                      />
+                    </div>
+                    <div>
+                      <div
+                        className="text-[10px] font-mono font-bold uppercase tracking-wider"
+                        style={{ color: activePainTab.accentColor }}
+                      >
+                        RETZLO LIVE PREVIEW
+                      </div>
+                      <div className="text-sm font-bold text-white">
+                        {activePainTab.tabLabel}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActivePainTabIndex((prev) => (prev + 1) % PAIN_POINT_TABS.length)
+                    }
+                    className="rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 px-2.5 py-1 text-[11px] font-mono text-[#d6d3d1] cursor-pointer"
+                  >
+                    แท็บถัดไป →
+                  </button>
+                </div>
+
+                <div className="space-y-2.5">
+                  {activePainTab.mockItems.map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className={`w-4 h-4 rounded flex items-center justify-center text-[10px] shrink-0 ${
+                            item.done
+                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                              : "bg-[#a9a2ff]/20 text-[#a9a2ff] border border-[#a9a2ff]/40"
+                          }`}
+                        >
+                          {item.done ? "✓" : "•"}
+                        </span>
+                        <span className="text-xs font-medium text-[#f5efe6] truncate">
+                          {item.label}
+                        </span>
+                      </div>
+                      <span
+                        className="shrink-0 rounded px-2 py-0.5 text-[9px] font-mono font-bold"
+                        style={{
+                          backgroundColor: `${activePainTab.accentColor}25`,
+                          color: activePainTab.accentColor
+                        }}
+                      >
+                        {item.tag}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-
         </div>
       </section>
 
-      <div className="retzlo-section-line" />
+      {/* ── 6. Philosophy Split Section ("ให้สมองทำหน้าที่คิด แล้วให้ระบบทำหน้าที่จำ") ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-20">
+        <div className="border-t border-white/15 pt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="lg:col-span-5">
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-white leading-[1.35]">
+              ให้สมองทำหน้าที่คิด
+              <br />
+              แล้ว
+              <span
+                className="px-1"
+                style={{
+                  background:
+                    "linear-gradient(180deg, transparent 58%, rgba(169, 162, 255, 0.38) 58%, rgba(169, 162, 255, 0.38) 95%, transparent 95%)"
+                }}
+              >
+                ให้ระบบทำหน้าที่จำ
+              </span>
+            </h2>
+          </div>
+          <div className="lg:col-span-7 space-y-4 text-sm sm:text-lg text-[#d6d3d1] leading-relaxed">
+            <p>
+              <strong className="text-white">Retzlo Studio OS</strong> คือแพลตฟอร์มบริหารจัดการงาน ชีวิต ไอเดีย และสมาธิ ที่ออกแบบมาเพื่อให้คุณเปิดจอขึ้นมาแล้วรู้ทันทีว่าวันนี้ต้องโฟกัสอะไร โดยไม่ต้องเสียเวลาจัดตารางใหม่ทุกเช้า
+            </p>
+            <div className="space-y-2 text-sm sm:text-base text-[#e7e5e4]">
+              <p>✓ ไม่ต้องสร้างฐานข้อมูลหรือเขียนสูตรเองให้ปวดหัว ทุกอย่างเชื่อมกันพร้อมใช้ทันที</p>
+              <p>✓ ไม่ต้องพยายามจำ ทุกการ์ดงาน กำหนดส่ง และโน้ตมีบ้านชัดเจน ค้นหาเจอใน 3 วินาที</p>
+              <p>✓ ไม่ต้องมีวินัยเหล็ก เพราะมีเพลง Lofi, นาฬิกาโฟกัส และเหรียญแลกรางวัลคอยเติมไฟให้ทุกวัน</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      {/* â”€â”€ Testimonials Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <section className="max-w-7xl mx-auto px-6 py-24 md:py-32 space-y-16">
-        <div className="text-center max-w-2xl mx-auto space-y-4">
-          <h2 className="text-3xl font-bold text-white">Focus reviews from our community</h2>
-          <p className="text-[#a8a29e] text-sm">What designers and developers are saying about their modular lofi workspace.</p>
+      {/* ── 7. 3-Step Neo-Retro Sticker Cards (#workflow-steps) ── */}
+      <section id="workflow-steps" className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-20">
+        <div className="mb-10">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-snug">
+            สร้างระบบที่เข้ากับชีวิตคุณจริง ๆ
+            <br />
+            <span className="text-[#ff8a4c]">
+              แล้วเอาเวลาไปโฟกัสกับงานที่สร้างคุณค่าและรายได้
+            </span>
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              quote: "The interface makes me actually want to log in and organize. The retro design combined with the snappy due date calendar hits a sweet spot that regular corporate tools miss.",
-              author: "Nora V.",
-              role: "Creative Director"
+              step: "① โยนทุกเรื่องออกจากหัว (Brain Dump & AI)",
+              desc: "มีไอเดียใหม่ งานด่วน หรือโปรเจกต์ใหญ่ที่ยังไม่รู้จะเริ่มยังไง โยนเข้าบอร์ดหรือกดปุ่มให้ AI แตกเป็นงานย่อยให้ทันทีโดยไม่ต้องเสียเวลาจัดหมวดหมู่เอง",
+              note: "( จดให้เร็วที่สุด แล้วให้ AI ช่วยจัดระเบียบทีหลัง )",
+              sticker: "/stickers/retro/retro-sticker-32-idea-lamp.png",
+              accent: "#ff8a4c",
+              previewTag: "AI Task Breakdown · 5 วินาที"
             },
             {
-              quote: "Having double-entry style ledger books next to my project boards saves so much cognitive load. The lofi look is easy on my eyes during long coding sessions.",
-              author: "Alex Chen",
-              role: "Fullstack Engineer"
+              step: "② จัดเก็บเข้าที่ เห็นงานชัด (Organize & Sync)",
+              desc: "เปลี่ยนเรื่องที่จดไว้ให้กลายเป็นบอร์ด Kanban, ตารางงาน, ปฏิทินกำหนดส่ง และคลังโน้ตความรู้ที่ซิงก์หากันอัตโนมัติ เปิดมาตอนเช้ารู้ทันทีว่าต้องทำอะไร",
+              note: "( ข้อมูลทุกชิ้นมีที่อยู่ชัดเจน ไม่หาย ไม่รกสมอง )",
+              sticker: "/stickers/retro/retro-sticker-13-project-folder.png",
+              accent: "#a9a2ff",
+              previewTag: "Kanban ↔ Calendar Auto-Sync"
             },
             {
-              quote: "Beautiful colors, smooth animations, and no useless clutter. Optimistic updates are super fast. Retzlo has become my quiet default homepage.",
-              author: "Patsara M.",
-              role: "Senior UX Designer"
+              step: "③ ทำงานเสร็จ รับเหรียญแลกรางวัล (Gamify & Zen)",
+              desc: "เปิดวิทยุ Lofi C-60 และนาฬิกา Nixie Pomodoro ทำงานจนจบ รับเหรียญ Coin สะสมไปแลกรางวัลที่คุณตั้งไว้เอง หรือแวะพักใจรดน้ำบอนไซในสวนเซน",
+              note: "( เปลี่ยนการทำงานที่น่าเบื่อ ให้สนุกเหมือนเล่นเกม )",
+              sticker: "/stickers/retro/retro-sticker-01-coin-reward.png",
+              accent: "#e5bd72",
+              previewTag: "+Coins & Solitary Zen Garden"
             }
-          ].map((item, i) => (
-            <div key={i} className="retzlo-quote-card p-8 flex flex-col justify-between">
-              <p className="text-[#d6d3d1] text-sm leading-relaxed italic">
-                &ldquo;{item.quote}&rdquo;
+          ].map((card) => (
+            <div
+              key={card.step}
+              className="rounded-3xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] p-6 sm:p-7 shadow-[6px_6px_0_#a9a2ff] flex flex-col justify-between"
+            >
+              <div>
+                {/* Illustration Well */}
+                <div className="rounded-2xl border-2 border-[#1c1917] bg-[#121029] p-6 flex flex-col items-center justify-center relative overflow-hidden min-h-[170px]">
+                  <div
+                    className="absolute w-32 h-32 rounded-full blur-2xl opacity-35"
+                    style={{ background: card.accent }}
+                  />
+                  <div className="relative w-20 h-20">
+                    <Image
+                      src={card.sticker}
+                      alt={card.step}
+                      fill
+                      sizes="80px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <span
+                    className="mt-3 rounded-full px-3 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider border"
+                    style={{
+                      color: card.accent,
+                      borderColor: `${card.accent}55`,
+                      backgroundColor: `${card.accent}18`
+                    }}
+                  >
+                    {card.previewTag}
+                  </span>
+                </div>
+
+                <h3 className="text-lg sm:text-xl font-extrabold text-[#1c1917] mt-5">
+                  {card.step}
+                </h3>
+                <p className="text-sm sm:text-base text-[#292524] mt-2.5 leading-relaxed">
+                  {card.desc}
+                </p>
+              </div>
+
+              <p className="text-xs sm:text-sm font-mono text-[#78716c] mt-5 pt-3 border-t border-[#e5dec9]">
+                {card.note}
               </p>
-              <div className="pt-6 border-t border-white/5 mt-6 flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-semibold text-white">{item.author}</div>
-                  <div className="text-xs text-[#78716c]">{item.role}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 8. Interactive 7-Module Walkthrough Carousel (#walkthrough) ── */}
+      <section id="walkthrough" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-6 tracking-tight">
+          ไม่ใช่แค่บอร์ดที่จัดสวย{" "}
+          <span className="text-[#a9a2ff]">แต่ทำงานเชื่อมกันทั้งระบบ</span>
+        </h2>
+
+        {/* Dark Studio Container with Perforated Ticket Divider (Inspired by Sloth wt-carousel-container) */}
+        <div className="rounded-3xl border-2 border-white/15 bg-[#131129] p-5 sm:p-8 md:p-10 shadow-2xl overflow-hidden">
+          {/* Top Pill Selector Bar */}
+          <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+            <span className="rounded-md bg-[#f7f3ea] text-[#1c1917] px-3 py-1 text-xs font-mono font-bold">
+              retzlo os · 7 core modules
+            </span>
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {WALKTHROUGH_SLIDES.map((s, idx) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setActiveSlideIndex(idx)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-mono font-semibold transition cursor-pointer shrink-0 ${
+                    idx === activeSlideIndex
+                      ? "bg-[#ff8a4c] text-[#080817] font-bold shadow-xs"
+                      : "bg-white/[0.06] text-[#d6d3d1] hover:bg-white/[0.12]"
+                  }`}
+                >
+                  {s.tabName}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tablet Bezel Frame + Prev/Next Buttons */}
+          <div className="relative max-w-5xl mx-auto">
+            <div className="rounded-2xl bg-[#f7f3ea] p-3 sm:p-5 border-2 border-[#1c1917]">
+              <div className="relative rounded-2xl bg-[#1c1c1c] p-3 sm:p-4 shadow-2xl">
+                {/* Camera Dot */}
+                <span className="absolute top-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#4a4a4a]" />
+                <WalkthroughMockupScreen
+                  slide={activeSlide}
+                  isPlaying={isPlaying}
+                  onToggleAudio={handlePlayToggle}
+                />
+              </div>
+            </div>
+
+            {/* Prev Button */}
+            <button
+              type="button"
+              aria-label="ก่อนหน้า"
+              onClick={() =>
+                setActiveSlideIndex(
+                  (prev) => (prev - 1 + WALKTHROUGH_SLIDES.length) % WALKTHROUGH_SLIDES.length
+                )
+              }
+              className="absolute -left-2 sm:-left-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#f7f3ea] text-[#1c1917] border-2 border-[#1c1917] shadow-[3px_3px_0_#1c1917] hover:scale-105 transition flex items-center justify-center cursor-pointer z-20"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {/* Next Button */}
+            <button
+              type="button"
+              aria-label="ถัดไป"
+              onClick={() =>
+                setActiveSlideIndex((prev) => (prev + 1) % WALKTHROUGH_SLIDES.length)
+              }
+              className="absolute -right-2 sm:-right-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#f7f3ea] text-[#1c1917] border-2 border-[#1c1917] shadow-[3px_3px_0_#1c1917] hover:scale-105 transition flex items-center justify-center cursor-pointer z-20"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Ticket Stub Dashed Perforation Line */}
+          <div className="relative my-8 -mx-5 sm:-mx-8 md:-mx-10">
+            <div className="border-t-2 border-dashed border-white/25" />
+            <span className="absolute -left-3.5 -top-3.5 w-7 h-7 rounded-full bg-[#080817] border-r border-white/15" />
+            <span className="absolute -right-3.5 -top-3.5 w-7 h-7 rounded-full bg-[#080817] border-l border-white/15" />
+          </div>
+
+          {/* Bottom Walkthrough Caption & CTA */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-7 space-y-3">
+              <span className="inline-block bg-[#f7f3ea] text-[#1c1917] px-3 py-1 text-xs font-mono font-bold rounded">
+                {activeSlide.code}
+              </span>
+              <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                {activeSlide.title}
+              </h3>
+              <p className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed">
+                {activeSlide.description}
+              </p>
+              <ul className="space-y-1.5 pt-2">
+                {activeSlide.highlights.map((h) => (
+                  <li key={h} className="flex items-start gap-2 text-xs sm:text-sm text-[#e7e5e4]">
+                    <CheckCircle2 className="w-4 h-4 text-[#34d399] shrink-0 mt-0.5" />
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="lg:col-span-5 flex flex-col justify-between space-y-5 bg-[#0b0a1a] rounded-2xl p-5 border border-white/10">
+              {/* Slide Indicator Dots */}
+              <div className="flex items-center gap-2">
+                {WALKTHROUGH_SLIDES.map((s, idx) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    aria-label={`ไปยังสไลด์ที่ ${idx + 1}`}
+                    onClick={() => setActiveSlideIndex(idx)}
+                    className={`h-2.5 rounded-full transition-all cursor-pointer ${
+                      idx === activeSlideIndex
+                        ? "w-7 bg-[#ff8a4c]"
+                        : "w-2.5 bg-white/25 hover:bg-white/40"
+                    }`}
+                  />
+                ))}
+                <span className="ml-auto text-xs font-mono text-[#a8a29e]">
+                  {activeSlideIndex + 1} / {WALKTHROUGH_SLIDES.length}
+                </span>
+              </div>
+
+              <Link href={defaultDestination} className="block">
+                <button
+                  type="button"
+                  className="w-full rounded-full border-2 border-[#080817] bg-[#ff8a4c] hover:bg-[#ff9b64] py-3.5 px-6 text-base font-extrabold text-[#080817] shadow-[4px_4px_0_#faf6ef] transition cursor-pointer"
+                >
+                  เข้าใช้งานระบบนี้ฟรีทันที →
+                </button>
+              </Link>
+
+              <p className="text-xs text-[#a8a29e] text-center">
+                ไม่ต้องติดตั้งโปรแกรมเสริม · เปิดใช้งานได้ครบทั้ง 7 โมดูลตั้งแต่วันแรก
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 9. The Real Problem (3-Column Contrast) ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
+        <span className="rounded-full bg-[#ff8a4c]/15 border border-[#ff8a4c]/30 px-3.5 py-1 text-xs font-mono font-bold uppercase tracking-widest text-[#ff8a4c]">
+          THE REAL PROBLEM
+        </span>
+        <h2 className="text-2xl sm:text-4xl font-extrabold text-white mt-4 leading-snug">
+          ไม่ใช่ว่าคุณไม่มีวินัย…
+          <br />
+          <span className="text-[#ff8a4c]">แต่เครื่องมือที่คุณเคยใช้ มันซับซ้อนและแยกส่วนเกินไป</span>
+        </h2>
+        <p className="text-sm sm:text-base text-[#a8a29e] max-w-2xl mx-auto mt-3 mb-10">
+          คนส่วนใหญ่ล้มเลิกการจัดระเบียบเพราะต้องคอยดูแลรักษาระบบที่ซับซ้อน Retzlo จึงรวมเฉพาะสิ่งที่ทำให้คุณทำงานเสร็จจริงไว้ในที่เดียว
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          <div className="rounded-2xl border border-rose-500/30 bg-[#1a1121] p-6 space-y-3">
+            <span className="text-xs font-bold text-rose-300 bg-rose-500/15 px-3 py-1 rounded-full inline-block">
+              ❌ วิธีเดิมที่คุ้นเคย
+            </span>
+            <h3 className="text-lg font-bold text-white">
+              จดแยกหลายแอป (แชต, โน้ตมือถือ, สมุด, Trello)
+            </h3>
+            <p className="text-sm text-[#d6d3d1] leading-relaxed">
+              ดูเหมือนสะดวกตอนจด แต่ข้อมูลกระจัดกระจาย พอจะหยิบมาทำงานจริงต้องนั่งค้นหาเป็นสิบนาที สุดท้ายลืมว่าจดไว้ที่ไหน
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-rose-500/30 bg-[#1a1121] p-6 space-y-3">
+            <span className="text-xs font-bold text-rose-300 bg-rose-500/15 px-3 py-1 rounded-full inline-block">
+              ❌ พยายามสร้างระบบเองจากศูนย์
+            </span>
+            <h3 className="text-lg font-bold text-white">
+              นั่งต่อตารางและผูกสูตร Database เองทีละหน้า
+            </h3>
+            <p className="text-sm text-[#d6d3d1] leading-relaxed">
+              เสียเวลาลองผิดลองถูกกว่า 30–40 ชั่วโมง งงกับโครงสร้างที่ซับซ้อนเกินชีวิตจริง พอไม่ได้อัปเดต 2 วันระบบก็ร้างและถอดใจเลิกใช้
+            </p>
+          </div>
+
+          <div className="rounded-2xl border-2 border-[#34d399] bg-[#0f2422] p-6 space-y-3 shadow-[6px_6px_0_#34d399]">
+            <span className="text-xs font-bold text-[#080817] bg-[#34d399] px-3 py-1 rounded-full inline-block">
+              ✓ ทางออกที่คนรักความสบายก็ใช้รอด
+            </span>
+            <h3 className="text-lg font-bold text-white">
+              Retzlo Studio OS ที่พร้อมใช้งานทันทีใน 60 วินาที
+            </h3>
+            <p className="text-sm text-[#e7e5e4] leading-relaxed">
+              มี AI ช่วยแตกงานย่อย เปิดเช้ามาเห็นเฉพาะงานที่ต้องทำวันนี้ ทำงานจบมีเหรียญแลกรางวัลและเพลง Lofi คลอเบา ๆ สร้างนิสัยดีได้แบบไม่ฝืนใจ
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 10. Interactive Readiness Checklist (#check-readiness) ── */}
+      <section id="check-readiness" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+              <span className="text-[#ff8a4c]">เช็กความพร้อม</span> — ระบบนี้เหมาะกับคุณไหม?
+            </h2>
+            <p className="text-sm sm:text-base text-[#a8a29e] mt-2">
+              ลองคลิกติ๊กข้อที่ตรงกับชีวิตคุณด้านล่าง หากตรงมากกว่า 3 ข้อขึ้นไป Retzlo จะเปลี่ยนการทำงานของคุณทันที
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#34d399]/40 bg-[#34d399]/15 px-4 py-2 text-xs font-mono font-bold text-[#34d399] self-start">
+            <span>ตรงกับคุณแล้ว {checkedSuitability.length} / {SUITABLE_FOR_LIST.length} ข้อ</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Left: Suitable For (Interactive Checkboxes!) */}
+          <div className="rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] p-6 shadow-[6px_6px_0_#34d399]">
+            <span className="inline-block rounded-full bg-[#dcfce7] text-[#14532d] px-3.5 py-1 text-xs sm:text-sm font-bold">
+              ✓ เหมาะกับคุณมาก ถ้า… (คลิกเพื่อติ๊กเช็กได้)
+            </span>
+            <div className="mt-4 divide-y divide-[#e5dec9]">
+              {SUITABLE_FOR_LIST.map((item, idx) => {
+                const isChecked = checkedSuitability.includes(idx);
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => toggleSuitabilityItem(idx)}
+                    className="w-full py-3.5 flex items-start gap-3 text-left cursor-pointer group"
+                  >
+                    <span
+                      className={`mt-0.5 w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border-2 transition ${
+                        isChecked
+                          ? "bg-[#16a34a] border-[#1c1917] text-white"
+                          : "bg-white border-[#a8a29e] text-transparent group-hover:border-[#16a34a]"
+                      }`}
+                    >
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    </span>
+                    <span
+                      className={`text-sm sm:text-base leading-relaxed ${
+                        isChecked ? "font-bold text-[#1c1917]" : "text-[#44403c]"
+                      }`}
+                    >
+                      {item}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right: Not Suitable For */}
+          <div className="rounded-2xl border border-white/15 bg-[#121028] p-6">
+            <span className="inline-block rounded-full bg-white/10 text-[#d6d3d1] px-3.5 py-1 text-xs sm:text-sm font-bold">
+              × อาจไม่เหมาะ ถ้า…
+            </span>
+            <div className="mt-4 divide-y divide-white/10">
+              {NOT_SUITABLE_FOR_LIST.map((item) => (
+                <div key={item} className="py-3.5 flex items-start gap-3">
+                  <span className="mt-0.5 w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-xs font-mono text-[#a8a29e]">
+                    ×
+                  </span>
+                  <span className="text-sm sm:text-base text-[#a8a29e] leading-relaxed">
+                    {item}
+                  </span>
                 </div>
-                <div className="w-6 h-6 rounded bg-stone-800 flex items-center justify-center text-[10px] text-[#a8a29e] font-mono">
-                  0{i + 1}
-                </div>
+              ))}
+            </div>
+            <p className="text-xs text-[#78716c] mt-4 font-mono">
+              * ถ้าตรงฝั่งขวานี้มากกว่า กดเปิดเพลง Lofi ฟังชิล ๆ อย่างเดียวก็ได้ครับ ไม่โกรธกัน 😄
+            </p>
+          </div>
+        </div>
+
+        {/* Dynamic Match Callout Banner */}
+        <div className="mt-7 rounded-2xl border-2 border-[#ff8a4c] bg-[#161332] p-6 sm:p-7 shadow-[6px_6px_0_#ff8a4c] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span className="inline-block rounded-full bg-[#ff8a4c] text-[#080817] px-3 py-0.5 text-xs font-mono font-bold uppercase">
+              {checkedSuitability.length >= 3
+                ? `ตรงถึง ${checkedSuitability.length} ข้อ!`
+                : "พร้อมเริ่มต้นหรือยัง?"}
+            </span>
+            <h3 className="text-lg sm:text-2xl font-extrabold text-white mt-2">
+              งั้นไม่ต้องคิดนานแล้ว — ระบบนี้สร้างมาเพื่อปลดล็อกสมองของคุณ
+            </h3>
+            <p className="text-xs sm:text-sm text-[#d6d3d1] mt-1">
+              เริ่มต้นใช้งานได้ฟรีทันที พร้อมฟีเจอร์ครบทุกโมดูลและคู่มือภาษาไทยในตัว
+            </p>
+          </div>
+          <Link href={defaultDestination} className="shrink-0 w-full sm:w-auto">
+            <button
+              type="button"
+              className="w-full sm:w-auto rounded-full border-2 border-[#080817] bg-[#ff8a4c] hover:bg-[#ff9b64] px-7 py-3.5 text-sm sm:text-base font-extrabold text-[#080817] shadow-[4px_4px_0_#faf6ef] transition cursor-pointer"
+            >
+              เข้าใช้งาน Retzlo ฟรีทันที →
+            </button>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── 11. Before vs After Transformation Grid ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+            ชีวิตก่อนมีระบบ vs <span className="text-[#a9a2ff]">หลังจากใช้ Retzlo OS</span>
+          </h2>
+          <p className="text-sm sm:text-base text-[#a8a29e] mt-2">
+            งานเดิม ภาระเดิม… แค่ย้ายจากในหัวไปอยู่ในที่ที่มันควรอยู่ แล้วคุณจะรู้สึกเบาสมองขึ้นทันที
+          </p>
+        </div>
+
+        <div className="rounded-3xl border-2 border-[#1c1917] bg-[#f8f4eb] text-[#1c1917] overflow-hidden shadow-[8px_8px_0_#a9a2ff]">
+          {/* Header Row */}
+          <div className="grid grid-cols-12 items-center border-b-2 border-[#1c1917] text-xs sm:text-sm font-mono font-bold uppercase tracking-widest">
+            <div className="col-span-5 py-4 px-4 text-center text-[#78716c]">BEFORE (ก่อนใช้)</div>
+            <div className="col-span-2 py-4 text-center text-[#78716c]">→</div>
+            <div className="col-span-5 py-4 px-4 text-center bg-[#e9e4ff] text-[#4338ca]">
+              AFTER (หลังใช้ RETZLO OS)
+            </div>
+          </div>
+
+          {/* Transformation Rows */}
+          {BEFORE_AFTER_ROWS.map((row) => (
+            <div
+              key={row.moduleTag}
+              className="grid grid-cols-12 items-center border-b border-[#e5dec9] last:border-b-0"
+            >
+              <div className="col-span-5 p-4 sm:p-5 text-xs sm:text-base text-[#57534e] text-center">
+                {row.before}
+              </div>
+              <div className="col-span-2 text-center font-mono text-lg font-bold text-[#6366f1]">
+                →
+              </div>
+              <div className="col-span-5 p-4 sm:p-5 bg-[#ffffff] text-center">
+                <div className="text-xs sm:text-base font-bold text-[#1c1917]">{row.after}</div>
+                <span className="inline-block mt-1.5 rounded-full bg-[#eef2ff] px-2.5 py-0.5 text-[10px] font-mono font-bold text-[#4f46e5] uppercase tracking-wider">
+                  {row.moduleTag}
+                </span>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* â”€â”€ Final Call to Action Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <section className="relative border-t border-white/[0.04] bg-gradient-to-b from-transparent to-[#0e0c26]/60 py-24 md:py-32">
-        <div className="max-w-4xl mx-auto px-6 text-center space-y-8 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white">
-            Build your space on <br />
-            <span className="retzlo-gradient-text py-1 inline-block">Retzlo today.</span>
-          </h2>
-          <p className="text-[#d6d3d1] text-sm md:text-base max-w-lg mx-auto leading-relaxed">
-            Free workspace. Modular boards, calendars, diary notes, and ledger accounts. Set up in less than 60 seconds.
-          </p>
-          <div className="flex justify-center pt-2">
-            <Link href={defaultDestination}>
-              <button className="retzlo-cta-primary px-8 py-4 text-base flex items-center gap-2 group">
-                Get Started Now
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </Link>
+      {/* ── 12. Focus Station Interactive Cassette Player (#lofi-focus) ── */}
+      <section id="lofi-focus" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <div className="rounded-3xl border border-white/15 bg-gradient-to-br from-[#161432] to-[#0c0b1e] p-6 sm:p-10 lg:p-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div className="space-y-5">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#e5bd72]/35 bg-[#e5bd72]/10 px-3.5 py-1.5 text-xs text-[#e5bd72] font-mono uppercase tracking-widest">
+                <Music className="w-3.5 h-3.5" />
+                RETZLO SIGNATURE FOCUS STATION
+              </div>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+                เข้าสู่โซนสมาธิได้ทันทีด้วย{" "}
+                <span className="text-[#e5bd72]">Retzlo Cassette Radio & Coffee Vibe</span>
+              </h2>
+              <p className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed">
+                ไม่ต้องเปิดแท็บ YouTube หาเพลงจนเผลอไถดูคลิปอื่น บนหัวเว็บของ Retzlo มีเครื่องเล่นเทป Lofi สังเคราะห์สด นาฬิกาหลอดไฟ Nixie Pomodoro และสวนเซนให้คุณกดเปิดได้ทุกเมื่อ
+              </p>
+
+              {/* Interactive Coffee Steam Box */}
+              <div
+                className="p-4 rounded-2xl border border-white/10 bg-[#0b0a1c] inline-flex items-center gap-4 select-none relative group"
+                onMouseEnter={() => setSteamHovered(true)}
+                onMouseLeave={() => setSteamHovered(false)}
+              >
+                <div className="relative">
+                  <Coffee className="w-8 h-8 text-[#e5bd72] transition-transform duration-300 group-hover:scale-110" />
+                  <svg
+                    className="absolute -top-6 left-1.5 w-6 h-6 overflow-visible pointer-events-none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      className={`coffee-steam-path stroke-[#e5bd72] stroke-2 fill-none ${
+                        steamHovered ? "running" : ""
+                      }`}
+                      d="M 6,24 C 6,18 10,14 10,10 C 10,6 6,4 6,0"
+                      style={{ animationDuration: "3.5s" }}
+                    />
+                    <path
+                      className={`coffee-steam-path stroke-[#a9a2ff] stroke-2 fill-none ${
+                        steamHovered ? "running" : ""
+                      }`}
+                      d="M 12,24 C 12,19 8,16 8,11 C 8,6 12,4 12,0"
+                      style={{ animationDuration: "5s", animationDelay: "1s" }}
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white uppercase tracking-wider">
+                    Mellow Focus Brew & Coffee Cheers
+                  </p>
+                  <p className="text-[11px] text-[#a8a29e] font-mono">
+                    นำเมาส์มาวางเพื่อปล่อยไอร้อนกาแฟ · ส่งกาแฟให้เพื่อนร่วมทีมบนการ์ดได้จริง
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Interactive Vintage Cassette Deck */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-md rounded-2xl border-2 border-[#e5bd72]/35 bg-[#090817] p-6 sm:p-7 shadow-[8px_8px_0_rgba(229,189,114,0.2)]">
+                <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Volume2 className="w-4 h-4 text-[#e5bd72]" />
+                    <span className="text-xs font-mono uppercase tracking-widest text-[#e5bd72]">
+                      RETZLO DECK · C-60 SYNTH
+                    </span>
+                  </div>
+                  <div
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      isPlaying
+                        ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)] animate-pulse"
+                        : "bg-[#57534e]"
+                    }`}
+                  />
+                </div>
+
+                <div className="my-6 bg-[#121026] border border-white/10 rounded-xl p-4">
+                  <div className="relative h-32 bg-[#080716] rounded-lg border border-white/10 flex items-center justify-center overflow-hidden">
+                    <div className="w-52 h-28 bg-[#1c1a36] border border-white/15 rounded-md flex flex-col justify-between p-2.5">
+                      <div className="h-7 bg-gradient-to-r from-[#a9a2ff]/25 via-[#e5bd72]/25 to-[#ff8a4c]/25 border border-white/15 rounded flex items-center justify-center">
+                        <span className="text-[10px] font-mono font-bold tracking-widest text-[#e5bd72]">
+                          RETZLO LOFI STUDIO TAPE
+                        </span>
+                      </div>
+                      <div className="flex justify-around items-center my-1">
+                        <div className="w-9 h-9 rounded-full bg-[#090817] border border-white/15 flex items-center justify-center">
+                          <Disc
+                            className={`w-7 h-7 text-[#a9a2ff] ${
+                              isPlaying ? "animate-spin [animation-duration:6s]" : ""
+                            }`}
+                          />
+                        </div>
+                        <div className="px-2 py-0.5 bg-[#090817] rounded border border-white/10 font-mono text-[9px] text-[#e5bd72]">
+                          {isPlaying ? "PLAYING" : "PAUSED"}
+                        </div>
+                        <div className="w-9 h-9 rounded-full bg-[#090817] border border-white/15 flex items-center justify-center">
+                          <Disc
+                            className={`w-7 h-7 text-[#a9a2ff] ${
+                              isPlaying ? "animate-spin [animation-duration:6s]" : ""
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* VU Needles */}
+                  <div className="flex gap-3 mt-3">
+                    {[
+                      { label: "VU-L", level: vuLevelL },
+                      { label: "VU-R", level: vuLevelR }
+                    ].map((vu) => (
+                      <div
+                        key={vu.label}
+                        className="flex-1 bg-[#080716] border border-white/10 rounded p-2 relative h-9 overflow-hidden"
+                      >
+                        <div className="absolute left-2 top-1 font-mono text-[8px] text-[#a8a29e]">
+                          {vu.label}
+                        </div>
+                        <div
+                          className="absolute bottom-0 left-1/2 w-0.5 h-7 bg-[#ff8a4c] origin-bottom transition-transform duration-100"
+                          style={{ transform: `translateX(-50%) rotate(${vu.level - 28}deg)` }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handlePlayToggle}
+                  className={`w-full py-3.5 rounded-full font-extrabold text-sm uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer border-2 border-[#080817] ${
+                    isPlaying
+                      ? "bg-[#34d399] text-[#080817] shadow-[4px_4px_0_#faf6ef]"
+                      : "bg-[#e5bd72] text-[#080817] shadow-[4px_4px_0_#faf6ef] hover:translate-y-[-1px]"
+                  }`}
+                >
+                  {isPlaying ? (
+                    <>
+                      <Pause className="w-4 h-4 fill-current" />
+                      <span>หยุดเล่นวิทยุเทป (Stop Tape)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 fill-current" />
+                      <span>กดเล่นเพลงโฟกัส (Play Focus Beats)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <footer className="border-t border-white/5 bg-[#060613] px-6 py-12 text-[#78716c] text-xs">
+      {/* ── 13. Community Voices (3 Detailed Story Cards) ── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+            เสียงจากผู้ใช้งานจริง
+          </h2>
+          <p className="text-sm sm:text-base text-[#a8a29e] mt-2">
+            จากคนที่เคยแบกงานไว้ในหัว มาเป็นคนที่วางใจให้ Retzlo ช่วยจำแทน
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {COMMUNITY_TESTIMONIALS.map((t) => (
+            <div
+              key={t.name}
+              className="rounded-2xl border-2 border-white/15 bg-[#13112a] p-6 flex flex-col justify-between shadow-xl"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#ff8a4c] text-sm tracking-widest">★★★★★</span>
+                  <div className="relative w-9 h-9">
+                    <Image
+                      src={t.avatarSticker}
+                      alt={t.name}
+                      fill
+                      sizes="36px"
+                      className="object-contain"
+                    />
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-[#e5bd72]">{t.highlight}</div>
+                <blockquote className="text-xs sm:text-sm text-[#d6d3d1] leading-relaxed">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+              </div>
+              <div className="pt-4 mt-5 border-t border-white/10">
+                <div className="text-sm font-bold text-white">— {t.name}</div>
+                <div className="text-xs text-[#a8a29e]">{t.role}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 14. Comparison Table & Value Package Box (#offer & #cp-price-box) ── */}
+      <section id="offer" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <h2 className="text-2xl sm:text-4xl font-extrabold text-white mb-8">
+          เปรียบเทียบชัด ๆ: นั่งสร้างตารางเอง, ใช้หลายแอปแยกกัน หรือใช้{" "}
+          <span className="text-[#ff8a4c]">Retzlo OS</span>?
+        </h2>
+
+        <div className="overflow-x-auto rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] shadow-[8px_8px_0_#a9a2ff]">
+          <table className="w-full min-w-[680px] border-collapse text-left text-xs sm:text-sm">
+            <thead>
+              <tr className="border-b-2 border-[#1c1917] bg-[#ece6d7]">
+                <th className="p-4 font-extrabold text-[#1c1917]">หัวข้อเปรียบเทียบ</th>
+                <th className="p-4 font-bold text-[#57534e]">สร้างระบบเอง</th>
+                <th className="p-4 font-bold text-[#57534e]">ใช้หลายแอปแยกกัน</th>
+                <th className="p-4 font-extrabold text-[#4338ca] bg-[#e0e7ff]">
+                  ✦ Retzlo Studio OS
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#dfd8c8]">
+              {COMPARISON_ROWS.map((row) => (
+                <tr key={row.feature}>
+                  <td className="p-4 font-bold text-[#292524]">{row.feature}</td>
+                  <td className="p-4 text-[#57534e]">{row.diy}</td>
+                  <td className="p-4 text-[#57534e]">{row.multiApp}</td>
+                  <td className="p-4 font-bold text-[#1e1b4b] bg-[#eef2ff]">{row.retzlo}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Value Package Box (#cp-price-box) */}
+        <div
+          id="cp-price-box"
+          className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+        >
+          <div className="lg:col-span-5 space-y-4">
+            <span className="rounded-full bg-[#e5bd72]/20 border border-[#e5bd72]/40 px-3.5 py-1 text-xs font-mono font-bold text-[#e5bd72]">
+              ALL-IN-ONE STUDIO ACCESS
+            </span>
+            <h3 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight">
+              ปิด 47 แท็บในหัว
+              <br />
+              <span className="text-[#ff8a4c]">เริ่มต้นใช้งานได้ฟรีตั้งแต่วันนี้</span>
+            </h3>
+            <p className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed">
+              เราสร้าง Retzlo ขึ้นมาเพื่อให้ทุกคนมีพื้นที่ทำงานที่สงบ เป็นระเบียบ และมีความสุขกับการเคลียร์งานในทุก ๆ วัน
+            </p>
+            <div className="pt-2 flex items-center gap-4">
+              <div className="relative w-16 h-16">
+                <Image
+                  src="/stickers/retro/retro-sticker-25-mascot-blob.png"
+                  alt="Retzlo Mascot"
+                  fill
+                  sizes="64px"
+                  className="object-contain"
+                />
+              </div>
+              <div className="text-xs text-[#a8a29e] font-mono">
+                <div>✓ ไม่ต้องลงโปรแกรมเสริม</div>
+                <div>✓ ข้อมูลปลอดภัยตามมาตรฐาน PDPA</div>
+                <div>✓ พร้อมคู่มือ Interactive ภาษาไทยในแอป</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 rounded-3xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] p-6 sm:p-9 shadow-[10px_10px_0_#ff8a4c]">
+            <div className="text-sm sm:text-base font-extrabold text-[#1c1917] mb-4">
+              สิ่งที่คุณจะได้รับทั้งหมดในบัญชี Retzlo ของคุณ:
+            </div>
+            <div className="space-y-2.5 text-xs sm:text-sm border-b-2 border-[#1c1917] pb-4">
+              {[
+                { item: "📦 ระบบ Multi-Workspace + Kanban & Table Board ไม่จำกัด", val: "มูลค่า 1,490.-" },
+                { item: "🤖 ผู้ช่วย AI Task Breakdown & AI Board Summary อัจฉริยะ", val: "มูลค่า 990.-" },
+                { item: "📅 ปฏิทินรวมกำหนดส่งอัตโนมัติ + คลังโน้ต & ไดอารี่ส่วนตัว", val: "มูลค่า 690.-" },
+                { item: "🎧 วิทยุ Lofi C-60 + นาฬิกา Nixie Pomodoro + สวนเซน 10 พันธุ์ไม้", val: "มูลค่า 590.-" },
+                { item: "🎨 ชุดสติกเกอร์เรโทรลิขสิทธิ์ 40+ แบบ & ระบบเหรียญแลกรางวัล", val: "มูลค่า 390.-" }
+              ].map((line) => (
+                <div key={line.item} className="flex items-center justify-between gap-2">
+                  <span className="font-medium text-[#292524]">{line.item}</span>
+                  <span className="font-mono font-bold text-[#78716c] shrink-0 line-through">
+                    {line.val}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="my-5 flex items-baseline gap-3 flex-wrap">
+              <span className="text-base text-[#78716c] line-through">รวมมูลค่า 4,150 บาท</span>
+              <span className="text-4xl sm:text-6xl font-extrabold text-[#1c1917]">FREE</span>
+              <span className="text-base sm:text-lg font-bold text-[#15803d]">
+                (เปิดให้เข้าใช้งานฟรีทันที!)
+              </span>
+            </div>
+
+            <Link href={defaultDestination} className="block">
+              <button
+                type="button"
+                className="w-full rounded-full border-2 border-[#1c1917] bg-[#ff8a4c] hover:bg-[#ff9b64] py-4 px-6 text-base sm:text-xl font-extrabold text-[#1c1917] shadow-[5px_5px_0_#1c1917] hover:translate-y-[-2px] transition cursor-pointer"
+              >
+                สร้าง Workspace และเริ่มใช้งานทันที →
+              </button>
+            </Link>
+
+            <div className="mt-5 rounded-2xl border-2 border-[#1c1917] bg-[#ffffff] p-4 flex items-center gap-3.5">
+              <ShieldCheck className="w-8 h-8 text-[#16a34a] shrink-0" />
+              <div className="text-xs sm:text-sm text-[#292524]">
+                <strong>พร้อมใช้งานใน 60 วินาที:</strong> สมัครสมาชิกง่าย ๆ แล้วสร้างโปรเจกต์แรกของคุณได้ทันที มีโหมดทดลองเล่นในหน้า System Guide ให้ดูครบทุกส่วน
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 15. Dual-Row Auto-Scrolling FAQ Marquee (#faq) ── */}
+      <section id="faq" className="py-16 md:py-24 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center mb-10">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+            คำถามที่พบบ่อย (FAQ)
+          </h2>
+          <p className="text-sm sm:text-base text-[#a8a29e] mt-2">
+            ตอบทุกข้อสงสัย เพื่อให้คุณเริ่มต้นจัดระเบียบชีวิตกับ Retzlo ได้อย่างมั่นใจ
+          </p>
+        </div>
+
+        {/* Row 1 Marquee */}
+        <div className="overflow-hidden py-2">
+          <div className="retzlo-marquee-track flex gap-5 w-max">
+            {[...FAQ_ROW_1, ...FAQ_ROW_1].map((faq, idx) => (
+              <div
+                key={`${faq.code}-${idx}`}
+                className="w-[320px] sm:w-[360px] shrink-0 rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] p-5 shadow-[5px_5px_0_#a9a2ff] flex flex-col justify-between"
+              >
+                <div>
+                  <div className="text-xs font-mono font-bold text-[#ff8a4c]">{faq.code}</div>
+                  <h3 className="text-base font-extrabold text-[#1c1917] mt-1">{faq.question}</h3>
+                  <p className="text-xs sm:text-sm text-[#44403c] mt-2 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Row 2 Marquee */}
+        <div className="overflow-hidden py-2 mt-4">
+          <div
+            className="retzlo-marquee-track flex gap-5 w-max"
+            style={{ animationDirection: "reverse", animationDuration: "36s" }}
+          >
+            {[...FAQ_ROW_2, ...FAQ_ROW_2].map((faq, idx) => (
+              <div
+                key={`${faq.code}-${idx}`}
+                className="w-[320px] sm:w-[360px] shrink-0 rounded-2xl border border-white/15 bg-[#14122d] text-[#f5efe6] p-5 shadow-lg flex flex-col justify-between"
+              >
+                <div>
+                  <div className="text-xs font-mono font-bold text-[#e5bd72]">{faq.code}</div>
+                  <h3 className="text-base font-extrabold text-white mt-1">{faq.question}</h3>
+                  <p className="text-xs sm:text-sm text-[#d6d3d1] mt-2 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 16. Giant Display Typography + Final Night Sanctuary CTA ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 overflow-hidden select-none pointer-events-none">
+        <div className="text-[54px] sm:text-[110px] lg:text-[155px] font-black leading-[0.82] tracking-tighter text-[#1b1838] whitespace-nowrap">
+          second brain
+        </div>
+      </div>
+
+      <section className="relative border-t border-white/10 bg-[#0c0a1f] py-20 md:py-28 px-4 sm:px-6 text-center">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="mx-auto relative w-24 h-24">
+            <Image
+              src="/stickers/retro/retro-sticker-07-moon.png"
+              alt="Peaceful Night"
+              fill
+              sizes="96px"
+              className="object-contain"
+            />
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight">
+            คืนนี้… ปล่อยให้สมองได้พักผ่อนจริง ๆ เสียที
+          </h2>
+          <p className="text-sm sm:text-lg text-[#d6d3d1] leading-relaxed">
+            ย้ายงานที่คั่งค้าง ไอเดียที่กระจัดกระจาย และเรื่องที่กลัวลืม ออกจากหัวมาไว้ในสตูดิโอที่ปลอดภัย
+            <br className="hidden sm:inline" />
+            ให้คุณหลับสบายโดยไม่ต้องกังวล แล้วตื่นเช้ามาพร้อมลุยงานสำคัญได้ทันที
+          </p>
+          <div className="pt-2">
+            <Link href={defaultDestination}>
+              <button
+                type="button"
+                className="inline-flex items-center gap-2.5 rounded-full border-2 border-[#faf6ef] bg-[#ff8a4c] hover:bg-[#ff9b64] px-9 py-4 text-base sm:text-xl font-extrabold text-[#080817] shadow-[6px_6px_0_#faf6ef] hover:translate-y-[-2px] transition cursor-pointer"
+              >
+                <span>เริ่มต้นใช้งาน Retzlo ฟรีตอนนี้</span>
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </Link>
+          </div>
+          <p className="text-xs font-mono text-[#a8a29e]">
+            พัฒนาสำหรับนักสร้างสรรค์และทีมยุคใหม่ · เมนูและคู่มือรองรับทั้งภาษาไทยและอังกฤษ
+          </p>
+        </div>
+      </section>
+
+      {/* ── 17. Footer ── */}
+      <footer className="border-t border-white/10 bg-[#060613] px-6 py-12 pb-28 text-[#a8a29e] text-xs">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-[#d6d3d1] text-sm tracking-wider">Retzlo</span>
+            <span className="font-bold text-[#f5efe6] text-sm tracking-wider">Retzlo</span>
             <span className="text-[#44403c]">|</span>
-            <p>Â© {new Date().getFullYear()} Retzlo Platform. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Retzlo Platform. All rights reserved.</p>
           </div>
-          
-          <div className="flex items-center gap-6">
-            <Link href="/help" className="hover:text-[#d6d3d1] transition-colors">System Guide</Link>
-            <Link href="/privacy" className="hover:text-[#d6d3d1] transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-[#d6d3d1] transition-colors">Terms of Service</Link>
-            <Link href="/contact" className="hover:text-[#d6d3d1] transition-colors">Contact</Link>
-            <span className="text-[#292524]">â€¢</span>
-            <span className="font-mono text-[#57534e] tracking-wider">SYSTEM_MARK_RETZLO_V1</span>
+
+          <div className="flex flex-wrap items-center justify-center gap-6">
+            <Link href="/help" className="hover:text-white transition-colors">
+              System Guide (คู่มือการใช้งาน)
+            </Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/contact" className="hover:text-white transition-colors">
+              Contact
+            </Link>
+            <span className="font-mono text-[#78716c] tracking-wider">RETZLO_OS_V2</span>
           </div>
         </div>
       </footer>
+
+      {/* ── 18. Sticky Bottom CTA Bar (Appears on Scroll like Sloth cp-sticky-cta-bar) ── */}
+      {showStickyBar && (
+        <div
+          role="region"
+          aria-label="แถบเข้าใช้งานด่วน"
+          className="fixed bottom-3 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-4xl mx-auto rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea]/95 backdrop-blur-md px-4 py-2.5 shadow-[6px_6px_0_#080817] flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative w-10 h-10 rounded-full border-2 border-[#1c1917] bg-white shrink-0 p-1">
+              <Image
+                src="/stickers/retro/retro-sticker-09-headphones.png"
+                alt="Retzlo"
+                fill
+                sizes="40px"
+                className="object-contain"
+              />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs sm:text-sm font-extrabold text-[#1c1917] truncate">
+                ปลดล็อกสมอง ให้ระบบ Retzlo จำแทนคุณ
+              </div>
+              <div className="text-[11px] font-mono text-[#57534e] truncate">
+                ใช้งานฟรีครบ 7 โมดูล · AI แตกงาน · วิทยุ Lofi & สวนเซน
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handlePlayToggle}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border-2 border-[#1c1917] bg-white px-3 py-1.5 text-xs font-mono font-bold text-[#1c1917] cursor-pointer"
+            >
+              {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+              <span>{isPlaying ? "Pause Lofi" : "Play Lofi"}</span>
+            </button>
+            <Link href={defaultDestination}>
+              <button
+                type="button"
+                className="rounded-full border-2 border-[#1c1917] bg-[#ff8a4c] hover:bg-[#ff9b64] px-4 sm:px-5 py-2 text-xs sm:text-sm font-extrabold text-[#1c1917] shadow-[3px_3px_0_#1c1917] cursor-pointer whitespace-nowrap"
+              >
+                เข้าใช้งานฟรีทันที →
+              </button>
+            </Link>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
-
-
-
-
-

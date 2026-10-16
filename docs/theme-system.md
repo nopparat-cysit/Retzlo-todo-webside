@@ -784,4 +784,18 @@ Template:
   - Mac Retina Typography: Added `-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;` to `body` for razor-sharp typography on high-DPI displays in both Warm Paper and Retro Lofi Indigo themes.
 - Verification: Vitest full suite (100 test files, 533 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` 100% passed (42/42 routes).
 
-
+### 2026-10-16 — Marketing Landing Page Redesign (Sloth Second Brain Storytelling × Retro Lofi Indigo Studio)
+- Coverage: `/` (`src/app/(marketing)/page.tsx`, `src/app/(marketing)/landing-data.ts`, `src/app/(marketing)/walkthrough-mockup.tsx`).
+- Design Direction & Tokens:
+  - Editorial Neo-Brutalist × Retro Lofi Indigo Contrast: Combines the high-converting narrative structure of Sloth Second Brain (`#cp-hero`, `#pain-tabs`, `#walkthrough`, `#check-readiness`, `#before-after`, `#comparison`, `#faq`, `#buy` ticket stub, and Sticky Bottom Bar) with Retzlo's signature Retro Lofi Indigo & Warm Cream Paper aesthetic.
+  - Intentional Fixed Brand Surface Exception: Uses explicit brand hex tokens (`#131129`, `#0d0b1a`, `#f7f3ea`, `#1c1917`, `#ff6b9d`, `#a855f7`, `#f59e0b`, `#22c55e`) with crisp `border-2 border-[#1c1917]` and hard offset shadows (`shadow-[8px_8px_0px_#1c1917]`, `shadow-[8px_8px_0px_#ff6b9d]`) so the marketing storytelling experience remains immune to `[data-theme="light"]` utility overrides in `globals.css` and maintains 100% legibility across both Light and Dark browser themes.
+  - Interactive Studio Signatures:
+    - Live Typewriter Headline cycling 4 Thai value propositions in the Hero section.
+    - 3D Mouse-Tilt Synthwave Cockpit (`SynthwaveHero`) with interactive Web Audio API Lofi Beat Synthesizer, spinning cassette reels, animated VU meter, steaming coffee cup, and 3-step live workflow demo.
+    - Browser-Tab Pain Points Switcher (`#pain-tabs`) with 6 relatable pain scenarios, retro sticker stamps, and interactive problem/solution cards.
+    - 7-Module Interactive Walkthrough Showcase (`#walkthrough`) with auto-play progress bar, prev/next controls, and live interactive UI mockups (`WalkthroughMockup`) for Workspaces, Kanban & Table, Unified Calendar, Second Brain Notes, Daily Diary & Habits, Arcade Rewards Store, and Lofi Studio + Solitary Zen Garden.
+    - Interactive Readiness Checklist (`#check-readiness`) where visitors can click to check off items and see a live readiness counter badge.
+    - Before vs After Transformation Cards (`#before-after`) and 3-Way Comparison Matrix (`#comparison`: DIY vs Multi-App vs Retzlo Studio OS).
+    - Dual-Row Infinite Marquee FAQ (`#faq`) with hover-pause, plus an expandable full Q&A accordion below.
+    - Perforated Studio Pass Ticket Stub CTA (`#buy`), Sticky Bottom Conversion Bar, CRT Scanline toggle, and pointer sparkle trail.
+- Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed.
