@@ -63,7 +63,7 @@ export const PAIN_POINT_TABS: PainPointTab[] = [
     solutionDesc:
       "มีไอเดียหรืองานด่วนเมื่อไหร่ กดจดลงการ์ดหรือสั่ง AI แตกงานใหญ่เป็น Checklist ย่อยได้ใน 5 วินาที สมองคุณมีหน้าที่คิด ไม่ใช่ตู้เก็บเอกสาร",
     sticker: "/stickers/retro/retro-sticker-47-sleepy-cloud.png",
-    accentColor: "#ff8a4c",
+    accentColor: "#d59ab3",
     mockItems: [
       { label: "ส่งดราฟต์ดีไซน์หน้า Landing Page", tag: "TODAY · 14:00", done: true },
       { label: "AI แตกงาน: เตรียมสไลด์ประชุมลูกค้า (4 ขั้นตอน)", tag: "AI BREAKDOWN", done: false },
@@ -117,7 +117,7 @@ export const PAIN_POINT_TABS: PainPointTab[] = [
     solutionDesc:
       "ทุกครั้งที่ลากการ์ดเข้าช่อง Done คุณจะได้พลุฉลองและเหรียญ Coin สะสม เพื่อนำไปแลกรางวัลที่ตั้งไว้เอง เช่น พักดื่มกาแฟ ดูซีรีส์ หรือปลูกบอนไซในสวนเซน",
     sticker: "/stickers/retro/retro-sticker-01-coin-reward.png",
-    accentColor: "#34d399",
+    accentColor: "#89c7d6",
     mockItems: [
       { label: "เคลียร์การ์ดยากสำเร็จ! รับทันที +25 Coins 🪙", tag: "REWARD EARNED", done: true },
       { label: "แลกรางวัลใน Arcade Store: พักดูอนิเมะ 1 ตอน", tag: "ARCADE STORE", done: true },
@@ -194,7 +194,7 @@ export const WALKTHROUGH_SLIDES: WalkthroughSlide[] = [
       "ส่งออกข้อมูลบอร์ดเป็นไฟล์ Excel, CSV, PDF หรือรูปภาพ PNG ได้ทันที"
     ],
     sticker: "/stickers/retro/retro-sticker-03-checklist.png",
-    accent: "#ff8a4c",
+    accent: "#d59ab3",
     badgeText: "CORE WORKFLOW"
   },
   {
@@ -262,7 +262,7 @@ export const WALKTHROUGH_SLIDES: WalkthroughSlide[] = [
       "กระตุ้นสมองให้เกิด Dopamine เชิงบวก อยากเคลียร์งานให้จบทุกวัน"
     ],
     sticker: "/stickers/retro/retro-sticker-18-gift.png",
-    accent: "#34d399",
+    accent: "#89c7d6",
     badgeText: "GAMIFICATION"
   },
   {
@@ -309,7 +309,7 @@ export const BEFORE_AFTER_ROWS: BeforeAfterRow[] = [
     before: "ต้องคอยจำงานและเรื่องเร่งด่วนทุกอย่างไว้ในหัวจนสมองล้า",
     after: "โยนลงบอร์ดหรือสั่ง AI แตกงานย่อยทันที สมองโล่ง ไม่กลัวลืม",
     moduleTag: "AI BREAKDOWN & BOARD",
-    accentColor: "#ff8a4c"
+    accentColor: "#d59ab3"
   },
   {
     before: "เปิดคอมตอนเช้าแล้วเคว้ง ไม่รู้จะเริ่มหยิบงานไหนก่อน",
@@ -333,7 +333,7 @@ export const BEFORE_AFTER_ROWS: BeforeAfterRow[] = [
     before: "ทำงานเสร็จก็แค่ขีดฆ่าทิ้ง หมดแรงและไม่มีกำลังใจทำต่อ",
     after: "ลากการ์ดเข้า Done รับเหรียญ Coin สะสมไปแลกรางวัลให้ตัวเอง",
     moduleTag: "ARCADE REWARDS",
-    accentColor: "#34d399"
+    accentColor: "#89c7d6"
   },
   {
     before: "เครียดสะสมระหว่างวัน สมองตื้อคิดงานไม่ออก",

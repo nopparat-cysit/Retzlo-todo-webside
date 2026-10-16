@@ -1,39 +1,29 @@
-# 2026-10-16 — Marketing Landing Page Redesign (Sloth Second Brain Storytelling × Retro Lofi Indigo Studio)
+# 2026-10-16 — Marketing Landing Page Redesign (Authentic Retzlo Retro Lofi Indigo Glassmorphism)
 
 ## Objective
-Redesign the marketing landing page (`/`) inspired by the persuasive storytelling flow and tactile neo-brutalist sticker aesthetic of `https://codeprompt.now/lp/sloth-second-brain#cp-hero`, while infusing Retzlo's unique **Retro Lofi Indigo Studio** identity and interactive micro-experiences.
+Redesign the marketing landing page (`/`) by taking structural storytelling inspiration from `sloth-second-brain` while executing 100% of the visual design in **Retzlo's authentic Retro Lofi Indigo theme** (`.retzlo-bento-card`, `.retzlo-quote-card`, `.retzlo-badge`, `.retzlo-cta-primary`, `.retzlo-cta-ghost`, `SynthwaveHero`, `LofiCassette3D`) with a clean, uncluttered, breathable UX/UI layout.
 
 ## Files Created or Modified
 - **Created:**
-  - `src/app/(marketing)/landing-data.ts` — Structured Thai/English copy and data models for hero typewriter lines, 6 pain-point browser tabs, 7 interactive module walkthrough slides, interactive readiness checklists, 7 before/after transformation pairs, 7-row comparison matrix, 10 FAQ items for the dual-row marquee + accordion, and user testimonials.
-  - `src/app/(marketing)/walkthrough-mockup.tsx` — Live interactive device-frame UI previews for all 7 Retzlo modules (Workspaces Hub, Kanban & Table View, Unified Calendar, Second Brain Notes, Daily Diary & Habits, Arcade Rewards Store, and Lofi Studio + Solitary Zen Garden).
+  - `src/app/(marketing)/landing-data.ts` — Structured Thai/English copy and data models using Retzlo's dusk palette (`#a9a2ff`, `#e5bd72`, `#89c7d6`, `#d59ab3`).
+  - `src/app/(marketing)/walkthrough-mockup.tsx` — Clean dark-indigo glassmorphic UI previews for all 7 Retzlo modules.
   - `docs/agent-notes/2026-10-16-landing-page-sloth-lofi-redesign.md` — Session documentation note.
 - **Modified:**
-  - `src/app/(marketing)/page.tsx` — Complete redesign of the landing page combining Sloth Second Brain's conversion architecture with Retzlo's interactive 3D Synthwave Hero cockpit, live Web Audio API Lofi synthesizer, CRT scanline mode, cursor sparkle trail, interactive readiness checklist counter, perforated Studio Pass ticket stub, and sticky bottom CTA bar.
-  - `docs/theme-system.md` — Documented intentional fixed brand surface palette and interactive sections for `/`.
+  - `src/app/(marketing)/page.tsx` — Refined into a spacious, uncluttered Retzlo Retro Lofi Indigo landing page with `SynthwaveHero`, `LofiCassette3D`, Pain-Point Console Tabs, 7-Module Walkthrough, Readiness Fit Check, Before/After & 3-Way Comparison Matrix, Community Quotes, 2-Column FAQ Accordion, and a minimal floating bottom audio/CTA bar.
+  - `docs/theme-system.md` — Documented the Retzlo landing page theme tokens and sections.
 
 ## Key Behavior & Design Changes
-1. **Hero Section (`#cp-hero`):**
-   - Added **Live Typewriter Headline** cycling through 4 core Thai value propositions (`"จัดการทุกโปรเจกต์ได้ในที่เดียว"`, `"เชื่อม Tasks · Notes · Diary เข้าด้วยกัน"`, `"เปลี่ยนงานหนักเป็นแต้มแลกรางวัลจริง"`, `"โฟกัสลึกด้วย Lofi Beats & AI คู่ใจ"`).
-   - Preserved and upgraded the **3D Mouse-Tilt Synthwave Cockpit** (`SynthwaveHero`) with interactive Web Audio API Lofi cassette player, spinning tape reels, animated VU meter, steaming coffee cup, and 3-step live workflow switcher.
-   - Added quick metric pills (`7 Modules in 1 OS`, `Lofi + Zen Focus`, `AI Co-Pilot`, `Free Workspace Pass`).
-2. **Browser-Tab Pain Points Section (`#pain-tabs`):**
-   - Styled as a vintage OS browser window with traffic lights, address bar (`retzlo://pain-points/why-work-feels-chaotic`), and 6 interactive tabs (`"จดแล้วหาย"`, `"แอปแยกกระจัดกระจาย"`, `"เริ่มโปรเจกต์จากศูนย์"`, `"ลืมเดดไลน์สำคัญ"`, `"หมดไฟ งานจำเจ"`, `"AI ไม่รู้บริบทงาน"`).
-   - Displays a side-by-side comparison of the chaotic old state vs. Retzlo's integrated solution with interactive checklist previews and retro stickers.
-3. **7-Module Interactive Walkthrough (`#walkthrough`):**
-   - Interactive feature showcase with numbered module pills (`01` to `07`), auto-advancing progress bar (with Pause/Play toggle and Prev/Next arrows), detailed module breakdown, and live interactive UI mockups in `WalkthroughMockup`.
-4. **Interactive Readiness Check (`#check-readiness`):**
-   - Side-by-side "เหมาะกับคุณมาก ถ้าคุณ..." vs "อาจยังไม่เหมาะ ถ้าคุณ..." cards where users can click to toggle checkboxes and watch their live score badge update (`เช็กตรงกับคุณ X/7 ข้อ!`).
-5. **Before vs After Transformation (`#before-after`):**
-   - 7 high-contrast transformation rows showing the shift from scattered multi-app chaos to Retzlo's unified Second Brain & Workspace OS.
-6. **3-Way Comparison Matrix (`#comparison`):**
-   - Compares **สร้างระบบเองจากศูนย์ (DIY)** vs **ใช้หลายแอปแยกกัน (Trello + Notion + Habit)** vs **Retzlo Studio OS (All-in-One)** across 7 practical criteria.
-7. **Dual-Row Infinite Marquee FAQ + Accordion (`#faq`):**
-   - Two counter-scrolling horizontal marquee tracks of Q&A cards (pausing on hover) paired with an expandable full FAQ accordion below for effortless reading.
-8. **Perforated Studio Pass Ticket Stub (`#buy`) & Sticky Bottom CTA Bar:**
-   - Designed a tactile retro concert/studio ticket stub with perforated dividers, barcode decoration, full module checklist, and instant workspace launch CTA, complemented by a scroll-triggered sticky bottom bar.
-9. **Light/Dark Theme Immunity:**
-   - Used explicit hex colors (`#131129`, `#f7f3ea`, `#1c1917`, `#ff6b9d`, etc.) so `globals.css` `[data-theme="light"]` overrides never wash out text contrast on the marketing page.
+1. **100% Authentic Retzlo Theme (`Retro Lofi Indigo`):**
+   - Removed all external cartoon/neo-brutalist cream boxes and heavy black borders.
+   - Restored Retzlo's deep midnight indigo canvas (`#070715`), ambient glow orbs (`.retzlo-hero-orb-1/2/3`), shooting grid beams (`.retzlo-grid-beam-x/y`), translucent glassmorphic cards (`.retzlo-bento-card`, `.retzlo-quote-card`), and signature dusk accents (`#a9a2ff`, `#e5bd72`, `#89c7d6`, `#d59ab3`).
+2. **Clean, Uncluttered UX/UI Hierarchy:**
+   - **Hero (`#cp-hero`):** Fullscreen `SynthwaveHero` 3D background with a clean left-aligned content column, smooth Typewriter terminal pill, and primary/ghost CTAs.
+   - **Pain Points Console (`#pain-tabs`):** Sleek glassmorphic console with 6 horizontal tabs and a balanced 7/5 split showing the problem, the Retzlo solution, and a 3-item action flow.
+   - **7-Module Interactive Walkthrough (`#walkthrough`):** Clean pill selector + 5/7 split with module highlights on the left and `WalkthroughMockupScreen` on the right.
+   - **Lofi Focus Studio (`#lofi-focus`):** Interactive 3D spinning cassette canvas (`LofiCassette3D`), dual VU meters, Web Audio API Lofi synthesizer, and Coffee Cheers hover card.
+   - **Readiness Fit Check & Comparison (`#comparison`):** Clickable readiness checklist with live counter (`ตรงกับคุณ X/7 ข้อ`), concise 6-card Before/After grid, and a clean 3-way comparison table.
+   - **Community Feedback & Clean FAQ (`#faq`):** 3 `.retzlo-quote-card` testimonials and a structured 2-column expandable FAQ accordion.
+   - **Minimal Floating Studio Bar:** Compact glassmorphic pill bar at the bottom on scroll with live Lofi play/pause toggle and `Enter Workspace` CTA.
 
 ## Database / Schema Changes
 - None.

@@ -19,10 +19,10 @@ import {
   Disc,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Check,
-  Zap,
-  ShieldCheck,
-  Clock
+  XCircle,
+  Layers
 } from "lucide-react";
 import {
   HERO_TYPEWRITER_LINES,
@@ -33,8 +33,7 @@ import {
   BEFORE_AFTER_ROWS,
   COMPARISON_ROWS,
   FAQ_ROW_1,
-  FAQ_ROW_2,
-  COMMUNITY_TESTIMONIALS
+  FAQ_ROW_2
 } from "./landing-data";
 import { WalkthroughMockupScreen } from "./walkthrough-mockup";
 
@@ -54,7 +53,307 @@ interface MarketingSessionUser {
   email?: string | null;
 }
 
-// ── Retro Synthwave Visual Hero (Interactive Cockpit) ────────────────────
+// ── 3D Projection Helpers for LofiCassette3D ──────────────────────────
+interface Point3D {
+  x: number;
+  y: number;
+  z: number;
+}
+
+function rotateX(p: Point3D, angle: number): Point3D {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return {
+    x: p.x,
+    y: p.y * cos - p.z * sin,
+    z: p.y * sin + p.z * cos
+  };
+}
+
+function rotateY(p: Point3D, angle: number): Point3D {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return {
+    x: p.x * cos + p.z * sin,
+    y: p.y,
+    z: -p.x * sin + p.z * cos
+  };
+}
+
+function project(
+  p: Point3D,
+  width: number,
+  height: number,
+  scale: number,
+  distance: number
+): { x: number; y: number; z: number } {
+  const factor = scale / (distance + p.z);
+  return {
+    x: width / 2 + p.x * factor,
+    y: height / 2 + p.y * factor,
+    z: p.z
+  };
+}
+
+// ── Interactive 3D Spinning Cassette Deck Component ──────────────────
+function LofiCassette3D({
+  isPlaying,
+  onClick
+}: {
+  isPlaying: boolean;
+  onClick: () => void;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ targetX: 0.25, targetY: 0.5 });
+  const isDraggingRef = useRef(false);
+  const prevMouseRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDraggingRef.current) return;
+      const x = (e.clientX / window.innerWidth - 0.5) * 1.5;
+      const y = (e.clientY / window.innerHeight - 0.5) * 1.5;
+      mouseRef.current.targetX = y * 0.5 + 0.25;
+      mouseRef.current.targetY = x * 0.5 + 0.5;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let autoAngle = 0;
+
+    const halfW = 60;
+    const halfH = 38;
+    const halfD = 6;
+
+    const vertices: Point3D[] = [
+      { x: -halfW, y: -halfH, z: -halfD },
+      { x: halfW, y: -halfH, z: -halfD },
+      { x: halfW, y: halfH, z: -halfD },
+      { x: -halfW, y: halfH, z: -halfD },
+      { x: -halfW, y: -halfH, z: halfD },
+      { x: halfW, y: -halfH, z: halfD },
+      { x: halfW, y: halfH, z: halfD },
+      { x: -halfW, y: halfH, z: halfD }
+    ];
+
+    const labelW = 44;
+    const labelH = 22;
+    const labelVertices: Point3D[] = [
+      { x: -labelW, y: -labelH - 4, z: halfD + 0.5 },
+      { x: labelW, y: -labelH - 4, z: halfD + 0.5 },
+      { x: labelW, y: labelH - 4, z: halfD + 0.5 },
+      { x: -labelW, y: labelH - 4, z: halfD + 0.5 }
+    ];
+
+    const leftSpoolCenter: Point3D = { x: -22, y: -2, z: halfD + 1 };
+    const rightSpoolCenter: Point3D = { x: 22, y: -2, z: halfD + 1 };
+    const spoolRadius = 10;
+
+    const particles = Array.from({ length: 14 }, (_, i) => ({
+      angle: (i / 14) * Math.PI * 2,
+      radius: 72 + (i % 4) * 14,
+      yOffset: ((i * 17) % 60) - 30,
+      speed: 0.008 + (i % 3) * 0.004,
+      size: 1.2 + (i % 3) * 0.6,
+      color: i % 2 === 0 ? "#a9a2ff" : "#e5bd72"
+    }));
+
+    let currentRotX = 0.25;
+    let currentRotY = 0.5;
+
+    const render = () => {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      autoAngle += isPlaying ? 0.018 : 0.005;
+      currentRotX += (mouseRef.current.targetX - currentRotX) * 0.08;
+      currentRotY += (mouseRef.current.targetY + autoAngle - currentRotY) * 0.08;
+
+      const rx = currentRotX;
+      const ry = currentRotY;
+      const scale = 2.1;
+      const distance = 220;
+
+      const projectPoint = (pt: Point3D) => {
+        let rotated = rotateX(pt, rx);
+        rotated = rotateY(rotated, ry);
+        return project(rotated, w, h, scale * 100, distance);
+      };
+
+      particles.forEach((p) => {
+        p.angle += p.speed * (isPlaying ? 2.2 : 0.7);
+        const px = Math.cos(p.angle) * p.radius;
+        const pz = Math.sin(p.angle) * p.radius;
+        const pt: Point3D = { x: px, y: p.yOffset, z: pz };
+        let rotated = rotateX(pt, rx);
+        rotated = rotateY(rotated, ry);
+
+        if (rotated.z < 0) {
+          const projP = project(rotated, w, h, scale * 100, distance);
+          ctx.beginPath();
+          ctx.arc(projP.x, projP.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = 0.35;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      });
+
+      const proj = vertices.map(projectPoint);
+
+      const drawEdge = (i1: number, i2: number, color: string, width = 1) => {
+        ctx.beginPath();
+        ctx.moveTo(proj[i1].x, proj[i1].y);
+        ctx.lineTo(proj[i2].x, proj[i2].y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.stroke();
+      };
+
+      drawEdge(0, 1, "rgba(169, 162, 255, 0.15)");
+      drawEdge(1, 2, "rgba(169, 162, 255, 0.15)");
+      drawEdge(2, 3, "rgba(169, 162, 255, 0.15)");
+      drawEdge(3, 0, "rgba(169, 162, 255, 0.15)");
+
+      drawEdge(0, 4, "rgba(169, 162, 255, 0.2)");
+      drawEdge(1, 5, "rgba(169, 162, 255, 0.2)");
+      drawEdge(2, 6, "rgba(169, 162, 255, 0.2)");
+      drawEdge(3, 7, "rgba(169, 162, 255, 0.2)");
+
+      ctx.fillStyle = "rgba(15, 14, 40, 0.85)";
+      ctx.beginPath();
+      ctx.moveTo(proj[4].x, proj[4].y);
+      for (let i = 5; i < 8; i++) ctx.lineTo(proj[i].x, proj[i].y);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#a9a2ff";
+      drawEdge(4, 5, "#a9a2ff", 1.5);
+      drawEdge(5, 6, "#a9a2ff", 1.5);
+      drawEdge(6, 7, "#a9a2ff", 1.5);
+      drawEdge(7, 4, "#a9a2ff", 1.5);
+      ctx.shadowBlur = 0;
+
+      const projLabel = labelVertices.map(projectPoint);
+      ctx.fillStyle = "rgba(229, 189, 114, 0.08)";
+      ctx.beginPath();
+      ctx.moveTo(projLabel[0].x, projLabel[0].y);
+      for (let i = 1; i < 4; i++) ctx.lineTo(projLabel[i].x, projLabel[i].y);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(229, 189, 114, 0.35)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      const spoolAngle = autoAngle * (isPlaying ? 3.5 : 0.8);
+      const drawSpool = (center: Point3D) => {
+        const projCenter = projectPoint(center);
+
+        ctx.beginPath();
+        ctx.strokeStyle = "#e5bd72";
+        ctx.lineWidth = 1;
+        const numPoints = 12;
+        for (let i = 0; i <= numPoints; i++) {
+          const a = (i / numPoints) * Math.PI * 2;
+          const px = center.x + Math.cos(a) * spoolRadius;
+          const py = center.y + Math.sin(a) * spoolRadius;
+          const projP = projectPoint({ x: px, y: py, z: center.z });
+          if (i === 0) ctx.moveTo(projP.x, projP.y);
+          else ctx.lineTo(projP.x, projP.y);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(229, 189, 114, 0.5)";
+        for (let i = 0; i < 4; i++) {
+          const a = spoolAngle + (i * Math.PI) / 2;
+          const px = center.x + Math.cos(a) * spoolRadius;
+          const py = center.y + Math.sin(a) * spoolRadius;
+          const projP = projectPoint({ x: px, y: py, z: center.z });
+          ctx.beginPath();
+          ctx.moveTo(projCenter.x, projCenter.y);
+          ctx.lineTo(projP.x, projP.y);
+          ctx.stroke();
+        }
+      };
+
+      drawSpool(leftSpoolCenter);
+      drawSpool(rightSpoolCenter);
+
+      ctx.shadowBlur = 6;
+      particles.forEach((p) => {
+        const px = Math.cos(p.angle) * p.radius;
+        const pz = Math.sin(p.angle) * p.radius;
+        const pt: Point3D = { x: px, y: p.yOffset, z: pz };
+        let rotated = rotateX(pt, rx);
+        rotated = rotateY(rotated, ry);
+
+        if (rotated.z >= 0) {
+          const projP = project(rotated, w, h, scale * 100, distance);
+          ctx.beginPath();
+          ctx.arc(projP.x, projP.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+        }
+      });
+      ctx.shadowBlur = 0;
+
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => cancelAnimationFrame(animId);
+  }, [isPlaying]);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    isDraggingRef.current = true;
+    prevMouseRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDraggingRef.current) return;
+    const deltaX = e.clientX - prevMouseRef.current.x;
+    const deltaY = e.clientY - prevMouseRef.current.y;
+    mouseRef.current.targetY += deltaX * 0.008;
+    mouseRef.current.targetX += deltaY * 0.008;
+    prevMouseRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isDraggingRef.current = false;
+  };
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={240}
+      height={180}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUpOrLeave}
+      onMouseLeave={handleMouseUpOrLeave}
+      onClick={(e) => {
+        if (Math.abs(e.clientX - prevMouseRef.current.x) < 2) {
+          onClick();
+        }
+      }}
+      className="max-w-full h-auto cursor-grab active:cursor-grabbing select-none pointer-events-auto"
+    />
+  );
+}
+
+// ── Retro Synthwave Visual Hero (HTML/CSS) ────────────────────────────
 function SynthwaveHero({
   isPlaying,
   onPlayToggle
@@ -63,6 +362,7 @@ function SynthwaveHero({
   onPlayToggle: () => void;
 }) {
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+  const heroRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -74,7 +374,8 @@ function SynthwaveHero({
 
   return (
     <div
-      className="relative w-full h-full min-h-[420px] overflow-hidden select-none cursor-pointer rounded-3xl border-2 border-[#a9a2ff]/35 shadow-[8px_8px_0_rgba(169,162,255,0.22)]"
+      ref={heroRef}
+      className="relative w-full h-full overflow-hidden select-none cursor-pointer"
       style={{ perspective: "1200px" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -89,9 +390,9 @@ function SynthwaveHero({
         }}
       />
 
-      {/* Deterministic Stars (Zero hydration mismatch) */}
+      {/* Stars (deterministic) */}
       <div className="absolute inset-0 overflow-hidden">
-        {Array.from({ length: 48 }).map((_, i) => (
+        {Array.from({ length: 55 }).map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-white synth-star"
@@ -108,12 +409,15 @@ function SynthwaveHero({
         ))}
       </div>
 
-      {/* Retro synthwave sun */}
+      {/* Retro synthwave sun (right-center) */}
       <div
         className="absolute"
-        style={{ bottom: "38%", left: "54%", transform: "translateX(-50%)" }}
+        style={{ bottom: "40%", left: "62%", transform: "translateX(-50%)" }}
       >
-        <div className="relative" style={{ width: 210, height: 105, overflow: "hidden" }}>
+        <div
+          className="relative"
+          style={{ width: 220, height: 110, overflow: "hidden" }}
+        >
           <div
             className="absolute inset-0 rounded-t-full"
             style={{
@@ -123,11 +427,11 @@ function SynthwaveHero({
                 "0 0 80px 30px rgba(255,110,199,0.35), 0 0 160px 60px rgba(229,189,114,0.18)"
             }}
           />
-          {Array.from({ length: 9 }).map((_, i) => (
+          {Array.from({ length: 10 }).map((_, i) => (
             <div
               key={i}
               className="absolute left-0 right-0 bg-[#06040f]"
-              style={{ height: 3, top: `${15 + i * 9}%`, opacity: 0.55 }}
+              style={{ height: 3, top: `${15 + i * 8.5}%`, opacity: 0.55 }}
             />
           ))}
         </div>
@@ -137,7 +441,7 @@ function SynthwaveHero({
       <div
         className="absolute"
         style={{
-          bottom: "38%",
+          bottom: "40%",
           left: 0,
           right: 0,
           height: 3,
@@ -155,7 +459,7 @@ function SynthwaveHero({
         style={{
           left: 0,
           right: 0,
-          height: "41%",
+          height: "43%",
           perspective: "300px",
           perspectiveOrigin: "50% 0%"
         }}
@@ -168,153 +472,251 @@ function SynthwaveHero({
             backgroundSize: "10% 22%",
             transform: "rotateX(55deg)",
             transformOrigin: "top center",
-            maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%)"
+            maskImage:
+              "linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%)"
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(169,162,255,0.05) 0%, transparent 60%)"
           }}
         />
       </div>
 
-      {/* Floating 3D Mission Board inside Hero */}
-      <div className="relative z-10 flex items-center justify-center p-5 sm:p-7 h-full">
+      {/* 3D Floating Mission Board Scene */}
+      <div className="absolute inset-0 z-[1] hidden lg:block pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#06040f] via-[#06040f]/35 to-transparent" />
         <div
-          className="w-full max-w-[440px] rounded-2xl border border-[#d8d4ff]/25 bg-[#050511]/85 p-4 backdrop-blur-md transition-transform duration-200 ease-out shadow-[0_32px_80px_rgba(0,0,0,0.75)]"
+          className="absolute right-[6%] top-[12%] h-[510px] w-[580px] max-w-[45vw] transition-transform duration-200 ease-out"
           style={{
-            transform: `perspective(1000px) rotateX(${tilt.rx * 0.4}deg) rotateY(${tilt.ry * 0.4}deg)`
+            transform: `perspective(1200px) rotateX(${tilt.rx * 0.2}deg) rotateY(${tilt.ry * 0.24}deg) translate3d(${tilt.ry * 0.45}px, ${tilt.rx * -0.4}px, 0)`,
+            transformStyle: "preserve-3d"
           }}
         >
-          <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
-            <div className="flex items-center gap-2.5">
-              <div className="relative w-7 h-7">
-                <Image
-                  src="/stickers/retro/retro-sticker-09-headphones.png"
-                  alt="Retzlo Studio"
-                  fill
-                  sizes="28px"
-                  className="object-contain"
-                />
-              </div>
-              <div>
-                <div className="text-[9px] font-mono uppercase tracking-[0.28em] text-[#e5bd72]">
-                  RETZLO SECOND BRAIN
-                </div>
-                <div className="text-sm sm:text-base font-bold text-white">
-                  Today Focus Cockpit
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1">
-              <span
-                className={`h-2 w-2 rounded-full ${
-                  isPlaying ? "bg-emerald-400 animate-pulse" : "bg-[#a9a2ff]"
-                }`}
-              />
-              <span className="text-[9px] font-mono uppercase tracking-widest text-[#e7e5e4]">
-                {isPlaying ? "LOFI LIVE" : "READY"}
-              </span>
-            </div>
-          </div>
+          <div className="absolute left-[46%] top-[52%] h-[330px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#a9a2ff]/18 blur-[76px]" />
+          <div className="absolute left-[28%] top-[23%] h-40 w-40 rounded-full bg-[#e5bd72]/14 blur-[46px]" />
+          <div className="absolute right-[12%] top-[26%] h-52 w-52 rounded-full bg-[#89c7d6]/13 blur-[62px]" />
 
-          {/* 3 Mini Kanban Columns */}
-          <div className="grid grid-cols-3 gap-2.5">
-            {[
-              {
-                label: "INBOX / TODO",
-                color: "#a9a2ff",
-                cards: ["โยนงานออกจากหัว", "AI แตกขั้นตอน"]
-              },
-              {
-                label: "DOING NOW",
-                color: "#ff8a4c",
-                cards: ["โฟกัสงานหลัก", "เปิดเพลง Lofi"]
-              },
-              {
-                label: "DONE (+COINS)",
-                color: "#34d399",
-                cards: ["รับ +24 Coins 🪙", "แลกรางวัลพักใจ"]
-              }
-            ].map((column, columnIndex) => (
+          <div
+            className="retzlo-hero-board-float absolute left-[8%] top-[18%] h-[345px] w-[405px] rounded-[28px] border border-[#d8d4ff]/22 bg-[#050511]/58 p-4 backdrop-blur-md"
+            style={{
+              clipPath: "polygon(5% 0, 100% 8%, 94% 100%, 0 90%)",
+              transform: "translateZ(48px) rotateY(-13deg) rotateX(4deg)",
+              boxShadow:
+                "0 42px 110px rgba(0,0,0,0.68), 0 0 80px rgba(169,162,255,0.2), inset 0 1px 0 rgba(255,255,255,0.12)"
+            }}
+          >
+            <div className="absolute -inset-px rounded-[26px] bg-[linear-gradient(135deg,rgba(229,189,114,0.38),transparent_28%,rgba(137,199,214,0.32)_72%,transparent)] opacity-60" />
+            <div className="relative h-full overflow-hidden rounded-[18px] border border-[#a9a2ff]/15 bg-[#050511]/86">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_62%_16%,rgba(137,199,214,0.24),transparent_34%),radial-gradient(circle_at_18%_86%,rgba(229,189,114,0.16),transparent_32%)]" />
               <div
-                key={column.label}
-                className="rounded-xl border border-white/10 bg-white/[0.04] p-2"
-              >
-                <div className="mb-2 flex items-center justify-between">
-                  <span
-                    className="text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-wider truncate"
-                    style={{ color: column.color }}
-                  >
-                    {column.label}
-                  </span>
-                  <span
-                    className="h-1.5 w-1.5 rounded-full shrink-0"
-                    style={{ background: column.color }}
-                  />
+                className="absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(to bottom, transparent, transparent 7px, rgba(255,255,255,0.09) 8px)"
+                }}
+              />
+
+              <div className="absolute left-5 right-5 top-4 flex items-center justify-between">
+                <div>
+                  <div className="text-[9px] font-mono uppercase tracking-[0.32em] text-[#e5bd72]">
+                    Retzlo cockpit
+                  </div>
+                  <div className="mt-1 text-xl font-semibold text-white">
+                    Mission board
+                  </div>
                 </div>
-                {column.cards.map((card, cardIndex) => (
-                  <div
-                    key={card}
-                    className="mb-1.5 last:mb-0 rounded-lg border border-white/10 bg-[#09081a]/90 px-2 py-1.5 transition-transform duration-500"
+                <div className="flex items-center gap-2 rounded-full border border-[#a9a2ff]/20 bg-[#121026] px-2.5 py-1.5">
+                  <span
+                    className={`h-2 w-2 rounded-full ${isPlaying ? "bg-emerald-300" : "bg-[#a9a2ff]"}`}
                     style={{
-                      transform:
-                        isPlaying && columnIndex === 1 && cardIndex === 0
-                          ? "translateY(-3px) scale(1.02)"
-                          : "translateY(0)"
+                      boxShadow: isPlaying
+                        ? "0 0 16px rgba(110,231,183,0.85)"
+                        : "0 0 14px rgba(169,162,255,0.62)"
                     }}
+                  />
+                  <span className="text-[9px] font-mono uppercase tracking-widest text-[#d6d3d1]">
+                    {isPlaying ? "live" : "ready"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="absolute left-5 right-5 top-[86px] grid grid-cols-3 gap-3">
+                {[
+                  { label: "Todo", color: "#a9a2ff", cards: ["Map idea", "Invite team"] },
+                  { label: "Doing", color: "#e5bd72", cards: ["Tune flow", "Ship UI"] },
+                  { label: "Done", color: "#89c7d6", cards: ["Payout +24", "Focus loop"] }
+                ].map((column, columnIndex) => (
+                  <div
+                    key={column.label}
+                    className="min-h-[178px] rounded-[16px] border border-[#a9a2ff]/12 bg-[#0d0c22]/80 p-2.5"
                   >
-                    <div
-                      className="mb-1 h-1 w-8 rounded-full"
-                      style={{ background: `${column.color}99` }}
-                    />
-                    <div className="text-[10px] sm:text-[11px] font-medium text-[#f5f5f4] leading-snug">
-                      {card}
+                    <div className="mb-3 flex items-center justify-between">
+                      <span
+                        className="text-[9px] font-mono uppercase tracking-[0.22em]"
+                        style={{ color: column.color }}
+                      >
+                        {column.label}
+                      </span>
+                      <span
+                        className="h-1.5 w-1.5 rounded-full"
+                        style={{
+                          background: column.color,
+                          boxShadow: `0 0 12px ${column.color}`
+                        }}
+                      />
                     </div>
+                    {column.cards.map((card, cardIndex) => (
+                      <div
+                        key={card}
+                        className="retzlo-hero-card-glow mb-2 rounded-[10px] border border-[#a9a2ff]/12 bg-[#08081a]/88 px-2.5 py-2 shadow-[0_12px_22px_rgba(0,0,0,0.22)] transition-transform duration-500"
+                        style={{
+                          transform:
+                            isPlaying && columnIndex === 1 && cardIndex === 1
+                              ? "translateY(-5px)"
+                              : "translateY(0)",
+                          boxShadow:
+                            isPlaying && columnIndex === 2 && cardIndex === 0
+                              ? `0 0 24px ${column.color}55`
+                              : "0 12px 22px rgba(0,0,0,0.22)"
+                        }}
+                      >
+                        <div
+                          className="mb-2 h-1.5 w-10 rounded-full"
+                          style={{ background: `${column.color}88` }}
+                        />
+                        <div className="text-[11px] font-medium text-[#f5f5f4]">
+                          {card}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
-            ))}
+
+              <div className="absolute bottom-4 left-5 right-5 flex items-center justify-between rounded-[14px] border border-[#a9a2ff]/15 bg-[#03030c]/76 px-3 py-2">
+                <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#a8a29e]">
+                  <Music className="h-3.5 w-3.5 text-[#e5bd72]" />
+                  {isPlaying ? "lofi synth playing" : "click to play lofi"}
+                </div>
+                <div className="flex items-end gap-1">
+                  {Array.from({ length: 14 }).map((_, i) => (
+                    <span
+                      key={i}
+                      className="retzlo-hero-vu-bar w-1 rounded-full transition-all duration-300"
+                      style={{
+                        height: isPlaying
+                          ? `${9 + ((i * 9) % 26)}px`
+                          : `${5 + (i % 5) * 2}px`,
+                        background:
+                          i > 9 ? "#e5bd72" : i > 5 ? "#89c7d6" : "#a9a2ff",
+                        opacity: isPlaying ? 0.9 : 0.38
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Bottom Interactive Audio Bar inside Hero Card */}
-          <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-[#03030c]/90 px-3 py-2">
-            <div className="flex items-center gap-2 text-[10px] font-mono text-[#e5bd72]">
-              {isPlaying ? (
-                <Pause className="h-3.5 w-3.5 text-emerald-400" />
-              ) : (
-                <Play className="h-3.5 w-3.5 text-[#e5bd72]" />
-              )}
-              <span>
-                {isPlaying
-                  ? "กำลังบรรเลงเพลง Lofi สด (คลิกเพื่อพัก)"
-                  : "คลิกที่นี่เพื่อเปิดเพลง Lofi & ขยับบอร์ด"}
-              </span>
-            </div>
-            <div className="flex items-end gap-1 h-4">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <span
-                  key={i}
-                  className="w-1 rounded-full transition-all duration-300"
-                  style={{
-                    height: isPlaying ? `${6 + ((i * 7) % 12)}px` : `${4 + (i % 3) * 2}px`,
-                    background: i > 6 ? "#e5bd72" : i > 3 ? "#89c7d6" : "#a9a2ff",
-                    opacity: isPlaying ? 0.95 : 0.4
-                  }}
-                />
-              ))}
+          <div
+            className="retzlo-hero-beam-pulse absolute left-[45%] top-[33%] h-[150px] w-[220px] opacity-70"
+            style={{
+              transform: "translateZ(82px) rotate(-10deg)",
+              background:
+                "linear-gradient(100deg, rgba(229,189,114,0.42), rgba(137,199,214,0.15) 55%, transparent 78%)",
+              clipPath: "polygon(0 40%, 100% 0, 100% 100%, 0 60%)",
+              filter: "blur(0.5px) drop-shadow(0 0 24px rgba(229,189,114,0.28))"
+            }}
+          />
+          <div
+            className="retzlo-hero-beam-pulse retzlo-hero-beam-delay absolute left-[50%] top-[48%] h-[108px] w-[190px] opacity-55"
+            style={{
+              transform: "translateZ(76px) rotate(8deg)",
+              background:
+                "linear-gradient(100deg, rgba(169,162,255,0.38), rgba(137,199,214,0.14) 54%, transparent 76%)",
+              clipPath: "polygon(0 42%, 100% 4%, 100% 92%, 0 62%)",
+              filter: "drop-shadow(0 0 22px rgba(169,162,255,0.26))"
+            }}
+          />
+          <div
+            className="absolute right-[11%] top-[56%] h-[104px] w-[104px] rounded-full border border-[#e5bd72]/35 bg-[#07030d]/54 p-0 backdrop-blur"
+            style={{
+              transform: "translateZ(118px)",
+              boxShadow:
+                "0 0 42px rgba(229,189,114,0.22), inset 0 0 28px rgba(229,189,114,0.1)"
+            }}
+          >
+            <div className="retzlo-hero-coin-ring absolute inset-3 rounded-full border border-[#e5bd72]/30" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-xl font-semibold text-white">+24</div>
+              <div className="text-[8px] font-mono uppercase tracking-widest text-[#e5bd72]">
+                coins
+              </div>
             </div>
           </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlayToggle();
+            }}
+            className="pointer-events-auto absolute bottom-[17%] right-[26%] flex h-14 w-14 items-center justify-center rounded-full border transition-transform hover:scale-105"
+            style={{
+              transform: "translateZ(145px)",
+              background: isPlaying
+                ? "rgba(52,211,153,0.2)"
+                : "rgba(169,162,255,0.18)",
+              borderColor: isPlaying
+                ? "rgba(52,211,153,0.5)"
+                : "rgba(169,162,255,0.48)",
+              boxShadow: isPlaying
+                ? "0 0 34px rgba(52,211,153,0.42)"
+                : "0 0 30px rgba(169,162,255,0.32)"
+            }}
+            aria-label={isPlaying ? "Pause Retzlo scene" : "Play Retzlo scene"}
+          >
+            {isPlaying ? (
+              <Pause className="h-5 w-5 text-emerald-200" />
+            ) : (
+              <Play className="h-5 w-5 text-[#ebe8ff]" />
+            )}
+          </button>
+
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="absolute rounded-full border border-[#a9a2ff]/22"
+              style={{
+                left: `${56 + i * 6}%`,
+                top: `${22 + i * 11}%`,
+                width: `${48 + i * 13}px`,
+                height: `${48 + i * 13}px`,
+                transform: `translateZ(${30 + i * 22}px) translate(${tilt.ry * (i + 1) * 0.7}px, ${tilt.rx * -(i + 1) * 0.7}px)`,
+                boxShadow: "0 0 26px rgba(169,162,255,0.18)"
+              }}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Top right status badge */}
-      <div className="absolute top-3 right-3 z-20 pointer-events-none">
-        <span
-          className={`text-[10px] font-mono tracking-widest uppercase px-2.5 py-1 rounded-full border ${
-            isPlaying
-              ? "text-emerald-300 border-emerald-400/40 bg-emerald-500/20"
-              : "text-[#e5bd72] border-[#e5bd72]/30 bg-[#080817]/80"
-          }`}
-        >
-          {isPlaying ? "▶ LOFI SYNTH PLAYING" : "🎧 CLICK SCENE FOR SOUND"}
-        </span>
-      </div>
+      {/* Scan line overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none rounded-2xl"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(to bottom, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)"
+        }}
+      />
+
+      {/* Bottom fade */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+        style={{
+          background: "linear-gradient(to top, #070715, transparent)"
+        }}
+      />
     </div>
   );
 }
@@ -322,26 +724,42 @@ function SynthwaveHero({
 export default function LandingPage() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [currentUser, setCurrentUser] = useState<MarketingSessionUser | null>(null);
   const [defaultDestination, setDefaultDestination] = useState<string>("/projects");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [crtMode, setCrtMode] = useState(false);
+  const [crtMode, setCrtMode] = useState(true);
   const [steamHovered, setSteamHovered] = useState(false);
 
-  // Interactive states for Sloth-inspired sections
-  const [activePainTabIndex, setActivePainTabIndex] = useState(0);
-  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-  const [checkedSuitability, setCheckedSuitability] = useState<number[]>([0, 1, 3, 5]);
-  const [showStickyBar, setShowStickyBar] = useState(false);
-
-  // Typewriter effect state
-  const [typewriterText, setTypewriterText] = useState(HERO_TYPEWRITER_LINES[0]);
-  const [lineIndex, setLineIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
+  // Typewriter state
+  const [typewriterIdx, setTypewriterIdx] = useState(0);
+  const [typewriterText, setTypewriterText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Session check (Preserves auth-navigation.test.ts contract)
+  // Interactive sections state
+  const [activePainIndex, setActivePainIndex] = useState(0);
+  const [activeWalkthroughIndex, setActiveWalkthroughIndex] = useState(0);
+  const [walkthroughAutoPlay, setWalkthroughAutoPlay] = useState(true);
+  const [checkedReadiness, setCheckedReadiness] = useState<number[]>([0, 1, 2]);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  // VU meter & cursor particles
+  const [vuLevelL, setVuLevelL] = useState(5);
+  const [vuLevelR, setVuLevelR] = useState(5);
+  const [wiggleActive, setWiggleActive] = useState(false);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const particleIdRef = useRef(0);
+
+  // Web Audio API refs
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const synthNodesRef = useRef<{
+    oscillators: OscillatorNode[];
+    gainNode: GainNode;
+    filterNode: BiquadFilterNode;
+    noiseNode: AudioBufferSourceNode;
+  } | null>(null);
+
+  // Session check (preserves auth-navigation.test.ts contract)
   useEffect(() => {
     let isMounted = true;
     setDefaultDestination("/projects");
@@ -369,117 +787,119 @@ export default function LandingPage() {
       }
     }
 
-    void loadSession();
-
+    loadSession();
     return () => {
       isMounted = false;
     };
   }, [router]);
 
-  // Typewriter animation loop
+  // Smooth typewriter effect
   useEffect(() => {
-    const currentFullLine = HERO_TYPEWRITER_LINES[lineIndex];
-    const speed = isDeleting ? 22 : 42;
+    const currentFullText = HERO_TYPEWRITER_LINES[typewriterIdx] || "";
+    const speed = isDeleting ? 22 : 45;
 
     const timer = setTimeout(() => {
-      if (!isDeleting && charIndex < currentFullLine.length) {
-        setTypewriterText(currentFullLine.slice(0, charIndex + 1));
-        setCharIndex((c) => c + 1);
-      } else if (!isDeleting && charIndex === currentFullLine.length) {
-        setTimeout(() => setIsDeleting(true), 2200);
-      } else if (isDeleting && charIndex > 0) {
-        setTypewriterText(currentFullLine.slice(0, charIndex - 1));
-        setCharIndex((c) => c - 1);
-      } else if (isDeleting && charIndex === 0) {
-        setIsDeleting(false);
-        setLineIndex((l) => (l + 1) % HERO_TYPEWRITER_LINES.length);
+      if (!isDeleting && typewriterText === currentFullText) {
+        setTimeout(() => setIsDeleting(true), 2400);
+        return;
       }
+      if (isDeleting && typewriterText === "") {
+        setIsDeleting(false);
+        setTypewriterIdx((prev) => (prev + 1) % HERO_TYPEWRITER_LINES.length);
+        return;
+      }
+      setTypewriterText(
+        currentFullText.substring(
+          0,
+          typewriterText.length + (isDeleting ? -1 : 1)
+        )
+      );
     }, speed);
 
     return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, lineIndex]);
+  }, [typewriterText, isDeleting, typewriterIdx]);
 
-  // Scroll tracking for sticky bottom bar
+  // Auto-advance walkthrough carousel
   useEffect(() => {
-    const handleScroll = () => {
+    if (!walkthroughAutoPlay) return;
+    const timer = setInterval(() => {
+      setActiveWalkthroughIndex((prev) => (prev + 1) % WALKTHROUGH_SLIDES.length);
+    }, 6500);
+    return () => clearInterval(timer);
+  }, [walkthroughAutoPlay]);
+
+  // Sticky bar visibility on scroll
+  useEffect(() => {
+    const onScroll = () => {
       setShowStickyBar(window.scrollY > 520);
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Cursor sparkle trail particles
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const particleIdCounter = useRef(0);
-
+  // Subtle cursor sparkle trail
   useEffect(() => {
+    let lastTime = 0;
+    const chars = ["✦", "·", "✧", "◦"];
+    const colors = ["#a9a2ff", "#e5bd72", "#89c7d6", "#d59ab3"];
+
     const handleMouseMove = (e: MouseEvent) => {
-      if (Math.random() > 0.28) return;
-      const stars = ["✦", "✧", "★", "•"];
-      const colors = ["#a9a2ff", "#e5bd72", "#89c7d6", "#ff8a4c"];
+      const now = Date.now();
+      if (now - lastTime < 90) return;
+      lastTime = now;
+
+      const id = ++particleIdRef.current;
       const newParticle: Particle = {
-        id: particleIdCounter.current++,
+        id,
         x: e.clientX,
-        y: e.clientY + window.scrollY,
-        char: stars[Math.floor(Math.random() * stars.length)],
-        color: colors[Math.floor(Math.random() * colors.length)],
-        size: Math.floor(Math.random() * 10) + 8,
-        rot: Math.random() * 360,
-        opacity: 1
+        y: e.clientY,
+        char: chars[id % chars.length],
+        color: colors[id % colors.length],
+        size: 10 + (id % 6),
+        rot: (id * 23) % 360,
+        opacity: 0.75
       };
-      setParticles((prev) => [...prev.slice(-24), newParticle]);
+
+      setParticles((prev) => [...prev.slice(-10), newParticle]);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setParticles((prev) =>
-        prev
-          .map((p) => ({
-            ...p,
-            y: p.y + 1.1,
-            rot: p.rot + 1.5,
-            opacity: p.opacity - 0.06
-          }))
-          .filter((p) => p.opacity > 0)
-      );
-    }, 45);
-    return () => clearInterval(interval);
-  }, []);
+    if (particles.length === 0) return;
+    const timer = setTimeout(() => {
+      setParticles((prev) => prev.slice(1));
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [particles]);
 
-  // VU Meter & Web Audio Synthesizer
-  const [vuLevelL, setVuLevelL] = useState(12);
-  const [vuLevelR, setVuLevelR] = useState(18);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-
+  // Web Audio Synthesizer
   const startSynth = () => {
     try {
-      const AudioContextClass =
+      const AudioCtx =
         window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const audioCtx = new AudioContextClass();
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      const audioCtx = new AudioCtx();
       audioCtxRef.current = audioCtx;
 
       const masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(0.16, audioCtx.currentTime);
+      masterGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      masterGain.connect(audioCtx.destination);
 
       const filter = audioCtx.createBiquadFilter();
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(460, audioCtx.currentTime);
-      filter.Q.setValueAtTime(1, audioCtx.currentTime);
-
+      filter.frequency.setValueAtTime(420, audioCtx.currentTime);
+      filter.Q.setValueAtTime(1.2, audioCtx.currentTime);
       filter.connect(masterGain);
-      masterGain.connect(audioCtx.destination);
 
       const chords = [
-        [130.81, 164.81, 196.0, 246.94], // Cmaj7
-        [110.0, 130.81, 164.81, 196.0], // Am7
-        [146.83, 174.61, 220.0, 261.63], // Dm7
-        [98.0, 123.47, 146.83, 174.61] // G7
+        [130.81, 164.81, 196.0, 246.94],
+        [110.0, 130.81, 164.81, 196.0],
+        [146.83, 174.61, 220.0, 261.63],
+        [98.0, 123.47, 146.83, 174.61]
       ];
 
       const oscillators: OscillatorNode[] = [];
@@ -498,12 +918,17 @@ export default function LandingPage() {
       }
 
       const bufferSize = audioCtx.sampleRate * 2;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const noiseBuffer = audioCtx.createBuffer(
+        1,
+        bufferSize,
+        audioCtx.sampleRate
+      );
       const output = noiseBuffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        let val = (Math.random() * 2 - 1) * 0.007;
+        const randomVal = Math.random() * 2 - 1;
+        let val = randomVal * 0.008;
         if (Math.random() > 0.9995) {
-          val += Math.random() > 0.5 ? 0.3 : -0.3;
+          val += Math.random() > 0.5 ? 0.35 : -0.35;
         }
         output[i] = val;
       }
@@ -512,7 +937,7 @@ export default function LandingPage() {
       noiseSource.buffer = noiseBuffer;
       noiseSource.loop = true;
       const noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      noiseGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
       noiseSource.connect(noiseGain);
       noiseGain.connect(masterGain);
       noiseSource.start();
@@ -520,13 +945,32 @@ export default function LandingPage() {
       let currentChordIdx = 0;
       const playChord = () => {
         const chord = chords[currentChordIdx];
+        const transitionTime = 0.8;
+
         oscillators.forEach((osc, idx) => {
-          osc.frequency.setValueAtTime(chord[idx], audioCtx.currentTime);
-          osc.detune.setValueAtTime(Math.random() * 10 - 5, audioCtx.currentTime);
+          const freq = chord[idx];
+          const detuneVal = Math.random() * 12 - 6;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          osc.detune.setValueAtTime(detuneVal, audioCtx.currentTime);
+
+          const targetVoiceGain = 0.28;
           oscGains[idx].gain.cancelScheduledValues(audioCtx.currentTime);
-          oscGains[idx].gain.setValueAtTime(oscGains[idx].gain.value, audioCtx.currentTime);
-          oscGains[idx].gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.8);
+          oscGains[idx].gain.setValueAtTime(
+            oscGains[idx].gain.value,
+            audioCtx.currentTime
+          );
+          oscGains[idx].gain.linearRampToValueAtTime(
+            targetVoiceGain,
+            audioCtx.currentTime + transitionTime
+          );
         });
+
+        const nextSweepFreq = 380 + Math.random() * 140;
+        filter.frequency.linearRampToValueAtTime(
+          nextSweepFreq,
+          audioCtx.currentTime + 3.5
+        );
+
         currentChordIdx = (currentChordIdx + 1) % chords.length;
       };
 
@@ -536,8 +980,18 @@ export default function LandingPage() {
         playChord();
       }, 4000);
 
-      (audioCtx as unknown as { _chordScheduler: ReturnType<typeof setInterval> })._chordScheduler =
-        chordScheduler;
+      synthNodesRef.current = {
+        oscillators,
+        gainNode: masterGain,
+        filterNode: filter,
+        noiseNode: noiseSource
+      };
+
+      (
+        audioCtx as AudioContext & {
+          _chordScheduler?: ReturnType<typeof setInterval>;
+        }
+      )._chordScheduler = chordScheduler;
     } catch (err) {
       console.error("Failed to start Web Audio Synthesizer:", err);
     }
@@ -545,7 +999,7 @@ export default function LandingPage() {
 
   const stopSynth = () => {
     if (audioCtxRef.current) {
-      const ctxWithTimer = audioCtxRef.current as unknown as {
+      const ctxWithTimer = audioCtxRef.current as AudioContext & {
         _chordScheduler?: ReturnType<typeof setInterval>;
       };
       if (ctxWithTimer._chordScheduler) {
@@ -553,6 +1007,7 @@ export default function LandingPage() {
       }
       audioCtxRef.current.close();
       audioCtxRef.current = null;
+      synthNodesRef.current = null;
     }
   };
 
@@ -569,7 +1024,7 @@ export default function LandingPage() {
   useEffect(() => {
     return () => {
       if (audioCtxRef.current) {
-        const ctxWithTimer = audioCtxRef.current as unknown as {
+        const ctxWithTimer = audioCtxRef.current as AudioContext & {
           _chordScheduler?: ReturnType<typeof setInterval>;
         };
         if (ctxWithTimer._chordScheduler) {
@@ -586,271 +1041,241 @@ export default function LandingPage() {
       interval = setInterval(() => {
         setVuLevelL(Math.floor(Math.random() * 45) + 12);
         setVuLevelR(Math.floor(Math.random() * 50) + 15);
-      }, 110);
+      }, 100);
+    } else if (wiggleActive) {
+      interval = setInterval(() => {
+        setVuLevelL(Math.floor(Math.random() * 32) + 8);
+        setVuLevelR(Math.floor(Math.random() * 36) + 10);
+      }, 100);
     } else {
-      setVuLevelL(6);
-      setVuLevelR(8);
+      setVuLevelL(5);
+      setVuLevelR(5);
     }
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, wiggleActive]);
 
-  const toggleSuitabilityItem = (idx: number) => {
-    setCheckedSuitability((prev) =>
+  const toggleReadinessItem = (idx: number) => {
+    setCheckedReadiness((prev) =>
       prev.includes(idx) ? prev.filter((item) => item !== idx) : [...prev, idx]
     );
   };
 
-  const activePainTab = PAIN_POINT_TABS[activePainTabIndex] ?? PAIN_POINT_TABS[0];
-  const activeSlide = WALKTHROUGH_SLIDES[activeSlideIndex] ?? WALKTHROUGH_SLIDES[0];
+  const activePain = PAIN_POINT_TABS[activePainIndex] || PAIN_POINT_TABS[0];
+  const activeSlide =
+    WALKTHROUGH_SLIDES[activeWalkthroughIndex] || WALKTHROUGH_SLIDES[0];
+  const combinedFaqs = [...FAQ_ROW_1.slice(0, 4), ...FAQ_ROW_2.slice(0, 4)];
 
   return (
     <main
-      className={`min-h-screen bg-[#080817] text-[#f5efe6] font-sans relative overflow-x-hidden selection:bg-[#a9a2ff]/30 selection:text-white ${
-        crtMode ? "crt-screen-overlay" : ""
+      className={`min-h-screen bg-[#070715] text-[#f5efe6] font-sans relative overflow-hidden selection:bg-[#a9a2ff]/30 selection:text-white crt-screen-overlay ${
+        crtMode ? "active" : ""
       }`}
+      style={{ backgroundColor: "#070715", color: "#f5efe6" }}
     >
-      {/* ── Cursor Sparkles ── */}
-      {particles.map((p) => (
-        <span
-          key={p.id}
-          className="absolute pointer-events-none z-50 select-none font-mono"
-          style={{
-            left: p.x,
-            top: p.y,
-            color: p.color,
-            fontSize: `${p.size}px`,
-            transform: `translate(-50%, -50%) rotate(${p.rot}deg)`,
-            opacity: p.opacity,
-            textShadow: `0 0 10px ${p.color}`
-          }}
-        >
-          {p.char}
-        </span>
-      ))}
-
-      {/* ── 1. Top Dismissible Announcement Marquee Bar (Sloth-style) ── */}
-      {announcementOpen && (
-        <aside
-          aria-label="ข้อความประกาศ"
-          className="relative z-50 w-full bg-[#14122b] border-b border-[#a9a2ff]/25 py-2.5 pr-12 overflow-hidden"
-        >
-          <div className="retzlo-marquee-track flex items-center whitespace-nowrap text-xs sm:text-sm font-medium text-[#f5efe6]">
-            {[0, 1].map((dup) => (
-              <div key={dup} className="flex items-center gap-8 pr-8" aria-hidden={dup === 1}>
-                <span>
-                  🔥 เปิดตัว <strong className="text-[#e5bd72]">Retzlo Second Brain & Lofi OS 2.0</strong> — ปลดล็อกสมองที่ล้า ให้ระบบช่วยจำและจัดระเบียบแทนคุณ
-                </span>
-                <span className="text-[#ff8a4c]">✳</span>
-                <span>
-                  ใช้งานฟรี 100% · มี <strong className="text-[#a9a2ff]">AI Breakdown</strong> ช่วยแตกโปรเจกต์เป็นงานย่อยในคลิกเดียว
-                </span>
-                <span className="text-[#ff8a4c]">✳</span>
-                <span>
-                  ทำงานเสร็จรับเหรียญ <strong className="text-[#34d399]">Coin แลกรางวัล</strong> พร้อมวิทยุ Lofi C-60 และสวนเซนบำบัดใจ
-                </span>
-                <span className="text-[#ff8a4c]">✳</span>
-              </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => setAnnouncementOpen(false)}
-            aria-label="ปิดแถบประกาศ"
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[#080817]/80 border border-white/15 text-[#d6d3d1] hover:text-white flex items-center justify-center text-base cursor-pointer"
+      {/* Subtle Cursor Sparkles */}
+      <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+        {particles.map((p) => (
+          <span
+            key={p.id}
+            className="absolute select-none transition-all duration-500"
+            style={{
+              left: p.x,
+              top: p.y,
+              color: p.color,
+              fontSize: p.size,
+              opacity: p.opacity,
+              transform: `translate(-50%, -50%) rotate(${p.rot}deg)`
+            }}
           >
-            ×
-          </button>
-        </aside>
-      )}
+            {p.char}
+          </span>
+        ))}
+      </div>
 
-      {/* ── 2. Sticky Editorial & Lofi Studio Pill Header ── */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#080817]/90 backdrop-blur-xl px-4 sm:px-6 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          {/* Left Brand + Tag */}
-          <div className="flex items-center gap-3">
-            <Link href="#cp-hero" className="flex items-center group">
-              <div className="relative h-9 w-24 transition-transform duration-300 group-hover:scale-105">
-                <Image
-                  src="/brand/retzlo-logo.png"
-                  alt="Retzlo"
-                  fill
-                  priority
-                  sizes="96px"
-                  className="object-contain object-left select-none pointer-events-none"
-                />
-              </div>
-            </Link>
-            <span className="hidden xl:inline-block text-xs font-mono text-[#a8a29e]">
-              · The Lofi Second Brain
-            </span>
-            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border-2 border-[#080817] bg-[#faf6ef] px-3 py-0.5 text-[11px] font-mono font-bold text-[#1c1917] shadow-[2px_2px_0_#a9a2ff]">
-              <Sparkles className="w-3 h-3 text-[#ff8a4c]" />
-              LIFE & WORK OS
-            </span>
-          </div>
+      {/* Background Glow Orbs */}
+      <div className="retzlo-hero-orb-1" />
+      <div className="retzlo-hero-orb-2" />
+      <div className="retzlo-hero-orb-3" />
 
-          {/* Center Pill Navigation (Sloth cp-navpill style) */}
-          <nav
-            aria-label="เมนูนำทางหลัก"
-            className="hidden lg:flex items-center gap-1 rounded-full border border-white/15 bg-[#13112c]/90 p-1 text-xs font-medium text-[#d6d3d1]"
-          >
+      {/* Subtle 4rem Grid Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(169,162,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(169,162,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+
+      {/* Shooting Grid Beams */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div
+          className="retzlo-grid-beam-x top-[18%] w-[200px]"
+          style={{ animationDelay: "0s", animationDuration: "8s" }}
+        />
+        <div
+          className="retzlo-grid-beam-x top-[58%] w-[150px]"
+          style={{ animationDelay: "3s", animationDuration: "11s" }}
+        />
+        <div
+          className="retzlo-grid-beam-y left-[25%] h-[200px]"
+          style={{ animationDelay: "1.5s", animationDuration: "9s" }}
+        />
+      </div>
+
+      {/* ── Top Navigation (.retzlo-nav) ────────────────────────────── */}
+      <nav className="retzlo-nav">
+        <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl border border-[#a9a2ff]/25 bg-[#a9a2ff]/10 flex items-center justify-center shadow-[0_0_20px_rgba(169,162,255,0.15)] group-hover:border-[#a9a2ff]/50 transition-colors">
+              <Disc
+                className={`w-4 h-4 text-[#a9a2ff] ${
+                  isPlaying ? "animate-spin" : ""
+                }`}
+              />
+            </div>
+            <div>
+              <span className="font-bold text-base tracking-tight text-white">
+                Retzlo
+              </span>
+              <span className="hidden sm:inline-block ml-2 text-[10px] font-mono uppercase tracking-widest text-[#a9a2ff] px-2 py-0.5 rounded-full border border-[#a9a2ff]/20 bg-[#a9a2ff]/10">
+                Studio OS
+              </span>
+            </div>
+          </Link>
+
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center gap-8 text-sm text-[#d6d3d1]">
             <a
               href="#pain-tabs"
-              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+              className="hover:text-[#a9a2ff] transition-colors"
             >
-              ทำไมต้องมีระบบ
+              Why Retzlo
             </a>
             <a
               href="#walkthrough"
-              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+              className="hover:text-[#a9a2ff] transition-colors"
             >
-              ดูข้างใน (7 โมดูล)
-            </a>
-            <a
-              href="#check-readiness"
-              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
-            >
-              เหมาะกับใคร
+              Walkthrough
             </a>
             <a
               href="#lofi-focus"
-              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+              className="hover:text-[#a9a2ff] transition-colors"
             >
-              วิทยุ Lofi
+              Lofi Studio
             </a>
             <a
-              href="#offer"
-              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
+              href="#comparison"
+              className="hover:text-[#a9a2ff] transition-colors"
             >
-              เปรียบเทียบ
+              Compare
             </a>
-            <a
-              href="#faq"
-              className="rounded-full px-3.5 py-1.5 hover:bg-white/10 hover:text-white transition"
-            >
-              คำถาม (FAQ)
+            <a href="#faq" className="hover:text-[#a9a2ff] transition-colors">
+              FAQ
             </a>
-          </nav>
+          </div>
 
-          {/* Right Audio Toggle + Auth Actions */}
-          <div className="hidden md:flex items-center gap-2.5">
+          {/* Right Actions */}
+          <div className="hidden md:flex items-center gap-3">
             <button
               type="button"
               onClick={handlePlayToggle}
-              className={`px-3 py-1.5 rounded-full border text-xs font-mono flex items-center gap-1.5 cursor-pointer transition ${
+              className={`px-3 py-2 text-xs font-mono rounded-lg border flex items-center gap-2 transition-all cursor-pointer ${
                 isPlaying
-                  ? "border-emerald-400/50 bg-emerald-500/15 text-emerald-300"
-                  : "border-white/15 bg-white/[0.04] text-[#d6d3d1] hover:border-[#e5bd72]/50 hover:text-[#e5bd72]"
+                  ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
+                  : "border-[#a9a2ff]/20 bg-[#a9a2ff]/5 text-[#d6d3d1] hover:border-[#a9a2ff]/40"
               }`}
             >
-              {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+              {isPlaying ? (
+                <Pause className="w-3.5 h-3.5" />
+              ) : (
+                <Play className="w-3.5 h-3.5 text-[#a9a2ff]" />
+              )}
               <span>{isPlaying ? "Lofi: ON" : "Lofi Radio"}</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => setCrtMode(!crtMode)}
-              className={`px-2.5 py-1.5 text-xs font-mono rounded-full border flex items-center gap-1.5 cursor-pointer transition ${
-                crtMode
-                  ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
-                  : "bg-white/5 border-white/10 text-[#a8a29e] hover:text-white"
-              }`}
-              title="สลับเอฟเฟกต์หน้าจอเรโทร CRT"
-            >
-              <Tv className="w-3.5 h-3.5" />
-              <span className="hidden xl:inline">CRT</span>
-            </button>
-
             {currentUser ? (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <Link
                   href="/profile"
-                  className="max-w-[160px] truncate px-2.5 py-1.5 text-xs font-medium text-[#d6d3d1] transition-colors hover:text-white"
+                  className="px-3.5 py-2 text-xs font-mono text-[#d6d3d1] hover:text-white transition-colors truncate max-w-[150px]"
                 >
                   {currentUser.name || currentUser.email || "Workspace user"}
                 </Link>
                 <Link href={defaultDestination}>
-                  <button className="rounded-full border-2 border-[#080817] bg-[#ff8a4c] px-4 py-1.5 text-xs font-bold text-[#080817] shadow-[3px_3px_0_#f5efe6] hover:translate-y-[-1px] transition cursor-pointer">
+                  <button className="retzlo-cta-ghost px-5 py-2.5 text-xs font-semibold uppercase tracking-wider cursor-pointer">
                     Enter Workspace
                   </button>
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <>
                 <Link
                   href="/login"
-                  className="px-3 py-1.5 text-xs sm:text-sm text-[#d6d3d1] hover:text-white font-medium transition-colors"
+                  className="px-4 py-2 text-sm text-[#d6d3d1] hover:text-white font-medium transition-colors"
                 >
-                  เข้าสู่ระบบ
+                  Sign In
                 </Link>
                 <Link href={defaultDestination}>
-                  <button className="rounded-full border-2 border-[#080817] bg-[#ff8a4c] px-4 py-1.5 text-xs font-bold text-[#080817] shadow-[3px_3px_0_#f5efe6] hover:translate-y-[-1px] transition cursor-pointer">
+                  <button className="retzlo-cta-ghost px-5 py-2.5 text-xs font-semibold uppercase tracking-wider cursor-pointer">
                     Enter Workspace
                   </button>
                 </Link>
-              </div>
+              </>
             )}
           </div>
 
-          {/* Mobile Hamburger */}
+          {/* Mobile Menu Button */}
           <button
-            type="button"
             className="md:hidden p-2 text-[#d6d3d1] hover:text-white transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="เปิดเมนู"
+            aria-label="Toggle Menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
 
         {/* Mobile Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-3 border-t border-white/10 bg-[#0d0c22] px-4 py-5 space-y-3 rounded-2xl">
+          <div className="md:hidden absolute top-[72px] left-0 right-0 border-b border-[#a9a2ff]/15 bg-[#0b0b20]/95 backdrop-blur-xl px-6 py-6 space-y-4">
             <a
               href="#pain-tabs"
-              className="block text-sm text-[#f5efe6] py-1.5 border-b border-white/5"
+              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2 border-b border-[#a9a2ff]/10"
               onClick={() => setMobileMenuOpen(false)}
             >
-              ทำไมต้องมีระบบ (6 ปัญหาคนทำงาน)
+              Why Retzlo
             </a>
             <a
               href="#walkthrough"
-              className="block text-sm text-[#f5efe6] py-1.5 border-b border-white/5"
+              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2 border-b border-[#a9a2ff]/10"
               onClick={() => setMobileMenuOpen(false)}
             >
-              ดูข้างในระบบ (7 โมดูล)
-            </a>
-            <a
-              href="#check-readiness"
-              className="block text-sm text-[#f5efe6] py-1.5 border-b border-white/5"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              เช็กความพร้อม
+              Walkthrough
             </a>
             <a
               href="#lofi-focus"
-              className="block text-sm text-[#f5efe6] py-1.5 border-b border-white/5"
+              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2 border-b border-[#a9a2ff]/10"
               onClick={() => setMobileMenuOpen(false)}
             >
-              วิทยุ Lofi C-60
+              Lofi Studio
             </a>
             <a
               href="#faq"
-              className="block text-sm text-[#f5efe6] py-1.5"
+              className="block text-[#e7e5e4] hover:text-[#a9a2ff] py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
-              คำถามที่พบบ่อย (FAQ)
+              FAQ
             </a>
-            <div className="pt-3 flex flex-col gap-2">
+            <div className="pt-4 flex flex-col gap-2">
               {currentUser ? (
                 <>
                   <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full py-2 text-xs text-[#d6d3d1]">
+                    <button className="w-full truncate text-center py-2.5 text-sm text-[#d6d3d1] hover:text-white transition-colors">
                       {currentUser.name || currentUser.email || "Workspace user"}
                     </button>
                   </Link>
-                  <Link href={defaultDestination} onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full bg-[#ff8a4c] text-[#080817] font-bold py-2.5 rounded-full text-sm">
+                  <Link
+                    href={defaultDestination}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <button className="w-full text-center bg-[#a9a2ff] text-[#080817] font-semibold py-2.5 rounded-lg text-sm">
                       Enter Workspace
                     </button>
                   </Link>
@@ -858,13 +1283,16 @@ export default function LandingPage() {
               ) : (
                 <>
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full py-2 text-sm text-[#d6d3d1] border border-white/15 rounded-full">
-                      เข้าสู่ระบบ (Sign In)
+                    <button className="w-full text-center py-2.5 text-sm text-[#d6d3d1] hover:text-white transition-colors">
+                      Sign In
                     </button>
                   </Link>
-                  <Link href={defaultDestination} onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full bg-[#ff8a4c] text-[#080817] font-bold py-2.5 rounded-full text-sm">
-                      เริ่มต้นใช้งานฟรีทันที
+                  <Link
+                    href={defaultDestination}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <button className="w-full text-center bg-[#a9a2ff] text-[#080817] font-semibold py-2.5 rounded-lg text-sm">
+                      Start planning
                     </button>
                   </Link>
                 </>
@@ -872,342 +1300,283 @@ export default function LandingPage() {
             </div>
           </div>
         )}
-      </header>
+      </nav>
 
-      {/* ── 3. Hero Section (#cp-hero) — Sloth Storytelling × Retzlo Lofi Studio ── */}
+      {/* ── Section 1: Hero — Synthwave Fullscreen BG ───────────────── */}
       <section
         id="cp-hero"
-        className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-16 md:pt-16 md:pb-24"
+        className="relative min-h-[92vh] overflow-hidden flex flex-col"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          {/* Left Storytelling Column (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Tactile Pill Tag */}
-            <div className="inline-flex items-center gap-2.5 rounded-full border-2 border-[#080817] bg-[#faf6ef] px-4 py-1.5 text-xs sm:text-sm font-bold text-[#1c1917] shadow-[4px_4px_0_#a9a2ff]">
-              <div className="relative w-4 h-4">
-                <Image
-                  src="/stickers/retro/retro-sticker-20-sparkles.png"
-                  alt=""
-                  fill
-                  sizes="16px"
-                  className="object-contain"
-                />
+        <div className="absolute inset-0 z-0">
+          <SynthwaveHero
+            isPlaying={isPlaying}
+            onPlayToggle={handlePlayToggle}
+          />
+        </div>
+
+        {/* Left-to-right readability gradient */}
+        <div
+          className="absolute inset-0 z-10 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(7,7,21,0.88) 0%, rgba(7,7,21,0.72) 32%, rgba(7,7,21,0.35) 55%, transparent 80%)"
+          }}
+        />
+
+        {/* Floating CRT Toggle */}
+        <div className="absolute top-24 right-6 z-30 hidden sm:block">
+          <button
+            type="button"
+            onClick={() => setCrtMode(!crtMode)}
+            className={`px-3.5 py-1.5 text-xs font-mono rounded-lg border flex items-center gap-2 backdrop-blur-md transition-all cursor-pointer ${
+              crtMode
+                ? "bg-emerald-500/10 border-emerald-500/35 text-emerald-300"
+                : "bg-[#121026]/80 border-[#a9a2ff]/20 text-[#a8a29e]"
+            }`}
+          >
+            <Tv className="w-3.5 h-3.5" />
+            CRT Vibe: {crtMode ? "ON" : "OFF"}
+          </button>
+        </div>
+
+        {/* Left-column Hero Content */}
+        <div className="relative z-20 w-full max-w-7xl mx-auto flex-1 flex items-center px-6">
+          <div className="w-full max-w-xl space-y-6 pt-28 pb-16">
+            <div>
+              <div className="retzlo-badge inline-flex">
+                <span className="retzlo-badge-dot" />
+                <span>Retzlo Second Brain & Work OS</span>
               </div>
-              <span>All-in-One Second Brain · ใช้งานฟรีเต็มระบบ</span>
             </div>
 
-            {/* Main Headline with Floating Handwritten Script Label */}
-            <div className="relative pt-2">
-              <span
-                aria-hidden="true"
-                className="hidden sm:inline-block absolute right-4 -top-4 font-serif italic text-2xl md:text-3xl text-[#e5bd72] -rotate-3 select-none pointer-events-none"
-              >
-                second brain · lofi studio
+            <h1
+              className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-[1.12] retzlo-fade-up-d1"
+              style={{ textShadow: "0 2px 30px rgba(0,0,0,0.9)" }}
+            >
+              Retzlo
+              <span className="block retzlo-gradient-text mt-1">
+                calm second brain &amp; workspaces.
               </span>
+            </h1>
 
-              <h1 className="text-3xl sm:text-5xl md:text-[54px] font-extrabold tracking-tight text-white leading-[1.28]">
-                <span className="block">คุณไม่ได้ “ขี้เกียจ”</span>
-                <span className="block text-[#ff8a4c] mt-1">
-                  คุณแค่ยังไม่มี “ระบบ”
-                </span>
-                <span className="block text-lg sm:text-2xl md:text-[26px] font-semibold text-[#e7e5e4] mt-3 leading-[1.5]">
-                  ที่ช่วยให้จัดการทุกงาน โปรเจกต์ และชีวิตได้ด้วยตัวคนเดียว (หรือทำกับทีม) โดยไม่เหนื่อยล้าจนหมดไฟ
-                </span>
-              </h1>
-            </div>
-
-            {/* Live Typewriter Box */}
-            <div className="rounded-2xl border border-white/15 bg-[#121029]/85 px-4 py-3.5 max-w-xl">
-              <p className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed min-h-[3rem]">
-                <span>{typewriterText}</span>
-                <span className="inline-block w-0.5 h-4 bg-[#ff8a4c] align-middle ml-1 animate-pulse" />
+            {/* Smooth Typewriter Pill */}
+            <div className="rounded-xl border border-[#a9a2ff]/20 bg-[#0d0c22]/85 backdrop-blur-md px-4 py-3 min-h-[54px] flex items-center retzlo-fade-up-d2">
+              <p className="text-xs sm:text-sm font-mono text-[#e5bd72] leading-relaxed">
+                <span className="text-[#a9a2ff] mr-2">&gt;</span>
+                {typewriterText}
+                <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-[#a9a2ff] animate-pulse" />
               </p>
             </div>
 
-            {/* Neo-Retro Sticker CTA Button & Secondary Action */}
-            <div className="pt-1 space-y-4">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
-                <Link href={defaultDestination} className="inline-block">
-                  <button
-                    type="button"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-full border-2 border-[#080817] bg-[#ff8a4c] hover:bg-[#ff9b64] px-7 py-4 text-base sm:text-lg font-extrabold text-[#080817] shadow-[6px_6px_0_#faf6ef] hover:translate-y-[-2px] active:translate-y-[1px] transition-all cursor-pointer"
-                  >
-                    <span>เริ่มต้นจัดระเบียบชีวิต — ใช้งานฟรีทันที</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                </Link>
-                <a
-                  href="#walkthrough"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/[0.05] hover:bg-white/[0.1] px-6 py-4 text-sm font-semibold text-[#f5efe6] transition"
-                >
-                  <span>ส่องข้างในระบบ (7 โมดูล)</span>
-                </a>
-              </div>
+            <p
+              className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed retzlo-fade-up-d2"
+              style={{ textShadow: "0 1px 12px rgba(0,0,0,0.9)" }}
+            >
+              จัดระเบียบทุกโปรเจกต์ ลากการ์ดบน Kanban, ซิงก์วันส่งขึ้นปฏิทิน,
+              จดคลังความรู้ Second Brain และสะสมเหรียญแลกรางวัลในพื้นที่ทำงาน
+              Retro Lofi ที่ออกแบบมาให้สมองคุณโฟกัสได้อย่างสงบ
+            </p>
 
-              {/* 5-Star Rating & Checkmarks */}
-              <div className="space-y-1.5 pt-1">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <span className="text-[#ff8a4c] text-sm tracking-widest">★★★★★</span>
-                  <span className="text-xs sm:text-sm font-semibold text-[#f5efe6]">
-                    4.9/5 จากนักพัฒนา ฟรีแลนซ์ และคนทำงานที่รักความสงบ
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-[#a8a29e]">
-                  ✓ ไม่ต้องผูกบัตรเครดิต · ✓ มี AI ช่วยแตก Task อัตโนมัติ · ✓ มีวิทยุ Lofi & สวนเซนในตัว
-                </p>
-              </div>
+            {/* Primary & Ghost Actions */}
+            <div className="flex flex-wrap gap-3 pt-1 retzlo-fade-up-d3">
+              <Link href={defaultDestination}>
+                <button className="retzlo-cta-primary px-7 py-3.5 flex items-center gap-2 group text-sm cursor-pointer">
+                  เริ่มใช้งานฟรีทันที
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </Link>
+              <a href="#walkthrough">
+                <button className="retzlo-cta-ghost px-6 py-3.5 text-sm cursor-pointer">
+                  ดูตัวอย่าง 7 โมดูล
+                </button>
+              </a>
             </div>
-          </div>
 
-          {/* Right Interactive Synthwave Cockpit Column (5 cols) */}
-          <div className="lg:col-span-5">
-            <SynthwaveHero isPlaying={isPlaying} onPlayToggle={handlePlayToggle} />
+            {/* Clean Micro-Metrics */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 text-xs text-[#a8a29e] font-mono retzlo-fade-up-d4">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#a9a2ff]" />7 โมดูลในที่เดียว
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#e5bd72]" />AI Breakdown &amp; Summary
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#89c7d6]" />Lofi Radio &amp; Zen Garden
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── 4. Eyebrow Showcase Banner ("THE LOFI SECOND BRAIN 2.0") ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-16">
-        <div className="flex items-center gap-4 mb-5 flex-wrap">
-          <div className="flex items-center gap-3 flex-1 min-w-[140px]">
-            <span className="rounded-md bg-[#a9a2ff]/15 border border-[#a9a2ff]/30 px-2.5 py-1 text-xs font-mono font-bold uppercase tracking-widest text-[#a9a2ff]">
-              Life & Work OS
-            </span>
-            <div className="flex-1 h-px bg-white/15" />
-          </div>
-          <h2 className="text-lg sm:text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-white">
-            Retzlo Second Brain <span className="text-[#ff8a4c]">2.0</span>
-          </h2>
-        </div>
-
-        {/* All-in-One Module Strip Card */}
-        <div className="rounded-3xl border-2 border-[#faf6ef]/20 bg-gradient-to-b from-[#151332] to-[#0d0c20] p-5 sm:p-7 shadow-[0_24px_60px_rgba(0,0,0,0.45)]">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[
-              {
-                title: "Kanban & Table",
-                sub: "ลากวางงานไว 60fps",
-                sticker: "/stickers/retro/retro-sticker-03-checklist.png",
-                color: "#a9a2ff"
-              },
-              {
-                title: "AI Breakdown",
-                sub: "แตกงานใหญ่ใน 5 วิ",
-                sticker: "/stickers/retro/retro-sticker-33-magic-wand.png",
-                color: "#ff8a4c"
-              },
-              {
-                title: "Sync Calendar",
-                sub: "ปฏิทินรวมกำหนดส่ง",
-                sticker: "/stickers/retro/retro-sticker-04-calendar.png",
-                color: "#89c7d6"
-              },
-              {
-                title: "Notes & Diary",
-                sub: "สมองที่สองเก็บความรู้",
-                sticker: "/stickers/retro/retro-sticker-12-paper-note.png",
-                color: "#d59ab3"
-              },
-              {
-                title: "Coin Rewards",
-                sub: "ทำงานจบแลกรางวัล",
-                sticker: "/stickers/retro/retro-sticker-01-coin-reward.png",
-                color: "#e5bd72"
-              },
-              {
-                title: "Lofi & Zen Garden",
-                sub: "เพลงโฟกัส & สวนหิน",
-                sticker: "/stickers/retro/retro-sticker-09-headphones.png",
-                color: "#34d399"
-              }
-            ].map((mod) => (
-              <div
-                key={mod.title}
-                className="rounded-2xl border border-white/10 bg-[#090819]/80 p-3.5 flex flex-col items-center text-center gap-2 hover:border-[#a9a2ff]/45 hover:translate-y-[-2px] transition"
-              >
-                <div className="relative w-11 h-11">
-                  <Image
-                    src={mod.sticker}
-                    alt={mod.title}
-                    fill
-                    sizes="44px"
-                    className="object-contain"
-                  />
-                </div>
-                <div>
-                  <div className="text-xs sm:text-sm font-bold text-white">{mod.title}</div>
-                  <div className="text-[11px] text-[#a8a29e] mt-0.5">{mod.sub}</div>
-                </div>
+      {/* ── Workflow Marquee Strip ──────────────────────────────────── */}
+      <section className="border-y border-[#a9a2ff]/10 bg-[#0b0a1f]/70 py-5 overflow-hidden select-none">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="retzlo-marquee-track">
+            {[...Array(2)].map((_, groupIdx) => (
+              <div key={groupIdx} className="flex items-center gap-10 pr-10">
+                {[
+                  { label: "01 · Multi-Workspace Hub", color: "#a9a2ff" },
+                  { label: "02 · Kanban & Table Board", color: "#e5bd72" },
+                  { label: "03 · Unified Due-Date Calendar", color: "#89c7d6" },
+                  { label: "04 · Second Brain Notes", color: "#d59ab3" },
+                  { label: "05 · Daily Diary & Habit Streaks", color: "#a9a2ff" },
+                  { label: "06 · Coin Rewards & Coffee Cheers", color: "#e5bd72" },
+                  { label: "07 · Lofi C-60 Radio & Zen Garden", color: "#89c7d6" }
+                ].map((item) => (
+                  <div
+                    key={`${groupIdx}-${item.label}`}
+                    className="flex items-center gap-2.5 text-xs font-mono text-[#d6d3d1] whitespace-nowrap"
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full"
+                      style={{
+                        backgroundColor: item.color,
+                        boxShadow: `0 0 10px ${item.color}`
+                      }}
+                    />
+                    <span>{item.label}</span>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-          <p className="text-center text-sm sm:text-lg font-bold text-[#f5efe6] mt-6">
-            ระบบจัดการงานและชีวิต All-in-One — รวมทุกเรื่องสำคัญไว้ในสตูดิโอเดียว ไม่ต้องสลับแอปไปมา
-          </p>
         </div>
       </section>
 
-      {/* ── 5. Interactive Browser Tab Window (#pain-tabs — "เคยไหม? วางแผนไว้ดิบดี… แต่สุดท้ายไม่ได้ทำ") ── */}
-      <section id="pain-tabs" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <span className="text-xs font-mono uppercase tracking-widest text-[#ff8a4c]">
-              SOUND FAMILIAR? · ปัญหาที่คนทำงานเจอทุกวัน
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white mt-2 leading-snug">
-              เคยไหม? วางแผนไว้ดิบดี…
-              <br />
-              แต่สุดท้าย <span className="text-[#ff8a4c]">“ไม่ได้ทำ”</span>
-            </h2>
+      {/* ── Section 2: Pain Points Console (#pain-tabs) ─────────────── */}
+      <section
+        id="pain-tabs"
+        className="max-w-6xl mx-auto px-6 py-24 md:py-32 space-y-12"
+      >
+        <div className="text-center max-w-2xl mx-auto space-y-4">
+          <div className="retzlo-badge inline-flex">
+            <span className="retzlo-badge-dot" />
+            <span>Why Work Feels Chaotic</span>
           </div>
-          <p className="text-xs sm:text-sm text-[#a8a29e] font-mono">
-            👇 ลองคลิกเลือกแท็บปัญหาที่คุณกำลังเผชิญอยู่ด้านล่างนี้:
+          <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+            เคยเป็นแบบนี้ไหม? เวลาพยายามจัดระเบียบชีวิตและงาน
+          </h2>
+          <p className="text-sm sm:text-base text-[#a8a29e] leading-relaxed">
+            คลิกเลือกอาการที่คุณเจอบ่อยที่สุด แล้วดูว่า Retzlo
+            เปลี่ยนความวุ่นวายนั้นให้กลายเป็นระบบที่สงบและทำตามได้จริงอย่างไร
           </p>
         </div>
 
-        {/* Neo-Brutalist Cream Browser Window (Inspired by Sloth tbWin) */}
-        <div className="rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] shadow-[8px_8px_0_#a9a2ff] overflow-hidden">
-          {/* Browser Title Bar */}
-          <div className="flex items-center gap-2 bg-[#ffffff] border-b border-[#e5dec9] px-4 py-2.5">
-            <span className="w-3 h-3 rounded-full bg-[#FF5F57] inline-block" />
-            <span className="w-3 h-3 rounded-full bg-[#FEBC2E] inline-block" />
-            <span className="w-3 h-3 rounded-full bg-[#28C840] inline-block" />
-            <span className="flex-1 text-center text-xs font-mono font-medium text-[#78716c]">
-              Retzlo — The Lofi Second Brain OS
-            </span>
-          </div>
-
-          {/* Browser URL Bar */}
-          <div className="flex items-center gap-3 bg-[#ffffff] px-4 py-2 border-b border-[#e5dec9]">
-            <span className="text-xs font-mono text-[#78716c]">← → ⟳</span>
-            <div className="flex-1 rounded-full bg-[#f4efe3] px-4 py-1 text-xs font-mono text-[#292524] truncate">
-              🔒 retzlo.studio/why-you-need-a-system/{activePainTab.id}
+        {/* Clean Glassmorphic Browser Console */}
+        <div className="retzlo-bento-card overflow-hidden">
+          {/* Console Top Tab Bar */}
+          <div className="border-b border-[#a9a2ff]/12 bg-[#0b0a1d]/90 px-4 pt-3 flex items-center gap-2 overflow-x-auto scrollbar-soft">
+            <div className="hidden sm:flex items-center gap-1.5 pr-3 mr-1 border-r border-[#a9a2ff]/12 pb-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#d59ab3]/60" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#e5bd72]/60" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#89c7d6]/60" />
             </div>
-          </div>
-
-          {/* Browser Clickable Tabs Strip */}
-          <div className="flex items-end gap-1.5 bg-[#ece6d7] px-3 pt-2.5 overflow-x-auto scrollbar-none">
             {PAIN_POINT_TABS.map((tab, idx) => {
-              const isSelected = idx === activePainTabIndex;
+              const isActive = idx === activePainIndex;
               return (
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActivePainTabIndex(idx)}
-                  style={{ flex: isSelected ? "2.2 1 0%" : "1 1 0%" }}
-                  className={`min-w-[125px] inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-t-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer border border-b-0 ${
-                    isSelected
-                      ? "bg-[#ff8a4c] text-[#ffffff] border-[#1c1917] shadow-xs"
-                      : "bg-[#e2dac8]/70 text-[#57534e] border-transparent hover:bg-[#e2dac8] hover:text-[#1c1917]"
+                  onClick={() => setActivePainIndex(idx)}
+                  className={`px-4 py-2.5 rounded-t-xl text-xs font-medium whitespace-nowrap transition-all cursor-pointer border-t border-x ${
+                    isActive
+                      ? "bg-[#171533] text-white border-[#a9a2ff]/30 shadow-[0_-4px_20px_rgba(169,162,255,0.1)]"
+                      : "bg-transparent text-[#a8a29e] border-transparent hover:text-[#d6d3d1] hover:bg-[#121026]/50"
                   }`}
                 >
-                  <div className="relative w-4 h-4 shrink-0 rounded-full bg-white p-0.5">
-                    <Image
-                      src={tab.sticker}
-                      alt=""
-                      fill
-                      sizes="16px"
-                      className="object-contain"
-                    />
-                  </div>
-                  <span className="truncate">{tab.tabLabel}</span>
+                  <span
+                    className="inline-block w-1.5 h-1.5 rounded-full mr-2"
+                    style={{ backgroundColor: tab.accentColor }}
+                  />
+                  {tab.tabLabel}
                 </button>
               );
             })}
           </div>
 
-          {/* Browser Tab Content Body */}
-          <div className="border-t-2 border-[#1c1917] bg-[#f7f3ea] p-6 sm:p-9 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Problem & Solution Copy */}
-            <div className="lg:col-span-7 space-y-5">
-              <span className="inline-block rounded-full bg-[#1c1917] px-3 py-1 text-[11px] font-mono font-bold uppercase tracking-wider text-[#f7f3ea]">
-                PROBLEM 0{activePainTabIndex + 1} · {activePainTab.badge}
-              </span>
-              <h3 className="text-xl sm:text-3xl font-extrabold text-[#1c1917] leading-snug">
-                {activePainTab.title}
-              </h3>
-              <p className="text-sm sm:text-base text-[#44403c] leading-relaxed">
-                {activePainTab.description}
-              </p>
+          {/* Console Body */}
+          <div className="p-6 sm:p-8 md:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            {/* Left 7 Cols: Problem & Retzlo Solution */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="space-y-3">
+                <span
+                  className="inline-block text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full border"
+                  style={{
+                    color: activePain.accentColor,
+                    borderColor: `${activePain.accentColor}40`,
+                    backgroundColor: `${activePain.accentColor}12`
+                  }}
+                >
+                  {activePain.badge}
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-white leading-snug">
+                  {activePain.title}
+                </h3>
+                <p className="text-sm text-[#a8a29e] leading-relaxed">
+                  {activePain.description}
+                </p>
+              </div>
 
-              {/* Solution Box inside Tab */}
-              <div className="rounded-2xl border-2 border-[#1c1917] bg-[#ffffff] p-4 sm:p-5 shadow-[4px_4px_0_#1c1917]">
-                <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#15803d] mb-1">
-                  ✓ วิธีที่ Retzlo แก้ปัญหานี้ให้คุณทันที:
+              <div className="rounded-xl border border-[#a9a2ff]/25 bg-[#121028]/90 p-5 space-y-2.5">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#a9a2ff]">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>The Retzlo Solution</span>
                 </div>
-                <div className="text-base sm:text-lg font-extrabold text-[#1c1917]">
-                  {activePainTab.solutionTitle}
-                </div>
-                <p className="text-xs sm:text-sm text-[#44403c] mt-1.5 leading-relaxed">
-                  {activePainTab.solutionDesc}
+                <h4 className="text-base font-semibold text-white">
+                  {activePain.solutionTitle}
+                </h4>
+                <p className="text-xs sm:text-sm text-[#d6d3d1] leading-relaxed">
+                  {activePain.solutionDesc}
                 </p>
               </div>
             </div>
 
-            {/* Right Interactive Visual Preview Card */}
+            {/* Right 5 Cols: Clean Interactive Preview Card */}
             <div className="lg:col-span-5">
-              <div className="rounded-2xl border-2 border-[#1c1917] bg-[#111029] text-[#f5efe6] p-5 shadow-[6px_6px_0_#1c1917] space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-12 h-12 rounded-xl bg-white/10 p-1.5 border border-white/15">
+              <div className="rounded-2xl border border-[#a9a2ff]/15 bg-[#0b0a1d] p-5 space-y-4">
+                <div className="flex items-center justify-between border-b border-[#a9a2ff]/10 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative w-8 h-8 shrink-0">
                       <Image
-                        src={activePainTab.sticker}
-                        alt={activePainTab.tabLabel}
+                        src={activePain.sticker}
+                        alt={activePain.tabLabel}
                         fill
-                        sizes="48px"
+                        sizes="32px"
                         className="object-contain"
                       />
                     </div>
                     <div>
-                      <div
-                        className="text-[10px] font-mono font-bold uppercase tracking-wider"
-                        style={{ color: activePainTab.accentColor }}
-                      >
-                        RETZLO LIVE PREVIEW
+                      <div className="text-xs font-semibold text-white">
+                        Retzlo Action Flow
                       </div>
-                      <div className="text-sm font-bold text-white">
-                        {activePainTab.tabLabel}
+                      <div className="text-[10px] font-mono text-[#a8a29e]">
+                        พร้อมใช้งานทันทีในคลิกเดียว
                       </div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActivePainTabIndex((prev) => (prev + 1) % PAIN_POINT_TABS.length)
-                    }
-                    className="rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 px-2.5 py-1 text-[11px] font-mono text-[#d6d3d1] cursor-pointer"
-                  >
-                    แท็บถัดไป →
-                  </button>
+                  <span className="text-[10px] font-mono text-[#e5bd72] bg-[#e5bd72]/10 border border-[#e5bd72]/25 px-2 py-0.5 rounded-full">
+                    Active
+                  </span>
                 </div>
 
                 <div className="space-y-2.5">
-                  {activePainTab.mockItems.map((item) => (
+                  {activePain.mockItems.map((item) => (
                     <div
                       key={item.label}
-                      className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5"
+                      className="flex items-center justify-between gap-3 rounded-xl border border-[#a9a2ff]/10 bg-[#14122d]/80 px-3.5 py-2.5 text-xs"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span
-                          className={`w-4 h-4 rounded flex items-center justify-center text-[10px] shrink-0 ${
-                            item.done
-                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                              : "bg-[#a9a2ff]/20 text-[#a9a2ff] border border-[#a9a2ff]/40"
-                          }`}
-                        >
-                          {item.done ? "✓" : "•"}
-                        </span>
-                        <span className="text-xs font-medium text-[#f5efe6] truncate">
+                        <CheckCircle2
+                          className="w-4 h-4 shrink-0"
+                          style={{
+                            color: item.done ? "#89c7d6" : activePain.accentColor
+                          }}
+                        />
+                        <span className="text-[#f5efe6] truncate">
                           {item.label}
                         </span>
                       </div>
-                      <span
-                        className="shrink-0 rounded px-2 py-0.5 text-[9px] font-mono font-bold"
-                        style={{
-                          backgroundColor: `${activePainTab.accentColor}25`,
-                          color: activePainTab.accentColor
-                        }}
-                      >
+                      <span className="text-[10px] font-mono text-[#a8a29e] shrink-0">
                         {item.tag}
                       </span>
                     </div>
@@ -1219,950 +1588,735 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 6. Philosophy Split Section ("ให้สมองทำหน้าที่คิด แล้วให้ระบบทำหน้าที่จำ") ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-20">
-        <div className="border-t border-white/15 pt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-5">
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white leading-[1.35]">
-              ให้สมองทำหน้าที่คิด
-              <br />
-              แล้ว
-              <span
-                className="px-1"
-                style={{
-                  background:
-                    "linear-gradient(180deg, transparent 58%, rgba(169, 162, 255, 0.38) 58%, rgba(169, 162, 255, 0.38) 95%, transparent 95%)"
-                }}
-              >
-                ให้ระบบทำหน้าที่จำ
-              </span>
+      <div className="retzlo-section-line" />
+
+      {/* ── Section 3: 7-Module Interactive Walkthrough (#walkthrough) ── */}
+      <section
+        id="walkthrough"
+        className="max-w-7xl mx-auto px-6 py-24 md:py-32 space-y-12"
+      >
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="retzlo-badge inline-flex">
+              <span className="retzlo-badge-dot" />
+              <span>Interactive System Tour</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+              ครบทุกมิติของงานและชีวิต ใน 7 โมดูลที่เชื่อมถึงกัน
             </h2>
-          </div>
-          <div className="lg:col-span-7 space-y-4 text-sm sm:text-lg text-[#d6d3d1] leading-relaxed">
-            <p>
-              <strong className="text-white">Retzlo Studio OS</strong> คือแพลตฟอร์มบริหารจัดการงาน ชีวิต ไอเดีย และสมาธิ ที่ออกแบบมาเพื่อให้คุณเปิดจอขึ้นมาแล้วรู้ทันทีว่าวันนี้ต้องโฟกัสอะไร โดยไม่ต้องเสียเวลาจัดตารางใหม่ทุกเช้า
+            <p className="text-sm sm:text-base text-[#a8a29e]">
+              ไม่ต้องคอยเปิดหลายแท็บให้สับสน เลือกดูการทำงานของแต่ละโมดูลด้านล่างได้เลย
             </p>
-            <div className="space-y-2 text-sm sm:text-base text-[#e7e5e4]">
-              <p>✓ ไม่ต้องสร้างฐานข้อมูลหรือเขียนสูตรเองให้ปวดหัว ทุกอย่างเชื่อมกันพร้อมใช้ทันที</p>
-              <p>✓ ไม่ต้องพยายามจำ ทุกการ์ดงาน กำหนดส่ง และโน้ตมีบ้านชัดเจน ค้นหาเจอใน 3 วินาที</p>
-              <p>✓ ไม่ต้องมีวินัยเหล็ก เพราะมีเพลง Lofi, นาฬิกาโฟกัส และเหรียญแลกรางวัลคอยเติมไฟให้ทุกวัน</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 7. 3-Step Neo-Retro Sticker Cards (#workflow-steps) ── */}
-      <section id="workflow-steps" className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-20">
-        <div className="mb-10">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-snug">
-            สร้างระบบที่เข้ากับชีวิตคุณจริง ๆ
-            <br />
-            <span className="text-[#ff8a4c]">
-              แล้วเอาเวลาไปโฟกัสกับงานที่สร้างคุณค่าและรายได้
-            </span>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              step: "① โยนทุกเรื่องออกจากหัว (Brain Dump & AI)",
-              desc: "มีไอเดียใหม่ งานด่วน หรือโปรเจกต์ใหญ่ที่ยังไม่รู้จะเริ่มยังไง โยนเข้าบอร์ดหรือกดปุ่มให้ AI แตกเป็นงานย่อยให้ทันทีโดยไม่ต้องเสียเวลาจัดหมวดหมู่เอง",
-              note: "( จดให้เร็วที่สุด แล้วให้ AI ช่วยจัดระเบียบทีหลัง )",
-              sticker: "/stickers/retro/retro-sticker-32-idea-lamp.png",
-              accent: "#ff8a4c",
-              previewTag: "AI Task Breakdown · 5 วินาที"
-            },
-            {
-              step: "② จัดเก็บเข้าที่ เห็นงานชัด (Organize & Sync)",
-              desc: "เปลี่ยนเรื่องที่จดไว้ให้กลายเป็นบอร์ด Kanban, ตารางงาน, ปฏิทินกำหนดส่ง และคลังโน้ตความรู้ที่ซิงก์หากันอัตโนมัติ เปิดมาตอนเช้ารู้ทันทีว่าต้องทำอะไร",
-              note: "( ข้อมูลทุกชิ้นมีที่อยู่ชัดเจน ไม่หาย ไม่รกสมอง )",
-              sticker: "/stickers/retro/retro-sticker-13-project-folder.png",
-              accent: "#a9a2ff",
-              previewTag: "Kanban ↔ Calendar Auto-Sync"
-            },
-            {
-              step: "③ ทำงานเสร็จ รับเหรียญแลกรางวัล (Gamify & Zen)",
-              desc: "เปิดวิทยุ Lofi C-60 และนาฬิกา Nixie Pomodoro ทำงานจนจบ รับเหรียญ Coin สะสมไปแลกรางวัลที่คุณตั้งไว้เอง หรือแวะพักใจรดน้ำบอนไซในสวนเซน",
-              note: "( เปลี่ยนการทำงานที่น่าเบื่อ ให้สนุกเหมือนเล่นเกม )",
-              sticker: "/stickers/retro/retro-sticker-01-coin-reward.png",
-              accent: "#e5bd72",
-              previewTag: "+Coins & Solitary Zen Garden"
-            }
-          ].map((card) => (
-            <div
-              key={card.step}
-              className="rounded-3xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] p-6 sm:p-7 shadow-[6px_6px_0_#a9a2ff] flex flex-col justify-between"
-            >
-              <div>
-                {/* Illustration Well */}
-                <div className="rounded-2xl border-2 border-[#1c1917] bg-[#121029] p-6 flex flex-col items-center justify-center relative overflow-hidden min-h-[170px]">
-                  <div
-                    className="absolute w-32 h-32 rounded-full blur-2xl opacity-35"
-                    style={{ background: card.accent }}
-                  />
-                  <div className="relative w-20 h-20">
-                    <Image
-                      src={card.sticker}
-                      alt={card.step}
-                      fill
-                      sizes="80px"
-                      className="object-contain"
-                    />
-                  </div>
-                  <span
-                    className="mt-3 rounded-full px-3 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider border"
-                    style={{
-                      color: card.accent,
-                      borderColor: `${card.accent}55`,
-                      backgroundColor: `${card.accent}18`
-                    }}
-                  >
-                    {card.previewTag}
-                  </span>
-                </div>
-
-                <h3 className="text-lg sm:text-xl font-extrabold text-[#1c1917] mt-5">
-                  {card.step}
-                </h3>
-                <p className="text-sm sm:text-base text-[#292524] mt-2.5 leading-relaxed">
-                  {card.desc}
-                </p>
-              </div>
-
-              <p className="text-xs sm:text-sm font-mono text-[#78716c] mt-5 pt-3 border-t border-[#e5dec9]">
-                {card.note}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 8. Interactive 7-Module Walkthrough Carousel (#walkthrough) ── */}
-      <section id="walkthrough" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-        <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-6 tracking-tight">
-          ไม่ใช่แค่บอร์ดที่จัดสวย{" "}
-          <span className="text-[#a9a2ff]">แต่ทำงานเชื่อมกันทั้งระบบ</span>
-        </h2>
-
-        {/* Dark Studio Container with Perforated Ticket Divider (Inspired by Sloth wt-carousel-container) */}
-        <div className="rounded-3xl border-2 border-white/15 bg-[#131129] p-5 sm:p-8 md:p-10 shadow-2xl overflow-hidden">
-          {/* Top Pill Selector Bar */}
-          <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-            <span className="rounded-md bg-[#f7f3ea] text-[#1c1917] px-3 py-1 text-xs font-mono font-bold">
-              retzlo os · 7 core modules
-            </span>
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              {WALKTHROUGH_SLIDES.map((s, idx) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setActiveSlideIndex(idx)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-mono font-semibold transition cursor-pointer shrink-0 ${
-                    idx === activeSlideIndex
-                      ? "bg-[#ff8a4c] text-[#080817] font-bold shadow-xs"
-                      : "bg-white/[0.06] text-[#d6d3d1] hover:bg-white/[0.12]"
-                  }`}
-                >
-                  {s.tabName}
-                </button>
-              ))}
-            </div>
           </div>
 
-          {/* Tablet Bezel Frame + Prev/Next Buttons */}
-          <div className="relative max-w-5xl mx-auto">
-            <div className="rounded-2xl bg-[#f7f3ea] p-3 sm:p-5 border-2 border-[#1c1917]">
-              <div className="relative rounded-2xl bg-[#1c1c1c] p-3 sm:p-4 shadow-2xl">
-                {/* Camera Dot */}
-                <span className="absolute top-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#4a4a4a]" />
-                <WalkthroughMockupScreen
-                  slide={activeSlide}
-                  isPlaying={isPlaying}
-                  onToggleAudio={handlePlayToggle}
-                />
-              </div>
-            </div>
-
-            {/* Prev Button */}
+          {/* Walkthrough Playback Controls */}
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
-              aria-label="ก่อนหน้า"
               onClick={() =>
-                setActiveSlideIndex(
-                  (prev) => (prev - 1 + WALKTHROUGH_SLIDES.length) % WALKTHROUGH_SLIDES.length
+                setActiveWalkthroughIndex(
+                  (prev) =>
+                    (prev - 1 + WALKTHROUGH_SLIDES.length) %
+                    WALKTHROUGH_SLIDES.length
                 )
               }
-              className="absolute -left-2 sm:-left-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#f7f3ea] text-[#1c1917] border-2 border-[#1c1917] shadow-[3px_3px_0_#1c1917] hover:scale-105 transition flex items-center justify-center cursor-pointer z-20"
+              className="p-2.5 rounded-xl border border-[#a9a2ff]/20 bg-[#121026] text-[#d6d3d1] hover:text-white hover:border-[#a9a2ff]/40 transition cursor-pointer"
+              aria-label="Previous module"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
-
-            {/* Next Button */}
             <button
               type="button"
-              aria-label="ถัดไป"
-              onClick={() =>
-                setActiveSlideIndex((prev) => (prev + 1) % WALKTHROUGH_SLIDES.length)
-              }
-              className="absolute -right-2 sm:-right-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-[#f7f3ea] text-[#1c1917] border-2 border-[#1c1917] shadow-[3px_3px_0_#1c1917] hover:scale-105 transition flex items-center justify-center cursor-pointer z-20"
+              onClick={() => setWalkthroughAutoPlay(!walkthroughAutoPlay)}
+              className="px-3.5 py-2 rounded-xl border border-[#a9a2ff]/20 bg-[#121026] text-xs font-mono text-[#d6d3d1] hover:text-white transition cursor-pointer"
             >
-              <ChevronRight className="w-5 h-5" />
+              {walkthroughAutoPlay ? "⏸ Auto-Play" : "▶ Paused"}
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setActiveWalkthroughIndex(
+                  (prev) => (prev + 1) % WALKTHROUGH_SLIDES.length
+                )
+              }
+              className="p-2.5 rounded-xl border border-[#a9a2ff]/20 bg-[#121026] text-[#d6d3d1] hover:text-white hover:border-[#a9a2ff]/40 transition cursor-pointer"
+              aria-label="Next module"
+            >
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
+        </div>
 
-          {/* Ticket Stub Dashed Perforation Line */}
-          <div className="relative my-8 -mx-5 sm:-mx-8 md:-mx-10">
-            <div className="border-t-2 border-dashed border-white/25" />
-            <span className="absolute -left-3.5 -top-3.5 w-7 h-7 rounded-full bg-[#080817] border-r border-white/15" />
-            <span className="absolute -right-3.5 -top-3.5 w-7 h-7 rounded-full bg-[#080817] border-l border-white/15" />
-          </div>
+        {/* Module Selector Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-soft">
+          {WALKTHROUGH_SLIDES.map((slide, idx) => {
+            const isActive = idx === activeWalkthroughIndex;
+            return (
+              <button
+                key={slide.id}
+                type="button"
+                onClick={() => {
+                  setActiveWalkthroughIndex(idx);
+                  setWalkthroughAutoPlay(false);
+                }}
+                className={`px-4 py-2.5 rounded-xl text-xs font-mono whitespace-nowrap transition-all cursor-pointer border ${
+                  isActive
+                    ? "bg-[#a9a2ff]/15 text-white border-[#a9a2ff]/45 shadow-[0_0_20px_rgba(169,162,255,0.15)]"
+                    : "bg-[#121026]/60 text-[#a8a29e] border-[#a9a2ff]/12 hover:text-[#d6d3d1] hover:border-[#a9a2ff]/25"
+                }`}
+              >
+                {slide.tabName}
+              </button>
+            );
+          })}
+        </div>
 
-          {/* Bottom Walkthrough Caption & CTA */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <div className="lg:col-span-7 space-y-3">
-              <span className="inline-block bg-[#f7f3ea] text-[#1c1917] px-3 py-1 text-xs font-mono font-bold rounded">
+        {/* Walkthrough Split Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Left 5 Cols: Description & Takeaways */}
+          <div className="lg:col-span-5 retzlo-bento-card p-6 sm:p-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <span
+                className="text-[11px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-md border"
+                style={{
+                  color: activeSlide.accent,
+                  borderColor: `${activeSlide.accent}40`,
+                  backgroundColor: `${activeSlide.accent}12`
+                }}
+              >
                 {activeSlide.code}
               </span>
-              <h3 className="text-xl sm:text-2xl font-extrabold text-white">
-                {activeSlide.title}
-              </h3>
-              <p className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed">
-                {activeSlide.description}
-              </p>
-              <ul className="space-y-1.5 pt-2">
-                {activeSlide.highlights.map((h) => (
-                  <li key={h} className="flex items-start gap-2 text-xs sm:text-sm text-[#e7e5e4]">
-                    <CheckCircle2 className="w-4 h-4 text-[#34d399] shrink-0 mt-0.5" />
-                    <span>{h}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="lg:col-span-5 flex flex-col justify-between space-y-5 bg-[#0b0a1a] rounded-2xl p-5 border border-white/10">
-              {/* Slide Indicator Dots */}
-              <div className="flex items-center gap-2">
-                {WALKTHROUGH_SLIDES.map((s, idx) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    aria-label={`ไปยังสไลด์ที่ ${idx + 1}`}
-                    onClick={() => setActiveSlideIndex(idx)}
-                    className={`h-2.5 rounded-full transition-all cursor-pointer ${
-                      idx === activeSlideIndex
-                        ? "w-7 bg-[#ff8a4c]"
-                        : "w-2.5 bg-white/25 hover:bg-white/40"
-                    }`}
-                  />
-                ))}
-                <span className="ml-auto text-xs font-mono text-[#a8a29e]">
-                  {activeSlideIndex + 1} / {WALKTHROUGH_SLIDES.length}
-                </span>
-              </div>
-
-              <Link href={defaultDestination} className="block">
-                <button
-                  type="button"
-                  className="w-full rounded-full border-2 border-[#080817] bg-[#ff8a4c] hover:bg-[#ff9b64] py-3.5 px-6 text-base font-extrabold text-[#080817] shadow-[4px_4px_0_#faf6ef] transition cursor-pointer"
-                >
-                  เข้าใช้งานระบบนี้ฟรีทันที →
-                </button>
-              </Link>
-
-              <p className="text-xs text-[#a8a29e] text-center">
-                ไม่ต้องติดตั้งโปรแกรมเสริม · เปิดใช้งานได้ครบทั้ง 7 โมดูลตั้งแต่วันแรก
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 9. The Real Problem (3-Column Contrast) ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
-        <span className="rounded-full bg-[#ff8a4c]/15 border border-[#ff8a4c]/30 px-3.5 py-1 text-xs font-mono font-bold uppercase tracking-widest text-[#ff8a4c]">
-          THE REAL PROBLEM
-        </span>
-        <h2 className="text-2xl sm:text-4xl font-extrabold text-white mt-4 leading-snug">
-          ไม่ใช่ว่าคุณไม่มีวินัย…
-          <br />
-          <span className="text-[#ff8a4c]">แต่เครื่องมือที่คุณเคยใช้ มันซับซ้อนและแยกส่วนเกินไป</span>
-        </h2>
-        <p className="text-sm sm:text-base text-[#a8a29e] max-w-2xl mx-auto mt-3 mb-10">
-          คนส่วนใหญ่ล้มเลิกการจัดระเบียบเพราะต้องคอยดูแลรักษาระบบที่ซับซ้อน Retzlo จึงรวมเฉพาะสิ่งที่ทำให้คุณทำงานเสร็จจริงไว้ในที่เดียว
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-          <div className="rounded-2xl border border-rose-500/30 bg-[#1a1121] p-6 space-y-3">
-            <span className="text-xs font-bold text-rose-300 bg-rose-500/15 px-3 py-1 rounded-full inline-block">
-              ❌ วิธีเดิมที่คุ้นเคย
-            </span>
-            <h3 className="text-lg font-bold text-white">
-              จดแยกหลายแอป (แชต, โน้ตมือถือ, สมุด, Trello)
-            </h3>
-            <p className="text-sm text-[#d6d3d1] leading-relaxed">
-              ดูเหมือนสะดวกตอนจด แต่ข้อมูลกระจัดกระจาย พอจะหยิบมาทำงานจริงต้องนั่งค้นหาเป็นสิบนาที สุดท้ายลืมว่าจดไว้ที่ไหน
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-rose-500/30 bg-[#1a1121] p-6 space-y-3">
-            <span className="text-xs font-bold text-rose-300 bg-rose-500/15 px-3 py-1 rounded-full inline-block">
-              ❌ พยายามสร้างระบบเองจากศูนย์
-            </span>
-            <h3 className="text-lg font-bold text-white">
-              นั่งต่อตารางและผูกสูตร Database เองทีละหน้า
-            </h3>
-            <p className="text-sm text-[#d6d3d1] leading-relaxed">
-              เสียเวลาลองผิดลองถูกกว่า 30–40 ชั่วโมง งงกับโครงสร้างที่ซับซ้อนเกินชีวิตจริง พอไม่ได้อัปเดต 2 วันระบบก็ร้างและถอดใจเลิกใช้
-            </p>
-          </div>
-
-          <div className="rounded-2xl border-2 border-[#34d399] bg-[#0f2422] p-6 space-y-3 shadow-[6px_6px_0_#34d399]">
-            <span className="text-xs font-bold text-[#080817] bg-[#34d399] px-3 py-1 rounded-full inline-block">
-              ✓ ทางออกที่คนรักความสบายก็ใช้รอด
-            </span>
-            <h3 className="text-lg font-bold text-white">
-              Retzlo Studio OS ที่พร้อมใช้งานทันทีใน 60 วินาที
-            </h3>
-            <p className="text-sm text-[#e7e5e4] leading-relaxed">
-              มี AI ช่วยแตกงานย่อย เปิดเช้ามาเห็นเฉพาะงานที่ต้องทำวันนี้ ทำงานจบมีเหรียญแลกรางวัลและเพลง Lofi คลอเบา ๆ สร้างนิสัยดีได้แบบไม่ฝืนใจ
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 10. Interactive Readiness Checklist (#check-readiness) ── */}
-      <section id="check-readiness" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
-              <span className="text-[#ff8a4c]">เช็กความพร้อม</span> — ระบบนี้เหมาะกับคุณไหม?
-            </h2>
-            <p className="text-sm sm:text-base text-[#a8a29e] mt-2">
-              ลองคลิกติ๊กข้อที่ตรงกับชีวิตคุณด้านล่าง หากตรงมากกว่า 3 ข้อขึ้นไป Retzlo จะเปลี่ยนการทำงานของคุณทันที
-            </p>
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#34d399]/40 bg-[#34d399]/15 px-4 py-2 text-xs font-mono font-bold text-[#34d399] self-start">
-            <span>ตรงกับคุณแล้ว {checkedSuitability.length} / {SUITABLE_FOR_LIST.length} ข้อ</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          {/* Left: Suitable For (Interactive Checkboxes!) */}
-          <div className="rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] p-6 shadow-[6px_6px_0_#34d399]">
-            <span className="inline-block rounded-full bg-[#dcfce7] text-[#14532d] px-3.5 py-1 text-xs sm:text-sm font-bold">
-              ✓ เหมาะกับคุณมาก ถ้า… (คลิกเพื่อติ๊กเช็กได้)
-            </span>
-            <div className="mt-4 divide-y divide-[#e5dec9]">
-              {SUITABLE_FOR_LIST.map((item, idx) => {
-                const isChecked = checkedSuitability.includes(idx);
-                return (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => toggleSuitabilityItem(idx)}
-                    className="w-full py-3.5 flex items-start gap-3 text-left cursor-pointer group"
-                  >
-                    <span
-                      className={`mt-0.5 w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border-2 transition ${
-                        isChecked
-                          ? "bg-[#16a34a] border-[#1c1917] text-white"
-                          : "bg-white border-[#a8a29e] text-transparent group-hover:border-[#16a34a]"
-                      }`}
-                    >
-                      <Check className="w-3.5 h-3.5 stroke-[3]" />
-                    </span>
-                    <span
-                      className={`text-sm sm:text-base leading-relaxed ${
-                        isChecked ? "font-bold text-[#1c1917]" : "text-[#44403c]"
-                      }`}
-                    >
-                      {item}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Right: Not Suitable For */}
-          <div className="rounded-2xl border border-white/15 bg-[#121028] p-6">
-            <span className="inline-block rounded-full bg-white/10 text-[#d6d3d1] px-3.5 py-1 text-xs sm:text-sm font-bold">
-              × อาจไม่เหมาะ ถ้า…
-            </span>
-            <div className="mt-4 divide-y divide-white/10">
-              {NOT_SUITABLE_FOR_LIST.map((item) => (
-                <div key={item} className="py-3.5 flex items-start gap-3">
-                  <span className="mt-0.5 w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-xs font-mono text-[#a8a29e]">
-                    ×
-                  </span>
-                  <span className="text-sm sm:text-base text-[#a8a29e] leading-relaxed">
-                    {item}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-[#78716c] mt-4 font-mono">
-              * ถ้าตรงฝั่งขวานี้มากกว่า กดเปิดเพลง Lofi ฟังชิล ๆ อย่างเดียวก็ได้ครับ ไม่โกรธกัน 😄
-            </p>
-          </div>
-        </div>
-
-        {/* Dynamic Match Callout Banner */}
-        <div className="mt-7 rounded-2xl border-2 border-[#ff8a4c] bg-[#161332] p-6 sm:p-7 shadow-[6px_6px_0_#ff8a4c] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <span className="inline-block rounded-full bg-[#ff8a4c] text-[#080817] px-3 py-0.5 text-xs font-mono font-bold uppercase">
-              {checkedSuitability.length >= 3
-                ? `ตรงถึง ${checkedSuitability.length} ข้อ!`
-                : "พร้อมเริ่มต้นหรือยัง?"}
-            </span>
-            <h3 className="text-lg sm:text-2xl font-extrabold text-white mt-2">
-              งั้นไม่ต้องคิดนานแล้ว — ระบบนี้สร้างมาเพื่อปลดล็อกสมองของคุณ
-            </h3>
-            <p className="text-xs sm:text-sm text-[#d6d3d1] mt-1">
-              เริ่มต้นใช้งานได้ฟรีทันที พร้อมฟีเจอร์ครบทุกโมดูลและคู่มือภาษาไทยในตัว
-            </p>
-          </div>
-          <Link href={defaultDestination} className="shrink-0 w-full sm:w-auto">
-            <button
-              type="button"
-              className="w-full sm:w-auto rounded-full border-2 border-[#080817] bg-[#ff8a4c] hover:bg-[#ff9b64] px-7 py-3.5 text-sm sm:text-base font-extrabold text-[#080817] shadow-[4px_4px_0_#faf6ef] transition cursor-pointer"
-            >
-              เข้าใช้งาน Retzlo ฟรีทันที →
-            </button>
-          </Link>
-        </div>
-      </section>
-
-      {/* ── 11. Before vs After Transformation Grid ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
-            ชีวิตก่อนมีระบบ vs <span className="text-[#a9a2ff]">หลังจากใช้ Retzlo OS</span>
-          </h2>
-          <p className="text-sm sm:text-base text-[#a8a29e] mt-2">
-            งานเดิม ภาระเดิม… แค่ย้ายจากในหัวไปอยู่ในที่ที่มันควรอยู่ แล้วคุณจะรู้สึกเบาสมองขึ้นทันที
-          </p>
-        </div>
-
-        <div className="rounded-3xl border-2 border-[#1c1917] bg-[#f8f4eb] text-[#1c1917] overflow-hidden shadow-[8px_8px_0_#a9a2ff]">
-          {/* Header Row */}
-          <div className="grid grid-cols-12 items-center border-b-2 border-[#1c1917] text-xs sm:text-sm font-mono font-bold uppercase tracking-widest">
-            <div className="col-span-5 py-4 px-4 text-center text-[#78716c]">BEFORE (ก่อนใช้)</div>
-            <div className="col-span-2 py-4 text-center text-[#78716c]">→</div>
-            <div className="col-span-5 py-4 px-4 text-center bg-[#e9e4ff] text-[#4338ca]">
-              AFTER (หลังใช้ RETZLO OS)
-            </div>
-          </div>
-
-          {/* Transformation Rows */}
-          {BEFORE_AFTER_ROWS.map((row) => (
-            <div
-              key={row.moduleTag}
-              className="grid grid-cols-12 items-center border-b border-[#e5dec9] last:border-b-0"
-            >
-              <div className="col-span-5 p-4 sm:p-5 text-xs sm:text-base text-[#57534e] text-center">
-                {row.before}
-              </div>
-              <div className="col-span-2 text-center font-mono text-lg font-bold text-[#6366f1]">
-                →
-              </div>
-              <div className="col-span-5 p-4 sm:p-5 bg-[#ffffff] text-center">
-                <div className="text-xs sm:text-base font-bold text-[#1c1917]">{row.after}</div>
-                <span className="inline-block mt-1.5 rounded-full bg-[#eef2ff] px-2.5 py-0.5 text-[10px] font-mono font-bold text-[#4f46e5] uppercase tracking-wider">
-                  {row.moduleTag}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 12. Focus Station Interactive Cassette Player (#lofi-focus) ── */}
-      <section id="lofi-focus" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-        <div className="rounded-3xl border border-white/15 bg-gradient-to-br from-[#161432] to-[#0c0b1e] p-6 sm:p-10 lg:p-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-            <div className="space-y-5">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#e5bd72]/35 bg-[#e5bd72]/10 px-3.5 py-1.5 text-xs text-[#e5bd72] font-mono uppercase tracking-widest">
-                <Music className="w-3.5 h-3.5" />
-                RETZLO SIGNATURE FOCUS STATION
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
-                เข้าสู่โซนสมาธิได้ทันทีด้วย{" "}
-                <span className="text-[#e5bd72]">Retzlo Cassette Radio & Coffee Vibe</span>
-              </h2>
-              <p className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed">
-                ไม่ต้องเปิดแท็บ YouTube หาเพลงจนเผลอไถดูคลิปอื่น บนหัวเว็บของ Retzlo มีเครื่องเล่นเทป Lofi สังเคราะห์สด นาฬิกาหลอดไฟ Nixie Pomodoro และสวนเซนให้คุณกดเปิดได้ทุกเมื่อ
-              </p>
-
-              {/* Interactive Coffee Steam Box */}
-              <div
-                className="p-4 rounded-2xl border border-white/10 bg-[#0b0a1c] inline-flex items-center gap-4 select-none relative group"
-                onMouseEnter={() => setSteamHovered(true)}
-                onMouseLeave={() => setSteamHovered(false)}
-              >
-                <div className="relative">
-                  <Coffee className="w-8 h-8 text-[#e5bd72] transition-transform duration-300 group-hover:scale-110" />
-                  <svg
-                    className="absolute -top-6 left-1.5 w-6 h-6 overflow-visible pointer-events-none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      className={`coffee-steam-path stroke-[#e5bd72] stroke-2 fill-none ${
-                        steamHovered ? "running" : ""
-                      }`}
-                      d="M 6,24 C 6,18 10,14 10,10 C 10,6 6,4 6,0"
-                      style={{ animationDuration: "3.5s" }}
-                    />
-                    <path
-                      className={`coffee-steam-path stroke-[#a9a2ff] stroke-2 fill-none ${
-                        steamHovered ? "running" : ""
-                      }`}
-                      d="M 12,24 C 12,19 8,16 8,11 C 8,6 12,4 12,0"
-                      style={{ animationDuration: "5s", animationDelay: "1s" }}
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-white uppercase tracking-wider">
-                    Mellow Focus Brew & Coffee Cheers
-                  </p>
-                  <p className="text-[11px] text-[#a8a29e] font-mono">
-                    นำเมาส์มาวางเพื่อปล่อยไอร้อนกาแฟ · ส่งกาแฟให้เพื่อนร่วมทีมบนการ์ดได้จริง
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive Vintage Cassette Deck */}
-            <div className="flex justify-center">
-              <div className="w-full max-w-md rounded-2xl border-2 border-[#e5bd72]/35 bg-[#090817] p-6 sm:p-7 shadow-[8px_8px_0_rgba(229,189,114,0.2)]">
-                <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                  <div className="flex items-center gap-2">
-                    <Volume2 className="w-4 h-4 text-[#e5bd72]" />
-                    <span className="text-xs font-mono uppercase tracking-widest text-[#e5bd72]">
-                      RETZLO DECK · C-60 SYNTH
-                    </span>
-                  </div>
-                  <div
-                    className={`w-2.5 h-2.5 rounded-full ${
-                      isPlaying
-                        ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)] animate-pulse"
-                        : "bg-[#57534e]"
-                    }`}
-                  />
-                </div>
-
-                <div className="my-6 bg-[#121026] border border-white/10 rounded-xl p-4">
-                  <div className="relative h-32 bg-[#080716] rounded-lg border border-white/10 flex items-center justify-center overflow-hidden">
-                    <div className="w-52 h-28 bg-[#1c1a36] border border-white/15 rounded-md flex flex-col justify-between p-2.5">
-                      <div className="h-7 bg-gradient-to-r from-[#a9a2ff]/25 via-[#e5bd72]/25 to-[#ff8a4c]/25 border border-white/15 rounded flex items-center justify-center">
-                        <span className="text-[10px] font-mono font-bold tracking-widest text-[#e5bd72]">
-                          RETZLO LOFI STUDIO TAPE
-                        </span>
-                      </div>
-                      <div className="flex justify-around items-center my-1">
-                        <div className="w-9 h-9 rounded-full bg-[#090817] border border-white/15 flex items-center justify-center">
-                          <Disc
-                            className={`w-7 h-7 text-[#a9a2ff] ${
-                              isPlaying ? "animate-spin [animation-duration:6s]" : ""
-                            }`}
-                          />
-                        </div>
-                        <div className="px-2 py-0.5 bg-[#090817] rounded border border-white/10 font-mono text-[9px] text-[#e5bd72]">
-                          {isPlaying ? "PLAYING" : "PAUSED"}
-                        </div>
-                        <div className="w-9 h-9 rounded-full bg-[#090817] border border-white/15 flex items-center justify-center">
-                          <Disc
-                            className={`w-7 h-7 text-[#a9a2ff] ${
-                              isPlaying ? "animate-spin [animation-duration:6s]" : ""
-                            }`}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* VU Needles */}
-                  <div className="flex gap-3 mt-3">
-                    {[
-                      { label: "VU-L", level: vuLevelL },
-                      { label: "VU-R", level: vuLevelR }
-                    ].map((vu) => (
-                      <div
-                        key={vu.label}
-                        className="flex-1 bg-[#080716] border border-white/10 rounded p-2 relative h-9 overflow-hidden"
-                      >
-                        <div className="absolute left-2 top-1 font-mono text-[8px] text-[#a8a29e]">
-                          {vu.label}
-                        </div>
-                        <div
-                          className="absolute bottom-0 left-1/2 w-0.5 h-7 bg-[#ff8a4c] origin-bottom transition-transform duration-100"
-                          style={{ transform: `translateX(-50%) rotate(${vu.level - 28}deg)` }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handlePlayToggle}
-                  className={`w-full py-3.5 rounded-full font-extrabold text-sm uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer border-2 border-[#080817] ${
-                    isPlaying
-                      ? "bg-[#34d399] text-[#080817] shadow-[4px_4px_0_#faf6ef]"
-                      : "bg-[#e5bd72] text-[#080817] shadow-[4px_4px_0_#faf6ef] hover:translate-y-[-1px]"
-                  }`}
-                >
-                  {isPlaying ? (
-                    <>
-                      <Pause className="w-4 h-4 fill-current" />
-                      <span>หยุดเล่นวิทยุเทป (Stop Tape)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-4 h-4 fill-current" />
-                      <span>กดเล่นเพลงโฟกัส (Play Focus Beats)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 13. Community Voices (3 Detailed Story Cards) ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
-            เสียงจากผู้ใช้งานจริง
-          </h2>
-          <p className="text-sm sm:text-base text-[#a8a29e] mt-2">
-            จากคนที่เคยแบกงานไว้ในหัว มาเป็นคนที่วางใจให้ Retzlo ช่วยจำแทน
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {COMMUNITY_TESTIMONIALS.map((t) => (
-            <div
-              key={t.name}
-              className="rounded-2xl border-2 border-white/15 bg-[#13112a] p-6 flex flex-col justify-between shadow-xl"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[#ff8a4c] text-sm tracking-widest">★★★★★</span>
-                  <div className="relative w-9 h-9">
-                    <Image
-                      src={t.avatarSticker}
-                      alt={t.name}
-                      fill
-                      sizes="36px"
-                      className="object-contain"
-                    />
-                  </div>
-                </div>
-                <div className="text-sm font-bold text-[#e5bd72]">{t.highlight}</div>
-                <blockquote className="text-xs sm:text-sm text-[#d6d3d1] leading-relaxed">
-                  &ldquo;{t.quote}&rdquo;
-                </blockquote>
-              </div>
-              <div className="pt-4 mt-5 border-t border-white/10">
-                <div className="text-sm font-bold text-white">— {t.name}</div>
-                <div className="text-xs text-[#a8a29e]">{t.role}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 14. Comparison Table & Value Package Box (#offer & #cp-price-box) ── */}
-      <section id="offer" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-        <h2 className="text-2xl sm:text-4xl font-extrabold text-white mb-8">
-          เปรียบเทียบชัด ๆ: นั่งสร้างตารางเอง, ใช้หลายแอปแยกกัน หรือใช้{" "}
-          <span className="text-[#ff8a4c]">Retzlo OS</span>?
-        </h2>
-
-        <div className="overflow-x-auto rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] shadow-[8px_8px_0_#a9a2ff]">
-          <table className="w-full min-w-[680px] border-collapse text-left text-xs sm:text-sm">
-            <thead>
-              <tr className="border-b-2 border-[#1c1917] bg-[#ece6d7]">
-                <th className="p-4 font-extrabold text-[#1c1917]">หัวข้อเปรียบเทียบ</th>
-                <th className="p-4 font-bold text-[#57534e]">สร้างระบบเอง</th>
-                <th className="p-4 font-bold text-[#57534e]">ใช้หลายแอปแยกกัน</th>
-                <th className="p-4 font-extrabold text-[#4338ca] bg-[#e0e7ff]">
-                  ✦ Retzlo Studio OS
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#dfd8c8]">
-              {COMPARISON_ROWS.map((row) => (
-                <tr key={row.feature}>
-                  <td className="p-4 font-bold text-[#292524]">{row.feature}</td>
-                  <td className="p-4 text-[#57534e]">{row.diy}</td>
-                  <td className="p-4 text-[#57534e]">{row.multiApp}</td>
-                  <td className="p-4 font-bold text-[#1e1b4b] bg-[#eef2ff]">{row.retzlo}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Value Package Box (#cp-price-box) */}
-        <div
-          id="cp-price-box"
-          className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
-        >
-          <div className="lg:col-span-5 space-y-4">
-            <span className="rounded-full bg-[#e5bd72]/20 border border-[#e5bd72]/40 px-3.5 py-1 text-xs font-mono font-bold text-[#e5bd72]">
-              ALL-IN-ONE STUDIO ACCESS
-            </span>
-            <h3 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight">
-              ปิด 47 แท็บในหัว
-              <br />
-              <span className="text-[#ff8a4c]">เริ่มต้นใช้งานได้ฟรีตั้งแต่วันนี้</span>
-            </h3>
-            <p className="text-sm sm:text-base text-[#d6d3d1] leading-relaxed">
-              เราสร้าง Retzlo ขึ้นมาเพื่อให้ทุกคนมีพื้นที่ทำงานที่สงบ เป็นระเบียบ และมีความสุขกับการเคลียร์งานในทุก ๆ วัน
-            </p>
-            <div className="pt-2 flex items-center gap-4">
-              <div className="relative w-16 h-16">
+              <div className="relative w-9 h-9">
                 <Image
-                  src="/stickers/retro/retro-sticker-25-mascot-blob.png"
-                  alt="Retzlo Mascot"
+                  src={activeSlide.sticker}
+                  alt={activeSlide.tabName}
                   fill
-                  sizes="64px"
+                  sizes="36px"
                   className="object-contain"
                 />
               </div>
-              <div className="text-xs text-[#a8a29e] font-mono">
-                <div>✓ ไม่ต้องลงโปรแกรมเสริม</div>
-                <div>✓ ข้อมูลปลอดภัยตามมาตรฐาน PDPA</div>
-                <div>✓ พร้อมคู่มือ Interactive ภาษาไทยในแอป</div>
-              </div>
             </div>
-          </div>
 
-          <div className="lg:col-span-7 rounded-3xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] p-6 sm:p-9 shadow-[10px_10px_0_#ff8a4c]">
-            <div className="text-sm sm:text-base font-extrabold text-[#1c1917] mb-4">
-              สิ่งที่คุณจะได้รับทั้งหมดในบัญชี Retzlo ของคุณ:
+            <div className="space-y-3">
+              <h3 className="text-xl sm:text-2xl font-bold text-white leading-snug">
+                {activeSlide.title}
+              </h3>
+              <p className="text-sm text-[#a8a29e] leading-relaxed">
+                {activeSlide.description}
+              </p>
             </div>
-            <div className="space-y-2.5 text-xs sm:text-sm border-b-2 border-[#1c1917] pb-4">
-              {[
-                { item: "📦 ระบบ Multi-Workspace + Kanban & Table Board ไม่จำกัด", val: "มูลค่า 1,490.-" },
-                { item: "🤖 ผู้ช่วย AI Task Breakdown & AI Board Summary อัจฉริยะ", val: "มูลค่า 990.-" },
-                { item: "📅 ปฏิทินรวมกำหนดส่งอัตโนมัติ + คลังโน้ต & ไดอารี่ส่วนตัว", val: "มูลค่า 690.-" },
-                { item: "🎧 วิทยุ Lofi C-60 + นาฬิกา Nixie Pomodoro + สวนเซน 10 พันธุ์ไม้", val: "มูลค่า 590.-" },
-                { item: "🎨 ชุดสติกเกอร์เรโทรลิขสิทธิ์ 40+ แบบ & ระบบเหรียญแลกรางวัล", val: "มูลค่า 390.-" }
-              ].map((line) => (
-                <div key={line.item} className="flex items-center justify-between gap-2">
-                  <span className="font-medium text-[#292524]">{line.item}</span>
-                  <span className="font-mono font-bold text-[#78716c] shrink-0 line-through">
-                    {line.val}
-                  </span>
+
+            <div className="space-y-2.5 pt-2 border-t border-[#a9a2ff]/12">
+              {activeSlide.highlights.map((hl) => (
+                <div
+                  key={hl}
+                  className="flex items-start gap-2.5 text-xs sm:text-sm text-[#d6d3d1]"
+                >
+                  <CheckCircle2
+                    className="w-4 h-4 shrink-0 mt-0.5"
+                    style={{ color: activeSlide.accent }}
+                  />
+                  <span>{hl}</span>
                 </div>
               ))}
             </div>
-
-            <div className="my-5 flex items-baseline gap-3 flex-wrap">
-              <span className="text-base text-[#78716c] line-through">รวมมูลค่า 4,150 บาท</span>
-              <span className="text-4xl sm:text-6xl font-extrabold text-[#1c1917]">FREE</span>
-              <span className="text-base sm:text-lg font-bold text-[#15803d]">
-                (เปิดให้เข้าใช้งานฟรีทันที!)
-              </span>
-            </div>
-
-            <Link href={defaultDestination} className="block">
-              <button
-                type="button"
-                className="w-full rounded-full border-2 border-[#1c1917] bg-[#ff8a4c] hover:bg-[#ff9b64] py-4 px-6 text-base sm:text-xl font-extrabold text-[#1c1917] shadow-[5px_5px_0_#1c1917] hover:translate-y-[-2px] transition cursor-pointer"
-              >
-                สร้าง Workspace และเริ่มใช้งานทันที →
-              </button>
-            </Link>
-
-            <div className="mt-5 rounded-2xl border-2 border-[#1c1917] bg-[#ffffff] p-4 flex items-center gap-3.5">
-              <ShieldCheck className="w-8 h-8 text-[#16a34a] shrink-0" />
-              <div className="text-xs sm:text-sm text-[#292524]">
-                <strong>พร้อมใช้งานใน 60 วินาที:</strong> สมัครสมาชิกง่าย ๆ แล้วสร้างโปรเจกต์แรกของคุณได้ทันที มีโหมดทดลองเล่นในหน้า System Guide ให้ดูครบทุกส่วน
-              </div>
-            </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── 15. Dual-Row Auto-Scrolling FAQ Marquee (#faq) ── */}
-      <section id="faq" className="py-16 md:py-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center mb-10">
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
-            คำถามที่พบบ่อย (FAQ)
-          </h2>
-          <p className="text-sm sm:text-base text-[#a8a29e] mt-2">
-            ตอบทุกข้อสงสัย เพื่อให้คุณเริ่มต้นจัดระเบียบชีวิตกับ Retzlo ได้อย่างมั่นใจ
-          </p>
-        </div>
-
-        {/* Row 1 Marquee */}
-        <div className="overflow-hidden py-2">
-          <div className="retzlo-marquee-track flex gap-5 w-max">
-            {[...FAQ_ROW_1, ...FAQ_ROW_1].map((faq, idx) => (
-              <div
-                key={`${faq.code}-${idx}`}
-                className="w-[320px] sm:w-[360px] shrink-0 rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea] text-[#1c1917] p-5 shadow-[5px_5px_0_#a9a2ff] flex flex-col justify-between"
-              >
-                <div>
-                  <div className="text-xs font-mono font-bold text-[#ff8a4c]">{faq.code}</div>
-                  <h3 className="text-base font-extrabold text-[#1c1917] mt-1">{faq.question}</h3>
-                  <p className="text-xs sm:text-sm text-[#44403c] mt-2 leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Row 2 Marquee */}
-        <div className="overflow-hidden py-2 mt-4">
-          <div
-            className="retzlo-marquee-track flex gap-5 w-max"
-            style={{ animationDirection: "reverse", animationDuration: "36s" }}
-          >
-            {[...FAQ_ROW_2, ...FAQ_ROW_2].map((faq, idx) => (
-              <div
-                key={`${faq.code}-${idx}`}
-                className="w-[320px] sm:w-[360px] shrink-0 rounded-2xl border border-white/15 bg-[#14122d] text-[#f5efe6] p-5 shadow-lg flex flex-col justify-between"
-              >
-                <div>
-                  <div className="text-xs font-mono font-bold text-[#e5bd72]">{faq.code}</div>
-                  <h3 className="text-base font-extrabold text-white mt-1">{faq.question}</h3>
-                  <p className="text-xs sm:text-sm text-[#d6d3d1] mt-2 leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 16. Giant Display Typography + Final Night Sanctuary CTA ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 overflow-hidden select-none pointer-events-none">
-        <div className="text-[54px] sm:text-[110px] lg:text-[155px] font-black leading-[0.82] tracking-tighter text-[#1b1838] whitespace-nowrap">
-          second brain
-        </div>
-      </div>
-
-      <section className="relative border-t border-white/10 bg-[#0c0a1f] py-20 md:py-28 px-4 sm:px-6 text-center">
-        <div className="max-w-3xl mx-auto space-y-6">
-          <div className="mx-auto relative w-24 h-24">
-            <Image
-              src="/stickers/retro/retro-sticker-07-moon.png"
-              alt="Peaceful Night"
-              fill
-              sizes="96px"
-              className="object-contain"
+          {/* Right 7 Cols: Live Interactive Mockup */}
+          <div className="lg:col-span-7">
+            <WalkthroughMockupScreen
+              slide={activeSlide}
+              isPlaying={isPlaying}
+              onToggleAudio={handlePlayToggle}
             />
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight">
-            คืนนี้… ปล่อยให้สมองได้พักผ่อนจริง ๆ เสียที
-          </h2>
-          <p className="text-sm sm:text-lg text-[#d6d3d1] leading-relaxed">
-            ย้ายงานที่คั่งค้าง ไอเดียที่กระจัดกระจาย และเรื่องที่กลัวลืม ออกจากหัวมาไว้ในสตูดิโอที่ปลอดภัย
-            <br className="hidden sm:inline" />
-            ให้คุณหลับสบายโดยไม่ต้องกังวล แล้วตื่นเช้ามาพร้อมลุยงานสำคัญได้ทันที
-          </p>
-          <div className="pt-2">
-            <Link href={defaultDestination}>
-              <button
-                type="button"
-                className="inline-flex items-center gap-2.5 rounded-full border-2 border-[#faf6ef] bg-[#ff8a4c] hover:bg-[#ff9b64] px-9 py-4 text-base sm:text-xl font-extrabold text-[#080817] shadow-[6px_6px_0_#faf6ef] hover:translate-y-[-2px] transition cursor-pointer"
-              >
-                <span>เริ่มต้นใช้งาน Retzlo ฟรีตอนนี้</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </Link>
-          </div>
-          <p className="text-xs font-mono text-[#a8a29e]">
-            พัฒนาสำหรับนักสร้างสรรค์และทีมยุคใหม่ · เมนูและคู่มือรองรับทั้งภาษาไทยและอังกฤษ
-          </p>
         </div>
       </section>
 
-      {/* ── 17. Footer ── */}
-      <footer className="border-t border-white/10 bg-[#060613] px-6 py-12 pb-28 text-[#a8a29e] text-xs">
+      <div className="retzlo-section-line" />
+
+      {/* ── Section 4: Interactive Lofi Focus Studio (#lofi-focus) ──── */}
+      <section
+        id="lofi-focus"
+        className="max-w-7xl mx-auto px-6 py-24 md:py-32"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          {/* Left 6 Cols: Story & Steaming Coffee */}
+          <div className="lg:col-span-6 space-y-6">
+            <div className="retzlo-badge inline-flex">
+              <span className="retzlo-badge-dot" />
+              <span>Ambient Focus Sanctuary</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
+              พื้นที่ทำงานที่มีเพลง Lofi สังเคราะห์สด และสวนเซนในตัว
+            </h2>
+
+            <p className="text-sm sm:text-base text-[#a8a29e] leading-relaxed">
+              เพราะความสงบคือหัวใจของการโฟกัส Retzlo จึงผสานเครื่องเล่นเทปคาสเซ็ต
+              C-60 ที่สังเคราะห์เสียงคอร์ด Lofi อุ่น ๆ ผ่าน Web Audio API
+              เข้ากับนาฬิกา Nixie Pomodoro และสวนหินญี่ปุ่น Solitary Zen Garden
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="retzlo-bento-card p-4 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-mono text-[#a9a2ff]">
+                  <Volume2 className="w-4 h-4" />
+                  <span>Web Audio Lofi Synth</span>
+                </div>
+                <p className="text-xs text-[#a8a29e] leading-relaxed">
+                  เสียงคอร์ดเปียโนอุ่น ๆ ผสมเสียงแผ่นเสียงไวนิลที่สร้างสดแบบเรียลไทม์
+                  ช่วยตัดเสียงรบกวนรอบข้างทันที
+                </p>
+              </div>
+
+              <div
+                className="retzlo-bento-card p-4 space-y-2 cursor-pointer"
+                onMouseEnter={() => {
+                  setSteamHovered(true);
+                  setWiggleActive(true);
+                }}
+                onMouseLeave={() => {
+                  setSteamHovered(false);
+                  setWiggleActive(false);
+                }}
+              >
+                <div className="flex items-center justify-between text-xs font-mono text-[#e5bd72]">
+                  <span className="flex items-center gap-2">
+                    <Coffee className="w-4 h-4" />
+                    <span>Coffee Cheers &amp; Coins</span>
+                  </span>
+                  <span className="text-[10px] text-[#89c7d6]">
+                    {steamHovered ? "Steaming ☕" : "Hover me"}
+                  </span>
+                </div>
+                <p className="text-xs text-[#a8a29e] leading-relaxed">
+                  ส่งแก้วกาแฟให้กำลังใจเพื่อนร่วมทีมบนการ์ดงาน พร้อมสะสมเหรียญไปแลกรางวัลใน
+                  Arcade Store
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right 6 Cols: Interactive 3D Cassette Deck */}
+          <div className="lg:col-span-6">
+            <div className="retzlo-bento-card p-8 relative overflow-hidden">
+              <div className="flex items-center justify-between border-b border-[#a9a2ff]/12 pb-4 mb-6">
+                <div className="flex items-center gap-2.5">
+                  <Disc
+                    className={`w-4 h-4 text-[#e5bd72] ${
+                      isPlaying ? "animate-spin" : ""
+                    }`}
+                  />
+                  <span className="font-mono text-xs uppercase tracking-widest text-[#d6d3d1]">
+                    RETZLO DECK · C-60 CHILL SYNTH
+                  </span>
+                </div>
+                <span
+                  className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border ${
+                    isPlaying
+                      ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
+                      : "border-[#a9a2ff]/20 bg-[#121026] text-[#a8a29e]"
+                  }`}
+                >
+                  {isPlaying ? "ON AIR" : "STANDBY"}
+                </span>
+              </div>
+
+              {/* 3D Cassette Canvas */}
+              <div className="flex flex-col items-center justify-center py-2">
+                <LofiCassette3D
+                  isPlaying={isPlaying}
+                  onClick={handlePlayToggle}
+                />
+                <p className="text-[11px] font-mono text-[#78716c] mt-2">
+                  ลากเมาส์เพื่อหมุนดูเทป 3 มิติ หรือคลิกเพื่อเปิด/ปิดเสียงเพลง
+                </p>
+              </div>
+
+              {/* Dual VU Meters */}
+              <div className="grid grid-cols-2 gap-3 my-5">
+                <div className="bg-[#0b0a1a] border border-[#a9a2ff]/12 rounded-lg p-2.5 relative h-11 overflow-hidden">
+                  <div className="text-[9px] font-mono text-[#78716c]">VU-L</div>
+                  <div
+                    className="absolute bottom-0 left-1/2 w-0.5 h-8 bg-[#d59ab3] origin-bottom transition-transform duration-100"
+                    style={{
+                      transform: `translateX(-50%) rotate(${vuLevelL - 30}deg)`
+                    }}
+                  />
+                </div>
+                <div className="bg-[#0b0a1a] border border-[#a9a2ff]/12 rounded-lg p-2.5 relative h-11 overflow-hidden">
+                  <div className="text-[9px] font-mono text-[#78716c]">VU-R</div>
+                  <div
+                    className="absolute bottom-0 left-1/2 w-0.5 h-8 bg-[#d59ab3] origin-bottom transition-transform duration-100"
+                    style={{
+                      transform: `translateX(-50%) rotate(${vuLevelR - 30}deg)`
+                    }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handlePlayToggle}
+                className={`w-full py-3.5 rounded-xl font-semibold text-xs tracking-wider uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  isPlaying
+                    ? "bg-[#d59ab3]/15 border border-[#d59ab3]/35 text-[#d59ab3] hover:bg-[#d59ab3]/25"
+                    : "retzlo-cta-primary"
+                }`}
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause className="w-4 h-4 fill-current" />
+                    <span>Stop Tape Radio</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 fill-current" />
+                    <span>Play Focus Beats</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="retzlo-section-line" />
+
+      {/* ── Section 5: Readiness Check & Comparison (#comparison) ───── */}
+      <section
+        id="comparison"
+        className="max-w-6xl mx-auto px-6 py-24 md:py-32 space-y-20"
+      >
+        {/* Part A: Interactive Readiness Check */}
+        <div id="check-readiness" className="space-y-10">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="retzlo-badge inline-flex">
+              <span className="retzlo-badge-dot" />
+              <span>Fit Check</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+              Retzlo เหมาะกับสไตล์การทำงานของคุณไหม?
+            </h2>
+            <p className="text-sm text-[#a8a29e]">
+              ลองคลิกติ๊กข้อที่ตรงกับตัวคุณด้านล่าง — หากตรงเกิน 3 ข้อ
+              ระบบนี้ออกแบบมาเพื่อคุณโดยเฉพาะ
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Suitable For */}
+            <div className="retzlo-bento-card p-6 sm:p-8 space-y-5">
+              <div className="flex items-center justify-between border-b border-[#a9a2ff]/12 pb-4">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-[#89c7d6]" />
+                  <span>เหมาะมากสำหรับคุณ ถ้า...</span>
+                </h3>
+                <span className="text-xs font-mono px-2.5 py-1 rounded-full border border-[#89c7d6]/30 bg-[#89c7d6]/10 text-[#89c7d6]">
+                  ตรงกับคุณ {checkedReadiness.length}/{SUITABLE_FOR_LIST.length} ข้อ
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {SUITABLE_FOR_LIST.map((item, idx) => {
+                  const isChecked = checkedReadiness.includes(idx);
+                  return (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => toggleReadinessItem(idx)}
+                      className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition cursor-pointer ${
+                        isChecked
+                          ? "border-[#a9a2ff]/35 bg-[#a9a2ff]/10 text-white"
+                          : "border-[#a9a2ff]/10 bg-[#0d0c20]/60 text-[#a8a29e] hover:border-[#a9a2ff]/25"
+                      }`}
+                    >
+                      <span
+                        className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
+                          isChecked
+                            ? "bg-[#a9a2ff] border-[#a9a2ff] text-[#080817]"
+                            : "border-[#78716c]"
+                        }`}
+                      >
+                        {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                      </span>
+                      <span className="text-xs sm:text-sm leading-relaxed">
+                        {item}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Not Suitable For */}
+            <div className="retzlo-bento-card p-6 sm:p-8 space-y-5">
+              <div className="flex items-center justify-between border-b border-[#a9a2ff]/12 pb-4">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <XCircle className="w-5 h-5 text-[#d59ab3]" />
+                  <span>อาจยังไม่จำเป็น ถ้า...</span>
+                </h3>
+                <span className="text-xs font-mono text-[#78716c]">
+                  Honest Checklist
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {NOT_SUITABLE_FOR_LIST.map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 p-3 rounded-xl border border-[#a9a2ff]/10 bg-[#0d0c20]/40 text-[#a8a29e]"
+                  >
+                    <X className="w-4 h-4 text-[#d59ab3] shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-sm leading-relaxed">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Part B: Clean Before vs After Highlights */}
+        <div id="before-after" className="space-y-8">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h3 className="text-2xl font-bold text-white">
+              ความเปลี่ยนแปลงที่คุณสัมผัสได้ตั้งแต่สัปดาห์แรก
+            </h3>
+            <p className="text-xs sm:text-sm text-[#a8a29e]">
+              เปรียบเทียบการทำงานแบบเดิม กับการมี Second Brain &amp; Work OS ที่รวมศูนย์
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {BEFORE_AFTER_ROWS.slice(0, 6).map((row) => (
+              <div
+                key={row.moduleTag}
+                className="retzlo-bento-card p-5 flex flex-col justify-between gap-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded border"
+                    style={{
+                      color: row.accentColor,
+                      borderColor: `${row.accentColor}40`,
+                      backgroundColor: `${row.accentColor}12`
+                    }}
+                  >
+                    {row.moduleTag}
+                  </span>
+                </div>
+                <p className="text-xs text-[#a8a29e] line-through">
+                  {row.before}
+                </p>
+                <p className="text-xs sm:text-sm font-medium text-[#f5efe6] flex items-start gap-2">
+                  <CheckCircle2
+                    className="w-4 h-4 shrink-0 mt-0.5"
+                    style={{ color: row.accentColor }}
+                  />
+                  <span>{row.after}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Part C: 3-Way Comparison Matrix */}
+        <div className="retzlo-bento-card overflow-hidden">
+          <div className="p-6 sm:p-8 border-b border-[#a9a2ff]/12 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                เปรียบเทียบทางเลือกในการจัดระบบงาน
+              </h3>
+              <p className="text-xs text-[#a8a29e] mt-1">
+                ทำไมการรวมศูนย์ใน Retzlo ถึงประหยัดเวลาและลดภาระสมองได้มากกว่า
+              </p>
+            </div>
+            <span className="text-xs font-mono text-[#e5bd72] bg-[#e5bd72]/10 border border-[#e5bd72]/25 px-3 py-1 rounded-full self-start sm:self-auto">
+              All-in-One Workspace
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-[#a9a2ff]/12 bg-[#0b0a1d]/80 text-[11px] font-mono uppercase tracking-wider text-[#a8a29e]">
+                  <th className="py-4 px-5">หัวข้อเปรียบเทียบ</th>
+                  <th className="py-4 px-5">สร้างระบบเองจากศูนย์</th>
+                  <th className="py-4 px-5">ใช้หลายแอปแยกกัน</th>
+                  <th className="py-4 px-5 text-[#a9a2ff]">Retzlo Studio OS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#a9a2ff]/10 text-xs sm:text-sm">
+                {COMPARISON_ROWS.map((row) => (
+                  <tr
+                    key={row.feature}
+                    className="hover:bg-[#a9a2ff]/[0.03] transition-colors"
+                  >
+                    <td className="py-4 px-5 font-medium text-white">
+                      {row.feature}
+                    </td>
+                    <td className="py-4 px-5 text-[#a8a29e]">{row.diy}</td>
+                    <td className="py-4 px-5 text-[#a8a29e]">{row.multiApp}</td>
+                    <td className="py-4 px-5 font-medium text-[#f5efe6] bg-[#a9a2ff]/[0.05]">
+                      <span className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#a9a2ff] shrink-0" />
+                        <span>{row.retzlo}</span>
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div className="retzlo-section-line" />
+
+      {/* ── Section 6: Community Reviews & Clean FAQ (#faq) ────────── */}
+      <section
+        id="faq"
+        className="max-w-6xl mx-auto px-6 py-24 md:py-32 space-y-20"
+      >
+        {/* Community Quotes */}
+        <div className="space-y-12">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="retzlo-badge inline-flex">
+              <span className="retzlo-badge-dot" />
+              <span>Community Feedback</span>
+            </div>
+            <h2 className="text-3xl font-bold text-white">
+              เสียงตอบรับจากผู้ใช้งานจริง
+            </h2>
+            <p className="text-[#a8a29e] text-sm">
+              ความรู้สึกของนักพัฒนา ครีเอเตอร์ และทีมที่ย้ายมาจัดระบบงานบน Retzlo
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                quote:
+                  "ชอบบรรยากาศ Retro Lofi มาก เปิดทำงานดึก ๆ แล้วสบายตา ไม่รู้สึกเครียดเหมือนโปรแกรมจัดการงานออฟฟิศทั่วไป ปฏิทินเชื่อมกับวันส่งของการ์ดให้เองเลย",
+                author: "Nora V.",
+                role: "Creative Director"
+              },
+              {
+                quote:
+                  "เมื่อก่อนสลับ Trello กับแอปจดโน้ตจนงง พอรวม Kanban, โน้ต, ไดอารี่ และ AI Breakdown ไว้ในที่เดียว งานเสร็จไวขึ้นเยอะ แถมมีเพลง Lofi ให้เปิดคลอด้วย",
+                author: "Alex Chen",
+                role: "Fullstack Engineer"
+              },
+              {
+                quote:
+                  "ระบบเหรียญรางวัลกับสวนเซนช่วยให้การเคลียร์งานรูทีนไม่น่าเบื่ออีกต่อไป ลากการ์ดเข้าช่อง Done ทีไรรู้สึกมีกำลังใจทำงานชิ้นต่อไปทันที",
+                author: "Patsara M.",
+                role: "Senior UX Designer"
+              }
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="retzlo-quote-card p-7 flex flex-col justify-between"
+              >
+                <p className="text-[#d6d3d1] text-sm leading-relaxed">
+                  &ldquo;{item.quote}&rdquo;
+                </p>
+                <div className="pt-5 border-t border-[#a9a2ff]/10 mt-6 flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-white">
+                      {item.author}
+                    </div>
+                    <div className="text-xs text-[#78716c]">{item.role}</div>
+                  </div>
+                  <div className="w-6 h-6 rounded bg-[#14122d] border border-[#a9a2ff]/20 flex items-center justify-center text-[10px] text-[#a9a2ff] font-mono">
+                    0{i + 1}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Clean 2-Column FAQ Accordion */}
+        <div className="space-y-8">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <h3 className="text-2xl sm:text-3xl font-bold text-white">
+              คำถามที่พบบ่อย (FAQ)
+            </h3>
+            <p className="text-xs sm:text-sm text-[#a8a29e]">
+              ข้อสงสัยเกี่ยวกับการใช้งาน ความเป็นส่วนตัว และการเริ่มต้นจัดระบบบน Retzlo
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            {combinedFaqs.map((faq, idx) => {
+              const isOpen = openFaqIndex === idx;
+              return (
+                <div key={faq.code} className="retzlo-bento-card overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                    className="w-full p-5 text-left flex items-center justify-between gap-4 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-[10px] font-mono text-[#a9a2ff] px-2 py-0.5 rounded border border-[#a9a2ff]/25 bg-[#a9a2ff]/10 shrink-0">
+                        {faq.code}
+                      </span>
+                      <span className="text-sm font-semibold text-white">
+                        {faq.question}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      className={`w-4 h-4 text-[#a8a29e] shrink-0 transition-transform duration-200 ${
+                        isOpen ? "rotate-180 text-[#a9a2ff]" : ""
+                      }`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-[#d6d3d1] leading-relaxed border-t border-[#a9a2ff]/10">
+                      {faq.answer}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 7: Final Call to Action (#buy) ─────────────────── */}
+      <section
+        id="buy"
+        className="relative border-t border-[#a9a2ff]/12 bg-gradient-to-b from-transparent to-[#0e0c26]/70 py-24 md:py-32"
+      >
+        <div className="max-w-4xl mx-auto px-6 text-center space-y-8 relative z-10">
+          <div className="retzlo-badge inline-flex">
+            <span className="retzlo-badge-dot" />
+            <span>Ready in 60 Seconds</span>
+          </div>
+
+          <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white">
+            เริ่มต้นจัดระเบียบชีวิตและงานบน <br />
+            <span className="retzlo-gradient-text py-1 inline-block">
+              Retzlo วันนี้
+            </span>
+          </h2>
+
+          <p className="text-[#d6d3d1] text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+            สร้าง Workspace ฟรี ได้ครบทั้ง Kanban Board, มุมมองตาราง, ปฏิทิน,
+            คลังโน้ต Second Brain, ไดอารี่, ร้านค้ารางวัล และวิทยุ Lofi
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-4 pt-2">
+            <Link href={defaultDestination}>
+              <button className="retzlo-cta-primary px-8 py-4 text-base flex items-center gap-2 group cursor-pointer">
+                Enter Workspace
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </Link>
+            <Link href="/help">
+              <button className="retzlo-cta-ghost px-7 py-4 text-base flex items-center gap-2 cursor-pointer">
+                <Layers className="w-4 h-4 text-[#a9a2ff]" />
+                คู่มือการใช้งาน (System Guide)
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ──────────────────────────────────────────────────── */}
+      <footer className="border-t border-[#a9a2ff]/10 bg-[#060613] px-6 py-12 text-[#78716c] text-xs pb-24">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-[#f5efe6] text-sm tracking-wider">Retzlo</span>
+            <span className="font-bold text-[#d6d3d1] text-sm tracking-wider">
+              Retzlo
+            </span>
             <span className="text-[#44403c]">|</span>
             <p>© {new Date().getFullYear()} Retzlo Platform. All rights reserved.</p>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6">
-            <Link href="/help" className="hover:text-white transition-colors">
-              System Guide (คู่มือการใช้งาน)
+            <Link
+              href="/help"
+              className="hover:text-[#d6d3d1] transition-colors"
+            >
+              System Guide
             </Link>
-            <Link href="/privacy" className="hover:text-white transition-colors">
+            <Link
+              href="/privacy"
+              className="hover:text-[#d6d3d1] transition-colors"
+            >
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-white transition-colors">
+            <Link
+              href="/terms"
+              className="hover:text-[#d6d3d1] transition-colors"
+            >
               Terms of Service
             </Link>
-            <Link href="/contact" className="hover:text-white transition-colors">
+            <Link
+              href="/contact"
+              className="hover:text-[#d6d3d1] transition-colors"
+            >
               Contact
             </Link>
-            <span className="font-mono text-[#78716c] tracking-wider">RETZLO_OS_V2</span>
+            <span className="text-[#292524]">•</span>
+            <span className="font-mono text-[#57534e] tracking-wider">
+              SYSTEM_MARK_RETZLO_V2
+            </span>
           </div>
         </div>
       </footer>
 
-      {/* ── 18. Sticky Bottom CTA Bar (Appears on Scroll like Sloth cp-sticky-cta-bar) ── */}
-      {showStickyBar && (
-        <div
-          role="region"
-          aria-label="แถบเข้าใช้งานด่วน"
-          className="fixed bottom-3 left-3 right-3 sm:left-6 sm:right-6 z-40 max-w-4xl mx-auto rounded-2xl border-2 border-[#1c1917] bg-[#f7f3ea]/95 backdrop-blur-md px-4 py-2.5 shadow-[6px_6px_0_#080817] flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200"
-        >
+      {/* ── Subtle Floating Glassmorphic Bottom Bar ─────────────────── */}
+      <div
+        className={`fixed bottom-4 left-4 right-4 z-40 transition-all duration-300 pointer-events-none ${
+          showStickyBar
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-8"
+        }`}
+      >
+        <div className="max-w-2xl mx-auto rounded-2xl border border-[#a9a2ff]/25 bg-[#0b0a1f]/90 backdrop-blur-xl px-4 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex items-center justify-between gap-4 pointer-events-auto">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-10 h-10 rounded-full border-2 border-[#1c1917] bg-white shrink-0 p-1">
-              <Image
-                src="/stickers/retro/retro-sticker-09-headphones.png"
-                alt="Retzlo"
-                fill
-                sizes="40px"
-                className="object-contain"
-              />
-            </div>
+            <button
+              type="button"
+              onClick={handlePlayToggle}
+              className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 transition cursor-pointer ${
+                isPlaying
+                  ? "border-emerald-400/40 bg-emerald-400/15 text-emerald-300"
+                  : "border-[#a9a2ff]/25 bg-[#a9a2ff]/10 text-[#a9a2ff]"
+              }`}
+              aria-label="Toggle Lofi Radio"
+            >
+              {isPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+            </button>
             <div className="min-w-0">
-              <div className="text-xs sm:text-sm font-extrabold text-[#1c1917] truncate">
-                ปลดล็อกสมอง ให้ระบบ Retzlo จำแทนคุณ
+              <div className="text-xs font-semibold text-white truncate">
+                Retzlo Studio OS · 7 โมดูลในที่เดียว
               </div>
-              <div className="text-[11px] font-mono text-[#57534e] truncate">
-                ใช้งานฟรีครบ 7 โมดูล · AI แตกงาน · วิทยุ Lofi & สวนเซน
+              <div className="text-[11px] font-mono text-[#a8a29e] truncate">
+                {isPlaying
+                  ? "♪ Playing live Lofi beats..."
+                  : "คลิกปุ่มซ้ายเพื่อทดลองฟังเพลง Lofi ขณะอ่าน"}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={handlePlayToggle}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border-2 border-[#1c1917] bg-white px-3 py-1.5 text-xs font-mono font-bold text-[#1c1917] cursor-pointer"
-            >
-              {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-              <span>{isPlaying ? "Pause Lofi" : "Play Lofi"}</span>
+          <Link href={defaultDestination} className="shrink-0">
+            <button className="retzlo-cta-primary px-4 py-2 text-xs flex items-center gap-1.5 cursor-pointer">
+              <span>Enter Workspace</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
-            <Link href={defaultDestination}>
-              <button
-                type="button"
-                className="rounded-full border-2 border-[#1c1917] bg-[#ff8a4c] hover:bg-[#ff9b64] px-4 sm:px-5 py-2 text-xs sm:text-sm font-extrabold text-[#1c1917] shadow-[3px_3px_0_#1c1917] cursor-pointer whitespace-nowrap"
-              >
-                เข้าใช้งานฟรีทันที →
-              </button>
-            </Link>
-          </div>
+          </Link>
         </div>
-      )}
+      </div>
     </main>
   );
 }
