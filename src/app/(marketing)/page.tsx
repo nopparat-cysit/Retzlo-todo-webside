@@ -145,6 +145,7 @@ export default function LandingPage() {
     "ลองคลิกเคลียร์งานหรือแตะที่ภาพสวนหินญี่ปุ่นด้านล่างเพื่อสะสมเหรียญ!"
   );
   const [sfxEnabled, setSfxEnabled] = useState<boolean>(true);
+  const [ticketClaimed, setTicketClaimed] = useState<boolean>(false);
 
   // Interactive Zen Garden state
   const [sakuraStageIdx, setSakuraStageIdx] = useState<number>(2);
@@ -304,6 +305,25 @@ export default function LandingPage() {
     }));
     setToastBanner(`แลกรางวัลสำเร็จ! 🎟️ "${title}"`);
     playChime("reward");
+  };
+
+  const TICKET_COST = 50;
+  const handleClaimMixtapePass = () => {
+    if (walletCoins < TICKET_COST) {
+      setToastBanner(`ต้องการ ${TICKET_COST} Coins เพื่อแลกตั๋ว VIP (ขาดอีก ${TICKET_COST - walletCoins} Coins) · ลองกดเคลียร์งานด้านบนสิ!`);
+      playChime("click");
+      return;
+    }
+    setWalletCoins((prev) => Math.max(0, prev - TICKET_COST));
+    setTicketClaimed(true);
+    playChime("reward");
+    setToastBanner("🎉 ปลดล็อกสิทธิ์ VIP Mixtape Pass สำเร็จ! รับสิทธิ์ทดลองใช้ฟรีเต็มระบบทันที");
+
+    const burstId = Date.now() + Math.random();
+    setCoinBursts((prev) => [...prev.slice(-3), { id: burstId, amount: -TICKET_COST }]);
+    setTimeout(() => {
+      setCoinBursts((prev) => prev.filter((b) => b.id !== burstId));
+    }, 1200);
   };
 
   const handleZenPondClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -2898,67 +2918,166 @@ export default function LandingPage() {
               เครื่องเล่นเทป Lofi และสวนหินญี่ปุ่นรอให้คุณเข้ามาจัดจังหวะชีวิตในแบบของตัวเอง
             </p>
 
-            <div className="flex flex-wrap items-center gap-3.5 pt-2">
-              <Link href={defaultDestination}>
-                <button
-                  className="lp-press-btn"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    height: "52px",
-                    padding: "0 26px",
-                    borderRadius: "14px",
-                    border: "2px solid #432369",
-                    background: "#ffecb1",
-                    color: "#432369",
-                    fontSize: "14px",
-                    fontWeight: 800,
-                    boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.35)"
-                  }}
-                >
-                  <span>Enter Workspace</span>
-                  <ArrowRight size={16} />
-                </button>
-              </Link>
-
-              <Link href="/help">
-                <button
-                  className="lp-press-btn"
-                  style={{
-                    height: "52px",
-                    padding: "0 20px",
-                    borderRadius: "14px",
-                    border: "1.5px solid rgba(255, 255, 255, 0.45)",
-                    background: "rgba(255, 255, 255, 0.14)",
-                    color: "#fff5ff",
-                    fontSize: "14px",
-                    fontWeight: 600
-                  }}
-                >
-                  อ่านคู่มือการใช้งาน
-                </button>
-              </Link>
-            </div>
+            {/* Interactive Coin Redemption UI Terminal */}
+            {ticketClaimed ? (
+              <div className="p-4 sm:p-5 rounded-2xl border-2 border-[#ffecb1] bg-black/30 backdrop-blur-md space-y-3 shadow-lg">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="px-3 py-1 rounded-full bg-[#ffecb1] text-[#432369] text-xs font-black tracking-wider flex items-center gap-1.5">
+                    <Sparkles size={14} /> VIP MIXTAPE PASS ACTIVATED
+                  </span>
+                  <span className="text-xs font-bold text-[#ffecb1] flex items-center gap-1">
+                    <Check size={14} /> ปลดล็อกสิทธิ์สำเร็จ
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-white/95 leading-relaxed">
+                  ยินดีด้วยครับ! คุณได้ใช้ <strong>50 Coins</strong> ที่สะสมจากการทดลองเล่นหน้าเว็บ แลกรับสิทธิ์ <strong>Retzlo VIP Mixtape Pass</strong> เรียบร้อยแล้ว พร้อมรับสิทธิ์ทดลองใช้งานฟรีทุกฟีเจอร์ + ธีมสตูดิโอย้อนยุคพิเศษ
+                </p>
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <Link href={defaultDestination}>
+                    <button
+                      className="lp-press-btn inline-flex items-center gap-2.5 h-12 px-6 rounded-xl font-black text-sm text-[#432369] bg-[#ffecb1] border-2 border-[#432369] shadow-[4px_4px_0_rgba(43,19,77,0.35)]"
+                    >
+                      <span>Enter Workspace (เริ่มใช้งานสิทธิ์ VIP ทันที)</span>
+                      <ArrowRight size={16} />
+                    </button>
+                  </Link>
+                  <Link href="/help">
+                    <button
+                      className="lp-press-btn h-12 px-4.5 rounded-xl text-xs font-semibold border border-white/40 bg-white/10 text-white"
+                    >
+                      อ่านคู่มือการใช้งาน
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            ) : walletCoins >= TICKET_COST ? (
+              <div className="p-4 sm:p-5 rounded-2xl border-2 border-[#ffecb1] bg-black/25 backdrop-blur-md space-y-3 shadow-lg">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="px-3 py-1 rounded-full bg-[#ffecb1] text-[#432369] text-xs font-black tracking-wider flex items-center gap-1.5">
+                    <Sparkles size={14} /> แต้มของคุณพร้อมแลกรับสิทธิ์แล้ว!
+                  </span>
+                  <span className="text-xs font-mono font-black text-[#ffecb1]">
+                    มีสะสม {walletCoins} Coins (ใช้ {TICKET_COST} Coins)
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-white/95 leading-relaxed">
+                  นำแต้มที่คุณได้ทดลองกดเล่นบนหน้าเว็บนี้ มาแลกรับ <strong>VIP Mixtape Pass ทดลองใช้งานฟรีเต็มระบบ</strong> ได้ทันทีตรงนี้!
+                </p>
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleClaimMixtapePass}
+                    className="lp-press-btn inline-flex items-center gap-2 h-12 px-6 rounded-xl font-black text-sm text-[#432369] bg-[#ffecb1] border-2 border-[#432369] shadow-[4px_4px_0_rgba(43,19,77,0.35)] cursor-pointer"
+                  >
+                    <span>🎟️ ใช้ 50 Coins แลกรับสิทธิ์ VIP Pass ฟรี</span>
+                    <Sparkles size={16} />
+                  </button>
+                  <Link href={defaultDestination}>
+                    <button
+                      className="lp-press-btn inline-flex items-center gap-2 h-12 px-5 rounded-xl font-bold text-xs text-white border border-white/40 bg-white/10"
+                    >
+                      <span>Enter Workspace</span>
+                      <ArrowRight size={14} />
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 sm:p-5 rounded-2xl border border-white/30 bg-black/20 backdrop-blur-md space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <span className="font-bold text-[#ffecb1] flex items-center gap-1.5">
+                    <span>🪙 แต้มสะสมของคุณ:</span>
+                    <strong className="font-mono text-sm">{walletCoins} / {TICKET_COST} Coins</strong>
+                  </span>
+                  <span className="opacity-80">
+                    ขาดอีก {TICKET_COST - walletCoins} Coins จะแลกตั๋ว VIP ฟรีได้!
+                  </span>
+                </div>
+                {/* Visual Progress Bar */}
+                <div className="w-full h-2.5 bg-black/30 rounded-full overflow-hidden p-0.5 border border-white/20">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-300 to-emerald-400 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(100, Math.round((walletCoins / TICKET_COST) * 100))}%` }}
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <a href="#playground">
+                    <button
+                      type="button"
+                      className="lp-press-btn inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold text-xs text-[#432369] bg-[#ffecb1] border border-[#54356b] shadow-[3px_3px_0_rgba(67,35,105,0.3)]"
+                    >
+                      <span>🎮 ย้อนไปกดเล่นเก็บแต้มให้ครบ {TICKET_COST}c</span>
+                      <ArrowRight size={14} />
+                    </button>
+                  </a>
+                  <Link href={defaultDestination}>
+                    <button
+                      className="lp-press-btn inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold text-xs text-white border border-white/30 bg-white/10"
+                    >
+                      <span>Enter Workspace (เข้าใช้แบบปกติ)</span>
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Right Ticket Stub with Cassette & Stickers */}
-          <div className="lg:col-span-4 relative z-10 flex flex-col items-center justify-center p-5 rounded-2xl bg-white/15 border border-white/30 backdrop-blur-md">
-            <div className="relative w-44 h-28 lp-float-sticker">
+          {/* Right Ticket Stub with Cassette & Ink Stamp */}
+          <div
+            className={`lg:col-span-4 relative z-10 flex flex-col items-center justify-center p-6 rounded-3xl backdrop-blur-md transition-all duration-300 ${
+              ticketClaimed
+                ? "bg-black/35 border-2 border-[#ffecb1] shadow-[0_0_30px_rgba(255,236,177,0.35)]"
+                : walletCoins >= TICKET_COST
+                  ? "bg-white/20 border-2 border-[#ffecb1]/70 shadow-xl"
+                  : "bg-white/10 border border-white/25"
+            }`}
+          >
+            {/* Cassette Graphic with Die-Cut Stamp */}
+            <div className="relative w-48 h-32 lp-float-sticker">
               <Image
                 src="/images/login-cassette-cutout.png"
                 alt="Retzlo Mixtape Pass"
                 fill
-                sizes="176px"
+                sizes="192px"
                 className="object-contain drop-shadow-xl"
               />
+
+              {/* Ink Stamp Overlay when Claimed */}
+              {ticketClaimed && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                  <div
+                    className="px-3.5 py-1.5 rounded-lg border-2 border-[#ffecb1] bg-[#432369]/90 text-[#ffecb1] text-xs font-black tracking-widest uppercase transform -rotate-12 shadow-2xl"
+                    style={{ letterSpacing: "2px" }}
+                  >
+                    ★ CLAIMED VIP ★
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="mt-3 text-center">
-              <div className="text-xs font-extrabold tracking-wider text-[#ffecb1]">
+
+            <div className="mt-4 text-center w-full space-y-1.5">
+              <div className="text-xs font-black tracking-wider text-[#ffecb1]">
                 RETZLO MIXTAPE EDITION
               </div>
-              <div className="text-[11px] opacity-85 mt-0.5">
-                ที่คุณทดลองสะสมไว้บนหน้านี้: <strong>{walletCoins} Coins</strong>
+
+              {ticketClaimed ? (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-400/20 text-emerald-200 border border-emerald-400/40 text-[11px] font-bold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>ปลดล็อกสิทธิ์ VIP สำเร็จแล้ว</span>
+                </div>
+              ) : walletCoins >= TICKET_COST ? (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-400/40 text-[11px] font-bold">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                  <span>พร้อมแลกตั๋ว VIP (ครบ {TICKET_COST}c แล้ว!)</span>
+                </div>
+              ) : (
+                <div className="text-[11px] text-white/80">
+                  แต้มของคุณตอนนี้: <strong className="text-[#ffecb1] font-mono text-xs">{walletCoins} Coins</strong>
+                </div>
+              )}
+
+              <div className="text-[10px] text-white/60 tracking-wider uppercase pt-1">
+                ADMIT ONE · RETRO WORKSPACE PASS
               </div>
             </div>
           </div>

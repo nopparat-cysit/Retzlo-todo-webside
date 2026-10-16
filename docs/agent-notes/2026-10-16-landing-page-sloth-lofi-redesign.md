@@ -45,6 +45,11 @@ Redesign the marketing landing page (`/`) so it is genuinely **fun, tactile, col
       - Removed noisy `STUDIO v2.4` badge beside the logo to give the brand logo room to breathe.
       - Compacted right controls: converted bulky 130px Lofi radio pill into an elegant 36px circular button with vinyl/equalizer icon (`w-9 h-9`), and streamlined the Coin Wallet pill into a minimal cute badge (`🪙 {walletCoins}`).
       - Refined "Enter Workspace" button into a comfortable `h-[38px] px-4.5` button with neobrutalist retro shadow, giving over 500px of negative space across standard desktop and laptop screens.
+    - **Interactive Mixtape VIP Pass Redemption Terminal ("เอาแต้มแลกทดลองใช้ฟรี"):**
+      - Added interactive coin redemption system in Section 7 (`#buy` Mixtape Edition) requiring 50 Coins (`TICKET_COST = 50`).
+      - When `walletCoins >= 50`: Shows "แต้มของคุณพร้อมแลกรับสิทธิ์แล้ว!" callout with gold border and CTA button `🎟️ ใช้ 50 Coins แลกรับสิทธิ์ VIP Pass ฟรี`.
+      - Upon redemption: Deducts 50 Coins with fanfare chime (`playChime("reward")`), spawns coin burst particle (-50c), reveals the `[ ★ CLAIMED VIP ★ ]` die-cut ink stamp on the cassette artwork, updates status pill to `ปลดล็อกสิทธิ์ VIP สำเร็จแล้ว`, and provides direct VIP entry button (`Enter Workspace (เริ่มใช้งานสิทธิ์ VIP ทันที) →`).
+      - When `walletCoins < 50`: Shows an active progress bar with `{walletCoins} / 50 Coins`, remaining coins needed, and a quick-jump button `🎮 ย้อนไปกดเล่นเก็บแต้มให้ครบ 50c` back to the mini-games.
   - `src/app/(marketing)/walkthrough-mockup.tsx`:
     - Replaced duplicate stickers in Room 01 with `retro-sticker-64-team-group.png` and `retro-sticker-37-tiny-house.png`.
     - Replaced repeated hero image in Room 06 with `hero-lofi-mascot.png`.
