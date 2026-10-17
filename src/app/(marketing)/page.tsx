@@ -1493,7 +1493,7 @@ export default function LandingPage() {
       {/* ── Section 2: Interactive "Try the Retzlo Loop" Playground (#playground) ── */}
       <section
         id="playground"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-12 sm:py-16"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-12 sm:py-16 scroll-mt-20 sm:scroll-mt-24"
       >
         <div
           style={{
@@ -1935,7 +1935,7 @@ export default function LandingPage() {
       {/* ── Section 3: Everyday Friction Folder-Tabs (#pain-tabs) ─────── */}
       <section
         id="pain-tabs"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24"
       >
         <div className="max-w-2xl space-y-3 mb-10">
           <span
@@ -2302,10 +2302,10 @@ export default function LandingPage() {
       {/* ── Section 4: Interactive 6-Room Studio Tour (#walkthrough) ──── */}
       <section
         id="walkthrough"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24"
         style={{ borderTop: "1px solid var(--border)" }}
       >
-        <div className="max-w-2xl space-y-3 mb-8">
+        <div className="max-w-2xl space-y-3 mb-8 pt-2">
           <span
             style={{
               fontSize: "10px",
@@ -2320,55 +2320,73 @@ export default function LandingPage() {
             className="lp-font-display"
             style={{
               fontSize: "clamp(26px, 3vw, 38px)",
-              fontWeight: 700
+              fontWeight: 700,
+              lineHeight: 1.35,
+              paddingTop: "4px"
             }}
           >
             พาชม 6 ห้องทำงานใน Retzlo (กดทดลองเล่นได้ทุกห้อง!)
           </h2>
         </div>
 
-        {/* Tactile Room Tabs with Sticker Icons */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-4 mb-8">
-          {WALKTHROUGH_SLIDES.map((slide, idx) => {
-            const isActive = idx === activeWalkthroughIndex;
-            return (
-              <button
-                key={slide.id}
-                type="button"
-                onClick={() => {
-                  setActiveWalkthroughIndex(idx);
-                  playChime("click");
-                }}
-                className="lp-press-btn inline-flex items-center gap-2"
-                style={{
-                  padding: "10px 16px",
-                  borderRadius: "14px",
-                  border: isActive
-                    ? `2px solid ${slide.accentColor}`
-                    : "1px solid var(--border)",
-                  background: isActive ? "var(--panel-strong)" : "var(--paper)",
-                  color: "var(--foreground)",
-                  fontSize: "12.5px",
-                  fontWeight: isActive ? 800 : 600,
-                  whiteSpace: "nowrap",
-                  boxShadow: isActive
-                    ? "4px 4px 0 rgba(84, 53, 107, 0.15)"
-                    : "none"
-                }}
-              >
-                <div className="relative w-5 h-5 shrink-0">
-                  <Image
-                    src={slide.stickerSrc}
-                    alt=""
-                    fill
-                    sizes="20px"
-                    className="object-contain"
-                  />
-                </div>
-                <span>{slide.tabName}</span>
-              </button>
-            );
-          })}
+        {/* Tactile Room Tabs Strip with Retro Pill Track */}
+        <div className="w-full overflow-x-auto no-scrollbar py-2 px-1 mb-8">
+          <div
+            className="inline-flex items-center gap-2 p-1.5 rounded-2xl"
+            style={{
+              background: "color-mix(in srgb, var(--paper) 92%, transparent)",
+              border: "1.5px solid var(--border)",
+              boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.08)",
+              backdropFilter: "blur(8px)"
+            }}
+          >
+            {WALKTHROUGH_SLIDES.map((slide, idx) => {
+              const isActive = idx === activeWalkthroughIndex;
+              return (
+                <button
+                  key={slide.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveWalkthroughIndex(idx);
+                    playChime("click");
+                  }}
+                  className="lp-spring-card inline-flex items-center gap-2"
+                  style={{
+                    padding: "9px 15px",
+                    borderRadius: "12px",
+                    border: `2px solid ${isActive ? slide.accentColor : "transparent"}`,
+                    background: isActive ? "var(--panel-strong)" : "transparent",
+                    backgroundClip: "padding-box",
+                    color: isActive ? "var(--foreground)" : "var(--muted)",
+                    fontSize: "12.5px",
+                    fontWeight: isActive ? 800 : 600,
+                    whiteSpace: "nowrap",
+                    boxShadow: isActive
+                      ? "3px 3px 0 rgba(84, 53, 107, 0.16)"
+                      : "none",
+                    cursor: "pointer"
+                  }}
+                >
+                  <div className="relative w-5 h-5 shrink-0">
+                    <Image
+                      src={slide.stickerSrc}
+                      alt=""
+                      fill
+                      sizes="20px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <span>{slide.tabName}</span>
+                  {isActive && (
+                    <span
+                      className="w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ background: slide.accentColor }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* 5 / 7 Split */}
@@ -2462,7 +2480,7 @@ export default function LandingPage() {
       {/* ── Section 5: Interactive Fit Check & Comparison (#comparison) ── */}
       <section
         id="comparison"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 space-y-14"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 space-y-14 scroll-mt-20 sm:scroll-mt-24"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="max-w-2xl space-y-3">
@@ -2488,7 +2506,7 @@ export default function LandingPage() {
         </div>
 
         {/* 2-Column Fit Check */}
-        <div id="check-readiness" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="check-readiness" className="grid grid-cols-1 md:grid-cols-2 gap-6 scroll-mt-20 sm:scroll-mt-24">
           <div
             style={{
               border: "2px solid #7858d4",
@@ -2769,7 +2787,7 @@ export default function LandingPage() {
       {/* ── Section 6: Smooth Accordion Questions (#faq) ─────────────── */}
       <section
         id="faq"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -2887,7 +2905,7 @@ export default function LandingPage() {
       {/* ── Section 7: Mixtape Studio Pass Closing Ticket CTA (#buy) ── */}
       <section
         id="buy"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-24 pt-10"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-24 pt-10 scroll-mt-20 sm:scroll-mt-24"
       >
         {/* Standalone Section Header for Ultra-Prominence */}
         <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">

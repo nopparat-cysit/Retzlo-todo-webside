@@ -294,7 +294,7 @@ export const WALKTHROUGH_SLIDES: WalkthroughSlide[] = [
     id: "calendar",
     chapter: "ROOM 03 · UNIFIED CALENDAR",
     tabName: "03 · ปฏิทินรวมศูนย์",
-    accentColor: "#db2777",
+    accentColor: "#be185d",
     stickerSrc: "/stickers/retro/retro-sticker-04-calendar.png",
     title: "วันส่งงานบนการ์ดและบันทึกประจำวัน ซิงก์ขึ้นปฏิทินเดียวกันอัตโนมัติ",
     subtitle: "Unified Schedule & Deadlines",
