@@ -15,17 +15,22 @@ import {
   ArrowRight,
   Check,
   Circle,
+  Coins,
   Disc3,
+  Gamepad2,
+  Headphones,
   LayoutGrid,
   Menu,
   Pause,
   Play,
   RotateCcw,
-  X,
-  ChevronDown,
   Sparkles,
+  Star,
+  Ticket,
   Volume2,
-  VolumeX
+  VolumeX,
+  X,
+  ChevronDown
 } from "lucide-react";
 import { MixtapeArtwork } from "@/components/auth/mixtape-artwork";
 import { MixtapeLogoMark } from "@/components/auth/mixtape-logo-mark";
@@ -369,7 +374,7 @@ export default function LandingPage() {
         triggerEarnCoin(currentHeroTask.coins, `ทำภารกิจ "${currentHeroTask.title.slice(0, 18)}..." สำเร็จ!`);
       } else {
         playChime("reward");
-        setToastBanner("ภารกิจนี้ทำเสร็จแล้ว · รับเหรียญไปแล้ว 🪙");
+        setToastBanner("ภารกิจนี้ทำเสร็จแล้ว · รับเหรียญไปแล้ว ✨");
       }
     } else {
       setHeroTaskIdx((prev) => (prev + 1) % HERO_FOCUS_TASKS.length);
@@ -773,7 +778,7 @@ export default function LandingPage() {
             <div className="relative">
               <a
                 href="#buy"
-                title="กระเป๋าเหรียญสะสมของคุณ (คลิกเพื่อแลกรับ VIP Pass ฟรี!)"
+                title="กระเป๋าเหรียญสะสมของคุณ (คลิกเพื่อแลกรับสิทธิ์ใช้งานฟรีตลอดชีพ!)"
                 className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold"
                 style={{
                   background: "#ffecb1",
@@ -782,7 +787,7 @@ export default function LandingPage() {
                   boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.22)"
                 }}
               >
-                <span>🪙</span>
+                <Coins size={14} className="text-[#54356b] shrink-0" />
                 <span className="font-mono font-black">{walletCoins}</span>
               </a>
 
@@ -898,15 +903,16 @@ export default function LandingPage() {
           {/* Mobile Actions */}
           <div className="flex md:hidden items-center gap-2">
             <a
-              href="#playground"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black"
+              href="#buy"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black"
               style={{
                 background: "#ffecb1",
                 color: "#432369",
                 border: "1.5px solid #54356b"
               }}
             >
-              <span>🪙 {walletCoins}</span>
+              <Coins size={13} className="text-[#54356b] shrink-0" />
+              <span>{walletCoins}</span>
             </a>
             <ThemeToggle variant="icon" />
             <button
@@ -934,7 +940,7 @@ export default function LandingPage() {
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 text-sm font-bold text-[#7858d4]"
             >
-              🎟️ แลกรับสิทธิ์ VIP Pass ฟรี (50c)
+              🎟️ แลกรับสิทธิ์ใช้งานฟรีตลอดชีพ (50c)
             </a>
             <a
               href="#playground"
@@ -1229,8 +1235,9 @@ export default function LandingPage() {
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>SIDE A · YOUR DAILY MIXTAPE</span>
               </div>
-              <span className="px-3 py-1 rounded-full bg-black/30 border border-white/25 text-xs font-black shadow-sm">
-                🪙 WALLET: {walletCoins} COINS
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 border border-white/25 text-xs font-black shadow-sm">
+                <Coins size={13} className="text-amber-300 shrink-0" />
+                <span>WALLET: {walletCoins} COINS</span>
               </span>
             </div>
 
@@ -2963,8 +2970,9 @@ export default function LandingPage() {
           <div className="lg:col-span-8 space-y-6 relative z-10">
             {/* Top Eyebrow Row */}
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="px-3.5 py-1 rounded-full bg-[#f6c976] text-[#3d185f] text-[11px] font-black tracking-widest uppercase shadow-sm">
-                🎟️ FREE STARTER PASS
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#f6c976] text-[#3d185f] text-[11px] font-black tracking-widest uppercase shadow-sm">
+                <Ticket size={13} className="text-[#3d185f] shrink-0" />
+                <span>FREE STARTER PASS</span>
               </span>
               <span className="px-3 py-1 rounded-full lp-free-pill text-[11px] font-mono font-bold">
                 แลกด้วย: {TICKET_COST} COINS
@@ -2973,13 +2981,32 @@ export default function LandingPage() {
 
             <div className="space-y-2">
               <h3
-                className="lp-font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--foreground)]"
+                className="lp-font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--foreground)] flex flex-wrap items-center gap-2.5 sm:gap-3"
               >
-                {ticketClaimed
-                  ? "🎉 ปลดล็อกสิทธิ์ใช้งานฟรีตลอดชีพสำเร็จแล้ว!"
-                  : walletCoins >= TICKET_COST
-                    ? "✨ ยินดีด้วย! เหรียญสะสมของคุณพร้อมแลกสิทธิ์ใช้งานฟรีแล้ว"
-                    : `🪙 สะสมอีกเพียง ${TICKET_COST - walletCoins} Coins แลกรับสิทธิ์ใช้งานฟรีทันที`}
+                {ticketClaimed ? (
+                  <>
+                    <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
+                      <Sparkles size={20} />
+                    </span>
+                    <span>ปลดล็อกสิทธิ์ใช้งานฟรีตลอดชีพสำเร็จแล้ว!</span>
+                  </>
+                ) : walletCoins >= TICKET_COST ? (
+                  <>
+                    <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#ffecb1] border border-[#54356b]/30 text-[#432369] shrink-0 shadow-sm">
+                      <Sparkles size={20} />
+                    </span>
+                    <span>ยินดีด้วย! เหรียญสะสมของคุณพร้อมแลกสิทธิ์ใช้งานฟรีแล้ว</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-400/20 border border-amber-500/30 text-amber-600 dark:text-amber-300 shrink-0 shadow-sm">
+                      <Coins size={20} />
+                    </span>
+                    <span>
+                      สะสมอีกเพียง {TICKET_COST - walletCoins} Coins แลกรับสิทธิ์ใช้งานฟรีทันที
+                    </span>
+                  </>
+                )}
               </h3>
               <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed max-w-2xl">
                 รับสิทธิ์เข้าใช้งานโปรเจกต์ในบรรยากาศ Cozy Retro Lofi จัดการบอร์ดงาน ตาราง ปฏิทิน และสมุดบันทึก โดยไม่มีโฆษณาคั่นและไม่มีค่าบริการแอบแฝง
@@ -2990,7 +3017,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
                 <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
-                  <span>⭐</span>
+                  <Star size={15} className="fill-amber-400 text-amber-500 shrink-0" />
                   <span>ฟรีเต็มระบบ 100%</span>
                 </div>
                 <div className="text-[11px] text-[var(--muted)] leading-snug">
@@ -3000,7 +3027,7 @@ export default function LandingPage() {
 
               <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
                 <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
-                  <span>🎧</span>
+                  <Headphones size={15} className="text-[#7858d4] dark:text-purple-300 shrink-0" />
                   <span>Mixtape &amp; สวนเซน</span>
                 </div>
                 <div className="text-[11px] text-[var(--muted)] leading-snug">
@@ -3010,7 +3037,7 @@ export default function LandingPage() {
 
               <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
                 <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
-                  <span>🪙</span>
+                  <Coins size={15} className="text-amber-500 dark:text-amber-300 shrink-0" />
                   <span>โบนัสเริ่มใช้งาน +100c</span>
                 </div>
                 <div className="text-[11px] text-[var(--muted)] leading-snug">
@@ -3025,7 +3052,7 @@ export default function LandingPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="text-[11px] font-bold text-[var(--accent)] dark:text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
-                    <span className="inline-block animate-bounce">🪙</span>
+                    <Coins size={14} className="text-amber-500 dark:text-amber-300 shrink-0 inline-block animate-bounce" />
                     <span>กระเป๋าเหรียญสะสมของคุณ (Live Wallet)</span>
                   </div>
                   <div className="flex items-baseline gap-2 mt-0.5">
@@ -3116,7 +3143,7 @@ export default function LandingPage() {
                         onClick={handleClaimMixtapePass}
                         className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer animate-pulse"
                       >
-                        <span className="text-2xl">🎟️</span>
+                        <Ticket className="w-6 h-6 text-[#432369] shrink-0" />
                         <span className="tracking-wide">
                           กดแลกสิทธิ์ใช้งานฟรีทันที! (ใช้ {TICKET_COST} Coins)
                         </span>
@@ -3142,7 +3169,8 @@ export default function LandingPage() {
                           type="button"
                           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-13 sm:h-14 px-6 rounded-2xl font-black text-sm text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer"
                         >
-                          <span>🎮 ไปทดลองเล่นเก็บแต้มให้ครบ {TICKET_COST}c</span>
+                          <Gamepad2 size={16} className="shrink-0" />
+                          <span>ไปทดลองเล่นเก็บแต้มให้ครบ {TICKET_COST}c</span>
                           <ArrowRight size={16} />
                         </button>
                       </a>
@@ -3150,12 +3178,13 @@ export default function LandingPage() {
                       <button
                         type="button"
                         onClick={() =>
-                          triggerEarnCoin(15, "รับโบนัสสเตชั่น Mixtape! 🎶")
+                          triggerEarnCoin(15, "รับโบนัสสเตชั่น Mixtape! ✨")
                         }
                         className="inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm text-amber-700 dark:text-amber-200 border-2 border-amber-400/50 bg-amber-400/15 hover:bg-amber-400/25 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer"
                         title="คลิกเพื่อรับเหรียญโบนัสทดลองทันที"
                       >
-                        <span>✨ แตะรับโบนัสทันใจ +15c</span>
+                        <Sparkles size={15} className="shrink-0" />
+                        <span>แตะรับโบนัสทันใจ +15c</span>
                       </button>
 
                       <Link href={defaultDestination}>

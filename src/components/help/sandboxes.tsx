@@ -6,6 +6,7 @@ import {
   Check,
   CheckCircle2,
   Coffee,
+  Coins,
   Sparkles,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
@@ -540,8 +541,9 @@ export function InteractiveCoffeeDemo({ isEn }: { isEn: boolean }) {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-dusk-amber">
-            <span>🪙 {coins} Coins</span>
+          <span className="flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-dusk-amber">
+            <Coins className="w-3.5 h-3.5 shrink-0" />
+            <span>{coins} Coins</span>
           </span>
           <span className="flex items-center gap-1 text-xs font-bold text-rose-700 dark:text-dusk-rose">
             <span>☕ {coffees} Cheers</span>
