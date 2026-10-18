@@ -133,6 +133,7 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<MarketingSessionUser | null>(null);
   const [defaultDestination, setDefaultDestination] = useState<string>("/projects");
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Interactive Hero state
   const artRef = useRef<HTMLDivElement>(null);
@@ -209,6 +210,16 @@ export default function LandingPage() {
       isMounted = false;
     };
   }, [router]);
+
+  // Track window scroll to elevate sticky navbar
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Tactile Web Audio Chime for interactive clicks (reusing audio context for 60fps instant response without lag)
   const playChime = (type: "coin" | "reward" | "ripple" | "click" = "coin") => {
@@ -535,7 +546,7 @@ export default function LandingPage() {
 
   return (
     <main
-      className="relative overflow-x-hidden"
+      className="relative overflow-x-clip"
       style={{
         minHeight: "100svh",
         background: `
@@ -693,15 +704,20 @@ export default function LandingPage() {
       {/* ── Top Navigation Bar with Live Coin Counter & Burst ─────────── */}
       {/* ── Tactile Studio Herobar with Live Coin Wallet & Equalizer (w-full) ── */}
       <header
+        className={`sticky top-0 z-50 w-full transition-all duration-200 ${
+          isScrolled
+            ? "shadow-[0_8px_30px_rgba(0,0,0,0.12)] border-b border-[var(--border)]"
+            : "shadow-[0_2px_12px_rgba(0,0,0,0.04)] border-b border-[var(--border)]"
+        }`}
         style={{
           position: "sticky",
           top: 0,
           zIndex: 50,
-          borderBottom: "1.5px solid var(--border)",
-          background: "color-mix(in srgb, var(--background) 86%, transparent)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)"
+          background: isScrolled
+            ? "color-mix(in srgb, var(--background) 94%, transparent)"
+            : "color-mix(in srgb, var(--background) 84%, transparent)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)"
         }}
       >
         {/* Retro Multi-Color Accent Tape on top */}
