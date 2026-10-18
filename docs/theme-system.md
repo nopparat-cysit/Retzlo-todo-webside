@@ -795,5 +795,11 @@ Template:
   - Native Dual-Theme Support: Supports both Warm Paper (Light) and Retro Lofi Indigo (Dark) via `ThemeToggle` in the top header.
 - Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed (42/42 routes).
 
-
-
+### 2026-10-18 — Landing Page Free Access Booth Redesign & Theme Adaptation
+- Coverage: `/` Section 7 Free Access Booth (`#buy`), Section 2 Playground redemption link (`#playground`), and associated theme styling (`src/app/(marketing)/page.tsx`, `src/app/globals.css`).
+- Design System & Theme Alignment:
+  - Free Starter Pass Focus: Replaced all legacy "VIP" terminology ("VIP ALL-ACCESS", "SPECIAL VIP PASS", "VIP REDEMPTION") with welcoming, transparent "สิทธิ์ใช้งานฟรีตลอดชีพ 100%", "FREE ACCESS BOOTH", and "FREE STARTER PASS".
+  - Theme-Adaptive Tokens: Replaced hardcoded dark arcade booth overrides (`#24133b` with `!important`) with native theme tokens (`.lp-free-stage`, `.lp-free-perk`, `.lp-free-terminal-box`, `.lp-free-gauge-bg`, `.lp-free-ticket-card`, `.lp-free-punch-tag`, `.lp-free-pill`, `.lp-free-ghost-btn`).
+  - Dual Theme Consistency: In Light Mode (Warm Paper), the section now renders as a warm, luminous cream paper ticket terminal with subtle borders (`var(--border)`) and high-contrast text (`var(--foreground)`). In Dark Mode (Retro Lofi Indigo), it renders as an atmospheric indigo studio booth with glowing accent meters.
+  - High Contrast CTA: Primary claim and direct registration buttons use `#432369` on `#ffecb1` butter gold with `#54356b` border, maintaining a >10:1 AAA contrast ratio across both theme modes.
+- Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed (42/42 routes).

@@ -313,14 +313,14 @@ export default function LandingPage() {
   const TICKET_COST = 50;
   const handleClaimMixtapePass = () => {
     if (walletCoins < TICKET_COST) {
-      setToastBanner(`ต้องการ ${TICKET_COST} Coins เพื่อแลกตั๋ว VIP (ขาดอีก ${TICKET_COST - walletCoins} Coins) · ลองกดเคลียร์งานด้านบนสิ!`);
+      setToastBanner(`ต้องการ ${TICKET_COST} Coins เพื่อแลกตั๋วใช้งานฟรี (ขาดอีก ${TICKET_COST - walletCoins} Coins) · ลองกดเคลียร์งานด้านบนสิ!`);
       playChime("click");
       return;
     }
     setWalletCoins((prev) => Math.max(0, prev - TICKET_COST));
     setTicketClaimed(true);
     playChime("reward");
-    setToastBanner("🎉 ปลดล็อกสิทธิ์ VIP Mixtape Pass สำเร็จ! รับสิทธิ์ทดลองใช้ฟรีเต็มระบบทันที");
+    setToastBanner("🎉 ปลดล็อกสิทธิ์ใช้งานฟรีตลอดชีพสำเร็จ! รับสิทธิ์ใช้งาน Retzlo Workspace เต็มระบบทันที");
 
     const burstId = Date.now() + Math.random();
     setCoinBursts((prev) => [...prev.slice(-3), { id: burstId, amount: -TICKET_COST }]);
@@ -1799,7 +1799,7 @@ export default function LandingPage() {
               <div className="pt-2 border-t border-[var(--border)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px]" style={{ color: "var(--muted)" }}>
                 <span>🎟️ ตั้งรางวัลร่วมกับทีมหรือตั้งรางวัลให้ตัวเองก็ได้ตามใจชอบ</span>
                 <a href="#buy" className="inline-flex items-center gap-1 font-bold text-[#7858d4] hover:underline">
-                  <span>แลกสิทธิ์ VIP Pass ฟรี (50c)</span>
+                  <span>แลกตั๋วใช้งานฟรีตลอดชีพ (50c)</span>
                   <ArrowRight size={12} />
                 </a>
               </div>
@@ -2902,32 +2902,44 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Section 7: Mixtape Studio Pass Closing Ticket CTA (#buy) ── */}
+      {/* ── Section 7: Free Access Studio Pass Closing Ticket CTA (#buy) ── */}
       <section
         id="buy"
         className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-24 pt-10 scroll-mt-20 sm:scroll-mt-24"
       >
-        {/* Standalone Section Header for Ultra-Prominence */}
+        {/* Standalone Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border-2 border-[#54356b] bg-[#ffecb1] text-[#432369] text-xs font-black tracking-wider shadow-[3px_3px_0_rgba(84,53,107,0.3)]">
+          <div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black tracking-wider shadow-sm"
+            style={{
+              background: "#ffecb1",
+              color: "#432369",
+              border: "2px solid #54356b"
+            }}
+          >
             <Sparkles size={14} className="text-[#54356b]" />
-            <span>ARCADE REWARD BOOTH · จุดแลกสิทธิ์ VIP PASS ฟรี</span>
+            <span>FREE ACCESS BOOTH · จุดแลกรับสิทธิ์ใช้งานฟรี 100%</span>
             <Sparkles size={14} className="text-[#54356b]" />
           </div>
           <h2
             className="lp-font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--foreground)] tracking-tight"
           >
-            นำ Coins ที่สะสม แลกรับ <span className="text-[#7858d4] underline decoration-[#f6c976] decoration-wavy decoration-2">VIP Pass ฟรี</span> ที่นี่!
+            นำ Coins ที่สะสม แลกรับ{" "}
+            <span className="text-[#7858d4] underline decoration-[#f6c976] decoration-wavy decoration-2">
+              สิทธิ์ใช้งานฟรีตลอดชีพ
+            </span>{" "}
+            ที่นี่!
           </h2>
           <p className="text-sm sm:text-base text-[var(--muted)] leading-relaxed">
             ทุกเหรียญที่คุณได้ทดลองกดทำบอร์ดงาน รดน้ำสวนเซน หรือเปิดเพลงฟัง มีค่าจริง!
-            สะสมครบ 50 Coins เพื่อแลกตั๋ว VIP เข้าใช้งาน Retzlo Workspace เต็มระบบฟรี ไม่ต้องผูกบัตรเครดิต
+            สะสมครบ {TICKET_COST} Coins เพื่อแลกตั๋วเข้าใช้งาน Retzlo Workspace เต็มระบบฟรีตลอดชีพ
+            ไม่มีค่าบริการแอบแฝง ไม่ต้องผูกบัตรเครดิต
           </p>
         </div>
 
-        {/* Grand Golden VIP Ticket Pavilion */}
+        {/* Grand Free Access Ticket Pavilion */}
         <div
-          className="relative overflow-hidden p-6 sm:p-10 md:p-12 lg:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start rounded-[32px] lp-booth-stage"
+          className="relative overflow-hidden p-6 sm:p-10 md:p-12 lg:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start rounded-[32px] lp-free-stage"
         >
           {/* Decorative Ticket Punch Notches on sides */}
           <div
@@ -2935,7 +2947,7 @@ export default function LandingPage() {
             className="hidden lg:block absolute top-1/2 -left-4 -translate-y-1/2 w-8 h-8 rounded-full z-20"
             style={{
               background: "var(--background)",
-              borderRight: "3px solid #f6c976"
+              borderRight: "2.5px solid var(--border)"
             }}
           />
           <div
@@ -2943,85 +2955,84 @@ export default function LandingPage() {
             className="hidden lg:block absolute top-1/2 -right-4 -translate-y-1/2 w-8 h-8 rounded-full z-20"
             style={{
               background: "var(--background)",
-              borderLeft: "3px solid #f6c976"
+              borderLeft: "2.5px solid var(--border)"
             }}
           />
 
-          {/* Left Column: Interactive Golden Control Terminal */}
+          {/* Left Column: Interactive Free Access Control Terminal */}
           <div className="lg:col-span-8 space-y-6 relative z-10">
             {/* Top Eyebrow Row */}
             <div className="flex flex-wrap items-center gap-2.5">
               <span className="px-3.5 py-1 rounded-full bg-[#f6c976] text-[#3d185f] text-[11px] font-black tracking-widest uppercase shadow-sm">
-                🎟️ SPECIAL VIP REDEMPTION
+                🎟️ FREE STARTER PASS
               </span>
-              <span className="px-3 py-1 rounded-full lp-booth-pill text-[11px] font-mono font-bold">
-                TICKET COST: {TICKET_COST} COINS
+              <span className="px-3 py-1 rounded-full lp-free-pill text-[11px] font-mono font-bold">
+                แลกด้วย: {TICKET_COST} COINS
               </span>
             </div>
 
             <div className="space-y-2">
               <h3
-                className="lp-font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-white"
-                style={{ textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}
+                className="lp-font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--foreground)]"
               >
                 {ticketClaimed
-                  ? "🎉 ปลดล็อกสิทธิ์ VIP Mixtape Pass สำเร็จแล้ว!"
+                  ? "🎉 ปลดล็อกสิทธิ์ใช้งานฟรีตลอดชีพสำเร็จแล้ว!"
                   : walletCoins >= TICKET_COST
-                    ? "✨ ยินดีด้วย! แต้มสะสมของคุณพร้อมแลกรับสิทธิ์แล้ว"
-                    : `🪙 สะสมอีกเพียง ${TICKET_COST - walletCoins} Coins แลกรับ VIP Pass ฟรีทันที`}
+                    ? "✨ ยินดีด้วย! เหรียญสะสมของคุณพร้อมแลกสิทธิ์ใช้งานฟรีแล้ว"
+                    : `🪙 สะสมอีกเพียง ${TICKET_COST - walletCoins} Coins แลกรับสิทธิ์ใช้งานฟรีทันที`}
               </h3>
-              <p className="text-xs sm:text-sm text-white/90 leading-relaxed max-w-2xl">
+              <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed max-w-2xl">
                 รับสิทธิ์เข้าใช้งานโปรเจกต์ในบรรยากาศ Cozy Retro Lofi จัดการบอร์ดงาน ตาราง ปฏิทิน และสมุดบันทึก โดยไม่มีโฆษณาคั่นและไม่มีค่าบริการแอบแฝง
               </p>
             </div>
 
-            {/* 3 VIP Perks Highlights */}
+            {/* 3 Free Perks Highlights */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3 sm:p-3.5 rounded-2xl lp-booth-perk space-y-1">
-                <div className="text-sm font-black text-[#ffecb1] flex items-center gap-1.5">
+              <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
+                <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
                   <span>⭐</span>
-                  <span>ฟรีเต็มระบบ</span>
+                  <span>ฟรีเต็มระบบ 100%</span>
                 </div>
-                <div className="text-[11px] text-white/90 leading-snug">
-                  ไม่จำกัดบอร์ด Kanban, ปฏิทิน และสมุดโน้ต
+                <div className="text-[11px] text-[var(--muted)] leading-snug">
+                  สร้างโปรเจกต์ บอร์ด Kanban ตาราง และปฏิทินได้ไม่จำกัด
                 </div>
               </div>
 
-              <div className="p-3 sm:p-3.5 rounded-2xl lp-booth-perk space-y-1">
-                <div className="text-sm font-black text-[#ffecb1] flex items-center gap-1.5">
+              <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
+                <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
                   <span>🎧</span>
-                  <span>Mixtape Studio</span>
+                  <span>Mixtape &amp; สวนเซน</span>
                 </div>
-                <div className="text-[11px] text-white/90 leading-snug">
-                  ซินธ์คอร์ด Lofi สด พร้อมเสียงฝนและคาเฟ่
+                <div className="text-[11px] text-[var(--muted)] leading-snug">
+                  ซินธ์คอร์ด Lofi สด รดน้ำซากุระ และโฟกัสไร้กังวล
                 </div>
               </div>
 
-              <div className="p-3 sm:p-3.5 rounded-2xl lp-booth-perk space-y-1">
-                <div className="text-sm font-black text-[#ffecb1] flex items-center gap-1.5">
+              <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
+                <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
                   <span>🪙</span>
-                  <span>โบนัส +100 Coins</span>
+                  <span>โบนัสเริ่มใช้งาน +100c</span>
                 </div>
-                <div className="text-[11px] text-white/90 leading-snug">
-                  เหรียญตั้งต้นสำหรับสวนหินเซนและสติกเกอร์
+                <div className="text-[11px] text-[var(--muted)] leading-snug">
+                  รับเหรียญสะสมทันทีสำหรับแลกสติกเกอร์และของรางวัล
                 </div>
               </div>
             </div>
 
             {/* Interactive Coin HUD Terminal Box */}
-            <div className="p-5 sm:p-6 rounded-2xl lp-booth-terminal-box space-y-4">
+            <div className="p-5 sm:p-6 rounded-2xl lp-free-terminal-box space-y-4">
               {/* Wallet Status Header */}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <div className="text-[11px] font-bold text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="text-[11px] font-bold text-[var(--accent)] dark:text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="inline-block animate-bounce">🪙</span>
                     <span>กระเป๋าเหรียญสะสมของคุณ (Live Wallet)</span>
                   </div>
                   <div className="flex items-baseline gap-2 mt-0.5">
-                    <span className="font-mono text-3xl sm:text-4xl font-black text-[#ffe07a]">
+                    <span className="font-mono text-3xl sm:text-4xl font-black text-amber-600 dark:text-[#ffe07a]">
                       {walletCoins}
                     </span>
-                    <span className="text-sm font-bold text-amber-200/90 font-mono">
+                    <span className="text-sm font-bold text-[var(--muted)] font-mono">
                       / {TICKET_COST} Coins
                     </span>
                   </div>
@@ -3029,15 +3040,22 @@ export default function LandingPage() {
 
                 <div>
                   {ticketClaimed ? (
-                    <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/25 border border-emerald-400 text-emerald-100 text-xs font-black flex items-center gap-1.5 shadow-sm">
-                      <Check size={14} /> VIP PASS ACTIVATED
+                    <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-200 text-xs font-black flex items-center gap-1.5 shadow-sm">
+                      <Check size={14} /> FREE ACCESS ACTIVATED (เปิดใช้งานฟรีแล้ว)
                     </span>
                   ) : walletCoins >= TICKET_COST ? (
-                    <span className="px-3.5 py-1.5 rounded-full bg-[#f6c976] text-[#3d185f] text-xs font-black tracking-wide flex items-center gap-1.5 animate-pulse shadow-md">
-                      <Sparkles size={14} /> แต้มครบแล้ว แลกได้เลย!
+                    <span
+                      className="px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide flex items-center gap-1.5 animate-pulse shadow-sm"
+                      style={{
+                        background: "#ffecb1",
+                        color: "#432369",
+                        border: "1.5px solid #54356b"
+                      }}
+                    >
+                      <Sparkles size={14} /> แต้มครบ 50c แล้ว แลกใช้ฟรีได้เลย!
                     </span>
                   ) : (
-                    <span className="px-3.5 py-1.5 rounded-full lp-booth-pill text-xs font-bold">
+                    <span className="px-3.5 py-1.5 rounded-full lp-free-pill text-xs font-bold">
                       ขาดอีก {TICKET_COST - walletCoins} Coins
                     </span>
                   )}
@@ -3046,18 +3064,18 @@ export default function LandingPage() {
 
               {/* Chunky Retro Gauge Progress Bar */}
               <div className="space-y-1.5">
-                <div className="w-full h-3.5 lp-booth-gauge-bg rounded-full overflow-hidden p-0.5 shadow-inner">
+                <div className="w-full h-3.5 lp-free-gauge-bg rounded-full overflow-hidden p-0.5 shadow-inner">
                   <div
-                    className="h-full bg-gradient-to-r from-amber-400 via-yellow-300 to-emerald-400 rounded-full transition-all duration-500 shadow-md"
+                    className="h-full bg-gradient-to-r from-purple-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500 shadow-sm"
                     style={{
                       width: `${Math.min(100, Math.round((walletCoins / TICKET_COST) * 100))}%`
                     }}
                   />
                 </div>
-                <div className="flex items-center justify-between text-[10px] font-mono text-white/70">
+                <div className="flex items-center justify-between text-[10px] font-mono text-[var(--muted)]">
                   <span>0c</span>
                   <span>25c</span>
-                  <span className="text-[#ffe07a] font-bold">50c (GOAL: VIP PASS)</span>
+                  <span className="text-amber-600 dark:text-[#ffe07a] font-bold">50c (เป้าหมาย: ปลดล็อกใช้ฟรี 100%)</span>
                 </div>
               </div>
 
@@ -3065,25 +3083,25 @@ export default function LandingPage() {
               <div className="pt-2 min-h-[96px] flex flex-col justify-center transition-all duration-300">
                 {ticketClaimed ? (
                   <div className="space-y-3">
-                    <p className="text-xs sm:text-sm text-emerald-300 font-semibold flex items-center gap-1.5">
-                      <Check size={16} className="text-emerald-300" />
-                      <span>ตั๋ว VIP ของคุณเปิดใช้งานเรียบร้อยแล้ว! สามารถกดเข้า Workspace เพื่อเริ่มทำงานได้ทันที</span>
+                    <p className="text-xs sm:text-sm text-emerald-600 dark:text-emerald-300 font-semibold flex items-center gap-1.5">
+                      <Check size={16} className="text-emerald-600 dark:text-emerald-300" />
+                      <span>ตั๋วใช้งานฟรีของคุณเปิดใช้งานเรียบร้อยแล้ว! สามารถกดเข้า Workspace เพื่อเริ่มทำงานได้ทันที</span>
                     </p>
                     <div className="flex flex-wrap items-center gap-3">
                       <Link href={defaultDestination} className="w-full sm:w-auto">
                         <button
                           type="button"
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 rounded-2xl font-black text-base sm:text-lg text-[#3b185f] bg-gradient-to-r from-[#ffe484] via-[#fcd34d] to-[#f59e0b] border-3 border-[#3b185f] shadow-[5px_5px_0_#2b0f47] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#2b0f47] active:translate-y-0.5 active:shadow-[2px_2px_0_#2b0f47] cursor-pointer"
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer"
                         >
-                          <Sparkles className="w-5 h-5 text-[#3b185f]" />
-                          <span>Enter Workspace (เริ่มใช้งานสิทธิ์ VIP ทันที)</span>
-                          <ArrowRight className="w-5 h-5 text-[#3b185f]" />
+                          <Sparkles className="w-5 h-5 text-[#54356b]" />
+                          <span>Enter Workspace (เริ่มต้นใช้งานฟรีทันที)</span>
+                          <ArrowRight className="w-5 h-5 text-[#54356b]" />
                         </button>
                       </Link>
                       <Link href="/help">
                         <button
                           type="button"
-                          className="lp-booth-glass-btn h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
+                          className="lp-free-ghost-btn h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
                         >
                           คู่มือการใช้งานระบบ
                         </button>
@@ -3096,19 +3114,19 @@ export default function LandingPage() {
                       <button
                         type="button"
                         onClick={handleClaimMixtapePass}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#3b185f] bg-gradient-to-r from-[#ffe484] via-[#fcd34d] to-[#f59e0b] border-3 border-[#3b185f] shadow-[5px_5px_0_#2b0f47] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#2b0f47] active:translate-y-0.5 active:shadow-[2px_2px_0_#2b0f47] cursor-pointer animate-pulse"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer animate-pulse"
                       >
                         <span className="text-2xl">🎟️</span>
                         <span className="tracking-wide">
-                          กดแลกสิทธิ์ VIP Pass ฟรีทันที! (ใช้ {TICKET_COST} Coins)
+                          กดแลกสิทธิ์ใช้งานฟรีทันที! (ใช้ {TICKET_COST} Coins)
                         </span>
-                        <Sparkles className="w-5 h-5 text-[#3b185f]" />
+                        <Sparkles className="w-5 h-5 text-[#54356b]" />
                       </button>
 
                       <Link href={defaultDestination}>
                         <button
                           type="button"
-                          className="lp-booth-glass-btn inline-flex items-center gap-2 h-14 px-6 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
+                          className="lp-free-ghost-btn inline-flex items-center gap-2 h-14 px-6 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
                         >
                           <span>Enter Workspace</span>
                           <ArrowRight className="w-4 h-4" />
@@ -3122,7 +3140,7 @@ export default function LandingPage() {
                       <a href="#playground" className="w-full sm:w-auto">
                         <button
                           type="button"
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-13 sm:h-14 px-6 rounded-2xl font-black text-sm text-[#432369] bg-[#ffecb1] border-2 border-[#432369] shadow-[4px_4px_0_rgba(43,19,77,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_rgba(43,19,77,0.4)] active:translate-y-0.5 cursor-pointer"
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-13 sm:h-14 px-6 rounded-2xl font-black text-sm text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer"
                         >
                           <span>🎮 ไปทดลองเล่นเก็บแต้มให้ครบ {TICKET_COST}c</span>
                           <ArrowRight size={16} />
@@ -3134,7 +3152,7 @@ export default function LandingPage() {
                         onClick={() =>
                           triggerEarnCoin(15, "รับโบนัสสเตชั่น Mixtape! 🎶")
                         }
-                        className="inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm text-amber-200 border-2 border-amber-300/50 bg-amber-400/20 hover:bg-amber-400/30 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer"
+                        className="inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm text-amber-700 dark:text-amber-200 border-2 border-amber-400/50 bg-amber-400/15 hover:bg-amber-400/25 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer"
                         title="คลิกเพื่อรับเหรียญโบนัสทดลองทันที"
                       >
                         <span>✨ แตะรับโบนัสทันใจ +15c</span>
@@ -3143,7 +3161,7 @@ export default function LandingPage() {
                       <Link href={defaultDestination}>
                         <button
                           type="button"
-                          className="lp-booth-glass-btn inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
+                          className="lp-free-ghost-btn inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
                         >
                           <span>Enter Workspace (เข้าใช้แบบปกติ)</span>
                         </button>
@@ -3155,41 +3173,41 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right Ticket Stub: Authentic Vintage Golden VIP Pass */}
+          {/* Right Ticket Stub: Authentic Vintage Free Access Pass */}
           <div
-            className={`lg:col-span-4 relative z-10 flex flex-col items-center justify-between p-6 sm:p-7 rounded-[28px] overflow-hidden group transition-all duration-300 lg:border-l-2 lg:border-dashed lg:border-[#f6c976]/40 lg:pl-8 ${
+            className={`lg:col-span-4 relative z-10 flex flex-col items-center justify-between p-6 sm:p-7 rounded-[28px] overflow-hidden group transition-all duration-300 lg:border-l-2 lg:border-dashed lg:border-[var(--border)] lg:pl-8 ${
               ticketClaimed
-                ? "lp-booth-ticket-card shadow-[0_0_40px_rgba(246,201,118,0.35),8px_8px_0_#1a0628]"
+                ? "lp-free-ticket-card shadow-[0_0_35px_rgba(120,88,212,0.2),6px_6px_0_rgba(84,53,107,0.18)]"
                 : walletCoins >= TICKET_COST
-                  ? "lp-booth-ticket-card shadow-[0_0_30px_rgba(246,201,118,0.25),6px_6px_0_#1a0628]"
-                  : "lp-booth-ticket-card opacity-90 shadow-xl"
+                  ? "lp-free-ticket-card shadow-[0_0_25px_rgba(120,88,212,0.15),5px_5px_0_rgba(84,53,107,0.14)]"
+                  : "lp-free-ticket-card opacity-95"
             }`}
           >
-            {/* Shimmering Gold Light Sweep */}
+            {/* Shimmering Light Sweep */}
             <div
               aria-hidden="true"
-              className="lp-gold-shimmer absolute inset-0 pointer-events-none z-10 opacity-70"
+              className="lp-gold-shimmer absolute inset-0 pointer-events-none z-10 opacity-40 dark:opacity-70"
             />
 
-            {/* Inner Golden Hairline Frame */}
+            {/* Inner Hairline Frame */}
             <div
               aria-hidden="true"
-              className="absolute inset-1.5 rounded-[22px] border border-[#f6c976]/25 pointer-events-none z-10"
+              className="absolute inset-1.5 rounded-[22px] border border-current opacity-20 pointer-events-none z-10"
             />
 
             {/* Corner Decorative Star Rivets */}
-            <span aria-hidden="true" className="absolute top-2.5 left-2.5 text-[9px] text-[#f6c976]/60 select-none z-20">✦</span>
-            <span aria-hidden="true" className="absolute top-2.5 right-2.5 text-[9px] text-[#f6c976]/60 select-none z-20">✦</span>
-            <span aria-hidden="true" className="absolute bottom-2.5 left-2.5 text-[9px] text-[#f6c976]/60 select-none z-20">✦</span>
-            <span aria-hidden="true" className="absolute bottom-2.5 right-2.5 text-[9px] text-[#f6c976]/60 select-none z-20">✦</span>
+            <span aria-hidden="true" className="absolute top-2.5 left-2.5 text-[9px] opacity-40 select-none z-20">✦</span>
+            <span aria-hidden="true" className="absolute top-2.5 right-2.5 text-[9px] opacity-40 select-none z-20">✦</span>
+            <span aria-hidden="true" className="absolute bottom-2.5 left-2.5 text-[9px] opacity-40 select-none z-20">✦</span>
+            <span aria-hidden="true" className="absolute bottom-2.5 right-2.5 text-[9px] opacity-40 select-none z-20">✦</span>
 
-            {/* VIP Pass Stub Header */}
-            <div className="w-full flex items-center justify-between text-[11px] font-mono tracking-widest text-[#f6c976] uppercase pb-3 border-b border-[#f6c976]/25 relative z-20">
-              <div className="flex items-center gap-1.5 font-black">
-                <span className="text-amber-300">★</span>
-                <span>VIP ALL-ACCESS PASS</span>
+            {/* Free Pass Stub Header */}
+            <div className="w-full flex items-center justify-between text-[11px] font-mono tracking-widest uppercase pb-3 border-b border-current opacity-85 relative z-20">
+              <div className="flex items-center gap-1.5 font-black text-[var(--accent)] dark:text-amber-300">
+                <span>★</span>
+                <span>FREE ACCESS PASS</span>
               </div>
-              <span className="text-amber-200/70 font-semibold text-[10px]">
+              <span className="font-semibold text-[10px] opacity-75">
                 № 00842 · SIDE A
               </span>
             </div>
@@ -3199,7 +3217,7 @@ export default function LandingPage() {
               {/* Radiant Backlight Aura */}
               <div
                 aria-hidden="true"
-                className="absolute w-44 h-44 rounded-full blur-2xl opacity-45 pointer-events-none"
+                className="absolute w-44 h-44 rounded-full blur-2xl opacity-35 pointer-events-none"
                 style={{
                   background: ticketClaimed
                     ? "radial-gradient(circle, #f6c976 0%, #10b981 65%, transparent 100%)"
@@ -3210,57 +3228,57 @@ export default function LandingPage() {
               {/* Rotating Vinyl Grooves / Radial Stage */}
               <div
                 aria-hidden="true"
-                className="absolute w-44 h-44 rounded-full border border-amber-300/20 lp-vinyl-spin pointer-events-none flex items-center justify-center select-none"
+                className="absolute w-44 h-44 rounded-full border border-current opacity-15 lp-vinyl-spin pointer-events-none flex items-center justify-center select-none"
               >
-                <div className="w-32 h-32 rounded-full border border-dashed border-amber-300/25 flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full border border-amber-300/20" />
+                <div className="w-32 h-32 rounded-full border border-dashed border-current opacity-25 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full border border-current opacity-20" />
                 </div>
               </div>
 
               {/* Floating Decorative Notes & Sparkles */}
-              <span aria-hidden="true" className="absolute top-1 left-4 text-xs text-amber-300/70 lp-bg-sparkle">✦</span>
-              <span aria-hidden="true" className="absolute bottom-2 right-4 text-xs text-pink-300/70 lp-bg-sparkle" style={{ animationDelay: "1.4s" }}>♪</span>
-              <span aria-hidden="true" className="absolute top-3 right-6 text-[10px] text-amber-200/60 lp-bg-sparkle" style={{ animationDelay: "2.5s" }}>✧</span>
-              <span aria-hidden="true" className="absolute bottom-4 left-6 text-xs text-purple-300/70 lp-bg-sparkle" style={{ animationDelay: "0.8s" }}>♫</span>
+              <span aria-hidden="true" className="absolute top-1 left-4 text-xs opacity-60 lp-bg-sparkle">✦</span>
+              <span aria-hidden="true" className="absolute bottom-2 right-4 text-xs opacity-60 lp-bg-sparkle" style={{ animationDelay: "1.4s" }}>♪</span>
+              <span aria-hidden="true" className="absolute top-3 right-6 text-[10px] opacity-60 lp-bg-sparkle" style={{ animationDelay: "2.5s" }}>✧</span>
+              <span aria-hidden="true" className="absolute bottom-4 left-6 text-xs opacity-60 lp-bg-sparkle" style={{ animationDelay: "0.8s" }}>♫</span>
 
               {/* Cassette Graphic with Floating Animation */}
               <div className="relative w-56 h-36 lp-float-sticker z-20">
                 <Image
                   src="/images/login-cassette-cutout.png"
-                  alt="Retzlo Mixtape VIP Pass"
+                  alt="Retzlo Free Access Pass"
                   fill
                   sizes="224px"
-                  className="object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)]"
+                  className="object-contain drop-shadow-[0_10px_20px_rgba(84,53,107,0.35)] dark:drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)]"
                 />
 
-                {/* Luxury Golden Foil Embossed Seal when Claimed */}
+                {/* Wax Stamp Seal when Claimed */}
                 {ticketClaimed && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
                     <div
                       className="lp-stamp-drop relative transform -rotate-12 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-105"
-                      style={{ filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.9))" }}
+                      style={{ filter: "drop-shadow(0 4px 14px rgba(84, 53, 107, 0.4))" }}
                     >
                       <div
                         className="px-5 py-2 rounded-xl text-center relative overflow-hidden"
                         style={{
                           background:
                             "linear-gradient(135deg, #fffbeb 0%, #fde047 30%, #f59e0b 70%, #d97706 100%)",
-                          border: "2.5px solid #2b0f47",
+                          border: "2.5px solid #54356b",
                           boxShadow:
-                            "inset 0 1px 2px rgba(255,255,255,0.8), 4px 4px 0 #1b072c, 0 0 24px rgba(245,158,11,0.6)"
+                            "inset 0 1px 2px rgba(255,255,255,0.8), 4px 4px 0 #54356b, 0 0 18px rgba(245,158,11,0.5)"
                         }}
                       >
                         {/* Inner Dashed Ring */}
                         <div className="absolute inset-1 rounded-lg border border-dashed border-[#78350f]/60 pointer-events-none" />
 
                         <div className="relative z-10 flex flex-col items-center leading-none py-0.5">
-                          <div className="flex items-center gap-1.5 text-[#2b0f47] font-black text-xs sm:text-[13px] tracking-[2px] uppercase">
+                          <div className="flex items-center gap-1.5 text-[#3b185f] font-black text-xs sm:text-[13px] tracking-[2px] uppercase">
                             <span className="text-amber-800">★</span>
-                            <span>CLAIMED VIP</span>
+                            <span>CLAIMED FREE</span>
                             <span className="text-amber-800">★</span>
                           </div>
                           <div className="text-[8px] font-mono tracking-widest text-[#78350f] uppercase mt-1 font-extrabold">
-                            VERIFIED · LIFETIME PASS
+                            VERIFIED · LIFETIME ACCESS
                           </div>
                         </div>
                       </div>
@@ -3273,86 +3291,83 @@ export default function LandingPage() {
             {/* Ticket Details & Status Body */}
             <div className="w-full text-center space-y-2.5 relative z-20">
               <div>
-                <div
-                  className="font-extrabold text-sm sm:text-base tracking-[2px] text-[#ffecb1] uppercase"
-                  style={{ textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}
-                >
+                <div className="font-extrabold text-sm sm:text-base tracking-[2px] uppercase text-[var(--foreground)]">
                   RETZLO MIXTAPE STUDIO
                 </div>
-                <div className="text-[10px] font-mono tracking-wider text-amber-200/70">
-                  COLLECTOR&apos;S EDITION PASS
+                <div className="text-[10px] font-mono tracking-wider opacity-75">
+                  STARTER EDITION · ตั๋วใช้งานฟรีตลอดชีพ
                 </div>
               </div>
 
-              {/* Luminous Status Badge */}
+              {/* Status Badge */}
               <div className="pt-0.5 flex justify-center">
                 {ticketClaimed ? (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] text-xs font-bold">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-200 border border-emerald-500/30 text-xs font-bold">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                     </span>
-                    <span>สิทธิ์ VIP พร้อมใช้งานแล้ว</span>
-                    <span className="text-amber-300">★</span>
+                    <span>สิทธิ์ใช้งานฟรีพร้อมใช้งานแล้ว</span>
+                    <span className="text-amber-600 dark:text-amber-300">★</span>
                   </div>
                 ) : walletCoins >= TICKET_COST ? (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/25 text-amber-200 border border-amber-400/60 shadow-[0_0_15px_rgba(245,158,11,0.35)] text-xs font-bold animate-pulse">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/20 text-amber-800 dark:text-amber-200 border border-amber-400/50 text-xs font-bold animate-pulse">
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                    <span>พร้อมแลกตั๋ว VIP (ครบ 50c แล้ว!)</span>
+                    <span>พร้อมแลกตั๋วใช้งานฟรี (ครบ 50c แล้ว!)</span>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full lp-booth-pill text-xs font-medium">
-                    <span>แต้มของคุณ:</span>
-                    <strong className="text-[#ffe07a] font-mono">{walletCoins} Coins</strong>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full lp-free-pill text-xs font-medium">
+                    <span>เหรียญของคุณ:</span>
+                    <strong className="text-amber-600 dark:text-[#ffe07a] font-mono">{walletCoins} Coins</strong>
                   </div>
                 )}
               </div>
 
-              {/* 3 VIP All-Access Punch Badges */}
+              {/* 3 Free All-Access Punch Badges */}
               <div className="flex items-center justify-center gap-1.5 pt-1 text-[10px] font-mono">
-                <span className="px-2 py-0.5 rounded-md lp-booth-punch-tag">
-                  ✓ WORKSPACE
+                <span className="px-2 py-0.5 rounded-md lp-free-punch-tag font-bold">
+                  ✓ 100% FREE
                 </span>
-                <span className="px-2 py-0.5 rounded-md lp-booth-punch-tag">
-                  ✓ LOFI SYNTH
+                <span className="px-2 py-0.5 rounded-md lp-free-punch-tag font-bold">
+                  ✓ FULL ACCESS
                 </span>
-                <span className="px-2 py-0.5 rounded-md lp-booth-punch-tag">
-                  ✓ 0฿ PERPETUAL
+                <span className="px-2 py-0.5 rounded-md lp-free-punch-tag font-bold">
+                  ✓ 0฿ ตลอดชีพ
                 </span>
               </div>
             </div>
 
             {/* Bottom Perforated Stub Tear-Line & Barcode */}
-            <div className="w-full pt-3 mt-3 border-t-2 border-dashed border-[#f6c976]/35 relative z-20 flex flex-col items-center gap-1.5">
+            <div className="w-full pt-3 mt-3 border-t-2 border-dashed border-current opacity-30 relative z-20 flex flex-col items-center gap-1.5">
               {/* Authentic Barcode SVG Lines with Varied Widths */}
               <div
-                className="flex items-center justify-center gap-0.5 h-6 opacity-75 select-none"
+                className="flex items-center justify-center gap-0.5 h-6 text-current opacity-80 select-none"
                 aria-hidden="true"
               >
-                <span className="w-0.5 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-1 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-0.5 h-4 bg-white/90 rounded-sm inline-block" />
-                <span className="w-1.5 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-0.5 h-5 bg-white/90 rounded-sm inline-block" />
-                <span className="w-1 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-0.5 h-4 bg-white/90 rounded-sm inline-block" />
-                <span className="w-2 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-0.5 h-5 bg-white/90 rounded-sm inline-block" />
-                <span className="w-1 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-0.5 h-4 bg-white/90 rounded-sm inline-block" />
-                <span className="w-1.5 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-0.5 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-1 h-5 bg-white/90 rounded-sm inline-block" />
-                <span className="w-0.5 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-2 h-6 bg-white/90 rounded-sm inline-block" />
-                <span className="w-0.5 h-4 bg-white/90 rounded-sm inline-block" />
-                <span className="w-1 h-6 bg-white/90 rounded-sm inline-block" />
+                <span className="w-0.5 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-1 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-0.5 h-4 bg-current rounded-sm inline-block" />
+                <span className="w-1.5 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-0.5 h-5 bg-current rounded-sm inline-block" />
+                <span className="w-1 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-0.5 h-4 bg-current rounded-sm inline-block" />
+                <span className="w-2 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-0.5 h-5 bg-current rounded-sm inline-block" />
+                <span className="w-1 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-0.5 h-4 bg-current rounded-sm inline-block" />
+                <span className="w-1.5 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-0.5 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-1 h-5 bg-current rounded-sm inline-block" />
+                <span className="w-0.5 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-2 h-6 bg-current rounded-sm inline-block" />
+                <span className="w-0.5 h-4 bg-current rounded-sm inline-block" />
+                <span className="w-1 h-6 bg-current rounded-sm inline-block" />
               </div>
-              <div className="font-mono text-[9px] tracking-[3px] text-[#f6c976]/90 uppercase font-semibold">
-                RZ-VIP-2026-PERPETUAL
+              <div className="font-mono text-[9px] tracking-[3px] uppercase font-semibold text-[var(--accent)] dark:text-purple-300">
+                RZ-FREE-2026-PERPETUAL
               </div>
-              <div className="text-[8px] font-mono tracking-wider text-white/50 uppercase">
-                ADMIT ONE CREATOR · NO EXPIRY · VIP TIER
+              <div className="text-[8px] font-mono tracking-wider opacity-60 uppercase">
+                ADMIT ONE CREATOR · 100% FREE · NO EXPIRY
               </div>
             </div>
           </div>
