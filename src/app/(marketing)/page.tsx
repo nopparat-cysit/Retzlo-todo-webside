@@ -333,14 +333,14 @@ export default function LandingPage() {
   const TICKET_COST = 50;
   const handleClaimMixtapePass = () => {
     if (walletCoins < TICKET_COST) {
-      setToastBanner(`ต้องการ ${TICKET_COST} Coins เพื่อแลกตั๋วใช้งานฟรี (ขาดอีก ${TICKET_COST - walletCoins} Coins) · ลองกดเคลียร์งานด้านบนสิ!`);
+      setToastBanner(`ต้องการ ${TICKET_COST} Coins เพื่อแลกตั๋วทดลองใช้ฟรี 7 วัน (ขาดอีก ${TICKET_COST - walletCoins} Coins) · ลองกดเคลียร์งานด้านบนสิ!`);
       playChime("click");
       return;
     }
     setWalletCoins((prev) => Math.max(0, prev - TICKET_COST));
     setTicketClaimed(true);
     playChime("reward");
-    setToastBanner("🎉 ปลดล็อกสิทธิ์ใช้งานฟรีตลอดชีพสำเร็จ! รับสิทธิ์ใช้งาน Retzlo Workspace เต็มระบบทันที");
+    setToastBanner("🎉 ปลดล็อกสิทธิ์ทดลองใช้งานฟรี 7 วันสำเร็จ! เข้าใช้งาน Retzlo Workspace ได้เต็มระบบทันที");
 
     const burstId = Date.now() + Math.random();
     setCoinBursts((prev) => [...prev.slice(-3), { id: burstId, amount: -TICKET_COST }]);
@@ -798,7 +798,7 @@ export default function LandingPage() {
             <div className="relative">
               <a
                 href="#buy"
-                title="กระเป๋าเหรียญสะสมของคุณ (คลิกเพื่อแลกรับสิทธิ์ใช้งานฟรีตลอดชีพ!)"
+                title="กระเป๋าเหรียญสะสมของคุณ (คลิกเพื่อแลกรับตั๋วทดลองใช้ฟรี 7 วัน!)"
                 className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold"
                 style={{
                   background: "#ffecb1",
@@ -960,7 +960,7 @@ export default function LandingPage() {
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 text-sm font-bold text-[#7858d4]"
             >
-              🎟️ แลกรับสิทธิ์ใช้งานฟรีตลอดชีพ (50c)
+              🎟️ แลกรับสิทธิ์ทดลองใช้ฟรี 7 วัน (50c)
             </a>
             <a
               href="#playground"
@@ -1826,7 +1826,7 @@ export default function LandingPage() {
               <div className="pt-2 border-t border-[var(--border)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px]" style={{ color: "var(--muted)" }}>
                 <span>🎟️ ตั้งรางวัลร่วมกับทีมหรือตั้งรางวัลให้ตัวเองก็ได้ตามใจชอบ</span>
                 <a href="#buy" className="inline-flex items-center gap-1 font-bold text-[#7858d4] hover:underline">
-                  <span>แลกตั๋วใช้งานฟรีตลอดชีพ (50c)</span>
+                  <span>แลกตั๋วทดลองใช้ฟรี 7 วัน (50c)</span>
                   <ArrowRight size={12} />
                 </a>
               </div>
@@ -3018,7 +3018,7 @@ export default function LandingPage() {
             }}
           >
             <Sparkles size={14} className="text-[#54356b]" />
-            <span>FREE ACCESS BOOTH · จุดแลกรับสิทธิ์ใช้งานฟรี 100%</span>
+            <span>FREE TRIAL BOOTH · จุดแลกตั๋วทดลองใช้งานฟรี 7 วัน (เต็มระบบ)</span>
             <Sparkles size={14} className="text-[#54356b]" />
           </div>
           <h2
@@ -3026,13 +3026,13 @@ export default function LandingPage() {
           >
             นำ Coins ที่สะสม แลกรับ{" "}
             <span className="text-[#7858d4] underline decoration-[#f6c976] decoration-wavy decoration-2">
-              สิทธิ์ใช้งานฟรีตลอดชีพ
+              สิทธิ์ทดลองใช้งานฟรี 7 วัน
             </span>{" "}
             ที่นี่!
           </h2>
           <p className="text-sm sm:text-base text-[var(--muted)] leading-relaxed">
             ทุกเหรียญที่คุณได้ทดลองกดทำบอร์ดงาน รดน้ำสวนเซน หรือเปิดเพลงฟัง มีค่าจริง!
-            สะสมครบ {TICKET_COST} Coins เพื่อแลกตั๋วเข้าใช้งาน Retzlo Workspace เต็มระบบฟรีตลอดชีพ
+            สะสมครบ {TICKET_COST} Coins เพื่อแลกตั๋วเข้าใช้งาน Retzlo Workspace เต็มระบบฟรี 7 วัน
             ไม่มีค่าบริการแอบแฝง ไม่ต้องผูกบัตรเครดิต
           </p>
         </div>
@@ -3065,7 +3065,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-center gap-2.5">
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#f6c976] text-[#3d185f] text-[11px] font-black tracking-widest uppercase shadow-sm">
                 <Ticket size={13} className="text-[#3d185f] shrink-0" />
-                <span>FREE STARTER PASS</span>
+                <span>FREE 7-DAY TRIAL PASS</span>
               </span>
               <span className="px-3 py-1 rounded-full lp-free-pill text-[11px] font-mono font-bold">
                 แลกด้วย: {TICKET_COST} COINS
@@ -3081,14 +3081,14 @@ export default function LandingPage() {
                     <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
                       <Sparkles size={20} />
                     </span>
-                    <span>ปลดล็อกสิทธิ์ใช้งานฟรีตลอดชีพสำเร็จแล้ว!</span>
+                    <span>ปลดล็อกสิทธิ์ทดลองใช้ฟรี 7 วันสำเร็จแล้ว!</span>
                   </>
                 ) : walletCoins >= TICKET_COST ? (
                   <>
                     <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#ffecb1] border border-[#54356b]/30 text-[#432369] shrink-0 shadow-sm">
                       <Sparkles size={20} />
                     </span>
-                    <span>ยินดีด้วย! เหรียญสะสมของคุณพร้อมแลกสิทธิ์ใช้งานฟรีแล้ว</span>
+                    <span>ยินดีด้วย! เหรียญสะสมของคุณพร้อมแลกสิทธิ์ทดลองใช้ฟรี 7 วันแล้ว</span>
                   </>
                 ) : (
                   <>
@@ -3096,13 +3096,13 @@ export default function LandingPage() {
                       <Coins size={20} />
                     </span>
                     <span>
-                      สะสมอีกเพียง {TICKET_COST - walletCoins} Coins แลกรับสิทธิ์ใช้งานฟรีทันที
+                      สะสมอีกเพียง {TICKET_COST - walletCoins} Coins แลกรับตั๋วทดลองใช้ฟรี 7 วันทันที
                     </span>
                   </>
                 )}
               </h3>
               <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed max-w-2xl">
-                รับสิทธิ์เข้าใช้งานโปรเจกต์ในบรรยากาศ Cozy Retro Lofi จัดการบอร์ดงาน ตาราง ปฏิทิน และสมุดบันทึก โดยไม่มีโฆษณาคั่นและไม่มีค่าบริการแอบแฝง
+                รับสิทธิ์เข้าใช้งานโปรเจกต์ในบรรยากาศ Cozy Retro Lofi จัดการบอร์ดงาน ตาราง ปฏิทิน และสมุดบันทึก เต็มระบบ 7 วัน โดยไม่มีโฆษณาคั่นและไม่มีค่าบริการแอบแฝง
               </p>
             </div>
 
@@ -3111,10 +3111,10 @@ export default function LandingPage() {
               <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
                 <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
                   <Star size={15} className="fill-amber-400 text-amber-500 shrink-0" />
-                  <span>ฟรีเต็มระบบ 100%</span>
+                  <span>ทดลองฟรี 7 วันเต็ม</span>
                 </div>
                 <div className="text-[11px] text-[var(--muted)] leading-snug">
-                  สร้างโปรเจกต์ บอร์ด Kanban ตาราง และปฏิทินได้ไม่จำกัด
+                  สร้างโปรเจกต์ บอร์ด Kanban ตาราง และปฏิทินได้ไม่จำกัด 7 วันเต็ม
                 </div>
               </div>
 
@@ -3195,7 +3195,7 @@ export default function LandingPage() {
                 <div className="flex items-center justify-between text-[10px] font-mono text-[var(--muted)]">
                   <span>0c</span>
                   <span>25c</span>
-                  <span className="text-amber-600 dark:text-[#ffe07a] font-bold">50c (เป้าหมาย: ปลดล็อกใช้ฟรี 100%)</span>
+                  <span className="text-amber-600 dark:text-[#ffe07a] font-bold">50c (เป้าหมาย: ปลดล็อกทดลองฟรี 7 วัน)</span>
                 </div>
               </div>
 
@@ -3205,7 +3205,7 @@ export default function LandingPage() {
                   <div className="space-y-3">
                     <p className="text-xs sm:text-sm text-emerald-600 dark:text-emerald-300 font-semibold flex items-center gap-1.5">
                       <Check size={16} className="text-emerald-600 dark:text-emerald-300" />
-                      <span>ตั๋วใช้งานฟรีของคุณเปิดใช้งานเรียบร้อยแล้ว! สามารถกดเข้า Workspace เพื่อเริ่มทำงานได้ทันที</span>
+                      <span>ตั๋วทดลองใช้งานฟรี 7 วันของคุณเปิดใช้งานเรียบร้อยแล้ว! สามารถกดเข้า Workspace เพื่อเริ่มทำงานได้ทันที</span>
                     </p>
                     <div className="flex flex-wrap items-center gap-3">
                       <Link href={defaultDestination} className="w-full sm:w-auto">
@@ -3214,7 +3214,7 @@ export default function LandingPage() {
                           className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer"
                         >
                           <Sparkles className="w-5 h-5 text-[#54356b]" />
-                          <span>Enter Workspace (เริ่มต้นใช้งานฟรีทันที)</span>
+                          <span>Enter Workspace (เริ่มต้นทดลองฟรี 7 วัน)</span>
                           <ArrowRight className="w-5 h-5 text-[#54356b]" />
                         </button>
                       </Link>
@@ -3238,7 +3238,7 @@ export default function LandingPage() {
                       >
                         <Ticket className="w-6 h-6 text-[#432369] shrink-0" />
                         <span className="tracking-wide">
-                          กดแลกสิทธิ์ใช้งานฟรีทันที! (ใช้ {TICKET_COST} Coins)
+                          กดแลกสิทธิ์ทดลองฟรี 7 วันทันที! (ใช้ {TICKET_COST} Coins)
                         </span>
                         <Sparkles className="w-5 h-5 text-[#54356b]" />
                       </button>
@@ -3417,7 +3417,7 @@ export default function LandingPage() {
                   RETZLO MIXTAPE STUDIO
                 </div>
                 <div className="text-[10px] font-mono tracking-wider opacity-75">
-                  STARTER EDITION · ตั๋วใช้งานฟรีตลอดชีพ
+                  STARTER EDITION · ตั๋วทดลองใช้ฟรี 7 วัน
                 </div>
               </div>
 
@@ -3429,13 +3429,13 @@ export default function LandingPage() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                     </span>
-                    <span>สิทธิ์ใช้งานฟรีพร้อมใช้งานแล้ว</span>
+                    <span>สิทธิ์ทดลองฟรี 7 วันพร้อมใช้งานแล้ว</span>
                     <span className="text-amber-600 dark:text-amber-300">★</span>
                   </div>
                 ) : walletCoins >= TICKET_COST ? (
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/20 text-amber-800 dark:text-amber-200 border border-amber-400/50 text-xs font-bold animate-pulse">
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                    <span>พร้อมแลกตั๋วใช้งานฟรี (ครบ 50c แล้ว!)</span>
+                    <span>พร้อมแลกตั๋วทดลองใช้ฟรี 7 วัน (ครบ 50c แล้ว!)</span>
                   </div>
                 ) : (
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full lp-free-pill text-xs font-medium">
@@ -3454,7 +3454,7 @@ export default function LandingPage() {
                   ✓ FULL ACCESS
                 </span>
                 <span className="px-2 py-0.5 rounded-md lp-free-punch-tag font-bold">
-                  ✓ 0฿ ตลอดชีพ
+                  ✓ ฟรี 7 วันเต็ม
                 </span>
               </div>
             </div>
@@ -3486,10 +3486,10 @@ export default function LandingPage() {
                 <span className="w-1 h-6 bg-current rounded-sm inline-block" />
               </div>
               <div className="font-mono text-[9px] tracking-[3px] uppercase font-semibold text-[var(--accent)] dark:text-purple-300">
-                RZ-FREE-2026-PERPETUAL
+                RZ-TRIAL-7DAYS-PASS
               </div>
               <div className="text-[8px] font-mono tracking-wider opacity-60 uppercase">
-                ADMIT ONE CREATOR · 100% FREE · NO EXPIRY
+                ADMIT ONE CREATOR · 7-DAY FULL ACCESS · NO CREDIT CARD
               </div>
             </div>
           </div>
