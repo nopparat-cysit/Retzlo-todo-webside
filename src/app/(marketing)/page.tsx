@@ -17,6 +17,8 @@ import {
   Circle,
   Coins,
   Disc3,
+  Droplets,
+  Flower2,
   Gamepad2,
   Headphones,
   LayoutGrid,
@@ -25,10 +27,12 @@ import {
   Play,
   RotateCcw,
   Sparkles,
+  Sprout,
   Star,
   Ticket,
   Volume2,
   VolumeX,
+  Waves,
   X,
   ChevronDown
 } from "lucide-react";
@@ -1840,24 +1844,51 @@ export default function LandingPage() {
               className="flex flex-col justify-between gap-4"
             >
               <div className="space-y-3">
+                {/* Header Row */}
                 <div className="flex items-center justify-between">
                   <span
-                    style={{
-                      fontSize: "10px",
-                      fontWeight: 800,
-                      letterSpacing: "1.4px",
-                      color: "#059669"
-                    }}
+                    className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[1.4px] text-emerald-600 dark:text-emerald-400 uppercase"
                   >
-                    STEP 03 · MINI ZEN GARDEN
+                    <Sprout size={13} className="text-emerald-500" />
+                    <span>STEP 03 · MINI ZEN GARDEN</span>
                   </span>
-                  <span className="text-[11px] font-bold text-emerald-700">
-                    รดน้ำแล้ว {waterDrops} ครั้ง
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold">
+                    <Droplets size={12} className="text-emerald-500 animate-pulse" />
+                    <span>รดน้ำแล้ว {waterDrops} ครั้ง</span>
                   </span>
                 </div>
-                <h3 className="text-base font-bold">
+
+                <h3 className="text-base font-bold text-[var(--foreground)]">
                   3. แตะที่สวนหินญี่ปุ่นเพื่อสร้างคลื่นน้ำ &amp; ปลูกซากุระ
                 </h3>
+
+                {/* 4-Stage Mini Stepper Strip (Interactive stage switcher) */}
+                <div className="grid grid-cols-4 gap-1.5 p-1 rounded-xl bg-stone-200/50 dark:bg-black/25 border border-[var(--border)]">
+                  {SAKURA_STAGES.map((stg, idx) => {
+                    const isActive = idx === sakuraStageIdx;
+                    return (
+                      <button
+                        key={stg.level}
+                        type="button"
+                        onClick={() => {
+                          setSakuraStageIdx(idx);
+                          playChime("ripple");
+                        }}
+                        className={`py-1 px-1 rounded-lg text-center transition-all duration-200 cursor-pointer ${
+                          isActive
+                            ? "bg-white dark:bg-stone-800 text-purple-900 dark:text-purple-200 shadow-sm border border-purple-400/40 font-extrabold"
+                            : "text-[var(--muted)] hover:text-[var(--foreground)] font-semibold opacity-75 hover:opacity-100"
+                        }`}
+                        title={stg.name}
+                      >
+                        <div className="text-[10px] font-mono leading-none">0{stg.level}</div>
+                        <div className="text-[9px] truncate mt-0.5">
+                          {idx === 0 ? "ต้นอ่อน" : idx === 1 ? "กิ่งก้าน" : idx === 2 ? "ดอกตูม" : "บานสะพรั่ง ✨"}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
 
                 {/* Clickable Hand-Drawn Zen Terrarium Box */}
                 <div
@@ -1870,15 +1901,40 @@ export default function LandingPage() {
                       playChime("ripple");
                     }
                   }}
-                  className="relative overflow-hidden rounded-2xl cursor-pointer select-none flex flex-col justify-end p-3.5 min-h-[215px]"
+                  className="group relative overflow-hidden rounded-2xl cursor-pointer select-none flex flex-col justify-between p-3 min-h-[225px] transition-all duration-300 hover:shadow-[0_8px_24px_rgba(120,88,212,0.15)] active:scale-[0.99]"
                   style={{
-                    border: "2px solid #c9b293",
-                    boxShadow: "inset 0 2px 12px rgba(92, 68, 38, 0.18)"
+                    background:
+                      "radial-gradient(circle at 50% 35%, rgba(255, 236, 177, 0.4) 0%, rgba(255, 180, 213, 0.16) 48%, rgba(120, 88, 212, 0.08) 100%), var(--panel-strong)",
+                    border: "2px solid color-mix(in srgb, var(--border) 75%, #c9b293 25%)",
+                    boxShadow: "inset 0 2px 10px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(84, 53, 107, 0.06)"
                   }}
                 >
+                  {/* Subtle Japanese tatami/concentric ripple backdrop pattern */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 pointer-events-none opacity-20 dark:opacity-10"
+                    style={{
+                      backgroundImage: "radial-gradient(circle, currentColor 1px, transparent 1px)",
+                      backgroundSize: "16px 16px"
+                    }}
+                  />
+
+                  {/* Top Status Bar inside Terrarium */}
+                  <div className="relative z-10 flex items-center justify-between w-full">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase backdrop-blur-md bg-white/85 dark:bg-stone-900/85 border border-purple-300/40 text-purple-900 dark:text-purple-200 shadow-xs">
+                      <Flower2 size={11} className="text-pink-500 animate-spin" style={{ animationDuration: "14s" }} />
+                      <span>Stage {currentSakura.level}/4</span>
+                    </span>
+
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-200 shadow-xs group-hover:bg-amber-500/25 transition-colors">
+                      <Waves size={10} className="text-amber-600 dark:text-amber-300" />
+                      <span>แตะสร้างคลื่นน้ำ</span>
+                    </span>
+                  </div>
+
                   {/* Custom Hand-Drawn Zen Sakura 4-Stage Illustration */}
                   <div
-                    className="absolute inset-0 flex items-center justify-center p-3 transition-transform duration-500 ease-out"
+                    className="absolute inset-0 flex items-center justify-center p-3 transition-transform duration-500 ease-out group-hover:scale-105"
                     style={{
                       transform: `scale(${currentSakura.scale})`
                     }}
@@ -1888,7 +1944,7 @@ export default function LandingPage() {
                       alt={currentSakura.name}
                       fill
                       sizes="340px"
-                      className="object-contain drop-shadow-lg"
+                      className="object-contain drop-shadow-[0_12px_18px_rgba(84,53,107,0.2)]"
                     />
                   </div>
 
@@ -1901,40 +1957,51 @@ export default function LandingPage() {
                         position: "absolute",
                         left: `${r.x}%`,
                         top: `${r.y}%`,
-                        width: "52px",
-                        height: "52px",
-                        marginLeft: "-26px",
-                        marginTop: "-26px",
+                        width: "56px",
+                        height: "56px",
+                        marginLeft: "-28px",
+                        marginTop: "-28px",
                         borderRadius: "50%",
                         border: "2.5px solid rgba(120, 88, 212, 0.85)",
-                        boxShadow: "0 0 12px rgba(255, 180, 213, 0.8)"
+                        boxShadow: "0 0 14px rgba(255, 180, 213, 0.85)"
                       }}
                     />
                   ))}
 
-                  {/* Stage Status Overlay Pill */}
+                  {/* Stage Caption Strip: Slim Translucent Bottom Pill */}
                   <div
-                    className="relative z-10 px-3 py-2 rounded-xl text-center backdrop-blur-md"
+                    className="relative z-10 w-full px-3 py-1.5 rounded-xl text-center backdrop-blur-md transition-all duration-300"
                     style={{
-                      background: "rgba(255, 251, 245, 0.9)",
-                      border: "1.5px solid rgba(84, 53, 107, 0.28)",
-                      color: "#3b1d61"
+                      background: "color-mix(in srgb, var(--paper) 92%, transparent)",
+                      border: "1px solid var(--border)",
+                      color: "var(--foreground)"
                     }}
                   >
-                    <div className="text-xs font-extrabold">{currentSakura.name}</div>
-                    <div className="text-[11px] opacity-80">{currentSakura.desc}</div>
+                    <div className="text-xs font-black flex items-center justify-center gap-1.5">
+                      <span>{currentSakura.name}</span>
+                      {sakuraStageIdx === 3 && (
+                        <Sparkles size={12} className="text-amber-500 shrink-0" />
+                      )}
+                    </div>
+                    <div className="text-[10.5px] text-[var(--muted)] truncate mt-0.5">
+                      {currentSakura.desc}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-[11px] pt-2 border-t border-[var(--border)]">
-                <span style={{ color: "var(--muted)" }}>
-                  🌸 แตะที่ภาพสวนหินเพื่อสร้างคลื่นน้ำ
-                </span>
+              {/* Bottom Control Bar */}
+              <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border)] gap-2">
+                <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted)]">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span>แตะสวนหินสร้างคลื่นน้ำ</span>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => {
                     setWaterDrops((prev) => prev + 1);
+                    playChime("ripple");
                     setSakuraStageIdx((s) => {
                       const nextStage = (s + 1) % SAKURA_STAGES.length;
                       if (nextStage === 3) {
@@ -1945,9 +2012,19 @@ export default function LandingPage() {
                       return nextStage;
                     });
                   }}
-                  className="font-bold text-emerald-700 dark:text-emerald-400 underline hover:opacity-80"
+                  className="lp-press-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-black text-xs transition-all duration-200 cursor-pointer shadow-xs hover:-translate-y-0.5 active:translate-y-0.5"
+                  style={{
+                    background: "#10b981",
+                    color: "#ffffff",
+                    border: "1.5px solid #047857",
+                    boxShadow: "2px 2px 0 #047857"
+                  }}
                 >
-                  +รดน้ำซากุระ (+10c)
+                  <Droplets size={13} className="text-emerald-100 shrink-0" />
+                  <span>รดน้ำซากุระ</span>
+                  <span className="px-1.5 py-0.5 rounded-md bg-emerald-900/30 text-[10px] font-mono text-emerald-100 font-bold">
+                    +10c
+                  </span>
                 </button>
               </div>
             </div>
