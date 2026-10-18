@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Check,
+  CheckCircle2,
   Circle,
   Coins,
   Disc3,
@@ -25,7 +26,9 @@ import {
   Menu,
   Pause,
   Play,
+  Quote,
   RotateCcw,
+  ShieldCheck,
   Sparkles,
   Sprout,
   Star,
@@ -47,7 +50,8 @@ import {
   SUITABLE_FOR_LIST,
   NOT_SUITABLE_FOR_LIST,
   COMPARISON_ROWS,
-  FAQ_ITEMS
+  FAQ_ITEMS,
+  CREATOR_TESTIMONIALS
 } from "./landing-data";
 import { WalkthroughMockupScreen } from "./walkthrough-mockup";
 
@@ -138,6 +142,7 @@ export default function LandingPage() {
   const [currentUser, setCurrentUser] = useState<MarketingSessionUser | null>(null);
   const [defaultDestination, setDefaultDestination] = useState<string>("/projects");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileBarDismissed, setMobileBarDismissed] = useState(false);
 
   // Interactive Hero state
   const artRef = useRef<HTMLDivElement>(null);
@@ -778,6 +783,12 @@ export default function LandingPage() {
               เหมาะกับใคร
             </a>
             <a
+              href="#testimonials"
+              className="transition-colors hover:text-[var(--foreground)]"
+            >
+              รีวิวผู้ใช้
+            </a>
+            <a
               href="#faq"
               className="transition-colors hover:text-[var(--foreground)]"
             >
@@ -787,7 +798,7 @@ export default function LandingPage() {
               href="#buy"
               className="transition-colors hover:text-[var(--foreground)] flex items-center gap-1 font-bold text-[#7858d4]"
             >
-              <span>แลก VIP ฟรี</span>
+              <span>ทดลองใช้ฟรี 7 วัน</span>
               <span className="text-xs">🎟️</span>
             </a>
           </nav>
@@ -991,6 +1002,13 @@ export default function LandingPage() {
               ความเหมาะสม
             </a>
             <a
+              href="#testimonials"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-sm"
+            >
+              รีวิวจากผู้ใช้จริง
+            </a>
+            <a
               href="#faq"
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 text-sm"
@@ -1142,7 +1160,7 @@ export default function LandingPage() {
                       boxShadow: "4px 4px 0 #54356b"
                     }}
                   >
-                    <span>เริ่มจัดโต๊ะทำงานของคุณฟรี</span>
+                    <span>เริ่มต้นทดลองใช้ฟรี 7 วัน</span>
                     <ArrowRight size={16} />
                   </button>
                 </Link>
@@ -1166,6 +1184,25 @@ export default function LandingPage() {
                   }}
                 >
                   <span>🎮 ลองกดเล่นลูปแลกรางวัล</span>
+                </a>
+              </div>
+
+              {/* Zero-Risk Trust Reassurance Micro-Copy */}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[var(--muted)] font-medium pt-1">
+                <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                  <Check size={14} className="shrink-0" />
+                  <span>ทดลองใช้ฟรี 7 วันเต็มระบบ</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <ShieldCheck size={14} className="shrink-0 text-amber-500" />
+                  <span>ไม่ต้องกรอกบัตรเครดิต</span>
+                </span>
+                <a
+                  href="#walkthrough"
+                  className="inline-flex items-center gap-1 text-[#7858d4] dark:text-purple-300 hover:underline font-semibold"
+                >
+                  <span>💻 ส่อง 6 มุมทำงานจริง</span>
+                  <ArrowRight size={12} />
                 </a>
               </div>
             </div>
@@ -2884,6 +2921,148 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Section: Creator Testimonials & Stories (#testimonials) ── */}
+      <section
+        id="testimonials"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24"
+        style={{ borderTop: "1px solid var(--border)" }}
+      >
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
+          <div className="inline-flex items-center gap-2">
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: 800,
+                letterSpacing: "1.8px",
+                padding: "5px 12px",
+                borderRadius: "8px",
+                background: "#ffecb1",
+                border: "1.5px solid #54356b",
+                color: "#54356b",
+                boxShadow: "2.5px 2.5px 0 rgba(84, 53, 107, 0.2)"
+              }}
+            >
+              04 / CREATOR STORIES · เสียงจากคนทำงานจริง
+            </span>
+          </div>
+
+          <h2
+            className="lp-font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--foreground)] tracking-tight"
+          >
+            โต๊ะทำงานที่ทำให้คนทำงาน{" "}
+            <span className="text-[#7858d4] underline decoration-[#ffb4d5] decoration-wavy decoration-2">
+              ค่อยๆ เคลียร์งานสนุกขึ้น
+            </span>{" "}
+            ทุกวัน
+          </h2>
+
+          <p className="text-sm sm:text-base text-[var(--muted)] leading-relaxed">
+            ฟังเรื่องราวจากฟรีแลนซ์ คอนเทนต์ครีเอเตอร์ และคนทำงานที่เปลี่ยนจากความวุ่นวาย มาจัดระเบียบชีวิตในบรรยากาศอบอุ่นของ Retzlo
+          </p>
+
+          {/* Social Proof Aggregate Rating Pill */}
+          <div className="pt-2 flex justify-center">
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold"
+              style={{
+                background: "var(--paper)",
+                border: "1.5px solid var(--border)",
+                boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.08)"
+              }}
+            >
+              <div className="flex items-center gap-0.5 text-amber-500">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={14} className="fill-amber-400 text-amber-500" />
+                ))}
+              </div>
+              <span className="text-[var(--foreground)]">4.9 / 5.0 คะแนนเฉลี่ย</span>
+              <span className="text-[var(--muted)]">· จากผู้ใช้งานกว่า 5,400+ คนทั่วประเทศ</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 Creator Testimonials Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {CREATOR_TESTIMONIALS.map((t) => (
+            <div
+              key={t.id}
+              className="lp-paper-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between gap-6 relative transition-all duration-300 hover:-translate-y-1"
+              style={{
+                border: "2px solid var(--border)",
+                boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.1), var(--shadow-card)"
+              }}
+            >
+              <div className="space-y-4">
+                {/* Header: Avatar, Name, Badge, and Top-Right Sticker */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 shadow-inner"
+                      style={{
+                        background: t.avatarBg,
+                        color: "#432369",
+                        border: "1.5px solid #54356b"
+                      }}
+                    >
+                      {t.avatarText}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm sm:text-base text-[var(--foreground)] leading-tight">
+                        {t.name}
+                      </h3>
+                      <p className="text-xs text-[var(--muted)] line-clamp-1">{t.role}</p>
+                      <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-purple-500/10 text-[#7858d4] dark:text-purple-300 border border-purple-400/20">
+                        {t.badge}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="relative w-9 h-9 shrink-0">
+                    <Image
+                      src={t.stickerSrc}
+                      alt=""
+                      fill
+                      sizes="36px"
+                      className="object-contain"
+                    />
+                  </div>
+                </div>
+
+                {/* Star Rating */}
+                <div className="flex items-center gap-1 text-amber-500">
+                  {[...Array(t.stars)].map((_, idx) => (
+                    <Star key={idx} size={14} className="fill-amber-400 text-amber-500" />
+                  ))}
+                </div>
+
+                {/* Highlight */}
+                <div className="font-extrabold text-sm sm:text-base text-[var(--foreground)] leading-snug">
+                  “{t.highlight}”
+                </div>
+
+                {/* Quote */}
+                <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed italic">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+              </div>
+
+              {/* Bottom Feature Pill */}
+              <div
+                className="pt-3 border-t border-dashed border-[var(--border)] flex items-center gap-2 text-xs font-semibold"
+                style={{ color: "var(--foreground)" }}
+              >
+                <Sparkles size={14} className="text-[#7858d4] shrink-0" />
+                <span className="text-[11px] text-[var(--muted)]">ฟังก์ชันโปรด:</span>
+                <span className="text-[11px] font-bold text-[#7858d4] dark:text-purple-300">
+                  {t.favoriteFeature}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── Section 6: Smooth Accordion Questions (#faq) ─────────────── */}
       <section
         id="faq"
@@ -3199,7 +3378,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Action Buttons based on Claim / Coin State (min-height prevents layout shift) */}
+              {/* Action Buttons: Direct Frictionless 7-Day Trial + Gamified Coin Bonus */}
               <div className="pt-2 min-h-[96px] flex flex-col justify-center transition-all duration-300">
                 {ticketClaimed ? (
                   <div className="space-y-3">
@@ -3228,66 +3407,68 @@ export default function LandingPage() {
                       </Link>
                     </div>
                   </div>
-                ) : walletCoins >= TICKET_COST ? (
-                  <div className="space-y-3">
+                ) : (
+                  <div className="space-y-4">
+                    {/* Primary Button Row: Always Direct Trial CTA + Coin Bonus / Instant Perk */}
                     <div className="flex flex-wrap items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={handleClaimMixtapePass}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer animate-pulse"
-                      >
-                        <Ticket className="w-6 h-6 text-[#432369] shrink-0" />
-                        <span className="tracking-wide">
-                          กดแลกสิทธิ์ทดลองฟรี 7 วันทันที! (ใช้ {TICKET_COST} Coins)
-                        </span>
-                        <Sparkles className="w-5 h-5 text-[#54356b]" />
-                      </button>
-
-                      <Link href={defaultDestination}>
+                      <Link href={defaultDestination} className="w-full sm:w-auto">
                         <button
                           type="button"
-                          className="lp-free-ghost-btn inline-flex items-center gap-2 h-14 px-6 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer"
                         >
-                          <span>Enter Workspace</span>
-                          <ArrowRight className="w-4 h-4" />
+                          <Ticket className="w-6 h-6 text-[#432369] shrink-0" />
+                          <span className="tracking-wide">
+                            เริ่มต้นทดลองใช้ฟรี 7 วันทันที
+                          </span>
+                          <ArrowRight className="w-5 h-5 text-[#54356b]" />
+                        </button>
+                      </Link>
+
+                      {walletCoins >= TICKET_COST ? (
+                        <button
+                          type="button"
+                          onClick={handleClaimMixtapePass}
+                          className="inline-flex items-center gap-2 h-14 sm:h-16 px-6 rounded-2xl font-bold text-xs sm:text-sm text-emerald-800 dark:text-emerald-200 border-2 border-emerald-500/50 bg-emerald-500/15 hover:bg-emerald-500/25 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer shadow-sm animate-pulse"
+                        >
+                          <Sparkles size={16} className="text-emerald-600 dark:text-emerald-400" />
+                          <span>กดรับโบนัสเริ่มต้น +100 Coins (ครบ 50c แล้ว!)</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => triggerEarnCoin(15, "รับโบนัสสเตชั่น Mixtape! ✨")}
+                          className="inline-flex items-center gap-2 h-14 sm:h-16 px-5 rounded-2xl font-bold text-xs sm:text-sm text-amber-700 dark:text-amber-200 border-2 border-amber-400/50 bg-amber-400/15 hover:bg-amber-400/25 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer"
+                          title="คลิกเพื่อรับเหรียญโบนัสทดลองทันที"
+                        >
+                          <Sparkles size={15} className="shrink-0" />
+                          <span>แตะรับเหรียญเพิ่ม +15c (สะสมครบรับโบนัส)</span>
+                        </button>
+                      )}
+
+                      <Link href="/help">
+                        <button
+                          type="button"
+                          className="lp-free-ghost-btn inline-flex items-center gap-2 h-14 sm:h-16 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
+                        >
+                          <span>ดูคู่มือระบบ</span>
                         </button>
                       </Link>
                     </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <a href="#playground" className="w-full sm:w-auto">
-                        <button
-                          type="button"
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-13 sm:h-14 px-6 rounded-2xl font-black text-sm text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer"
-                        >
-                          <Gamepad2 size={16} className="shrink-0" />
-                          <span>ไปทดลองเล่นเก็บแต้มให้ครบ {TICKET_COST}c</span>
-                          <ArrowRight size={16} />
-                        </button>
-                      </a>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          triggerEarnCoin(15, "รับโบนัสสเตชั่น Mixtape! ✨")
-                        }
-                        className="inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm text-amber-700 dark:text-amber-200 border-2 border-amber-400/50 bg-amber-400/15 hover:bg-amber-400/25 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer"
-                        title="คลิกเพื่อรับเหรียญโบนัสทดลองทันที"
-                      >
-                        <Sparkles size={15} className="shrink-0" />
-                        <span>แตะรับโบนัสทันใจ +15c</span>
-                      </button>
-
-                      <Link href={defaultDestination}>
-                        <button
-                          type="button"
-                          className="lp-free-ghost-btn inline-flex items-center gap-2 h-13 sm:h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
-                        >
-                          <span>Enter Workspace (เข้าใช้แบบปกติ)</span>
-                        </button>
-                      </Link>
+                    {/* Trust Assurance Row */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[var(--muted)] font-medium">
+                      <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                        <Check size={14} className="shrink-0" />
+                        <span>เข้าถึงครบทุกฟังก์ชัน 7 วันเต็ม</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <ShieldCheck size={14} className="shrink-0 text-amber-500" />
+                        <span>ไม่ต้องกรอกบัตรเครดิต</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Sparkles size={14} className="shrink-0 text-purple-500" />
+                        <span>เริ่มจัดโต๊ะทำงานได้ทันทีใน 10 วินาที</span>
+                      </span>
                     </div>
                   </div>
                 )}
@@ -3400,7 +3581,7 @@ export default function LandingPage() {
                             <span className="text-amber-800">★</span>
                           </div>
                           <div className="text-[8px] font-mono tracking-widest text-[#78350f] uppercase mt-1 font-extrabold">
-                            VERIFIED · LIFETIME ACCESS
+                            VERIFIED · 7-DAY FULL ACCESS
                           </div>
                         </div>
                       </div>
@@ -3494,6 +3675,45 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+
+        {/* Zero-Risk Trust Assurance Guarantee Grid */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 sm:p-5 rounded-2xl lp-paper-card flex items-start gap-3.5 border-2 border-[var(--border)] shadow-[3px_3px_0_rgba(84,53,107,0.08)]">
+            <div className="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0 border border-amber-500/30 shadow-sm">
+              <ShieldCheck size={20} />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-extrabold text-sm text-[var(--foreground)]">ไม่ต้องกรอกบัตรเครดิต</h4>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                กดเริ่มทดลองจัดโต๊ะทำงานได้ทันที ไม่มีเงื่อนไขแอบแฝง ไม่มีการขอข้อมูลการชำระเงินล่วงหน้า
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl lp-paper-card flex items-start gap-3.5 border-2 border-[var(--border)] shadow-[3px_3px_0_rgba(84,53,107,0.08)]">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30 shadow-sm">
+              <CheckCircle2 size={20} />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-extrabold text-sm text-[var(--foreground)]">ข้อมูลปลอดภัย ไม่สูญหาย</h4>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                การ์ดงาน โน้ต และไดอารี่ของคุณจะยังคงอยู่ครบ สามารถส่งออก (Export PDF/CSV) ได้ตลอดเวลา
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl lp-paper-card flex items-start gap-3.5 border-2 border-[var(--border)] shadow-[3px_3px_0_rgba(84,53,107,0.08)]">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0 border border-purple-500/30 shadow-sm">
+              <Sparkles size={20} />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-extrabold text-sm text-[var(--foreground)]">อิสระ 100% ไม่มีผูกมัด</h4>
+              <p className="text-xs text-[var(--muted)] leading-relaxed">
+                หลังครบ 7 วัน เลือกอัปเกรดเพื่อใช้งานต่อ หรือใช้บัญชีแบบฟรีต่อได้ตามสะดวก ไม่มีการคิดเงินอัตโนมัติ
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
@@ -3520,6 +3740,49 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* ── Mobile Sticky Quick-Action Bar (Fixed Bottom) ────────── */}
+      {!mobileBarDismissed && isScrolled && (
+        <aside
+          aria-label="แถบทดลองใช้งานฟรี"
+          className="md:hidden fixed bottom-3 left-3 right-3 z-40 p-3 rounded-2xl lp-paper-card border-2 border-[#54356b] shadow-[0_8px_24px_rgba(84,53,107,0.22),4px_4px_0_#54356b] flex items-center justify-between gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300 backdrop-blur-md"
+          style={{ background: "var(--panel-strong)" }}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-[#ffecb1] border border-[#54356b] flex items-center justify-center shrink-0 shadow-sm">
+              <Ticket size={18} className="text-[#432369]" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-black text-[var(--foreground)] truncate">
+                ทดลองใช้ฟรี 7 วัน (เต็มระบบ)
+              </div>
+              <div className="text-[10px] text-[var(--muted)] truncate">
+                ไม่ต้องผูกบัตร · เริ่มต้นทันที
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Link href={defaultDestination}>
+              <button
+                type="button"
+                className="h-9 px-3.5 rounded-xl font-black text-xs text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border border-[#54356b] shadow-[2px_2px_0_#54356b] active:translate-y-0.5 cursor-pointer flex items-center gap-1"
+              >
+                <span>เริ่มเลย</span>
+                <ArrowRight size={13} />
+              </button>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setMobileBarDismissed(true)}
+              className="w-8 h-8 rounded-xl text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface-hover)] flex items-center justify-center cursor-pointer transition-colors"
+              aria-label="ปิดแถบแจ้งเตือน"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </aside>
+      )}
     </main>
   );
 }

@@ -63,6 +63,20 @@ export interface FaqItem {
   answer: string;
 }
 
+export interface CreatorTestimonial {
+  id: string;
+  name: string;
+  role: string;
+  badge: string;
+  avatarText: string;
+  avatarBg: string;
+  stars: number;
+  highlight: string;
+  quote: string;
+  favoriteFeature: string;
+  stickerSrc: string;
+}
+
 export const PLAYGROUND_TASKS: PlaygroundTask[] = [
   {
     id: "task-brief",
@@ -441,5 +455,56 @@ export const FAQ_ITEMS: FaqItem[] = [
     question: "ใช้งานบน Mac, Windows, แท็บเล็ต และมือถือได้ครบไหม?",
     answer:
       "ใช้งานผ่านเว็บเบราว์เซอร์ได้ทันทีบนทุกอุปกรณ์โดยไม่ต้องลงโปรแกรมเสริม หน้าจอออกแบบให้ปรับขนาดพอดีทั้งบนจอคอมพิวเตอร์ แท็บเล็ต และสมาร์ตโฟน"
+  },
+  {
+    num: "07",
+    question: "หลังครบ 7 วันทดลองใช้งาน จะเป็นอย่างไร ข้อมูลจะหายหรือถูกตัดเงินไหม?",
+    answer:
+      "ไม่มีการตัดเงินย้อนหลังแน่นอนครับ เพราะระบบไม่ขอข้อมูลบัตรเครดิตตั้งแต่แรก หลังจากครบ 7 วัน คุณสามารถเลือกอัปเกรดเพื่อใช้งานต่อ หรือใช้บัญชีแบบฟรีต่อได้ตามสะดวก โดยข้อมูลโปรเจกต์ การ์ดงาน และบันทึกทั้งหมดของคุณจะยังอยู่ครบถ้วนและปลอดภัย สามารถส่งออก (Export) เป็น PDF หรือ CSV ได้ตลอดเวลา"
+  }
+];
+
+export const CREATOR_TESTIMONIALS: CreatorTestimonial[] = [
+  {
+    id: "review-designer",
+    name: "ณิชา กิตติสุข",
+    role: "Freelance UI/UX & Brand Designer",
+    badge: "Solo Freelancer",
+    avatarText: "NK",
+    avatarBg: "#ffecb1",
+    stars: 5,
+    highlight: "ไม่ต้องสลับแอป 5 หน้าต่างอีกต่อไป",
+    quote:
+      "ชอบ Notes Side Rail มากที่สุด ปกติเวลาทำงานต้องเปิด Notion ดูบรีฟ สลับไป Trello แล้วเปิดเพลงฟังในอีกแอป ใน Retzlo คือเปิดอ่านบรีฟข้างบอร์ดแล้วกดเปิดเพลง Lofi ในตัวได้เลย ช่วยเซฟเวลาและสมาธิได้เยอะมาก",
+    favoriteFeature: "Notes Side Rail & Lofi Synth",
+    stickerSrc: "/stickers/retro/retro-sticker-34-paint-palette.png"
+  },
+  {
+    id: "review-creator",
+    name: "ธนภัทร ประเสริฐผล",
+    role: "Solo Creator & YouTube Producer",
+    badge: "Content Creator",
+    avatarText: "TP",
+    avatarBg: "#e6faef",
+    stars: 5,
+    highlight: "เห็นภาพรวมตารางลงคอนเทนต์ทั้งเดือน",
+    quote:
+      "การที่วันส่งงานบนการ์ด Kanban เด้งขึ้นปฏิทินให้อัตโนมัติคือช่วยชีวิตมาก จากที่เคยรับงานซ้อนจนชนกัน ตอนนี้มองเห็นภาพรวมทั้งสัปดาห์ได้ชัดเจน เกลี่ยงานลงคลิปได้สบายใจขึ้นเยอะ",
+    favoriteFeature: "Unified Calendar & Due Dates",
+    stickerSrc: "/stickers/retro/retro-sticker-04-calendar.png"
+  },
+  {
+    id: "review-marketer",
+    name: "พลอยไพลิน ศิริโภคา",
+    role: "Digital Marketer & Remote Worker",
+    badge: "Remote Achiever",
+    avatarText: "PS",
+    avatarBg: "#ffeaf3",
+    stars: 5,
+    highlight: "ทำงานเสร็จแล้วมีรางวัล ไม่รู้สึกแห้งแล้ง",
+    quote:
+      "แอปทำงานส่วนใหญ่เปิดแล้วให้ความรู้สึกเหมือนนั่งทำบัญชี แต่ Retzlo มีบรรยากาศเหมือนโต๊ะไม้ส่วนตัว เคลียร์งานแล้วได้เหรียญไปรดน้ำต้นซากุระหรือแลกเวลาพักกาแฟ ทำให้มีแรงเคลียร์งานสำคัญจนจบวัน",
+    favoriteFeature: "Zen Garden & Reward Arcade",
+    stickerSrc: "/stickers/retro/retro-sticker-10-coffee-cup.png"
   }
 ];
