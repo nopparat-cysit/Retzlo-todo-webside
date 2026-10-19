@@ -16,7 +16,11 @@
   - Replaced paper note stickers (`retro-sticker-12-paper-note.png`) in empty states with vector icon emblems (`FolderKanban`, `Search`), preserving dynamic project cover stickers (`project.sticker`) inside `ProjectCard`.
   - Conditioned `Quick Launch` to only display when `starredCount > 0`, and conditioned Agenda range/status filters to only appear when schedule items exist to declutter the left sidebar.
   - Fixed `ProjectCard`'s description fallback logic so empty string descriptions fallback cleanly to default subtitle text instead of leaving an empty void.
-  - Upgraded hardcoded dark classes in the left sidebar (`Agenda & Deadlines`) and right column (`ProjectSupportColumn`) to high-contrast dual-theme classes.
+  - Added complete null-safety guards across `ProjectSupportColumn`, `ProjectCard`, and `ProjectsDashboard`: safely handled projects without boards, boards without columns, columns without cards, and non-string project descriptions.
+- `src/app/(dashboard)/error.tsx` (Modified):
+  - Always rendered `error.message` and `error.digest` to provide transparent debugging information instead of an opaque error modal.
+- `src/components/project/projects-dashboard.test.ts` (Modified):
+  - Added regression test asserting that `ProjectsDashboard` safely handles projects and boards with missing or null columns and cards.
 - `docs/theme-system.md` (Modified): Documented the `/projects` hub dual-theme improvements.
 - `docs/agent-notes/2026-10-19-projects-hub-overhaul.md` (Created/Updated): This work session note.
 
@@ -27,6 +31,7 @@
 3. **No Duplicate Projects Across 3 Columns**: The left sidebar shows Starred quick-launch only when starred projects exist; the center grid shows workspaces; and the right 2xl column aggregates studio-wide delivery health and task status distribution instead of repeating project rows.
 4. **Clean Vector Badges**: Replaced misplaced tilted PNG stickers in the right column and empty states with glowing vector badges and modern icon emblems, while preserving custom cover stickers chosen by users.
 5. **Light Mode High-Contrast**: Warm Paper light mode now renders crisp text, high-contrast borders, and clean pill backgrounds in the left sidebar and right support column.
+6. **Defensive Null-Safety**: Board columns and card aggregations will never throw `TypeError: Cannot read properties of undefined` regardless of board state or missing relationships.
 
 ## Database / Schema Changes
 
@@ -36,7 +41,7 @@
 
 - `npx prisma validate`: Passed.
 - `npm run lint`: Passed (0 errors, 0 warnings).
-- `npm test`: Passed (100 test files, 533 passed).
+- `npm test`: Passed (100 test files, 534 passed).
 - `npm run build`: Passed (all 42 routes compiled and statically generated).
 
 ## Known Follow-ups, Blockers, or Deployment Notes

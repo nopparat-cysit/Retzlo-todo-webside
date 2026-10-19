@@ -29,4 +29,12 @@ describe("ProjectsDashboard project editing contract", () => {
   it("renders ConfirmModal for project deletion", () => {
     expect(source).toMatch(/function ProjectCard[\s\S]*<ConfirmModal[\s\S]*open=\{deleteOpen\}[\s\S]*onConfirm=\{async/);
   });
+
+  it("safely handles projects and boards with missing or null columns and cards", () => {
+    expect(source).toContain("projects = []");
+    expect(source).toContain("calendarCards = []");
+    expect(source).toMatch(/safeProjects[\s\S]*Array\.isArray\(columns\)/);
+    expect(source).toMatch(/ProjectCard[\s\S]*Array\.isArray\(project\.board\?\.columns\)/);
+  });
 });
+

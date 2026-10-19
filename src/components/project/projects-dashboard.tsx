@@ -177,14 +177,14 @@ export interface UserProfile {
 }
 
 export function ProjectsDashboard({
-  projects,
-  calendarCards,
+  projects = [],
+  calendarCards = [],
   calendarDiaries = [],
   userProfile,
   databaseWarning,
 }: {
-  projects: ProjectDashboardItem[];
-  calendarCards: GlobalCalendarCard[];
+  projects?: ProjectDashboardItem[];
+  calendarCards?: GlobalCalendarCard[];
   calendarDiaries?: GlobalCalendarDiaryRaw[];
   userProfile?: UserProfile;
   databaseWarning?: string;
@@ -702,7 +702,7 @@ export function ProjectsDashboard({
             </div>
 
             {/* Segmented Range Selector & Status Pills (Only shown when schedule items exist) */}
-            {calendarCards.length > 0 || calendarDiaries.length > 0 ? (
+            {(calendarCards?.length ?? 0) > 0 || (calendarDiaries?.length ?? 0) > 0 ? (
               <>
                 <div className="mb-2 flex rounded-lg border border-stone-200/90 bg-stone-100/90 p-0.5 dark:border-white/10 dark:bg-black/20">
                   {(["7", "30", "all"] as const).map((range) => (
@@ -1526,25 +1526,33 @@ export function ProjectsDashboard({
 }
 
 function ProjectSupportColumn({
-  projects,
-  calendarCards,
+  projects = [],
+  calendarCards = [],
   userProfile,
 }: {
-  projects: ProjectDashboardItem[];
-  calendarCards: Array<GlobalCalendarCard & { type: "card" }>;
+  projects?: ProjectDashboardItem[];
+  calendarCards?: Array<GlobalCalendarCard & { type: "card" }>;
   userProfile?: UserProfile;
 }) {
-  const allCards = projects.flatMap((p) => p.board?.columns.flatMap((col) => col.cards) ?? []);
+  const safeProjects = Array.isArray(projects) ? projects : [];
+  const allCards = safeProjects
+    .flatMap((p) => {
+      const columns = p?.board?.columns;
+      if (!Array.isArray(columns)) return [];
+      return columns.flatMap((col) => (Array.isArray(col?.cards) ? col.cards : []));
+    })
+    .filter((c): c is { id: string; title: string; status: CardStatus } => Boolean(c && typeof c === "object"));
+
   const totalCards = allCards.length;
-  const doneCards = allCards.filter((c) => c.status === "DONE").length;
-  const inProgressCards = allCards.filter((c) => c.status === "IN_PROGRESS" || c.status === "DOING").length;
-  const todoCards = allCards.filter((c) => c.status === "TODO" || !c.status).length;
-  const reviewCards = allCards.filter((c) => c.status === "IN_REVIEW" || c.status === "WAITING").length;
+  const doneCards = allCards.filter((c) => c?.status === "DONE").length;
+  const inProgressCards = allCards.filter((c) => c?.status === "IN_PROGRESS" || c?.status === "DOING").length;
+  const todoCards = allCards.filter((c) => c?.status === "TODO" || !c?.status).length;
+  const reviewCards = allCards.filter((c) => c?.status === "IN_REVIEW" || c?.status === "WAITING").length;
   const studioCompletionPct = totalCards > 0 ? Math.round((doneCards / totalCards) * 100) : 0;
 
-  const totalNotes = projects.reduce((count, project) => count + project.counts.notes, 0);
-  const totalBoards = projects.reduce((count, project) => count + project.counts.boards, 0);
-  const activeProjects = projects.filter((project) => project.board || project.type === "DIARY").length;
+  const totalNotes = safeProjects.reduce((count, project) => count + (project?.counts?.notes ?? 0), 0);
+  const totalBoards = safeProjects.reduce((count, project) => count + (project?.counts?.boards ?? 0), 0);
+  const activeProjects = safeProjects.filter((project) => project?.board || project?.type === "DIARY").length;
 
   return (
     <aside className="hidden min-h-0 min-w-0 2xl:sticky 2xl:top-5 2xl:flex 2xl:flex-col 2xl:gap-3 2xl:h-[calc(100vh-2.5rem)] order-3 2xl:order-3">
@@ -2223,12 +2231,14 @@ function ProjectCard({
   onDeleteProject?: (id: string) => void;
 }) {
   const router = useRouter();
-  const { toast } = useToast();
-  const cards = project.board?.columns.flatMap((column) => column.cards) ?? [];
-  const columnCount = project.board?.columns.length ?? 0;
+  const columns = Array.isArray(project.board?.columns) ? project.board.columns : [];
+  const cards = columns
+    .flatMap((column) => (Array.isArray(column?.cards) ? column.cards : []))
+    .filter((c): c is { id: string; title: string; status: CardStatus } => Boolean(c && typeof c === "object"));
+  const columnCount = columns.length;
   const isDiaryProject = project.type === "DIARY";
   const colorMeta = getCardColorMeta(project.themeColor);
-  const doneCards = cards.filter((c) => c.status === "DONE").length;
+  const doneCards = cards.filter((c) => c?.status === "DONE").length;
   const totalCards = cards.length;
   const progressPercent = totalCards > 0 ? Math.round((doneCards / totalCards) * 100) : 0;
 
@@ -2332,7 +2342,9 @@ function ProjectCard({
         <div className="flex flex-1 flex-col p-4 sm:p-5">
           <Link href={targetUrl} className="block group/details">
             <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-600 group-hover/details:text-stone-900 transition-colors dark:text-stone-400 dark:group-hover/details:text-stone-300">
-              {(project.description && project.description.trim()) || "A quiet project workspace for tasks, notes, due dates, and rewards."}
+              {typeof project.description === "string" && project.description.trim()
+                ? project.description.trim()
+                : "A quiet project workspace for tasks, notes, due dates, and rewards."}
             </p>
 
             {/* Task Pipeline / Progress Bar */}
