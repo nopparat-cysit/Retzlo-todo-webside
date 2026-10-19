@@ -633,47 +633,46 @@ export function ProjectsDashboard({
             </div>
           </div>
 
-          {/* Quick Launch: Starred & Top Workspaces (Direct 1-Click Launch) */}
-          <div className="mt-3.5 flex flex-col rounded-xl border border-stone-200/80 bg-stone-50/70 p-2.5 dark:border-white/10 dark:bg-white/[0.025]">
-            <div className="flex items-center justify-between px-1 mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
-                Quick Launch
-              </span>
-              <span className="text-[10px] text-dusk-amber font-mono font-semibold">
-                {starredCount > 0 ? `${starredCount} Starred` : `${Math.min(projectList.length, 4)} Workspaces`}
-              </span>
-            </div>
-            <div className="space-y-1 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-soft">
-              {sortedProjects.slice(0, 4).map((p) => {
-                const isStarred = starredProjectIds.has(p.id);
-                return (
-                  <Link
-                    key={p.id}
-                    href={`/project/${p.id}/${p.type === "DIARY" ? "diary" : "board"}`}
-                    className="group flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs text-stone-700 transition hover:bg-white hover:text-indigo-600 hover:shadow-2xs dark:text-stone-300 dark:hover:bg-white/[0.06] dark:hover:text-dusk-lavender"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="grid h-5 w-5 place-items-center rounded bg-stone-200/60 dark:bg-white/5 shrink-0">
-                        {p.sticker ? (
-                          <RetroStickerImage alt={p.name} size={14} src={p.sticker} />
-                        ) : (
-                          <FolderKanban className="h-3 w-3 text-stone-400" />
-                        )}
+          {/* Quick Launch: Starred Workspaces (Direct 1-Click Launch) */}
+          {starredCount > 0 ? (
+            <div className="mt-3.5 flex flex-col rounded-xl border border-stone-200/80 bg-stone-50/70 p-2.5 dark:border-white/10 dark:bg-white/[0.025]">
+              <div className="flex items-center justify-between px-1 mb-2">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
+                  Quick Launch
+                </span>
+                <span className="text-[10px] text-dusk-amber font-mono font-semibold">
+                  {starredCount} Starred
+                </span>
+              </div>
+              <div className="space-y-1 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-soft">
+                {sortedProjects
+                  .filter((p) => starredProjectIds.has(p.id))
+                  .slice(0, 5)
+                  .map((p) => (
+                    <Link
+                      key={p.id}
+                      href={`/project/${p.id}/${p.type === "DIARY" ? "diary" : "board"}`}
+                      className="group flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs text-stone-700 transition hover:bg-white hover:text-indigo-600 hover:shadow-2xs dark:text-stone-300 dark:hover:bg-white/[0.06] dark:hover:text-dusk-lavender"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="grid h-5 w-5 place-items-center rounded bg-stone-200/60 dark:bg-white/5 shrink-0">
+                          {p.sticker ? (
+                            <RetroStickerImage alt={p.name} size={14} src={p.sticker} />
+                          ) : (
+                            <FolderKanban className="h-3 w-3 text-stone-400" />
+                          )}
+                        </div>
+                        <span className="truncate font-medium">{p.name}</span>
                       </div>
-                      <span className="truncate font-medium">{p.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      {isStarred ? <Star className="h-3 w-3 fill-amber-400 text-amber-500 shrink-0" /> : null}
-                      <ArrowRight className="h-3 w-3 text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </Link>
-                );
-              })}
-              {projectList.length === 0 ? (
-                <p className="px-1 py-1 text-[11px] text-stone-400">No workspaces yet</p>
-              ) : null}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Star className="h-3 w-3 fill-amber-400 text-amber-500 shrink-0" />
+                        <ArrowRight className="h-3 w-3 text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </Link>
+                  ))}
+              </div>
             </div>
-          </div>
+          ) : null}
 
           <Link
             href="/projects/rewards"
@@ -702,53 +701,56 @@ export function ProjectsDashboard({
               </span>
             </div>
 
-            {/* Segmented Range Selector */}
-            <div className="mb-2 flex rounded-lg border border-stone-200/90 bg-stone-100/90 p-0.5 dark:border-white/10 dark:bg-black/20">
-              {(["7", "30", "all"] as const).map((range) => (
-                <button
-                  key={range}
-                  type="button"
-                  onClick={() => setCalendarRange(range)}
-                  className={cn(
-                    "flex-1 rounded-md py-1 text-center text-[11px] font-medium transition",
-                    calendarRange === range
-                      ? "bg-white text-teal-700 font-semibold shadow-2xs border border-teal-300 dark:bg-dusk-cyan/20 dark:text-dusk-cyan dark:border-dusk-cyan/30"
-                      : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.04]"
-                  )}
-                >
-                  {range === "7" ? "7 Days" : range === "30" ? "30 Days" : "All"}
-                </button>
-              ))}
-            </div>
+            {/* Segmented Range Selector & Status Pills (Only shown when schedule items exist) */}
+            {calendarCards.length > 0 || calendarDiaries.length > 0 ? (
+              <>
+                <div className="mb-2 flex rounded-lg border border-stone-200/90 bg-stone-100/90 p-0.5 dark:border-white/10 dark:bg-black/20">
+                  {(["7", "30", "all"] as const).map((range) => (
+                    <button
+                      key={range}
+                      type="button"
+                      onClick={() => setCalendarRange(range)}
+                      className={cn(
+                        "flex-1 rounded-md py-1 text-center text-[11px] font-medium transition",
+                        calendarRange === range
+                          ? "bg-white text-teal-700 font-semibold shadow-2xs border border-teal-300 dark:bg-dusk-cyan/20 dark:text-dusk-cyan dark:border-dusk-cyan/30"
+                          : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.04]"
+                      )}
+                    >
+                      {range === "7" ? "7 Days" : range === "30" ? "30 Days" : "All"}
+                    </button>
+                  ))}
+                </div>
 
-            {/* Status Pills Filter */}
-            <div className="mb-2.5 grid grid-cols-2 gap-1">
-              {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
-                const meta = getStatusMeta(status);
-                const isChecked = calendarStatusFilters[status];
-                return (
-                  <button
-                    key={status}
-                    type="button"
-                    onClick={() =>
-                      setCalendarStatusFilters((current) => ({
-                        ...current,
-                        [status]: !current[status]
-                      }))
-                    }
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] font-medium transition text-left",
-                      isChecked
-                        ? "border-stone-200/90 bg-white text-stone-800 shadow-2xs dark:border-white/15 dark:bg-white/[0.08] dark:text-stone-200"
-                        : "border-transparent bg-stone-100/60 text-stone-500 opacity-60 hover:opacity-100 dark:bg-white/[0.02]"
-                    )}
-                  >
-                    <span className={cn("h-1.5 w-1.5 rounded-full border shrink-0", meta.badgeClass)} />
-                    <span className="truncate">{meta.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+                <div className="mb-2.5 grid grid-cols-2 gap-1">
+                  {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
+                    const meta = getStatusMeta(status);
+                    const isChecked = calendarStatusFilters[status];
+                    return (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() =>
+                          setCalendarStatusFilters((current) => ({
+                            ...current,
+                            [status]: !current[status]
+                          }))
+                        }
+                        className={cn(
+                          "flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] font-medium transition text-left",
+                          isChecked
+                            ? "border-stone-200/90 bg-white text-stone-800 shadow-2xs dark:border-white/15 dark:bg-white/[0.08] dark:text-stone-200"
+                            : "border-transparent bg-stone-100/60 text-stone-500 opacity-60 hover:opacity-100 dark:bg-white/[0.02]"
+                        )}
+                      >
+                        <span className={cn("h-1.5 w-1.5 rounded-full border shrink-0", meta.badgeClass)} />
+                        <span className="truncate">{meta.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            ) : null}
             <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
               {filteredCalendarItems.slice(0, 8).map((item) => {
                 if (item.type === "card") {
@@ -1222,8 +1224,8 @@ export function ProjectsDashboard({
           {projectList.length === 0 ? (
             <div className="lofi-panel grid min-h-0 flex-1 place-items-center overflow-hidden rounded-2xl p-8 text-center">
               <div className="max-w-md">
-                <div className="mx-auto mb-2 h-24 w-24">
-                  <RetroStickerImage alt="Paper note sticker" size={96} src="/stickers/retro/retro-sticker-12-paper-note.png" />
+                <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-md">
+                  <FolderKanban className="h-8 w-8" />
                 </div>
                 <h3 className="mt-4 text-2xl font-semibold">No projects yet</h3>
                 <p className="mt-2 text-sm text-stone-400">Create the first workspace and Retzlo will open its board for you.</p>
@@ -1388,8 +1390,8 @@ export function ProjectsDashboard({
             displayedProjects.length === 0 ? (
               <div className="lofi-panel grid min-h-[320px] flex-1 place-items-center overflow-hidden rounded-2xl p-8 text-center border border-white/10">
                 <div className="max-w-md">
-                  <div className="mx-auto mb-3 h-20 w-20">
-                    <RetroStickerImage alt="Empty sticker" size={80} src="/stickers/retro/retro-sticker-12-paper-note.png" />
+                  <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl border border-stone-200 bg-stone-100 text-stone-500 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400">
+                    <Search className="h-8 w-8" />
                   </div>
                   <h3 className="text-xl font-bold text-stone-100">No matching workspaces</h3>
                   <p className="mt-1.5 text-sm text-stone-400">
@@ -1532,10 +1534,14 @@ function ProjectSupportColumn({
   calendarCards: Array<GlobalCalendarCard & { type: "card" }>;
   userProfile?: UserProfile;
 }) {
-  const totalCards = projects.reduce(
-    (count, project) => count + (project.board?.columns.reduce((sum, column) => sum + column.cards.length, 0) ?? 0),
-    0
-  );
+  const allCards = projects.flatMap((p) => p.board?.columns.flatMap((col) => col.cards) ?? []);
+  const totalCards = allCards.length;
+  const doneCards = allCards.filter((c) => c.status === "DONE").length;
+  const inProgressCards = allCards.filter((c) => c.status === "IN_PROGRESS" || c.status === "DOING").length;
+  const todoCards = allCards.filter((c) => c.status === "TODO" || !c.status).length;
+  const reviewCards = allCards.filter((c) => c.status === "IN_REVIEW" || c.status === "WAITING").length;
+  const studioCompletionPct = totalCards > 0 ? Math.round((doneCards / totalCards) * 100) : 0;
+
   const totalNotes = projects.reduce((count, project) => count + project.counts.notes, 0);
   const totalBoards = projects.reduce((count, project) => count + project.counts.boards, 0);
   const activeProjects = projects.filter((project) => project.board || project.type === "DIARY").length;
@@ -1580,63 +1586,63 @@ function ProjectSupportColumn({
       </div>
 
       <section className="lofi-panel relative flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl p-5 border border-stone-200/90 bg-white/70 shadow-sm dark:border-white/10 dark:bg-ink-950/75 dark:shadow-lg">
-        {/* Portfolio Health & Progress Breakdown */}
+        {/* Overall Studio Delivery Health */}
         <div className="shrink-0">
-          <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-3.5 flex items-center justify-between gap-3">
             <div>
               <p className="text-[10px] uppercase tracking-[0.28em] text-dusk-amber font-semibold">Studio Pulse</p>
-              <h4 className="mt-1 text-base font-bold text-stone-900 dark:text-stone-100">Portfolio Progress</h4>
+              <h4 className="mt-0.5 text-base font-bold text-stone-900 dark:text-stone-100">Delivery Health</h4>
             </div>
-            <div className="h-10 w-10 shrink-0 rotate-6">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/stickers/retro/retro-sticker-42-hourglass.png" alt="" className="h-full w-full object-contain" />
+            <div className="h-9 w-9 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 flex items-center justify-center text-dusk-amber shadow-2xs">
+              <TrendingUp className="h-4.5 w-4.5" />
             </div>
           </div>
-          <div className="space-y-2">
-            {projects.slice(0, 4).map((project) => {
-              const cards = project.board?.columns.flatMap((col) => col.cards) ?? [];
-              const total = cards.length;
-              const done = cards.filter((c) => c.status === "DONE").length;
-              const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
-              return (
-                <Link
-                  key={project.id}
-                  href={`/project/${project.id}/${project.type === "DIARY" ? "diary" : "board"}`}
-                  className="block rounded-xl border border-stone-200/80 bg-stone-50/70 p-2.5 transition hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-dusk-lavender/45 dark:hover:bg-white/[0.06]"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-5 w-5 grid place-items-center rounded bg-stone-200/60 dark:bg-white/5 shrink-0">
-                        {project.sticker ? (
-                          <RetroStickerImage alt={project.name} size={14} src={project.sticker} />
-                        ) : (
-                          <FolderKanban className="h-3 w-3 text-stone-400" />
-                        )}
-                      </div>
-                      <span className="truncate text-xs font-semibold text-stone-800 dark:text-stone-100">{project.name}</span>
-                    </div>
-                    <span className="font-mono text-[10px] font-bold text-teal-600 dark:text-dusk-cyan shrink-0">
-                      {total > 0 ? `${pct}%` : "Ready"}
-                    </span>
-                  </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-white/10">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-teal-500 to-indigo-500 dark:from-dusk-cyan dark:to-dusk-lavender transition-all duration-300"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </Link>
-              );
-            })}
-            {projects.length === 0 ? (
-              <EmptyState
-                className="border-dashed bg-stone-50/50 p-4 text-left dark:bg-ink-950/20"
-                title="No workspaces yet"
-                message="Create your first workspace to see progress metrics here."
-              />
-            ) : null}
-          </div>
+          {projects.length === 0 ? (
+            <EmptyState
+              className="border-dashed bg-stone-50/50 p-4 text-left dark:bg-ink-950/20"
+              title="No workspaces yet"
+              message="Create your first workspace to see studio delivery metrics here."
+            />
+          ) : (
+            <div className="rounded-2xl border border-stone-200/90 bg-stone-50/80 p-3.5 dark:border-white/10 dark:bg-white/[0.035]">
+              <div className="flex items-baseline justify-between mb-2">
+                <span className="text-xs font-semibold text-stone-700 dark:text-stone-300">Studio Completion</span>
+                <span className="font-mono text-base font-bold text-teal-600 dark:text-dusk-cyan">
+                  {totalCards > 0 ? `${studioCompletionPct}%` : "0%"}
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-teal-500 via-indigo-500 to-dusk-lavender transition-all duration-500 dark:from-dusk-cyan dark:via-dusk-lavender dark:to-dusk-amber"
+                  style={{ width: `${studioCompletionPct}%` }}
+                />
+              </div>
+              <p className="mt-2 text-[11px] text-stone-500 dark:text-stone-400 font-mono">
+                {doneCards} of {totalCards} tasks completed across all workspaces
+              </p>
+
+              {/* Task Status Breakdown Grid */}
+              <div className="mt-3 grid grid-cols-4 gap-1.5 pt-2.5 border-t border-stone-200/70 dark:border-white/10 text-center">
+                <div className="rounded-lg bg-stone-200/50 p-1.5 dark:bg-white/5">
+                  <p className="text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">Todo</p>
+                  <p className="font-mono text-xs font-bold text-stone-800 dark:text-stone-200 mt-0.5">{todoCards}</p>
+                </div>
+                <div className="rounded-lg bg-indigo-50 p-1.5 dark:bg-indigo-950/30">
+                  <p className="text-[9px] uppercase tracking-wider text-indigo-600 dark:text-dusk-lavender font-semibold">Doing</p>
+                  <p className="font-mono text-xs font-bold text-indigo-700 dark:text-dusk-lavender mt-0.5">{inProgressCards}</p>
+                </div>
+                <div className="rounded-lg bg-amber-50 p-1.5 dark:bg-amber-950/30">
+                  <p className="text-[9px] uppercase tracking-wider text-amber-600 dark:text-dusk-amber font-semibold">Wait</p>
+                  <p className="font-mono text-xs font-bold text-amber-700 dark:text-dusk-amber mt-0.5">{reviewCards}</p>
+                </div>
+                <div className="rounded-lg bg-teal-50 p-1.5 dark:bg-teal-950/30">
+                  <p className="text-[9px] uppercase tracking-wider text-teal-600 dark:text-dusk-cyan font-semibold">Done</p>
+                  <p className="font-mono text-xs font-bold text-teal-700 dark:text-dusk-cyan mt-0.5">{doneCards}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-5 shrink-0">
@@ -1668,15 +1674,14 @@ function ProjectSupportColumn({
 
         <div className="mt-auto min-h-0 pt-4">
           <div className="flex items-center justify-between rounded-2xl border border-stone-200/80 bg-stone-50/70 px-4 py-3 dark:border-white/10 dark:bg-white/[0.035]">
-            <div>
+            <div className="min-w-0 pr-2">
               <p className="text-[10px] uppercase tracking-[0.24em] text-stone-500">Workspace mood</p>
-              <p className="mt-0.5 text-xs font-semibold text-stone-800 dark:text-stone-100">
+              <p className="mt-0.5 text-xs font-semibold text-stone-800 dark:text-stone-100 truncate">
                 {calendarCards.length > 0 ? "Ready for focused work" : "Calm, no dated pressure"}
               </p>
             </div>
-            <div className="h-10 w-10 shrink-0 -rotate-6">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/stickers/retro/retro-sticker-49-cozy-flame.png" alt="" className="h-full w-full object-contain" />
+            <div className="h-9 w-9 shrink-0 rounded-xl border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs">
+              <Sparkles className="h-4.5 w-4.5" />
             </div>
           </div>
         </div>
@@ -1684,6 +1689,7 @@ function ProjectSupportColumn({
     </aside>
   );
 }
+
 
 function ProjectStatusMetric({
   label,
@@ -2326,7 +2332,7 @@ function ProjectCard({
         <div className="flex flex-1 flex-col p-4 sm:p-5">
           <Link href={targetUrl} className="block group/details">
             <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-600 group-hover/details:text-stone-900 transition-colors dark:text-stone-400 dark:group-hover/details:text-stone-300">
-              {project.description ?? "A quiet project workspace for tasks, notes, due dates, and rewards."}
+              {(project.description && project.description.trim()) || "A quiet project workspace for tasks, notes, due dates, and rewards."}
             </p>
 
             {/* Task Pipeline / Progress Bar */}
