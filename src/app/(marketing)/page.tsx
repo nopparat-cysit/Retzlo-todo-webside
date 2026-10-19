@@ -146,6 +146,8 @@ export default function LandingPage() {
 
   // Interactive Hero state
   const artRef = useRef<HTMLDivElement>(null);
+  const artPointerRaf = useRef<number | null>(null);
+  const artBoundsRef = useRef<DOMRect | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [heroStage, setHeroStage] = useState(0);
   const [heroTaskIdx, setHeroTaskIdx] = useState(0);
@@ -220,10 +222,18 @@ export default function LandingPage() {
     };
   }, [router]);
 
-  // Track window scroll to elevate sticky navbar
+  // Track window scroll to elevate sticky navbar (throttled with rAF)
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 15);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const next = window.scrollY > 15;
+          setIsScrolled((prev) => (prev !== next ? next : prev));
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -414,14 +424,32 @@ export default function LandingPage() {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     )
       return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-    event.currentTarget.style.setProperty("--scene-x", `${x * 8}px`);
-    event.currentTarget.style.setProperty("--scene-y", `${y * 8}px`);
+
+    const target = event.currentTarget;
+    const clientX = event.clientX;
+    const clientY = event.clientY;
+
+    if (artPointerRaf.current !== null) return;
+
+    artPointerRaf.current = window.requestAnimationFrame(() => {
+      artPointerRaf.current = null;
+      if (!artBoundsRef.current) {
+        artBoundsRef.current = target.getBoundingClientRect();
+      }
+      const bounds = artBoundsRef.current;
+      const x = (clientX - bounds.left) / bounds.width - 0.5;
+      const y = (clientY - bounds.top) / bounds.height - 0.5;
+      target.style.setProperty("--scene-x", `${x * 8}px`);
+      target.style.setProperty("--scene-y", `${y * 8}px`);
+    });
   }
 
   function resetArtwork() {
+    if (artPointerRaf.current !== null) {
+      window.cancelAnimationFrame(artPointerRaf.current);
+      artPointerRaf.current = null;
+    }
+    artBoundsRef.current = null;
     artRef.current?.style.setProperty("--scene-x", "0px");
     artRef.current?.style.setProperty("--scene-y", "0px");
   }
@@ -529,6 +557,9 @@ export default function LandingPage() {
 
   useEffect(() => {
     return () => {
+      if (artPointerRaf.current !== null) {
+        window.cancelAnimationFrame(artPointerRaf.current);
+      }
       if (audioCtxRef.current) {
         const ctxWithTimer = audioCtxRef.current as AudioContext & {
           _chordScheduler?: ReturnType<typeof setInterval>;
@@ -536,7 +567,12 @@ export default function LandingPage() {
         if (ctxWithTimer._chordScheduler) {
           clearInterval(ctxWithTimer._chordScheduler);
         }
-        audioCtxRef.current.close();
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
+      if (sfxCtxRef.current) {
+        sfxCtxRef.current.close().catch(() => {});
+        sfxCtxRef.current = null;
       }
     };
   }, []);
@@ -583,34 +619,34 @@ export default function LandingPage() {
         aria-hidden="true"
         className="pointer-events-none select-none absolute inset-0 overflow-hidden z-0"
       >
-        {/* Soft Ambient Aurora Gradient Blobs */}
+        {/* Soft Ambient Aurora Gradient Blobs (radial-gradient for GPU performance without blur filters) */}
         <div
-          className="absolute -top-24 -left-24 w-[620px] h-[620px] rounded-full blur-[110px]"
-          style={{ background: "rgba(120, 88, 212, 0.32)" }}
+          className="absolute -top-24 -left-24 w-[620px] h-[620px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(120, 88, 212, 0.32) 0%, transparent 70%)" }}
         />
         <div
-          className="absolute top-28 -right-28 w-[680px] h-[680px] rounded-full blur-[120px]"
-          style={{ background: "rgba(255, 180, 213, 0.28)" }}
+          className="absolute top-28 -right-28 w-[680px] h-[680px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(255, 180, 213, 0.28) 0%, transparent 70%)" }}
         />
         <div
-          className="absolute top-[1100px] left-1/2 -translate-x-1/2 w-[760px] h-[760px] rounded-full blur-[140px]"
-          style={{ background: "rgba(246, 201, 118, 0.18)" }}
+          className="absolute top-[1100px] left-1/2 -translate-x-1/2 w-[760px] h-[760px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(246, 201, 118, 0.18) 0%, transparent 70%)" }}
         />
         <div
-          className="absolute top-[2000px] -left-32 w-[680px] h-[680px] rounded-full blur-[130px]"
-          style={{ background: "rgba(120, 88, 212, 0.24)" }}
+          className="absolute top-[2000px] -left-32 w-[680px] h-[680px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(120, 88, 212, 0.24) 0%, transparent 70%)" }}
         />
         <div
-          className="absolute top-[2900px] -right-32 w-[720px] h-[720px] rounded-full blur-[130px]"
-          style={{ background: "rgba(219, 39, 119, 0.22)" }}
+          className="absolute top-[2900px] -right-32 w-[720px] h-[720px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(219, 39, 119, 0.22) 0%, transparent 70%)" }}
         />
         <div
-          className="absolute top-[3800px] -left-28 w-[680px] h-[680px] rounded-full blur-[130px]"
-          style={{ background: "rgba(52, 211, 153, 0.18)" }}
+          className="absolute top-[3800px] -left-28 w-[680px] h-[680px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(52, 211, 153, 0.18) 0%, transparent 70%)" }}
         />
         <div
-          className="absolute bottom-20 -right-28 w-[720px] h-[720px] rounded-full blur-[130px]"
-          style={{ background: "rgba(120, 88, 212, 0.26)" }}
+          className="absolute bottom-20 -right-28 w-[720px] h-[720px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(120, 88, 212, 0.26) 0%, transparent 70%)" }}
         />
 
         {/* Ambient Corner Crosshairs & Studio Watermarks */}
@@ -1557,7 +1593,7 @@ export default function LandingPage() {
       {/* ── Section 2: Interactive "Try the Retzlo Loop" Playground (#playground) ── */}
       <section
         id="playground"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-12 sm:py-16 scroll-mt-20 sm:scroll-mt-24"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-12 sm:py-16 scroll-mt-20 sm:scroll-mt-24 lp-section-defer"
       >
         <div
           style={{
@@ -2072,7 +2108,7 @@ export default function LandingPage() {
       {/* ── Section 3: Everyday Friction Folder-Tabs (#pain-tabs) ─────── */}
       <section
         id="pain-tabs"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24 lp-section-defer"
       >
         <div className="max-w-2xl space-y-3 mb-10">
           <span
@@ -2439,7 +2475,7 @@ export default function LandingPage() {
       {/* ── Section 4: Interactive 6-Room Studio Tour (#walkthrough) ──── */}
       <section
         id="walkthrough"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24 lp-section-defer"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="max-w-2xl space-y-3 mb-8 pt-2">
@@ -2617,7 +2653,7 @@ export default function LandingPage() {
       {/* ── Section 5: Interactive Fit Check & Comparison (#comparison) ── */}
       <section
         id="comparison"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 space-y-14 scroll-mt-20 sm:scroll-mt-24"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 space-y-14 scroll-mt-20 sm:scroll-mt-24 lp-section-defer"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="max-w-2xl space-y-3">
@@ -2924,7 +2960,7 @@ export default function LandingPage() {
       {/* ── Section: Creator Testimonials & Stories (#testimonials) ── */}
       <section
         id="testimonials"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24 lp-section-defer"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         {/* Header */}
@@ -3066,7 +3102,7 @@ export default function LandingPage() {
       {/* ── Section 6: Smooth Accordion Questions (#faq) ─────────────── */}
       <section
         id="faq"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-14 sm:py-20 scroll-mt-20 sm:scroll-mt-24 lp-section-defer"
         style={{ borderTop: "1px solid var(--border)" }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -3184,7 +3220,7 @@ export default function LandingPage() {
       {/* ── Section 7: Free Access Studio Pass Closing Ticket CTA (#buy) ── */}
       <section
         id="buy"
-        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-24 pt-10 scroll-mt-20 sm:scroll-mt-24"
+        className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pb-24 pt-10 scroll-mt-20 sm:scroll-mt-24 lp-section-defer"
       >
         {/* Standalone Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">

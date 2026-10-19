@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function CursorAura() {
   const [enabled, setEnabled] = useState(false);
+  const auraRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -31,14 +32,24 @@ export function CursorAura() {
     if (!enabled) return;
 
     let frame = 0;
+    let pendingX = -9999;
+    let pendingY = -9999;
+    let hasScheduledFrame = false;
 
     function updateCursor(event: PointerEvent) {
       if (event.pointerType === "touch") return;
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        document.documentElement.style.setProperty("--cursor-x", `${event.clientX}px`);
-        document.documentElement.style.setProperty("--cursor-y", `${event.clientY}px`);
-      });
+      pendingX = event.clientX;
+      pendingY = event.clientY;
+
+      if (!hasScheduledFrame) {
+        hasScheduledFrame = true;
+        frame = window.requestAnimationFrame(() => {
+          if (auraRef.current) {
+            auraRef.current.style.transform = `translate3d(${pendingX}px, ${pendingY}px, 0)`;
+          }
+          hasScheduledFrame = false;
+        });
+      }
     }
 
     window.addEventListener("pointermove", updateCursor, { passive: true });
@@ -51,5 +62,5 @@ export function CursorAura() {
 
   if (!enabled) return null;
 
-  return <div className="cursor-aura" data-cursor-aura aria-hidden="true" />;
+  return <div ref={auraRef} className="cursor-aura" data-cursor-aura aria-hidden="true" />;
 }

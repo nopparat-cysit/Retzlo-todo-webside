@@ -12,7 +12,7 @@ function Star() {
 export function MixtapeArtwork() {
   return (
     <div className={styles.sceneArtwork} aria-hidden="true">
-      <div className={styles.cassetteLayer}><div className={styles.cassetteFloat}><Image src="/images/login-cassette-cutout.png" width={1536} height={1024} alt="" priority unoptimized className={styles.cassetteImage} /></div></div>
+      <div className={styles.cassetteLayer}><div className={styles.cassetteFloat}><Image src="/images/login-cassette-cutout.png" width={1536} height={1024} alt="" priority sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px" className={styles.cassetteImage} /></div></div>
       <div className={styles.cloudLayer + " " + styles.cloudOne}><div className={styles.cloudFloat}><PixelCloud /></div></div>
       <div className={styles.cloudLayer + " " + styles.cloudTwo}><div className={styles.cloudFloat}><PixelCloud /></div></div>
       <div className={styles.cloudLayer + " " + styles.cloudThree}><div className={styles.cloudFloat}><PixelCloud /></div></div>
