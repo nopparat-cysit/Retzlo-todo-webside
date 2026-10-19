@@ -71,8 +71,6 @@ interface CoinBurst {
   amount: number;
 }
 
-const HERO_STAGES = ["To do", "In progress", "Done"] as const;
-
 interface HeroFocusTask {
   id: string;
   title: string;
@@ -98,6 +96,52 @@ const HERO_FOCUS_TASKS: HeroFocusTask[] = [
     title: "เขียนสรุปความคืบหน้าสั้นๆ ในสมุดโน้ต",
     tag: "DAILY SYNC",
     coins: 20
+  }
+];
+
+type HeroPreviewTab = "board" | "calendar" | "notes" | "ai-rewards";
+
+interface HeroMiniCard {
+  id: string;
+  title: string;
+  tag: string;
+  tagBg: string;
+  tagColor: string;
+  due: string;
+  coins: number;
+  stage: 0 | 1 | 2;
+}
+
+const INITIAL_HERO_MINI_CARDS: HeroMiniCard[] = [
+  {
+    id: "hm-1",
+    title: "ออกแบบหน้าปกแคมเปญ & บรีฟงาน",
+    tag: "Design",
+    tagBg: "#ede9fe",
+    tagColor: "#6d28d9",
+    due: "พรุ่งนี้ 14:00",
+    coins: 25,
+    stage: 0
+  },
+  {
+    id: "hm-2",
+    title: "เชื่อมระบบปฏิทินซิงก์วันส่งการ์ด",
+    tag: "Product",
+    tagBg: "#fef3c7",
+    tagColor: "#b45309",
+    due: "วันนี้ 16:30",
+    coins: 30,
+    stage: 1
+  },
+  {
+    id: "hm-3",
+    title: "สรุปโน้ตประชุมทีมลงสมุดโน้ต",
+    tag: "Notes",
+    tagBg: "#d1fae5",
+    tagColor: "#047857",
+    due: "เสร็จวันนี้",
+    coins: 20,
+    stage: 2
   }
 ];
 
@@ -152,6 +196,11 @@ export default function LandingPage() {
   const [heroStage, setHeroStage] = useState(0);
   const [heroTaskIdx, setHeroTaskIdx] = useState(0);
   const [heroCompletedTasks, setHeroCompletedTasks] = useState<string[]>([]);
+  const [heroPreviewTab, setHeroPreviewTab] = useState<HeroPreviewTab>("board");
+  const [heroMiniCards, setHeroMiniCards] = useState<HeroMiniCard[]>(INITIAL_HERO_MINI_CARDS);
+  const [heroCalChecked, setHeroCalChecked] = useState<string[]>(["hcal-1"]);
+  const [heroNoteChecked, setHeroNoteChecked] = useState<string[]>(["hnote-1"]);
+  const [heroAiSplitDone, setHeroAiSplitDone] = useState<boolean>(false);
 
   // Interactive Playground & Live Coin Wallet state
   const [walletCoins, setWalletCoins] = useState<number>(45);
@@ -440,9 +489,60 @@ export default function LandingPage() {
     }
   };
 
-  const resetHeroTask = () => {
+  const handleAdvanceHeroMiniCard = (cardId: string) => {
+    setHeroMiniCards((prev) =>
+      prev.map((card) => {
+        if (card.id !== cardId) return card;
+        const nextStage = ((card.stage + 1) % 3) as 0 | 1 | 2;
+        if (nextStage === 2) {
+          triggerEarnCoin(card.coins, `ย้าย "${card.title.slice(0, 18)}..." ไปที่ Done สำเร็จ!`);
+        } else if (card.stage === 2 && nextStage === 0) {
+          triggerEarnCoin(-card.coins, `ย้ายการ์ดกลับไปที่ To do`);
+        } else {
+          playChime("click");
+        }
+        return { ...card, stage: nextStage };
+      })
+    );
+  };
+
+  const handleResetHeroMiniBoard = () => {
+    setHeroMiniCards(INITIAL_HERO_MINI_CARDS);
     setHeroStage(0);
     playChime("click");
+    setToastBanner("รีเซ็ตบอร์ดตัวอย่างกลับมาจุดเริ่มต้นแล้ว ✨");
+  };
+
+  const handleToggleHeroCalItem = (id: string, coins: number, label: string) => {
+    const done = heroCalChecked.includes(id);
+    if (done) {
+      setHeroCalChecked((prev) => prev.filter((x) => x !== id));
+      triggerEarnCoin(-coins, `ยกเลิก "${label.slice(0, 18)}..."`);
+    } else {
+      setHeroCalChecked((prev) => [...prev, id]);
+      triggerEarnCoin(coins, `เคลียร์ตารางงาน "${label.slice(0, 18)}..." สำเร็จ!`);
+    }
+  };
+
+  const handleToggleHeroNoteItem = (id: string, coins: number, label: string) => {
+    const done = heroNoteChecked.includes(id);
+    if (done) {
+      setHeroNoteChecked((prev) => prev.filter((x) => x !== id));
+      triggerEarnCoin(-coins, `ยกเลิก "${label.slice(0, 18)}..."`);
+    } else {
+      setHeroNoteChecked((prev) => [...prev, id]);
+      triggerEarnCoin(coins, `เช็กรายการ "${label.slice(0, 18)}..." สำเร็จ!`);
+    }
+  };
+
+  const handleTriggerHeroAiSplit = () => {
+    if (!heroAiSplitDone) {
+      setHeroAiSplitDone(true);
+      triggerEarnCoin(15, "AI ช่วยแตกงานใหญ่เป็น 3 การ์ดย่อยให้ทันที! 🤖");
+    } else {
+      setHeroAiSplitDone(false);
+      triggerEarnCoin(-15, "รีเซ็ตตัวอย่าง AI แตกงานย่อย");
+    }
   };
 
   function moveArtwork(event: PointerEvent<HTMLDivElement>) {
@@ -1208,7 +1308,7 @@ export default function LandingPage() {
         )}
       </header>
 
-      {/* ── Section 1: Cozy Mixtape Studio Hero (#cp-hero) ──────────── */}
+      {/* ── Section 1: All-in-One Cozy Workspace Hero (#cp-hero) ──────────── */}
       <section id="cp-hero" className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-4 pb-12 sm:py-8">
         <div
           className="w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden"
@@ -1219,15 +1319,15 @@ export default function LandingPage() {
             background: "var(--panel-strong)"
           }}
         >
-          {/* Left 6 Cols: Tactile Studio Copy + Retro Sticker Dock */}
-          <div className="lg:col-span-6 p-7 sm:p-10 lg:p-12 xl:p-14 flex flex-col justify-between gap-8">
-            <div className="space-y-6">
-              {/* Tilted Buttercream Tape Tag */}
-              <div className="inline-flex items-center gap-2">
+          {/* Left 6 Cols: Clear Product Value Proposition + Interactive Mode Switcher */}
+          <div className="lg:col-span-6 p-7 sm:p-10 lg:p-11 xl:p-12 flex flex-col justify-between gap-6">
+            <div className="space-y-5">
+              {/* Clear Product Category Badge */}
+              <div className="inline-flex flex-wrap items-center gap-2">
                 <span
                   style={{
                     display: "inline-block",
-                    transform: "rotate(-1.5deg)",
+                    transform: "rotate(-1deg)",
                     padding: "5px 12px",
                     borderRadius: "8px",
                     background: "#ffecb1",
@@ -1235,26 +1335,26 @@ export default function LandingPage() {
                     color: "#54356b",
                     fontSize: "11px",
                     fontWeight: 800,
-                    letterSpacing: "1.2px",
+                    letterSpacing: "0.8px",
                     boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.2)"
                   }}
                 >
-                  SIDE A · COZY WORK &amp; LIFE STUDIO
+                  📋 ALL-IN-ONE WORK &amp; LIFE WORKSPACE · จัดการงานและชีวิตในที่เดียว
                 </span>
               </div>
 
               <h1
                 className="lp-font-display"
                 style={{
-                  fontSize: "clamp(32px, 3.8vw, 48px)",
-                  lineHeight: 1.24,
+                  fontSize: "clamp(28px, 3.4vw, 44px)",
+                  lineHeight: 1.25,
                   fontWeight: 700,
                   color: "var(--foreground)"
                 }}
               >
-                เปลี่ยนวันที่งานกองเต็มหัว
+                จัดการโปรเจกต์ บอร์ดงาน ปฏิทิน และสมุดโน้ต
                 <br />
-                ให้เป็นจังหวะที่{" "}
+                ในพื้นที่เดียวที่{" "}
                 <span
                   style={{
                     background:
@@ -1263,25 +1363,70 @@ export default function LandingPage() {
                     borderRadius: "4px"
                   }}
                 >
-                  ค่อยๆ เคลียร์สนุกขึ้น
+                  เคลียร์งานสนุกขึ้น
                 </span>
                 ทุกวัน
               </h1>
 
               <p
                 style={{
-                  fontSize: "15.5px",
-                  lineHeight: 1.8,
+                  fontSize: "15px",
+                  lineHeight: 1.75,
                   color: "var(--muted)",
-                  maxWidth: "48ch"
+                  maxWidth: "54ch"
                 }}
               >
-                เคยไหม? เปิดคอมมาจะทำงาน แต่ต้องไล่หาบรีฟในแชต หาลิงก์ในโน้ต
-                สลับหน้าจอไปมาจนหมดแรง... <strong>Retzlo</strong> รวมบอร์ดงาน ปฏิทิน
-                สมุดโน้ต ไดอารี่ และเพลง Lofi ไว้ในห้องเดียว เคลียร์งานเสร็จรับเหรียญไปแลกรางวัลหรือปลูกซากุระต่อได้เลย!
+                ไม่ต้องสลับหลายแอปให้วุ่นวาย — <strong>Retzlo</strong> คือแพลตฟอร์มจัดการงานและตารางชีวิตที่รวม{" "}
+                <strong style={{ color: "var(--foreground)" }}>บอร์ดงาน Kanban, ปฏิทินซิงก์วันส่ง, สมุดโน้ตคู่บอร์ด, ไดอารี่ส่วนตัว และ AI แตกงานย่อย</strong>{" "}
+                ไว้ในห้องเดียว เคลียร์งานเสร็จรับเหรียญรางวัล (+Coins) ไปแลกรางวัลและปลูกสวนเซนพร้อมฟังเพลง Lofi ชิลล์ๆ ได้เลย
               </p>
 
-              {/* Tactile Buttons */}
+              {/* 2x2 Scannable Core Pillars (Instant 3-Second Comprehension) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                {[
+                  {
+                    icon: "📋",
+                    title: "บอร์ดงาน Kanban & ตาราง",
+                    desc: "แยกโปรเจกต์ทีมหรือส่วนตัว ลากการ์ดง่าย"
+                  },
+                  {
+                    icon: "📅",
+                    title: "ปฏิทินซิงก์วันส่งอัตโนมัติ",
+                    desc: "ตั้งวันในการ์ดปุ๊บ ขึ้นปฏิทินรวมทันที"
+                  },
+                  {
+                    icon: "📝",
+                    title: "สมุดโน้ตคู่บอร์ด & ไดอารี่",
+                    desc: "เปิดดูบรีฟข้างบอร์ดงาน + เช็กลิสต์รายวัน"
+                  },
+                  {
+                    icon: "🤖",
+                    title: "AI แตกงานย่อย & เหรียญรางวัล",
+                    desc: "แตกงานใหญ่ในคลิกเดียว เคลียร์เสร็จรับ Coins"
+                  }
+                ].map((pillar) => (
+                  <div
+                    key={pillar.title}
+                    className="flex items-start gap-2.5 p-2.5 rounded-xl"
+                    style={{
+                      background: "var(--paper)",
+                      border: "1px solid var(--border)"
+                    }}
+                  >
+                    <span className="text-base leading-none mt-0.5 shrink-0">{pillar.icon}</span>
+                    <div className="min-w-0">
+                      <div className="text-xs font-extrabold" style={{ color: "var(--foreground)" }}>
+                        {pillar.title}
+                      </div>
+                      <div className="text-[11px] leading-snug mt-0.5" style={{ color: "var(--muted)" }}>
+                        {pillar.desc}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Tactile CTA Buttons */}
               <div className="flex flex-wrap items-center gap-3.5 pt-1">
                 <Link href={defaultDestination}>
                   <button
@@ -1290,7 +1435,7 @@ export default function LandingPage() {
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "10px",
-                      height: "52px",
+                      height: "50px",
                       padding: "0 24px",
                       borderRadius: "14px",
                       border: "2px solid #54356b",
@@ -1301,19 +1446,19 @@ export default function LandingPage() {
                       boxShadow: "4px 4px 0 #54356b"
                     }}
                   >
-                    <span>เริ่มต้นทดลองใช้ฟรี 7 วัน</span>
+                    <span>เริ่มต้นใช้งานฟรี 7 วัน</span>
                     <ArrowRight size={16} />
                   </button>
                 </Link>
 
                 <a
-                  href="#playground"
+                  href="#walkthrough"
                   className="lp-press-btn"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
-                    height: "52px",
+                    height: "50px",
                     padding: "0 20px",
                     borderRadius: "14px",
                     border: "2px solid var(--border-strong, var(--border))",
@@ -1324,100 +1469,106 @@ export default function LandingPage() {
                     boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.12)"
                   }}
                 >
-                  <span>🎮 ลองกดเล่นลูปแลกรางวัล</span>
+                  <span>💻 ดูทัวร์ 6 ห้องทำงานจริง</span>
                 </a>
               </div>
 
               {/* Zero-Risk Trust Reassurance Micro-Copy */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[var(--muted)] font-medium pt-1">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[var(--muted)] font-medium">
                 <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                   <Check size={14} className="shrink-0" />
-                  <span>ทดลองใช้ฟรี 7 วันเต็มระบบ</span>
+                  <span>ใช้งานฟรีเต็มระบบ ไม่จำกัดบอร์ด</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <ShieldCheck size={14} className="shrink-0 text-amber-500" />
                   <span>ไม่ต้องกรอกบัตรเครดิต</span>
                 </span>
                 <a
-                  href="#walkthrough"
+                  href="#playground"
                   className="inline-flex items-center gap-1 text-[#7858d4] dark:text-purple-300 hover:underline font-semibold"
                 >
-                  <span>💻 ส่อง 6 มุมทำงานจริง</span>
+                  <span>🎮 ลองเล่นมินิเกมสะสมเหรียญ</span>
                   <ArrowRight size={12} />
                 </a>
               </div>
             </div>
 
-            {/* Hand-Drawn Retro Sticker Strip */}
+            {/* Interactive Preview Switcher Dock */}
             <div
               style={{
                 borderTop: "1px dashed var(--border)",
-                paddingTop: "18px"
+                paddingTop: "14px"
               }}
             >
-              <div className="text-[11px] font-bold tracking-wider uppercase mb-3" style={{ color: "var(--muted)" }}>
-                ครบทั้ง 5 มุมในโต๊ะทำงานเดียว (ไม่ต้องสลับแอป):
+              <div className="text-[11px] font-bold tracking-wider uppercase mb-2.5 flex items-center justify-between" style={{ color: "var(--muted)" }}>
+                <span>👆 คลิกสลับดูหน้าจอระบบจริงด้านขวา:</span>
+                <span className="text-[10px] text-[#7858d4] dark:text-purple-300 font-extrabold">LIVE APP PREVIEW →</span>
               </div>
-              <div className="flex flex-wrap items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-2">
                 {[
                   {
-                    label: "Kanban & Table",
-                    sticker: "/stickers/retro/retro-sticker-03-checklist.png",
-                    rot: "-2deg"
+                    id: "board" as const,
+                    label: "บอร์ดงาน Kanban",
+                    sticker: "/stickers/retro/retro-sticker-03-checklist.png"
                   },
                   {
-                    label: "Unified Calendar",
-                    sticker: "/stickers/retro/retro-sticker-04-calendar.png",
-                    rot: "1.5deg"
+                    id: "calendar" as const,
+                    label: "ปฏิทินซิงก์วันส่ง",
+                    sticker: "/stickers/retro/retro-sticker-04-calendar.png"
                   },
                   {
-                    label: "Side Notes",
-                    sticker: "/stickers/retro/retro-sticker-12-paper-note.png",
-                    rot: "-1deg"
+                    id: "notes" as const,
+                    label: "สมุดโน้ต & ไดอารี่",
+                    sticker: "/stickers/retro/retro-sticker-12-paper-note.png"
                   },
                   {
-                    label: "Private Diary",
-                    sticker: "/stickers/retro/retro-sticker-02-diary-notebook.png",
-                    rot: "2deg"
-                  },
-                  {
-                    label: "Lofi & Rewards",
-                    sticker: "/stickers/retro/retro-sticker-01-coin-reward.png",
-                    rot: "-1.5deg"
+                    id: "ai-rewards" as const,
+                    label: "AI & เหรียญรางวัล",
+                    sticker: "/stickers/retro/retro-sticker-01-coin-reward.png"
                   }
-                ].map((badge) => (
-                  <div
-                    key={badge.label}
-                    className="lp-spring-card inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
-                    style={{
-                      transform: `rotate(${badge.rot})`,
-                      background: "var(--paper)",
-                      border: "1px solid var(--border)",
-                      boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.1)"
-                    }}
-                  >
-                    <div className="relative w-5 h-5 shrink-0">
-                      <Image
-                        src={badge.sticker}
-                        alt=""
-                        fill
-                        sizes="20px"
-                        className="object-contain"
-                      />
-                    </div>
-                    <span>{badge.label}</span>
-                  </div>
-                ))}
+                ].map((tab) => {
+                  const active = heroPreviewTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setHeroPreviewTab(tab.id);
+                        playChime("click");
+                      }}
+                      className="lp-press-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+                      style={{
+                        background: active ? "#ffecb1" : "var(--paper)",
+                        color: active ? "#432369" : "var(--foreground)",
+                        border: active ? "1.5px solid #54356b" : "1px solid var(--border)",
+                        boxShadow: active
+                          ? "3px 3px 0 rgba(84, 53, 107, 0.22)"
+                          : "1px 1px 0 rgba(84, 53, 107, 0.08)"
+                      }}
+                    >
+                      <div className="relative w-4 h-4 shrink-0">
+                        <Image
+                          src={tab.sticker}
+                          alt=""
+                          fill
+                          sizes="16px"
+                          className="object-contain"
+                        />
+                      </div>
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          {/* Right 6 Cols: Dual-Panel Interactive Studio Workstation Showcase */}
+          {/* Right 6 Cols: Interactive Retzlo Mini-Workspace App Window */}
           <div
             ref={artRef}
             onPointerMove={moveArtwork}
             onPointerLeave={resetArtwork}
-            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-6 sm:p-8 lg:p-10 min-h-[520px] lg:min-h-[620px]"
+            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-5 sm:p-7 lg:p-8 min-h-[540px] lg:min-h-[640px]"
             style={{
               background:
                 "linear-gradient(180deg, #5942b8 0%, #7858d4 42%, #b184e7 68%, #ffb4d5 100%)",
@@ -1427,269 +1578,573 @@ export default function LandingPage() {
           >
             <MixtapeArtwork />
 
-            {/* Top Scene Header */}
-            <div className="relative z-10 flex items-center justify-between text-[11px] tracking-[1.8px] font-bold text-[#f3e8ff]">
+            {/* Top Workspace Status Bar */}
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-[#f3e8ff] mb-3">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>SIDE A · YOUR DAILY MIXTAPE</span>
+                <span className="tracking-wider uppercase">RETZLO WORKSPACE · หน้าต่างจำลองระบบจริง (กดเล่นได้!)</span>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 border border-white/25 text-xs font-black shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/35 border border-white/25 text-xs font-black shadow-sm">
                 <Coins size={13} className="text-amber-300 shrink-0" />
-                <span>WALLET: {walletCoins} COINS</span>
+                <span>กระเป๋าเหรียญ: {walletCoins}c</span>
               </span>
             </div>
 
-            {/* Center: Cohesive 2-Panel Studio Workstation Showcase */}
-            <div className="relative z-10 my-auto py-5 sm:py-6 grid grid-cols-1 sm:grid-cols-12 gap-4 lg:gap-5 items-center">
-              {/* Left Panel: Framed Cozy Studio Desk Monitor */}
+            {/* Center: Interactive Retzlo Workspace App Window */}
+            <div
+              className="relative z-10 my-auto rounded-2xl overflow-hidden flex flex-col"
+              style={{
+                background: "rgba(38, 22, 68, 0.92)",
+                border: "2px solid rgba(255, 240, 255, 0.72)",
+                boxShadow: "0 20px 45px rgba(20, 8, 52, 0.45)",
+                backdropFilter: "blur(16px)"
+              }}
+            >
+              {/* App Window Titlebar & Project Header */}
               <div
-                className="sm:col-span-5 flex flex-col lp-float-sticker"
-                style={
-                  {
-                    "--lp-rot": "-2.5deg",
-                    background: "#fffaf0",
-                    color: "#432369",
-                    padding: "10px",
-                    borderRadius: "18px",
-                    border: "2px solid #54356b",
-                    boxShadow: "5px 5px 0 rgba(36, 15, 69, 0.32)"
-                  } as CSSProperties
-                }
+                className="px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2"
+                style={{
+                  background: "rgba(24, 12, 48, 0.65)",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.14)"
+                }}
               >
-                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden border border-[#54356b]/20 bg-purple-900/10">
-                  <Image
-                    src="/images/landing/cozy-desk-hero.jpg"
-                    alt="Cozy Lofi Desk Illustration"
-                    fill
-                    sizes="(max-width: 640px) 100vw, 240px"
-                    className="object-cover"
-                    priority
-                  />
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#fb7185] inline-block" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#fbbf24] inline-block" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#34d399] inline-block" />
+                  </div>
+                  <span className="text-white/30">|</span>
+                  <span className="text-xs font-extrabold text-white flex items-center gap-1.5">
+                    <span>📁 โปรเจกต์: เปิดตัวแคมเปญ Q4</span>
+                    <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-purple-500/30 border border-purple-300/30 text-[10px] text-purple-200">
+                      ทีม 5 คน
+                    </span>
+                  </span>
                 </div>
-                <div className="mt-2.5 px-1 flex items-center justify-between text-[10px] font-black tracking-wide">
-                  <span>🎨 Cozy Studio Desk</span>
-                  <span className="text-pink-600 font-mono">SIDE A</span>
-                </div>
-                {/* Micro Tilted Tag */}
-                <div
-                  className="mt-2 p-1.5 rounded-lg text-center text-[10px] font-bold"
-                  style={{
-                    background: "#ffecb1",
-                    color: "#54356b",
-                    border: "1px dashed #54356b"
-                  }}
-                >
-                  less rush, <strong>more rhythm.</strong>
-                </div>
+
+                <span className="px-2 py-0.5 rounded-full bg-[#ffecb1] text-[#432369] text-[10px] font-extrabold">
+                  ✨ ลองคลิกการ์ดหรือสลับแท็บด้านล่าง!
+                </span>
               </div>
 
-              {/* Right Panel: Interactive Floating Board Card */}
-              <div className="sm:col-span-7 flex flex-col">
-                <div
-                  className="lp-spring-card"
-                  style={{
-                    width: "100%",
-                    padding: "18px",
-                    border: "1.5px solid rgba(255, 240, 255, 0.78)",
-                    borderRadius: "20px",
-                    background: "rgba(85, 51, 133, 0.94)",
-                    boxShadow: "0 18px 40px rgba(26, 11, 69, 0.34)",
-                    backdropFilter: "blur(16px)"
-                  }}
-                >
-                  <div className="flex items-center justify-between text-[11px] tracking-[1px] font-bold mb-3 text-[#f3e8ff]">
-                    <span className="flex items-center gap-1.5">
-                      <LayoutGrid size={13} /> MY DAILY BOARD
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#ffecb1] text-[#432369] text-[10px] font-extrabold shadow-sm">
-                      ลองกดขยับการ์ด!
-                    </span>
-                  </div>
+              {/* App Window Navigation Tabs */}
+              <div
+                className="px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar"
+                style={{
+                  background: "rgba(255, 255, 255, 0.06)",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.12)"
+                }}
+              >
+                {[
+                  { id: "board" as const, label: "📋 บอร์ดงาน Kanban" },
+                  { id: "calendar" as const, label: "📅 ปฏิทินวันส่ง" },
+                  { id: "notes" as const, label: "📝 โน้ต & ไดอารี่" },
+                  { id: "ai-rewards" as const, label: "🤖 AI & รางวัล" }
+                ].map((tab) => {
+                  const active = heroPreviewTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setHeroPreviewTab(tab.id);
+                        playChime("click");
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all"
+                      style={{
+                        background: active ? "#ffecb1" : "rgba(255, 255, 255, 0.1)",
+                        color: active ? "#432369" : "#f3e8ff",
+                        border: active
+                          ? "1px solid #54356b"
+                          : "1px solid rgba(255, 255, 255, 0.15)"
+                      }}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
 
-                  <div className="flex justify-between gap-1 mb-3">
-                    {HERO_STAGES.map((name, idx) => (
-                      <span
-                        key={name}
-                        className="flex items-center gap-1 text-[10px] font-semibold transition-opacity"
-                        style={{
-                          color: idx === heroStage ? "#fff5ff" : "#d7c1ec",
-                          opacity: idx === heroStage ? 1 : 0.65
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: "6px",
-                            height: "6px",
-                            borderRadius: "50%",
-                            background:
-                              idx === 0
-                                ? "#c4b5fd"
-                                : idx === 1
-                                  ? "#f6c976"
-                                  : "#6ee7b7"
-                          }}
-                        />
-                        {name}
-                      </span>
-                    ))}
-                  </div>
+              {/* App Window Interactive Stage Content */}
+              <div className="p-3.5 sm:p-4 space-y-3">
+                {/* ── TAB 1: KANBAN BOARD VIEW ── */}
+                {heroPreviewTab === "board" && (
+                  <div className="space-y-3">
+                    {/* 3-Column Mini Kanban Board */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      {[
+                        { stage: 0 as const, title: "To do (รอทำ)", dot: "#c4b5fd" },
+                        { stage: 1 as const, title: "In progress (กำลังทำ)", dot: "#fbbf24" },
+                        { stage: 2 as const, title: "Done (เสร็จ +Coins!)", dot: "#34d399" }
+                      ].map((col) => {
+                        const colCards = heroMiniCards.filter((c) => c.stage === col.stage);
+                        return (
+                          <div
+                            key={col.title}
+                            className="rounded-xl p-2.5 flex flex-col gap-2"
+                            style={{
+                              background: "rgba(255, 255, 255, 0.08)",
+                              border: "1px solid rgba(255, 255, 255, 0.16)",
+                              minHeight: "148px"
+                            }}
+                          >
+                            <div className="flex items-center justify-between text-[10px] font-extrabold text-purple-100">
+                              <span className="flex items-center gap-1.5">
+                                <span
+                                  className="w-2 h-2 rounded-full"
+                                  style={{ background: col.dot }}
+                                />
+                                {col.title}
+                              </span>
+                              <span className="px-1.5 py-0.2 rounded-full bg-white/15 text-[9px]">
+                                {colCards.length}
+                              </span>
+                            </div>
 
-                  <div
-                    className="lp-spring-card"
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      textAlign: "left",
-                      gap: "10px",
-                      width: "100%",
-                      padding: "16px",
-                      borderRadius: "16px",
-                      border: "2px solid #54356b",
-                      background: heroStage === 2 ? "#f0fdf4" : "#fff7fc",
-                      color: "#432369",
-                      boxShadow: "4px 4px 0 rgba(43, 19, 77, 0.25)"
-                    }}
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <span
-                        style={{
-                          fontSize: "10px",
-                          fontWeight: 800,
-                          letterSpacing: "1px",
-                          color: heroStage === 2 ? "#15803d" : "#8b5cf6"
-                        }}
-                      >
-                        {currentHeroTask.tag} · {heroTaskIdx + 1}/3
-                      </span>
-                      <span
-                        className="text-[11px] font-black px-2.5 py-0.5 rounded-full"
-                        style={{
-                          background: heroStage === 2 ? "#dcfce7" : "#fff0b8",
-                          color: heroStage === 2 ? "#166534" : "#78350f"
-                        }}
-                      >
-                        {isHeroTaskAwarded && heroStage === 2
-                          ? "✓ รับแล้ว +25c"
-                          : `+${currentHeroTask.coins} Coins`}
-                      </span>
+                            {colCards.length === 0 ? (
+                              <div className="my-auto text-center text-[10px] text-purple-200/60 py-4 border border-dashed border-white/15 rounded-lg">
+                                คลิกการ์ดจากช่องอื่นเพื่อย้ายมาที่นี่
+                              </div>
+                            ) : (
+                              colCards.map((card) => (
+                                <button
+                                  key={card.id}
+                                  type="button"
+                                  onClick={() => handleAdvanceHeroMiniCard(card.id)}
+                                  className="lp-spring-card w-full text-left p-2.5 rounded-xl transition-all"
+                                  style={{
+                                    background: card.stage === 2 ? "#f0fdf4" : "#fffaf5",
+                                    color: "#432369",
+                                    border: "1.5px solid #54356b",
+                                    boxShadow: "2px 2px 0 rgba(26, 11, 69, 0.28)"
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between gap-1 mb-1">
+                                    <span
+                                      className="px-1.5 py-0.5 rounded text-[9px] font-extrabold"
+                                      style={{
+                                        background: card.tagBg,
+                                        color: card.tagColor
+                                      }}
+                                    >
+                                      {card.tag}
+                                    </span>
+                                    <span className="text-[9px] font-black text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full">
+                                      +{card.coins}c
+                                    </span>
+                                  </div>
+                                  <div
+                                    className="text-xs font-extrabold leading-snug"
+                                    style={{
+                                      textDecoration: card.stage === 2 ? "line-through" : "none",
+                                      opacity: card.stage === 2 ? 0.78 : 1
+                                    }}
+                                  >
+                                    {card.title}
+                                  </div>
+                                  <div className="mt-2 pt-1.5 border-t border-black/10 flex items-center justify-between text-[10px] font-bold text-[#6d4c7d]">
+                                    <span>📅 {card.due}</span>
+                                    <span className="text-[#7858d4] underline">
+                                      {card.stage === 2 ? "รีเซ็ต ↺" : "ย้ายช่อง →"}
+                                    </span>
+                                  </div>
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
 
-                    <strong style={{ fontSize: "14.5px", lineHeight: 1.45 }}>
-                      {heroStage === 2
-                        ? `🎉 เสร็จเรียบร้อย! "${currentHeroTask.title}"`
-                        : heroStage === 1
-                          ? `กำลังทำ: ${currentHeroTask.title}`
-                          : currentHeroTask.title}
-                    </strong>
+                    {/* Active Focus Task Card (Quick Interactive Win) */}
+                    <div
+                      className="p-3 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+                      style={{
+                        background: heroStage === 2 ? "#dcfce7" : "#fff5fc",
+                        color: "#432369",
+                        border: "1.5px solid #54356b"
+                      }}
+                    >
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-purple-200 text-[#432369]">
+                            ⚡ งานโฟกัสด่วน ({heroTaskIdx + 1}/3)
+                          </span>
+                          <span className="text-[10px] font-extrabold text-amber-800">
+                            +{currentHeroTask.coins} Coins เมื่อเสร็จ
+                          </span>
+                        </div>
+                        <div className="text-xs sm:text-sm font-extrabold">
+                          {heroStage === 2
+                            ? `🎉 เสร็จแล้ว! "${currentHeroTask.title}"`
+                            : heroStage === 1
+                              ? `กำลังทำ: ${currentHeroTask.title}`
+                              : currentHeroTask.title}
+                        </div>
+                      </div>
 
-                    {heroStage === 2 ? (
-                      <div className="flex items-center gap-2 pt-1.5 border-t border-black/10">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           type="button"
                           onClick={advanceHeroTask}
-                          className="lp-press-btn flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5"
+                          className="lp-press-btn px-3 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1"
                           style={{
-                            background: "#54356b",
-                            color: "#ffecb1",
+                            background: "#7858d4",
+                            color: "#ffffff",
                             border: "1px solid #432369"
                           }}
                         >
-                          <span>งานถัดไป ({heroTaskIdx + 2 > 3 ? 1 : heroTaskIdx + 2}/3)</span>
-                          <ArrowRight size={14} />
+                          <span>
+                            {heroStage === 0
+                              ? "เริ่มทำ →"
+                              : heroStage === 1
+                                ? "ทำเสร็จ ✓ (+Coins)"
+                                : "งานถัดไป →"}
+                          </span>
                         </button>
                         <button
                           type="button"
-                          onClick={resetHeroTask}
-                          className="lp-press-btn py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1"
-                          style={{
-                            background: "#ffffff",
-                            color: "#54356b",
-                            border: "1px solid rgba(84, 53, 107, 0.3)"
-                          }}
-                          title="เริ่มขยับการ์ดใบนี้ใหม่อีกรอบ"
+                          onClick={handleResetHeroMiniBoard}
+                          className="p-1.5 rounded-lg text-xs bg-white/80 border border-black/15 text-[#432369]"
+                          title="รีเซ็ตบอร์ดตัวอย่าง"
                         >
                           <RotateCcw size={13} />
-                          <span>รีเซ็ต</span>
                         </button>
                       </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={advanceHeroTask}
-                        className="lp-press-btn flex items-center justify-between w-full pt-1.5 text-xs font-extrabold"
-                        style={{ color: "#6d4c7d" }}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Circle size={14} />
-                          <span>
-                            {heroStage === 0
-                              ? "คลิกเพื่อเริ่มทำ (To do → In progress)"
-                              : "คลิกเพื่อทำให้เสร็จ (In progress → Done ✓)"}
-                          </span>
-                        </span>
-                        <ArrowRight size={14} />
-                      </button>
-                    )}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* ── TAB 2: UNIFIED CALENDAR VIEW ── */}
+                {heroPreviewTab === "calendar" && (
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between text-xs text-purple-100">
+                      <span className="font-bold">📅 ตารางงานสัปดาห์นี้ (ซิงก์จากวันครบกำหนดในการ์ดอัตโนมัติ)</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-200 font-bold">
+                        Auto-Synced ✓
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {[
+                        {
+                          id: "hcal-1",
+                          day: "วันนี้ · 14:00",
+                          title: "ส่งดราฟต์หน้าปกแคมเปญให้ทีมรีวิว",
+                          board: "บอร์ด Design",
+                          coins: 20
+                        },
+                        {
+                          id: "hcal-2",
+                          day: "พรุ่งนี้ · 10:30",
+                          title: "ประชุมสรุปแผนเปิดตัวสินค้า Q4",
+                          board: "บอร์ด Product",
+                          coins: 25
+                        },
+                        {
+                          id: "hcal-3",
+                          day: "ศุกร์ 17 · 16:00",
+                          title: "อัปเดตตารางคอนเทนต์รายเดือน",
+                          board: "บอร์ด Content",
+                          coins: 20
+                        }
+                      ].map((item) => {
+                        const done = heroCalChecked.includes(item.id);
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => handleToggleHeroCalItem(item.id, item.coins, item.title)}
+                            className="lp-spring-card w-full text-left p-3 rounded-xl flex items-center justify-between gap-3"
+                            style={{
+                              background: done ? "#f0fdf4" : "#fffaf5",
+                              color: "#432369",
+                              border: "1.5px solid #54356b"
+                            }}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              {done ? (
+                                <Check size={16} className="text-emerald-600 shrink-0" />
+                              ) : (
+                                <Circle size={16} className="text-purple-500 shrink-0" />
+                              )}
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 text-[10px] font-extrabold text-purple-700">
+                                  <span>⏰ {item.day}</span>
+                                  <span>·</span>
+                                  <span>{item.board}</span>
+                                </div>
+                                <div
+                                  className="text-xs sm:text-sm font-extrabold truncate"
+                                  style={{
+                                    textDecoration: done ? "line-through" : "none",
+                                    opacity: done ? 0.7 : 1
+                                  }}
+                                >
+                                  {item.title}
+                                </div>
+                              </div>
+                            </div>
+                            <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 shrink-0">
+                              {done ? "✓ รับแล้ว" : `+${item.coins}c`}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── TAB 3: SIDE NOTES & PRIVATE DIARY VIEW ── */}
+                {heroPreviewTab === "notes" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {/* Pinned Project Note */}
+                    <div
+                      className="p-3 rounded-xl flex flex-col justify-between"
+                      style={{
+                        background: "#fff6d6",
+                        color: "#4a3712",
+                        border: "1.5px solid #54356b"
+                      }}
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[10px] font-extrabold text-amber-800">
+                          <span>📌 โน้ตปักหมุดข้างบอร์ด</span>
+                          <span className="px-2 py-0.5 rounded bg-white/70 text-[#432369]">เปิดเทียบคู่บอร์ดได้</span>
+                        </div>
+                        <div className="text-xs font-extrabold">สรุปบรีฟแคมเปญ &amp; ลิงก์สำคัญ</div>
+                        <p className="text-[11px] leading-relaxed opacity-90">
+                          • โทนสีหลัก: Cozy Indigo &amp; Warm Paper<br />
+                          • กลุ่มเป้าหมาย: คนทำงานและฟรีแลนซ์<br />
+                          • แนบลิงก์ Figma และเอกสารครบในที่เดียว
+                        </p>
+                      </div>
+                      <div className="mt-2 pt-1.5 border-t border-black/10 text-[10px] font-bold text-amber-900">
+                        ✨ ไม่ต้องสลับไปหาลิงก์ในแอปแชตอีกต่อไป
+                      </div>
+                    </div>
+
+                    {/* Private Daily Diary & Habit Checklist */}
+                    <div
+                      className="p-3 rounded-xl flex flex-col justify-between gap-2"
+                      style={{
+                        background: "#fffaf5",
+                        color: "#432369",
+                        border: "1.5px solid #54356b"
+                      }}
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[10px] font-extrabold text-pink-700">
+                          <span>🔒 ไดอารี่ &amp; กิจวัตรส่วนตัว</span>
+                          <span>คลิกเช็กได้!</span>
+                        </div>
+                        {[
+                          { id: "hnote-1", title: "สรุปเรื่องดีๆ วันนี้ 3 ข้อ", coins: 10 },
+                          { id: "hnote-2", title: "อ่านหนังสือพัฒนาตัวเอง 20 นาที", coins: 15 },
+                          { id: "hnote-3", title: "จัดโต๊ะทำงานก่อนปิดคอม", coins: 10 }
+                        ].map((habit) => {
+                          const done = heroNoteChecked.includes(habit.id);
+                          return (
+                            <button
+                              key={habit.id}
+                              type="button"
+                              onClick={() => handleToggleHeroNoteItem(habit.id, habit.coins, habit.title)}
+                              className="w-full text-left p-2 rounded-lg flex items-center justify-between text-[11px] font-bold border border-purple-200 bg-white"
+                            >
+                              <span className="flex items-center gap-1.5 truncate">
+                                {done ? (
+                                  <Check size={13} className="text-emerald-600 shrink-0" />
+                                ) : (
+                                  <Circle size={13} className="text-purple-400 shrink-0" />
+                                )}
+                                <span
+                                  className="truncate"
+                                  style={{ textDecoration: done ? "line-through" : "none", opacity: done ? 0.65 : 1 }}
+                                >
+                                  {habit.title}
+                                </span>
+                              </span>
+                              <span className="text-[10px] font-black text-amber-700 shrink-0">+{habit.coins}c</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── TAB 4: AI TASK BREAKDOWN & COIN REWARDS VIEW ── */}
+                {heroPreviewTab === "ai-rewards" && (
+                  <div className="space-y-2.5">
+                    <div
+                      className="p-3 rounded-xl space-y-2"
+                      style={{
+                        background: "#fffaf5",
+                        color: "#432369",
+                        border: "1.5px solid #54356b"
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-700">
+                            🤖 AI TASK BREAKDOWN · ผู้ช่วยแตกงานย่อยอัตโนมัติ
+                          </span>
+                          <div className="text-xs sm:text-sm font-extrabold">
+                            โจทย์ใหญ่: &ldquo;เตรียมเปิดตัวเว็บไซต์ใหม่ให้ทันสิ้นเดือน&rdquo;
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleTriggerHeroAiSplit}
+                          className="lp-press-btn px-3 py-1.5 rounded-xl text-[11px] font-extrabold shrink-0"
+                          style={{
+                            background: heroAiSplitDone ? "#dcfce7" : "#ffecb1",
+                            color: heroAiSplitDone ? "#166534" : "#432369",
+                            border: "1.5px solid #54356b"
+                          }}
+                        >
+                          {heroAiSplitDone ? "✓ แตกงานแล้ว (รีเซ็ต)" : "✨ กดให้ AI แตกงานย่อย (+15c)"}
+                        </button>
+                      </div>
+
+                      {heroAiSplitDone ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 pt-1">
+                          {[
+                            "1. ตรวจเช็กข้อความ & SEO หน้าแรก",
+                            "2. ทดสอบระบบสมัครสมาชิก & บอร์ด",
+                            "3. เตรียมโพสต์ประกาศเปิดตัว"
+                          ].map((sub) => (
+                            <div
+                              key={sub}
+                              className="p-2 rounded-lg bg-purple-50 border border-purple-200 text-[11px] font-bold text-[#432369] flex items-center gap-1.5"
+                            >
+                              <Check size={12} className="text-emerald-600 shrink-0" />
+                              <span>{sub}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-purple-800/80 bg-purple-100/60 px-2.5 py-1.5 rounded-lg">
+                          💡 งานใหญ่จนไม่รู้จะเริ่มตรงไหน? กดปุ่มด้านขวาให้ AI ช่วยย่อยเป็นขั้นตอนเล็กๆ ลงบอร์ดได้ทันที
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Mini Rewards & Zen Garden Preview */}
+                    <div
+                      className="p-3 rounded-xl flex items-center justify-between gap-3"
+                      style={{
+                        background: "rgba(255, 236, 177, 0.95)",
+                        color: "#432369",
+                        border: "1.5px solid #54356b"
+                      }}
+                    >
+                      <div className="space-y-0.5">
+                        <div className="text-[10px] font-black uppercase tracking-wider text-amber-900">
+                          🎁 REWARDS STORE &amp; ZEN GARDEN
+                        </div>
+                        <div className="text-xs font-extrabold">
+                          นำเหรียญจากการทำงานไปแลกเวลาพักเบรกกาแฟ หรือปลูกต้นซากุระในสวนหินญี่ปุ่น
+                        </div>
+                      </div>
+                      <a
+                        href="#playground"
+                        className="lp-press-btn px-3 py-1.5 rounded-lg bg-[#54356b] text-[#ffecb1] text-[11px] font-extrabold whitespace-nowrap shrink-0"
+                      >
+                        ไปร้านแลกรางวัล ↓
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Bottom Audio Cassette Bar */}
+            {/* Bottom Audio Cassette Bar (Compact Studio Companion) */}
             <div
-              className="relative z-10 flex items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl"
+              className="relative z-10 mt-3 flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl"
               style={{
-                background: "rgba(255, 245, 255, 0.38)",
+                background: "rgba(255, 245, 255, 0.42)",
                 border: "1px solid rgba(84, 53, 107, 0.3)",
                 backdropFilter: "blur(12px)"
               }}
             >
-              <div>
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: "9px",
-                    letterSpacing: "1.8px",
-                    color: "#3b1d61",
-                    fontWeight: 800
-                  }}
-                >
-                  BUILT-IN LOFI SYNTHESIZER
-                </span>
-                <span
-                  className="flex items-center gap-2 mt-1 text-xs font-bold"
-                  style={{ color: "#3b1d61" }}
-                >
-                  <Disc3
-                    size={16}
-                    className={isPlaying ? "animate-spin" : undefined}
+              <div className="flex items-center gap-2.5">
+                <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-[#54356b]/30 bg-white/60 shrink-0">
+                  <Image
+                    src="/images/landing/hero-lofi-mascot.png"
+                    alt="Cozy Lofi Mascot"
+                    fill
+                    sizes="36px"
+                    className="object-contain p-0.5"
                   />
-                  {isPlaying
-                    ? "กำลังบรรเลงคอร์ด Lofi อุ่นๆ..."
-                    : "กดปุ่ม Play เพื่อเปิดเพลงคลอระหว่างดูเว็บ"}
-                </span>
+                </div>
+                <div>
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: "9px",
+                      letterSpacing: "1.4px",
+                      color: "#3b1d61",
+                      fontWeight: 800
+                    }}
+                  >
+                    🎧 BUILT-IN FOCUS RADIO · วิทยุ Lofi ในห้องทำงาน
+                  </span>
+                  <span
+                    className="flex items-center gap-1.5 mt-0.5 text-xs font-bold"
+                    style={{ color: "#3b1d61" }}
+                  >
+                    <Disc3
+                      size={14}
+                      className={isPlaying ? "animate-spin" : undefined}
+                    />
+                    {isPlaying
+                      ? `กำลังบรรเลง: ${["Rainy Cafe ☕", "Midnight Study 🌙", "Sunday Vinyl ☀️"][cassetteMood]}`
+                      : "กด Play เพื่อเปิดเพลง Lofi คลอเบาๆ ตอนทำงาน"}
+                  </span>
+                </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handlePlayToggle}
-                aria-label={isPlaying ? "Pause Lofi audio" : "Play Lofi audio"}
-                className="lp-press-btn"
-                style={{
-                  display: "grid",
-                  placeItems: "center",
-                  width: "44px",
-                  height: "44px",
-                  borderRadius: "50%",
-                  border: "2px solid #432369",
-                  background: "#ffecb1",
-                  color: "#432369",
-                  boxShadow: "3px 3px 0 rgba(67, 35, 105, 0.3)",
-                  cursor: "pointer"
-                }}
-              >
-                {isPlaying ? <Pause size={17} /> : <Play size={17} />}
-              </button>
+              <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-1">
+                  {["☕ Rainy", "🌙 Midnight", "☀️ Sunday"].map((label, idx) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => handleSelectMood(idx)}
+                      className="px-2 py-1 rounded-lg text-[10px] font-extrabold transition-all"
+                      style={{
+                        background: cassetteMood === idx ? "#432369" : "rgba(255, 255, 255, 0.55)",
+                        color: cassetteMood === idx ? "#ffecb1" : "#432369",
+                        border: "1px solid rgba(67, 35, 105, 0.25)"
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handlePlayToggle}
+                  aria-label={isPlaying ? "Pause Lofi audio" : "Play Lofi audio"}
+                  className="lp-press-btn"
+                  style={{
+                    display: "grid",
+                    placeItems: "center",
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    border: "2px solid #432369",
+                    background: "#ffecb1",
+                    color: "#432369",
+                    boxShadow: "2px 2px 0 rgba(67, 35, 105, 0.3)",
+                    cursor: "pointer"
+                  }}
+                >
+                  {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+                </button>
+              </div>
             </div>
           </div>
         </div>

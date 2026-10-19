@@ -820,7 +820,11 @@ Template:
     - Aligned desktop navbar link order with actual scroll order (`#playground` -> `#pain-tabs` -> `#walkthrough` -> `#comparison` -> `#testimonials` -> `#faq` -> `#buy`).
     - Upgraded live coin badge on navbar with goal progress indicator (`walletCoins / 50c` and `✓ พร้อมแลก!`).
     - Fixed duplicate eyebrow numbering on `#faq` from `04` to `05 / QUESTIONS & ANSWERS`.
-    - Upgraded Web Audio Lofi Synthesizer to support 3 distinct cassette moods (`01 · Rainy Cafe`, `02 · Midnight Study`, `03 · Sunday Vinyl`) with dedicated chord voicings, lowpass filter frequencies, and interactive switching from Room 06 in `walkthrough-mockup.tsx`.
+    - Upgraded Web Audio Lofi Synthesizer to support 3 distinct cassette moods (`01 · Rainy Cafe`, `02 · Midnight Study`, `03 · Sunday Vinyl`) with dedicated chord voicings, lowpass filter frequencies, and interactive switching from both the Hero Mini-Radio bar and Room 06 in `walkthrough-mockup.tsx`.
     - Polished contrast in dark mode for pinned note tags (`text-[#432369]`) and Before/After spot illustration frames (`var(--paper)`).
+  - Hero Section (`#cp-hero`) Product Clarity & Interactive Mini-Workspace Window:
+    - Upgraded left column with explicit category badge (`📋 ALL-IN-ONE WORK & LIFE WORKSPACE`), clear value-proposition headline (`"จัดการโปรเจกต์ บอร์ดงาน ปฏิทิน และสมุดโน้ต ในพื้นที่เดียวที่ เคลียร์งานสนุกขึ้น ทุกวัน"`), a 2x2 Core Feature Pillars grid, and a 4-tab interactive preview switcher dock.
+    - Replaced static desk illustration in the right column with a live **Retzlo Mini-Workspace App Window** featuring 4 switchable tabs (`📋 บอร์ดงาน Kanban` 3-column interactive board, `📅 ปฏิทินวันส่ง` auto-synced deadline view, `📝 โน้ต & ไดอารี่` split project note + habit checklist, and `🤖 AI & รางวัล` 1-click AI task breakdown + coin store preview), all styled with semantic theme tokens (`var(--panel-strong)`, `var(--paper)`, `var(--border)`, `var(--foreground)`) for full Light and Dark mode fidelity.
 - Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), Vitest full suite (100 files, 533 passed), `npx prisma validate`, `npm run lint`, `npm run build`.
+
 
