@@ -202,7 +202,7 @@ export function ProjectsDashboard({
   const [activeFilterTab, setActiveFilterTab] = useState<"all" | "starred" | "work" | "diary">("all");
 
   const [activeProjectId, setActiveProjectId] = useState<string>(projects[0]?.id ?? "");
-  const [viewMode, setViewMode] = useState<"boards" | "workspaces">("boards");
+  const [viewMode, setViewMode] = useState<"boards" | "workspaces">("workspaces");
   const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false);
   const [boardSearchQuery, setBoardSearchQuery] = useState("");
   const [editingBoard, setEditingBoard] = useState<ProjectBoardSummary | null>(null);
@@ -633,26 +633,51 @@ export function ProjectsDashboard({
             </div>
           </div>
 
-          <div className="mt-4">
-            <FilterSelect
-              label="Active Project"
-              value={selectedProjectId}
-              options={[
-                ...(projects.length === 0 ? [{ value: "", label: "No projects" }] : []),
-                ...sortedProjects.map((project) => ({ value: project.id, label: project.name }))
-              ]}
-              onValueChange={(value) => {
-                if (value) {
-                  setActiveProjectId(value);
-                  setViewMode("boards");
-                }
-              }}
-            />
+          {/* Quick Launch: Starred & Top Workspaces (Direct 1-Click Launch) */}
+          <div className="mt-3.5 flex flex-col rounded-xl border border-stone-200/80 bg-stone-50/70 p-2.5 dark:border-white/10 dark:bg-white/[0.025]">
+            <div className="flex items-center justify-between px-1 mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
+                Quick Launch
+              </span>
+              <span className="text-[10px] text-dusk-amber font-mono font-semibold">
+                {starredCount > 0 ? `${starredCount} Starred` : `${Math.min(projectList.length, 4)} Workspaces`}
+              </span>
+            </div>
+            <div className="space-y-1 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-soft">
+              {sortedProjects.slice(0, 4).map((p) => {
+                const isStarred = starredProjectIds.has(p.id);
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/project/${p.id}/${p.type === "DIARY" ? "diary" : "board"}`}
+                    className="group flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs text-stone-700 transition hover:bg-white hover:text-indigo-600 hover:shadow-2xs dark:text-stone-300 dark:hover:bg-white/[0.06] dark:hover:text-dusk-lavender"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="grid h-5 w-5 place-items-center rounded bg-stone-200/60 dark:bg-white/5 shrink-0">
+                        {p.sticker ? (
+                          <RetroStickerImage alt={p.name} size={14} src={p.sticker} />
+                        ) : (
+                          <FolderKanban className="h-3 w-3 text-stone-400" />
+                        )}
+                      </div>
+                      <span className="truncate font-medium">{p.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {isStarred ? <Star className="h-3 w-3 fill-amber-400 text-amber-500 shrink-0" /> : null}
+                      <ArrowRight className="h-3 w-3 text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </Link>
+                );
+              })}
+              {projectList.length === 0 ? (
+                <p className="px-1 py-1 text-[11px] text-stone-400">No workspaces yet</p>
+              ) : null}
+            </div>
           </div>
 
           <Link
             href="/projects/rewards"
-            className="group mt-4 flex items-center justify-between rounded-xl border border-dusk-amber/30 bg-gradient-to-r from-dusk-amber/10 via-dusk-amber/5 to-transparent px-4 py-3 text-sm font-semibold text-dusk-amber transition hover:border-dusk-amber/60 hover:from-dusk-amber/20 hover:shadow-[0_4px_16px_rgba(229,189,114,0.15)]"
+            className="group mt-3 flex items-center justify-between rounded-xl border border-dusk-amber/30 bg-gradient-to-r from-dusk-amber/10 via-dusk-amber/5 to-transparent px-4 py-2.5 text-sm font-semibold text-dusk-amber transition hover:border-dusk-amber/60 hover:from-dusk-amber/20 hover:shadow-[0_4px_16px_rgba(229,189,114,0.15)]"
           >
             <div className="flex items-center gap-2.5">
               <div className="grid h-7 w-7 place-items-center rounded-lg bg-dusk-amber/20 text-dusk-amber transition group-hover:scale-110">
@@ -660,25 +685,25 @@ export function ProjectsDashboard({
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-dusk-amber">Arcade Store</p>
-                <p className="text-stone-200 text-xs font-medium">Redeem Rewards</p>
+                <p className="text-stone-700 dark:text-stone-200 text-xs font-medium">Redeem Rewards</p>
               </div>
             </div>
             <ArrowRight className="h-4 w-4 text-dusk-amber transition group-hover:translate-x-0.5" />
           </Link>
 
-          <div className="mt-4 flex min-h-0 flex-1 flex-col rounded-2xl border border-white/10 bg-white/[0.035] p-3.5 backdrop-blur">
+          <div className="mt-3.5 flex min-h-0 flex-1 flex-col rounded-2xl border border-stone-200/80 bg-stone-50/70 p-3.5 backdrop-blur dark:border-white/10 dark:bg-white/[0.035]">
             <div className="mb-2.5 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-200">
-                <CalendarDays className="h-3.5 w-3.5 text-dusk-cyan" />
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-800 dark:text-stone-200">
+                <CalendarDays className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
                 Agenda & Deadlines
               </div>
-              <span className="rounded-full border border-dusk-cyan/20 bg-dusk-cyan/10 px-2 py-0.5 text-[10px] font-mono font-medium text-dusk-cyan">
+              <span className="rounded-full border border-teal-500/20 bg-teal-50 px-2 py-0.5 text-[10px] font-mono font-medium text-teal-700 dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
                 {filteredCalendarItems.length}
               </span>
             </div>
 
             {/* Segmented Range Selector */}
-            <div className="mb-2 flex rounded-lg border border-white/10 bg-black/20 p-0.5">
+            <div className="mb-2 flex rounded-lg border border-stone-200/90 bg-stone-100/90 p-0.5 dark:border-white/10 dark:bg-black/20">
               {(["7", "30", "all"] as const).map((range) => (
                 <button
                   key={range}
@@ -687,8 +712,8 @@ export function ProjectsDashboard({
                   className={cn(
                     "flex-1 rounded-md py-1 text-center text-[11px] font-medium transition",
                     calendarRange === range
-                      ? "bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-sm border border-dusk-cyan/30"
-                      : "text-stone-400 hover:text-stone-200 hover:bg-white/[0.04]"
+                      ? "bg-white text-teal-700 font-semibold shadow-2xs border border-teal-300 dark:bg-dusk-cyan/20 dark:text-dusk-cyan dark:border-dusk-cyan/30"
+                      : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.04]"
                   )}
                 >
                   {range === "7" ? "7 Days" : range === "30" ? "30 Days" : "All"}
@@ -714,8 +739,8 @@ export function ProjectsDashboard({
                     className={cn(
                       "flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] font-medium transition text-left",
                       isChecked
-                        ? "border-white/15 bg-white/[0.08] text-stone-200"
-                        : "border-transparent bg-white/[0.02] text-stone-500 opacity-50 hover:opacity-100"
+                        ? "border-stone-200/90 bg-white text-stone-800 shadow-2xs dark:border-white/15 dark:bg-white/[0.08] dark:text-stone-200"
+                        : "border-transparent bg-stone-100/60 text-stone-500 opacity-60 hover:opacity-100 dark:bg-white/[0.02]"
                     )}
                   >
                     <span className={cn("h-1.5 w-1.5 rounded-full border shrink-0", meta.badgeClass)} />
@@ -731,16 +756,16 @@ export function ProjectsDashboard({
                   return (
                     <Link
                       key={item.id}
-                      className="block rounded-xl border border-white/10 bg-white/[0.04] p-3 transition hover:border-dusk-lavender/45 hover:bg-white/[0.065]"
+                      className="block rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs transition hover:border-indigo-300 hover:bg-stone-50/80 dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-dusk-lavender/45 dark:hover:bg-white/[0.065]"
                       href={`/project/${item.project.id}/calendar`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="line-clamp-2 text-sm font-medium text-stone-100">{item.title}</p>
+                        <p className="line-clamp-2 text-sm font-medium text-stone-900 dark:text-stone-100">{item.title}</p>
                         <span className={cn("shrink-0 rounded border px-1.5 py-0.5 text-[10px]", status.badgeClass)}>
                           {status.label}
                         </span>
                       </div>
-                      <p className="mt-2 flex items-center gap-1 text-xs text-dusk-cyan">
+                      <p className="mt-2 flex items-center gap-1 text-xs text-teal-600 dark:text-dusk-cyan">
                         <Clock className="h-3 w-3" />
                         {formatDue(item)}
                       </p>
@@ -750,7 +775,7 @@ export function ProjectsDashboard({
                 } else {
                   const diaryItem = item as Required<Pick<GlobalCalendarDiary, "checklistSummary" | "dueDate" | "dueTime" | "title" | "id" | "rawItem">> & { project: GlobalCalendarDiary["project"] };
                   const highlight = getDiaryHighlightStatus(diaryItem);
-                  let borderClass = "border-white/10 bg-white/[0.04] hover:border-dusk-lavender/45 hover:bg-white/[0.065]";
+                  let borderClass = "border-stone-200/80 bg-white shadow-2xs hover:border-indigo-300 hover:bg-stone-50/80 dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-dusk-lavender/45 dark:hover:bg-white/[0.065]";
                   if (highlight === "warn-red") {
                     borderClass = "border-red-500/40 bg-red-500/5 hover:border-red-500/60";
                   } else if (highlight === "completed") {
@@ -780,14 +805,14 @@ export function ProjectsDashboard({
                       }}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="line-clamp-2 text-sm font-medium text-stone-100">{diaryItem.title}</p>
+                        <p className="line-clamp-2 text-sm font-medium text-stone-900 dark:text-stone-100">{diaryItem.title}</p>
                         {diaryItem.checklistSummary.dueCount > 0 ? (
-                          <span className="shrink-0 rounded border border-dusk-cyan/20 bg-dusk-cyan/10 px-1.5 py-0.5 text-[10px] text-dusk-cyan font-mono">
+                          <span className="shrink-0 rounded border border-teal-500/20 bg-teal-50 px-1.5 py-0.5 text-[10px] text-teal-700 font-mono dark:border-dusk-cyan/20 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
                             {diaryItem.checklistSummary.completedCount}/{diaryItem.checklistSummary.dueCount}
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-2 flex items-center gap-1 text-xs text-dusk-cyan">
+                      <p className="mt-2 flex items-center gap-1 text-xs text-teal-600 dark:text-dusk-cyan">
                         <Clock className="h-3 w-3" />
                         {diaryItem.dueTime ? `${diaryItem.dueDate} ${diaryItem.dueTime}` : `${diaryItem.dueDate}`}
                       </p>
@@ -800,7 +825,7 @@ export function ProjectsDashboard({
               })}
               {filteredCalendarItems.length === 0 ? (
                 <EmptyState
-                  className="border-dashed bg-white/[0.02] p-4 text-left"
+                  className="border-dashed bg-stone-100/50 p-4 text-left dark:bg-white/[0.02]"
                   title="No calendar matches"
                   message="No cards or diaries match the selected filters."
                 />
@@ -817,133 +842,157 @@ export function ProjectsDashboard({
           ) : null}
 
           {/* Unified Studio Command Header */}
-          <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col gap-3.5 rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-white/10 bg-ink-950/75 shadow-lg">
+          <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col gap-3.5 rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-stone-200/90 bg-white/80 shadow-sm dark:border-white/10 dark:bg-ink-950/75 dark:shadow-lg">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div className="flex min-w-0 items-center gap-3">
-                <BackButton />
-                {activeProject ? (
-                  <Popover open={workspaceDropdownOpen} onOpenChange={setWorkspaceDropdownOpen}>
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        className="group flex min-w-0 max-w-[200px] min-[400px]:max-w-[260px] sm:max-w-xs md:max-w-sm items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-left transition hover:border-dusk-lavender/50 hover:bg-white/[0.07] data-[state=open]:border-dusk-lavender/50 data-[state=open]:bg-white/[0.07]"
-                        aria-label="Switch active workspace"
-                      >
-                        <div className="grid h-8 w-8 place-items-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shrink-0">
-                          {activeProject.sticker ? (
-                            <RetroStickerImage alt={activeProject.name} size={24} src={activeProject.sticker} />
-                          ) : (
-                            <FolderKanban className="h-4 w-4" />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
-                              Active Workspace
-                            </span>
-                            <span className="text-[10px] text-stone-500">· {projectList.length} total</span>
-                          </div>
-                          <h2 className="flex items-center gap-1.5 truncate text-base sm:text-lg font-bold tracking-tight text-theme-foreground group-hover:text-theme-accent transition-colors">
-                            <span className="truncate">{activeProject.name}</span>
-                            <ChevronDown
-                              className={cn(
-                                "h-4 w-4 shrink-0 text-stone-400 group-hover:text-stone-200 transition-transform duration-200",
-                                workspaceDropdownOpen && "rotate-180 text-dusk-lavender"
-                              )}
-                            />
-                          </h2>
-                        </div>
-                      </button>
-                    </PopoverTrigger>
-
-                    <PopoverContent
-                      align="start"
-                      sideOffset={8}
-                      className="w-72 sm:w-80 overflow-hidden rounded-2xl border border-dusk-lavender/30 bg-[#080714]/98 p-2 shadow-2xl backdrop-blur-xl z-[750]"
+                {viewMode === "boards" && activeProject ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("workspaces")}
+                      className="inline-flex h-8.5 items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 hover:text-indigo-600 transition dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08]"
+                      title="Back to all workspaces"
                     >
-                      <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
-                        Switch Workspace
-                      </p>
-                      <div className="max-h-60 overflow-y-auto space-y-1 scrollbar-soft pr-1">
-                        {sortedProjects.map((p) => {
-                          const isSelected = p.id === activeProject.id;
-                          return (
-                            <div
-                              key={p.id}
-                              className={cn(
-                                "group flex w-full items-center justify-between gap-1.5 rounded-xl p-1 transition select-none",
-                                isSelected
-                                  ? "border border-dusk-lavender/30 bg-dusk-lavender/15 text-white font-semibold"
-                                  : "text-theme-muted hover:bg-theme-paper hover:text-theme-foreground"
-                              )}
-                            >
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setActiveProjectId(p.id);
-                                  setViewMode("boards");
-                                  setWorkspaceDropdownOpen(false);
-                                }}
-                                className="flex items-center gap-2.5 min-w-0 flex-1 px-2 py-1.5 text-left text-xs"
-                              >
-                                <div className="h-7 w-7 shrink-0 place-items-center grid rounded-lg bg-white/5 border border-white/10">
-                                  {p.sticker ? (
-                                    <RetroStickerImage alt={p.name} size={20} src={p.sticker} />
-                                  ) : (
-                                    <FolderKanban className="h-3.5 w-3.5 text-stone-400" />
-                                  )}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <p className="truncate font-semibold">{p.name}</p>
-                                  <p className="text-[10px] text-stone-500 font-mono">
-                                    {p.counts.boards} {p.counts.boards === 1 ? "board" : "boards"}
-                                  </p>
-                                </div>
-                                {isSelected && <Check className="h-4 w-4 text-dusk-lavender shrink-0 ml-1" />}
-                              </button>
+                      <ArrowRight className="h-3.5 w-3.5 rotate-180" />
+                      <span className="hidden sm:inline">All Workspaces</span>
+                    </button>
 
-                              <Link
-                                href={`/project/${p.id}/${p.type === "DIARY" ? "diary" : "board"}`}
-                                onClick={() => setWorkspaceDropdownOpen(false)}
-                                className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-stone-400 opacity-70 hover:opacity-100 hover:border-dusk-lavender/50 hover:bg-dusk-lavender/20 hover:text-dusk-lavender transition shrink-0"
-                                title={`Launch ${p.name}`}
-                              >
-                                <ArrowRight className="h-3.5 w-3.5" />
-                              </Link>
+                    <Popover open={workspaceDropdownOpen} onOpenChange={setWorkspaceDropdownOpen}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="group flex min-w-0 max-w-[200px] min-[400px]:max-w-[260px] sm:max-w-xs md:max-w-sm items-center gap-2.5 rounded-xl border border-stone-200/90 bg-stone-50/80 px-3 py-1.5 text-left transition hover:border-indigo-400 hover:bg-white dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.07] data-[state=open]:border-indigo-400 dark:data-[state=open]:border-dusk-lavender/50"
+                          aria-label="Switch active workspace"
+                        >
+                          <div className="grid h-8 w-8 place-items-center rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender shrink-0">
+                            {activeProject.sticker ? (
+                              <RetroStickerImage alt={activeProject.name} size={24} src={activeProject.sticker} />
+                            ) : (
+                              <FolderKanban className="h-4 w-4" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
+                                Active Workspace
+                              </span>
+                              <span className="text-[10px] text-stone-500 font-mono">· {projectList.length} total</span>
                             </div>
-                          );
-                        })}
-                      </div>
+                            <h2 className="flex items-center gap-1.5 truncate text-base sm:text-lg font-bold tracking-tight text-stone-900 group-hover:text-indigo-600 transition-colors dark:text-stone-100 dark:group-hover:text-dusk-lavender">
+                              <span className="truncate">{activeProject.name}</span>
+                              <ChevronDown
+                                className={cn(
+                                  "h-4 w-4 shrink-0 text-stone-400 group-hover:text-stone-200 transition-transform duration-200",
+                                  workspaceDropdownOpen && "rotate-180 text-indigo-600 dark:text-dusk-lavender"
+                                )}
+                              />
+                            </h2>
+                          </div>
+                        </button>
+                      </PopoverTrigger>
 
-                      <div className="mt-2 border-t border-white/10 pt-2 space-y-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setWorkspaceDropdownOpen(false);
-                            setIsCreateOpen(true);
-                          }}
-                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-dusk-amber hover:bg-dusk-amber/10 transition"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                          <span>Create New Workspace</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setWorkspaceDropdownOpen(false);
-                            setViewMode("workspaces");
-                          }}
-                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-stone-400 hover:bg-white/5 hover:text-stone-200 transition"
-                        >
-                          <LayoutGrid className="h-3.5 w-3.5" />
-                          <span>View All Workspaces Grid</span>
-                        </button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                      <PopoverContent
+                        align="start"
+                        sideOffset={8}
+                        className="w-72 sm:w-80 overflow-hidden rounded-2xl border border-stone-200 bg-white p-2 shadow-2xl backdrop-blur-xl dark:border-dusk-lavender/30 dark:bg-[#080714]/98 z-[750]"
+                      >
+                        <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-500">
+                          Switch Workspace
+                        </p>
+                        <div className="max-h-60 overflow-y-auto space-y-1 scrollbar-soft pr-1">
+                          {sortedProjects.map((p) => {
+                            const isSelected = p.id === activeProject.id;
+                            return (
+                              <div
+                                key={p.id}
+                                className={cn(
+                                  "group flex w-full items-center justify-between gap-1.5 rounded-xl p-1 transition select-none",
+                                  isSelected
+                                    ? "border border-indigo-200 bg-indigo-50 font-semibold text-indigo-900 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/15 dark:text-white"
+                                    : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/[0.06] dark:hover:text-stone-200"
+                                )}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActiveProjectId(p.id);
+                                    setViewMode("boards");
+                                    setWorkspaceDropdownOpen(false);
+                                  }}
+                                  className="flex items-center gap-2.5 min-w-0 flex-1 px-2 py-1.5 text-left text-xs"
+                                >
+                                  <div className="h-7 w-7 shrink-0 place-items-center grid rounded-lg bg-stone-100 border border-stone-200 dark:bg-white/5 dark:border-white/10">
+                                    {p.sticker ? (
+                                      <RetroStickerImage alt={p.name} size={20} src={p.sticker} />
+                                    ) : (
+                                      <FolderKanban className="h-3.5 w-3.5 text-stone-400" />
+                                    )}
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="truncate font-semibold">{p.name}</p>
+                                    <p className="text-[10px] text-stone-500 font-mono">
+                                      {p.counts.boards} {p.counts.boards === 1 ? "board" : "boards"}
+                                    </p>
+                                  </div>
+                                  {isSelected && <Check className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender shrink-0 ml-1" />}
+                                </button>
+
+                                <Link
+                                  href={`/project/${p.id}/${p.type === "DIARY" ? "diary" : "board"}`}
+                                  onClick={() => setWorkspaceDropdownOpen(false)}
+                                  className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200 bg-white text-stone-500 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 transition shrink-0 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/20 dark:hover:text-dusk-lavender"
+                                  title={`Launch ${p.name}`}
+                                >
+                                  <ArrowRight className="h-3.5 w-3.5" />
+                                </Link>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="mt-2 border-t border-stone-200 dark:border-white/10 pt-2 space-y-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setWorkspaceDropdownOpen(false);
+                              setIsCreateOpen(true);
+                            }}
+                            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-dusk-amber hover:bg-dusk-amber/10 transition"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            <span>Create New Workspace</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setWorkspaceDropdownOpen(false);
+                              setViewMode("workspaces");
+                            }}
+                            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
+                          >
+                            <LayoutGrid className="h-3.5 w-3.5" />
+                            <span>View All Workspaces Grid</span>
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </>
                 ) : (
-                  <div className="min-w-0">
-                    <h2 className="text-xl font-bold tracking-tight text-white">Workspaces</h2>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="grid h-9 w-9 place-items-center rounded-xl border border-indigo-200/90 bg-indigo-50 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender shrink-0 shadow-2xs">
+                      <LayoutGrid className="h-4.5 w-4.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-dusk-amber">
+                          All Projects Hub
+                        </span>
+                        <span className="text-[10px] text-stone-500 font-mono">· {projectList.length} total</span>
+                      </div>
+                      <h2 className="text-base sm:text-lg font-bold tracking-tight text-stone-900 dark:text-stone-100 truncate">
+                        Workspaces & Projects
+                      </h2>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1490,7 +1539,6 @@ function ProjectSupportColumn({
   const totalNotes = projects.reduce((count, project) => count + project.counts.notes, 0);
   const totalBoards = projects.reduce((count, project) => count + project.counts.boards, 0);
   const activeProjects = projects.filter((project) => project.board || project.type === "DIARY").length;
-  const rhythmItems = calendarCards.slice(0, 4);
 
   return (
     <aside className="hidden min-h-0 min-w-0 2xl:sticky 2xl:top-5 2xl:flex 2xl:flex-col 2xl:gap-3 2xl:h-[calc(100vh-2.5rem)] order-3 2xl:order-3">
@@ -1531,12 +1579,13 @@ function ProjectSupportColumn({
         </div>
       </div>
 
-      <section className="lofi-panel relative flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl p-5 border border-white/10">
+      <section className="lofi-panel relative flex flex-1 min-h-0 flex-col overflow-hidden rounded-2xl p-5 border border-stone-200/90 bg-white/70 shadow-sm dark:border-white/10 dark:bg-ink-950/75 dark:shadow-lg">
+        {/* Portfolio Health & Progress Breakdown */}
         <div className="shrink-0">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-[10px] uppercase tracking-[0.28em] text-dusk-amber font-semibold">Studio Pulse</p>
-              <h4 className="mt-1 text-base font-bold text-stone-100">Upcoming Deadlines</h4>
+              <h4 className="mt-1 text-base font-bold text-stone-900 dark:text-stone-100">Portfolio Progress</h4>
             </div>
             <div className="h-10 w-10 shrink-0 rotate-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1544,36 +1593,49 @@ function ProjectSupportColumn({
             </div>
           </div>
           <div className="space-y-2">
-            {rhythmItems.length > 0 ? (
-              rhythmItems.map((item) => {
-                const status = getStatusMeta(item.status);
+            {projects.slice(0, 4).map((project) => {
+              const cards = project.board?.columns.flatMap((col) => col.cards) ?? [];
+              const total = cards.length;
+              const done = cards.filter((c) => c.status === "DONE").length;
+              const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
-                return (
-                  <Link
-                    key={item.id}
-                    href={`/project/${item.project.id}/calendar`}
-                    className="block rounded-xl border border-white/10 bg-white/[0.035] p-2.5 transition hover:border-dusk-lavender/45 hover:bg-white/[0.06]"
-                  >
-                    <div className="flex items-start gap-2.5">
-                      <span className={cn("mt-1 h-2 w-2 shrink-0 rounded-full border", status.badgeClass)} />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-semibold text-stone-100">{item.title}</p>
-                        <div className="mt-1 flex items-center justify-between text-[11px] text-stone-500">
-                          <span className="truncate">{item.project.name}</span>
-                          <span className="text-dusk-cyan font-mono text-[10px] shrink-0 ml-1">{formatDue(item)}</span>
-                        </div>
+              return (
+                <Link
+                  key={project.id}
+                  href={`/project/${project.id}/${project.type === "DIARY" ? "diary" : "board"}`}
+                  className="block rounded-xl border border-stone-200/80 bg-stone-50/70 p-2.5 transition hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-dusk-lavender/45 dark:hover:bg-white/[0.06]"
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="h-5 w-5 grid place-items-center rounded bg-stone-200/60 dark:bg-white/5 shrink-0">
+                        {project.sticker ? (
+                          <RetroStickerImage alt={project.name} size={14} src={project.sticker} />
+                        ) : (
+                          <FolderKanban className="h-3 w-3 text-stone-400" />
+                        )}
                       </div>
+                      <span className="truncate text-xs font-semibold text-stone-800 dark:text-stone-100">{project.name}</span>
                     </div>
-                  </Link>
-                );
-              })
-            ) : (
+                    <span className="font-mono text-[10px] font-bold text-teal-600 dark:text-dusk-cyan shrink-0">
+                      {total > 0 ? `${pct}%` : "Ready"}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-teal-500 to-indigo-500 dark:from-dusk-cyan dark:to-dusk-lavender transition-all duration-300"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </Link>
+              );
+            })}
+            {projects.length === 0 ? (
               <EmptyState
-                className="border-dashed bg-ink-950/20 p-4 text-left"
-                title="No due dates queued"
-                message="Add dates to cards and the next moves will appear here."
+                className="border-dashed bg-stone-50/50 p-4 text-left dark:bg-ink-950/20"
+                title="No workspaces yet"
+                message="Create your first workspace to see progress metrics here."
               />
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -1589,26 +1651,26 @@ function ProjectSupportColumn({
           </div>
         </div>
 
-        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs">
-          <div className="flex items-center justify-between text-stone-300">
-            <span className="font-semibold flex items-center gap-1.5 text-xs text-stone-200">
+        <div className="mt-4 rounded-xl border border-stone-200/80 bg-stone-50/70 p-3 text-xs dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="flex items-center justify-between text-stone-700 dark:text-stone-300">
+            <span className="font-semibold flex items-center gap-1.5 text-xs text-stone-800 dark:text-stone-200">
               <Zap className="h-3.5 w-3.5 text-dusk-amber" />
               Omni Command
             </span>
-            <kbd className="rounded border border-white/20 bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-stone-300">
+            <kbd className="rounded border border-stone-300 bg-white px-1.5 py-0.5 font-mono text-[10px] text-stone-700 dark:border-white/20 dark:bg-white/10 dark:text-stone-300">
               Ctrl + K
             </kbd>
           </div>
-          <p className="mt-1.5 text-[11px] leading-relaxed text-stone-400">
+          <p className="mt-1.5 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">
             Search across all boards, cards, and notes instantly from anywhere.
           </p>
         </div>
 
         <div className="mt-auto min-h-0 pt-4">
-          <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3">
+          <div className="flex items-center justify-between rounded-2xl border border-stone-200/80 bg-stone-50/70 px-4 py-3 dark:border-white/10 dark:bg-white/[0.035]">
             <div>
               <p className="text-[10px] uppercase tracking-[0.24em] text-stone-500">Workspace mood</p>
-              <p className="mt-0.5 text-xs font-semibold text-stone-100">
+              <p className="mt-0.5 text-xs font-semibold text-stone-800 dark:text-stone-100">
                 {calendarCards.length > 0 ? "Ready for focused work" : "Calm, no dated pressure"}
               </p>
             </div>
@@ -2307,11 +2369,47 @@ function ProjectCard({
             </div>
           </div>
 
+          {/* Boards Quick-Jump Chips (Direct 1-Click Launch) */}
+          {!isDiaryProject && project.boardsList && project.boardsList.length > 0 ? (
+            <div className="mt-3 flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-stone-200/70 dark:border-white/5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-400 mr-0.5">
+                Boards:
+              </span>
+              {project.boardsList.slice(0, 3).map((b) => (
+                <Link
+                  key={b.id}
+                  href={`/project/${project.id}/board?boardId=${b.id}`}
+                  className="inline-flex items-center gap-1 rounded-md border border-stone-200/80 bg-stone-50/90 px-2 py-0.5 text-[10px] font-medium text-stone-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-lavender/40 dark:hover:bg-dusk-lavender/10 dark:hover:text-dusk-lavender"
+                  title={`Launch ${b.name}`}
+                >
+                  <KanbanSquare className="h-2.5 w-2.5 text-stone-400" />
+                  <span className="truncate max-w-[80px]">{b.name}</span>
+                  <span className="font-mono text-[9px] opacity-75">({b.totalCards})</span>
+                </Link>
+              ))}
+              {project.boardsList.length > 3 ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setActiveProjectId(project.id);
+                    setViewMode("boards");
+                  }}
+                  className="rounded-md border border-stone-200/80 bg-stone-50 px-1.5 py-0.5 text-[9px] font-mono text-stone-500 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400"
+                  title="View all boards in this project"
+                >
+                  +{project.boardsList.length - 3} more
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+
           {/* Quick-Launch Action Hub */}
-          <div className="mt-auto pt-4 border-t border-stone-200/80 flex items-center gap-2 dark:border-white/10">
+          <div className="mt-auto pt-3 border-t border-stone-200/80 flex items-center gap-2 dark:border-white/10">
             <Link
               href={`/project/${project.id}/${isDiaryProject ? "diary" : "board"}`}
-              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-sm transition hover:bg-indigo-700 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber dark:hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
+              className="flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs shadow-sm transition hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.2)] dark:hover:bg-dusk-amber dark:hover:shadow-[0_8px_20px_rgba(229,189,114,0.25)]"
             >
               <span>{isDiaryProject ? "Open Diary" : "Launch Board"}</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -2353,21 +2451,29 @@ function ProjectCard({
             onClick={() => setMenuOpen(false)}
           />
           <div
-            className="fixed z-[151] w-44 overflow-hidden rounded-xl border border-dusk-lavender/18 bg-[#080714]/95 p-1.5 shadow-[0_24px_70px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl"
+            className="fixed z-[151] w-48 overflow-hidden rounded-xl border border-stone-200 bg-white p-1.5 shadow-xl backdrop-blur-xl dark:border-dusk-lavender/18 dark:bg-[#080714]/95 dark:shadow-[0_24px_70px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)]"
             style={(menuPosition
               ? { top: menuPosition.top, left: menuPosition.left }
               : { top: 16, right: 16 }) as CSSProperties}
           >
+            <Link
+              href={`/project/${project.id}/settings`}
+              className="flex h-9.5 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-stone-700 transition hover:bg-indigo-50 hover:text-indigo-600 dark:text-stone-200 dark:hover:bg-dusk-lavender/12 dark:hover:text-dusk-lavender"
+              onClick={() => setMenuOpen(false)}
+            >
+              <Settings className="h-3.5 w-3.5" /> Full workspace settings
+            </Link>
             <button
               type="button"
-              className="flex h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-medium text-stone-200 transition hover:bg-dusk-lavender/12 hover:text-dusk-lavender"
+              className="flex h-9.5 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-stone-700 transition hover:bg-indigo-50 hover:text-indigo-600 dark:text-stone-200 dark:hover:bg-dusk-lavender/12 dark:hover:text-dusk-lavender"
               onClick={() => { setMenuOpen(false); setEditOpen(true); }}
             >
-              <Pencil className="h-3.5 w-3.5" /> Edit project
+              <Pencil className="h-3.5 w-3.5" /> Quick edit (Cover/Color)
             </button>
+            <div className="my-1 border-t border-stone-100 dark:border-white/5" />
             <button
               type="button"
-              className="flex h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-medium text-dusk-rose transition hover:bg-dusk-rose/12"
+              className="flex h-9.5 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:text-dusk-rose dark:hover:bg-dusk-rose/12"
               onClick={() => { setMenuOpen(false); setDeleteOpen(true); }}
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete project
@@ -2619,6 +2725,17 @@ function EditProjectModal({
                   onColorChange={setThemeColor}
                   onStickerChange={setSticker}
                 />
+              </div>
+
+              <div className="mt-4 flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 text-xs dark:border-white/10 dark:bg-white/[0.02]">
+                <span className="text-stone-600 dark:text-stone-400">Looking for team members, coins, or custom workflows?</span>
+                <Link
+                  href={`/project/${project.id}/settings`}
+                  className="font-semibold text-indigo-600 hover:underline dark:text-dusk-lavender inline-flex items-center gap-1 shrink-0 ml-2"
+                >
+                  <span>Full Settings</span>
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
               </div>
             </section>
           </div>

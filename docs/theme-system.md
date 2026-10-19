@@ -827,4 +827,12 @@ Template:
     - Replaced static desk illustration in the right column with a live **Retzlo Mini-Workspace App Window** featuring 4 switchable tabs (`📋 บอร์ดงาน Kanban` 3-column interactive board, `📅 ปฏิทินวันส่ง` auto-synced deadline view, `📝 โน้ต & ไดอารี่` split project note + habit checklist, and `🤖 AI & รางวัล` 1-click AI task breakdown + coin store preview), all styled with semantic theme tokens (`var(--panel-strong)`, `var(--paper)`, `var(--border)`, `var(--foreground)`) for full Light and Dark mode fidelity.
 - Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), Vitest full suite (100 files, 533 passed), `npx prisma validate`, `npm run lint`, `npm run build`.
 
+### 2026-10-19 — Company & Projects Hub (/projects) Structure & Dual-Theme Polish
+- Coverage: `/projects` dashboard (`src/components/project/projects-dashboard.tsx`).
+- Design Direction & Theme Alignment:
+  - Replaced hardcoded dark background and border overrides in the left sidebar (`Agenda & Deadlines`) and right support column (`ProjectSupportColumn`) with responsive semantic and dual-theme classes (`border-stone-200/80 bg-stone-50/70 text-stone-800 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-200`), eliminating low-contrast white-on-white text in Warm Paper light mode.
+  - Aligned command header with dual-theme card tokens: warm paper panel, crisp border, high-contrast headings, and subtle shadow.
+  - Added direct 1-click **Boards Quick-Jump Chips** and **Quick Launch** panel styled with retro lofi indigo accents in dark mode and warm stone surfaces in light mode.
+- Verification: Component test suite (5 files, 34 tests passed), full test suite (100 files, 533 passed), `npx prisma validate`, `npm run lint`, `npm run build` (42/42 routes passed).
+
 
