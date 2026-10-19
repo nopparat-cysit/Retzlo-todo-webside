@@ -116,7 +116,21 @@ export function AuthScene({
         </svg>
       </div>
 
+      {/* Cozy Studio Atmosphere & Watermarks */}
+      <div className="auth-studio-overlay" aria-hidden="true">
+        <span className="auth-corner-tag auth-corner-tl font-mono text-[11px] tracking-[2px] opacity-45">+ RETZLO STUDIO // SECURE CHANNEL +</span>
+        <span className="auth-corner-tag auth-corner-tr font-mono text-[11px] tracking-[2px] opacity-45">PORT 2026 // SIDE B</span>
+        <span className="auth-corner-tag auth-corner-bl font-mono text-[11px] tracking-[2px] opacity-45">✦ 24/7 LOFI VIBES ✦</span>
+        <span className="auth-corner-tag auth-corner-br font-mono text-[11px] tracking-[2px] opacity-45">LESS RUSH · MORE RHYTHM</span>
+
+        {/* Floating Sparks & Notes */}
+        <span className="auth-floating-sparkle-one" aria-hidden="true">✦</span>
+        <span className="auth-floating-sparkle-two" aria-hidden="true">✧</span>
+        <span className="auth-floating-note" aria-hidden="true">♪</span>
+      </div>
+
       <section className={cn("auth-card lofi-panel motion-panel-in", cardClassName)}>
+        <div className="auth-card-rainbow-strip" aria-hidden="true" />
         {!hideHeader && (eyebrow || title || description) ? (
           <div className="mb-6 text-center">
             {eyebrow ? (

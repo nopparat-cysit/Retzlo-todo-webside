@@ -803,3 +803,24 @@ Template:
   - Dual Theme Consistency: In Light Mode (Warm Paper), the section now renders as a warm, luminous cream paper ticket terminal with subtle borders (`var(--border)`) and high-contrast text (`var(--foreground)`). In Dark Mode (Retro Lofi Indigo), it renders as an atmospheric indigo studio booth with glowing accent meters.
   - High Contrast CTA: Primary claim and direct registration buttons use `#432369` on `#ffecb1` butter gold with `#54356b` border, maintaining a >10:1 AAA contrast ratio across both theme modes.
 - Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), `npx tsc --noEmit` (0 errors), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed (42/42 routes).
+
+### 2026-10-19 — Auth Pages Studio Atmosphere Overhaul & Landing Page UX/UI Polish
+- Coverage: All 5 Auth Pages (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/accept-invitation`), `MixtapeAuthScene` (`login-scene.tsx`, `login-scene.module.css`), `AuthScene` (`auth-scene.tsx`, `globals.css`), Landing Page (`page.tsx`, `walkthrough-mockup.tsx`).
+- Design Direction & Theme Alignment:
+  - Cozy Mixtape Studio Atmosphere on All Auth Pages:
+    - Added multi-layered background comprising visible retro drafting graph grid (`48px`), micro dot-matrix paper (`24px`), and 4-point radiant aurora glows (warm amber, lavender rose, mint teal, deep indigo) using pure GPU-friendly `radial-gradient` without laggy blur filters.
+    - Integrated subtle monospace studio crosshairs and watermarks (`+ RETZLO STUDIO · SIDE A +`, `45 MIN · LOFI WORKSPACE`, `STEREO // CH-01`, `✦ LESS RUSH · MORE RHYTHM ✦`) and floating lofi notes (`♪`, `♫`, `✦`).
+    - Added top rainbow mixtape tape strip (`linear-gradient(90deg, #7858d4 0%, #db2777 35%, #f59e0b 70%, #10b981 100%)`) across `.shell` in `MixtapeAuthScene` and `.auth-card` in `AuthScene`.
+    - Added light mode styling for `AuthScene` (`[data-theme="light"] .auth-scene`, `[data-theme="light"] .auth-card`) providing warm cream paper and high text contrast.
+    - Optimized artwork pointer tracking with cached bounding boxes and `requestAnimationFrame`.
+  - Landing Page to Auth Gamification Bridge:
+    - Persisted wallet coins and 7-day trial pass in `localStorage` (`retzlo:landing-pass`).
+    - Displayed a warm golden welcome banner in `/register` and `/login` recognizing claimed passes and earned coins.
+  - Landing Page UX/UI & Interactive Polish:
+    - Aligned desktop navbar link order with actual scroll order (`#playground` -> `#pain-tabs` -> `#walkthrough` -> `#comparison` -> `#testimonials` -> `#faq` -> `#buy`).
+    - Upgraded live coin badge on navbar with goal progress indicator (`walletCoins / 50c` and `✓ พร้อมแลก!`).
+    - Fixed duplicate eyebrow numbering on `#faq` from `04` to `05 / QUESTIONS & ANSWERS`.
+    - Upgraded Web Audio Lofi Synthesizer to support 3 distinct cassette moods (`01 · Rainy Cafe`, `02 · Midnight Study`, `03 · Sunday Vinyl`) with dedicated chord voicings, lowpass filter frequencies, and interactive switching from Room 06 in `walkthrough-mockup.tsx`.
+    - Polished contrast in dark mode for pinned note tags (`text-[#432369]`) and Before/After spot illustration frames (`var(--paper)`).
+- Verification: `src/components/auth/auth-navigation.test.ts` (3/3 passed), Vitest full suite (100 files, 533 passed), `npx prisma validate`, `npm run lint`, `npm run build`.
+

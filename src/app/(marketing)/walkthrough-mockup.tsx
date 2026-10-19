@@ -77,12 +77,16 @@ export function WalkthroughMockupScreen({
   slide,
   isPlaying,
   onToggleAudio,
-  onEarnCoin
+  onEarnCoin,
+  cassetteMood: externalMood,
+  onSelectMood
 }: {
   slide: WalkthroughSlide;
   isPlaying: boolean;
   onToggleAudio: () => void;
   onEarnCoin?: (amount: number, label: string) => void;
+  cassetteMood?: number;
+  onSelectMood?: (moodIdx: number) => void;
 }) {
   // Room 01 state: Workspace switcher & 7-day agenda
   const [selectedWs, setSelectedWs] = useState<"work" | "personal">("work");
@@ -105,7 +109,15 @@ export function WalkthroughMockupScreen({
   const [habitsDone, setHabitsDone] = useState<number[]>([0, 1]);
 
   // Room 06 state: Cassette mood selector
-  const [cassetteMood, setCassetteMood] = useState<number>(0);
+  const [localMood, setLocalMood] = useState<number>(0);
+  const cassetteMood = externalMood !== undefined ? externalMood : localMood;
+
+  const handleSelectMood = (idx: number) => {
+    setLocalMood(idx);
+    if (onSelectMood) {
+      onSelectMood(idx);
+    }
+  };
 
   const toggleAgenda = (id: string) => {
     const isNowDone = !agendaDone.includes(id);
@@ -842,7 +854,7 @@ export function WalkthroughMockupScreen({
                                 : [...prev, note.id]
                             )
                           }
-                          className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70"
+                          className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70 text-[#432369]"
                         >
                           <Pin size={11} />
                           {pinned ? "ปักหมุดแล้ว" : "ปักหมุด"}
@@ -1034,7 +1046,7 @@ export function WalkthroughMockupScreen({
                     <button
                       key={mood}
                       type="button"
-                      onClick={() => setCassetteMood(idx)}
+                      onClick={() => handleSelectMood(idx)}
                       className="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
                       style={{
                         background:

@@ -2,14 +2,19 @@
 
 import { MixtapeArtwork } from "./mixtape-artwork";
 import Link from "next/link";
-import { useRef, useState, type PointerEvent, type ReactNode, type SyntheticEvent } from "react";
-import { ArrowLeft, ArrowRight, Check, Circle, Disc3, LayoutGrid, Pause, Play, RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState, type PointerEvent, type ReactNode, type SyntheticEvent } from "react";
+import { ArrowLeft, ArrowRight, Check, Circle, Disc3, LayoutGrid, Pause, Play, RotateCcw, Sparkles } from "lucide-react";
 import styles from "./login-scene.module.css";
 import { MixtapeLogoMark } from "./mixtape-logo-mark";
 
 const stages = ["To do", "In progress", "Done"] as const;
 
 type AuthMode = "login" | "register" | "forgot-password";
+
+interface LandingBonus {
+  walletCoins: number;
+  ticketClaimed: boolean;
+}
 
 const formCopy = {
   login: {
@@ -42,19 +47,57 @@ export function MixtapeAuthScene({ children, mode = "login" }: { children: React
   const copy = formCopy[mode];
   const artRef = useRef<HTMLElement>(null);
   const taskRef = useRef<HTMLButtonElement>(null);
+  const artPointerRaf = useRef<number | null>(null);
+  const artBoundsRef = useRef<DOMRect | null>(null);
   const [playing, setPlaying] = useState(false);
   const [stage, setStage] = useState(0);
+  const [bonusInfo, setBonusInfo] = useState<LandingBonus | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("retzlo:landing-pass");
+      if (saved) {
+        const parsed = JSON.parse(saved) as LandingBonus;
+        if (parsed.ticketClaimed || (parsed.walletCoins && parsed.walletCoins >= 45)) {
+          setBonusInfo(parsed);
+        }
+      }
+    } catch {
+      // Ignore localStorage access failures
+    }
+  }, []);
+
+  function onPointerEnter(event: PointerEvent<HTMLElement>) {
+    if (event.pointerType !== "mouse") return;
+    artBoundsRef.current = event.currentTarget.getBoundingClientRect();
+  }
 
   function moveArtwork(event: PointerEvent<HTMLElement>) {
     if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-    event.currentTarget.style.setProperty("--scene-x", `${x * 8}px`);
-    event.currentTarget.style.setProperty("--scene-y", `${y * 8}px`);
+    const target = event.currentTarget;
+    const clientX = event.clientX;
+    const clientY = event.clientY;
+
+    if (artPointerRaf.current !== null) return;
+    artPointerRaf.current = window.requestAnimationFrame(() => {
+      artPointerRaf.current = null;
+      if (!artBoundsRef.current) {
+        artBoundsRef.current = target.getBoundingClientRect();
+      }
+      const bounds = artBoundsRef.current;
+      const x = (clientX - bounds.left) / bounds.width - 0.5;
+      const y = (clientY - bounds.top) / bounds.height - 0.5;
+      target.style.setProperty("--scene-x", `${x * 8}px`);
+      target.style.setProperty("--scene-y", `${y * 8}px`);
+    });
   }
 
   function resetArtwork() {
+    if (artPointerRaf.current !== null) {
+      window.cancelAnimationFrame(artPointerRaf.current);
+      artPointerRaf.current = null;
+    }
+    artBoundsRef.current = null;
     artRef.current?.style.setProperty("--scene-x", "0px");
     artRef.current?.style.setProperty("--scene-y", "0px");
   }
@@ -75,8 +118,35 @@ export function MixtapeAuthScene({ children, mode = "login" }: { children: React
 
   return (
     <main className={styles.page}>
+      {/* Ambient Studio Crosshairs & Floating Lofi Ornaments */}
+      <div className={styles.studioBackdrop} aria-hidden="true">
+        <span className={styles.cornerWatermarkTopLeft}>+ RETZLO STUDIO · SIDE A +</span>
+        <span className={styles.cornerWatermarkTopRight}>45 MIN · LOFI WORKSPACE</span>
+        <span className={styles.cornerWatermarkBottomLeft}>STEREO // CH-01</span>
+        <span className={styles.cornerWatermarkBottomRight}>✦ LESS RUSH · MORE RHYTHM ✦</span>
+
+        {/* Floating notes & sparkles around the scene */}
+        <span className={styles.floatingSparkleOne}>✦</span>
+        <span className={styles.floatingSparkleTwo}>✧</span>
+        <span className={styles.floatingNoteOne}>♪</span>
+        <span className={styles.floatingNoteTwo}>♫</span>
+        <div className={styles.floatingTapeTag}>
+          <span>♪ 82 BPM · COZY FOCUS</span>
+        </div>
+      </div>
+
       <div className={styles.shell}>
-        <section ref={artRef} className={styles.art} data-playing={playing} onPointerMove={moveArtwork} onPointerLeave={resetArtwork}>
+        {/* Top Retro Rainbow Mixtape Accent Strip */}
+        <div className={styles.shellRainbowStrip} aria-hidden="true" />
+
+        <section
+          ref={artRef}
+          className={styles.art}
+          data-playing={playing}
+          onPointerEnter={onPointerEnter}
+          onPointerMove={moveArtwork}
+          onPointerLeave={resetArtwork}
+        >
           <MixtapeArtwork />
           <div className={styles.shade} />
           <div className={styles.musicAmbience} aria-hidden="true"><span className={styles.noteOne}>♪</span><span className={styles.noteTwo}>♫</span></div>
@@ -117,7 +187,24 @@ export function MixtapeAuthScene({ children, mode = "login" }: { children: React
         </section>
         <section className={styles.formPanel} data-mode={mode}>
           <Link href="/" className={styles.back}><ArrowLeft size={14} /> Back to home</Link>
-          <div className={styles.formContent}><span className={styles.formEyebrow}>{copy.eyebrow}</span><h2>{copy.title}</h2><p className={styles.intro}>{copy.description}</p>{children}<p className={styles.signup}>{copy.footer} <Link href={copy.href}>{copy.link} <ArrowRight size={12} /></Link></p></div>
+          <div className={styles.formContent}>
+            {/* Landing page bonus notice if visitor claimed 7-day pass or collected coins */}
+            {bonusInfo && (mode === "register" || mode === "login") && (
+              <div className={styles.trialBonusBanner}>
+                <Sparkles size={14} className={styles.trialBonusIcon} />
+                <span>
+                  {bonusInfo.ticketClaimed
+                    ? "🎉 ปลดล็อกสิทธิ์ทดลองใช้ฟรี 7 วันแล้ว! เข้าสู่ระบบเพื่อเริ่มใช้งานได้ทันที"
+                    : `🎁 มี ${bonusInfo.walletCoins} Coins สะสมจากหน้าแรก พร้อมโอนเข้าสู่บัญชีของคุณ`}
+                </span>
+              </div>
+            )}
+            <span className={styles.formEyebrow}>{copy.eyebrow}</span>
+            <h2>{copy.title}</h2>
+            <p className={styles.intro}>{copy.description}</p>
+            {children}
+            <p className={styles.signup}>{copy.footer} <Link href={copy.href}>{copy.link} <ArrowRight size={12} /></Link></p>
+          </div>
           <p className={styles.legal}>{mode === "forgot-password" ? <>Your privacy matters. Read our <Link href="/privacy">Privacy Policy</Link>.</> : <>By {mode === "register" ? "creating an account" : "signing in"}, you agree to our <Link href="/terms">Terms</Link> and <Link href="/privacy">Privacy Policy</Link>.</>}</p>
         </section>
       </div>

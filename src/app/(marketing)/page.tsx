@@ -163,6 +163,33 @@ export default function LandingPage() {
   );
   const [sfxEnabled, setSfxEnabled] = useState<boolean>(true);
   const [ticketClaimed, setTicketClaimed] = useState<boolean>(false);
+  const [cassetteMood, setCassetteMood] = useState<number>(0);
+
+  // Restore saved trial pass & wallet coins from previous visit
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("retzlo:landing-pass");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed.walletCoins === "number") setWalletCoins(parsed.walletCoins);
+        if (typeof parsed.ticketClaimed === "boolean") setTicketClaimed(parsed.ticketClaimed);
+      }
+    } catch {
+      // Ignore localStorage read errors
+    }
+  }, []);
+
+  // Persist wallet coins & trial pass status to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "retzlo:landing-pass",
+        JSON.stringify({ walletCoins, ticketClaimed })
+      );
+    } catch {
+      // Ignore localStorage write errors
+    }
+  }, [walletCoins, ticketClaimed]);
 
   // Interactive Zen Garden state
   const [sakuraStageIdx, setSakuraStageIdx] = useState<number>(2);
@@ -454,9 +481,48 @@ export default function LandingPage() {
     artRef.current?.style.setProperty("--scene-y", "0px");
   }
 
-  // Warm Web Audio Lofi Synthesizer
-  const startSynth = () => {
+  const MOOD_CONFIGS = [
+    {
+      name: "01 · Rainy Cafe",
+      cutoff: 420,
+      tempo: 4200,
+      chords: [
+        [130.81, 164.81, 196.0, 246.94], // Cmaj7
+        [110.0, 130.81, 164.81, 196.0],  // Am7
+        [146.83, 174.61, 220.0, 261.63], // Dm7
+        [98.0, 123.47, 146.83, 174.61]   // G7
+      ]
+    },
+    {
+      name: "02 · Midnight Study",
+      cutoff: 300,
+      tempo: 4800,
+      chords: [
+        [87.31, 130.81, 164.81, 196.0],  // Fmaj7 low
+        [82.41, 123.47, 164.81, 196.0],  // Em7 low
+        [73.42, 110.0, 146.83, 174.61],  // Dm7 low
+        [65.41, 98.0, 130.81, 164.81]    // Cmaj7 low
+      ]
+    },
+    {
+      name: "03 · Sunday Vinyl",
+      cutoff: 580,
+      tempo: 3900,
+      chords: [
+        [164.81, 207.65, 246.94, 311.13], // Emaj7
+        [138.59, 164.81, 207.65, 246.94], // C#m7
+        [146.83, 174.61, 220.0, 261.63],  // Dm7
+        [123.47, 155.56, 185.0, 220.0]    // B7
+      ]
+    }
+  ];
+
+  // Warm Web Audio Lofi Synthesizer with Mood Selection
+  const startSynth = (targetMood?: number) => {
     try {
+      const activeMoodIdx = targetMood !== undefined ? targetMood : cassetteMood;
+      const config = MOOD_CONFIGS[activeMoodIdx] || MOOD_CONFIGS[0];
+
       const AudioCtx =
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext })
@@ -470,16 +536,11 @@ export default function LandingPage() {
 
       const filter = audioCtx.createBiquadFilter();
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(420, audioCtx.currentTime);
+      filter.frequency.setValueAtTime(config.cutoff, audioCtx.currentTime);
       filter.Q.setValueAtTime(1.1, audioCtx.currentTime);
       filter.connect(masterGain);
 
-      const chords = [
-        [130.81, 164.81, 196.0, 246.94],
-        [110.0, 130.81, 164.81, 196.0],
-        [146.83, 174.61, 220.0, 261.63],
-        [98.0, 123.47, 146.83, 174.61]
-      ];
+      const chords = config.chords;
 
       const oscillators: OscillatorNode[] = [];
       const oscGains: GainNode[] = [];
@@ -519,7 +580,7 @@ export default function LandingPage() {
       const chordScheduler = setInterval(() => {
         if (audioCtx.state === "suspended") return;
         playChord();
-      }, 4200);
+      }, config.tempo);
 
       (
         audioCtx as AudioContext & {
@@ -551,7 +612,21 @@ export default function LandingPage() {
     } else {
       startSynth();
       setIsPlaying(true);
-      setToastBanner("กำลังเล่นคอร์ดดนตรี Lofi สังเคราะห์สดจากเบราว์เซอร์ 🎵");
+      const moodNames = ["Rainy Cafe ☕", "Midnight Study 🌙", "Sunday Vinyl ☀️"];
+      setToastBanner(`กำลังเล่นคอร์ด Lofi สังเคราะห์สด: ${moodNames[cassetteMood]} 🎵`);
+    }
+  };
+
+  const handleSelectMood = (idx: number) => {
+    setCassetteMood(idx);
+    playChime("click");
+    const moodNames = ["Rainy Cafe ☕", "Midnight Study 🌙", "Sunday Vinyl ☀️"];
+    if (isPlaying) {
+      stopSynth();
+      startSynth(idx);
+      setToastBanner(`เปลี่ยนเป็นมู้ด ${moodNames[idx]} · กำลังบรรเลงดนตรี 🎵`);
+    } else {
+      setToastBanner(`เลือกมู้ดเทป: ${moodNames[idx]} · กดปุ่ม Play เพื่อฟังเสียง`);
     }
   };
 
@@ -791,13 +866,14 @@ export default function LandingPage() {
             <span>retzlo</span>
           </Link>
 
-          {/* Clean Airy Desktop Navigation */}
+          {/* Clean Airy Desktop Navigation (Ordered matching page flow) */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[13.5px] font-medium text-[var(--muted)]">
             <a
-              href="#walkthrough"
-              className="transition-colors hover:text-[var(--foreground)]"
+              href="#playground"
+              className="transition-colors hover:text-[var(--foreground)] flex items-center gap-1.5"
             >
-              ฟีเจอร์เด่น
+              <span>มินิเกมสะสมเหรียญ</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             </a>
             <a
               href="#pain-tabs"
@@ -806,11 +882,10 @@ export default function LandingPage() {
               ปัญหาที่แก้
             </a>
             <a
-              href="#playground"
-              className="transition-colors hover:text-[var(--foreground)] flex items-center gap-1.5"
+              href="#walkthrough"
+              className="transition-colors hover:text-[var(--foreground)]"
             >
-              <span>มินิเกมสะสมเหรียญ</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              ฟีเจอร์เด่น
             </a>
             <a
               href="#comparison"
@@ -841,21 +916,42 @@ export default function LandingPage() {
 
           {/* Right Actions: Compact, Spacious, Elegant */}
           <div className="hidden md:flex items-center gap-3 shrink-0">
-            {/* Live Interactive Coin Pill (Compact & Cute) */}
+            {/* Live Interactive Coin Pill with Goal Progress */}
             <div className="relative">
               <a
                 href="#buy"
-                title="กระเป๋าเหรียญสะสมของคุณ (คลิกเพื่อแลกรับตั๋วทดลองใช้ฟรี 7 วัน!)"
+                title={
+                  ticketClaimed
+                    ? "ปลดล็อกสิทธิ์ทดลองใช้ฟรี 7 วันแล้ว! คลิกเพื่อดูรายละเอียด"
+                    : walletCoins >= 50
+                      ? "สะสมครบ 50c แล้ว! คลิกเพื่อแลกตั๋วทดลองใช้ฟรี 7 วัน"
+                      : `สะสมแล้ว ${walletCoins}/50c (ขาดอีก ${50 - walletCoins}c แลกตั๋วทดลองใช้ฟรี 7 วัน)`
+                }
                 className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold"
                 style={{
-                  background: "#ffecb1",
-                  color: "#432369",
-                  border: "1.5px solid #54356b",
+                  background: ticketClaimed
+                    ? "#d1fae5"
+                    : walletCoins >= 50
+                      ? "#fef08a"
+                      : "#ffecb1",
+                  color: ticketClaimed ? "#065f46" : "#432369",
+                  border: ticketClaimed
+                    ? "1.5px solid #059669"
+                    : "1.5px solid #54356b",
                   boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.22)"
                 }}
               >
-                <Coins size={14} className="text-[#54356b] shrink-0" />
-                <span className="font-mono font-black">{walletCoins}</span>
+                <Coins
+                  size={14}
+                  className={ticketClaimed ? "text-[#059669] shrink-0" : "text-[#54356b] shrink-0"}
+                />
+                <span className="font-mono font-black">
+                  {ticketClaimed
+                    ? "7-Day Pass ✓"
+                    : walletCoins >= 50
+                      ? `${walletCoins}c · พร้อมแลก!`
+                      : `${walletCoins} / 50c`}
+                </span>
               </a>
 
               {/* Floating +Coin / -Coin Burst Particles */}
@@ -973,13 +1069,22 @@ export default function LandingPage() {
               href="#buy"
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black"
               style={{
-                background: "#ffecb1",
-                color: "#432369",
-                border: "1.5px solid #54356b"
+                background: ticketClaimed
+                  ? "#d1fae5"
+                  : walletCoins >= 50
+                    ? "#fef08a"
+                    : "#ffecb1",
+                color: ticketClaimed ? "#065f46" : "#432369",
+                border: ticketClaimed
+                  ? "1.5px solid #059669"
+                  : "1.5px solid #54356b"
               }}
             >
-              <Coins size={13} className="text-[#54356b] shrink-0" />
-              <span>{walletCoins}</span>
+              <Coins
+                size={13}
+                className={ticketClaimed ? "text-[#059669] shrink-0" : "text-[#54356b] shrink-0"}
+              />
+              <span>{ticketClaimed ? "Pass ✓" : `${walletCoins}c`}</span>
             </a>
             <ThemeToggle variant="icon" />
             <button
@@ -2287,7 +2392,7 @@ export default function LandingPage() {
                   className="relative w-36 h-36 rounded-2xl overflow-hidden p-2 flex items-center justify-center"
                   style={{
                     transform: "rotate(2deg)",
-                    background: "#fffaf0",
+                    background: "var(--paper)",
                     border: "1.5px solid rgba(84, 53, 107, 0.25)",
                     boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.12)"
                   }}
@@ -2312,7 +2417,7 @@ export default function LandingPage() {
                     className="relative w-36 h-36 rounded-2xl overflow-hidden p-2 flex items-center justify-center"
                     style={{
                       transform: "rotate(-2deg)",
-                      background: "#fffaf0",
+                      background: "var(--paper)",
                       border: `2px solid ${activePain.accentColor}`,
                       boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.14)"
                     }}
@@ -2645,6 +2750,8 @@ export default function LandingPage() {
               isPlaying={isPlaying}
               onToggleAudio={handlePlayToggle}
               onEarnCoin={triggerEarnCoin}
+              cassetteMood={cassetteMood}
+              onSelectMood={handleSelectMood}
             />
           </div>
         </div>
@@ -3115,7 +3222,7 @@ export default function LandingPage() {
                 color: "var(--accent)"
               }}
             >
-              04 / QUESTIONS &amp; ANSWERS
+              05 / QUESTIONS &amp; ANSWERS
             </span>
             <h2
               className="lp-font-display"
