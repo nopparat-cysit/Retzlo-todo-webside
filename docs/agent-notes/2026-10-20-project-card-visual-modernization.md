@@ -1,24 +1,27 @@
-# Work Session Note: Project Card Visual Modernization & Ambient Cover Artwork
+# Work Session Note: Project Card Visual Modernization & Compact Proportion Tuning
 
 **Date**: 2026-10-20  
-**Objective**: Redesign and elevate the visual aesthetics of `ProjectCard` on the Company & Projects Hub (`/projects`), transforming empty black headers into vibrant ambient retro-lofi gradients, framing sticker stamps in frosted squircle glass badges, upgrading flat metric boxes into interactive micro-metric tiles with dedicated category icons, and polishing quick-jump chips and launch action bars.
+**Objective**: Redesign and elevate the visual aesthetics of `ProjectCard` on the Company & Projects Hub (`/projects`), transforming empty black headers into vibrant ambient retro-lofi gradients, framing sticker stamps in frosted squircle glass badges, upgrading flat metric boxes into interactive micro-metric tiles with dedicated category icons, and tuning down oversized heights and paddings into a sleek, compact, balanced card layout.
 
 ## Files Created, Modified, or Moved
 
 - `src/components/project/projects-dashboard.tsx` (Modified):
+  - **Compact Header Height (`h-28 sm:h-32` down from `h-44 sm:h-48`)**: Scaled down oversized cover image / ambient gradient header by ~40%, providing a well-proportioned banner while keeping ample visual breathing room.
   - **Dynamic Ambient Cover Gradients (`getCoverAmbientGradient`)**: When a workspace card has no custom uploaded cover image, it now renders a vibrant ambient gradient mapped to `project.themeColor` featuring dual glowing radial aura orbs and a subtle retro matrix grid pattern instead of a flat dark void.
-  - **Frosted Squircle Glass Sticker Stamp**: Elevated `project.sticker` into a dedicated `rounded-2xl border border-white/20 bg-ink-950/75 p-1.5 shadow-xl backdrop-blur-md` badge positioned at the bottom-right of the cover. Separated title width (`pr-18`) to eliminate any awkward text collisions while producing a high-end tactile emblem appearance.
-  - **Modern Tasks Progress Capsule**: Redesigned the task delivery progress into a glowing progress pill with dynamic status badges (`{doneCards}/{totalCards} done ({progressPercent}%)` or `{columnCount} columns ready`).
-  - **Interactive Micro-Metric Tiles**: Upgraded the 4 flat metric boxes (`Boards`, `Members`, `Notes`, `Cards`) into micro-metric tiles with dedicated Lucide category icons (`KanbanSquare`, `Users`, `FileText`, `Layers3`), themed hover glow accents, and uppercase tracking labels.
-  - **Refined Boards Quick-Jump Chips**: Polished board jump pills with dedicated board icon badges, smooth hover transitions, and clean counter badges.
-  - **Bottom Action Bar Polish**: Modernized `Launch Board` button with a retro gradient glow, hover translation, and squircle action buttons (`Calendar`, `Settings`, `Options`) with thematic hover states.
+  - **Compact Frosted Squircle Glass Sticker Stamp**: Scaled sticker badge to `h-9 w-9` (`p-1`, image `size={28}`) at the bottom-right of the cover. Separated title width (`right-14`) to eliminate text collisions.
+  - **Natural, Unforced Height (Removed `min-h-[440px]`)**: Removed arbitrary `min-h-[440px]` constraint so cards form a compact ~280-320px vertical footprint instead of stretching excessively.
+  - **Sleek Tasks Progress Row**: Streamlined task delivery progress into a compact 1-line progress indicator with dynamic status badge (`{doneCards}/{totalCards} ({progressPercent}%)` or `{columnCount} cols ready`) and `h-1.5` gradient bar.
+  - **Compact Micro-Metric Tiles Grid**: Scaled 4 metric tiles (`Boards`, `Members`, `Notes`, `Cards`) into sleek `py-1.5 px-1` micro-tiles with Lucide icons (`KanbanSquare`, `Users`, `FileText`, `Layers3`) and themed hover accents.
+  - **Refined Boards Quick-Jump Chips**: Polished board jump pills with compact `px-2 py-0.5` badges.
+  - **Compact Action Bar**: Scaled bottom buttons to `h-8.5` with rounded-lg buttons and compact icon buttons (`Calendar`, `Notes`, `Rewards Store`).
+  - **Responsive 2-3 Column Grid (`md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3`)**: Updated workspace grid to display 2-3 columns on medium and large screens, preventing cards from ballooning into giant 600px+ horizontal billboards.
+  - **Proportional `QuickCreateBlueprintCard`**: Scaled blueprint card `min-h-[260px]` (down from `min-h-[420px]`) to seamlessly match the compact workspace cards.
 
 ## Important Behavior Changes
 
-1. **Vibrant Project Identities**: Workspaces without custom cover images are instantly distinguishable and visually rich through theme-colored ambient glowing aura gradients.
-2. **Eliminated Title/Sticker Overlap**: Projects with longer names and custom sticker stamps now display cleanly without visual overlapping or clutter.
-3. **Enhanced Glanceability**: Metric tiles provide immediate visual context with distinct icons for Kanban boards, team members, project notes, and active cards.
-4. **Preserved All Existing Functionality & Contracts**: Maintained star toggles, board navigation, 3-dots actions menu, edit modal triggers, and defensive fallback data.
+1. **Balanced & Compact Card Proportions**: Cards are now compact and readable at a glance (~280px-320px tall vs 480px-520px previously), allowing users to see multiple projects on screen without excessive scrolling.
+2. **Responsive Multi-Column Display**: Grid expands to 3 columns on large desktop screens (`2xl:grid-cols-3`) and 2 columns on medium screens (`md:grid-cols-2`).
+3. **Preserved All Existing Functionality & Contracts**: Maintained star toggles, board navigation, 3-dots actions menu, edit modal triggers, and defensive fallback data.
 
 ## Database / Schema Changes
 

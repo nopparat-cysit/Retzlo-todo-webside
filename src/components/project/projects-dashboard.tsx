@@ -1409,7 +1409,7 @@ export function ProjectsDashboard({
               </div>
             ) : (
               <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
-                <div className="grid min-w-0 content-start gap-4 pb-4 xl:grid-cols-2">
+                <div className="grid min-w-0 content-start gap-3.5 pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                   {displayedProjects.map((project) => (
                     <ProjectCard
                       key={project.id}
@@ -2195,22 +2195,22 @@ function QuickCreateBlueprintCard({ onCreateClick }: { onCreateClick: () => void
     <button
       type="button"
       onClick={onCreateClick}
-      className="lofi-panel group flex min-h-[420px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition-all duration-300 hover:border-dusk-lavender/50 hover:bg-white/[0.035] hover:shadow-xl hover:shadow-dusk-lavender/10"
+      className="lofi-panel group flex min-h-[260px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-white/70 p-5 text-center transition-all duration-300 hover:border-indigo-400 hover:bg-stone-50/80 hover:shadow-md dark:border-white/15 dark:bg-white/[0.015] dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.035] dark:hover:shadow-xl dark:hover:shadow-dusk-lavender/10"
     >
-      <div className="relative mb-4 grid h-14 w-14 place-items-center rounded-2xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender transition-transform duration-300 group-hover:scale-110 shadow-inner">
-        <Plus className="h-7 w-7" />
+      <div className="relative mb-2.5 grid h-10 w-10 place-items-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-600 transition-transform duration-300 group-hover:scale-110 shadow-inner dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
+        <Plus className="h-5 w-5" />
       </div>
-      <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-dusk-amber">
-        <Sparkles className="h-3 w-3" /> New Workspace
+      <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-amber-700 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber">
+        <Sparkles className="h-2.5 w-2.5" /> New Workspace
       </span>
-      <h4 className="mt-2 text-base font-bold text-stone-100 group-hover:text-dusk-lavender transition-colors">
+      <h4 className="mt-1.5 text-sm font-bold text-stone-900 group-hover:text-indigo-600 transition-colors dark:text-stone-100 dark:group-hover:text-dusk-lavender">
         Create another workspace
       </h4>
-      <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-stone-400">
-        Add a dedicated space for sprints, clients, personal goals, or daily habit reflection.
+      <p className="mt-1 max-w-xs text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+        Add a dedicated space for sprints, clients, or personal goals.
       </p>
-      <div className="mt-5 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-semibold text-stone-200 transition group-hover:border-dusk-lavender/40 group-hover:bg-dusk-lavender/20 group-hover:text-white">
-        <Plus className="h-3.5 w-3.5" />
+      <div className="mt-3.5 inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 transition group-hover:border-indigo-300 group-hover:bg-indigo-50 group-hover:text-indigo-700 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-200 dark:group-hover:border-dusk-lavender/40 dark:group-hover:bg-dusk-lavender/20 dark:group-hover:text-white">
+        <Plus className="h-3 w-3" />
         <span>Create Workspace</span>
       </div>
     </button>
@@ -2286,11 +2286,11 @@ function ProjectCard({
         tone={project.themeColor}
         title={<span className="sr-only">{project.name}</span>}
         className={cn(
-          "lofi-panel group flex min-h-[440px] flex-col p-0 transition-all duration-300 rounded-2xl overflow-hidden border border-stone-200/90 bg-white/90 shadow-sm hover:-translate-y-1 hover:shadow-2xl hover:border-indigo-300/80 dark:border-white/10 dark:bg-ink-950/75 dark:hover:border-dusk-lavender/40 dark:hover:shadow-[0_16px_36px_rgba(0,0,0,0.45)]",
+          "lofi-panel group flex flex-col p-0 transition-all duration-300 rounded-2xl overflow-hidden border border-stone-200/90 bg-white/90 shadow-2xs hover:-translate-y-0.5 hover:shadow-xl hover:border-indigo-300/80 dark:border-white/10 dark:bg-ink-950/75 dark:hover:border-dusk-lavender/40 dark:hover:shadow-[0_12px_28px_rgba(0,0,0,0.4)]",
           colorMeta.softClass
         )}
       >
-        <div className="relative h-44 sm:h-48 overflow-hidden border-b border-white/10">
+        <div className="relative h-28 sm:h-32 overflow-hidden border-b border-white/10">
           <Link
             href={targetUrl}
             className="absolute inset-0 block z-0"
@@ -2307,103 +2307,103 @@ function ProjectCard({
             ) : (
               <div className={cn("relative h-full w-full bg-gradient-to-br transition-all duration-500", getCoverAmbientGradient(project.themeColor))}>
                 {/* Ambient glowing radial orbs */}
-                <div className="absolute -left-6 -top-6 h-36 w-36 rounded-full bg-dusk-lavender/20 blur-2xl pointer-events-none" />
-                <div className="absolute right-2 top-2 h-36 w-36 rounded-full bg-dusk-amber/15 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-6 left-1/3 h-28 w-28 rounded-full bg-dusk-cyan/15 blur-2xl pointer-events-none" />
+                <div className="absolute -left-4 -top-4 h-24 w-24 rounded-full bg-dusk-lavender/25 blur-xl pointer-events-none" />
+                <div className="absolute right-2 top-0 h-24 w-24 rounded-full bg-dusk-amber/20 blur-2xl pointer-events-none" />
+                <div className="absolute -bottom-4 left-1/3 h-20 w-20 rounded-full bg-dusk-cyan/20 blur-xl pointer-events-none" />
                 {/* Subtle retro matrix dot pattern */}
-                <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-50" />
+                <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:14px_14px] pointer-events-none opacity-50" />
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none" />
           </Link>
 
           {/* Top Left: Type badge */}
-          <div className="absolute left-3.5 top-3 z-10">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-ink-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-dusk-amber shadow-xs backdrop-blur-md">
-              {isDiaryProject ? <BookOpenCheck className="h-3 w-3 text-dusk-rose" /> : <KanbanSquare className="h-3 w-3 text-dusk-amber" />}
-              <span>{isDiaryProject ? "Diary Studio" : "Work Studio"}</span>
+          <div className="absolute left-3 top-2.5 z-10">
+            <div className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-ink-950/70 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] text-dusk-amber shadow-xs backdrop-blur-md">
+              {isDiaryProject ? <BookOpenCheck className="h-2.5 w-2.5 text-dusk-rose" /> : <KanbanSquare className="h-2.5 w-2.5 text-dusk-amber" />}
+              <span>{isDiaryProject ? "Diary" : "Work"}</span>
             </div>
           </div>
 
           {/* Top Right: Star toggle & 3-dots Menu */}
-          <div className="absolute right-3.5 top-3 z-20 flex items-center gap-1.5">
+          <div className="absolute right-3 top-2.5 z-20 flex items-center gap-1">
             <button
               type="button"
               onClick={onToggleStar}
               className={cn(
-                "grid h-8 w-8 place-items-center rounded-xl border bg-ink-950/65 text-stone-200 backdrop-blur-md transition hover:border-dusk-amber/60 hover:bg-ink-950/85 hover:text-dusk-amber",
-                isStarred && "border-dusk-amber/60 bg-dusk-amber/20 text-dusk-amber shadow-[0_0_12px_rgba(229,189,114,0.3)]"
+                "grid h-7 w-7 place-items-center rounded-lg border bg-ink-950/65 text-stone-200 backdrop-blur-md transition hover:border-dusk-amber/60 hover:bg-ink-950/85 hover:text-dusk-amber",
+                isStarred && "border-dusk-amber/60 bg-dusk-amber/20 text-dusk-amber shadow-[0_0_10px_rgba(229,189,114,0.3)]"
               )}
               aria-label={isStarred ? "Unstar project" : "Star project"}
               aria-pressed={isStarred}
             >
-              <Star className={cn("h-3.5 w-3.5 transition-transform", isStarred && "fill-dusk-amber scale-110")} />
+              <Star className={cn("h-3 w-3 transition-transform", isStarred && "fill-dusk-amber scale-110")} />
             </button>
 
             <button
               type="button"
               onClick={toggleProjectMenu}
               className={cn(
-                "grid h-8 w-8 place-items-center rounded-xl border backdrop-blur-md transition",
+                "grid h-7 w-7 place-items-center rounded-lg border backdrop-blur-md transition",
                 menuOpen
-                  ? "border-dusk-amber/60 bg-ink-950/90 text-dusk-amber shadow-[0_8px_20px_rgba(0,0,0,0.4)]"
+                  ? "border-dusk-amber/60 bg-ink-950/90 text-dusk-amber shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
                   : "border-white/20 bg-ink-950/65 text-stone-200 hover:border-dusk-lavender/60 hover:bg-ink-950/85 hover:text-dusk-lavender"
               )}
               aria-label="Project options"
               aria-expanded={menuOpen}
             >
-              <MoreHorizontal className="h-3.5 w-3.5" />
+              <MoreHorizontal className="h-3 w-3" />
             </button>
           </div>
 
           {/* Bottom Right Floating Sticker Emblem */}
           {project.sticker ? (
-            <div className="absolute bottom-3 right-3.5 z-20 transition duration-300 group-hover:scale-110 group-hover:-rotate-3 pointer-events-none">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl border border-white/20 bg-ink-950/75 p-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.6)] backdrop-blur-md">
-                <RetroStickerImage alt={project.name} size={40} src={project.sticker} />
+            <div className="absolute bottom-2.5 right-3 z-20 transition duration-300 group-hover:scale-110 group-hover:-rotate-3 pointer-events-none">
+              <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/20 bg-ink-950/75 p-1 shadow-md backdrop-blur-md">
+                <RetroStickerImage alt={project.name} size={28} src={project.sticker} />
               </div>
             </div>
           ) : null}
 
           {/* Bottom Left Title */}
-          <div className="absolute bottom-3 left-4 right-18 z-10">
+          <div className="absolute bottom-2.5 left-3.5 right-14 z-10">
             <Link
               href={targetUrl}
-              className="block truncate text-lg sm:text-xl font-extrabold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] transition-colors hover:text-dusk-lavender"
+              className="block truncate text-sm sm:text-base font-bold tracking-tight text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] transition-colors hover:text-dusk-lavender"
             >
               {project.name}
             </Link>
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <div className="flex flex-1 flex-col p-3.5 sm:p-4">
           <Link href={targetUrl} className="block group/details">
-            <p className="line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-stone-600 transition-colors group-hover/details:text-stone-900 dark:text-stone-300/80 dark:group-hover/details:text-stone-200">
+            <p className="line-clamp-1 text-xs leading-relaxed text-stone-600 transition-colors group-hover/details:text-stone-900 dark:text-stone-400 dark:group-hover/details:text-stone-200">
               {typeof project.description === "string" && project.description.trim()
                 ? project.description.trim()
-                : "A quiet project workspace for tasks, notes, due dates, and rewards."}
+                : "A quiet workspace for tasks, notes, due dates, and rewards."}
             </p>
 
             {/* Task Pipeline / Progress Bar */}
-            <div className="mt-3.5 rounded-xl border border-stone-200/90 bg-stone-50/70 p-3 transition-all group-hover/details:border-indigo-300 dark:border-white/10 dark:bg-white/[0.025] dark:group-hover/details:border-dusk-lavender/35">
-              <div className="flex items-center justify-between text-xs mb-2">
-                <span className="flex items-center gap-1.5 font-semibold text-stone-700 text-[11px] dark:text-stone-300">
-                  <TrendingUp className="h-3.5 w-3.5 text-teal-600 dark:text-dusk-cyan" />
-                  Tasks Progress
+            <div className="mt-2.5 rounded-lg border border-stone-200/80 bg-stone-50/70 px-2.5 py-1.5 transition-all group-hover/details:border-indigo-300 dark:border-white/10 dark:bg-white/[0.025] dark:group-hover/details:border-dusk-lavender/35">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="flex items-center gap-1 font-semibold text-stone-700 text-[10px] dark:text-stone-300">
+                  <TrendingUp className="h-3 w-3 text-teal-600 dark:text-dusk-cyan" />
+                  Tasks
                 </span>
                 {totalCards > 0 ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-teal-500/25 bg-teal-50 px-2 py-0.5 font-mono text-[10px] font-bold text-teal-700 dark:border-dusk-cyan/30 dark:bg-dusk-cyan/15 dark:text-dusk-cyan">
-                    {doneCards}/{totalCards} done ({progressPercent}%)
+                  <span className="inline-flex items-center gap-1 rounded-full border border-teal-500/25 bg-teal-50 px-1.5 py-0.2 font-mono text-[9px] font-bold text-teal-700 dark:border-dusk-cyan/30 dark:bg-dusk-cyan/15 dark:text-dusk-cyan">
+                    {doneCards}/{totalCards} ({progressPercent}%)
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-stone-200/90 bg-stone-100/60 px-2 py-0.5 font-mono text-[10px] text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
-                    {columnCount} columns ready
+                  <span className="inline-flex items-center gap-1 rounded-full border border-stone-200/90 bg-stone-100/60 px-1.5 py-0.2 font-mono text-[9px] text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                    {columnCount} cols ready
                   </span>
                 )}
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-stone-200/90 dark:bg-white/10">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200/90 dark:bg-white/10">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-teal-500 via-indigo-500 to-dusk-lavender transition-all duration-500 shadow-sm dark:from-dusk-cyan dark:via-indigo-400 dark:to-dusk-lavender"
+                  className="h-full rounded-full bg-gradient-to-r from-teal-500 via-indigo-500 to-dusk-lavender transition-all duration-500 shadow-xs dark:from-dusk-cyan dark:via-indigo-400 dark:to-dusk-lavender"
                   style={{ width: `${totalCards > 0 ? progressPercent : 0}%` }}
                 />
               </div>
@@ -2411,56 +2411,56 @@ function ProjectCard({
           </Link>
 
           {/* Metric Tiles Grid */}
-          <div className="mt-3.5 grid grid-cols-4 gap-2 text-center">
-            <div className="group/stat rounded-xl border border-stone-200/90 bg-stone-50/70 py-2 px-1 transition hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-white/5 dark:bg-white/[0.025] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.05]">
+          <div className="mt-2.5 grid grid-cols-4 gap-1.5 text-center">
+            <div className="group/stat rounded-lg border border-stone-200/80 bg-stone-50/70 py-1.5 px-1 transition hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-white/5 dark:bg-white/[0.025] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.05]">
               <div className="flex items-center justify-center gap-1 text-indigo-600 dark:text-dusk-lavender">
-                <KanbanSquare className="h-3 w-3 shrink-0 opacity-80" />
-                <span className="text-xs font-extrabold font-mono text-stone-900 dark:text-stone-100">{project.counts.boards}</span>
+                <KanbanSquare className="h-2.5 w-2.5 shrink-0 opacity-80" />
+                <span className="text-[11px] font-bold font-mono text-stone-900 dark:text-stone-100">{project.counts.boards}</span>
               </div>
-              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">Boards</p>
+              <p className="mt-0.5 text-[8.5px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">Boards</p>
             </div>
 
-            <div className="group/stat rounded-xl border border-stone-200/90 bg-stone-50/70 py-2 px-1 transition hover:border-teal-300 hover:bg-teal-50/50 dark:border-white/5 dark:bg-white/[0.025] dark:hover:border-dusk-cyan/30 dark:hover:bg-white/[0.05]">
+            <div className="group/stat rounded-lg border border-stone-200/80 bg-stone-50/70 py-1.5 px-1 transition hover:border-teal-300 hover:bg-teal-50/50 dark:border-white/5 dark:bg-white/[0.025] dark:hover:border-dusk-cyan/30 dark:hover:bg-white/[0.05]">
               <div className="flex items-center justify-center gap-1 text-teal-600 dark:text-dusk-cyan">
-                <Users className="h-3 w-3 shrink-0 opacity-80" />
-                <span className="text-xs font-extrabold font-mono text-stone-900 dark:text-stone-100">{project.counts.members}</span>
+                <Users className="h-2.5 w-2.5 shrink-0 opacity-80" />
+                <span className="text-[11px] font-bold font-mono text-stone-900 dark:text-stone-100">{project.counts.members}</span>
               </div>
-              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">Members</p>
+              <p className="mt-0.5 text-[8.5px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">Members</p>
             </div>
 
-            <div className="group/stat rounded-xl border border-stone-200/90 bg-stone-50/70 py-2 px-1 transition hover:border-rose-300 hover:bg-rose-50/50 dark:border-white/5 dark:bg-white/[0.025] dark:hover:border-dusk-rose/30 dark:hover:bg-white/[0.05]">
+            <div className="group/stat rounded-lg border border-stone-200/80 bg-stone-50/70 py-1.5 px-1 transition hover:border-rose-300 hover:bg-rose-50/50 dark:border-white/5 dark:bg-white/[0.025] dark:hover:border-dusk-rose/30 dark:hover:bg-white/[0.05]">
               <div className="flex items-center justify-center gap-1 text-rose-500 dark:text-dusk-rose">
-                <FileText className="h-3 w-3 shrink-0 opacity-80" />
-                <span className="text-xs font-extrabold font-mono text-stone-900 dark:text-stone-100">{project.counts.notes}</span>
+                <FileText className="h-2.5 w-2.5 shrink-0 opacity-80" />
+                <span className="text-[11px] font-bold font-mono text-stone-900 dark:text-stone-100">{project.counts.notes}</span>
               </div>
-              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">Notes</p>
+              <p className="mt-0.5 text-[8.5px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">Notes</p>
             </div>
 
-            <div className="group/stat rounded-xl border border-stone-200/90 bg-stone-50/70 py-2 px-1 transition hover:border-amber-300 hover:bg-amber-50/50 dark:border-white/5 dark:bg-white/[0.025] dark:hover:border-dusk-amber/30 dark:hover:bg-white/[0.05]">
+            <div className="group/stat rounded-lg border border-stone-200/80 bg-stone-50/70 py-1.5 px-1 transition hover:border-amber-300 hover:bg-amber-50/50 dark:border-white/5 dark:bg-white/[0.025] dark:hover:border-dusk-amber/30 dark:hover:bg-white/[0.05]">
               <div className="flex items-center justify-center gap-1 text-amber-500 dark:text-dusk-amber">
-                <Layers3 className="h-3 w-3 shrink-0 opacity-80" />
-                <span className="text-xs font-extrabold font-mono text-stone-900 dark:text-stone-100">{cards.length}</span>
+                <Layers3 className="h-2.5 w-2.5 shrink-0 opacity-80" />
+                <span className="text-[11px] font-bold font-mono text-stone-900 dark:text-stone-100">{cards.length}</span>
               </div>
-              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">Cards</p>
+              <p className="mt-0.5 text-[8.5px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">Cards</p>
             </div>
           </div>
 
           {/* Boards Quick-Jump Chips (Direct 1-Click Launch) */}
           {!isDiaryProject && project.boardsList && project.boardsList.length > 0 ? (
-            <div className="mt-3.5 flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-stone-200/70 dark:border-white/5">
-              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 mr-1">
-                <KanbanSquare className="h-3 w-3 text-indigo-500 dark:text-dusk-lavender" />
+            <div className="mt-2.5 flex flex-wrap items-center gap-1 pt-2 border-t border-stone-200/70 dark:border-white/5">
+              <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 mr-0.5">
+                <KanbanSquare className="h-2.5 w-2.5 text-indigo-500 dark:text-dusk-lavender" />
                 Boards
               </span>
               {project.boardsList.slice(0, 3).map((b) => (
                 <Link
                   key={b.id}
                   href={`/project/${project.id}/board?boardId=${b.id}`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/90 px-2.5 py-1 text-[11px] font-medium text-stone-700 transition hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-2xs dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-dusk-lavender/40 dark:hover:bg-dusk-lavender/10 dark:hover:text-dusk-lavender"
+                  className="inline-flex items-center gap-1 rounded-md border border-stone-200/80 bg-stone-50/90 px-2 py-0.5 text-[10px] font-medium text-stone-700 transition hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-dusk-lavender/40 dark:hover:bg-dusk-lavender/10 dark:hover:text-dusk-lavender"
                   title={`Launch ${b.name}`}
                 >
-                  <span className="truncate max-w-[90px]">{b.name}</span>
-                  <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[9px] font-mono text-stone-600 dark:bg-white/10 dark:text-stone-400">
+                  <span className="truncate max-w-[80px]">{b.name}</span>
+                  <span className="rounded-full bg-stone-200/80 px-1 py-0.2 text-[8.5px] font-mono text-stone-600 dark:bg-white/10 dark:text-stone-400">
                     {b.totalCards}
                   </span>
                 </Link>
@@ -2474,47 +2474,47 @@ function ProjectCard({
                     setActiveProjectId(project.id);
                     setViewMode("boards");
                   }}
-                  className="rounded-lg border border-stone-200/80 bg-stone-50 px-2 py-1 text-[10px] font-mono font-medium text-stone-500 hover:border-indigo-300 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-lavender/40 dark:hover:text-dusk-lavender"
+                  className="rounded-md border border-stone-200/80 bg-stone-50 px-1.5 py-0.5 text-[9px] font-mono font-medium text-stone-500 hover:border-indigo-300 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-lavender/40 dark:hover:text-dusk-lavender"
                   title="View all boards in this project"
                 >
-                  +{project.boardsList.length - 3} more
+                  +{project.boardsList.length - 3}
                 </button>
               ) : null}
             </div>
           ) : null}
 
           {/* Quick-Launch Action Hub */}
-          <div className="mt-auto pt-3.5 border-t border-stone-200/80 flex items-center gap-2 dark:border-white/10">
+          <div className="mt-auto pt-2.5 border-t border-stone-200/80 flex items-center gap-1.5 dark:border-white/10">
             <Link
               href={`/project/${project.id}/${isDiaryProject ? "diary" : "board"}`}
-              className="group/btn flex-1 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold text-xs shadow-sm transition hover:from-indigo-500 hover:to-indigo-600 active:scale-95 dark:from-dusk-lavender dark:to-indigo-400 dark:text-ink-950 dark:font-bold dark:shadow-[0_8px_20px_rgba(169,162,255,0.22)] dark:hover:from-dusk-amber dark:hover:to-amber-300 dark:hover:shadow-[0_8px_24px_rgba(229,189,114,0.3)]"
+              className="group/btn flex-1 inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold text-xs shadow-2xs transition hover:from-indigo-500 hover:to-indigo-600 active:scale-95 dark:from-dusk-lavender dark:to-indigo-400 dark:text-ink-950 dark:font-bold dark:shadow-[0_4px_14px_rgba(169,162,255,0.2)] dark:hover:from-dusk-amber dark:hover:to-amber-300"
             >
               <span>{isDiaryProject ? "Open Diary" : "Launch Board"}</span>
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
+              <ArrowRight className="h-3 w-3 transition-transform group-hover/btn:translate-x-0.5" />
             </Link>
 
             <Link
               href={`/project/${project.id}/calendar`}
               title="Calendar View"
-              className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-cyan/50 dark:hover:bg-dusk-cyan/15 dark:hover:text-dusk-cyan"
+              className="grid h-8.5 w-8.5 place-items-center rounded-lg border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-cyan/50 dark:hover:bg-dusk-cyan/15 dark:hover:text-dusk-cyan"
             >
-              <CalendarDays className="h-4 w-4" />
+              <CalendarDays className="h-3.5 w-3.5" />
             </Link>
 
             <Link
               href={`/project/${project.id}/notes`}
               title="Project Notes"
-              className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-rose/50 dark:hover:bg-dusk-rose/15 dark:hover:text-dusk-rose"
+              className="grid h-8.5 w-8.5 place-items-center rounded-lg border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-rose/50 dark:hover:bg-dusk-rose/15 dark:hover:text-dusk-rose"
             >
-              <FileText className="h-4 w-4" />
+              <FileText className="h-3.5 w-3.5" />
             </Link>
 
             <Link
               href={`/project/${project.id}/rewards`}
               title="Rewards Store"
-              className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-amber/50 dark:hover:bg-dusk-amber/15 dark:hover:text-dusk-amber"
+              className="grid h-8.5 w-8.5 place-items-center rounded-lg border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-amber/50 dark:hover:bg-dusk-amber/15 dark:hover:text-dusk-amber"
             >
-              <Gift className="h-4 w-4" />
+              <Gift className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
