@@ -49,4 +49,9 @@ describe("CreateBoardPageView full-page dedicated workflow and preview UX contra
     expect(source).toContain('method: "POST"');
     expect(source).toMatch(/toast\(\{\s*message:.*created successfully/);
   });
+
+  it("provides persistent top-right Create Board action linked to form", () => {
+    expect(source).toContain('form="create-board-page-form"');
+    expect(source).toContain('id="create-board-page-form"');
+  });
 });

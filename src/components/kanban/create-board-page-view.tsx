@@ -171,7 +171,7 @@ export function CreateBoardPageView({
   return (
     <div className="mx-auto max-w-7xl 2xl:max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
       {/* Top Breadcrumb & Return Link */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-theme-border pb-4">
+      <div className="sticky top-0 z-20 -mx-4 -mt-2 mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-theme-border bg-theme-panel/95 px-4 py-3.5 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div className="flex items-center gap-3">
           <Link
             href={`/project/${projectId}/board`}
@@ -198,11 +198,26 @@ export function CreateBoardPageView({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-theme-border bg-theme-panel px-3 py-1 text-xs text-theme-muted shadow-2xs">
-            <Sparkles className="h-3.5 w-3.5 text-dusk-amber" />
-            <span>Workflow Channel</span>
-          </span>
+        <div className="flex items-center gap-2.5">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => router.push(`/project/${projectId}/board`)}
+            disabled={isPending}
+            className="text-xs h-9 px-3.5"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="create-board-page-form"
+            disabled={!name.trim() || isPending}
+            variant="primary"
+            className="h-9 font-bold px-5 shadow-sm active:scale-95 cursor-pointer"
+          >
+            <FolderKanban className="h-4 w-4 mr-1.5" />
+            <span>{isPending ? "Creating Board..." : "Create Board"}</span>
+          </Button>
         </div>
       </div>
 
@@ -211,6 +226,7 @@ export function CreateBoardPageView({
         {/* ── Left Column: Form Settings (5 of 12 columns) ── */}
         <div className="lg:col-span-5">
           <form
+            id="create-board-page-form"
             onSubmit={handleSubmit}
             className="space-y-6 rounded-2xl border border-theme-border bg-theme-panel p-5 sm:p-6 shadow-xl"
           >
