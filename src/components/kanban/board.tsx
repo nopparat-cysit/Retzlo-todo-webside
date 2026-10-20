@@ -1811,15 +1811,6 @@ export function KanbanBoard({
                     subtitle="Preview how this workflow column and its sample cards appear on the board"
                     compact={true}
                     columns={[
-                      ...columns.slice(-2).map((col) => ({
-                        id: col.id,
-                        name: col.name,
-                        color: col.color,
-                        icon: col.icon,
-                        defaultCardStatus: col.defaultCardStatus,
-                        wipLimit: col.wipLimit ?? null,
-                        cardCount: col.cards.length
-                      })),
                       {
                         id: "draft-column",
                         name: columnName.trim() || "New Column",

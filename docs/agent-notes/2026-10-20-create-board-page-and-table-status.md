@@ -41,10 +41,11 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
      1. **Card Status**: Direct status update (`Todo`, `Doing`, `Waiting`, `Done`) matching the Card Modal with checkmarks.
      2. **Move Column**: Moves card between workflow columns (`Backlog`, `In Progress`, `Done`) with checkmarks and status synchronization.
    - Added `Waiting` status to the top table filter chips.
-3. **Create Column & Edit Column Modals 2-Column Redesign ("แก้ไขส่วน create column")**:
+3. **Create Column & Edit Column Modals 2-Column Redesign & Single Column Preview ("แก้ไขส่วน create column" & "Create Column เห็น preview แค่อันที่กำลังจะสร้าง ไม่ต้องแสดงทั้งหมด")**:
    - Upgraded both the in-board Create Column modal (`src/components/kanban/board.tsx`) and Edit Column modal (`src/components/kanban/column.tsx`) from narrow 1-column layouts (`max-w-xl`) to spacious 2-column layouts (`max-w-4xl` with `md:grid-cols-12`).
    - **Left Column (`md:col-span-7`)**: Form inputs for Column Name, Theme Color (`ColumnThemePicker`), Icon Glyph (`ColumnIconPicker`), Default Card Status (`ColumnStatusPicker`), and WIP Card Limit.
    - **Right Column (`md:col-span-5`)**: Sticky `BoardMockupPreview` showing live changes in real time (name, color, icon, status, WIP limit, sample cards) without scrolling.
+   - **Single Column Preview Refinement**: Updated `BoardMockupPreview` in `Create Column` to render ONLY the draft column being created (`draft-column`), removing the previous adjacent existing columns (`...columns.slice(-2)`). Enhanced `BoardMockupPreview` so single-column previews naturally expand to `w-full` for optimal focus and tactile feedback.
    - **Theme System Compatibility**: Eliminated all hardcoded dark mode colors (`lofi-panel`, `text-stone-100`, `text-stone-300`, `text-stone-400`, `border-white/10`) in favor of semantic tokens (`bg-theme-panel`, `bg-theme-paper`, `text-theme-foreground`, `text-theme-muted`, `border-theme-border`, `text-theme-accent`), providing flawless contrast in both Light and Dark modes.
 4. **2-Step Wizard Flow & Access Configuration ("เพิ่มให้เป็นการ กด next เพื่อตั้งค่าสิทธิ์ของ board แล้วค่อย creatr")**:
    - Converted `CreateBoardPageView` from a single long page to an intuitive 2-step wizard flow:

@@ -271,7 +271,8 @@ export function BoardMockupPreview({
               <div
                 key={col.id ?? `${col.name}-${colIndex}`}
                 className={cn(
-                  "relative flex flex-col w-48 sm:w-52 shrink-0 rounded-xl border bg-white/95 dark:bg-stone-900/95 shadow-2xs overflow-hidden transition-all",
+                  "relative flex flex-col rounded-xl border bg-white/95 dark:bg-stone-900/95 shadow-2xs overflow-hidden transition-all",
+                  columns.length === 1 ? "w-full" : "w-48 sm:w-52 shrink-0",
                   col.isHighlighted
                     ? "border-2 border-indigo-500 ring-2 ring-indigo-500/20 dark:border-dusk-lavender dark:ring-dusk-lavender/25"
                     : "border-stone-200/80 dark:border-white/10"

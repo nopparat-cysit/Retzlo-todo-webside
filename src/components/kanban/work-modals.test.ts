@@ -18,6 +18,8 @@ describe("Work module modal migration", () => {
     expect(boardSource).toContain("max-w-4xl");
     expect(boardSource).toContain("grid-cols-1 md:grid-cols-12");
     expect(boardSource).toContain("<BoardMockupPreview");
+    expect(boardSource).not.toContain("...columns.slice(-2)");
+    expect(boardSource).toContain('id: "draft-column"');
   });
 
   it("uses AppModal for column settings with 2-column layout and live preview", () => {
