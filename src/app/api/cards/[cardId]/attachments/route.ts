@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
-import { assertProjectMember, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
+import { assertProjectMember, canAccessBoard, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
 import { prisma } from "@/lib/prisma";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { triggerPusherEvent } from "@/lib/pusher/server";
@@ -13,7 +13,13 @@ export const dynamic = "force-dynamic";
 
 const linkAttachmentSchema = z.object({
   name: z.string().trim().min(1).max(120),
-  url: z.string().trim().url(),
+  url: z
+    .string()
+    .trim()
+    .url()
+    .refine((val) => /^https?:\/\//i.test(val), {
+      message: "Attachment URL must start with http:// or https://"
+    }),
   fileType: z.string().optional()
 });
 
@@ -87,7 +93,14 @@ export async function POST(
           select: {
             id: true,
             boardId: true,
-            board: { select: { id: true, projectId: true } }
+            board: {
+              select: {
+                id: true,
+                projectId: true,
+                isPrivate: true,
+                members: { select: { userId: true } }
+              }
+            }
           }
         }
       }
@@ -105,6 +118,10 @@ export async function POST(
       return jsonError("You do not have access to this project.", 403);
     }
 
+    if (!canAccessBoard(card.column.board, userId, membership.role)) {
+      return jsonError("You do not have access to this board.", 403);
+    }
+
     const contentType = request.headers.get("content-type") || "";
 
     let name = "";
@@ -118,6 +135,11 @@ export async function POST(
 
       if (!file || !(file instanceof Blob)) {
         return jsonError("Valid file is required.", 400);
+      }
+
+      const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024; // 10MB limit
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        return jsonError("File size exceeds 10MB limit.", 413);
       }
 
       name = file.name || "attachment";

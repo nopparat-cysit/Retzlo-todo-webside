@@ -308,7 +308,8 @@ export function CardAttributesEditModal({
       <AppModal
         open={open}
         onClose={onClose}
-        className="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden"
+        className="z-[1100]"
+        contentClassName="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden"
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-stone-200/80 px-5 py-4 dark:border-white/10">

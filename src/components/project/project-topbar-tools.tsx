@@ -55,6 +55,7 @@ export function ProjectTopbarTools() {
           <PopoverContent
             align="end"
             sideOffset={10}
+            forceMount
             className="w-[min(364px,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0"
           >
             <div className="grid grid-cols-4 gap-1 border-b border-stone-200/80 dark:border-white/10 pb-2 mb-2">
@@ -80,7 +81,11 @@ export function ProjectTopbarTools() {
               })}
             </div>
             <div>
-              {tools.find((t) => t.id === selectedMobileTool)?.panel}
+              {tools.map((t) => (
+                <div key={t.id} className={t.id === selectedMobileTool ? "block" : "hidden"}>
+                  {t.panel}
+                </div>
+              ))}
             </div>
           </PopoverContent>
         </Popover>
@@ -123,6 +128,7 @@ export function ProjectTopbarTools() {
               <PopoverContent
                 align="end"
                 sideOffset={10}
+                forceMount
                 className={cn(
                   "overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0",
                   tool.id === "garden" ? "w-[364px]" : "w-80"

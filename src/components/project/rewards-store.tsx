@@ -15,10 +15,12 @@ import {
   Gift,
   Inbox,
   PackageOpen,
+  Pencil,
   Plus,
   Search,
   Sparkles,
   Store,
+  Trash2,
   Wallet,
   X
 } from "lucide-react";
@@ -184,6 +186,8 @@ export function RewardsStore({
   const [rewardIconSrc, setRewardIconSrc] = useState<string>(defaultRewardIcon.src);
 
   // Modals & confirmation intents
+  const [editingReward, setEditingReward] = useState<Reward | null>(null);
+  const [deletingReward, setDeletingReward] = useState<Reward | null>(null);
   const [confirmRedeemReward, setConfirmRedeemReward] = useState<Reward | null>(null);
   const [confirmApproveRedemption, setConfirmApproveRedemption] = useState<Redemption | null>(null);
   const [confirmSeedPresets, setConfirmSeedPresets] = useState(false);
@@ -345,6 +349,70 @@ export function RewardsStore({
       }
     } catch {
       toast({ message: "Connection failure while creating reward.", type: "error" });
+    }
+  }
+
+  function openEditReward(reward: Reward) {
+    setEditingReward(reward);
+    setRewardName(reward.name);
+    setRewardDesc(reward.description ?? "");
+    setRewardPrice(reward.price);
+    setRewardHasQuantity(reward.hasQuantity);
+    setRewardQuantity(reward.quantity ?? 5);
+    setRewardDuration(reward.duration ?? "");
+    setRewardIconSrc(reward.image || defaultRewardIcon.src);
+  }
+
+  async function handleUpdateReward(event: React.FormEvent) {
+    event.preventDefault();
+    if (!editingReward || !rewardName.trim()) return;
+
+    try {
+      const res = await fetch(`/api/rewards/${editingReward.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: rewardName.trim(),
+          description: rewardDesc.trim() || null,
+          price: rewardPrice,
+          hasQuantity: rewardHasQuantity,
+          quantity: rewardHasQuantity ? rewardQuantity : null,
+          duration: rewardDuration.trim() || null,
+          image: rewardIconSrc
+        })
+      });
+
+      if (res.ok) {
+        setEditingReward(null);
+        toast({ message: "Reward updated successfully!", type: "success" });
+        await loadData();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast({ message: err.error ?? "Failed to update reward.", type: "error" });
+      }
+    } catch {
+      toast({ message: "Connection failure while updating reward.", type: "error" });
+    }
+  }
+
+  async function handleExecuteDelete() {
+    if (!deletingReward) return;
+
+    try {
+      const res = await fetch(`/api/rewards/${deletingReward.id}`, {
+        method: "DELETE"
+      });
+
+      if (res.ok) {
+        toast({ message: "Reward deleted successfully!", type: "success" });
+        setDeletingReward(null);
+        await loadData();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast({ message: err.error ?? "Failed to delete reward.", type: "error" });
+      }
+    } catch {
+      toast({ message: "Connection failure while deleting reward.", type: "error" });
     }
   }
 
@@ -834,6 +902,9 @@ export function RewardsStore({
                   activeProjectId={activeProjectId}
                   balance={balance}
                   reward={reward}
+                  isAdmin={activeIsProjectAdmin}
+                  onEdit={openEditReward}
+                  onDelete={(r) => setDeletingReward(r)}
                   onRedeem={(reward) => setConfirmRedeemReward(reward)}
                 />
               ))}
@@ -1002,6 +1073,44 @@ export function RewardsStore({
         />
       )}
 
+      {/* Edit Reward Modal */}
+      {editingReward && (
+        <CreateRewardModal
+          activeProjectId={activeProjectId}
+          isEditing={true}
+          rewardDesc={rewardDesc}
+          rewardDuration={rewardDuration}
+          rewardHasQuantity={rewardHasQuantity}
+          rewardIconSrc={rewardIconSrc}
+          rewardName={rewardName}
+          rewardPrice={rewardPrice}
+          rewardQuantity={rewardQuantity}
+          onApplyPreset={applyPreset}
+          onClose={() => setEditingReward(null)}
+          onDescriptionChange={setRewardDesc}
+          onDurationChange={setRewardDuration}
+          onHasQuantityChange={setRewardHasQuantity}
+          onNameChange={setRewardName}
+          onPriceChange={setRewardPrice}
+          onQuantityChange={setRewardQuantity}
+          onRewardIconChange={setRewardIconSrc}
+          onSubmit={handleUpdateReward}
+        />
+      )}
+
+      {/* Intent Confirm: Delete Reward */}
+      {deletingReward && (
+        <ConfirmModal
+          open={true}
+          title={`Delete Reward "${deletingReward.name}"?`}
+          message="Are you sure you want to delete this reward from the store? Members will no longer be able to claim it."
+          confirmLabel="Delete Reward"
+          variant="danger"
+          onClose={() => setDeletingReward(null)}
+          onConfirm={handleExecuteDelete}
+        />
+      )}
+
       {/* Reject Reason Modal */}
       {rejectingRedemptionId && (
         <RejectRewardModal
@@ -1093,12 +1202,18 @@ function RewardCard({
   activeProjectId,
   balance,
   onRedeem,
-  reward
+  reward,
+  isAdmin,
+  onEdit,
+  onDelete
 }: {
   activeProjectId?: string;
   balance: number;
   onRedeem: (reward: Reward) => void;
   reward: Reward;
+  isAdmin?: boolean;
+  onEdit?: (reward: Reward) => void;
+  onDelete?: (reward: Reward) => void;
 }) {
   const isAffordable = balance >= reward.price;
   const isOutOfStock = reward.hasQuantity && reward.quantity !== null && reward.quantity < 1;
@@ -1112,10 +1227,40 @@ function RewardCard({
           <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/35 shadow-2xs">
             <RewardIcon label={icon.label} src={iconSrc} />
           </div>
-          <span className="inline-flex items-center gap-1 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-1 text-xs font-bold text-dusk-amber shadow-2xs">
-            <Coins className="h-3 w-3" />
-            {reward.price} Coins
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-1 text-xs font-bold text-dusk-amber shadow-2xs">
+              <Coins className="h-3 w-3" />
+              {reward.price} Coins
+            </span>
+            {isAdmin && onEdit && onDelete && (
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(reward);
+                  }}
+                  className="grid h-7 w-7 place-items-center rounded-lg border border-stone-200/80 bg-stone-100/60 text-stone-600 hover:bg-stone-200 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer"
+                  title="Edit reward"
+                  aria-label={`Edit ${reward.name}`}
+                >
+                  <Pencil className="h-3 w-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(reward);
+                  }}
+                  className="grid h-7 w-7 place-items-center rounded-lg border border-red-500/20 bg-red-500/10 text-red-600 hover:bg-red-500/20 hover:text-red-700 dark:border-red-400/20 dark:bg-red-500/15 dark:text-red-400 dark:hover:bg-red-500/25 transition cursor-pointer"
+                  title="Delete reward"
+                  aria-label={`Delete ${reward.name}`}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         <h4 className="mt-3 line-clamp-1 text-base font-bold text-stone-900 dark:text-stone-100">{reward.name}</h4>
         <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-stone-500 dark:text-stone-400">
@@ -1242,6 +1387,7 @@ function EmptySmall({ text }: { text: string }) {
 
 function CreateRewardModal({
   activeProjectId,
+  isEditing = false,
   onApplyPreset,
   onClose,
   onDescriptionChange,
@@ -1261,6 +1407,7 @@ function CreateRewardModal({
   rewardQuantity
 }: {
   activeProjectId?: string;
+  isEditing?: boolean;
   onApplyPreset: (preset: (typeof REWARD_PRESETS)[number]) => void;
   onClose: () => void;
   onDescriptionChange: (value: string) => void;
@@ -1293,7 +1440,7 @@ function CreateRewardModal({
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-dusk-amber font-semibold">Catalog Editor</p>
             <h2 id="create-reward-title" className="mt-1 text-xl font-bold text-stone-900 dark:text-stone-100">
-              Create New Reward
+              {isEditing ? "Edit Reward" : "Create New Reward"}
             </h2>
           </div>
           <button className="rounded-lg p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer" type="button" onClick={onClose}>

@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
             ? await prisma.user.findUnique({ where: { email: identifier.value } })
             : await prisma.user.findUnique({ where: { username: identifier.value } });
 
-        if (!user) {
+        if (!user || user.status === "SUSPENDED") {
           return null;
         }
 
@@ -59,7 +59,8 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          globalRole: user.globalRole
+          globalRole: user.globalRole,
+          status: user.status
         };
       }
     })
@@ -69,6 +70,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.globalRole = user.globalRole ?? "USER";
+        token.status = (user as any).status ?? "ACTIVE";
       }
 
       return token;
@@ -76,7 +78,8 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.globalRole = token.globalRole as string ?? "USER";
+        session.user.globalRole = (token.globalRole as string) ?? "USER";
+        (session.user as any).status = (token.status as string) ?? "ACTIVE";
       }
 
       return session;

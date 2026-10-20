@@ -4,9 +4,16 @@ import { jsonError, parseError } from "@/lib/api";
 import { normalizeEmail, resetPasswordSchema, verifyOtp } from "@/lib/auth/password-reset";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rl = checkRateLimit(`reset-password:${ip}`, { max: 10, windowMs: 15 * 60 * 1000 });
+    if (!rl.success) {
+      return jsonError("Too many attempts. Please try again later.", 429);
+    }
+
     const payload = resetPasswordSchema.parse(await request.json());
     const email = normalizeEmail(payload.email);
     const resetOtp = await prisma.passwordResetOtp.findFirst({

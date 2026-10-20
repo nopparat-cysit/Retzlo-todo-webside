@@ -2,9 +2,19 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rl = checkRateLimit(`contact:${ip}`, { max: 5, windowMs: 15 * 60 * 1000 });
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Too many contact requests. Please wait a few minutes before trying again." },
+        { status: 429 }
+      );
+    }
+
     const session = await getServerSession(authOptions);
     const body = await request.json();
 

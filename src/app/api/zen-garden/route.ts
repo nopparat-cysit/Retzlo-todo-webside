@@ -70,6 +70,10 @@ export async function POST(request: Request) {
 
     if (!user) return jsonError("User not found.", 404);
 
+    const existingRawZenGarden =
+      typeof user.zenGarden === "object" && user.zenGarden !== null
+        ? (user.zenGarden as Record<string, unknown>)
+        : {};
     const currentState = parseZenGardenState(user.zenGarden);
     const todayStr = new Date().toISOString().split("T")[0];
 
@@ -100,7 +104,10 @@ export async function POST(request: Request) {
           where: { id: userId },
           data: {
             globalCoins: { increment: bonusCoins },
-            zenGarden: nextState
+            zenGarden: {
+              ...existingRawZenGarden,
+              ...nextState
+            }
           },
           select: {
             globalCoins: true,
@@ -162,7 +169,12 @@ export async function POST(request: Request) {
 
       await prisma.user.update({
         where: { id: userId },
-        data: { zenGarden: nextState }
+        data: {
+          zenGarden: {
+            ...existingRawZenGarden,
+            ...nextState
+          }
+        }
       });
 
       return NextResponse.json({
@@ -180,7 +192,12 @@ export async function POST(request: Request) {
 
       await prisma.user.update({
         where: { id: userId },
-        data: { zenGarden: nextState }
+        data: {
+          zenGarden: {
+            ...existingRawZenGarden,
+            ...nextState
+          }
+        }
       });
 
       return NextResponse.json({

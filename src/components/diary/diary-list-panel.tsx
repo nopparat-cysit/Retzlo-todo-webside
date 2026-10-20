@@ -2,12 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState, useEffect, useCallback } from "react";
 import {
   BookOpenCheck,
   Calendar,
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   Coins,
   Eye,
@@ -85,6 +88,12 @@ type DiaryItemWithSummary = ProjectDiaryItem & {
   isDueToday: boolean;
 };
 
+function shiftDateStr(dateStr: string, days: number): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const target = new Date(Date.UTC(y, m - 1, d + days));
+  return target.toISOString().slice(0, 10);
+}
+
 export function DiaryListPanel({
   projectId,
   initialItems,
@@ -92,6 +101,7 @@ export function DiaryListPanel({
   allowMemberPrivateItems,
   isOwner
 }: DiaryListPanelProps) {
+  const router = useRouter();
   const [items, setItems] = useState<ProjectDiaryItem[]>(initialItems);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProjectDiaryItem | null>(null);
@@ -257,11 +267,50 @@ export function DiaryListPanel({
               <BookOpenCheck className="h-3.5 w-3.5" />
               Diary List
             </div>
-            <div className="mt-0.5 flex flex-wrap items-baseline gap-2">
-              <h2 className="text-xl font-bold leading-tight text-stone-100 sm:text-2xl">Today rhythm</h2>
-              <span className="inline-flex items-center rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-0.5 text-xs font-medium font-mono text-dusk-amber">
-                {formatMediumDate(`${selectedDate}T00:00:00.000Z`)}
-              </span>
+            <div className="mt-1 flex flex-wrap items-center gap-2.5">
+              <h2 className="text-xl font-bold leading-tight text-foreground dark:text-stone-100 sm:text-2xl">
+                {selectedDate === new Date().toISOString().slice(0, 10) ? "Today rhythm" : "Diary rhythm"}
+              </h2>
+
+              {/* Day Navigation Controls: [<] [Today] [>] */}
+              <div className="flex items-center rounded-xl border border-border/60 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => router.push(`/project/${projectId}/diary?date=${shiftDateStr(selectedDate, -1)}`)}
+                  className="grid h-7 w-7 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
+                  aria-label="Previous day"
+                  title="Previous day"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/project/${projectId}/diary?date=${new Date().toISOString().slice(0, 10)}`)}
+                  className="px-2 h-7 rounded-lg text-xs font-semibold text-stone-700 hover:bg-black/5 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer"
+                >
+                  Today
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/project/${projectId}/diary?date=${shiftDateStr(selectedDate, 1)}`)}
+                  className="grid h-7 w-7 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer"
+                  aria-label="Next day"
+                  title="Next day"
+                >
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {/* Inline Date Picker */}
+              <div className="w-36">
+                <DatePicker
+                  value={selectedDate}
+                  onChange={(val) => {
+                    if (val) router.push(`/project/${projectId}/diary?date=${val}`);
+                  }}
+                  triggerClassName="h-7 text-xs font-mono py-0 px-2"
+                />
+              </div>
             </div>
             <p className="mt-1 max-w-xl text-xs text-stone-400 leading-relaxed line-clamp-2 sm:line-clamp-none">
               Recurring checklists for the routines that matter today. Upcoming items stay calm and lower in priority.

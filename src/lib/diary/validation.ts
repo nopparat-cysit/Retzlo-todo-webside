@@ -42,7 +42,7 @@ export const createDiaryItemSchema = z.object({
   selectedDate: dateKeySchema.optional()
 });
 
-export const updateDiaryItemSchema = createDiaryItemSchema.partial();
+export const updateDiaryItemSchema = createDiaryItemSchema.omit({ rewardClaimedDates: true }).partial();
 
 export function parseCreateDiaryItemPayload(payload: unknown, hasProject = true) {
   const parsed = createDiaryItemSchema.parse(payload);
@@ -63,6 +63,6 @@ export function parseUpdateDiaryItemPayload(payload: unknown, fallbackStartDate?
     ...parsed,
     checklist: parsed.checklist ? normalizeDiaryChecklist(parsed.checklist, parsed.startDate ?? fallbackStartDate) : undefined,
     rewardCoinType: parsed.rewardCoinType ? normalizeDiaryRewardCoinType(parsed.rewardCoinType, hasProject) : undefined,
-    rewardClaimedDates: parsed.rewardClaimedDates ? normalizeDiaryRewardClaimedDates(parsed.rewardClaimedDates) : undefined
+    rewardClaimedDates: undefined
   };
 }

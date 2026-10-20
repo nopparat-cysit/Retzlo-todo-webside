@@ -27,6 +27,14 @@ import {
   type CalendarFilterState,
   type CalendarViewMode
 } from "@/lib/calendar/view";
+
+function shiftMonthKey(dateKey: string, monthsDelta: number): string {
+  const parts = dateKey.split("-");
+  const year = Number(parts[0]);
+  const month = Number(parts[1]) - 1;
+  const target = new Date(year, month + monthsDelta, 1);
+  return toDateKey(target);
+}
 import { formatMediumDate, formatShortDate, formatShortDue, formatTime, formatWeekday } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
 import { getPriorityMeta } from "@/lib/kanban/priority";
@@ -521,7 +529,7 @@ export function ProjectCalendar({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base sm:text-xl font-bold tracking-tight text-stone-100">{currentMonthLabel}</h2>
+                    <h2 className="text-base sm:text-xl font-bold tracking-tight text-foreground dark:text-stone-100">{currentMonthLabel}</h2>
                     <span className="rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold text-dusk-amber truncate">
                       {rangeLabel}
                     </span>
@@ -530,10 +538,10 @@ export function ProjectCalendar({
               </div>
 
               {/* Navigation Controls: [<] [Today] [>] */}
-              <div className="flex items-center rounded-xl border border-white/10 bg-white/[0.03] p-0.5 shadow-inner">
+              <div className="flex items-center rounded-xl border border-border/50 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner">
                 <button
                   type="button"
-                  onClick={() => setAnchorDate((value) => shiftDateKey(value, viewMode === "month" ? -30 : -calendarDays.length))}
+                  onClick={() => setAnchorDate((value) => viewMode === "month" ? shiftMonthKey(value, -1) : shiftDateKey(value, -calendarDays.length))}
                   className="grid h-8 w-8 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
                   aria-label="Previous month or week"
                   title="Previous"
@@ -549,7 +557,7 @@ export function ProjectCalendar({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAnchorDate((value) => shiftDateKey(value, viewMode === "month" ? 30 : calendarDays.length))}
+                  onClick={() => setAnchorDate((value) => viewMode === "month" ? shiftMonthKey(value, 1) : shiftDateKey(value, calendarDays.length))}
                   className="grid h-8 w-8 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer active:scale-95"
                   aria-label="Next month or week"
                   title="Next"
@@ -710,16 +718,16 @@ export function ProjectCalendar({
                 />
               </Panel>
             ) : (
-              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 shadow-xl">
+              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/60 dark:border-white/10 shadow-xl">
                 {/* Weekday Header */}
                 <div
-                  className="grid border-b border-white/10 bg-white/[0.035] text-center text-[10px] sm:text-xs font-semibold uppercase tracking-normal sm:tracking-[0.2em] text-stone-400"
+                  className="grid border-b border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/[0.035] text-center text-[10px] sm:text-xs font-semibold uppercase tracking-normal sm:tracking-[0.2em] text-muted-foreground dark:text-stone-400"
                   style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}
                 >
                   {calendarDays.slice(0, dayColumnCount).map((day) => {
                     const isWeekend = day.date.getDay() === 0 || day.date.getDay() === 6;
                     return (
-                      <div key={`label-${day.key}`} className={cn("py-2.5", isWeekend ? "text-stone-500" : "text-stone-300")}>
+                      <div key={`label-${day.key}`} className={cn("py-2.5", isWeekend ? "text-stone-400 dark:text-stone-500" : "text-foreground/80 dark:text-stone-300")}>
                         {formatWeekday(day.date)}
                       </div>
                     );
@@ -728,7 +736,7 @@ export function ProjectCalendar({
 
                 {/* Days Grid */}
                 <div
-                  className="grid min-h-0 flex-1 gap-px bg-white/10 overflow-y-auto scrollbar-soft"
+                  className="grid min-h-0 flex-1 gap-px bg-border/60 dark:bg-white/10 overflow-y-auto scrollbar-soft"
                   style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}
                 >
                   {calendarDays.map((day) => {
@@ -770,8 +778,8 @@ export function ProjectCalendar({
                         onClick={() => setSelectedDayKey(key)}
                         className={cn(
                           "group relative flex min-h-[80px] sm:min-h-[135px] flex-col p-1.5 sm:p-2.5 transition cursor-pointer",
-                          current ? "bg-dusk-amber/[0.04]" : "bg-[#090817]",
-                          muted ? "opacity-35 bg-[#060512]" : "hover:bg-white/[0.025]"
+                          current ? "bg-dusk-amber/10 dark:bg-dusk-amber/[0.04]" : "bg-card dark:bg-[#090817]",
+                          muted ? "opacity-40 bg-muted/50 dark:bg-[#060512]" : "hover:bg-muted/40 dark:hover:bg-white/[0.025]"
                         )}
                       >
                         <div className="mb-1.5 flex items-center justify-between">
@@ -781,8 +789,8 @@ export function ProjectCalendar({
                               current
                                 ? "grid h-6 w-6 place-items-center rounded-full bg-dusk-amber text-ink-950 font-bold shadow-sm shadow-dusk-amber/30"
                                 : muted
-                                  ? "text-stone-600"
-                                  : "text-stone-300 group-hover:text-stone-100"
+                                  ? "text-muted-foreground/60 dark:text-stone-600"
+                                  : "text-foreground/80 dark:text-stone-300 group-hover:text-foreground dark:group-hover:text-stone-100"
                             )}
                           >
                             {day.date.getDate()}

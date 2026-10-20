@@ -151,7 +151,6 @@ export async function PATCH(request: Request, { params }: { params: { diaryItemI
           checklist: payload.checklist as unknown as Prisma.InputJsonValue | undefined,
           rewardCoins: payload.rewardCoins,
           rewardCoinType: payload.rewardCoinType,
-          rewardClaimedDates: payload.rewardClaimedDates as unknown as Prisma.InputJsonValue | undefined,
           isStarred: payload.isStarred,
           isHidden: payload.isHidden,
           dueTime: payload.dueTime !== undefined ? payload.dueTime : undefined

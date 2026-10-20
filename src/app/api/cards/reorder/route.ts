@@ -4,7 +4,7 @@ import { z } from "zod";
 import { jsonError, parseError } from "@/lib/api";
 import { processCardDonePayouts } from "@/lib/kanban/payout";
 import { prisma } from "@/lib/prisma";
-import { assertProjectMember, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
+import { assertProjectMember, canAccessBoard, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
 import { logBoardActivity } from "@/lib/kanban/activity-logger";
 
@@ -48,11 +48,28 @@ export async function PATCH(request: Request) {
           id: { in: [payload.sourceColumnId, payload.destinationColumnId] },
           board: { projectId }
         },
-        select: { id: true, name: true }
+        select: {
+          id: true,
+          name: true,
+          board: {
+            select: {
+              id: true,
+              isPrivate: true,
+              members: { select: { userId: true } }
+            }
+          }
+        }
       });
 
       if (columns.length !== (payload.sourceColumnId === payload.destinationColumnId ? 1 : 2)) {
         throw new Error("Invalid reorder columns.");
+      }
+
+      // Check board access for both source and destination
+      for (const col of columns) {
+        if (!col.board || !canAccessBoard(col.board, userId, membership.role)) {
+          throw new Error("You do not have access to this board.");
+        }
       }
 
       const destinationColumn = await tx.column.findUnique({
@@ -62,6 +79,31 @@ export async function PATCH(request: Request) {
 
       if (!destinationColumn) {
         throw new Error("Destination column not found.");
+      }
+
+      // Verify that all submitted card IDs belong to the affected columns in this project
+      const existingCards = await tx.card.findMany({
+        where: {
+          columnId: { in: [payload.sourceColumnId, payload.destinationColumnId] },
+          column: { board: { projectId } }
+        },
+        select: { id: true, columnId: true, position: true }
+      });
+
+      const validCardIds = new Set(existingCards.map((c) => c.id));
+      if (!validCardIds.has(payload.cardId)) {
+        throw new Error("Card does not belong to the reorder columns.");
+      }
+
+      const allSubmittedIds =
+        payload.sourceColumnId === payload.destinationColumnId
+          ? payload.destinationOrderedCardIds
+          : [...payload.sourceOrderedCardIds, ...payload.destinationOrderedCardIds];
+
+      for (const id of allSubmittedIds) {
+        if (!validCardIds.has(id)) {
+          throw new Error("Invalid card ID in reorder list.");
+        }
       }
 
       targetBoardId = destinationColumn.boardId;
@@ -115,8 +157,16 @@ export async function PATCH(request: Request) {
               }))
             ];
 
+      // Optimize updates: only execute updates for cards whose position or column actually changed
+      const existingMap = new Map(existingCards.map((c) => [c.id, c]));
+      const changedUpdates = updates.filter((u) => {
+        const ex = existingMap.get(u.id);
+        if (!ex) return true;
+        return ex.columnId !== u.columnId || ex.position !== u.position || u.id === payload.cardId;
+      });
+
       await Promise.all(
-        updates.map((update) =>
+        changedUpdates.map((update) =>
           tx.card.update({
             where: { id: update.id },
             data: {

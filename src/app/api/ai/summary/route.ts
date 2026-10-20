@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
-import { assertProjectMember, requireUserId } from "@/lib/project-auth";
+import { assertProjectMember, canAccessBoard, requireUserId } from "@/lib/project-auth";
 import { AI_CREDIT_COSTS, deductUserAiCredit, getUserAiQuota } from "@/lib/ai/credits";
 import { generateProjectSummary } from "@/lib/ai/engine";
 
@@ -44,9 +44,21 @@ export async function POST(request: Request) {
     if (payload.boardId) {
       const board = await prisma.board.findUnique({
         where: { id: payload.boardId },
-        select: { name: true }
+        select: {
+          id: true,
+          name: true,
+          projectId: true,
+          isPrivate: true,
+          members: { select: { userId: true } }
+        }
       });
-      if (board) boardName = board.name;
+      if (!board || board.projectId !== payload.projectId) {
+        return jsonError("Board not found in the specified project", 404);
+      }
+      if (!canAccessBoard(board, userId, membership.role)) {
+        return jsonError("You do not have permission to access this private board", 403);
+      }
+      boardName = board.name;
     }
 
     // 1. Verify quota before expensive AI analysis

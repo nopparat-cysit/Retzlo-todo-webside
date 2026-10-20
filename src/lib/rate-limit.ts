@@ -7,14 +7,15 @@ const store = new Map<string, RateLimitRecord>();
 
 // Cleanup interval: prune keys older than 1 hour every 10 minutes
 const CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
+const MAX_RATE_LIMIT_RETENTION_MS = 60 * 60 * 1000; // 1 hour retention
 let lastCleanup = Date.now();
 
-function pruneExpired(windowMs: number) {
+function pruneExpired() {
   const now = Date.now();
   if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
   lastCleanup = now;
 
-  const expiryCutoff = now - windowMs;
+  const expiryCutoff = now - MAX_RATE_LIMIT_RETENTION_MS;
   for (const [key, record] of store.entries()) {
     const validTimestamps = record.timestamps.filter((ts) => ts > expiryCutoff);
     if (validTimestamps.length === 0) {
@@ -51,7 +52,7 @@ export function checkRateLimit(key: string, options: RateLimitOptions): RateLimi
   const now = Date.now();
   const windowStart = now - windowMs;
 
-  pruneExpired(windowMs);
+  pruneExpired();
 
   const record = store.get(key) ?? { timestamps: [] };
   // Keep only timestamps within the current sliding window

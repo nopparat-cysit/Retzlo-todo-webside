@@ -31,7 +31,7 @@ export interface UseLiveSyncOptions {
 
 export function useLiveSync({
   channelKey,
-  intervalMs = 1000,
+  intervalMs = 8000,
   canSync,
   onSync,
   enabled = true,
@@ -40,6 +40,8 @@ export function useLiveSync({
   const canSyncRef = useRef(canSync);
   const isSyncingRef = useRef(false);
   const channelRef = useRef<BroadcastChannel | null>(null);
+  const isPusherConnectedRef = useRef(false);
+  const lastPusherPollRef = useRef(0);
 
   const keysKey = Array.isArray(channelKey)
     ? channelKey.filter(Boolean).sort().join("::")
@@ -185,13 +187,28 @@ export function useLiveSync({
       }
     });
 
+    if (pusher.connection?.state === "connected") {
+      isPusherConnectedRef.current = true;
+    }
+
     const handleConnected = () => {
+      isPusherConnectedRef.current = true;
       triggerSync();
     };
+    const handleDisconnected = () => {
+      isPusherConnectedRef.current = false;
+    };
+
     pusher.connection.bind("connected", handleConnected);
+    pusher.connection.bind("disconnected", handleDisconnected);
+    pusher.connection.bind("unavailable", handleDisconnected);
+    pusher.connection.bind("failed", handleDisconnected);
 
     return () => {
       pusher.connection.unbind("connected", handleConnected);
+      pusher.connection.unbind("disconnected", handleDisconnected);
+      pusher.connection.unbind("unavailable", handleDisconnected);
+      pusher.connection.unbind("failed", handleDisconnected);
       subscribedChannels.forEach((channelName) => {
         try {
           const channel = pusher.channel(channelName);
@@ -229,7 +246,7 @@ export function useLiveSync({
     };
   }, [enabled, triggerSync]);
 
-  // Active Polling Interval (pauses when document is hidden)
+  // Active Polling Interval (pauses when document is hidden, throttled when Pusher is connected)
   useEffect(() => {
     if (!enabled || intervalMs <= 0 || typeof window === "undefined") return;
 
@@ -237,6 +254,14 @@ export function useLiveSync({
       // Only poll when the document is currently visible to conserve resources
       if (typeof document !== "undefined" && document.visibilityState === "hidden") {
         return;
+      }
+      // If Pusher WebSocket is connected and healthy, relax background fallback polling to 60s
+      if (isPusherConnectedRef.current) {
+        const now = Date.now();
+        if (now - lastPusherPollRef.current < 60000) {
+          return;
+        }
+        lastPusherPollRef.current = now;
       }
       triggerSync();
     }, intervalMs);

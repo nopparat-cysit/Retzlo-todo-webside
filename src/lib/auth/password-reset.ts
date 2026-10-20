@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
@@ -30,7 +31,7 @@ export function normalizeEmail(email: string) {
 }
 
 export function generateOtp() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(randomInt(100000, 1000000));
 }
 
 export function getOtpExpiry(from = new Date()) {

@@ -8,6 +8,7 @@ import { cardColorValues, normalizeCardColor } from "@/lib/theme/card-colors";
 import type { CardStatus, ChecklistItem } from "@/types/kanban";
 import {
   assertProjectMember,
+  canAccessBoard,
   getProjectIdForCard,
   getProjectIdForColumn,
   requireUserId
@@ -103,24 +104,37 @@ export async function GET(request: Request) {
       return jsonError("Card ID is required.", 400);
     }
 
-    const projectId = await getProjectIdForCard(cardId);
+    const card = await prisma.card.findUnique({
+      where: { id: cardId },
+      include: {
+        column: {
+          select: {
+            board: {
+              select: {
+                id: true,
+                projectId: true,
+                isPrivate: true,
+                members: { select: { userId: true } }
+              }
+            }
+          }
+        }
+      }
+    });
 
-    if (!projectId) {
+    if (!card || !card.column?.board) {
       return jsonError("Card not found.", 404);
     }
 
+    const projectId = card.column.board.projectId;
     const membership = await assertProjectMember(projectId, userId);
 
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
     }
 
-    const card = await prisma.card.findUnique({
-      where: { id: cardId }
-    });
-
-    if (!card) {
-      return jsonError("Card not found.", 404);
+    if (!canAccessBoard(card.column.board, userId, membership.role)) {
+      return jsonError("You do not have access to this board.", 403);
     }
 
     return NextResponse.json({ card: serializeCard(card) });
@@ -138,16 +152,34 @@ export async function POST(request: Request) {
     }
 
     const payload = createCardSchema.parse(await request.json());
-    const projectId = await getProjectIdForColumn(payload.columnId);
+    const column = await prisma.column.findUnique({
+      where: { id: payload.columnId },
+      select: {
+        id: true,
+        board: {
+          select: {
+            id: true,
+            projectId: true,
+            isPrivate: true,
+            members: { select: { userId: true } }
+          }
+        }
+      }
+    });
 
-    if (!projectId) {
+    if (!column || !column.board) {
       return jsonError("Column not found.", 404);
     }
 
+    const projectId = column.board.projectId;
     const membership = await assertProjectMember(projectId, userId);
 
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
+    }
+
+    if (!canAccessBoard(column.board, userId, membership.role)) {
+      return jsonError("You do not have access to this board.", 403);
     }
 
     const position = await prisma.card.count({
@@ -246,16 +278,38 @@ export async function PATCH(request: Request) {
     }
 
     const payload = updateCardSchema.parse(await request.json());
-    const projectId = await getProjectIdForCard(payload.cardId);
+    const existingCardRecord = await prisma.card.findUnique({
+      where: { id: payload.cardId },
+      select: {
+        id: true,
+        column: {
+          select: {
+            board: {
+              select: {
+                id: true,
+                projectId: true,
+                isPrivate: true,
+                members: { select: { userId: true } }
+              }
+            }
+          }
+        }
+      }
+    });
 
-    if (!projectId) {
+    if (!existingCardRecord || !existingCardRecord.column?.board) {
       return jsonError("Card not found.", 404);
     }
 
+    const projectId = existingCardRecord.column.board.projectId;
     const membership = await assertProjectMember(projectId, userId);
 
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
+    }
+
+    if (!canAccessBoard(existingCardRecord.column.board, userId, membership.role)) {
+      return jsonError("You do not have access to this board.", 403);
     }
 
     let newlyAssignedRecipients: string[] = [];
@@ -324,6 +378,18 @@ export async function PATCH(request: Request) {
           ...currentCoins,
           ...incomingCoins
         };
+
+        // Protect claimed status from being tampered or reset by client
+        if (currentCoins.projectCoinsClaimed === true) {
+          mergedCoins.projectCoinsClaimed = true;
+        }
+        for (const [key, val] of Object.entries(currentCoins)) {
+          if (val && typeof val === "object" && (val as any).claimed === true) {
+            if (mergedCoins[key] && typeof mergedCoins[key] === "object") {
+              (mergedCoins[key] as any).claimed = true;
+            }
+          }
+        }
 
         if (payload.difficulty !== undefined) {
           mergedCoins = withDifficulty(mergedCoins, payload.difficulty);
@@ -444,16 +510,42 @@ export async function DELETE(request: Request) {
       return jsonError("Invalid card id.", 422);
     }
 
-    const projectId = await getProjectIdForCard(parsedCardId.data);
+    const existingCard = await prisma.card.findUnique({
+      where: { id: parsedCardId.data },
+      select: {
+        id: true,
+        title: true,
+        position: true,
+        columnId: true,
+        column: {
+          select: {
+            boardId: true,
+            board: {
+              select: {
+                id: true,
+                projectId: true,
+                isPrivate: true,
+                members: { select: { userId: true } }
+              }
+            }
+          }
+        }
+      }
+    });
 
-    if (!projectId) {
+    if (!existingCard || !existingCard.column?.board) {
       return jsonError("Card not found.", 404);
     }
 
+    const projectId = existingCard.column.board.projectId;
     const membership = await assertProjectMember(projectId, userId);
 
     if (!membership) {
       return jsonError("You do not have access to this project.", 403);
+    }
+
+    if (!canAccessBoard(existingCard.column.board, userId, membership.role)) {
+      return jsonError("You do not have access to this board.", 403);
     }
 
     const card = await prisma.card.delete({
@@ -464,20 +556,17 @@ export async function DELETE(request: Request) {
         column: { select: { boardId: true } }
       }
     });
-    const remainingCards = await prisma.card.findMany({
-      where: { columnId: card.columnId },
-      orderBy: { position: "asc" },
-      select: { id: true }
-    });
 
-    await prisma.$transaction(
-      remainingCards.map((remainingCard, position) =>
-        prisma.card.update({
-          where: { id: remainingCard.id },
-          data: { position }
-        })
-      )
-    );
+    // Atomic single-query decrement for remaining card positions
+    await prisma.card.updateMany({
+      where: {
+        columnId: existingCard.columnId,
+        position: { gt: existingCard.position }
+      },
+      data: {
+        position: { decrement: 1 }
+      }
+    });
 
     await triggerPusherEvent(
       [`retzlo-project-${projectId}`, ...(card.column?.boardId ? [`retzlo-board-${card.column.boardId}`] : [])],
