@@ -76,13 +76,16 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 
 ### 2.5 Project Calendar & Day View Modal
 - **Project Calendar View (`/project/[id]/calendar`):**
-  - Month and week views aggregating Kanban cards, notes, and diary checklist items.
+  - Month, week, and 3-day (`3 Days`) views aggregating Kanban cards, notes, and diary checklist items.
+  - **Quick Add from Calendar Date:** Hovering over any date cell reveals a `+` button that opens a prefilled modal to quickly create a Task (with target board, column, priority, color, and time) or a Note without leaving the calendar.
   - **Smart Diary Calendar Filtering:** Daily routine checklists (`DAY` interval < 7 days) are withheld on upcoming future dates (`dateKey > todayKey`) until that day arrives to prevent calendar clutter, while weekly schedules (`intervalDays >= 7`) and monthly schedules (`repeatUnit === 'MONTH'`) appear in advance.
   - **Day View Modal:** Clicking any date opens a retro lofi indigo Day Overview:
-    - **Header & Full Date:** `CalendarDays` icon in neon lavender container with full date name and `Today` badge.
+    - **Header & Full Date:** `CalendarDays` icon in neon lavender container with full date name, `Today` badge, and "+ Add Item" shortcut.
     - **KPI Summary & Progress Bar:** Summary of total items, completed items, and gradient progress indicator (`0% - 100%`).
     - **Filter & Sort Toolbar:** Filter by type (Tasks / Notes / Diaries), status (Pending / Done), and sort by time, title, or priority.
     - **Polished Item Cards:** Left accent bar by item color, interactive completion checkbox with strike-through animation, type badges, and direct links to board/diary.
+    - **Action Controls:** "Add Item for this date" button opens the quick-creation dialog pre-filled with the active day.
+  - **Light/Dark Contrast & Weekend Distinction:** Saturday and Sunday cells feature soft tinted backgrounds, while card titles and pill badges maintain crisp readability across light and dark modes.
 - **Global Retro DatePicker:** Retro lofi calendar picker with quick presets (Today, Tomorrow, Next Week, Clear).
 - **Intuitive TimePicker:**
   - Direct typeable numeric inputs for hours and minutes with auto-advance and arrow steppers.
@@ -236,9 +239,11 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 
 #### ปฏิทินงานและตัวเลือกเวลา (Project Calendar & Day View Modal)
 - **Project Calendar View (`/project/[id]/calendar`):**
-  - แสดงภาพรวมงานตามกำหนดส่งในมุมมองเดือน (Month) และสัปดาห์ (Week) ครอบคลุมทั้ง Kanban Cards, Notes และ Diary Checklist
+  - แสดงภาพรวมงานตามกำหนดส่งในมุมมองเดือน (Month), สัปดาห์ (Week), และ 3 วัน (3 Days) ครอบคลุมทั้ง Kanban Cards, Notes และ Diary Checklist
+  - **Quick Add from Calendar Date (สร้างงานด่วนจากช่องวันที่):** เมื่อนำเมาส์ชี้ช่องวันที่ในปฏิทินจะมีปุ่ม `+` ปรากฏขึ้น สามารถกดเพื่อเปิดหน้าต่างสร้าง Task (เลือกบอร์ด, คอลัมน์, Priority, สี และเวลา) หรือ Quick Note ได้ทันทีโดยไม่ต้องสลับหน้าจอ
   - **Smart Diary Calendar Filtering (การกรองไดอารี่อัจฉริยะ):** รายการไดอารี่แบบรายวัน (Day Diary หรือช่วงทำซ้ำ < 7 วัน) จะแสดงเฉพาะวันที่ถึงกำหนดแล้ว (ไม่แสดงล่วงหน้าในอนาคตเพื่อป้องกันไม่ให้ปฏิทินรกไปด้วยกิจวัตรประจำวันซ้ำๆ) ในขณะที่กำหนดการแบบสัปดาห์ (Weekly: ทุก 7 วันขึ้นไป) หรือรายเดือน (Monthly: repeatUnit === 'MONTH') จะแสดงล่วงหน้าในปฏิทินตามปกติ เพื่อให้วางแผนงานล่วงหน้าได้
-  - **Day View Modal:** เมื่อคลิกที่ช่องวันที่ใดๆ ในปฏิทิน จะเปิดหน้าต่าง Day Overview ขนาดใหญ่สไตล์ Retro Lofi Indigo พร้อม KPI Summary, Progress Bar, ตัวกรอง Filter & Sort, และ Polished Item Cards
+  - **Day View Modal:** เมื่อคลิกที่ช่องวันที่ใดๆ ในปฏิทิน จะเปิดหน้าต่าง Day Overview ขนาดใหญ่สไตล์ Retro Lofi Indigo พร้อม KPI Summary, Progress Bar, ตัวกรอง Filter & Sort, ปุ่มทางลัด "+ Add Item for this date", และ Polished Item Cards
+  - **Light/Dark Mode Contrast & Weekend Distinction:** ยกระดับคอนทราสต์ข้อความในโหมดสว่างให้อ่านง่ายคมชัด พร้อมไฮไลต์แยกวันหยุดเสาร์-อาทิตย์อย่างชัดเจน
 - **Global Retro DatePicker:** ปฏิทินเลือกวันที่สไตล์ Retro Lofi Indigo พร้อม Presets ทางลัด (วันนี้/Today, พรุ่งนี้/Tomorrow, สุดสัปดาห์นี้, สัปดาห์หน้า/Next Week, ล้าง/Clear)
 - **Intuitive TimePicker:**
   - ตัวเลือกเวลาที่ออกแบบใหม่ให้ใช้งานง่าย มีช่องตัวเลขชั่วโมงและนาทีพิมพ์ได้โดยตรง พร้อมระบบข้ามโฟกัสอัตโนมัติ

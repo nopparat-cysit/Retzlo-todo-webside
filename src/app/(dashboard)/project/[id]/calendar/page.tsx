@@ -45,8 +45,13 @@ export default async function CalendarPage({ params }: { params: { id: string } 
         where: { projectId: params.id },
         select: {
           id: true,
+          name: true,
           isPrivate: true,
-          members: { select: { userId: true } }
+          members: { select: { userId: true } },
+          columns: {
+            select: { id: true, name: true, position: true },
+            orderBy: { position: "asc" }
+          }
         }
       })
     ]);
@@ -168,6 +173,12 @@ export default async function CalendarPage({ params }: { params: { id: string } 
     allowMemberPrivateItems: project.allowMemberPrivateItems
   });
 
+  const projectBoards = accessibleBoards.map((b) => ({
+    id: b.id,
+    name: b.name,
+    columns: (b.columns || []).map((c) => ({ id: c.id, name: c.name }))
+  }));
+
   return (
     <ProjectCalendar
       projectId={params.id}
@@ -176,6 +187,7 @@ export default async function CalendarPage({ params }: { params: { id: string } 
       initialDiaryItems={initialDiaryItems}
       members={members}
       currentUserId={userId}
+      projectBoards={projectBoards}
     />
   );
 }

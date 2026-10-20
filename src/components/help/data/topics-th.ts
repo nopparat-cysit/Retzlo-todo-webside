@@ -480,14 +480,17 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-amber-600 dark:text-dusk-amber",
     scopeBadge: "การจัดการเวลา",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "20 ต.ค. 2026",
     summary:
-      "ไม่พลาดทุกกำหนดส่งด้วยมุมมองปฏิทินแบบรอบด้าน ทั้งระดับโปรเจกต์และภาพรวมทุกงาน พร้อม Global DatePicker และ Single-Column TimePicker",
+      "ไม่พลาดทุกกำหนดส่งด้วยมุมมองปฏิทินแบบรอบด้าน ทั้งเดือน สัปดาห์ และ 3 วัน พร้อมระบบ Quick-Add สร้างงานตรงจากช่องวันที่, Day View modal, และ Single-Column TimePicker",
     concept:
       "ปฏิทินของ Retzlo ดึงข้อมูลกำหนดส่ง (Due Date) จากการ์ดในทุกบอร์ด และเชื่อมโยงกับรายการไดอารี่ประจำวัน เพื่อให้เห็นตารางชีวิตและการทำงานในที่เดียว",
     highlights: [
+      "Quick Add from Calendar Date: ชี้เมาส์ที่ช่องวันที่ในปฏิทินแล้วกด '+' เพื่อเปิดหน้าต่างสร้าง Task หรือ Note พร้อมตั้งเวลาและระบุบอร์ด/คอลัมน์ได้ทันที",
+      "โหมดแสดงผล 3 มุมมอง: เลือกสลับดูแบบ Month Overview (ทั้งเดือน), Week Timeline (สัปดาห์), และ 3 Days Mode (โฟกัส 3 วันติดกัน)",
       "Global Retro DatePicker: ดีไซน์เฉพาะตัวในโทน Retro Lofi Indigo สบายตา ไม่พึ่งปฏิทินเบราว์เซอร์ที่หน้าตาไม่เข้ากัน",
-      "Day View Modal: คลิกที่ช่องวันที่เพื่อเปิดหน้าต่าง Day Overview เต็มรูปแบบ พร้อมหัวข้อวันแบบเต็ม, แถบความคืบหน้า Progress Bar, และแถบกรอง/เรียงลำดับ",
+      "Day View Modal: คลิกที่ช่องวันที่เพื่อเปิดหน้าต่าง Day Overview เต็มรูปแบบ พร้อมหัวข้อวันแบบเต็ม, แถบความคืบหน้า Progress Bar, และปุ่มลัด '+ Add Item for this date'",
+      "High Contrast & Weekend Distinction: ข้อความคมชัดทั้งธีมสว่างและมืด พร้อมแยกไฮไลต์สีพื้นหลังวันเสาร์-อาทิตย์อย่างชัดเจน",
       "Tactile Item Cards: การ์ดแต่ละใบมีแถบสี Accent Bar ด้านซ้าย, ปุ่ม Checkbox ติ๊กเสร็จงานทันทีพร้อมขีดฆ่า, ป้ายประเภทคมชัด, และปุ่มลัด 'Open in Diary'",
       "Preset Shortcuts: ปุ่มลัดกำหนดวันด่วน 'วันนี้', 'พรุ่งนี้', 'สุดสัปดาห์นี้', 'สัปดาห์หน้า'",
       "TimePicker รุ่นใหม่: คลิกพิมพ์เวลาได้โดยตรง มีแถบเลื่อนแนวตั้งเดี่ยวไม่งง พร้อมปุ่มลัดเวลายอดนิยม และปุ่มยืนยัน 'ตกลง'",
@@ -499,12 +502,12 @@ export const TOPICS_TH: GuideTopic[] = [
       {
         step: "01",
         title: "เปิดมุมมองปฏิทิน",
-        desc: "คลิกเมนู Calendar ที่แถบด้านข้าง เพื่อดูงานทั้งหมดในมุมมองเดือนหรือสัปดาห์",
+        desc: "คลิกเมนู Calendar ที่แถบด้านข้าง เพื่อดูงานทั้งหมดในมุมมองเดือน สัปดาห์ หรือ 3 วัน",
       },
       {
         step: "02",
-        title: "คลิกดูรายละเอียดรายวัน (Day View)",
-        desc: "คลิกช่องวันที่ใดๆ เพื่อเปิด Day View Modal ดูรายการงาน โน้ต และไดอารี่ทั้งหมดในวันนั้น",
+        title: "สร้างงานด่วนหรือดูรายละเอียดวัน",
+        desc: "ชี้เมาส์ที่ช่องวันเพื่อกด '+' สร้าง Task/Note ทันที หรือคลิกช่องวันเพื่อเปิด Day View Modal ดูรายการทั้งหมด",
       },
       {
         step: "03",
@@ -513,7 +516,8 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Views", value: "Month Overview, Week Timeline, Day Overview Modal" },
+      { label: "Views", value: "Month Overview, Week Timeline, 3 Days Mode, Day Overview Modal" },
+      { label: "Quick Creation", value: "สร้าง Task/Note ตรงจากช่องวันที่พร้อมเลือกบอร์ด/คอลัมน์" },
       { label: "TimePicker Scroller", value: "Single-column linear with direct number input" },
       { label: "Presets", value: "Today, Tomorrow, This Weekend, Next Week" },
     ],

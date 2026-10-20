@@ -479,14 +479,17 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-amber-600 dark:text-dusk-amber",
     scopeBadge: "Time Management",
     readingTime: "3 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 20, 2026",
     summary:
-      "Stay ahead of deadlines with month and week calendar views, Day View modal, and intuitive single-column linear TimePicker.",
+      "Stay ahead of deadlines with month, week, and 3-day calendar views, date Quick-Add modal, Day View modal, and intuitive single-column linear TimePicker.",
     concept:
       "Pulls due dates across all boards, personal notes, and recurring habits into a single coordinated view, providing clarity on upcoming deadlines.",
     highlights: [
+      "Quick Add from Calendar Date: Hover over any date cell and click the '+' button to immediately schedule a new Task or Quick Note prefilled with that date.",
+      "View Modes: Switch between Month Overview, Week Timeline, and 3 Days focused view modes.",
       "Global Retro DatePicker: Bespoke Retro Lofi Indigo calendar design with quick presets (Today, Tomorrow, Weekend, Next Week).",
-      "Day View Modal: Click any calendar date to reveal the full day overview with KPI progress bars and filterable task cards.",
+      "Day View Modal: Click any calendar date to reveal the full day overview with KPI progress bars, filterable task cards, and '+ Add Item for this date'.",
+      "High Contrast & Weekend Distinction: Distinct Saturday/Sunday background tints and crisp light/dark text contrast on all calendar pills and badges.",
       "Tactile Item Cards: Feature left accent bars, real-time checkboxes, and direct navigation links to cards or diary items.",
       "Single-Column Linear TimePicker: Clean linear scrollers with direct numeric typing and auto-jump for hours and minutes.",
       "Popular Time Presets: Quick shortcut buttons (🌅 09:00 Morning, ☀️ 12:00 Noon, ☕ 13:30 Afternoon, 💼 17:00 End of Day, 🌙 20:00 Night).",
@@ -497,12 +500,12 @@ export const TOPICS_EN: GuideTopic[] = [
       {
         step: "01",
         title: "Open Calendar View",
-        desc: "Click Calendar in the sidebar to view tasks in month or week timeline mode.",
+        desc: "Click Calendar in the sidebar to view tasks in month, week, or 3-day timeline mode.",
       },
       {
         step: "02",
-        title: "Inspect Day Overview",
-        desc: "Click any date cell to open the Day View modal showing all tasks and habits due that day.",
+        title: "Quick Add or Inspect Day",
+        desc: "Hover over a date cell to click '+' for quick Task/Note creation, or click the cell to inspect the full Day View modal.",
       },
       {
         step: "03",
@@ -511,7 +514,8 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Views", value: "Month Overview, Week Timeline, Day Overview Modal" },
+      { label: "Views", value: "Month Overview, Week Timeline, 3 Days Mode, Day Overview Modal" },
+      { label: "Quick Creation", value: "Task/Note modal with target board & column selection" },
       { label: "TimePicker Scroller", value: "Single-column linear with direct number input" },
       { label: "Presets", value: "Today, Tomorrow, This Weekend, Next Week" },
     ],

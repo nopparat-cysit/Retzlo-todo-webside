@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, FormEvent, ReactNode } from "react";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { BookOpen, CalendarDays, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, Plus, RotateCcw, SlidersHorizontal, X } from "lucide-react";
+import { BookOpen, CalendarDays, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, Plus, RotateCcw, SlidersHorizontal, X } from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { CardModal } from "@/components/kanban/card-modal";
@@ -14,7 +14,8 @@ import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { FilterSelect } from "@/components/ui/filter-select";
-import { Input } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
+import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { EmptyState } from "@/components/ui/state";
 import {
@@ -85,13 +86,20 @@ export interface CalendarNote {
   isStarred: boolean;
 }
 
+export interface CalendarProjectBoard {
+  id: string;
+  name: string;
+  columns: Array<{ id: string; name: string }>;
+}
+
 export function ProjectCalendar({
   projectId,
   initialCards,
   initialNotes = [],
   initialDiaryItems = [],
   members = [],
-  currentUserId
+  currentUserId,
+  projectBoards = []
 }: {
   projectId: string;
   initialCards: CalendarCard[];
@@ -99,6 +107,7 @@ export function ProjectCalendar({
   initialDiaryItems?: ProjectDiaryItem[];
   members?: CardAssignee[];
   currentUserId?: string;
+  projectBoards?: CalendarProjectBoard[];
 }) {
   const [cards, setCards] = useState(initialCards);
   const [notes, setNotes] = useState(initialNotes);
@@ -192,6 +201,134 @@ export function ProjectCalendar({
   const [daySortBy, setDaySortBy] = useState<"time" | "title" | "priority">("time");
   const [isUpdateConfirmOpen, setIsUpdateConfirmOpen] = useState(false);
   const [pendingUpdatePayload, setPendingUpdatePayload] = useState<any>(null);
+
+  // Quick Add Event Modal State
+  const [quickAddDate, setQuickAddDate] = useState<string | null>(null);
+  const [quickAddType, setQuickAddType] = useState<"task" | "note">("task");
+  const [quickAddTitle, setQuickAddTitle] = useState("");
+  const [quickAddContent, setQuickAddContent] = useState("");
+  const [quickAddBoardId, setQuickAddBoardId] = useState<string>("");
+  const [quickAddColumnId, setQuickAddColumnId] = useState<string>("");
+  const [quickAddPriority, setQuickAddPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
+  const [quickAddColor, setQuickAddColor] = useState<CardColor>("DEFAULT");
+  const [quickAddTime, setQuickAddTime] = useState("");
+  const [quickAddIsAllDay, setQuickAddIsAllDay] = useState(true);
+  const [isQuickAddSubmitting, setIsQuickAddSubmitting] = useState(false);
+
+  const currentBoard = useMemo(() => {
+    return projectBoards?.find((b) => b.id === quickAddBoardId) ?? projectBoards?.[0];
+  }, [projectBoards, quickAddBoardId]);
+
+  useEffect(() => {
+    if (currentBoard && (!quickAddColumnId || !currentBoard.columns.some((c) => c.id === quickAddColumnId))) {
+      setQuickAddColumnId(currentBoard.columns[0]?.id ?? "");
+    }
+  }, [currentBoard, quickAddColumnId]);
+
+  const handleOpenQuickAdd = useCallback((dateKey: string) => {
+    setQuickAddDate(dateKey);
+    setQuickAddTitle("");
+    setQuickAddContent("");
+    setQuickAddType("task");
+    setQuickAddColor("DEFAULT");
+    setQuickAddPriority("MEDIUM");
+    setQuickAddTime("");
+    setQuickAddIsAllDay(true);
+
+    const defaultBoard = projectBoards?.[0];
+    if (defaultBoard) {
+      setQuickAddBoardId(defaultBoard.id);
+      setQuickAddColumnId(defaultBoard.columns[0]?.id ?? "");
+    } else if (cards.length > 0) {
+      setQuickAddBoardId(cards[0].column.boardId);
+      setQuickAddColumnId(cards[0].columnId);
+    }
+  }, [projectBoards, cards]);
+
+  const handleQuickAddSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!quickAddTitle.trim() || !quickAddDate) return;
+
+    setIsQuickAddSubmitting(true);
+    try {
+      if (quickAddType === "task") {
+        if (!quickAddColumnId) {
+          toast({ message: "Please select a target column for the task.", type: "error" });
+          setIsQuickAddSubmitting(false);
+          return;
+        }
+
+        const dueDate = quickAddIsAllDay || !quickAddTime
+          ? `${quickAddDate}T12:00:00.000Z`
+          : `${quickAddDate}T${quickAddTime}:00.000Z`;
+
+        const response = await fetch("/api/cards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            columnId: quickAddColumnId,
+            title: quickAddTitle.trim(),
+            dueDate,
+            dueDateAllDay: quickAddIsAllDay || !quickAddTime,
+            priority: quickAddPriority,
+            color: quickAddColor,
+            status: "TODO"
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok && data?.card) {
+          const newCard = normalizeCalendarCard(data.card, members);
+          setCards((prev) => [newCard, ...prev]);
+          toast({ message: `Task created for ${formatShortDate(new Date(quickAddDate + "T00:00:00.000Z"))}.`, type: "success" });
+          broadcastChange();
+          setQuickAddDate(null);
+        } else {
+          toast({ message: data?.error || "Failed to create task.", type: "error" });
+        }
+      } else {
+        const dueDate = quickAddIsAllDay || !quickAddTime
+          ? `${quickAddDate}T12:00:00.000Z`
+          : `${quickAddDate}T${quickAddTime}:00.000Z`;
+
+        const response = await fetch(`/api/projects/${projectId}/notes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: quickAddTitle.trim(),
+            content: quickAddContent.trim(),
+            color: quickAddColor,
+            dueDate,
+            dueDateAllDay: quickAddIsAllDay || !quickAddTime
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok && data?.note) {
+          const newNote: CalendarNote = {
+            id: data.note.id,
+            title: data.note.title,
+            content: data.note.content || "",
+            color: normalizeCardColor(data.note.color),
+            isStarred: Boolean(data.note.isStarred),
+            dueDate: data.note.dueDate || new Date().toISOString(),
+            dueDateAllDay: Boolean(data.note.dueDateAllDay)
+          };
+          setNotes((prev) => [newNote, ...prev]);
+          toast({ message: `Note created for ${formatShortDate(new Date(quickAddDate + "T00:00:00.000Z"))}.`, type: "success" });
+          broadcastChange();
+          setQuickAddDate(null);
+        } else {
+          toast({ message: data?.error || "Failed to create note.", type: "error" });
+        }
+      }
+    } catch {
+      toast({ message: "An unexpected error occurred.", type: "error" });
+    } finally {
+      setIsQuickAddSubmitting(false);
+    }
+  };
+
   const selectedCard = cards.find((card) => card.id === selectedCardId) ?? null;
   const selectedNote = notes.find((note) => note.id === selectedNoteId) ?? null;
   const todayKey = useMemo(() => toDateKey(new Date()), []);
@@ -580,7 +717,8 @@ export function ProjectCalendar({
                 value={viewMode}
                 items={[
                   { value: "month", label: "Month" },
-                  { value: "week", label: "Week" }
+                  { value: "week", label: "Week" },
+                  { value: "day3", label: "3 Days" }
                 ]}
                 onValueChange={(val) => setViewMode(val as CalendarViewMode)}
               />
@@ -777,6 +915,7 @@ export function ProjectCalendar({
                     });
 
                     const cellRenderItems = [...cardsAndNotes, ...diarySummaries];
+                    const isWeekend = day.date.getDay() === 0 || day.date.getDay() === 6;
 
                     return (
                       <section
@@ -784,29 +923,57 @@ export function ProjectCalendar({
                         onClick={() => setSelectedDayKey(key)}
                         className={cn(
                           "group relative flex min-h-[80px] sm:min-h-[135px] flex-col p-1.5 sm:p-2.5 transition cursor-pointer",
-                          current ? "bg-dusk-amber/10 dark:bg-dusk-amber/[0.04]" : "bg-card dark:bg-[#090817]",
-                          muted ? "opacity-40 bg-muted/50 dark:bg-[#060512]" : "hover:bg-muted/40 dark:hover:bg-white/[0.025]"
+                          current
+                            ? "bg-amber-500/10 dark:bg-dusk-amber/[0.08] ring-1 ring-inset ring-amber-500/30 dark:ring-dusk-amber/30"
+                            : muted
+                              ? "opacity-40 bg-stone-100/60 dark:bg-ink-950/70"
+                              : isWeekend
+                                ? "bg-stone-50/70 dark:bg-ink-950/30"
+                                : "bg-white dark:bg-ink-950/50",
+                          muted ? "" : "hover:bg-indigo-50/50 dark:hover:bg-white/[0.04]"
                         )}
                       >
                         <div className="mb-1.5 flex items-center justify-between">
-                          <span
-                            className={cn(
-                              "text-xs font-semibold transition",
-                              current
-                                ? "grid h-6 w-6 place-items-center rounded-full bg-dusk-amber text-ink-950 font-bold shadow-sm shadow-dusk-amber/30"
-                                : muted
-                                  ? "text-muted-foreground/60 dark:text-stone-600"
-                                  : "text-foreground/80 dark:text-stone-300 group-hover:text-foreground dark:group-hover:text-stone-100"
-                            )}
-                          >
-                            {day.date.getDate()}
-                          </span>
-
-                          {cellRenderItems.length > 3 ? (
-                            <span className="rounded-full bg-dusk-lavender/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold text-dusk-lavender group-hover:bg-dusk-lavender/20 transition">
-                              +{cellRenderItems.length - 3}<span className="hidden min-[480px]:inline"> more</span>
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={cn(
+                                "text-xs font-semibold transition",
+                                current
+                                  ? "grid h-6 w-6 place-items-center rounded-full bg-dusk-amber text-ink-950 font-bold shadow-sm shadow-dusk-amber/30"
+                                  : muted
+                                    ? "text-muted-foreground/50 dark:text-stone-600"
+                                    : "text-stone-800 dark:text-stone-300 group-hover:text-stone-950 dark:group-hover:text-stone-100"
+                              )}
+                            >
+                              {day.date.getDate()}
                             </span>
-                          ) : null}
+                            {current && (
+                              <span className="hidden min-[640px]:inline text-[9px] font-bold uppercase tracking-wider text-amber-700 dark:text-dusk-amber">
+                                Today
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenQuickAdd(key);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 grid h-5 w-5 place-items-center rounded-md border border-stone-300/80 bg-white text-stone-600 hover:border-indigo-500 hover:bg-indigo-50 hover:text-indigo-700 dark:border-white/20 dark:bg-white/10 dark:text-stone-300 dark:hover:border-dusk-lavender dark:hover:bg-white/20 dark:hover:text-white shadow-2xs cursor-pointer active:scale-90"
+                              title={`Add task for ${key}`}
+                              aria-label={`Add task for ${key}`}
+                            >
+                              <Plus className="h-3 w-3 stroke-[2.5]" />
+                            </button>
+
+                            {cellRenderItems.length > 3 ? (
+                              <span className="rounded-full bg-indigo-100/80 text-indigo-700 dark:bg-dusk-lavender/10 dark:text-dusk-lavender px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold transition">
+                                +{cellRenderItems.length - 3}<span className="hidden min-[480px]:inline"> more</span>
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
 
                         <div className="space-y-1.5 flex-1 min-h-0">
@@ -844,18 +1011,18 @@ export function ProjectCalendar({
                 aria-hidden="true"
               />
               <Panel className="fixed inset-y-2 right-2 z-50 flex w-[min(340px,calc(100vw-1rem))] shrink-0 flex-col overflow-hidden p-4 shadow-2xl lg:static lg:inset-auto lg:z-auto lg:w-80 lg:shadow-xl">
-              <div className="mb-3 flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="mb-3 flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-dusk-amber" />
-                  <h3 className="text-sm font-semibold text-stone-100">Upcoming</h3>
-                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-stone-400">
+                  <Clock className="h-4 w-4 text-amber-600 dark:text-dusk-amber" />
+                  <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">Upcoming</h3>
+                  <span className="rounded-full bg-stone-100 dark:bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-stone-600 dark:text-stone-400">
                     {filteredItems.length}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsUpcomingOpen(false)}
-                  className="rounded-lg p-1 text-stone-400 hover:bg-white/10 hover:text-stone-100 transition"
+                  className="rounded-lg p-1 text-stone-500 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
                   aria-label="Close upcoming panel"
                 >
                   <X className="h-4 w-4" />
@@ -995,14 +1162,24 @@ export function ProjectCalendar({
                 </h2>
               </div>
             </div>
-            <button
-              className="rounded-xl border border-stone-200/80 bg-stone-100/60 p-2 text-stone-500 transition hover:border-stone-300 hover:bg-stone-200/60 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer shrink-0"
-              type="button"
-              onClick={() => setSelectedDayKey(null)}
-              aria-label="Close day view"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleOpenQuickAdd(selectedDayKey)}
+                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-indigo-500/30 bg-indigo-50 px-3 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 hover:border-indigo-500/50 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/25 cursor-pointer active:scale-95"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Add Item</span>
+              </button>
+              <button
+                className="rounded-xl border border-stone-200/80 bg-stone-100/60 p-2 text-stone-500 transition hover:border-stone-300 hover:bg-stone-200/60 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer"
+                type="button"
+                onClick={() => setSelectedDayKey(null)}
+                aria-label="Close day view"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
           {/* Progress & Summary Bar */}
@@ -1374,13 +1551,14 @@ export function ProjectCalendar({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Link
-                href={`/project/${projectId}/board?date=${selectedDayKey}`}
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-dusk-lavender/40 bg-dusk-lavender/10 px-3 text-xs font-semibold text-dusk-lavender transition hover:bg-dusk-lavender/20 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+              <button
+                type="button"
+                onClick={() => handleOpenQuickAdd(selectedDayKey)}
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-indigo-500/40 bg-indigo-50 px-3 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender cursor-pointer active:scale-95"
               >
                 <Plus className="h-3.5 w-3.5" />
-                Add Task for this date
-              </Link>
+                Add Item for this date
+              </button>
               <Link
                 href={`/project/${projectId}/board`}
                 className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
@@ -1398,6 +1576,183 @@ export function ProjectCalendar({
               </Button>
             </div>
           </div>
+        </AppModal>
+      )}
+
+      {/* Quick Add Modal from Date */}
+      {quickAddDate && (
+        <AppModal
+          isOpen={Boolean(quickAddDate)}
+          onClose={() => setQuickAddDate(null)}
+          title={`Create Item for ${formatMediumDate(new Date(quickAddDate + "T00:00:00.000Z"))}`}
+          subtitle="Quickly schedule a new Task or Note directly from the calendar."
+          size="md"
+        >
+          <form onSubmit={handleQuickAddSubmit} className="space-y-4">
+            {/* Type Switcher */}
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Item Type
+              </label>
+              <SegmentedControl
+                className="w-full"
+                value={quickAddType}
+                onChange={(val) => setQuickAddType(val as "task" | "note")}
+                options={[
+                  { value: "task", label: "Task / Card" },
+                  { value: "note", label: "Quick Note" }
+                ]}
+              />
+            </div>
+
+            {/* Title */}
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-stone-700 dark:text-stone-300">
+                Title <span className="text-red-500">*</span>
+              </label>
+              <Input
+                autoFocus
+                type="text"
+                value={quickAddTitle}
+                onChange={(e) => setQuickAddTitle(e.target.value)}
+                placeholder={quickAddType === "task" ? "e.g. Design sprint review..." : "e.g. Meeting notes & ideas..."}
+                required
+              />
+            </div>
+
+            {quickAddType === "task" ? (
+              <>
+                {/* Board & Column selection */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {projectBoards && projectBoards.length > 1 && (
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-stone-700 dark:text-stone-300">
+                        Board
+                      </label>
+                      <FilterSelect
+                        value={quickAddBoardId}
+                        options={projectBoards.map((b) => ({ value: b.id, label: b.name }))}
+                        onValueChange={(val) => {
+                          setQuickAddBoardId(val);
+                          const b = projectBoards.find((board) => board.id === val);
+                          if (b && b.columns[0]) {
+                            setQuickAddColumnId(b.columns[0].id);
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <div className={cn(projectBoards && projectBoards.length > 1 ? "" : "sm:col-span-2")}>
+                    <label className="mb-1 block text-xs font-semibold text-stone-700 dark:text-stone-300">
+                      Target Column <span className="text-red-500">*</span>
+                    </label>
+                    {currentBoard && currentBoard.columns.length > 0 ? (
+                      <FilterSelect
+                        value={quickAddColumnId}
+                        options={currentBoard.columns.map((c) => ({ value: c.id, label: c.name }))}
+                        onValueChange={setQuickAddColumnId}
+                      />
+                    ) : (
+                      <p className="text-xs text-amber-600 dark:text-amber-400">
+                        No columns available. Please create a column on the board first.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Priority */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-stone-700 dark:text-stone-300">
+                    Priority
+                  </label>
+                  <SegmentedControl
+                    className="w-full"
+                    value={quickAddPriority}
+                    onChange={(val) => setQuickAddPriority(val as "LOW" | "MEDIUM" | "HIGH")}
+                    options={[
+                      { value: "LOW", label: "Low" },
+                      { value: "MEDIUM", label: "Medium" },
+                      { value: "HIGH", label: "High" }
+                    ]}
+                  />
+                </div>
+              </>
+            ) : (
+              /* Note content */
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-stone-700 dark:text-stone-300">
+                  Note Content (Optional)
+                </label>
+                <Textarea
+                  value={quickAddContent}
+                  onChange={(e) => setQuickAddContent(e.target.value)}
+                  placeholder="Add details, bullet points, or thoughts..."
+                  rows={3}
+                />
+              </div>
+            )}
+
+            {/* Time / All-Day */}
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/70 p-3 dark:border-white/10 dark:bg-white/[0.02] space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+                  Time Setting
+                </span>
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-stone-600 dark:text-stone-400">
+                  <input
+                    type="checkbox"
+                    checked={quickAddIsAllDay}
+                    onChange={(e) => setQuickAddIsAllDay(e.target.checked)}
+                    className="h-3.5 w-3.5 rounded accent-indigo-600"
+                  />
+                  <span>All-day item</span>
+                </label>
+              </div>
+
+              {!quickAddIsAllDay && (
+                <div className="flex items-center gap-2 pt-1">
+                  <Clock className="h-4 w-4 text-stone-400" />
+                  <Input
+                    type="time"
+                    value={quickAddTime}
+                    onChange={(e) => setQuickAddTime(e.target.value)}
+                    className="h-8 max-w-[140px] text-xs"
+                    required={!quickAddIsAllDay}
+                  />
+                  <span className="text-xs text-stone-500">Scheduled time</span>
+                </div>
+              )}
+            </div>
+
+            {/* Color Swatch */}
+            <div>
+              <ColorSwatchPicker
+                label="Item Color Accent"
+                value={quickAddColor}
+                onChange={setQuickAddColor}
+                size="sm"
+              />
+            </div>
+
+            {/* Modal Actions */}
+            <div className="mt-5 flex items-center justify-end gap-2 border-t border-stone-200/80 pt-4 dark:border-white/10">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setQuickAddDate(null)}
+                disabled={isQuickAddSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isQuickAddSubmitting || !quickAddTitle.trim() || (quickAddType === "task" && !quickAddColumnId)}
+              >
+                {isQuickAddSubmitting ? "Saving..." : quickAddType === "task" ? "Create Task" : "Create Note"}
+              </Button>
+            </div>
+          </form>
         </AppModal>
       )}
     </>
@@ -1425,9 +1780,9 @@ function CalendarCardButton({ card, onClick }: { card: CalendarCard; onClick: ()
       title={`${card.title} • ${status.label}${card.dueDate ? ` • ${card.dueDateAllDay ? "All day" : formatTime(card.dueDate)}` : ""}`}
     >
       <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full border", status.badgeClass)} />
-      <span className="truncate font-medium text-stone-200 flex-1">{card.title}</span>
+      <span className="truncate font-medium text-stone-900 dark:text-stone-100 flex-1">{card.title}</span>
       {!card.dueDateAllDay && card.dueDate && (
-        <span className="shrink-0 text-[10px] text-dusk-cyan">
+        <span className="shrink-0 text-[10px] text-stone-600 dark:text-dusk-cyan">
           {formatTime(card.dueDate)}
         </span>
       )}
@@ -1465,13 +1820,15 @@ function CalendarDiarySummaryButton({
       title={`Diary: ${item.diaryTitle} (${item.completedCount}/${item.totalCount})`}
     >
       <RetzloUiIcon name="diary" size={14} />
-      <span className={cn("truncate font-medium text-stone-200 flex-1", allDone && "line-through text-stone-400")}>
+      <span className={cn("truncate font-medium text-stone-900 dark:text-stone-100 flex-1", allDone && "line-through text-stone-400 dark:text-stone-500")}>
         {item.diaryTitle}
       </span>
       <span
         className={cn(
           "shrink-0 rounded px-1 text-[9px] font-semibold font-mono",
-          allDone ? "bg-emerald-500/20 text-emerald-300" : "bg-white/10 text-stone-300"
+          allDone
+            ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+            : "bg-black/5 dark:bg-white/10 text-stone-700 dark:text-stone-300"
         )}
       >
         {item.completedCount}/{item.totalCount}
@@ -1492,7 +1849,7 @@ function CalendarDiaryChecklistButton({
   return (
     <div
       className={cn(
-        "flex w-full items-start gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1.5 text-left text-xs transition hover:border-white/20",
+        "flex w-full items-start gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/50 dark:border-white/10 dark:bg-white/[0.03] px-2 py-1.5 text-left text-xs transition hover:border-stone-300 dark:hover:border-white/20",
         item.completed && "opacity-60"
       )}
     >
@@ -1517,14 +1874,14 @@ function CalendarDiaryChecklistButton({
       <div className="min-w-0 flex-1">
         <span
           className={cn(
-            "block truncate font-medium text-stone-100",
-            item.completed && "line-through text-stone-500"
+            "block truncate font-medium text-stone-900 dark:text-stone-100",
+            item.completed && "line-through text-stone-400 dark:text-stone-500"
           )}
           title={item.title}
         >
           {item.title}
         </span>
-        <span className="mt-0.5 block truncate text-[9px] text-stone-400" title={`Diary: ${item.diaryTitle}`}>
+        <span className="mt-0.5 block truncate text-[9px] text-stone-500 dark:text-stone-400" title={`Diary: ${item.diaryTitle}`}>
           <RetzloUiIcon name="diary" size={12} /> {item.diaryTitle}
         </span>
       </div>
@@ -1544,7 +1901,7 @@ function UpcomingDiaryChecklist({
   return (
     <div
       className={cn(
-        "w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left text-sm transition hover:border-dusk-lavender/40 hover:bg-white/[0.06] flex items-start gap-2.5",
+        "w-full rounded-xl border border-stone-200/80 bg-stone-50/50 dark:border-white/10 dark:bg-white/[0.03] p-3 text-left text-sm transition hover:border-indigo-400 dark:hover:border-dusk-lavender/40 hover:bg-stone-100/60 dark:hover:bg-white/[0.06] flex items-start gap-2.5",
         item.completed && "opacity-65"
       )}
     >
@@ -1567,9 +1924,9 @@ function UpcomingDiaryChecklist({
         {item.completed ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
       </button>
       <div className="min-w-0 flex-1">
-        <p className={cn("font-medium text-stone-100", item.completed && "line-through text-stone-500")}>{item.title}</p>
-        <p className="mt-1 text-xs text-dusk-cyan">{formatDue(item)}</p>
-        <p className="mt-0.5 flex items-center gap-1 text-xs text-stone-400">
+        <p className={cn("font-medium text-stone-900 dark:text-stone-100", item.completed && "line-through text-stone-400 dark:text-stone-500")}>{item.title}</p>
+        <p className="mt-1 text-xs text-indigo-600 dark:text-dusk-cyan">{formatDue(item)}</p>
+        <p className="mt-0.5 flex items-center gap-1 text-xs text-stone-500 dark:text-stone-400">
           <RetzloUiIcon name="diary" size={14} /> {item.diaryTitle}
         </p>
       </div>
@@ -1593,10 +1950,10 @@ function CalendarNotePill({ note, onClick }: { note: CalendarNote; onClick: () =
       }}
       title={note.title}
     >
-      <FileText className="h-3 w-3 shrink-0 text-dusk-amber" />
-      <span className="truncate font-medium text-stone-200 flex-1">{note.title}</span>
+      <FileText className="h-3 w-3 shrink-0 text-amber-600 dark:text-dusk-amber" />
+      <span className="truncate font-medium text-stone-900 dark:text-stone-100 flex-1">{note.title}</span>
       {!note.dueDateAllDay && note.dueDate && (
-        <span className="shrink-0 text-[10px] text-dusk-amber">
+        <span className="shrink-0 text-[10px] text-amber-700 dark:text-dusk-amber">
           {formatTime(note.dueDate)}
         </span>
       )}
@@ -1614,18 +1971,18 @@ function UpcomingCard({ card, members = [], onClick }: { card: CalendarCard; mem
 
   return (
     <button
-      className={cn("w-full rounded-md border p-3 text-left text-sm transition hover:border-dusk-lavender/60", colorMeta.softClass)}
+      className={cn("w-full rounded-md border p-3 text-left text-sm transition hover:border-indigo-400 dark:hover:border-dusk-lavender/60", colorMeta.softClass)}
       type="button"
       onClick={onClick}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="font-medium">{card.title}</p>
+        <p className="font-medium text-stone-900 dark:text-stone-100">{card.title}</p>
         <StatusBadge status={card.status} />
       </div>
       <div className="mt-2 flex items-center justify-between gap-2">
         <div>
-          <p className="text-xs text-dusk-cyan">{formatDue(card)}</p>
-          <p className="mt-0.5 text-xs text-stone-500">{card.column.name}</p>
+          <p className="text-xs text-indigo-600 dark:text-dusk-cyan">{formatDue(card)}</p>
+          <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">{card.column.name}</p>
         </div>
         {assignees.length > 0 ? <AssigneeStack assignees={assignees} size={18} /> : null}
       </div>
@@ -1638,16 +1995,16 @@ function UpcomingNote({ note, onClick }: { note: CalendarNote; onClick: () => vo
 
   return (
     <button
-      className={cn("w-full rounded-md border p-3 text-left text-sm transition hover:border-dusk-lavender/60", colorMeta.softClass)}
+      className={cn("w-full rounded-md border p-3 text-left text-sm transition hover:border-indigo-400 dark:hover:border-dusk-lavender/60", colorMeta.softClass)}
       type="button"
       onClick={onClick}
     >
       <div className="flex items-start gap-2">
-        <FileText className="mt-0.5 h-4 w-4 text-dusk-amber" />
-        <p className="font-medium">{note.title}</p>
+        <FileText className="mt-0.5 h-4 w-4 text-amber-600 dark:text-dusk-amber" />
+        <p className="font-medium text-stone-900 dark:text-stone-100">{note.title}</p>
       </div>
-      <p className="mt-1 text-xs text-dusk-cyan">{formatDue(note)}</p>
-      <p className="mt-1 text-xs text-stone-500">{note.isStarred ? "Starred note" : "Note"}</p>
+      <p className="mt-1 text-xs text-indigo-600 dark:text-dusk-cyan">{formatDue(note)}</p>
+      <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{note.isStarred ? "Starred note" : "Note"}</p>
     </button>
   );
 }
@@ -1664,7 +2021,7 @@ function FilterCheckbox({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex min-h-9 cursor-pointer items-center gap-3 rounded-md px-2 text-sm text-stone-300 transition hover:bg-white/[0.04]">
+    <label className="flex min-h-9 cursor-pointer items-center gap-3 rounded-md px-2 text-sm text-stone-800 dark:text-stone-300 transition hover:bg-black/[0.04] dark:hover:bg-white/[0.04]">
       <input
         checked={checked}
         className="h-4 w-4 accent-dusk-lavender"
