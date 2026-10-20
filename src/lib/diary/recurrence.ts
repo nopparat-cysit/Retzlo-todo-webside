@@ -118,13 +118,36 @@ export function isDailyDiary(item: {
   return !isWeeklyOrMonthlyDiary(item);
 }
 
+function isChecklistItemWeeklyOrMonthlyDue(
+  item: unknown,
+  itemKey: string,
+  fallbackStartDate?: string | Date
+): boolean {
+  if (!item || typeof item !== "object") return false;
+  const entry = item as Record<string, unknown>;
+  const repeatUnit = entry.repeatUnit === "MONTH" ? "MONTH" : "DAY";
+  const intervalDays = typeof entry.intervalDays === "number" ? entry.intervalDays : 1;
+
+  const isWeeklyOrMonthly = repeatUnit === "MONTH" || intervalDays >= 7;
+  if (!isWeeklyOrMonthly) {
+    return false;
+  }
+
+  const startDate =
+    typeof entry.startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(entry.startDate)
+      ? entry.startDate
+      : fallbackStartDate ?? "1970-01-01";
+
+  return isDiaryItemDueOnDate(startDate, itemKey, intervalDays, repeatUnit);
+}
+
 /**
  * Determines whether a diary item / checklist item should be displayed on a calendar date.
  *
  * Rule:
  * - If the date has arrived (itemDate <= todayDate), always display.
  * - If the date is in the future (itemDate > todayDate):
- *   - Day diary items (daily or interval < 7 days) are suppressed until that day arrives.
+ *   - Day diary items (daily or interval < 7 days) are strictly suppressed until that day arrives.
  *   - Weekly (interval >= 7 days) and monthly (repeatUnit === "MONTH") schedules ARE displayed.
  */
 export function shouldShowDiaryOnCalendarDate(options: {
@@ -133,6 +156,8 @@ export function shouldShowDiaryOnCalendarDate(options: {
   diary?: {
     repeatUnit?: DiaryRepeatUnit | string | null;
     intervalDays?: number | null;
+    checklist?: unknown;
+    startDate?: string | Date;
   } | null;
   checklistItem?: {
     repeatUnit?: DiaryRepeatUnit | string | null;
@@ -151,13 +176,26 @@ export function shouldShowDiaryOnCalendarDate(options: {
     return true;
   }
 
-  // Future date: check if checklist item or parent diary is weekly or monthly
-  if (options.checklistItem && isWeeklyOrMonthlyDiary(options.checklistItem)) {
-    return true;
+  // Future date (itemKey > todayKey):
+  // 1. If evaluating a specific checklist item, its OWN schedule is authoritative.
+  // Daily checklist items (< 7 days and repeatUnit !== "MONTH") must NEVER display on future dates!
+  if (options.checklistItem) {
+    return isWeeklyOrMonthlyDiary(options.checklistItem);
   }
 
-  if (options.diary && isWeeklyOrMonthlyDiary(options.diary)) {
-    return true;
+  // 2. If evaluating at the diary container level (without a specific checklist item):
+  if (options.diary) {
+    const checklist = Array.isArray(options.diary.checklist) ? options.diary.checklist : [];
+    if (checklist.length > 0) {
+      // If the diary contains checklist items, it should only appear on a future date
+      // if at least one weekly or monthly checklist item is due on that date.
+      return checklist.some((cli) =>
+        isChecklistItemWeeklyOrMonthlyDue(cli, itemKey, options.diary?.startDate)
+      );
+    }
+
+    // If it has no checklist items, check the diary's own recurrence
+    return isWeeklyOrMonthlyDiary(options.diary);
   }
 
   return false;

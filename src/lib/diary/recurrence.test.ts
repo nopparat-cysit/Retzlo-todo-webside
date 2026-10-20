@@ -248,6 +248,88 @@ describe("Diary Recurrence Logic", () => {
       ).toBe(true);
     });
 
+    it("suppresses a daily checklist item on future date even if parent diary has intervalDays >= 7", () => {
+      const longIntervalDiary = { repeatUnit: "DAY" as const, intervalDays: 30 };
+      const dailyCli = { repeatUnit: "DAY" as const, intervalDays: 1 };
+
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-21",
+          todayDate: today,
+          diary: longIntervalDiary,
+          checklistItem: dailyCli
+        })
+      ).toBe(false);
+
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-25",
+          todayDate: today,
+          diary: longIntervalDiary,
+          checklistItem: dailyCli
+        })
+      ).toBe(false);
+    });
+
+    it("supports diary-level check with mixed checklist items", () => {
+      const diaryWithChecklist = {
+        repeatUnit: "DAY" as const,
+        intervalDays: 30,
+        startDate: "2026-09-11",
+        checklist: [
+          { label: "Daily 1", intervalDays: 1, repeatUnit: "DAY", startDate: "2026-09-11" },
+          { label: "Daily 2", intervalDays: 1, repeatUnit: "DAY", startDate: "2026-09-11" },
+          { label: "Weekly Friday", intervalDays: 7, repeatUnit: "DAY", startDate: "2026-09-11" },
+          { label: "Monthly 25th", intervalDays: 1, repeatUnit: "MONTH", startDate: "2026-10-25" }
+        ]
+      };
+
+      // 2026-10-21 (Wed): Only daily items are due -> should NOT show on future date!
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-21",
+          todayDate: today,
+          diary: diaryWithChecklist
+        })
+      ).toBe(false);
+
+      // 2026-10-22 (Thu): Only daily items are due -> should NOT show on future date!
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-22",
+          todayDate: today,
+          diary: diaryWithChecklist
+        })
+      ).toBe(false);
+
+      // 2026-10-23 (Fri): Weekly Friday item IS due -> SHOULD show on future date!
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-23",
+          todayDate: today,
+          diary: diaryWithChecklist
+        })
+      ).toBe(true);
+
+      // 2026-10-24 (Sat): Only daily items are due -> should NOT show on future date!
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-24",
+          todayDate: today,
+          diary: diaryWithChecklist
+        })
+      ).toBe(false);
+
+      // 2026-10-25 (Sun): Monthly 25th item IS due -> SHOULD show on future date!
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-25",
+          todayDate: today,
+          diary: diaryWithChecklist
+        })
+      ).toBe(true);
+    });
+
     it("supports diary-level check without checklistItem (dashboard calendar)", () => {
       const dailyDiary = { repeatUnit: "DAY" as const, intervalDays: 1 };
       const weeklyDiary = { repeatUnit: "DAY" as const, intervalDays: 7 };

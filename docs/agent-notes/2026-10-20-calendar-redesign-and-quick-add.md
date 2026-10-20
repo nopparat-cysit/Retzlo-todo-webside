@@ -23,25 +23,33 @@
   - Replaced undefined `setActiveProjectId` / `setViewMode` with Next.js `<Link href="...">` for "+N more boards" chip.
 - `src/app/api/rewards/[rewardId]/route.ts`:
   - Aligned `createAuditLog` payload with `AuditCategory` and `CreateAuditLogParams`.
+- `src/lib/diary/recurrence.ts`:
+  - Fixed `shouldShowDiaryOnCalendarDate` to ensure checklist item recurrence schedule is authoritative over parent diary schedule.
+  - When evaluating an individual checklist item, daily items (`intervalDays < 7` and `repeatUnit !== "MONTH"`) are strictly suppressed on future dates even if the parent diary container has `intervalDays >= 7`.
+  - When evaluating at the diary container level, the diary only displays on future dates if at least one weekly or monthly checklist item is actually scheduled/due on that date.
+- `src/lib/diary/recurrence.test.ts`:
+  - Added unit tests for future date suppression of daily items inside long-interval diaries and mixed recurrence checklists.
 
 ---
 
 ## 2. Important Behavior Changes
 
-1. **Bug Fix: "Unable to load dashboard" Server Components Error**:
+1. **Bug Fix: Strict Day Diary Future Date Suppression**:
+   - Resolved the issue where daily routine checklists (e.g. "Work Life" with daily tasks) were displaying on every future date (Oct 21–31) because the parent diary container had `intervalDays: 30`.
+   - Now, daily items are strictly withheld until their scheduled date arrives. Future dates on the calendar will only show weekly (`intervalDays >= 7`) or monthly (`repeatUnit === "MONTH"`) milestone tasks.
+2. **Bug Fix: "Unable to load dashboard" Server Components Error**:
    - Resolved runtime `ReferenceError: accessibleBoards is not defined` in `src/app/(dashboard)/project/[id]/calendar/page.tsx` that crashed calendar page rendering.
-2. **Quick Add from Calendar Date**:
+3. **Quick Add from Calendar Date**:
    - Hovering over any day cell reveals a quick `+` button in the cell header.
    - Clicking `+` opens an in-situ modal prefilled with that specific date.
    - Users can create either a Task (with target Board, Column, Priority, Color, and Time) or a Quick Note directly without leaving the calendar view.
    - Real-time live sync broadcast updates the board and calendar immediately.
-3. **Accessible Light Mode Contrast**:
+4. **Accessible Light Mode Contrast**:
    - Resolved the issue where pill text (`text-stone-200`) blended into light pastel backgrounds in light mode. Text now uses crisp `text-stone-900 dark:text-stone-100`.
-4. **Weekend Visual Differentiation**:
+5. **Weekend Visual Differentiation**:
    - Saturday and Sunday cells now feature a subtle tinted background to improve date orientation.
-5. **Preserved Existing Strengths**:
+6. **Preserved Existing Strengths**:
    - Kept Day Detail modal with KPI progress bar, type filter pills, and interactive checklist toggling intact.
-   - Maintained Smart Diary recurrence filtering for daily checklists.
 
 ---
 
@@ -54,8 +62,8 @@
 ## 4. Verification Commands & Results
 
 - `npx tsc --noEmit` -> **Passed** (0 errors across entire repository)
-- `npx vitest run src/lib/calendar/view.test.ts` -> **Passed** (9 tests, 100% passing)
-- `npm test` -> **Passed** (101 test files, 552 tests passed, 3 skipped)
+- `npx vitest run src/lib/diary/recurrence.test.ts` -> **Passed** (15 tests, 100% passing)
+- `npm test` -> **Passed** (101 test files, 554 tests passed, 3 skipped)
 - `npm run lint` -> **Passed** (0 warnings or errors)
 - `npm run build` -> **Passed** (Compiled 42 routes successfully with Next.js App Router)
 - `npx prisma validate` -> **Passed** (Prisma schema is valid)
