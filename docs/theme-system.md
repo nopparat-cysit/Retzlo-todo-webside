@@ -885,4 +885,9 @@ Template:
       1. **Card Status**: Directly changes card status (`Todo`, `Doing`, `Waiting`, `Done`) matching the Card Modal with checkmark.
       2. **Move Column**: Moves card between workflow columns (`Backlog`, `In Progress`, `Done`) with checkmark and status synchronization.
     - Added missing `Waiting` status to table view filter chips at the top of the table.
-- Verification: Component tests (`create-board-page-view.test.ts`, `board-views-and-sidebar.test.ts`, `create-board-modal.test.ts`, `status.test.ts`), `npm run lint`, `npx prisma validate`, `npm run build`.
+  - **Create Column & Edit Column 2-Column Responsive Layout**:
+    - Upgraded both Create Column (`board.tsx`) and Edit Column (`column.tsx`) modals from narrow, cramped `max-w-xl` single-column vertical stacks to spacious `max-w-4xl` 2-column responsive layouts.
+    - Left column (`md:col-span-7`): Form controls (name, theme color swatches, icon picker, default card status, WIP limit).
+    - Right column (`md:col-span-5`): Sticky `BoardMockupPreview` showing live updates in real time without vertical scrolling.
+    - Replaced hardcoded dark mode colors (`lofi-panel`, `text-stone-100`, `text-stone-300`, `text-stone-400`, `border-white/10`) with semantic theme tokens (`bg-theme-panel`, `bg-theme-paper`, `text-theme-foreground`, `text-theme-muted`, `border-theme-border`, `text-theme-accent`) for 100% Light/Dark mode contrast compliance.
+- Verification: Component tests (`create-board-page-view.test.ts`, `board-views-and-sidebar.test.ts`, `create-board-modal.test.ts`, `status.test.ts`, `work-modals.test.ts`), `npm run lint`, `npx prisma validate`, `npm run build`.

@@ -15,7 +15,9 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
   - `src/components/kanban/create-board-page-view.test.ts` — Added unit test assertion for `layout="vertical"`.
   - `src/components/kanban/board-list-view.tsx` — Fixed status mappings, added dual-section popover for Card Status & Move Column, dynamic status filters, and added missing `useEffect` import from React fixing runtime dashboard error on macOS.
   - `src/components/kanban/board-views-and-sidebar.test.ts` — Added test verifying React hook imports in BoardListView.
-  - `src/components/kanban/board.tsx` — Passed `boardId` to `BoardListView`.
+  - `src/components/kanban/board.tsx` — Passed `boardId` to `BoardListView`, and redesigned Create Column modal into a spacious 2-column responsive layout with sticky live preview and theme tokens.
+  - `src/components/kanban/column.tsx` — Redesigned Edit Column modal into a spacious 2-column responsive layout with sticky live preview and theme tokens.
+  - `src/components/kanban/work-modals.test.ts` — Added assertions for 2-column layout and live preview in column creation/editing.
   - `src/lib/kanban/status.ts` — Included `dot` color indicator in `getStatusMeta` return object.
   - `src/components/kanban/board-sidebar-dropdown.tsx` — Updated "Create new board" buttons to navigate to `/project/[id]/board/new`.
   - `src/components/project/projects-dashboard.tsx` — Updated "New Board" button and blueprint cards to navigate to `/project/[id]/board/new`.
@@ -38,6 +40,11 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
      1. **Card Status**: Direct status update (`Todo`, `Doing`, `Waiting`, `Done`) matching the Card Modal with checkmarks.
      2. **Move Column**: Moves card between workflow columns (`Backlog`, `In Progress`, `Done`) with checkmarks and status synchronization.
    - Added `Waiting` status to the top table filter chips.
+3. **Create Column & Edit Column Modals 2-Column Redesign ("แก้ไขส่วน create column")**:
+   - Upgraded both the in-board Create Column modal (`src/components/kanban/board.tsx`) and Edit Column modal (`src/components/kanban/column.tsx`) from narrow 1-column layouts (`max-w-xl`) to spacious 2-column layouts (`max-w-4xl` with `md:grid-cols-12`).
+   - **Left Column (`md:col-span-7`)**: Form inputs for Column Name, Theme Color (`ColumnThemePicker`), Icon Glyph (`ColumnIconPicker`), Default Card Status (`ColumnStatusPicker`), and WIP Card Limit.
+   - **Right Column (`md:col-span-5`)**: Sticky `BoardMockupPreview` showing live changes in real time (name, color, icon, status, WIP limit, sample cards) without scrolling.
+   - **Theme System Compatibility**: Eliminated all hardcoded dark mode colors (`lofi-panel`, `text-stone-100`, `text-stone-300`, `text-stone-400`, `border-white/10`) in favor of semantic tokens (`bg-theme-panel`, `bg-theme-paper`, `text-theme-foreground`, `text-theme-muted`, `border-theme-border`, `text-theme-accent`), providing flawless contrast in both Light and Dark modes.
 
 ## Database / Schema Changes
 - None (uses existing Prisma schema and API endpoints).

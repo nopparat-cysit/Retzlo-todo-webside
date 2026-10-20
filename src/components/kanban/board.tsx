@@ -1730,20 +1730,22 @@ export function KanbanBoard({
             columnWipLimit.trim() !== ""
           }
           labelledBy="create-column-title"
-          contentClassName="lofi-panel w-full max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
+          contentClassName="w-full max-w-4xl max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-theme-border bg-theme-panel p-5 sm:p-6 text-theme-foreground shadow-2xl"
         >
           <form
             onSubmit={createColumn}
           >
-            <div className="mb-4 flex items-start justify-between gap-4">
+            <div className="mb-5 flex items-start justify-between gap-4 border-b border-theme-border pb-3.5">
               <div>
-                <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Board column</p>
-                <h3 id="create-column-title" className="mt-1 text-2xl font-semibold text-stone-100">Create column</h3>
-                <p className="mt-1 text-sm leading-6 text-stone-400">Name the new lane for this board.</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-theme-accent">Board column</p>
+                <h3 id="create-column-title" className="mt-0.5 flex items-center gap-2 text-xl font-bold text-theme-foreground sm:text-2xl">
+                  <span>Create column</span>
+                </h3>
+                <p className="mt-1 text-xs text-theme-muted">Name the new workflow lane for this board.</p>
               </div>
               <button
                 type="button"
-                className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-400 transition hover:border-dusk-rose/35 hover:bg-dusk-rose/10 hover:text-dusk-rose"
+                className="rounded-lg p-1.5 text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground cursor-pointer"
                 aria-label="Close column modal"
                 onClick={() => {
                   setColumnName("");
@@ -1754,82 +1756,101 @@ export function KanbanBoard({
                   setIsColumnModalOpen(false);
                 }}
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="mb-4">
-              <BoardMockupPreview
-                title="Live Column Mockup Preview"
-                badgeText="New Stage"
-                subtitle="Preview how this workflow column and its cards will appear on the board"
-                compact={true}
-                columns={[
-                  ...columns.slice(-2).map((col) => ({
-                    id: col.id,
-                    name: col.name,
-                    color: col.color,
-                    icon: col.icon,
-                    defaultCardStatus: col.defaultCardStatus,
-                    wipLimit: col.wipLimit ?? null,
-                    cardCount: col.cards.length
-                  })),
-                  {
-                    id: "draft-column",
-                    name: columnName.trim() || "New Column",
-                    color: columnColor,
-                    icon: columnIcon,
-                    defaultCardStatus: columnDefaultCardStatus,
-                    wipLimit:
-                      columnWipLimit.trim() && !isNaN(parseInt(columnWipLimit.trim(), 10))
-                        ? parseInt(columnWipLimit.trim(), 10)
-                        : null,
-                    cardCount: 2,
-                    isHighlighted: true,
-                    highlightBadge: "NEW"
-                  }
-                ]}
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              {/* Left Column: Form Controls (7 of 12 columns) */}
+              <div className="md:col-span-7 space-y-4">
+                <label className="block space-y-1.5 text-xs font-bold uppercase tracking-wider text-theme-foreground">
+                  <span>
+                    Column name <span className="text-theme-danger">*</span>
+                  </span>
+                  <Input
+                    autoFocus
+                    value={columnName}
+                    onChange={(event) => setColumnName(event.target.value)}
+                    placeholder="e.g. Backlog, Review, Quality Assurance, Done..."
+                    required
+                    maxLength={80}
+                    className="h-10 rounded-xl bg-theme-paper text-sm font-medium"
+                  />
+                </label>
 
-            <label className="space-y-2 text-sm text-stone-300">
-              <span>Column name</span>
-              <Input
-                autoFocus
-                value={columnName}
-                onChange={(event) => setColumnName(event.target.value)}
-                placeholder="Backlog, Review, Done..."
-                required
-              />
-            </label>
-
-            <div className="mt-4 space-y-4">
-              <ColumnThemePicker value={columnColor} onChange={setColumnColor} />
-              <ColumnIconPicker value={columnIcon} onChange={setColumnIcon} />
-              <ColumnStatusPicker value={columnDefaultCardStatus} onChange={setColumnDefaultCardStatus} boardId={board.id} />
-              <label className="block space-y-1.5 text-sm text-stone-300">
-                <div className="flex items-center justify-between">
-                  <span>Card limit (WIP)</span>
-                  <span className="text-[11px] text-stone-500">Optional • Default: none</span>
+                <div className="space-y-4">
+                  <ColumnThemePicker value={columnColor} onChange={setColumnColor} />
+                  <ColumnIconPicker value={columnIcon} onChange={setColumnIcon} />
+                  <ColumnStatusPicker value={columnDefaultCardStatus} onChange={setColumnDefaultCardStatus} boardId={board.id} />
+                  <label className="block space-y-1.5 text-xs font-bold uppercase tracking-wider text-theme-foreground">
+                    <div className="flex items-center justify-between">
+                      <span>Card limit (WIP)</span>
+                      <span className="font-normal normal-case text-[11px] text-theme-muted">
+                        Optional • Default: none
+                      </span>
+                    </div>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={99}
+                      value={columnWipLimit}
+                      onChange={(event) => setColumnWipLimit(event.target.value)}
+                      placeholder="No limit (leave empty)"
+                      className="h-10 rounded-xl bg-theme-paper text-sm font-medium"
+                    />
+                  </label>
                 </div>
-                <Input
-                  type="number"
-                  min={1}
-                  max={99}
-                  value={columnWipLimit}
-                  onChange={(event) => setColumnWipLimit(event.target.value)}
-                  placeholder="No limit (leave empty)"
-                />
-              </label>
+              </div>
+
+              {/* Right Column: Live Mockup Preview (5 of 12 columns) */}
+              <div className="md:col-span-5 md:sticky md:top-0 space-y-3">
+                <div className="rounded-xl border border-theme-border bg-theme-paper p-3 shadow-xs">
+                  <BoardMockupPreview
+                    title="Live Column Mockup Preview"
+                    badgeText="New Stage"
+                    subtitle="Preview how this workflow column and its sample cards appear on the board"
+                    compact={true}
+                    columns={[
+                      ...columns.slice(-2).map((col) => ({
+                        id: col.id,
+                        name: col.name,
+                        color: col.color,
+                        icon: col.icon,
+                        defaultCardStatus: col.defaultCardStatus,
+                        wipLimit: col.wipLimit ?? null,
+                        cardCount: col.cards.length
+                      })),
+                      {
+                        id: "draft-column",
+                        name: columnName.trim() || "New Column",
+                        color: columnColor,
+                        icon: columnIcon,
+                        defaultCardStatus: columnDefaultCardStatus,
+                        wipLimit:
+                          columnWipLimit.trim() && !isNaN(parseInt(columnWipLimit.trim(), 10))
+                            ? parseInt(columnWipLimit.trim(), 10)
+                            : null,
+                        cardCount: 2,
+                        isHighlighted: true,
+                        highlightBadge: "NEW"
+                      }
+                    ]}
+                  />
+                </div>
+
+                <div className="rounded-xl border border-theme-border/60 bg-theme-paper/50 p-3 text-[11px] text-theme-muted leading-relaxed">
+                  💡 <strong>Stage preview:</strong> Cards moved into this column will default to the selected status. You can customize limits and automation rules at any time.
+                </div>
+              </div>
             </div>
 
             {syncError ? (
-              <p className="mt-3 rounded-xl border border-dusk-rose/25 bg-dusk-rose/10 px-3 py-2 text-sm text-dusk-rose">
+              <p className="mt-4 rounded-xl border border-theme-danger/30 bg-theme-danger/10 p-3 text-xs text-theme-danger">
                 {syncError}
               </p>
             ) : null}
 
-            <div className="mt-5 flex justify-end gap-2">
+            <div className="mt-6 flex items-center justify-end gap-3 border-t border-theme-border pt-4">
               <Button
                 type="button"
                 variant="ghost"
@@ -1844,9 +1865,13 @@ export function KanbanBoard({
               >
                 Cancel
               </Button>
-              <Button disabled={!columnName.trim() || isCreatingColumn}>
+              <Button
+                disabled={!columnName.trim() || isCreatingColumn}
+                variant="primary"
+                className="font-semibold px-4 cursor-pointer"
+              >
                 <Plus className="h-4 w-4" />
-                {isCreatingColumn ? "Adding..." : "Add column"}
+                <span>{isCreatingColumn ? "Adding..." : "Add column"}</span>
               </Button>
             </div>
           </form>
