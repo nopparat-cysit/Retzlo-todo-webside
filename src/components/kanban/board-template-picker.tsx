@@ -120,21 +120,14 @@ export function BoardTemplatePicker({
                 )}
               >
                 <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                  <div
-                    className={cn(
-                      "relative h-10 w-10 shrink-0 rounded-xl p-1.5 transition-transform group-hover:scale-105 flex items-center justify-center border",
-                      isSelected
-                        ? "bg-theme-accent/10 border-theme-accent/30"
-                        : "bg-theme-panel border-theme-border"
-                    )}
-                  >
+                  <div className="relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 flex items-center justify-center">
                     <Image
                       src={templateIconPaths[template.id]}
                       alt=""
                       aria-hidden="true"
-                      width={36}
-                      height={36}
-                      className="h-full w-full object-contain"
+                      width={44}
+                      height={44}
+                      className="h-full w-full object-contain transition-transform group-hover:scale-110 drop-shadow-sm"
                     />
                   </div>
 

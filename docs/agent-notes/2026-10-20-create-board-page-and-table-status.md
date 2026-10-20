@@ -13,7 +13,8 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
   - `src/components/kanban/board-template-picker.tsx` — Added `layout?: "grid" | "vertical"` prop. In `vertical` mode, renders spacious, full-width unclipped cards showing complete template names, descriptions, steps badge, and radio checkmark indicator without truncation.
   - `src/components/kanban/create-board-page-view.tsx` — Switched template picker to `layout="vertical"` and expanded container width (up to `2xl:max-w-[1440px]`).
   - `src/components/kanban/create-board-page-view.test.ts` — Added unit test assertion for `layout="vertical"`.
-  - `src/components/kanban/board-list-view.tsx` — Fixed status mappings, added dual-section popover for Card Status & Move Column, dynamic status filters.
+  - `src/components/kanban/board-list-view.tsx` — Fixed status mappings, added dual-section popover for Card Status & Move Column, dynamic status filters, and added missing `useEffect` import from React fixing runtime dashboard error on macOS.
+  - `src/components/kanban/board-views-and-sidebar.test.ts` — Added test verifying React hook imports in BoardListView.
   - `src/components/kanban/board.tsx` — Passed `boardId` to `BoardListView`.
   - `src/lib/kanban/status.ts` — Included `dot` color indicator in `getStatusMeta` return object.
   - `src/components/kanban/board-sidebar-dropdown.tsx` — Updated "Create new board" buttons to navigate to `/project/[id]/board/new`.
@@ -28,8 +29,10 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
    - Clicking "New Board" / "Create new board" from the workspace navigation bar, sidebar, or projects hub navigates to `/project/[id]/board/new`.
    - Desktop view displays a spacious 2-column layout: Form settings on the left (`lg:col-span-5`) and a sticky Live Mockup Preview on the right (`lg:col-span-7`) updating immediately as the user types the board name or changes templates.
    - **Vertical Template Selection ("ทำเป็นแนวตั้ง และขยายส่วนนี้")**: Replaced the cramped 5-column horizontal grid (`lg:grid-cols-5`) in `CreateBoardPageView` with a comfortable vertical stack (`layout="vertical"`). Each template card is full-width, displaying the template artwork icon, full title without truncation (`Standard board`, `Scrum`, `Software development`, `Marketing`, `Personal`), readable description, steps count, and active radio indicator.
+   - **Template Icon Display Polish ("แก้การแสดง icon")**: Removed redundant inner border box (`border border-theme-border rounded-xl p-1.5`) around template artwork in vertical cards, displaying the illustration cleanly at 40-44px with natural drop shadow and smooth hover scale.
    - Preserves `CreateBoardModal` with `layout="grid"` for backwards compatibility with existing unit tests.
-2. **Table View Status Dropdown & Filters**:
+2. **Table View Status Dropdown & Filters & macOS Fix ("unable to load dashboard useeffect is not defined")**:
+   - Fixed missing React import: Added `useEffect` to `import { useEffect, useMemo, useState } from "react"` in `src/components/kanban/board-list-view.tsx`, resolving runtime `ReferenceError: useEffect is not defined` that triggered the `Unable to load dashboard` error boundary on macOS/Safari/Chrome.
    - Status pill labels and colors now match the canonical statuses: `Todo` (indigo), `Doing` (teal), `Waiting` (amber), `Done` (emerald) + custom statuses.
    - Clicking the Status pill in Table mode opens a dual-section menu:
      1. **Card Status**: Direct status update (`Todo`, `Doing`, `Waiting`, `Done`) matching the Card Modal with checkmarks.

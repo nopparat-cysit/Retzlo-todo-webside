@@ -192,6 +192,10 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(listViewSource).not.toContain("0 files");
     expect(listViewSource).not.toContain("<Paperclip");
   });
+
+  it("imports useEffect and all essential React hooks in BoardListView to prevent runtime errors on macOS/Safari", () => {
+    expect(listViewSource).toMatch(/import\s*\{[^}]*\buseEffect\b[^}]*\}\s*from\s*["']react["']/);
+  });
 });
 
 
