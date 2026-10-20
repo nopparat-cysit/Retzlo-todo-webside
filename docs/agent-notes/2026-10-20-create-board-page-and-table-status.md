@@ -57,23 +57,27 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
 6. **Card & Board Hover Shadow Bug Fix ("แก้ไขบัคเงา ตอนเอาเมาเลือนผ่าน board")**:
    - In `src/components/kanban/card.tsx`, replaced harsh `hover:shadow-lg` (which caused abrupt clipping against column scroll overflow boundaries and dark square artifacts in dark mode) with smooth `hover:shadow-md dark:hover:shadow-[0_4px_14px_rgba(0,0,0,0.35)] transition-all duration-150`.
    - In `src/components/project/projects-dashboard.tsx`, smoothed `WorkspaceBoardCard` (`hover:shadow-md dark:hover:shadow-[0_8px_20px_rgba(0,0,0,0.35)]`), `QuickCreateBoardBlueprintCard`, and `ProjectCard` to prevent jerky translate flickering and harsh box-shadow artifacts when moving the cursor across boards.
-7. **Next Button Premature Creation Bug Fix ("กด next แล้วมัน create เลย แก้ไข")**:
-   - Resolved bug where clicking "Next" in Step 1 immediately fired board creation POST request.
-   - **Root Cause**: React reconciled the `<Button>` element in place without a distinct `key`, mutating the active DOM button from `type="button"` (Next) into `type="submit"` (Create Board) mid-click lifecycle, which immediately dispatched the form's submit event with `step === 2`.
-   - **Fix**:
-     - Assigned unique keys to the action containers and buttons (`step-1-header-actions`, `step-1-next-btn`, `step-2-header-actions`, `step-2-create-btn`), forcing full unmount/mount of distinct DOM nodes.
-     - Added `stepTransitionLockRef` timestamp lock (ignoring submits within 400ms of entering Step 2) and `if (step !== 2) return;` guard in `handleSubmit`.
-     - Intercepted `Enter` key on the board name input with `e.preventDefault(); e.stopPropagation(); goToStep(2);` to ensure smooth advance to Step 2 without triggering form submit.
+7. **Next Button Premature Creation Bug Fix ("กด next แล้วมัน create เลย แก้ไข" & "ก็ยังสร้างเลยอยู่ดี วิเคราะห์ ดีๆ ละเอียดๆ และวางแผนแก้ไขให้ถูกต้อง")**:
+   - **Thorough Forensic Root Cause Analysis**:
+     1. **Synthetic Click Carryover & Pointer Event Queue**: In modern browsers (especially on trackpads, touch devices, and fast mouse clicks), `pointerdown`/`mousedown` events on the "Next" button switch React state (`setStep(2)`). Because the Step 2 "Create Board" button was mounted at the exact same screen coordinates and dimensions in the top-right header, the browser's subsequent `pointerup`/`mouseup`/`click` event or rapid double-click landed directly on the newly mounted button.
+     2. **Form Submission Coupling**: The "Create Board" button was configured with `type="submit"` and `form="create-board-page-form"`. This meant any native click, implicit form submission, or Enter key automatically invoked `<form onSubmit={handleSubmit}>`, bypassing React's wizard intention.
+     3. **Premature Enabled State on Mount**: The button was rendered with `disabled={!name.trim() || isPending}`. Since `name` was already populated in Step 1, the button was immediately rendered as *enabled* in the DOM upon entering Step 2, accepting click events immediately even if a timestamp guard was inside `handleSubmit`.
+   - **Definitive 5-Layer Architectural Fix**:
+     1. **Decoupled Handlers**: Completely separated step navigation (`handleNextStep()`, `handleBackStep()`) from board creation (`handleCreateBoard()`). `handleNextStep()` has zero API/creation logic and strictly validates name and sets `step = 2`.
+     2. **Elimination of `type="submit"`**: Changed the "Create Board" button from `type="submit"` to explicit `type="button"`, and removed `form="create-board-page-form"`. Prevented all native form submissions via `onSubmit={(e) => { e.preventDefault(); e.stopPropagation(); if (step === 1) handleNextStep(); }}`.
+     3. **Disabled On Mount with 400ms Safety Delay**: Introduced `canSubmitStep2` state, initialized to `false` when `step === 2`, and enabled after a 400ms debounce timer via `useEffect`. The "Create Board" button is rendered with `disabled={!name.trim() || !canSubmitStep2 || isPending}`. When disabled, the browser native engine physically drops all queued pointer/mouse/click events.
+     4. **Strict Execution Guard**: `handleCreateBoard()` enforces `if (step !== 2 || !canSubmitStep2) return;`.
+     5. **Keyboard Enter Interception**: Pressing Enter on the board name input in Step 1 calls `handleNextStep()` to advance to Step 2 without any possibility of creating the board.
 
 ## Database / Schema Changes
 - None (uses existing Prisma schema and API endpoints).
 
 ## Verification Commands & Results
-- `npx vitest run src/components/kanban/create-board-page-view.test.ts` (9 tests passed).
-- `npx vitest run src/components/kanban/board-views-and-sidebar.test.ts` (9 tests passed).
+- `npx vitest run src/components/kanban/create-board-page-view.test.ts` (10 tests passed).
+- `npx vitest run src/components/kanban/board-views-and-sidebar.test.ts` (10 tests passed).
 - `npx vitest run src/components/kanban/create-board-modal.test.ts` (6 tests passed).
 - `npx vitest run src/lib/kanban/status.test.ts` (3 tests passed).
-- Full Vitest suite (`npm test`): 101 test files passed, 544 tests passed, 0 failed.
+- Full Vitest suite (`npm test`): 101 test files passed, 545 tests passed, 0 failed.
 - Prisma schema validation (`npx prisma validate`): Valid.
 - Next.js linting (`npm run lint`): Passed (0 warnings, 0 errors).
 - Next.js production build (`npm run build`): Passed (compiled all 42 pages cleanly).

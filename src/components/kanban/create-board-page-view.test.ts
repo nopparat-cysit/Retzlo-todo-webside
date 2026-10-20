@@ -59,16 +59,29 @@ describe("CreateBoardPageView full-page dedicated workflow and preview UX contra
   });
 
   it("provides persistent top-right action controls and removes bottom form buttons", () => {
-    expect(source).toContain('form="create-board-page-form"');
     expect(source).toContain('id="create-board-page-form"');
+    expect(source).toContain('key="step-1-header-actions"');
+    expect(source).toContain('key="step-2-header-actions"');
     // Ensure bottom action bar has been removed from the form
     expect(source).not.toContain("border-t border-theme-border pt-4");
   });
 
   it("strictly guards against accidental submission when clicking Next on Step 1", () => {
-    expect(source).toContain("stepTransitionLockRef");
-    expect(source).toContain("if (step !== 2)");
-    expect(source).toContain("key=\"step-1-next-btn\"");
-    expect(source).toContain("key=\"step-2-create-btn\"");
+    expect(source).toContain("canSubmitStep2");
+    expect(source).toContain("if (step !== 2 || !canSubmitStep2)");
+    expect(source).toContain("handleNextStep");
+    expect(source).toContain("handleCreateBoard");
+    expect(source).toContain('key="step-1-next-btn"');
+    expect(source).toContain('key="step-2-create-btn"');
+  });
+
+  it("ensures buttons use type='button' and form submission is decoupled from creation", () => {
+    // Both header buttons must be explicit type="button" to prevent native form submission
+    expect(source).toContain('key="step-1-next-btn"\n                type="button"');
+    expect(source).toContain('key="step-2-create-btn"\n                type="button"');
+    // Create Board button must be disabled until canSubmitStep2 is true
+    expect(source).toContain("disabled={!name.trim() || !canSubmitStep2 || isPending}");
+    // Form onSubmit must intercept and delegate to handleNextStep only if on step 1
+    expect(source).toContain("if (step === 1) {\n                handleNextStep();\n              }");
   });
 });

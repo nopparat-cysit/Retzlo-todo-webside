@@ -67,12 +67,37 @@ export function CreateBoardPageView({
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<1 | 2>(1);
-  const stepTransitionLockRef = useRef<number>(0);
+  const [canSubmitStep2, setCanSubmitStep2] = useState(false);
 
-  function goToStep(nextStep: 1 | 2) {
-    if (nextStep === 2 && !name.trim()) return;
-    stepTransitionLockRef.current = Date.now();
-    setStep(nextStep);
+  // Transition safety delay: prevent any residual pointer/click event from Step 1 from triggering Create Board
+  useEffect(() => {
+    if (step === 2) {
+      setCanSubmitStep2(false);
+      const timer = setTimeout(() => {
+        setCanSubmitStep2(true);
+      }, 400);
+      return () => clearTimeout(timer);
+    } else {
+      setCanSubmitStep2(false);
+    }
+  }, [step]);
+
+  function handleNextStep(e?: React.MouseEvent | FormEvent) {
+    e?.preventDefault();
+    e?.stopPropagation();
+    const trimmed = name.trim();
+    if (!trimmed) {
+      setError("Please enter a board name.");
+      return;
+    }
+    setError(null);
+    setStep(2);
+  }
+
+  function handleBackStep(e?: React.MouseEvent) {
+    e?.preventDefault();
+    e?.stopPropagation();
+    setStep(1);
   }
 
   // Preview display toggle: Kanban mockup vs Connected pipeline sequence
@@ -122,20 +147,12 @@ export function CreateBoardPageView({
     );
   }
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    e.stopPropagation();
+  async function handleCreateBoard(e?: FormEvent | React.MouseEvent) {
+    e?.preventDefault();
+    e?.stopPropagation();
 
-    // Guard 1: Step 1 must only transition to Step 2, never submit
-    if (step !== 2) {
-      if (name.trim()) {
-        goToStep(2);
-      }
-      return;
-    }
-
-    // Guard 2: Prevent synthetic click carryover from Step 1's "Next" button click
-    if (Date.now() - stepTransitionLockRef.current < 400) {
+    // Absolute Guard: Step 1 can NEVER create a board, and Step 2 must pass activation delay
+    if (step !== 2 || !canSubmitStep2) {
       return;
     }
 
@@ -243,11 +260,7 @@ export function CreateBoardPageView({
                 key="step-1-next-btn"
                 type="button"
                 disabled={!name.trim() || isPending}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  goToStep(2);
-                }}
+                onClick={handleNextStep}
                 variant="primary"
                 className="h-9 font-bold px-5 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
               >
@@ -261,11 +274,7 @@ export function CreateBoardPageView({
                 key="step-2-back-btn"
                 type="button"
                 variant="ghost"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  goToStep(1);
-                }}
+                onClick={handleBackStep}
                 disabled={isPending}
                 className="text-xs h-9 px-3.5 cursor-pointer flex items-center gap-1.5"
               >
@@ -274,11 +283,14 @@ export function CreateBoardPageView({
               </Button>
               <Button
                 key="step-2-create-btn"
-                type="submit"
-                form="create-board-page-form"
-                disabled={!name.trim() || isPending}
+                type="button"
+                disabled={!name.trim() || !canSubmitStep2 || isPending}
+                onClick={handleCreateBoard}
                 variant="primary"
-                className="h-9 font-bold px-5 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
+                className={cn(
+                  "h-9 font-bold px-5 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5 transition-all",
+                  !canSubmitStep2 && "opacity-60 cursor-not-allowed pointer-events-none"
+                )}
               >
                 <FolderKanban className="h-4 w-4" />
                 <span>{isPending ? "Creating Board..." : "Create Board"}</span>
@@ -294,14 +306,20 @@ export function CreateBoardPageView({
         <div className="lg:col-span-5">
           <form
             id="create-board-page-form"
-            onSubmit={handleSubmit}
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (step === 1) {
+                handleNextStep();
+              }
+            }}
             className="space-y-6 rounded-2xl border border-theme-border bg-theme-panel p-5 sm:p-6 shadow-xl"
           >
             {/* Wizard Step Navigation Indicator */}
             <div className="flex items-center gap-2 border-b border-theme-border pb-4">
               <button
                 type="button"
-                onClick={() => goToStep(1)}
+                onClick={handleBackStep}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   step === 1
@@ -328,7 +346,7 @@ export function CreateBoardPageView({
                 type="button"
                 disabled={!name.trim()}
                 onClick={() => {
-                  if (name.trim()) goToStep(2);
+                  if (name.trim()) handleNextStep();
                 }}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2.5 py-1 text-xs font-semibold transition",
@@ -375,7 +393,7 @@ export function CreateBoardPageView({
                       if (e.key === "Enter") {
                         e.preventDefault();
                         e.stopPropagation();
-                        goToStep(2);
+                        handleNextStep();
                       }
                     }}
                     placeholder="e.g. Marketing Roadmap, Sprint 2, Bug Tracker..."
@@ -419,7 +437,7 @@ export function CreateBoardPageView({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => setStep(1)}
+                    onClick={handleBackStep}
                     className="h-7 text-xs text-theme-accent shrink-0 cursor-pointer"
                   >
                     Change
