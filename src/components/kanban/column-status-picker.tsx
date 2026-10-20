@@ -6,14 +6,27 @@ import {
   getStoredStatuses,
   getStatusMeta,
   saveStoredStatuses,
+  STATUS_COLOR_CONFIGS,
   type CustomStatusOption
 } from "@/lib/kanban/status";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import type { CardStatus } from "@/types/kanban";
 
 const STATUS_COLOR_KEYS = ["indigo", "teal", "cyan", "amber", "emerald", "rose", "purple", "stone"] as const;
+
+const STATUS_COLOR_SWATCHES: Array<{ key: string; label: string; bgClass: string; borderClass: string }> = [
+  { key: "indigo", label: "Indigo", bgClass: "bg-indigo-500", borderClass: "border-indigo-600" },
+  { key: "teal", label: "Teal", bgClass: "bg-teal-500", borderClass: "border-teal-600" },
+  { key: "cyan", label: "Cyan", bgClass: "bg-cyan-500", borderClass: "border-cyan-600" },
+  { key: "amber", label: "Amber", bgClass: "bg-amber-500", borderClass: "border-amber-600" },
+  { key: "emerald", label: "Emerald", bgClass: "bg-emerald-500", borderClass: "border-emerald-600" },
+  { key: "rose", label: "Rose", bgClass: "bg-rose-500", borderClass: "border-rose-600" },
+  { key: "purple", label: "Purple", bgClass: "bg-purple-500", borderClass: "border-purple-600" },
+  { key: "stone", label: "Slate", bgClass: "bg-stone-500", borderClass: "border-stone-600" }
+];
 
 export interface ColumnStatusPickerProps {
   value: CardStatus;
@@ -111,54 +124,126 @@ export function ColumnStatusPicker({
     toast({ message: `Status "${newStatus.label}" added successfully`, type: "success" });
   };
 
+  const selectedColorConfig =
+    STATUS_COLOR_CONFIGS[selectedMeta.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
+  const previewColorConfig =
+    STATUS_COLOR_CONFIGS[newStatusColor] || STATUS_COLOR_CONFIGS.indigo;
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      {/* Top Header Bar */}
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">Card status</span>
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-bold uppercase tracking-wider text-theme-foreground">
+            Card Status
+          </label>
           <button
             type="button"
             onClick={() => setIsAddingStatus((prev) => !prev)}
-            className="grid h-5 w-5 place-items-center rounded-md text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
-            title="Add Status"
+            className={cn(
+              "inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-semibold border transition cursor-pointer",
+              isAddingStatus
+                ? "border-theme-accent/40 bg-theme-accent/15 text-theme-accent shadow-2xs"
+                : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/50 hover:text-theme-foreground"
+            )}
+            title="Create Custom Status"
             aria-label="Add Status"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-3 w-3" />
+            <span>Add Status</span>
           </button>
         </div>
-        <span className={cn("rounded border px-2 py-0.5 text-[10px]", selectedMeta.badgeClass)}>
-          {selectedMeta.label}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-theme-muted uppercase tracking-wider hidden sm:inline">
+            Default:
+          </span>
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold shadow-2xs",
+              selectedMeta.badgeClass
+            )}
+          >
+            <span
+              className={cn(
+                "h-1.5 w-1.5 rounded-full shrink-0",
+                selectedColorConfig.dot
+              )}
+            />
+            <span>{selectedMeta.label}</span>
+          </span>
+        </div>
       </div>
 
       {/* Quick Add Custom Status Inline Panel */}
       {isAddingStatus && (
-        <div className="rounded-xl border border-stone-200/90 bg-stone-50/90 p-3 space-y-2.5 dark:border-white/10 dark:bg-white/[0.04] animate-in fade-in zoom-in-95 duration-150">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-              <Plus className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-              <span>Add Status</span>
-            </span>
+        <div className="rounded-2xl border border-theme-border bg-theme-panel p-4 space-y-3.5 shadow-lg animate-in fade-in zoom-in-95 duration-150">
+          {/* Header */}
+          <div className="flex items-center justify-between pb-2 border-b border-theme-border/60">
+            <div className="flex items-center gap-2">
+              <span className="grid h-6 w-6 place-items-center rounded-lg bg-theme-accent/15 text-theme-accent">
+                <Plus className="h-3.5 w-3.5" />
+              </span>
+              <div>
+                <h5 className="text-xs font-bold text-theme-foreground">
+                  Create New Status
+                </h5>
+                <p className="text-[10px] text-theme-muted">
+                  Add a custom workflow status for this board
+                </p>
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => {
                 setIsAddingStatus(false);
                 setNewStatusLabel("");
               }}
-              className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 p-0.5 rounded cursor-pointer"
+              className="text-theme-muted hover:text-theme-foreground hover:bg-theme-paper p-1 rounded-lg transition cursor-pointer"
               aria-label="Close add status"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          {/* Section 1: Status Label & Live Badge Preview */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="new-status-label-input" className="text-[11px] font-bold uppercase tracking-wider text-theme-foreground">
+                Status Label <span className="text-theme-danger">*</span>
+              </label>
+
+              {/* Dynamic Real-time Live Badge Preview */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-semibold text-theme-muted uppercase tracking-wider">
+                  Preview:
+                </span>
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold shadow-2xs transition-all",
+                    previewColorConfig.badgeClass
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full shrink-0",
+                      previewColorConfig.dot
+                    )}
+                  />
+                  <span className="truncate max-w-[140px]">
+                    {newStatusLabel.trim() || "Status Name"}
+                  </span>
+                </span>
+              </div>
+            </div>
+
             <Input
+              id="new-status-label-input"
               autoFocus
               placeholder="Status label, e.g. In Review, QA, Blocked..."
               value={newStatusLabel}
               onChange={(e) => setNewStatusLabel(e.target.value)}
-              className="h-8 text-xs flex-1 bg-white dark:bg-stone-900"
+              className="h-10 text-xs rounded-xl bg-theme-paper border-theme-border font-medium focus:border-theme-accent"
+              maxLength={30}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
@@ -169,54 +254,72 @@ export function ColumnStatusPicker({
                 }
               }}
             />
-            <div className="flex items-center gap-1 shrink-0 justify-center py-0.5">
-              {STATUS_COLOR_KEYS.map((colKey) => (
-                <button
-                  key={colKey}
-                  type="button"
-                  onClick={() => setNewStatusColor(colKey)}
-                  className={cn(
-                    "h-5 w-5 rounded-full border transition cursor-pointer flex items-center justify-center shrink-0",
-                    newStatusColor === colKey
-                      ? "ring-2 ring-indigo-500 ring-offset-1 scale-110 shadow-xs"
-                      : "opacity-70 hover:opacity-100",
-                    colKey === "indigo" && "bg-indigo-500 border-indigo-600",
-                    colKey === "teal" && "bg-teal-500 border-teal-600",
-                    colKey === "cyan" && "bg-cyan-500 border-cyan-600",
-                    colKey === "amber" && "bg-amber-500 border-amber-600",
-                    colKey === "emerald" && "bg-emerald-500 border-emerald-600",
-                    colKey === "rose" && "bg-rose-500 border-rose-600",
-                    colKey === "purple" && "bg-purple-500 border-purple-600",
-                    colKey === "stone" && "bg-stone-500 border-stone-600"
-                  )}
-                  title={colKey}
-                >
-                  {newStatusColor === colKey && <Check className="h-2.5 w-2.5 text-white stroke-[3]" />}
-                </button>
-              ))}
+          </div>
+
+          {/* Section 2: Accent Color Swatches */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-theme-muted">
+                Status Color
+              </label>
+              <span className="text-[10px] text-theme-muted capitalize font-medium">
+                {newStatusColor}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 pt-0.5" role="radiogroup" aria-label="Status color">
+              {STATUS_COLOR_SWATCHES.map((swatch) => {
+                const isSelected = newStatusColor === swatch.key;
+                return (
+                  <button
+                    key={swatch.key}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    onClick={() => setNewStatusColor(swatch.key)}
+                    className={cn(
+                      "group relative h-7 w-7 rounded-full border transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-2xs hover:scale-110",
+                      swatch.bgClass,
+                      swatch.borderClass,
+                      isSelected
+                        ? "ring-2 ring-theme-accent ring-offset-2 ring-offset-theme-paper scale-110 shadow-xs"
+                        : "opacity-75 hover:opacity-100"
+                    )}
+                    title={swatch.label}
+                  >
+                    {isSelected && (
+                      <Check className="h-3.5 w-3.5 text-white stroke-[3] drop-shadow-xs" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-0.5">
-            <button
+          {/* Section 3: Footer Actions */}
+          <div className="flex items-center justify-end gap-2 pt-1 border-t border-theme-border/60">
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 setIsAddingStatus(false);
                 setNewStatusLabel("");
               }}
-              className="rounded-lg px-2.5 py-1 text-xs text-stone-500 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
+              className="h-8 text-xs text-theme-muted hover:text-theme-foreground cursor-pointer"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               disabled={!newStatusLabel.trim()}
               onClick={handleQuickAddStatus}
-              className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 disabled:opacity-40 dark:bg-dusk-lavender dark:text-stone-950 dark:hover:bg-dusk-lavender/90 cursor-pointer"
+              className="h-8 text-xs font-semibold px-3.5 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
             >
               <Check className="h-3.5 w-3.5" />
               <span>Save Status</span>
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -226,24 +329,31 @@ export function ColumnStatusPicker({
         {displayStatuses.map((option) => {
           const meta = getStatusMeta(option.value, displayStatuses);
           const selected = option.value.toUpperCase() === (value || "").toUpperCase();
+          const colorConfig = STATUS_COLOR_CONFIGS[option.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
 
           return (
             <button
               key={option.value}
               aria-label={`Use ${meta.label} as default card status`}
               className={cn(
-                "rounded-lg border px-2 py-2 text-xs transition hover:-translate-y-0.5 hover:border-dusk-lavender/40 cursor-pointer text-center",
+                "group relative flex items-center justify-between gap-1.5 rounded-xl border p-2 text-xs font-medium transition cursor-pointer text-left",
                 selected
-                  ? "border-dusk-amber bg-dusk-amber/15 shadow-[0_0_0_2px_rgba(249,199,132,0.25)]"
-                  : "border-stone-200/80 bg-white text-stone-700 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300"
+                  ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-xs ring-1 ring-theme-accent/40"
+                  : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/60 hover:text-theme-foreground hover:bg-theme-paper-strong/30"
               )}
               title={meta.label}
               type="button"
               onClick={() => onChange(option.value)}
             >
-              <span className={cn("inline-flex rounded border px-2 py-0.5 text-xs font-medium truncate max-w-full", meta.badgeClass)}>
-                {meta.label}
+              <span className={cn("inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold truncate max-w-full", meta.badgeClass)}>
+                <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", colorConfig.dot)} />
+                <span className="truncate">{meta.label}</span>
               </span>
+              {selected ? (
+                <span className="grid h-4 w-4 place-items-center rounded-full bg-theme-accent text-white dark:text-stone-900 shrink-0">
+                  <Check className="h-2.5 w-2.5 stroke-[3]" />
+                </span>
+              ) : null}
             </button>
           );
         })}
@@ -252,7 +362,12 @@ export function ColumnStatusPicker({
         <button
           type="button"
           onClick={() => setIsAddingStatus(true)}
-          className="flex items-center justify-center gap-1 rounded-lg border border-dashed border-stone-300/80 p-2 text-xs font-semibold text-stone-500 transition hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-700 dark:border-white/15 dark:text-stone-400 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10 dark:hover:text-dusk-lavender cursor-pointer text-center"
+          className={cn(
+            "flex items-center justify-center gap-1.5 rounded-xl border border-dashed p-2 text-xs font-semibold transition cursor-pointer text-center",
+            isAddingStatus
+              ? "border-theme-accent bg-theme-accent/10 text-theme-accent shadow-xs"
+              : "border-theme-border bg-theme-paper/40 text-theme-muted hover:border-theme-accent/60 hover:text-theme-foreground hover:bg-theme-paper"
+          )}
           title="Add Status"
           aria-label="Add custom status"
         >

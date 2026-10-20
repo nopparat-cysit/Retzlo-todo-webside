@@ -21,7 +21,7 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
   - `src/lib/kanban/status.ts` — Included `dot` color indicator in `getStatusMeta` return object.
   - `src/components/kanban/board-sidebar-dropdown.tsx` — Updated "Create new board" buttons to navigate to `/project/[id]/board/new`.
   - `src/components/project/projects-dashboard.tsx` — Updated "New Board" button and blueprint cards to navigate to `/project/[id]/board/new`.
-  - `src/components/project/project-boards-manager.tsx` — Updated "New board" button to navigate to `/project/[id]/board/new`.
+  - `src/components/kanban/column-status-picker.tsx` — Completely redesigned the Add Custom Status inline panel: eliminated horizontal squeezing, added real-time live badge preview, upgraded color swatches with labels and comfortable spacing, modernized action buttons, and polished status grid chips with theme tokens.
   - `docs/theme-system.md` — Documented coverage and retro lofi indigo token integration.
   - `docs/system-guide.md` — Documented dedicated full-page board creator and table status alignment.
   - `src/components/help/help-center-client.tsx` — Updated in-app knowledge base description.
@@ -69,6 +69,13 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
      3. **Disabled On Mount with 400ms Safety Delay**: Introduced `canSubmitStep2` state, initialized to `false` when `step === 2`, and enabled after a 400ms debounce timer via `useEffect`. The "Create Board" button is rendered with `disabled={!name.trim() || !canSubmitStep2 || isPending}`. When disabled, the browser native engine physically drops all queued pointer/mouse/click events.
      4. **Strict Execution Guard**: `handleCreateBoard()` enforces `if (step !== 2 || !canSubmitStep2) return;`.
      5. **Keyboard Enter Interception**: Pressing Enter on the board name input in Step 1 calls `handleNextStep()` to advance to Step 2 without any possibility of creating the board.
+8. **Card Status Picker & Add Status UX/UI Redesign ("แก้ UxUi ส่วนนี้")**:
+   - Redesigned the custom status creation panel in `src/components/kanban/column-status-picker.tsx`:
+     - **Eliminated Horizontal Squeezing**: Separated the single cramped row into clear vertical sections: Title header, Status Name with Live Badge Preview, Status Color palette swatches, and Action buttons.
+     - **Real-Time Live Badge Preview**: Added an interactive status pill preview above the input displaying the entered text, dot color, and badge background styles dynamically as the user types and selects colors.
+     - **Upgraded Swatches**: Swatches expanded from tiny 20px dots to comfortable 28px (`h-7 w-7`) circles with smooth hover scales, active rings, clear titles, and checkmarks.
+     - **Unified Design System Primitives**: Converted ad-hoc elements to semantic tokens (`bg-theme-panel`, `bg-theme-paper`, `border-theme-border`, `text-theme-foreground`, `text-theme-accent`) and standard `Button` components.
+     - **Polished Status Grid Chips**: Enhanced status chips with color dot indicators and checkmarks on selection.
 
 ## Database / Schema Changes
 - None (uses existing Prisma schema and API endpoints).
