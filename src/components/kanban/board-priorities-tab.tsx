@@ -698,16 +698,22 @@ export function BoardPrioritiesTab({
         </div>
       )}
 
-      {/* Live Preview Section */}
-      <div className="flex flex-col gap-1.5 pt-1">
-        <div className="text-[11px] font-bold text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
-          <Palette className="h-3.5 w-3.5 text-dusk-amber" />
-          <span>
-            {previewTemplate
-              ? `Previewing template "${previewTemplate.name}":`
-              : "Preview on board and export view:"}
+      {/* Live Preview Section: Pills + Sample Kanban Cards */}
+      <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-3.5 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
+            <Palette className="h-3.5 w-3.5 text-dusk-amber" />
+            <span>
+              {previewTemplate
+                ? `Kanban Card Mockup Preview: "${previewTemplate.name}"`
+                : "Kanban Card Mockup Preview (Board & Export View):"}
+            </span>
+          </div>
+          <span className="rounded-full border border-indigo-200/70 bg-white/80 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-indigo-700 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender">
+            Live Mockup
           </span>
         </div>
+
         <div className="flex flex-wrap gap-1.5">
           {displayedPriorities.map((p, idx) => {
             const config = getPriorityColorConfig(p.color);
@@ -725,12 +731,48 @@ export function BoardPrioritiesTab({
             );
           })}
         </div>
+
+        {/* Sample Cards Grid showing Priority Badges on realistic cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+          {displayedPriorities.slice(0, 3).map((p, idx) => {
+            const config = getPriorityColorConfig(p.color);
+            const sampleTitles = [
+              "Resolve critical production API latency",
+              "Implement user dashboard filter state",
+              "Polish empty state illustrations"
+            ];
+            return (
+              <div
+                key={`card-preview-${p.id || idx}`}
+                className="rounded-xl border border-stone-200/80 bg-white p-2.5 space-y-1.5 shadow-2xs dark:border-white/10 dark:bg-stone-900/90"
+              >
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                    TSK-{201 + idx}
+                  </span>
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-full border px-1.5 py-0.2 text-[9px] font-bold",
+                      config.pillClass
+                    )}
+                  >
+                    <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", config.dotClass)} />
+                    <span>{p.label || "Priority"}</span>
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium text-stone-900 dark:text-stone-100 line-clamp-2 leading-snug">
+                  {sampleTitles[idx % sampleTitles.length]}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Save as Custom Priority Template Modal */}
       {isSaveCustomTemplateOpen && (
         <ModalPortal>
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4">
             <div
               className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
               onClick={() => setIsSaveCustomTemplateOpen(false)}

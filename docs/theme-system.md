@@ -835,4 +835,33 @@ Template:
   - Added direct 1-click **Boards Quick-Jump Chips** and **Quick Launch** panel styled with retro lofi indigo accents in dark mode and warm stone surfaces in light mode.
 - Verification: Component test suite (5 files, 34 tests passed), full test suite (100 files, 533 passed), `npx prisma validate`, `npm run lint`, `npm run build` (42/42 routes passed).
 
-
+### 2026-10-20 — Universal Live Interactive Mockup Preview System & Workspace UX/UI Polish
+- Coverage:
+  - `src/components/kanban/board-mockup-preview.tsx` (new shared reusable Kanban Board & Card Mockup Preview engine)
+  - `src/components/kanban/board-template-picker.tsx` & `src/components/kanban/create-board-modal.tsx`
+  - `src/components/kanban/board-settings/general-tab.tsx`
+  - `src/components/kanban/board-settings/columns-tab.tsx`
+  - `src/components/kanban/board.tsx`, `src/components/kanban/column.tsx`, & `src/components/kanban/board-list-view.tsx`
+  - `src/components/kanban/board-attributes-tab.tsx`, `src/components/kanban/board-priorities-tab.tsx`, & `src/components/kanban/card-attributes-edit-modal.tsx`
+  - `src/components/diary/diary-list-panel.tsx`
+  - `src/components/notes/folder-modal.tsx` & `src/components/notes/notes-panel.tsx`
+  - `src/components/kanban/board-view-container.tsx`, `src/components/kanban/project-calendar.tsx`, `src/components/project/project-shell.tsx`, `src/components/project/project-nav-link.tsx`, `src/components/ui/command-palette.tsx`, `src/components/ai/ai-project-summary-modal.tsx`, & `src/components/hub/fab-hub.tsx`
+- Design Direction & Theme Alignment:
+  - **Shared Kanban Board & Card Mockup Preview Engine (`BoardMockupPreview`)**: Renders a tactile mini-Kanban stage (`rounded-2xl border border-stone-200/80 dark:border-white/10 bg-stone-100/70 dark:bg-ink-950/60`) supporting both Light Mode (Warm Paper) and Dark Mode (Retro Lofi Indigo). Includes optional simulated board topbar (Board Name, Public/Private badge, member avatar stack), column tracks with `COLUMN_COLOR_OPTIONS` themes, `ColumnIconGlyph`, `WIP Limit` counters (`2/5`), `Default Status` badges, `NEW`/`EDITING` highlight rings, and realistic sample cards (`TSK-101`, `TSK-102`).
+  - **8 Live Creation & Editing Mockup Previews**:
+    1. **Create Board Modal (`CreateBoardModal` + `BoardTemplatePicker`)**: Added `Kanban Mockup` / `Pipeline` switcher showing the live board name, access mode, member avatars, and template columns with sample cards.
+    2. **Board Settings -> General & Access Tab (`BoardGeneralTab`)**: Added **Board Header & Access Mockup Preview** reflecting board name, Public vs Private status, and selected member avatars in real time.
+    3. **Board Settings -> Columns Tab (`BoardColumnsTab`)**: Added **Kanban Workflow Columns Mockup Preview** highlighting newly added (`isAddingColumn`) or currently edited (`editingColumnId`) columns live on the board canvas.
+    4. **In-Board Create & Edit Column Modals (`board.tsx` & `column.tsx`)**: Added compact live `BoardMockupPreview` showing the target column with its live name, icon, theme color, WIP limit, and default status.
+    5. **Board Priorities & Card Attributes Edit Modal (`board-priorities-tab.tsx` & `card-attributes-edit-modal.tsx`)**: Upgraded Priority live preview with a 3-card sample Kanban grid (`TSK-201`–`TSK-203`) and added a **Live Task Card Mockup Preview** (`TSK-104`) inside `CardAttributesEditModal`. Fixed `"Save as Custom Template"` portal z-index from `z-50` to `z-[1200]`.
+    6. **Diary Routine Create/Edit Modal (`DiaryItemModal` in `diary-list-panel.tsx`)**: Added **Routine Card Mockup Preview** reflecting card color, title, description, repeat interval, step progress (`0/N steps`), privacy badge, and coin reward (`+N`).
+    7. **Note Folder Create/Edit Modal (`FolderModal`)**: Added **Folder Mockup Preview** showing both Sidebar Tree Item and Folder Header Pill representations with live color and Retzlo sticker icon.
+    8. **Note Create/Edit Modal (`notes-panel.tsx`)**: Added **Note Card Mockup Preview** in the right settings sidebar showing live color accent, sticker, title, content snippet, folder badge, due date, and private badge.
+  - **Workspace UX/UI Polish**:
+    - Removed duplicate search input when `BoardListView` is rendered inside `board.tsx` (`hideDuplicateSearch`).
+    - Added responsive mobile/tablet slide-over drawer (`xl:hidden`) for `BoardNotesRail` in `board-view-container.tsx`.
+    - Enabled future recurring Diary checklist items to appear on future dates in `project-calendar.tsx`.
+    - Added search input (`Search notes...`) in `notes-panel.tsx`.
+    - Made `Command K` badges in `project-shell.tsx` clickable via `CommandPaletteTrigger` and auto-closed mobile `#project-sidebar-toggle` upon navigation.
+    - Updated `AiProjectSummaryModal` to require explicit user click before deducting 2 AI credits, and replaced `window.location.reload()` in `fab-hub.tsx` with `router.refresh()`.
+- Verification: Vitest full suite (100 test files, 534 passed), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed.

@@ -23,6 +23,7 @@ import {
   Plus,
   RotateCcw,
   Save,
+  Search,
   Star,
   Trash2,
   X
@@ -112,6 +113,7 @@ export function NotesPanel({
   const [filter, setFilter] = useState<NoteFilter>("all");
   const [folderFilter, setFolderFilter] = useState<string>("all");
   const [boardFilter, setBoardFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<NoteSort>("updated");
   const [viewMode, setViewMode] = useState<NoteViewMode>("grid-2");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -122,7 +124,15 @@ export function NotesPanel({
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const visibleNotes = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
     const filtered = notes.filter((note) => {
+      if (query) {
+        const matchesTitle = note.title.toLowerCase().includes(query);
+        const matchesContent = note.content?.toLowerCase().includes(query) ?? false;
+        const matchesFolder = note.folder?.name.toLowerCase().includes(query) ?? false;
+        if (!matchesTitle && !matchesContent && !matchesFolder) return false;
+      }
+
       if (boardFilter === "general") {
         if (note.boardId) return false;
       } else if (boardFilter !== "all") {
@@ -155,7 +165,7 @@ export function NotesPanel({
       const key = sortBy === "created" ? "createdAt" : "updatedAt";
       return new Date(b[key]).getTime() - new Date(a[key]).getTime();
     });
-  }, [filter, folderFilter, boardFilter, notes, sortBy]);
+  }, [filter, folderFilter, boardFilter, notes, sortBy, searchQuery]);
   const activeNotes = useMemo(() => notes.filter((note) => !note.completedAt), [notes]);
   const completedNotes = useMemo(() => notes.filter((note) => note.completedAt), [notes]);
   const recentNotes = useMemo(
@@ -689,6 +699,27 @@ export function NotesPanel({
               <h3 className="mt-1 text-xl font-semibold text-stone-100">Note board</h3>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <div className="relative flex items-center">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search notes..."
+                  aria-label="Search notes"
+                  className="h-9 w-40 sm:w-52 rounded-lg border border-stone-200/80 bg-white/90 pl-8 pr-7 text-xs text-stone-800 placeholder:text-stone-400 focus:border-dusk-lavender focus:outline-none dark:border-white/10 dark:bg-ink-950/60 dark:text-stone-200"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    aria-label="Clear note search"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
               <div
                 className="flex rounded-lg border border-white/10 bg-ink-950/45 p-1"
                 data-notes-view-mode-toggle="grid-list"
@@ -1431,6 +1462,55 @@ function NoteEditorModalContent({
         </div>
 
         <aside className="scrollbar-soft min-h-0 space-y-5 overflow-y-auto border-t border-white/10 bg-white/[0.025] p-5 lg:border-l lg:border-t-0">
+          {/* Live Note Card Mockup Preview */}
+          {(() => {
+            const noteColorMeta = getCardColorMeta(color);
+            return (
+              <div className="rounded-xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
+                    <Eye className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                    <span>Note Card Mockup Preview</span>
+                  </span>
+                  <span className="rounded-full border border-indigo-200/70 bg-white/80 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-indigo-700 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender">
+                    Live Mockup
+                  </span>
+                </div>
+
+                <div
+                  className={cn(
+                    "rounded-xl border p-3 shadow-2xs space-y-2 transition-all",
+                    noteColorMeta.cardClass
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-stone-200/70 bg-white/80 dark:border-white/10 dark:bg-white/5">
+                        {renderNoteSticker(emoji, "h-6 w-6")}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
+                          {titleValue.trim() || "Untitled Note"}
+                        </p>
+                        <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
+                          {currentFolder ? `${currentFolder.icon || "📁"} ${currentFolder.name}` : "Unfiled Note"}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="rounded-full border border-stone-200/80 bg-white/80 px-2 py-0.5 text-[9px] font-semibold text-stone-600 dark:border-white/10 dark:bg-white/10 dark:text-stone-300 shrink-0">
+                      {scope === "private" ? "Private" : scope === "board" ? "Board" : "Team"}
+                    </span>
+                  </div>
+                  {contentValue.trim() && (
+                    <p className="text-[10px] text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed">
+                      {contentValue.trim()}
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Folder Selector */}
           <div className="space-y-1.5 text-sm text-stone-300">
             <span className="font-medium text-xs text-stone-400 uppercase tracking-wider">Folder</span>

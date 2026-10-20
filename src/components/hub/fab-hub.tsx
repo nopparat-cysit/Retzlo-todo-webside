@@ -730,6 +730,7 @@ function FabCreateModal({
   onClose: () => void;
   pinAfterCreate: boolean;
 }) {
+  const router = useRouter();
   const params = useParams();
   const projectIdFromUrl = params.id as string | undefined;
 
@@ -880,7 +881,7 @@ function FabCreateModal({
       }
 
       onClose();
-      window.location.reload();
+      router.refresh();
     } catch (err: any) {
       setError(err.message ?? "An error occurred.");
     } finally {

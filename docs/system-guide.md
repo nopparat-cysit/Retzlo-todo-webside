@@ -396,3 +396,24 @@ Retzlo now features a modern, world-class documentation portal inspired by `hand
 
 
 
+
+### 2026-10-20 — Universal Live Interactive Mockup Preview System & Workspace UX/UI Refinements
+Retzlo workspaces now provide real-time **Kanban & Card Mockup Previews** across all creation, editing, and settings dialogs:
+- **Board Creation & Template Mockup (`CreateBoardModal` & `BoardTemplatePicker`)**:
+  - Toggle between `Kanban Mockup` and `Pipeline` views while creating a board.
+  - Previews the simulated board topbar (Board Name, Public/Private badge, member avatar stack) alongside all template columns and sample task cards.
+- **Board Settings Live Mockups (`BoardGeneralTab`, `BoardColumnsTab`, `BoardAttributesTab`, `BoardPrioritiesTab`)**:
+  - **General & Access**: Live preview of the board header and access badges as the name, privacy toggle, or member access list changes.
+  - **Workflow Columns**: Full horizontal Kanban board mockup highlighting newly created or currently edited columns with live icon, theme color, default status, and WIP limit badges.
+  - **Priority & Status Attributes**: Sample Kanban cards (`TSK-101`–`TSK-203`) reflect custom statuses and priority badges in real time.
+- **In-Board Column & Card Attribute Modals (`board.tsx`, `column.tsx`, `CardAttributesEditModal`)**:
+  - Compact live column preview inside `+ Column` and `Edit Column` modals.
+  - Live Task Card Mockup Preview (`TSK-104`) at the top of `CardAttributesEditModal` when editing card status, priority, story points, and effort.
+- **Diary, Folder, and Note Mockup Previews (`DiaryItemModal`, `FolderModal`, `NotesPanel`)**:
+  - Live Routine Card Mockup Preview in Diary creation/editing.
+  - Live Sidebar Tree + Header Pill Mockup Preview in Note Folder creation/editing.
+  - Live Note Card Mockup Preview in the Note editor sidebar, plus instant client-side note search (`Search notes...`).
+- **Workspace Navigation & Calendar Polish**:
+  - Responsive slide-over drawer for `BoardNotesRail` on screens `< 1280px`.
+  - Future recurring Diary checklist items now appear on future Calendar dates.
+  - Clickable `Command K` triggers in the workspace topbar and sidebar footer, and automatic mobile sidebar dismissal on route change.

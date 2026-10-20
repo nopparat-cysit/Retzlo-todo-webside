@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Globe, Lock, Search, Users, X } from "lucide-react";
+import { Check, Eye, FolderKanban, Globe, Lock, Search, Users, X } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,9 +46,98 @@ export function BoardGeneralTab({
 }: BoardGeneralTabProps) {
   const activeSelectedCount = selectedMemberIds.length || selectedMemberCount;
   const totalCount = projectMembers.length || totalProjectMembersCount;
+  const previewMembers = isPrivate
+    ? projectMembers.filter((m) => selectedMemberIds.includes(m.id))
+    : projectMembers;
 
   return (
     <div className="space-y-4 pt-1 mt-0">
+      {/* Live Board Header & Switcher Mockup Preview */}
+      <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-3.5 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="grid h-7 w-7 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-2xs">
+              <Eye className="h-3.5 w-3.5" />
+            </span>
+            <div className="min-w-0">
+              <span className="text-xs font-bold text-indigo-950 dark:text-indigo-100">
+                Board Header & Access Mockup Preview
+              </span>
+              <p className="text-[10px] text-indigo-900/75 dark:text-indigo-200/75 truncate">
+                Live preview of how this board appears in the workspace topbar & switcher
+              </p>
+            </div>
+          </div>
+          <span className="rounded-full border border-indigo-200/70 bg-white/80 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-indigo-700 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender shrink-0">
+            Live Mockup
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-stone-200/80 bg-white/95 px-3 py-2.5 shadow-2xs dark:border-white/10 dark:bg-stone-900/90">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-indigo-500/15 text-indigo-600 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+              <FolderKanban className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
+                  {name.trim() || "Untitled Board"}
+                </span>
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-bold shrink-0",
+                    isPrivate
+                      ? "border-amber-300/70 bg-amber-500/10 text-amber-700 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber"
+                      : "border-emerald-300/70 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-300"
+                  )}
+                >
+                  {isPrivate ? (
+                    <>
+                      <Lock className="h-2.5 w-2.5" />
+                      <span>Private Sub-Board</span>
+                    </>
+                  ) : (
+                    <>
+                      <Globe className="h-2.5 w-2.5" />
+                      <span>Public Workspace</span>
+                    </>
+                  )}
+                </span>
+              </div>
+              <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
+                {isPrivate
+                  ? `${activeSelectedCount} of ${totalCount} workspace members authorized`
+                  : `Accessible to all ${totalCount} workspace members`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {previewMembers.length > 0 ? (
+              <div className="flex -space-x-1.5">
+                {previewMembers.slice(0, 5).map((member) => (
+                  <Avatar
+                    key={member.id}
+                    user={{
+                      id: member.id,
+                      name: member.name,
+                      email: member.email,
+                      avatar: member.avatar
+                    }}
+                    size={24}
+                    className="ring-2 ring-white dark:ring-stone-900"
+                  />
+                ))}
+              </div>
+            ) : (
+              <span className="rounded-md bg-stone-100 px-2 py-0.5 font-mono text-[10px] text-stone-500 dark:bg-white/10 dark:text-stone-400">
+                {isPrivate ? `${activeSelectedCount} members` : `${totalCount} members`}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Board Name */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs">

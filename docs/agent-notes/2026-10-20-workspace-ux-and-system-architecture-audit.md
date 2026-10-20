@@ -67,6 +67,38 @@
 - `src/components/project/project-topbar-tools.tsx`:
   - Enabled persistent `forceMount` on ambient studio tools so Lofi player music and Nixie Pomodoro timers remain active when popovers close.
 
+### Universal Live Interactive Mockup Preview System & P1–P2 UX/UI Polish (Created & Modified)
+- `src/components/kanban/board-mockup-preview.tsx` (Created):
+  - Shared `BoardMockupPreview` and `buildMockupSampleCards` component rendering live simulated board headers, workflow columns, WIP badges, default statuses, `NEW`/`EDITING` highlight rings, and realistic sample task cards (`TSK-101`, `TSK-102`).
+- `src/components/kanban/board-template-picker.tsx` & `src/components/kanban/create-board-modal.tsx`:
+  - Added `Kanban Mockup` / `Pipeline` preview mode switcher in `BoardTemplatePicker` connected to live `boardName`, `isPrivate`, and `memberInitials` from `CreateBoardModal`.
+- `src/components/kanban/board-settings/general-tab.tsx`:
+  - Added live **Board Header & Access Mockup Preview** reflecting board name, Public vs Private status, and selected member avatars.
+- `src/components/kanban/board-settings/columns-tab.tsx`:
+  - Added live **Kanban Workflow Columns Mockup Preview** (`BoardMockupPreview`) at the top of the tab, highlighting newly added or currently edited columns in real time.
+- `src/components/kanban/board.tsx`, `src/components/kanban/column.tsx`, & `src/components/kanban/board-list-view.tsx`:
+  - Added compact live `BoardMockupPreview` inside the in-board `Create column` and `Edit column` modals.
+  - Added `hideDuplicateSearch` prop to `BoardListView` to eliminate the duplicate search bar when rendered inside `board.tsx`.
+- `src/components/kanban/board-attributes-tab.tsx`, `src/components/kanban/board-priorities-tab.tsx`, & `src/components/kanban/card-attributes-edit-modal.tsx`:
+  - Raised `"Save as Custom Template"` modal portal z-index from `z-50` to `z-[1200]`.
+  - Upgraded `BoardPrioritiesTab` with a 3-card sample Kanban preview (`TSK-201`–`TSK-203`).
+  - Added **Live Task Card Mockup Preview** (`TSK-104`) inside `CardAttributesEditModal`.
+- `src/components/diary/diary-list-panel.tsx`:
+  - Added **Routine Card Mockup Preview** inside `DiaryItemModal`.
+- `src/components/notes/folder-modal.tsx` & `src/components/notes/notes-panel.tsx`:
+  - Added **Folder Mockup Preview** inside `FolderModal` and **Note Card Mockup Preview** inside the Note Create/Edit Modal sidebar.
+  - Added client-side note search input (`Search notes...`) in `NotesPanel`.
+- `src/components/kanban/board-view-container.tsx`:
+  - Added a responsive slide-over drawer (`xl:hidden`) for `BoardNotesRail` on screens `< 1280px`.
+- `src/components/kanban/project-calendar.tsx`:
+  - Removed `if (day.key > todayKey) continue;` so future recurring Diary checklist items appear on future calendar dates.
+- `src/components/ui/command-palette.tsx`, `src/components/project/project-shell.tsx`, `src/components/project/project-nav-link.tsx`, & `src/components/kanban/board-sidebar-dropdown.tsx`:
+  - Added clickable `CommandPaletteTrigger` buttons in the workspace topbar and sidebar footer.
+  - Auto-closed mobile `#project-sidebar-toggle` drawer when navigating between workspace routes or boards.
+- `src/components/ai/ai-project-summary-modal.tsx` & `src/components/hub/fab-hub.tsx`:
+  - Removed automatic `fetchSummary()` on modal open so users explicitly click `Generate AI Summary (Costs 2 cr)` before spending AI credits.
+  - Replaced `window.location.reload()` in `FabCreateModal` with `router.refresh()`.
+
 ## Verification Commands & Results
 
 1. `npm run lint`:
@@ -80,4 +112,5 @@
 
 ## Known Follow-ups, Blockers, or Deployment Notes
 
-- None. All changes verified and ready for production commit and push.
+- None. All changes verified and ready for production.
+

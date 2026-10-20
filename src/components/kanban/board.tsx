@@ -25,6 +25,7 @@ import { ArchivedCardsModal } from "@/components/kanban/archived-cards-modal";
 import { BoardActivityDrawer } from "@/components/kanban/board-activity-drawer";
 import { createKanbanCollisionDetection } from "@/lib/kanban/kanban-collision";
 import { KanbanColumn } from "@/components/kanban/column";
+import { BoardMockupPreview } from "@/components/kanban/board-mockup-preview";
 import { ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import { ColumnStatusPicker } from "@/components/kanban/column-status-picker";
 import { triggerCelebration } from "@/components/kanban/card-celebration";
@@ -1729,12 +1730,12 @@ export function KanbanBoard({
             columnWipLimit.trim() !== ""
           }
           labelledBy="create-column-title"
-          contentClassName="lofi-panel w-full max-w-md rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
+          contentClassName="lofi-panel w-full max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
         >
           <form
             onSubmit={createColumn}
           >
-            <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Board column</p>
                 <h3 id="create-column-title" className="mt-1 text-2xl font-semibold text-stone-100">Create column</h3>
@@ -1755,6 +1756,40 @@ export function KanbanBoard({
               >
                 <X className="h-4 w-4" />
               </button>
+            </div>
+
+            <div className="mb-4">
+              <BoardMockupPreview
+                title="Live Column Mockup Preview"
+                badgeText="New Stage"
+                subtitle="Preview how this workflow column and its cards will appear on the board"
+                compact={true}
+                columns={[
+                  ...columns.slice(-2).map((col) => ({
+                    id: col.id,
+                    name: col.name,
+                    color: col.color,
+                    icon: col.icon,
+                    defaultCardStatus: col.defaultCardStatus,
+                    wipLimit: col.wipLimit ?? null,
+                    cardCount: col.cards.length
+                  })),
+                  {
+                    id: "draft-column",
+                    name: columnName.trim() || "New Column",
+                    color: columnColor,
+                    icon: columnIcon,
+                    defaultCardStatus: columnDefaultCardStatus,
+                    wipLimit:
+                      columnWipLimit.trim() && !isNaN(parseInt(columnWipLimit.trim(), 10))
+                        ? parseInt(columnWipLimit.trim(), 10)
+                        : null,
+                    cardCount: 2,
+                    isHighlighted: true,
+                    highlightBadge: "NEW"
+                  }
+                ]}
+              />
             </div>
 
             <label className="space-y-2 text-sm text-stone-300">
@@ -1833,6 +1868,7 @@ export function KanbanBoard({
             members={members}
             currentUserId={currentUserId}
             boardPriorities={boardPriorities}
+            hideDuplicateSearch={true}
             onEditCard={setEditingCard}
             onCreateCard={(columnId, title) =>
               createCard(columnId, {

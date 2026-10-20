@@ -347,7 +347,84 @@ export function CardAttributesEditModal({
             </TabsList>
           </div>
 
-          <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5">
+          <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5 space-y-4">
+            {/* Live Task Card Mockup Preview */}
+            <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
+                  <Palette className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                  <span>Live Task Card Mockup Preview</span>
+                </span>
+                <span className="rounded-full border border-indigo-200/70 bg-white/80 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-indigo-700 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender">
+                  {activeTab === "status"
+                    ? `${statuses.length} Statuses`
+                    : activeTab === "priority"
+                      ? `${priorities.length} Priorities`
+                      : `${storyPoints.length} Point Scales`}
+                </span>
+              </div>
+
+              <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs dark:border-white/10 dark:bg-stone-900/90 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                      TSK-104
+                    </span>
+                    {(() => {
+                      const previewStatus = statuses[0] || DEFAULT_STATUS_OPTIONS[0];
+                      const stCfg =
+                        STATUS_COLOR_CONFIGS[previewStatus?.color || "indigo"] ||
+                        STATUS_COLOR_CONFIGS.indigo;
+                      return (
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold",
+                            stCfg.badgeClass
+                          )}
+                        >
+                          <span className={cn("h-1.5 w-1.5 rounded-full", stCfg.dot)} />
+                          <span>{newStatusLabel.trim() || previewStatus?.label || "Todo"}</span>
+                        </span>
+                      );
+                    })()}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {(() => {
+                      const previewPrio = priorities[0] || DEFAULT_PRIORITIES[0];
+                      const pCfg = getPriorityColorConfig(
+                        newPriorityLabel.trim() ? newPriorityColor : previewPrio?.color || "rose"
+                      );
+                      return (
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold",
+                            pCfg.pillClass
+                          )}
+                        >
+                          <span className={cn("h-1.5 w-1.5 rounded-full", pCfg.dotClass)} />
+                          <span>{newPriorityLabel.trim() || previewPrio?.label || "High"}</span>
+                        </span>
+                      );
+                    })()}
+                    {(() => {
+                      const previewPt = storyPoints[Math.min(2, storyPoints.length - 1)] || DEFAULT_STORY_POINTS[0];
+                      const scoreText = newPointScore.trim() || String(previewPt?.score ?? 5);
+                      return (
+                        <span className="inline-flex items-center gap-1 rounded-md border border-amber-200/90 bg-amber-50/90 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-300">
+                          <Zap className="h-3 w-3" />
+                          <span>{scoreText} pts</span>
+                        </span>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                <p className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                  Implement interactive live preview across workspace modals
+                </p>
+              </div>
+            </div>
             {/* ── 1. STATUS TAB ── */}
             <TabsContent value="status" className="m-0 space-y-4">
               <div className="rounded-xl border border-stone-200/80 bg-stone-50 p-4 space-y-3 dark:border-white/10 dark:bg-white/[0.02]">

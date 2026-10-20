@@ -1504,6 +1504,61 @@ function CreateRewardModal({
           </div>
 
           <div className="space-y-4">
+            {/* Live Reward Store Card Mockup Preview */}
+            <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-dusk-amber" />
+                  <span>Store Card Mockup Preview</span>
+                </span>
+                <span className="rounded-full border border-indigo-200/70 bg-white/80 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-indigo-700 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender">
+                  Live Mockup
+                </span>
+              </div>
+
+              <div className="rounded-xl border border-stone-200/80 bg-white/95 p-3 shadow-2xs dark:border-white/10 dark:bg-stone-900/90 space-y-2.5">
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/40">
+                      <RewardIcon label={selectedIcon.label} size="sm" src={selectedIcon.src} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
+                        {rewardName.trim() || "Coffee Break"}
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-stone-500 dark:text-stone-400 line-clamp-1">
+                        {rewardDesc.trim() || "Redeem a relaxing reward milestone with your earned coins."}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] font-bold text-dusk-amber shrink-0">
+                    <Coins className="h-3 w-3" />
+                    {rewardPrice} Coins
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 border-t border-stone-100 dark:border-white/5 pt-2">
+                  <div className="flex flex-wrap gap-1">
+                    {rewardDuration.trim() && (
+                      <span className="inline-flex items-center gap-1 rounded-md border border-stone-200/80 bg-stone-100/50 px-1.5 py-0.2 text-[9px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                        <Clock className="h-2.5 w-2.5" />
+                        {rewardDuration.trim()}
+                      </span>
+                    )}
+                    <span className="rounded-md border border-stone-200/80 bg-stone-100/50 px-1.5 py-0.2 text-[9px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                      {rewardHasQuantity ? `Stock: ${rewardQuantity}` : "Unlimited"}
+                    </span>
+                    <span className="rounded-md border border-stone-200/80 bg-stone-100/50 px-1.5 py-0.2 text-[9px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                      {activeProjectId ? "Team" : "Global"}
+                    </span>
+                  </div>
+                  <span className="rounded-lg bg-indigo-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-2xs">
+                    Redeem ({rewardPrice}c)
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <label className="block space-y-1.5">
               <span className="text-xs uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400 font-semibold">
                 Reward Title

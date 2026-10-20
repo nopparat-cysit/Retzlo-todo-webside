@@ -261,6 +261,23 @@ export function CreateBoardModal({
             selectedId={templateId}
             onSelect={setTemplateId}
             disabled={isPending}
+            boardName={name}
+            isPrivate={isPrivate}
+            memberInitials={
+              (isPrivate
+                ? members.filter((m) => selectedMemberIds.includes(m.userId))
+                : members
+              )
+                .map((m) =>
+                  (m.name || m.email || "MB")
+                    .trim()
+                    .slice(0, 2)
+                    .toUpperCase()
+                )
+            }
+            totalMemberCount={
+              isPrivate ? selectedMemberIds.length : members.length || undefined
+            }
           />
         </div>
 

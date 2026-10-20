@@ -314,16 +314,21 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
 
   const flatItems: CommandItem[] = filteredGroups.flatMap((g) => g.items);
 
-  // ── Keyboard shortcut to open/close ──────────────────────────────────────
+  // ── Keyboard shortcut & custom event to open/close ───────────────────────
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((prev) => !prev);
       }
     };
+    const handleOpenPalette = () => setOpen(true);
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("open-command-palette", handleOpenPalette);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("open-command-palette", handleOpenPalette);
+    };
   }, []);
 
   // ── Focus input on open ───────────────────────────────────────────────────
@@ -497,5 +502,37 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
         </div>
       </div>
     </div>
+  );
+}
+
+export function CommandPaletteTrigger({ variant = "topbar" }: { variant?: "topbar" | "sidebar" }) {
+  const triggerOpen = () => {
+    window.dispatchEvent(new CustomEvent("open-command-palette"));
+  };
+
+  if (variant === "sidebar") {
+    return (
+      <button
+        type="button"
+        onClick={triggerOpen}
+        className="sidebar-expanded-only flex w-full items-center gap-1.5 rounded-lg px-1 py-1 text-left text-[10px] text-stone-500 transition hover:text-dusk-lavender"
+        title="Open Command Palette (Ctrl + K)"
+      >
+        <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">Ctrl K</kbd>
+        <span>Command palette</span>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={triggerOpen}
+      title="Open Command Palette (Ctrl + K)"
+      className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 transition hover:border-dusk-lavender/45 hover:bg-dusk-lavender/10 hover:text-stone-200 2xl:flex cursor-pointer"
+    >
+      <span className="text-stone-400">Command</span>
+      <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
+    </button>
   );
 }

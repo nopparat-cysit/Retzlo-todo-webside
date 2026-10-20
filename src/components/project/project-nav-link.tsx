@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpenCheck, CalendarDays, FileText, KanbanSquare, Settings, Users, Gift } from "lucide-react";
@@ -27,11 +27,24 @@ interface ProjectNavLinkProps {
   dragHandle?: React.ReactNode;
 }
 
+function closeMobileSidebarIfNeeded() {
+  if (typeof window !== "undefined" && window.innerWidth < 1024) {
+    const toggle = document.getElementById("project-sidebar-toggle") as HTMLInputElement | null;
+    if (toggle && toggle.checked) {
+      toggle.checked = false;
+    }
+  }
+}
+
 export function ProjectNavLink({ href, label, iconName, segment, dragHandle }: ProjectNavLinkProps) {
   const pathname = usePathname();
   const cleanHref = href.split("?")[0];
   const isActive = pathname === cleanHref || pathname.startsWith(`${cleanHref}/`);
   const Icon = ICON_MAP[iconName];
+
+  useEffect(() => {
+    closeMobileSidebarIfNeeded();
+  }, [pathname]);
 
   const targetHref = useMemo(() => {
     if (segment === "board" && typeof window !== "undefined") {
@@ -49,6 +62,7 @@ export function ProjectNavLink({ href, label, iconName, segment, dragHandle }: P
   return (
     <Link
       href={targetHref}
+      onClick={closeMobileSidebarIfNeeded}
       aria-current={isActive ? "page" : undefined}
       title={label}
       className={cn(

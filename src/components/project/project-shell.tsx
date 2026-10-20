@@ -17,6 +17,7 @@ import { NotificationsPopover } from "@/components/notifications/notifications-p
 import { AiChatTrigger } from "@/components/ai/ai-chat-trigger";
 import { HelpButton } from "@/components/ui/help-button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { CommandPaletteTrigger } from "@/components/ui/command-palette";
 import { ErrorState } from "@/components/ui/state";
 import { canAccessBoard } from "@/lib/project-auth";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
@@ -212,10 +213,7 @@ export async function ProjectShell({
 
           <div className="mt-auto space-y-3 border-t border-stone-200/80 pt-4 dark:border-white/5">
             <ProjectNavLink {...settingsLink} />
-            <p className="sidebar-expanded-only flex items-center gap-1.5 text-[10px] text-stone-600">
-              <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">Ctrl K</kbd>
-              Command palette
-            </p>
+            <CommandPaletteTrigger variant="sidebar" />
           </div>
         </aside>
 
@@ -251,10 +249,7 @@ export async function ProjectShell({
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <ProjectTopbarTools />
               <FocusModeToggle />
-              <div className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 2xl:flex">
-                <span className="text-stone-400">Command</span>
-                <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
-              </div>
+              <CommandPaletteTrigger variant="topbar" />
               <LanguageSwitcher />
               <NotificationsPopover />
               <AiChatTrigger />

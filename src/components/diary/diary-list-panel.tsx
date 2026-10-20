@@ -1459,6 +1459,69 @@ function DiaryItemModal({
           <div className="grid min-h-0 flex-1 gap-6 overflow-hidden lg:grid-cols-[380px_minmax(0,1fr)]">
             {/* Left Column: Details, Settings & Coins Reward */}
             <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1 scrollbar-soft">
+              {/* Live Diary Routine Card Mockup Preview */}
+              {(() => {
+                const colorMeta = getCardColorMeta(color);
+                return (
+                  <div className="rounded-xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
+                        <Eye className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                        <span>Routine Card Mockup Preview</span>
+                      </span>
+                      <span className="rounded-full border border-indigo-200/70 bg-white/80 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-indigo-700 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender">
+                        Live Mockup
+                      </span>
+                    </div>
+
+                    <div
+                      className={cn(
+                        "rounded-xl border p-3 shadow-2xs space-y-2 transition-all",
+                        colorMeta.cardClass
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
+                            {titleVal.trim() || "Morning Focus Ritual"}
+                          </p>
+                          {descriptionVal.trim() && (
+                            <p className="mt-0.5 text-[10px] text-stone-500 dark:text-stone-400 line-clamp-1">
+                              {descriptionVal.trim()}
+                            </p>
+                          )}
+                        </div>
+                        {isRewardOpen && rewardCoins > 0 && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/35 bg-dusk-amber/15 px-2 py-0.5 font-mono text-[9px] font-bold text-dusk-amber shrink-0">
+                            <Coins className="h-2.5 w-2.5" />
+                            +{rewardCoins}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-1.5 text-[9px]">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2 py-0.5 font-semibold text-dusk-cyan">
+                          <Repeat className="h-2.5 w-2.5" />
+                          {repeatUnit === "MONTH"
+                            ? `Monthly (${getStartDayOfMonth(startDate)}th)`
+                            : `Every ${intervalDays} day${intervalDays > 1 ? "s" : ""}`}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-stone-200/80 bg-white/70 px-2 py-0.5 font-mono text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-300">
+                          <CheckSquare className="h-2.5 w-2.5" />
+                          0/{checklist.length || 3} steps
+                        </span>
+                        {isHidden && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-dusk-rose/25 bg-dusk-rose/10 px-2 py-0.5 text-dusk-rose">
+                            <EyeOff className="h-2.5 w-2.5" />
+                            Private
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Details Card */}
               <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.025] p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-dusk-lavender font-semibold">Details</p>

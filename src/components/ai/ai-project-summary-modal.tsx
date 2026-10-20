@@ -91,11 +91,8 @@ export function AiProjectSummaryModal({
     }
   }, [projectId, boardId, toast]);
 
-  useEffect(() => {
-    if (open && !summary && !isLoading) {
-      fetchSummary();
-    }
-  }, [open, summary, isLoading, fetchSummary]);
+  // Note: We intentionally do NOT auto-call fetchSummary() on modal open so
+  // users can confirm before spending 2 AI credits.
 
   const handleCopyMarkdown = () => {
     if (!summary) return;
@@ -324,8 +321,28 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
               )}
             </div>
           ) : (
-            <div className="py-8 text-center text-stone-400">
-              Click the button below to generate a summary report
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-300/80 dark:border-white/10 bg-stone-100/50 dark:bg-white/[0.02] py-10 px-6 text-center space-y-3">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender">
+                <Sparkles className="h-6 w-6 text-dusk-amber" />
+              </div>
+              <div className="space-y-1 max-w-md">
+                <p className="text-sm font-semibold text-stone-800 dark:text-stone-100">
+                  Ready to analyze {boardName}
+                </p>
+                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                  Generate an executive health check, active focus breakdown, bottleneck detection, and next-step recommendations for this board.
+                </p>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                disabled={isLoading}
+                onClick={fetchSummary}
+                className="mt-1 gap-1.5 text-xs"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Generate AI Summary (Costs 2 cr)</span>
+              </Button>
             </div>
           )}
         </div>
@@ -342,7 +359,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
               className="gap-1.5 text-xs"
             >
               <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
-              <span>Regenerate (Costs 2 cr)</span>
+              <span>{summary ? "Regenerate (Costs 2 cr)" : "Generate Summary (Costs 2 cr)"}</span>
             </Button>
           </div>
 

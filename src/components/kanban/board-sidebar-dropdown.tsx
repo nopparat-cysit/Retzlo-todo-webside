@@ -97,6 +97,12 @@ export function BoardSidebarDropdown({
 
   useEffect(() => {
     setSwitchingBoardId(null);
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      const toggle = document.getElementById("project-sidebar-toggle") as HTMLInputElement | null;
+      if (toggle && toggle.checked) {
+        toggle.checked = false;
+      }
+    }
     if (typeof document !== "undefined" && activeBoardId) {
       document.cookie = `project_${projectId}_last_board=${activeBoardId}; path=/; max-age=31536000; SameSite=Lax`;
       try {

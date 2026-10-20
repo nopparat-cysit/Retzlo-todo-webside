@@ -1594,6 +1594,15 @@ export function HelpCenterClient() {
                   );
                 })}
               </div>
+
+              <div className="rounded-2xl border border-stone-200/80 bg-white/80 p-4 text-xs text-stone-600 dark:border-white/10 dark:bg-ink-950/60 dark:text-stone-400">
+                <span className="font-semibold text-stone-900 dark:text-stone-200">
+                  {isEn ? "Live Mockup Preview System:" : "ระบบจำลองตัวอย่างแบบเรียลไทม์ (Live Mockup Preview):"}
+                </span>{" "}
+                {isEn
+                  ? "Every creation and configuration modal—including Create Board, Board Settings (General, Access, Columns, Statuses, Priorities), Edit Card Attributes, Diary Routines, Note Folders, and Notes—includes a real-time interactive preview card before you save."
+                  : "ทุกหน้าต่างการสร้างและตั้งค่า ไม่ว่าจะเป็นการสร้างบอร์ด ตั้งค่าคอลัมน์ สถานะ ความสำคัญ การ์ดงาน ไดอารี่ โฟลเดอร์ และโน้ต มีระบบแสดงภาพตัวอย่าง (Mockup Preview) แบบเรียลไทม์ให้ตรวจสอบก่อนกดบันทึกเสมอ"}
+              </div>
             </div>
           )}
         </div>

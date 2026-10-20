@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
+import { BoardMockupPreview, type MockupColumnItem } from "@/components/kanban/board-mockup-preview";
 import { ColumnIconGlyph, ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import {
   columnThemeOptions,
@@ -334,8 +335,81 @@ export function BoardColumnsTab({
     }
   };
 
+  const parsedNewWip =
+    newColumnWipLimit.trim() && !isNaN(parseInt(newColumnWipLimit.trim(), 10))
+      ? parseInt(newColumnWipLimit.trim(), 10)
+      : null;
+  const parsedEditWip =
+    editWipLimit.trim() && !isNaN(parseInt(editWipLimit.trim(), 10))
+      ? parseInt(editWipLimit.trim(), 10)
+      : null;
+
+  const mockupColumns: MockupColumnItem[] = [
+    ...localColumns.map((col) => {
+      if (editingColumnId === col.id) {
+        return {
+          id: col.id,
+          name: editName.trim() || col.name,
+          color: editColor,
+          icon: editIcon,
+          defaultCardStatus: editStatus,
+          wipLimit: parsedEditWip,
+          cardCount: col.cardCount ?? 2,
+          isHighlighted: true,
+          highlightBadge: "EDITING"
+        };
+      }
+      return {
+        id: col.id,
+        name: col.name,
+        color: col.color ?? "default",
+        icon: col.icon ?? "kanban",
+        defaultCardStatus: col.defaultCardStatus ?? "TODO",
+        wipLimit: col.wipLimit ?? null,
+        cardCount: col.cardCount ?? 2
+      };
+    }),
+    ...(isAddingColumn
+      ? [
+          {
+            id: "draft-new-column",
+            name: newColumnName.trim() || "New Workflow Stage",
+            color: newColumnColor,
+            icon: newColumnIcon,
+            defaultCardStatus: newColumnStatus,
+            wipLimit: parsedNewWip,
+            cardCount: 2,
+            isHighlighted: true,
+            highlightBadge: "NEW"
+          }
+        ]
+      : [])
+  ];
+
   return (
     <div className="space-y-4 pt-1 mt-0">
+      {/* Live Kanban Workflow Mockup Preview */}
+      {mockupColumns.length > 0 && (
+        <BoardMockupPreview
+          title="Kanban Workflow Columns Mockup Preview"
+          badgeText={
+            isAddingColumn
+              ? "Adding Column"
+              : editingColumnId
+                ? "Editing Column"
+                : "Current Pipeline"
+          }
+          subtitle={
+            isAddingColumn
+              ? "Live preview of your new column alongside existing workflow columns"
+              : editingColumnId
+                ? "Live preview of your column changes (color, icon, default status & WIP limit)"
+                : "Simulated Kanban board layout showing your configured workflow stages"
+          }
+          columns={mockupColumns}
+        />
+      )}
+
       {/* Header Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 text-xs">
         <div className="flex items-center gap-2 flex-wrap">

@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, memo } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
 import { KanbanCard } from "@/components/kanban/card";
+import { BoardMockupPreview } from "@/components/kanban/board-mockup-preview";
 import { ColumnIconGlyph, ColumnIconPicker } from "@/components/kanban/column-icon-picker";
 import { ColumnStatusPicker } from "@/components/kanban/column-status-picker";
 import { AppModal } from "@/components/ui/app-modal";
@@ -661,12 +662,12 @@ function KanbanColumnComponent({
             settingsWipLimit.trim() !== (column.wipLimit ? String(column.wipLimit) : "")
           }
           labelledBy="column-settings-title"
-          contentClassName="lofi-panel w-full max-w-lg rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
+          contentClassName="lofi-panel w-full max-w-xl max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl p-5 shadow-[0_24px_68px_rgba(0,0,0,0.46)]"
         >
           <form
             onSubmit={handleSaveIntent}
           >
-            <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Column settings</p>
                 <h3 id="column-settings-title" className="mt-1 text-2xl font-semibold text-stone-100">Edit column</h3>
@@ -682,6 +683,31 @@ function KanbanColumnComponent({
               >
                 <X className="h-4 w-4" />
               </button>
+            </div>
+
+            <div className="mb-4">
+              <BoardMockupPreview
+                title="Live Column Mockup Preview"
+                badgeText="Editing Stage"
+                subtitle="Preview how your updated column appearance, status & WIP limit look on the board"
+                compact={true}
+                columns={[
+                  {
+                    id: column.id,
+                    name: settingsName.trim() || column.name,
+                    color: settingsColor,
+                    icon: settingsIcon,
+                    defaultCardStatus: settingsDefaultCardStatus,
+                    wipLimit:
+                      settingsWipLimit.trim() && !isNaN(parseInt(settingsWipLimit.trim(), 10))
+                        ? parseInt(settingsWipLimit.trim(), 10)
+                        : null,
+                    cardCount: totalCards || 2,
+                    isHighlighted: true,
+                    highlightBadge: "EDITING"
+                  }
+                ]}
+              />
             </div>
 
             <label className="space-y-2 text-sm text-stone-300">
