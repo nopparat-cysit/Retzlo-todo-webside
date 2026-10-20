@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
+  ArrowRight,
   Check,
   Columns3,
   FolderKanban,
@@ -65,6 +66,7 @@ export function CreateBoardPageView({
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState<1 | 2>(1);
 
   // Preview display toggle: Kanban mockup vs Connected pipeline sequence
   const [previewMode, setPreviewMode] = useState<"kanban" | "pipeline">("kanban");
@@ -115,6 +117,13 @@ export function CreateBoardPageView({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (step === 1) {
+      if (name.trim()) {
+        setStep(2);
+      }
+      return;
+    }
+
     const trimmedName = name.trim();
     if (!trimmedName || isPending) return;
 
@@ -190,34 +199,67 @@ export function CreateBoardPageView({
               ) : null}
               <span className="text-theme-muted text-xs">/</span>
               <span className="text-xs text-theme-muted font-medium">New Channel</span>
+              <span className="text-theme-muted text-xs">/</span>
+              <span className="inline-flex items-center rounded-full bg-theme-paper border border-theme-border px-2 py-0.5 text-[10px] font-bold text-theme-accent">
+                Step {step} of 2
+              </span>
             </div>
             <h1 className="mt-0.5 flex items-center gap-2 text-xl font-bold text-theme-foreground sm:text-2xl">
               <FolderKanban className="h-6 w-6 text-theme-accent" />
-              <span>Create New Board</span>
+              <span>{step === 1 ? "Create New Board" : "Set Board Permissions"}</span>
             </h1>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => router.push(`/project/${projectId}/board`)}
-            disabled={isPending}
-            className="text-xs h-9 px-3.5"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            form="create-board-page-form"
-            disabled={!name.trim() || isPending}
-            variant="primary"
-            className="h-9 font-bold px-5 shadow-sm active:scale-95 cursor-pointer"
-          >
-            <FolderKanban className="h-4 w-4 mr-1.5" />
-            <span>{isPending ? "Creating Board..." : "Create Board"}</span>
-          </Button>
+          {step === 1 ? (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => router.push(`/project/${projectId}/board`)}
+                disabled={isPending}
+                className="text-xs h-9 px-3.5 cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={!name.trim() || isPending}
+                onClick={() => {
+                  if (name.trim()) setStep(2);
+                }}
+                variant="primary"
+                className="h-9 font-bold px-5 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
+              >
+                <span>Next</span>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setStep(1)}
+                disabled={isPending}
+                className="text-xs h-9 px-3.5 cursor-pointer flex items-center gap-1.5"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back</span>
+              </Button>
+              <Button
+                type="submit"
+                form="create-board-page-form"
+                disabled={!name.trim() || isPending}
+                variant="primary"
+                className="h-9 font-bold px-5 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
+              >
+                <FolderKanban className="h-4 w-4" />
+                <span>{isPending ? "Creating Board..." : "Create Board"}</span>
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -230,181 +272,244 @@ export function CreateBoardPageView({
             onSubmit={handleSubmit}
             className="space-y-6 rounded-2xl border border-theme-border bg-theme-panel p-5 sm:p-6 shadow-xl"
           >
-            {/* 1. Board Name */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="board-name-input"
-                  className="block text-xs font-bold uppercase tracking-wider text-theme-foreground"
+            {/* Wizard Step Navigation Indicator */}
+            <div className="flex items-center gap-2 border-b border-theme-border pb-4">
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
+                  step === 1
+                    ? "bg-theme-accent/15 text-theme-accent border border-theme-accent/30"
+                    : "text-theme-muted hover:text-theme-foreground"
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold",
+                    step === 1
+                      ? "bg-theme-accent text-white"
+                      : "bg-theme-paper border border-theme-border text-theme-muted"
+                  )}
                 >
-                  Board Name <span className="text-theme-danger">*</span>
-                </label>
-                <span className="font-mono text-[10px] text-theme-muted">
-                  {name.length}/80
+                  1
                 </span>
-              </div>
-              <Input
-                id="board-name-input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Marketing Roadmap, Sprint 2, Bug Tracker..."
-                maxLength={80}
-                autoFocus
-                required
-                disabled={isPending}
-                className="h-11 rounded-xl text-sm font-medium"
-              />
-            </div>
+                <span>Name & Template</span>
+              </button>
 
-            {/* 2. Board Template Picker (Vertical spacious stack, preview on right) */}
-            <div className="space-y-2">
-              <BoardTemplatePicker
-                selectedId={templateId}
-                onSelect={setTemplateId}
-                disabled={isPending}
-                boardName={name}
-                isPrivate={isPrivate}
-                memberInitials={memberInitials}
-                totalMemberCount={totalMemberCount}
-                hidePreview={true}
-                layout="vertical"
-              />
-            </div>
+              <span className="text-theme-border text-xs">›</span>
 
-            {/* 3. Access Visibility */}
-            <div className="space-y-2 pt-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-theme-muted">
-                Access Visibility
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => setIsPrivate(false)}
+              <button
+                type="button"
+                disabled={!name.trim()}
+                onClick={() => {
+                  if (name.trim()) setStep(2);
+                }}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-2.5 py-1 text-xs font-semibold transition",
+                  !name.trim() ? "opacity-50 cursor-not-allowed text-theme-muted" : "cursor-pointer",
+                  step === 2
+                    ? "bg-theme-accent/15 text-theme-accent border border-theme-accent/30"
+                    : "text-theme-muted hover:text-theme-foreground"
+                )}
+              >
+                <span
                   className={cn(
-                    "flex flex-col items-start rounded-xl border p-3.5 text-left transition cursor-pointer",
-                    !isPrivate
-                      ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-xs ring-1 ring-theme-accent/30"
-                      : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
+                    "grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold",
+                    step === 2
+                      ? "bg-theme-accent text-white"
+                      : "bg-theme-paper border border-theme-border text-theme-muted"
                   )}
                 >
-                  <div className="flex items-center gap-1.5 font-bold text-xs">
-                    <Globe className="h-4 w-4" />
-                    <span>Public</span>
-                  </div>
-                  <p className="mt-1 text-[11px] opacity-80 leading-relaxed">
-                    All workspace members can access this board.
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => setIsPrivate(true)}
-                  className={cn(
-                    "flex flex-col items-start rounded-xl border p-3.5 text-left transition cursor-pointer",
-                    isPrivate
-                      ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-xs ring-1 ring-theme-accent/30"
-                      : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
-                  )}
-                >
-                  <div className="flex items-center gap-1.5 font-bold text-xs">
-                    <Lock className="h-4 w-4" />
-                    <span>Private</span>
-                  </div>
-                  <p className="mt-1 text-[11px] opacity-80 leading-relaxed">
-                    Only invited members can view or manage tasks.
-                  </p>
-                </button>
-              </div>
+                  2
+                </span>
+                <span>Access & Permissions</span>
+              </button>
             </div>
 
-            {/* 4. Private Members Selection */}
-            {isPrivate ? (
-              <div className="rounded-xl border border-theme-border bg-theme-paper p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-xs font-semibold text-theme-foreground">
-                    <Users className="h-4 w-4 text-theme-accent" />
-                    <span>Member Access</span>
-                  </span>
-                  <span className="text-[11px] font-mono text-theme-muted">
-                    {selectedMemberIds.length} selected
-                  </span>
+            {step === 1 ? (
+              <>
+                {/* 1. Board Name */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor="board-name-input"
+                      className="block text-xs font-bold uppercase tracking-wider text-theme-foreground"
+                    >
+                      Board Name <span className="text-theme-danger">*</span>
+                    </label>
+                    <span className="font-mono text-[10px] text-theme-muted">
+                      {name.length}/80
+                    </span>
+                  </div>
+                  <Input
+                    id="board-name-input"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Marketing Roadmap, Sprint 2, Bug Tracker..."
+                    maxLength={80}
+                    autoFocus
+                    required
+                    disabled={isPending}
+                    className="h-11 rounded-xl text-sm font-medium"
+                  />
                 </div>
 
-                {isLoadingMembers ? (
-                  <p className="py-2 text-center text-xs text-theme-muted">Loading members...</p>
-                ) : members.length === 0 ? (
-                  <p className="py-2 text-center text-xs text-theme-muted">
-                    No other members in this workspace.
-                  </p>
-                ) : (
-                  <div className="max-h-48 space-y-1 overflow-y-auto pr-1 scrollbar-soft">
-                    {members.map((m) => {
-                      const isSelected = selectedMemberIds.includes(m.userId);
-                      const displayName = m.name || m.email || "Member";
-                      return (
-                        <button
-                          key={m.userId}
-                          type="button"
-                          disabled={isPending}
-                          onClick={() => toggleMember(m.userId)}
-                          className={cn(
-                            "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition cursor-pointer",
-                            isSelected
-                              ? "bg-theme-paper-strong font-medium text-theme-accent"
-                              : "text-theme-muted hover:bg-theme-paper-strong hover:text-theme-foreground"
-                          )}
-                        >
-                          <div className="flex items-center gap-2 truncate">
-                            <Avatar
-                              user={{
-                                id: m.userId,
-                                name: m.name,
-                                email: m.email,
-                                avatar: m.avatar
-                              }}
-                              size={22}
-                            />
-                            <span className="truncate">{displayName}</span>
-                          </div>
-                          {isSelected ? (
-                            <Check className="h-4 w-4 shrink-0 text-theme-accent" />
-                          ) : null}
-                        </button>
-                      );
-                    })}
+                {/* 2. Board Template Picker (Vertical spacious stack, preview on right) */}
+                <div className="space-y-2">
+                  <BoardTemplatePicker
+                    selectedId={templateId}
+                    onSelect={setTemplateId}
+                    disabled={isPending}
+                    boardName={name}
+                    isPrivate={isPrivate}
+                    memberInitials={memberInitials}
+                    totalMemberCount={totalMemberCount}
+                    hidePreview={true}
+                    layout="vertical"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Board Summary Banner */}
+                <div className="rounded-xl border border-theme-border bg-theme-paper p-3.5 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase font-bold tracking-wider text-theme-muted">
+                      Configuring board
+                    </p>
+                    <p className="text-sm font-bold text-theme-foreground truncate">{name}</p>
+                    <p className="text-xs text-theme-muted">
+                      {selectedTemplate.name} ({selectedTemplate.columns.length} columns)
+                    </p>
                   </div>
-                )}
-              </div>
-            ) : null}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setStep(1)}
+                    className="h-7 text-xs text-theme-accent shrink-0 cursor-pointer"
+                  >
+                    Change
+                  </Button>
+                </div>
 
-            {/* Error Message */}
-            {error ? (
-              <p className="rounded-xl border border-theme-danger/30 bg-theme-danger/10 p-3 text-xs text-theme-danger">
-                {error}
-              </p>
-            ) : null}
+                {/* 3. Access Visibility */}
+                <div className="space-y-2 pt-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-theme-muted">
+                    Access Visibility
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => setIsPrivate(false)}
+                      className={cn(
+                        "flex flex-col items-start rounded-xl border p-3.5 text-left transition cursor-pointer",
+                        !isPrivate
+                          ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-xs ring-1 ring-theme-accent/30"
+                          : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
+                      )}
+                    >
+                      <div className="flex items-center gap-1.5 font-bold text-xs">
+                        <Globe className="h-4 w-4" />
+                        <span>Public</span>
+                      </div>
+                      <p className="mt-1 text-[11px] opacity-80 leading-relaxed">
+                        All workspace members can access this board.
+                      </p>
+                    </button>
 
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-3 border-t border-theme-border pt-4">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => router.push(`/project/${projectId}/board`)}
-                disabled={isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!name.trim() || isPending}
-                variant="primary"
-                className="font-bold px-5"
-              >
-                {isPending ? "Creating Board..." : "Create Board"}
-              </Button>
-            </div>
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => setIsPrivate(true)}
+                      className={cn(
+                        "flex flex-col items-start rounded-xl border p-3.5 text-left transition cursor-pointer",
+                        isPrivate
+                          ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-xs ring-1 ring-theme-accent/30"
+                          : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
+                      )}
+                    >
+                      <div className="flex items-center gap-1.5 font-bold text-xs">
+                        <Lock className="h-4 w-4" />
+                        <span>Private</span>
+                      </div>
+                      <p className="mt-1 text-[11px] opacity-80 leading-relaxed">
+                        Only invited members can view or manage tasks.
+                      </p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. Private Members Selection */}
+                {isPrivate ? (
+                  <div className="rounded-xl border border-theme-border bg-theme-paper p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-theme-foreground">
+                        <Users className="h-4 w-4 text-theme-accent" />
+                        <span>Member Access</span>
+                      </span>
+                      <span className="text-[11px] font-mono text-theme-muted">
+                        {selectedMemberIds.length} selected
+                      </span>
+                    </div>
+
+                    {isLoadingMembers ? (
+                      <p className="py-2 text-center text-xs text-theme-muted">Loading members...</p>
+                    ) : members.length === 0 ? (
+                      <p className="py-2 text-center text-xs text-theme-muted">
+                        No other members in this workspace.
+                      </p>
+                    ) : (
+                      <div className="max-h-48 space-y-1 overflow-y-auto pr-1 scrollbar-soft">
+                        {members.map((m) => {
+                          const isSelected = selectedMemberIds.includes(m.userId);
+                          const displayName = m.name || m.email || "Member";
+                          return (
+                            <button
+                              key={m.userId}
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => toggleMember(m.userId)}
+                              className={cn(
+                                "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition cursor-pointer",
+                                isSelected
+                                  ? "bg-theme-paper-strong font-medium text-theme-accent"
+                                  : "text-theme-muted hover:bg-theme-paper-strong hover:text-theme-foreground"
+                              )}
+                            >
+                              <div className="flex items-center gap-2 truncate">
+                                <Avatar
+                                  user={{
+                                    id: m.userId,
+                                    name: m.name,
+                                    email: m.email,
+                                    avatar: m.avatar
+                                  }}
+                                  size={22}
+                                />
+                                <span className="truncate">{displayName}</span>
+                              </div>
+                              {isSelected ? (
+                                <Check className="h-4 w-4 shrink-0 text-theme-accent" />
+                              ) : null}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
+                {/* Error Message */}
+                {error ? (
+                  <p className="rounded-xl border border-theme-danger/30 bg-theme-danger/10 p-3 text-xs text-theme-danger">
+                    {error}
+                  </p>
+                ) : null}
+              </>
+            )}
           </form>
         </div>
 

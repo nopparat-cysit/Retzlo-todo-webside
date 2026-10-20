@@ -46,19 +46,30 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
    - **Left Column (`md:col-span-7`)**: Form inputs for Column Name, Theme Color (`ColumnThemePicker`), Icon Glyph (`ColumnIconPicker`), Default Card Status (`ColumnStatusPicker`), and WIP Card Limit.
    - **Right Column (`md:col-span-5`)**: Sticky `BoardMockupPreview` showing live changes in real time (name, color, icon, status, WIP limit, sample cards) without scrolling.
    - **Theme System Compatibility**: Eliminated all hardcoded dark mode colors (`lofi-panel`, `text-stone-100`, `text-stone-300`, `text-stone-400`, `border-white/10`) in favor of semantic tokens (`bg-theme-panel`, `bg-theme-paper`, `text-theme-foreground`, `text-theme-muted`, `border-theme-border`, `text-theme-accent`), providing flawless contrast in both Light and Dark modes.
+4. **2-Step Wizard Flow & Access Configuration ("เพิ่มให้เป็นการ กด next เพื่อตั้งค่าสิทธิ์ของ board แล้วค่อย creatr")**:
+   - Converted `CreateBoardPageView` from a single long page to an intuitive 2-step wizard flow:
+     - **Step 1 (Name & Template)**: Prominently asks for Board Name and provides the vertical `BoardTemplatePicker`. Sticky top header displays `Cancel` and `Next` buttons. If the board name is empty, `Next` is disabled. Pressing Enter inside the board name input also automatically advances to Step 2.
+     - **Step 2 (Access & Permissions)**: Prominently configures board visibility (Public vs Private) and member access list. Displays a summary card of the chosen name and template with a "Change" button back to Step 1. Sticky top header displays `Back` and `Create Board` buttons.
+     - Form top provides a clickable step progress indicator (`1 Name & Template` › `2 Access & Permissions`).
+     - Right column `Live Board Preview` remains sticky and updates live across both steps (showing template columns, live name, and public/private lock badge and avatars).
+5. **Removal of Bottom Cancel and Create Buttons ("อันล่าง cancel create เอาออก")**:
+   - Removed the bottom actions bar (`border-t border-theme-border pt-4`) containing duplicate Cancel and Create buttons from the form in `CreateBoardPageView`. All actions are permanently consolidated in the sticky top-right header for consistent one-click access without scrolling.
+6. **Card & Board Hover Shadow Bug Fix ("แก้ไขบัคเงา ตอนเอาเมาเลือนผ่าน board")**:
+   - In `src/components/kanban/card.tsx`, replaced harsh `hover:shadow-lg` (which caused abrupt clipping against column scroll overflow boundaries and dark square artifacts in dark mode) with smooth `hover:shadow-md dark:hover:shadow-[0_4px_14px_rgba(0,0,0,0.35)] transition-all duration-150`.
+   - In `src/components/project/projects-dashboard.tsx`, smoothed `WorkspaceBoardCard` (`hover:shadow-md dark:hover:shadow-[0_8px_20px_rgba(0,0,0,0.35)]`), `QuickCreateBoardBlueprintCard`, and `ProjectCard` to prevent jerky translate flickering and harsh box-shadow artifacts when moving the cursor across boards.
 
 ## Database / Schema Changes
 - None (uses existing Prisma schema and API endpoints).
 
 ## Verification Commands & Results
-- `npx vitest run src/components/kanban/create-board-page-view.test.ts` (6 tests passed).
+- `npx vitest run src/components/kanban/create-board-page-view.test.ts` (8 tests passed).
 - `npx vitest run src/components/kanban/board-views-and-sidebar.test.ts` (9 tests passed).
 - `npx vitest run src/components/kanban/create-board-modal.test.ts` (6 tests passed).
 - `npx vitest run src/lib/kanban/status.test.ts` (3 tests passed).
-- Full Vitest suite (`npm test`): 101 test files passed, 540 tests passed, 0 failed.
+- Full Vitest suite (`npm test`): 101 test files passed, 543 tests passed, 0 failed.
 - Prisma schema validation (`npx prisma validate`): Valid.
-- Next.js linting (`npm run lint`): Passed.
-- Next.js production build (`npm run build`): Passed.
+- Next.js linting (`npm run lint`): Passed (0 warnings, 0 errors).
+- Next.js production build (`npm run build`): Passed (compiled all 42 pages cleanly).
 
 ## Known Follow-ups, Blockers, or Deployment Notes
 - None. All changes are backward compatible, typed strictly with TypeScript, and follow the retro lofi indigo design direction.

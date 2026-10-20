@@ -50,8 +50,18 @@ describe("CreateBoardPageView full-page dedicated workflow and preview UX contra
     expect(source).toMatch(/toast\(\{\s*message:.*created successfully/);
   });
 
-  it("provides persistent top-right Create Board action linked to form", () => {
+  it("implements 2-step wizard navigation with Next and Back actions", () => {
+    expect(source).toContain("const [step, setStep] = useState<1 | 2>(1)");
+    expect(source).toContain("Step {step} of 2");
+    expect(source).toContain("Next");
+    expect(source).toContain("Back");
+    expect(source).toContain("Access & Permissions");
+  });
+
+  it("provides persistent top-right action controls and removes bottom form buttons", () => {
     expect(source).toContain('form="create-board-page-form"');
     expect(source).toContain('id="create-board-page-form"');
+    // Ensure bottom action bar has been removed from the form
+    expect(source).not.toContain("border-t border-theme-border pt-4");
   });
 });

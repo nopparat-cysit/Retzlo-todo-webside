@@ -116,7 +116,7 @@ function KanbanCardComponent({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "scroll-mt-24 cursor-grab rounded-xl border text-sm shadow-sm transition duration-200 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 select-none touch-none",
+        "scroll-mt-24 cursor-grab rounded-xl border text-sm shadow-sm transition duration-150 active:cursor-grabbing hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-[0_4px_14px_rgba(0,0,0,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 select-none touch-none",
         isCompact ? "p-2 sm:p-2.5" : "p-2.5 sm:p-3",
         colorMeta.cardClass,
         card.status === "DONE" && "card-completed",

@@ -1766,7 +1766,7 @@ function WorkspaceBoardCard({
   return (
     <div
       onClick={handleCardClick}
-      className="group relative flex h-full min-h-[250px] flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs transition-all duration-300 hover:border-indigo-400 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer dark:border-white/10 dark:bg-ink-950/40 dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.04] dark:hover:shadow-[0_14px_36px_rgba(169,162,255,0.08)]"
+      className="group relative flex h-full min-h-[250px] flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-5 shadow-xs transition-all duration-200 hover:border-indigo-400 hover:shadow-md hover:-translate-y-0.5 cursor-pointer dark:border-white/10 dark:bg-ink-950/40 dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.04] dark:hover:shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
     >
       <div>
         {/* Top bar: Board icon + Title + Lock/Public badge + 3-dots */}
@@ -2144,7 +2144,7 @@ function QuickCreateBoardBlueprintCard({
     <button
       type="button"
       onClick={onCreateClick}
-      className="group flex h-full min-h-[250px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-white p-6 text-center transition-all duration-300 hover:border-indigo-400 hover:bg-stone-50/80 hover:shadow-md dark:border-white/15 dark:bg-white/[0.015] dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.035] dark:hover:shadow-xl dark:hover:shadow-dusk-lavender/10"
+      className="group flex h-full min-h-[250px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-white p-6 text-center transition-all duration-200 hover:border-indigo-400 hover:bg-stone-50/80 hover:shadow-md dark:border-white/15 dark:bg-white/[0.015] dark:hover:border-dusk-lavender/50 dark:hover:bg-white/[0.035] dark:hover:shadow-md dark:hover:shadow-dusk-lavender/10"
     >
       <div className="relative mb-3 grid h-12 w-12 place-items-center rounded-2xl border border-indigo-200 bg-indigo-50 text-indigo-600 transition-transform duration-300 group-hover:scale-110 shadow-xs dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
         <Plus className="h-6 w-6" />
@@ -2286,7 +2286,7 @@ function ProjectCard({
         tone={project.themeColor}
         title={<span className="sr-only">{project.name}</span>}
         className={cn(
-          "lofi-panel group flex flex-col p-0 transition-all duration-300 rounded-2xl overflow-hidden border border-stone-200/90 bg-white/90 shadow-2xs hover:-translate-y-0.5 hover:shadow-xl hover:border-indigo-300/80 dark:border-white/10 dark:bg-ink-950/75 dark:hover:border-dusk-lavender/40 dark:hover:shadow-[0_12px_28px_rgba(0,0,0,0.4)]",
+          "lofi-panel group flex flex-col p-0 transition-all duration-200 rounded-2xl overflow-hidden border border-stone-200/90 bg-white/90 shadow-2xs hover:-translate-y-0.5 hover:shadow-md hover:border-indigo-300/80 dark:border-white/10 dark:bg-ink-950/75 dark:hover:border-dusk-lavender/40 dark:hover:shadow-[0_8px_24px_rgba(0,0,0,0.35)]",
           colorMeta.softClass
         )}
       >
