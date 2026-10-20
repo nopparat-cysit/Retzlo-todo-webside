@@ -77,6 +77,7 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 ### 2.5 Project Calendar & Day View Modal
 - **Project Calendar View (`/project/[id]/calendar`):**
   - Month and week views aggregating Kanban cards, notes, and diary checklist items.
+  - **Smart Diary Calendar Filtering:** Daily routine checklists (`DAY` interval < 7 days) are withheld on upcoming future dates (`dateKey > todayKey`) until that day arrives to prevent calendar clutter, while weekly schedules (`intervalDays >= 7`) and monthly schedules (`repeatUnit === 'MONTH'`) appear in advance.
   - **Day View Modal:** Clicking any date opens a retro lofi indigo Day Overview:
     - **Header & Full Date:** `CalendarDays` icon in neon lavender container with full date name and `Today` badge.
     - **KPI Summary & Progress Bar:** Summary of total items, completed items, and gradient progress indicator (`0% - 100%`).
@@ -236,6 +237,7 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 #### ปฏิทินงานและตัวเลือกเวลา (Project Calendar & Day View Modal)
 - **Project Calendar View (`/project/[id]/calendar`):**
   - แสดงภาพรวมงานตามกำหนดส่งในมุมมองเดือน (Month) และสัปดาห์ (Week) ครอบคลุมทั้ง Kanban Cards, Notes และ Diary Checklist
+  - **Smart Diary Calendar Filtering (การกรองไดอารี่อัจฉริยะ):** รายการไดอารี่แบบรายวัน (Day Diary หรือช่วงทำซ้ำ < 7 วัน) จะแสดงเฉพาะวันที่ถึงกำหนดแล้ว (ไม่แสดงล่วงหน้าในอนาคตเพื่อป้องกันไม่ให้ปฏิทินรกไปด้วยกิจวัตรประจำวันซ้ำๆ) ในขณะที่กำหนดการแบบสัปดาห์ (Weekly: ทุก 7 วันขึ้นไป) หรือรายเดือน (Monthly: repeatUnit === 'MONTH') จะแสดงล่วงหน้าในปฏิทินตามปกติ เพื่อให้วางแผนงานล่วงหน้าได้
   - **Day View Modal:** เมื่อคลิกที่ช่องวันที่ใดๆ ในปฏิทิน จะเปิดหน้าต่าง Day Overview ขนาดใหญ่สไตล์ Retro Lofi Indigo พร้อม KPI Summary, Progress Bar, ตัวกรอง Filter & Sort, และ Polished Item Cards
 - **Global Retro DatePicker:** ปฏิทินเลือกวันที่สไตล์ Retro Lofi Indigo พร้อม Presets ทางลัด (วันนี้/Today, พรุ่งนี้/Tomorrow, สุดสัปดาห์นี้, สัปดาห์หน้า/Next Week, ล้าง/Clear)
 - **Intuitive TimePicker:**
@@ -423,6 +425,5 @@ Retzlo workspaces now provide real-time **Kanban & Card Mockup Previews** across
   - Live Sidebar Tree + Header Pill Mockup Preview in Note Folder creation/editing.
   - Live Note Card Mockup Preview in the Note editor sidebar, plus instant client-side note search (`Search notes...`).
 - **Workspace Navigation & Calendar Polish**:
-  - Responsive slide-over drawer for `BoardNotesRail` on screens `< 1280px`.
-  - Future recurring Diary checklist items now appear on future Calendar dates.
+  - Smart Diary Calendar Filtering: future recurring Diary checklist items now display weekly and monthly schedules in advance, while day diaries are withheld until that day arrives to prevent calendar clutter.
   - Clickable `Command K` triggers in the workspace topbar and sidebar footer, and automatic mobile sidebar dismissal on route change.

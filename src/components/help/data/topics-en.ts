@@ -490,6 +490,7 @@ export const TOPICS_EN: GuideTopic[] = [
       "Tactile Item Cards: Feature left accent bars, real-time checkboxes, and direct navigation links to cards or diary items.",
       "Single-Column Linear TimePicker: Clean linear scrollers with direct numeric typing and auto-jump for hours and minutes.",
       "Popular Time Presets: Quick shortcut buttons (🌅 09:00 Morning, ☀️ 12:00 Noon, ☕ 13:30 Afternoon, 💼 17:00 End of Day, 🌙 20:00 Night).",
+      "Smart Diary Filtering: Daily routine diary checklists are kept hidden on future dates until the day arrives to keep future calendar cells clean, while weekly and monthly milestone schedules are shown in advance.",
       "Instant Skeleton Loading: Smooth skeleton transitions prevent visual jumps during route changes.",
     ],
     workflowSteps: [

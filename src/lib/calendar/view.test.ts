@@ -117,6 +117,36 @@ describe("filterCalendarItems", () => {
 
     expect(filtered.map((item) => item.id)).toEqual(["note-1"]);
   });
+
+  it("filters diary checklist items according to showDiaryChecklist filter", () => {
+    const itemsWithDiary: UnifiedCalendarItem[] = [
+      ...items,
+      {
+        id: "diary-item-1",
+        type: "diary_checklist",
+        title: "Weekly Review",
+        dueDate: "2026-05-20T09:00:00.000Z",
+        dueDateAllDay: true,
+        completed: false
+      }
+    ];
+
+    const shown = filterCalendarItems(itemsWithDiary, {
+      ...baseFilters,
+      showCards: false,
+      showNotes: false,
+      showDiaryChecklist: true
+    });
+    expect(shown.map((i) => i.id)).toEqual(["diary-item-1"]);
+
+    const hidden = filterCalendarItems(itemsWithDiary, {
+      ...baseFilters,
+      showCards: false,
+      showNotes: false,
+      showDiaryChecklist: false
+    });
+    expect(hidden).toEqual([]);
+  });
 });
 
 describe("getCalendarSummary", () => {

@@ -63,7 +63,7 @@ import { getStatusMeta } from "@/lib/kanban/status";
 import { DEFAULT_PROJECT_STICKER } from "@/lib/projects/appearance";
 import { sortProjectsByStarred } from "@/lib/projects/sort";
 import { getDiaryChecklistSummary } from "@/lib/diary/checklist";
-import { isDiaryItemDueOnDate } from "@/lib/diary/recurrence";
+import { isDiaryItemDueOnDate, shouldShowDiaryOnCalendarDate, normalizeDateKey } from "@/lib/diary/recurrence";
 import { getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import type { CardStatus } from "@/types/kanban";
@@ -468,19 +468,19 @@ export function ProjectsDashboard({
     const limit = calendarRange === "all" ? 30 : Number(calendarRange);
     const now = new Date();
     const diariesList: Array<GlobalCalendarDiary & { type: "diary" }> = [];
-    const todayKey = now.toISOString().slice(0, 10);
+    const todayKey = normalizeDateKey(now);
 
     for (let offset = 0; offset <= limit; offset++) {
       const date = new Date(now);
       date.setDate(now.getDate() + offset);
-      const dateStr = date.toISOString().slice(0, 10);
-
-      // diaries list in calendar will only generate when that date has arrived, not in advance!
-      if (dateStr > todayKey) {
-        continue;
-      }
+      const dateStr = normalizeDateKey(date);
 
       for (const diary of calendarDiaries) {
+        // Future dates suppress daily diaries until that day arrives, but allow weekly and monthly schedules
+        if (!shouldShowDiaryOnCalendarDate({ itemDate: dateStr, todayDate: todayKey, diary })) {
+          continue;
+        }
+
         const isDue = isDiaryItemDueOnDate(diary.startDate, dateStr, diary.intervalDays, diary.repeatUnit ?? "DAY");
         if (isDue) {
           const checklistSummary = getDiaryChecklistSummary(diary, dateStr);

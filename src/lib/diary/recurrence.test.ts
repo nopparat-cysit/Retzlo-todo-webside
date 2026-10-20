@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { isDiaryItemDueOnDate, getDaysInMonth } from "./recurrence";
+import {
+  isDiaryItemDueOnDate,
+  getDaysInMonth,
+  isWeeklyOrMonthlyDiary,
+  isDailyDiary,
+  shouldShowDiaryOnCalendarDate,
+  normalizeDateKey
+} from "./recurrence";
 
 describe("Diary Recurrence Logic", () => {
   describe("getDaysInMonth", () => {
@@ -105,6 +112,170 @@ describe("Diary Recurrence Logic", () => {
       expect(isDiaryItemDueOnDate(start, "2026-11-28", 2, "MONTH")).toBe(true); // +2 months -> due
       expect(isDiaryItemDueOnDate(start, "2026-12-28", 2, "MONTH")).toBe(false);
       expect(isDiaryItemDueOnDate(start, "2027-01-28", 2, "MONTH")).toBe(true);
+    });
+  });
+
+  describe("Calendar Future Date Filtering (shouldShowDiaryOnCalendarDate)", () => {
+    const today = "2026-10-20";
+
+    it("identifies weekly or monthly diaries vs day diaries", () => {
+      expect(isWeeklyOrMonthlyDiary({ repeatUnit: "MONTH", intervalDays: 1 })).toBe(true);
+      expect(isWeeklyOrMonthlyDiary({ repeatUnit: "MONTH", intervalDays: 3 })).toBe(true);
+      expect(isWeeklyOrMonthlyDiary({ repeatUnit: "DAY", intervalDays: 7 })).toBe(true);
+      expect(isWeeklyOrMonthlyDiary({ repeatUnit: "DAY", intervalDays: 14 })).toBe(true);
+
+      expect(isWeeklyOrMonthlyDiary({ repeatUnit: "DAY", intervalDays: 1 })).toBe(false);
+      expect(isWeeklyOrMonthlyDiary({ repeatUnit: "DAY", intervalDays: 3 })).toBe(false);
+      expect(isWeeklyOrMonthlyDiary({ repeatUnit: "DAY", intervalDays: 6 })).toBe(false);
+
+      expect(isDailyDiary({ repeatUnit: "DAY", intervalDays: 1 })).toBe(true);
+      expect(isDailyDiary({ repeatUnit: "DAY", intervalDays: 3 })).toBe(true);
+      expect(isDailyDiary({ repeatUnit: "DAY", intervalDays: 7 })).toBe(false);
+      expect(isDailyDiary({ repeatUnit: "MONTH", intervalDays: 1 })).toBe(false);
+    });
+
+    it("always displays diary items on today and past dates", () => {
+      const dailyDiary = { repeatUnit: "DAY" as const, intervalDays: 1 };
+      const dailyCli = { repeatUnit: "DAY" as const, intervalDays: 1 };
+
+      // Past date
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-18",
+          todayDate: today,
+          diary: dailyDiary,
+          checklistItem: dailyCli
+        })
+      ).toBe(true);
+
+      // Today
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-20",
+          todayDate: today,
+          diary: dailyDiary,
+          checklistItem: dailyCli
+        })
+      ).toBe(true);
+    });
+
+    it("suppresses day diary items on future dates (dateKey > todayKey)", () => {
+      const dailyDiary = { repeatUnit: "DAY" as const, intervalDays: 1 };
+      const dailyCli = { repeatUnit: "DAY" as const, intervalDays: 1 };
+
+      // Tomorrow (future)
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-21",
+          todayDate: today,
+          diary: dailyDiary,
+          checklistItem: dailyCli
+        })
+      ).toBe(false);
+
+      // Next week (future)
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-28",
+          todayDate: today,
+          diary: dailyDiary,
+          checklistItem: dailyCli
+        })
+      ).toBe(false);
+
+      // 3-day diary on future date
+      const threeDayDiary = { repeatUnit: "DAY" as const, intervalDays: 3 };
+      const threeDayCli = { repeatUnit: "DAY" as const, intervalDays: 3 };
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-23",
+          todayDate: today,
+          diary: threeDayDiary,
+          checklistItem: threeDayCli
+        })
+      ).toBe(false);
+    });
+
+    it("allows weekly and monthly diary items to be displayed on future dates", () => {
+      const weeklyDiary = { repeatUnit: "DAY" as const, intervalDays: 7 };
+      const weeklyCli = { repeatUnit: "DAY" as const, intervalDays: 7 };
+
+      // Weekly schedule on future date
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-27",
+          todayDate: today,
+          diary: weeklyDiary,
+          checklistItem: weeklyCli
+        })
+      ).toBe(true);
+
+      const monthlyDiary = { repeatUnit: "MONTH" as const, intervalDays: 1 };
+      const monthlyCli = { repeatUnit: "MONTH" as const, intervalDays: 1 };
+
+      // Monthly schedule on future date
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-28",
+          todayDate: today,
+          diary: monthlyDiary,
+          checklistItem: monthlyCli
+        })
+      ).toBe(true);
+
+      // Next month
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-11-28",
+          todayDate: today,
+          diary: monthlyDiary,
+          checklistItem: monthlyCli
+        })
+      ).toBe(true);
+    });
+
+    it("displays future date when a monthly checklist item is inside a daily diary", () => {
+      const dailyDiary = { repeatUnit: "DAY" as const, intervalDays: 1 };
+      const monthlyCli = { repeatUnit: "MONTH" as const, intervalDays: 1 };
+
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-28",
+          todayDate: today,
+          diary: dailyDiary,
+          checklistItem: monthlyCli
+        })
+      ).toBe(true);
+    });
+
+    it("supports diary-level check without checklistItem (dashboard calendar)", () => {
+      const dailyDiary = { repeatUnit: "DAY" as const, intervalDays: 1 };
+      const weeklyDiary = { repeatUnit: "DAY" as const, intervalDays: 7 };
+      const monthlyDiary = { repeatUnit: "MONTH" as const, intervalDays: 1 };
+
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-25",
+          todayDate: today,
+          diary: dailyDiary
+        })
+      ).toBe(false);
+
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-10-27",
+          todayDate: today,
+          diary: weeklyDiary
+        })
+      ).toBe(true);
+
+      expect(
+        shouldShowDiaryOnCalendarDate({
+          itemDate: "2026-11-20",
+          todayDate: today,
+          diary: monthlyDiary
+        })
+      ).toBe(true);
     });
   });
 });

@@ -50,7 +50,8 @@ import {
   toggleDiaryChecklistCompletion,
   normalizeDiaryChecklist,
   isDiaryChecklistItemDueOnDate,
-  isDiaryChecklistItemCompletedOnDate
+  isDiaryChecklistItemCompletedOnDate,
+  shouldShowDiaryOnCalendarDate
 } from "@/lib/diary/checklist";
 import type { ProjectDiaryItem } from "@/types/diary-item";
 
@@ -211,7 +212,15 @@ export function ProjectCalendar({
     for (const day of calendarDays) {
       for (const diary of preparedDiaries) {
         for (const cli of diary.normalizedChecklist) {
-          if (isDiaryChecklistItemDueOnDate(cli, day.key)) {
+          if (
+            isDiaryChecklistItemDueOnDate(cli, day.key) &&
+            shouldShowDiaryOnCalendarDate({
+              itemDate: day.key,
+              todayDate: todayKey,
+              diary,
+              checklistItem: cli
+            })
+          ) {
             entries.push({
               id: `${diary.id}:${cli.id}:${day.key}`,
               diaryId: diary.id,
@@ -229,7 +238,7 @@ export function ProjectCalendar({
       }
     }
     return entries;
-  }, [preparedDiaries, calendarDays]);
+  }, [preparedDiaries, calendarDays, todayKey]);
 
   const allItems = useMemo<CalendarEntry[]>(
     () => [

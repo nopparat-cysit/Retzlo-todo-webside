@@ -1,4 +1,12 @@
-import { isDiaryItemDueOnDate, type DiaryRepeatUnit } from "@/lib/diary/recurrence";
+import {
+  isDiaryItemDueOnDate,
+  isWeeklyOrMonthlyDiary,
+  isDailyDiary,
+  shouldShowDiaryOnCalendarDate,
+  type DiaryRepeatUnit
+} from "@/lib/diary/recurrence";
+
+export { isWeeklyOrMonthlyDiary, isDailyDiary, shouldShowDiaryOnCalendarDate };
 
 export interface DiaryChecklistItem {
   id: string;
