@@ -169,7 +169,7 @@ export function CreateBoardPageView({
   const totalMemberCount = isPrivate ? selectedMemberIds.length : members.length || undefined;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl 2xl:max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
       {/* Top Breadcrumb & Return Link */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-theme-border pb-4">
         <div className="flex items-center gap-3">
@@ -240,7 +240,7 @@ export function CreateBoardPageView({
               />
             </div>
 
-            {/* 2. Board Template Picker (Previews hidden here to display on right) */}
+            {/* 2. Board Template Picker (Vertical spacious stack, preview on right) */}
             <div className="space-y-2">
               <BoardTemplatePicker
                 selectedId={templateId}
@@ -251,6 +251,7 @@ export function CreateBoardPageView({
                 memberInitials={memberInitials}
                 totalMemberCount={totalMemberCount}
                 hidePreview={true}
+                layout="vertical"
               />
             </div>
 

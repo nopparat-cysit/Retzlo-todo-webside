@@ -37,9 +37,10 @@ describe("CreateBoardPageView full-page dedicated workflow and preview UX contra
     expect(source).toContain("/project/${projectId}/board");
   });
 
-  it("supports template selection with preview separated to right-side panel", () => {
+  it("supports template selection with preview separated to right-side panel and vertical layout", () => {
     expect(source).toContain("<BoardTemplatePicker");
     expect(source).toContain("hidePreview={true}");
+    expect(source).toContain('layout="vertical"');
     expect(source).toContain("DEFAULT_BOARD_TEMPLATE_ID");
   });
 

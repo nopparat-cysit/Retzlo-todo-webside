@@ -28,7 +28,8 @@ export function BoardTemplatePicker({
   isPrivate = false,
   memberInitials = [],
   totalMemberCount,
-  hidePreview = false
+  hidePreview = false,
+  layout = "grid"
 }: {
   selectedId: BoardTemplateId;
   onSelect: (id: BoardTemplateId) => void;
@@ -38,6 +39,7 @@ export function BoardTemplatePicker({
   memberInitials?: string[];
   totalMemberCount?: number;
   hidePreview?: boolean;
+  layout?: "grid" | "vertical";
 }) {
   const [previewMode, setPreviewMode] = useState<"kanban" | "pipeline">("kanban");
   const selectedTemplate = BOARD_TEMPLATES.find((template) => template.id === selectedId) ?? BOARD_TEMPLATES[0];
@@ -46,7 +48,13 @@ export function BoardTemplatePicker({
     <section aria-labelledby="board-template-heading" className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h4 id="board-template-heading" className="text-xs font-semibold text-theme-foreground">
+          <h4
+            id="board-template-heading"
+            className={cn(
+              "text-xs font-semibold text-theme-foreground",
+              layout === "vertical" && "font-bold uppercase tracking-wider"
+            )}
+          >
             Select Board Template
           </h4>
           <p className="mt-0.5 text-[11px] text-theme-muted">
@@ -90,42 +98,62 @@ export function BoardTemplatePicker({
         )}
       </div>
 
-      {/* Responsive 5-column balanced grid — no awkward empty slots */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2" aria-label="Board templates">
-        {BOARD_TEMPLATES.map((template, index) => {
-          const isSelected = template.id === selectedId;
-          const isLastOdd = index === 4;
+      {layout === "vertical" ? (
+        /* Vertical list layout: spacious, full-width, unclipped cards */
+        <div className="flex flex-col gap-2.5" role="radiogroup" aria-label="Board templates">
+          {BOARD_TEMPLATES.map((template) => {
+            const isSelected = template.id === selectedId;
 
-          return (
-            <button
-              key={template.id}
-              type="button"
-              aria-pressed={isSelected}
-              disabled={disabled}
-              onClick={() => onSelect(template.id)}
-              className={cn(
-                "group relative flex flex-col justify-between rounded-xl border p-2.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer",
-                isLastOdd && "sm:col-span-2 lg:col-span-1",
-                isSelected
-                  ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-xs ring-1 ring-theme-accent/40"
-                  : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/60 hover:text-theme-foreground"
-              )}
-            >
-              <div>
-                <div className="flex items-center justify-between gap-1.5 mb-1.5">
-                  <div className="relative h-7 w-7 sm:h-8 sm:w-8 shrink-0">
+            return (
+              <button
+                key={template.id}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                disabled={disabled}
+                onClick={() => onSelect(template.id)}
+                className={cn(
+                  "group relative flex items-center justify-between gap-3.5 rounded-xl border p-3 sm:p-3.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer",
+                  isSelected
+                    ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-xs ring-1 ring-theme-accent/40"
+                    : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/60 hover:text-theme-foreground hover:bg-theme-paper-strong/40"
+                )}
+              >
+                <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                  <div
+                    className={cn(
+                      "relative h-10 w-10 shrink-0 rounded-xl p-1.5 transition-transform group-hover:scale-105 flex items-center justify-center border",
+                      isSelected
+                        ? "bg-theme-accent/10 border-theme-accent/30"
+                        : "bg-theme-panel border-theme-border"
+                    )}
+                  >
                     <Image
                       src={templateIconPaths[template.id]}
                       alt=""
                       aria-hidden="true"
-                      width={32}
-                      height={32}
-                      className="h-full w-full object-contain transition-transform group-hover:scale-105"
+                      width={36}
+                      height={36}
+                      className="h-full w-full object-contain"
                     />
                   </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs sm:text-sm font-semibold leading-tight text-theme-foreground">
+                        {template.name}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-[11px] sm:text-xs leading-normal text-theme-muted line-clamp-1">
+                      {template.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
                   <span
                     className={cn(
-                      "rounded-full px-1.5 py-0.2 font-mono text-[9px] font-semibold border transition-colors",
+                      "rounded-full px-2 py-0.5 font-mono text-[10px] sm:text-[11px] font-semibold border transition-colors",
                       isSelected
                         ? "border-theme-accent/40 bg-theme-accent/15 text-theme-foreground"
                         : "border-theme-border bg-theme-panel text-theme-muted"
@@ -133,28 +161,89 @@ export function BoardTemplatePicker({
                   >
                     {template.columns.length} Steps
                   </span>
-                </div>
 
-                <div className="min-w-0">
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-xs font-semibold leading-tight text-theme-foreground truncate">
-                      {template.name}
-                    </span>
-                    {isSelected && (
-                      <span className="grid h-3.5 w-3.5 shrink-0 place-items-center rounded-full bg-theme-accent text-white dark:text-stone-900 shadow-2xs">
-                        <Check aria-hidden="true" className="h-2 w-2 stroke-[3]" />
-                      </span>
+                  <div
+                    className={cn(
+                      "grid h-5 w-5 place-items-center rounded-full border transition-all",
+                      isSelected
+                        ? "border-theme-accent bg-theme-accent text-white dark:text-stone-900 shadow-2xs"
+                        : "border-theme-border bg-theme-panel text-transparent group-hover:border-theme-accent/50"
                     )}
+                  >
+                    <Check aria-hidden="true" className="h-3 w-3 stroke-[3]" />
                   </div>
-                  <p className="mt-1 text-[10px] leading-snug text-theme-muted line-clamp-2">
-                    {template.description}
-                  </p>
                 </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        /* Responsive 5-column balanced grid — for modal dialogs */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2" aria-label="Board templates">
+          {BOARD_TEMPLATES.map((template, index) => {
+            const isSelected = template.id === selectedId;
+            const isLastOdd = index === 4;
+
+            return (
+              <button
+                key={template.id}
+                type="button"
+                aria-pressed={isSelected}
+                disabled={disabled}
+                onClick={() => onSelect(template.id)}
+                className={cn(
+                  "group relative flex flex-col justify-between rounded-xl border p-2.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer",
+                  isLastOdd && "sm:col-span-2 lg:col-span-1",
+                  isSelected
+                    ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-xs ring-1 ring-theme-accent/40"
+                    : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/60 hover:text-theme-foreground"
+                )}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                    <div className="relative h-7 w-7 sm:h-8 sm:w-8 shrink-0">
+                      <Image
+                        src={templateIconPaths[template.id]}
+                        alt=""
+                        aria-hidden="true"
+                        width={32}
+                        height={32}
+                        className="h-full w-full object-contain transition-transform group-hover:scale-105"
+                      />
+                    </div>
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.2 font-mono text-[9px] font-semibold border transition-colors",
+                        isSelected
+                          ? "border-theme-accent/40 bg-theme-accent/15 text-theme-foreground"
+                          : "border-theme-border bg-theme-panel text-theme-muted"
+                      )}
+                    >
+                      {template.columns.length} Steps
+                    </span>
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-xs font-semibold leading-tight text-theme-foreground truncate">
+                        {template.name}
+                      </span>
+                      {isSelected && (
+                        <span className="grid h-3.5 w-3.5 shrink-0 place-items-center rounded-full bg-theme-accent text-white dark:text-stone-900 shadow-2xs">
+                          <Check aria-hidden="true" className="h-2 w-2 stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-[10px] leading-snug text-theme-muted line-clamp-2">
+                      {template.description}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Live Kanban Board Mockup Preview */}
       {!hidePreview && (

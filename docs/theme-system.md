@@ -869,14 +869,14 @@ Template:
 ### 2026-10-20 — Dedicated Create Board Page (/project/[id]/board/new) & Table Status Alignment
 - Coverage:
   - `src/app/(dashboard)/project/[id]/board/new/page.tsx` (new dedicated route replacing cramped modal popup)
-  - `src/components/kanban/create-board-page-view.tsx` (spacious 2-column layout: Left form settings, Right sticky live mockup preview)
-  - `src/components/kanban/board-template-picker.tsx` (added `hidePreview` prop for split layout integration)
+  - `src/components/kanban/create-board-page-view.tsx` (spacious 2-column layout: Left form settings with vertical template selector, Right sticky live mockup preview)
+  - `src/components/kanban/board-template-picker.tsx` (added `hidePreview` and `layout="vertical"` props for split layout integration)
   - `src/components/kanban/board-list-view.tsx` (resolved table status mismatch, integrated dual-section Card Status & Move Column popover, dynamic status filters)
   - `src/components/kanban/board.tsx`, `src/components/project/projects-dashboard.tsx`, `src/components/kanban/board-sidebar-dropdown.tsx`, `src/components/project/project-boards-manager.tsx`
 - Design Direction & Theme Alignment:
   - **Dedicated Full-Page Board Creator**:
     - Transformed the board creation flow from a single vertically-stacked modal into a dedicated full-page layout under `ProjectShell`.
-    - Left column (`lg:col-span-5`): Board name, 5-template workflow selector cards with `hidePreview={true}`, public/private visibility cards, member access list.
+    - Left column (`lg:col-span-5`): Board name, 5-template workflow selector cards formatted as a comfortable vertical stack (`layout="vertical"`) with full titles, descriptions, step badges, and radio check indicators without horizontal text truncation, public/private visibility cards, member access list.
     - Right column (`lg:col-span-7`): Sticky live mockup preview (`BoardMockupPreview`) with live board name, column tracks, cards, and Kanban/Pipeline mode switcher.
     - Full theme token integration with `bg-theme-panel`, `bg-theme-paper`, `border-theme-border`, `text-theme-foreground`, `text-theme-muted`, `bg-theme-paper-strong`, and `text-theme-accent`.
   - **Table Status Dropdown Alignment**:
