@@ -51,8 +51,17 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
   - **Story Points Scales:** Weight scales (Retzlo Standard, Fibonacci Sequence, Linear/Hours, T-Shirt Sizes, Pomodoro Focus Blocks, Complexity & Risk Scale) or custom values 1–100.
   - **Instant Inline Live Preview & Switch:** Click any template chip to preview workflow/points/priorities below in real-time ("changes immediately below") without nested popups. Includes Action Banner with 'Replace All' or 'Append New' modes.
   - **Safety & Global Sync:** Every template application, edit, or reset is guarded by ConfirmModal, displays toast notifications, and dispatches reactive events across all views (Kanban Board, Column Settings, Card Modal, and Spreadsheet Table View).
-- **Spreadsheet Table View & Multi-Assignee Support:**
+  - **Dedicated Full-Page Board Creator (`/project/[id]/board/new`):**
+    - Clicking "+ New Board" from the workspace navigation bar, sidebar, or projects hub opens a dedicated full-page creator instead of a cramped modal popup.
+    - **Split 2-Column Responsive Layout:**
+      - **Left Side:** Board Name, 5-template workflow selector cards (Standard, Scrum, Software Dev, Marketing, Personal), Public vs Private access cards, and member assignment.
+      - **Right Side:** Sticky **Live Mockup Preview** (`BoardMockupPreview`) updating in real-time as the user types the board name or selects templates, with toggles for Kanban Mockup vs Pipeline view.
+- **Spreadsheet Table View & Status Alignment:**
   - Switch via `📊 Table` / `Spreadsheet` button on board toolbar (flat list and column-grouped views).
+  - **Dual-Section Status & Column Popover:** Clicking the status pill opens a clearly organized menu with two distinct sections:
+    1. **Card Status:** Directly changes task status (`Todo`, `Doing`, `Waiting`, `Done` + custom board statuses) matching the Card Modal with checkmarks.
+    2. **Workflow Column:** Moves task between board columns (`Backlog`, `In Progress`, `Done`) with automatic column status synchronization.
+  - **Status Filter Chips:** Table header includes filters for `All`, `Todo`, `Doing`, `Waiting`, and `Done` with semantic color dots and active highlights.
   - **Row Order & Hover Checkbox (#):** First column displays row number (`1`, `2`, `3`...). Hovering over the number turns it into a checkbox to mark completion instantly, retaining a green checkmark (`[✓]`) for completed items.
   - **Multi-Assignee & Real Avatars:** Assign tasks to multiple teammates with real avatar displays in cells and pickers.
   - Inline title and status editing directly within table rows.

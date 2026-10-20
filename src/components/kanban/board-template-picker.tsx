@@ -27,7 +27,8 @@ export function BoardTemplatePicker({
   boardName,
   isPrivate = false,
   memberInitials = [],
-  totalMemberCount
+  totalMemberCount,
+  hidePreview = false
 }: {
   selectedId: BoardTemplateId;
   onSelect: (id: BoardTemplateId) => void;
@@ -36,6 +37,7 @@ export function BoardTemplatePicker({
   isPrivate?: boolean;
   memberInitials?: string[];
   totalMemberCount?: number;
+  hidePreview?: boolean;
 }) {
   const [previewMode, setPreviewMode] = useState<"kanban" | "pipeline">("kanban");
   const selectedTemplate = BOARD_TEMPLATES.find((template) => template.id === selectedId) ?? BOARD_TEMPLATES[0];
@@ -51,13 +53,14 @@ export function BoardTemplatePicker({
             Choose a workflow pipeline that matches your project needs
           </p>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          <div className="inline-flex items-center rounded-lg border border-theme-border bg-theme-paper p-0.5 text-[10px]">
-            <button
-              type="button"
-              onClick={() => setPreviewMode("kanban")}
-              className={cn(
-                "inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-semibold transition cursor-pointer",
+        {!hidePreview && (
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="inline-flex items-center rounded-lg border border-theme-border bg-theme-paper p-0.5 text-[10px]">
+              <button
+                type="button"
+                onClick={() => setPreviewMode("kanban")}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-semibold transition cursor-pointer",
                 previewMode === "kanban"
                   ? "bg-indigo-600 text-white shadow-2xs"
                   : "text-theme-muted hover:text-theme-foreground"
@@ -84,6 +87,7 @@ export function BoardTemplatePicker({
             5 Templates
           </span>
         </div>
+        )}
       </div>
 
       {/* Responsive 5-column balanced grid — no awkward empty slots */}
@@ -153,82 +157,86 @@ export function BoardTemplatePicker({
       </div>
 
       {/* Live Kanban Board Mockup Preview */}
-      {previewMode === "kanban" ? (
-        <BoardMockupPreview
-          title={`Kanban Mockup Preview: ${selectedTemplate.name}`}
-          badgeText="Template"
-          subtitle={selectedTemplate.description}
-          boardName={boardName}
-          isPrivate={isPrivate}
-          memberInitials={memberInitials}
-          totalMemberCount={totalMemberCount}
-          showBoardHeader={true}
-          columns={selectedTemplate.columns.map((col) => ({
-            name: col.name,
-            color: col.color,
-            icon: col.icon,
-            defaultCardStatus: col.defaultCardStatus
-          }))}
-        />
-      ) : (
-        /* Connected workflow pipeline preview */
-        <div className="rounded-xl border border-theme-border bg-theme-panel p-2.5 sm:p-3" aria-live="polite">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs font-semibold text-theme-foreground truncate">
-                {selectedTemplate.name}
-              </span>
-              <span className="rounded-md border border-theme-border bg-theme-paper px-1.5 py-0.2 font-mono text-[10px] text-theme-muted shrink-0">
-                {selectedTemplate.columns.length} Columns
-              </span>
+      {!hidePreview && (
+        <>
+          {previewMode === "kanban" ? (
+            <BoardMockupPreview
+              title={`Kanban Mockup Preview: ${selectedTemplate.name}`}
+              badgeText="Template"
+              subtitle={selectedTemplate.description}
+              boardName={boardName}
+              isPrivate={isPrivate}
+              memberInitials={memberInitials}
+              totalMemberCount={totalMemberCount}
+              showBoardHeader={true}
+              columns={selectedTemplate.columns.map((col) => ({
+                name: col.name,
+                color: col.color,
+                icon: col.icon,
+                defaultCardStatus: col.defaultCardStatus
+              }))}
+            />
+          ) : (
+            /* Connected workflow pipeline preview */
+            <div className="rounded-xl border border-theme-border bg-theme-panel p-2.5 sm:p-3" aria-live="polite">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-xs font-semibold text-theme-foreground truncate">
+                    {selectedTemplate.name}
+                  </span>
+                  <span className="rounded-md border border-theme-border bg-theme-paper px-1.5 py-0.2 font-mono text-[10px] text-theme-muted shrink-0">
+                    {selectedTemplate.columns.length} Columns
+                  </span>
+                </div>
+                <span className="text-[10px] text-theme-muted hidden sm:inline shrink-0">
+                  Default Workflow Sequence
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-soft pb-1">
+                {selectedTemplate.columns.map((column, index) => {
+                  const color = getColumnThemeOption(column.color);
+                  const status = columnStatusOptions.find((option) => option.value === column.defaultCardStatus);
+                  const icon = columnIconOptions.find((option) => option.id === column.icon);
+                  const statusMeta = getStatusMeta(column.defaultCardStatus);
+
+                  return (
+                    <Fragment key={`${selectedTemplate.id}-${column.name}-${index}`}>
+                      <div
+                        className={cn(
+                          "relative min-w-[110px] sm:min-w-[125px] flex-1 overflow-hidden rounded-lg border p-2",
+                          color.columnClass
+                        )}
+                      >
+                        <span aria-hidden="true" className={cn("absolute inset-y-0 left-0 w-1", color.accentBarClass)} />
+                        <div className="flex min-w-0 items-center gap-1.5 pl-1">
+                          <ColumnIconGlyph icon={column.icon} className={cn("h-3.5 w-3.5 shrink-0", color.iconColorClass)} />
+                          <span className="truncate text-[11px] font-medium text-theme-foreground">{column.name}</span>
+                        </div>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1 pl-1 text-[9px]">
+                          <span className={cn("rounded-full border px-1.5 py-0.2", statusMeta.badgeClass)}>
+                            {status?.label ?? column.defaultCardStatus}
+                          </span>
+                          <span className="inline-flex items-center gap-0.5 text-theme-muted" title={`Column color: ${color.label}; icon: ${icon?.label ?? column.icon}`}>
+                            <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", color.swatchClass)} />
+                            {color.label}
+                          </span>
+                        </div>
+                      </div>
+                      {index < selectedTemplate.columns.length - 1 && (
+                        <ChevronRight aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-theme-muted opacity-40" />
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </div>
             </div>
-            <span className="text-[10px] text-theme-muted hidden sm:inline shrink-0">
-              Default Workflow Sequence
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-soft pb-1">
-            {selectedTemplate.columns.map((column, index) => {
-              const color = getColumnThemeOption(column.color);
-              const status = columnStatusOptions.find((option) => option.value === column.defaultCardStatus);
-              const icon = columnIconOptions.find((option) => option.id === column.icon);
-              const statusMeta = getStatusMeta(column.defaultCardStatus);
-
-              return (
-                <Fragment key={`${selectedTemplate.id}-${column.name}-${index}`}>
-                  <div
-                    className={cn(
-                      "relative min-w-[110px] sm:min-w-[125px] flex-1 overflow-hidden rounded-lg border p-2",
-                      color.columnClass
-                    )}
-                  >
-                    <span aria-hidden="true" className={cn("absolute inset-y-0 left-0 w-1", color.accentBarClass)} />
-                    <div className="flex min-w-0 items-center gap-1.5 pl-1">
-                      <ColumnIconGlyph icon={column.icon} className={cn("h-3.5 w-3.5 shrink-0", color.iconColorClass)} />
-                      <span className="truncate text-[11px] font-medium text-theme-foreground">{column.name}</span>
-                    </div>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-1 pl-1 text-[9px]">
-                      <span className={cn("rounded-full border px-1.5 py-0.2", statusMeta.badgeClass)}>
-                        {status?.label ?? column.defaultCardStatus}
-                      </span>
-                      <span className="inline-flex items-center gap-0.5 text-theme-muted" title={`Column color: ${color.label}; icon: ${icon?.label ?? column.icon}`}>
-                        <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", color.swatchClass)} />
-                        {color.label}
-                      </span>
-                    </div>
-                  </div>
-                  {index < selectedTemplate.columns.length - 1 && (
-                    <ChevronRight aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-theme-muted opacity-40" />
-                  )}
-                </Fragment>
-              );
-            })}
-          </div>
-        </div>
+          )}
+          <p className="text-[10px] leading-relaxed text-theme-muted">
+            💡 This board will be created with the workflow columns shown above. You can add, remove, or customize columns at any time.
+          </p>
+        </>
       )}
-      <p className="text-[10px] leading-relaxed text-theme-muted">
-        💡 This board will be created with the workflow columns shown above. You can add, remove, or customize columns at any time.
-      </p>
     </section>
   );
 }

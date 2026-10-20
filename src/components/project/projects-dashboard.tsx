@@ -1321,7 +1321,7 @@ export function ProjectsDashboard({
 
                   <Button
                     type="button"
-                    onClick={() => setIsCreateBoardOpen(true)}
+                    onClick={() => router.push(`/project/${activeProject.id}/board/new`)}
                     className="h-9.5 shrink-0 rounded-xl bg-indigo-600 px-3.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:font-bold dark:hover:bg-dusk-amber"
                   >
                     <Plus className="h-3.5 w-3.5 mr-1" />
@@ -1362,7 +1362,7 @@ export function ProjectsDashboard({
                   ))}
                   <QuickCreateBoardBlueprintRow
                     projectName={activeProject.name}
-                    onCreateClick={() => setIsCreateBoardOpen(true)}
+                    onCreateClick={() => router.push(`/project/${activeProject.id}/board/new`)}
                   />
                 </div>
               ) : (
@@ -1380,7 +1380,7 @@ export function ProjectsDashboard({
                   ))}
                   <QuickCreateBoardBlueprintCard
                     projectName={activeProject.name}
-                    onCreateClick={() => setIsCreateBoardOpen(true)}
+                    onCreateClick={() => router.push(`/project/${activeProject.id}/board/new`)}
                   />
                 </div>
               )}

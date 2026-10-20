@@ -1862,6 +1862,7 @@ export function KanbanBoard({
           </div>
         ) : viewMode === "list" ? (
           <BoardListView
+            boardId={board.id}
             boardTitle={board.name}
             columns={filteredColumns}
             allColumns={columns}

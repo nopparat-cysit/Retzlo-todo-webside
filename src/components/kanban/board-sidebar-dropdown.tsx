@@ -231,7 +231,7 @@ export function BoardSidebarDropdown({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsCreateBoardOpen(true);
+                router.push(`/project/${projectId}/board/new`);
               }}
               title="Create new board"
               aria-label="Create new board"
@@ -379,7 +379,7 @@ export function BoardSidebarDropdown({
           {canManage && (
             <button
               type="button"
-              onClick={() => setIsCreateBoardOpen(true)}
+              onClick={() => router.push(`/project/${projectId}/board/new`)}
               className="flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium text-stone-400 hover:bg-white/[0.04] hover:text-dusk-lavender transition cursor-pointer"
             >
               <Plus className="h-3 w-3" />

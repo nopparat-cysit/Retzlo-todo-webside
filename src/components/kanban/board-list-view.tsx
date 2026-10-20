@@ -28,7 +28,12 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Card, CardAssignee, CardPriority, CardStatus, ColumnWithCards, CustomPriority } from "@/types/kanban";
-import { getStatusMeta } from "@/lib/kanban/status";
+import {
+  getStatusMeta,
+  DEFAULT_STATUS_OPTIONS,
+  getStoredStatuses,
+  type CustomStatusOption
+} from "@/lib/kanban/status";
 import { getPriorityColorConfig, getPriorityMeta, resolveBoardPriorities } from "@/lib/kanban/priority";
 import { playCardDoneSound } from "@/lib/sound";
 import { useToast } from "@/components/ui/toast";
@@ -73,6 +78,7 @@ function StoryPointsBadge({ points }: { points: number }) {
 }
 
 interface BoardListViewProps {
+  boardId?: string;
   boardTitle?: string;
   columns: ColumnWithCards[];
   allColumns: ColumnWithCards[];
@@ -123,7 +129,7 @@ const PRIORITY_CONFIG: Record<
   }
 };
 
-// Status mapping matching user spreadsheet reference pills
+// Status mapping matching spreadsheet reference (preserves test contracts)
 const STATUS_PILL_CONFIG: Record<
   CardStatus,
   {
@@ -151,26 +157,24 @@ const STATUS_PILL_CONFIG: Record<
     dotClass: "bg-blue-500"
   },
   WAITING: {
-    label: "Review",
+    label: "Waiting",
     pillClass:
       "border-purple-500/30 bg-purple-500/15 text-purple-700 dark:border-purple-400/30 dark:bg-purple-500/20 dark:text-purple-300",
     dotClass: "bg-purple-500"
   }
 };
 
-function getStatusPill(status: string) {
-  if (STATUS_PILL_CONFIG[status]) {
-    return STATUS_PILL_CONFIG[status];
-  }
-  const meta = getStatusMeta(status);
+function getStatusPill(status: string, customStatuses?: CustomStatusOption[]) {
+  const meta = getStatusMeta(status, customStatuses);
   return {
     label: meta.label,
     pillClass: cn("border", meta.badgeClass),
-    dotClass: "bg-indigo-500"
+    dotClass: (meta as any).dot || "bg-indigo-500"
   };
 }
 
 export function BoardListView({
+  boardId,
   boardTitle,
   columns,
   allColumns,
@@ -195,6 +199,22 @@ export function BoardListView({
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [sortField, setSortField] = useState<"title" | "priority" | "status" | "dueDate" | "startDate" | "storyPoints" | "checklist" | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  // Dynamic Board Statuses (Todo, Doing, Waiting, Done + custom statuses)
+  const [statuses, setStatuses] = useState<CustomStatusOption[]>(() =>
+    boardId ? getStoredStatuses(boardId) : DEFAULT_STATUS_OPTIONS
+  );
+
+  useEffect(() => {
+    if (!boardId) return;
+    const handleStatusSync = (e: Event) => {
+      const detail = (e as CustomEvent)?.detail;
+      if (detail?.statuses) setStatuses(detail.statuses);
+      else setStatuses(getStoredStatuses(boardId));
+    };
+    window.addEventListener("retzlo:statuses-updated", handleStatusSync);
+    return () => window.removeEventListener("retzlo:statuses-updated", handleStatusSync);
+  }, [boardId]);
 
   // Quick inline creation
   const [addingInColumnId, setAddingInColumnId] = useState<string | null>(null);
@@ -341,6 +361,43 @@ export function BoardListView({
       }
     } catch {
       toast({ message: "Network error moving card", type: "error" });
+    }
+  };
+
+  // Direct status update (Todo, Doing, Waiting, Done + custom statuses)
+  const handleUpdateStatus = async (card: Card, nextStatus: string) => {
+    if (card.status === nextStatus) return;
+    const isDone = nextStatus === "DONE";
+
+    if (isDone && card.status !== "DONE") {
+      playCardDoneSound();
+    }
+
+    try {
+      const res = await fetch("/api/cards", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cardId: card.id,
+          status: nextStatus
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.card && onCardSaved) {
+          onCardSaved(data.card);
+        }
+        const meta = getStatusMeta(nextStatus, statuses);
+        toast({
+          message: isDone ? "Completed task! 🌟" : `Status set to ${meta.label}`,
+          type: "success"
+        });
+      } else {
+        toast({ message: "Failed to update status", type: "error" });
+      }
+    } catch {
+      toast({ message: "Network error updating status", type: "error" });
     }
   };
 
@@ -646,42 +703,26 @@ export function BoardListView({
             >
               All
             </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("TODO")}
-              className={cn(
-                "rounded px-2.5 py-0.5 transition cursor-pointer",
-                statusFilter === "TODO"
-                  ? "bg-blue-500/20 font-bold text-blue-700 dark:bg-blue-500/30 dark:text-blue-300"
-                  : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
-              )}
-            >
-              To Do
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("DOING")}
-              className={cn(
-                "rounded px-2.5 py-0.5 transition cursor-pointer",
-                statusFilter === "DOING"
-                  ? "bg-amber-500/20 font-bold text-amber-700 dark:bg-amber-500/30 dark:text-amber-300"
-                  : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
-              )}
-            >
-              In Progress
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter("DONE")}
-              className={cn(
-                "rounded px-2.5 py-0.5 transition cursor-pointer",
-                statusFilter === "DONE"
-                  ? "bg-emerald-500/20 font-bold text-emerald-700 dark:bg-emerald-500/30 dark:text-emerald-300"
-                  : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
-              )}
-            >
-              Done
-            </button>
+            {statuses.map((option) => {
+              const meta = getStatusMeta(option.value, statuses);
+              const isSelected = statusFilter === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setStatusFilter(option.value)}
+                  className={cn(
+                    "rounded px-2.5 py-0.5 transition cursor-pointer flex items-center gap-1",
+                    isSelected
+                      ? cn("font-bold shadow-2xs", meta.badgeClass)
+                      : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                  )}
+                >
+                  <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (meta as any).dot || "bg-indigo-500")} />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Toggle between Flat Spreadsheet Table vs Grouped Status View */}
@@ -831,7 +872,7 @@ export function BoardListView({
             <div className="divide-y divide-stone-200/50 dark:divide-white/[0.04]">
               {allCards.map((card, index) => {
                 const priorityMeta = getPriorityMeta(card.priority, activePriorities);
-                const statusPill = getStatusPill(card.status);
+                const statusPill = getStatusPill(card.status, statuses);
                 const isCardDone = card.status === "DONE";
                 const cardOverdue = checkIsOverdue(card.dueDate);
                 const checklistTotal = card.checklist.length;
@@ -1088,9 +1129,36 @@ export function BoardListView({
                             <ChevronDown className="h-3 w-3 opacity-70 shrink-0" />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="center" className="w-48 z-[1200]">
-                          <DropdownMenuLabel className="text-xs">Move Column / Status</DropdownMenuLabel>
+                        <DropdownMenuContent align="center" className="w-52 z-[1200]">
+                          <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                            Card Status
+                          </DropdownMenuLabel>
+                          {statuses.map((option) => {
+                            const isSelected = card.status?.toUpperCase() === option.value.toUpperCase();
+                            const meta = getStatusMeta(option.value, statuses);
+                            return (
+                              <DropdownMenuItem
+                                key={option.value}
+                                onClick={() => void handleUpdateStatus(card, option.value)}
+                                className={cn(
+                                  "cursor-pointer text-xs flex items-center justify-between",
+                                  isSelected && "font-bold text-dusk-lavender bg-dusk-lavender/10"
+                                )}
+                              >
+                                <span className="flex items-center gap-2 truncate">
+                                  <span className={cn("h-2 w-2 rounded-full shrink-0", (meta as any).dot || "bg-indigo-500")} />
+                                  <span className="truncate">{option.label}</span>
+                                </span>
+                                {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />}
+                              </DropdownMenuItem>
+                            );
+                          })}
+
                           <DropdownMenuSeparator />
+
+                          <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                            Move Column
+                          </DropdownMenuLabel>
                           {allColumns.map((col) => {
                             const isCurrentCol = col.id === card.columnId;
                             const colTheme = getColumnThemeOption(col.color);
@@ -1100,14 +1168,14 @@ export function BoardListView({
                                 onClick={() => void handleMoveColumn(card, col)}
                                 className={cn(
                                   "cursor-pointer text-xs flex items-center justify-between",
-                                  isCurrentCol && "font-bold text-dusk-lavender"
+                                  isCurrentCol && "font-bold text-dusk-lavender bg-dusk-lavender/10"
                                 )}
                               >
                                 <span className="flex items-center gap-2 truncate">
                                   <span className={cn("h-2 w-2 rounded-full shrink-0", colTheme.swatchClass)} />
                                   <span className="truncate">{col.name}</span>
                                 </span>
-                                {isCurrentCol && <Check className="h-3.5 w-3.5 shrink-0" />}
+                                {isCurrentCol && <Check className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />}
                               </DropdownMenuItem>
                             );
                           })}
@@ -1508,20 +1576,45 @@ export function BoardListView({
                                       <ChevronDown className="h-3 w-3 shrink-0 text-stone-400" />
                                     </button>
                                   </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="start" className="w-44 z-[1200]">
-                                    <DropdownMenuLabel className="text-xs">Move to column</DropdownMenuLabel>
+                                  <DropdownMenuContent align="start" className="w-52 z-[1200]">
+                                    <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                                      Card Status
+                                    </DropdownMenuLabel>
+                                    {statuses.map((option) => {
+                                      const isSelected = card.status?.toUpperCase() === option.value.toUpperCase();
+                                      const meta = getStatusMeta(option.value, statuses);
+                                      return (
+                                        <DropdownMenuItem
+                                          key={option.value}
+                                          onClick={() => void handleUpdateStatus(card, option.value)}
+                                          className={cn(
+                                            "cursor-pointer text-xs flex items-center justify-between",
+                                            isSelected && "font-bold text-dusk-lavender bg-dusk-lavender/10"
+                                          )}
+                                        >
+                                          <span className="flex items-center gap-2 truncate">
+                                            <span className={cn("h-2 w-2 rounded-full shrink-0", (meta as any).dot || "bg-indigo-500")} />
+                                            <span className="truncate">{option.label}</span>
+                                          </span>
+                                          {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-dusk-lavender" />}
+                                        </DropdownMenuItem>
+                                      );
+                                    })}
                                     <DropdownMenuSeparator />
+                                    <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                                      Move to Column
+                                    </DropdownMenuLabel>
                                     {allColumns.map((col) => (
                                       <DropdownMenuItem
                                         key={col.id}
                                         onClick={() => void handleMoveColumn(card, col)}
                                         className={cn(
                                           "cursor-pointer text-xs flex items-center justify-between",
-                                          col.id === column.id && "font-bold text-dusk-lavender"
+                                          col.id === column.id && "font-bold text-dusk-lavender bg-dusk-lavender/10"
                                         )}
                                       >
                                         <span>{col.name}</span>
-                                        {col.id === column.id && <Check className="h-3.5 w-3.5" />}
+                                        {col.id === column.id && <Check className="h-3.5 w-3.5 text-dusk-lavender" />}
                                       </DropdownMenuItem>
                                     ))}
                                   </DropdownMenuContent>

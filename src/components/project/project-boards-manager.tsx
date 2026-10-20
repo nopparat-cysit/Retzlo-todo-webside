@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { FolderKanban, Globe, LayoutGrid, List, Lock, MoreVertical, Plus, Search, Trash2, Users, Edit3, Check, X, Sparkles, Settings, ExternalLink } from "lucide-react";
 
@@ -43,6 +43,7 @@ export function ProjectBoardsManager({
   projectMembers,
   onConfigureBoard
 }: ProjectBoardsManagerProps) {
+  const router = useRouter();
   const [boards, setBoards] = useState<BoardSummary[]>(initialBoards);
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -241,7 +242,7 @@ export function ProjectBoardsManager({
           <Button
             type="button"
             size="sm"
-            onClick={() => setIsCreateOpen(true)}
+            onClick={() => router.push(`/project/${projectId}/board/new`)}
           >
             <Plus className="h-3.5 w-3.5" />
             New board

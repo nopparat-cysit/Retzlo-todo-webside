@@ -1600,8 +1600,8 @@ export function HelpCenterClient() {
                   {isEn ? "Live Mockup Preview System:" : "ระบบจำลองตัวอย่างแบบเรียลไทม์ (Live Mockup Preview):"}
                 </span>{" "}
                 {isEn
-                  ? "Every creation and configuration modal—including Create Board, Board Settings (General, Access, Columns, Statuses, Priorities), Edit Card Attributes, Diary Routines, Note Folders, and Notes—includes a real-time interactive preview card before you save."
-                  : "ทุกหน้าต่างการสร้างและตั้งค่า ไม่ว่าจะเป็นการสร้างบอร์ด ตั้งค่าคอลัมน์ สถานะ ความสำคัญ การ์ดงาน ไดอารี่ โฟลเดอร์ และโน้ต มีระบบแสดงภาพตัวอย่าง (Mockup Preview) แบบเรียลไทม์ให้ตรวจสอบก่อนกดบันทึกเสมอ"}
+                  ? "Creation and configuration views—including the dedicated Create Board full-page designer, Board Settings (General, Access, Columns, Statuses, Priorities), Edit Card Attributes, Diary Routines, Note Folders, and Notes—include real-time interactive preview cards before you save."
+                  : "ระบบสร้างและตั้งค่า—ทั้งหน้าสร้างบอร์ดแบบเต็มหน้าจอพร้อม Live Preview ขวามือ, การตั้งค่าบอร์ด (ทั่วไป, สิทธิ์, คอลัมน์, สถานะ, ความสำคัญ), แก้ไขคุณสมบัติการ์ด, ไดอารี่, โฟลเดอร์ และโน้ต มีระบบแสดงภาพตัวอย่างแบบเรียลไทม์ให้ตรวจสอบก่อนกดบันทึกเสมอ"}
               </div>
             </div>
           )}

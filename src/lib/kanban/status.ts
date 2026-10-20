@@ -246,7 +246,8 @@ export function getStatusMeta(status: string, customOptions?: CustomStatusOption
         label: found.label,
         badgeClass: config.badgeClass,
         buttonClass: config.buttonClass,
-        selectedButtonClass: config.selectedButtonClass
+        selectedButtonClass: config.selectedButtonClass,
+        dot: config.dot
       };
     }
   }

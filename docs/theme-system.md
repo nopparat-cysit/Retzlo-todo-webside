@@ -865,3 +865,24 @@ Template:
     - Made `Command K` badges in `project-shell.tsx` clickable via `CommandPaletteTrigger` and auto-closed mobile `#project-sidebar-toggle` upon navigation.
     - Updated `AiProjectSummaryModal` to require explicit user click before deducting 2 AI credits, and replaced `window.location.reload()` in `fab-hub.tsx` with `router.refresh()`.
 - Verification: Vitest full suite (100 test files, 534 passed), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed.
+
+### 2026-10-20 — Dedicated Create Board Page (/project/[id]/board/new) & Table Status Alignment
+- Coverage:
+  - `src/app/(dashboard)/project/[id]/board/new/page.tsx` (new dedicated route replacing cramped modal popup)
+  - `src/components/kanban/create-board-page-view.tsx` (spacious 2-column layout: Left form settings, Right sticky live mockup preview)
+  - `src/components/kanban/board-template-picker.tsx` (added `hidePreview` prop for split layout integration)
+  - `src/components/kanban/board-list-view.tsx` (resolved table status mismatch, integrated dual-section Card Status & Move Column popover, dynamic status filters)
+  - `src/components/kanban/board.tsx`, `src/components/project/projects-dashboard.tsx`, `src/components/kanban/board-sidebar-dropdown.tsx`, `src/components/project/project-boards-manager.tsx`
+- Design Direction & Theme Alignment:
+  - **Dedicated Full-Page Board Creator**:
+    - Transformed the board creation flow from a single vertically-stacked modal into a dedicated full-page layout under `ProjectShell`.
+    - Left column (`lg:col-span-5`): Board name, 5-template workflow selector cards with `hidePreview={true}`, public/private visibility cards, member access list.
+    - Right column (`lg:col-span-7`): Sticky live mockup preview (`BoardMockupPreview`) with live board name, column tracks, cards, and Kanban/Pipeline mode switcher.
+    - Full theme token integration with `bg-theme-panel`, `bg-theme-paper`, `border-theme-border`, `text-theme-foreground`, `text-theme-muted`, `bg-theme-paper-strong`, and `text-theme-accent`.
+  - **Table Status Dropdown Alignment**:
+    - Replaced out-of-sync status mappings with canonical statuses (`Todo`, `Doing`, `Waiting`, `Done` + custom board statuses).
+    - Unified table row status popover into two distinct, labeled sections:
+      1. **Card Status**: Directly changes card status (`Todo`, `Doing`, `Waiting`, `Done`) matching the Card Modal with checkmark.
+      2. **Move Column**: Moves card between workflow columns (`Backlog`, `In Progress`, `Done`) with checkmark and status synchronization.
+    - Added missing `Waiting` status to table view filter chips at the top of the table.
+- Verification: Component tests (`create-board-page-view.test.ts`, `board-views-and-sidebar.test.ts`, `create-board-modal.test.ts`, `status.test.ts`), `npm run lint`, `npx prisma validate`, `npm run build`.
