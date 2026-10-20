@@ -67,6 +67,13 @@ export function CreateBoardPageView({
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<1 | 2>(1);
+  const stepTransitionLockRef = useRef<number>(0);
+
+  function goToStep(nextStep: 1 | 2) {
+    if (nextStep === 2 && !name.trim()) return;
+    stepTransitionLockRef.current = Date.now();
+    setStep(nextStep);
+  }
 
   // Preview display toggle: Kanban mockup vs Connected pipeline sequence
   const [previewMode, setPreviewMode] = useState<"kanban" | "pipeline">("kanban");
@@ -117,10 +124,18 @@ export function CreateBoardPageView({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (step === 1) {
+    e.stopPropagation();
+
+    // Guard 1: Step 1 must only transition to Step 2, never submit
+    if (step !== 2) {
       if (name.trim()) {
-        setStep(2);
+        goToStep(2);
       }
+      return;
+    }
+
+    // Guard 2: Prevent synthetic click carryover from Step 1's "Next" button click
+    if (Date.now() - stepTransitionLockRef.current < 400) {
       return;
     }
 
@@ -213,8 +228,9 @@ export function CreateBoardPageView({
 
         <div className="flex items-center gap-2.5">
           {step === 1 ? (
-            <>
+            <div key="step-1-header-actions" className="flex items-center gap-2.5">
               <Button
+                key="step-1-cancel-btn"
                 type="button"
                 variant="ghost"
                 onClick={() => router.push(`/project/${projectId}/board`)}
@@ -224,10 +240,13 @@ export function CreateBoardPageView({
                 Cancel
               </Button>
               <Button
+                key="step-1-next-btn"
                 type="button"
                 disabled={!name.trim() || isPending}
-                onClick={() => {
-                  if (name.trim()) setStep(2);
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  goToStep(2);
                 }}
                 variant="primary"
                 className="h-9 font-bold px-5 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
@@ -235,13 +254,18 @@ export function CreateBoardPageView({
                 <span>Next</span>
                 <ArrowRight className="h-4 w-4" />
               </Button>
-            </>
+            </div>
           ) : (
-            <>
+            <div key="step-2-header-actions" className="flex items-center gap-2.5">
               <Button
+                key="step-2-back-btn"
                 type="button"
                 variant="ghost"
-                onClick={() => setStep(1)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  goToStep(1);
+                }}
                 disabled={isPending}
                 className="text-xs h-9 px-3.5 cursor-pointer flex items-center gap-1.5"
               >
@@ -249,6 +273,7 @@ export function CreateBoardPageView({
                 <span>Back</span>
               </Button>
               <Button
+                key="step-2-create-btn"
                 type="submit"
                 form="create-board-page-form"
                 disabled={!name.trim() || isPending}
@@ -258,7 +283,7 @@ export function CreateBoardPageView({
                 <FolderKanban className="h-4 w-4" />
                 <span>{isPending ? "Creating Board..." : "Create Board"}</span>
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -276,7 +301,7 @@ export function CreateBoardPageView({
             <div className="flex items-center gap-2 border-b border-theme-border pb-4">
               <button
                 type="button"
-                onClick={() => setStep(1)}
+                onClick={() => goToStep(1)}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   step === 1
@@ -303,7 +328,7 @@ export function CreateBoardPageView({
                 type="button"
                 disabled={!name.trim()}
                 onClick={() => {
-                  if (name.trim()) setStep(2);
+                  if (name.trim()) goToStep(2);
                 }}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2.5 py-1 text-xs font-semibold transition",
@@ -346,6 +371,13 @@ export function CreateBoardPageView({
                     id="board-name-input"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        goToStep(2);
+                      }
+                    }}
                     placeholder="e.g. Marketing Roadmap, Sprint 2, Bug Tracker..."
                     maxLength={80}
                     autoFocus

@@ -64,4 +64,11 @@ describe("CreateBoardPageView full-page dedicated workflow and preview UX contra
     // Ensure bottom action bar has been removed from the form
     expect(source).not.toContain("border-t border-theme-border pt-4");
   });
+
+  it("strictly guards against accidental submission when clicking Next on Step 1", () => {
+    expect(source).toContain("stepTransitionLockRef");
+    expect(source).toContain("if (step !== 2)");
+    expect(source).toContain("key=\"step-1-next-btn\"");
+    expect(source).toContain("key=\"step-2-create-btn\"");
+  });
 });

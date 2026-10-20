@@ -57,16 +57,23 @@ Convert board creation from a cramped modal dialog to a dedicated full-page expe
 6. **Card & Board Hover Shadow Bug Fix ("แก้ไขบัคเงา ตอนเอาเมาเลือนผ่าน board")**:
    - In `src/components/kanban/card.tsx`, replaced harsh `hover:shadow-lg` (which caused abrupt clipping against column scroll overflow boundaries and dark square artifacts in dark mode) with smooth `hover:shadow-md dark:hover:shadow-[0_4px_14px_rgba(0,0,0,0.35)] transition-all duration-150`.
    - In `src/components/project/projects-dashboard.tsx`, smoothed `WorkspaceBoardCard` (`hover:shadow-md dark:hover:shadow-[0_8px_20px_rgba(0,0,0,0.35)]`), `QuickCreateBoardBlueprintCard`, and `ProjectCard` to prevent jerky translate flickering and harsh box-shadow artifacts when moving the cursor across boards.
+7. **Next Button Premature Creation Bug Fix ("กด next แล้วมัน create เลย แก้ไข")**:
+   - Resolved bug where clicking "Next" in Step 1 immediately fired board creation POST request.
+   - **Root Cause**: React reconciled the `<Button>` element in place without a distinct `key`, mutating the active DOM button from `type="button"` (Next) into `type="submit"` (Create Board) mid-click lifecycle, which immediately dispatched the form's submit event with `step === 2`.
+   - **Fix**:
+     - Assigned unique keys to the action containers and buttons (`step-1-header-actions`, `step-1-next-btn`, `step-2-header-actions`, `step-2-create-btn`), forcing full unmount/mount of distinct DOM nodes.
+     - Added `stepTransitionLockRef` timestamp lock (ignoring submits within 400ms of entering Step 2) and `if (step !== 2) return;` guard in `handleSubmit`.
+     - Intercepted `Enter` key on the board name input with `e.preventDefault(); e.stopPropagation(); goToStep(2);` to ensure smooth advance to Step 2 without triggering form submit.
 
 ## Database / Schema Changes
 - None (uses existing Prisma schema and API endpoints).
 
 ## Verification Commands & Results
-- `npx vitest run src/components/kanban/create-board-page-view.test.ts` (8 tests passed).
+- `npx vitest run src/components/kanban/create-board-page-view.test.ts` (9 tests passed).
 - `npx vitest run src/components/kanban/board-views-and-sidebar.test.ts` (9 tests passed).
 - `npx vitest run src/components/kanban/create-board-modal.test.ts` (6 tests passed).
 - `npx vitest run src/lib/kanban/status.test.ts` (3 tests passed).
-- Full Vitest suite (`npm test`): 101 test files passed, 543 tests passed, 0 failed.
+- Full Vitest suite (`npm test`): 101 test files passed, 544 tests passed, 0 failed.
 - Prisma schema validation (`npx prisma validate`): Valid.
 - Next.js linting (`npm run lint`): Passed (0 warnings, 0 errors).
 - Next.js production build (`npm run build`): Passed (compiled all 42 pages cleanly).
