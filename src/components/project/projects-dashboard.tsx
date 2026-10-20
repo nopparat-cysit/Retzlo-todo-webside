@@ -2252,6 +2252,7 @@ function ProjectCard({
   onDeleteProject?: (id: string) => void;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const columns = Array.isArray(project.board?.columns) ? project.board.columns : [];
   const cards = columns
     .flatMap((column) => (Array.isArray(column?.cards) ? column.cards : []))
@@ -2466,19 +2467,13 @@ function ProjectCard({
                 </Link>
               ))}
               {project.boardsList.length > 3 ? (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setActiveProjectId(project.id);
-                    setViewMode("boards");
-                  }}
+                <Link
+                  href={`/project/${project.id}/board`}
                   className="rounded-md border border-stone-200/80 bg-stone-50 px-1.5 py-0.5 text-[9px] font-mono font-medium text-stone-500 hover:border-indigo-300 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-lavender/40 dark:hover:text-dusk-lavender"
                   title="View all boards in this project"
                 >
                   +{project.boardsList.length - 3}
-                </button>
+                </Link>
               ) : null}
             </div>
           ) : null}

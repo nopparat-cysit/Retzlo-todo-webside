@@ -62,12 +62,12 @@ export async function PATCH(
 
     void createAuditLog({
       action: "UPDATE",
-      category: "PROJECT_MUTATION",
+      category: "REWARDS",
       targetId: params.rewardId,
       targetType: "REWARD",
-      userId,
-      projectId: reward.projectId ?? undefined,
-      description: `Updated reward "${updated.name}"`
+      actorId: userId,
+      summary: `Updated reward "${updated.name}"`,
+      metadata: { projectId: reward.projectId ?? undefined }
     });
 
     return NextResponse.json({ reward: updated });
@@ -109,12 +109,12 @@ export async function DELETE(
 
     void createAuditLog({
       action: "DELETE",
-      category: "PROJECT_MUTATION",
+      category: "REWARDS",
       targetId: params.rewardId,
       targetType: "REWARD",
-      userId,
-      projectId: reward.projectId ?? undefined,
-      description: `Deleted reward "${reward.name}"`
+      actorId: userId,
+      summary: `Deleted reward "${reward.name}"`,
+      metadata: { projectId: reward.projectId ?? undefined }
     });
 
     return NextResponse.json({ ok: true });

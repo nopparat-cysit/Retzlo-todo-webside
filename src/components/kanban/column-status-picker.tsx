@@ -125,7 +125,7 @@ export function ColumnStatusPicker({
   };
 
   const selectedColorConfig =
-    STATUS_COLOR_CONFIGS[selectedMeta.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
+    STATUS_COLOR_CONFIGS[(selectedMeta as { color?: string })?.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
   const previewColorConfig =
     STATUS_COLOR_CONFIGS[newStatusColor] || STATUS_COLOR_CONFIGS.indigo;
 

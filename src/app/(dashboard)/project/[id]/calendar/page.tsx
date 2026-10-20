@@ -33,6 +33,13 @@ export default async function CalendarPage({ params }: { params: { id: string } 
   let notes: any[] = [];
   let diaryItems: any[] = [];
   let projectMembers: any[] = [];
+  let accessibleBoards: Array<{
+    id: string;
+    name: string;
+    isPrivate: boolean;
+    members: Array<{ userId: string }>;
+    columns: Array<{ id: string; name: string; position: number }>;
+  }> = [];
 
   try {
     const [userMembership, projectData, allBoards] = await Promise.all([
@@ -63,7 +70,7 @@ export default async function CalendarPage({ params }: { params: { id: string } 
     project = projectData;
 
     const isOwner = isOwnerRole(userMembership.role);
-    const accessibleBoards = allBoards.filter((b) =>
+    accessibleBoards = allBoards.filter((b) =>
       canAccessBoard(b, userId, userMembership.role)
     );
     const accessibleBoardIds = accessibleBoards.map((b) => b.id);

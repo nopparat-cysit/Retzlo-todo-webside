@@ -1582,13 +1582,30 @@ export function ProjectCalendar({
       {/* Quick Add Modal from Date */}
       {quickAddDate && (
         <AppModal
-          isOpen={Boolean(quickAddDate)}
+          open={Boolean(quickAddDate)}
           onClose={() => setQuickAddDate(null)}
-          title={`Create Item for ${formatMediumDate(new Date(quickAddDate + "T00:00:00.000Z"))}`}
-          subtitle="Quickly schedule a new Task or Note directly from the calendar."
-          size="md"
+          contentClassName="lofi-panel flex max-h-[calc(100vh-2.5rem)] max-w-lg w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xl dark:border-white/10 dark:bg-ink-950"
         >
-          <form onSubmit={handleQuickAddSubmit} className="space-y-4">
+          <div className="flex items-start justify-between gap-4 border-b border-stone-200/80 px-6 py-5 bg-gradient-to-r from-indigo-50/30 to-transparent dark:border-white/10 dark:from-white/[0.03] dark:to-transparent">
+            <div>
+              <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">
+                {`Create Item for ${formatMediumDate(new Date(quickAddDate + "T00:00:00.000Z"))}`}
+              </h2>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                Quickly schedule a new Task or Note directly from the calendar.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setQuickAddDate(null)}
+              className="rounded-lg p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-600 dark:hover:bg-white/10 dark:hover:text-stone-200 transition"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <form onSubmit={handleQuickAddSubmit} className="space-y-4 p-6 overflow-y-auto scrollbar-soft">
             {/* Type Switcher */}
             <div>
               <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
@@ -1597,11 +1614,12 @@ export function ProjectCalendar({
               <SegmentedControl
                 className="w-full"
                 value={quickAddType}
-                onChange={(val) => setQuickAddType(val as "task" | "note")}
-                options={[
+                onValueChange={(val) => setQuickAddType(val as "task" | "note")}
+                items={[
                   { value: "task", label: "Task / Card" },
                   { value: "note", label: "Quick Note" }
                 ]}
+                aria-label="Item type"
               />
             </div>
 
@@ -1669,12 +1687,13 @@ export function ProjectCalendar({
                   <SegmentedControl
                     className="w-full"
                     value={quickAddPriority}
-                    onChange={(val) => setQuickAddPriority(val as "LOW" | "MEDIUM" | "HIGH")}
-                    options={[
+                    onValueChange={(val) => setQuickAddPriority(val as "LOW" | "MEDIUM" | "HIGH")}
+                    items={[
                       { value: "LOW", label: "Low" },
                       { value: "MEDIUM", label: "Medium" },
                       { value: "HIGH", label: "High" }
                     ]}
+                    aria-label="Priority"
                   />
                 </div>
               </>
