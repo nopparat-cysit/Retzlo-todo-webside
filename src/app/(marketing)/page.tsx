@@ -43,6 +43,18 @@ import { MixtapeArtwork } from "@/components/auth/mixtape-artwork";
 import { MixtapeLogoMark } from "@/components/auth/mixtape-logo-mark";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
+  RetroKanbanIcon,
+  RetroCalendarIcon,
+  RetroNotebookIcon,
+  RetroAiRewardIcon,
+  RetroTicketIcon,
+  RetroMiniGameIcon,
+  RetroAudioDeckIcon,
+  RetroStudioTourIcon,
+  RetroCozyStudioMascot,
+  RetroCozyStudioIllustration
+} from "@/components/marketing/retro-hero-icons";
+import {
   PAIN_POINT_TABS,
   WALKTHROUGH_SLIDES,
   PLAYGROUND_TASKS,
@@ -99,7 +111,7 @@ const HERO_FOCUS_TASKS: HeroFocusTask[] = [
   }
 ];
 
-type HeroPreviewTab = "board" | "calendar" | "notes" | "ai-rewards";
+type HeroPreviewTab = "board" | "calendar" | "notes" | "ai-rewards" | "studio";
 
 interface HeroMiniCard {
   id: string;
@@ -950,72 +962,73 @@ export default function LandingPage() {
           }}
         />
 
-        <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 h-16 flex items-center justify-between gap-6">
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 h-14 sm:h-15 flex items-center justify-between gap-4">
           {/* Brand Logo */}
           <Link
             href="/"
-            className="inline-flex items-center gap-2.5 shrink-0"
-            style={{
-              fontSize: "24px",
-              fontWeight: 800,
-              letterSpacing: "-1px",
-              color: "var(--foreground)"
-            }}
+            className="group inline-flex items-center gap-2 shrink-0 select-none"
           >
-            <MixtapeLogoMark />
-            <span>retzlo</span>
+            <div className="w-8 h-6 shrink-0 transition-transform group-hover:scale-105">
+              <MixtapeLogoMark />
+            </div>
+            <span className="font-display text-xl sm:text-[22px] font-extrabold tracking-tight text-[var(--foreground)]">
+              retzlo
+            </span>
+            <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-md text-[10px] font-extrabold tracking-wider bg-purple-500/10 text-[#7858d4] dark:text-purple-300 border border-purple-500/20">
+              v2.4
+            </span>
           </Link>
 
           {/* Clean Airy Desktop Navigation (Ordered matching page flow) */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[13.5px] font-medium text-[var(--muted)]">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-semibold text-[var(--muted)]">
             <a
               href="#playground"
-              className="transition-colors hover:text-[var(--foreground)] flex items-center gap-1.5"
+              className="px-2.5 py-1.5 rounded-lg hover:text-[var(--foreground)] hover:bg-[var(--paper)] transition-colors flex items-center gap-1.5"
             >
+              <RetroMiniGameIcon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span>มินิเกมสะสมเหรียญ</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             </a>
             <a
               href="#pain-tabs"
-              className="transition-colors hover:text-[var(--foreground)]"
+              className="px-2.5 py-1.5 rounded-lg hover:text-[var(--foreground)] hover:bg-[var(--paper)] transition-colors"
             >
               ปัญหาที่แก้
             </a>
             <a
               href="#walkthrough"
-              className="transition-colors hover:text-[var(--foreground)]"
+              className="px-2.5 py-1.5 rounded-lg hover:text-[var(--foreground)] hover:bg-[var(--paper)] transition-colors"
             >
               ฟีเจอร์เด่น
             </a>
             <a
               href="#comparison"
-              className="transition-colors hover:text-[var(--foreground)]"
+              className="px-2.5 py-1.5 rounded-lg hover:text-[var(--foreground)] hover:bg-[var(--paper)] transition-colors"
             >
               เหมาะกับใคร
             </a>
             <a
               href="#testimonials"
-              className="transition-colors hover:text-[var(--foreground)]"
+              className="px-2.5 py-1.5 rounded-lg hover:text-[var(--foreground)] hover:bg-[var(--paper)] transition-colors"
             >
               รีวิวผู้ใช้
             </a>
             <a
               href="#faq"
-              className="transition-colors hover:text-[var(--foreground)]"
+              className="px-2.5 py-1.5 rounded-lg hover:text-[var(--foreground)] hover:bg-[var(--paper)] transition-colors"
             >
               คำถามพบบ่อย
             </a>
             <a
               href="#buy"
-              className="transition-colors hover:text-[var(--foreground)] flex items-center gap-1 font-bold text-[#7858d4]"
+              className="ml-1 px-3 py-1.5 rounded-lg font-bold text-[#7858d4] dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors flex items-center gap-1.5 shadow-sm"
             >
+              <RetroTicketIcon className="w-3.5 h-3.5 text-[#7858d4] dark:text-purple-300 shrink-0" />
               <span>ทดลองใช้ฟรี 7 วัน</span>
-              <span className="text-xs">🎟️</span>
             </a>
           </nav>
 
           {/* Right Actions: Compact, Spacious, Elegant */}
-          <div className="hidden md:flex items-center gap-3 shrink-0">
+          <div className="hidden md:flex items-center gap-2.5 shrink-0">
             {/* Live Interactive Coin Pill with Goal Progress */}
             <div className="relative">
               <a
@@ -1027,23 +1040,24 @@ export default function LandingPage() {
                       ? "สะสมครบ 50c แล้ว! คลิกเพื่อแลกตั๋วทดลองใช้ฟรี 7 วัน"
                       : `สะสมแล้ว ${walletCoins}/50c (ขาดอีก ${50 - walletCoins}c แลกตั๋วทดลองใช้ฟรี 7 วัน)`
                 }
-                className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold"
+                className="lp-press-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-extrabold border transition-colors shadow-sm"
                 style={{
                   background: ticketClaimed
-                    ? "#d1fae5"
+                    ? "rgba(16, 185, 129, 0.12)"
                     : walletCoins >= 50
                       ? "#fef08a"
                       : "#ffecb1",
                   color: ticketClaimed ? "#065f46" : "#432369",
-                  border: ticketClaimed
-                    ? "1.5px solid #059669"
-                    : "1.5px solid #54356b",
-                  boxShadow: "2px 2px 0 rgba(84, 53, 107, 0.22)"
+                  borderColor: ticketClaimed
+                    ? "#059669"
+                    : walletCoins >= 50
+                      ? "#d97706"
+                      : "#b45309"
                 }}
               >
                 <Coins
                   size={14}
-                  className={ticketClaimed ? "text-[#059669] shrink-0" : "text-[#54356b] shrink-0"}
+                  className={ticketClaimed ? "text-[#059669] shrink-0" : "text-[#b45309] shrink-0"}
                 />
                 <span className="font-mono font-black">
                   {ticketClaimed
@@ -1075,15 +1089,11 @@ export default function LandingPage() {
               type="button"
               onClick={handlePlayToggle}
               title={isPlaying ? "พักเสียงดนตรี Lofi" : "เปิดฟังเสียงคอร์ด Lofi สดจากเบราว์เซอร์"}
-              className="lp-press-btn inline-flex items-center justify-center w-9 h-9 rounded-full"
+              className="lp-press-btn inline-flex items-center justify-center w-8.5 h-8.5 rounded-full border border-[var(--border)] bg-[var(--paper)] text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-colors"
               style={{
-                border: isPlaying
-                  ? "1.5px solid #7858d4"
-                  : "1px solid var(--border)",
-                background: isPlaying
-                  ? "rgba(120, 88, 212, 0.15)"
-                  : "var(--paper)",
-                color: isPlaying ? "#7858d4" : "var(--muted)"
+                borderColor: isPlaying ? "#7858d4" : undefined,
+                background: isPlaying ? "rgba(120, 88, 212, 0.15)" : undefined,
+                color: isPlaying ? "#7858d4" : undefined
               }}
             >
               {isPlaying ? (
@@ -1093,7 +1103,7 @@ export default function LandingPage() {
                   <span className="lp-eq-bar" />
                 </span>
               ) : (
-                <Disc3 size={16} />
+                <Disc3 size={15} />
               )}
             </button>
 
@@ -1101,61 +1111,29 @@ export default function LandingPage() {
 
             {/* Auth Buttons */}
             {currentUser ? (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <Link
                   href="/profile"
-                  style={{ fontSize: "13px", color: "var(--muted)" }}
-                  className="px-2 py-1 truncate max-w-[130px] hover:text-[var(--foreground)] transition-colors"
+                  className="px-2 py-1 text-xs font-semibold text-[var(--muted)] hover:text-[var(--foreground)] truncate max-w-[130px] transition-colors"
                 >
                   {currentUser.name || currentUser.email || "Workspace user"}
                 </Link>
                 <Link href={defaultDestination}>
-                  <button
-                    className="lp-press-btn"
-                    style={{
-                      height: "38px",
-                      padding: "0 18px",
-                      borderRadius: "12px",
-                      border: "1.5px solid #54356b",
-                      background: "var(--accent)",
-                      color: "var(--background)",
-                      fontSize: "12.5px",
-                      fontWeight: 800,
-                      boxShadow: "2.5px 2.5px 0 rgba(84, 53, 107, 0.25)"
-                    }}
-                  >
+                  <button className="lp-press-btn inline-flex items-center justify-center h-8.5 px-3.5 rounded-xl text-xs font-extrabold text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[2px_2px_0_rgba(84,53,107,0.25)] transition-all">
                     Enter Workspace
                   </button>
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    color: "var(--muted)"
-                  }}
-                  className="px-2 py-1 hover:text-[var(--foreground)] transition-colors"
+                  className="px-2.5 py-1 text-xs font-semibold text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link href={defaultDestination}>
-                  <button
-                    className="lp-press-btn"
-                    style={{
-                      height: "38px",
-                      padding: "0 18px",
-                      borderRadius: "12px",
-                      border: "1.5px solid #54356b",
-                      background: "var(--accent)",
-                      color: "var(--background)",
-                      fontSize: "12.5px",
-                      fontWeight: 800,
-                      boxShadow: "2.5px 2.5px 0 rgba(84, 53, 107, 0.25)"
-                    }}
-                  >
+                  <button className="lp-press-btn inline-flex items-center justify-center h-8.5 px-3.5 rounded-xl text-xs font-extrabold text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[2px_2px_0_rgba(84,53,107,0.25)] transition-all">
                     Enter Workspace
                   </button>
                 </Link>
@@ -1210,16 +1188,18 @@ export default function LandingPage() {
             <a
               href="#buy"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-bold text-[#7858d4]"
+              className="flex items-center gap-2 py-2 text-sm font-bold text-[#7858d4] dark:text-purple-300"
             >
-              🎟️ แลกรับสิทธิ์ทดลองใช้ฟรี 7 วัน (50c)
+              <RetroTicketIcon className="w-4 h-4 shrink-0 text-[#7858d4] dark:text-purple-300" />
+              <span>แลกรับสิทธิ์ทดลองใช้ฟรี 7 วัน (50c)</span>
             </a>
             <a
               href="#playground"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold"
+              className="flex items-center gap-2 py-2 text-sm font-semibold text-[var(--foreground)]"
             >
-              🎮 ลองเล่นมินิเกมสะสมเหรียญ
+              <RetroMiniGameIcon className="w-4 h-4 shrink-0 text-amber-500" />
+              <span>ลองเล่นมินิเกมสะสมเหรียญ</span>
             </a>
             <a
               href="#pain-tabs"
@@ -1326,7 +1306,9 @@ export default function LandingPage() {
               <div className="inline-flex flex-wrap items-center gap-2">
                 <span
                   style={{
-                    display: "inline-block",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
                     transform: "rotate(-1deg)",
                     padding: "5px 12px",
                     borderRadius: "8px",
@@ -1339,7 +1321,10 @@ export default function LandingPage() {
                     boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.2)"
                   }}
                 >
-                  📋 ALL-IN-ONE WORK &amp; LIFE WORKSPACE · จัดการงานและชีวิตในที่เดียว
+                  <Sparkles size={13} className="text-[#7858d4] shrink-0" />
+                  <span className="font-mono text-[11px] uppercase tracking-wider font-extrabold">ALL-IN-ONE WORKSPACE</span>
+                  <span className="text-[#54356b]/40">·</span>
+                  <span>จัดการงานและชีวิตในที่เดียว</span>
                 </span>
               </div>
 
@@ -1348,7 +1333,8 @@ export default function LandingPage() {
                 style={{
                   fontSize: "clamp(28px, 3.4vw, 44px)",
                   lineHeight: 1.25,
-                  fontWeight: 700,
+                  fontWeight: 800,
+                  letterSpacing: "-0.02em",
                   color: "var(--foreground)"
                 }}
               >
@@ -1358,7 +1344,7 @@ export default function LandingPage() {
                 <span
                   style={{
                     background:
-                      "linear-gradient(180deg, transparent 58%, rgba(255, 180, 213, 0.58) 58%)",
+                      "linear-gradient(180deg, transparent 58%, rgba(255, 180, 213, 0.65) 58%)",
                     padding: "0 6px",
                     borderRadius: "4px"
                   }}
@@ -1381,44 +1367,49 @@ export default function LandingPage() {
                 ไว้ในห้องเดียว เคลียร์งานเสร็จรับเหรียญรางวัล (+Coins) ไปแลกรางวัลและปลูกสวนเซนพร้อมฟังเพลง Lofi ชิลล์ๆ ได้เลย
               </p>
 
-              {/* 2x2 Scannable Core Pillars (Instant 3-Second Comprehension) */}
+              {/* 2x2 Scannable Core Pillars with Bespoke Retro Vector Icons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                 {[
                   {
-                    icon: "📋",
+                    Icon: RetroKanbanIcon,
                     title: "บอร์ดงาน Kanban & ตาราง",
-                    desc: "แยกโปรเจกต์ทีมหรือส่วนตัว ลากการ์ดง่าย"
+                    desc: "แยกโปรเจกต์ทีมหรือส่วนตัว ลากการ์ดง่าย",
+                    badgeBg: "bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/50"
                   },
                   {
-                    icon: "📅",
+                    Icon: RetroCalendarIcon,
                     title: "ปฏิทินซิงก์วันส่งอัตโนมัติ",
-                    desc: "ตั้งวันในการ์ดปุ๊บ ขึ้นปฏิทินรวมทันที"
+                    desc: "ตั้งวันในการ์ดปุ๊บ ขึ้นปฏิทินรวมทันที",
+                    badgeBg: "bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-800/50"
                   },
                   {
-                    icon: "📝",
+                    Icon: RetroNotebookIcon,
                     title: "สมุดโน้ตคู่บอร์ด & ไดอารี่",
-                    desc: "เปิดดูบรีฟข้างบอร์ดงาน + เช็กลิสต์รายวัน"
+                    desc: "เปิดดูบรีฟข้างบอร์ดงาน + เช็กลิสต์รายวัน",
+                    badgeBg: "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50"
                   },
                   {
-                    icon: "🤖",
+                    Icon: RetroAiRewardIcon,
                     title: "AI แตกงานย่อย & เหรียญรางวัล",
-                    desc: "แตกงานใหญ่ในคลิกเดียว เคลียร์เสร็จรับ Coins"
+                    desc: "แตกงานใหญ่ในคลิกเดียว เคลียร์เสร็จรับ Coins",
+                    badgeBg: "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50"
                   }
                 ].map((pillar) => (
                   <div
                     key={pillar.title}
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl"
+                    className="flex items-start gap-2.5 p-2.5 rounded-xl border border-[var(--border)] transition-colors hover:border-[var(--accent)]/40"
                     style={{
-                      background: "var(--paper)",
-                      border: "1px solid var(--border)"
+                      background: "var(--paper)"
                     }}
                   >
-                    <span className="text-base leading-none mt-0.5 shrink-0">{pillar.icon}</span>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${pillar.badgeBg} shadow-sm`}>
+                      <pillar.Icon className="w-4 h-4" />
+                    </div>
                     <div className="min-w-0">
-                      <div className="text-xs font-extrabold" style={{ color: "var(--foreground)" }}>
+                      <div className="text-xs font-extrabold text-[var(--foreground)] tracking-tight">
                         {pillar.title}
                       </div>
-                      <div className="text-[11px] leading-snug mt-0.5" style={{ color: "var(--muted)" }}>
+                      <div className="text-[11px] leading-snug mt-0.5 text-[var(--muted)]">
                         {pillar.desc}
                       </div>
                     </div>
@@ -1469,7 +1460,8 @@ export default function LandingPage() {
                     boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.12)"
                   }}
                 >
-                  <span>💻 ดูทัวร์ 6 ห้องทำงานจริง</span>
+                  <RetroStudioTourIcon className="w-4 h-4 text-[var(--foreground)] shrink-0" />
+                  <span>ดูทัวร์ 6 ห้องทำงานจริง</span>
                 </a>
               </div>
 
@@ -1485,9 +1477,10 @@ export default function LandingPage() {
                 </span>
                 <a
                   href="#playground"
-                  className="inline-flex items-center gap-1 text-[#7858d4] dark:text-purple-300 hover:underline font-semibold"
+                  className="inline-flex items-center gap-1.5 text-[#7858d4] dark:text-purple-300 hover:underline font-semibold"
                 >
-                  <span>🎮 ลองเล่นมินิเกมสะสมเหรียญ</span>
+                  <RetroMiniGameIcon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  <span>ลองเล่นมินิเกมสะสมเหรียญ</span>
                   <ArrowRight size={12} />
                 </a>
               </div>
@@ -1509,22 +1502,27 @@ export default function LandingPage() {
                   {
                     id: "board" as const,
                     label: "บอร์ดงาน Kanban",
-                    sticker: "/stickers/retro/retro-sticker-03-checklist.png"
+                    Icon: RetroKanbanIcon
                   },
                   {
                     id: "calendar" as const,
                     label: "ปฏิทินซิงก์วันส่ง",
-                    sticker: "/stickers/retro/retro-sticker-04-calendar.png"
+                    Icon: RetroCalendarIcon
                   },
                   {
                     id: "notes" as const,
                     label: "สมุดโน้ต & ไดอารี่",
-                    sticker: "/stickers/retro/retro-sticker-12-paper-note.png"
+                    Icon: RetroNotebookIcon
                   },
                   {
                     id: "ai-rewards" as const,
                     label: "AI & เหรียญรางวัล",
-                    sticker: "/stickers/retro/retro-sticker-01-coin-reward.png"
+                    Icon: RetroAiRewardIcon
+                  },
+                  {
+                    id: "studio" as const,
+                    label: "สตูดิโอ Lofi",
+                    Icon: RetroStudioTourIcon
                   }
                 ].map((tab) => {
                   const active = heroPreviewTab === tab.id;
@@ -1536,7 +1534,7 @@ export default function LandingPage() {
                         setHeroPreviewTab(tab.id);
                         playChime("click");
                       }}
-                      className="lp-press-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+                      className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
                       style={{
                         background: active ? "#ffecb1" : "var(--paper)",
                         color: active ? "#432369" : "var(--foreground)",
@@ -1546,15 +1544,7 @@ export default function LandingPage() {
                           : "1px 1px 0 rgba(84, 53, 107, 0.08)"
                       }}
                     >
-                      <div className="relative w-4 h-4 shrink-0">
-                        <Image
-                          src={tab.sticker}
-                          alt=""
-                          fill
-                          sizes="16px"
-                          className="object-contain"
-                        />
-                      </div>
+                      <tab.Icon className="w-3.5 h-3.5 shrink-0" />
                       <span>{tab.label}</span>
                     </button>
                   );
@@ -1637,10 +1627,11 @@ export default function LandingPage() {
                 }}
               >
                 {[
-                  { id: "board" as const, label: "📋 บอร์ดงาน Kanban" },
-                  { id: "calendar" as const, label: "📅 ปฏิทินวันส่ง" },
-                  { id: "notes" as const, label: "📝 โน้ต & ไดอารี่" },
-                  { id: "ai-rewards" as const, label: "🤖 AI & รางวัล" }
+                  { id: "board" as const, label: "บอร์ดงาน Kanban", Icon: RetroKanbanIcon },
+                  { id: "calendar" as const, label: "ปฏิทินวันส่ง", Icon: RetroCalendarIcon },
+                  { id: "notes" as const, label: "โน้ต & ไดอารี่", Icon: RetroNotebookIcon },
+                  { id: "ai-rewards" as const, label: "AI & รางวัล", Icon: RetroAiRewardIcon },
+                  { id: "studio" as const, label: "สตูดิโอ Lofi", Icon: RetroStudioTourIcon }
                 ].map((tab) => {
                   const active = heroPreviewTab === tab.id;
                   return (
@@ -1651,7 +1642,7 @@ export default function LandingPage() {
                         setHeroPreviewTab(tab.id);
                         playChime("click");
                       }}
-                      className="px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all"
                       style={{
                         background: active ? "#ffecb1" : "rgba(255, 255, 255, 0.1)",
                         color: active ? "#432369" : "#f3e8ff",
@@ -1660,7 +1651,8 @@ export default function LandingPage() {
                           : "1px solid rgba(255, 255, 255, 0.15)"
                       }}
                     >
-                      {tab.label}
+                      <tab.Icon className="w-3 h-3 shrink-0" />
+                      <span>{tab.label}</span>
                     </button>
                   );
                 })}
@@ -2056,6 +2048,22 @@ export default function LandingPage() {
                     </div>
                   </div>
                 )}
+
+                {/* ── TAB 5: STUDIO ILLUSTRATION VIEW ── */}
+                {heroPreviewTab === "studio" && (
+                  <div className="py-2 flex flex-col items-center justify-center space-y-3">
+                    <div className="w-full aspect-[16/10] max-h-[300px] rounded-xl overflow-hidden border border-white/20 shadow-xl bg-purple-950/40">
+                      <RetroCozyStudioIllustration className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex items-center justify-between w-full px-1 text-[11px] text-[#f3e8ff] font-bold">
+                      <span className="flex items-center gap-1.5 text-amber-200">
+                        <Sparkles size={13} />
+                        <span>ภาพเวกเตอร์สตูดิโอ Retzlo (100% Vector · คมชัดระดับ Retina ไม่แตก)</span>
+                      </span>
+                      <span className="text-white/60 font-mono text-[10px]">SIDE A · TWILIGHT DESK</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -2069,26 +2077,21 @@ export default function LandingPage() {
               }}
             >
               <div className="flex items-center gap-2.5">
-                <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-[#54356b]/30 bg-white/60 shrink-0">
-                  <Image
-                    src="/images/landing/hero-lofi-mascot.png"
-                    alt="Cozy Lofi Mascot"
-                    fill
-                    sizes="36px"
-                    className="object-contain p-0.5"
-                  />
-                </div>
+                <RetroCozyStudioMascot className="w-9 h-9 shrink-0 shadow-sm" isPlaying={isPlaying} />
                 <div>
                   <span
                     style={{
-                      display: "block",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
                       fontSize: "9px",
                       letterSpacing: "1.4px",
                       color: "#3b1d61",
                       fontWeight: 800
                     }}
                   >
-                    🎧 BUILT-IN FOCUS RADIO · วิทยุ Lofi ในห้องทำงาน
+                    <Headphones size={11} className="shrink-0 text-[#54356b]" />
+                    <span>BUILT-IN FOCUS RADIO · วิทยุ Lofi ในห้องทำงาน</span>
                   </span>
                   <span
                     className="flex items-center gap-1.5 mt-0.5 text-xs font-bold"

@@ -891,3 +891,30 @@ Template:
     - Right column (`md:col-span-5`): Sticky `BoardMockupPreview` showing live updates in real time without vertical scrolling.
     - Replaced hardcoded dark mode colors (`lofi-panel`, `text-stone-100`, `text-stone-300`, `text-stone-400`, `border-white/10`) with semantic theme tokens (`bg-theme-panel`, `bg-theme-paper`, `text-theme-foreground`, `text-theme-muted`, `border-theme-border`, `text-theme-accent`) for 100% Light/Dark mode contrast compliance.
 - Verification: Component tests (`create-board-page-view.test.ts`, `board-views-and-sidebar.test.ts`, `create-board-modal.test.ts`, `status.test.ts`, `work-modals.test.ts`), `npm run lint`, `npx prisma validate`, `npm run build`.
+
+### 2026-10-21 — Landing Page Herobar & Hero Section Visual Polish (Retro Lofi Typography & 100% Vector Art)
+- Coverage:
+  - `src/components/marketing/retro-hero-icons.tsx` (new bespoke retro lofi SVG icons and full vector studio illustration)
+  - `src/app/(marketing)/page.tsx` (Herobar sizing, typography, icons, coin wallet pill, hero pillars, interactive tabs, radio mascot)
+  - `src/app/(marketing)/walkthrough-mockup.tsx` (replaced blurry raster mascot with vector studio illustration in Room 06)
+- Design Direction & Theme Alignment:
+  - **Herobar Proportions & Sizing**:
+    - Slimmed sticky Herobar from bulky `h-16` (64px) to sleek, balanced `h-14 sm:h-15` (56-60px) with `max-w-[1440px]`.
+    - Refined top accent rainbow tape to crisp 2.5px.
+    - Upgraded Brand Logo: Scaled `MixtapeLogoMark` with `retzlo` wordmark and a subtle live `v2.4` badge pill.
+  - **Herobar Typography & Icons**:
+    - Replaced raw emojis (`🎟️`, plain dots) with theme-aligned retro SVG icons (`RetroTicketIcon`, `RetroMiniGameIcon`).
+    - Standardized navigation typography to clean `text-[13px] font-semibold text-[var(--muted)]` with interactive hover pill states (`hover:bg-[var(--paper)]`).
+    - Redesigned Coin Wallet Pill: Replaced dark clunky border with soft amber/emerald/lilac theme-aware backgrounds and refined borders.
+    - Refined Synthesizer equalizer toggle and CTA "Enter Workspace" button (`h-8.5 px-3.5 rounded-xl text-xs font-extrabold`).
+  - **Hero Left Column (Typography & 4 Pillars)**:
+    - Upgraded Category Badge: Angled retro buttercream sticker with `RetroKanbanIcon` and `Sparkles` icon, crisp typography.
+    - Polished H1 title typography with natural Thai line breaks and warm highlighter accent on "เคลียร์งานสนุกขึ้น".
+    - Replaced raw browser emojis (`📋`, `📅`, `📝`, `🤖`) in the 4 core pillars with bespoke retro vector icons (`RetroKanbanIcon`, `RetroCalendarIcon`, `RetroNotebookIcon`, `RetroAiRewardIcon`) paired with soft pastel badge backgrounds.
+    - Updated Tour CTA button and reassurance copy with `RetroStudioTourIcon` and `RetroMiniGameIcon`.
+  - **100% Vector Crisp Hero Artwork (Zero Pixelation)**:
+    - Replaced pixelated 36px raster `hero-lofi-mascot.png` with `RetroCozyStudioMascot` (vector SVG with animated spinning reels during audio playback).
+    - Added full-fidelity vector scene `RetroCozyStudioIllustration` (twilight window, brass lamp light cone, laptop with mini-Kanban, purple Walkman with tape ribbon, steaming heart mug, bonsai, post-it notes).
+    - Added 5th tab `studio` ("สตูดิโอ Lofi") in the interactive preview dock to showcase the full vector scene.
+    - Upgraded Room 06 in `walkthrough-mockup.tsx` to render `RetroCozyStudioIllustration` with zero compression blur.
+- Verification: Vitest full suite (101 test files, 557 passed), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed (42/42 static/dynamic pages compiled successfully).

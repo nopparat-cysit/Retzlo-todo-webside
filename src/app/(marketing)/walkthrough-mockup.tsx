@@ -15,7 +15,8 @@ import {
   RotateCcw,
   Sparkles
 } from "lucide-react";
-import type { WalkthroughSlide } from "./landing-data";
+import { WalkthroughSlide } from "./landing-data";
+import { RetroCozyStudioIllustration } from "@/components/marketing/retro-hero-icons";
 
 interface KanbanDemoCard {
   id: string;
@@ -1082,14 +1083,8 @@ export function WalkthroughMockupScreen({
             </div>
 
             <div className="sm:col-span-5 flex flex-col items-center justify-center p-3 rounded-2xl bg-white/15 border border-white/25 overflow-hidden">
-              <div className="relative w-full h-36 rounded-xl overflow-hidden border border-white/30 flex items-center justify-center">
-                <Image
-                  src="/images/landing/hero-lofi-mascot.png"
-                  alt="Cozy Lofi Desk Studio Mascot"
-                  fill
-                  sizes="260px"
-                  className="object-contain p-1.5 drop-shadow-md"
-                />
+              <div className="relative w-full h-36 rounded-xl overflow-hidden border border-white/30 flex items-center justify-center shadow-inner bg-purple-950/40">
+                <RetroCozyStudioIllustration className="w-full h-full object-cover" />
               </div>
               <div className="flex items-center gap-2 mt-2.5 text-xs text-[#ffecb1] font-semibold">
                 <Disc3 size={14} className={isPlaying ? "animate-spin" : undefined} />
