@@ -3,15 +3,18 @@
 import { useEffect, useState } from "react";
 import {
   Check,
-  CheckSquare,
   Coins,
+  Compass,
   Layers,
+  ListChecks,
   Loader2,
   Minus,
   Plus,
+  PlusCircle,
   RefreshCw,
   RotateCcw,
   Sparkles,
+  Target,
   X,
   Zap
 } from "lucide-react";
@@ -44,10 +47,35 @@ interface GeneratedItem {
 }
 
 const STEP_COUNT_PRESETS = [
-  { count: 3, label: "3 steps", subtitle: "Quick / Concise", icon: Zap },
-  { count: 5, label: "5 steps", subtitle: "Standard (Recommended)", isRecommended: true, icon: Sparkles },
-  { count: 8, label: "8 steps", subtitle: "Detailed / Thorough", icon: CheckSquare },
-  { count: 10, label: "10 steps", subtitle: "Comprehensive", icon: Layers }
+  {
+    count: 3,
+    title: "3 Steps",
+    subtitle: "Quick & Concise",
+    tag: "Fast",
+    icon: Zap
+  },
+  {
+    count: 5,
+    title: "5 Steps",
+    subtitle: "Standard Scope",
+    tag: "Recommended",
+    isRecommended: true,
+    icon: Sparkles
+  },
+  {
+    count: 8,
+    title: "8 Steps",
+    subtitle: "Thorough Detail",
+    tag: "Detailed",
+    icon: ListChecks
+  },
+  {
+    count: 10,
+    title: "10 Steps",
+    subtitle: "Comprehensive",
+    tag: "Deep",
+    icon: Layers
+  }
 ];
 
 export function AiBreakdownModal({
@@ -140,9 +168,10 @@ export function AiBreakdownModal({
       try {
         data = await res.json();
       } catch {
-        const errorMsg = res.status === 504
-          ? "AI response timed out — try fewer steps or try again"
-          : `Server returned error (HTTP ${res.status})`;
+        const errorMsg =
+          res.status === 504
+            ? "AI response timed out — try fewer steps or try again"
+            : `Server returned error (HTTP ${res.status})`;
         toast({ message: errorMsg, type: "error" });
         return;
       }
@@ -244,29 +273,31 @@ export function AiBreakdownModal({
       open={open}
       onClose={onClose}
       labelledBy="ai-breakdown-title"
-      contentClassName="lofi-panel flex w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-dusk-lavender/30 shadow-2xl bg-ink-950/95"
+      contentClassName="lofi-panel flex w-full max-w-xl flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-stone-200/90 dark:border-white/12 shadow-2xl bg-[#faf7f2] dark:bg-[#0c0d1e] text-stone-900 dark:text-stone-100 backdrop-blur-xl"
     >
       <div className="flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 p-4 sm:p-5">
-          <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender shadow-xs">
-              <Sparkles className="h-5 w-5 animate-pulse text-dusk-amber" />
+        <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 px-5 py-4 bg-stone-100/40 dark:bg-white/[0.02]">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-2xl border border-indigo-200 dark:border-dusk-lavender/40 bg-indigo-50 dark:bg-dusk-lavender/15 text-indigo-600 dark:text-dusk-lavender shadow-xs">
+              <Sparkles className="h-5 w-5 animate-pulse text-indigo-600 dark:text-dusk-amber" />
             </div>
             <div>
-              <h2
-                id="ai-breakdown-title"
-                aria-label="AI Auto-Breakdown Task"
-                className="text-base sm:text-lg font-bold tracking-tight text-stone-100 flex items-center gap-2"
-              >
-                <span>AI Checklist Breakdown</span>
+              <div className="flex items-center gap-2">
+                <h2
+                  id="ai-breakdown-title"
+                  aria-label="AI Auto-Breakdown Task"
+                  className="text-base sm:text-lg font-bold tracking-tight text-foreground"
+                >
+                  AI Checklist Breakdown
+                </h2>
                 {step === "preview" && (
-                  <span className="rounded-md border border-theme-info-border bg-theme-info-surface px-2 py-0.5 text-xs font-medium text-theme-info">
-                    Review Before Applying
+                  <span className="rounded-full border border-indigo-200 dark:border-dusk-lavender/40 bg-indigo-50 dark:bg-dusk-lavender/20 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-dusk-lavender uppercase tracking-wider">
+                    Review
                   </span>
                 )}
-              </h2>
-              <p className="text-xs text-stone-400">
+              </div>
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 {step === "configure"
                   ? "Configure step count and preferences before generating"
                   : "Review and refine steps before applying to the card"}
@@ -277,17 +308,17 @@ export function AiBreakdownModal({
           <div className="flex items-center gap-2">
             {credits !== null && (
               <span
-                className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[11px] font-mono font-medium text-amber-300"
+                className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 dark:border-amber-400/30 bg-amber-50 dark:bg-amber-400/10 px-2.5 py-1 text-xs font-mono font-bold text-amber-800 dark:text-amber-300 shadow-2xs"
                 title={`AI Credits Quota (${tier} Tier)`}
               >
-                <Coins className="h-3 w-3" />
+                <Coins className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                 <span>{credits} cr</span>
               </span>
             )}
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-stone-400 hover:bg-white/10 hover:text-stone-200 transition"
+              className="grid h-8 w-8 place-items-center rounded-xl text-stone-400 hover:bg-stone-200/60 dark:hover:bg-white/10 hover:text-stone-700 dark:hover:text-stone-200 transition cursor-pointer"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
@@ -297,30 +328,61 @@ export function AiBreakdownModal({
 
         {/* STEP 1: CONFIGURE & CONFIRM BEFORE GENERATING */}
         {step === "configure" && (
-          <div className="p-4 sm:p-5 space-y-4.5 text-sm max-h-[75vh] overflow-y-auto scrollbar-soft">
-            {/* Card Title Preview */}
-            <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3.5 space-y-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-400">
-                Task Goal (Title)
-              </span>
-              <p className="font-semibold text-stone-100 text-sm break-words line-clamp-2">
+          <div className="p-5 space-y-4 text-sm max-h-[75vh] overflow-y-auto scrollbar-soft">
+            {/* Task Goal Context Card */}
+            <div className="relative overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white dark:bg-white/[0.025] p-3.5 pl-4 shadow-2xs">
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-indigo-600 dark:from-dusk-lavender dark:to-dusk-lavender/60" />
+              <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-1">
+                <Target className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                <span>Target Task</span>
+              </div>
+              <p className="font-bold text-foreground text-sm leading-snug break-words">
                 {cardTitle || "No task title specified"}
               </p>
+              {cardDescription && (
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 line-clamp-2">
+                  {cardDescription}
+                </p>
+              )}
             </div>
 
-            {/* Step Count: Recommendations & Custom Count */}
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3.5 space-y-3">
+            {/* Step Count: Presets + Stepper */}
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-stone-200">
-                  Step Count
-                </span>
-                <span className="text-[11px] text-stone-400">
-                  Recommended presets or custom count
-                </span>
+                <label className="text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+                  <ListChecks className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                  <span>Target Steps</span>
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400">Custom:</span>
+                  <div className="inline-flex items-center rounded-lg border border-stone-200 dark:border-white/10 bg-stone-100/80 dark:bg-white/[0.04] p-0.5 shadow-inner">
+                    <button
+                      type="button"
+                      aria-label="Decrease item count"
+                      onClick={() => setItemCount((c) => Math.max(1, c - 1))}
+                      disabled={itemCount <= 1 || isGenerating}
+                      className="flex h-6 w-6 items-center justify-center rounded-md text-stone-600 hover:bg-white hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+                    >
+                      <Minus className="h-3 w-3" />
+                    </button>
+                    <span className="w-7 text-center font-mono text-xs font-bold text-foreground">
+                      {itemCount}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="Increase item count"
+                      onClick={() => setItemCount((c) => Math.min(15, c + 1))}
+                      disabled={itemCount >= 15 || isGenerating}
+                      className="flex h-6 w-6 items-center justify-center rounded-md text-stone-600 hover:bg-white hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              {/* Recommended Presets */}
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {/* Presets Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {STEP_COUNT_PRESETS.map((preset) => {
                   const Icon = preset.icon;
                   const isSelected = itemCount === preset.count;
@@ -331,86 +393,71 @@ export function AiBreakdownModal({
                       disabled={isGenerating}
                       onClick={() => setItemCount(preset.count)}
                       className={cn(
-                        "relative flex flex-col items-center justify-center gap-1 rounded-xl border p-2.5 text-xs transition cursor-pointer text-center",
+                        "group relative flex flex-col items-start rounded-2xl border p-3 text-left transition-all duration-150 cursor-pointer active:scale-98 select-none shadow-2xs",
                         isSelected
-                          ? "border-dusk-lavender bg-dusk-lavender/20 text-dusk-lavender font-semibold shadow-xs ring-1 ring-dusk-lavender/40"
-                          : "border-white/10 bg-white/[0.03] text-stone-300 hover:border-white/20 hover:bg-white/5"
+                          ? "border-indigo-500 bg-indigo-50/80 dark:border-dusk-lavender dark:bg-dusk-lavender/15 text-indigo-950 dark:text-white shadow-sm ring-2 ring-indigo-400/40 dark:ring-dusk-lavender/30"
+                          : "border-stone-200/80 dark:border-white/10 bg-white dark:bg-white/[0.03] text-stone-700 dark:text-stone-300 hover:border-indigo-300 dark:hover:border-white/20 hover:bg-indigo-50/20 dark:hover:bg-white/[0.05]"
                       )}
                     >
-                      {preset.isRecommended && (
-                        <span className="absolute -top-2 right-2 rounded-full bg-dusk-amber/90 px-1.5 py-0.2 text-[9px] font-bold text-ink-950 uppercase tracking-wider shadow-xs">
-                          Recommended
-                        </span>
-                      )}
-                      <div className="flex items-center gap-1">
-                        <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-dusk-amber" : "text-stone-400")} />
-                        <span className="font-bold text-sm">{preset.label}</span>
+                      <div className="flex w-full items-center justify-between mb-1.5">
+                        <div
+                          className={cn(
+                            "grid h-6 w-6 place-items-center rounded-lg transition-colors",
+                            isSelected
+                              ? "bg-indigo-600 text-white dark:bg-dusk-lavender dark:text-ink-950"
+                              : "bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-stone-400 group-hover:text-indigo-600 dark:group-hover:text-dusk-lavender"
+                          )}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                        </div>
+
+                        {preset.isRecommended ? (
+                          <span className="rounded-full bg-amber-400/20 border border-amber-400/40 px-1.5 py-0.5 text-[9px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                            Best
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium">
+                            {preset.tag}
+                          </span>
+                        )}
                       </div>
-                      <span className="text-[10px] text-stone-400">{preset.subtitle}</span>
+
+                      <div className="font-bold text-sm tracking-tight text-foreground">
+                        {preset.title}
+                      </div>
+                      <div className="text-[11px] text-stone-500 dark:text-stone-400 line-clamp-1 mt-0.5">
+                        {preset.subtitle}
+                      </div>
                     </button>
                   );
                 })}
-              </div>
-
-              {/* Custom Count Stepper */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-2.5">
-                <span className="text-xs text-stone-400">Custom count:</span>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center rounded-lg border border-white/10 bg-ink-950/60 p-0.5 shadow-inner">
-                    <button
-                      type="button"
-                      aria-label="Decrease item count"
-                      onClick={() => setItemCount((c) => Math.max(1, c - 1))}
-                      disabled={itemCount <= 1 || isGenerating}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground disabled:opacity-30 disabled:hover:bg-transparent"
-                    >
-                      <Minus className="h-3.5 w-3.5" />
-                    </button>
-                    <input
-                      type="number"
-                      min={1}
-                      max={15}
-                      value={itemCount}
-                      onChange={(e) =>
-                        setItemCount(Math.max(1, Math.min(15, Number(e.target.value) || 1)))
-                      }
-                      disabled={isGenerating}
-                      className="w-12 bg-transparent text-center font-mono text-sm font-semibold text-stone-100 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                    <button
-                      type="button"
-                      aria-label="Increase item count"
-                      onClick={() => setItemCount((c) => Math.min(15, c + 1))}
-                      disabled={itemCount >= 15 || isGenerating}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground disabled:opacity-30 disabled:hover:bg-transparent"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                  <span className="text-xs font-medium text-stone-300">Steps</span>
-                </div>
               </div>
             </div>
 
             {/* Optional Custom Focus Input */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-stone-300 flex items-center justify-between">
-                <span>Specific focus or objective (Optional)</span>
-                <span className="text-[11px] text-stone-500">Optional</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+                  <Compass className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                  <span>Specific Focus or Context</span>
+                </label>
+                <span className="text-[10px] font-medium text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+                  Optional
+                </span>
+              </div>
               <Input
                 value={customGoal}
                 onChange={(e) => setCustomGoal(e.target.value)}
-                placeholder="e.g. Focus on security, comprehensive test coverage, or edge cases..."
+                placeholder="e.g. Focus on security, edge cases, test coverage, or step-by-step UX..."
                 disabled={isGenerating}
-                className="text-xs bg-ink-950/40 border-stone-700"
+                className="h-9 text-xs bg-white dark:bg-white/[0.03] border-stone-200 dark:border-white/10 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus-visible:ring-indigo-500/40 rounded-xl"
               />
             </div>
 
-            {/* Insert Mode */}
+            {/* Insertion Mode */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-stone-300">
-                Card Checklist Insertion Mode
+              <label className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider text-[11px]">
+                Checklist Action
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -418,35 +465,62 @@ export function AiBreakdownModal({
                   disabled={isGenerating}
                   onClick={() => setInsertMode("append")}
                   className={cn(
-                    "flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs transition cursor-pointer",
+                    "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition cursor-pointer select-none shadow-2xs",
                     insertMode === "append"
-                      ? "border-indigo-500/50 bg-indigo-500/20 text-indigo-300 font-semibold"
-                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:text-stone-200"
+                      ? "border-indigo-500 bg-indigo-50/80 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/15 text-indigo-950 dark:text-white ring-1 ring-indigo-400/40 dark:ring-dusk-lavender/30"
+                      : "border-stone-200/80 dark:border-white/10 bg-white dark:bg-white/[0.02] text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-white/[0.05]"
                   )}
                 >
-                  <span>➕ Append to checklist</span>
+                  <div
+                    className={cn(
+                      "grid h-7 w-7 shrink-0 place-items-center rounded-xl transition-colors",
+                      insertMode === "append"
+                        ? "bg-indigo-600 text-white dark:bg-dusk-lavender dark:text-ink-950"
+                        : "bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-stone-400"
+                    )}
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-foreground">Append</div>
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400">Add to existing checklist</div>
+                  </div>
                 </button>
+
                 <button
                   type="button"
                   disabled={isGenerating}
                   onClick={() => setInsertMode("replace")}
                   className={cn(
-                    "flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs transition cursor-pointer",
+                    "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition cursor-pointer select-none shadow-2xs",
                     insertMode === "replace"
-                      ? "border-amber-500/50 bg-amber-500/20 text-amber-300 font-semibold"
-                      : "border-white/10 bg-white/[0.02] text-stone-400 hover:text-stone-200"
+                      ? "border-amber-500 bg-amber-50/80 dark:border-dusk-amber/60 dark:bg-dusk-amber/15 text-amber-950 dark:text-white ring-1 ring-amber-400/40 dark:ring-dusk-amber/30"
+                      : "border-stone-200/80 dark:border-white/10 bg-white dark:bg-white/[0.02] text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-white/[0.05]"
                   )}
                 >
-                  <span>🔄 Replace existing</span>
+                  <div
+                    className={cn(
+                      "grid h-7 w-7 shrink-0 place-items-center rounded-xl transition-colors",
+                      insertMode === "replace"
+                        ? "bg-amber-600 text-white dark:bg-dusk-amber dark:text-ink-950"
+                        : "bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-stone-400"
+                    )}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-foreground">Replace</div>
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400">Overwrite current items</div>
+                  </div>
                 </button>
               </div>
             </div>
 
-            {/* Confirmation Note */}
-            <div className="rounded-xl border border-dusk-cyan/30 bg-dusk-cyan/10 p-3 text-xs text-dusk-cyan flex items-start gap-2">
-              <Sparkles className="h-4 w-4 shrink-0 text-dusk-cyan mt-0.5" />
+            {/* Subtle Tip Banner */}
+            <div className="flex items-center gap-2 rounded-xl border border-indigo-200/80 dark:border-white/10 bg-indigo-50/50 dark:bg-white/[0.02] px-3.5 py-2 text-xs text-stone-600 dark:text-stone-300">
+              <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-amber shrink-0" />
               <span>
-                AI will analyze and generate <strong>{itemCount} steps</strong>. You can review and refine the items before applying.
+                AI will draft <strong>{itemCount} actionable steps</strong>. You can review, edit, or deselect items in the next step.
               </span>
             </div>
           </div>
@@ -454,13 +528,13 @@ export function AiBreakdownModal({
 
         {/* STEP 2: PREVIEW & VERIFY BEFORE FINAL APPLY */}
         {step === "preview" && (
-          <div className="p-4 sm:p-5 space-y-4 text-sm max-h-[75vh] overflow-y-auto scrollbar-soft">
+          <div className="p-5 space-y-4 text-sm max-h-[75vh] overflow-y-auto scrollbar-soft">
             {/* AI Summary Banner */}
             {summary && (
-              <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3 text-xs text-stone-300 flex items-center justify-between gap-2">
-                <span className="font-medium text-stone-200">{summary}</span>
+              <div className="rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white dark:bg-white/[0.035] p-3.5 text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between gap-2 shadow-2xs">
+                <span className="font-semibold text-foreground">{summary}</span>
                 {suggestedDifficulty && (
-                  <span className="shrink-0 rounded-full border border-dusk-amber/35 bg-dusk-amber/15 px-2 py-0.5 text-[11px] font-semibold text-dusk-amber">
+                  <span className="shrink-0 rounded-full border border-amber-300 dark:border-dusk-amber/35 bg-amber-50 dark:bg-dusk-amber/15 px-2.5 py-0.5 text-[11px] font-bold text-amber-800 dark:text-dusk-amber">
                     Difficulty: {suggestedDifficulty}
                   </span>
                 )}
@@ -468,40 +542,40 @@ export function AiBreakdownModal({
             )}
 
             {/* Selection Toolbar */}
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-stone-300">
+            <div className="flex items-center justify-between text-xs px-1">
+              <span className="font-bold text-stone-700 dark:text-stone-300">
                 Select steps to apply ({selectedCount}/{previewItems.length} items)
               </span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => selectAll(true)}
-                  className="text-dusk-lavender hover:underline font-medium text-xs cursor-pointer"
+                  className="text-indigo-600 dark:text-dusk-lavender hover:underline font-semibold text-xs cursor-pointer"
                 >
                   Select All
                 </button>
-                <span className="text-stone-600">|</span>
+                <span className="text-stone-300 dark:text-stone-600">|</span>
                 <button
                   type="button"
                   onClick={() => selectAll(false)}
-                  className="text-stone-400 hover:underline font-medium text-xs cursor-pointer"
+                  className="text-stone-500 hover:underline font-semibold text-xs cursor-pointer"
                 >
                   Deselect All
                 </button>
               </div>
             </div>
 
-            {/* Checklist Items Preview with Checkboxes */}
+            {/* Checklist Items Preview */}
             <div className="space-y-2">
               {previewItems.map((item, index) => (
                 <div
                   key={item.id}
                   onClick={() => toggleItemSelection(item.id)}
                   className={cn(
-                    "flex items-start gap-2.5 rounded-xl border p-2.5 transition cursor-pointer select-none",
+                    "flex items-start gap-3 rounded-2xl border p-3 transition cursor-pointer select-none shadow-2xs",
                     item.selected
-                      ? "border-dusk-lavender/40 bg-dusk-lavender/10 text-stone-100"
-                      : "border-white/10 bg-white/[0.02] text-stone-400 opacity-60 hover:opacity-85"
+                      ? "border-indigo-300 dark:border-dusk-lavender/40 bg-indigo-50/50 dark:bg-dusk-lavender/10 text-foreground"
+                      : "border-stone-200/70 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] text-stone-400 opacity-60 hover:opacity-85"
                   )}
                 >
                   <button
@@ -511,24 +585,26 @@ export function AiBreakdownModal({
                       toggleItemSelection(item.id);
                     }}
                     className={cn(
-                      "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition",
+                      "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border transition",
                       item.selected
-                        ? "border-dusk-lavender bg-dusk-lavender text-ink-950 font-bold"
-                        : "border-stone-600 bg-transparent text-transparent"
+                        ? "border-indigo-600 bg-indigo-600 text-white dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950 font-bold"
+                        : "border-stone-300 dark:border-stone-600 bg-transparent text-transparent"
                     )}
                   >
                     <Check className="h-3.5 w-3.5 stroke-[3]" />
                   </button>
                   <div className="flex-1 min-w-0">
-                    <span className="text-[11px] font-mono font-semibold text-dusk-amber mr-1.5">
-                      {index + 1}.
-                    </span>
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="text-[11px] font-mono font-bold text-indigo-600 dark:text-dusk-amber">
+                        Step {index + 1}
+                      </span>
+                    </div>
                     <input
                       type="text"
                       value={item.label}
                       onClick={(e) => e.stopPropagation()}
                       onChange={(e) => updateItemLabel(item.id, e.target.value)}
-                      className="w-full bg-transparent text-xs font-medium text-stone-200 focus:outline-none focus:border-b focus:border-dusk-lavender"
+                      className="w-full bg-transparent text-xs font-semibold text-foreground focus:outline-none focus:border-b focus:border-indigo-500 dark:focus:border-dusk-lavender"
                     />
                   </div>
                 </div>
@@ -538,21 +614,22 @@ export function AiBreakdownModal({
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-white/10 bg-white/[0.02] p-4 sm:p-5">
+        <div className="flex items-center justify-between border-t border-stone-200/80 dark:border-white/10 bg-stone-100/40 dark:bg-white/[0.015] px-5 py-3.5">
           {step === "configure" ? (
             <>
-              <span className="text-xs text-stone-400 flex items-center gap-1">
-                <Coins className="h-3.5 w-3.5 text-amber-400" />
+              <div className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400">
+                <Coins className="h-3.5 w-3.5 text-amber-500 dark:text-dusk-amber" />
                 <span>Costs 1 credit</span>
-              </span>
+              </div>
 
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="ghost"
                   size="sm"
                   onClick={onClose}
                   disabled={isGenerating}
+                  className="text-xs text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
                 >
                   Cancel
                 </Button>
@@ -562,7 +639,7 @@ export function AiBreakdownModal({
                   size="sm"
                   disabled={isGenerating || !cardTitle.trim()}
                   onClick={handleGenerate}
-                  className="gap-1.5 bg-dusk-lavender text-ink-950 hover:bg-dusk-lavender/90 font-semibold shadow-md transition-transform hover:scale-102 active:scale-98"
+                  className="h-9 px-4 gap-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-dusk-lavender dark:hover:bg-dusk-lavender/90 text-white dark:text-ink-950 font-bold shadow-md shadow-indigo-500/20 dark:shadow-dusk-lavender/20 transition-all cursor-pointer active:scale-95 rounded-xl"
                 >
                   {isGenerating ? (
                     <>
@@ -571,7 +648,7 @@ export function AiBreakdownModal({
                     </>
                   ) : (
                     <>
-                      <Sparkles className="h-4 w-4 text-amber-700" />
+                      <Sparkles className="h-4 w-4 text-amber-300 dark:text-ink-950" />
                       <span>Generate Checklist ({itemCount} steps)</span>
                     </>
                   )}
@@ -586,7 +663,7 @@ export function AiBreakdownModal({
                   variant="ghost"
                   size="sm"
                   onClick={() => setStep("configure")}
-                  className="text-theme-muted hover:text-theme-foreground text-xs gap-1"
+                  className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 text-xs gap-1"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   <span>Reconfigure</span>
@@ -598,7 +675,7 @@ export function AiBreakdownModal({
                   size="sm"
                   disabled={isGenerating}
                   onClick={handleGenerate}
-                  className="text-stone-300 border-white/15 hover:bg-white/10 text-xs gap-1"
+                  className="text-stone-700 dark:text-stone-300 border-stone-200 dark:border-white/15 hover:bg-stone-100 dark:hover:bg-white/10 text-xs gap-1 rounded-xl"
                   title="Regenerate with same settings"
                 >
                   {isGenerating ? (
@@ -613,9 +690,10 @@ export function AiBreakdownModal({
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="ghost"
                   size="sm"
                   onClick={onClose}
+                  className="text-xs text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
                 >
                   Cancel
                 </Button>
@@ -625,7 +703,7 @@ export function AiBreakdownModal({
                   size="sm"
                   disabled={selectedCount === 0}
                   onClick={handleConfirmApply}
-                  className="gap-1.5 bg-emerald-500 text-stone-950 hover:bg-emerald-400 font-bold shadow-md transition-transform hover:scale-102 active:scale-98"
+                  className="h-9 px-4 gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer active:scale-95 rounded-xl"
                 >
                   <Check className="h-4 w-4 stroke-[2.5]" />
                   <span>Apply to Card ({selectedCount} items)</span>
