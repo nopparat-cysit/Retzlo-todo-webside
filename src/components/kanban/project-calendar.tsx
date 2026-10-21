@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties, FormEvent, ReactNode } from "react";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { BookOpen, CalendarDays, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, Plus, RotateCcw, SlidersHorizontal, X } from "lucide-react";
+import { BookOpen, CalendarDays, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, Flag, Plus, RotateCcw, Search, SlidersHorizontal, User, Users, X } from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { CardModal } from "@/components/kanban/card-modal";
@@ -12,6 +12,7 @@ import { Panel } from "@/components/ui/panel";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RetzloUiIcon } from "@/components/ui/retzlo-ui-icon";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
@@ -109,13 +110,13 @@ export function ProjectCalendar({
   currentUserId?: string;
   projectBoards?: CalendarProjectBoard[];
 }) {
-  const [cards, setCards] = useState(initialCards);
+  const [cards, setCards] = useState(() => initialCards.map((c) => normalizeCalendarCard(c, members)));
   const [notes, setNotes] = useState(initialNotes);
   const [diaryItems, setDiaryItems] = useState(initialDiaryItems);
 
   useEffect(() => {
-    setCards(initialCards);
-  }, [initialCards]);
+    setCards(initialCards.map((c) => normalizeCalendarCard(c, members)));
+  }, [initialCards, members]);
 
   useEffect(() => {
     setNotes(initialNotes);
@@ -381,7 +382,12 @@ export function ProjectCalendar({
     () => [
       ...cards
         .filter((card): card is CalendarCard & { dueDate: string } => Boolean(card.dueDate))
-        .map((card) => ({ ...card, type: "card" as const })),
+        .map((card) => ({
+          ...card,
+          assigneeIds: (card.assigneeIds && card.assigneeIds.length > 0) ? card.assigneeIds : extractAssigneeIds(card.privateCoins),
+          priority: card.priority || "MEDIUM",
+          type: "card" as const
+        })),
       ...notes.map((note) => ({ ...note, type: "note" as const })),
       ...diaryChecklistEntries
     ],
@@ -514,6 +520,7 @@ export function ProjectCalendar({
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
+    if (filters.searchQuery && filters.searchQuery.trim().length > 0) count++;
     if (!filters.showCards || !filters.showNotes || !filters.showDiaryChecklist) count++;
     const defaultStatuses = defaultCalendarFilters.statuses;
     if (
@@ -526,6 +533,16 @@ export function ProjectCalendar({
     }
     if (filters.noteScope !== "all") count++;
     if (filters.timeScope !== "all") count++;
+    if (filters.assigneeIds && filters.assigneeIds.length > 0) count++;
+    if (
+      filters.priorities &&
+      (filters.priorities.LOW !== true ||
+        filters.priorities.MEDIUM !== true ||
+        filters.priorities.HIGH !== true ||
+        filters.priorities.URGENT !== true)
+    ) {
+      count++;
+    }
     return count;
   }, [filters]);
 
@@ -710,8 +727,79 @@ export function ProjectCalendar({
               </div>
             </div>
 
-            {/* Right: View Switcher, Filters Toggle, Upcoming Toggle */}
+            {/* Right: Search, Presets, View Switcher, Filter Popover, Upcoming */}
             <div className="flex flex-wrap items-center gap-2">
+              {/* Search Bar */}
+              <div className="relative min-w-[140px] sm:min-w-[180px] max-w-[220px]">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
+                <input
+                  type="text"
+                  value={filters.searchQuery || ""}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
+                  placeholder="Search items..."
+                  className="h-9 w-full rounded-xl border border-stone-300 dark:border-white/15 bg-white/90 dark:bg-white/[0.05] pl-8 pr-7 text-xs text-foreground placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+                />
+                {filters.searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={() => setFilters((prev) => ({ ...prev, searchQuery: "" }))}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center rounded-full text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                ) : null}
+              </div>
+
+              {/* Quick Preset: My Tasks */}
+              {currentUserId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const isMyTasksActive = filters.assigneeIds?.length === 1 && filters.assigneeIds[0] === currentUserId;
+                    setFilters((prev) => ({
+                      ...prev,
+                      assigneeIds: isMyTasksActive ? [] : [currentUserId]
+                    }));
+                  }}
+                  className={cn(
+                    "inline-flex h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
+                    filters.assigneeIds?.length === 1 && filters.assigneeIds[0] === currentUserId
+                      ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                      : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                  )}
+                  title="Filter cards assigned to me"
+                >
+                  <User className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                  <span>My Tasks</span>
+                </button>
+              )}
+
+              {/* Quick Preset: Pending Only */}
+              <button
+                type="button"
+                onClick={() => {
+                  const isPendingOnly = filters.statuses.DONE === false && filters.statuses.TODO && filters.statuses.DOING && filters.statuses.WAITING;
+                  setFilters((prev) => ({
+                    ...prev,
+                    statuses: {
+                      ...prev.statuses,
+                      DONE: isPendingOnly ? true : false
+                    }
+                  }));
+                }}
+                className={cn(
+                  "inline-flex h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
+                  filters.statuses.DONE === false && filters.statuses.TODO && filters.statuses.DOING && filters.statuses.WAITING
+                    ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
+                    : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                )}
+                title="Hide completed cards"
+              >
+                <CheckSquare className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
+                <span>Pending</span>
+              </button>
+
               <SegmentedControl
                 aria-label="Calendar view"
                 value={viewMode}
@@ -723,25 +811,264 @@ export function ProjectCalendar({
                 onValueChange={(val) => setViewMode(val as CalendarViewMode)}
               />
 
-              <button
-                type="button"
-                onClick={() => setIsFiltersOpen((v) => !v)}
-                className={cn(
-                  "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
-                  isFiltersOpen
-                    ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
-                    : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
-                )}
-                aria-expanded={isFiltersOpen}
-              >
-                <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-                <span>Filters</span>
-                {activeFilterCount > 0 && (
-                  <span className="grid h-4 w-4 place-items-center rounded-full bg-indigo-600 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
+              {/* Filter Radix Popover */}
+              <Popover open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
+                      isFiltersOpen || activeFilterCount > 0
+                        ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                        : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                    )}
+                    aria-expanded={isFiltersOpen}
+                  >
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                    <span>Filters</span>
+                    {activeFilterCount > 0 && (
+                      <span className="grid h-4 w-4 place-items-center rounded-full bg-indigo-600 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="end"
+                  sideOffset={8}
+                  className="w-[340px] sm:w-[380px] p-0 rounded-2xl border border-stone-200/90 dark:border-white/12 bg-[#faf7f2] dark:bg-[#0e1025] shadow-2xl backdrop-blur-xl overflow-hidden"
+                >
+                  {/* Popover Header */}
+                  <div className="flex items-center justify-between border-b border-stone-200/70 dark:border-white/10 px-4 py-3 bg-stone-100/40 dark:bg-white/[0.02]">
+                    <div className="flex items-center gap-2">
+                      <SlidersHorizontal className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200">
+                        Calendar Filters
+                      </span>
+                    </div>
+                    {activeFilterCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setFilters(defaultCalendarFilters)}
+                        className="text-[11px] font-semibold text-stone-500 hover:text-indigo-600 dark:text-stone-400 dark:hover:text-dusk-lavender transition flex items-center gap-1 cursor-pointer"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        Reset all
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Popover Scrollable Body */}
+                  <div className="max-h-[72vh] overflow-y-auto p-4 space-y-4 text-xs scrollbar-soft">
+                    {/* 1. Sources */}
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 block mb-2">
+                        Sources
+                      </label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        <FilterPill
+                          label="Cards"
+                          icon={<CheckSquare className="h-3.5 w-3.5" />}
+                          active={filters.showCards}
+                          onClick={() => setFilters((c) => ({ ...c, showCards: !c.showCards }))}
+                        />
+                        <FilterPill
+                          label="Notes"
+                          icon={<FileText className="h-3.5 w-3.5" />}
+                          active={filters.showNotes}
+                          onClick={() => setFilters((c) => ({ ...c, showNotes: !c.showNotes }))}
+                        />
+                        <FilterPill
+                          label="Diaries"
+                          icon={<BookOpen className="h-3.5 w-3.5" />}
+                          active={filters.showDiaryChecklist}
+                          onClick={() => setFilters((c) => ({ ...c, showDiaryChecklist: !c.showDiaryChecklist }))}
+                        />
+                      </div>
+                    </div>
+
+                    {/* 2. Statuses */}
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 block mb-2">
+                        Card Status
+                      </label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
+                          const meta = getStatusMeta(status);
+                          const active = filters.statuses[status];
+                          return (
+                            <button
+                              key={status}
+                              type="button"
+                              onClick={() =>
+                                setFilters((c) => ({
+                                  ...c,
+                                  statuses: { ...c.statuses, [status]: !active }
+                                }))
+                              }
+                              className={cn(
+                                "flex items-center justify-between rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                                active
+                                  ? "border-indigo-400/60 bg-white dark:bg-white/10 text-stone-900 dark:text-white shadow-xs"
+                                  : "border-stone-200/80 dark:border-white/5 bg-stone-100/50 dark:bg-white/[0.02] text-stone-400 dark:text-stone-500 line-through"
+                              )}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className={cn("h-2.5 w-2.5 rounded-full", meta.badgeClass)} />
+                                <span>{meta.label}</span>
+                              </div>
+                              {active && <Check className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 3. Priority */}
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 block mb-2">
+                        Priority
+                      </label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {[
+                          { key: "URGENT", label: "Urgent", dotClass: "bg-red-500" },
+                          { key: "HIGH", label: "High", dotClass: "bg-orange-500" },
+                          { key: "MEDIUM", label: "Medium", dotClass: "bg-indigo-500" },
+                          { key: "LOW", label: "Low", dotClass: "bg-sky-500" }
+                        ].map(({ key, label, dotClass }) => {
+                          const active = filters.priorities ? filters.priorities[key] !== false : true;
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              onClick={() =>
+                                setFilters((c) => ({
+                                  ...c,
+                                  priorities: {
+                                    ...(c.priorities || defaultCalendarFilters.priorities),
+                                    [key]: !active
+                                  }
+                                }))
+                              }
+                              className={cn(
+                                "flex items-center justify-between rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                                active
+                                  ? "border-indigo-400/60 bg-white dark:bg-white/10 text-stone-900 dark:text-white shadow-xs"
+                                  : "border-stone-200/80 dark:border-white/5 bg-stone-100/50 dark:bg-white/[0.02] text-stone-400 dark:text-stone-500 line-through"
+                              )}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className={cn("h-2 w-2 rounded-full", dotClass)} />
+                                <span>{label}</span>
+                              </div>
+                              {active && <Check className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 4. Assignees (if members available) */}
+                    {members && members.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                            Assignee
+                          </label>
+                          {filters.assigneeIds && filters.assigneeIds.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setFilters((c) => ({ ...c, assigneeIds: [] }))}
+                              className="text-[10px] text-stone-600 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 cursor-pointer"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1 scrollbar-soft">
+                          {members.map((member) => {
+                            const selected = filters.assigneeIds?.includes(member.id);
+                            return (
+                              <button
+                                key={member.id}
+                                type="button"
+                                onClick={() => {
+                                  setFilters((c) => {
+                                    const current = c.assigneeIds || [];
+                                    const next = selected ? current.filter((id) => id !== member.id) : [...current, member.id];
+                                    return { ...c, assigneeIds: next };
+                                  });
+                                }}
+                                className={cn(
+                                  "flex items-center gap-1.5 rounded-xl border px-2 py-1 text-xs font-semibold transition-all cursor-pointer",
+                                  selected
+                                    ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                                    : "border-stone-300 dark:border-white/10 bg-white dark:bg-white/[0.04] text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-white/[0.07]"
+                                )}
+                              >
+                                <span className="grid h-4 w-4 place-items-center rounded-full bg-stone-200 dark:bg-white/20 text-[9px] font-bold uppercase">
+                                  {(member.name || member.email)[0]}
+                                </span>
+                                <span className="truncate max-w-[120px]">{member.name || member.email}</span>
+                                {selected && <Check className="h-3 w-3 ml-0.5 text-indigo-600 dark:text-dusk-lavender" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 5. Scope filters (Notes & Time) */}
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-stone-200/70 dark:border-white/10">
+                      <div>
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 block mb-1.5">
+                          Notes Scope
+                        </label>
+                        <FilterSelect
+                          triggerClassName="h-8 text-xs w-full"
+                          value={filters.noteScope}
+                          options={[
+                            { value: "all", label: "All notes" },
+                            { value: "starred", label: "Starred only" },
+                            { value: "plain", label: "Not starred" }
+                          ]}
+                          onValueChange={(noteScope) => setFilters((current) => ({ ...current, noteScope }))}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 block mb-1.5">
+                          Time Scope
+                        </label>
+                        <FilterSelect
+                          triggerClassName="h-8 text-xs w-full"
+                          value={filters.timeScope}
+                          options={[
+                            { value: "all", label: "All times" },
+                            { value: "allDay", label: "All-day only" },
+                            { value: "timed", label: "Timed only" }
+                          ]}
+                          onValueChange={(timeScope) => setFilters((current) => ({ ...current, timeScope }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Popover Footer */}
+                  <div className="flex items-center justify-between border-t border-stone-200/70 dark:border-white/10 px-4 py-2.5 bg-stone-100/40 dark:bg-white/[0.02]">
+                    <span className="text-[11px] text-stone-500 dark:text-stone-400">
+                      {filteredItems.length} items visible
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => setIsFiltersOpen(false)}
+                      className="h-7 px-3 text-xs"
+                    >
+                      Done
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
 
               <button
                 type="button"
@@ -763,88 +1090,138 @@ export function ProjectCalendar({
             </div>
           </div>
 
-          {/* Horizontal Collapsible Filters Drawer */}
-          {isFiltersOpen && (
-            <div className="mt-4 border-t border-white/10 pt-4">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex flex-wrap items-center gap-6">
-                  {/* Sources */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">Sources:</span>
-                    <div className="flex items-center gap-2">
-                      <FilterCheckbox label="Cards" checked={filters.showCards} onChange={(checked) => setFilters((current) => ({ ...current, showCards: checked }))} />
-                      <FilterCheckbox label="Notes" checked={filters.showNotes} onChange={(checked) => setFilters((current) => ({ ...current, showNotes: checked }))} />
-                      <FilterCheckbox label="Diaries" checked={filters.showDiaryChecklist} onChange={(checked) => setFilters((current) => ({ ...current, showDiaryChecklist: checked }))} />
-                    </div>
-                  </div>
+          {/* Active Filters Badges Row */}
+          {activeFilterCount > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-3 mt-3 border-t border-stone-200/70 dark:border-white/10">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400 mr-1 flex items-center gap-1">
+                <SlidersHorizontal className="h-3 w-3 text-indigo-600 dark:text-dusk-lavender" />
+                Active:
+              </span>
 
-                  {/* Status */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">Status:</span>
-                    <div className="flex items-center gap-1.5">
-                      {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
-                        const meta = getStatusMeta(status);
-                        return (
-                          <FilterCheckbox
-                            key={status}
-                            label={meta.label}
-                            checked={filters.statuses[status]}
-                            swatchClassName={meta.badgeClass}
-                            onChange={(checked) =>
-                              setFilters((current) => ({
-                                ...current,
-                                statuses: { ...current.statuses, [status]: checked }
-                              }))
-                            }
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Notes Scope */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">Notes:</span>
-                    <FilterSelect
-                      triggerClassName="h-8 text-xs"
-                      value={filters.noteScope}
-                      options={[
-                        { value: "all", label: "All notes" },
-                        { value: "starred", label: "Starred only" },
-                        { value: "plain", label: "Not starred" }
-                      ]}
-                      onValueChange={(noteScope) => setFilters((current) => ({ ...current, noteScope }))}
-                    />
-                  </div>
-
-                  {/* Time Scope */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">Time:</span>
-                    <FilterSelect
-                      triggerClassName="h-8 text-xs"
-                      value={filters.timeScope}
-                      options={[
-                        { value: "all", label: "All times" },
-                        { value: "allDay", label: "All-day only" },
-                        { value: "timed", label: "Timed only" }
-                      ]}
-                      onValueChange={(timeScope) => setFilters((current) => ({ ...current, timeScope }))}
-                    />
-                  </div>
-                </div>
-
-                {activeFilterCount > 0 && (
-                  <Button
+              {/* Search Query Chip */}
+              {Boolean(filters.searchQuery?.trim()) && (
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-900 dark:text-indigo-200">
+                  <Search className="h-2.5 w-2.5 text-indigo-600 dark:text-dusk-lavender" />
+                  &ldquo;{filters.searchQuery}&rdquo;
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 text-xs text-stone-400 hover:text-stone-200"
-                    onClick={() => setFilters(defaultCalendarFilters)}
+                    onClick={() => setFilters((c) => ({ ...c, searchQuery: "" }))}
+                    className="hover:text-red-500 cursor-pointer"
+                    aria-label="Remove search filter"
                   >
-                    Reset filters
-                  </Button>
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+
+              {/* Sources Chip (if any hidden) */}
+              {(!filters.showCards || !filters.showNotes || !filters.showDiaryChecklist) && (
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 px-2 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
+                  Sources: {[filters.showCards && "Cards", filters.showNotes && "Notes", filters.showDiaryChecklist && "Diaries"].filter(Boolean).join(", ") || "None"}
+                  <button
+                    type="button"
+                    onClick={() => setFilters((c) => ({ ...c, showCards: true, showNotes: true, showDiaryChecklist: true }))}
+                    className="hover:text-red-500 cursor-pointer"
+                    aria-label="Reset sources filter"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+
+              {/* Statuses Chip (if any toggled off) */}
+              {(filters.statuses.TODO !== true ||
+                filters.statuses.DOING !== true ||
+                filters.statuses.WAITING !== true ||
+                filters.statuses.DONE !== true) && (
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 px-2 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
+                  Status: {(["TODO", "DOING", "WAITING", "DONE"] as const).filter((s) => filters.statuses[s]).map((s) => getStatusMeta(s).label).join(", ") || "None"}
+                  <button
+                    type="button"
+                    onClick={() => setFilters((c) => ({ ...c, statuses: defaultCalendarFilters.statuses }))}
+                    className="hover:text-red-500 cursor-pointer"
+                    aria-label="Reset status filter"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+
+              {/* Priority Chip (if any toggled off) */}
+              {filters.priorities &&
+                (filters.priorities.URGENT !== true ||
+                  filters.priorities.HIGH !== true ||
+                  filters.priorities.MEDIUM !== true ||
+                  filters.priorities.LOW !== true) && (
+                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 px-2 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
+                    Priority: {Object.entries(filters.priorities).filter(([, v]) => v).map(([k]) => k).join(", ") || "None"}
+                    <button
+                      type="button"
+                      onClick={() => setFilters((c) => ({ ...c, priorities: defaultCalendarFilters.priorities }))}
+                      className="hover:text-red-500 cursor-pointer"
+                      aria-label="Reset priority filter"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
                 )}
-              </div>
+
+              {/* Assignees Chip */}
+              {filters.assigneeIds && filters.assigneeIds.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-900 dark:text-indigo-200">
+                  <User className="h-2.5 w-2.5 text-indigo-600 dark:text-dusk-lavender" />
+                  {filters.assigneeIds.length === 1
+                    ? (members.find((m) => m.id === filters.assigneeIds![0])?.name || "1 Member")
+                    : `${filters.assigneeIds.length} Members`}
+                  <button
+                    type="button"
+                    onClick={() => setFilters((c) => ({ ...c, assigneeIds: [] }))}
+                    className="hover:text-red-500 cursor-pointer"
+                    aria-label="Clear assignee filter"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+
+              {/* Note Scope Chip */}
+              {filters.noteScope !== "all" && (
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 px-2 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
+                  Notes: {filters.noteScope === "starred" ? "Starred" : "Plain"}
+                  <button
+                    type="button"
+                    onClick={() => setFilters((c) => ({ ...c, noteScope: "all" }))}
+                    className="hover:text-red-500 cursor-pointer"
+                    aria-label="Reset note scope"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+
+              {/* Time Scope Chip */}
+              {filters.timeScope !== "all" && (
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 px-2 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
+                  Time: {filters.timeScope === "allDay" ? "All-day" : "Timed"}
+                  <button
+                    type="button"
+                    onClick={() => setFilters((c) => ({ ...c, timeScope: "all" }))}
+                    className="hover:text-red-500 cursor-pointer"
+                    aria-label="Reset time scope"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+
+              {/* Clear all link */}
+              <button
+                type="button"
+                onClick={() => setFilters(defaultCalendarFilters)}
+                className="ml-auto text-xs font-semibold text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 underline decoration-dotted cursor-pointer"
+              >
+                Clear all
+              </button>
             </div>
           )}
         </Panel>
@@ -2024,6 +2401,35 @@ function UpcomingNote({ note, onClick }: { note: CalendarNote; onClick: () => vo
       </div>
       <p className="mt-1 text-xs text-indigo-600 dark:text-dusk-cyan">{formatDue(note)}</p>
       <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{note.isStarred ? "Starred note" : "Note"}</p>
+    </button>
+  );
+}
+
+function FilterPill({
+  label,
+  icon,
+  active,
+  onClick
+}: {
+  label: string;
+  icon?: ReactNode;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex items-center justify-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer active:scale-95 select-none",
+        active
+          ? "border-indigo-400/80 bg-white dark:bg-white/10 text-stone-900 dark:text-white shadow-xs font-bold ring-1 ring-indigo-400/30"
+          : "border-stone-200/80 dark:border-white/5 bg-stone-100/50 dark:bg-white/[0.02] text-stone-400 dark:text-stone-500 hover:bg-stone-100 dark:hover:bg-white/[0.05]"
+      )}
+    >
+      {icon}
+      <span>{label}</span>
+      {active && <Check className="h-3 w-3 text-indigo-600 dark:text-dusk-lavender" />}
     </button>
   );
 }

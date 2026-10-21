@@ -147,6 +147,97 @@ describe("filterCalendarItems", () => {
     });
     expect(hidden).toEqual([]);
   });
+
+  it("filters items by keyword search query", () => {
+    const searchMatch = filterCalendarItems(items, {
+      ...baseFilters,
+      searchQuery: "starred"
+    });
+    expect(searchMatch.map((i) => i.id)).toEqual(["note-1"]);
+
+    const multiMatch = filterCalendarItems(items, {
+      ...baseFilters,
+      searchQuery: "card"
+    });
+    expect(multiMatch.map((i) => i.id)).toEqual(["card-1", "card-2"]);
+  });
+
+  it("filters cards by assigned user IDs and excludes notes/diaries", () => {
+    const itemsWithAssignees: UnifiedCalendarItem[] = [
+      {
+        id: "card-user-1",
+        type: "card",
+        title: "User 1 task",
+        dueDate: "2026-05-20T10:00:00.000Z",
+        dueDateAllDay: true,
+        status: "TODO",
+        assigneeIds: ["user-1", "user-2"]
+      },
+      {
+        id: "card-user-2",
+        type: "card",
+        title: "User 2 only task",
+        dueDate: "2026-05-20T11:00:00.000Z",
+        dueDateAllDay: true,
+        status: "TODO",
+        assigneeIds: ["user-2"]
+      },
+      {
+        id: "note-alone",
+        type: "note",
+        title: "Note without assignees",
+        dueDate: "2026-05-20T12:00:00.000Z",
+        dueDateAllDay: true,
+        isStarred: false
+      }
+    ];
+
+    const user1Only = filterCalendarItems(itemsWithAssignees, {
+      ...baseFilters,
+      assigneeIds: ["user-1"]
+    });
+    expect(user1Only.map((i) => i.id)).toEqual(["card-user-1"]);
+
+    const user2Only = filterCalendarItems(itemsWithAssignees, {
+      ...baseFilters,
+      assigneeIds: ["user-2"]
+    });
+    expect(user2Only.map((i) => i.id)).toEqual(["card-user-1", "card-user-2"]);
+  });
+
+  it("filters cards by priority", () => {
+    const itemsWithPriority: UnifiedCalendarItem[] = [
+      {
+        id: "card-high",
+        type: "card",
+        title: "High priority task",
+        dueDate: "2026-05-20T10:00:00.000Z",
+        dueDateAllDay: true,
+        status: "TODO",
+        priority: "HIGH"
+      },
+      {
+        id: "card-low",
+        type: "card",
+        title: "Low priority task",
+        dueDate: "2026-05-20T11:00:00.000Z",
+        dueDateAllDay: true,
+        status: "TODO",
+        priority: "LOW"
+      }
+    ];
+
+    const highOnly = filterCalendarItems(itemsWithPriority, {
+      ...baseFilters,
+      priorities: {
+        URGENT: true,
+        HIGH: true,
+        MEDIUM: true,
+        LOW: false
+      }
+    });
+    expect(highOnly.map((i) => i.id)).toEqual(["card-high"]);
+  });
 });
 
 describe("getCalendarSummary", () => {

@@ -11,6 +11,9 @@ export interface CalendarFilterState {
   statuses: Record<CardStatus, boolean>;
   noteScope: CalendarNoteScope;
   timeScope: CalendarTimeScope;
+  searchQuery?: string;
+  priorities?: Record<string, boolean>;
+  assigneeIds?: string[];
 }
 
 export interface CalendarDay {
@@ -27,6 +30,10 @@ export type UnifiedCalendarItem =
       dueDate: string;
       dueDateAllDay: boolean;
       status: CardStatus;
+      priority?: string;
+      assigneeIds?: string[];
+      description?: string | null;
+      note?: string | null;
     }
   | {
       id: string;
@@ -35,6 +42,7 @@ export type UnifiedCalendarItem =
       dueDate: string;
       dueDateAllDay: boolean;
       isStarred: boolean;
+      content?: string | null;
     }
   | {
       id: string;
@@ -56,7 +64,15 @@ export const defaultCalendarFilters: CalendarFilterState = {
     DONE: true
   },
   noteScope: "all",
-  timeScope: "all"
+  timeScope: "all",
+  searchQuery: "",
+  priorities: {
+    URGENT: true,
+    HIGH: true,
+    MEDIUM: true,
+    LOW: true
+  },
+  assigneeIds: []
 };
 
 export function buildCalendarDays({
@@ -84,21 +100,61 @@ export function buildCalendarDays({
 }
 
 export function filterCalendarItems<T extends UnifiedCalendarItem>(items: T[], filters: CalendarFilterState): T[] {
+  const query = (filters.searchQuery || "").trim().toLowerCase();
+  const filterAssignees = Boolean(filters.assigneeIds && filters.assigneeIds.length > 0);
+  const anyPriorityDisabled = Boolean(filters.priorities && Object.values(filters.priorities).some((val) => !val));
+
   return items.filter((item) => {
+    // 1. Keyword search (checks title, and description/content if present)
+    if (query) {
+      const titleMatch = item.title.toLowerCase().includes(query);
+      let contentMatch = false;
+      if (item.type === "note" && "content" in item && item.content) {
+        contentMatch = item.content.toLowerCase().includes(query);
+      } else if (item.type === "card") {
+        if ("description" in item && item.description) {
+          contentMatch = item.description.toLowerCase().includes(query);
+        }
+        if (!contentMatch && "note" in item && item.note) {
+          contentMatch = item.note.toLowerCase().includes(query);
+        }
+      }
+      if (!titleMatch && !contentMatch) return false;
+    }
+
+    // 2. Type-specific checks
     if (item.type === "card") {
       if (!filters.showCards || !filters.statuses[item.status]) return false;
+
+      // Assignee Filter
+      if (filterAssignees) {
+        const itemAssignees = ("assigneeIds" in item && Array.isArray(item.assigneeIds)) ? item.assigneeIds : [];
+        const matchesAssignee = filters.assigneeIds!.some((id) => itemAssignees.includes(id));
+        if (!matchesAssignee) return false;
+      }
+
+      // Priority Filter
+      if (anyPriorityDisabled && filters.priorities) {
+        const cardPriority = ("priority" in item && item.priority ? item.priority : "MEDIUM").toUpperCase();
+        if (filters.priorities[cardPriority] === false) {
+          return false;
+        }
+      }
     }
 
     if (item.type === "note") {
       if (!filters.showNotes) return false;
+      if (filterAssignees) return false;
       if (filters.noteScope === "starred" && !item.isStarred) return false;
       if (filters.noteScope === "plain" && item.isStarred) return false;
     }
 
     if (item.type === "diary_checklist") {
       if (!filters.showDiaryChecklist) return false;
+      if (filterAssignees) return false;
     }
 
+    // 3. Time scope checks
     if (filters.timeScope === "allDay" && !item.dueDateAllDay) return false;
     if (filters.timeScope === "timed" && item.dueDateAllDay) return false;
 
