@@ -16,24 +16,23 @@ Redesign and polish the Landing Page (`/`) Herobar and Hero Section based on use
   - `docs/theme-system.md` — Added changelog entry and coverage notes.
 
 ## Important Behavior & Visual Changes
-1. **Herobar Proportions & Sizing**:
-   - Header height reduced from chunky `h-16` to a sleek, balanced `h-14 sm:h-15` (56-60px).
-   - Container max-width set to `max-w-[1440px]` matching app content.
-   - Refined rainbow tape strip height to 2.5px.
-   - Replaced bulky inline-styled buttons with responsive Tailwind utility classes (`h-8.5 px-3.5 rounded-xl text-xs font-extrabold`).
-2. **Typography & Hierarchy**:
-   - Standardized navigation links to `text-[13px] font-semibold text-[var(--muted)]` with interactive hover background pills (`hover:bg-[var(--paper)]`).
-   - Polished H1 hero title line breaks and font tracking; applied warm highlighter glow on "เคลียร์งานสนุกขึ้น".
-   - Cleaned up subtitle and card pillar descriptions.
-3. **Bespoke Retro Lofi Vector Icons**:
-   - Replaced `🎟️` with `RetroTicketIcon` (retro ticket stub with dashed perforated line and pastel gradient).
-   - Replaced amber dot with `RetroMiniGameIcon` (retro handheld console).
-   - Replaced `📋`, `📅`, `📝`, `🤖` in the 4 core pillars with `RetroKanbanIcon`, `RetroCalendarIcon`, `RetroNotebookIcon`, and `RetroAiRewardIcon` housed in soft pastel badge containers.
-   - Replaced `💻` in the secondary CTA with `RetroStudioTourIcon`.
-   - Replaced 16px raster stickers in interactive preview tabs with crisp vector icons.
-4. **100% Vector Crisp Hero Artwork (Zero Blur)**:
-   - Replaced downsampled 36px raster `hero-lofi-mascot.png` with `RetroCozyStudioMascot` (vector SVG with spinning reels when audio is playing).
-   - Created `RetroCozyStudioIllustration` (vector twilight studio desk, glowing vintage lamp cone, mini-Kanban laptop, cassette Walkman, steaming mug, bonsai, post-it notes) and made it accessible via the "สตูดิโอ Lofi" preview tab and in Room 06 of `walkthrough-mockup.tsx`.
+1. **Hero Section Container Proportions & Proportions**:
+   - Resized Hero section container from overextended `max-w-[1536px]` to a tighter, elegant `max-w-[1360px]`.
+   - Updated Hero shell styling to clean rounded `rounded-[28px]` with a gentle ambient shadow (`0 24px 50px -12px rgba(84, 53, 107, 0.16)`).
+   - Balanced vertical padding across both columns (`p-6 sm:p-8 lg:p-9 xl:p-10`) to eliminate awkward gaps.
+2. **Hero Typography & Content Arrangement**:
+   - Refined H1 display title (`text-3xl sm:text-4xl lg:text-[40px] font-extrabold leading-[1.24] tracking-tight`) with natural Thai line breaking and warm highlighter glow on "เคลียร์งานสนุกขึ้น".
+   - Concise, legible subtitle paragraph explaining the all-in-one proposition.
+   - Refined CTA buttons to sleek 44px (`h-11`) tactile buttons with proper shadows.
+3. **Removal of Blurry Cutout Artifacts & Introduction of Vector Artwork**:
+   - **Completely removed `<MixtapeArtwork />`** (`login-cassette-cutout.png` 1.6MB raster cutout) from the right column of the Hero section, which was previously floating behind the glass window and causing a blurry/pixelated cutout appearance.
+   - Replaced it with a 100% vector ambient backdrop (micro drafting grid + radial aurora blooms + crisp vector stars).
+   - Replaced `📁` with `RetroKanbanIcon` in the app mockup titlebar.
+   - Integrated `RetroCozyStudioIllustration` (100% vector studio desk scene) accessible via the "สตูดิโอ Lofi" preview tab and in Room 06 of `walkthrough-mockup.tsx`.
+   - Replaced blurry radio companion raster mascot with vector `RetroCozyStudioMascot` with animated cassette reels.
+4. **Herobar Polish**:
+   - Streamlined top bar height to `h-14 sm:h-15` (56-60px) with `max-w-[1440px]`.
+   - Replaced raw emojis with bespoke retro vector icons (`RetroTicketIcon`, `RetroMiniGameIcon`).
 
 ## Database / Schema Changes
 - None.

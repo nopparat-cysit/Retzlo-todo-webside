@@ -39,7 +39,6 @@ import {
   X,
   ChevronDown
 } from "lucide-react";
-import { MixtapeArtwork } from "@/components/auth/mixtape-artwork";
 import { MixtapeLogoMark } from "@/components/auth/mixtape-logo-mark";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
@@ -1289,19 +1288,19 @@ export default function LandingPage() {
       </header>
 
       {/* ── Section 1: All-in-One Cozy Workspace Hero (#cp-hero) ──────────── */}
-      <section id="cp-hero" className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-4 pb-12 sm:py-8">
+      <section id="cp-hero" className="w-full max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-12 sm:py-8">
         <div
           className="w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden"
           style={{
-            border: "2px solid var(--border-strong, var(--border))",
-            borderRadius: "30px",
-            boxShadow: "10px 10px 0 rgba(84, 53, 107, 0.14), var(--shadow-floating)",
+            border: "1.5px solid var(--border)",
+            borderRadius: "28px",
+            boxShadow: "0 24px 50px -12px rgba(84, 53, 107, 0.16), var(--shadow-floating)",
             background: "var(--panel-strong)"
           }}
         >
           {/* Left 6 Cols: Clear Product Value Proposition + Interactive Mode Switcher */}
-          <div className="lg:col-span-6 p-7 sm:p-10 lg:p-11 xl:p-12 flex flex-col justify-between gap-6">
-            <div className="space-y-5">
+          <div className="lg:col-span-6 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col justify-between gap-5 sm:gap-6">
+            <div className="space-y-4 sm:space-y-5">
               {/* Clear Product Category Badge */}
               <div className="inline-flex flex-wrap items-center gap-2">
                 <span
@@ -1318,7 +1317,7 @@ export default function LandingPage() {
                     fontSize: "11px",
                     fontWeight: 800,
                     letterSpacing: "0.8px",
-                    boxShadow: "3px 3px 0 rgba(84, 53, 107, 0.2)"
+                    boxShadow: "2.5px 2.5px 0 rgba(84, 53, 107, 0.2)"
                   }}
                 >
                   <Sparkles size={13} className="text-[#7858d4] shrink-0" />
@@ -1329,46 +1328,32 @@ export default function LandingPage() {
               </div>
 
               <h1
-                className="lp-font-display"
-                style={{
-                  fontSize: "clamp(28px, 3.4vw, 44px)",
-                  lineHeight: 1.25,
-                  fontWeight: 800,
-                  letterSpacing: "-0.02em",
-                  color: "var(--foreground)"
-                }}
+                className="lp-font-display text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-[var(--foreground)] leading-[1.24] tracking-tight"
               >
                 จัดการโปรเจกต์ บอร์ดงาน ปฏิทิน และสมุดโน้ต
-                <br />
+                <br className="hidden sm:inline" />
                 ในพื้นที่เดียวที่{" "}
                 <span
                   style={{
                     background:
-                      "linear-gradient(180deg, transparent 58%, rgba(255, 180, 213, 0.65) 58%)",
+                      "linear-gradient(180deg, transparent 55%, rgba(255, 180, 213, 0.65) 55%)",
                     padding: "0 6px",
                     borderRadius: "4px"
                   }}
                 >
                   เคลียร์งานสนุกขึ้น
-                </span>
+                </span>{" "}
                 ทุกวัน
               </h1>
 
-              <p
-                style={{
-                  fontSize: "15px",
-                  lineHeight: 1.75,
-                  color: "var(--muted)",
-                  maxWidth: "54ch"
-                }}
-              >
-                ไม่ต้องสลับหลายแอปให้วุ่นวาย — <strong>Retzlo</strong> คือแพลตฟอร์มจัดการงานและตารางชีวิตที่รวม{" "}
-                <strong style={{ color: "var(--foreground)" }}>บอร์ดงาน Kanban, ปฏิทินซิงก์วันส่ง, สมุดโน้ตคู่บอร์ด, ไดอารี่ส่วนตัว และ AI แตกงานย่อย</strong>{" "}
-                ไว้ในห้องเดียว เคลียร์งานเสร็จรับเหรียญรางวัล (+Coins) ไปแลกรางวัลและปลูกสวนเซนพร้อมฟังเพลง Lofi ชิลล์ๆ ได้เลย
+              <p className="text-sm sm:text-[15px] leading-relaxed text-[var(--muted)] max-w-[50ch]">
+                ไม่ต้องสลับหลายแอปให้วุ่นวาย — <strong>Retzlo</strong> คือแพลตฟอร์มจัดการงานสไตล์ Retro Lofi ที่รวม{" "}
+                <strong className="text-[var(--foreground)]">บอร์ด Kanban, ปฏิทินซิงก์วันส่ง, สมุดโน้ตคู่บอร์ด, ไดอารี่ และ AI แตกงานย่อย</strong>{" "}
+                ไว้ในห้องเดียว เคลียร์งานเสร็จรับเหรียญ Coins ไปแลกรางวัลและปลูกสวนเซนพร้อมฟังเพลง Lofi ได้เลย
               </p>
 
               {/* 2x2 Scannable Core Pillars with Bespoke Retro Vector Icons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
                 {[
                   {
                     Icon: RetroKanbanIcon,
@@ -1418,47 +1403,19 @@ export default function LandingPage() {
               </div>
 
               {/* Tactile CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-3.5 pt-1">
+              <div className="flex flex-wrap items-center gap-3 pt-0.5">
                 <Link href={defaultDestination}>
                   <button
-                    className="lp-press-btn"
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      height: "50px",
-                      padding: "0 24px",
-                      borderRadius: "14px",
-                      border: "2px solid #54356b",
-                      background: "#7858d4",
-                      color: "#fff5ff",
-                      fontSize: "14px",
-                      fontWeight: 700,
-                      boxShadow: "4px 4px 0 #54356b"
-                    }}
+                    className="lp-press-btn inline-flex items-center gap-2 h-11 px-6 rounded-xl font-bold text-sm text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[3px_3px_0_#54356b] transition-all"
                   >
                     <span>เริ่มต้นใช้งานฟรี 7 วัน</span>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={15} />
                   </button>
                 </Link>
 
                 <a
                   href="#walkthrough"
-                  className="lp-press-btn"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    height: "50px",
-                    padding: "0 20px",
-                    borderRadius: "14px",
-                    border: "2px solid var(--border-strong, var(--border))",
-                    background: "var(--paper)",
-                    color: "var(--foreground)",
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    boxShadow: "4px 4px 0 rgba(84, 53, 107, 0.12)"
-                  }}
+                  className="lp-press-btn inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold text-sm text-[var(--foreground)] bg-[var(--paper)] border border-[var(--border)] shadow-[2px_2px_0_rgba(84,53,107,0.12)] hover:border-[var(--accent)] transition-all"
                 >
                   <RetroStudioTourIcon className="w-4 h-4 text-[var(--foreground)] shrink-0" />
                   <span>ดูทัวร์ 6 ห้องทำงานจริง</span>
@@ -1558,21 +1515,42 @@ export default function LandingPage() {
             ref={artRef}
             onPointerMove={moveArtwork}
             onPointerLeave={resetArtwork}
-            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-5 sm:p-7 lg:p-8 min-h-[540px] lg:min-h-[640px]"
+            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-5 sm:p-7 lg:p-8 min-h-[520px] lg:min-h-[580px]"
             style={{
               background:
-                "linear-gradient(180deg, #5942b8 0%, #7858d4 42%, #b184e7 68%, #ffb4d5 100%)",
+                "linear-gradient(180deg, #4c3298 0%, #6848c4 40%, #9969d3 70%, #f4a5c9 100%)",
               color: "#fff5ff",
               isolation: "isolate"
             }}
           >
-            <MixtapeArtwork />
+            {/* Crisp Vector Ambient Backdrop (Replacing blurry raster cassette cutout) */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+              {/* Retro graph drafting grid */}
+              <div
+                className="absolute inset-0 opacity-15"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px)",
+                  backgroundSize: "32px 32px"
+                }}
+              />
+              {/* Soft radiant ambient blooms */}
+              <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-pink-400/20 blur-3xl pointer-events-none" />
+              <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-purple-500/25 blur-3xl pointer-events-none" />
+              {/* Crisp Vector Twinkle Stars */}
+              <svg className="absolute top-5 right-8 w-6 h-6 text-amber-200/80 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L14 8L20 10L14 12L12 18L10 12L4 10L10 8Z" />
+              </svg>
+              <svg className="absolute bottom-16 left-6 w-5 h-5 text-pink-200/70" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L14 8L20 10L14 12L12 18L10 12L4 10L10 8Z" />
+              </svg>
+            </div>
 
             {/* Top Workspace Status Bar */}
-            <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-[#f3e8ff] mb-3">
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-[#f3e8ff] mb-2.5">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="tracking-wider uppercase">RETZLO WORKSPACE · หน้าต่างจำลองระบบจริง (กดเล่นได้!)</span>
+                <span className="tracking-wider uppercase">RETZLO WORKSPACE · จำลองระบบจริง (กดเล่นได้!)</span>
               </div>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/35 border border-white/25 text-xs font-black shadow-sm">
                 <Coins size={13} className="text-amber-300 shrink-0" />
@@ -1606,14 +1584,15 @@ export default function LandingPage() {
                   </div>
                   <span className="text-white/30">|</span>
                   <span className="text-xs font-extrabold text-white flex items-center gap-1.5">
-                    <span>📁 โปรเจกต์: เปิดตัวแคมเปญ Q4</span>
+                    <RetroKanbanIcon className="w-3.5 h-3.5 text-purple-300 shrink-0" />
+                    <span>โปรเจกต์: เปิดตัวแคมเปญ Q4</span>
                     <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-purple-500/30 border border-purple-300/30 text-[10px] text-purple-200">
                       ทีม 5 คน
                     </span>
                   </span>
                 </div>
 
-                <span className="px-2 py-0.5 rounded-full bg-[#ffecb1] text-[#432369] text-[10px] font-extrabold">
+                <span className="px-2 py-0.5 rounded-full bg-[#ffecb1] text-[#432369] text-[10px] font-extrabold shadow-sm">
                   ✨ ลองคลิกการ์ดหรือสลับแท็บด้านล่าง!
                 </span>
               </div>
