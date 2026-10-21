@@ -141,34 +141,32 @@ export default function LandingPage() {
     "ลองคลิกเคลียร์งานหรือแตะที่ภาพสวนหินญี่ปุ่นด้านล่างเพื่อสะสมเหรียญ!"
   );
   const [sfxEnabled, setSfxEnabled] = useState<boolean>(true);
-  const [ticketClaimed, setTicketClaimed] = useState<boolean>(false);
   const [cassetteMood, setCassetteMood] = useState<number>(0);
 
-  // Restore saved trial pass & wallet coins from previous visit
+  // Restore saved wallet coins from previous visit
   useEffect(() => {
     try {
       const saved = localStorage.getItem("retzlo:landing-pass");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (typeof parsed.walletCoins === "number") setWalletCoins(parsed.walletCoins);
-        if (typeof parsed.ticketClaimed === "boolean") setTicketClaimed(parsed.ticketClaimed);
       }
     } catch {
       // Ignore localStorage read errors
     }
   }, []);
 
-  // Persist wallet coins & trial pass status to localStorage
+  // Persist wallet coins to localStorage
   useEffect(() => {
     try {
       localStorage.setItem(
         "retzlo:landing-pass",
-        JSON.stringify({ walletCoins, ticketClaimed })
+        JSON.stringify({ walletCoins })
       );
     } catch {
       // Ignore localStorage write errors
     }
-  }, [walletCoins, ticketClaimed]);
+  }, [walletCoins]);
 
   // Interactive Zen Garden state
   const [sakuraStageIdx, setSakuraStageIdx] = useState<number>(2);
@@ -349,25 +347,6 @@ export default function LandingPage() {
     }));
     setToastBanner(`แลกรางวัลสำเร็จ! 🎟️ "${title}"`);
     playChime("reward");
-  };
-
-  const TICKET_COST = 50;
-  const handleClaimMixtapePass = () => {
-    if (walletCoins < TICKET_COST) {
-      setToastBanner(`ต้องการ ${TICKET_COST} Coins เพื่อแลกตั๋วทดลองใช้ฟรี 7 วัน (ขาดอีก ${TICKET_COST - walletCoins} Coins) · ลองกดเคลียร์งานด้านบนสิ!`);
-      playChime("click");
-      return;
-    }
-    setWalletCoins((prev) => Math.max(0, prev - TICKET_COST));
-    setTicketClaimed(true);
-    playChime("reward");
-    setToastBanner("🎉 ปลดล็อกสิทธิ์ทดลองใช้งานฟรี 7 วันสำเร็จ! เข้าใช้งาน Retzlo Workspace ได้เต็มระบบทันที");
-
-    const burstId = Date.now() + Math.random();
-    setCoinBursts((prev) => [...prev.slice(-3), { id: burstId, amount: -TICKET_COST }]);
-    setTimeout(() => {
-      setCoinBursts((prev) => prev.filter((b) => b.id !== burstId));
-    }, 1200);
   };
 
   const handleZenPondClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -825,7 +804,7 @@ export default function LandingPage() {
               className="px-2.5 py-1.5 rounded-lg hover:text-[var(--foreground)] hover:bg-[var(--paper)] transition-colors flex items-center gap-1.5"
             >
               <RetroMiniGameIcon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>มินิเกมสะสมเหรียญ</span>
+              <span>มินิเกม</span>
             </a>
             <a
               href="#pain-tabs"
@@ -868,61 +847,6 @@ export default function LandingPage() {
 
           {/* Right Actions: Compact, Spacious, Elegant */}
           <div className="hidden md:flex items-center gap-2.5 shrink-0">
-            {/* Live Interactive Coin Pill with Goal Progress */}
-            <div className="relative">
-              <a
-                href="#buy"
-                title={
-                  ticketClaimed
-                    ? "ปลดล็อกสิทธิ์ทดลองใช้ฟรี 7 วันแล้ว! คลิกเพื่อดูรายละเอียด"
-                    : walletCoins >= 50
-                      ? "สะสมครบ 50c แล้ว! คลิกเพื่อแลกตั๋วทดลองใช้ฟรี 7 วัน"
-                      : `สะสมแล้ว ${walletCoins}/50c (ขาดอีก ${50 - walletCoins}c แลกตั๋วทดลองใช้ฟรี 7 วัน)`
-                }
-                className="lp-press-btn inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-extrabold border transition-colors shadow-sm"
-                style={{
-                  background: ticketClaimed
-                    ? "rgba(16, 185, 129, 0.12)"
-                    : walletCoins >= 50
-                      ? "#fef08a"
-                      : "#ffecb1",
-                  color: ticketClaimed ? "#065f46" : "#432369",
-                  borderColor: ticketClaimed
-                    ? "#059669"
-                    : walletCoins >= 50
-                      ? "#d97706"
-                      : "#b45309"
-                }}
-              >
-                <Coins
-                  size={14}
-                  className={ticketClaimed ? "text-[#059669] shrink-0" : "text-[#b45309] shrink-0"}
-                />
-                <span className="font-mono font-black">
-                  {ticketClaimed
-                    ? "7-Day Pass ✓"
-                    : walletCoins >= 50
-                      ? `${walletCoins}c · พร้อมแลก!`
-                      : `${walletCoins} / 50c`}
-                </span>
-              </a>
-
-              {/* Floating +Coin / -Coin Burst Particles */}
-              {coinBursts.map((b) => (
-                <span
-                  key={b.id}
-                  className="lp-coin-burst pointer-events-none absolute -top-3.5 right-0 px-2.5 py-0.5 rounded-full text-[11px] font-black shadow-md"
-                  style={{
-                    background: b.amount > 0 ? "#10b981" : "#ef4444",
-                    color: "#ffffff",
-                    border: "1.5px solid rgba(255, 255, 255, 0.5)"
-                  }}
-                >
-                  {b.amount > 0 ? `+${b.amount}c` : `${b.amount}c`}
-                </span>
-              ))}
-            </div>
-
             {/* Compact Lofi Audio Synthesizer Icon Button */}
             <button
               type="button"
@@ -982,27 +906,12 @@ export default function LandingPage() {
 
           {/* Mobile Actions */}
           <div className="flex md:hidden items-center gap-2">
-            <a
-              href="#buy"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black"
-              style={{
-                background: ticketClaimed
-                  ? "#d1fae5"
-                  : walletCoins >= 50
-                    ? "#fef08a"
-                    : "#ffecb1",
-                color: ticketClaimed ? "#065f46" : "#432369",
-                border: ticketClaimed
-                  ? "1.5px solid #059669"
-                  : "1.5px solid #54356b"
-              }}
+            <Link
+              href={defaultDestination}
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-sm font-thai"
             >
-              <Coins
-                size={13}
-                className={ticketClaimed ? "text-[#059669] shrink-0" : "text-[#54356b] shrink-0"}
-              />
-              <span>{ticketClaimed ? "Pass ✓" : `${walletCoins}c`}</span>
-            </a>
+              <span>ทดลองฟรี</span>
+            </Link>
             <ThemeToggle variant="icon" />
             <button
               type="button"
@@ -1030,7 +939,7 @@ export default function LandingPage() {
               className="flex items-center gap-2 py-2 text-sm font-bold text-[#7858d4] dark:text-purple-300"
             >
               <RetroTicketIcon className="w-4 h-4 shrink-0 text-[#7858d4] dark:text-purple-300" />
-              <span>แลกรับสิทธิ์ทดลองใช้ฟรี 7 วัน (50c)</span>
+              <span>เริ่มต้นทดลองใช้ฟรี 7 วัน</span>
             </a>
             <a
               href="#playground"
@@ -1038,7 +947,7 @@ export default function LandingPage() {
               className="flex items-center gap-2 py-2 text-sm font-semibold text-[var(--foreground)]"
             >
               <RetroMiniGameIcon className="w-4 h-4 shrink-0 text-amber-500" />
-              <span>ลองเล่นมินิเกมสะสมเหรียญ</span>
+              <span>ลองเล่นมินิเกมจำลองระบบ</span>
             </a>
             <a
               href="#pain-tabs"
@@ -1171,7 +1080,7 @@ export default function LandingPage() {
               <p className="font-thai text-sm sm:text-[15px] leading-relaxed text-[var(--muted)] max-w-[50ch] tracking-normal">
                 ไม่ต้องสลับหลายแอปให้วุ่นวาย — <strong>Retzlo</strong> คือแพลตฟอร์มจัดการงานสไตล์ Retro Lofi ที่รวม{" "}
                 <strong className="text-[var(--foreground)]">บอร์ด Kanban, ปฏิทินซิงก์วันส่ง, สมุดโน้ตคู่บอร์ด, ไดอารี่ และ AI แตกงานย่อย</strong>{" "}
-                ไว้ในห้องเดียว เคลียร์งานเสร็จรับเหรียญ Coins ไปแลกรางวัลและปลูกสวนเซนพร้อมฟังเพลง Lofi ได้เลย
+                ไว้ในห้องเดียว ให้คุณโฟกัสกับงานได้อย่างสบายใจ พร้อมเสียงเพลง Lofi คลอเบาๆ ช่วยให้การทำงานไหลลื่นและไม่หมดไฟ
               </p>
 
               {/* 2x2 Scannable Core Pillars with Bespoke Retro Vector Icons */}
@@ -1197,8 +1106,8 @@ export default function LandingPage() {
                   },
                   {
                     Icon: RetroAiRewardIcon,
-                    title: "AI แตกงานย่อย & เหรียญรางวัล",
-                    desc: "แตกงานใหญ่ในคลิกเดียว เคลียร์เสร็จรับ Coins",
+                    title: "AI ผู้ช่วยแตกงานย่อยอัจฉริยะ",
+                    desc: "วิเคราะห์และแตกงานใหญ่เป็นการ์ดย่อยพร้อมลงมือทำในคลิกเดียว",
                     badgeBg: "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50"
                   }
                 ].map((pillar) => (
@@ -1259,7 +1168,7 @@ export default function LandingPage() {
                   className="inline-flex items-center gap-1.5 text-[#7858d4] dark:text-purple-300 hover:underline font-semibold"
                 >
                   <RetroMiniGameIcon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span>ลองเล่นมินิเกมสะสมเหรียญ</span>
+                  <span>ลองเล่นมินิเกมจำลองระบบ</span>
                   <ArrowRight size={12} />
                 </a>
               </div>
@@ -1297,9 +1206,9 @@ export default function LandingPage() {
                     href: "#walkthrough"
                   },
                   {
-                    label: "AI & เหรียญ Coins",
+                    label: "AI ช่วยแตกงานย่อย",
                     Icon: RetroAiRewardIcon,
-                    href: "#playground"
+                    href: "#walkthrough"
                   },
                   {
                     label: "วิทยุ Lofi ในตัว",
@@ -1368,9 +1277,8 @@ export default function LandingPage() {
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="font-thai tracking-normal uppercase">SIDE A · RETZLO COZY STUDIO (VECTOR ARTWORK)</span>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/35 border border-white/25 text-xs font-black shadow-sm font-thai tracking-normal">
-                <Coins size={13} className="text-amber-300 shrink-0" />
-                <span>กระเป๋าเหรียญ: {walletCoins}c</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/35 border border-white/25 text-[10px] font-extrabold shadow-sm font-mono tracking-wider text-purple-200">
+                <span>RETZLO V2.4 · FOCUS WORKSPACE</span>
               </span>
             </div>
 
@@ -1715,8 +1623,8 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="text-[11px] pt-2 border-t border-[var(--border)]" style={{ color: "var(--muted)" }}>
-                💡 ในแอปจริง ทุกการ์ดที่ลากไปช่อง Done จะได้เหรียญสะสมอัตโนมัติ
+              <div className="text-[11px] pt-2 border-t border-[var(--border)] font-thai" style={{ color: "var(--muted)" }}>
+                💡 มินิเกมจำลอง: ลองคลิกติ๊กงานเพื่อสัมผัสความรู้สึกเวลาเคลียร์งานสำเร็จ
               </div>
             </div>
 
@@ -1811,10 +1719,10 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-[var(--border)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px]" style={{ color: "var(--muted)" }}>
+              <div className="pt-2 border-t border-[var(--border)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] font-thai" style={{ color: "var(--muted)" }}>
                 <span>🎟️ ตั้งรางวัลร่วมกับทีมหรือตั้งรางวัลให้ตัวเองก็ได้ตามใจชอบ</span>
                 <a href="#buy" className="inline-flex items-center gap-1 font-bold text-[#7858d4] hover:underline">
-                  <span>แลกตั๋วทดลองใช้ฟรี 7 วัน (50c)</span>
+                  <span>เริ่มต้นทดลองใช้ฟรี 7 วัน</span>
                   <ArrowRight size={12} />
                 </a>
               </div>
@@ -2313,8 +2221,9 @@ export default function LandingPage() {
                       fontWeight: 700,
                       color: activePain.accentColor
                     }}
+                    className="font-thai"
                   >
-                    ลองกดติ๊กเพื่อรับเหรียญ!
+                    ลองกดติ๊กเพื่อทดสอบระบบ!
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -3142,7 +3051,7 @@ export default function LandingPage() {
         {/* Standalone Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">
           <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black tracking-wider shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black tracking-wider shadow-sm font-thai"
             style={{
               background: "#ffecb1",
               color: "#432369",
@@ -3150,22 +3059,20 @@ export default function LandingPage() {
             }}
           >
             <Sparkles size={14} className="text-[#54356b]" />
-            <span>FREE TRIAL BOOTH · จุดแลกตั๋วทดลองใช้งานฟรี 7 วัน (เต็มระบบ)</span>
+            <span>FREE 7-DAY TRIAL · เริ่มต้นทดลองใช้งานฟรี 7 วัน (เต็มระบบ)</span>
             <Sparkles size={14} className="text-[#54356b]" />
           </div>
           <h2
-            className="lp-font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--foreground)] tracking-tight"
+            className="lp-font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--foreground)] tracking-tight font-thai"
           >
-            นำ Coins ที่สะสม แลกรับ{" "}
+            เปิดห้องทำงาน Retzlo ของคุณ{" "}
             <span className="text-[#7858d4] underline decoration-[#f6c976] decoration-wavy decoration-2">
-              สิทธิ์ทดลองใช้งานฟรี 7 วัน
+              ทดลองใช้ฟรี 7 วันเต็ม
             </span>{" "}
-            ที่นี่!
+            ได้ทันที
           </h2>
-          <p className="text-sm sm:text-base text-[var(--muted)] leading-relaxed">
-            ทุกเหรียญที่คุณได้ทดลองกดทำบอร์ดงาน รดน้ำสวนเซน หรือเปิดเพลงฟัง มีค่าจริง!
-            สะสมครบ {TICKET_COST} Coins เพื่อแลกตั๋วเข้าใช้งาน Retzlo Workspace เต็มระบบฟรี 7 วัน
-            ไม่มีค่าบริการแอบแฝง ไม่ต้องผูกบัตรเครดิต
+          <p className="text-sm sm:text-base text-[var(--muted)] leading-relaxed font-thai max-w-2xl mx-auto">
+            สัมผัสประสบการณ์ทำงานสไตล์ Retro Lofi ที่ช่วยให้คุณมีสมาธิและผ่อนคลาย จัดการบอร์ด Kanban, ปฏิทินซิงก์กำหนดส่ง และสมุดโน้ตได้ครบในที่เดียว ไม่มีค่าบริการแอบแฝง ไม่ต้องผูกบัตรเครดิต
           </p>
         </div>
 
@@ -3199,245 +3106,132 @@ export default function LandingPage() {
                 <Ticket size={13} className="text-[#3d185f] shrink-0" />
                 <span>FREE 7-DAY TRIAL PASS</span>
               </span>
-              <span className="px-3 py-1 rounded-full lp-free-pill text-[11px] font-mono font-bold">
-                แลกด้วย: {TICKET_COST} COINS
+              <span className="px-3 py-1 rounded-full lp-free-pill text-[11px] font-thai font-bold">
+                ✓ เริ่มต้นได้ทันที ไม่ต้องสะสมเหรียญ
               </span>
             </div>
 
             <div className="space-y-2">
               <h3
-                className="lp-font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--foreground)] flex flex-wrap items-center gap-2.5 sm:gap-3"
+                className="lp-font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--foreground)] flex flex-wrap items-center gap-2.5 sm:gap-3 font-thai"
               >
-                {ticketClaimed ? (
-                  <>
-                    <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shrink-0 shadow-sm">
-                      <Sparkles size={20} />
-                    </span>
-                    <span>ปลดล็อกสิทธิ์ทดลองใช้ฟรี 7 วันสำเร็จแล้ว!</span>
-                  </>
-                ) : walletCoins >= TICKET_COST ? (
-                  <>
-                    <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#ffecb1] border border-[#54356b]/30 text-[#432369] shrink-0 shadow-sm">
-                      <Sparkles size={20} />
-                    </span>
-                    <span>ยินดีด้วย! เหรียญสะสมของคุณพร้อมแลกสิทธิ์ทดลองใช้ฟรี 7 วันแล้ว</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-400/20 border border-amber-500/30 text-amber-600 dark:text-amber-300 shrink-0 shadow-sm">
-                      <Coins size={20} />
-                    </span>
-                    <span>
-                      สะสมอีกเพียง {TICKET_COST - walletCoins} Coins แลกรับตั๋วทดลองใช้ฟรี 7 วันทันที
-                    </span>
-                  </>
-                )}
+                <span className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#ffecb1] border border-[#54356b]/30 text-[#432369] shrink-0 shadow-sm">
+                  <Sparkles size={20} />
+                </span>
+                <span>ห้องทำงานเสมือนจริงที่ออกแบบมาเพื่อความสบายใจ</span>
               </h3>
-              <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed max-w-2xl">
-                รับสิทธิ์เข้าใช้งานโปรเจกต์ในบรรยากาศ Cozy Retro Lofi จัดการบอร์ดงาน ตาราง ปฏิทิน และสมุดบันทึก เต็มระบบ 7 วัน โดยไม่มีโฆษณาคั่นและไม่มีค่าบริการแอบแฝง
+              <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed max-w-2xl font-thai">
+                รับสิทธิ์เข้าใช้งานโปรเจกต์ในบรรยากาศ Cozy Retro Lofi จัดการบอร์ดงาน ตาราง ปฏิทิน และสมุดบันทึก เต็มระบบ 7 วัน โดยไม่มีโฆษณาคั่นและไม่ต้องผูกบัตรเครดิต
               </p>
             </div>
 
             {/* 3 Free Perks Highlights */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
-                <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
+                <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200 font-thai">
                   <Star size={15} className="fill-amber-400 text-amber-500 shrink-0" />
-                  <span>ทดลองฟรี 7 วันเต็ม</span>
+                  <span>ทดลองฟรี 7 วันเต็มระบบ</span>
                 </div>
-                <div className="text-[11px] text-[var(--muted)] leading-snug">
+                <div className="text-[11px] text-[var(--muted)] leading-snug font-thai">
                   สร้างโปรเจกต์ บอร์ด Kanban ตาราง และปฏิทินได้ไม่จำกัด 7 วันเต็ม
                 </div>
               </div>
 
               <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
-                <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
+                <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200 font-thai">
                   <Headphones size={15} className="text-[#7858d4] dark:text-purple-300 shrink-0" />
-                  <span>Mixtape &amp; สวนเซน</span>
+                  <span>เพลง Lofi & บรรยากาศโฟกัส</span>
                 </div>
-                <div className="text-[11px] text-[var(--muted)] leading-snug">
-                  ซินธ์คอร์ด Lofi สด รดน้ำซากุระ และโฟกัสไร้กังวล
+                <div className="text-[11px] text-[var(--muted)] leading-snug font-thai">
+                  ซินธ์คอร์ด Lofi สด คลอเบาๆ ช่วยให้ทำงานไหลลื่นและลดความเหนื่อยล้า
                 </div>
               </div>
 
               <div className="p-3 sm:p-3.5 rounded-2xl lp-free-perk space-y-1">
-                <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200">
-                  <Coins size={15} className="text-amber-500 dark:text-amber-300 shrink-0" />
-                  <span>โบนัสเริ่มใช้งาน +100c</span>
+                <div className="text-sm font-black flex items-center gap-1.5 text-[var(--accent)] dark:text-amber-200 font-thai">
+                  <ShieldCheck size={15} className="text-emerald-500 shrink-0" />
+                  <span>ไม่มีค่าใช้จ่ายแอบแฝง</span>
                 </div>
-                <div className="text-[11px] text-[var(--muted)] leading-snug">
-                  รับเหรียญสะสมทันทีสำหรับแลกสติกเกอร์และของรางวัล
+                <div className="text-[11px] text-[var(--muted)] leading-snug font-thai">
+                  ไม่ต้องกรอกบัตรเครดิต เริ่มต้นใช้งานได้ทันทีใน 10 วินาที
                 </div>
               </div>
             </div>
 
-            {/* Interactive Coin HUD Terminal Box */}
-            <div className="p-5 sm:p-6 rounded-2xl lp-free-terminal-box space-y-4">
-              {/* Wallet Status Header */}
+            {/* Direct Free Access Terminal Box */}
+            <div className="p-5 sm:p-6 rounded-2xl lp-free-terminal-box space-y-5">
+              {/* Status Header */}
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <div className="text-[11px] font-bold text-[var(--accent)] dark:text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
-                    <Coins size={14} className="text-amber-500 dark:text-amber-300 shrink-0 inline-block animate-bounce" />
-                    <span>กระเป๋าเหรียญสะสมของคุณ (Live Wallet)</span>
+                <div className="space-y-1">
+                  <div className="text-[11px] font-bold text-[var(--accent)] dark:text-amber-200 uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>RETZLO V2.4 · READY TO START</span>
                   </div>
-                  <div className="flex items-baseline gap-2 mt-0.5">
-                    <span className="font-mono text-3xl sm:text-4xl font-black text-amber-600 dark:text-[#ffe07a]">
-                      {walletCoins}
-                    </span>
-                    <span className="text-sm font-bold text-[var(--muted)] font-mono">
-                      / {TICKET_COST} Coins
-                    </span>
+                  <div className="text-lg sm:text-xl font-black text-[var(--foreground)] font-thai">
+                    เริ่มต้นใช้งานได้ทันที ไม่ต้องรอคิว
                   </div>
                 </div>
 
-                <div>
-                  {ticketClaimed ? (
-                    <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-200 text-xs font-black flex items-center gap-1.5 shadow-sm">
-                      <Check size={14} /> FREE ACCESS ACTIVATED (เปิดใช้งานฟรีแล้ว)
-                    </span>
-                  ) : walletCoins >= TICKET_COST ? (
-                    <span
-                      className="px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide flex items-center gap-1.5 animate-pulse shadow-sm"
-                      style={{
-                        background: "#ffecb1",
-                        color: "#432369",
-                        border: "1.5px solid #54356b"
-                      }}
+                <div className="flex items-center gap-2">
+                  <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-200 text-xs font-black flex items-center gap-1.5 shadow-sm font-thai">
+                    <Check size={14} /> สิทธิ์ทดลองใช้งานฟรี 7 วัน พร้อมใช้งาน
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons: Direct 1-Click CTA */}
+              <div className="pt-1 flex flex-col justify-center gap-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Link href={defaultDestination} className="w-full sm:w-auto">
+                    <button
+                      type="button"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer font-thai"
                     >
-                      <Sparkles size={14} /> แต้มครบ 50c แล้ว แลกใช้ฟรีได้เลย!
-                    </span>
-                  ) : (
-                    <span className="px-3.5 py-1.5 rounded-full lp-free-pill text-xs font-bold">
-                      ขาดอีก {TICKET_COST - walletCoins} Coins
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Chunky Retro Gauge Progress Bar */}
-              <div className="space-y-1.5">
-                <div className="w-full h-3.5 lp-free-gauge-bg rounded-full overflow-hidden p-0.5 shadow-inner">
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500 shadow-sm"
-                    style={{
-                      width: `${Math.min(100, Math.round((walletCoins / TICKET_COST) * 100))}%`
-                    }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[10px] font-mono text-[var(--muted)]">
-                  <span>0c</span>
-                  <span>25c</span>
-                  <span className="text-amber-600 dark:text-[#ffe07a] font-bold">50c (เป้าหมาย: ปลดล็อกทดลองฟรี 7 วัน)</span>
-                </div>
-              </div>
-
-              {/* Action Buttons: Direct Frictionless 7-Day Trial + Gamified Coin Bonus */}
-              <div className="pt-2 min-h-[96px] flex flex-col justify-center transition-all duration-300">
-                {ticketClaimed ? (
-                  <div className="space-y-3">
-                    <p className="text-xs sm:text-sm text-emerald-600 dark:text-emerald-300 font-semibold flex items-center gap-1.5">
-                      <Check size={16} className="text-emerald-600 dark:text-emerald-300" />
-                      <span>ตั๋วทดลองใช้งานฟรี 7 วันของคุณเปิดใช้งานเรียบร้อยแล้ว! สามารถกดเข้า Workspace เพื่อเริ่มทำงานได้ทันที</span>
-                    </p>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Link href={defaultDestination} className="w-full sm:w-auto">
-                        <button
-                          type="button"
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer"
-                        >
-                          <Sparkles className="w-5 h-5 text-[#54356b]" />
-                          <span>Enter Workspace (เริ่มต้นทดลองฟรี 7 วัน)</span>
-                          <ArrowRight className="w-5 h-5 text-[#54356b]" />
-                        </button>
-                      </Link>
-                      <Link href="/help">
-                        <button
-                          type="button"
-                          className="lp-free-ghost-btn h-14 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
-                        >
-                          คู่มือการใช้งานระบบ
-                        </button>
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {/* Primary Button Row: Always Direct Trial CTA + Coin Bonus / Instant Perk */}
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Link href={defaultDestination} className="w-full sm:w-auto">
-                        <button
-                          type="button"
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-3 h-14 sm:h-16 px-8 sm:px-10 rounded-2xl font-black text-base sm:text-lg text-[#432369] bg-[#ffecb1] hover:bg-[#ffe484] border-2 border-[#54356b] shadow-[4px_4px_0_#54356b] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#54356b] active:translate-y-0.5 cursor-pointer"
-                        >
-                          <Ticket className="w-6 h-6 text-[#432369] shrink-0" />
-                          <span className="tracking-wide">
-                            เริ่มต้นทดลองใช้ฟรี 7 วันทันที
-                          </span>
-                          <ArrowRight className="w-5 h-5 text-[#54356b]" />
-                        </button>
-                      </Link>
-
-                      {walletCoins >= TICKET_COST ? (
-                        <button
-                          type="button"
-                          onClick={handleClaimMixtapePass}
-                          className="inline-flex items-center gap-2 h-14 sm:h-16 px-6 rounded-2xl font-bold text-xs sm:text-sm text-emerald-800 dark:text-emerald-200 border-2 border-emerald-500/50 bg-emerald-500/15 hover:bg-emerald-500/25 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer shadow-sm animate-pulse"
-                        >
-                          <Sparkles size={16} className="text-emerald-600 dark:text-emerald-400" />
-                          <span>กดรับโบนัสเริ่มต้น +100 Coins (ครบ 50c แล้ว!)</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => triggerEarnCoin(15, "รับโบนัสสเตชั่น Mixtape! ✨")}
-                          className="inline-flex items-center gap-2 h-14 sm:h-16 px-5 rounded-2xl font-bold text-xs sm:text-sm text-amber-700 dark:text-amber-200 border-2 border-amber-400/50 bg-amber-400/15 hover:bg-amber-400/25 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer"
-                          title="คลิกเพื่อรับเหรียญโบนัสทดลองทันที"
-                        >
-                          <Sparkles size={15} className="shrink-0" />
-                          <span>แตะรับเหรียญเพิ่ม +15c (สะสมครบรับโบนัส)</span>
-                        </button>
-                      )}
-
-                      <Link href="/help">
-                        <button
-                          type="button"
-                          className="lp-free-ghost-btn inline-flex items-center gap-2 h-14 sm:h-16 px-5 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer"
-                        >
-                          <span>ดูคู่มือระบบ</span>
-                        </button>
-                      </Link>
-                    </div>
-
-                    {/* Trust Assurance Row */}
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[var(--muted)] font-medium">
-                      <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                        <Check size={14} className="shrink-0" />
-                        <span>เข้าถึงครบทุกฟังก์ชัน 7 วันเต็ม</span>
+                      <Ticket className="w-6 h-6 text-[#432369] shrink-0" />
+                      <span className="tracking-wide">
+                        เริ่มต้นทดลองใช้ฟรี 7 วันทันที
                       </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <ShieldCheck size={14} className="shrink-0 text-amber-500" />
-                        <span>ไม่ต้องกรอกบัตรเครดิต</span>
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Sparkles size={14} className="shrink-0 text-purple-500" />
-                        <span>เริ่มจัดโต๊ะทำงานได้ทันทีใน 10 วินาที</span>
-                      </span>
-                    </div>
-                  </div>
-                )}
+                      <ArrowRight className="w-5 h-5 text-[#54356b]" />
+                    </button>
+                  </Link>
+
+                  <Link href="/help">
+                    <button
+                      type="button"
+                      className="lp-free-ghost-btn inline-flex items-center gap-2 h-14 sm:h-16 px-6 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer font-thai"
+                    >
+                      <span>ดูคู่มือระบบ & ฟีเจอร์ทั้งหมด</span>
+                    </button>
+                  </Link>
+                </div>
+
+                {/* Trust Assurance Row */}
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[var(--muted)] font-medium font-thai">
+                  <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                    <Check size={14} className="shrink-0" />
+                    <span>เข้าถึงครบทุกฟังก์ชัน 7 วันเต็ม</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <ShieldCheck size={14} className="shrink-0 text-amber-500" />
+                    <span>ไม่ต้องกรอกบัตรเครดิต</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Sparkles size={14} className="shrink-0 text-purple-500" />
+                    <span>เริ่มจัดโต๊ะทำงานได้ทันทีใน 10 วินาที</span>
+                  </span>
+                </div>
+
+                {/* Clarification footnote */}
+                <p className="text-[11px] text-[var(--muted)] leading-relaxed font-thai opacity-80 pt-1">
+                  * มินิเกมด้านบนเป็นเพียงเดโมจำลองระบบให้ทดลองเล่นเพื่อความเพลิดเพลิน สิทธิ์ทดลองใช้งานฟรี 7 วันเปิดให้ทุกคนเริ่มต้นได้ทันทีโดยไม่ต้องสะสมเหรียญ
+                </p>
               </div>
             </div>
           </div>
 
           {/* Right Ticket Stub: Authentic Vintage Free Access Pass */}
           <div
-            className={`lg:col-span-4 relative z-10 flex flex-col items-center justify-between p-6 sm:p-7 rounded-[28px] overflow-hidden group transition-all duration-300 lg:border-l-2 lg:border-dashed lg:border-[var(--border)] lg:pl-8 ${
-              ticketClaimed
-                ? "lp-free-ticket-card shadow-[0_0_35px_rgba(120,88,212,0.2),6px_6px_0_rgba(84,53,107,0.18)]"
-                : walletCoins >= TICKET_COST
-                  ? "lp-free-ticket-card shadow-[0_0_25px_rgba(120,88,212,0.15),5px_5px_0_rgba(84,53,107,0.14)]"
-                  : "lp-free-ticket-card opacity-95"
-            }`}
+            className="lg:col-span-4 relative z-10 flex flex-col items-center justify-between p-6 sm:p-7 rounded-[28px] overflow-hidden group transition-all duration-300 lg:border-l-2 lg:border-dashed lg:border-[var(--border)] lg:pl-8 lp-free-ticket-card shadow-[0_0_35px_rgba(120,88,212,0.2),6px_6px_0_rgba(84,53,107,0.18)]"
           >
             {/* Shimmering Light Sweep */}
             <div
@@ -3475,9 +3269,7 @@ export default function LandingPage() {
                 aria-hidden="true"
                 className="absolute w-44 h-44 rounded-full blur-2xl opacity-35 pointer-events-none"
                 style={{
-                  background: ticketClaimed
-                    ? "radial-gradient(circle, #f6c976 0%, #10b981 65%, transparent 100%)"
-                    : "radial-gradient(circle, #f6c976 0%, #7858d4 65%, transparent 100%)"
+                  background: "radial-gradient(circle, #f6c976 0%, #7858d4 65%, transparent 100%)"
                 }}
               />
 
@@ -3507,40 +3299,38 @@ export default function LandingPage() {
                   className="object-contain drop-shadow-[0_10px_20px_rgba(84,53,107,0.35)] dark:drop-shadow-[0_12px_24px_rgba(0,0,0,0.65)]"
                 />
 
-                {/* Wax Stamp Seal when Claimed */}
-                {ticketClaimed && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+                {/* Wax Stamp Seal */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+                  <div
+                    className="lp-stamp-drop relative transform -rotate-12 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-105"
+                    style={{ filter: "drop-shadow(0 4px 14px rgba(84, 53, 107, 0.4))" }}
+                  >
                     <div
-                      className="lp-stamp-drop relative transform -rotate-12 transition-transform duration-300 group-hover:rotate-[-8deg] group-hover:scale-105"
-                      style={{ filter: "drop-shadow(0 4px 14px rgba(84, 53, 107, 0.4))" }}
+                      className="px-5 py-2 rounded-xl text-center relative overflow-hidden"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #fffbeb 0%, #fde047 30%, #f59e0b 70%, #d97706 100%)",
+                        border: "2.5px solid #54356b",
+                        boxShadow:
+                          "inset 0 1px 2px rgba(255,255,255,0.8), 4px 4px 0 #54356b, 0 0 18px rgba(245,158,11,0.5)"
+                      }}
                     >
-                      <div
-                        className="px-5 py-2 rounded-xl text-center relative overflow-hidden"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, #fffbeb 0%, #fde047 30%, #f59e0b 70%, #d97706 100%)",
-                          border: "2.5px solid #54356b",
-                          boxShadow:
-                            "inset 0 1px 2px rgba(255,255,255,0.8), 4px 4px 0 #54356b, 0 0 18px rgba(245,158,11,0.5)"
-                        }}
-                      >
-                        {/* Inner Dashed Ring */}
-                        <div className="absolute inset-1 rounded-lg border border-dashed border-[#78350f]/60 pointer-events-none" />
+                      {/* Inner Dashed Ring */}
+                      <div className="absolute inset-1 rounded-lg border border-dashed border-[#78350f]/60 pointer-events-none" />
 
-                        <div className="relative z-10 flex flex-col items-center leading-none py-0.5">
-                          <div className="flex items-center gap-1.5 text-[#3b185f] font-black text-xs sm:text-[13px] tracking-[2px] uppercase">
-                            <span className="text-amber-800">★</span>
-                            <span>CLAIMED FREE</span>
-                            <span className="text-amber-800">★</span>
-                          </div>
-                          <div className="text-[8px] font-mono tracking-widest text-[#78350f] uppercase mt-1 font-extrabold">
-                            VERIFIED · 7-DAY FULL ACCESS
-                          </div>
+                      <div className="relative z-10 flex flex-col items-center leading-none py-0.5">
+                        <div className="flex items-center gap-1.5 text-[#3b185f] font-black text-xs sm:text-[13px] tracking-[2px] uppercase">
+                          <span className="text-amber-800">★</span>
+                          <span>7-DAY PASS</span>
+                          <span className="text-amber-800">★</span>
+                        </div>
+                        <div className="text-[8px] font-mono tracking-widest text-[#78350f] uppercase mt-1 font-extrabold">
+                          INSTANT ACCESS · UNLOCKED
                         </div>
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
@@ -3557,26 +3347,14 @@ export default function LandingPage() {
 
               {/* Status Badge */}
               <div className="pt-0.5 flex justify-center">
-                {ticketClaimed ? (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-200 border border-emerald-500/30 text-xs font-bold">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-                    </span>
-                    <span>สิทธิ์ทดลองฟรี 7 วันพร้อมใช้งานแล้ว</span>
-                    <span className="text-amber-600 dark:text-amber-300">★</span>
-                  </div>
-                ) : walletCoins >= TICKET_COST ? (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/20 text-amber-800 dark:text-amber-200 border border-amber-400/50 text-xs font-bold animate-pulse">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                    <span>พร้อมแลกตั๋วทดลองใช้ฟรี 7 วัน (ครบ 50c แล้ว!)</span>
-                  </div>
-                ) : (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full lp-free-pill text-xs font-medium">
-                    <span>เหรียญของคุณ:</span>
-                    <strong className="text-amber-600 dark:text-[#ffe07a] font-mono">{walletCoins} Coins</strong>
-                  </div>
-                )}
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-200 border border-emerald-500/30 text-xs font-bold font-thai">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                  </span>
+                  <span>สิทธิ์ทดลองฟรี 7 วันพร้อมเปิดใช้งานทันที</span>
+                  <span className="text-amber-600 dark:text-amber-300">★</span>
+                </div>
               </div>
 
               {/* 3 Free All-Access Punch Badges */}
@@ -3587,7 +3365,7 @@ export default function LandingPage() {
                 <span className="px-2 py-0.5 rounded-md lp-free-punch-tag font-bold">
                   ✓ FULL ACCESS
                 </span>
-                <span className="px-2 py-0.5 rounded-md lp-free-punch-tag font-bold">
+                <span className="px-2 py-0.5 rounded-md lp-free-punch-tag font-bold font-thai">
                   ✓ ฟรี 7 วันเต็ม
                 </span>
               </div>

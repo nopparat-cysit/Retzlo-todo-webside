@@ -923,3 +923,26 @@ Template:
     - **Hero Right Column Hand-Drawn Vector Showcase**: Completely removed 488 lines of fake CSS mockup cards/tabs and replaced it with `RetroCozyStudioIllustration` (hand-drawn vector room with animated Walkman spools and sleeping ginger cat on the window sill) as the primary centerpiece, paired with the tactile Lofi Focus Radio bar.
     - **Authentic Drawn Washi Tape Badge**: Introduced `RetroWashiTapeBadge` in pure SVG with torn jagged zigzag edges, paper grain texture, and drop shadow.
 - Verification: Vitest full suite (101 test files, 557 passed), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed (42/42 static/dynamic pages compiled successfully).
+
+### 2026-10-21 — Decoupling Coin Minigame from Workspace & Frictionless 7-Day Free Trial
+- Coverage:
+  - `src/app/(marketing)/page.tsx` (Herobar, Hero Section, Section 2 Playground, Section 5 Free Trial Booth)
+  - `docs/agent-notes/2026-10-21-landing-coin-minigame-decoupling.md`
+- Design Direction & Theme Alignment:
+  - **Decoupled Coin Minigame**: Clarified that coins on the landing page belong strictly to the optional interactive demo minigame in Section 2 (`#playground`), rather than acting as a gating currency for the Retzlo platform or trial access.
+  - **Herobar (Navbar)**:
+    - Removed desktop interactive coin pill (`walletCoins / 50c`) and floating burst particles (`coinBursts`) to keep the navigation bar clean, elegant, and focused.
+    - Replaced mobile header coin pill with a direct "ทดลองฟรี" button linking to `/register`.
+    - Updated navigation label from "มินิเกมสะสมเหรียญ" to "มินิเกม".
+  - **Hero Section (`#cp-hero`)**:
+    - Value proposition refined to focus on calm, cozy focus and productivity across Kanban, Calendar, Notes, Diary, and AI breakdown.
+    - Updated 4th core pillar to "AI ผู้ช่วยแตกงานย่อยอัจฉริยะ" with description "วิเคราะห์และแตกงานใหญ่เป็นการ์ดย่อยพร้อมลงมือทำในคลิกเดียว".
+    - Replaced right artwork top status pill from `กระเป๋าเหรียญ: {walletCoins}c` to `RETZLO V2.4 · FOCUS WORKSPACE`.
+  - **Section 5 Free Trial Booth (`#buy`)**:
+    - Redesigned from a coin-gated terminal requiring 50 coins to a welcoming, frictionless 7-day free trial booth.
+    - Heading: "เปิดห้องทำงาน Retzlo ของคุณ ทดลองใช้ฟรี 7 วันเต็ม ได้ทันที".
+    - 3 core guarantee badges: "✓ ทดลองฟรี 7 วันเต็มระบบ", "✓ เพลง Lofi & บรรยากาศโฟกัส", "✓ ไม่มีค่าใช้จ่ายแอบแฝง (ไม่ต้องกรอกบัตรเครดิต)".
+    - Prominent 1-click CTA button: "เริ่มต้นทดลองใช้ฟรี 7 วันทันที" with secondary button "ดูคู่มือระบบ & ฟีเจอร์ทั้งหมด".
+    - Explanatory footnote: "* มินิเกมด้านบนเป็นเพียงเดโมจำลองระบบให้ทดลองเล่นเพื่อความเพลิดเพลิน สิทธิ์ทดลองใช้งานฟรี 7 วันเปิดให้ทุกคนเริ่มต้นได้ทันทีโดยไม่ต้องสะสมเหรียญ".
+    - Right vintage pass stub updated to show unconditional "VERIFIED · 7-DAY FULL ACCESS" and "สิทธิ์ทดลองฟรี 7 วันพร้อมเปิดใช้งานทันที".
+- Verification: `npx tsc --noEmit` (0 errors), `npm run lint` (0 warnings/errors), `npm test` (101 test files, 557 passed, 3 skipped), `npx prisma validate` (valid), `npm run build` (42/42 routes compiled successfully).
