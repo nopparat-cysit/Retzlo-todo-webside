@@ -13,8 +13,8 @@
     - Added integrated Search input with clear button directly on the calendar toolbar.
     - Added quick preset buttons for "My Tasks" and "Pending Only".
     - Added tactile toggle pills (`FilterPill`) for Sources, Statuses with colored dots, Priorities with colored dots, Assignees with member avatar chips, and Scopes.
-    - Added active filter badge chips row below toolbar with 1-click dismissal (`✕`) and "Clear all" link.
     - Updated card mapping and initialization to properly normalize and supply `assigneeIds` and `priority`.
+    - Removed redundant active badges bar row below toolbar per user request (active filters are viewed and managed directly inside the Filters popover dropdown).
 - **Created**:
   - `docs/agent-notes/2026-10-21-calendar-filter-redesign.md`: This work note.
 
