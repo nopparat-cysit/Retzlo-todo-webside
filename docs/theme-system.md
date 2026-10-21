@@ -917,4 +917,9 @@ Template:
     - Added full-fidelity vector scene `RetroCozyStudioIllustration` (twilight window, brass lamp light cone, laptop with mini-Kanban, purple Walkman with tape ribbon, steaming heart mug, bonsai, post-it notes).
     - Added 5th tab `studio` ("สตูดิโอ Lofi") in the interactive preview dock to showcase the full vector scene.
     - Upgraded Room 06 in `walkthrough-mockup.tsx` to render `RetroCozyStudioIllustration` with zero compression blur.
+  - **Thai Typography & Vector Hand-Drawn Artwork Overhaul (No Fake CSS Mockups)**:
+    - **Google Fonts Thai Priority**: Added `Anuphan` (loopless modern Thai) and `IBM Plex Sans Thai` as the top priority fonts across `tailwind.config.ts`, `globals.css` (`--font-sans`, `--font-display`), and `src/app/layout.tsx`.
+    - **No Negative Tracking on Thai Text**: Replaced all `tracking-tight` on Thai headings and copy with `tracking-normal` and comfortable line-height (`leading-[1.35]`) to prevent Thai vowel and tone mark clumping/clipping.
+    - **Hero Right Column Hand-Drawn Vector Showcase**: Completely removed 488 lines of fake CSS mockup cards/tabs and replaced it with `RetroCozyStudioIllustration` (hand-drawn vector room with animated Walkman spools and sleeping ginger cat on the window sill) as the primary centerpiece, paired with the tactile Lofi Focus Radio bar.
+    - **Authentic Drawn Washi Tape Badge**: Introduced `RetroWashiTapeBadge` in pure SVG with torn jagged zigzag edges, paper grain texture, and drop shadow.
 - Verification: Vitest full suite (101 test files, 557 passed), `npm run lint` (0 errors/warnings), `npx prisma validate` valid, `npm run build` passed (42/42 static/dynamic pages compiled successfully).

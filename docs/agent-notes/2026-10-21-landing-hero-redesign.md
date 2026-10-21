@@ -1,38 +1,40 @@
-# 2026-10-21 — Landing Page Herobar & Hero Section Visual Polish
+# 2026-10-21 — Landing Page Hero Section: Thai Typography & Vector Hand-Drawn Showcase Overhaul
 
 ## Objective
-Redesign and polish the Landing Page (`/`) Herobar and Hero Section based on user feedback:
-1. Fix awkward Herobar dimensions, padding, and proportions.
-2. Elevate typography, font hierarchy, and Thai text formatting.
-3. Replace mismatched raw emojis (`🎟️`, `📋`, `📅`, `📝`, `🤖`, `💻`, `🎮`) with bespoke retro lofi SVG vector icons.
-4. Replace blurry/pixelated hero imagery with 100% crisp, zero-blur vector SVG artwork matching the Retro Lofi Indigo theme.
+Address user feedback regarding the Hero Section:
+1. **Thai Typography Polish ("เรื่องฟ้อนปัญหาอยู่ที่ฟ้อนไทย")**: Prioritize Google Fonts `Anuphan` and `IBM Plex Sans Thai` over system fallbacks (`Segoe UI` / `Tahoma`). Remove negative letter-spacing (`tracking-tight`) from Thai headings and copy to prevent Thai vowel and tone mark clipping. Set comfortable line-height (`1.35`) and `tracking-normal`.
+2. **Hand-Drawn Vector Art ("อะไรวาดได้ก็วาดเถอะ ไม่ต้องใช้ css")**: Replace 500 lines of fake interactive CSS mock windows (tabs, cards, checklists constructed out of nested divs) with the actual **Hand-Drawn Vector Cozy Studio Artwork** (`RetroCozyStudioIllustration`) as the primary visual centerpiece, accompanied by an authentic drawn Japanese washi tape badge (`RetroWashiTapeBadge`) and tactile Lofi audio companion deck.
 
 ## Files Created, Modified, or Deleted
-- **Created:**
-  - `src/components/marketing/retro-hero-icons.tsx` — Bespoke retro lofi vector SVG icon system (`RetroKanbanIcon`, `RetroCalendarIcon`, `RetroNotebookIcon`, `RetroAiRewardIcon`, `RetroTicketIcon`, `RetroMiniGameIcon`, `RetroAudioDeckIcon`, `RetroStudioTourIcon`, `RetroCozyStudioMascot`, `RetroCozyStudioIllustration`).
+- **Created / Extended:**
+  - `src/components/marketing/retro-hero-icons.tsx` — Extended with `RetroWashiTapeBadge` (drawn SVG washi tape with serrated torn zigzag edges, washi fiber texture, and drop shadow) and updated `RetroCozyStudioIllustration` to support `isPlaying` animated spinning reels, floating notes, and sleeping ginger cat on the window sill.
 - **Modified:**
-  - `src/app/(marketing)/page.tsx` — Streamlined Herobar height/padding, refined typography and interactive hover pills, updated Coin Wallet pill, replaced 4 core pillar emojis with pastel vector icon badges, replaced pixelated radio mascot with vector mascot badge, and added "สตูดิโอ Lofi" vector scene preview.
-  - `src/app/(marketing)/walkthrough-mockup.tsx` — Replaced blurry raster `hero-lofi-mascot.png` in Room 06 with crisp `RetroCozyStudioIllustration`.
-  - `docs/theme-system.md` — Added changelog entry and coverage notes.
+  - `src/app/layout.tsx` — Added Google Fonts stylesheet for `Anuphan` (wght 300–800) and `IBM Plex Sans Thai` with preconnect links. Added lint suppression for App Router `<link>` font stylesheet.
+  - `tailwind.config.ts` — Added `'Anuphan'` and `'IBM Plex Sans Thai'` as top priorities in `fontFamily.sans`, `fontFamily.display`, and `fontFamily.thai`.
+  - `src/app/globals.css` — Configured `--font-sans` and `--font-display` to place `'Anuphan'` first, updated `.lp-font-display` to use `letter-spacing: normal` and `line-height: 1.35`.
+  - `src/app/(marketing)/page.tsx` — Overhauled Hero Section:
+    - Left column: Replaced CSS border tag with drawn `<RetroWashiTapeBadge />`, applied `font-thai`, `tracking-normal`, and `leading-[1.35]` on H1, updated 4 core pillar cards with `tracking-normal` and bespoke vector icons, replaced preview dock with a clean 5-module feature strip.
+    - Right column: Removed 488 lines of fake CSS mockup cards/tabs, placed the grand framed vector studio canvas (`RetroCozyStudioIllustration`) with active reel animations, alongside the tactile Lofi Focus Audio bar and vector mascot.
+    - Cleaned up obsolete interactive mock states and handlers (`heroMiniCards`, `heroCalChecked`, `heroNoteChecked`, `heroAiSplitDone`, `heroStage`, `heroTaskIdx`).
+  - `docs/theme-system.md` — Updated coverage matrix and changelog.
 
 ## Important Behavior & Visual Changes
-1. **Hero Section Container Proportions & Proportions**:
-   - Resized Hero section container from overextended `max-w-[1536px]` to a tighter, elegant `max-w-[1360px]`.
-   - Updated Hero shell styling to clean rounded `rounded-[28px]` with a gentle ambient shadow (`0 24px 50px -12px rgba(84, 53, 107, 0.16)`).
-   - Balanced vertical padding across both columns (`p-6 sm:p-8 lg:p-9 xl:p-10`) to eliminate awkward gaps.
-2. **Hero Typography & Content Arrangement**:
-   - Refined H1 display title (`text-3xl sm:text-4xl lg:text-[40px] font-extrabold leading-[1.24] tracking-tight`) with natural Thai line breaking and warm highlighter glow on "เคลียร์งานสนุกขึ้น".
-   - Concise, legible subtitle paragraph explaining the all-in-one proposition.
-   - Refined CTA buttons to sleek 44px (`h-11`) tactile buttons with proper shadows.
-3. **Removal of Blurry Cutout Artifacts & Introduction of Vector Artwork**:
-   - **Completely removed `<MixtapeArtwork />`** (`login-cassette-cutout.png` 1.6MB raster cutout) from the right column of the Hero section, which was previously floating behind the glass window and causing a blurry/pixelated cutout appearance.
-   - Replaced it with a 100% vector ambient backdrop (micro drafting grid + radial aurora blooms + crisp vector stars).
-   - Replaced `📁` with `RetroKanbanIcon` in the app mockup titlebar.
-   - Integrated `RetroCozyStudioIllustration` (100% vector studio desk scene) accessible via the "สตูดิโอ Lofi" preview tab and in Room 06 of `walkthrough-mockup.tsx`.
-   - Replaced blurry radio companion raster mascot with vector `RetroCozyStudioMascot` with animated cassette reels.
-4. **Herobar Polish**:
-   - Streamlined top bar height to `h-14 sm:h-15` (56-60px) with `max-w-[1440px]`.
-   - Replaced raw emojis with bespoke retro vector icons (`RetroTicketIcon`, `RetroMiniGameIcon`).
+1. **Authentic Thai Typography**:
+   - Loopless, modern Thai typeface `Anuphan` renders cleanly on all operating systems without falling back to Windows `Segoe UI` or `Tahoma`.
+   - All Thai headings and paragraphs now use `tracking-normal` (zero negative tracking) so vowels (ิ, ี, ึ, ื, ุ, ู) and tone marks (่, ้, ๊, ๋) never collide or get clipped.
+2. **100% Hand-Drawn Vector Art Showcase (Zero Fake CSS Mockups)**:
+   - The Hero right column showcases the crisp, hand-drawn vector room illustration (`RetroCozyStudioIllustration`):
+     - Twilight window with crescent moon and twinkling stars.
+     - Curled sleeping ginger cat on the window sill.
+     - Wood grain desk with classic brass banker's study lamp.
+     - Workstation laptop displaying Retzlo Kanban board with colorful cards.
+     - Cassette Walkman whose spools actually spin when the user clicks Play on the audio player below.
+     - Steaming drip coffee mug, potted succulent, and buttercream/mint sticky notes.
+   - Zero raster blurriness, infinite sharpness on 4K/Retina displays.
+3. **Drawn Washi Tape Badge**:
+   - Category badge is now an authentic drawn vector SVG with jagged torn edges, realistic fibrous paper gradient, gold sparkle, and drop shadow.
+4. **Tactile Lofi Audio Bar**:
+   - Synchronized with the drawn artwork — clicking Play spins both the Walkman reels in the drawing and the mascot's reels in the radio bar while playing ambient lofi music.
 
 ## Database / Schema Changes
 - None.

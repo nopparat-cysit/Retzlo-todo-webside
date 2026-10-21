@@ -51,7 +51,8 @@ import {
   RetroAudioDeckIcon,
   RetroStudioTourIcon,
   RetroCozyStudioMascot,
-  RetroCozyStudioIllustration
+  RetroCozyStudioIllustration,
+  RetroWashiTapeBadge
 } from "@/components/marketing/retro-hero-icons";
 import {
   PAIN_POINT_TABS,
@@ -81,80 +82,6 @@ interface CoinBurst {
   id: number;
   amount: number;
 }
-
-interface HeroFocusTask {
-  id: string;
-  title: string;
-  tag: string;
-  coins: number;
-}
-
-const HERO_FOCUS_TASKS: HeroFocusTask[] = [
-  {
-    id: "hf-1",
-    title: "จัดลำดับ 3 งานสำคัญที่สุดของวันนี้",
-    tag: "TODAY'S FOCUS",
-    coins: 25
-  },
-  {
-    id: "hf-2",
-    title: "เปิดโหมดโฟกัส 25 นาที เคลียร์งานหลัก",
-    tag: "DEEP WORK",
-    coins: 25
-  },
-  {
-    id: "hf-3",
-    title: "เขียนสรุปความคืบหน้าสั้นๆ ในสมุดโน้ต",
-    tag: "DAILY SYNC",
-    coins: 20
-  }
-];
-
-type HeroPreviewTab = "board" | "calendar" | "notes" | "ai-rewards" | "studio";
-
-interface HeroMiniCard {
-  id: string;
-  title: string;
-  tag: string;
-  tagBg: string;
-  tagColor: string;
-  due: string;
-  coins: number;
-  stage: 0 | 1 | 2;
-}
-
-const INITIAL_HERO_MINI_CARDS: HeroMiniCard[] = [
-  {
-    id: "hm-1",
-    title: "ออกแบบหน้าปกแคมเปญ & บรีฟงาน",
-    tag: "Design",
-    tagBg: "#ede9fe",
-    tagColor: "#6d28d9",
-    due: "พรุ่งนี้ 14:00",
-    coins: 25,
-    stage: 0
-  },
-  {
-    id: "hm-2",
-    title: "เชื่อมระบบปฏิทินซิงก์วันส่งการ์ด",
-    tag: "Product",
-    tagBg: "#fef3c7",
-    tagColor: "#b45309",
-    due: "วันนี้ 16:30",
-    coins: 30,
-    stage: 1
-  },
-  {
-    id: "hm-3",
-    title: "สรุปโน้ตประชุมทีมลงสมุดโน้ต",
-    tag: "Notes",
-    tagBg: "#d1fae5",
-    tagColor: "#047857",
-    due: "เสร็จวันนี้",
-    coins: 20,
-    stage: 2
-  }
-];
 
 const SAKURA_STAGES = [
   {
@@ -204,14 +131,6 @@ export default function LandingPage() {
   const artPointerRaf = useRef<number | null>(null);
   const artBoundsRef = useRef<DOMRect | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [heroStage, setHeroStage] = useState(0);
-  const [heroTaskIdx, setHeroTaskIdx] = useState(0);
-  const [heroCompletedTasks, setHeroCompletedTasks] = useState<string[]>([]);
-  const [heroPreviewTab, setHeroPreviewTab] = useState<HeroPreviewTab>("board");
-  const [heroMiniCards, setHeroMiniCards] = useState<HeroMiniCard[]>(INITIAL_HERO_MINI_CARDS);
-  const [heroCalChecked, setHeroCalChecked] = useState<string[]>(["hcal-1"]);
-  const [heroNoteChecked, setHeroNoteChecked] = useState<string[]>(["hnote-1"]);
-  const [heroAiSplitDone, setHeroAiSplitDone] = useState<boolean>(false);
 
   // Interactive Playground & Live Coin Wallet state
   const [walletCoins, setWalletCoins] = useState<number>(45);
@@ -475,85 +394,6 @@ export default function LandingPage() {
       }
       return next;
     });
-  };
-
-  const currentHeroTask = HERO_FOCUS_TASKS[heroTaskIdx] || HERO_FOCUS_TASKS[0];
-  const isHeroTaskAwarded = heroCompletedTasks.includes(currentHeroTask.id);
-
-  const advanceHeroTask = () => {
-    if (heroStage === 0) {
-      setHeroStage(1);
-      playChime("click");
-    } else if (heroStage === 1) {
-      setHeroStage(2);
-      if (!isHeroTaskAwarded) {
-        setHeroCompletedTasks((prev) => [...prev, currentHeroTask.id]);
-        triggerEarnCoin(currentHeroTask.coins, `ทำภารกิจ "${currentHeroTask.title.slice(0, 18)}..." สำเร็จ!`);
-      } else {
-        playChime("reward");
-        setToastBanner("ภารกิจนี้ทำเสร็จแล้ว · รับเหรียญไปแล้ว ✨");
-      }
-    } else {
-      setHeroTaskIdx((prev) => (prev + 1) % HERO_FOCUS_TASKS.length);
-      setHeroStage(0);
-      playChime("click");
-    }
-  };
-
-  const handleAdvanceHeroMiniCard = (cardId: string) => {
-    setHeroMiniCards((prev) =>
-      prev.map((card) => {
-        if (card.id !== cardId) return card;
-        const nextStage = ((card.stage + 1) % 3) as 0 | 1 | 2;
-        if (nextStage === 2) {
-          triggerEarnCoin(card.coins, `ย้าย "${card.title.slice(0, 18)}..." ไปที่ Done สำเร็จ!`);
-        } else if (card.stage === 2 && nextStage === 0) {
-          triggerEarnCoin(-card.coins, `ย้ายการ์ดกลับไปที่ To do`);
-        } else {
-          playChime("click");
-        }
-        return { ...card, stage: nextStage };
-      })
-    );
-  };
-
-  const handleResetHeroMiniBoard = () => {
-    setHeroMiniCards(INITIAL_HERO_MINI_CARDS);
-    setHeroStage(0);
-    playChime("click");
-    setToastBanner("รีเซ็ตบอร์ดตัวอย่างกลับมาจุดเริ่มต้นแล้ว ✨");
-  };
-
-  const handleToggleHeroCalItem = (id: string, coins: number, label: string) => {
-    const done = heroCalChecked.includes(id);
-    if (done) {
-      setHeroCalChecked((prev) => prev.filter((x) => x !== id));
-      triggerEarnCoin(-coins, `ยกเลิก "${label.slice(0, 18)}..."`);
-    } else {
-      setHeroCalChecked((prev) => [...prev, id]);
-      triggerEarnCoin(coins, `เคลียร์ตารางงาน "${label.slice(0, 18)}..." สำเร็จ!`);
-    }
-  };
-
-  const handleToggleHeroNoteItem = (id: string, coins: number, label: string) => {
-    const done = heroNoteChecked.includes(id);
-    if (done) {
-      setHeroNoteChecked((prev) => prev.filter((x) => x !== id));
-      triggerEarnCoin(-coins, `ยกเลิก "${label.slice(0, 18)}..."`);
-    } else {
-      setHeroNoteChecked((prev) => [...prev, id]);
-      triggerEarnCoin(coins, `เช็กรายการ "${label.slice(0, 18)}..." สำเร็จ!`);
-    }
-  };
-
-  const handleTriggerHeroAiSplit = () => {
-    if (!heroAiSplitDone) {
-      setHeroAiSplitDone(true);
-      triggerEarnCoin(15, "AI ช่วยแตกงานใหญ่เป็น 3 การ์ดย่อยให้ทันที! 🤖");
-    } else {
-      setHeroAiSplitDone(false);
-      triggerEarnCoin(-15, "รีเซ็ตตัวอย่าง AI แตกงานย่อย");
-    }
   };
 
   function moveArtwork(event: PointerEvent<HTMLDivElement>) {
@@ -1301,34 +1141,16 @@ export default function LandingPage() {
           {/* Left 6 Cols: Clear Product Value Proposition + Interactive Mode Switcher */}
           <div className="lg:col-span-6 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col justify-between gap-5 sm:gap-6">
             <div className="space-y-4 sm:space-y-5">
-              {/* Clear Product Category Badge */}
+              {/* Authentic Hand-Drawn Washi Tape Badge */}
               <div className="inline-flex flex-wrap items-center gap-2">
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    transform: "rotate(-1deg)",
-                    padding: "5px 12px",
-                    borderRadius: "8px",
-                    background: "#ffecb1",
-                    border: "1.5px solid #54356b",
-                    color: "#54356b",
-                    fontSize: "11px",
-                    fontWeight: 800,
-                    letterSpacing: "0.8px",
-                    boxShadow: "2.5px 2.5px 0 rgba(84, 53, 107, 0.2)"
-                  }}
-                >
-                  <Sparkles size={13} className="text-[#7858d4] shrink-0" />
-                  <span className="font-mono text-[11px] uppercase tracking-wider font-extrabold">ALL-IN-ONE WORKSPACE</span>
-                  <span className="text-[#54356b]/40">·</span>
-                  <span>จัดการงานและชีวิตในที่เดียว</span>
-                </span>
+                <RetroWashiTapeBadge
+                  tag="ALL-IN-ONE WORKSPACE"
+                  subtext="จัดการงานและชีวิตในที่เดียว"
+                />
               </div>
 
               <h1
-                className="lp-font-display text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-[var(--foreground)] leading-[1.24] tracking-tight"
+                className="lp-font-display font-thai text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[var(--foreground)] leading-[1.35] tracking-normal"
               >
                 จัดการโปรเจกต์ บอร์ดงาน ปฏิทิน และสมุดโน้ต
                 <br className="hidden sm:inline" />
@@ -1338,7 +1160,7 @@ export default function LandingPage() {
                     background:
                       "linear-gradient(180deg, transparent 55%, rgba(255, 180, 213, 0.65) 55%)",
                     padding: "0 6px",
-                    borderRadius: "4px"
+                    borderRadius: "6px"
                   }}
                 >
                   เคลียร์งานสนุกขึ้น
@@ -1346,7 +1168,7 @@ export default function LandingPage() {
                 ทุกวัน
               </h1>
 
-              <p className="text-sm sm:text-[15px] leading-relaxed text-[var(--muted)] max-w-[50ch]">
+              <p className="font-thai text-sm sm:text-[15px] leading-relaxed text-[var(--muted)] max-w-[50ch] tracking-normal">
                 ไม่ต้องสลับหลายแอปให้วุ่นวาย — <strong>Retzlo</strong> คือแพลตฟอร์มจัดการงานสไตล์ Retro Lofi ที่รวม{" "}
                 <strong className="text-[var(--foreground)]">บอร์ด Kanban, ปฏิทินซิงก์วันส่ง, สมุดโน้ตคู่บอร์ด, ไดอารี่ และ AI แตกงานย่อย</strong>{" "}
                 ไว้ในห้องเดียว เคลียร์งานเสร็จรับเหรียญ Coins ไปแลกรางวัลและปลูกสวนเซนพร้อมฟังเพลง Lofi ได้เลย
@@ -1391,10 +1213,10 @@ export default function LandingPage() {
                       <pillar.Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs font-extrabold text-[var(--foreground)] tracking-tight">
+                      <div className="font-thai text-xs font-extrabold text-[var(--foreground)] tracking-normal">
                         {pillar.title}
                       </div>
-                      <div className="text-[11px] leading-snug mt-0.5 text-[var(--muted)]">
+                      <div className="font-thai text-[11px] leading-snug mt-0.5 text-[var(--muted)] tracking-normal">
                         {pillar.desc}
                       </div>
                     </div>
@@ -1403,10 +1225,10 @@ export default function LandingPage() {
               </div>
 
               {/* Tactile CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-0.5">
+              <div className="flex flex-wrap items-center gap-3 pt-0.5 font-thai">
                 <Link href={defaultDestination}>
                   <button
-                    className="lp-press-btn inline-flex items-center gap-2 h-11 px-6 rounded-xl font-bold text-sm text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[3px_3px_0_#54356b] transition-all"
+                    className="lp-press-btn inline-flex items-center gap-2 h-11 px-6 rounded-xl font-bold text-sm text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[3px_3px_0_#54356b] transition-all tracking-normal"
                   >
                     <span>เริ่มต้นใช้งานฟรี 7 วัน</span>
                     <ArrowRight size={15} />
@@ -1415,7 +1237,7 @@ export default function LandingPage() {
 
                 <a
                   href="#walkthrough"
-                  className="lp-press-btn inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold text-sm text-[var(--foreground)] bg-[var(--paper)] border border-[var(--border)] shadow-[2px_2px_0_rgba(84,53,107,0.12)] hover:border-[var(--accent)] transition-all"
+                  className="lp-press-btn inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold text-sm text-[var(--foreground)] bg-[var(--paper)] border border-[var(--border)] shadow-[2px_2px_0_rgba(84,53,107,0.12)] hover:border-[var(--accent)] transition-all tracking-normal"
                 >
                   <RetroStudioTourIcon className="w-4 h-4 text-[var(--foreground)] shrink-0" />
                   <span>ดูทัวร์ 6 ห้องทำงานจริง</span>
@@ -1423,7 +1245,7 @@ export default function LandingPage() {
               </div>
 
               {/* Zero-Risk Trust Reassurance Micro-Copy */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[var(--muted)] font-medium">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[var(--muted)] font-thai tracking-normal">
                 <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                   <Check size={14} className="shrink-0" />
                   <span>ใช้งานฟรีเต็มระบบ ไม่จำกัดบอร์ด</span>
@@ -1443,69 +1265,63 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Interactive Preview Switcher Dock */}
+            {/* Hand-Drawn Feature Strip Dock */}
             <div
               style={{
                 borderTop: "1px dashed var(--border)",
                 paddingTop: "14px"
               }}
+              className="font-thai"
             >
-              <div className="text-[11px] font-bold tracking-wider uppercase mb-2.5 flex items-center justify-between" style={{ color: "var(--muted)" }}>
-                <span>👆 คลิกสลับดูหน้าจอระบบจริงด้านขวา:</span>
-                <span className="text-[10px] text-[#7858d4] dark:text-purple-300 font-extrabold">LIVE APP PREVIEW →</span>
+              <div className="text-[11px] font-bold uppercase mb-2.5 flex items-center justify-between tracking-normal" style={{ color: "var(--muted)" }}>
+                <span>✨ 5 มุมทำงานครบในโต๊ะเดียว (ไม่ต้องสลับหลายแอป):</span>
+                <a href="#walkthrough" className="text-[10px] text-[#7858d4] dark:text-purple-300 font-extrabold hover:underline">
+                  ดู 6 ห้องทำงานจริง ↓
+                </a>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 {[
                   {
-                    id: "board" as const,
                     label: "บอร์ดงาน Kanban",
-                    Icon: RetroKanbanIcon
+                    Icon: RetroKanbanIcon,
+                    href: "#walkthrough"
                   },
                   {
-                    id: "calendar" as const,
                     label: "ปฏิทินซิงก์วันส่ง",
-                    Icon: RetroCalendarIcon
+                    Icon: RetroCalendarIcon,
+                    href: "#walkthrough"
                   },
                   {
-                    id: "notes" as const,
                     label: "สมุดโน้ต & ไดอารี่",
-                    Icon: RetroNotebookIcon
+                    Icon: RetroNotebookIcon,
+                    href: "#walkthrough"
                   },
                   {
-                    id: "ai-rewards" as const,
-                    label: "AI & เหรียญรางวัล",
-                    Icon: RetroAiRewardIcon
+                    label: "AI & เหรียญ Coins",
+                    Icon: RetroAiRewardIcon,
+                    href: "#playground"
                   },
                   {
-                    id: "studio" as const,
-                    label: "สตูดิโอ Lofi",
-                    Icon: RetroStudioTourIcon
+                    label: "วิทยุ Lofi ในตัว",
+                    Icon: RetroAudioDeckIcon,
+                    href: "#walkthrough"
                   }
-                ].map((tab) => {
-                  const active = heroPreviewTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => {
-                        setHeroPreviewTab(tab.id);
-                        playChime("click");
-                      }}
-                      className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
-                      style={{
-                        background: active ? "#ffecb1" : "var(--paper)",
-                        color: active ? "#432369" : "var(--foreground)",
-                        border: active ? "1.5px solid #54356b" : "1px solid var(--border)",
-                        boxShadow: active
-                          ? "3px 3px 0 rgba(84, 53, 107, 0.22)"
-                          : "1px 1px 0 rgba(84, 53, 107, 0.08)"
-                      }}
-                    >
-                      <tab.Icon className="w-3.5 h-3.5 shrink-0" />
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                })}
+                ].map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all tracking-normal"
+                    style={{
+                      background: "var(--paper)",
+                      color: "var(--foreground)",
+                      border: "1px solid var(--border)",
+                      boxShadow: "1px 1px 0 rgba(84, 53, 107, 0.08)"
+                    }}
+                  >
+                    <item.Icon className="w-3.5 h-3.5 shrink-0" />
+                    <span>{item.label}</span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -1547,502 +1363,59 @@ export default function LandingPage() {
             </div>
 
             {/* Top Workspace Status Bar */}
-            <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-[#f3e8ff] mb-2.5">
+            <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-[#f3e8ff] mb-3">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="tracking-wider uppercase">RETZLO WORKSPACE · จำลองระบบจริง (กดเล่นได้!)</span>
+                <span className="font-thai tracking-normal uppercase">SIDE A · RETZLO COZY STUDIO (VECTOR ARTWORK)</span>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/35 border border-white/25 text-xs font-black shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/35 border border-white/25 text-xs font-black shadow-sm font-thai tracking-normal">
                 <Coins size={13} className="text-amber-300 shrink-0" />
                 <span>กระเป๋าเหรียญ: {walletCoins}c</span>
               </span>
             </div>
 
-            {/* Center: Interactive Retzlo Workspace App Window */}
+            {/* Center: Hand-Drawn Retro Cozy Studio Artwork Showcase */}
             <div
-              className="relative z-10 my-auto rounded-2xl overflow-hidden flex flex-col"
+              className="relative z-10 my-auto rounded-2xl overflow-hidden flex flex-col transition-transform duration-200"
               style={{
-                background: "rgba(38, 22, 68, 0.92)",
-                border: "2px solid rgba(255, 240, 255, 0.72)",
-                boxShadow: "0 20px 45px rgba(20, 8, 52, 0.45)",
-                backdropFilter: "blur(16px)"
+                border: "2px solid rgba(255, 240, 255, 0.85)",
+                boxShadow: "0 22px 50px rgba(24, 10, 56, 0.52), 6px 6px 0 rgba(67, 35, 105, 0.35)",
+                background: "#2B1748"
               }}
             >
-              {/* App Window Titlebar & Project Header */}
+              {/* Studio Canvas Titlebar with tactile window dots and title */}
               <div
-                className="px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2"
+                className="px-3.5 py-2 flex items-center justify-between gap-2"
                 style={{
-                  background: "rgba(24, 12, 48, 0.65)",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.14)"
+                  background: "rgba(24, 12, 48, 0.85)",
+                  borderBottom: "1.5px solid rgba(255, 255, 255, 0.16)"
                 }}
               >
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#fb7185] inline-block" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#fbbf24] inline-block" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#34d399] inline-block" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#fb7185] inline-block shadow-sm" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#fbbf24] inline-block shadow-sm" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#34d399] inline-block shadow-sm" />
                   </div>
-                  <span className="text-white/30">|</span>
-                  <span className="text-xs font-extrabold text-white flex items-center gap-1.5">
-                    <RetroKanbanIcon className="w-3.5 h-3.5 text-purple-300 shrink-0" />
-                    <span>โปรเจกต์: เปิดตัวแคมเปญ Q4</span>
-                    <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-purple-500/30 border border-purple-300/30 text-[10px] text-purple-200">
-                      ทีม 5 คน
-                    </span>
+                  <span className="text-white/30 text-xs">|</span>
+                  <span className="font-thai text-xs font-bold text-white flex items-center gap-1.5 tracking-normal">
+                    <span>สตูดิโอโต๊ะทำงาน Cozy Lofi · 100% Vector Canvas</span>
                   </span>
                 </div>
 
-                <span className="px-2 py-0.5 rounded-full bg-[#ffecb1] text-[#432369] text-[10px] font-extrabold shadow-sm">
-                  ✨ ลองคลิกการ์ดหรือสลับแท็บด้านล่าง!
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] text-purple-200/90 font-extrabold uppercase tracking-wider">
+                    {isPlaying ? "♪ LOFI PLAYING" : "COZY ROOM"}
+                  </span>
+                </div>
               </div>
 
-              {/* App Window Navigation Tabs */}
-              <div
-                className="px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar"
-                style={{
-                  background: "rgba(255, 255, 255, 0.06)",
-                  borderBottom: "1px solid rgba(255, 255, 255, 0.12)"
-                }}
-              >
-                {[
-                  { id: "board" as const, label: "บอร์ดงาน Kanban", Icon: RetroKanbanIcon },
-                  { id: "calendar" as const, label: "ปฏิทินวันส่ง", Icon: RetroCalendarIcon },
-                  { id: "notes" as const, label: "โน้ต & ไดอารี่", Icon: RetroNotebookIcon },
-                  { id: "ai-rewards" as const, label: "AI & รางวัล", Icon: RetroAiRewardIcon },
-                  { id: "studio" as const, label: "สตูดิโอ Lofi", Icon: RetroStudioTourIcon }
-                ].map((tab) => {
-                  const active = heroPreviewTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => {
-                        setHeroPreviewTab(tab.id);
-                        playChime("click");
-                      }}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all"
-                      style={{
-                        background: active ? "#ffecb1" : "rgba(255, 255, 255, 0.1)",
-                        color: active ? "#432369" : "#f3e8ff",
-                        border: active
-                          ? "1px solid #54356b"
-                          : "1px solid rgba(255, 255, 255, 0.15)"
-                      }}
-                    >
-                      <tab.Icon className="w-3 h-3 shrink-0" />
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* App Window Interactive Stage Content */}
-              <div className="p-3.5 sm:p-4 space-y-3">
-                {/* ── TAB 1: KANBAN BOARD VIEW ── */}
-                {heroPreviewTab === "board" && (
-                  <div className="space-y-3">
-                    {/* 3-Column Mini Kanban Board */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                      {[
-                        { stage: 0 as const, title: "To do (รอทำ)", dot: "#c4b5fd" },
-                        { stage: 1 as const, title: "In progress (กำลังทำ)", dot: "#fbbf24" },
-                        { stage: 2 as const, title: "Done (เสร็จ +Coins!)", dot: "#34d399" }
-                      ].map((col) => {
-                        const colCards = heroMiniCards.filter((c) => c.stage === col.stage);
-                        return (
-                          <div
-                            key={col.title}
-                            className="rounded-xl p-2.5 flex flex-col gap-2"
-                            style={{
-                              background: "rgba(255, 255, 255, 0.08)",
-                              border: "1px solid rgba(255, 255, 255, 0.16)",
-                              minHeight: "148px"
-                            }}
-                          >
-                            <div className="flex items-center justify-between text-[10px] font-extrabold text-purple-100">
-                              <span className="flex items-center gap-1.5">
-                                <span
-                                  className="w-2 h-2 rounded-full"
-                                  style={{ background: col.dot }}
-                                />
-                                {col.title}
-                              </span>
-                              <span className="px-1.5 py-0.2 rounded-full bg-white/15 text-[9px]">
-                                {colCards.length}
-                              </span>
-                            </div>
-
-                            {colCards.length === 0 ? (
-                              <div className="my-auto text-center text-[10px] text-purple-200/60 py-4 border border-dashed border-white/15 rounded-lg">
-                                คลิกการ์ดจากช่องอื่นเพื่อย้ายมาที่นี่
-                              </div>
-                            ) : (
-                              colCards.map((card) => (
-                                <button
-                                  key={card.id}
-                                  type="button"
-                                  onClick={() => handleAdvanceHeroMiniCard(card.id)}
-                                  className="lp-spring-card w-full text-left p-2.5 rounded-xl transition-all"
-                                  style={{
-                                    background: card.stage === 2 ? "#f0fdf4" : "#fffaf5",
-                                    color: "#432369",
-                                    border: "1.5px solid #54356b",
-                                    boxShadow: "2px 2px 0 rgba(26, 11, 69, 0.28)"
-                                  }}
-                                >
-                                  <div className="flex items-center justify-between gap-1 mb-1">
-                                    <span
-                                      className="px-1.5 py-0.5 rounded text-[9px] font-extrabold"
-                                      style={{
-                                        background: card.tagBg,
-                                        color: card.tagColor
-                                      }}
-                                    >
-                                      {card.tag}
-                                    </span>
-                                    <span className="text-[9px] font-black text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full">
-                                      +{card.coins}c
-                                    </span>
-                                  </div>
-                                  <div
-                                    className="text-xs font-extrabold leading-snug"
-                                    style={{
-                                      textDecoration: card.stage === 2 ? "line-through" : "none",
-                                      opacity: card.stage === 2 ? 0.78 : 1
-                                    }}
-                                  >
-                                    {card.title}
-                                  </div>
-                                  <div className="mt-2 pt-1.5 border-t border-black/10 flex items-center justify-between text-[10px] font-bold text-[#6d4c7d]">
-                                    <span>📅 {card.due}</span>
-                                    <span className="text-[#7858d4] underline">
-                                      {card.stage === 2 ? "รีเซ็ต ↺" : "ย้ายช่อง →"}
-                                    </span>
-                                  </div>
-                                </button>
-                              ))
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Active Focus Task Card (Quick Interactive Win) */}
-                    <div
-                      className="p-3 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
-                      style={{
-                        background: heroStage === 2 ? "#dcfce7" : "#fff5fc",
-                        color: "#432369",
-                        border: "1.5px solid #54356b"
-                      }}
-                    >
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-purple-200 text-[#432369]">
-                            ⚡ งานโฟกัสด่วน ({heroTaskIdx + 1}/3)
-                          </span>
-                          <span className="text-[10px] font-extrabold text-amber-800">
-                            +{currentHeroTask.coins} Coins เมื่อเสร็จ
-                          </span>
-                        </div>
-                        <div className="text-xs sm:text-sm font-extrabold">
-                          {heroStage === 2
-                            ? `🎉 เสร็จแล้ว! "${currentHeroTask.title}"`
-                            : heroStage === 1
-                              ? `กำลังทำ: ${currentHeroTask.title}`
-                              : currentHeroTask.title}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={advanceHeroTask}
-                          className="lp-press-btn px-3 py-1.5 rounded-lg text-xs font-extrabold flex items-center gap-1"
-                          style={{
-                            background: "#7858d4",
-                            color: "#ffffff",
-                            border: "1px solid #432369"
-                          }}
-                        >
-                          <span>
-                            {heroStage === 0
-                              ? "เริ่มทำ →"
-                              : heroStage === 1
-                                ? "ทำเสร็จ ✓ (+Coins)"
-                                : "งานถัดไป →"}
-                          </span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleResetHeroMiniBoard}
-                          className="p-1.5 rounded-lg text-xs bg-white/80 border border-black/15 text-[#432369]"
-                          title="รีเซ็ตบอร์ดตัวอย่าง"
-                        >
-                          <RotateCcw size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ── TAB 2: UNIFIED CALENDAR VIEW ── */}
-                {heroPreviewTab === "calendar" && (
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between text-xs text-purple-100">
-                      <span className="font-bold">📅 ตารางงานสัปดาห์นี้ (ซิงก์จากวันครบกำหนดในการ์ดอัตโนมัติ)</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-200 font-bold">
-                        Auto-Synced ✓
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      {[
-                        {
-                          id: "hcal-1",
-                          day: "วันนี้ · 14:00",
-                          title: "ส่งดราฟต์หน้าปกแคมเปญให้ทีมรีวิว",
-                          board: "บอร์ด Design",
-                          coins: 20
-                        },
-                        {
-                          id: "hcal-2",
-                          day: "พรุ่งนี้ · 10:30",
-                          title: "ประชุมสรุปแผนเปิดตัวสินค้า Q4",
-                          board: "บอร์ด Product",
-                          coins: 25
-                        },
-                        {
-                          id: "hcal-3",
-                          day: "ศุกร์ 17 · 16:00",
-                          title: "อัปเดตตารางคอนเทนต์รายเดือน",
-                          board: "บอร์ด Content",
-                          coins: 20
-                        }
-                      ].map((item) => {
-                        const done = heroCalChecked.includes(item.id);
-                        return (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => handleToggleHeroCalItem(item.id, item.coins, item.title)}
-                            className="lp-spring-card w-full text-left p-3 rounded-xl flex items-center justify-between gap-3"
-                            style={{
-                              background: done ? "#f0fdf4" : "#fffaf5",
-                              color: "#432369",
-                              border: "1.5px solid #54356b"
-                            }}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              {done ? (
-                                <Check size={16} className="text-emerald-600 shrink-0" />
-                              ) : (
-                                <Circle size={16} className="text-purple-500 shrink-0" />
-                              )}
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2 text-[10px] font-extrabold text-purple-700">
-                                  <span>⏰ {item.day}</span>
-                                  <span>·</span>
-                                  <span>{item.board}</span>
-                                </div>
-                                <div
-                                  className="text-xs sm:text-sm font-extrabold truncate"
-                                  style={{
-                                    textDecoration: done ? "line-through" : "none",
-                                    opacity: done ? 0.7 : 1
-                                  }}
-                                >
-                                  {item.title}
-                                </div>
-                              </div>
-                            </div>
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 shrink-0">
-                              {done ? "✓ รับแล้ว" : `+${item.coins}c`}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── TAB 3: SIDE NOTES & PRIVATE DIARY VIEW ── */}
-                {heroPreviewTab === "notes" && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {/* Pinned Project Note */}
-                    <div
-                      className="p-3 rounded-xl flex flex-col justify-between"
-                      style={{
-                        background: "#fff6d6",
-                        color: "#4a3712",
-                        border: "1.5px solid #54356b"
-                      }}
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between text-[10px] font-extrabold text-amber-800">
-                          <span>📌 โน้ตปักหมุดข้างบอร์ด</span>
-                          <span className="px-2 py-0.5 rounded bg-white/70 text-[#432369]">เปิดเทียบคู่บอร์ดได้</span>
-                        </div>
-                        <div className="text-xs font-extrabold">สรุปบรีฟแคมเปญ &amp; ลิงก์สำคัญ</div>
-                        <p className="text-[11px] leading-relaxed opacity-90">
-                          • โทนสีหลัก: Cozy Indigo &amp; Warm Paper<br />
-                          • กลุ่มเป้าหมาย: คนทำงานและฟรีแลนซ์<br />
-                          • แนบลิงก์ Figma และเอกสารครบในที่เดียว
-                        </p>
-                      </div>
-                      <div className="mt-2 pt-1.5 border-t border-black/10 text-[10px] font-bold text-amber-900">
-                        ✨ ไม่ต้องสลับไปหาลิงก์ในแอปแชตอีกต่อไป
-                      </div>
-                    </div>
-
-                    {/* Private Daily Diary & Habit Checklist */}
-                    <div
-                      className="p-3 rounded-xl flex flex-col justify-between gap-2"
-                      style={{
-                        background: "#fffaf5",
-                        color: "#432369",
-                        border: "1.5px solid #54356b"
-                      }}
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between text-[10px] font-extrabold text-pink-700">
-                          <span>🔒 ไดอารี่ &amp; กิจวัตรส่วนตัว</span>
-                          <span>คลิกเช็กได้!</span>
-                        </div>
-                        {[
-                          { id: "hnote-1", title: "สรุปเรื่องดีๆ วันนี้ 3 ข้อ", coins: 10 },
-                          { id: "hnote-2", title: "อ่านหนังสือพัฒนาตัวเอง 20 นาที", coins: 15 },
-                          { id: "hnote-3", title: "จัดโต๊ะทำงานก่อนปิดคอม", coins: 10 }
-                        ].map((habit) => {
-                          const done = heroNoteChecked.includes(habit.id);
-                          return (
-                            <button
-                              key={habit.id}
-                              type="button"
-                              onClick={() => handleToggleHeroNoteItem(habit.id, habit.coins, habit.title)}
-                              className="w-full text-left p-2 rounded-lg flex items-center justify-between text-[11px] font-bold border border-purple-200 bg-white"
-                            >
-                              <span className="flex items-center gap-1.5 truncate">
-                                {done ? (
-                                  <Check size={13} className="text-emerald-600 shrink-0" />
-                                ) : (
-                                  <Circle size={13} className="text-purple-400 shrink-0" />
-                                )}
-                                <span
-                                  className="truncate"
-                                  style={{ textDecoration: done ? "line-through" : "none", opacity: done ? 0.65 : 1 }}
-                                >
-                                  {habit.title}
-                                </span>
-                              </span>
-                              <span className="text-[10px] font-black text-amber-700 shrink-0">+{habit.coins}c</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* ── TAB 4: AI TASK BREAKDOWN & COIN REWARDS VIEW ── */}
-                {heroPreviewTab === "ai-rewards" && (
-                  <div className="space-y-2.5">
-                    <div
-                      className="p-3 rounded-xl space-y-2"
-                      style={{
-                        background: "#fffaf5",
-                        color: "#432369",
-                        border: "1.5px solid #54356b"
-                      }}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div>
-                          <span className="text-[10px] font-black uppercase tracking-wider text-purple-700">
-                            🤖 AI TASK BREAKDOWN · ผู้ช่วยแตกงานย่อยอัตโนมัติ
-                          </span>
-                          <div className="text-xs sm:text-sm font-extrabold">
-                            โจทย์ใหญ่: &ldquo;เตรียมเปิดตัวเว็บไซต์ใหม่ให้ทันสิ้นเดือน&rdquo;
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleTriggerHeroAiSplit}
-                          className="lp-press-btn px-3 py-1.5 rounded-xl text-[11px] font-extrabold shrink-0"
-                          style={{
-                            background: heroAiSplitDone ? "#dcfce7" : "#ffecb1",
-                            color: heroAiSplitDone ? "#166534" : "#432369",
-                            border: "1.5px solid #54356b"
-                          }}
-                        >
-                          {heroAiSplitDone ? "✓ แตกงานแล้ว (รีเซ็ต)" : "✨ กดให้ AI แตกงานย่อย (+15c)"}
-                        </button>
-                      </div>
-
-                      {heroAiSplitDone ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 pt-1">
-                          {[
-                            "1. ตรวจเช็กข้อความ & SEO หน้าแรก",
-                            "2. ทดสอบระบบสมัครสมาชิก & บอร์ด",
-                            "3. เตรียมโพสต์ประกาศเปิดตัว"
-                          ].map((sub) => (
-                            <div
-                              key={sub}
-                              className="p-2 rounded-lg bg-purple-50 border border-purple-200 text-[11px] font-bold text-[#432369] flex items-center gap-1.5"
-                            >
-                              <Check size={12} className="text-emerald-600 shrink-0" />
-                              <span>{sub}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-[11px] text-purple-800/80 bg-purple-100/60 px-2.5 py-1.5 rounded-lg">
-                          💡 งานใหญ่จนไม่รู้จะเริ่มตรงไหน? กดปุ่มด้านขวาให้ AI ช่วยย่อยเป็นขั้นตอนเล็กๆ ลงบอร์ดได้ทันที
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Mini Rewards & Zen Garden Preview */}
-                    <div
-                      className="p-3 rounded-xl flex items-center justify-between gap-3"
-                      style={{
-                        background: "rgba(255, 236, 177, 0.95)",
-                        color: "#432369",
-                        border: "1.5px solid #54356b"
-                      }}
-                    >
-                      <div className="space-y-0.5">
-                        <div className="text-[10px] font-black uppercase tracking-wider text-amber-900">
-                          🎁 REWARDS STORE &amp; ZEN GARDEN
-                        </div>
-                        <div className="text-xs font-extrabold">
-                          นำเหรียญจากการทำงานไปแลกเวลาพักเบรกกาแฟ หรือปลูกต้นซากุระในสวนหินญี่ปุ่น
-                        </div>
-                      </div>
-                      <a
-                        href="#playground"
-                        className="lp-press-btn px-3 py-1.5 rounded-lg bg-[#54356b] text-[#ffecb1] text-[11px] font-extrabold whitespace-nowrap shrink-0"
-                      >
-                        ไปร้านแลกรางวัล ↓
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {/* ── TAB 5: STUDIO ILLUSTRATION VIEW ── */}
-                {heroPreviewTab === "studio" && (
-                  <div className="py-2 flex flex-col items-center justify-center space-y-3">
-                    <div className="w-full aspect-[16/10] max-h-[300px] rounded-xl overflow-hidden border border-white/20 shadow-xl bg-purple-950/40">
-                      <RetroCozyStudioIllustration className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex items-center justify-between w-full px-1 text-[11px] text-[#f3e8ff] font-bold">
-                      <span className="flex items-center gap-1.5 text-amber-200">
-                        <Sparkles size={13} />
-                        <span>ภาพเวกเตอร์สตูดิโอ Retzlo (100% Vector · คมชัดระดับ Retina ไม่แตก)</span>
-                      </span>
-                      <span className="text-white/60 font-mono text-[10px]">SIDE A · TWILIGHT DESK</span>
-                    </div>
-                  </div>
-                )}
+              {/* Hand-Drawn Vector Art Canvas (Infinite Sharpness, Zero Pixelation) */}
+              <div className="relative w-full aspect-[640/440] bg-[#2B1748] flex items-center justify-center">
+                <RetroCozyStudioIllustration
+                  isPlaying={isPlaying}
+                  className="w-full h-full block"
+                />
               </div>
             </div>
 
@@ -2070,10 +1443,10 @@ export default function LandingPage() {
                     }}
                   >
                     <Headphones size={11} className="shrink-0 text-[#54356b]" />
-                    <span>BUILT-IN FOCUS RADIO · วิทยุ Lofi ในห้องทำงาน</span>
+                    <span className="font-thai tracking-normal">BUILT-IN FOCUS RADIO · วิทยุ Lofi ประจำห้องทำงาน</span>
                   </span>
                   <span
-                    className="flex items-center gap-1.5 mt-0.5 text-xs font-bold"
+                    className="flex items-center gap-1.5 mt-0.5 text-xs font-bold font-thai tracking-normal"
                     style={{ color: "#3b1d61" }}
                   >
                     <Disc3
@@ -2088,7 +1461,7 @@ export default function LandingPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-1">
+                <div className="hidden sm:flex items-center gap-1 font-thai tracking-normal">
                   {["☕ Rainy", "🌙 Midnight", "☀️ Sunday"].map((label, idx) => (
                     <button
                       key={label}

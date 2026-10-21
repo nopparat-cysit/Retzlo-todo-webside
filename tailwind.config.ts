@@ -68,8 +68,35 @@ const config: Config = {
         "9.5": "2.375rem"
       },
       fontFamily: {
-        sans: ["'Plus Jakarta Sans'", "system-ui", "-apple-system", "sans-serif"],
-        mono: ["'JetBrains Mono'", "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"]
+        sans: [
+          "'Anuphan'",
+          "'Plus Jakarta Sans'",
+          "'IBM Plex Sans Thai'",
+          "system-ui",
+          "-apple-system",
+          "sans-serif"
+        ],
+        display: [
+          "'Anuphan'",
+          "'Plus Jakarta Sans'",
+          "'IBM Plex Sans Thai'",
+          "system-ui",
+          "sans-serif"
+        ],
+        thai: [
+          "'Anuphan'",
+          "'IBM Plex Sans Thai'",
+          "sans-serif"
+        ],
+        mono: [
+          "'JetBrains Mono'",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "monospace"
+        ]
       }
     }
   },

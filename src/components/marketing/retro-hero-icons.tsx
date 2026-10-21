@@ -352,8 +352,12 @@ export function RetroCozyStudioMascot({
  */
 export function RetroCozyStudioIllustration({
   className = "w-full h-full",
+  isPlaying = false,
   ...props
-}: React.SVGProps<SVGSVGElement>) {
+}: {
+  className?: string;
+  isPlaying?: boolean;
+} & React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       viewBox="0 0 640 440"
@@ -419,6 +423,26 @@ export function RetroCozyStudioIllustration({
         d="M36 255Q180 230 320 250T604 240V280H36Z"
         fill="#341A4B"
       />
+
+      {/* Cozy Sleeping Cat on Window Sill */}
+      <g id="window-cat">
+        {/* Curled Cat Body */}
+        <ellipse cx="98" cy="265" rx="20" ry="12" fill="#F97316" stroke="#432369" strokeWidth="2" />
+        {/* Cat Head */}
+        <circle cx="82" cy="264" r="10" fill="#FB923C" stroke="#432369" strokeWidth="2" />
+        {/* Ears */}
+        <polygon points="76,257 74,250 81,255" fill="#EA580C" stroke="#432369" strokeWidth="1.4" />
+        <polygon points="83,255 88,250 88,257" fill="#EA580C" stroke="#432369" strokeWidth="1.4" />
+        {/* Sleeping eye */}
+        <path d="M78 266Q80 268 82 266" stroke="#432369" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+        {/* White chest bib */}
+        <ellipse cx="89" cy="270" rx="6" ry="3.5" fill="#FFFBEB" stroke="#432369" strokeWidth="1" />
+        {/* Curled Tail */}
+        <path d="M118 265C124 265 125 258 120 255" stroke="#EA580C" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+        {/* Sleep Wisps */}
+        <text x="70" y="247" fill="#FFD1E8" fontSize="8" fontWeight="bold" fontFamily="monospace">z</text>
+        <text x="65" y="240" fill="#FFECB1" fontSize="10" fontWeight="bold" fontFamily="monospace">Z</text>
+      </g>
 
       {/* Twilight Crescent Moon */}
       <path
@@ -552,13 +576,29 @@ export function RetroCozyStudioIllustration({
         <rect x="92" y="312" width="61" height="15" rx="3" fill="#F0B0D7" stroke="#432369" strokeWidth="1.2" />
 
         {/* Left Reel */}
-        <circle cx="104" cy="319.5" r="5" fill="#D8B9FF" stroke="#432369" strokeWidth="1.2" />
-        <circle cx="104" cy="319.5" r="2" fill="#432369" />
+        <g className={isPlaying ? "animate-spin origin-[104px_319.5px]" : undefined}>
+          <circle cx="104" cy="319.5" r="5" fill="#D8B9FF" stroke="#432369" strokeWidth="1.2" />
+          <circle cx="104" cy="319.5" r="1.8" fill="#432369" />
+          <path d="M101.5 319.5H106.5M104 317V322" stroke="#432369" strokeWidth="0.75" />
+        </g>
         {/* Right Reel */}
-        <circle cx="141" cy="319.5" r="5" fill="#D8B9FF" stroke="#432369" strokeWidth="1.2" />
-        <circle cx="141" cy="319.5" r="2" fill="#432369" />
+        <g className={isPlaying ? "animate-spin origin-[141px_319.5px]" : undefined}>
+          <circle cx="141" cy="319.5" r="5" fill="#D8B9FF" stroke="#432369" strokeWidth="1.2" />
+          <circle cx="141" cy="319.5" r="1.8" fill="#432369" />
+          <path d="M138.5 319.5H143.5M141 317V322" stroke="#432369" strokeWidth="0.75" />
+        </g>
         {/* Tape Ribbon Window */}
         <rect x="114" y="317" width="17" height="5" rx="1" fill="#432369" />
+
+        {/* Floating notes when audio is playing */}
+        {isPlaying && (
+          <g id="playing-notes" className="animate-pulse">
+            <path d="M102 290 Q95 278 100 266" stroke="#FFB4D5" strokeWidth="1.5" strokeDasharray="2 2" fill="none" />
+            <circle cx="100" cy="266" r="2.5" fill="#F43F5E" />
+            <path d="M132 292 Q140 278 135 264" stroke="#D8B9FF" strokeWidth="1.5" strokeDasharray="2 2" fill="none" />
+            <path d="M135 264 L140 267 L137 271" stroke="#7858D4" strokeWidth="1.2" fill="none" />
+          </g>
+        )}
 
         {/* Label Text */}
         <text x="95" y="337" fill="#6B3CA8" fontSize="6" fontWeight="bold" fontFamily="monospace">SIDE A · RETZLO</text>
@@ -650,6 +690,109 @@ export function RetroCozyStudioIllustration({
         <rect x="20" y="385" width="85" height="24" rx="6" fill="#3B1D61" stroke="#D8B9FF" strokeWidth="1.5" />
         <text x="28" y="401" fill="#FFECB1" fontSize="9" fontWeight="900" fontFamily="monospace">RETZLO LOFI</text>
       </g>
+    </svg>
+  );
+}
+
+/**
+ * 11. RetroWashiTapeBadge
+ * Authentic hand-drawn Japanese Washi Tape Badge in pure SVG vector.
+ * Features realistic serrated torn zigzag tape edges, translucent buttercream
+ * fiber gradient, drop shadow, gold sparkle, and crisp Thai/English typography.
+ */
+export function RetroWashiTapeBadge({
+  tag = "ALL-IN-ONE WORKSPACE",
+  subtext = "จัดการงานและชีวิตในที่เดียว",
+  className = ""
+}: {
+  tag?: string;
+  subtext?: string;
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 350 36"
+      className={`h-8 sm:h-9 w-auto max-w-full select-none ${className}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label={`${tag} - ${subtext}`}
+      style={{
+        transform: "rotate(-1deg)",
+        transformOrigin: "center left"
+      }}
+    >
+      <defs>
+        <filter id="washiTapeShadow" x="-5%" y="-15%" width="115%" height="145%">
+          <feDropShadow dx="2" dy="2.5" stdDeviation="0" floodColor="#54356B" floodOpacity="0.25" />
+        </filter>
+        <linearGradient id="washiTapeBody" x1="0" y1="0" x2="350" y2="36" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FFF9EB" />
+          <stop offset="0.5" stopColor="#FFECB1" />
+          <stop offset="1" stopColor="#FFE49A" />
+        </linearGradient>
+      </defs>
+
+      {/* Torn Jagged Washi Tape Outline & Body */}
+      <path
+        d="M 12 3 
+           L 338 3 
+           L 334 8 L 339 13 L 334 18 L 339 23 L 334 28 L 339 33 
+           L 12 33 
+           L 15 28 L 10 23 L 15 18 L 10 13 L 15 8 Z"
+        fill="url(#washiTapeBody)"
+        stroke="#54356B"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+        filter="url(#washiTapeShadow)"
+      />
+
+      {/* Subtle translucent fiber texture dashes */}
+      <path
+        d="M 28 8 L 38 8 M 90 8 L 105 8 M 220 8 L 240 8 M 300 8 L 315 8
+           M 45 28 L 65 28 M 160 28 L 180 28 M 260 28 L 285 28"
+        stroke="#D97706"
+        strokeWidth="0.8"
+        strokeOpacity="0.25"
+        strokeLinecap="round"
+      />
+
+      {/* Gold Sparkle Star Icon */}
+      <g transform="translate(22, 11)">
+        <path
+          d="M 7 0 L 8.6 4.8 L 13.5 5.2 L 9.8 8.4 L 11 13.2 L 7 10.6 L 3 13.2 L 4.2 8.4 L 0.5 5.2 L 5.4 4.8 Z"
+          fill="#7858D4"
+        />
+      </g>
+
+      {/* Tag English text */}
+      <text
+        x="42"
+        y="22.5"
+        fill="#54356B"
+        fontSize="11"
+        fontWeight="800"
+        fontFamily="'Plus Jakarta Sans', monospace, sans-serif"
+        letterSpacing="0.8"
+      >
+        {tag}
+      </text>
+
+      {/* Separator dot */}
+      <circle cx="186" cy="19" r="1.8" fill="#54356B" fillOpacity="0.4" />
+
+      {/* Thai subtext */}
+      <text
+        x="194"
+        y="22.5"
+        fill="#54356B"
+        fontSize="11.5"
+        fontWeight="600"
+        fontFamily="'Anuphan', 'IBM Plex Sans Thai', sans-serif"
+        letterSpacing="0"
+      >
+        {subtext}
+      </text>
     </svg>
   );
 }
