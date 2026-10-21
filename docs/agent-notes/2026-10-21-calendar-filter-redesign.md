@@ -15,6 +15,7 @@
     - Added tactile toggle pills (`FilterPill`) for Sources, Statuses with colored dots, Priorities with colored dots, Assignees with member avatar chips, and Scopes.
     - Updated card mapping and initialization to properly normalize and supply `assigneeIds` and `priority`.
     - Removed redundant active badges bar row below toolbar per user request (active filters are viewed and managed directly inside the Filters popover dropdown).
+    - Implemented draft staging state (`draftFilters`) inside Popover: filter choices in the popover are staged and only applied to the calendar view once the user clicks "Done". Dismissing without clicking Done reverts the draft.
 - **Created**:
   - `docs/agent-notes/2026-10-21-calendar-filter-redesign.md`: This work note.
 

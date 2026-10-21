@@ -187,6 +187,7 @@ export function ProjectCalendar({
     onSync: refreshCalendar
   });
   const [filters, setFilters] = useState<CalendarFilterState>(defaultCalendarFilters);
+  const [draftFilters, setDraftFilters] = useState<CalendarFilterState>(defaultCalendarFilters);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isUpcomingOpen, setIsUpcomingOpen] = useState(false);
   const [viewMode, setViewMode] = useState<CalendarViewMode>("month");
@@ -394,6 +395,10 @@ export function ProjectCalendar({
     [cards, notes, diaryChecklistEntries]
   );
   const filteredItems = useMemo(() => filterCalendarItems(allItems, filters), [allItems, filters]);
+  const draftFilteredItems = useMemo(
+    () => (isFiltersOpen ? filterCalendarItems(allItems, draftFilters) : filteredItems),
+    [allItems, draftFilters, isFiltersOpen, filteredItems]
+  );
   const groups = useMemo(() => groupCalendarItems(filteredItems), [filteredItems]);
   const selectedDateLabel = selectedDayKey
     ? formatMediumDate(new Date(selectedDayKey + "T00:00:00.000Z"))
@@ -545,6 +550,34 @@ export function ProjectCalendar({
     }
     return count;
   }, [filters]);
+
+  const draftFilterCount = useMemo(() => {
+    let count = 0;
+    if (draftFilters.searchQuery && draftFilters.searchQuery.trim().length > 0) count++;
+    if (!draftFilters.showCards || !draftFilters.showNotes || !draftFilters.showDiaryChecklist) count++;
+    const defaultStatuses = defaultCalendarFilters.statuses;
+    if (
+      draftFilters.statuses.TODO !== defaultStatuses.TODO ||
+      draftFilters.statuses.DOING !== defaultStatuses.DOING ||
+      draftFilters.statuses.WAITING !== defaultStatuses.WAITING ||
+      draftFilters.statuses.DONE !== defaultStatuses.DONE
+    ) {
+      count++;
+    }
+    if (draftFilters.noteScope !== "all") count++;
+    if (draftFilters.timeScope !== "all") count++;
+    if (draftFilters.assigneeIds && draftFilters.assigneeIds.length > 0) count++;
+    if (
+      draftFilters.priorities &&
+      (draftFilters.priorities.LOW !== true ||
+        draftFilters.priorities.MEDIUM !== true ||
+        draftFilters.priorities.HIGH !== true ||
+        draftFilters.priorities.URGENT !== true)
+    ) {
+      count++;
+    }
+    return count;
+  }, [draftFilters]);
 
   async function handleSaveIntent(payload: any) {
     setPendingUpdatePayload(payload);
@@ -812,7 +845,15 @@ export function ProjectCalendar({
               />
 
               {/* Filter Radix Popover */}
-              <Popover open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+              <Popover
+                open={isFiltersOpen}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setDraftFilters(filters);
+                  }
+                  setIsFiltersOpen(open);
+                }}
+              >
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -846,10 +887,10 @@ export function ProjectCalendar({
                         Calendar Filters
                       </span>
                     </div>
-                    {activeFilterCount > 0 && (
+                    {draftFilterCount > 0 && (
                       <button
                         type="button"
-                        onClick={() => setFilters(defaultCalendarFilters)}
+                        onClick={() => setDraftFilters((prev) => ({ ...defaultCalendarFilters, searchQuery: prev.searchQuery }))}
                         className="text-[11px] font-semibold text-stone-500 hover:text-indigo-600 dark:text-stone-400 dark:hover:text-dusk-lavender transition flex items-center gap-1 cursor-pointer"
                       >
                         <RotateCcw className="h-3 w-3" />
@@ -869,20 +910,20 @@ export function ProjectCalendar({
                         <FilterPill
                           label="Cards"
                           icon={<CheckSquare className="h-3.5 w-3.5" />}
-                          active={filters.showCards}
-                          onClick={() => setFilters((c) => ({ ...c, showCards: !c.showCards }))}
+                          active={draftFilters.showCards}
+                          onClick={() => setDraftFilters((c) => ({ ...c, showCards: !c.showCards }))}
                         />
                         <FilterPill
                           label="Notes"
                           icon={<FileText className="h-3.5 w-3.5" />}
-                          active={filters.showNotes}
-                          onClick={() => setFilters((c) => ({ ...c, showNotes: !c.showNotes }))}
+                          active={draftFilters.showNotes}
+                          onClick={() => setDraftFilters((c) => ({ ...c, showNotes: !c.showNotes }))}
                         />
                         <FilterPill
                           label="Diaries"
                           icon={<BookOpen className="h-3.5 w-3.5" />}
-                          active={filters.showDiaryChecklist}
-                          onClick={() => setFilters((c) => ({ ...c, showDiaryChecklist: !c.showDiaryChecklist }))}
+                          active={draftFilters.showDiaryChecklist}
+                          onClick={() => setDraftFilters((c) => ({ ...c, showDiaryChecklist: !c.showDiaryChecklist }))}
                         />
                       </div>
                     </div>
@@ -895,13 +936,13 @@ export function ProjectCalendar({
                       <div className="grid grid-cols-2 gap-1.5">
                         {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
                           const meta = getStatusMeta(status);
-                          const active = filters.statuses[status];
+                          const active = draftFilters.statuses[status];
                           return (
                             <button
                               key={status}
                               type="button"
                               onClick={() =>
-                                setFilters((c) => ({
+                                setDraftFilters((c) => ({
                                   ...c,
                                   statuses: { ...c.statuses, [status]: !active }
                                 }))
@@ -936,13 +977,13 @@ export function ProjectCalendar({
                           { key: "MEDIUM", label: "Medium", dotClass: "bg-indigo-500" },
                           { key: "LOW", label: "Low", dotClass: "bg-sky-500" }
                         ].map(({ key, label, dotClass }) => {
-                          const active = filters.priorities ? filters.priorities[key] !== false : true;
+                          const active = draftFilters.priorities ? draftFilters.priorities[key] !== false : true;
                           return (
                             <button
                               key={key}
                               type="button"
                               onClick={() =>
-                                setFilters((c) => ({
+                                setDraftFilters((c) => ({
                                   ...c,
                                   priorities: {
                                     ...(c.priorities || defaultCalendarFilters.priorities),
@@ -975,10 +1016,10 @@ export function ProjectCalendar({
                           <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                             Assignee
                           </label>
-                          {filters.assigneeIds && filters.assigneeIds.length > 0 && (
+                          {draftFilters.assigneeIds && draftFilters.assigneeIds.length > 0 && (
                             <button
                               type="button"
-                              onClick={() => setFilters((c) => ({ ...c, assigneeIds: [] }))}
+                              onClick={() => setDraftFilters((c) => ({ ...c, assigneeIds: [] }))}
                               className="text-[10px] text-stone-600 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 cursor-pointer"
                             >
                               Clear
@@ -987,13 +1028,13 @@ export function ProjectCalendar({
                         </div>
                         <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1 scrollbar-soft">
                           {members.map((member) => {
-                            const selected = filters.assigneeIds?.includes(member.id);
+                            const selected = draftFilters.assigneeIds?.includes(member.id);
                             return (
                               <button
                                 key={member.id}
                                 type="button"
                                 onClick={() => {
-                                  setFilters((c) => {
+                                  setDraftFilters((c) => {
                                     const current = c.assigneeIds || [];
                                     const next = selected ? current.filter((id) => id !== member.id) : [...current, member.id];
                                     return { ...c, assigneeIds: next };
@@ -1026,13 +1067,13 @@ export function ProjectCalendar({
                         </label>
                         <FilterSelect
                           triggerClassName="h-8 text-xs w-full"
-                          value={filters.noteScope}
+                          value={draftFilters.noteScope}
                           options={[
                             { value: "all", label: "All notes" },
                             { value: "starred", label: "Starred only" },
                             { value: "plain", label: "Not starred" }
                           ]}
-                          onValueChange={(noteScope) => setFilters((current) => ({ ...current, noteScope }))}
+                          onValueChange={(noteScope) => setDraftFilters((current) => ({ ...current, noteScope }))}
                         />
                       </div>
                       <div>
@@ -1041,13 +1082,13 @@ export function ProjectCalendar({
                         </label>
                         <FilterSelect
                           triggerClassName="h-8 text-xs w-full"
-                          value={filters.timeScope}
+                          value={draftFilters.timeScope}
                           options={[
                             { value: "all", label: "All times" },
                             { value: "allDay", label: "All-day only" },
                             { value: "timed", label: "Timed only" }
                           ]}
-                          onValueChange={(timeScope) => setFilters((current) => ({ ...current, timeScope }))}
+                          onValueChange={(timeScope) => setDraftFilters((current) => ({ ...current, timeScope }))}
                         />
                       </div>
                     </div>
@@ -1056,12 +1097,15 @@ export function ProjectCalendar({
                   {/* Popover Footer */}
                   <div className="flex items-center justify-between border-t border-stone-200/70 dark:border-white/10 px-4 py-2.5 bg-stone-100/40 dark:bg-white/[0.02]">
                     <span className="text-[11px] text-stone-500 dark:text-stone-400">
-                      {filteredItems.length} items visible
+                      {draftFilteredItems.length} items visible
                     </span>
                     <Button
                       type="button"
                       size="sm"
-                      onClick={() => setIsFiltersOpen(false)}
+                      onClick={() => {
+                        setFilters(draftFilters);
+                        setIsFiltersOpen(false);
+                      }}
                       className="h-7 px-3 text-xs"
                     >
                       Done
