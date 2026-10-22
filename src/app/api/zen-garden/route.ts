@@ -23,6 +23,20 @@ const postActionSchema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("complete-breath"),
     minutes: z.number().int().min(1).max(60).default(1)
+  }),
+  z.object({
+    action: z.literal("award-dewdrop"),
+    count: z.number().int().min(1).max(20).default(1)
+  }),
+  z.object({
+    action: z.literal("water-plot"),
+    slotIndex: z.number().int().min(0).max(8)
+  }),
+  z.object({
+    action: z.literal("plant-plot"),
+    slotIndex: z.number().int().min(0).max(8),
+    itemType: z.enum(["flora", "decor", "empty"]),
+    itemId: z.string().nullable()
   })
 ]);
 
@@ -188,6 +202,122 @@ export async function POST(request: Request) {
       const nextState = {
         ...currentState,
         totalZenMinutes: currentState.totalZenMinutes + addedMinutes
+      };
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          zenGarden: {
+            ...existingRawZenGarden,
+            ...nextState
+          }
+        }
+      });
+
+      return NextResponse.json({
+        success: true,
+        zenGarden: nextState
+      });
+    }
+
+    if (body.action === "award-dewdrop") {
+      const addedCount = body.count;
+      const nextState = {
+        ...currentState,
+        dewdrops: currentState.dewdrops + addedCount
+      };
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          zenGarden: {
+            ...existingRawZenGarden,
+            ...nextState
+          }
+        }
+      });
+
+      return NextResponse.json({
+        success: true,
+        awardedDewdrops: addedCount,
+        zenGarden: nextState
+      });
+    }
+
+    if (body.action === "water-plot") {
+      if (currentState.dewdrops < 1) {
+        return jsonError("No dewdrops available. Complete tasks on your Kanban board to gather morning dew!", 400);
+      }
+
+      const slot = currentState.plots[body.slotIndex];
+      if (!slot || slot.itemType === "empty") {
+        return jsonError("This plot is currently empty. Cultivate a seed first!", 400);
+      }
+
+      const newWaterCount = slot.waterCount + 1;
+      let newStage = slot.stage;
+      if (newWaterCount >= 25 && slot.stage < 5) {
+        newStage = 5; // Ancient Heritage
+      } else if (newWaterCount >= 12 && slot.stage < 4) {
+        newStage = 4; // Blooming
+      } else if (newWaterCount >= 6 && slot.stage < 3) {
+        newStage = 3; // Sapling
+      } else if (newWaterCount >= 2 && slot.stage < 2) {
+        newStage = 2; // Sprout
+      }
+
+      const updatedPlots = currentState.plots.map((p, idx) => {
+        if (idx === body.slotIndex) {
+          return {
+            ...p,
+            waterCount: newWaterCount,
+            stage: newStage
+          };
+        }
+        return p;
+      });
+
+      const nextState = {
+        ...currentState,
+        dewdrops: currentState.dewdrops - 1,
+        totalNourished: currentState.totalNourished + 1,
+        plots: updatedPlots
+      };
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          zenGarden: {
+            ...existingRawZenGarden,
+            ...nextState
+          }
+        }
+      });
+
+      return NextResponse.json({
+        success: true,
+        leveledUp: newStage > slot.stage,
+        zenGarden: nextState
+      });
+    }
+
+    if (body.action === "plant-plot") {
+      const updatedPlots = currentState.plots.map((p, idx) => {
+        if (idx === body.slotIndex) {
+          return {
+            ...p,
+            itemType: body.itemType,
+            itemId: body.itemId,
+            stage: 2, // starts at sprout
+            waterCount: 1
+          };
+        }
+        return p;
+      });
+
+      const nextState = {
+        ...currentState,
+        plots: updatedPlots
       };
 
       await prisma.user.update({

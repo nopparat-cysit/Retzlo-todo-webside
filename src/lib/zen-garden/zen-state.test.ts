@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   BOTANICAL_PLANTS,
+  calculateRealWorldSeason,
+  calculateSkyTimeOfDay,
   calculateZenGrowth,
   canWaterToday,
   computeNewStreak,
+  createDefaultPlots,
   getNextLockedPlant,
   getTodayZenWisdom,
   getUnlockedPlants,
@@ -103,5 +106,33 @@ describe("Zen Garden State & Growth Engine", () => {
     const wisdom = getTodayZenWisdom(new Date("2026-10-16T12:00:00Z"));
     expect(wisdom.en).toBeTruthy();
     expect(wisdom.th).toBeTruthy();
+  });
+
+  it("calculates sky time-of-day accurately based on clock hours", () => {
+    const dawn = new Date("2026-10-16T06:30:00");
+    const day = new Date("2026-10-16T12:00:00");
+    const dusk = new Date("2026-10-16T18:30:00");
+    const night = new Date("2026-10-16T22:00:00");
+
+    expect(calculateSkyTimeOfDay(dawn)).toBe("dawn");
+    expect(calculateSkyTimeOfDay(day)).toBe("day");
+    expect(calculateSkyTimeOfDay(dusk)).toBe("dusk");
+    expect(calculateSkyTimeOfDay(night)).toBe("night");
+  });
+
+  it("computes 4 real-world seasons based on month cycles", () => {
+    expect(calculateRealWorldSeason(new Date("2026-04-15"))).toBe("spring");
+    expect(calculateRealWorldSeason(new Date("2026-07-20"))).toBe("summer");
+    expect(calculateRealWorldSeason(new Date("2026-10-22"))).toBe("autumn");
+    expect(calculateRealWorldSeason(new Date("2026-01-10"))).toBe("winter");
+  });
+
+  it("generates 9-slot 3x3 garden plots with center guardian and corner decors", () => {
+    const plots = createDefaultPlots("bonsai");
+    expect(plots).toHaveLength(9);
+    expect(plots[4].itemId).toBe("bonsai");
+    expect(plots[4].itemType).toBe("flora");
+    expect(plots[0].itemId).toBe("lantern");
+    expect(plots[8].itemId).toBe("cat");
   });
 });

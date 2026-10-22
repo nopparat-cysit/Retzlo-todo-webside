@@ -76,6 +76,32 @@ export async function processCardDonePayouts(
         privateCoins: privateCoins as Prisma.InputJsonValue
       }
     });
+
+    // C. Award +1 Morning Dewdrop to User's Zen Garden for mindfulness growth
+    try {
+      const u = await tx.user.findUnique({
+        where: { id: userId },
+        select: { zenGarden: true }
+      });
+      if (u) {
+        const rawZen =
+          typeof u.zenGarden === "object" && u.zenGarden !== null
+            ? (u.zenGarden as Record<string, unknown>)
+            : {};
+        const currentDewdrops = typeof rawZen.dewdrops === "number" ? rawZen.dewdrops : 0;
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            zenGarden: {
+              ...rawZen,
+              dewdrops: currentDewdrops + 1
+            }
+          }
+        });
+      }
+    } catch {
+      // Graceful fallback if user schema fetch encounters any issue
+    }
   }
 
   return { globalCoinsAwarded, projectCoinsAwarded };

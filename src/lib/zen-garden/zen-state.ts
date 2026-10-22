@@ -178,6 +178,14 @@ export const BOTANICAL_PLANTS: BotanicalPlant[] = [
   }
 ];
 
+export interface GardenPlot {
+  slotIndex: number; // 0 - 8 (3x3 Grid)
+  itemType: "empty" | "flora" | "decor";
+  itemId: string | null;
+  stage: 1 | 2 | 3 | 4 | 5; // 1: Seed, 2: Sprout, 3: Sapling, 4: Blooming, 5: Ancient
+  waterCount: number;
+}
+
 export interface ZenGardenState {
   nurtureStreak: number;
   lastWateredDate: string | null;
@@ -185,6 +193,57 @@ export interface ZenGardenState {
   totalNourished: number;
   totalZenMinutes: number;
   soundMuted: boolean;
+
+  // Multi-Year Expansion State
+  dewdrops: number;      // Water drops earned from completing tasks
+  sunlight: number;      // Vitality earned from focus sessions
+  richSoil: number;      // Soil energy earned from habits/diary
+  plots: GardenPlot[];   // 3x3 Grid Terrarium (9 slots)
+  herbarium: string[];   // Collected plant specimen IDs
+  unlockedDecorIds: string[];
+  visitorsEncountered: string[];
+}
+
+export function createDefaultPlots(guardianId = "sprout"): GardenPlot[] {
+  return Array.from({ length: 9 }, (_, idx) => {
+    if (idx === 4) {
+      // Center plot has the active guardian
+      return {
+        slotIndex: idx,
+        itemType: "flora",
+        itemId: guardianId,
+        stage: 4,
+        waterCount: 12
+      };
+    }
+    if (idx === 0) {
+      // Corner stone lantern
+      return {
+        slotIndex: idx,
+        itemType: "decor",
+        itemId: "lantern",
+        stage: 4,
+        waterCount: 0
+      };
+    }
+    if (idx === 8) {
+      // Resting cat companion
+      return {
+        slotIndex: idx,
+        itemType: "decor",
+        itemId: "cat",
+        stage: 4,
+        waterCount: 0
+      };
+    }
+    return {
+      slotIndex: idx,
+      itemType: "empty",
+      itemId: null,
+      stage: 1,
+      waterCount: 0
+    };
+  });
 }
 
 export function parseZenGardenState(raw: unknown): ZenGardenState {
@@ -194,7 +253,14 @@ export function parseZenGardenState(raw: unknown): ZenGardenState {
     activeGuardianId: "sprout",
     totalNourished: 0,
     totalZenMinutes: 0,
-    soundMuted: false
+    soundMuted: false,
+    dewdrops: 5,
+    sunlight: 10,
+    richSoil: 3,
+    plots: createDefaultPlots("sprout"),
+    herbarium: ["sprout"],
+    unlockedDecorIds: ["lantern", "cat"],
+    visitorsEncountered: ["cat"]
   };
 
   if (!raw || typeof raw !== "object") {
@@ -230,14 +296,79 @@ export function parseZenGardenState(raw: unknown): ZenGardenState {
 
   const soundMuted = typeof r.soundMuted === "boolean" ? r.soundMuted : fallback.soundMuted;
 
+  const dewdrops =
+    typeof r.dewdrops === "number" && r.dewdrops >= 0
+      ? Math.floor(r.dewdrops)
+      : fallback.dewdrops;
+
+  const sunlight =
+    typeof r.sunlight === "number" && r.sunlight >= 0
+      ? Math.floor(r.sunlight)
+      : fallback.sunlight;
+
+  const richSoil =
+    typeof r.richSoil === "number" && r.richSoil >= 0
+      ? Math.floor(r.richSoil)
+      : fallback.richSoil;
+
+  let plots = fallback.plots;
+  if (Array.isArray(r.plots) && r.plots.length === 9) {
+    plots = r.plots.map((p, idx) => {
+      if (!p || typeof p !== "object") return fallback.plots[idx];
+      const plotObj = p as Record<string, unknown>;
+      return {
+        slotIndex: idx,
+        itemType: plotObj.itemType === "flora" || plotObj.itemType === "decor" ? plotObj.itemType : "empty",
+        itemId: typeof plotObj.itemId === "string" ? plotObj.itemId : null,
+        stage: (typeof plotObj.stage === "number" && plotObj.stage >= 1 && plotObj.stage <= 5 ? plotObj.stage : 4) as 1 | 2 | 3 | 4 | 5,
+        waterCount: typeof plotObj.waterCount === "number" ? Math.max(0, plotObj.waterCount) : 0
+      };
+    });
+  }
+
+  const herbarium = Array.isArray(r.herbarium)
+    ? r.herbarium.filter((id): id is string => typeof id === "string")
+    : fallback.herbarium;
+
+  const unlockedDecorIds = Array.isArray(r.unlockedDecorIds)
+    ? r.unlockedDecorIds.filter((id): id is string => typeof id === "string")
+    : fallback.unlockedDecorIds;
+
+  const visitorsEncountered = Array.isArray(r.visitorsEncountered)
+    ? r.visitorsEncountered.filter((id): id is string => typeof id === "string")
+    : fallback.visitorsEncountered;
+
   return {
     nurtureStreak,
     lastWateredDate,
     activeGuardianId,
     totalNourished,
     totalZenMinutes,
-    soundMuted
+    soundMuted,
+    dewdrops,
+    sunlight,
+    richSoil,
+    plots,
+    herbarium,
+    unlockedDecorIds,
+    visitorsEncountered
   };
+}
+
+export function calculateSkyTimeOfDay(date: Date = new Date()): "dawn" | "day" | "dusk" | "night" {
+  const hours = date.getHours();
+  if (hours >= 5 && hours < 9) return "dawn";
+  if (hours >= 9 && hours < 17) return "day";
+  if (hours >= 17 && hours < 20) return "dusk";
+  return "night";
+}
+
+export function calculateRealWorldSeason(date: Date = new Date()): "spring" | "summer" | "autumn" | "winter" {
+  const month = date.getMonth(); // 0-indexed: 0 = Jan, 11 = Dec
+  if (month >= 2 && month <= 4) return "spring"; // Mar, Apr, May
+  if (month >= 5 && month <= 7) return "summer"; // Jun, Jul, Aug
+  if (month >= 8 && month <= 10) return "autumn"; // Sep, Oct, Nov
+  return "winter"; // Dec, Jan, Feb
 }
 
 export function getUnlockedPlants(coins: number): BotanicalPlant[] {

@@ -73,6 +73,7 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 - **Coffee Cheers (`☕`):** Cheer teammates by sending coffees when cards are moved to completed columns.
 - **Coins:** Earn coins for completing tasks, routines, and engaging with the workspace.
 - **Rewards Store:** Project-level rewards catalog where earned coins can be redeemed.
+- **Morning Dewdrops (`💧`):** Earn +1 Morning Dewdrop whenever any Kanban card is completed or moved to `DONE`. Dewdrops serve as the vital essence for nurturing flora in the Zen Garden Terrarium.
 
 ### 2.5 Project Calendar & Day View Modal
 - **Project Calendar View (`/project/[id]/calendar`):**
@@ -176,6 +177,28 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 ### 2.13 Help Dropdown, System Info & Contact Form (`/contact`)
 - Topbar `(?)` button with direct links to `/help`, System Info modal, `/contact` form with 7 quick templates, ticket tracking code, and instant AI Assistant launch.
 
+### 2.14 Solitary Zen Garden & 3x3 Living Terrarium Sanctuary
+- **Location:** Accessible via the top bar flora pedestal (`ZenGarden`) in any project or workspace.
+- **100% Bespoke Hand-Drawn Vector Art:** Replaced raw emoji icons with rich, layered SVG vector artwork that naturally blends into both Warm Paper and Retro Lofi Indigo palettes:
+  - *Zen Bonsai Pine* (5 progressive stages: Seed $\to$ Sprout $\to$ Sapling $\to$ Blooming $\to$ Ancient Heritage with gold halo).
+  - *Zen Sakura Blossom* (delicate branch, stamens, and falling petal ambient drift).
+  - *Zen Bamboo Grove* (multi-segmented bamboo stalks with wind-swayed leaves).
+  - *Zen Lotus Pond* (stone Tsukubai water basin, blooming lotus, floating lily pad, and swimming koi fish).
+  - *Zen Golden Ginkgo* (radiant fan-shaped autumn leaves with floating particle aura).
+  - *Zen Stone Lantern* (Japanese Toro lantern with animated flickering inner flame).
+  - *Zen Sleepy Cat* (ginger tabby cat curled up with gentle rhythmic breathing animation).
+- **3x3 Living Terrarium Grid:**
+  - 9 interactive plots enabling multi-flora botanical arrangement and layout customization.
+  - Interactive plot cultivation: inspect moisture level, growth stage (1–5), and advance growth using harvested Dewdrops.
+- **Real-World Seasons & Sky Diurnal Cycles:**
+  - Real-world astronomical seasons (Spring, Summer, Autumn, Winter) dynamically tinting the terrarium atmosphere.
+  - Real-time 24-hour sky gradients (Dawn, Day, Dusk, Night) reflecting user's local solar cycle.
+- **Mindful Burn the Worry Ritual (เตาเผาปล่อยวางความกังวล):**
+  - Interactive stress-release burner allowing users to write down workplace or life anxieties and symbolically burn them away.
+  - Rewarded with +1 Sacred Dewdrop as a token of mental clarity and emotional release.
+- **Deep Productivity Loop:**
+  - Every Kanban card moved to `DONE` automatically yields +1 Morning Dewdrop via `processCardDonePayouts`, directly linking everyday productivity to botanical sanctuary growth for long-term year-round engagement.
+
 ---
 
 ## 3. Bilingual Reference & Thai Documentation (คู่มือระบบภาษาไทย)
@@ -239,6 +262,29 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 - **Coffee Cheers (`☕`):** ปุ่มส่งกาแฟให้กำลังใจเมื่อการ์ดย้ายไปยังคอลัมน์ที่เสร็จสิ้น
 - **Coins:** ได้รับเหรียญรางวัลจากการทำภารกิจและการมีส่วนร่วม
 - **Rewards Store:** ร้านค้าแลกของรางวัลประจำโปรเจกต์
+- **หยดน้ำค้างยามเช้า (Morning Dewdrops `💧`):** ได้รับ +1 หยดน้ำค้างทุกครั้งที่ทำงานในการ์ด Kanban สำเร็จและย้ายไปคอลัมน์ `DONE` สำหรับนำไปใช้รดน้ำและบำรุงพืชพรรณในสวนจำลอง Zen Garden
+
+#### สวนหินแห่งความสงบและการฟื้นฟูจิตใจ (Solitary Zen Garden & 3x3 Living Terrarium Sanctuary)
+- **ตำแหน่งเข้าใช้งาน:** ไอคอนกระถางพืชพรรณบน Topbar ในหน้าโปรเจกต์
+- **ภาพเวกเตอร์แฮนด์ดรอว์ SVG คุณภาพสูง 100%:** สลัดภาพอีโมจิเดิม สู่ภาพวาดเวกเตอร์สไตล์ญี่ปุ่นที่เข้ากับทั้งธีม Warm Paper และ Retro Lofi Indigo
+  - *บอนไซสนมังกร (Zen Bonsai Pine)*: เติบโตได้ 5 ขั้น (เมล็ดพันธุ์ $\to$ ต้นกล้า $\to$ กิ่งก้านผลิใบ $\to$ ดอกบานสะพรั่ง $\to$ ต้นสนโบราณเรืองรองออร่าทอง)
+  - *ซากุระผลิดอก (Zen Sakura Blossom)*: กิ่งก้านอ่อนช้อยพร้อมกลีบดอกไม้ปลิวไหว
+  - *ป่าไผ่ลู่ลม (Zen Bamboo Grove)*: ลำต้น 3 ปล้องพร้อมใบไหวตามสายลม
+  - *สระบัวหินซึคุบาอิ (Zen Lotus Pond)*: อ่างหินน้ำใส ดอกบัวหลวง ใบบัว และปลาคาร์ฟสีส้มว่ายวน
+  - *แปะก๊วยทองคำ (Zen Golden Ginkgo)*: พุ่มใบพัดสีทองสง่างามพร้อมประกายทอง
+  - *โคมไฟหินโบราณ (Zen Stone Lantern)*: โคมหินโทโร่พร้อมแสงเปลวไฟไหวริบหรี่
+  - *แมวส้มนอนหลับ (Zen Sleepy Cat)*: แมวส้มขดตัวหลับสบายพร้อมแอนิเมชันลมหายใจขยับขึ้นลง
+- **ระบบแปลงเพาะปลูก 3x3 (Living Terrarium Grid):**
+  - มีแปลงปลูก 9 ช่องให้เลือกจัดวางพืชพรรณและของตกแต่งได้อย่างอิสระ
+  - แต่ละช่องสามารถตรวจสอบระดับความชุ่มชื้น ขั้นการเติบโต และรดน้ำด้วยหยดน้ำค้างที่สะสมได้
+- **ฤดูกาลและท้องฟ้าตามเวลาจริงของโลก (Real-World Seasons & Dynamic Sky):**
+  - จำลอง 4 ฤดูกาล (Spring, Summer, Autumn, Winter) ตามเดือนจริง
+  - ไล่เฉดสีท้องฟ้า 24 ชั่วโมง (รุ่งอรุณ / กลางวัน / พลบค่ำ / ราตรี) ตามเวลาจริงของผู้ใช้งาน
+- **พิธีกรรมปล่อยวางความกังวล (Burn the Worry Ritual):**
+  - เตาเผาเชิงสัญลักษณ์สำหรับพิมพ์ระบายความเครียด ความกดดัน หรือสิ่งที่กังวล แล้วจุดไฟเผาให้มอดไหม้กลายเป็นเถ้าถ่าน
+  - มอบรางวัล +1 หยดน้ำค้างแห่งความสงบ เพื่อฟื้นฟูพลังใจ
+- **เชื่อมโยงผลผลิตจริง (Mindful Productivity Loop):**
+  - การ์ด Kanban ทุกใบที่ทำเสร็จจะผลิต +1 หยดน้ำค้างให้ผู้ใช้โดยอัตโนมัติ ทำให้การทำงานจริงกลายเป็นการรดน้ำสวนใจ ออกแบบให้เล่นและสะสมได้ยาวนาน 1–2 ปี
 
 #### ปฏิทินงานและตัวเลือกเวลา (Project Calendar & Day View Modal)
 - **Project Calendar View (`/project/[id]/calendar`):**

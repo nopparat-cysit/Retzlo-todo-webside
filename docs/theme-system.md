@@ -969,3 +969,20 @@ Template:
     - กล่องตอบกลับจำลองใน AI Interactive Simulator (`sandboxes.tsx`): ปรับจากพื้นดำทึบเป็นสีพื้นผิวปรับตามธีม (`bg-stone-100/90 text-stone-900 dark:bg-black/60 dark:text-stone-100`) พร้อมปรับสี prompt header, reply text, และ status tag ให้มีคอนทราสต์ชัดเจน
     - กล่องป๊อปอัพ Command Palette ทั่วทั้งระบบ (`src/components/ui/command-palette.tsx`): แก้ปัญหาตัวอักษรสีอ่อน `text-stone-100` กลืนกับพื้นขาวของ `.lofi-panel` ใน Light mode โดยปรับ input, group headers, active/hover items, footer, และ backdrop ให้รองรับทั้งโหมดสว่าง Warm Paper และโหมดมืด Retro Lofi Indigo อย่างสมบูรณ์
 - Verification: `npx vitest run` (101 test files, 558 passed), `npm run lint` (0 errors, 0 warnings), `npx prisma validate` (valid), `npm run build` (42/42 pages compiled successfully).
+
+### 2026-10-22 — Solitary Zen Garden Sanctuary & Pure SVG Vector Art (Phase 1)
+- Coverage:
+  - `src/components/project/zen-garden/zen-vector-art.tsx` (new pure SVG hand-drawn vector art components: `ZenBonsaiPine`, `ZenSakuraBlossom`, `ZenBambooGrove`, `ZenLotusPond`, `ZenGoldenGinkgo`, `ZenStoneLantern`, `ZenSleepyCat`, `ZenFloraRenderer`)
+  - `src/components/project/zen-garden/zen-sanctuary-modal.tsx` (new full-screen 3×3 living terrarium sanctuary modal with time-of-day sky gradients, 4 seasons, and Burn the Worry ritual)
+  - `src/components/project/zen-garden.tsx` (integrated vector renderer, Dewdrops pill, and sanctuary maximizer)
+- Design Direction & Theme Alignment:
+  - **Hand-Drawn Vector Art (`ZenFloraRenderer`)**:
+    - Replaced raw emojis with bespoke SVG vector artwork with soft organic curves, wood grains, botanical gradients, and ambient CSS keyframe animations.
+    - Designed with dual-palette adaptability: Pine greens, sakura blossom pinks, bamboo teals, and golden ginkgo tones maintain high readability and natural warmth against both Light (Warm Paper) and Dark (Retro Lofi Indigo) backdrops.
+    - Added 5 progressive growth stages with tiered visuals from tiny seedling to ancient heritage tree with animated golden aura.
+  - **Living Terrarium Sky & Seasonal Atmosphere**:
+    - Dynamic sky gradients adapt smoothly based on user's real-world diurnal solar cycle (`Dawn`, `Day`, `Dusk`, `Night`) and 4 astronomical seasons (`Spring`, `Summer`, `Autumn`, `Winter`).
+    - Ground sand and plot borders leverage semantic retro lofi tokens (`border-stone-200 dark:border-white/10`, `bg-stone-50 dark:bg-black/40`), ensuring zero visual harshness or high-contrast flashes when changing themes.
+  - **Burn the Worry Sanctuary Vessel**:
+    - Fire pit styled with soothing amber/orange atmospheric glow (`from-amber-500/20 to-orange-500/10`) with floating ash particulate effect, creating a peaceful, cathartic mindfulness space.
+- Verification: `npx vitest run` (101 test files, 561 passed), `npm run lint` (0 errors, 0 warnings), `npx prisma validate` (valid), `npm run build` (42/42 pages compiled successfully).

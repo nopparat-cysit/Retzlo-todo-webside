@@ -439,6 +439,7 @@ export const TOPICS_EN: GuideTopic[] = [
       "Genuine recognition and appreciation drive team momentum. Coffee Cheers gamifies milestone celebrations with tangible coin earnings redeemable for team perks.",
     highlights: [
       "Automated ☕ Cheers Button: Appears automatically when cards move to Done or complete.",
+      "Morning Dewdrops (💧): Completing any Kanban card into Done automatically grants +1 Morning Dewdrop to nurture flora in your 3×3 Zen Garden Sanctuary.",
       "Personal Coin Wallet: Earn coins every time you receive or send cheers to celebrate accomplishments.",
       "Project Rewards Store: Redeem coins for real-world team rewards or custom project perks.",
       "Anti-spam Protection: Rate-limited timers ensure cheers remain meaningful and sincere.",

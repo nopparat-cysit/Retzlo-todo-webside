@@ -14,7 +14,8 @@ import {
   Play,
   Pause,
   RotateCcw,
-  Flame
+  Flame,
+  Maximize2
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-context";
 import { useToast } from "@/components/ui/toast";
@@ -29,6 +30,8 @@ import {
   type ZenGardenState
 } from "@/lib/zen-garden/zen-state";
 import { cn } from "@/lib/utils";
+import { ZenFloraRenderer } from "./zen-garden/zen-vector-art";
+import { ZenSanctuaryModal } from "./zen-garden/zen-sanctuary-modal";
 
 type ActiveTab = "sanctuary" | "botanical" | "breath";
 
@@ -48,16 +51,10 @@ export function ZenGarden() {
   const [isNourishing, setIsNourishing] = useState(false);
   const [ripples, setRipples] = useState<RipplePoint[]>([]);
   const [selectedPlant, setSelectedPlant] = useState<BotanicalPlant | null>(null);
+  const [isSanctuaryModalOpen, setIsSanctuaryModalOpen] = useState(false);
 
   // Persistent Zen Garden State
-  const [zenState, setZenState] = useState<ZenGardenState>({
-    nurtureStreak: 0,
-    lastWateredDate: null,
-    activeGuardianId: "sprout",
-    totalNourished: 0,
-    totalZenMinutes: 0,
-    soundMuted: false
-  });
+  const [zenState, setZenState] = useState<ZenGardenState>(() => parseZenGardenState(null));
 
   // Box Breathing State (4-4-4-4: 16s per cycle, 4 cycles = 64s)
   const [isBreathingActive, setIsBreathingActive] = useState(false);
@@ -293,8 +290,21 @@ export function ZenGarden() {
           </div>
         </div>
 
-        {/* Top Right: Sound & Coins */}
+        {/* Top Right: Sound, Dewdrops, Coins & Maximize */}
         <div className="flex items-center gap-1.5 shrink-0">
+          <div
+            className="flex items-center gap-1 rounded-full border border-sky-300/80 bg-sky-50 dark:border-sky-500/30 dark:bg-sky-500/10 px-2 py-0.5 text-[10.5px] font-mono font-semibold text-sky-700 dark:text-sky-300 shadow-xs"
+            title={isEn ? "Dewdrops: Earned by completing Kanban tasks" : "หยดน้ำทิพย์: ได้จากการเคลียร์งานใน Kanban"}
+          >
+            <Droplets className="h-3 w-3 text-sky-500" />
+            <span>{zenState.dewdrops}</span>
+          </div>
+
+          <div className="flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10.5px] font-mono font-semibold text-dusk-amber shadow-xs">
+            <span>✦</span>
+            <span>{globalCoins}c</span>
+          </div>
+
           <button
             type="button"
             onClick={toggleSound}
@@ -309,10 +319,15 @@ export function ZenGarden() {
             {zenState.soundMuted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
           </button>
 
-          <div className="flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10.5px] font-mono font-semibold text-dusk-amber shadow-xs">
-            <span>✦</span>
-            <span>{globalCoins}c</span>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsSanctuaryModalOpen(true)}
+            aria-label={isEn ? "Open 3x3 Full Sanctuary" : "เปิดสวนเซน 3x3 เต็มจอ"}
+            title={isEn ? "Open 3x3 Full Sanctuary" : "เปิดสวนเซน 3x3 เต็มจอ"}
+            className="grid h-6 w-6 place-items-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition cursor-pointer"
+          >
+            <Maximize2 className="h-3 w-3" />
+          </button>
         </div>
       </div>
 
@@ -438,9 +453,9 @@ export function ZenGarden() {
                   boxShadow: `0 0 28px ${activeGuardian.auraColor}`
                 }}
               >
-                <span className="text-4xl select-none filter drop-shadow-md animate-pulse" style={{ animationDuration: "4s" }}>
-                  {activeGuardian.emoji}
-                </span>
+                <div className="w-16 h-16 flex items-center justify-center">
+                  <ZenFloraRenderer plantId={activeGuardian.id} className="w-14 h-14" />
+                </div>
 
                 {/* Frequency badge */}
                 <span className="absolute -bottom-2 font-mono text-[8.5px] px-1.5 py-0.2 rounded-full border border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 shadow-xs">
@@ -701,6 +716,15 @@ export function ZenGarden() {
           {isEn ? todayWisdom.en : todayWisdom.th}
         </p>
       </div>
+
+      {/* ─── Full-Screen 3x3 Living Terrarium Modal ─── */}
+      <ZenSanctuaryModal
+        isOpen={isSanctuaryModalOpen}
+        onClose={() => setIsSanctuaryModalOpen(false)}
+        zenState={zenState}
+        globalCoins={globalCoins}
+        onRefreshData={fetchZenData}
+      />
     </section>
   );
 }
