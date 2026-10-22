@@ -27,7 +27,13 @@ import {
 } from "@/lib/zen-garden/zen-state";
 import {
   ZenFloraRenderer,
-  ZenTerrariumBackdrop
+  ZenTerrariumBackdrop,
+  ZenGardenPlotBasin,
+  ZenGameToolLadle,
+  ZenGameToolSun,
+  ZenGameToolTrowel,
+  ZenGameToolSeedBag,
+  ZenIncenseBrazier
 } from "./zen-vector-art";
 import {
   playZenWaterDrop,
@@ -428,10 +434,10 @@ export function ZenSanctuaryModal({
               <button
                 type="button"
                 onClick={() => setShowWorryBrazier(true)}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl border border-rose-300/80 bg-rose-50 text-rose-800 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 text-xs font-semibold transition cursor-pointer shadow-2xs"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-xl border border-rose-300/80 bg-rose-50/90 text-rose-800 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 text-xs font-semibold transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
                 title={isEn ? "Burn & Release Work Anxiety" : "เตาเผาหินปล่อยวางความกังวล"}
               >
-                <Flame className="h-3.5 w-3.5 text-rose-500" />
+                <ZenIncenseBrazier className="h-4 w-4 shrink-0" />
                 <span className="hidden md:inline">{isEn ? "Release Worry" : "ปล่อยวาง"}</span>
               </button>
 
@@ -474,7 +480,7 @@ export function ZenSanctuaryModal({
                 </div>
               )}
 
-              <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 relative z-10">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 relative z-10 p-1">
                 {activeZen.plots.map((plot) => {
                   const isSelected = selectedSlotIndex === plot.slotIndex;
                   const isPlanted = plot.itemType !== "empty" && plot.itemId;
@@ -483,39 +489,47 @@ export function ZenSanctuaryModal({
                     <div
                       key={plot.slotIndex}
                       onClick={() => setSelectedSlotIndex(plot.slotIndex)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Sanctuary Plot #${plot.slotIndex + 1}`}
                       className={cn(
-                        "relative aspect-square flex flex-col items-center justify-center rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden group select-none",
+                        "relative aspect-square flex flex-col items-center justify-center rounded-2xl transition-all duration-300 cursor-pointer select-none group",
                         isSelected
-                          ? "border-emerald-500 ring-2 ring-emerald-500/50 bg-white/95 dark:bg-white/[0.08] shadow-lg scale-105 z-20"
-                          : "border-stone-300/80 bg-white/70 hover:border-emerald-400/70 hover:bg-white/90 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] shadow-2xs"
+                          ? "scale-105 z-20 filter drop-shadow-[0_10px_20px_rgba(16,185,129,0.35)]"
+                          : "hover:scale-[1.03] filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.18)]"
                       )}
                     >
-                      {/* Plot Slot Number Badge */}
-                      <span className="absolute top-1.5 left-2 font-mono text-[8px] text-stone-400 dark:text-stone-500 select-none">
-                        #{plot.slotIndex + 1}
-                      </span>
+                      {/* Hand-Drawn Ceramic Planter Pot Basin Background */}
+                      <ZenGardenPlotBasin
+                        isSelected={isSelected}
+                        isPlanted={Boolean(isPlanted)}
+                        waterCount={plot.waterCount}
+                        stage={plot.stage}
+                        slotIndex={plot.slotIndex}
+                        className="absolute inset-0 w-full h-full pointer-events-none"
+                      />
 
-                      {/* Planted Content vs Empty Plot */}
+                      {/* Planted Specimen vs Empty Soil Well */}
                       {isPlanted ? (
-                        <div className="flex flex-col items-center justify-center p-1 w-full h-full">
-                          <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center transition-transform group-hover:scale-110">
+                        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pb-2.5 pointer-events-none">
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 drop-shadow-md">
                             <ZenFloraRenderer
                               plantId={plot.itemId!}
                               stage={plot.stage}
                               className="w-full h-full"
                             />
                           </div>
-                          {/* 5-Stage Dots Indicator */}
+                          {/* 5-Stage Gem Dots Indicator */}
                           {plot.itemType === "flora" && (
-                            <div className="flex items-center gap-0.5 mt-0.5">
+                            <div className="flex items-center gap-1 mt-0.5 bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded-full border border-white/10 shadow-xs">
                               {Array.from({ length: 5 }).map((_, i) => (
                                 <span
                                   key={i}
                                   className={cn(
-                                    "h-1 w-1 rounded-full transition-all",
+                                    "h-1.5 w-1.5 rounded-full transition-all duration-300",
                                     i < plot.stage
-                                      ? "bg-emerald-500"
-                                      : "bg-stone-300 dark:bg-white/15"
+                                      ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)] ring-1 ring-white/60"
+                                      : "bg-stone-500/50"
                                   )}
                                 />
                               ))}
@@ -523,11 +537,27 @@ export function ZenSanctuaryModal({
                           )}
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
-                          <Plus className="h-4 w-4" />
-                          <span className="text-[9px] font-mono">
-                            {isEn ? "Empty" : "แปลงว่าง"}
+                        <div className="relative z-10 flex flex-col items-center justify-center gap-1 text-amber-800/80 dark:text-amber-200/80 group-hover:text-amber-950 dark:group-hover:text-amber-100 transition-colors pointer-events-none pb-2">
+                          <div className="p-1.5 rounded-full bg-amber-500/15 border border-amber-600/30 group-hover:border-amber-500 group-hover:scale-110 transition-transform shadow-2xs">
+                            <Plus className="h-4 w-4" />
+                          </div>
+                          <span className="text-[9px] font-mono font-bold tracking-wider uppercase opacity-85">
+                            {isEn ? "Open Soil" : "แปลงว่าง"}
                           </span>
+                        </div>
+                      )}
+
+                      {/* Interactive Action Animation Splash right on the selected plot */}
+                      {isSelected && isWatering && (
+                        <div className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center justify-center">
+                          <div className="w-14 h-14 rounded-full border-2 border-sky-400/80 animate-ping" />
+                          <ZenGameToolLadle className="w-12 h-12 -mt-10 animate-bounce filter drop-shadow-[0_4px_10px_rgba(56,189,248,0.7)]" />
+                        </div>
+                      )}
+                      {isSelected && isBasking && (
+                        <div className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center justify-center">
+                          <div className="w-16 h-16 rounded-full bg-amber-400/30 animate-ping" />
+                          <ZenGameToolSun className="w-14 h-14 -mt-8 animate-spin filter drop-shadow-[0_0_16px_rgba(245,158,11,0.9)]" />
                         </div>
                       )}
                     </div>
@@ -536,38 +566,43 @@ export function ZenSanctuaryModal({
               </div>
             </div>
 
-            {/* Inspector Card for Selected Plot */}
+            {/* Inspector Plaque (Kifuda) HUD for Selected Plot */}
             {selectedPlot && (
-              <div className="w-full max-w-lg rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white/90 dark:bg-ink-950/85 p-3.5 shadow-md backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-                <div className="space-y-1 min-w-0">
+              <div className="w-full max-w-lg rounded-2xl border-2 border-amber-900/20 dark:border-amber-500/20 bg-gradient-to-r from-amber-50/95 via-stone-50/95 to-amber-100/90 dark:from-[#191526]/95 dark:via-[#141020]/95 dark:to-[#0f0c1a]/95 p-3.5 shadow-xl backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0 relative overflow-hidden">
+                {/* Traditional Hanko Stamp watermark accent */}
+                <div className="absolute right-2 -bottom-2 select-none pointer-events-none opacity-10 dark:opacity-5 text-4xl font-serif text-amber-900">
+                  庭
+                </div>
+
+                <div className="space-y-1 min-w-0 relative z-10">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-stone-900 dark:text-stone-100">
-                      {isEn ? `Plot #${selectedPlot.slotIndex + 1}` : `แปลงปลูก #${selectedPlot.slotIndex + 1}`}
+                    <span className="font-mono text-xs font-bold text-amber-950 dark:text-amber-100">
+                      {isEn ? `Plot Basin #${selectedPlot.slotIndex + 1}` : `แปลงปลูกศิลา #${selectedPlot.slotIndex + 1}`}
                     </span>
                     {selectedPlot.itemType !== "empty" ? (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/30">
                         {selectedPlot.itemType === "flora"
                           ? isEn
                             ? `Stage ${selectedPlot.stage}/5`
                             : `ขั้นการเติบโต ${selectedPlot.stage}/5`
                           : isEn
-                          ? "Decor Item"
-                          : "ของตกแต่ง"}
+                          ? "Sacred Decor"
+                          : "ของตกแต่งมงคล"}
                       </span>
                     ) : (
-                      <span className="text-[10px] font-mono text-stone-400">
-                        {isEn ? "Ready for Cultivation" : "พร้อมเพาะปลูก"}
+                      <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
+                        {isEn ? "Virgin Loam · Ready for Cultivation" : "ดินภูเขาไฟบริสุทธิ์ · พร้อมเพาะปลูก"}
                       </span>
                     )}
                   </div>
 
-                  <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate leading-snug">
+                  <p className="text-[11px] text-stone-600 dark:text-stone-300 truncate leading-snug">
                     {selectedPlot.itemType === "flora" ? (
                       (() => {
                         const req = getNextStageRequirement(selectedPlot.waterCount, selectedPlot.stage);
                         if (!req) {
                           return isEn
-                            ? `Fully bloomed into Ancient Heritage (${selectedPlot.waterCount} total waterings).`
+                            ? `Fully bloomed ancient heritage (${selectedPlot.waterCount} total waterings).`
                             : `เจริญเติบโตเต็มที่สู่พฤกษาโบราณแล้ว (รดน้ำรวม ${selectedPlot.waterCount} ครั้ง)`;
                         }
                         return isEn
@@ -576,62 +611,63 @@ export function ZenSanctuaryModal({
                       })()
                     ) : selectedPlot.itemType === "decor" ? (
                       isEn
-                        ? "Sacred zen garden ornament bringing peace and aesthetic harmony."
+                        ? "Sacred zen garden ornament bringing aesthetic harmony and serenity."
                         : "ของตกแต่งสวนเซน เสริมสร้างความสงบและความงามอันบริสุทธิ์"
                     ) : (
                       isEn
-                        ? "Cultivate a seed to begin its 5-stage mindful growth journey."
-                        : "เลือกเมล็ดพันธุ์เพื่อเริ่มการเติบโต 5 ระยะสู่พฤกษาโบราณ"
+                        ? "Select a seed pouch from the herbarium to begin cultivation."
+                        : "เลือกเมล็ดพันธุ์จากหีบพฤกษศาสตร์เพื่อเริ่มการเพาะปลูก"
                     )}
                   </p>
                 </div>
 
-                {/* Action Buttons for Selected Plot */}
-                <div className="flex items-center gap-1.5 shrink-0">
+                {/* Tactile Japanese Artisan Tool Action Buttons */}
+                <div className="flex items-center gap-2 shrink-0 relative z-10">
                   {selectedPlot.itemType !== "empty" ? (
                     <>
-                      {/* Water Button */}
+                      {/* Water Button with Bamboo Water Ladle (Hishaku) */}
                       <button
                         type="button"
                         onClick={() => handleWaterPlot(selectedPlot.slotIndex)}
                         disabled={isWatering}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-sky-400/80 bg-sky-500 text-white hover:bg-sky-600 active:scale-95 text-xs font-semibold shadow-2xs transition cursor-pointer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-400 bg-gradient-to-b from-sky-500 to-sky-600 text-white hover:from-sky-400 hover:to-sky-500 active:scale-95 text-xs font-bold shadow-md transition cursor-pointer disabled:opacity-50"
                         title={isEn ? "Water plot with 1 dewdrop" : "รดน้ำด้วย 1 หยดน้ำค้าง"}
                       >
-                        <Droplets className="h-3.5 w-3.5" />
-                        <span>{isEn ? "Water (-1)" : "รดน้ำ"}</span>
+                        <ZenGameToolLadle className="w-4 h-4 shrink-0" />
+                        <span>{isEn ? "Water (-1)" : "รดน้ำ (-1)"}</span>
                       </button>
 
-                      {/* Bask in Sun Button */}
+                      {/* Bask Button with Sacred Solar Mirror (Nichirin) */}
                       <button
                         type="button"
                         onClick={() => handleBaskPlot(selectedPlot.slotIndex)}
                         disabled={isBasking}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-amber-400/80 bg-amber-500 text-white hover:bg-amber-600 active:scale-95 text-xs font-semibold shadow-2xs transition cursor-pointer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-400 bg-gradient-to-b from-amber-500 to-amber-600 text-white hover:from-amber-400 hover:to-amber-500 active:scale-95 text-xs font-bold shadow-md transition cursor-pointer disabled:opacity-50"
                         title={isEn ? "Bask plot in warm solar energy (+2 growth)" : "อาบแสงแดดอบอุ่นเร่งโต (+2 การเติบโต)"}
                       >
-                        <Sun className="h-3.5 w-3.5" />
+                        <ZenGameToolSun className="w-4 h-4 shrink-0" />
                         <span>{isEn ? "Sunlight" : "แสงแดด"}</span>
                       </button>
 
-                      {/* Clear / Dig Up Button */}
+                      {/* Dig Up Button with Weeding Trowel (Hori-hori) */}
                       <button
                         type="button"
                         onClick={() => setPlotToClear(selectedPlot.slotIndex)}
-                        className="grid h-8 w-8 place-items-center rounded-xl border border-rose-300 text-rose-500 hover:bg-rose-50 dark:border-rose-500/30 dark:hover:bg-rose-500/10 transition cursor-pointer shadow-2xs"
+                        className="flex items-center justify-center h-8 w-8 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20 transition cursor-pointer shadow-2xs active:scale-95"
                         title={isEn ? "Dig up / Replant plot" : "ถอนพืชพรรณเพื่อปลูกใหม่"}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <ZenGameToolTrowel className="w-4 h-4 shrink-0" />
                       </button>
                     </>
                   ) : (
+                    /* Plant Seed Button with Washi Seed Pouch (Tane-bukuro) */
                     <button
                       type="button"
                       onClick={() => setShowSeedPicker(true)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-500 bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95 text-xs font-semibold shadow-2xs transition cursor-pointer"
+                      className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-emerald-500 bg-gradient-to-b from-emerald-600 to-emerald-700 text-white hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-xs font-bold shadow-md transition cursor-pointer"
                     >
-                      <Plus className="h-3.5 w-3.5" />
-                      <span>{isEn ? "Plant Seed" : "ปลูกพฤกษา"}</span>
+                      <ZenGameToolSeedBag className="w-5 h-5 shrink-0" />
+                      <span>{isEn ? "Plant Seed Pouch" : "เปิดถุงเมล็ดพันธุ์"}</span>
                     </button>
                   )}
                 </div>
@@ -639,54 +675,64 @@ export function ZenSanctuaryModal({
             )}
           </div>
 
-          {/* ─── Seed Picker Modal Overlay ─── */}
+          {/* ─── Seed Picker Modal Overlay (Sanctuary Herbarium) ─── */}
           {showSeedPicker && selectedPlot && (
-            <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="w-full max-w-md rounded-2xl border border-stone-200 dark:border-white/10 bg-white dark:bg-ink-950 p-4 sm:p-5 shadow-2xl space-y-3">
-                <div className="flex items-center justify-between border-b border-stone-200 dark:border-white/10 pb-2.5">
-                  <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                    <Flower2 className="h-4 w-4 text-emerald-500" />
-                    <span>{isEn ? "Cultivate Sanctuary Plot" : "เลือกพืชพรรณหรือของตกแต่ง"}</span>
-                  </h4>
+            <div className="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+              <div className="w-full max-w-lg rounded-3xl border-2 border-amber-900/30 dark:border-amber-500/20 bg-stone-50 dark:bg-[#151221] p-4 sm:p-5 shadow-2xl space-y-3.5">
+                {/* Herbarium Header */}
+                <div className="flex items-center justify-between border-b border-amber-900/15 dark:border-white/10 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <ZenGameToolSeedBag className="h-7 w-7 shrink-0 drop-shadow-xs" />
+                    <div>
+                      <h4 className="text-sm font-bold text-amber-950 dark:text-amber-100">
+                        {isEn ? "Botanical Herbarium & Seed Chest" : "หีบเมล็ดพันธุ์และสมุดภาพพฤกษศาสตร์"}
+                      </h4>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400">
+                        {isEn ? `Select specimen for Plot #${selectedPlot.slotIndex + 1}` : `เลือกพืชพรรณเพาะปลูกในแปลง #${selectedPlot.slotIndex + 1}`}
+                      </p>
+                    </div>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setShowSeedPicker(false)}
-                    className="p-1 rounded-lg text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                    className="p-1.5 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-white/10 transition cursor-pointer"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
 
                 {/* Category Tabs: Botanical Flora vs Zen Decor */}
-                <div className="grid grid-cols-2 gap-1 rounded-xl bg-stone-100 dark:bg-white/[0.04] p-1 text-xs font-semibold">
+                <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-stone-200/60 dark:bg-white/[0.05] p-1 text-xs font-semibold">
                   <button
                     type="button"
                     onClick={() => setSeedPickerTab("flora")}
                     className={cn(
-                      "py-1.5 rounded-lg transition",
+                      "flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer",
                       seedPickerTab === "flora"
-                        ? "bg-white dark:bg-white/15 text-emerald-600 dark:text-emerald-400 shadow-2xs"
+                        ? "bg-white dark:bg-white/15 text-emerald-700 dark:text-emerald-300 shadow-xs font-bold"
                         : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
                     )}
                   >
-                    {isEn ? "Botanical Flora (10)" : "พฤกษาพรรณ (10)"}
+                    <Flower2 className="h-3.5 w-3.5" />
+                    <span>{isEn ? "Botanical Flora (10)" : "พฤกษาพรรณ (10)"}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setSeedPickerTab("decor")}
                     className={cn(
-                      "py-1.5 rounded-lg transition",
+                      "flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer",
                       seedPickerTab === "decor"
-                        ? "bg-white dark:bg-white/15 text-emerald-600 dark:text-emerald-400 shadow-2xs"
+                        ? "bg-white dark:bg-white/15 text-amber-700 dark:text-amber-300 shadow-xs font-bold"
                         : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
                     )}
                   >
-                    {isEn ? "Zen Decor (5)" : "ของตกแต่งเซน (5)"}
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>{isEn ? "Zen Decor (5)" : "ของตกแต่งเซน (5)"}</span>
                   </button>
                 </div>
 
-                {/* Items Grid with Vector Art Previews */}
-                <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+                {/* Illustrated Items Grid */}
+                <div className="grid grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1">
                   {(seedPickerTab === "flora" ? AVAILABLE_SEEDS : AVAILABLE_DECORS).map((item) => (
                     <button
                       key={item.id}
@@ -698,17 +744,17 @@ export function ZenSanctuaryModal({
                           selectedPlot.slotIndex
                         )
                       }
-                      className="flex items-center gap-2.5 p-2 rounded-xl border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/50 dark:border-white/10 dark:hover:bg-white/[0.05] transition text-left cursor-pointer group"
+                      className="flex items-center gap-3 p-2.5 rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white/90 dark:bg-white/[0.03] hover:border-emerald-500 hover:shadow-md hover:scale-[1.02] active:scale-98 transition-all text-left cursor-pointer group"
                     >
-                      <div className="h-10 w-10 shrink-0 grid place-items-center rounded-lg bg-stone-100 dark:bg-white/5 border border-stone-200/60 dark:border-white/10">
-                        <ZenFloraRenderer plantId={item.id} stage={3} className="h-8 w-8" />
+                      <div className="h-12 w-12 shrink-0 grid place-items-center rounded-xl bg-amber-50/80 dark:bg-white/5 border border-amber-900/10 dark:border-white/10 group-hover:border-emerald-500/50 shadow-2xs">
+                        <ZenFloraRenderer plantId={item.id} stage={3} className="h-10 w-10" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold text-stone-900 dark:text-stone-100 truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                        <p className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
                           {isEn ? item.name : item.nameTh}
                         </p>
-                        <p className="text-[9.5px] text-stone-500 dark:text-stone-400 truncate">
-                          {isEn ? item.desc : "กดเพื่อปลูก"}
+                        <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate mt-0.5">
+                          {isEn ? item.desc : "แตะเพื่อเพาะปลูก"}
                         </p>
                       </div>
                     </button>
@@ -718,50 +764,49 @@ export function ZenSanctuaryModal({
             </div>
           )}
 
-          {/* ─── Worry Brazier Modal Overlay ─── */}
+          {/* ─── Worry Brazier Modal Overlay (Sacred Koro Incense Altar) ─── */}
           {showWorryBrazier && (
-            <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="w-full max-w-md rounded-2xl border border-rose-200 dark:border-rose-500/20 bg-white dark:bg-ink-950 p-5 shadow-2xl space-y-3">
-                <div className="flex items-center justify-between border-b border-rose-100 dark:border-white/10 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <div className="grid h-7 w-7 place-items-center rounded-lg bg-rose-500/15 text-rose-600 dark:text-rose-400">
-                      <Flame className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                        {isEn ? "Burn & Release Work Anxiety" : "เตาเผาหินปล่อยวางความกังวล"}
-                      </h4>
-                      <p className="text-[10px] text-stone-500 dark:text-stone-400">
-                        {isEn ? "Write down your stress, let it dissolve into sacred ash." : "พิมพ์สิ่งที่ติดค้างในใจ แล้วปล่อยให้มอดไหม้เป็นพลังใจบริสุทธิ์"}
-                      </p>
-                    </div>
+            <div className="absolute inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+              <div className="w-full max-w-md rounded-3xl border-2 border-rose-900/30 dark:border-rose-500/20 bg-gradient-to-b from-stone-50 to-amber-50/50 dark:from-[#191322] dark:to-[#110c18] p-5 shadow-2xl space-y-4">
+                {/* Altar Burner Artwork & Header */}
+                <div className="flex flex-col items-center text-center space-y-2">
+                  <ZenIncenseBrazier className="w-16 h-16 shrink-0 drop-shadow-md" />
+                  <div>
+                    <h4 className="text-sm font-bold text-rose-950 dark:text-rose-100 uppercase tracking-wide">
+                      {isEn ? "Sacred Koro Incense Altar" : "เตากำยานปล่อยวางความกังวล"}
+                    </h4>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 max-w-xs mt-0.5">
+                      {isEn
+                        ? "Transcribe what burdens your mind onto washi paper. Let it dissolve into pure serenity."
+                        : "เขียนสิ่งที่ติดค้างหรือเหนื่อยล้าในใจลงบนกระดาษวาชิ แล้วปล่อยให้มอดไหม้กลายเป็นเถ้าถ่านแห่งความสงบ"}
+                    </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowWorryBrazier(false)}
-                    className="p-1 rounded-lg text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
                 </div>
 
-                <textarea
-                  value={worryText}
-                  onChange={(e) => setWorryText(e.target.value)}
-                  placeholder={
-                    isEn
-                      ? "Type any frustration, code bugs, or fatigue you wish to release... (Never stored in database)"
-                      : "พิมพ์ระบายความเหนื่อยล้า ความกังวลใจ หรือสิ่งที่อยากปล่อยวาง... (ไม่มีการบันทึกข้อมูล)"
-                  }
-                  rows={3}
-                  className="w-full rounded-xl border border-stone-200 dark:border-white/10 bg-stone-50 dark:bg-black/30 p-3 text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none focus:border-rose-400 transition"
-                />
+                {/* Washi Paper (Tanzaku) Textarea */}
+                <div className="relative rounded-2xl border-2 border-amber-900/20 dark:border-white/10 bg-amber-50/70 dark:bg-black/40 p-3 shadow-inner">
+                  <textarea
+                    value={worryText}
+                    onChange={(e) => setWorryText(e.target.value)}
+                    placeholder={
+                      isEn
+                        ? "Type any frustration, bugs, deadlines, or fatigue here... (Instantly purified, never stored in database)"
+                        : "พิมพ์ความเครียด อุปสรรค บั๊กงาน หรือความกังวลใจลงที่นี่... (ไม่มีการบันทึกข้อมูลใดๆ)"
+                    }
+                    rows={3}
+                    className="w-full bg-transparent text-xs text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none resize-none leading-relaxed"
+                  />
+                  {/* Hanko Stamp Watermark */}
+                  <div className="absolute bottom-2 right-2 text-[9px] font-mono text-amber-700/40 dark:text-amber-400/30 select-none pointer-events-none">
+                    短冊 · Washi Tanzaku
+                  </div>
+                </div>
 
-                <div className="flex items-center justify-end gap-2">
+                <div className="flex items-center justify-end gap-2 pt-1">
                   <button
                     type="button"
                     onClick={() => setShowWorryBrazier(false)}
-                    className="px-3 py-1.5 rounded-xl border border-stone-200 dark:border-white/10 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5"
+                    className="px-3.5 py-1.5 rounded-xl border border-stone-200 dark:border-white/10 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-white/5 transition cursor-pointer"
                   >
                     {isEn ? "Cancel" : "ยกเลิก"}
                   </button>
@@ -770,10 +815,18 @@ export function ZenSanctuaryModal({
                     type="button"
                     onClick={handleBurnWorry}
                     disabled={!worryText.trim() || isBurningWorry}
-                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 text-white text-xs font-bold shadow-md hover:from-rose-600 hover:to-amber-600 active:scale-95 transition cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 via-rose-500 to-amber-600 text-white text-xs font-bold shadow-md hover:from-rose-500 hover:to-amber-500 active:scale-95 transition cursor-pointer disabled:opacity-50"
                   >
-                    <Flame className={cn("h-3.5 w-3.5", isBurningWorry && "animate-spin")} />
-                    <span>{isBurningWorry ? (isEn ? "Dissolving..." : "กำลังมอดไหม้...") : isEn ? "Release & Let Go" : "ปล่อยวางสู่เวหา"}</span>
+                    <Flame className={cn("h-4 w-4", isBurningWorry && "animate-spin")} />
+                    <span>
+                      {isBurningWorry
+                        ? isEn
+                          ? "Dissolving into Ash..."
+                          : "กำลังมอดไหม้เป็นเถ้าบริสุทธิ์..."
+                        : isEn
+                        ? "Ignite & Let Go (+2 Dew)"
+                        : "เผาปล่อยวางสู่เวหา (+2 น้ำค้าง)"}
+                    </span>
                   </button>
                 </div>
               </div>

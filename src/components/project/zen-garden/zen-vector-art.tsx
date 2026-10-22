@@ -1238,3 +1238,315 @@ export function ZenTerrariumBackdrop({
   );
 }
 
+/* ── 17. Handcrafted 3D Japanese Garden Planting Basin (植木鉢 / 石の植え床) ── */
+export function ZenGardenPlotBasin({
+  className = "w-full h-full",
+  isSelected = false,
+  isPlanted = false,
+  waterCount = 0,
+  stage = 1,
+  slotIndex = 0,
+}: {
+  className?: string;
+  isSelected?: boolean;
+  isPlanted?: boolean;
+  waterCount?: number;
+  stage?: number;
+  slotIndex?: number;
+}) {
+  return (
+    <div className={cn("relative w-full h-full select-none pointer-events-none", className)}>
+      <svg
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full"
+        aria-hidden="true"
+      >
+        <defs>
+          {/* Grounding Base Shadow */}
+          <radialGradient id={`basinShadow-${slotIndex}`} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#000000" stopOpacity="0.45" />
+            <stop offset="65%" stopColor="#000000" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Basin Ceramic / Stone Rim Gradient */}
+          <linearGradient id={`basinRim-${slotIndex}`} x1="10" y1="18" x2="90" y2="86" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#e2e8f0" className="dark:[stop-color:#334155]" />
+            <stop offset="45%" stopColor="#cbd5e1" className="dark:[stop-color:#1e293b]" />
+            <stop offset="100%" stopColor="#94a3b8" className="dark:[stop-color:#0f172a]" />
+          </linearGradient>
+
+          {/* Kurotsuchi (Volcanic Loam Soil) Gradient */}
+          <radialGradient id={`soilGrad-${slotIndex}`} cx="50%" cy="52%" r="48%">
+            <stop offset="0%" stopColor={waterCount > 0 ? "#1c120c" : "#2d1a10"} />
+            <stop offset="70%" stopColor={waterCount > 0 ? "#140c08" : "#24140c"} />
+            <stop offset="100%" stopColor="#0f0805" />
+          </radialGradient>
+
+          {/* Selected Sacred Aura Shimmer */}
+          <radialGradient id={`selectedHalo-${slotIndex}`} cx="50%" cy="50%" r="50%">
+            <stop offset="65%" stopColor="#10b981" stopOpacity="0" />
+            <stop offset="85%" stopColor="#34d399" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#6ee7b7" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        {/* ── 1. Ambient Drop Shadow Under Basin ── */}
+        <ellipse cx="50" cy="84" rx="42" ry="12" fill={`url(#basinShadow-${slotIndex})`} />
+
+        {/* ── 2. Selected Sacred Aura Halo ── */}
+        {isSelected && (
+          <g>
+            <ellipse
+              cx="50"
+              cy="52"
+              rx="47"
+              ry="42"
+              fill={`url(#selectedHalo-${slotIndex})`}
+              className="animate-pulse"
+            />
+            <ellipse
+              cx="50"
+              cy="52"
+              rx="46"
+              ry="41"
+              className="stroke-emerald-400/80 dark:stroke-emerald-300"
+              strokeWidth="1.5"
+              strokeDasharray="4 2"
+            />
+          </g>
+        )}
+
+        {/* ── 3. Chiseled Stone / Celadon Basin Body ── */}
+        {/* Basin Lower Rim & Plinth */}
+        <path
+          d="M 14,56 C 14,75 30,86 50,86 C 70,86 86,75 86,56 L 86,62 C 86,79 70,90 50,90 C 30,90 14,79 14,62 Z"
+          className="fill-stone-400 stroke-stone-500 dark:fill-stone-800 dark:stroke-stone-700"
+          strokeWidth="1"
+        />
+
+        {/* Basin Outer Ellipse (Top Edge) */}
+        <ellipse
+          cx="50"
+          cy="52"
+          rx="42"
+          ry="34"
+          fill={`url(#basinRim-${slotIndex})`}
+          className="stroke-stone-300 dark:stroke-stone-600"
+          strokeWidth="1.2"
+        />
+
+        {/* Basin Inner Recess (Soil Bed Well) */}
+        <ellipse
+          cx="50"
+          cy="52"
+          rx="36"
+          ry="28"
+          fill={`url(#soilGrad-${slotIndex})`}
+          className="stroke-stone-900/60"
+          strokeWidth="1"
+        />
+
+        {/* ── 4. Empty State: Concentric Spiral Raked Sand & Stone Marker ── */}
+        {!isPlanted && (
+          <g className="pointer-events-none">
+            {/* Zen Sand Concentric Furrows */}
+            <g className="stroke-stone-500/30 dark:stroke-stone-400/25 fill-none" strokeWidth="0.8">
+              <ellipse cx="50" cy="52" rx="28" ry="21" strokeDasharray="3 2" />
+              <ellipse cx="50" cy="52" rx="20" ry="15" />
+              <ellipse cx="50" cy="52" rx="12" ry="9" strokeDasharray="2 2" />
+            </g>
+            {/* Smooth Zen River Pebble in Center */}
+            <ellipse cx="50" cy="52" rx="6" ry="4" className="fill-stone-300 stroke-stone-400 dark:fill-stone-600 dark:stroke-stone-500" strokeWidth="0.8" />
+            <ellipse cx="49" cy="51" rx="4" ry="2.2" className="fill-stone-200/60 dark:fill-stone-500/50" />
+            {/* Small Bamboo Plant Marker Stick */}
+            <line x1="62" y1="40" x2="58" y2="54" stroke="#a16207" strokeWidth="1.2" strokeLinecap="round" />
+            <rect x="58" y="34" width="8" height="7" rx="1" className="fill-amber-100 stroke-amber-700 dark:fill-stone-800 dark:stroke-amber-600" strokeWidth="0.8" />
+          </g>
+        )}
+
+        {/* ── 5. Planted State: Living Moss Cushions & Moisture Sheen ── */}
+        {isPlanted && (
+          <g>
+            {/* Velvet Emerald Moss Patches along Basin Rim */}
+            <path
+              d="M 18,50 Q 22,46 28,51 Q 34,48 40,52 Q 46,47 52,51 Q 35,56 18,50 Z"
+              className="fill-emerald-700 dark:fill-emerald-800"
+            />
+            <path
+              d="M 60,54 Q 68,48 76,52 Q 82,49 84,53 Q 72,58 60,54 Z"
+              className="fill-emerald-600 dark:fill-emerald-700"
+            />
+            <ellipse cx="30" cy="50" rx="4" ry="2" className="fill-emerald-500/80" />
+            <ellipse cx="72" cy="52" rx="4" ry="2" className="fill-emerald-500/80" />
+
+            {/* Moist Sheen droplets when watered */}
+            {waterCount > 0 && (
+              <g className="fill-sky-400/75 animate-pulse">
+                <circle cx="38" cy="58" r="1" />
+                <circle cx="64" cy="60" r="1.2" />
+                <circle cx="48" cy="65" r="0.9" />
+              </g>
+            )}
+          </g>
+        )}
+
+        {/* ── 6. Carved Wooden Plot Marker Plaque (#1 - #9) ── */}
+        <g transform="translate(6, 6)">
+          <rect
+            x="0"
+            y="0"
+            width="16"
+            height="14"
+            rx="3"
+            className="fill-amber-100/90 stroke-amber-800/60 dark:fill-stone-900/90 dark:stroke-stone-600 shadow-2xs"
+            strokeWidth="0.8"
+          />
+          <text
+            x="8"
+            y="10"
+            textAnchor="middle"
+            className="fill-amber-950 dark:fill-amber-200 text-[8px] font-mono font-bold"
+          >
+            #{slotIndex + 1}
+          </text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+/* ── 18. Hand-Drawn Traditional Bamboo Water Ladle (Hishaku 柄杓) ── */
+export function ZenGameToolLadle({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <div className={cn("relative inline-flex items-center justify-center select-none", className)}>
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        {/* Slender Bamboo Handle */}
+        <path d="M 4 28 L 22 10" stroke="#b45309" strokeWidth="2.2" strokeLinecap="round" />
+        <path d="M 5 27 L 21 11" stroke="#fef3c7" strokeWidth="0.8" strokeLinecap="round" opacity="0.6" />
+        {/* Twine Binding Knot */}
+        <rect x="20" y="9" width="3" height="3" rx="1" fill="#78350f" transform="rotate(45 21.5 10.5)" />
+        {/* Cylindrical Bamboo Dipper Cup */}
+        <rect x="18" y="4" width="10" height="7" rx="2" fill="#d97706" stroke="#92400e" strokeWidth="1" />
+        <ellipse cx="23" cy="4" rx="4" ry="1.5" fill="#fde68a" stroke="#b45309" strokeWidth="0.8" />
+        {/* Crystal Water Drop Falling */}
+        <path d="M 23 13 C 21 15 21 17 23 18 C 25 17 25 15 23 13 Z" fill="#38bdf8" className="animate-bounce" />
+      </svg>
+    </div>
+  );
+}
+
+/* ── 19. Hand-Drawn Sacred Solar Mirror (Nichirin 日輪) ── */
+export function ZenGameToolSun({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <div className={cn("relative inline-flex items-center justify-center select-none", className)}>
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        {/* Outer Solar Radiant Rays */}
+        <g stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round">
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="16" y1="26" x2="16" y2="30" />
+          <line x1="2" y1="16" x2="6" y2="16" />
+          <line x1="26" y1="16" x2="30" y2="16" />
+          <line x1="6" y1="6" x2="9" y2="9" />
+          <line x1="23" y1="23" x2="26" y2="26" />
+          <line x1="6" y1="26" x2="9" y2="23" />
+          <line x1="23" y1="9" x2="26" y2="6" />
+        </g>
+        {/* Sacred Bronze Mirror Rim */}
+        <circle cx="16" cy="16" r="8" fill="#fbbf24" stroke="#d97706" strokeWidth="1.2" />
+        {/* Glowing Solar Core */}
+        <circle cx="16" cy="16" r="5" fill="#fef08a" />
+      </svg>
+    </div>
+  );
+}
+
+/* ── 20. Hand-Drawn Japanese Garden Weeding Trowel (Hori-hori 掘り掘り) ── */
+export function ZenGameToolTrowel({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <div className={cn("relative inline-flex items-center justify-center select-none", className)}>
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        {/* Wooden Handle */}
+        <rect x="5" y="21" width="6" height="7" rx="1.5" fill="#92400e" stroke="#78350f" strokeWidth="0.8" transform="rotate(-40 8 24.5)" />
+        {/* Brass Bolster */}
+        <rect x="9.5" y="16.5" width="4" height="2" fill="#fbbf24" transform="rotate(-40 11.5 17.5)" />
+        {/* Steel Trowel Blade */}
+        <path
+          d="M 12 17 C 15 13 22 7 26 5 C 25 11 20 18 16 21 Z"
+          fill="#cbd5e1"
+          stroke="#64748b"
+          strokeWidth="1"
+        />
+        {/* Serrated Cutting Notch */}
+        <line x1="14" y1="18" x2="16" y2="16" stroke="#475569" strokeWidth="0.8" />
+      </svg>
+    </div>
+  );
+}
+
+/* ── 21. Hand-Drawn Washi Seed Pouch Envelope (Tane-bukuro 種袋) ── */
+export function ZenGameToolSeedBag({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <div className={cn("relative inline-flex items-center justify-center select-none", className)}>
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        {/* Washi Paper Envelope Body */}
+        <rect x="6" y="7" width="20" height="20" rx="3" fill="#fef3c7" stroke="#d97706" strokeWidth="1.2" />
+        {/* Folded Top Flap */}
+        <path d="M 6 8 L 16 16 L 26 8 Z" fill="#fde68a" stroke="#b45309" strokeWidth="1" />
+        {/* Crimson Mizuhiki Knot Ribbon */}
+        <circle cx="16" cy="18" r="3.5" fill="#e11d48" />
+        <path d="M 13 20 C 11 23 9 24 7 24" stroke="#e11d48" strokeWidth="1" strokeLinecap="round" />
+        <path d="M 19 20 C 21 23 23 24 25 24" stroke="#e11d48" strokeWidth="1" strokeLinecap="round" />
+        {/* Sprout Icon on Stamp */}
+        <path d="M 16 16 Q 18 14 17 12 Q 15 12 16 16 Z" fill="#10b981" />
+      </svg>
+    </div>
+  );
+}
+
+/* ── 22. Hand-Drawn Celadon Incense Burner (Koro 香炉) ── */
+export function ZenIncenseBrazier({ className = "w-8 h-8" }: { className?: string }) {
+  return (
+    <div className={cn("relative inline-flex items-center justify-center select-none", className)}>
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+        {/* Rising Aromatic Incense Smoke Trails */}
+        <path
+          d="M 18 14 C 16 10 22 8 20 4 C 18 2 21 0 20 0"
+          stroke="#c084fc"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.75"
+          className="animate-pulse"
+        />
+        <path
+          d="M 23 15 C 25 11 20 9 22 5"
+          stroke="#e9d5ff"
+          strokeWidth="1"
+          strokeLinecap="round"
+          opacity="0.6"
+        />
+
+        {/* 3 Tripod Feet */}
+        <rect x="11" y="30" width="3.5" height="5" rx="1.5" fill="#047857" />
+        <rect x="25.5" y="30" width="3.5" height="5" rx="1.5" fill="#047857" />
+        <rect x="18.5" y="31" width="3" height="4" rx="1" fill="#065f46" />
+
+        {/* Celadon Ceramic Cauldron Body */}
+        <ellipse cx="20" cy="24" rx="13" ry="9" fill="#10b981" stroke="#047857" strokeWidth="1.5" />
+        <ellipse cx="20" cy="22" rx="10" ry="6" fill="#34d399" />
+
+        {/* Carved Openwork Bronze Lid */}
+        <path d="M 10 21 C 10 16 30 16 30 21 Z" fill="#d97706" stroke="#92400e" strokeWidth="1" />
+        <circle cx="20" cy="15" r="2" fill="#fbbf24" stroke="#92400e" strokeWidth="0.8" />
+        {/* Incense Vent Holes */}
+        <circle cx="16" cy="19" r="0.9" fill="#78350f" />
+        <circle cx="20" cy="18" r="0.9" fill="#78350f" />
+        <circle cx="24" cy="19" r="0.9" fill="#78350f" />
+      </svg>
+    </div>
+  );
+}
+
+

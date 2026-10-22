@@ -32,7 +32,7 @@ import {
   type ZenGardenState
 } from "@/lib/zen-garden/zen-state";
 import { cn } from "@/lib/utils";
-import { ZenFloraRenderer, ZenTerrariumBackdrop } from "./zen-garden/zen-vector-art";
+import { ZenFloraRenderer, ZenTerrariumBackdrop, ZenGameToolLadle } from "./zen-garden/zen-vector-art";
 import { ZenSanctuaryModal } from "./zen-garden/zen-sanctuary-modal";
 
 type ActiveTab = "sanctuary" | "botanical" | "breath";
@@ -545,7 +545,7 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
               </>
             ) : canWater ? (
               <>
-                <Droplets className="h-4 w-4 text-emerald-500" />
+                <ZenGameToolLadle className="h-5 w-5 shrink-0" />
                 <span>
                   {isEn
                     ? "Ring Singing Bowl & Nurture (+5c Bonus)"
