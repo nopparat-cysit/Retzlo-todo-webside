@@ -767,7 +767,7 @@ export const TOPICS_EN: GuideTopic[] = [
     category: "notes",
     icon: Flower2,
     title: "Zen Garden, Daily Fortune & Mindful Breathing",
-    badge: "Washi Garden",
+    badge: "Quiet Garden",
     badgeColor: "border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
     scopeBadge: "Studio Tools · Mindful Routine",
     readingTime: "2 min read",
@@ -775,12 +775,12 @@ export const TOPICS_EN: GuideTopic[] = [
     summary:
       "A quiet garden for a daily watering ritual, botanical guardians, a short fortune reading, and guided breathing.",
     concept:
-      "The Garden has its own Washi-inspired visual skin: soft paper, ink, moss, and water tones. Its light and dark palettes follow your selected or system-resolved theme while keeping the rest of Retzlo in its own Retro Lofi Indigo identity.",
+      "The Garden uses a quiet forest-and-paper identity, with an atmospheric painted garden and matching botanical illustrations. The palette follows Light, Dark, or System while the landscape stays softly moonlit and the fortune reads like a warm paper scroll.",
     highlights: [
       "Today: Confirm one watering ritual each day to reveal your fortune and earn 5 serenity coins. Read the short preview or open the full reading.",
       "Plants: Browse unlocked and locked plants, compare coin costs, and confirm before choosing a new guardian.",
       "Rest: Start, pause, or reset a one-minute 4-4-4-4 breathing session.",
-      "Garden artwork: Hand-drawn SVG scenery changes with the season and time of day; touch the scene for a water ripple and chime.",
+      "Garden artwork: A painted moonlit landscape and botanical illustrations share one visual style. The scene mood shifts subtly with season and time; touch it for a water ripple and chime.",
       "Garden styling is scoped to the Garden and adapts to light and dark mode without changing global theme settings.",
     ],
     workflowSteps: [
@@ -808,9 +808,9 @@ export const TOPICS_EN: GuideTopic[] = [
     technicalSpecs: [
       { label: "Daily reward", value: "5 serenity coins and one daily fortune" },
       { label: "Breathing pattern", value: "4-4-4-4 for one minute; can be paused or reset" },
-      { label: "Color modes", value: "Garden-scoped Washi palette with light and dark variants" },
+      { label: "Color modes", value: "Garden-scoped forest and paper palette with light and dark variants" },
     ],
-    tips: "The Garden palette follows your Light, Dark, or System selection automatically; the Garden's paper-and-moss identity only appears inside the Garden.",
+    tips: "The Garden palette follows Light, Dark, or System. Use Left/Right arrow keys to move between its tabs; the full reading supports Tab, Shift+Tab, and Escape.",
     relatedTopicIds: ["welcome-overview", "faq-credits-offline"],
   },
   {

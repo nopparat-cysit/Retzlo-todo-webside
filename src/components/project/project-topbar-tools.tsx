@@ -1,7 +1,7 @@
 "use client";
 
 import { Leaf, Moon, Sparkles, Timer, Volume2 } from "lucide-react";
-import { type ReactNode, useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 import { LofiPlayer } from "@/components/project/lofi-player";
 import { NixiePomodoro } from "@/components/project/nixie-pomodoro";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import gardenSkin from "./zen-garden/zen-garden-skin.module.css";
 
 type ToolId = "ambience" | "focus" | "phase" | "garden";
 
@@ -45,6 +46,16 @@ export function ProjectTopbarTools() {
     window.addEventListener("open-zen-sanctuary", handleEvent);
     return () => window.removeEventListener("open-zen-sanctuary", handleEvent);
   }, [handleOpenSanctuary]);
+
+  useEffect(() => {
+    const wideScreen = window.matchMedia("(min-width: 1536px)");
+    const closeTools = () => {
+      setActiveTool(null);
+      setMobileOpen(false);
+    };
+    wideScreen.addEventListener("change", closeTools);
+    return () => wideScreen.removeEventListener("change", closeTools);
+  }, []);
 
   const renderToolPanel = (id: ToolId) => {
     switch (id) {
@@ -84,9 +95,9 @@ export function ProjectTopbarTools() {
             align="end"
             sideOffset={10}
             forceMount
-            className="w-[min(390px,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0"
+            className={cn("w-[min(390px,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0", selectedMobileTool === "garden" && ["w-[min(420px,calc(100vw-1.5rem))]", gardenSkin.skin, gardenSkin.toolsPopover, gardenSkin.compactPopover])}
           >
-            <div className="grid grid-cols-4 gap-1 border-b border-stone-200/80 dark:border-white/10 pb-2 mb-2">
+            <div className={cn("grid grid-cols-4 gap-1 border-b border-stone-200/80 dark:border-white/10 pb-2 mb-2", selectedMobileTool === "garden" && gardenSkin.studioNavigation)}>
               {toolItems.map((t) => {
                 const TIcon = t.icon;
                 const isCurrent = selectedMobileTool === t.id;
@@ -94,6 +105,7 @@ export function ProjectTopbarTools() {
                   <button
                     key={t.id}
                     type="button"
+                    aria-pressed={isCurrent}
                     onClick={() => setSelectedMobileTool(t.id)}
                     className={cn(
                       "flex flex-col items-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-medium transition",
@@ -159,7 +171,7 @@ export function ProjectTopbarTools() {
                 forceMount
                 className={cn(
                   "overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0",
-                  tool.id === "garden" ? "w-[400px]" : "w-80"
+                  tool.id === "garden" ? ["w-[420px]", gardenSkin.skin, gardenSkin.toolsPopover] : "w-80"
                 )}
               >
                 {renderToolPanel(tool.id)}
@@ -169,7 +181,7 @@ export function ProjectTopbarTools() {
         })}
       </div>
 
-      {/* ── Top-Level 3×3 Living Sanctuary Modal ── */}
+      {/* Daily fortune opens outside the tools popover. */}
       <ZenSanctuaryModal
         isOpen={isSanctuaryOpen}
         onClose={() => setIsSanctuaryOpen(false)}

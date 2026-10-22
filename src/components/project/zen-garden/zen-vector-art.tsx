@@ -1552,12 +1552,14 @@ export function ZenIncenseBrazier({ className = "w-8 h-8" }: { className?: strin
 /* ── 23. Hand-Crafted Japanese Omikuji Fortune Scroll (おみくじ巻物) ── */
 export function ZenOmikujiScroll({
   className = "w-full",
+  surfaceClassName,
   children,
   grade = "daikichi"
 }: {
   className?: string;
   children?: React.ReactNode;
   grade?: string;
+  surfaceClassName?: string;
 }) {
   return (
     <div className={cn("relative flex flex-col items-center select-none", className)}>
@@ -1581,7 +1583,7 @@ export function ZenOmikujiScroll({
 
       {/* Main Washi Parchment Scroll Body with Vermilion Border */}
       <div className="relative w-full px-3 -mt-1 z-10">
-        <div className="relative rounded-sm border-x-4 border-amber-900/40 bg-gradient-to-b from-[#fefbf6] via-[#fbf7ed] to-[#f8f1df] dark:from-[#1b1627] dark:via-[#161222] dark:to-[#110e1c] p-4 sm:p-5 shadow-xl border-t border-b border-amber-800/20">
+        <div className={cn("relative rounded-sm border-x-4 border-amber-900/40 bg-gradient-to-b from-[#fefbf6] via-[#fbf7ed] to-[#f8f1df] dark:from-[#1b1627] dark:via-[#161222] dark:to-[#110e1c] p-4 sm:p-5 shadow-xl border-t border-b border-amber-800/20", surfaceClassName)}>
           {/* Inner Traditional Vermilion Line Border (紅枠) */}
           <div className="absolute inset-1.5 rounded-xs border border-rose-600/30 dark:border-rose-400/20 pointer-events-none" />
           <div className="absolute inset-2 rounded-xs border border-rose-600/15 dark:border-rose-400/10 pointer-events-none" />

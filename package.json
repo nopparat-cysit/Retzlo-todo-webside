@@ -8,6 +8,7 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:kanban-browser": "node scripts/kanban-browser-check.mjs",
+    "test:zen-browser": "node scripts/zen-garden-browser-check.mjs",
     "test:watch": "vitest",
     "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate"

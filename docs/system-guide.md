@@ -183,8 +183,8 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 - **Full daily reading:** The sanctuary shows the fortune grade and verse, followed by separate sections for the oracle, today's work and focus guidance, and a lucky focus item. The page scrolls when the reading exceeds the viewport.
 - **Plants tab:** Browse the botanical collection, see each plant's coin requirement and unlock status, and confirm a change to the active garden guardian.
 - **Rest tab:** Start a one-minute 4-4-4-4 breathing session (inhale, hold, exhale, rest). Pause or reset the session at any time.
-- **Garden art & sound:** Bespoke SVG scenes show Mount Fuji, raked sand, and botanical guardians. The atmosphere changes with the season and time of day. Ambient sound can be muted; touching the garden scene creates a calming ripple and water chime.
-- The garden uses its own Washi Garden skin—paper, ink, moss, and water tones—with light/dark variants that follow the selected or system-resolved theme without changing the rest of the app.
+- **Garden art & sound:** A painted moonlit landscape and matching botanical illustrations create one quiet visual style. Color tints respond to season and time of day. Sound can be muted; touching the garden creates a water ripple and chime. Native SVG art remains available as a fallback for unlisted plants.
+- The garden uses a dedicated Quiet Garden palette: forest green in dark mode and soft sage paper in light mode. It follows the selected or system-resolved theme. The fortune scroll deliberately keeps warm paper artwork in both modes. Tabs support Left/Right/Home/End; the full reading traps keyboard focus and restores it on close.
 
 ---
 
@@ -257,8 +257,8 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 - **คำทำนายฉบับเต็ม:** แสดงระดับคำทำนายและบทกวี แยกส่วนคำทำนาย แนวทางงานและการโฟกัสวันนี้ และสิ่งนำโชค หน้าจะเลื่อนได้เมื่อเนื้อหายาวกว่าพื้นที่แสดงผล
 - **แท็บ พืช:** ดูคลังพฤกษา จำนวนเหรียญ เกณฑ์และสถานะปลดล็อกของแต่ละต้น แล้วกดยืนยันก่อนเปลี่ยนผู้พิทักษ์สวน
 - **แท็บ พักใจ:** เริ่มฝึกลมหายใจ 4-4-4-4 เป็นเวลา 1 นาที (เข้า กลั้น ออก พัก) สามารถหยุดชั่วคราวหรือรีเซ็ตได้
-- **ภาพสวนและเสียง:** ฉาก SVG วาดภูเขาไฟฟูจิ ลานทราย และผู้พิทักษ์พฤกษา เปลี่ยนบรรยากาศตามฤดูกาลและช่วงเวลาของวัน ปิดเสียงได้ และแตะฉากเพื่อสร้างระลอกคลื่นพร้อมเสียงหยดน้ำ
-- Garden ใช้ Washi Garden skin เฉพาะพื้นที่สวน ด้วยโทนกระดาษ หมึก มอส และสายน้ำ พร้อมปรับสว่าง/มืดตามธีมที่เลือกหรือการตั้งค่าระบบ โดยไม่เปลี่ยนธีมส่วนอื่นของแอป
+- **ภาพสวนและเสียง:** ฉากสวนใต้แสงจันทร์กับภาพพฤกษาใช้ลายเส้นกลมกลืนกัน ปรับสีบรรยากาศตามฤดูกาลและช่วงเวลา ปิดเสียงได้ และแตะฉากเพื่อสร้างระลอกคลื่นพร้อมเสียงหยดน้ำ โดยเก็บ SVG เดิมไว้เป็น fallback สำหรับพืชที่ยังไม่มีภาพวาด
+- Garden ใช้ Quiet Garden palette เฉพาะพื้นที่สวน: ป่าเขียวในโหมดมืด และกระดาษสีเสจในโหมดสว่าง ตามธีมที่เลือกหรือระบบ ม้วนคำทำนายคงภาพกระดาษอุ่นตาทั้งสองโหมด ใช้ลูกศรซ้าย/ขวา/Home/End เปลี่ยนแท็บได้ หน้าคำทำนายจำกัดโฟกัสไว้ภายในและคืนโฟกัสเมื่อปิด
 
 #### ปฏิทินงานและตัวเลือกเวลา (Project Calendar & Day View Modal)
 - **Project Calendar View (`/project/[id]/calendar`):**

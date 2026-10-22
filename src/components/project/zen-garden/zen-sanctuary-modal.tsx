@@ -6,11 +6,14 @@ import {
   Check,
   Droplets,
   Flower2,
+  Leaf,
   ScrollText,
   Sparkles,
   Volume2,
   VolumeX,
-  X
+  X,
+  ArrowUpRight,
+  Loader2
 } from "lucide-react";
 
 import { useLanguage } from "@/lib/i18n/language-context";
@@ -19,6 +22,7 @@ import { ModalPortal } from "@/components/ui/modal-portal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
 import gardenSkin from "./zen-garden-skin.module.css";
+import { ZenGuardianArt } from "./zen-guardian-art";
 import {
   type ZenGardenState,
   parseZenGardenState,
@@ -28,8 +32,6 @@ import {
   BOTANICAL_PLANTS
 } from "@/lib/zen-garden/zen-state";
 import {
-  ZenFloraRenderer,
-  ZenTerrariumBackdrop,
   ZenGameToolLadle,
   ZenOmikujiScroll
 } from "./zen-vector-art";
@@ -64,6 +66,7 @@ export function ZenSanctuaryModal({
   const [isWaterConfirmOpen, setIsWaterConfirmOpen] = useState(false);
   const [isRingingChime, setIsRingingChime] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   // Sync state if initial prop changes
   useEffect(() => {
@@ -93,16 +96,35 @@ export function ZenSanctuaryModal({
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      void fetchGardenData();
-      window.setTimeout(() => closeButtonRef.current?.focus(), 80);
-    }
+    if (!isOpen) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    void fetchGardenData();
+    const focusTimer = window.setTimeout(() => closeButtonRef.current?.focus(), 80);
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected && previousFocus.getClientRects().length) previousFocus.focus();
+    };
   }, [isOpen, fetchGardenData]);
 
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !isWaterConfirmOpen) onClose();
+      if (event.key !== "Tab" || isWaterConfirmOpen) return;
+      const buttons = dialogRef.current?.querySelectorAll<HTMLButtonElement>("button:not([disabled])");
+      if (!buttons?.length) return;
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
@@ -216,291 +238,55 @@ export function ZenSanctuaryModal({
 
   return (
     <ModalPortal>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="zen-sanctuary-title"
-        className="fixed inset-0 z-[1600] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/70 backdrop-blur-md animate-in fade-in duration-300"
-      >
-        <div
-          className={cn(
-            gardenSkin.skin,
-            gardenSkin.modalFrame,
-            "relative flex w-full max-w-2xl max-h-[92vh] flex-col overflow-hidden rounded-[28px] border shadow-[0_32px_100px_rgba(15,18,35,0.32)] transition-all duration-500"
-          )}
-        >
-          {/* Top Header Bar */}
-          <div className={cn(gardenSkin.modalHeader, "flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur-md sm:px-6")}>
-            <div className="flex items-center gap-3 min-w-0">
-              <div className={cn(gardenSkin.guardianIcon, "grid h-10 w-10 shrink-0 place-items-center rounded-2xl border text-emerald-700 shadow-sm dark:text-emerald-300")}>
-                <Flower2 className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex min-w-0 items-center gap-2">
-                  <h3 id="zen-sanctuary-title" className="truncate font-serif text-[15px] font-semibold tracking-wide text-theme-foreground">
-                    {isEn ? "The Zen Garden" : "สวนแห่งสติ"}
-                  </h3>
-                  <span className="shrink-0 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 font-mono text-[9px] font-semibold text-amber-800 dark:text-amber-200">
-                    {isEn ? "Daily Omikuji" : "เซียมซีประจำวัน"}
-                  </span>
-                </div>
-                <p className="truncate text-[10px] text-theme-muted">
-                  {isEn ? seasonLabels.en : seasonLabels.th}
-                </p>
-              </div>
+      <div role="dialog" aria-modal="true" aria-labelledby="zen-sanctuary-title" className={cn("fixed", gardenSkin.backdrop)}>
+        <div ref={dialogRef} className={cn(gardenSkin.skin, gardenSkin.modalFrame)}>
+          <header className={gardenSkin.modalHeader}>
+            <div><p className={gardenSkin.eyebrow}>ZEN GARDEN / DAILY OMIKUJI</p><h2 id="zen-sanctuary-title" className={gardenSkin.title}>{isEn ? "A little guidance for today" : "คำทำนายของวันนี้"}<span aria-hidden="true">.</span></h2></div>
+            <div className={gardenSkin.headerActions}>
+              <button type="button" onClick={handleToggleSound} className={gardenSkin.iconButton} aria-label={activeZen.soundMuted ? (isEn ? "Unmute sounds" : "เปิดเสียง") : (isEn ? "Mute sounds" : "ปิดเสียง")}>{activeZen.soundMuted ? <VolumeX size={17} /> : <Volume2 size={17} />}</button>
+              <button type="button" onClick={onClose} ref={closeButtonRef} className={gardenSkin.iconButton} aria-label={isEn ? "Close garden" : "ปิดสวน"}><X size={19} /></button>
             </div>
-
-            {/* Header Right Actions */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              {/* Streak Pill */}
-              <div
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-amber-300/80 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300 text-xs font-mono font-bold shadow-2xs"
-                title={isEn ? "Consecutive Daily Waterings" : "สตรีมการรดน้ำต่อเนื่อง"}
-              >
-                <span>🔥</span>
-                <span>{activeZen.nurtureStreak}d</span>
-              </div>
-
-              {/* Coins Pill */}
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-stone-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.05] text-stone-700 dark:text-stone-300 text-xs font-mono font-bold shadow-2xs">
-                <span>✦</span>
-                <span>{coins}c</span>
-              </div>
-
-              {/* Sound Toggle */}
-              <button
-                type="button"
-                onClick={handleToggleSound}
-                className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200 dark:border-white/10 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/10 transition cursor-pointer"
-                aria-label={activeZen.soundMuted ? (isEn ? "Unmute sounds" : "เปิดเสียง") : (isEn ? "Mute sounds" : "ปิดเสียง")}
-                title={activeZen.soundMuted ? "Unmute" : "Mute"}
-              >
-                {activeZen.soundMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-              </button>
-
-              {/* Ring Singing Bowl */}
-              <button
-                type="button"
-                onClick={handleRingSingingBowl}
-                disabled={isRingingChime}
-                className={cn(
-                  "grid h-8 w-8 place-items-center rounded-xl border transition cursor-pointer shadow-2xs",
-                  isRingingChime
-                    ? "border-amber-400 bg-amber-400/20 text-amber-500 animate-pulse"
-                    : "border-stone-200 dark:border-white/10 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/10"
-                )}
-                aria-label={isEn ? "Ring the singing bowl" : "ตีระฆังสมาธิ"}
-                title={isEn ? "Ring Tibetan Singing Bowl (432 Hz)" : "ตีขันธิเบตสมาธิ (432 Hz)"}
-              >
-                <BellRing className="h-4 w-4" />
-              </button>
-
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={onClose}
-                ref={closeButtonRef}
-                className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200 dark:border-white/10 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-white/10 transition cursor-pointer"
-                aria-label={isEn ? "Close garden" : "ปิดสวน"}
-                title={isEn ? "Close garden" : "ปิดสวน"}
-              >
-                <X className="h-4 w-4" />
-              </button>
+          </header>
+          <div className={gardenSkin.modalBody}>
+            <div className={cn(gardenSkin.scene, gardenSkin.modalScene)}>
+              <div className={gardenSkin.landscape} data-season={season} data-time={timeOfDay} aria-hidden="true" />
+              <div className={gardenSkin.sceneShade} aria-hidden="true" />
+              <div className={gardenSkin.sceneCopy}><span className={gardenSkin.sceneEyebrow}><span className={gardenSkin.liveDot} />{isEn ? "A MOMENT OF STILLNESS" : "ช่วงเวลาแห่งความสงบ"}</span><p>{isEn ? <>Grow gently.<br />Trust your own rhythm.</> : <>ค่อย ๆ เติบโต<br />ในจังหวะของคุณ</>}</p></div>
+              <span className={gardenSkin.japaneseMark} aria-hidden="true">心の庭</span>
+              <div className={gardenSkin.scenePlant}><ZenGuardianArt plantId={activeGuardian.id} stage={4} className="h-full w-full" /></div>
+              <div className={gardenSkin.sceneBottom}><span><Flower2 size={13} />{isEn ? activeGuardian.name : activeGuardian.nameTh}</span><span>{activeGuardian.solfeggioFreq} Hz</span></div>
+              {isWatering && <div className={gardenSkin.wateringOverlay}><ZenGameToolLadle className="h-12 w-12 animate-bounce" /></div>}
             </div>
-          </div>
+            <div className={gardenSkin.modalMeta}><p>{isEn ? seasonLabels.en : seasonLabels.th}</p><span><Sparkles size={12} />{coins}c · {activeZen.nurtureStreak} {isEn ? "day streak" : "วันต่อเนื่อง"}</span></div>
 
-          {/* Main Stage: Terrarium Landscape + Fortune Scroll Reveal */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col items-center justify-start space-y-4">
-            {/* Visual Terrarium Canvas */}
-            <div className={cn(gardenSkin.sceneFrame, "group relative h-48 w-full shrink-0 overflow-hidden rounded-3xl border shadow-lg sm:h-56")}>
-              <ZenTerrariumBackdrop timeOfDay={timeOfDay} season={season} isNourishing={isWatering} />
-              <div aria-hidden="true" className={cn(gardenSkin.sceneOverlay, "pointer-events-none absolute inset-0")} />
-
-              <div className={cn(gardenSkin.modalSceneLabel, "absolute left-3 top-3 rounded-full border px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] shadow-sm backdrop-blur-md")}>
-                {isEn ? "A quiet place to begin" : "สวนสงบสำหรับการเริ่มต้น"}
-              </div>
-
-              {/* Ring Chime Visual Wave */}
-              {isRingingChime && (
-                <div className="absolute inset-0 grid place-items-center pointer-events-none z-30">
-                  <div className="h-40 w-40 rounded-full border-2 border-amber-400/60 animate-ping" />
-                  <div className="h-60 w-60 rounded-full border border-amber-300/40 animate-ping" style={{ animationDelay: "0.4s" }} />
-                </div>
-              )}
-
-              {/* Central Guardian Tree Flora */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-2">
-                <div
-                  className="relative flex h-24 w-24 items-center justify-center transition-transform duration-500 group-hover:scale-105"
-                  style={{
-                    filter: `drop-shadow(0 0 20px ${activeGuardian.auraColor})`
-                  }}
-                >
-                  <ZenFloraRenderer plantId={activeGuardian.id} className="w-20 h-20" />
-                </div>
-              </div>
-
-              {/* Watering Animation Overlay */}
-              {isWatering && (
-                <div className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 rounded-full border-2 border-sky-400 animate-ping" />
-                  <ZenGameToolLadle className="w-12 h-12 -mt-12 animate-bounce filter drop-shadow-[0_4px_12px_rgba(56,189,248,0.9)]" />
-                </div>
-              )}
-
-              <div className={cn(gardenSkin.sceneHint, "absolute bottom-3 left-3 rounded-full border px-3 py-1 text-[10px] font-medium text-white shadow-sm backdrop-blur-md")}>
-                {isEn ? activeGuardian.name : activeGuardian.nameTh} · {activeGuardian.solfeggioFreq} Hz
-              </div>
-            </div>
-
-            {/* Daily Watering Action vs Revealed Omikuji Scroll */}
             {!hasWateredToday ? (
-              <div className={cn(gardenSkin.waterCard, "relative isolate w-full max-w-lg overflow-hidden rounded-3xl border p-4 text-center shadow-xl sm:p-6")}>
-                <div aria-hidden="true" className="pointer-events-none absolute -right-9 -top-12 h-32 w-32 rounded-full bg-dusk-lavender/10 blur-2xl" />
-                <div className="relative space-y-4">
-                <div className="space-y-1">
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold text-sky-800 dark:text-sky-200">
-                    <Droplets className="h-3.5 w-3.5" />
-                    <span>{isEn ? "Ready for today" : "พร้อมดูแลสวนวันนี้"}</span>
-                  </div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 font-semibold text-xs border border-amber-500/20">
-                    <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                    <span>{isEn ? "Daily Fortune Awaits" : "คำทำนายประจำวันรอการเปิดเผย"}</span>
-                  </div>
-                  <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                    {isEn ? "Water Your Sanctuary to Draw Today's Omikuji" : "รดน้ำพฤกษาประจำวันเพื่อรับคำทำนายแห่งสติ"}
-                  </h4>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 max-w-sm mx-auto leading-relaxed">
-                    {isEn
-                      ? "Nourish the sacred tree with morning dew to receive your daily Japanese fortune slip and +5 serenity coins."
-                      : "ใช้น้ำทิพย์รดต้นไม้ประจำวัน เพื่อเปิดม้วนเซียมซีทำนายทิศทางงาน สมาธิ และรับโบนัส +5 เหรียญ"}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsWaterConfirmOpen(true)}
-                  disabled={isWatering}
-                  className={cn(gardenSkin.modalPrimaryAction, "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_26px_rgba(16,100,76,0.22)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(16,100,76,0.28)] active:scale-[0.99] disabled:opacity-50 sm:w-auto")}
-                >
-                  <ZenGameToolLadle className="w-5 h-5 shrink-0" />
-                  <span>
-                    {isWatering
-                      ? isEn
-                        ? "Saving today's ritual…"
-                        : "กำลังบันทึกกิจวัตรวันนี้…"
-                      : isEn
-                      ? "Water today · +5 coins"
-                      : "รดน้ำวันนี้ · +5 เหรียญ"}
-                  </span>
-                </button>
-                </div>
+              <div className={gardenSkin.readingIntro}>
+                <span className={gardenSkin.introIcon}><Droplets size={22} /></span>
+                <p className={gardenSkin.eyebrow}>{isEn ? "A SMALL RITUAL. A FRESH BEGINNING." : "รดน้ำให้สวน เติมความสงบให้ใจ"}</p>
+                <h3>{isEn ? "Let today's fortune unfold" : "เปิดรับคำทำนายของวันนี้"}</h3>
+                <p className={gardenSkin.description}>{isEn ? "Care for your garden and receive a thought to carry into your day. A little guidance, a lucky focus, and 5 serenity coins." : "ดูแลสวนสักนิด แล้วรับคำทำนาย แนวทางสำหรับวันนี้ และสิ่งนำโชค พร้อมเหรียญแห่งสติ 5 เหรียญ"}</p>
+                <button type="button" onClick={() => setIsWaterConfirmOpen(true)} disabled={isWatering} className={gardenSkin.primaryButton}><span>{isWatering ? <Loader2 size={17} className={gardenSkin.spin} /> : <Droplets size={17} />}{isWatering ? (isEn ? "Saving your ritual…" : "กำลังบันทึกกิจวัตร…") : (isEn ? "Water the garden · +5 coins" : "รดน้ำสวนวันนี้ · +5 เหรียญ")}</span><ArrowUpRight size={17} /></button>
               </div>
             ) : currentFortune ? (
-              /* Revealed Japanese Omikuji Fortune Scroll */
-              <div className="w-full max-w-lg space-y-2.5">
-                <ZenOmikujiScroll grade={currentFortune.grade}>
-                  <div className="space-y-4 text-center relative z-10">
-                    {/* Top Grade Badge & Japanese Heading */}
-                    <div className="flex flex-col items-center gap-1 border-b border-rose-600/20 dark:border-rose-400/20 pb-2.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-serif text-2xl font-black text-rose-700 dark:text-rose-400 tracking-widest">
-                          {currentFortune.grade === "daikichi"
-                            ? "大吉"
-                            : currentFortune.grade === "chukichi"
-                            ? "中吉"
-                            : currentFortune.grade === "kichi"
-                            ? "吉"
-                            : currentFortune.grade === "shokichi"
-                            ? "小吉"
-                            : "末吉"}
-                        </span>
-                        <span className="text-xs font-bold font-mono px-2.5 py-0.5 rounded-full border border-rose-300 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 text-rose-800 dark:text-rose-300">
-                          {isEn ? currentFortune.gradeNameEn : currentFortune.gradeName}
-                        </span>
-                      </div>
-                      <p className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
-                        {isEn ? `Revealed on ${currentFortune.date} · Day ${activeZen.nurtureStreak} Streak` : `คำทำนายวันที่ ${currentFortune.date} · สตรีมต่อเนื่อง ${activeZen.nurtureStreak} วัน`}
-                      </p>
-                    </div>
-
-                    {/* Poetic Stanza */}
-                    <div className="px-2 py-1 bg-amber-50/60 dark:bg-white/[0.03] rounded-xl border border-amber-900/10 dark:border-white/5">
-                      <p className="text-sm sm:text-base font-serif italic text-amber-950 dark:text-amber-100 leading-relaxed">
-                        &ldquo;{isEn ? currentFortune.verse : currentFortune.verseTh}&rdquo;
-                      </p>
-                    </div>
-
-                    {/* Deep Oracle Reading */}
-                    <div className="text-left space-y-1 px-1">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400 flex items-center gap-1">
-                        <ScrollText className="h-3 w-3" />
-                        <span>{isEn ? "Zen Oracle" : "คำทำนายแห่งสติ"}</span>
-                      </span>
-                      <p className="text-sm text-stone-700 dark:text-stone-200 leading-relaxed">
-                        {isEn ? currentFortune.oracle : currentFortune.oracleTh}
-                      </p>
-                    </div>
-
-                    {/* Actionable Productivity / Focus Guidance */}
-                    <div className="text-left space-y-1 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
-                        <Sparkles className="h-3 w-3" />
-                        <span>{isEn ? "Daily Work & Focus Guidance" : "แนวทางสร้างสรรค์งานวันนี้"}</span>
-                      </span>
-                      <p className="text-sm text-emerald-900 dark:text-emerald-200 font-medium leading-relaxed">
-                        {isEn ? currentFortune.workGuidance : currentFortune.workGuidanceTh}
-                      </p>
-                    </div>
-
-                    {/* Lucky Companion */}
-                    <div className="flex items-center justify-between text-[11px] pt-1 text-stone-600 dark:text-stone-300 border-t border-rose-600/15 dark:border-rose-400/15">
-                      <span className="font-semibold text-rose-700 dark:text-rose-400">
-                        {isEn ? "Lucky Focus Item:" : "สิ่งมงคลเสริมพลังใจ:"}
-                      </span>
-                      <span className="font-mono text-stone-700 dark:text-stone-300">
-                        {isEn ? currentFortune.luckyFocus : currentFortune.luckyFocusTh}
-                      </span>
-                    </div>
-                  </div>
+              <div className={gardenSkin.readingWrap}>
+                <ZenOmikujiScroll grade={currentFortune.grade} surfaceClassName={gardenSkin.scrollSurface} className={gardenSkin.scroll}>
+                  <article className={gardenSkin.reading}>
+                    <header className={gardenSkin.readingHeader}><span className={gardenSkin.readingEyebrow}>おみくじ / DAILY FORTUNE</span><div className={gardenSkin.readingGrade}><span>{currentFortune.grade === "daikichi" ? "大吉" : currentFortune.grade === "chukichi" ? "中吉" : currentFortune.grade === "kichi" ? "吉" : currentFortune.grade === "shokichi" ? "小吉" : "末吉"}</span><h3>{isEn ? currentFortune.gradeNameEn : currentFortune.gradeName}</h3></div><p>{currentFortune.date}</p></header>
+                    <p className={gardenSkin.readingVerse}>“{isEn ? currentFortune.verse : currentFortune.verseTh}”</p>
+                    <section className={gardenSkin.readingSection}><h4><ScrollText size={14} />{isEn ? "Your reading" : "คำทำนายแห่งสติ"}</h4><p>{isEn ? currentFortune.oracle : currentFortune.oracleTh}</p></section>
+                    <section className={cn(gardenSkin.readingSection, gardenSkin.readingGuidance)}><h4><Leaf size={14} />{isEn ? "A direction for today" : "แนวทางสำหรับวันนี้"}</h4><p>{isEn ? currentFortune.workGuidance : currentFortune.workGuidanceTh}</p></section>
+                    <section className={gardenSkin.luckyItem}><span><Sparkles size={14} />{isEn ? "Your lucky focus" : "สิ่งนำโชคประจำวัน"}</span><strong>{isEn ? currentFortune.luckyFocus : currentFortune.luckyFocusTh}</strong></section>
+                  </article>
                 </ZenOmikujiScroll>
-
-                {/* Bottom Status & Singing Bowl Button */}
-                <div className="flex items-center justify-between gap-2 px-1">
-                  <div className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-300 font-semibold">
-                    <Check className="h-4 w-4" />
-                    <span>{isEn ? "Sanctuary watered today" : "รดน้ำและรับคำทำนายวันนี้แล้ว"}</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleRingSingingBowl}
-                    disabled={isRingingChime}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300/80 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300 text-xs font-semibold transition cursor-pointer"
-                  >
-                    <BellRing className="h-3.5 w-3.5" />
-                    <span>{isEn ? "Ring Bowl" : "ตีระฆังทิเบต"}</span>
-                  </button>
-                </div>
+                <div className={gardenSkin.readingFooter}><span><Check size={14} />{isEn ? "Your garden is cared for today" : "วันนี้ดูแลสวนเรียบร้อยแล้ว"}</span><button type="button" onClick={handleRingSingingBowl} disabled={isRingingChime} className={gardenSkin.textButton}><BellRing size={15} />{isEn ? "A moment of calm" : "ฟังเสียงระฆังพักใจ"}</button></div>
               </div>
-            ) : null}
+            ) : <p className={gardenSkin.description}>{isEn ? "Your garden is cared for today. A new fortune awaits with tomorrow's ritual." : "วันนี้ดูแลสวนเรียบร้อยแล้ว กลับมารับคำทำนายใหม่ในกิจวัตรวันพรุ่งนี้"}</p>}
           </div>
         </div>
       </div>
-      <ConfirmModal
-        open={isWaterConfirmOpen}
-        layer="above-modal"
-        title={isEn ? "Water the garden today?" : "รดน้ำสวนวันนี้ไหม?"}
-        message={isEn
-          ? "This daily ritual reveals your Omikuji fortune and adds 5 serenity coins."
-          : "กิจวัตรนี้จะเปิดคำทำนายประจำวันและเพิ่มเหรียญแห่งสติ 5 เหรียญ"}
-        confirmLabel={isEn ? "Water today" : "รดน้ำวันนี้"}
-        cancelLabel={isEn ? "Cancel" : "ยกเลิก"}
-        loadingLabel={isEn ? "Saving…" : "กำลังบันทึก…"}
-        isLoading={isWatering}
-        onConfirm={() => void handleDailyWater()}
-        onClose={() => setIsWaterConfirmOpen(false)}
-      />
+      <ConfirmModal open={isWaterConfirmOpen} layer="above-modal" title={isEn ? "Water the garden today?" : "รดน้ำสวนวันนี้ไหม?"}
+        message={isEn ? "This daily ritual reveals your Omikuji fortune and adds 5 serenity coins." : "กิจวัตรนี้จะเปิดคำทำนายประจำวันและเพิ่มเหรียญแห่งสติ 5 เหรียญ"}
+        confirmLabel={isEn ? "Water today" : "รดน้ำวันนี้"} cancelLabel={isEn ? "Cancel" : "ยกเลิก"} loadingLabel={isEn ? "Saving…" : "กำลังบันทึก…"} isLoading={isWatering} onConfirm={() => void handleDailyWater()} onClose={() => setIsWaterConfirmOpen(false)} />
     </ModalPortal>
   );
 }
