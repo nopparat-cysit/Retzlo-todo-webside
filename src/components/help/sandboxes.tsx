@@ -43,28 +43,28 @@ export function InteractiveAiDemo({ isEn }: { isEn: boolean }) {
           isEn
             ? "✨ AI Breakdown for 'User Authentication & Login' (5 checklist items):\n" +
               "  ☑️ 01. Design Sign In & Sign Up forms with Retro Lofi UI\n" +
-              "  ☑️ 02. Integrate NextAuth Credentials Provider\n" +
-              "  ☑️ 03. Configure secure password hashing in database\n" +
-              "  ☑️ 04. Add form validation and error toast notifications\n" +
-              "  ☑️ 05. Implement automated authentication unit test suite"
-            : "✨ แตกเช็คลิสต์งาน 'ระบบ Authentication & Login' (5 ข้อย่อย):\n" +
+              "  ☑️ 02. Add field validation and helpful feedback messages\n" +
+              "  ☑️ 03. Configure secure password recovery workflow\n" +
+              "  ☑️ 04. Add toast status notifications upon sign in\n" +
+              "  ☑️ 05. Verify cross-device responsiveness and accessibility"
+            : "✨ แตกเช็คลิสต์งาน 'ระบบเข้าสู่ระบบ & บัญชีผู้ใช้' (5 ข้อย่อย):\n" +
               "  ☑️ 01. ออกแบบฟอร์ม Sign In & Sign Up ด้วย Retro Lofi UI\n" +
-              "  ☑️ 02. เชื่อมต่อ NextAuth Credentials Provider\n" +
-              "  ☑️ 03. ทำระบบเข้ารหัสผ่าน Argon2 / Bcrypt ในฐานข้อมูล\n" +
-              "  ☑️ 04. เพิ่มการแจ้งเตือนความผิดพลาดผ่าน Toast Notification\n" +
-              "  ☑️ 05. ทดสอบ Unit Test การเข้าสู่ระบบแบบอัตโนมัติ"
+              "  ☑️ 02. เพิ่มการตรวจสอบความถูกต้องของข้อมูลพร้อมข้อความแนะนำ\n" +
+              "  ☑️ 03. จัดทำขั้นตอนกู้คืนรหัสผ่านอย่างปลอดภัย\n" +
+              "  ☑️ 04. เพิ่มการแจ้งเตือนสถานะเมื่อเข้าสู่ระบบสำเร็จ\n" +
+              "  ☑️ 05. ตรวจสอบความพร้อมใช้งานบนคอมพิวเตอร์และมือถือ"
         );
       } else if (promptText.includes("Bottlenecks") || promptText.includes("คอขวด")) {
         setSimulatedReply(
           isEn
             ? "⚡ Board Health Check: Found 2 bottlenecks in 'In Progress':\n" +
-              "  • 'Pusher WebSocket Integration' (4 days active - exceeding WIP Limit!)\n" +
+              "  • 'Team Real-time Sync Testing' (4 days active - exceeding WIP Limit!)\n" +
               "  • 'Executive Table Export' (Testing multi-page PDF generation)\n" +
-              "💡 Recommendation: Reassign WebSocket review to a teammate or temporarily increase WIP limit."
+              "💡 Recommendation: Reassign task review to a teammate or temporarily increase WIP limit."
             : "⚡ ตรวจสอบสุขภาพบอร์ด: พบคอขวด 2 รายการในคอลัมน์ In Progress:\n" +
-              "  • งาน 'เชื่อมต่อ Pusher WebSocket' (กำลังดำเนินการ 4 วัน - เกิน WIP Limit!)\n" +
+              "  • งาน 'ทดสอบการซิงค์ข้อมูลทีม' (กำลังดำเนินการ 4 วัน - เกิน WIP Limit!)\n" +
               "  • งาน 'ส่งออกรายงาน Executive Table' (กำลังทดสอบ PDF Multi-page)\n" +
-              "💡 แนะนำ: กระจายงาน WebSocket ให้สมาชิกช่วยรีวิว หรือขยับ WIP Limit ชั่วคราว"
+              "💡 แนะนำ: กระจายงานให้สมาชิกในทีมช่วยรีวิว หรือขยับ WIP Limit ชั่วคราว"
         );
       } else {
         setSimulatedReply(
@@ -151,8 +151,8 @@ export function InteractiveAiDemo({ isEn }: { isEn: boolean }) {
         </div>
 
         <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-stone-400">
-          <span>{isEn ? "Latency: ~0.4s · Context: Live Project Cards" : "ความเร็ว: ~0.4s · บริบท: โครงการ & การ์ดสด"}</span>
-          <span className="text-emerald-400 font-semibold">Zero-Config Server AI</span>
+          <span>{isEn ? "Response: Instant · Context: Live Project Cards" : "การตอบสนอง: รวดเร็ว · บริบท: โครงการ & การ์ดสด"}</span>
+          <span className="text-emerald-400 font-semibold">Built-in Retzlo AI</span>
         </div>
       </div>
     </div>
@@ -171,13 +171,13 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
   const sampleTasks = isEn
     ? [
         { id: 1, title: "Design interactive bilingual documentation portal", status: "In Progress", priority: "P0 Blocker", pColor: "bg-rose-500 text-white", assignees: ["NR", "AI"] },
-        { id: 2, title: "Establish Pusher WebSocket real-time broadcast", status: "In Progress", priority: "P1 Urgent", pColor: "bg-amber-500 text-white", assignees: ["TK"] },
-        { id: 3, title: "Refactor Board Settings Modal boundaries & layout", status: "Done", priority: "P2 Normal", pColor: "bg-indigo-500 text-white", assignees: ["NR"] },
+        { id: 2, title: "Coordinate real-time team notification updates", status: "In Progress", priority: "P1 Urgent", pColor: "bg-amber-500 text-white", assignees: ["TK"] },
+        { id: 3, title: "Review Board Settings modal layout & quick presets", status: "Done", priority: "P2 Normal", pColor: "bg-indigo-500 text-white", assignees: ["NR"] },
       ]
     : [
         { id: 1, title: "ออกแบบหน้าคู่มือระบบใหม่แบบ Interactive", status: "In Progress", priority: "P0 Blocker", pColor: "bg-rose-500 text-white", assignees: ["NR", "AI"] },
-        { id: 2, title: "เชื่อมต่อ WebSocket Pusher เพื่อ Real-time Sync", status: "In Progress", priority: "P1 Urgent", pColor: "bg-amber-500 text-white", assignees: ["TK"] },
-        { id: 3, title: "ปรับปรุงขนาด Board Settings Modal ไม่ให้เลยขอบ", status: "Done", priority: "P2 Normal", pColor: "bg-indigo-500 text-white", assignees: ["NR"] },
+        { id: 2, title: "ประสานงานระบบแจ้งเตือนทีมแบบเรียลไทม์", status: "In Progress", priority: "P1 Urgent", pColor: "bg-amber-500 text-white", assignees: ["TK"] },
+        { id: 3, title: "ปรับปรุงหน้าต่าง Board Settings และพรีวิวแม่แบบ", status: "Done", priority: "P2 Normal", pColor: "bg-indigo-500 text-white", assignees: ["NR"] },
       ];
 
   return (

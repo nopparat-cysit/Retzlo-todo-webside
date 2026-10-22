@@ -8,7 +8,6 @@ import {
   FolderKanban,
   HelpCircle,
   Keyboard,
-  Search,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
@@ -22,24 +21,24 @@ export const TOPICS_EN: GuideTopic[] = [
     id: "welcome-overview",
     category: "overview",
     icon: Compass,
-    title: "Welcome to Retzlo Platform & Modular Architecture",
+    title: "Welcome to Retzlo Platform & System Overview",
     badge: "Getting Started",
     badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-dusk-lavender",
-    scopeBadge: "System Architecture",
+    scopeBadge: "System Overview",
     readingTime: "3 min read",
-    lastUpdated: "Oct 12, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
-      "A modular life and work management platform styled with a soothing Retro Lofi Indigo aesthetic, combining native server-managed AI and enterprise-grade real-time collaboration with 0ms optimistic UI.",
+      "A modular life and work management platform styled with a soothing Retro Lofi Indigo aesthetic, combining built-in AI assistance and real-time team collaboration.",
     concept:
-      "Retzlo is architected under the Modular Life & Work philosophy, seamlessly uniting professional sprint deliverables with personal habits and mental well-being routines. The Retro Lofi Indigo palette provides an eye-friendly, low-stress environment for sustained focus, with all modules connected in real time.",
+      "Retzlo is architected under the Modular Life & Work philosophy, seamlessly uniting professional sprint deliverables with personal habits and daily routines. The Retro Lofi Indigo palette provides an eye-friendly, low-stress environment for sustained focus, with all modules connected in real time.",
     highlights: [
       "Playful Retro Authentication: Immersive cassette tape artwork with interactive demo cards, floating parallax stars, and secure password recovery.",
       "Modular Architecture: Cleanly divided into Work Module (Kanban/Table), Calendar, Notes Hub, Habit Diary, and Rewards Store.",
-      "Real-time 0ms Optimistic UI: Instant state transitions with Pusher WebSocket broadcast and automated rollback safety.",
-      "Built-in Server AI (Zero-Config): Integrated intelligence on the server level, immediately available across all workspaces without manual setup.",
+      "Real-time Collaboration: Instant state synchronization across all connected teammates ensures everyone stays on the same page.",
+      "Built-in Retzlo AI: Integrated workspace intelligence, immediately available across all workspaces without manual setup.",
       "Privacy & Access Control: Distinct Workspace Owner and Project Member roles, with private boards for confidential work.",
       "Dual Theme System: Native Dark Mode (Retro Lofi Indigo) and Warm Paper Light Mode with automatic system preference detection.",
-      "AGENTS.md Safety Standards: ConfirmModal safeguards on all destructive actions, backed by instant Toast notifications.",
+      "Safety Standards: Confirmation dialog safeguards on destructive actions, backed by instant status feedback notifications.",
     ],
     workflowSteps: [
       {
@@ -64,11 +63,11 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Architecture", value: "Next.js App Router + Modular Design" },
-      { label: "Real-time Engine", value: "Pusher WebSocket (0ms Optimistic UI)" },
-      { label: "Database & ORM", value: "Neon PostgreSQL + Prisma ORM" },
-      { label: "AI Integration", value: "Native Server Managed (Zero-Config)" },
-      { label: "Design System", value: "Retro Lofi Indigo (Semantic Tailwind Tokens)" },
+      { label: "Platform Type", value: "Modular Life and Work Management Platform" },
+      { label: "Collaboration", value: "Real-time instant synchronization across teammates" },
+      { label: "Data Storage", value: "High-reliability cloud storage with automated draft backups" },
+      { label: "AI Assistance", value: "Built-in Retzlo AI Assistant (Zero setup required)" },
+      { label: "Design System", value: "Retro Lofi Indigo (Dark, Light, and System modes)" },
     ],
     tips: "Toggle between Dark, Light, or System themes anytime from your avatar popover in the top right corner.",
     relatedTopicIds: ["kanban-boards", "ai-assistant", "spreadsheet-table-view", "roles-and-security"],
@@ -83,18 +82,18 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender",
     scopeBadge: "Native Automation",
     readingTime: "3 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Your dedicated in-app project assistant capable of multi-turn dialogues, sprint health analysis, and drafting task cards directly to your board.",
     concept:
       "Retzlo AI serves as a virtual Scrum Master tailored to your project. It understands live board structures, cards, columns, deadlines, and assignees, delivering actionable recommendations rather than generic conversational replies.",
     highlights: [
-      "Zero-Config Native Execution: Ready out of the box with zero server setup or complex manual configurations.",
+      "Zero-Config Native Execution: Ready out of the box across all workspaces with zero complex manual configurations.",
       "Instant Topbar Access: Launch anytime via the robot icon 🤖 in the topbar or the floating action button.",
       "Adaptive Responsive Docking: Starts as an elegant right-hand Side Panel on desktop displays, and transitions smoothly into a floating bottom-right chatbox on mobile screens.",
       "Star FAB Displacement: The bottom-right star action button automatically glides upward when the chatbox is open, preventing UI overlaps.",
       "Project-Aware Queries: Ask 'Which tasks are blocked?', 'Who has the highest workload?', or 'Summarize this week's progress'.",
-      "Interactive Card Creation: Instruct AI to generate cards with an automated confirmation preview modal before persisting to database.",
+      "Interactive Card Creation: Instruct AI to generate cards with an automated confirmation preview modal before persisting to board.",
       "Quick Starter Prompts: One-click prompt suggestions to immediately jumpstart project analysis.",
     ],
     workflowSteps: [
@@ -115,10 +114,10 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "AI Engine", value: "Native Deep Intelligence (Chat & Structured JSON)" },
-      { label: "Configuration", value: "Zero Setup (100% Server Managed)" },
-      { label: "Context Scope", value: "Projects, Boards, Columns, Cards, Assignees" },
-      { label: "Docking Modes", value: "Desktop Side Panel / Mobile Floating Chat" },
+      { label: "Capabilities", value: "Project-aware analysis, task breakdown, and executive briefings" },
+      { label: "Configuration", value: "Ready out of the box with zero manual configuration" },
+      { label: "Context Scope", value: "Projects, Boards, Columns, Cards, Assignees, and Due Dates" },
+      { label: "Display Modes", value: "Desktop Side Panel and Mobile Floating Chatbox" },
     ],
     tips: "On desktop screens, you can freely switch between the Side Panel and Floating Chat modes to match your multitasking preferences.",
     relatedTopicIds: ["ai-breakdown-summary", "kanban-boards", "keyboard-shortcuts"],
@@ -133,11 +132,11 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber",
     scopeBadge: "Decomposition & Insights",
     readingTime: "3 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Transform complex initiatives into granular actionable checklists and generate executive board summaries with one click.",
     concept:
-      "High-velocity teams break large epics into achievable checklist steps. Retzlo AI analyzes task descriptions to synthesize 3 to 10 actionable items with live completion progress bars, reducing planning overhead by up to 80%.",
+      "High-velocity teams break large initiatives into achievable checklist steps. Retzlo AI analyzes task descriptions to synthesize 3 to 10 actionable items with live completion progress bars, reducing planning overhead significantly.",
     highlights: [
       "AI Task Breakdown: Click ✨ AI Breakdown inside any card modal to decompose tasks into 3–10 structured checklist items.",
       "Executive Project Summary: Click AI Summary on the board toolbar to evaluate sprint health, bottlenecks, and strategic velocity.",
@@ -162,9 +161,9 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Breakdown Scale", value: "3 - 10 Actionable Checklist Items" },
-      { label: "Summary Scope", value: "Health, Bottlenecks, Velocity & Action Items" },
-      { label: "Execution Latency", value: "< 2.5 seconds" },
+      { label: "Breakdown Scale", value: "3 - 10 Actionable Checklist Items per card" },
+      { label: "Summary Scope", value: "Board health, bottlenecks, velocity, and recommendations" },
+      { label: "Execution Speed", value: "Fast in-memory processing in seconds" },
     ],
     tips: "Providing clear context in your card descriptions empowers the AI to generate exceptionally precise checklist recommendations.",
     relatedTopicIds: ["ai-assistant", "kanban-boards", "board-export"],
@@ -179,17 +178,17 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-emerald-400/30 bg-emerald-400/10 text-emerald-600 dark:text-emerald-400",
     scopeBadge: "Core Kanban",
     readingTime: "3 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Real-time visual task management with buttery-smooth drag-and-drop, WIP limits, and customizable card densities.",
     concept:
-      "Retzlo's Kanban board operates on an Optimistic State Architecture. Card reordering and column transfers happen in 0 milliseconds locally while syncing to all teammates via WebSockets with automated error rollbacks.",
+      "Retzlo's Kanban board provides instant visual feedback. Card reordering and column transfers happen instantaneously while broadcasting updates to all teammates with automated recovery safety.",
     highlights: [
-      "Optimistic Drag & Drop: Instantaneous card transitions without network latency or UI stutter.",
-      "Real-time Collaboration: Live card movement updates for all connected project members via Pusher WebSockets.",
-      "Real-time Board Activity Log: Complete audit trail tracking card creation, movements, updates, archives, and attachments in real time.",
-      "Card Archive & Restore: Safely archive cards to a dedicated trash bin with instant restoration back to the board.",
-      "File & Link Attachments: Attach image previews, PDFs, and documents with Cloudinary or add external web links directly to cards.",
+      "Smooth Drag & Drop: Instantaneous card transitions without UI stutter or delay.",
+      "Real-time Collaboration: Live card movement updates for all connected project members.",
+      "Board Activity Log: Complete timeline tracking card creation, movements, updates, archives, and attachments in real time.",
+      "Card Archive & Restore: Safely archive cards to a dedicated repository with instant restoration back to the board.",
+      "File & Link Attachments: Attach image previews, PDFs, and documents or add external web links directly to cards.",
       "Column Settings & WIP Limits: Set Work-In-Progress limits on active columns to identify team bottlenecks early.",
       "Card Density Switcher (Normal / Compact 2x): Toggle between spacious standard cards and ultra-compact 2x views for dense backlogs.",
     ],
@@ -197,7 +196,7 @@ export const TOPICS_EN: GuideTopic[] = [
       {
         step: "01",
         title: "Drag Cards Across Stages",
-        desc: "Move cards between To Do, In Progress, and Done with instantaneous 0ms optimistic updates.",
+        desc: "Move cards between To Do, In Progress, and Done with instantaneous visual feedback.",
       },
       {
         step: "02",
@@ -211,9 +210,9 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Sync Engine", value: "Pusher WebSockets Broadcast" },
-      { label: "Latency", value: "0ms (Optimistic UI with Auto-Rollback)" },
-      { label: "Density Views", value: "Normal (Standard) & Compact 2x (High Density)" },
+      { label: "Synchronization", value: "Real-time updates broadcast to all teammates" },
+      { label: "Responsiveness", value: "Instant interactive transitions without full-page reloads" },
+      { label: "Density Modes", value: "Normal (Standard comfort) and Compact 2x (High density)" },
     ],
     tips: "Toggle Compact 2x density whenever managing sprint boards with dozens of active cards to view the entire pipeline without excessive scrolling.",
     relatedTopicIds: ["spreadsheet-table-view", "card-attributes-customization", "board-export"],
@@ -228,7 +227,7 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-dusk-cyan/30 bg-dusk-cyan/10 text-dusk-cyan",
     scopeBadge: "Bulk Editing & Grid",
     readingTime: "4 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Switch effortlessly from Kanban cards to a spreadsheet layout for rapid inline editing, multi-assignee management, and sorting.",
     concept:
@@ -264,7 +263,7 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Layout Modes", value: "Flat Table View & Grouped Accordion View" },
+      { label: "Layout Modes", value: "Flat Table View and Grouped Column View" },
       { label: "Inline Editing", value: "Title, Status, Priority, Assignees, Dates" },
       { label: "Date Display Format", value: "DD/MM/YYYY" },
     ],
@@ -281,7 +280,7 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-dusk-lavender",
     scopeBadge: "Urgency Scaling",
     readingTime: "3 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Design up to 10 custom priority levels per board with 12 soothing Retro Lofi color swatches and urgency ordering.",
     concept:
@@ -311,9 +310,9 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Max Priorities", value: "10 levels per board" },
+      { label: "Max Priorities", value: "Up to 10 customizable tiers per board" },
       { label: "Color Palette", value: "12 Retro Lofi semantic swatches" },
-      { label: "Sync Scope", value: "Kanban, Table View, Modal, Export Document" },
+      { label: "Sync Scope", value: "Kanban, Table View, Modals, and Export Documents" },
     ],
     tips: "A 'Reset to Default' button is always available to restore standard High, Medium, and Low priorities instantly.",
     relatedTopicIds: ["card-attributes-customization", "spreadsheet-table-view", "kanban-boards"],
@@ -328,22 +327,22 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-emerald-400/30 bg-emerald-400/10 text-emerald-600 dark:text-emerald-400",
     scopeBadge: "Executive Deliverables",
     readingTime: "3 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Export full board deliverables in dedicated layouts with 100% column visibility, zero canvas cropping, and executive KPI headers.",
     concept:
-      "Standard browser viewport screenshots often truncate off-screen columns and lower cards. Retzlo features an off-screen staging renderer delivering pixel-perfect exports for presentations and audit archives.",
+      "Standard browser viewport screenshots often truncate off-screen columns and lower cards. Retzlo features a dedicated document renderer delivering complete exports for presentations and archives.",
     highlights: [
       "Dedicated Layout Engine: Renders every column and card in full without scrollbars or UI control clutter.",
-      "Off-screen Staging Wrapper: Isolates the render canvas to prevent blank white screens or scroll disruptions.",
+      "Precise Document Staging: Ensures sharp, uncropped image renders without affecting your active screen view.",
       "Executive Document Header: Displays formal board titles, timestamps, and KPI cards (total tasks, difficulty points, progress rate, overdue count).",
       "Quick Export: PDF/PNG follows the active Kanban or Table view; quick spreadsheet exports contain task rows.",
-      "Live Preview: The export dialog previews the selected PDF/PNG document or a read-only Excel/CSV sheet sample from the same prepared rows as the download.",
+      "Live Preview: The export dialog previews the selected PDF/PNG document or an Excel/CSV sheet sample from the exact same data rows.",
       "Layout and Theme Options: PDF/PNG can use Full Panoramic Kanban or Executive Table with Clean Light Paper or Dark Slate styling.",
-      "Preview Controls: Opens at a larger 90% zoom; choose 100% for actual size, Fit to see the full page, or zoom and scroll through wide or tall previews. Empty scopes explain why there is no preview and disable download.",
+      "Preview Controls: Choose actual size or fit to window, then zoom and inspect wide or tall documents comfortably.",
       "Multi-Page A4 PDF: Automatic pagination prevents awkward breaks across large deliverables.",
       "Retina PNG (2x): Ultra-sharp imagery suitable for executive slide decks.",
-      "Excel & UTF-8 CSV: Fully formatted spreadsheets with proper column widths and character encoding.",
+      "Excel & UTF-8 CSV: Fully formatted spreadsheets with proper column widths and complete international character encoding.",
     ],
     workflowSteps: [
       {
@@ -359,15 +358,15 @@ export const TOPICS_EN: GuideTopic[] = [
       {
         step: "03",
         title: "Live Preview & Download",
-        desc: "Review the larger live preview beside the settings. Choose 100% for actual size or Fit to see the full page, then zoom, expand or restore the dialog and download.",
+        desc: "Review the live preview beside the settings, zoom or fit, and download your chosen format.",
       },
     ],
     technicalSpecs: [
-      { label: "Rendering Engine", value: "Dedicated Off-screen Staging Wrapper" },
-      { label: "Supported Formats", value: "PDF (Multi-page A4), PNG (2x Retina), Excel (.xlsx), CSV (UTF-8 BOM)" },
-      { label: "Style Themes", value: "Clean Light Paper & Dark Slate" },
+      { label: "Supported Formats", value: "PDF (Multi-page A4), PNG (2x Retina), Excel (.xlsx), CSV" },
+      { label: "Layout Options", value: "Full Panoramic Kanban and Executive Summary Table" },
+      { label: "Theme Styles", value: "Clean Light Paper and Dark Slate" },
     ],
-    tips: "The right-hand preview updates with the selected format, scope, layout, and document theme. Quick PDF/PNG export follows the current board view.",
+    tips: "The right-hand preview updates with the selected format, scope, layout, and document theme immediately.",
     relatedTopicIds: ["kanban-boards", "spreadsheet-table-view", "ai-breakdown-summary"],
     demoType: "export",
   },
@@ -380,7 +379,7 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-purple-400/30 bg-purple-400/10 text-purple-600 dark:text-purple-400",
     scopeBadge: "Workflow Structure",
     readingTime: "3 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Centralized attribute hub for statuses, priorities, and story points with instant inline live previews and workflow templates.",
     concept:
@@ -391,7 +390,7 @@ export const TOPICS_EN: GuideTopic[] = [
       "'+' Quick Buttons in Card Modal: Clicking '+' beside Status, Priority, or Story Points opens the settings tab directly.",
       "Status Workflow Templates: Apply ready-made flows (Software Dev, Agile/Scrum, Marketing, Bug Triage, Design) with Instant Inline Live Previews and Replace/Append modes.",
       "Story Points Scales: Pre-built sizing scales (Retzlo Standard, Fibonacci, Sequential Hours, T-Shirt sizes, Pomodoro blocks).",
-      "AGENTS.md Safety Standards: Every template application, edit, or reset is protected by ConfirmModal and Toast notifications.",
+      "Safety Standards: Every template application, edit, or reset is protected by confirmation dialogs and instant status notifications.",
     ],
     workflowSteps: [
       {
@@ -412,15 +411,15 @@ export const TOPICS_EN: GuideTopic[] = [
       {
         step: "04",
         title: "Confirm & Sync",
-        desc: "Confirm via ConfirmModal; changes dispatch custom DOM events that sync across all views in real time.",
+        desc: "Confirm changes to automatically synchronize statuses across all views in real time.",
       },
     ],
     technicalSpecs: [
       { label: "Attribute Categories", value: "Statuses, Priorities (up to 10), Story Points (1-100)" },
-      { label: "Preview Mechanism", value: "Instant Inline Reactive Preview (No Dialog Overhead)" },
-      { label: "Sync Protocol", value: "Custom DOM Events (retzlo:statuses-updated, etc.)" },
+      { label: "Preview Mechanism", value: "Instant Inline Reactive Preview" },
+      { label: "Synchronization", value: "Live synchronization across boards, modals, and tables" },
     ],
-    tips: "Changes sync via custom events across Kanban Board, Column Settings, Card Modal, and Table View simultaneously.",
+    tips: "Changes synchronize across Kanban Board, Column Settings, Card Modal, and Table View simultaneously.",
     relatedTopicIds: ["kanban-boards", "custom-board-priorities", "spreadsheet-table-view"],
     demoType: "priorities",
   },
@@ -433,7 +432,7 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-dusk-rose/30 bg-dusk-rose/10 text-rose-600 dark:text-dusk-rose",
     scopeBadge: "Morale & Rewards",
     readingTime: "2 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Cultivate high team morale by sending Coffee Cheers when tasks finish, accumulating coins to redeem in the project rewards store.",
     concept:
@@ -463,8 +462,8 @@ export const TOPICS_EN: GuideTopic[] = [
     ],
     technicalSpecs: [
       { label: "Gamification Currency", value: "Retzlo Coins (Tracked per project)" },
-      { label: "Rate Limit Protection", value: "Anti-spam cool-down timer" },
-      { label: "Integration", value: "Card Completion Triggers & Wallet Sync" },
+      { label: "Spam Protection", value: "Automated cool-down timer between cheers" },
+      { label: "Wallet Integration", value: "Instant balance updates upon completed achievements" },
     ],
     tips: "Set up exciting team rewards in the store, such as a coffee shout, snack boxes, or extra flex hours!",
     relatedTopicIds: ["kanban-boards", "calendar-due-dates", "roles-and-security"],
@@ -479,7 +478,7 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-amber-600 dark:text-dusk-amber",
     scopeBadge: "Time Management",
     readingTime: "3 min read",
-    lastUpdated: "Oct 20, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Stay ahead of deadlines with month, week, and 3-day calendar views, date Quick-Add modal, Day View modal, and intuitive single-column linear TimePicker.",
     concept:
@@ -491,10 +490,10 @@ export const TOPICS_EN: GuideTopic[] = [
       "Day View Modal: Click any calendar date to reveal the full day overview with KPI progress bars, filterable task cards, and '+ Add Item for this date'.",
       "High Contrast & Weekend Distinction: Distinct Saturday/Sunday background tints and crisp light/dark text contrast on all calendar pills and badges.",
       "Tactile Item Cards: Feature left accent bars, real-time checkboxes, and direct navigation links to cards or diary items.",
-      "Single-Column Linear TimePicker: Clean linear scrollers with direct numeric typing and auto-jump for hours and minutes.",
+      "Single-Column Linear TimePicker: Clean linear scroller with direct numeric typing and auto-jump for hours and minutes.",
       "Popular Time Presets: Quick shortcut buttons (🌅 09:00 Morning, ☀️ 12:00 Noon, ☕ 13:30 Afternoon, 💼 17:00 End of Day, 🌙 20:00 Night).",
       "Smart Diary Filtering: Daily routine diary checklists are kept hidden on future dates until the day arrives to keep future calendar cells clean, while weekly and monthly milestone schedules are shown in advance.",
-      "Instant Skeleton Loading: Smooth skeleton transitions prevent visual jumps during route changes.",
+      "Fast Seamless Loading: Clean skeleton transitions prevent visual jumps during route changes.",
     ],
     workflowSteps: [
       {
@@ -514,10 +513,10 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Views", value: "Month Overview, Week Timeline, 3 Days Mode, Day Overview Modal" },
+      { label: "Calendar Views", value: "Month Overview, Week Timeline, 3 Days Mode, Day Overview Modal" },
       { label: "Quick Creation", value: "Task/Note modal with target board & column selection" },
-      { label: "TimePicker Scroller", value: "Single-column linear with direct number input" },
-      { label: "Presets", value: "Today, Tomorrow, This Weekend, Next Week" },
+      { label: "Time Selection", value: "Direct numeric input with single-column linear scroller and presets" },
+      { label: "Date Presets", value: "Today, Tomorrow, This Weekend, Next Week" },
     ],
     tips: "Cards near their deadlines display urgency colors; you can check off tasks directly from the Day View modal.",
     relatedTopicIds: ["kanban-boards", "notes-diary-hub", "spreadsheet-table-view"],
@@ -532,15 +531,15 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-indigo-400",
     scopeBadge: "Routines & Habits",
     readingTime: "2 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "A dedicated sanctuary for unstructured ideas, meeting minutes, daily habit checklists, and streak analytics.",
     concept:
-      "Balancing high-performance project execution with personal mental well-being routines. Notes and habit tracking sit alongside project boards for total life harmony.",
+      "Balancing high-performance project execution with personal daily routines. Notes and habit tracking sit alongside project boards for total life harmony.",
     highlights: [
       "Notes System: Organize notes by folder, pin critical documents, and format rich content.",
       "Diary Tracker: Track daily wellness habits with automated streak analytics and completion rings.",
-      "Offline Draft Storage: Prevents accidental loss by auto-saving typed drafts in the browser.",
+      "Offline Draft Storage: Prevents accidental loss by auto-saving typed drafts in the browser while typing.",
       "One-click Conversion: Convert meeting notes or brainstorms directly into Kanban task cards.",
     ],
     workflowSteps: [
@@ -561,7 +560,7 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Storage", value: "Cloud Database + Local Browser Draft Backup" },
+      { label: "Storage", value: "Cloud storage with automated local browser draft backup" },
       { label: "Habit Tracking", value: "Daily Checklist + Streak Analytics" },
     ],
     tips: "Use the Diary Hub for short morning reflections and evening wrap-ups to maintain clear mental focus.",
@@ -577,7 +576,7 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-dusk-lavender",
     scopeBadge: "Team Governance",
     readingTime: "3 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Workspace team management across 3 tabs with live online presence, role elevation, and dedicated invitation links.",
     concept:
@@ -587,7 +586,7 @@ export const TOPICS_EN: GuideTopic[] = [
       "Presence Indicator: Real-time presence dots on member avatars (🟢 Online, 🟠 Busy, ⚪ Offline).",
       "Role Switcher: Project Owners can elevate or demote members between Owner and Member, with safeguards against demoting the sole remaining owner.",
       "Dedicated Invite Modal: Generate role-specific invitation links ready to share via Slack, email, or chat.",
-      "ConfirmModal Protection: All removals and invitation revocations require explicit confirmation.",
+      "Confirmation Safeguards: All member removals and invitation revocations require explicit confirmation.",
     ],
     workflowSteps: [
       {
@@ -607,108 +606,12 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Roles", value: "Workspace Owner & Project Member" },
+      { label: "Project Roles", value: "Workspace Owner and Project Member" },
       { label: "Presence States", value: "🟢 Online, 🟠 Busy, ⚪ Offline" },
-      { label: "Safety Guards", value: "Last Owner Protection & Mandatory ConfirmModal" },
+      { label: "Safety Protections", value: "Last Owner Protection and confirmation dialog on destructive actions" },
     ],
     tips: "Click metric cards at the top (Total Members, Active Now, Pending) to quickly filter the roster.",
     relatedTopicIds: ["project-and-board-settings", "welcome-overview", "coffee-cheers-rewards"],
-    demoType: "permissions",
-  },
-  {
-    id: "super-admin-portal",
-    category: "security",
-    icon: ShieldCheck,
-    title: "Super Admin Command Center & 8-Hub Governance",
-    badge: "Major Update",
-    badgeColor: "border-purple-400/30 bg-purple-400/10 text-purple-600 dark:text-purple-300",
-    scopeBadge: "System Governance",
-    readingTime: "4 min read",
-    lastUpdated: "Oct 12, 2026",
-    summary:
-      "All-encompassing 8-hub Super Admin Command Center featuring live telemetry, slide-over inspector drawers, honeypot decoy detection, global broadcast announcements, and fine-grained system controls.",
-    concept:
-      "The Super Admin Portal (/admin-vault-9f8e) centralizes total operational control across 8 dedicated hubs: Live Telemetry, Users & Identity, Workspaces & Governance, Rewards & Economy, AI & Machine Intelligence, Storage & Media, Security & Decoy Telemetry, and Operations & Broadcast.",
-    highlights: [
-      "8 Dedicated Operational Hubs: Overview, Users, Workspaces, Rewards, AI Intel, Storage, Security, and Operations.",
-      "Slide-Over Inspector Drawers: Rapid deep inspection and live edits for users (roles, suspension, coins, AI quota) and workspaces (ownership transfer, board breakdown, deletion).",
-      "Fortress Defense & Decoy Telemetry: Traps scanners probing /admin with deceptive 404 while capturing bot IP, User-Agent, and timestamp.",
-      "Global Broadcast Banner: Deploy real-time announcements (Info, Warning, Urgent) to all connected users with live in-app preview.",
-      "Rewards & AI Economy: 1-click redemption approval with automatic coin refunding on reject, plus AI daily quota overrides.",
-    ],
-    workflowSteps: [
-      {
-        step: "01",
-        title: "Access Command Center",
-        desc: "Open your profile menu and click 'Admin Portal' (accessible only to globalRole === 'ADMIN').",
-      },
-      {
-        step: "02",
-        title: "Inspect Users & Workspaces",
-        desc: "Click any user or workspace to trigger the slide-over inspector drawer for live modifications, ownership transfers, or coin adjustments.",
-      },
-      {
-        step: "03",
-        title: "Deploy Broadcasts & Clear Redemptions",
-        desc: "Manage platform-wide announcement banners, review pending reward claims, and monitor honeypot security telemetry.",
-      },
-    ],
-    technicalSpecs: [
-      { label: "Security Architecture", value: "3-Tier Defense & Route Cloaking (404 Deception)" },
-      { label: "Governance Hubs", value: "8 Modules (Overview, Users, Projects, Rewards, AI, Storage, Security, Ops)" },
-      { label: "Operational State", value: "Real-time Telemetry, In-Memory Broadcasts & Audit Logging" },
-      { label: "Audit Safeguards", value: "Self-demotion lock & mandatory ConfirmModal on all actions" },
-    ],
-    tips: "Standard /admin routes intentionally act as a silent honeypot returning 404 Not Found to record probe attempts without exposing the true vault path.",
-    relatedTopicIds: ["roles-and-security", "project-and-board-settings", "welcome-overview"],
-    demoType: "permissions",
-  },
-  {
-    id: "audit-logging-hub",
-    category: "security",
-    icon: ShieldCheck,
-    title: "Forensic Audit Logging & Privacy Compliance Hub",
-    badge: "New Enterprise",
-    badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-indigo-400",
-    scopeBadge: "Legal & Forensics",
-    readingTime: "4 min read",
-    lastUpdated: "Oct 12, 2026",
-    summary:
-      "Enterprise-grade, append-only forensic audit hub complying with Thai PDPA Section 24(5), Thai Computer Crime Act Section 26, and GDPR Art 6(1)(f) with automated zero-PII sanitization and side-by-side state diffs.",
-    concept:
-      "The Audit Log Explorer (/admin-vault-9f8e -> Audit Logs & Forensics) captures all system mutations, security events, and administrative interventions across dual persistence (Neon PostgreSQL + memory circular fallback buffer) with strict data minimization protecting user privacy.",
-    highlights: [
-      "Strict Legal Privacy Compliance: Compliant with Thai PDPA Sec 24(5) (Legitimate Interests) and Thai Computer Crime Act Sec 26 (90-day traffic data retention).",
-      "Zero-PII & Secret Sanitization: Passwords, OTPs, auth tokens, session cookies, and private note/diary reflections are automatically masked or minimized.",
-      "Slide-Over Forensic Drawer: Inspect any event with side-by-side Before/After state mutation diffs, sanitized stack traces, and 1-click 'Copy Forensic JSON'.",
-      "Multi-Dimension Filtering: Search by keyword, category (AUTH, USER, PROJECT, REWARD, AI, SECURITY, etc.), severity, status, or date range.",
-      "Export & Immutability: Append-only ledger with cryptographically signed CSV and JSON export tools (exports themselves are audited).",
-    ],
-    workflowSteps: [
-      {
-        step: "01",
-        title: "Open Audit Explorer",
-        desc: "Navigate to the Super Admin Command Center (/admin-vault-9f8e) and select the 'Audit Logs & Forensics' tab.",
-      },
-      {
-        step: "02",
-        title: "Filter & Investigate",
-        desc: "Use search terms, preset chips (Security, Failures, Users, AI), or category dropdowns to locate specific incident traces.",
-      },
-      {
-        step: "03",
-        title: "Inspect State Mutation Diffs",
-        desc: "Click any log row to open the slide-over drawer and review the exact before/after field changes, actor identity, and IP address origin.",
-      },
-    ],
-    technicalSpecs: [
-      { label: "Legal Framework", value: "Thai PDPA Sec 24(5), Computer Crime Act Sec 26, GDPR Art 6(1)(f)" },
-      { label: "Data Retention", value: ">= 90 Days UTC Timestamp Synchronized" },
-      { label: "Sanitization Engine", value: "Recursive Regex Secret & Token Redaction ([REDACTED])" },
-      { label: "Dual Persistence", value: "Neon PostgreSQL (AuditLog) + In-Memory Circular Buffer" },
-    ],
-    tips: "Audit records are immutable and append-only. There are no delete or update routes for audit entries to ensure uncompromised forensic validity.",
-    relatedTopicIds: ["super-admin-portal", "roles-and-security"],
     demoType: "permissions",
   },
   {
@@ -720,7 +623,7 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender",
     scopeBadge: "Workspace Control",
     readingTime: "2 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Compact settings architecture categorized by scope (Project, Boards, Personal) with standard settings rows.",
     concept:
@@ -747,15 +650,15 @@ export const TOPICS_EN: GuideTopic[] = [
       {
         step: "03",
         title: "Save & Verify",
-        desc: "Save modifications with instantaneous Toast confirmation feedback.",
+        desc: "Save modifications with instantaneous confirmation feedback.",
       },
     ],
     technicalSpecs: [
-      { label: "Layout Standard", value: "Scope-grouped Settings Rows" },
-      { label: "URL Deep Linking", value: "?tab=...&boardId=... sync" },
-      { label: "Destructive Action", value: "ConfirmModal verification required" },
+      { label: "Organization Scopes", value: "Project-wide, Board-specific, and Personal device preferences" },
+      { label: "Deep Linking", value: "Direct links to active tabs and board selectors" },
+      { label: "Action Protection", value: "Confirmation modal required on destructive actions" },
     ],
-    tips: "Share deep links directly with teammates: ?tab=boards, ?tab=access, ?tab=attributes, or ?tab=board-general&boardId=...",
+    tips: "Share deep links directly with teammates for specific settings tabs.",
     relatedTopicIds: ["roles-and-security", "card-attributes-customization", "kanban-boards"],
     demoType: "permissions",
   },
@@ -768,7 +671,7 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-stone-400/30 bg-stone-400/10 text-stone-600 dark:text-stone-400",
     scopeBadge: "High-Speed Hotkeys",
     readingTime: "2 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
       "Accelerate daily workflows with rapid command palette navigation without lifting hands from the keyboard.",
     concept:
@@ -799,7 +702,7 @@ export const TOPICS_EN: GuideTopic[] = [
     ],
     technicalSpecs: [
       { label: "Global Shortcuts", value: "Ctrl/Cmd+K, F, Esc, Enter" },
-      { label: "Search Mechanism", value: "Instant Client-side Fuzzy Matching" },
+      { label: "Search Mechanism", value: "Instant client-side fuzzy matching" },
     ],
     codeOrShortcut: "Ctrl + K / Cmd + K",
     tips: "Press Ctrl+K and begin typing to jump directly to any card without navigating through boards.",
@@ -815,13 +718,13 @@ export const TOPICS_EN: GuideTopic[] = [
     badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-amber-600 dark:text-dusk-amber",
     scopeBadge: "Troubleshooting & Q&A",
     readingTime: "3 min read",
-    lastUpdated: "Oct 7, 2026",
+    lastUpdated: "Oct 22, 2026",
     summary:
-      "Answers to common technical inquiries and best practices for smooth daily platform operations.",
+      "Answers to common user inquiries and best practices for smooth daily platform operations.",
     concept:
       "Direct guidance for common user questions and rapid troubleshooting steps.",
     highlights: [
-      "Q: Does Retzlo AI require server setup? -> Answer: Retzlo AI is 100% built-in and server-managed out of the box with zero manual configuration.",
+      "Q: Does Retzlo AI require server setup? -> Answer: Retzlo AI is 100% built-in out of the box with zero manual configuration.",
       "Q: Will typed text be lost during internet drops? -> Answer: Offline Draft Storage saves your in-progress text in your browser automatically.",
       "Q: How do I switch themes? -> Answer: Click your avatar popover in the top right to switch between Dark, Light, or System modes.",
       "Q: Who can view Private Boards? -> Answer: Only the board creator and members explicitly selected in Board Settings can view private boards.",
@@ -831,7 +734,7 @@ export const TOPICS_EN: GuideTopic[] = [
       {
         step: "01",
         title: "Verify Network Connection",
-        desc: "Ensure active internet connection so Pusher WebSockets synchronize updates in real time.",
+        desc: "Ensure active internet connection so workspace updates synchronize smoothly in real time.",
       },
       {
         step: "02",
@@ -840,11 +743,10 @@ export const TOPICS_EN: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Data Resilience", value: "Offline Draft Storage + Optimistic Rollback" },
-      { label: "Support Channel", value: "In-app /contact & Built-in AI Assistant" },
+      { label: "Data Resilience", value: "Automated offline draft backup while typing" },
+      { label: "Support Channels", value: "In-app Contact page (/contact) and Retzlo AI Assistant" },
     ],
-    tips: "Ensure WebSockets are permitted on corporate networks to allow 0ms real-time collaboration to function.",
+    tips: "Check your internet connection if cards take longer to update.",
     relatedTopicIds: ["welcome-overview", "ai-assistant", "roles-and-security"],
   },
 ];
-

@@ -87,4 +87,49 @@ describe("Help & System Guide integration", () => {
     expect(agentsSource).toContain("System Documentation & Knowledge Base");
     expect(agentsSource).toContain("docs/system-guide.md");
   });
+
+  it("ensures in-app help guide and help button do not leak sensitive admin secrets, honeypots, or internal vendor tech stacks", () => {
+    const helpDir = join(process.cwd(), "src/components/help");
+    const readDirRecursive = (dir: string): string => {
+      let combined = "";
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const fullPath = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          combined += readDirRecursive(fullPath);
+        } else if (
+          (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) &&
+          !entry.name.endsWith(".test.ts")
+        ) {
+          combined += readFileSync(fullPath, "utf8") + "\n";
+        }
+      }
+      return combined;
+    };
+    const helpFilesContent = readDirRecursive(helpDir);
+    const helpButtonContent = readFileSync(
+      join(process.cwd(), "src/components/ui/help-button.tsx"),
+      "utf8"
+    );
+    const userFacingGuideContent = helpFilesContent + "\n" + helpButtonContent;
+
+    // Must not leak secret admin routes or honeypot telemetry
+    expect(userFacingGuideContent).not.toContain("/admin-vault-9f8e");
+    expect(userFacingGuideContent.toLowerCase()).not.toContain("honeypot");
+    expect(userFacingGuideContent).not.toContain("super-admin-portal");
+    expect(userFacingGuideContent).not.toContain("audit-logging-hub");
+
+    // Must not leak internal infrastructure or vendor tech stacks
+    expect(userFacingGuideContent).not.toContain("deepseek-v4-pro");
+    expect(userFacingGuideContent).not.toContain("PostgreSQL on Neon");
+    expect(userFacingGuideContent).not.toContain("neon.tech");
+    expect(userFacingGuideContent).not.toContain("Prisma ORM");
+    expect(userFacingGuideContent).not.toContain("Pusher WebSocket");
+    expect(userFacingGuideContent).not.toContain("Cloudinary");
+    expect(userFacingGuideContent).not.toContain("NextAuth");
+    expect(userFacingGuideContent).not.toContain("Argon2");
+
+    // Must not leak internal repo files / developer rules
+    expect(userFacingGuideContent).not.toContain("AGENTS.md");
+    expect(userFacingGuideContent).not.toContain("system-guide.md");
+  });
 });

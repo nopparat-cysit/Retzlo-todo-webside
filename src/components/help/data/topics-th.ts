@@ -21,24 +21,24 @@ export const TOPICS_TH: GuideTopic[] = [
     id: "welcome-overview",
     category: "overview",
     icon: Compass,
-    title: "ยินดีต้อนรับสู่ Retzlo Platform & สถาปัตยกรรมระบบ",
+    title: "ยินดีต้อนรับสู่ Retzlo Platform & ภาพรวมระบบ",
     badge: "Getting Started",
     badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-dusk-lavender",
     scopeBadge: "ภาพรวมระบบ",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "12 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
-      "แพลตฟอร์มบริหารจัดการชีวิตและการทำงาน (Modular Life & Work Management) สไตล์ Retro Lofi Indigo ผสานขุมพลัง AI และความสามารถระดับองค์กร ทำงานแบบเรียลไทม์ 0ms",
+      "แพลตฟอร์มบริหารจัดการชีวิตและการทำงาน (Modular Life & Work Management) สไตล์ Retro Lofi Indigo ผสานผู้ช่วย AI และการทำงานร่วมกันแบบเรียลไทม์",
     concept:
-      "Retzlo ออกแบบมาภายใต้ปรัชญา Modular Architecture ที่ผสมผสานการบริหารงานโปรเจกต์ระดับมืออาชีพ เข้ากับการติดตามกิจวัตรและสุขภาพจิตในชีวิตประจำวัน โดยใช้โทนสี Retro Lofi Indigo ที่สบายสายตา และไม่สร้างความเครียดระหว่างการทำงานต่อเนื่องเป็นเวลานาน ทุกโมดูลเชื่อมโยงกันอย่างสมบูรณ์แบบ",
+      "Retzlo ออกแบบมาภายใต้ปรัชญา Modular Architecture ที่ผสมผสานการบริหารงานโปรเจกต์ระดับมืออาชีพ เข้ากับการติดตามกิจวัตรและสร้างสมดุลในชีวิตประจำวัน โดยใช้โทนสี Retro Lofi Indigo ที่สบายสายตา และไม่สร้างความเครียดระหว่างการทำงานต่อเนื่องเป็นเวลานาน ทุกโมดูลเชื่อมโยงกันอย่างสมบูรณ์แบบ",
     highlights: [
       "ระบบล็อกอิน Retro Art: ภาพประกอบเทปคาสเซ็ทเรโทรแบบมีลูกเล่น พร้อมการ์ดสาธิต และระบบกู้คืนรหัสผ่านความปลอดภัยสูง",
       "สถาปัตยกรรมโมดูลาร์ (Modular Architecture): แยกส่วนระบบชัดเจน ทั้ง Work Module (Kanban/Table), Calendar, Notes Hub, Habit Diary, และ Rewards Store",
-      "การเชื่อมต่อแบบเรียลไทม์ 0ms: ซิงค์การเคลื่อนย้ายการ์ดและข้อมูลระหว่างเพื่อนร่วมทีมทุกคนทันทีด้วย Pusher WebSocket และ Optimistic UI 0ms",
-      "ขุมพลัง Retzlo AI ในตัว (Built-in Server AI): ผู้ช่วยอัจฉริยะระดับเซิร์ฟเวอร์ พร้อมใช้งานทันทีแบบอัตโนมัติ 100% เชื่อมต่อและทำงานได้ทันทีโดยไม่ต้องตั้งค่าใดๆ ให้ยุ่งยาก",
-      "ความปลอดภัยและความเป็นส่วนตัว: รองรับ Workspace Owner, Member และระบบ Private Boards สำหรับข้อมูลลับเฉพาะบุคคล",
+      "การเชื่อมต่อแบบเรียลไทม์: ซิงค์การเคลื่อนย้ายการ์ดและข้อมูลระหว่างเพื่อนร่วมทีมทุกคนทันที ช่วยให้ทุกคนเห็นข้อมูลตรงกันตลอดเวลา",
+      "ผู้ช่วยอัจฉริยะ Retzlo AI ในตัว: พร้อมใช้งานทันทีในทุก Workspace เพื่อช่วยวิเคราะห์ แตกงาน และสรุปผลโดยไม่ต้องตั้งค่าใดๆ ให้ยุ่งยาก",
+      "ความปลอดภัยและความเป็นส่วนตัว: รองรับบทบาท Workspace Owner, Member และระบบ Private Boards สำหรับข้อมูลลับเฉพาะบุคคล",
       "ระบบ Theme คู่: รองรับทั้ง Dark Mode (Retro Lofi Indigo) และ Light Mode (Warm Paper) พร้อมโหมด System ตามอุปกรณ์",
-      "มาตรฐานความปลอดภัย AGENTS.md: ทุกการลบหรือแก้ไขข้อมูลสำคัญมี ConfirmModal ปกป้อง และแจ้งเตือนผลลัพธ์ผ่าน Toast สม่ำเสมอ",
+      "มาตรฐานความปลอดภัย: ทุกการลบหรือแก้ไขข้อมูลสำคัญจะมีกล่องยืนยันความตั้งใจเสมอ และแจ้งเตือนผลลัพธ์ผ่านข้อความแจ้งเตือนอย่างชัดเจน",
     ],
     workflowSteps: [
       {
@@ -63,11 +63,11 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Architecture", value: "Next.js App Router + Modular Architecture" },
-      { label: "Real-time Engine", value: "Pusher WebSocket (0ms Optimistic UI)" },
-      { label: "Database & ORM", value: "Neon PostgreSQL + Prisma ORM" },
-      { label: "AI Integration", value: "Built-in Server AI (Zero-Config Native)" },
-      { label: "Design System", value: "Retro Lofi Indigo (Tailwind Semantic Tokens)" },
+      { label: "ประเภทระบบ", value: "แพลตฟอร์มบริหารงานและชีวิตแบบโมดูลาร์ (Modular Life & Work)" },
+      { label: "การซิงก์ข้อมูล", value: "ซิงค์สดเรียลไทม์ระหว่างเพื่อนร่วมทีมทุกคน" },
+      { label: "พื้นที่จัดเก็บ", value: "ระบบคลาวด์ความปลอดภัยสูง พร้อมสำรองข้อมูลอัตโนมัติ" },
+      { label: "ผู้ช่วยอัจฉริยะ", value: "Retzlo AI ผู้ช่วยประจำพื้นที่ทำงาน (พร้อมใช้ทันที)" },
+      { label: "ชุดสีและธีม", value: "Retro Lofi Indigo (รองรับทั้ง Dark Mode และ Light Mode)" },
     ],
     tips: "สามารถสลับธีมสีระหว่าง Dark, Light หรือ System ได้ทุกเมื่อผ่านเมนูที่รูปโปรไฟล์ของคุณที่มุมบนขวา",
     relatedTopicIds: ["kanban-boards", "ai-assistant", "spreadsheet-table-view", "roles-and-security"],
@@ -82,15 +82,15 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender",
     scopeBadge: "ระบบช่วยเหลืออัตโนมัติ",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
-      "ผู้ช่วย AI ประจำโปรเจกต์ ช่วยวิเคราะห์ สรุปงาน และร่างการ์ดงานอัตโนมัติแบบ Multi-turn พร้อมใช้งานทันทีในระบบแบบ Zero-Config",
+      "ผู้ช่วย AI ประจำโปรเจกต์ ช่วยวิเคราะห์ สรุปงาน และร่างการ์ดงานอัตโนมัติแบบ Multi-turn พร้อมใช้งานทันทีในระบบ",
     concept:
-      "Retzlo AI ถูกออกแบบมาให้เป็นเสมือน Scrum Master และผู้ช่วยประจำโปรเจกต์ของคุณ โดยดึงข้อมูลโครงสร้างบอร์ด รายการการ์ด สมาชิกผู้รับผิดชอบ และสถานะปัจจุบันมาวิเคราะห์อย่างรอบด้าน ไม่ใช่เพียงแค่แชทบอทตอบคำถามทั่วไป พร้อมระบบความปลอดภัยพรีวิวยืนยันก่อนสร้างงานจริง",
+      "Retzlo AI ถูกออกแบบมาให้เป็นเสมือน Scrum Master และผู้ช่วยประจำโปรเจกต์ของคุณ โดยดึงข้อมูลโครงสร้างบอร์ด รายการการ์ด สมาชิกผู้รับผิดชอบ และสถานะปัจจุบันมาวิเคราะห์อย่างรอบด้าน ไม่ใช่เพียงแค่แชทบอทตอบคำถามทั่วไป พร้อมระบบพรีวิวยืนยันก่อนสร้างงานจริงลงบนบอร์ด",
     highlights: [
-      "พร้อมใช้งานทันที (Built-in Server AI): ผู้ช่วย AI อัจฉริยะในตัว เชื่อมต่อระดับเซิร์ฟเวอร์แบบเบ็ดเสร็จ ไม่ต้องตั้งค่าใดๆ",
+      "พร้อมใช้งานทันที: ผู้ช่วย AI อัจฉริยะในตัว เชื่อมต่อพร้อมทำงานทันทีในทุก Workspace โดยไม่ต้องตั้งค่าใดๆ",
       "เปิดใช้งานด่วน: คลิกไอคอน 🤖 ที่แถบด้านบนข้างรูปโปรไฟล์ หรือใช้ปุ่มลอยด่วนได้ทุกหน้าจอ",
-      "รูปแบบ Responsive อัจฉริยะ: บนจอคอมพิวเตอร์จะเปิดเป็น Side Panel สไตล์ Gemini ตรึงขอบขวา และปรับเป็น Floating Chatbox บนจอมือถือ/แท็บเล็ตโดยอัตโนมัติ",
+      "รูปแบบ Responsive อัจฉริยะ: บนจอคอมพิวเตอร์จะเปิดเป็น Side Panel ตรึงขอบขวา และปรับเป็น Floating Chatbox บนจอมือถือ/แท็บเล็ตโดยอัตโนมัติ",
       "ไม่บดบังเครื่องมืออื่น: ปุ่มดาว FAB Hub ที่มุมล่างจะขยับหลบกล่องแชทอย่างราบรื่น ไม่บดบังปุ่มพิมพ์",
       "เข้าใจบริบทโปรเจกต์: สามารถถามว่า 'งานไหนยังค้างอยู่บ้าง?', 'ใครรับผิดชอบงานเยอะที่สุด?' หรือ 'สรุปงานของสัปดาห์นี้ให้หน่อย' ได้ทันที",
       "AI Card Creation: สั่งสร้างการ์ดงานลงบอร์ดผ่านแชท พร้อมระบบพรีวิวยืนยันรายการก่อนบันทึกจริงเพื่อความปลอดภัย",
@@ -114,12 +114,12 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "AI Engine", value: "Native Deep Intelligence (Chat & Structured JSON)" },
-      { label: "Configuration", value: "Zero Setup (100% Server Managed)" },
-      { label: "Context Scope", value: "Project, Boards, Columns, Cards, Assignees" },
-      { label: "Adaptive Docking", value: "Desktop Side Panel / Mobile Floating Chat" },
+      { label: "ความสามารถ AI", value: "วิเคราะห์บริบทโปรเจกต์, แตกย่อยงาน และสรุปข้อมูลผู้บริหาร" },
+      { label: "การตั้งค่า", value: "พร้อมใช้งานทันที 100% ไม่ต้องติดตั้งเพิ่มเติม" },
+      { label: "ขอบเขตข้อมูล", value: "โปรเจกต์, บอร์ด, คอลัมน์, รายการการ์ด, ผู้รับผิดชอบ และกำหนดส่ง" },
+      { label: "การแสดงผล", value: "แถบข้างสำหรับจอคอมพิวเตอร์ และกล่องแชทลอยสำหรับมือถือ" },
     ],
-    tips: "บนหน้าจอคอมพิวเตอร์ สามารถกดปุ่มสลับมุมมองระหว่างแถบข้าง (Side Panel) และกล่องลอยขวาล่างได้ตามความถนัด โดยระบบ AI มีพร้อมใช้งานทันทีแบบเบ็ดเสร็จในตัว",
+    tips: "บนหน้าจอคอมพิวเตอร์ สามารถกดปุ่มสลับมุมมองระหว่างแถบข้าง (Side Panel) และกล่องลอยขวาล่างได้ตามความถนัด",
     relatedTopicIds: ["ai-breakdown-summary", "kanban-boards", "keyboard-shortcuts"],
     demoType: "ai-chat",
   },
@@ -132,11 +132,11 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber",
     scopeBadge: "ย่อยงาน & สรุปผล",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "เปลี่ยนชิ้นงานขนาดใหญ่ให้กลายเป็น Action Items ที่จับต้องได้ พร้อมสรุปสุขภาพโครงการสำหรับผู้บริหารและทีม",
     concept:
-      "การจัดการโครงการที่มีประสิทธิภาพเริ่มต้นจากการย่อยงานขนาดใหญ่ (Epics/Tasks) ให้กลายเป็นขั้นตอนย่อยที่สามารถลงมือทำได้จริง และการติดตามภาพรวมคอขวดของทีมผ่านรายงานสรุปแบบกระชับ ช่วยประหยัดเวลาการวางแผนได้ถึง 80%",
+      "การจัดการโครงการที่มีประสิทธิภาพเริ่มต้นจากการย่อยงานขนาดใหญ่ (Epics/Tasks) ให้กลายเป็นขั้นตอนย่อยที่สามารถลงมือทำได้จริง และการติดตามภาพรวมคอขวดของทีมผ่านรายงานสรุปแบบกระชับ ช่วยประหยัดเวลาการวางแผนได้มาก",
     highlights: [
       "AI Task Breakdown: คลิกปุ่ม ✨ AI Breakdown ในหน้าต่างการ์ด เพื่อแตกหัวข้อย่อยเป็น Checklist 3-10 ข้ออัตโนมัติ",
       "Executive Project Summary: คลิกปุ่ม AI Summary ที่แถบหัวบอร์ด เพื่อวิเคราะห์ภาพรวม ความคืบหน้า คอขวด และข้อเสนอแนะเชิงกลยุทธ์",
@@ -161,9 +161,9 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Breakdown Scale", value: "3 - 10 Actionable Checklist Items" },
-      { label: "Summary Analysis", value: "Health, Bottlenecks, Velocity & Action Items" },
-      { label: "Execution Time", value: "< 2.5 วินาที" },
+      { label: "การแตกงานย่อย", value: "3 - 10 รายการเช็คลิสต์ที่ลงมือทำได้จริง" },
+      { label: "การสรุปภาพรวม", value: "สุขภาพบอร์ด, จุดติดขัด, อัตราความคืบหน้า และคำแนะนำ" },
+      { label: "ความเร็วในการประมวลผล", value: "แสดงผลรวดเร็วในไม่กี่วินาที" },
     ],
     tips: "หากระบุรายละเอียดในคำอธิบายการ์ดให้ชัดเจน AI จะสามารถสร้างเช็คลิสต์ย่อยที่มีความแม่นยำสูงมากยิ่งขึ้น",
     relatedTopicIds: ["ai-assistant", "kanban-boards", "board-export"],
@@ -178,25 +178,25 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-emerald-400/30 bg-emerald-400/10 text-emerald-600 dark:text-emerald-400",
     scopeBadge: "กระดานงานหลัก",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "บอร์ดบริหารจัดการงานแบบเรียลไทม์ รองรับการลากวาง (Drag & Drop) อย่างลื่นไหล และปรับแต่งคอลัมน์ได้อย่างยืดหยุ่น",
     concept:
-      "บอร์ด Kanban ของ Retzlo ขับเคลื่อนด้วย Optimistic State Architecture ทำให้การลากย้ายการ์ดหรือเปลี่ยนสถานะเกิดขึ้นทันทีใน 0 วินาที โดยไม่ต้องรอ Round-trip จากเครือข่าย พร้อมระบบ Rollback ปลอดภัยเมื่อการเชื่อมต่อมีปัญหา และส่งต่อการอัปเดตไปยังเพื่อนร่วมทีมทุกคนทันที",
+      "บอร์ด Kanban ของ Retzlo ตอบสนองทันทีเมื่อลากย้ายการ์ดหรือเปลี่ยนสถานะ พร้อมระบบปกป้องข้อมูลเมื่อการเชื่อมต่อขัดข้อง และส่งต่อการอัปเดตไปยังเพื่อนร่วมทีมทุกคนทันที",
     highlights: [
-      "Optimistic Drag & Drop: ลากวางการ์ดสลับคอลัมน์หรือเปลี่ยนลำดับได้ทันที ไร้อาการหน่วงหรือกระตุก",
-      "Real-time Collaboration: การ์ดขยับและอัปเดตแบบสดๆ ไปยังหน้าจอเพื่อนร่วมทีมทุกคนในโปรเจกต์ด้วย Pusher WebSocket",
-      "Live Activity Log & Audit Trail: บันทึกและแสดงประวัติการกระทำบนบอร์ดแบบเรียลไทม์ (สร้าง, ย้าย, อัปเดต, แนบไฟล์, กู้คืนการ์ด)",
-      "Card Archive (ถังขยะกู้คืนการ์ด): ย้ายการ์ดเข้าคลังจัดเก็บอย่างปลอดภัย พร้อมปุ่มเปิดดูและกู้คืน (Restore) กลับสู่บอร์ดได้ตลอดเวลา",
-      "File & Link Attachments: รองรับการอัปโหลดไฟล์รูปภาพ เอกสาร PDF ผ่าน Cloudinary และแนบลิงก์ภายนอกบนการ์ด",
-      "Column Settings & WIP Limit: ปรับเปลี่ยนชื่อคอลัมน์ และกำหนดขีดจำกัดงานระหว่างทำ (WIP Limit) เพื่อป้องกันงานคั่งค้าง",
+      "การลากวางทันใจ: ลากวางการ์ดสลับคอลัมน์หรือเปลี่ยนลำดับได้ทันที ไร้อาการหน่วงหรือสะดุด",
+      "การทำงานร่วมกันสด: การ์ดขยับและอัปเดตแบบสดๆ ไปยังหน้าจอเพื่อนร่วมทีมทุกคนในโปรเจกต์",
+      "ประวัติกิจกรรมบอร์ด: บันทึกและแสดงประวัติการกระทำบนบอร์ดแบบเรียลไทม์ (สร้าง, ย้าย, อัปเดต, แนบไฟล์, กู้คืนการ์ด)",
+      "คลังจัดเก็บและกู้คืนการ์ด (Archive): ย้ายการ์ดเข้าคลังจัดเก็บอย่างปลอดภัย พร้อมเปิดดูและกู้คืน (Restore) กลับสู่บอร์ดได้ตลอดเวลา",
+      "การแนบไฟล์และลิงก์: รองรับการอัปโหลดไฟล์รูปภาพ เอกสาร PDF และแนบลิงก์ภายนอกบนการ์ดอย่างสะดวก",
+      "การตั้งค่าคอลัมน์ & WIP Limit: ปรับเปลี่ยนชื่อคอลัมน์ และกำหนดขีดจำกัดงานระหว่างทำ (WIP Limit) เพื่อป้องกันงานคั่งค้าง",
       "Card Density (Normal / Compact 2x): ปุ่มปรับความหนาแน่นของการ์ดระหว่างโหมด Normal (มาตรฐาน) และ Compact 2x (แสดงข้อมูลแน่นขึ้น 2 เท่า)",
     ],
     workflowSteps: [
       {
         step: "01",
         title: "ลากย้ายการ์ดตามขั้นตอน",
-        desc: "จับการ์ดลากข้ามคอลัมน์จาก To Do ไปยัง In Progress หรือ Done ข้อมูลจะซิงค์สด 0ms",
+        desc: "จับการ์ดลากข้ามคอลัมน์จาก To Do ไปยัง In Progress หรือ Done ข้อมูลจะซิงค์สดทันที",
       },
       {
         step: "02",
@@ -210,9 +210,9 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Sync Engine", value: "Pusher WebSockets Broadcast" },
-      { label: "Latency", value: "0ms (Optimistic UI with Auto-Rollback)" },
-      { label: "Density Views", value: "Normal (Standard) & Compact 2x (High Density)" },
+      { label: "การทำงานร่วมกัน", value: "ซิงค์สดแบบเรียลไทม์ถึงสมาชิกทุกคนพร้อมกัน" },
+      { label: "การตอบสนอง", value: "ตอบสนองทันทีโดยไม่ต้องรอโหลดหน้าใหม่" },
+      { label: "มุมมองความหนาแน่น", value: "โหมดปกติ (Normal) และโหมดกะทัดรัด (Compact 2x)" },
     ],
     tips: "สามารถสลับความหนาแน่นของการ์ดเป็น Compact 2x เมื่อมีงานจำนวนมากในแต่ละคอลัมน์ เพื่อให้เห็นภาพรวมได้กว้างขึ้นโดยไม่ต้องเลื่อนหน้าจอบ่อย",
     relatedTopicIds: ["spreadsheet-table-view", "card-attributes-customization", "board-export"],
@@ -223,11 +223,11 @@ export const TOPICS_TH: GuideTopic[] = [
     category: "kanban",
     icon: Table,
     title: "มุมมองตารางสเปรดชีต (Spreadsheet Table View)",
-    badge: "New Feature",
+    badge: "High Density",
     badgeColor: "border-dusk-cyan/30 bg-dusk-cyan/10 text-dusk-cyan",
     scopeBadge: "ตารางข้อมูลปริมาณมาก",
     readingTime: "อ่าน 4 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "สลับมุมมองจาก Kanban Board ไปเป็นตาราง Spreadsheet สำหรับการจัดการและแก้ไขข้อมูลปริมาณมากอย่างรวดเร็ว",
     concept:
@@ -235,11 +235,11 @@ export const TOPICS_TH: GuideTopic[] = [
     highlights: [
       "สลับมุมมองได้ทันที: คลิกปุ่ม 📊 Table บริเวณแถบเครื่องมือหัวบอร์ด (รองรับทั้ง Flat Table ตารางเรียบ และ Grouped Accordion จัดกลุ่มตามคอลัมน์)",
       "ลำดับแถว & Hover Checkbox (#): ปกติแสดงเฉพาะเลขลำดับ เมื่อนำเมาส์ชี้จะสลับเป็น Checkbox ให้กดติ๊กงานเสร็จได้ทันที พร้อมเครื่องหมาย [✓] สีเขียวเมื่อเสร็จสิ้น",
-      "Multi-Assignee & Real Avatars: มอบหมายงานให้สมาชิกได้หลายคน พร้อมแสดงรูปโปรไฟล์จริงทั้งในตารางและเมนูดรอปดาวน์",
-      "Inline Editing ครบวงจร: คลิกแก้ไขชื่องาน และเลือกเปลี่ยนสถานะการ์ดได้ทันที",
-      "Priority Dropdown: แสดงชื่อระดับความสำคัญและสีตาม Custom Priorities ของบอร์ด พร้อมคลิกเปลี่ยนระดับได้ทันที",
-      "Interactive DatePicker: คลิกช่องวันที่เพื่อเลือกวันเริ่ม (Start Date) และวันกำหนดส่ง (Due Date) พร้อมรูปแบบ 'DD/MM/YYYY'",
-      "Priority Sorting: คลิกที่หัวคอลัมน์ Priority เพื่อเรียงลำดับความเร่งด่วนตามระดับความสำคัญ (Level 1 ด่วนที่สุด)",
+      "มอบหมายหลายคนพร้อมรูปโปรไฟล์จริง: มอบหมายงานให้สมาชิกได้หลายคน พร้อมแสดงรูปโปรไฟล์จริงทั้งในตารางและเมนูดรอปดาวน์",
+      "แก้ไขในตารางได้ครบวงจร: คลิกแก้ไขชื่องาน และเลือกเปลี่ยนสถานะการ์ดได้ทันที",
+      "ดรอปดาวน์ Priority: แสดงชื่อระดับความสำคัญและสีตามความสำคัญของบอร์ด พร้อมคลิกเปลี่ยนระดับได้ทันที",
+      "ปฏิทินเลือกวันที่: คลิกช่องวันที่เพื่อเลือกวันเริ่ม (Start Date) และวันกำหนดส่ง (Due Date) ในรูปแบบ 'DD/MM/YYYY'",
+      "เรียงลำดับความเร่งด่วน: คลิกที่หัวคอลัมน์ Priority เพื่อเรียงลำดับความเร่งด่วนตามระดับความสำคัญ (Level 1 ด่วนที่สุด)",
     ],
     workflowSteps: [
       {
@@ -264,9 +264,9 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Layout Modes", value: "Flat Table View & Grouped Accordion View" },
-      { label: "Inline Editing", value: "Title, Status, Priority, Assignees, Due Date" },
-      { label: "Date Display Format", value: "DD/MM/YYYY" },
+      { label: "รูปแบบตาราง", value: "ตารางเรียบ (Flat Table) และตารางจัดกลุ่มคอลัมน์ (Grouped Table)" },
+      { label: "การแก้ไขโดยตรง", value: "ชื่องาน, สถานะ, ความสำคัญ, ผู้รับผิดชอบ และกำหนดส่ง" },
+      { label: "รูปแบบการแสดงวันที่", value: "วัน/เดือน/ปี (DD/MM/YYYY)" },
     ],
     tips: "ในมุมมองตาราง สามารถเลือกติ๊กผู้รับผิดชอบหลายคนได้อย่างต่อเนื่องโดยที่เมนูดรอปดาวน์ไม่ปิดตัว",
     relatedTopicIds: ["kanban-boards", "custom-board-priorities", "board-export"],
@@ -281,7 +281,7 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-dusk-lavender",
     scopeBadge: "ปรับแต่งความสำคัญ",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "แต่ละบอร์ดสามารถสร้างและปรับแต่งระดับความสำคัญของงานได้เองสูงสุดถึง 10 ระดับ พร้อมเลือกสีได้ 12 โทนสี Retro Lofi และเรียงลำดับความเร่งด่วน",
     concept:
@@ -311,9 +311,9 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Max Priorities", value: "10 ระดับต่อบอร์ด" },
-      { label: "Color Palette", value: "12 โทนสี Retro Lofi มาตรฐาน" },
-      { label: "Sync Scope", value: "Kanban, Table View, Modal, Export Document" },
+      { label: "จำนวนระดับสูงสุด", value: "ปรับแต่งได้สูงสุด 10 ระดับต่อบอร์ด" },
+      { label: "ชุดพาเลตต์สี", value: "12 โทนสี Retro Lofi สบายตา" },
+      { label: "ขอบเขตการซิงค์", value: "ตรงกันทุกมุมมอง ทั้งกระดาน Kanban, ตาราง, และเอกสารรายงาน" },
     ],
     tips: "หากลบหรือตั้งค่าใหม่ ระบบจะมีปุ่ม 'รีเซ็ตกลับเป็นค่าเริ่มต้น' เพื่อคืนค่ามาตรฐาน High, Medium, Low ได้ทันที",
     relatedTopicIds: ["card-attributes-customization", "spreadsheet-table-view", "kanban-boards"],
@@ -328,22 +328,22 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-emerald-400/30 bg-emerald-400/10 text-emerald-600 dark:text-emerald-400",
     scopeBadge: "ส่งออกรายงานผู้บริหาร",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "ส่งออกรายการงานในบอร์ดด้วยเลย์เอาต์พิเศษที่ออกแบบสำหรับการส่งออกโดยเฉพาะ ไม่มีการตัดทอนคอลัมน์ พร้อมหัวเอกสารผู้บริหารและสรุป KPI ครบถ้วน",
     concept:
-      "แก้ปัญหาการจับภาพหน้าจอเดิมที่ทำให้คอลัมน์ด้านขวาและการ์ดด้านล่างถูกตัดขอบ ด้วยระบบเรนเดอร์เอกสารเฉพาะ (Dedicated Export Document) ครบถ้วน 100% พร้อมโหมดบอร์ดเต็มแผ่นและโหมดตารางรายงานทางการ",
+      "หมดปัญหาการจับภาพหน้าจอที่ทำให้คอลัมน์ด้านข้างหรือการ์ดด้านล่างตกขอบ ด้วยระบบสร้างเอกสารส่งออกเฉพาะที่เรนเดอร์งานครบถ้วน 100% พร้อมโหมดภาพบอร์ดเต็มแผ่นและโหมดตารางรายงานทางการ",
     highlights: [
       "เลย์เอาต์เฉพาะสำหรับ Export: เรนเดอร์ครบทุกคอลัมน์และทุกใบงาน 100% ไม่มีแถบเลื่อนหรือปุ่มอินเตอร์แอคทีฟกวนสายตา",
-      "ระบบ Off-screen Staging ไร้ปัญหาภาพว่าง: แยก Staging Area ชัดเจนและจัดตำแหน่งพิกัดแบบสัมพัทธ์ ป้องกันปัญหาภาพว่างเปล่า (Blank Canvas) และไม่กระทบการเลื่อนหน้าจอของผู้ใช้",
-      "Executive Document Header: แถบหัวเอกสารทางการพร้อมสถิติผู้บริหาร (งานทั้งหมด, แต้มความยาก, สถานะงาน, งานเกินกำหนด, % ความสำเร็จ)",
+      "ระบบสร้างเอกสารแม่นยำ: จัดวางหน้าเอกสารให้คมชัด ป้องกันปัญหาภาพว่างเปล่า และไม่กระทบการใช้งานหน้าจอของคุณ",
+      "หัวเอกสารสรุป KPI: แถบหัวเอกสารทางการพร้อมสถิติ (งานทั้งหมด, แต้มความยาก, สถานะงาน, งานเกินกำหนด, % ความสำเร็จ)",
       "ส่งออกด่วน: PDF/PNG ใช้มุมมอง Kanban หรือ Table ที่เปิดอยู่ ส่วน Excel/CSV ส่งออกเป็นแถวข้อมูลการ์ด",
-      "Live Preview: หน้าต่างส่งออกแสดงเอกสาร PDF/PNG หรือตัวอย่างชีต Excel/CSV แบบอ่านอย่างเดียวจากแถวชุดเดียวกับไฟล์ดาวน์โหลด",
+      "Live Preview: หน้าต่างส่งออกแสดงตัวอย่าง PDF/PNG หรือชีต Excel/CSV จากแถวชุดเดียวกับไฟล์ดาวน์โหลดจริง",
       "ตัวเลือกเลย์เอาต์และธีม: PDF/PNG เลือกภาพบอร์ดเต็มแผ่น (Full Panoramic Kanban) หรือตารางรายงาน (Executive Table) พร้อมธีม Clean Light Paper หรือ Dark Slate",
-      "ตัวควบคุม Preview: เริ่มที่ขนาด 90% เพื่อให้อ่านง่ายขึ้น; กด 100% เพื่อดูขนาดจริง หรือ Fit เพื่อดูทั้งหน้า แล้วซูมหรือเลื่อนดูตัวอย่างกว้าง/ยาวได้ พร้อมขยาย/คืนขนาดหน้าต่าง หากไม่มีการ์ดจะแสดงคำอธิบายและปิดปุ่มดาวน์โหลด",
-      "PDF (.pdf): จัดหน้า A4 แนวนอนอัตโนมัติ พร้อมระบบตัดแบ่งหน้าหลายแผ่น (Multi-page Pagination) เมื่อเอกสารมีความยาวสูง",
+      "ตัวควบคุม Preview: ซูมหรือดูภาพพอดีหน้าจอ เลื่อนดูตัวอย่างกว้าง/ยาวได้สะดวก",
+      "PDF (.pdf): จัดหน้า A4 แนวนอนอัตโนมัติ พร้อมระบบตัดแบ่งหน้าหลายแผ่นเมื่อเอกสารมีความยาวสูง",
       "PNG (.png): บันทึกภาพความละเอียดสูงระดับ 2x Retina ชัดเจนทุกตัวอักษร เหมาะสำหรับใส่สไลด์นำเสนอ",
-      "Excel (.xlsx) & CSV (.csv): สเปรดชีตจัดรูปแบบสมบูรณ์และไฟล์ UTF-8 BOM ภาษาไทยไม่เพี้ยน 100%",
+      "Excel (.xlsx) & CSV (.csv): สเปรดชีตจัดรูปแบบสมบูรณ์และรองรับภาษาไทยคมชัด 100%",
     ],
     workflowSteps: [
       {
@@ -354,20 +354,20 @@ export const TOPICS_TH: GuideTopic[] = [
       {
         step: "02",
         title: "เลือกประเภทไฟล์และขอบเขต",
-        desc: "เลือก PDF, PNG, Excel หรือ CSV และเลือกข้อมูลทั้งหมดหรือชุดที่กรองอยู่; PDF/PNG มีตัวเลือกเลย์เอาต์และธีมเอกสาร",
+        desc: "เลือก PDF, PNG, Excel หรือ CSV และเลือกข้อมูลทั้งหมดหรือชุดที่กรองอยู่ พร้อมเลือกเลย์เอาต์และธีมเอกสาร",
       },
       {
         step: "03",
         title: "ดูพรีวิวสดก่อนดาวน์โหลด",
-        desc: "ตรวจตัวอย่างสดฝั่งขวา ซูมหรือ Fit และขยาย/คืนขนาดหน้าต่างได้ จากนั้นกดดาวน์โหลดประเภทไฟล์ที่เลือก",
+        desc: "ตรวจตัวอย่างสดฝั่งขวา ซูมหรือปรับขนาด จากนั้นกดดาวน์โหลดประเภทไฟล์ที่เลือก",
       },
     ],
     technicalSpecs: [
-      { label: "Rendering Engine", value: "Dedicated Off-screen Staging Wrapper" },
-      { label: "Supported Formats", value: "PDF (Multi-page A4), PNG (2x Retina), Excel (.xlsx), CSV (UTF-8 BOM)" },
-      { label: "Style Themes", value: "Clean Light Paper & Dark Slate" },
+      { label: "รูปแบบไฟล์ที่รองรับ", value: "PDF (แบ่งหน้า A4 อัตโนมัติ), PNG (ความละเอียดสูง), Excel (.xlsx), CSV" },
+      { label: "มุมมองเลย์เอาต์", value: "ภาพบอร์ดเต็มแผ่น (Panoramic Kanban) และตารางรายงานทางการ (Executive Table)" },
+      { label: "ธีมเอกสาร", value: "กระดาษขาวสว่าง (Clean Light Paper) และดาร์กโหมดพรีเมียม (Dark Slate)" },
     ],
-    tips: "Preview ฝั่งขวาจะอัปเดตตามไฟล์ ขอบเขต เลย์เอาต์ และธีมที่เลือก; ส่งออก PDF/PNG ด่วนจะใช้มุมมองบอร์ดปัจจุบัน",
+    tips: "หน้าต่าง Preview จะอัปเดตตามไฟล์ ขอบเขต เลย์เอาต์ และธีมที่เลือกทันที",
     relatedTopicIds: ["kanban-boards", "spreadsheet-table-view", "ai-breakdown-summary"],
     demoType: "export",
   },
@@ -380,7 +380,7 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-purple-400/30 bg-purple-400/10 text-purple-600 dark:text-purple-400",
     scopeBadge: "เวิร์กโฟลว์ & โครงสร้าง",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "รวมการตั้งค่าคุณสมบัติการ์ด (สถานะ, ความสำคัญ, Story Points) ไว้ใน Board Settings พร้อมเชื่อมโยงไปยังคอลัมน์, การ์ด, และตารางงานแบบเรียลไทม์",
     concept:
@@ -388,11 +388,11 @@ export const TOPICS_TH: GuideTopic[] = [
     highlights: [
       "ศูนย์กลางใน Board Settings & Project Settings: เข้าถึงการปรับแต่งครบทั้ง 3 หมวด (Status, Priority, Story Points) ได้ทั้งจากปุ่ม Attributes บนหัวบอร์ด หรือในหน้า Project Settings",
       "เชื่อมโยง Column Settings ทันที: สถานะที่กำหนดเองจะแสดงเป็นตัวเลือก Card Status ในหน้าแก้ไขคอลัมน์และสร้างคอลัมน์ใหม่โดยอัตโนมัติ",
-      "ปุ่ม '+' ท้ายหัวข้อในการ์ด: คลิกปุ่ม '+' ท้ายหัวข้อ Status, Priority หรือ Story Points ใน Card Modal จะนำทางไปยังหน้า Project Settings เปิดหมวดคุณสมบัตินั้นๆ ให้ปรับแต่งได้ทันที",
-      "แท็บสถานะ (Status) & แม่แบบ Workflow Templates: เลือกปรับใช้แม่แบบขั้นตอนงานสำเร็จรูป (Classic Kanban, Software & IT, Agile & Scrum, Marketing, Bug Tracker, Design, Sales) พร้อมระบบดูตัวอย่างสดแบบอินไลน์ (Instant Inline Preview) คลิกแล้วรายการด้านล่างเปลี่ยนให้ดูทันที",
-      "แท็บความสำคัญ (Priority) & แม่แบบสากล: แถบแม่แบบระดับความสำคัญสำเร็จรูป (Classic 3-Level, P0-P4 Severity Scale, MoSCoW Prioritization, Eisenhower Matrix, Customer Support & SLA, Business Value Matrix) ปรับแต่งชื่อ ลำดับ และสีได้ 12 โทนสี",
-      "แท็บคะแนนความยาก (Story Points) & สเกลแม่แบบ: แถบแม่แบบสเกลคะแนนประเมินน้ำหนักงาน (Retzlo Standard, Fibonacci Sequence, Linear/ชั่วโมงทำงาน, T-Shirt Sizes, Pomodoro Focus Blocks, Complexity & Risk Scale) เพิ่มคะแนนอิสระ 1-100",
-      "ความปลอดภัยสูงสุดตามมาตรฐาน AGENTS.md: ทุกการนำแม่แบบมาใช้ การแก้ไข การลบ และการรีเซ็ตค่าเริ่มต้น จะได้รับการปกป้องด้วย ConfirmModal เพื่อยืนยันเจตนา พร้อมแสดง Toast แจ้งเตือนผลลัพธ์ทันที",
+      "ปุ่ม '+' ท้ายหัวข้อในการ์ด: คลิกปุ่ม '+' ท้ายหัวข้อ Status, Priority หรือ Story Points ใน Card Modal จะนำทางไปยังหน้าตั้งค่าเปิดหมวดคุณสมบัตินั้นๆ ให้ปรับแต่งได้ทันที",
+      "แท็บสถานะ (Status) & แม่แบบ Workflow Templates: เลือกปรับใช้แม่แบบขั้นตอนงานสำเร็จรูป (Classic Kanban, Software & IT, Agile & Scrum, Marketing, Bug Tracker, Design, Sales) พร้อมระบบดูตัวอย่างสดแบบอินไลน์ คลิกแล้วรายการด้านล่างเปลี่ยนให้ดูทันที",
+      "แท็บความสำคัญ (Priority) & แม่แบบสากล: แถบแม่แบบระดับความสำคัญสำเร็จรูป (Classic 3-Level, P0-P4 Severity Scale, MoSCoW, Eisenhower Matrix) ปรับแต่งชื่อ ลำดับ และสีได้ 12 โทนสี",
+      "แท็บคะแนนความยาก (Story Points) & สเกลแม่แบบ: แถบแม่แบบสเกลคะแนนประเมินน้ำหนักงาน (Retzlo Standard, Fibonacci Sequence, Linear/ชั่วโมงทำงาน, T-Shirt Sizes, Pomodoro Focus Blocks) เพิ่มคะแนนอิสระ 1-100",
+      "ความปลอดภัยของข้อมูล: ทุกการนำแม่แบบมาใช้ การแก้ไข การลบ และการรีเซ็ตค่าเริ่มต้น จะมีหน้าต่างยืนยันความตั้งใจเสมอ พร้อมแจ้งเตือนผลลัพธ์ทันที",
     ],
     workflowSteps: [
       {
@@ -413,15 +413,15 @@ export const TOPICS_TH: GuideTopic[] = [
       {
         step: "04",
         title: "ยืนยันการนำมาใช้และซิงค์สด",
-        desc: "กดยืนยันผ่าน ConfirmModal ระบบจะส่ง Custom Events ซิงค์สดไปยังทุกมุมมองทันที",
+        desc: "กดยืนยันผ่านหน้าต่างยืนยัน ระบบจะซิงค์ข้อมูลไปยังทุกมุมมองทันที",
       },
     ],
     technicalSpecs: [
-      { label: "Attribute Categories", value: "Card Statuses, Priorities (up to 10), Story Points (1-100)" },
-      { label: "Preview Mechanism", value: "Instant Inline Reactive Preview (No Dialog Overhead)" },
-      { label: "Sync Protocol", value: "Custom DOM Events (retzlo:statuses-updated, etc.)" },
+      { label: "หมวดคุณสมบัติ", value: "สถานะการ์ด (Statuses), ความสำคัญ (Priorities 1-10), คะแนนงาน (Story Points 1-100)" },
+      { label: "ระบบพรีวิว", value: "แสดงตัวอย่างทันทีแบบอินไลน์ในหน้าต่างเดียว" },
+      { label: "การเชื่อมโยง", value: "ซิงค์ตรงกันทั้งกระดาน Kanban, ตาราง, และหน้ารายละเอียดการ์ด" },
     ],
-    tips: "ทุกการปรับแต่งจะซิงค์ผ่าน Custom Events แบบ Real-time ทันที ทำให้ทั้ง Kanban Board, Column Settings, Card Modal, และ Table View สอดคล้องกันตลอดเวลา",
+    tips: "ทุกการปรับแต่งจะซิงค์แบบเรียลไทม์ ทำให้ทั้ง Kanban Board, Column Settings, Card Modal, และ Table View สอดคล้องกันตลอดเวลา",
     relatedTopicIds: ["kanban-boards", "custom-board-priorities", "spreadsheet-table-view"],
     demoType: "priorities",
   },
@@ -434,7 +434,7 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-dusk-rose/30 bg-dusk-rose/10 text-rose-600 dark:text-dusk-rose",
     scopeBadge: "กำลังใจ & รางวัล",
     readingTime: "อ่าน 2 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "เสริมสร้างบรรยากาศการทำงานเชิงบวกด้วยการส่งแก้วกาแฟ Cheers ให้กำลังใจเพื่อนร่วมทีม พร้อมสะสมเหรียญแลกรางวัล",
     concept:
@@ -443,7 +443,7 @@ export const TOPICS_TH: GuideTopic[] = [
       "ปุ่ม ☕ Cheers อัตโนมัติ: เมื่อการ์ดย้ายไปยังคอลัมน์ Done หรือทำเสร็จ จะมีปุ่ม Cheers ปรากฏขึ้นเพื่อส่งกำลังใจให้ผู้รับผิดชอบ",
       "กระเป๋าเหรียญสะสม: ได้รับเหรียญรางวัลสะสมเข้ากระเป๋าส่วนตัวทุกครั้งที่มีการ Cheers หรืองานเสร็จสมบูรณ์",
       "Rewards Store: สามารถนำเหรียญไปแลกไอเทมและของรางวัลจริงหรือรางวัลในทีมที่สร้างไว้ในโปรเจกต์",
-      "ระบบป้องกันสแปม: มีระบบ Rate-limit ป้องกันการกดรัวเพื่อให้ทุกการ Cheers มีความหมายและเป็นธรรม",
+      "ระบบป้องกันสแปม: มีระบบจับเวลาหน่วงเพื่อป้องกันการกดรัว ให้ทุกการ Cheers มีความหมายและจริงใจ",
     ],
     workflowSteps: [
       {
@@ -463,9 +463,9 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Gamification Currency", value: "Retzlo Coins (สะสมประจำโปรเจกต์)" },
-      { label: "Rate Limit Protection", value: "Anti-spam cool-down timer" },
-      { label: "Integration", value: "Card Completion Triggers & Wallet Sync" },
+      { label: "หน่วยเหรียญรางวัล", value: "Retzlo Coins (สะสมประจำแต่ละโปรเจกต์)" },
+      { label: "การป้องกันการกดซ้ำ", value: "ระบบจับเวลาคูลดาวน์ป้องกันการกดรัว" },
+      { label: "การเชื่อมโยง", value: "เพิ่มเหรียญอัตโนมัติเมื่องานเสร็จสมบูรณ์และได้รับคำชม" },
     ],
     tips: "อย่าลืมแวะไปดู Rewards Store เพื่อตั้งรางวัลกระตุ้นทีม เช่น กาแฟเลี้ยงฟรี หรือขนมยามบ่าย!",
     relatedTopicIds: ["kanban-boards", "calendar-due-dates", "roles-and-security"],
@@ -480,7 +480,7 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-amber-600 dark:text-dusk-amber",
     scopeBadge: "การจัดการเวลา",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "20 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "ไม่พลาดทุกกำหนดส่งด้วยมุมมองปฏิทินแบบรอบด้าน ทั้งเดือน สัปดาห์ และ 3 วัน พร้อมระบบ Quick-Add สร้างงานตรงจากช่องวันที่, Day View modal, และ Single-Column TimePicker",
     concept:
@@ -488,15 +488,14 @@ export const TOPICS_TH: GuideTopic[] = [
     highlights: [
       "Quick Add from Calendar Date: ชี้เมาส์ที่ช่องวันที่ในปฏิทินแล้วกด '+' เพื่อเปิดหน้าต่างสร้าง Task หรือ Note พร้อมตั้งเวลาและระบุบอร์ด/คอลัมน์ได้ทันที",
       "โหมดแสดงผล 3 มุมมอง: เลือกสลับดูแบบ Month Overview (ทั้งเดือน), Week Timeline (สัปดาห์), และ 3 Days Mode (โฟกัส 3 วันติดกัน)",
-      "Global Retro DatePicker: ดีไซน์เฉพาะตัวในโทน Retro Lofi Indigo สบายตา ไม่พึ่งปฏิทินเบราว์เซอร์ที่หน้าตาไม่เข้ากัน",
+      "Global Retro DatePicker: ดีไซน์เฉพาะตัวในโทน Retro Lofi Indigo สบายตา",
       "Day View Modal: คลิกที่ช่องวันที่เพื่อเปิดหน้าต่าง Day Overview เต็มรูปแบบ พร้อมหัวข้อวันแบบเต็ม, แถบความคืบหน้า Progress Bar, และปุ่มลัด '+ Add Item for this date'",
       "High Contrast & Weekend Distinction: ข้อความคมชัดทั้งธีมสว่างและมืด พร้อมแยกไฮไลต์สีพื้นหลังวันเสาร์-อาทิตย์อย่างชัดเจน",
-      "Tactile Item Cards: การ์ดแต่ละใบมีแถบสี Accent Bar ด้านซ้าย, ปุ่ม Checkbox ติ๊กเสร็จงานทันทีพร้อมขีดฆ่า, ป้ายประเภทคมชัด, และปุ่มลัด 'Open in Diary'",
+      "Tactile Item Cards: การ์ดแต่ละใบมีแถบสี Accent Bar ด้านซ้าย, ปุ่ม Checkbox ติ๊กเสร็จงานทันทีพร้อมขีดฆ่า, ป้ายประเภทคมชัด, และปุ่มลัดไปยังการ์ดหรือไดอารี่",
       "Preset Shortcuts: ปุ่มลัดกำหนดวันด่วน 'วันนี้', 'พรุ่งนี้', 'สุดสัปดาห์นี้', 'สัปดาห์หน้า'",
       "TimePicker รุ่นใหม่: คลิกพิมพ์เวลาได้โดยตรง มีแถบเลื่อนแนวตั้งเดี่ยวไม่งง พร้อมปุ่มลัดเวลายอดนิยม และปุ่มยืนยัน 'ตกลง'",
-      "Global Calendar View: ดูภาพรวมกำหนดส่งของทุกโปรเจกต์พร้อมกันได้ในหน้าหลัก Workspaces",
-      "Smart Diary Filtering: รายการไดอารี่แบบรายวัน (Day Diary) จะแสดงเฉพาะวันที่ถึงกำหนดแล้ว (ไม่แสดงล่วงหน้าในอนาคตเพื่อไม่ให้รกตาราง) ส่วนกำหนดการแบบสัปดาห์หรือรายเดือนจะแสดงล่วงหน้าในปฏิทินตามปกติ",
-      "Instant Skeleton Loading: โหลดแสดงโครงสร้างปฏิทินทันทีเมื่อเปิดหน้า ไร้อาการกระตุก",
+      "Smart Diary Filtering: รายการไดอารี่ประจำวันจะแสดงเฉพาะวันที่ถึงกำหนดแล้วเพื่อไม่ให้รกตาราง ส่วนกำหนดการแบบสัปดาห์หรือรายเดือนจะแสดงล่วงหน้าในปฏิทินตามปกติ",
+      "โหลดไว ไร้รอยต่อ: แสดงเค้าโครงปฏิทินทันทีเมื่อเปิดหน้า เพื่อประสบการณ์ใช้งานที่ราบรื่น",
     ],
     workflowSteps: [
       {
@@ -516,10 +515,10 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Views", value: "Month Overview, Week Timeline, 3 Days Mode, Day Overview Modal" },
-      { label: "Quick Creation", value: "สร้าง Task/Note ตรงจากช่องวันที่พร้อมเลือกบอร์ด/คอลัมน์" },
-      { label: "TimePicker Scroller", value: "Single-column linear with direct number input" },
-      { label: "Presets", value: "Today, Tomorrow, This Weekend, Next Week" },
+      { label: "มุมมองปฏิทิน", value: "ภาพรวมรายเดือน (Month), ไทม์ไลน์รายสัปดาห์ (Week), โฟกัส 3 วัน (3 Days)" },
+      { label: "การสร้างงานด่วน", value: "สร้าง Task/Note ตรงจากช่องวันที่พร้อมเลือกบอร์ด/คอลัมน์" },
+      { label: "การเลือกเวลา", value: "พิมพ์ตัวเลขได้โดยตรงพร้อมแถบเลื่อนแนวตั้งเดี่ยวและปุ่มลัดเวลายอดนิยม" },
+      { label: "ปุ่มลัดวันที่", value: "วันนี้ (Today), พรุ่งนี้ (Tomorrow), สุดสัปดาห์นี้, สัปดาห์หน้า" },
     ],
     tips: "การ์ดที่ใกล้ถึงกำหนดส่งจะแสดงแถบสีเตือนสถานะ และสามารถติ๊กเปลี่ยนสถานะการ์ดหรือรายการไดอารี่ได้โดยตรงจากในหน้าต่าง Day Overview!",
     relatedTopicIds: ["kanban-boards", "notes-diary-hub", "spreadsheet-table-view"],
@@ -534,7 +533,7 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-indigo-400",
     scopeBadge: "สมดุลชีวิต & กิจวัตร",
     readingTime: "อ่าน 2 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "ศูนย์กลางรวบรวมไอเดีย แผนงาน และกิจวัตรประจำวันในชีวิตของคุณที่แยกเป็นสัดส่วน",
     concept:
@@ -542,7 +541,7 @@ export const TOPICS_TH: GuideTopic[] = [
     highlights: [
       "Notes System: จดบันทึกแยกโฟลเดอร์ ปักหมุดโน้ตสำคัญ และรองรับเนื้อหาแบบ Rich Content",
       "Diary Tracker: ติดตามกิจวัตรประจำวัน (Habit Checklist) พร้อมสะสมสถิติ Streak ความต่อเนื่อง",
-      "Draft Storage: ป้องกันข้อความสูญหายด้วยระบบ Auto-save ร่างเอกสารในเครื่องเบราว์เซอร์อัตโนมัติ",
+      "Draft Storage: ป้องกันข้อความสูญหายด้วยระบบบันทึกร่างเอกสารในเครื่องอัตโนมัติขณะพิมพ์",
       "เชื่อมโยงกับบอร์ด: นำข้อสรุปจาก AI หรือโน้ตสำคัญไปสร้างเป็นการ์ดงานได้ในคลิกเดียว",
     ],
     workflowSteps: [
@@ -563,8 +562,8 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Storage", value: "Cloud Database + Local Browser Draft Backup" },
-      { label: "Habit Tracking", value: "Daily Checklist + Streak Analytics" },
+      { label: "การบันทึกข้อมูล", value: "จัดเก็บบนคลาวด์ พร้อมระบบสำรองร่างอัตโนมัติในเบราว์เซอร์" },
+      { label: "การติดตามกิจวัตร", value: "เช็คลิสต์ประจำวัน พร้อมสถิติความต่อเนื่อง (Streak Analytics)" },
     ],
     tips: "ใช้ Diary Hub สำหรับจดบันทึกสั้นๆ ก่อนเริ่มวันและสรุปสิ่งที่ทำสำเร็จในแต่ละวันเพื่อสุขภาพจิตที่ดี",
     relatedTopicIds: ["calendar-due-dates", "kanban-boards", "ai-assistant"],
@@ -579,7 +578,7 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-dusk-lavender",
     scopeBadge: "ความปลอดภัย & ทีม",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "หน้าจัดการสมาชิกโปรเจกต์ดีไซน์ใหม่ แยก 3 แท็บชัดเจน พร้อมระบบเปลี่ยนบทบาท ตรวจสอบสถานะออนไลน์ และลิงก์เชิญด่วน",
     concept:
@@ -589,8 +588,7 @@ export const TOPICS_TH: GuideTopic[] = [
       "Presence Indicator: จุดสถานะออนไลน์บนรูปโปรไฟล์ (🟢 Online, 🟠 Busy, ⚪ Offline)",
       "Role Switcher: เจ้าของโปรเจกต์ (Owner) สามารถปรับเลื่อนขั้น/ลดสิทธิ์สมาชิกเป็น Owner หรือ Member ได้ทันที พร้อมระบบป้องกันไม่ให้ลดสิทธิ์ของเจ้าของคนสุดท้าย",
       "Dedicated Invite Modal: หน้าต่างเชิญเพื่อนร่วมทีมเฉพาะ เลือกกำหนดบทบาท (Member/Owner) ได้ล่วงหน้า พร้อมสร้างลิงก์ที่คัดลอกแชร์ต่อได้ทันที",
-      "Instant Skeleton Loading: แสดงแผง Skeleton โหลดแบบนุ่มนวลลื่นไหล ไม่กระตุก เมื่อเข้าสู่หน้า /project/[id]/members",
-      "Confirm Modal มาตรฐาน: ทุกการลบสมาชิกหรือเพิกถอนคำเชิญมีกล่องยืนยันความตั้งใจเสมอ",
+      "ความปลอดภัยของข้อมูล: ทุกการลบสมาชิกหรือเพิกถอนคำเชิญมีกล่องยืนยันความตั้งใจเสมอ",
     ],
     workflowSteps: [
       {
@@ -610,107 +608,12 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Roles", value: "Workspace Owner & Project Member" },
-      { label: "Presence States", value: "🟢 Online, 🟠 Busy, ⚪ Offline" },
-      { label: "Safety Guards", value: "Last Owner Protection & Mandatory ConfirmModal" },
+      { label: "บทบาทสมาชิก", value: "Workspace Owner (เจ้าของโปรเจกต์) และ Project Member (สมาชิก)" },
+      { label: "สถานะออนไลน์", value: "🟢 ออนไลน์ (Online), 🟠 ไม่ว่าง (Busy), ⚪ ออฟไลน์ (Offline)" },
+      { label: "ความปลอดภัย", value: "ระบบป้องกันการลบเจ้าของคนสุดท้าย และหน้าต่างยืนยันทุกคำสั่งสำคัญ" },
     ],
     tips: "สามารถคลิกการ์ดสถิติ (Total Members, Active Now, Pending, Total Coffees) ที่ด้านบนเพื่อสลับแท็บหรือกรองสมาชิกได้อย่างสะดวกรวดเร็ว",
     relatedTopicIds: ["project-and-board-settings", "welcome-overview", "coffee-cheers-rewards"],
-    demoType: "permissions",
-  },
-  {
-    id: "super-admin-portal",
-    category: "security",
-    icon: ShieldCheck,
-    title: "ศูนย์บัญชาการ Super Admin และการกำกับดูแล 8 ฮับ",
-    badge: "อัปเดตใหญ่",
-    badgeColor: "border-purple-400/30 bg-purple-400/10 text-purple-600 dark:text-purple-300",
-    scopeBadge: "การกำกับดูแลระบบ",
-    readingTime: "อ่าน 4 นาที",
-    lastUpdated: "12 ต.ค. 2026",
-    summary:
-      "ศูนย์บัญชาการ Super Admin Command Center (/admin-vault-9f8e) ครอบคลุม 8 ฮับการทำงาน พร้อมระบบโทรมาตรสด, ลิ้นชักตรวจสอบข้อมูล, ระบบดักจับบอท Honeypot และแถบประกาศรวมทั้งระบบ",
-    concept:
-      "รวบรวมอำนาจการบริหารจัดการระบบไว้ที่เดียว: โทรมาตรสด, ผู้ใช้, พื้นที่ทำงาน, เศรษฐกิจเหรียญรางวัล, AI Intelligence, พื้นที่จัดเก็บไฟล์, ระบบความปลอดภัย และปฏิบัติการถ่ายทอดสด",
-    highlights: [
-      "8 ฮับบริหารจัดการเฉพาะทาง: Overview, Users, Workspaces, Rewards, AI Intel, Storage, Security, และ Operations",
-      "ลิ้นชักตรวจสอบข้อมูล (Slide-Over Drawers): ตรวจสอบและแก้ไขสิทธิ์ผู้ใช้, จัดการเหรียญ, ระงับบัญชี และโอนความเป็นเจ้าของโปรเจกต์ได้แบบทันที",
-      "ระบบป้องกัน Honeypot Decoy: ล่อลวงบอทและสแกนเนอร์ที่พยายามเข้า /admin ให้เห็นหน้า 404 พร้อมบันทึก IP, User-Agent และเวลาลงระบบ",
-      "แถบประกาศรวมทั้งระบบ (Global Broadcast Banner): เผยแพร่ข้อความด่วนไปยังผู้ใช้ทุกคน พร้อมตัวอย่างสดย้อนหลัง",
-      "การจัดการของรางวัลและ AI: อนุมัติหรือปฏิเสธพร้อมคืนเหรียญอัตโนมัติ และปรับเพิ่มโควตาเครดิต AI ได้ทันที",
-    ],
-    workflowSteps: [
-      {
-        step: "01",
-        title: "เข้าสู่หน้า Command Center",
-        desc: "เปิดเมนูโปรไฟล์ของผู้ใช้ แล้วคลิก 'Admin Portal' (เข้าถึงได้เฉพาะบัญชีที่มี globalRole เป็น ADMIN)",
-      },
-      {
-        step: "02",
-        title: "ตรวจสอบผู้ใช้และพื้นที่ทำงาน",
-        desc: "คลิกแถวผู้ใช้หรือพื้นที่ทำงานเพื่อเปิด Drawer ปรับเปลี่ยนบทบาท, สถานะ หรือโควตา AI",
-      },
-      {
-        step: "03",
-        title: "จัดการประกาศและอนุมัติของรางวัล",
-        desc: "เปิดใช้งานแบนเนอร์แจ้งเตือนด่วน หรือตรวจสอบและอนุมัติคำขอแลกของรางวัล",
-      },
-    ],
-    technicalSpecs: [
-      { label: "สถาปัตยกรรมความปลอดภัย", value: "3-Tier Defense & Route Cloaking (404 Deception)" },
-      { label: "ฮับการทำงาน", value: "8 Modules (Overview, Users, Projects, Rewards, AI, Storage, Security, Ops)" },
-      { label: "ระบบ Audit", value: "ป้องกันการลดสิทธิ์ตนเอง และต้องยืนยัน ConfirmModal ทุกการกระทำ" },
-    ],
-    tips: "เส้นทาง /admin เดิมถูกออกแบบให้เป็น Honeypot แบบเงียบ ส่งกลับ 404 เพื่อตรวจจับผู้บุกรุกโดยไม่เปิดเผยตำแหน่ง vault ที่แท้จริง",
-    relatedTopicIds: ["roles-and-security", "project-and-board-settings"],
-    demoType: "permissions",
-  },
-  {
-    id: "audit-logging-hub",
-    category: "security",
-    icon: ShieldCheck,
-    title: "ศูนย์บันทึกประวัติการตรวจสอบและการคุ้มครองข้อมูล (Forensic Audit Log Hub)",
-    badge: "ฟีเจอร์ใหม่",
-    badgeColor: "border-indigo-400/30 bg-indigo-400/10 text-indigo-600 dark:text-indigo-400",
-    scopeBadge: "ความปลอดภัยและกฎหมาย",
-    readingTime: "อ่าน 4 นาที",
-    lastUpdated: "12 ต.ค. 2026",
-    summary:
-      "ระบบบันทึกประวัติการตรวจสอบระดับองค์กร (Audit Log Engine) ถูกต้องตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA มาตรา 24(5)) และ พ.ร.บ. คอมพิวเตอร์ฯ มาตรา 26 พร้อมระบบเซ็นเซอร์ข้อมูลส่วนบุคคลอัตโนมัติ (Zero-PII) และตัวเปรียบเทียบ Before/After Diff",
-    concept:
-      "ศูนย์บันทึกประวัติและนิติวิทยาศาสตร์ดิจิทัลใน Super Admin Vault (/admin-vault-9f8e -> Audit Logs & Forensics) บันทึกทุกการเปลี่ยนแปลงสำคัญในระบบแบบไม่สามารถแก้ไขหรือลบได้ (Append-Only) บันทึกลง Neon PostgreSQL ควบคู่หน่วยความจำสำรอง (Memory Buffer) โดยไม่ละเมิดสิทธิหรือเก็บความลับของผู้ใช้",
-    highlights: [
-      "ถูกต้องตามกฎหมาย 100%: ปฏิบัติตาม พ.ร.บ. คอมพิวเตอร์ฯ มาตรา 26 (เก็บข้อมูลจราจรทางคอมพิวเตอร์อย่างน้อย 90 วัน) และ PDPA มาตรา 24(5) ฐานประโยชน์โดยชอบด้วยกฎหมาย",
-      "การปกป้องข้อมูลส่วนบุคคล (Zero-PII Sanitization): รหัสผ่าน, OTP, โทเค็น, และเนื้อหาไดอารี่/โน้ตส่วนตัวจะถูกเซ็นเซอร์เป็น [REDACTED] หรือย่อเฉพาะเมทาดาทาอัตโนมัติ",
-      "Slide-Over Forensic Drawer: คลิกดูรายละเอียดเหตุการณ์พร้อมแถบเปรียบเทียบความเปลี่ยนแปลงก่อน-หลัง (Before/After Diff) แยกสีชัดเจน และปุ่มคัดลอก Forensic JSON",
-      "ระบบค้นหาและฟิลเตอร์หลายมิติ: ค้นหาคำ, เลือกหมวดหมู่ (AUTH, USER, PROJECT, REWARD, AI, SECURITY, SYSTEM), ระดับความรุนแรง, สถานะสำเร็จ/ล้มเหลว หรือช่วงวันที่",
-      "ส่งออกข้อมูลโปร่งใส: ส่งออกเป็น CSV และ JSON ได้ทันที โดยระบบจะบันทึกประวัติการส่งออกไว้เพื่อความโปร่งใสสูงสุด",
-    ],
-    workflowSteps: [
-      {
-        step: "01",
-        title: "เข้าสู่ศูนย์ Audit Log",
-        desc: "ไปที่ Super Admin Command Center (/admin-vault-9f8e) แล้วเลือกแท็บ 'Audit Logs & Forensics'",
-      },
-      {
-        step: "02",
-        title: "ค้นหาและคัดกรองข้อมูล",
-        desc: "พิมพ์ค้นหา หรือเลือกชิปทางลัด (Security, Errors, Users, AI) หรือเลือกหมวดหมู่และช่วงวันที่เพื่อเจาะจงเหตุการณ์ที่ต้องการตรวจสอบ",
-      },
-      {
-        step: "03",
-        title: "เปิดดูรายละเอียดเชิงลึก (Forensic Inspection)",
-        desc: "คลิกที่แถวรายการเพื่อเปิด Drawer ด้านข้าง ดูผู้กระทำ (Actor), IP Address, อุปกรณ์ (User Agent) และค่าที่เปลี่ยนแปลงก่อน-หลังอย่างละเอียด",
-      },
-    ],
-    technicalSpecs: [
-      { label: "มาตรฐานกฎหมาย", value: "พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคลฯ ม.24(5), พ.ร.บ. คอมพิวเตอร์ฯ ม.26, GDPR ม.6(1)(f)" },
-      { label: "ระยะเวลาจัดเก็บ", value: "ไม่น้อยกว่า 90 วัน ซิงค์เวลาตามมาตรฐาน UTC สากล" },
-      { label: "ระบบกรองข้อมูลลับ", value: "Recursive Sanitizer ตรวจจับและแทนที่รหัสผ่าน/โทเค็นเป็น [REDACTED] อัตโนมัติ" },
-      { label: "สถาปัตยกรรมจัดเก็บ", value: "Dual Persistence: Neon PostgreSQL (ตาราง AuditLog) + Circular In-Memory Buffer" },
-    ],
-    tips: "ข้อมูล Audit Log เป็นระบบ Append-Only อย่างแท้จริง ไม่มีปุ่มหรือคำสั่งแก้ไข/ลบข้อมูลใดๆ เพื่อให้มีความน่าเชื่อถือและสามารถใช้ตรวจสอบทางกฎหมายได้",
-    relatedTopicIds: ["super-admin-portal", "roles-and-security"],
     demoType: "permissions",
   },
   {
@@ -722,17 +625,17 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender",
     scopeBadge: "การควบคุมพื้นที่ทำงาน",
     readingTime: "อ่าน 2 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "หน้าตั้งค่าโปรเจกต์แบบกะทัดรัด จัดกลุ่มตามขอบเขต Project / Boards / Personal ใช้รูปแบบ Settings Row มาตรฐาน กวาดตาเห็นครบโดยไม่ต้องเลื่อนยาว",
     concept:
-      "แยกให้ชัดว่ากำลังตั้งค่าอะไร: ระดับโปรเจกต์ (ทุกคนได้รับผล), ระดับบอร์ด (เฉพาะบอร์ดที่เลือก) และระดับส่วนตัว (เฉพาะเบราว์เซอร์นี้) แต่ละหน้าใช้ Label ซ้าย ตัวควบคุมขวา คั่นด้วยเส้นบาง แบบมาตรฐานแบ่งสัดส่วนชัดเจน",
+      "แยกให้ชัดว่ากำลังตั้งค่าอะไร: ระดับโปรเจกต์ (ทุกคนได้รับผล), ระดับบอร์ด (เฉพาะบอร์ดที่เลือก) และระดับส่วนตัว (เฉพาะเบราว์เซอร์นี้) แต่ละหน้าใช้หัวข้อซ้าย ตัวควบคุมขวา คั่นด้วยเส้นบาง เพื่อการตั้งค่าที่ง่ายและไม่สับสน",
     highlights: [
-      "Project › General: ชื่อ คำอธิบาย ภาพปก สวิตช์ฟีเจอร์ (Board notes rail, Private item hiding) และ Danger Zone ลบโปรเจกต์ รวมในหน้าเดียว",
+      "Project › General: ชื่อ คำอธิบาย ภาพปก สวิตช์ฟีเจอร์ และ Danger Zone ลบโปรเจกต์ รวมในหน้าเดียว",
       "Project › Members: รายชื่อสมาชิกแบบแถวกะทัดรัด พร้อมปุ่ม 'จัดการสมาชิกและคำเชิญ' และสรุปสิทธิ์ Owner / Member",
       "Boards › All boards: ค้นหา กรอง Public/Private สลับมุมมองรายการ/Grid และสร้างบอร์ดใหม่ด้วยปุ่ม 'New board'",
       "Boards › Active Board Selector: ใช้ดรอปดาวน์เลือกบอร์ดบนหัวหน้าต่าง Board Settings Modal หรือแถบ Active Board ในหน้า Settings เพื่อสลับบอร์ดที่ต้องการตั้งค่าได้ทันทีโดยไม่ต้องปิดหน้าต่าง",
-      "Columns: กด '+ เพิ่มคอลัมน์ใหม่' กำหนดสถานะเริ่มต้น ธีมสี ไอคอน และ WIP limit ได้ทันที (ยืนยันด้วย ConfirmModal และแจ้ง Toast)",
+      "Columns: กด '+ เพิ่มคอลัมน์ใหม่' กำหนดสถานะเริ่มต้น ธีมสี ไอคอน และ WIP limit ได้ทันที พร้อมการยืนยันและการแจ้งเตือน",
       "Card attributes: แก้ Status, Priority และ Story Points แบบ interactive ซิงค์กับ Kanban, Card modal และ Table view ทันที",
       "Personal › Theme & sound: เลือก Light / Dark / System และเปิด/ปิดเสียงแจ้งเตือน บันทึกเฉพาะเครื่องนี้",
     ],
@@ -750,15 +653,15 @@ export const TOPICS_TH: GuideTopic[] = [
       {
         step: "03",
         title: "บันทึกการเปลี่ยนแปลง",
-        desc: "กด Save เมื่อแก้ไขข้อมูล ระบบจะบันทึกและแสดง Toast ยืนยันผลทันที",
+        desc: "กด Save เมื่อแก้ไขข้อมูล ระบบจะบันทึกและแสดงการแจ้งเตือนยืนยันผลทันที",
       },
     ],
     technicalSpecs: [
-      { label: "Layout Standard", value: "Scope-grouped Settings Row (Modern Minimalist Standard)" },
-      { label: "URL Deep Linking", value: "?tab=...&boardId=... sync" },
-      { label: "Destructive Action", value: "ConfirmModal verification required" },
+      { label: "การจัดหมวดหมู่", value: "แยก 3 ขอบเขต: ระดับโปรเจกต์ (Project), ระดับบอร์ด (Boards), และระดับส่วนตัว (Personal)" },
+      { label: "การเข้าถึงโดยตรง", value: "รองรับการเปิดแท็บการตั้งค่าตามลิงก์ที่ระบุ" },
+      { label: "การดำเนินการสำคัญ", value: "มีหน้าต่างยืนยันความตั้งใจเสมอสำหรับคำสั่งลบหรือปรับเปลี่ยนโครงสร้าง" },
     ],
-    tips: "แชร์ลิงก์ตรงได้ด้วย ?tab=boards, ?tab=access, ?tab=attributes หรือ ?tab=board-general&boardId=...",
+    tips: "สามารถแชร์ลิงก์เปิดแท็บการตั้งค่าที่ต้องการให้เพื่อนร่วมทีมได้โดยตรง",
     relatedTopicIds: ["roles-and-security", "card-attributes-customization", "kanban-boards"],
     demoType: "permissions",
   },
@@ -771,7 +674,7 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-stone-400/30 bg-stone-400/10 text-stone-600 dark:text-stone-400",
     scopeBadge: "ทางลัดความเร็วสูง",
     readingTime: "อ่าน 2 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "เพิ่มประสิทธิภาพการทำงานด้วยคีย์ลัดและการค้นหาด่วนแบบไม่ต้องยกมือจากคีย์บอร์ด",
     concept:
@@ -801,8 +704,8 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Global Shortcuts", value: "Ctrl/Cmd+K, F, Esc, Enter" },
-      { label: "Search Mechanism", value: "Instant Client-side Fuzzy Matching" },
+      { label: "คีย์ลัดสากล", value: "Ctrl/Cmd+K, F, Esc, Enter" },
+      { label: "ระบบค้นหา", value: "ค้นหาข้อมูลได้ทันทีแบบไม่ต้องรอโหลดหน้าใหม่" },
     ],
     codeOrShortcut: "Ctrl + K / Cmd + K",
     tips: "กด Command Palette แล้วพิมพ์ชื่อการ์ดหรือบอร์ดเพื่อกระโดดข้ามหน้าได้เร็วกว่าการคลิกหลายเท่า",
@@ -818,13 +721,13 @@ export const TOPICS_TH: GuideTopic[] = [
     badgeColor: "border-dusk-amber/30 bg-dusk-amber/10 text-amber-600 dark:text-dusk-amber",
     scopeBadge: "การแก้ปัญหา & Q&A",
     readingTime: "อ่าน 3 นาที",
-    lastUpdated: "7 ต.ค. 2026",
+    lastUpdated: "22 ต.ค. 2026",
     summary:
       "รวบรวมข้อสงสัยทั่วไปและแนวทางแก้ไขเมื่อพบปัญหาในการใช้งาน",
     concept:
       "คำตอบสำหรับคำถามที่ผู้ใช้งานสอบถามเข้ามาบ่อยที่สุด พร้อมแนวทางการแก้ไขปัญหาเบื้องต้นด้วยตนเอง",
     highlights: [
-      "Q: การใช้งาน Retzlo AI ต้องติดตั้งหรือตั้งค่าเซิร์ฟเวอร์เพิ่มเติมไหม? -> ตอบ: ระบบ Retzlo AI มีพร้อมใช้งานในตัวทันที (Built-in Server AI) เชื่อมต่ออัตโนมัติในทุก Workspace พร้อมใช้งานได้เลยในคลิกเดียว",
+      "Q: การใช้งาน Retzlo AI ต้องติดตั้งหรือตั้งค่าเซิร์ฟเวอร์เพิ่มเติมไหม? -> ตอบ: ระบบ Retzlo AI มีพร้อมใช้งานในตัวทันทีในทุก Workspace พร้อมใช้งานได้เลยในคลิกเดียว",
       "Q: ข้อมูลจะหายไหมหากอินเทอร์เน็ตหลุดกะทันหัน? -> ตอบ: ระบบมีระบบ Draft Storage สำรองข้อมูลการพิมพ์ไว้ในบราวเซอร์ ปลอดภัยหายห่วง",
       "Q: ธีมสีสามารถเปลี่ยนได้หรือไม่? -> ตอบ: รองรับทั้งธีม Light Mode, Dark Mode และ System โดยกดเปลี่ยนได้ที่รูปโปรไฟล์ของคุณ",
       "Q: บอร์ดแบบ Private คนอื่นในโปรเจกต์จะเห็นไหม? -> ตอบ: ไม่เห็นครับ เฉพาะผู้สร้างและสมาชิกที่ได้รับเลือกใน Board Settings เท่านั้นที่จะมองเห็น",
@@ -834,7 +737,7 @@ export const TOPICS_TH: GuideTopic[] = [
       {
         step: "01",
         title: "ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต",
-        desc: "หากการ์ดไม่อัปเดต ให้ตรวจดูสถานะเน็ตเพื่อให้ Pusher WebSocket เชื่อมต่อได้สมบูรณ์",
+        desc: "หากการ์ดไม่อัปเดต ให้ตรวจดูสถานะสัญญาณอินเทอร์เน็ตเพื่อให้อัปเดตข้อมูลได้ต่อเนื่อง",
       },
       {
         step: "02",
@@ -843,11 +746,10 @@ export const TOPICS_TH: GuideTopic[] = [
       },
     ],
     technicalSpecs: [
-      { label: "Data Resilience", value: "Offline Draft Storage + Optimistic Rollback" },
-      { label: "Support Channel", value: "In-app /contact & Built-in AI Assistant" },
+      { label: "ความปลอดภัยของข้อมูล", value: "ระบบสำรองร่างอัตโนมัติขณะพิมพ์ (Offline Draft Storage)" },
+      { label: "ช่องทางติดต่อช่วยเหลือ", value: "หน้าติดต่อทีมงาน (/contact) และผู้ช่วยอัจฉริยะ Retzlo AI" },
     ],
-    tips: "อย่าลืมตรวจสอบการเชื่อมต่ออินเทอร์เน็ตเพื่อให้ WebSocket Pusher ทำงานได้อย่างสมบูรณ์",
+    tips: "อย่าลืมตรวจสอบการเชื่อมต่ออินเทอร์เน็ตเพื่อให้การซิงค์ข้อมูลแบบเรียลไทม์ทำงานได้อย่างสมบูรณ์",
     relatedTopicIds: ["welcome-overview", "ai-assistant", "roles-and-security"],
   },
 ];
-

@@ -157,10 +157,13 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
   - Folders grouped by category with ChevronDown/ChevronRight expand/collapse toggles and category badge counters.
   - Visual active topic indicator with retro lofi indigo left accent bars.
   - Category filter pills for rapid narrowing of topics.
-- **Retzlo Platform Data Hub Architecture Map (`RetzloHubDiagram`)**:
-  - Interactive 3-tier diagram: **Workspace Inputs** (Kanban, Table, Calendar, Notes) → **Central Neon PostgreSQL + Pusher WebSockets Hub** → **Surfaces & Engines** (Dual UI, Server AI Copilot, Realtime Broadcast, Coffee Cheers Economy, Legal Audit Vault, Exporters, and MCP Connectors).
-  - Clickable technical node inspector displaying tech stack, latency tiers, and architectural role.
-  - Handoff-style callout: "Solid vs. dashed: what's real today across Retzlo" highlighting live production systems vs. planned MCP agent connectors.
+- **Retzlo Workspace Ecosystem Workflow Map (`RetzloHubDiagram`)**:
+  - Interactive 3-tier diagram: **1. Planning & Organization Modules** (Kanban, Table, Calendar, Notes & Habit Diary) → **Central Retzlo Workspace Ecosystem** → **2. Intelligence & Productivity Surfaces** (Dual-View Switching, Retzlo AI Copilot, Real-time Collaboration, Coffee Cheers & Rewards, Privacy & Access Control, and Dedicated Exporters).
+  - Clean node inspector focusing on key capabilities, workflow scope, and practical team benefits rather than internal infrastructure or vendor tech stacks.
+  - User-centric modular synchronization callout explaining how all task views coordinate in real time.
+- **Strict Public End-User Sanitization**:
+  - Public documentation `/help` and `/docs` is strictly designed for regular users (End-User Guide).
+  - Admin-only features, administrative URLs (`/admin-vault-9f8e`), Honeypot decoy telemetry details, internal developer guidelines (`AGENTS.md`), and raw vendor infrastructure details (`PostgreSQL on Neon`, `Prisma ORM`, `deepseek-v4-pro`, `Pusher WebSocket`) are strictly barred from in-app user guide components.
 - **Article Reader & Callout System**:
   - Category eyebrow badge, reading time, and last updated timestamps.
   - `DocsCallout` component with 5 semantic themes: info, tip, warning, security, architecture with left accent bars.
@@ -432,3 +435,11 @@ Retzlo workspaces now provide real-time **Kanban & Card Mockup Previews** across
 - **Workspace Navigation & Calendar Polish**:
   - Smart Diary Calendar Filtering: future recurring Diary checklist items now display weekly and monthly schedules in advance, while day diaries are withheld until that day arrives to prevent calendar clutter.
   - Clickable `Command K` triggers in the workspace topbar and sidebar footer, and automatic mobile sidebar dismissal on route change.
+
+### 2026-10-22 — End-User Sanitization of Public In-App Guide (/help, /docs, HelpButton)
+Sanitized the public user-facing in-app guide and About dialogs to ensure zero leakage of administrative secrets, security telemetry, or internal tech stacks:
+- **Admin & Security Secrecy**: Removed the administrative vault URL (`/admin-vault-9f8e`), Honeypot decoy disclosure, and administrative governance topics (`Super Admin Portal`, `Forensic Audit Log Hub`) from `/help` and `/docs`.
+- **User-Centric Architecture Map (`RetzloHubDiagram`)**: Redesigned the architecture diagram from raw database/vendor specs (`PostgreSQL on Neon`, `Prisma ORM`, `Pusher WS`, `DeepSeek V4 Pro`, `MCP`) into the **Retzlo Workspace Ecosystem Workflow Map**, highlighting module connections, dual-view versatility, and real-time team collaboration.
+- **Feature Quick Facts (`SpecsLedger`)**: Refactored the engineering specs ledger at the bottom of articles into user-friendly **Feature Quick Facts & Summary** highlighting key user capabilities, supported formats, and views.
+- **System Information Modal (`HelpButton`)**: Replaced raw tech stack listings (`Next.js 14`, `Tailwind CSS`, `PostgreSQL on Neon`, `Prisma ORM`, `Pusher WebSocket`) with the 4 core platform capabilities (Dual-View Workspaces, Retzlo AI Assistant, Calendar & Life Hub, Team Spirit & Cheers).
+- **Automated Anti-Leak Regression Test**: Added strict unit tests in `src/components/help/help-center.test.ts` verifying that no sensitive administrative routes, honeypot telemetry, or internal vendor names appear in `/help` or `HelpButton`.

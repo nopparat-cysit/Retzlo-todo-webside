@@ -207,17 +207,17 @@ export function HelpButton({ className }: HelpButtonProps) {
             <strong>Retzlo</strong> is a modular life and work management platform designed with retro lofi indigo aesthetics. Built for both professional project collaboration and everyday routine habit tracking.
           </p>
 
-          {/* System Specs & Architecture */}
+          {/* Core Capabilities */}
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                System Architecture
+                Work Module
               </span>
               <p className="font-semibold text-stone-800 dark:text-stone-200 mt-0.5">
-                Next.js 14 App Router
+                Dual-View Workspaces
               </p>
               <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                TypeScript & Tailwind CSS
+                Kanban & Spreadsheet Table
               </p>
             </div>
 
@@ -229,31 +229,31 @@ export function HelpButton({ className }: HelpButtonProps) {
                 Retzlo AI Assistant
               </p>
               <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                Multi-turn & Context Aware
+                Task Breakdown & Summaries
               </p>
             </div>
 
             <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                Database & Cloud
+                Life & Routine
               </span>
               <p className="font-semibold text-stone-800 dark:text-stone-200 mt-0.5">
-                PostgreSQL on Neon
+                Calendar & Life Hub
               </p>
               <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                Prisma ORM & Connection Pooling
+                Due Dates & Habit Streaks
               </p>
             </div>
 
             <div className="rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 dark:border-white/[0.08] dark:bg-white/[0.02]">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                Real-time Connectivity
+                Team Spirit
               </span>
               <p className="font-semibold text-stone-800 dark:text-stone-200 mt-0.5">
-                Pusher WebSocket
+                Real-time Team Sync
               </p>
               <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                Optimistic UI Updates
+                Coffee Cheers & Rewards
               </p>
             </div>
           </div>

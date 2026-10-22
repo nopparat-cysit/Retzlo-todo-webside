@@ -22,9 +22,9 @@ export const KEYBOARD_SHORTCUTS_LIST_TH = [
 
 export const FAQ_ITEMS_EN = [
   {
-    q: "Does Retzlo AI require complex server configuration?",
-    a: "Not at all. Retzlo AI is architected as an intelligent built-in server capability. It is provisioned automatically across all workspaces from day one. Simply click the 🤖 robot icon on the topbar to begin issuing instructions.",
-    tag: "AI Engine",
+    q: "Does Retzlo AI require complex setup or configuration?",
+    a: "Not at all. Retzlo AI is built directly into the platform and available across all workspaces from day one. Simply click the 🤖 robot icon on the topbar to begin issuing instructions.",
+    tag: "AI Assistant",
   },
   {
     q: "Will my data be lost if my internet connection drops while typing?",
@@ -55,9 +55,9 @@ export const FAQ_ITEMS_EN = [
 
 export const FAQ_ITEMS_TH = [
   {
-    q: "การใช้งาน Retzlo AI ต้องติดตั้งหรือตั้งค่าเซิร์ฟเวอร์เพิ่มเติมไหม?",
-    a: "ไม่ต้องติดตั้งอะไรเพิ่มเติมทั้งสิ้น ระบบ Retzlo AI ได้รับการออกแบบให้ทำงานแบบ Built-in Server AI อัจฉริยะในตัว พร้อมให้บริการทุก Workspace ทันทีตั้งแต่เริ่มใช้งาน เพียงคลิกไอคอนหุ่นยนต์ 🤖 บน Topbar ก็เริ่มสั่งงานได้เลย",
-    tag: "AI Engine",
+    q: "การใช้งาน Retzlo AI ต้องติดตั้งหรือตั้งค่าเพิ่มเติมไหม?",
+    a: "ไม่ต้องติดตั้งอะไรเพิ่มเติมทั้งสิ้น ผู้ช่วย Retzlo AI มีพร้อมใช้งานในตัวทันทีในทุก Workspace ตั้งแต่เริ่มใช้งาน เพียงคลิกไอคอนหุ่นยนต์ 🤖 บน Topbar ก็เริ่มสั่งงานได้เลย",
+    tag: "AI Assistant",
   },
   {
     q: "ข้อมูลจะสูญหายหรือไม่ หากสัญญาณอินเทอร์เน็ตหลุดระหว่างพิมพ์?",
@@ -203,10 +203,10 @@ export const RBAC_PERMISSIONS_MATRIX_EN: MatrixRowItem[] = [
     badge: "PRIVACY",
   },
   {
-    dimension: "Audit Log & Security Trail",
-    primary: "Full Audit History Inspection",
-    secondary: "No access to administrative audit logs",
-    badge: "COMPLIANCE",
+    dimension: "Board Activity & History",
+    primary: "Full Workspace Activity Inspection",
+    secondary: "View activities on assigned boards",
+    badge: "ACTIVITY",
   },
 ];
 
@@ -242,10 +242,10 @@ export const RBAC_PERMISSIONS_MATRIX_TH: MatrixRowItem[] = [
     badge: "PRIVACY",
   },
   {
-    dimension: "ตรวจสอบประวัติ Audit Log",
-    primary: "เข้าดูประวัติ Audit Trail กิจกรรมทั้งหมดได้",
-    secondary: "ไม่มีสิทธิ์เข้าถึงบันทึก Audit ระดับผู้ดูแล",
-    badge: "COMPLIANCE",
+    dimension: "ประวัติกิจกรรมในบอร์ด (Activity)",
+    primary: "ดูประวัติความเคลื่อนไหวทั้งหมดในโปรเจกต์",
+    secondary: "ดูประวัติกิจกรรมในบอร์ดที่ตนเองเข้าร่วม",
+    badge: "ACTIVITY",
   },
 ];
 

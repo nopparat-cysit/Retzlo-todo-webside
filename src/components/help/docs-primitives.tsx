@@ -136,7 +136,7 @@ export function DocsSandboxDeck({
   badgeText = "LIVE BENCH",
   onReset,
   children,
-  techSpecs = "IN-MEMORY REACT STATE • ISOLATED BENCH",
+  techSpecs = "INTERACTIVE PREVIEW • โหมดทดลองใช้งาน",
   className,
 }: {
   title: string;
@@ -532,7 +532,7 @@ export function SpecsLedger({
       <div className="flex items-center justify-between border-b border-stone-200/80 bg-stone-100/70 px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400">
         <div className="flex items-center gap-2">
           <Terminal className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-          <span>{title || (isEn ? "System Ledger & Engineering Specs" : "ข้อมูลจำเพาะระบบ & ทะเบียนพารามิเตอร์")}</span>
+          <span>{title || (isEn ? "Feature Summary & Quick Reference" : "สรุปข้อมูลสำคัญของฟีเจอร์")}</span>
         </div>
         <span>{specs.length} {isEn ? "PROPERTIES" : "รายการ"}</span>
       </div>

@@ -11,8 +11,8 @@ import type { CategoryTheme, GuideTopic } from "./types";
 /* ── Cohesive Retro Lofi Field Manual Theme Map ── */
 
 const BASE_THEME: CategoryTheme = {
-  eyebrowEn: "SYSTEM DOCUMENTATION",
-  eyebrowTh: "เอกสารทางเทคนิค & คู่มือระบบ",
+  eyebrowEn: "USER MANUAL & GUIDE",
+  eyebrowTh: "คู่มือการใช้งานระบบ",
   eyebrowBadge: "bg-indigo-50 text-indigo-700 border border-indigo-200/80 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:border-dusk-lavender/30",
   iconBox: "border-indigo-200 bg-indigo-50/90 text-indigo-600 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender",
   headerAura: "from-indigo-500/10 via-indigo-500/5 to-transparent",
@@ -29,8 +29,8 @@ const BASE_THEME: CategoryTheme = {
 export const CATEGORY_THEME_MAP: Record<GuideTopic["category"], CategoryTheme> = {
   overview: {
     ...BASE_THEME,
-    eyebrowEn: "SECTION 01 // ARCHITECTURE & OVERVIEW",
-    eyebrowTh: "หมวด 01 // ภาพรวมระบบ & สถาปัตยกรรม",
+    eyebrowEn: "SECTION 01 // GETTING STARTED & OVERVIEW",
+    eyebrowTh: "หมวด 01 // เริ่มต้นใช้งาน & ภาพรวมระบบ",
   },
   ai: {
     ...BASE_THEME,
@@ -76,7 +76,7 @@ export const CATEGORY_THEME_MAP: Record<GuideTopic["category"], CategoryTheme> =
 
 export const CATEGORIES_TH = [
   { id: "all", label: "00 · ทั้งหมด", fullLabel: "ดัชนีหัวข้อทั้งหมด (Complete Index)" },
-  { id: "overview", label: "01 · ภาพรวมระบบ", fullLabel: "01 — ภาพรวมระบบ & สถาปัตยกรรม (Architecture)" },
+  { id: "overview", label: "01 · เริ่มต้นใช้งาน", fullLabel: "01 — เริ่มต้นใช้งาน & ภาพรวมระบบ (Getting Started)" },
   { id: "ai", label: "02 · ผู้ช่วย AI", fullLabel: "02 — ผู้ช่วยอัจฉริยะ Retzlo AI (Copilot)" },
   { id: "kanban", label: "03 · บอร์ด & ตาราง", fullLabel: "03 — เวิร์กสเปซ บอร์ดคันบัน & ตาราง (Boards & Views)" },
   { id: "gamification", label: "04 · เชียร์ & เหรียญ", fullLabel: "04 — เชียร์กาแฟ & ร้านรางวัล (Cheers & Rewards)" },
@@ -89,7 +89,7 @@ export const CATEGORIES_TH = [
 
 export const CATEGORIES_EN = [
   { id: "all", label: "00 · All Topics", fullLabel: "Complete Topic Index" },
-  { id: "overview", label: "01 · System Overview", fullLabel: "01 — Architecture & Getting Started" },
+  { id: "overview", label: "01 · Getting Started", fullLabel: "01 — Getting Started & Overview" },
   { id: "ai", label: "02 · Retzlo AI", fullLabel: "02 — AI Copilot & Automated Breakdown" },
   { id: "kanban", label: "03 · Boards & Table", fullLabel: "03 — Dual Workspaces: Kanban & Table" },
   { id: "gamification", label: "04 · Cheers & Coins", fullLabel: "04 — Coffee Cheers & Rewards Economy" },

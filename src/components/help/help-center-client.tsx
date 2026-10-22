@@ -621,15 +621,15 @@ export function HelpCenterClient() {
                 )}
               </div>
 
-            {/* System Guide Reference Footer */}
+            {/* User Guide Reference Footer */}
             <div className="shrink-0 pt-3 border-t border-stone-200/80 dark:border-white/10 mt-2">
               <div className="rounded-xl border border-stone-200/70 bg-stone-50/60 p-2.5 text-[11px] text-stone-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 flex items-center justify-between">
-                <span className="flex items-center gap-1.5 font-mono text-[10px]">
-                  <FileText className="h-3 w-3 text-indigo-500 dark:text-dusk-lavender" />
-                  <span>system-guide.md</span>
+                <span className="flex items-center gap-1.5 font-medium text-[11px]">
+                  <FileText className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                  <span>{isEn ? "Retzlo User Guide" : "คู่มือการใช้งาน Retzlo"}</span>
                 </span>
                 <span className="rounded bg-stone-200/60 dark:bg-white/10 px-1.5 py-0.2 text-[9px] font-semibold text-stone-600 dark:text-stone-300">
-                  v2.4 LTS
+                  v2.4
                 </span>
               </div>
             </div>
@@ -804,31 +804,31 @@ export function HelpCenterClient() {
                   </section>
                 )}
 
-                {/* ── Welcome Overview Live Pipeline Demo ── */}
+                {/* ── Welcome Overview 4-Step Workflow Journey ── */}
                 {activeTopic.id === "welcome-overview" && (
                   <section id="live-demo" className="scroll-mt-24">
                     <DocsSandboxDeck
-                      title={isEn ? "RETZLO PIPELINE ARCHITECTURE" : "RETZLO PIPELINE ARCHITECTURE"}
-                      subtitle={isEn ? "Next.js App Router • Optimistic UI • Pusher WS • Neon Postgres" : "สถาปัตยกรรมการประมวลผลและการซิงก์ข้อมูล"}
-                      badgeText="PIPELINE BENCH"
-                      techSpecs="NEXT.JS 14 • POSTGRES NEON • PUSHER WS • PRISMA ORM"
+                      title={isEn ? "RETZLO 4-STEP WORKFLOW JOURNEY" : "4 ขั้นตอนการทำงานหลักใน RETZLO"}
+                      subtitle={isEn ? "Workspace • Dual Views • AI Assistance • Deliver" : "สร้างโปรเจกต์ • สลับมุมมอง • ผู้ช่วย AI • ส่งมอบงาน"}
+                      badgeText="WORKFLOW"
+                      techSpecs={isEn ? "MODULAR WORKFLOW • REAL-TIME COLLABORATION" : "การทำงานแบบโมดูลาร์ • ซิงค์สดเรียลไทม์"}
                     >
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-center text-xs">
                         <div className="p-3.5 rounded-xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-stone-900/80 space-y-1">
-                          <span className="font-mono font-bold text-indigo-600 dark:text-dusk-lavender">01. App Router</span>
-                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "React Server & Client Components" : "Next.js React Client Components"}</p>
+                          <span className="font-mono font-bold text-indigo-600 dark:text-dusk-lavender">{isEn ? "01. Workspace" : "01. พื้นที่ทำงาน"}</span>
+                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "Create projects & invite teammates" : "สร้างโปรเจกต์และเชิญเพื่อนร่วมทีม"}</p>
                         </div>
                         <div className="p-3.5 rounded-xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-stone-900/80 space-y-1">
-                          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">02. Optimistic UI</span>
-                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "0ms State Transitions & Rollback" : "0ms State Sync & Auto Rollback"}</p>
+                          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{isEn ? "02. Dual Views" : "02. สลับมุมมอง"}</span>
+                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "Switch between Kanban & Table views" : "สลับกระดาน Kanban และตารางสเปรดชีต"}</p>
                         </div>
                         <div className="p-3.5 rounded-xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-stone-900/80 space-y-1">
-                          <span className="font-mono font-bold text-amber-600 dark:text-dusk-amber">03. Pusher WS</span>
-                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "Live Teammate Collaboration" : "Live Team Collaboration Broadcast"}</p>
+                          <span className="font-mono font-bold text-amber-600 dark:text-dusk-amber">{isEn ? "03. Retzlo AI" : "03. ผู้ช่วย AI"}</span>
+                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "Auto-breakdown tasks & summaries" : "แตกงานย่อยและสรุปผลโครงการ"}</p>
                         </div>
                         <div className="p-3.5 rounded-xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-stone-900/80 space-y-1">
-                          <span className="font-mono font-bold text-indigo-600 dark:text-dusk-lavender">04. Neon & AI</span>
-                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "PostgreSQL & Built-in Intelligence" : "PostgreSQL + Built-in Intelligence"}</p>
+                          <span className="font-mono font-bold text-indigo-600 dark:text-dusk-lavender">{isEn ? "04. Deliver" : "04. ส่งมอบงาน"}</span>
+                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "Export PDF/PNG/Excel & Cheers" : "ส่งออกรายงานและส่งแก้วกาแฟ Cheers"}</p>
                         </div>
                       </div>
                     </DocsSandboxDeck>
@@ -860,7 +860,7 @@ export function HelpCenterClient() {
                         title={isEn ? "RETZLO COPILOT SIMULATOR" : "RETZLO COPILOT SIMULATOR"}
                         subtitle={isEn ? "Interactive AI task breakdown engine" : "จำลองการแตกงานด้วย AI"}
                         badgeText="COPILOT BENCH"
-                        techSpecs="MODEL: DEEPSEEK-V4-PRO • LATENCY: ~320MS • STREAM: CHUNKED"
+                        techSpecs={isEn ? "INTERACTIVE AI COPILOT • REAL-TIME CONTEXT" : "จำลองผู้ช่วย AI • วิเคราะห์บริบทโปรเจกต์"}
                       >
                         <InteractiveAiDemo isEn={isEn} />
                       </DocsSandboxDeck>
@@ -870,7 +870,7 @@ export function HelpCenterClient() {
                         title={isEn ? "DUAL-VIEW ENGINE BENCH" : "DUAL-VIEW ENGINE BENCH"}
                         subtitle={isEn ? "Kanban board & spreadsheet table reactive sync" : "สลับมุมมองคันบัน & ตารางสเปรดชีต"}
                         badgeText="VIEWPORT BENCH"
-                        techSpecs="MEMORY CACHE • REACT OPTIMISTIC MUTATION • DENSITY: NORMAL/COMPACT"
+                        techSpecs={isEn ? "INTERACTIVE VIEWPORT • NORMAL / COMPACT DENSITY" : "โหมดทดลองมุมมอง • ปรับความหนาแน่นได้"}
                       >
                         <InteractiveKanbanTableDemo isEn={isEn} />
                       </DocsSandboxDeck>
@@ -880,7 +880,7 @@ export function HelpCenterClient() {
                         title={isEn ? "10-LEVEL PRIORITY MATRIX" : "10-LEVEL PRIORITY MATRIX"}
                         subtitle={isEn ? "Custom priority scales & Retro Lofi color tokens" : "ทดสอบระดับความสำคัญ 10 ระดับ"}
                         badgeText="PALETTE BENCH"
-                        techSpecs="SCALE: 1-10 • COLOR MATRIX: RETRO-LOFI INDIGO • LOCAL OVERRIDE"
+                        techSpecs={isEn ? "CUSTOM PRIORITIES • 12 RETRO LOFI COLORS" : "ความสำคัญ 10 ระดับ • 12 โทนสี RETRO LOFI"}
                       >
                         <InteractivePrioritiesDemo isEn={isEn} />
                       </DocsSandboxDeck>
@@ -890,7 +890,7 @@ export function HelpCenterClient() {
                         title={isEn ? "COFFEE CHEERS & COIN TRANSACTOR" : "COFFEE CHEERS & COIN TRANSACTOR"}
                         subtitle={isEn ? "Social morale cheers & store checkout" : "จำลองการส่งกาแฟและใช้เหรียญ"}
                         badgeText="ECONOMY BENCH"
-                        techSpecs="LEDGER: AUDIT-COMPLIANT • PEER-TO-PEER MORALE • BALANCE: 120 COINS"
+                        techSpecs={isEn ? "COFFEE CHEERS & REWARDS • INSTANT COIN WALLET" : "ส่งกำลังใจ & สะสมเหรียญแลกรางวัล"}
                       >
                         <InteractiveCoffeeDemo isEn={isEn} />
                       </DocsSandboxDeck>
@@ -927,12 +927,12 @@ export function HelpCenterClient() {
                   </section>
                 )}
 
-                {/* Section 4: Technical Specifications */}
+                {/* Section 4: Feature Summary & Quick Facts */}
                 {activeTopic.technicalSpecs && activeTopic.technicalSpecs.length > 0 && (
                   <section id="technical-specs" className="space-y-3.5 scroll-mt-24">
                     <DocsHeading
                       id="technical-specs"
-                      title={isEn ? "Technical Specifications" : "ข้อมูลจำเพาะทางเทคนิค (Technical Specifications)"}
+                      title={isEn ? "Feature Quick Facts & Summary" : "สรุปข้อมูลสำคัญของฟีเจอร์ (Feature Summary)"}
                       icon={Zap}
                       badgeClass={categoryTheme.sectionBadge}
                       isEn={isEn}
@@ -950,7 +950,7 @@ export function HelpCenterClient() {
                     <DocsHeading
                       id="prompt-cookbook"
                       title={isEn ? "Curated Prompt Cookbook & Recipes" : "ตำราคำสั่งและสูตรพรอมต์สำเร็จรูป (Prompt Cookbook)"}
-                      subtitle={isEn ? "Battle-tested prompt templates optimized for deepseek-v4-pro" : "สูตรคำสั่งที่ผ่านการทดสอบและปรับจูนเพื่อ deepseek-v4-pro"}
+                      subtitle={isEn ? "Battle-tested prompt templates ready to use with Retzlo AI" : "สูตรคำสั่งสำเร็จรูปพร้อมใช้งานสำหรับผู้ช่วย Retzlo AI"}
                       icon={Bot}
                       badgeClass={categoryTheme.sectionBadge}
                       isEn={isEn}
@@ -981,7 +981,7 @@ export function HelpCenterClient() {
                 )}
 
                 {/* Security Module: Role-Based Access Control (RBAC) Matrix */}
-                {activeTopic.id === "member-roles-security" && (
+                {activeTopic.id === "roles-and-security" && (
                   <section id="rbac-matrix" className="space-y-4 scroll-mt-24 pt-2">
                     <DocsHeading
                       id="rbac-matrix"
@@ -1220,7 +1220,7 @@ export function HelpCenterClient() {
                           )}
                         >
                           <Play className="h-3 w-3 shrink-0" />
-                          <span>{isEn ? "Pipeline Bench" : "ตัวอย่าง Pipeline สด"}</span>
+                          <span>{isEn ? "Workflow Journey" : "ขั้นตอนการทำงาน"}</span>
                         </a>
                       </>
                     )}
@@ -1289,7 +1289,7 @@ export function HelpCenterClient() {
                       )}
                     >
                       <span>•</span>
-                      <span className="truncate">{isEn ? "Technical Specs" : "ข้อมูลจำเพาะทางเทคนิค"}</span>
+                      <span className="truncate">{isEn ? "Quick Facts" : "สรุปข้อมูลฟีเจอร์"}</span>
                     </a>
                     )}
                     {(activeTopic.category === "ai" || activeTopic.id === "ai-assistant") && (
@@ -1426,7 +1426,7 @@ export function HelpCenterClient() {
                   title={isEn ? "DUAL-VIEW ENGINE BENCH" : "DUAL-VIEW ENGINE BENCH"}
                   subtitle={isEn ? "Kanban Board & Spreadsheet Table Dual-View" : "ระบบมุมมองคู่ Kanban & ตาราง Spreadsheet"}
                   badgeText="VIEWPORT BENCH"
-                  techSpecs="MEMORY CACHE • REACT OPTIMISTIC MUTATION • DENSITY: NORMAL/COMPACT"
+                  techSpecs={isEn ? "INTERACTIVE VIEWPORT • NORMAL / COMPACT DENSITY" : "โหมดทดลองมุมมอง • ปรับความหนาแน่นได้"}
                 >
                   <InteractiveKanbanTableDemo isEn={isEn} />
                 </DocsSandboxDeck>
@@ -1434,9 +1434,9 @@ export function HelpCenterClient() {
                 {/* 2. Retzlo AI */}
                 <DocsSandboxDeck
                   title={isEn ? "RETZLO COPILOT SIMULATOR" : "RETZLO COPILOT SIMULATOR"}
-                  subtitle={isEn ? "Autonomous task decomposition engine" : "ผู้ช่วย Retzlo AI แตกงานอัตโนมัติ"}
+                  subtitle={isEn ? "Interactive task decomposition engine" : "ผู้ช่วย Retzlo AI แตกงานอัตโนมัติ"}
                   badgeText="COPILOT BENCH"
-                  techSpecs="MODEL: DEEPSEEK-V4-PRO • LATENCY: ~320MS • STREAM: CHUNKED"
+                  techSpecs={isEn ? "INTERACTIVE AI COPILOT • REAL-TIME CONTEXT" : "จำลองผู้ช่วย AI • วิเคราะห์บริบทโปรเจกต์"}
                 >
                   <InteractiveAiDemo isEn={isEn} />
                 </DocsSandboxDeck>
@@ -1446,7 +1446,7 @@ export function HelpCenterClient() {
                   title={isEn ? "10-LEVEL PRIORITY MATRIX" : "10-LEVEL PRIORITY MATRIX"}
                   subtitle={isEn ? "Custom priority scales & Retro Lofi color tokens" : "ปรับแต่งระดับความสำคัญ 10 ระดับ"}
                   badgeText="PALETTE BENCH"
-                  techSpecs="SCALE: 1-10 • COLOR MATRIX: RETRO-LOFI INDIGO • LOCAL OVERRIDE"
+                  techSpecs={isEn ? "CUSTOM PRIORITIES • 12 RETRO LOFI COLORS" : "ความสำคัญ 10 ระดับ • 12 โทนสี RETRO LOFI"}
                 >
                   <InteractivePrioritiesDemo isEn={isEn} />
                 </DocsSandboxDeck>
@@ -1456,7 +1456,7 @@ export function HelpCenterClient() {
                   title={isEn ? "COFFEE CHEERS & COIN TRANSACTOR" : "COFFEE CHEERS & COIN TRANSACTOR"}
                   subtitle={isEn ? "Social morale cheers & gamified coin economy" : "ระบบ Coffee Cheers และ Coins Wallet"}
                   badgeText="ECONOMY BENCH"
-                  techSpecs="LEDGER: AUDIT-COMPLIANT • PEER-TO-PEER MORALE • BALANCE: 120 COINS"
+                  techSpecs={isEn ? "COFFEE CHEERS & REWARDS • INSTANT COIN WALLET" : "ส่งกำลังใจ & สะสมเหรียญแลกรางวัล"}
                 >
                   <InteractiveCoffeeDemo isEn={isEn} />
                 </DocsSandboxDeck>
