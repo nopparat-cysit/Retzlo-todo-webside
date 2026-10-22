@@ -18,6 +18,7 @@ import { useToast } from "@/components/ui/toast";
 import { ModalPortal } from "@/components/ui/modal-portal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
+import gardenSkin from "./zen-garden-skin.module.css";
 import {
   type ZenGardenState,
   parseZenGardenState,
@@ -124,14 +125,6 @@ export function ZenSanctuaryModal({
     winter: { en: "Winter Season · Tranquil Snow on Stone Toro", th: "ฤดูหนาว · หิมะขาวบริสุทธิ์บนโคมหินโบราณ" },
   }[season];
 
-  const skyThemes = {
-    dawn: "from-amber-200/40 via-orange-100/30 to-sky-100/40 dark:from-[#1b1429] dark:via-[#16122a] dark:to-[#0d0d1a]",
-    day: "from-sky-100/50 via-teal-50/30 to-stone-100/60 dark:from-[#0d1627] dark:via-[#0c1220] dark:to-[#070b14]",
-    dusk: "from-rose-200/40 via-purple-100/30 to-indigo-100/40 dark:from-[#261324] dark:via-[#191024] dark:to-[#0c0915]",
-    night: "from-indigo-950/40 via-slate-900/30 to-black/50 dark:from-[#060814] dark:via-[#04060f] dark:to-[#020308]",
-  };
-  const skyTheme = skyThemes[timeOfDay];
-
   const activeGuardian =
     BOTANICAL_PLANTS.find((p) => p.id === activeZen.activeGuardianId) || BOTANICAL_PLANTS[0];
 
@@ -231,14 +224,15 @@ export function ZenSanctuaryModal({
       >
         <div
           className={cn(
-            "relative flex w-full max-w-2xl max-h-[92vh] flex-col overflow-hidden rounded-[28px] border border-theme-border shadow-[0_32px_100px_rgba(15,18,35,0.32)] transition-all duration-500 bg-gradient-to-b",
-            skyTheme
+            gardenSkin.skin,
+            gardenSkin.modalFrame,
+            "relative flex w-full max-w-2xl max-h-[92vh] flex-col overflow-hidden rounded-[28px] border shadow-[0_32px_100px_rgba(15,18,35,0.32)] transition-all duration-500"
           )}
         >
           {/* Top Header Bar */}
-          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-theme-border/80 bg-theme-paper/80 px-4 py-3 backdrop-blur-md sm:px-6">
+          <div className={cn(gardenSkin.modalHeader, "flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur-md sm:px-6")}>
             <div className="flex items-center gap-3 min-w-0">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/15 to-dusk-lavender/15 text-emerald-700 shadow-sm dark:text-emerald-300">
+              <div className={cn(gardenSkin.guardianIcon, "grid h-10 w-10 shrink-0 place-items-center rounded-2xl border text-emerald-700 shadow-sm dark:text-emerald-300")}>
                 <Flower2 className="h-5 w-5" />
               </div>
               <div className="min-w-0">
@@ -318,11 +312,11 @@ export function ZenSanctuaryModal({
           {/* Main Stage: Terrarium Landscape + Fortune Scroll Reveal */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col items-center justify-start space-y-4">
             {/* Visual Terrarium Canvas */}
-            <div className="group relative h-48 w-full shrink-0 overflow-hidden rounded-3xl border border-theme-border shadow-lg sm:h-56">
+            <div className={cn(gardenSkin.sceneFrame, "group relative h-48 w-full shrink-0 overflow-hidden rounded-3xl border shadow-lg sm:h-56")}>
               <ZenTerrariumBackdrop timeOfDay={timeOfDay} season={season} isNourishing={isWatering} />
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/[0.06] via-transparent to-black/25" />
+              <div aria-hidden="true" className={cn(gardenSkin.sceneOverlay, "pointer-events-none absolute inset-0")} />
 
-              <div className="absolute left-3 top-3 rounded-full border border-white/40 bg-white/75 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-stone-700 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-stone-950/35 dark:text-stone-100">
+              <div className={cn(gardenSkin.modalSceneLabel, "absolute left-3 top-3 rounded-full border px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] shadow-sm backdrop-blur-md")}>
                 {isEn ? "A quiet place to begin" : "สวนสงบสำหรับการเริ่มต้น"}
               </div>
 
@@ -354,14 +348,14 @@ export function ZenSanctuaryModal({
                 </div>
               )}
 
-              <div className="absolute bottom-3 left-3 rounded-full border border-white/35 bg-stone-950/35 px-3 py-1 text-[10px] font-medium text-white shadow-sm backdrop-blur-md">
+              <div className={cn(gardenSkin.sceneHint, "absolute bottom-3 left-3 rounded-full border px-3 py-1 text-[10px] font-medium text-white shadow-sm backdrop-blur-md")}>
                 {isEn ? activeGuardian.name : activeGuardian.nameTh} · {activeGuardian.solfeggioFreq} Hz
               </div>
             </div>
 
             {/* Daily Watering Action vs Revealed Omikuji Scroll */}
             {!hasWateredToday ? (
-              <div className="relative isolate w-full max-w-lg overflow-hidden rounded-3xl border border-sky-500/20 bg-gradient-to-br from-sky-500/[0.07] via-theme-paper to-emerald-500/[0.06] p-4 text-center shadow-xl sm:p-6">
+              <div className={cn(gardenSkin.waterCard, "relative isolate w-full max-w-lg overflow-hidden rounded-3xl border p-4 text-center shadow-xl sm:p-6")}>
                 <div aria-hidden="true" className="pointer-events-none absolute -right-9 -top-12 h-32 w-32 rounded-full bg-dusk-lavender/10 blur-2xl" />
                 <div className="relative space-y-4">
                 <div className="space-y-1">
@@ -387,7 +381,7 @@ export function ZenSanctuaryModal({
                   type="button"
                   onClick={() => setIsWaterConfirmOpen(true)}
                   disabled={isWatering}
-                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-emerald-800/70 bg-gradient-to-r from-emerald-700 via-teal-700 to-dusk-lavender px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_26px_rgba(16,100,76,0.22)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(16,100,76,0.28)] active:scale-[0.99] disabled:opacity-50 sm:w-auto dark:border-emerald-400/30 dark:from-emerald-600 dark:via-teal-600 dark:to-dusk-lavender"
+                  className={cn(gardenSkin.modalPrimaryAction, "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_26px_rgba(16,100,76,0.22)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(16,100,76,0.28)] active:scale-[0.99] disabled:opacity-50 sm:w-auto")}
                 >
                   <ZenGameToolLadle className="w-5 h-5 shrink-0" />
                   <span>

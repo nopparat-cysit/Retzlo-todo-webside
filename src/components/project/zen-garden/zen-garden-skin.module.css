@@ -1,0 +1,404 @@
+.skin {
+  --garden-canvas: #eee9de;
+  --garden-paper: #f8f4e9;
+  --garden-paper-raised: #fffdf6;
+  --garden-ink: #344038;
+  --garden-muted: #70796f;
+  --garden-line: rgba(74, 92, 76, 0.22);
+  --garden-moss: #58745d;
+  --garden-moss-strong: #405c48;
+  --garden-moss-soft: rgba(88, 116, 93, 0.1);
+  --garden-water: #66838d;
+  --garden-water-soft: rgba(102, 131, 141, 0.12);
+  --garden-vermilion: #a65d55;
+  --garden-vermilion-soft: rgba(166, 93, 85, 0.1);
+  --garden-gold: #977740;
+  --garden-gold-soft: rgba(151, 119, 64, 0.12);
+  --garden-indigo: #77769a;
+  --garden-indigo-soft: rgba(119, 118, 154, 0.1);
+  --garden-shadow: rgba(49, 59, 47, 0.12);
+
+  color: var(--garden-ink);
+}
+
+.skin.skin:not(.modalFrame) {
+  border: 1px solid var(--garden-line);
+  background-color: var(--garden-canvas);
+  background-image:
+    radial-gradient(ellipse at 12% 0%, var(--garden-paper-raised), transparent 45%),
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(101, 94, 70, 0.018) 3px 4px);
+  box-shadow: 0 18px 42px var(--garden-shadow);
+}
+
+:global(html[data-theme="dark"]) .skin,
+:global(html.dark) .skin {
+  --garden-canvas: #171c19;
+  --garden-paper: #202720;
+  --garden-paper-raised: #283129;
+  --garden-ink: #eee7d9;
+  --garden-muted: #b0b5a8;
+  --garden-line: rgba(216, 207, 181, 0.18);
+  --garden-moss: #a9c39f;
+  --garden-moss-strong: #68866d;
+  --garden-moss-soft: rgba(153, 184, 145, 0.13);
+  --garden-water: #a8c6cb;
+  --garden-water-soft: rgba(146, 186, 195, 0.15);
+  --garden-vermilion: #e0a097;
+  --garden-vermilion-soft: rgba(218, 144, 133, 0.13);
+  --garden-gold: #dcc58e;
+  --garden-gold-soft: rgba(220, 197, 142, 0.13);
+  --garden-indigo: #b4b1dc;
+  --garden-indigo-soft: rgba(180, 177, 220, 0.14);
+  --garden-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Re-map the garden's existing role and status utilities to its scoped palette. */
+.skin :global([class*="text-theme-foreground"]),
+.skin :global([class*="text-stone-900"]),
+.skin :global([class*="text-stone-800"]),
+.skin :global([class*="text-stone-700"]),
+.skin :global([class*="text-stone-200"]),
+.skin :global([class*="text-stone-100"]) {
+  color: var(--garden-ink);
+}
+
+.skin :global([class*="text-theme-muted"]),
+.skin :global([class*="text-stone-600"]),
+.skin :global([class*="text-stone-500"]),
+.skin :global([class*="text-stone-400"]),
+.skin :global([class*="text-stone-300"]) {
+  color: var(--garden-muted);
+}
+
+.skin :global([class*="text-emerald-"]) {
+  color: var(--garden-moss);
+}
+
+.skin :global([class*="text-sky-"]),
+.skin :global([class*="text-teal-"]) {
+  color: var(--garden-water);
+}
+
+.skin :global([class*="text-rose-"]),
+.skin :global([class*="text-red-"]) {
+  color: var(--garden-vermilion);
+}
+
+.skin :global([class*="text-amber-"]) {
+  color: var(--garden-gold);
+}
+
+.skin :global([class*="text-dusk-lavender"]) {
+  color: var(--garden-indigo);
+}
+
+.skin :global([class*="border-theme-border"]),
+.skin :global([class*="border-stone-"]) {
+  border-color: var(--garden-line);
+}
+
+.skin :global([class*="border-emerald-"]) {
+  border-color: var(--garden-moss);
+}
+
+.skin :global([class*="border-sky-"]),
+.skin :global([class*="border-teal-"]) {
+  border-color: var(--garden-water);
+}
+
+.skin :global([class*="border-rose-"]) {
+  border-color: var(--garden-vermilion);
+}
+
+.skin :global([class*="border-amber-"]) {
+  border-color: var(--garden-gold);
+}
+
+.skin :global([class*="border-dusk-lavender"]) {
+  border-color: var(--garden-indigo);
+}
+
+.skin :global([class*="bg-theme-paper"]) {
+  background-color: var(--garden-paper-raised);
+}
+
+.skin :global([class*="bg-theme-background"]) {
+  background-color: var(--garden-canvas);
+}
+
+.skin :global([class*="bg-white"]),
+.skin :global([class*="bg-stone-"]) {
+  background-color: var(--garden-paper-raised);
+}
+
+.skin :global([class*="bg-emerald-"]) {
+  background-color: var(--garden-moss-soft);
+}
+
+.skin :global([class*="bg-sky-"]),
+.skin :global([class*="bg-teal-"]) {
+  background-color: var(--garden-water-soft);
+}
+
+.skin :global([class*="bg-rose-"]),
+.skin :global([class*="bg-red-"]) {
+  background-color: var(--garden-vermilion-soft);
+}
+
+.skin :global([class*="bg-amber-"]) {
+  background-color: var(--garden-gold-soft);
+}
+
+.skin :global([class*="bg-dusk-lavender"]) {
+  background-color: var(--garden-indigo-soft);
+}
+
+.skin .identity {
+  border-color: var(--garden-line);
+  background: linear-gradient(132deg, var(--garden-moss-soft), var(--garden-paper) 54%, var(--garden-indigo-soft));
+  box-shadow: 0 8px 22px var(--garden-shadow);
+}
+
+.skin .ritualCard {
+  border-color: var(--garden-line);
+  background: linear-gradient(130deg, var(--garden-water-soft), var(--garden-paper-raised) 55%, var(--garden-moss-soft));
+  box-shadow: 0 7px 20px var(--garden-shadow);
+}
+
+.skin .primaryAction {
+  border-color: var(--garden-moss-strong);
+  background: linear-gradient(110deg, var(--garden-moss-strong), var(--garden-water), var(--garden-indigo));
+  box-shadow: 0 9px 22px var(--garden-shadow);
+  color: #fffdf6;
+}
+
+.skin .primaryAction:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 12px 26px var(--garden-shadow);
+}
+
+.skin .secondaryAction {
+  border-color: var(--garden-line);
+  background: var(--garden-paper-raised);
+}
+
+.skin .primaryAction:focus-visible,
+.skin .changeButton:focus-visible,
+.skin .setGuardian:focus-visible {
+  outline: 2px solid var(--garden-indigo);
+  outline-offset: 2px;
+}
+
+.skin .sceneFrame {
+  border-color: var(--garden-line);
+  box-shadow: 0 10px 28px var(--garden-shadow);
+}
+
+.skin .sceneOverlay {
+  background: linear-gradient(180deg, rgba(18, 25, 19, 0.04), transparent 45%, rgba(18, 25, 19, 0.34));
+}
+
+.skin .sceneLabel {
+  border-color: var(--garden-line);
+  background: rgba(248, 244, 233, 0.84);
+  color: var(--garden-ink);
+}
+
+.skin .sceneBadge {
+  border-color: var(--garden-line);
+  background: var(--garden-paper-raised);
+  color: var(--garden-ink);
+}
+
+.skin .sceneHint {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(27, 35, 28, 0.58);
+  color: #fffdf6;
+}
+
+.skin .guardianCard {
+  border-color: var(--garden-line);
+  background: linear-gradient(100deg, var(--garden-moss-soft), var(--garden-paper-raised) 58%, var(--garden-indigo-soft));
+}
+
+.skin .guardianIcon {
+  border-color: var(--garden-line);
+  background: var(--garden-paper-raised);
+}
+
+.skin .changeButton,
+.skin .setGuardian {
+  border: 1px solid var(--garden-indigo);
+  background: var(--garden-indigo-soft);
+  color: var(--garden-indigo);
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.skin .changeButton:hover,
+.skin .setGuardian:hover {
+  background: var(--garden-moss-soft);
+  transform: translateY(-1px);
+}
+
+.skin .fortuneCard {
+  border-color: var(--garden-vermilion);
+  background: linear-gradient(135deg, var(--garden-vermilion-soft), var(--garden-paper-raised) 55%, var(--garden-indigo-soft));
+  box-shadow: 0 8px 24px var(--garden-shadow);
+}
+
+.skin .fortuneWatermark {
+  color: var(--garden-vermilion);
+  opacity: 0.08;
+}
+
+.skin .fortuneStamp {
+  border-color: var(--garden-vermilion);
+  background: var(--garden-vermilion-soft);
+  color: var(--garden-vermilion);
+}
+
+.skin .fortuneLink {
+  border: 1px solid var(--garden-vermilion);
+  background: var(--garden-paper-raised);
+  color: var(--garden-vermilion);
+}
+
+.skin .fortuneVerse {
+  border-color: var(--garden-vermilion);
+  color: var(--garden-gold);
+}
+
+.skin .progressTrack {
+  background: var(--garden-canvas);
+  box-shadow: inset 0 0 0 1px var(--garden-line);
+}
+
+.skin .progressFill {
+  background: linear-gradient(90deg, var(--garden-moss), var(--garden-water), var(--garden-indigo));
+}
+
+.skin .tabList {
+  border-color: var(--garden-line);
+  background: var(--garden-canvas);
+  box-shadow: inset 0 1px 2px var(--garden-shadow);
+}
+
+.skin .tab {
+  color: var(--garden-muted);
+}
+
+.skin .tab:hover {
+  background: var(--garden-paper);
+  color: var(--garden-ink);
+}
+
+.skin .tabSelected {
+  border-color: var(--garden-line);
+  background: var(--garden-paper-raised);
+  box-shadow: 0 2px 6px var(--garden-shadow);
+  color: var(--garden-ink);
+}
+
+.skin .plantRow {
+  border-color: var(--garden-line);
+  background: var(--garden-paper-raised);
+}
+
+.skin .plantCurrent {
+  border-color: var(--garden-moss);
+  background: linear-gradient(100deg, var(--garden-moss-soft), var(--garden-paper-raised) 63%, var(--garden-indigo-soft));
+  box-shadow: 0 5px 16px var(--garden-shadow);
+}
+
+.skin .plantThumbnail {
+  border-color: var(--garden-line);
+  background: var(--garden-canvas);
+}
+
+.skin .price {
+  border-color: var(--garden-line);
+  background: var(--garden-canvas);
+  color: var(--garden-gold);
+}
+
+.skin .breathCard {
+  border-color: var(--garden-line);
+  background: radial-gradient(circle at 50% 43%, var(--garden-paper-raised), transparent 35%), linear-gradient(135deg, var(--garden-indigo-soft), var(--garden-paper) 48%, var(--garden-vermilion-soft));
+}
+
+.skin .breathOrbit {
+  border-color: var(--garden-indigo);
+  opacity: 0.18;
+}
+
+.skin .breathMedallion {
+  border-color: var(--garden-indigo);
+  background: var(--garden-paper-raised);
+  box-shadow: 0 12px 34px var(--garden-shadow);
+}
+
+.skin .breathAction {
+  border-color: var(--garden-indigo);
+  background: linear-gradient(100deg, var(--garden-indigo-soft), var(--garden-moss-soft));
+  color: var(--garden-indigo);
+}
+
+.skin .breathActionActive {
+  border-color: var(--garden-gold);
+  background: linear-gradient(100deg, var(--garden-gold-soft), var(--garden-paper-raised));
+  color: var(--garden-gold);
+}
+
+.skin .wisdomNote {
+  border-color: var(--garden-line);
+  background: linear-gradient(100deg, var(--garden-indigo-soft), var(--garden-paper));
+  color: var(--garden-muted);
+}
+
+.skin.modalFrame {
+  border-color: var(--garden-line);
+  background: linear-gradient(180deg, var(--garden-paper-raised), var(--garden-canvas));
+  color: var(--garden-ink);
+  box-shadow: 0 32px 100px var(--garden-shadow);
+}
+
+.skin .modalHeader {
+  border-color: var(--garden-line);
+  background: var(--garden-paper-raised);
+}
+
+.skin .waterCard {
+  border-color: var(--garden-line);
+  background: linear-gradient(132deg, var(--garden-water-soft), var(--garden-paper-raised) 56%, var(--garden-moss-soft));
+}
+
+.skin .modalSceneLabel {
+  border-color: var(--garden-line);
+  background: rgba(248, 244, 233, 0.86);
+  color: var(--garden-ink);
+}
+
+.skin .modalPrimaryAction {
+  border-color: var(--garden-moss-strong);
+  background: linear-gradient(110deg, var(--garden-moss-strong), var(--garden-water), var(--garden-indigo));
+  box-shadow: 0 10px 26px var(--garden-shadow);
+  color: #fffdf6;
+}
+
+.skin .modalPrimaryAction:hover {
+  filter: brightness(1.08);
+}
+
+.skin .modalPrimaryAction:focus-visible {
+  outline: 2px solid var(--garden-indigo);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skin .changeButton,
+  .skin .setGuardian,
+  .skin .primaryAction,
+  .skin .modalPrimaryAction {
+    transition: none;
+  }
+}

@@ -763,6 +763,57 @@ export const TOPICS_EN: GuideTopic[] = [
     demoType: "shortcuts",
   },
   {
+    id: "zen-garden",
+    category: "notes",
+    icon: Flower2,
+    title: "Zen Garden, Daily Fortune & Mindful Breathing",
+    badge: "Washi Garden",
+    badgeColor: "border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
+    scopeBadge: "Studio Tools · Mindful Routine",
+    readingTime: "2 min read",
+    lastUpdated: "Oct 22, 2026",
+    summary:
+      "A quiet garden for a daily watering ritual, botanical guardians, a short fortune reading, and guided breathing.",
+    concept:
+      "The Garden has its own Washi-inspired visual skin: soft paper, ink, moss, and water tones. Its light and dark palettes follow your selected or system-resolved theme while keeping the rest of Retzlo in its own Retro Lofi Indigo identity.",
+    highlights: [
+      "Today: Confirm one watering ritual each day to reveal your fortune and earn 5 serenity coins. Read the short preview or open the full reading.",
+      "Plants: Browse unlocked and locked plants, compare coin costs, and confirm before choosing a new guardian.",
+      "Rest: Start, pause, or reset a one-minute 4-4-4-4 breathing session.",
+      "Garden artwork: Hand-drawn SVG scenery changes with the season and time of day; touch the scene for a water ripple and chime.",
+      "Garden styling is scoped to the Garden and adapts to light and dark mode without changing global theme settings.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Garden from Studio Tools",
+        desc: "In a project, open Garden from the topbar Studio Tools menu. The Today tab shows whether the daily ritual is ready.",
+      },
+      {
+        step: "02",
+        title: "Water and read your fortune",
+        desc: "Confirm watering once per day to reveal the fortune and earn 5 coins. Open the full reading for guidance and a lucky focus item.",
+      },
+      {
+        step: "03",
+        title: "Choose a botanical guardian",
+        desc: "Use the Plants tab to check unlock costs and status. Confirm the change before setting an unlocked plant as your guardian.",
+      },
+      {
+        step: "04",
+        title: "Take a mindful minute",
+        desc: "Open Rest and follow the 4-second inhale, hold, exhale, and rest rhythm. Pause or reset at any time.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Daily reward", value: "5 serenity coins and one daily fortune" },
+      { label: "Breathing pattern", value: "4-4-4-4 for one minute; can be paused or reset" },
+      { label: "Color modes", value: "Garden-scoped Washi palette with light and dark variants" },
+    ],
+    tips: "The Garden palette follows your Light, Dark, or System selection automatically; the Garden's paper-and-moss identity only appears inside the Garden.",
+    relatedTopicIds: ["welcome-overview", "faq-credits-offline"],
+  },
+  {
     id: "faq-credits-offline",
     category: "faq",
     icon: HelpCircle,

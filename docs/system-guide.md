@@ -184,7 +184,7 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 - **Plants tab:** Browse the botanical collection, see each plant's coin requirement and unlock status, and confirm a change to the active garden guardian.
 - **Rest tab:** Start a one-minute 4-4-4-4 breathing session (inhale, hold, exhale, rest). Pause or reset the session at any time.
 - **Garden art & sound:** Bespoke SVG scenes show Mount Fuji, raked sand, and botanical guardians. The atmosphere changes with the season and time of day. Ambient sound can be muted; touching the garden scene creates a calming ripple and water chime.
-- The garden supports Warm Paper (light), Retro Lofi Indigo (dark), and the system theme preference.
+- The garden uses its own Washi Garden skin—paper, ink, moss, and water tones—with light/dark variants that follow the selected or system-resolved theme without changing the rest of the app.
 
 ---
 
@@ -258,7 +258,7 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 - **แท็บ พืช:** ดูคลังพฤกษา จำนวนเหรียญ เกณฑ์และสถานะปลดล็อกของแต่ละต้น แล้วกดยืนยันก่อนเปลี่ยนผู้พิทักษ์สวน
 - **แท็บ พักใจ:** เริ่มฝึกลมหายใจ 4-4-4-4 เป็นเวลา 1 นาที (เข้า กลั้น ออก พัก) สามารถหยุดชั่วคราวหรือรีเซ็ตได้
 - **ภาพสวนและเสียง:** ฉาก SVG วาดภูเขาไฟฟูจิ ลานทราย และผู้พิทักษ์พฤกษา เปลี่ยนบรรยากาศตามฤดูกาลและช่วงเวลาของวัน ปิดเสียงได้ และแตะฉากเพื่อสร้างระลอกคลื่นพร้อมเสียงหยดน้ำ
-- รองรับธีม Warm Paper (สว่าง), Retro Lofi Indigo (มืด) และตัวเลือกตามระบบ
+- Garden ใช้ Washi Garden skin เฉพาะพื้นที่สวน ด้วยโทนกระดาษ หมึก มอส และสายน้ำ พร้อมปรับสว่าง/มืดตามธีมที่เลือกหรือการตั้งค่าระบบ โดยไม่เปลี่ยนธีมส่วนอื่นของแอป
 
 #### ปฏิทินงานและตัวเลือกเวลา (Project Calendar & Day View Modal)
 - **Project Calendar View (`/project/[id]/calendar`):**
