@@ -495,15 +495,12 @@ Sanitized the public user-facing in-app guide and About dialogs to ensure zero l
 - **System Information Modal (`HelpButton`)**: Replaced raw tech stack listings (`Next.js 14`, `Tailwind CSS`, `PostgreSQL on Neon`, `Prisma ORM`, `Pusher WebSocket`) with the 4 core platform capabilities (Dual-View Workspaces, Retzlo AI Assistant, Calendar & Life Hub, Team Spirit & Cheers).
 - **Automated Anti-Leak Regression Test**: Added strict unit tests in `src/components/help/help-center.test.ts` verifying that no sensitive administrative routes, honeypot telemetry, or internal vendor names appear in `/help` or `HelpButton`.
 
-### 2026-10-22 — Zen Sanctuary Pure SVG Vector Art & Tactical Game HUD Overhaul
-Transformed the Zen Sanctuary 3×3 Living Terrarium from standard web-form CSS controls into a hand-crafted, cozy Japanese garden simulation game interface:
-- **3D Ceramic Planter Pot Basins (`ZenGardenPlotBasin`)**: Each plot in the 3×3 grid is now rendered with an authentic granite/ceramic planter pot with Kurotsuchi volcanic loam soil, velvet emerald moss cushions, concentric spiral raked sand rings, and carved wooden bamboo stake markers (`#1` to `#9`).
-- **Tactile Japanese Artisan Game Tools**: Replaced generic web buttons with hand-crafted pure SVG vector artisan tools:
-  - **Bamboo Water Dipper (`ZenGameToolLadle` / *Hishaku* 柄杓)**: Features bamboo grain, twine binding knot, and pouring crystal dewdrop with live watering splash animations.
-  - **Sacred Bronze Solar Mirror (`ZenGameToolSun` / *Nichirin* 日輪)**: Features radiant solar corona rays, bronze framing, and glowing core with in-plot solar flare animation.
-  - **Japanese Weeding Trowel (`ZenGameToolTrowel` / *Hori-hori* 掘り掘り)**: Features wooden handle, brass bolster, and serrated steel spade for pruning and replanting.
-  - **Folded Washi Seed Pouch (`ZenGameToolSeedBag` / *Tane-bukuro* 種袋)**: Features origami paper folding, crimson mizuhiki ribbon, and sprout hanko seal.
-  - **Tripod Celadon Incense Burner (`ZenIncenseBrazier` / *Koro* 香炉)**: Celadon cauldron with bronze openwork lid and curling violet smoke trails.
-- **Artisan Cedar Plaque (Kifuda) HUD**: Upgraded the plot inspector into a traditional Japanese cedar plaque with subtle wood grain, hanko stamp watermark, and tactile wooden/brass game buttons.
-- **Botanical Herbarium & Seed Chest (*Honzō Zufu* 本草図譜)**: Seed and decor selection displayed as botanical parchment plates with species illustrations.
-- **Sacred Incense Altar (*Washi Tanzaku* 短冊)**: Replaced generic worry textareas with a purifying incense burner ritual, where user burdens are written on wish parchment and dissolved into serenity ash.
+### 2026-10-22 — Zen Garden Daily Omikuji Fortune & Water Ritual Overhaul
+Streamlined the Zen Garden by replacing the multi-plot inventory simulation with an authentic Japanese Daily Omikuji Fortune (*คำทำนายเซียมซีแห่งสติประจำวัน*) experience:
+- **Daily Watering Ritual (`handleDailyWater` / `ZenGameToolLadle`)**: Users nourish their sacred botanical guardian once per day with the hand-crafted bamboo water dipper, sounding the 432/528 Hz singing bowl harmonic.
+- **Japanese Omikuji Fortune Scroll (`ZenOmikujiScroll`)**:
+  - Unrolls a traditional hanging washi parchment scroll featuring authentic Japanese fortune grades: *Dai-Kichi* (大吉 · มหาโชคแห่งสติ), *Chū-Kichi* (中吉 · โชคแห่งความเพียร), *Kichi* (吉 · โชคแห่งความสงบ), *Shō-Kichi* (小吉 · ประกายความคิดสร้างสรรค์), and *Sue-Kichi* (末吉 · ฟ้าหลังฝน).
+  - Features bilingual poetic verses, deep mindful oracle interpretations, actionable daily productivity guidance, lucky focus items, and red Hanko seal stamps.
+  - Automatically awards +5 serenity coins and advances the consecutive watering streak.
+- **Persistent Daily Fortune Card**: Once watered, today's revealed fortune remains active in the topbar dropdown and full-screen sanctuary modal, allowing users to re-read their guidance throughout the day.
+- **Bespoke Vector Art Components**: Pure SVG vector art (`ZenOmikujiScroll`, `ZenGameToolLadle`, `ZenFloraRenderer`, `ZenTerrariumBackdrop`) with zero external raster dependencies.

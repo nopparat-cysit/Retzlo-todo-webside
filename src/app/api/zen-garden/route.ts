@@ -9,6 +9,7 @@ import {
   BOTANICAL_PLANTS,
   canWaterToday,
   computeNewStreak,
+  generateDailyFortune,
   parseZenGardenState
 } from "@/lib/zen-garden/zen-state";
 
@@ -79,10 +80,15 @@ export async function GET() {
   if (!user) return jsonError("User not found.", 404);
 
   const zenGarden = parseZenGardenState(user.zenGarden);
+  const todayStr = new Date().toISOString().split("T")[0];
+  if (zenGarden.lastWateredDate === todayStr && !zenGarden.dailyFortune) {
+    zenGarden.dailyFortune = generateDailyFortune(todayStr, zenGarden.nurtureStreak);
+  }
 
   return NextResponse.json({
     globalCoins: user.globalCoins,
-    zenGarden
+    zenGarden,
+    dailyFortune: zenGarden.lastWateredDate === todayStr ? zenGarden.dailyFortune : null
   });
 }
 
@@ -114,26 +120,37 @@ export async function POST(request: Request) {
     const currentState = parseZenGardenState(user.zenGarden);
     const todayStr = new Date().toISOString().split("T")[0];
 
-    // ── 1. Nurture Daily Streak ──────────────────────────────────────────────
+    // ── 1. Nurture Daily Streak & Reveal Omikuji Fortune ────────────────────
     if (body.action === "nurture") {
       const allowed = canWaterToday(currentState.lastWateredDate, todayStr);
       if (!allowed) {
+        const existingFortune =
+          currentState.dailyFortune && currentState.dailyFortune.date === todayStr
+            ? currentState.dailyFortune
+            : generateDailyFortune(todayStr, currentState.nurtureStreak);
+
         return NextResponse.json({
           success: false,
           alreadyNurturedToday: true,
           globalCoins: user.globalCoins,
-          zenGarden: currentState,
-          message: "The sanctuary has already been nurtured today. Return tomorrow for daily serenity."
+          dailyFortune: existingFortune,
+          zenGarden: {
+            ...currentState,
+            dailyFortune: existingFortune
+          },
+          message: "The sanctuary has already been watered today. Your daily fortune remains active."
         });
       }
 
       const newStreak = computeNewStreak(currentState.lastWateredDate, currentState.nurtureStreak, todayStr);
       const bonusCoins = 5;
+      const dailyFortune = generateDailyFortune(todayStr, newStreak);
 
       const nextState = {
         ...currentState,
         nurtureStreak: newStreak,
         lastWateredDate: todayStr,
+        dailyFortune,
         totalNourished: currentState.totalNourished + 1
       };
 
@@ -166,7 +183,7 @@ export async function POST(request: Request) {
         targetType: "User",
         targetId: user.id,
         targetName: user.name ?? user.email,
-        summary: `User nurtured Solitary Zen Garden (Streak: ${newStreak}, +${bonusCoins} coins)`,
+        summary: `User watered garden and revealed daily Omikuji fortune ${dailyFortune.gradeName} (Streak: ${newStreak}, +${bonusCoins} coins)`,
         beforeState: {
           globalCoins: user.globalCoins,
           zenGarden: currentState
@@ -177,7 +194,8 @@ export async function POST(request: Request) {
         },
         diff: {
           coinsGained: bonusCoins,
-          newStreak
+          newStreak,
+          fortuneGrade: dailyFortune.grade
         }
       });
 
@@ -186,6 +204,7 @@ export async function POST(request: Request) {
         alreadyNurturedToday: false,
         awardedCoins: bonusCoins,
         globalCoins: updatedUser.globalCoins,
+        dailyFortune,
         zenGarden: nextState
       });
     }

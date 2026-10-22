@@ -15,7 +15,8 @@ import {
   Pause,
   RotateCcw,
   Flame,
-  Maximize2
+  Maximize2,
+  ScrollText
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-context";
 import { useToast } from "@/components/ui/toast";
@@ -171,18 +172,19 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
       if (data.success) {
         toast({
           message: isEn
-            ? `Sanctuary nourished! +${data.awardedCoins} serenity coins gained.`
-            : `รดน้ำและตีระฆังทิเบตแล้ว! ได้รับ +${data.awardedCoins} เหรียญแห่งสติ`,
+            ? `✨ Daily watering complete! +${data.awardedCoins ?? 5}c gained. Today's fortune revealed!`
+            : `✨ รดน้ำประจำวันแล้ว! ได้รับ +${data.awardedCoins ?? 5}c เปิดม้วนคำทำนายแล้ว`,
           type: "success"
         });
         if (data.globalCoins !== undefined) setGlobalCoins(data.globalCoins);
         if (data.zenGarden) setZenState(parseZenGardenState(data.zenGarden));
         window.dispatchEvent(new Event("coins-updated"));
+        window.dispatchEvent(new Event("zen-updated"));
       } else if (data.alreadyNurturedToday) {
         toast({
           message: isEn
-            ? "Already watered today! The sanctuary continues to flourish."
-            : "รดน้ำและตีระฆังวันนี้แล้ว สวนบงกชกำลังเบ่งบานอย่างสงบ",
+            ? "Already watered today! Reviewing your active daily fortune."
+            : "รดน้ำวันนี้แล้ว ดูคำทำนายประจำวันของคุณได้เลย",
           type: "info"
         });
       }
@@ -315,16 +317,16 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
             <button
               type="button"
               onClick={handleOpenSanctuary}
-              aria-label={isEn ? "Open 3x3 Full Sanctuary" : "เปิดสวนเซน 3x3 เต็มจอ"}
-              title={isEn ? "Open 3x3 Full Sanctuary" : "เปิดสวนเซน 3x3 เต็มจอ"}
-              className="grid h-7 w-7 place-items-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition cursor-pointer"
+              aria-label={isEn ? "Open Daily Omikuji Fortune" : "เปิดดูม้วนคำทำนายประจำวัน"}
+              title={isEn ? "Open Daily Omikuji Fortune Scroll" : "เปิดดูม้วนคำทำนายเซียมซีประจำวัน"}
+              className="grid h-7 w-7 place-items-center rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 transition cursor-pointer"
             >
-              <Maximize2 className="h-3.5 w-3.5" />
+              <ScrollText className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
 
-        {/* Row 2: Status Subtitle + Dewdrops & Coins Pills */}
+        {/* Row 2: Status Subtitle + Streak & Coins Pills */}
         <div className="flex items-center justify-between gap-2 pt-0.5">
           <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-normal truncate min-w-0">
             {growth.unlockedCount === BOTANICAL_PLANTS.length
@@ -336,21 +338,23 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                 ? `${growth.nextPlant.cost - globalCoins}c to unlock ${growth.nextPlant.name}`
                 : `ขาดอีก ${growth.nextPlant.cost - globalCoins}c เพื่อปลดล็อก ${growth.nextPlant.nameTh}`
               : isEn
-              ? "Mindful sanctuary"
-              : "วิหารแห่งสติและความสงบ"}
+              ? "Daily Omikuji Sanctuary"
+              : "วิหารคำทำนายแห่งสติ"}
           </p>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            <div
-              className="flex items-center gap-1 rounded-full border border-sky-300/80 bg-sky-50 dark:border-sky-500/30 dark:bg-sky-500/10 px-2 py-0.5 text-xs font-mono font-semibold text-sky-700 dark:text-sky-300 shadow-2xs"
-              title={isEn ? "Dewdrops: Earned by completing Kanban tasks" : "หยดน้ำทิพย์: ได้จากการเคลียร์งานใน Kanban"}
-            >
-              <Droplets className="h-3 w-3 text-sky-500" />
-              <span>{zenState.dewdrops}</span>
-            </div>
+            {zenState.nurtureStreak > 0 && (
+              <div
+                className="flex items-center gap-1 rounded-full border border-amber-300/80 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10 px-2 py-0.5 text-xs font-mono font-semibold text-amber-700 dark:text-amber-300 shadow-2xs"
+                title={isEn ? "Daily Watering Streak" : "สตรีมรดน้ำต่อเนื่อง"}
+              >
+                <span>🔥</span>
+                <span>{zenState.nurtureStreak}d</span>
+              </div>
+            )}
 
             <div
-              className="flex items-center gap-1 rounded-full border border-amber-300/80 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10 px-2 py-0.5 text-xs font-mono font-semibold text-amber-700 dark:text-amber-300 shadow-2xs"
+              className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.05] px-2 py-0.5 text-xs font-mono font-semibold text-stone-700 dark:text-stone-300 shadow-2xs"
               title={isEn ? "Serenity Coins" : "เหรียญแห่งสติ"}
             >
               <span>✦</span>
@@ -520,7 +524,46 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
             </p>
           </div>
 
-          {/* Tend & Water Action Button */}
+          {/* Daily Revealed Omikuji Fortune Card (if already watered today) */}
+          {zenState.dailyFortune && !canWater && (
+            <div className="rounded-xl border border-rose-300/80 dark:border-rose-500/30 bg-rose-50/70 dark:bg-rose-950/20 p-2.5 space-y-1.5 shadow-2xs">
+              <div className="flex items-center justify-between gap-2 border-b border-rose-200/60 dark:border-rose-500/20 pb-1.5">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-serif font-black text-rose-700 dark:text-rose-400 text-sm">
+                    {zenState.dailyFortune.grade === "daikichi"
+                      ? "大吉"
+                      : zenState.dailyFortune.grade === "chukichi"
+                      ? "中吉"
+                      : zenState.dailyFortune.grade === "kichi"
+                      ? "吉"
+                      : zenState.dailyFortune.grade === "shokichi"
+                      ? "小吉"
+                      : "末吉"}
+                  </span>
+                  <span className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
+                    {isEn ? zenState.dailyFortune.gradeNameEn : zenState.dailyFortune.gradeName}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleOpenSanctuary}
+                  className="text-[10px] font-semibold text-rose-700 dark:text-rose-300 hover:underline shrink-0 cursor-pointer flex items-center gap-1"
+                >
+                  <ScrollText className="h-3 w-3" />
+                  <span>{isEn ? "View Scroll" : "ดูม้วนคำทำนาย"}</span>
+                </button>
+              </div>
+
+              <p className="text-xs font-serif italic text-amber-950 dark:text-amber-100 leading-snug">
+                &ldquo;{isEn ? zenState.dailyFortune.verse : zenState.dailyFortune.verseTh}&rdquo;
+              </p>
+              <p className="text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed line-clamp-2">
+                {isEn ? zenState.dailyFortune.workGuidance : zenState.dailyFortune.workGuidanceTh}
+              </p>
+            </div>
+          )}
+
+          {/* Daily Water Action Button */}
           <button
             type="button"
             onClick={handleNurture}
@@ -530,26 +573,26 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
               isNourishing
                 ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 shadow-[0_0_16px_rgba(52,211,153,0.25)]"
                 : canWater
-                ? "border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 hover:border-emerald-500/60"
+                ? "border-emerald-500 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
                 : "border-stone-200 dark:border-white/10 bg-stone-100/80 dark:bg-white/[0.03] text-stone-600 dark:text-stone-300 hover:bg-stone-200/70 dark:hover:bg-white/5"
             )}
           >
             {isNourishing ? (
               <>
-                <Check className="h-4 w-4 text-emerald-500" />
+                <Sparkles className="h-4 w-4 text-white animate-spin" />
                 <span>
                   {isEn
-                    ? `Sanctuary Nourished · ${activeGuardian.solfeggioFreq} Hz Harmonic`
-                    : `สวนเบ่งบานแล้ว · คลื่นเสียงบริสุทธิ์ ${activeGuardian.solfeggioFreq} Hz`}
+                    ? "Drawing Sacred Omikuji Fortune..."
+                    : "กำลังเปิดม้วนคำทำนายเซียมซีแห่งสติ..."}
                 </span>
               </>
             ) : canWater ? (
               <>
-                <ZenGameToolLadle className="h-5 w-5 shrink-0" />
+                <ZenGameToolLadle className="h-5 w-5 shrink-0 animate-bounce" />
                 <span>
                   {isEn
-                    ? "Ring Singing Bowl & Nurture (+5c Bonus)"
-                    : "ตีระฆังทิเบต & รดน้ำประจำวัน (+5c แห่งสติ)"}
+                    ? "Water Sanctuary & Draw Fortune (+5c)"
+                    : "รดน้ำประจำวันเพื่อรับคำทำนาย (+5c)"}
                 </span>
               </>
             ) : (
@@ -558,7 +601,7 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                 <span>
                   {isEn
                     ? `Watered Today · Day ${zenState.nurtureStreak} Streak`
-                    : `รดน้ำวันนี้แล้ว · สตรีมต่อเนื่อง ${zenState.nurtureStreak} วัน`}
+                    : `รดน้ำและรับคำทำนายวันนี้แล้ว · สตรีม ${zenState.nurtureStreak} วัน`}
                 </span>
               </>
             )}

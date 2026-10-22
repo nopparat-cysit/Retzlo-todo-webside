@@ -1549,4 +1549,73 @@ export function ZenIncenseBrazier({ className = "w-8 h-8" }: { className?: strin
   );
 }
 
+/* ── 23. Hand-Crafted Japanese Omikuji Fortune Scroll (おみくじ巻物) ── */
+export function ZenOmikujiScroll({
+  className = "w-full",
+  children,
+  grade = "daikichi"
+}: {
+  className?: string;
+  children?: React.ReactNode;
+  grade?: string;
+}) {
+  return (
+    <div className={cn("relative flex flex-col items-center select-none", className)}>
+      {/* Top Hanging Cord & Wooden Roller Rod */}
+      <div className="relative w-full flex items-center justify-center">
+        <svg viewBox="0 0 400 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-6 drop-shadow-sm">
+          {/* Silk Hanging Cord */}
+          <path d="M 120 20 C 150 2 250 2 280 20" stroke="#b91c1c" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="200" cy="5" r="3.5" fill="#f59e0b" stroke="#b45309" strokeWidth="1" />
+          {/* Left Brass Cap */}
+          <rect x="12" y="10" width="16" height="12" rx="3" fill="#d97706" stroke="#92400e" strokeWidth="1" />
+          <circle cx="20" cy="16" r="2.5" fill="#fef08a" />
+          {/* Main Lacquered Wood Roller Rod */}
+          <rect x="24" y="11" width="352" height="10" rx="2" fill="#292524" stroke="#1c1917" strokeWidth="1" />
+          <line x1="28" y1="13" x2="372" y2="13" stroke="#78716c" strokeWidth="0.8" opacity="0.6" />
+          {/* Right Brass Cap */}
+          <rect x="372" y="10" width="16" height="12" rx="3" fill="#d97706" stroke="#92400e" strokeWidth="1" />
+          <circle cx="380" cy="16" r="2.5" fill="#fef08a" />
+        </svg>
+      </div>
+
+      {/* Main Washi Parchment Scroll Body with Vermilion Border */}
+      <div className="relative w-full px-3 -mt-1 z-10">
+        <div className="relative rounded-sm border-x-4 border-amber-900/40 bg-gradient-to-b from-[#fefbf6] via-[#fbf7ed] to-[#f8f1df] dark:from-[#1b1627] dark:via-[#161222] dark:to-[#110e1c] p-4 sm:p-5 shadow-xl border-t border-b border-amber-800/20">
+          {/* Inner Traditional Vermilion Line Border (紅枠) */}
+          <div className="absolute inset-1.5 rounded-xs border border-rose-600/30 dark:border-rose-400/20 pointer-events-none" />
+          <div className="absolute inset-2 rounded-xs border border-rose-600/15 dark:border-rose-400/10 pointer-events-none" />
+
+          {/* Hanko Stamp Watermark at Bottom Right */}
+          <div className="absolute bottom-3 right-3 pointer-events-none select-none opacity-20 dark:opacity-10">
+            <svg viewBox="0 0 32 32" fill="none" className="w-10 h-10">
+              <rect x="2" y="2" width="28" height="28" rx="4" stroke="#dc2626" strokeWidth="2" fill="none" />
+              <text x="16" y="22" textAnchor="middle" fill="#dc2626" fontSize="16" fontFamily="serif" fontWeight="bold">
+                {grade === "daikichi" ? "吉" : "禅"}
+              </text>
+            </svg>
+          </div>
+
+          {children}
+        </div>
+      </div>
+
+      {/* Bottom Weighted Wooden Roller Rod */}
+      <div className="relative w-full flex items-center justify-center -mt-1">
+        <svg viewBox="0 0 400 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-5 drop-shadow-md">
+          {/* Left Finial */}
+          <rect x="14" y="4" width="14" height="12" rx="2" fill="#d97706" stroke="#92400e" strokeWidth="1" />
+          <circle cx="21" cy="10" r="2" fill="#fef08a" />
+          {/* Bottom Heavy Roller Rod */}
+          <rect x="24" y="5" width="352" height="10" rx="2" fill="#292524" stroke="#1c1917" strokeWidth="1" />
+          {/* Right Finial */}
+          <rect x="372" y="4" width="14" height="12" rx="2" fill="#d97706" stroke="#92400e" strokeWidth="1" />
+          <circle cx="379" cy="10" r="2" fill="#fef08a" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+
 

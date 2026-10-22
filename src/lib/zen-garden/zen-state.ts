@@ -178,6 +178,24 @@ export const BOTANICAL_PLANTS: BotanicalPlant[] = [
   }
 ];
 
+export type FortuneGrade = "daikichi" | "chukichi" | "kichi" | "shokichi" | "suekichi";
+
+export interface DailyFortune {
+  date: string;
+  grade: FortuneGrade;
+  gradeName: string;
+  gradeNameEn: string;
+  badgeTone: string;
+  verse: string;
+  verseTh: string;
+  oracle: string;
+  oracleTh: string;
+  workGuidance: string;
+  workGuidanceTh: string;
+  luckyFocus: string;
+  luckyFocusTh: string;
+}
+
 export interface GardenPlot {
   slotIndex: number; // 0 - 8 (3x3 Grid)
   itemType: "empty" | "flora" | "decor";
@@ -195,6 +213,7 @@ export interface ZenGardenState {
   soundMuted: boolean;
 
   // Multi-Year Expansion State
+  dailyFortune?: DailyFortune | null;
   dewdrops: number;      // Water drops earned from completing tasks
   sunlight: number;      // Vitality earned from focus sessions
   richSoil: number;      // Soil energy earned from habits/diary
@@ -340,6 +359,28 @@ export function parseZenGardenState(raw: unknown): ZenGardenState {
     ? r.visitorsEncountered.filter((id): id is string => typeof id === "string")
     : fallback.visitorsEncountered;
 
+  let dailyFortune: DailyFortune | null = null;
+  if (r.dailyFortune && typeof r.dailyFortune === "object") {
+    const f = r.dailyFortune as Record<string, unknown>;
+    if (typeof f.grade === "string" && typeof f.verse === "string") {
+      dailyFortune = {
+        date: typeof f.date === "string" ? f.date : "",
+        grade: f.grade as FortuneGrade,
+        gradeName: typeof f.gradeName === "string" ? f.gradeName : "大吉 · มหาโชคแห่งสติ",
+        gradeNameEn: typeof f.gradeNameEn === "string" ? f.gradeNameEn : "Great Zen Blessing",
+        badgeTone: typeof f.badgeTone === "string" ? f.badgeTone : "bg-amber-100 text-amber-900 border-amber-300",
+        verse: typeof f.verse === "string" ? f.verse : "",
+        verseTh: typeof f.verseTh === "string" ? f.verseTh : "",
+        oracle: typeof f.oracle === "string" ? f.oracle : "",
+        oracleTh: typeof f.oracleTh === "string" ? f.oracleTh : "",
+        workGuidance: typeof f.workGuidance === "string" ? f.workGuidance : "",
+        workGuidanceTh: typeof f.workGuidanceTh === "string" ? f.workGuidanceTh : "",
+        luckyFocus: typeof f.luckyFocus === "string" ? f.luckyFocus : "",
+        luckyFocusTh: typeof f.luckyFocusTh === "string" ? f.luckyFocusTh : ""
+      };
+    }
+  }
+
   return {
     nurtureStreak,
     lastWateredDate,
@@ -347,6 +388,7 @@ export function parseZenGardenState(raw: unknown): ZenGardenState {
     totalNourished,
     totalZenMinutes,
     soundMuted,
+    dailyFortune,
     dewdrops,
     sunlight,
     richSoil,
@@ -469,4 +511,161 @@ export const ZEN_WISDOM_QUOTES = [
 export function getTodayZenWisdom(date: Date = new Date()) {
   const dayIndex = date.getDate() % ZEN_WISDOM_QUOTES.length;
   return ZEN_WISDOM_QUOTES[dayIndex];
+}
+
+export const ZEN_DAILY_FORTUNES: Omit<DailyFortune, "date">[] = [
+  {
+    grade: "daikichi",
+    gradeName: "大吉 · มหาโชคแห่งสติ",
+    gradeNameEn: "Great Zen Blessing (Dai-Kichi)",
+    badgeTone: "border-amber-400 bg-amber-500/15 text-amber-800 dark:text-amber-300",
+    verse: "Clouds dissipate as morning sunlight floods the garden; energy overflows with quiet purpose.",
+    verseTh: "เมฆหมอกสลาย แสงสุริยันสาดส่องลงสู่ลานทราย พลังใจเต็มเปี่ยมด้วยความสงบ",
+    oracle: "Your mind will be exceptionally clear today. Complex knots will effortlessly unravel into simple, elegant paths.",
+    oracleTh: "วันนี้ความคิดของคุณจะปลอดโปร่งดั่งฟ้าแจ้ง ปัญหาที่เคยซับซ้อนจะมองเห็นทางออกที่เรียบง่ายและทรงพลัง",
+    workGuidance: "Seize this golden moment to start high-impact work or make key decisions you have carefully weighed.",
+    workGuidanceTh: "เป็นจังหวะทองในการเริ่มงานสำคัญ หรือตัดสินใจในเรื่องที่คุณไตร่ตรองมาอย่างรอบคอบแล้ว",
+    luckyFocus: "Jade Green · Hot Fresh Tea · Top Priority Task",
+    luckyFocusTh: "สีเขียวหยก · ชาร้อนแก้วแรก · งานสำคัญลำดับที่ 1"
+  },
+  {
+    grade: "daikichi",
+    gradeName: "大吉 · สมาธิแจ่มชัดดั่งผิวน้ำ",
+    gradeNameEn: "Crystal Mirror Flow (Dai-Kichi)",
+    badgeTone: "border-emerald-400 bg-emerald-500/15 text-emerald-800 dark:text-emerald-300",
+    verse: "Still water reflects the autumn moon without a single ripple.",
+    verseTh: "สายน้ำนิ่งสนิท ดั่งกระจกเงาสะท้อนดวงจันทร์โดยไร้ระลอกคลื่นรบกวน",
+    oracle: "Inner calm will shield you from outer chaos. Work requiring deep concentration will flourish seamlessly.",
+    oracleTh: "ความสงบภายในจะปกป้องคุณจากความวุ่นวายภายนอก งานที่ต้องใช้สมาธิลึกซึ้งจะสำเร็จลุล่วงอย่างราบรื่น",
+    workGuidance: "Silence non-essential alerts, enter a deep Focus session, and let your craftsmanship shine.",
+    workGuidanceTh: "ปิดเสียงแจ้งเตือนที่ไม่จำเป็น เข้าสู่โหมดโฟกัสเต็มที่ ผลงานจะออกมาประณีตและเปี่ยมคุณค่า",
+    luckyFocus: "Morning Sunrays · Noise-Cancelling Audio · 3 Core Todos",
+    luckyFocusTh: "แสงแดดยามเช้า · หูฟังตัดเสียงรบกวน · ลิสต์ 3 งานหลัก"
+  },
+  {
+    grade: "chukichi",
+    gradeName: "中吉 · โชคแห่งความเพียรที่มั่นคง",
+    gradeNameEn: "Steady Bamboo Perseverance (Chū-Kichi)",
+    badgeTone: "border-teal-400 bg-teal-500/15 text-teal-800 dark:text-teal-300",
+    verse: "Resilient bamboo sways with windstorms, bending yet never breaking.",
+    verseTh: "ลำไผ่ลู่ตามสายลม ยืดหยุ่นทนทาน มิหักโค่นแม้ลมแรงพัดผ่าน",
+    oracle: "Patience and gentle persistence yield far greater breakthroughs than hurried exhaustion.",
+    oracleTh: "ความยืดหยุ่นและการค่อยๆ ก้าวไปข้างหน้า จะนำคุณไปสู่ผลลัพธ์ที่ยั่งยืนยิ่งกว่าการเร่งรีบ",
+    workGuidance: "Break formidable challenges into smaller micro-steps. Take one step at a time; progress will be undeniable.",
+    workGuidanceTh: "หากเจองานยาก จงแบ่งย่อยออกเป็นก้าวเล็กๆ แล้วทำทีละชิ้น ความก้าวหน้าจะชัดเจนเมื่อตกเย็น",
+    luckyFocus: "Desk Plant · Hourly Hydration · Quick Reflection",
+    luckyFocusTh: "ต้นไม้บนโต๊ะทำงาน · การจิบน้ำเปล่าระหว่างชั่วโมง · บันทึกสั้นๆ"
+  },
+  {
+    grade: "chukichi",
+    gradeName: "中吉 · สายธารแห่งการร่วมมือ",
+    gradeNameEn: "Harmonious Alliance (Chū-Kichi)",
+    badgeTone: "border-sky-400 bg-sky-500/15 text-sky-800 dark:text-sky-300",
+    verse: "Individual dewdrops merge into streams, converging into the grand ocean.",
+    verseTh: "หยดน้ำค้างรวมเป็นลำธาร ลำธารไหลบรรจบเป็นมหาสมุทรอันกว้างใหญ่",
+    oracle: "Genuine kindness and clear communication will attract unexpected support. Collaboration flows naturally today.",
+    oracleTh: "การสื่อสารที่ดีและความเมตตาจะนำพาความช่วยเหลือที่อบอุ่นมาให้ งานร่วมกับผู้อื่นจะราบรื่น",
+    workGuidance: "Share progress updates or cheer a teammate. Mutual encouragement will elevate the collective rhythm.",
+    workGuidanceTh: "แชร์ความคืบหน้าหรือส่งกำลังใจให้เพื่อนร่วมทีม การร่วมมือกันในวันนี้จะสร้างบรรยากาศเปี่ยมพลัง",
+    luckyFocus: "Heartfelt Thanks · Afternoon Coffee · Cheers Reaction",
+    luckyFocusTh: "คำขอบคุณจริงใจ · กาแฟบ่าย · การเชียร์เพื่อนร่วมทีม"
+  },
+  {
+    grade: "kichi",
+    gradeName: "吉 · โชคแห่งความสงบสุข",
+    gradeNameEn: "Tranquil Garden Flow (Kichi)",
+    badgeTone: "border-purple-400 bg-purple-500/15 text-purple-800 dark:text-purple-300",
+    verse: "Sakura petals drift softly onto moss beds, following nature's timeless cadence.",
+    verseTh: "กลีบซากุระร่วงหล่นสู่ผืนมอสอย่างแผ่วเบา เป็นจังหวะตามธรรมชาติอันงดงาม",
+    oracle: "Do not force unripe fruit. Everything unfolds in its right season when you remain centered.",
+    oracleTh: "อย่าเร่งรัดสิ่งที่ไม่จำเป็น ทุกสิ่งมีจังหวะเวลาของมัน รักษาลมหายใจให้สบายและทำหน้าที่ให้ดีที่สุด",
+    workGuidance: "Complete tasks one by one without anxiously anticipating tomorrow. Calm pacing actually finishes work faster.",
+    workGuidanceTh: "เคลียร์งานทีละอย่างโดยไม่ต้องกังวลล่วงหน้า ความสงบจะช่วยให้คุณทำงานได้เร็วกว่าที่คิด",
+    luckyFocus: "Subtle Incense · Box Breathing · Lofi Soundtrack",
+    luckyFocusTh: "กลิ่นหอมอโรมาหรือกำยาน · ลมหายใจ 4 จังหวะ · เสียงเพลง Lofi"
+  },
+  {
+    grade: "kichi",
+    gradeName: "吉 · เมล็ดพันธุ์แห่งปัญญา",
+    gradeNameEn: "Seed of Wisdom (Kichi)",
+    badgeTone: "border-indigo-400 bg-indigo-500/15 text-indigo-800 dark:text-indigo-300",
+    verse: "Ancient pine roots deep into stone crags, growing silently day by day.",
+    verseTh: "ต้นสนโบราณหยั่งรากลึกในซอกผา เติบโตอย่างเงียบสงบในทุกวันเวลา",
+    oracle: "What you learn and practice today will become the sturdy foundation for upcoming triumphs.",
+    oracleTh: "สิ่งที่คุณได้เรียนรู้และฝึกฝนในวันนี้ จะเป็นรากฐานสำคัญสำหรับโอกาสอันยิ่งใหญ่ที่กำลังจะมาถึง",
+    workGuidance: "Welcome feedback and document small learnings. Tiny insights accumulate into architectural mastery.",
+    workGuidanceTh: "เปิดใจรับฟังข้อเสนอแนะ และจดบันทึกสิ่งใหม่ ความรู้เล็กๆ จะประกอบร่างเป็นภาพใหญ่ที่แข็งแกร่ง",
+    luckyFocus: "Personal Notebook · Deep Indigo · 15-Minute Reading",
+    luckyFocusTh: "สมุดโน้ตส่วนตัว · สีน้ำเงินคราม · การอ่าน 15 นาที"
+  },
+  {
+    grade: "shokichi",
+    gradeName: "小吉 · ประกายความคิดสร้างสรรค์",
+    gradeNameEn: "Creative Spark (Shō-Kichi)",
+    badgeTone: "border-rose-400 bg-rose-500/15 text-rose-800 dark:text-rose-300",
+    verse: "Two pebbles strike in the dusk, giving birth to bright radiant sparks.",
+    verseTh: "ก้อนหินกระทบกันในยามพลบค่ำ ก่อเกิดประกายไฟสว่างไสวเปล่งประกาย",
+    oracle: "Novel perspectives or unconventional ideas that bubble up deserve curiosity. Experiment with a small prototype.",
+    oracleTh: "ไอเดียใหม่ที่แวบขึ้นมาในใจอาจดูแปลกตา อย่าเพิ่งรีบปฏิเสธ ลองทดลองทำชิ้นเล็กๆ แล้วคุณจะพบคำตอบ",
+    workGuidance: "Try a fresh angle on an old routine. A tiny workflow tweak can unlock surprising productivity.",
+    workGuidanceTh: "ลองหาวิธีใหม่ในการสะสางงานเดิม การปรับขั้นตอนเล็กน้อยจะช่วยประหยัดเวลาและเพิ่มความสนุก",
+    luckyFocus: "Sketching Canvas · Warm Sunrise Amber · 5-Minute Stretch",
+    luckyFocusTh: "กระดาษสเก็ตช์ภาพ · สีส้มทองยามเช้า · การยืดเส้นยืดสาย 5 นาที"
+  },
+  {
+    grade: "shokichi",
+    gradeName: "小吉 · การเริ่มต้นใหม่อันผุดผ่อง",
+    gradeNameEn: "Gentle Awakening (Shō-Kichi)",
+    badgeTone: "border-lime-400 bg-lime-500/15 text-lime-800 dark:text-lime-300",
+    verse: "Fresh dew rests on tender sprouts, pure and unblemished at daybreak.",
+    verseTh: "หยดน้ำค้างเกาะบนยอดต้นกล้า บริสุทธิ์ผุดผ่องไร้รอยหมองยามรุ่งอรุณ",
+    oracle: "Leave yesterday's fatigue and hiccups behind. Today offers a clean slate you can design with grace.",
+    oracleTh: "ทิ้งความเหนื่อยล้าของเมื่อวานไว้เบื้องหลัง วันนี้คือกระดานแผ่นใหม่ที่คุณเลือกเขียนเรื่องราวดีๆ ได้",
+    workGuidance: "Clear clutter from your workspace and close unused browser tabs. Visual space directly clears mental space.",
+    workGuidanceTh: "จัดโต๊ะทำงานให้โล่งสะอาด เคลียร์แท็บที่ไม่ใช้ออก ความโล่งตาจะนำพาความโล่งใจและสมาธิ",
+    luckyFocus: "Clean Desk Surface · Window Breeze · First Morning Smile",
+    luckyFocusTh: "โต๊ะทำงานที่จัดเป็นระเบียบ · ลมเย็นริมหน้าต่าง · รอยยิ้มแรกของวัน"
+  },
+  {
+    grade: "suekichi",
+    gradeName: "末吉 · ฟ้าหลังฝนอันสดใส",
+    gradeNameEn: "Promising Horizon (Sue-Kichi)",
+    badgeTone: "border-stone-400 bg-stone-500/15 text-stone-800 dark:text-stone-300",
+    verse: "Storm clouds disperse as snow-capped summits gleam in the afternoon sun.",
+    verseTh: "เมฆฝนเคลื่อนผ่าน ยอดเขาหิมะเผยความงามต้องแสงอาทิตย์ยามบ่าย",
+    oracle: "Even if the morning felt sluggish, your sincere efforts will harvest rewarding outcomes by the afternoon.",
+    oracleTh: "แม้ช่วงเช้าอาจรู้สึกเหนื่อยหรือติดขัด แต่ความตั้งใจจริงของคุณจะผลิดอกออกผลอย่างงดงามในช่วงบ่าย",
+    workGuidance: "Do not get disheartened by minor bumps. Proceed calmly step by step; ease will arrive by midday.",
+    workGuidanceTh: "อย่าเพิ่งท้อกับงานที่สะดุดช่วงแรก ทำตามขั้นตอนอย่างใจเย็น ช่วงบ่ายจะราบรื่นขึ้นอย่างเห็นได้ชัด",
+    luckyFocus: "Eye Rest Break · Chamomile Tea · Patient Timing",
+    luckyFocusTh: "การพักสายตา 2 นาที · ชาคาโมมายล์อุ่น · อดทนรอจังหวะที่เหมาะสม"
+  },
+  {
+    grade: "daikichi",
+    gradeName: "大吉 · มหาสมบัติแห่งสมาธิ",
+    gradeNameEn: "Supreme Serenity (Dai-Kichi)",
+    badgeTone: "border-amber-400 bg-amber-500/20 text-amber-900 dark:text-amber-200",
+    verse: "A golden lotus blooms in stillness, rising immaculate above murky depths.",
+    verseTh: "ดอกบัวทองคำเบ่งบานกลางสระน้ำ ชูก้านพ้นตมอย่างสง่างามบริสุทธิ์",
+    oracle: "You have ample wisdom and strength to surmount any friction. Today will conclude with genuine pride.",
+    oracleTh: "คุณมีพลังและปัญญาเพียงพอที่จะผ่านทุกอุปสรรค วันนี้จะเป็นวันที่คุณรู้สึกภูมิใจในตนเองอย่างแท้จริง",
+    workGuidance: "Complete your proudest deliverable today, share encouragement, and celebrate with mindful rest tonight.",
+    workGuidanceTh: "ปิดงานชิ้นสำคัญที่คุณภาคภูมิใจ ส่งต่อกำลังใจให้ผู้อื่น แล้วให้รางวัลตัวเองด้วยการพักผ่อนอย่างมีความสุข",
+    luckyFocus: "Lavender Violet · Self-Appreciation · Evening Walk",
+    luckyFocusTh: "สีม่วงลาเวนเดอร์ · คำชมเชยตัวเอง · การเดินรับลมเย็นยามเย็น"
+  }
+];
+
+export function generateDailyFortune(dateStr: string, streak: number = 1): DailyFortune {
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = (hash * 31 + dateStr.charCodeAt(i)) >>> 0;
+  }
+  hash = (hash + streak * 7) % ZEN_DAILY_FORTUNES.length;
+
+  const base = ZEN_DAILY_FORTUNES[hash];
+  return {
+    ...base,
+    date: dateStr
+  };
 }

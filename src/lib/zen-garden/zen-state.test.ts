@@ -8,6 +8,7 @@ import {
   canWaterToday,
   computeNewStreak,
   createDefaultPlots,
+  generateDailyFortune,
   getNextLockedPlant,
   getTodayZenWisdom,
   getUnlockedPlants,
@@ -134,5 +135,15 @@ describe("Zen Garden State & Growth Engine", () => {
     expect(plots[4].itemType).toBe("flora");
     expect(plots[0].itemId).toBe("lantern");
     expect(plots[8].itemId).toBe("cat");
+  });
+
+  it("generates deterministic Japanese Omikuji daily fortunes", () => {
+    const fortune1 = generateDailyFortune("2026-10-22", 1);
+    const fortune2 = generateDailyFortune("2026-10-22", 1);
+    expect(fortune1.grade).toBe(fortune2.grade);
+    expect(fortune1.verseTh).toBeTruthy();
+    expect(fortune1.oracleTh).toBeTruthy();
+    expect(fortune1.workGuidanceTh).toBeTruthy();
+    expect(fortune1.luckyFocusTh).toBeTruthy();
   });
 });

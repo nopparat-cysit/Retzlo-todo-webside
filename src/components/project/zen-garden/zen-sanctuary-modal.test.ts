@@ -16,15 +16,14 @@ describe("ZenSanctuaryModal contract & render safety", () => {
     expect(source).toContain("{isEn ? seasonLabels.en : seasonLabels.th}");
   });
 
-  it("protects plot clearing with ConfirmModal for user safety", () => {
-    expect(source).toContain("<ConfirmModal");
-    expect(source).toContain("handleConfirmClearPlot");
-    expect(source).toContain('action: "clear-plot"');
+  it("renders the authentic Japanese Omikuji Fortune Scroll", () => {
+    expect(source).toContain("<ZenOmikujiScroll");
+    expect(source).toContain("currentFortune.grade");
   });
 
-  it("supports solar energy basking and water nourishing actions", () => {
-    expect(source).toContain('action: "water-plot"');
-    expect(source).toContain('action: "bask-plot"');
-    expect(source).toContain('action: "plant-plot"');
+  it("supports daily watering to reveal omikuji fortune and award bonus coins", () => {
+    expect(source).toContain('action: "nurture"');
+    expect(source).toContain("handleDailyWater");
+    expect(source).toContain("ZenGameToolLadle");
   });
 });
