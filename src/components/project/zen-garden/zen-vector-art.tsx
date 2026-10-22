@@ -838,3 +838,349 @@ export function ZenFloraRenderer({
       return <ZenSprout className={className} />;
   }
 }
+
+/* ── 16. Bespoke Pure SVG Japanese Zen Terrarium Backdrop ── */
+export function ZenTerrariumBackdrop({
+  className = "w-full h-full",
+  timeOfDay = "day",
+  isNourishing = false,
+}: {
+  className?: string;
+  timeOfDay?: "dawn" | "day" | "dusk" | "night";
+  isNourishing?: boolean;
+}) {
+  return (
+    <div className={cn("relative w-full h-full overflow-hidden select-none pointer-events-none", className)}>
+      <svg
+        viewBox="0 0 400 200"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="xMidYMid slice"
+        className="w-full h-full"
+        aria-label="Zen Garden Terrarium Landscape"
+      >
+        <defs>
+          {/* Dynamic Sky Gradients */}
+          {timeOfDay === "dawn" && (
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="120" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#fdf2f8" className="dark:[stop-color:#201026]" />
+              <stop offset="45%" stopColor="#fae8ff" className="dark:[stop-color:#18102a]" />
+              <stop offset="100%" stopColor="#fed7aa" className="dark:[stop-color:#0d1222]" />
+            </linearGradient>
+          )}
+          {timeOfDay === "day" && (
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="120" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#f8f6f0" className="dark:[stop-color:#0d111f]" />
+              <stop offset="55%" stopColor="#eef3f7" className="dark:[stop-color:#0f1527]" />
+              <stop offset="100%" stopColor="#e2e8f0" className="dark:[stop-color:#090d18]" />
+            </linearGradient>
+          )}
+          {timeOfDay === "dusk" && (
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="120" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#fed7aa" className="dark:[stop-color:#2a1325]" />
+              <stop offset="50%" stopColor="#fecdd3" className="dark:[stop-color:#21112b]" />
+              <stop offset="100%" stopColor="#ddd6fe" className="dark:[stop-color:#0e1022]" />
+            </linearGradient>
+          )}
+          {timeOfDay === "night" && (
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="120" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#0b0f1f" className="dark:[stop-color:#060812]" />
+              <stop offset="60%" stopColor="#080b18" className="dark:[stop-color:#04060d]" />
+              <stop offset="100%" stopColor="#050711" className="dark:[stop-color:#020308]" />
+            </linearGradient>
+          )}
+
+          {/* Sand Bed Gradient */}
+          <linearGradient id="sandGrad" x1="0" y1="110" x2="0" y2="200" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#faf6ee" className="dark:[stop-color:#101322]" />
+            <stop offset="50%" stopColor="#f3eee3" className="dark:[stop-color:#0d101d]" />
+            <stop offset="100%" stopColor="#e7dfd0" className="dark:[stop-color:#090b14]" />
+          </linearGradient>
+
+          {/* Mount Fuji Shading Gradient */}
+          <linearGradient id="fujiGrad" x1="150" y1="42" x2="150" y2="115" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
+            <stop offset="28%" stopColor="#cbd5e1" className="dark:[stop-color:#475569]" />
+            <stop offset="100%" stopColor="#94a3b8" className="dark:[stop-color:#1e293b]" />
+          </linearGradient>
+
+          {/* Sun / Moon Radial Glows */}
+          <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#d97706" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#fef08a" stopOpacity="0.7" />
+            <stop offset="60%" stopColor="#e0e7ff" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Nourish Beam Gradient */}
+          <linearGradient id="nourishBeam" x1="0" y1="200" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#34d399" stopOpacity="0.45" />
+            <stop offset="50%" stopColor="#a7f3d0" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#6ee7b7" stopOpacity="0" />
+          </linearGradient>
+
+          {/* Granite Dais Gradient */}
+          <linearGradient id="graniteDais" x1="0" y1="145" x2="0" y2="170" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#f1f5f9" className="dark:[stop-color:#334155]" />
+            <stop offset="50%" stopColor="#cbd5e1" className="dark:[stop-color:#1e293b]" />
+            <stop offset="100%" stopColor="#94a3b8" className="dark:[stop-color:#0f172a]" />
+          </linearGradient>
+        </defs>
+
+        {/* ── 1. Sky Canvas ── */}
+        <rect x="0" y="0" width="400" height="120" fill="url(#skyGrad)" />
+
+        {/* ── 2. Celestial Orb (Sun, Sunset, or Moon) ── */}
+        {timeOfDay === "day" && (
+          <g transform="translate(305, 38)">
+            <circle cx="0" cy="0" r="26" fill="url(#sunGlow)" />
+            <circle cx="0" cy="0" r="14" fill="#fef3c7" className="stroke-amber-300" strokeWidth="1" />
+            <circle cx="0" cy="0" r="17" className="stroke-amber-200/50" strokeWidth="0.8" strokeDasharray="3 3" />
+          </g>
+        )}
+        {timeOfDay === "dawn" && (
+          <g transform="translate(100, 52)">
+            <circle cx="0" cy="0" r="24" fill="url(#sunGlow)" />
+            <circle cx="0" cy="0" r="12" fill="#fed7aa" className="stroke-rose-300" strokeWidth="1" />
+          </g>
+        )}
+        {timeOfDay === "dusk" && (
+          <g transform="translate(200, 78)">
+            <circle cx="0" cy="0" r="28" fill="url(#sunGlow)" />
+            <circle cx="0" cy="0" r="16" fill="#fb923c" className="stroke-rose-400" strokeWidth="1" />
+          </g>
+        )}
+        {timeOfDay === "night" && (
+          <g transform="translate(315, 36)">
+            <circle cx="0" cy="0" r="24" fill="url(#moonGlow)" />
+            {/* Luminous Crescent Moon */}
+            <path
+              d="M -6,-10 A 13,13 0 1 0 8,8 A 10.5,10.5 0 1 1 -6,-10 Z"
+              fill="#fef08a"
+              className="drop-shadow-[0_0_6px_rgba(254,240,138,0.7)]"
+            />
+            {/* Twinkling Constellation Stars */}
+            <g className="fill-white/80 dark:fill-white">
+              <circle cx="-180" cy="-10" r="1" className="animate-pulse" />
+              <circle cx="-140" cy="12" r="1.2" />
+              <circle cx="-100" cy="-15" r="0.9" />
+              <circle cx="-70" cy="20" r="1.3" className="animate-pulse" />
+              <circle cx="-40" cy="-6" r="0.8" />
+              <circle cx="35" cy="18" r="1.1" />
+              <circle cx="60" cy="-12" r="1.4" className="animate-pulse" />
+            </g>
+          </g>
+        )}
+
+        {/* ── 3. Atmospheric Cloud Wisps (Kumo 雲) ── */}
+        <g className="fill-white/40 dark:fill-white/5 pointer-events-none">
+          <path d="M 15,35 Q 32,26 48,35 Q 64,28 78,35 Q 92,44 78,50 Q 56,54 36,50 Q 18,46 15,35 Z" />
+          <path d="M 270,48 Q 288,40 304,48 Q 320,42 334,48 Q 348,56 332,60 Q 312,63 294,60 Q 274,56 270,48 Z" />
+        </g>
+
+        {/* ── 4. Distant Mountain Ridge ── */}
+        <path
+          d="M 0,90 Q 50,75 105,82 T 225,80 T 330,76 T 400,82 L 400,120 L 0,120 Z"
+          className="fill-stone-300/40 dark:fill-stone-800/40"
+        />
+
+        {/* ── 5. Mount Fuji Silhouette (富士山) ── */}
+        <g>
+          {/* Fuji Mountain Body */}
+          <path
+            d="M 95,115 C 122,100 138,72 144,48 L 156,48 C 162,72 178,100 205,115 L 205,120 L 95,120 Z"
+            fill="url(#fujiGrad)"
+          />
+          {/* Fuji Snow Cap with scalloped fringe */}
+          <path
+            d="M 144,48 L 156,48 C 159,57 161,64 163,68 C 160,65 158,68 156,64 C 154,67 152,65 150,68 C 148,64 146,67 144,63 C 142,66 140,65 137,68 C 139,64 141,57 144,48 Z"
+            fill="#ffffff"
+            className="drop-shadow-xs"
+          />
+          {/* Snow crevices / striations */}
+          <line x1="148" y1="52" x2="147" y2="60" stroke="#cbd5e1" strokeWidth="0.6" strokeLinecap="round" />
+          <line x1="152" y1="52" x2="153" y2="61" stroke="#cbd5e1" strokeWidth="0.6" strokeLinecap="round" />
+        </g>
+
+        {/* ── 6. Rolling Foothills in Mid-Ground ── */}
+        <path
+          d="M 0,105 Q 60,92 120,100 T 250,96 T 345,102 T 400,98 L 400,120 L 0,120 Z"
+          className="fill-emerald-800/20 dark:fill-emerald-950/40"
+        />
+
+        {/* ── 7. Overhanging Japanese Black Pine (Matsu 松) ── */}
+        <g>
+          {/* Gnarled Branch */}
+          <path
+            d="M -5,12 C 25,18 48,15 68,10 C 88,6 102,12 118,22 C 104,25 84,18 64,19 C 42,28 18,26 -5,22 Z"
+            className="fill-amber-950 dark:fill-stone-800"
+          />
+          <path
+            d="M 68,14 C 76,24 88,30 98,34 C 94,36 84,33 74,25 Z"
+            className="fill-amber-950 dark:fill-stone-800"
+          />
+
+          {/* Pine Needle Tufts (Fans of deep forest evergreen needles) */}
+          {/* Cluster 1 (Left bough) */}
+          <g transform="translate(32, 14)">
+            <ellipse cx="0" cy="0" rx="14" ry="7" className="fill-emerald-800 dark:fill-emerald-900" />
+            <ellipse cx="0" cy="-2" rx="12" ry="5.5" className="fill-emerald-600 dark:fill-emerald-700" />
+            <ellipse cx="0" cy="-3.5" rx="9" ry="3.5" className="fill-emerald-500 dark:fill-emerald-600" />
+          </g>
+
+          {/* Cluster 2 (Center bough) */}
+          <g transform="translate(70, 10)">
+            <ellipse cx="0" cy="0" rx="16" ry="8" className="fill-emerald-800 dark:fill-emerald-900" />
+            <ellipse cx="0" cy="-2" rx="13" ry="6" className="fill-emerald-600 dark:fill-emerald-700" />
+            <ellipse cx="0" cy="-4" rx="10" ry="4" className="fill-emerald-500 dark:fill-emerald-600" />
+          </g>
+
+          {/* Cluster 3 (Branch tip) */}
+          <g transform="translate(116, 22)">
+            <ellipse cx="0" cy="0" rx="14" ry="7" className="fill-emerald-800 dark:fill-emerald-900" />
+            <ellipse cx="0" cy="-2" rx="11" ry="5" className="fill-emerald-600 dark:fill-emerald-700" />
+            <ellipse cx="0" cy="-3.5" rx="8" ry="3.5" className="fill-emerald-500 dark:fill-emerald-600" />
+          </g>
+
+          {/* Cluster 4 (Lower twig) */}
+          <g transform="translate(94, 34)">
+            <ellipse cx="0" cy="0" rx="12" ry="6" className="fill-emerald-800 dark:fill-emerald-900" />
+            <ellipse cx="0" cy="-1.5" rx="9" ry="4" className="fill-emerald-600 dark:fill-emerald-700" />
+          </g>
+        </g>
+
+        {/* ── 8. Karesansui (枯山水) Dry Garden Sand Bed ── */}
+        <path
+          d="M 0,112 C 70,110 130,114 200,112 C 270,114 330,110 400,112 L 400,200 L 0,200 Z"
+          fill="url(#sandGrad)"
+          className="stroke-stone-300/60 dark:stroke-white/10"
+          strokeWidth="0.8"
+        />
+
+        {/* Concentric Raked Sand Waves (Samon 砂紋 centered on cx:200, cy:158) */}
+        <g className="stroke-stone-400/40 dark:stroke-white/10 fill-none" strokeWidth="0.8">
+          <ellipse cx="200" cy="158" rx="46" ry="12" />
+          <ellipse cx="200" cy="158" rx="66" ry="17" />
+          <ellipse cx="200" cy="158" rx="90" ry="23" strokeDasharray="6 3" />
+          <ellipse cx="200" cy="158" rx="118" ry="30" />
+          <ellipse cx="200" cy="158" rx="150" ry="38" strokeDasharray="10 4" />
+          <ellipse cx="200" cy="158" rx="188" ry="46" />
+        </g>
+
+        {/* Linear sand rake furrows (Flanking garden edges) */}
+        <g className="stroke-stone-400/30 dark:stroke-white/5 fill-none" strokeWidth="0.7">
+          <path d="M 0,126 Q 50,128 95,130" />
+          <path d="M 0,138 Q 45,140 85,142" />
+          <path d="M 0,150 Q 40,152 75,154" />
+          <path d="M 305,130 Q 350,128 400,126" />
+          <path d="M 315,142 Q 355,140 400,138" />
+          <path d="M 325,154 Q 360,152 400,150" />
+        </g>
+
+        {/* ── 9. Balanced Zen Garden Rocks & Moss (Ishi & Koke 石と苔) ── */}
+        {/* Left Stone Grouping */}
+        <g>
+          {/* Moss Patch */}
+          <ellipse cx="56" cy="172" rx="28" ry="9" className="fill-emerald-800/80 dark:fill-emerald-900" />
+          <ellipse cx="54" cy="171" rx="24" ry="7" className="fill-emerald-600/90 dark:fill-emerald-700" />
+          <ellipse cx="52" cy="170" rx="18" ry="5" className="fill-emerald-500/90 dark:fill-emerald-600" />
+
+          {/* Tall Vertical Stone */}
+          <path
+            d="M 38,172 C 34,152 44,136 54,134 C 62,132 68,148 64,172 Z"
+            className="fill-stone-400 stroke-stone-500 dark:fill-stone-700 dark:stroke-stone-600"
+            strokeWidth="1"
+          />
+          {/* Stone highlight ridge */}
+          <path d="M 52,136 C 48,146 44,158 45,170" stroke="#f1f5f9" strokeWidth="0.8" strokeLinecap="round" opacity="0.6" />
+
+          {/* Reclining Companion Stone */}
+          <path
+            d="M 56,173 C 54,162 66,155 78,160 C 84,164 82,174 68,175 Z"
+            className="fill-stone-400 stroke-stone-500 dark:fill-stone-700 dark:stroke-stone-600"
+            strokeWidth="1"
+          />
+        </g>
+
+        {/* Right Stone Grouping */}
+        <g>
+          {/* Moss Patch */}
+          <ellipse cx="348" cy="171" rx="24" ry="8" className="fill-emerald-800/80 dark:fill-emerald-900" />
+          <ellipse cx="346" cy="170" rx="20" ry="6" className="fill-emerald-600/90 dark:fill-emerald-700" />
+
+          {/* River Boulder */}
+          <path
+            d="M 334,172 C 330,158 348,150 360,154 C 370,158 368,172 352,173 Z"
+            className="fill-stone-400 stroke-stone-500 dark:fill-stone-700 dark:stroke-stone-600"
+            strokeWidth="1"
+          />
+          <path d="M 346,152 C 354,156 358,164 358,171" stroke="#f1f5f9" strokeWidth="0.8" strokeLinecap="round" opacity="0.6" />
+        </g>
+
+        {/* ── 10. Central Stone Pedestal Dais (蹲踞 / 台座) ── */}
+        <g>
+          {/* Dais Grounding Shadow */}
+          <ellipse cx="200" cy="165" rx="38" ry="8" className="fill-stone-900/15 dark:fill-black/50 blur-[1px]" />
+
+          {/* Granite Dais Body */}
+          <path
+            d="M 174,155 L 178,164 Q 200,167 222,164 L 226,155 Z"
+            fill="url(#graniteDais)"
+            className="stroke-stone-400/80 dark:stroke-stone-600"
+            strokeWidth="1"
+          />
+          {/* Stone Texture Chisel Grooves */}
+          <line x1="185" y1="157" x2="187" y2="163" stroke="#64748b" strokeWidth="0.7" opacity="0.5" />
+          <line x1="200" y1="158" x2="200" y2="165" stroke="#64748b" strokeWidth="0.7" opacity="0.5" />
+          <line x1="214" y1="157" x2="212" y2="163" stroke="#64748b" strokeWidth="0.7" opacity="0.5" />
+
+          {/* Polished Dais Top Surface Ellipse */}
+          <ellipse
+            cx="200"
+            cy="155"
+            rx="28"
+            ry="6"
+            className="fill-stone-100 stroke-stone-300 dark:fill-stone-800 dark:stroke-stone-600"
+            strokeWidth="1"
+          />
+          <ellipse cx="200" cy="155" rx="24" ry="4.5" className="fill-stone-200/50 dark:fill-stone-900/60" />
+        </g>
+
+        {/* ── 11. Pure Vector Sakura Blossom Petals (No Emojis!) ── */}
+        <g className="fill-pink-400/80 dark:fill-pink-300/80 pointer-events-none drop-shadow-2xs">
+          {/* Petal 1 */}
+          <path
+            d="M 120,68 C 117,62 122,57 127,58 C 131,59 130,65 125,67 C 122,68 121,69 120,68 Z"
+            transform="rotate(-15 124 64)"
+          />
+          {/* Petal 2 */}
+          <path
+            d="M 285,82 C 282,77 286,72 291,73 C 295,74 294,80 289,82 C 287,83 286,83 285,82 Z"
+            transform="rotate(25 288 78)"
+          />
+          {/* Petal 3 */}
+          <path
+            d="M 175,98 C 173,94 176,90 180,91 C 183,92 182,96 178,98 C 176,99 175,99 175,98 Z"
+            transform="rotate(-40 178 95)"
+          />
+        </g>
+
+        {/* ── 12. Nourish Mystic Dew Aura (Triggered on Water/Nourish) ── */}
+        {isNourishing && (
+          <g className="pointer-events-none">
+            <rect x="160" y="0" width="80" height="160" fill="url(#nourishBeam)" />
+            {/* Shimmer particles */}
+            <circle cx="185" cy="120" r="2" fill="#34d399" className="animate-ping" />
+            <circle cx="215" cy="95" r="2.5" fill="#6ee7b7" className="animate-ping" />
+            <circle cx="200" cy="70" r="2" fill="#a7f3d0" className="animate-ping" />
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}
+
