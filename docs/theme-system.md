@@ -1,6 +1,6 @@
 # Theme System Audit & Extension Guide
 
-อัปเดตล่าสุด: 2026-10-12
+อัปเดตล่าสุด: 2026-10-22
 
 เอกสารนี้เป็นแหล่งอ้างอิงหลักสำหรับตรวจ แก้ และเพิ่มธีมของ Retzlo ให้ใช้ต่อเนื่องได้ทุกโมดูล ทุกหน้าจอ และทุกคอมโพเนนต์ใหม่
 
@@ -191,6 +191,7 @@ Marketing home คงฉากหลังแบบ dark brand scene; ข้อ�
 | Projects dashboard | `src/app/(dashboard)/projects` | ตรวจภาพ light/dark local desktop หลัง implementation; mobile light 390x844 จากรอบ audit ก่อนแก้ | Workspace hero ใช้ panel token และชื่อ switcher foreground token; mobile มี horizontal scroller ภายใน shortcut bar; retest mobile หลังแก้คงเหลือ |
 | Profile | `src/app/(dashboard)/profile` | ตรวจภาพ light/dark ในรอบ audit ก่อนแก้; source review รอบ implementation; mobile light 390x844 เดิม | Online/Busy/Offline และ status feedback เปลี่ยนเป็น semantic foreground/surface/border; ต้องตรวจ visual post-fix และ mobile ซ้ำ |
 | Project shell | `src/app/(dashboard)/project/[id]/layout.tsx`, `src/components/project/` | ตรวจ light/dark desktop หลัง implementation; mobile light 390x844 ในรอบ audit ก่อนแก้ | แก้ drawer selector และ desktop row placement; desktop ยืนยัน sidebar/content อยู่ตำแหน่งถูก; ตรวจ drawer ที่ 390px/tablet และ keyboard focus หลังแก้ |
+| Zen Garden (Studio Tools) | `src/components/project/zen-garden.tsx`, `src/components/project/zen-garden/zen-sanctuary-modal.tsx`, `src/components/ui/confirm-modal.tsx` | ตรวจ source รอบ redesign; visual review light/dark/system และ 390×844 ยังไม่ได้รัน | ใช้ semantic surfaces กับสีพฤกษา/สถานะตาม domain; Today/Plants/Rest, daily watering and fortune, nested confirmation layer, catalog and breathing controls; ต้องตรวจ visual, keyboard focus, pending/error/success และ scroll จริง |
 | Kanban board | `src/app/(dashboard)/project/[id]/board`, `src/components/kanban/` | ตรวจภาพ light/dark desktop; mobile light 390x844 และ dark board shell; card details/notes rail light | document ไม่มี horizontal overflow ที่ 390px; card/status colors ดูสม่ำเสมอ; ตรวจ modal/overlay ใน dark และ error/success state เพิ่ม |
 | Board export dialog | `src/components/kanban/board-export-modal.tsx`, `src/components/kanban/board-export-document.tsx`, `src/components/ui/app-modal.tsx` | ตรวจ source และ focused tests; screenshot QA light/dark desktop/mobile ยังไม่ได้รัน | Two-pane settings/live preview gives preview 65% of desktop width and starts at 90%; explicit 100% actual-size and Fit page controls, centered paper stage, semantic surfaces, independent scroll, expand/restore, empty scope and keyboard focus. `AppModal` focus trapping is opt-in and enabled only for this dialog; every other consumer keeps the default `false`. ตรวจภาพจริงที่ 1440x900 และ 390x844 ทั้ง light/dark, Escape, Tab/Shift+Tab cycle, focus entry/return และ expanded restore เพิ่ม |
 | Board template picker | `src/components/kanban/board-template-picker.tsx`, `src/components/kanban/board-sidebar-dropdown.tsx`, `src/components/project/project-boards-manager.tsx`, `public/board-templates/` | ตรวจ source; ยังไม่ได้ตรวจภาพ light/dark/system หรือ mobile | Modal จำกัดความกว้างและ scroll ใน viewport; การ์ด template ใช้ภาพประกอบพื้นโปร่งใส; preview ของ template 5 ขั้นเรียงเป็น flow แนวนอนและ scroll ในจอแคบ; ตรวจ focus, mobile overflow, และ contrast ภาพบนแต่ละธีม |
@@ -986,3 +987,10 @@ Template:
   - **Burn the Worry Sanctuary Vessel**:
     - Fire pit styled with soothing amber/orange atmospheric glow (`from-amber-500/20 to-orange-500/10`) with floating ash particulate effect, creating a peaceful, cathartic mindfulness space.
 - Verification: `npx vitest run` (101 test files, 561 passed), `npm run lint` (0 errors, 0 warnings), `npx prisma validate` (valid), `npm run build` (42/42 pages compiled successfully).
+
+### 2026-10-22 — Zen Garden UX & Theme Alignment
+- Coverage: Studio Tools garden popover, daily fortune modal, botanical catalog, breathing controls, and shared `ConfirmModal` (`src/components/project/zen-garden.tsx`, `src/components/project/zen-garden/zen-sanctuary-modal.tsx`, `src/components/ui/confirm-modal.tsx`).
+- UI & Tokens: Reordered the garden around a clear daily status and primary action; renamed tabs to Today / Plants / Rest; retained the hand-drawn SVG landscape and fortune scroll. Neutral surfaces use semantic theme tokens, with emerald, sky, rose, amber, and indigo kept as garden/status accents.
+- Accessibility: Added tab roles and relationships, visible focus rings, accessible action labels, Escape handling and initial focus in the full-screen dialog. The shared `ConfirmModal` gained opt-in above-modal layering and localized loading labels for the nested watering confirmation; its existing default layer remains unchanged.
+- Visual review: Source-level review only in light, dark, and system-aware classes. Browser screenshots and interaction review at desktop and 390×844 remain follow-ups.
+- Verification: `npm test -- src/components/project/zen-garden/zen-sanctuary-modal.test.ts` (4/4 passed), `npm run lint` (passed), `npx prisma validate` (passed), and `npm run build` (42/42 pages compiled; Next.js skipped type validation). Browser screenshots, real interaction review, and post-fix standalone `tsc --noEmit` remain outstanding; a standalone TypeScript run reported pre-existing errors in the Zen Garden API route plus a component typing issue that was fixed afterward.

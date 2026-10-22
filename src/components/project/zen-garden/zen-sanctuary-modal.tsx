@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   BellRing,
   Check,
+  Droplets,
   Flower2,
   ScrollText,
   Sparkles,
@@ -15,12 +16,14 @@ import {
 import { useLanguage } from "@/lib/i18n/language-context";
 import { useToast } from "@/components/ui/toast";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
 import {
   type ZenGardenState,
   parseZenGardenState,
   calculateRealWorldSeason,
   calculateSkyTimeOfDay,
+  canWaterToday,
   BOTANICAL_PLANTS
 } from "@/lib/zen-garden/zen-state";
 import {
@@ -57,7 +60,9 @@ export function ZenSanctuaryModal({
   );
   const [coins, setCoins] = useState(initialCoins);
   const [isWatering, setIsWatering] = useState(false);
+  const [isWaterConfirmOpen, setIsWaterConfirmOpen] = useState(false);
   const [isRingingChime, setIsRingingChime] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   // Sync state if initial prop changes
   useEffect(() => {
@@ -89,13 +94,24 @@ export function ZenSanctuaryModal({
   useEffect(() => {
     if (isOpen) {
       void fetchGardenData();
+      window.setTimeout(() => closeButtonRef.current?.focus(), 80);
     }
   }, [isOpen, fetchGardenData]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isWaterConfirmOpen) onClose();
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isOpen, isWaterConfirmOpen, onClose]);
 
   if (!isOpen) return null;
 
   const todayStr = new Date().toISOString().split("T")[0];
-  const hasWateredToday = activeZen.lastWateredDate === todayStr;
+  const canWater = canWaterToday(activeZen.lastWateredDate, todayStr);
+  const hasWateredToday = !canWater;
   const currentFortune = activeZen.dailyFortune;
 
   const season = calculateRealWorldSeason();
@@ -134,22 +150,20 @@ export function ZenSanctuaryModal({
         body: JSON.stringify({ action: "nurture" })
       });
 
-      if (res.ok) {
-        const data = (await res.json()) as {
-          success: boolean;
+      const data = (await res.json()) as {
+          success?: boolean;
           alreadyNurturedToday?: boolean;
           awardedCoins?: number;
           globalCoins?: number;
           zenGarden?: ZenGardenState;
+          message?: string;
         };
+      if (!res.ok) throw new Error(data.message || "Unable to water the garden.");
 
-        if (data.zenGarden) {
-          setActiveZen(parseZenGardenState(data.zenGarden));
-        }
-        if (data.globalCoins !== undefined) {
-          setCoins(data.globalCoins);
-        }
+      if (data.zenGarden) setActiveZen(parseZenGardenState(data.zenGarden));
+      if (data.globalCoins !== undefined) setCoins(data.globalCoins);
 
+      if (data.success) {
         toast({
           message: isEn
             ? `✨ Daily watering complete! +${data.awardedCoins ?? 5}c gained. Today's fortune revealed!`
@@ -160,10 +174,27 @@ export function ZenSanctuaryModal({
         window.dispatchEvent(new Event("zen-updated"));
         window.dispatchEvent(new Event("coins-updated"));
         if (onRefreshData) await onRefreshData();
+        setIsWaterConfirmOpen(false);
+      } else if (data.alreadyNurturedToday) {
+        toast({
+          message: isEn
+            ? "Already watered today. Your fortune is ready to read."
+            : "รดน้ำวันนี้แล้ว เปิดอ่านคำทำนายได้เลย",
+          type: "info"
+        });
+        if (onRefreshData) await onRefreshData();
+        setIsWaterConfirmOpen(false);
+      } else {
+        throw new Error(data.message || "Unable to water the garden.");
       }
-    } catch {
+    } catch (error) {
       toast({
-        message: isEn ? "Failed to water sanctuary." : "เกิดข้อผิดพลาดในการบันทึก",
+        message:
+          error instanceof Error && error.message !== "Unable to water the garden."
+            ? error.message
+            : isEn
+            ? "Failed to water sanctuary. Please try again."
+            : "รดน้ำไม่สำเร็จ กรุณาลองอีกครั้ง",
         type: "error"
       });
     } finally {
@@ -195,6 +226,7 @@ export function ZenSanctuaryModal({
       <div
         role="dialog"
         aria-modal="true"
+        aria-labelledby="zen-sanctuary-title"
         className="fixed inset-0 z-[1600] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/70 backdrop-blur-md animate-in fade-in duration-300"
       >
         <div
@@ -211,7 +243,7 @@ export function ZenSanctuaryModal({
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold tracking-wide text-stone-900 dark:text-stone-100 uppercase truncate">
+                  <h3 id="zen-sanctuary-title" className="text-sm font-bold tracking-wide text-stone-900 dark:text-stone-100 uppercase truncate">
                     {isEn ? "Solitary Zen Sanctuary" : "วิหารคำทำนายแห่งสติ"}
                   </h3>
                   <span className="font-mono text-[9.5px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold border border-amber-400/30 shrink-0">
@@ -246,6 +278,7 @@ export function ZenSanctuaryModal({
                 type="button"
                 onClick={handleToggleSound}
                 className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200 dark:border-white/10 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/10 transition cursor-pointer"
+                aria-label={activeZen.soundMuted ? (isEn ? "Unmute sounds" : "เปิดเสียง") : (isEn ? "Mute sounds" : "ปิดเสียง")}
                 title={activeZen.soundMuted ? "Unmute" : "Mute"}
               >
                 {activeZen.soundMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
@@ -262,6 +295,7 @@ export function ZenSanctuaryModal({
                     ? "border-amber-400 bg-amber-400/20 text-amber-500 animate-pulse"
                     : "border-stone-200 dark:border-white/10 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/10"
                 )}
+                aria-label={isEn ? "Ring the singing bowl" : "ตีระฆังสมาธิ"}
                 title={isEn ? "Ring Tibetan Singing Bowl (432 Hz)" : "ตีขันธิเบตสมาธิ (432 Hz)"}
               >
                 <BellRing className="h-4 w-4" />
@@ -271,8 +305,10 @@ export function ZenSanctuaryModal({
               <button
                 type="button"
                 onClick={onClose}
+                ref={closeButtonRef}
                 className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200 dark:border-white/10 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-white/10 transition cursor-pointer"
-                title="Close Sanctuary"
+                aria-label={isEn ? "Close garden" : "ปิดสวน"}
+                title={isEn ? "Close garden" : "ปิดสวน"}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -320,8 +356,12 @@ export function ZenSanctuaryModal({
 
             {/* Daily Watering Action vs Revealed Omikuji Scroll */}
             {!hasWateredToday ? (
-              <div className="w-full max-w-lg rounded-2xl border-2 border-amber-600/30 dark:border-amber-500/20 bg-stone-50/95 dark:bg-[#151221] p-5 shadow-xl text-center space-y-4">
+              <div className="w-full max-w-lg rounded-2xl border border-theme-border bg-theme-paper p-4 sm:p-5 shadow-xl text-center space-y-4">
                 <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold text-sky-800 dark:text-sky-200">
+                    <Droplets className="h-3.5 w-3.5" />
+                    <span>{isEn ? "Ready for today" : "พร้อมดูแลสวนวันนี้"}</span>
+                  </div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 font-semibold text-xs border border-amber-500/20">
                     <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                     <span>{isEn ? "Daily Fortune Awaits" : "คำทำนายประจำวันรอการเปิดเผย"}</span>
@@ -338,7 +378,7 @@ export function ZenSanctuaryModal({
 
                 <button
                   type="button"
-                  onClick={handleDailyWater}
+                  onClick={() => setIsWaterConfirmOpen(true)}
                   disabled={isWatering}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 text-white font-bold text-sm shadow-lg hover:from-emerald-500 hover:to-sky-500 active:scale-95 transition cursor-pointer disabled:opacity-50"
                 >
@@ -346,11 +386,11 @@ export function ZenSanctuaryModal({
                   <span>
                     {isWatering
                       ? isEn
-                        ? "Drawing Sacred Omikuji..."
-                        : "กำลังเปิดคำทำนายเซียมซี..."
+                        ? "Saving today's ritual…"
+                        : "กำลังบันทึกกิจวัตรวันนี้…"
                       : isEn
-                      ? "Water Now & Reveal Fortune (+5c)"
-                      : "รดน้ำและเปิดรับคำทำนายวันนี้ (+5c)"}
+                      ? "Water today · +5 coins"
+                      : "รดน้ำวันนี้ · +5 เหรียญ"}
                   </span>
                 </button>
               </div>
@@ -358,7 +398,7 @@ export function ZenSanctuaryModal({
               /* Revealed Japanese Omikuji Fortune Scroll */
               <div className="w-full max-w-lg space-y-2.5">
                 <ZenOmikujiScroll grade={currentFortune.grade}>
-                  <div className="space-y-3.5 text-center relative z-10">
+                  <div className="space-y-4 text-center relative z-10">
                     {/* Top Grade Badge & Japanese Heading */}
                     <div className="flex flex-col items-center gap-1 border-b border-rose-600/20 dark:border-rose-400/20 pb-2.5">
                       <div className="flex items-center gap-2">
@@ -384,7 +424,7 @@ export function ZenSanctuaryModal({
 
                     {/* Poetic Stanza */}
                     <div className="px-2 py-1 bg-amber-50/60 dark:bg-white/[0.03] rounded-xl border border-amber-900/10 dark:border-white/5">
-                      <p className="text-xs sm:text-sm font-serif italic text-amber-950 dark:text-amber-100 leading-relaxed">
+                      <p className="text-sm sm:text-base font-serif italic text-amber-950 dark:text-amber-100 leading-relaxed">
                         &ldquo;{isEn ? currentFortune.verse : currentFortune.verseTh}&rdquo;
                       </p>
                     </div>
@@ -395,7 +435,7 @@ export function ZenSanctuaryModal({
                         <ScrollText className="h-3 w-3" />
                         <span>{isEn ? "Zen Oracle" : "คำทำนายแห่งสติ"}</span>
                       </span>
-                      <p className="text-xs text-stone-700 dark:text-stone-200 leading-relaxed">
+                      <p className="text-sm text-stone-700 dark:text-stone-200 leading-relaxed">
                         {isEn ? currentFortune.oracle : currentFortune.oracleTh}
                       </p>
                     </div>
@@ -406,7 +446,7 @@ export function ZenSanctuaryModal({
                         <Sparkles className="h-3 w-3" />
                         <span>{isEn ? "Daily Work & Focus Guidance" : "แนวทางสร้างสรรค์งานวันนี้"}</span>
                       </span>
-                      <p className="text-xs text-emerald-900 dark:text-emerald-200 font-medium leading-relaxed">
+                      <p className="text-sm text-emerald-900 dark:text-emerald-200 font-medium leading-relaxed">
                         {isEn ? currentFortune.workGuidance : currentFortune.workGuidanceTh}
                       </p>
                     </div>
@@ -445,6 +485,20 @@ export function ZenSanctuaryModal({
           </div>
         </div>
       </div>
+      <ConfirmModal
+        open={isWaterConfirmOpen}
+        layer="above-modal"
+        title={isEn ? "Water the garden today?" : "รดน้ำสวนวันนี้ไหม?"}
+        message={isEn
+          ? "This daily ritual reveals your Omikuji fortune and adds 5 serenity coins."
+          : "กิจวัตรนี้จะเปิดคำทำนายประจำวันและเพิ่มเหรียญแห่งสติ 5 เหรียญ"}
+        confirmLabel={isEn ? "Water today" : "รดน้ำวันนี้"}
+        cancelLabel={isEn ? "Cancel" : "ยกเลิก"}
+        loadingLabel={isEn ? "Saving…" : "กำลังบันทึก…"}
+        isLoading={isWatering}
+        onConfirm={() => void handleDailyWater()}
+        onClose={() => setIsWaterConfirmOpen(false)}
+      />
     </ModalPortal>
   );
 }

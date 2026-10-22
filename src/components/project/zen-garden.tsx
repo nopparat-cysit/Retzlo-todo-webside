@@ -5,7 +5,6 @@ import {
   Leaf,
   Lock,
   Droplets,
-  Check,
   Volume2,
   VolumeX,
   Wind,
@@ -15,11 +14,11 @@ import {
   Pause,
   RotateCcw,
   Flame,
-  Maximize2,
   ScrollText
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/language-context";
 import { useToast } from "@/components/ui/toast";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { playZenSingingBowlHarmonic, playZenWaterDrop } from "@/lib/sound";
 import {
   BOTANICAL_PLANTS,
@@ -53,7 +52,9 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
   const [activeTab, setActiveTab] = useState<ActiveTab>("sanctuary");
   const [isNourishing, setIsNourishing] = useState(false);
   const [ripples, setRipples] = useState<RipplePoint[]>([]);
-  const [selectedPlant, setSelectedPlant] = useState<BotanicalPlant | null>(null);
+  const [isWaterConfirmOpen, setIsWaterConfirmOpen] = useState(false);
+  const [guardianToConfirm, setGuardianToConfirm] = useState<BotanicalPlant | null>(null);
+  const [isSettingGuardian, setIsSettingGuardian] = useState(false);
   const [isSanctuaryModalOpen, setIsSanctuaryModalOpen] = useState(false);
 
   // Persistent Zen Garden State
@@ -131,7 +132,7 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
   }, [isBreathingActive, isEn, toast, zenState.soundMuted, fetchZenData]);
 
   // Ripple creation helper
-  const handleTerrariumClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleTerrariumClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -169,6 +170,8 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
         message?: string;
       };
 
+      if (!res.ok) throw new Error(data.message || "Unable to water the garden.");
+
       if (data.success) {
         toast({
           message: isEn
@@ -180,48 +183,69 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
         if (data.zenGarden) setZenState(parseZenGardenState(data.zenGarden));
         window.dispatchEvent(new Event("coins-updated"));
         window.dispatchEvent(new Event("zen-updated"));
+        setIsWaterConfirmOpen(false);
       } else if (data.alreadyNurturedToday) {
+        if (data.zenGarden) setZenState(parseZenGardenState(data.zenGarden));
         toast({
           message: isEn
             ? "Already watered today! Reviewing your active daily fortune."
             : "รดน้ำวันนี้แล้ว ดูคำทำนายประจำวันของคุณได้เลย",
           type: "info"
         });
+        setIsWaterConfirmOpen(false);
+      } else {
+        throw new Error(data.message || "Unable to water the garden.");
       }
-    } catch {
+    } catch (error) {
       toast({
-        message: isEn ? "Failed to nurture sanctuary." : "เกิดข้อผิดพลาดในการบันทึก",
+        message:
+          error instanceof Error && error.message !== "Unable to water the garden."
+            ? error.message
+            : isEn
+            ? "Failed to water sanctuary. Please try again."
+            : "รดน้ำไม่สำเร็จ กรุณาลองอีกครั้ง",
         type: "error"
       });
     } finally {
-      setTimeout(() => setIsNourishing(false), 2400);
+      setIsNourishing(false);
     }
   };
 
   // Set active guardian
   const handleSelectGuardian = async (plant: BotanicalPlant) => {
-    if (globalCoins < plant.cost) return;
+    if (globalCoins < plant.cost || plant.id === zenState.activeGuardianId || isSettingGuardian) return;
+    setIsSettingGuardian(true);
     try {
       const res = await fetch("/api/zen-garden", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "set-guardian", guardianId: plant.id })
       });
-      if (res.ok) {
-        setZenState((prev) => ({ ...prev, activeGuardianId: plant.id }));
-        playZenSingingBowlHarmonic(!zenState.soundMuted, plant.solfeggioFreq);
-        toast({
-          message: isEn
-            ? `${plant.name} is now your Sanctuary Guardian!`
-            : `ตั้งให้ ${plant.nameTh} เป็นผู้พิทักษ์สวนบงกชแล้ว`,
-          type: "success"
-        });
-      }
-    } catch {
+      const data = (await res.json()) as { success?: boolean; zenGarden?: ZenGardenState; message?: string };
+      if (!res.ok || !data.success) throw new Error(data.message || "Unable to change the guardian.");
+
+      setZenState(data.zenGarden ? parseZenGardenState(data.zenGarden) : (prev) => ({ ...prev, activeGuardianId: plant.id }));
+      playZenSingingBowlHarmonic(!zenState.soundMuted, plant.solfeggioFreq);
       toast({
-        message: isEn ? "Failed to set guardian." : "ไม่สามารถเปลี่ยนผู้พิทักษ์ได้",
+        message: isEn
+          ? `${plant.name} is now your Sanctuary Guardian!`
+          : `ตั้งให้ ${plant.nameTh} เป็นผู้พิทักษ์สวนบงกชแล้ว`,
+        type: "success"
+      });
+      setGuardianToConfirm(null);
+      window.dispatchEvent(new Event("zen-updated"));
+    } catch (error) {
+      toast({
+        message:
+          error instanceof Error && error.message !== "Unable to change the guardian."
+            ? error.message
+            : isEn
+            ? "Failed to set guardian. Please try again."
+            : "เปลี่ยนผู้พิทักษ์ไม่สำเร็จ กรุณาลองอีกครั้ง",
         type: "error"
       });
+    } finally {
+      setIsSettingGuardian(false);
     }
   };
 
@@ -389,9 +413,13 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
       </div>
 
       {/* ─── Tab Sub-Bar ─────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-1 rounded-xl bg-stone-200/60 dark:bg-white/[0.04] p-1 text-xs font-medium border border-stone-200/80 dark:border-white/5">
+      <div role="tablist" aria-label={isEn ? "Zen Garden sections" : "ส่วนต่าง ๆ ของสวนเซน"} className="grid grid-cols-3 gap-1 rounded-xl bg-stone-200/60 dark:bg-white/[0.04] p-1 text-xs font-medium border border-stone-200/80 dark:border-white/5">
         <button
           type="button"
+          role="tab"
+          id="zen-tab-today"
+          aria-controls="zen-panel-today"
+          aria-selected={activeTab === "sanctuary"}
           onClick={() => setActiveTab("sanctuary")}
           className={cn(
             "flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer",
@@ -401,11 +429,15 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
           )}
         >
           <Flower2 className="h-3.5 w-3.5" />
-          <span>{isEn ? "Sanctuary" : "สวนบงกช"}</span>
+          <span>{isEn ? "Today" : "วันนี้"}</span>
         </button>
 
         <button
           type="button"
+          role="tab"
+          id="zen-tab-plants"
+          aria-controls="zen-panel-plants"
+          aria-selected={activeTab === "botanical"}
           onClick={() => setActiveTab("botanical")}
           className={cn(
             "flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer",
@@ -415,11 +447,15 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
           )}
         >
           <Leaf className="h-3.5 w-3.5" />
-          <span>{isEn ? "Flora" : "พฤกษา"} ({growth.unlockedCount})</span>
+          <span>{isEn ? "Plants" : "พืช"} ({growth.unlockedCount})</span>
         </button>
 
         <button
           type="button"
+          role="tab"
+          id="zen-tab-breathe"
+          aria-controls="zen-panel-breathe"
+          aria-selected={activeTab === "breath"}
           onClick={() => setActiveTab("breath")}
           className={cn(
             "flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer",
@@ -429,18 +465,82 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
           )}
         >
           <Wind className="h-3.5 w-3.5" />
-          <span>{isEn ? "Breathe" : "ฝึกสติ"}</span>
+          <span>{isEn ? "Rest" : "พักใจ"}</span>
         </button>
       </div>
 
-      {/* ─── TAB 1: Sanctuary Terrarium Bed ─────────────────────────────────── */}
+      {/* ─── TAB 1: Today's garden ritual ────────────────────────────────────── */}
       {activeTab === "sanctuary" && (
-        <div className="space-y-2.5">
-          {/* Living Terrarium Sandbox Canvas */}
-          <div
+        <div id="zen-panel-today" role="tabpanel" aria-labelledby="zen-tab-today" className="space-y-2.5">
+          <div className="rounded-xl border border-theme-border bg-theme-paper p-3 space-y-2.5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-300">
+                  <Droplets className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-theme-foreground">
+                    {isEn ? "Today's garden ritual" : "กิจวัตรสวนประจำวัน"}
+                  </p>
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-theme-muted">
+                    {canWater
+                      ? isEn
+                        ? "Water once to reveal your fortune and earn 5 coins."
+                        : "รดน้ำวันละครั้งเพื่อเปิดคำทำนายและรับ 5 เหรียญ"
+                      : isEn
+                      ? "Your garden is cared for. Today's fortune is ready to read."
+                      : "วันนี้ดูแลสวนแล้ว เปิดอ่านคำทำนายของคุณได้เลย"}
+                  </p>
+                </div>
+              </div>
+              <span className={cn(
+                "shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold",
+                canWater
+                  ? "border-sky-500/25 bg-sky-500/10 text-sky-800 dark:text-sky-200"
+                  : "border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200"
+              )}>
+                {canWater ? (isEn ? "Ready" : "พร้อมแล้ว") : (isEn ? "Done today" : "เสร็จแล้ววันนี้")}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => canWater ? setIsWaterConfirmOpen(true) : handleOpenSanctuary()}
+              disabled={isNourishing}
+              className={cn(
+                "w-full inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70 disabled:cursor-wait disabled:opacity-70",
+                canWater
+                  ? "border-emerald-700 bg-emerald-700 text-white shadow-sm hover:bg-emerald-800 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+                  : "border-theme-border bg-theme-background text-theme-foreground hover:bg-theme-paper"
+              )}
+            >
+              {isNourishing ? (
+                <>
+                  <Sparkles className="h-4 w-4 animate-spin" />
+                  <span>{isEn ? "Saving today's ritual…" : "กำลังบันทึกกิจวัตรวันนี้…"}</span>
+                </>
+              ) : canWater ? (
+                <>
+                  <ZenGameToolLadle className="h-5 w-5 shrink-0" />
+                  <span>{isEn ? "Water today" : "รดน้ำวันนี้"}</span>
+                  <span className="rounded-full bg-white/15 px-1.5 py-0.5 text-[10px]">+5c</span>
+                </>
+              ) : (
+                <>
+                  <ScrollText className="h-4 w-4" />
+                  <span>{isEn ? "Read today's fortune" : "อ่านคำทำนายวันนี้"}</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Bespoke SVG garden landscape */}
+          <button
+            type="button"
             onClick={handleTerrariumClick}
-            className="group relative h-44 w-full overflow-hidden rounded-xl border border-stone-300/80 dark:border-white/10 shadow-inner cursor-pointer"
-            title={isEn ? "Click to rake sand ripples & ring bowl" : "คลิกเพื่อกวาดระลอกคลื่นทรายและสัมผัสสติ"}
+            aria-label={isEn ? "Touch the garden to hear a water chime" : "แตะสวนเพื่อฟังเสียงหยดน้ำ"}
+            className="group relative block h-36 w-full overflow-hidden rounded-xl border border-theme-border shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70"
+            title={isEn ? "Touch to create a calming ripple" : "แตะเพื่อสร้างระลอกคลื่นแห่งความสงบ"}
           >
             {/* Bespoke Hand-Drawn Japanese Garden Landscape Backdrop */}
             <ZenTerrariumBackdrop timeOfDay={timeOfDay} season={season} isNourishing={isNourishing} />
@@ -492,42 +592,35 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
 
             {/* Bottom-right interactive prompt hint */}
             <div className="absolute bottom-1.5 right-2 text-[9px] font-mono text-stone-500 dark:text-stone-400 bg-white/70 dark:bg-stone-950/70 px-1.5 py-0.5 rounded backdrop-blur-xs pointer-events-none">
-              {isEn ? "Tap to rake sand" : "แตะเพื่อสร้างระลอกทราย"}
+              {isEn ? "Tap for a quiet ripple" : "แตะเพื่อสร้างระลอกคลื่น"}
             </div>
-          </div>
+          </button>
 
-          {/* Active Guardian Description Card */}
-          <div className="rounded-xl border border-stone-200/90 dark:border-white/10 bg-white/80 dark:bg-white/[0.03] p-2.5 space-y-1.5 backdrop-blur-xs">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="h-6 w-6 shrink-0 grid place-items-center">
-                  <ZenFloraRenderer plantId={activeGuardian.id} stage={4} className="h-6 w-6" />
-                </div>
-                <span className="font-semibold text-xs text-stone-900 dark:text-stone-100 truncate">
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-theme-border bg-theme-paper px-2.5 py-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <ZenFloraRenderer plantId={activeGuardian.id} stage={4} className="h-8 w-8 shrink-0" />
+              <div className="min-w-0">
+                <p className="truncate text-xs font-semibold text-theme-foreground">
                   {isEn ? activeGuardian.name : activeGuardian.nameTh}
-                </span>
-                <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 shrink-0">
-                  ({isEn ? activeGuardian.tierName : activeGuardian.tierNameTh})
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
-                  {activeGuardian.solfeggioFreq} Hz
-                </span>
-                <span className={cn("text-xs font-mono font-semibold", activeGuardian.tone)}>
-                  {activeGuardian.cost}c
-                </span>
+                </p>
+                <p className="truncate text-[10px] text-theme-muted">
+                  {isEn ? "Today's garden guardian" : "ผู้พิทักษ์สวนวันนี้"} · {activeGuardian.solfeggioFreq} Hz
+                </p>
               </div>
             </div>
-            <p className="text-xs text-stone-600 dark:text-stone-400 italic leading-relaxed pl-8">
-              &ldquo;{isEn ? activeGuardian.tagline : activeGuardian.taglineTh}&rdquo;
-            </p>
+            <button
+              type="button"
+              onClick={() => setActiveTab("botanical")}
+              className="shrink-0 rounded-lg px-2 py-1.5 text-[10px] font-semibold text-dusk-lavender hover:bg-dusk-lavender/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70"
+            >
+              {isEn ? "Change" : "เปลี่ยน"}
+            </button>
           </div>
 
-          {/* Daily Revealed Omikuji Fortune Card (if already watered today) */}
+          {/* Short daily fortune preview */}
           {zenState.dailyFortune && !canWater && (
-            <div className="rounded-xl border border-rose-300/80 dark:border-rose-500/30 bg-rose-50/70 dark:bg-rose-950/20 p-2.5 space-y-1.5 shadow-2xs">
-              <div className="flex items-center justify-between gap-2 border-b border-rose-200/60 dark:border-rose-500/20 pb-1.5">
+            <article className="rounded-xl border border-rose-300/70 dark:border-rose-500/30 bg-rose-50/70 dark:bg-rose-950/20 p-3 space-y-2 shadow-2xs">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="font-serif font-black text-rose-700 dark:text-rose-400 text-sm">
                     {zenState.dailyFortune.grade === "daikichi"
@@ -547,99 +640,56 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                 <button
                   type="button"
                   onClick={handleOpenSanctuary}
-                  className="text-[10px] font-semibold text-rose-700 dark:text-rose-300 hover:underline shrink-0 cursor-pointer flex items-center gap-1"
+                  className="inline-flex min-h-8 shrink-0 items-center gap-1 rounded-lg px-2 text-[10px] font-semibold text-rose-800 hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/70 dark:text-rose-200 dark:hover:bg-rose-500/10"
                 >
                   <ScrollText className="h-3 w-3" />
-                  <span>{isEn ? "View Scroll" : "ดูม้วนคำทำนาย"}</span>
+                  <span>{isEn ? "Full reading" : "อ่านฉบับเต็ม"}</span>
                 </button>
               </div>
 
-              <p className="text-xs font-serif italic text-amber-950 dark:text-amber-100 leading-snug">
+              <p className="text-sm font-serif italic text-amber-950 dark:text-amber-100 leading-relaxed">
                 &ldquo;{isEn ? zenState.dailyFortune.verse : zenState.dailyFortune.verseTh}&rdquo;
               </p>
-              <p className="text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed line-clamp-2">
+              <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed line-clamp-2">
                 {isEn ? zenState.dailyFortune.workGuidance : zenState.dailyFortune.workGuidanceTh}
               </p>
-            </div>
+            </article>
           )}
-
-          {/* Daily Water Action Button */}
-          <button
-            type="button"
-            onClick={handleNurture}
-            disabled={isNourishing}
-            className={cn(
-              "w-full flex items-center justify-center gap-2 rounded-xl border py-2.5 px-3 text-xs font-semibold transition-all duration-300 active:scale-[0.98] cursor-pointer shadow-xs",
-              isNourishing
-                ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 shadow-[0_0_16px_rgba(52,211,153,0.25)]"
-                : canWater
-                ? "border-emerald-500 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-                : "border-stone-200 dark:border-white/10 bg-stone-100/80 dark:bg-white/[0.03] text-stone-600 dark:text-stone-300 hover:bg-stone-200/70 dark:hover:bg-white/5"
-            )}
-          >
-            {isNourishing ? (
-              <>
-                <Sparkles className="h-4 w-4 text-white animate-spin" />
-                <span>
-                  {isEn
-                    ? "Drawing Sacred Omikuji Fortune..."
-                    : "กำลังเปิดม้วนคำทำนายเซียมซีแห่งสติ..."}
-                </span>
-              </>
-            ) : canWater ? (
-              <>
-                <ZenGameToolLadle className="h-5 w-5 shrink-0 animate-bounce" />
-                <span>
-                  {isEn
-                    ? "Water Sanctuary & Draw Fortune (+5c)"
-                    : "รดน้ำประจำวันเพื่อรับคำทำนาย (+5c)"}
-                </span>
-              </>
-            ) : (
-              <>
-                <Check className="h-4 w-4 text-emerald-500" />
-                <span>
-                  {isEn
-                    ? `Watered Today · Day ${zenState.nurtureStreak} Streak`
-                    : `รดน้ำและรับคำทำนายวันนี้แล้ว · สตรีม ${zenState.nurtureStreak} วัน`}
-                </span>
-              </>
-            )}
-          </button>
         </div>
       )}
 
-      {/* ─── TAB 2: Botanical Flora Catalog ──────────────────────────────────── */}
+      {/* ─── TAB 2: Botanical collection ──────────────────────────────────────── */}
       {activeTab === "botanical" && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 px-0.5">
-            <span>{isEn ? "Select a plant to cultivate as Guardian" : "เลือกพฤกษาเพื่อตั้งเป็นผู้พิทักษ์สวน"}</span>
-            <span className="font-mono font-semibold">{growth.unlockedCount}/{growth.totalCount}</span>
+        <div id="zen-panel-plants" role="tabpanel" aria-labelledby="zen-tab-plants" className="space-y-2">
+          <div className="flex items-center justify-between gap-2 px-0.5">
+            <div>
+              <p className="text-xs font-semibold text-theme-foreground">{isEn ? "Botanical collection" : "คลังพฤกษา"}</p>
+              <p className="text-[10px] text-theme-muted">{isEn ? "Choose an unlocked guardian for your garden." : "เลือกพืชที่ปลดล็อกแล้วมาเป็นผู้พิทักษ์สวน"}</p>
+            </div>
+            <span className="shrink-0 rounded-full border border-theme-border bg-theme-paper px-2 py-1 text-[10px] font-mono font-semibold text-theme-foreground">
+              {growth.unlockedCount}/{growth.totalCount} · {globalCoins}c
+            </span>
           </div>
 
-          <div className="max-h-60 overflow-y-auto space-y-1.5 pr-1">
+          <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">
             {BOTANICAL_PLANTS.map((plant) => {
               const isUnlocked = globalCoins >= plant.cost;
               const isGuardian = zenState.activeGuardianId === plant.id;
-              const isSelected = selectedPlant?.id === plant.id;
 
               return (
-                <div
+                <article
                   key={plant.id}
-                  onClick={() => setSelectedPlant(isSelected ? null : plant)}
                   className={cn(
-                    "group flex items-center justify-between rounded-xl p-2.5 border transition-all cursor-pointer",
+                    "flex items-center justify-between gap-2 rounded-xl border p-2.5 transition-colors",
                     isGuardian
                       ? "border-emerald-500/50 bg-emerald-500/10 dark:bg-emerald-500/[0.08]"
-                      : isSelected
-                      ? "border-dusk-lavender/50 bg-dusk-lavender/10"
-                      : "border-stone-200/90 dark:border-white/10 bg-white/70 dark:bg-white/[0.02] hover:bg-stone-100/70 dark:hover:bg-white/[0.04]"
+                      : "border-theme-border bg-theme-paper"
                   )}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div
                       className={cn(
-                        "grid h-8 w-8 shrink-0 place-items-center rounded-lg border text-lg transition-transform group-hover:scale-105",
+                        "grid h-9 w-9 shrink-0 place-items-center rounded-lg border transition-transform",
                         isUnlocked
                           ? "border-stone-200 dark:border-white/10 bg-white dark:bg-white/[0.04]"
                           : "border-stone-200 dark:border-white/5 bg-stone-100 dark:bg-white/[0.02] opacity-40"
@@ -656,30 +706,32 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                     </div>
 
                     <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex min-w-0 items-center gap-1.5">
                         <span className="text-xs font-semibold text-stone-900 dark:text-stone-100 truncate">
                           {isEn ? plant.name : plant.nameTh}
                         </span>
-                        {isGuardian && (
-                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-medium">
-                            {isEn ? "Guardian" : "ผู้พิทักษ์"}
-                          </span>
-                        )}
                       </div>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate leading-snug">
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 line-clamp-2 leading-snug">
                         {isEn ? plant.tagline : plant.taglineTh}
+                      </p>
+                      <p className={cn("mt-0.5 text-[10px] font-medium", isUnlocked ? "text-emerald-700 dark:text-emerald-300" : "text-theme-muted")}>
+                        {isGuardian
+                          ? (isEn ? "Current guardian" : "ผู้พิทักษ์ปัจจุบัน")
+                          : isUnlocked
+                          ? (isEn ? "Unlocked" : "ปลดล็อกแล้ว")
+                          : (isEn ? `Locked · ${plant.cost - globalCoins}c more needed` : `ล็อกอยู่ · ต้องมีอีก ${plant.cost - globalCoins} เหรียญ`)}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
                     <span
                       className={cn(
                         "text-xs font-mono font-semibold",
                         isUnlocked ? plant.tone : "text-stone-400"
                       )}
                     >
-                      {plant.cost}c
+                      <span aria-label={isEn ? `Requires ${plant.cost} coins` : `ต้องมี ${plant.cost} เหรียญ`}>{plant.cost}c</span>
                     </span>
 
                     {isUnlocked && !isGuardian && (
@@ -687,15 +739,16 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          void handleSelectGuardian(plant);
+                          setGuardianToConfirm(plant);
                         }}
-                        className="rounded-lg border border-stone-200 dark:border-white/10 bg-white/80 dark:bg-white/10 px-2.5 py-1 text-xs font-medium text-stone-700 dark:text-stone-300 hover:border-emerald-500/40 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                        className="min-h-8 rounded-lg border border-emerald-600/40 bg-emerald-600/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-800 transition-colors hover:bg-emerald-600/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600/50 dark:text-emerald-200"
+                        aria-label={isEn ? `Set ${plant.name} as guardian` : `ตั้ง${plant.nameTh}เป็นผู้พิทักษ์`}
                       >
-                        {isEn ? "Set" : "ตั้ง"}
+                        {isEn ? "Set guardian" : "ตั้งผู้พิทักษ์"}
                       </button>
                     )}
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
@@ -704,7 +757,11 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
 
       {/* ─── TAB 3: Mindful Box Breathing (4-4-4-4) ───────────────────────────── */}
       {activeTab === "breath" && (
-        <div className="space-y-3 py-1">
+        <div id="zen-panel-breathe" role="tabpanel" aria-labelledby="zen-tab-breathe" className="space-y-3 py-1">
+          <div className="px-0.5">
+            <p className="text-xs font-semibold text-theme-foreground">{isEn ? "One-minute reset" : "พักใจหนึ่งนาที"}</p>
+            <p className="text-[10px] text-theme-muted">{isEn ? "A small pause to return to your own rhythm." : "หยุดพักสั้น ๆ แล้วกลับมาหาจังหวะของตัวเอง"}</p>
+          </div>
           {/* Visual Breathing Mandala Container */}
           <div className="relative flex flex-col items-center justify-center h-44 rounded-xl border border-stone-200/90 dark:border-white/10 bg-gradient-to-b from-indigo-50/30 via-white to-purple-50/30 dark:from-[#090b1c] dark:via-[#0c0f28] dark:to-[#080a18] p-4 overflow-hidden shadow-inner">
             {/* Ambient Background Aura */}
@@ -773,7 +830,7 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
               )}
             </button>
 
-            {isBreathingActive && (
+            {(isBreathingActive || breathSecond > 0 || breathCycle > 1) && (
               <button
                 type="button"
                 onClick={() => {
@@ -783,6 +840,7 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                 }}
                 className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200 dark:border-white/10 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
                 title={isEn ? "Reset" : "รีเซ็ต"}
+                aria-label={isEn ? "Reset breathing session" : "รีเซ็ตการฝึกลมหายใจ"}
               >
                 <RotateCcw className="h-3.5 w-3.5" />
               </button>
@@ -799,7 +857,37 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
         </p>
       </div>
 
-      {/* ─── Full-Screen 3x3 Living Terrarium Modal (Fallback) ─── */}
+      <ConfirmModal
+        open={isWaterConfirmOpen}
+        title={isEn ? "Water the garden today?" : "รดน้ำสวนวันนี้ไหม?"}
+        message={isEn
+          ? "This daily ritual reveals your Omikuji fortune and adds 5 serenity coins."
+          : "กิจวัตรนี้จะเปิดคำทำนายประจำวันและเพิ่มเหรียญแห่งสติ 5 เหรียญ"}
+        confirmLabel={isEn ? "Water today" : "รดน้ำวันนี้"}
+        cancelLabel={isEn ? "Cancel" : "ยกเลิก"}
+        loadingLabel={isEn ? "Saving…" : "กำลังบันทึก…"}
+        isLoading={isNourishing}
+        onConfirm={() => void handleNurture()}
+        onClose={() => setIsWaterConfirmOpen(false)}
+      />
+
+      <ConfirmModal
+        open={guardianToConfirm !== null}
+        title={isEn ? "Change garden guardian?" : "เปลี่ยนผู้พิทักษ์สวนไหม?"}
+        message={guardianToConfirm
+          ? isEn
+            ? `Set ${guardianToConfirm.name} as your active guardian? The plant will appear in your garden scene and guide its ambient tone.`
+            : `ตั้ง${guardianToConfirm.nameTh}เป็นผู้พิทักษ์หลักไหม? พืชต้นนี้จะแสดงในฉากสวนและกำหนดเสียงบรรยากาศ`
+          : ""}
+        confirmLabel={isEn ? "Set guardian" : "ตั้งผู้พิทักษ์"}
+        cancelLabel={isEn ? "Cancel" : "ยกเลิก"}
+        loadingLabel={isEn ? "Changing…" : "กำลังเปลี่ยน…"}
+        isLoading={isSettingGuardian}
+        onConfirm={() => guardianToConfirm && void handleSelectGuardian(guardianToConfirm)}
+        onClose={() => setGuardianToConfirm(null)}
+      />
+
+      {/* ─── Full-Screen daily fortune modal (Fallback) ─── */}
       {!onOpenSanctuary && (
         <ZenSanctuaryModal
           isOpen={isSanctuaryModalOpen}

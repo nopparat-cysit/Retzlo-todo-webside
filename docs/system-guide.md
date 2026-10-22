@@ -73,7 +73,7 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 - **Coffee Cheers (`☕`):** Cheer teammates by sending coffees when cards are moved to completed columns.
 - **Coins:** Earn coins for completing tasks, routines, and engaging with the workspace.
 - **Rewards Store:** Project-level rewards catalog where earned coins can be redeemed.
-- **Morning Dewdrops (`💧`):** Earn +1 Morning Dewdrop whenever any Kanban card is completed or moved to `DONE`. Dewdrops serve as the vital essence for nurturing flora in the Zen Garden Terrarium.
+- **Morning Dewdrops (`💧`):** Completing a Kanban card adds +1 to the garden's stored dewdrop count. This background reward is separate from the current daily watering ritual, which reveals the fortune and awards 5 serenity coins.
 
 ### 2.5 Project Calendar & Day View Modal
 - **Project Calendar View (`/project/[id]/calendar`):**
@@ -177,32 +177,14 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 ### 2.13 Help Dropdown, System Info & Contact Form (`/contact`)
 - Topbar `(?)` button with direct links to `/help`, System Info modal, `/contact` form with 7 quick templates, ticket tracking code, and instant AI Assistant launch.
 
-### 2.14 Solitary Zen Garden & 3x3 Living Terrarium Sanctuary
-- **Location:** Accessible via the top bar flora pedestal (`ZenGarden`) in any project or workspace.
-- **100% Bespoke Hand-Drawn Vector Art:** Pure SVG vector graphics rendered across all 10 Botanical Guardians, 5 Japanese Garden Decors, and the Landscape Backdrop:
-  - *Zen Terrarium Backdrop:* Majestic Mount Fuji silhouette, celestial diurnal sky (Dawn, Day, Dusk, Night), gnarled ancient Matsu black pine bough, concentric raked Karesansui sand waves, and hand-chiseled granite Tsukubai dais.
-  - *Zen Bonsai Pine:* 5 progressive stages: Seed $\to$ Sprout $\to$ Sapling $\to$ Blooming $\to$ Ancient Heritage with gold halo.
-  - *Zen Sakura Blossom:* Delicate branch, stamens, and falling petal ambient drift.
-  - *Zen Bamboo Grove:* Multi-segmented bamboo stalks with wind-swayed leaves.
-  - *Zen Lotus Pond:* Stone Tsukubai water basin, blooming lotus, floating lily pad, and swimming koi fish.
-  - *Zen Golden Ginkgo:* Radiant fan-shaped autumn leaves with floating particle aura.
-  - *Zen Stone Lantern:* Japanese Toro lantern with animated flickering inner flame.
-  - *Zen Sleepy Cat:* Ginger tabby cat curled up with gentle rhythmic breathing animation.
-- **3x3 Living Terrarium Grid:**
-  - 9 interactive plots enabling multi-flora botanical arrangement and layout customization.
-  - Interactive plot cultivation: inspect moisture level, growth stage (1–5), next-stage requirement countdown, and advance growth using harvested Dewdrops or Pomodoro Sunlight.
-- **Real-World Seasons & Sky Diurnal Cycles:**
-  - Real-world astronomical seasons (Spring sakura, Summer bamboo, Autumn ginkgo, Winter snow dusting) dynamically tinting the terrarium atmosphere.
-  - Real-time 24-hour sky gradients (Dawn, Day, Dusk, Night) reflecting user's local solar and lunar cycle.
-- **Tibetan Singing Bowl Chime & Solfeggio Harmonics:**
-  - Pure harmonic frequencies (396, 417, 528, 639, 741, 852, 963 Hz) calibrated to each botanical guardian, accompanied by dual concentric sand ripple physics.
-- **Mindful Box Breathing (4-4-4-4):**
-  - Visual Sacred Lotus mandala guiding 4s Inhale $\to$ 4s Hold $\to$ 4s Exhale $\to$ 4s Rest.
-- **Mindful Burn the Worry Ritual (เตาเผาปล่อยวางความกังวล):**
-  - Interactive stress-release burner allowing users to write down workplace or life anxieties and symbolically burn them away.
-  - Rewarded with +2 Sacred Dewdrops as a token of mental clarity and emotional release.
-- **Deep Productivity Loop:**
-  - Every Kanban card moved to `DONE` automatically yields +1 Morning Dewdrop via `processCardDonePayouts`, directly linking everyday productivity to botanical sanctuary growth for long-term year-round engagement.
+### 2.14 Solitary Zen Garden & Daily Fortune
+- **Location:** Open `Garden` from Studio Tools in the project top bar.
+- **Today tab:** Check whether the daily ritual is ready. Confirm watering once per day to reveal an Omikuji fortune and earn 5 serenity coins. After watering, read the fortune preview or open the full reading.
+- **Full daily reading:** The sanctuary shows the fortune grade and verse, followed by separate sections for the oracle, today's work and focus guidance, and a lucky focus item. The page scrolls when the reading exceeds the viewport.
+- **Plants tab:** Browse the botanical collection, see each plant's coin requirement and unlock status, and confirm a change to the active garden guardian.
+- **Rest tab:** Start a one-minute 4-4-4-4 breathing session (inhale, hold, exhale, rest). Pause or reset the session at any time.
+- **Garden art & sound:** Bespoke SVG scenes show Mount Fuji, raked sand, and botanical guardians. The atmosphere changes with the season and time of day. Ambient sound can be muted; touching the garden scene creates a calming ripple and water chime.
+- The garden supports Warm Paper (light), Retro Lofi Indigo (dark), and the system theme preference.
 
 ---
 
@@ -267,29 +249,16 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 - **Coffee Cheers (`☕`):** ปุ่มส่งกาแฟให้กำลังใจเมื่อการ์ดย้ายไปยังคอลัมน์ที่เสร็จสิ้น
 - **Coins:** ได้รับเหรียญรางวัลจากการทำภารกิจและการมีส่วนร่วม
 - **Rewards Store:** ร้านค้าแลกของรางวัลประจำโปรเจกต์
-- **หยดน้ำค้างยามเช้า (Morning Dewdrops `💧`):** ได้รับ +1 หยดน้ำค้างทุกครั้งที่ทำงานในการ์ด Kanban สำเร็จและย้ายไปคอลัมน์ `DONE` สำหรับนำไปใช้รดน้ำและบำรุงพืชพรรณในสวนจำลอง Zen Garden
+- **หยดน้ำค้างยามเช้า (Morning Dewdrops `💧`):** เมื่อการ์ด Kanban ย้ายไป `DONE` ระบบเพิ่มหยดน้ำค้างในข้อมูลสวน 1 หยด เป็นรางวัลสะสมที่แยกจากกิจวัตรรดน้ำปัจจุบัน ซึ่งใช้เปิดคำทำนายและรับเหรียญแห่งสติ 5 เหรียญ
 
-#### สวนหินแห่งความสงบและการฟื้นฟูจิตใจ (Solitary Zen Garden & 3x3 Living Terrarium Sanctuary)
-- **ตำแหน่งเข้าใช้งาน:** ไอคอนกระถางพืชพรรณบน Topbar ในหน้าโปรเจกต์
-- **ภาพเวกเตอร์แฮนด์ดรอว์ SVG คุณภาพสูง 100%:** สลัดภาพอีโมจิเดิม สู่ภาพวาดเวกเตอร์สไตล์ญี่ปุ่นที่เข้ากับทั้งธีม Warm Paper และ Retro Lofi Indigo
-  - *บอนไซสนมังกร (Zen Bonsai Pine)*: เติบโตได้ 5 ขั้น (เมล็ดพันธุ์ $\to$ ต้นกล้า $\to$ กิ่งก้านผลิใบ $\to$ ดอกบานสะพรั่ง $\to$ ต้นสนโบราณเรืองรองออร่าทอง)
-  - *ซากุระผลิดอก (Zen Sakura Blossom)*: กิ่งก้านอ่อนช้อยพร้อมกลีบดอกไม้ปลิวไหว
-  - *ป่าไผ่ลู่ลม (Zen Bamboo Grove)*: ลำต้น 3 ปล้องพร้อมใบไหวตามสายลม
-  - *สระบัวหินซึคุบาอิ (Zen Lotus Pond)*: อ่างหินน้ำใส ดอกบัวหลวง ใบบัว และปลาคาร์ฟสีส้มว่ายวน
-  - *แปะก๊วยทองคำ (Zen Golden Ginkgo)*: พุ่มใบพัดสีทองสง่างามพร้อมประกายทอง
-  - *โคมไฟหินโบราณ (Zen Stone Lantern)*: โคมหินโทโร่พร้อมแสงเปลวไฟไหวริบหรี่
-  - *แมวส้มนอนหลับ (Zen Sleepy Cat)*: แมวส้มขดตัวหลับสบายพร้อมแอนิเมชันลมหายใจขยับขึ้นลง
-- **ระบบแปลงเพาะปลูก 3x3 (Living Terrarium Grid):**
-  - มีแปลงปลูก 9 ช่องให้เลือกจัดวางพืชพรรณและของตกแต่งได้อย่างอิสระ
-  - แต่ละช่องสามารถตรวจสอบระดับความชุ่มชื้น ขั้นการเติบโต และรดน้ำด้วยหยดน้ำค้างที่สะสมได้
-- **ฤดูกาลและท้องฟ้าตามเวลาจริงของโลก (Real-World Seasons & Dynamic Sky):**
-  - จำลอง 4 ฤดูกาล (Spring, Summer, Autumn, Winter) ตามเดือนจริง
-  - ไล่เฉดสีท้องฟ้า 24 ชั่วโมง (รุ่งอรุณ / กลางวัน / พลบค่ำ / ราตรี) ตามเวลาจริงของผู้ใช้งาน
-- **พิธีกรรมปล่อยวางความกังวล (Burn the Worry Ritual):**
-  - เตาเผาเชิงสัญลักษณ์สำหรับพิมพ์ระบายความเครียด ความกดดัน หรือสิ่งที่กังวล แล้วจุดไฟเผาให้มอดไหม้กลายเป็นเถ้าถ่าน
-  - มอบรางวัล +1 หยดน้ำค้างแห่งความสงบ เพื่อฟื้นฟูพลังใจ
-- **เชื่อมโยงผลผลิตจริง (Mindful Productivity Loop):**
-  - การ์ด Kanban ทุกใบที่ทำเสร็จจะผลิต +1 หยดน้ำค้างให้ผู้ใช้โดยอัตโนมัติ ทำให้การทำงานจริงกลายเป็นการรดน้ำสวนใจ ออกแบบให้เล่นและสะสมได้ยาวนาน 1–2 ปี
+#### สวน Zen Garden & คำทำนายประจำวัน (Solitary Zen Garden & Daily Fortune)
+- **ตำแหน่งเข้าใช้งาน:** เปิด `Garden` จากเมนู Studio Tools บนแถบด้านบนของโปรเจกต์
+- **แท็บ วันนี้:** ตรวจสถานะกิจวัตร หากพร้อมให้กดยืนยันรดน้ำวันละครั้งเพื่อเปิดคำทำนายและรับ 5 เหรียญ หลังรดน้ำแล้วอ่านคำทำนายย่อหรือเปิดฉบับเต็มได้
+- **คำทำนายฉบับเต็ม:** แสดงระดับคำทำนายและบทกวี แยกส่วนคำทำนาย แนวทางงานและการโฟกัสวันนี้ และสิ่งนำโชค หน้าจะเลื่อนได้เมื่อเนื้อหายาวกว่าพื้นที่แสดงผล
+- **แท็บ พืช:** ดูคลังพฤกษา จำนวนเหรียญ เกณฑ์และสถานะปลดล็อกของแต่ละต้น แล้วกดยืนยันก่อนเปลี่ยนผู้พิทักษ์สวน
+- **แท็บ พักใจ:** เริ่มฝึกลมหายใจ 4-4-4-4 เป็นเวลา 1 นาที (เข้า กลั้น ออก พัก) สามารถหยุดชั่วคราวหรือรีเซ็ตได้
+- **ภาพสวนและเสียง:** ฉาก SVG วาดภูเขาไฟฟูจิ ลานทราย และผู้พิทักษ์พฤกษา เปลี่ยนบรรยากาศตามฤดูกาลและช่วงเวลาของวัน ปิดเสียงได้ และแตะฉากเพื่อสร้างระลอกคลื่นพร้อมเสียงหยดน้ำ
+- รองรับธีม Warm Paper (สว่าง), Retro Lofi Indigo (มืด) และตัวเลือกตามระบบ
 
 #### ปฏิทินงานและตัวเลือกเวลา (Project Calendar & Day View Modal)
 - **Project Calendar View (`/project/[id]/calendar`):**
@@ -504,3 +473,9 @@ Streamlined the Zen Garden by replacing the multi-plot inventory simulation with
   - Automatically awards +5 serenity coins and advances the consecutive watering streak.
 - **Persistent Daily Fortune Card**: Once watered, today's revealed fortune remains active in the topbar dropdown and full-screen sanctuary modal, allowing users to re-read their guidance throughout the day.
 - **Bespoke Vector Art Components**: Pure SVG vector art (`ZenOmikujiScroll`, `ZenGameToolLadle`, `ZenFloraRenderer`, `ZenTerrariumBackdrop`) with zero external raster dependencies.
+
+### 2026-10-22 — Zen Garden UX/UI Simplification
+- Reorganized the Garden popover into Today, Plants, and Rest tabs with clear daily status, a primary watering action, an after-watering fortune preview, and visible plant unlock requirements.
+- Added confirmation before watering and changing the active guardian, with success/error feedback; the full fortune remains divided into verse, oracle, daily work guidance, and lucky focus sections.
+- Updated the Thai and English Knowledge Base content to describe currently accessible garden workflows and remove guidance for the dormant 3×3 planting interface.
+- No database schema or API contract changes.

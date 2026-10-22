@@ -12,7 +12,9 @@ interface ConfirmModalProps {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  loadingLabel?: string;
   variant?: "danger" | "default";
+  layer?: "standard" | "above-modal";
   /** If set, user must type this exact text to enable the confirm button */
   validateText?: string;
   validatePlaceholder?: string;
@@ -27,7 +29,9 @@ export function ConfirmModal({
   message,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
+  loadingLabel = "Please wait...",
   variant = "default",
+  layer = "standard",
   validateText,
   validatePlaceholder,
   isLoading = false,
@@ -36,14 +40,15 @@ export function ConfirmModal({
 }: ConfirmModalProps) {
   const [typed, setTyped] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
   const isBackdropPointerDownRef = useRef(false);
 
   useEffect(() => {
     if (open) {
       setTyped("");
-      // Focus the validate input or confirm button after animation
+      // Focus the validate input or confirm button after animation.
       setTimeout(() => {
-        inputRef.current?.focus();
+        (inputRef.current ?? confirmButtonRef.current)?.focus();
       }, 80);
     }
   }, [open]);
@@ -60,7 +65,10 @@ export function ConfirmModal({
   return (
     <ModalPortal>
       <div
-        className="fixed inset-0 z-[1100] grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm"
+        className={cn(
+          "fixed inset-0 grid place-items-center overflow-y-auto bg-ink-950/80 px-4 py-6 backdrop-blur-sm",
+          layer === "above-modal" ? "z-[1700]" : "z-[1100]"
+        )}
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"
@@ -151,12 +159,13 @@ export function ConfirmModal({
             {cancelLabel}
           </Button>
           <Button
+            ref={confirmButtonRef}
             type="button"
             variant={variant === "danger" ? "danger" : "primary"}
             disabled={!isValid || isLoading}
             onClick={onConfirm}
           >
-            {isLoading ? "Please wait..." : confirmLabel}
+            {isLoading ? loadingLabel : confirmLabel}
           </Button>
         </div>
         </div>

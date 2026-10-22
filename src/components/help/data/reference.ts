@@ -52,8 +52,8 @@ export const FAQ_ITEMS_EN = [
     tag: "Appearance",
   },
   {
-    q: "How do Morning Dewdrops and the 3×3 Zen Sanctuary work?",
-    a: "Every time you complete a task on your Kanban board, you earn +1 Morning Dewdrop (💧). Open the Solitary Zen Garden on the topbar or the 3×3 Full Sanctuary modal to water your plots, bask them in Pomodoro Sunlight, and cultivate ancient botanical guardians.",
+    q: "How does the Zen Garden work?",
+    a: "Open Garden from Studio Tools in a project. Water once each day to reveal an Omikuji fortune and earn 5 coins, browse Plants to choose an unlocked guardian, or use Rest for a one-minute breathing reset. The full reading includes a verse, oracle, work guidance, and a lucky focus item.",
     tag: "Zen Garden",
   },
 ];
@@ -90,8 +90,8 @@ export const FAQ_ITEMS_TH = [
     tag: "Appearance",
   },
   {
-    q: "หยดน้ำค้างยามเช้า (Morning Dewdrops) และสวนบงกช Zen Sanctuary ทำงานอย่างไร?",
-    a: "ทุกครั้งที่คุณทำงานเสร็จในบอร์ด Kanban และการ์ดย้ายไปคอลัมน์ DONE ระบบจะมอบ +1 หยดน้ำค้างยามเช้า (💧) ซึ่งสามารถนำไปใช้รดน้ำแปลงดินในสวนเซนจำลอง 3×3 แปลง เพื่อเพาะปลูกพืชพรรณโบราณและฝึกสมาธิลมหายใจได้",
+    q: "สวน Zen Garden ใช้งานอย่างไร?",
+    a: "เปิด Garden จาก Studio Tools บนแถบด้านบนของโปรเจกต์ รดน้ำวันละครั้งเพื่อเปิดคำทำนายและรับ 5 เหรียญ เลือกผู้พิทักษ์ที่ปลดล็อกแล้วจากแท็บ พืช หรือเปิดแท็บ พักใจ เพื่อฝึกลมหายใจหนึ่งนาที คำทำนายฉบับเต็มมีทั้งบทกวี คำทำนาย แนวทางทำงาน และสิ่งนำโชค",
     tag: "Zen Garden",
   },
 ];
