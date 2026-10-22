@@ -1,12 +1,13 @@
 "use client";
 
 import { Leaf, Moon, Sparkles, Timer, Volume2 } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useState, useCallback, useEffect } from "react";
 
 import { LofiPlayer } from "@/components/project/lofi-player";
 import { NixiePomodoro } from "@/components/project/nixie-pomodoro";
 import { PixelMoon } from "@/components/project/pixel-moon";
 import { ZenGarden } from "@/components/project/zen-garden";
+import { ZenSanctuaryModal } from "@/components/project/zen-garden/zen-sanctuary-modal";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -14,22 +15,49 @@ import { cn } from "@/lib/utils";
 
 type ToolId = "ambience" | "focus" | "phase" | "garden";
 
-const tools: Array<{
+interface ToolItem {
   id: ToolId;
   label: string;
   icon: typeof Volume2;
-  panel: ReactNode;
-}> = [
-  { id: "ambience", label: "Ambience", icon: Volume2, panel: <LofiPlayer /> },
-  { id: "focus", label: "Focus", icon: Timer, panel: <NixiePomodoro /> },
-  { id: "phase", label: "Phase", icon: Moon, panel: <PixelMoon /> },
-  { id: "garden", label: "Garden", icon: Leaf, panel: <ZenGarden /> },
+}
+
+const toolItems: ToolItem[] = [
+  { id: "ambience", label: "Ambience", icon: Volume2 },
+  { id: "focus", label: "Focus", icon: Timer },
+  { id: "phase", label: "Phase", icon: Moon },
+  { id: "garden", label: "Garden", icon: Leaf },
 ];
 
 export function ProjectTopbarTools() {
   const [activeTool, setActiveTool] = useState<ToolId | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [selectedMobileTool, setSelectedMobileTool] = useState<ToolId>("ambience");
+  const [isSanctuaryOpen, setIsSanctuaryOpen] = useState(false);
+
+  const handleOpenSanctuary = useCallback(() => {
+    setActiveTool(null);
+    setMobileOpen(false);
+    setIsSanctuaryOpen(true);
+  }, []);
+
+  useEffect(() => {
+    const handleEvent = () => handleOpenSanctuary();
+    window.addEventListener("open-zen-sanctuary", handleEvent);
+    return () => window.removeEventListener("open-zen-sanctuary", handleEvent);
+  }, [handleOpenSanctuary]);
+
+  const renderToolPanel = (id: ToolId) => {
+    switch (id) {
+      case "ambience":
+        return <LofiPlayer />;
+      case "focus":
+        return <NixiePomodoro />;
+      case "phase":
+        return <PixelMoon />;
+      case "garden":
+        return <ZenGarden onOpenSanctuary={handleOpenSanctuary} />;
+    }
+  };
 
   return (
     <TooltipProvider delayDuration={250}>
@@ -59,7 +87,7 @@ export function ProjectTopbarTools() {
             className="w-[min(364px,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/15 bg-[#faf7f2] dark:bg-[#0c0d18] p-2.5 shadow-[0_24px_64px_rgba(0,0,0,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.65)] text-stone-900 dark:text-stone-100 backdrop-blur-xl [&>*]:!mt-0"
           >
             <div className="grid grid-cols-4 gap-1 border-b border-stone-200/80 dark:border-white/10 pb-2 mb-2">
-              {tools.map((t) => {
+              {toolItems.map((t) => {
                 const TIcon = t.icon;
                 const isCurrent = selectedMobileTool === t.id;
                 return (
@@ -81,9 +109,9 @@ export function ProjectTopbarTools() {
               })}
             </div>
             <div>
-              {tools.map((t) => (
+              {toolItems.map((t) => (
                 <div key={t.id} className={t.id === selectedMobileTool ? "block" : "hidden"}>
-                  {t.panel}
+                  {renderToolPanel(t.id)}
                 </div>
               ))}
             </div>
@@ -93,7 +121,7 @@ export function ProjectTopbarTools() {
 
       {/* Wide Desktop (2xl+): Expanded separate tool buttons */}
       <div className="relative hidden 2xl:flex items-center gap-1.5">
-        {tools.map((tool) => {
+        {toolItems.map((tool) => {
           const Icon = tool.icon;
           const isActive = activeTool === tool.id;
 
@@ -134,12 +162,18 @@ export function ProjectTopbarTools() {
                   tool.id === "garden" ? "w-[364px]" : "w-80"
                 )}
               >
-                {tool.panel}
+                {renderToolPanel(tool.id)}
               </PopoverContent>
             </Popover>
           );
         })}
       </div>
+
+      {/* ── Top-Level 3×3 Living Sanctuary Modal ── */}
+      <ZenSanctuaryModal
+        isOpen={isSanctuaryOpen}
+        onClose={() => setIsSanctuaryOpen(false)}
+      />
     </TooltipProvider>
   );
 }

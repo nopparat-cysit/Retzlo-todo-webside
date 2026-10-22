@@ -94,6 +94,13 @@ export function NixiePomodoro() {
       setCompletedSessions((c) => c + 1);
       setMode("break");
       setTimeLeft(minutesToSeconds(breakMinutes));
+      void fetch("/api/zen-garden", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "award-sunlight", count: 1 })
+      }).then(() => {
+        window.dispatchEvent(new Event("zen-updated"));
+      });
     } else {
       setMode("focus");
       setTimeLeft(minutesToSeconds(focusMinutes));

@@ -29,7 +29,15 @@ const postActionSchema = z.discriminatedUnion("action", [
     count: z.number().int().min(1).max(20).default(1)
   }),
   z.object({
+    action: z.literal("award-sunlight"),
+    count: z.number().int().min(1).max(20).default(1)
+  }),
+  z.object({
     action: z.literal("water-plot"),
+    slotIndex: z.number().int().min(0).max(8)
+  }),
+  z.object({
+    action: z.literal("bask-plot"),
     slotIndex: z.number().int().min(0).max(8)
   }),
   z.object({
@@ -37,8 +45,23 @@ const postActionSchema = z.discriminatedUnion("action", [
     slotIndex: z.number().int().min(0).max(8),
     itemType: z.enum(["flora", "decor", "empty"]),
     itemId: z.string().nullable()
+  }),
+  z.object({
+    action: z.literal("clear-plot"),
+    slotIndex: z.number().int().min(0).max(8)
+  }),
+  z.object({
+    action: z.literal("ring-bell")
   })
 ]);
+
+function calculateGrowthStage(waterCount: number): number {
+  if (waterCount >= 25) return 5; // Ancient Heritage
+  if (waterCount >= 12) return 4; // Blooming
+  if (waterCount >= 6) return 3;  // Sapling
+  if (waterCount >= 2) return 2;  // Sprout
+  return 1;                       // Seed
+}
 
 export async function GET() {
   const userId = await requireUserId();
@@ -91,6 +114,7 @@ export async function POST(request: Request) {
     const currentState = parseZenGardenState(user.zenGarden);
     const todayStr = new Date().toISOString().split("T")[0];
 
+    // ── 1. Nurture Daily Streak ──────────────────────────────────────────────
     if (body.action === "nurture") {
       const allowed = canWaterToday(currentState.lastWateredDate, todayStr);
       if (!allowed) {
@@ -166,6 +190,7 @@ export async function POST(request: Request) {
       });
     }
 
+    // ── 2. Set Guardian ──────────────────────────────────────────────────────
     if (body.action === "set-guardian") {
       const plant = BOTANICAL_PLANTS.find((p) => p.id === body.guardianId);
       if (!plant) {
@@ -191,12 +216,29 @@ export async function POST(request: Request) {
         }
       });
 
+      void createAuditLog({
+        actorId: user.id,
+        actorEmail: user.email,
+        actorName: user.name,
+        actorRole: user.globalRole,
+        category: "USER",
+        action: "ZEN_GUARDIAN_SET",
+        targetType: "User",
+        targetId: user.id,
+        targetName: user.name ?? user.email,
+        summary: `User changed Zen Garden active guardian to ${plant.name}`,
+        beforeState: { activeGuardianId: currentState.activeGuardianId },
+        afterState: { activeGuardianId: plant.id },
+        diff: { previousGuardian: currentState.activeGuardianId, nextGuardian: plant.id }
+      });
+
       return NextResponse.json({
         success: true,
         zenGarden: nextState
       });
     }
 
+    // ── 3. Complete Box Breathing ────────────────────────────────────────────
     if (body.action === "complete-breath") {
       const addedMinutes = body.minutes;
       const nextState = {
@@ -214,12 +256,29 @@ export async function POST(request: Request) {
         }
       });
 
+      void createAuditLog({
+        actorId: user.id,
+        actorEmail: user.email,
+        actorName: user.name,
+        actorRole: user.globalRole,
+        category: "USER",
+        action: "ZEN_BREATH_COMPLETE",
+        targetType: "User",
+        targetId: user.id,
+        targetName: user.name ?? user.email,
+        summary: `User finished ${addedMinutes} mindful breathing minute(s)`,
+        beforeState: { totalZenMinutes: currentState.totalZenMinutes },
+        afterState: { totalZenMinutes: nextState.totalZenMinutes },
+        diff: { addedMinutes }
+      });
+
       return NextResponse.json({
         success: true,
         zenGarden: nextState
       });
     }
 
+    // ── 4. Award Dewdrops ────────────────────────────────────────────────────
     if (body.action === "award-dewdrop") {
       const addedCount = body.count;
       const nextState = {
@@ -237,6 +296,22 @@ export async function POST(request: Request) {
         }
       });
 
+      void createAuditLog({
+        actorId: user.id,
+        actorEmail: user.email,
+        actorName: user.name,
+        actorRole: user.globalRole,
+        category: "USER",
+        action: "ZEN_DEWDROP_AWARD",
+        targetType: "User",
+        targetId: user.id,
+        targetName: user.name ?? user.email,
+        summary: `Awarded +${addedCount} morning dewdrop(s) to Zen Garden`,
+        beforeState: { dewdrops: currentState.dewdrops },
+        afterState: { dewdrops: nextState.dewdrops },
+        diff: { addedCount }
+      });
+
       return NextResponse.json({
         success: true,
         awardedDewdrops: addedCount,
@@ -244,6 +319,48 @@ export async function POST(request: Request) {
       });
     }
 
+    // ── 5. Award Sunlight ────────────────────────────────────────────────────
+    if (body.action === "award-sunlight") {
+      const addedCount = body.count;
+      const nextState = {
+        ...currentState,
+        sunlight: currentState.sunlight + addedCount
+      };
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          zenGarden: {
+            ...existingRawZenGarden,
+            ...nextState
+          }
+        }
+      });
+
+      void createAuditLog({
+        actorId: user.id,
+        actorEmail: user.email,
+        actorName: user.name,
+        actorRole: user.globalRole,
+        category: "USER",
+        action: "ZEN_SUNLIGHT_AWARD",
+        targetType: "User",
+        targetId: user.id,
+        targetName: user.name ?? user.email,
+        summary: `Awarded +${addedCount} sunlight to Zen Garden`,
+        beforeState: { sunlight: currentState.sunlight },
+        afterState: { sunlight: nextState.sunlight },
+        diff: { addedCount }
+      });
+
+      return NextResponse.json({
+        success: true,
+        awardedSunlight: addedCount,
+        zenGarden: nextState
+      });
+    }
+
+    // ── 6. Water Plot ────────────────────────────────────────────────────────
     if (body.action === "water-plot") {
       if (currentState.dewdrops < 1) {
         return jsonError("No dewdrops available. Complete tasks on your Kanban board to gather morning dew!", 400);
@@ -255,23 +372,15 @@ export async function POST(request: Request) {
       }
 
       const newWaterCount = slot.waterCount + 1;
-      let newStage = slot.stage;
-      if (newWaterCount >= 25 && slot.stage < 5) {
-        newStage = 5; // Ancient Heritage
-      } else if (newWaterCount >= 12 && slot.stage < 4) {
-        newStage = 4; // Blooming
-      } else if (newWaterCount >= 6 && slot.stage < 3) {
-        newStage = 3; // Sapling
-      } else if (newWaterCount >= 2 && slot.stage < 2) {
-        newStage = 2; // Sprout
-      }
+      const newStage = calculateGrowthStage(newWaterCount);
 
       const updatedPlots = currentState.plots.map((p, idx) => {
         if (idx === body.slotIndex) {
           return {
             ...p,
             waterCount: newWaterCount,
-            stage: newStage
+            stage: newStage,
+            moisture: Math.min(100, p.moisture + 25)
           };
         }
         return p;
@@ -294,6 +403,22 @@ export async function POST(request: Request) {
         }
       });
 
+      void createAuditLog({
+        actorId: user.id,
+        actorEmail: user.email,
+        actorName: user.name,
+        actorRole: user.globalRole,
+        category: "USER",
+        action: "ZEN_PLOT_WATER",
+        targetType: "User",
+        targetId: user.id,
+        targetName: user.name ?? user.email,
+        summary: `Nourished plot #${body.slotIndex + 1} (-1 dewdrop, new water count: ${newWaterCount})`,
+        beforeState: { plot: slot, dewdrops: currentState.dewdrops },
+        afterState: { plot: updatedPlots[body.slotIndex], dewdrops: nextState.dewdrops },
+        diff: { slotIndex: body.slotIndex, leveledUp: newStage > slot.stage }
+      });
+
       return NextResponse.json({
         success: true,
         leveledUp: newStage > slot.stage,
@@ -301,6 +426,72 @@ export async function POST(request: Request) {
       });
     }
 
+    // ── 7. Bask Plot in Sunlight ─────────────────────────────────────────────
+    if (body.action === "bask-plot") {
+      if (currentState.sunlight < 1) {
+        return jsonError("No sunlight available. Complete Pomodoro focus blocks to absorb solar energy!", 400);
+      }
+
+      const slot = currentState.plots[body.slotIndex];
+      if (!slot || slot.itemType === "empty") {
+        return jsonError("This plot is currently empty. Cultivate a seed first!", 400);
+      }
+
+      // Sunlight counts as +2 growth units
+      const newWaterCount = slot.waterCount + 2;
+      const newStage = calculateGrowthStage(newWaterCount);
+
+      const updatedPlots = currentState.plots.map((p, idx) => {
+        if (idx === body.slotIndex) {
+          return {
+            ...p,
+            waterCount: newWaterCount,
+            stage: newStage
+          };
+        }
+        return p;
+      });
+
+      const nextState = {
+        ...currentState,
+        sunlight: currentState.sunlight - 1,
+        plots: updatedPlots
+      };
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          zenGarden: {
+            ...existingRawZenGarden,
+            ...nextState
+          }
+        }
+      });
+
+      void createAuditLog({
+        actorId: user.id,
+        actorEmail: user.email,
+        actorName: user.name,
+        actorRole: user.globalRole,
+        category: "USER",
+        action: "ZEN_PLOT_BASK",
+        targetType: "User",
+        targetId: user.id,
+        targetName: user.name ?? user.email,
+        summary: `Basked plot #${body.slotIndex + 1} in sunlight (-1 sun, +2 growth)`,
+        beforeState: { plot: slot, sunlight: currentState.sunlight },
+        afterState: { plot: updatedPlots[body.slotIndex], sunlight: nextState.sunlight },
+        diff: { slotIndex: body.slotIndex, leveledUp: newStage > slot.stage }
+      });
+
+      return NextResponse.json({
+        success: true,
+        leveledUp: newStage > slot.stage,
+        zenGarden: nextState
+      });
+    }
+
+    // ── 8. Plant Plot ────────────────────────────────────────────────────────
     if (body.action === "plant-plot") {
       const updatedPlots = currentState.plots.map((p, idx) => {
         if (idx === body.slotIndex) {
@@ -308,8 +499,10 @@ export async function POST(request: Request) {
             ...p,
             itemType: body.itemType,
             itemId: body.itemId,
-            stage: 2, // starts at sprout
-            waterCount: 1
+            stage: 1, // Start at tender Seed / Sprout stage
+            waterCount: 0,
+            moisture: 60,
+            plantedAt: new Date().toISOString()
           };
         }
         return p;
@@ -330,9 +523,88 @@ export async function POST(request: Request) {
         }
       });
 
+      void createAuditLog({
+        actorId: user.id,
+        actorEmail: user.email,
+        actorName: user.name,
+        actorRole: user.globalRole,
+        category: "USER",
+        action: "ZEN_PLOT_PLANT",
+        targetType: "User",
+        targetId: user.id,
+        targetName: user.name ?? user.email,
+        summary: `Cultivated ${body.itemId} in plot #${body.slotIndex + 1}`,
+        beforeState: { plot: currentState.plots[body.slotIndex] },
+        afterState: { plot: updatedPlots[body.slotIndex] },
+        diff: { slotIndex: body.slotIndex, itemId: body.itemId }
+      });
+
       return NextResponse.json({
         success: true,
         zenGarden: nextState
+      });
+    }
+
+    // ── 9. Clear / Dig Up Plot ───────────────────────────────────────────────
+    if (body.action === "clear-plot") {
+      const prevPlot = currentState.plots[body.slotIndex];
+      const updatedPlots = currentState.plots.map((p, idx) => {
+        if (idx === body.slotIndex) {
+          return {
+            slotIndex: body.slotIndex,
+            itemType: "empty" as const,
+            itemId: null,
+            stage: 1,
+            waterCount: 0,
+            moisture: 50,
+            plantedAt: null
+          };
+        }
+        return p;
+      });
+
+      const nextState = {
+        ...currentState,
+        plots: updatedPlots
+      };
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          zenGarden: {
+            ...existingRawZenGarden,
+            ...nextState
+          }
+        }
+      });
+
+      void createAuditLog({
+        actorId: user.id,
+        actorEmail: user.email,
+        actorName: user.name,
+        actorRole: user.globalRole,
+        category: "USER",
+        action: "ZEN_PLOT_CLEAR",
+        targetType: "User",
+        targetId: user.id,
+        targetName: user.name ?? user.email,
+        summary: `Cleared plot #${body.slotIndex + 1}`,
+        beforeState: { plot: prevPlot },
+        afterState: { plot: updatedPlots[body.slotIndex] },
+        diff: { slotIndex: body.slotIndex, clearedItem: prevPlot?.itemId }
+      });
+
+      return NextResponse.json({
+        success: true,
+        zenGarden: nextState
+      });
+    }
+
+    // ── 10. Ring Singing Bowl ────────────────────────────────────────────────
+    if (body.action === "ring-bell") {
+      return NextResponse.json({
+        success: true,
+        message: "Chime reverberated through the sanctuary."
       });
     }
 

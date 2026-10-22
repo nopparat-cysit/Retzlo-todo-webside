@@ -322,6 +322,10 @@ export function BoardListView({
           message: isDone ? "Marked as incomplete" : "Completed task! 🌟",
           type: "success"
         });
+        if (!isDone) {
+          window.dispatchEvent(new Event("zen-updated"));
+          window.dispatchEvent(new Event("coins-updated"));
+        }
       } else {
         toast({ message: "Failed to update status", type: "error" });
       }
@@ -393,6 +397,10 @@ export function BoardListView({
           message: isDone ? "Completed task! 🌟" : `Status set to ${meta.label}`,
           type: "success"
         });
+        if (isDone) {
+          window.dispatchEvent(new Event("zen-updated"));
+          window.dispatchEvent(new Event("coins-updated"));
+        }
       } else {
         toast({ message: "Failed to update status", type: "error" });
       }

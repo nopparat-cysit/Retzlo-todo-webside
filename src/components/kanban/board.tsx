@@ -888,6 +888,8 @@ export function KanbanBoard({
         triggerCelebration(rect ? rect.left + rect.width / 2 : window.innerWidth / 2, rect ? rect.top + rect.height / 2 : window.innerHeight / 2);
         playCardDoneSound();
         toast({ message: "Task complete! ✦", type: "success" });
+        window.dispatchEvent(new Event("zen-updated"));
+        window.dispatchEvent(new Event("coins-updated"));
       } else {
         toast({ message: "Card moved.", type: "success" });
       }

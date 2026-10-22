@@ -316,11 +316,13 @@ export function parseZenGardenState(raw: unknown): ZenGardenState {
     plots = r.plots.map((p, idx) => {
       if (!p || typeof p !== "object") return fallback.plots[idx];
       const plotObj = p as Record<string, unknown>;
+      const itemType = plotObj.itemType === "flora" || plotObj.itemType === "decor" ? plotObj.itemType : "empty";
+      const defaultStage = itemType === "empty" ? 1 : 4;
       return {
         slotIndex: idx,
-        itemType: plotObj.itemType === "flora" || plotObj.itemType === "decor" ? plotObj.itemType : "empty",
+        itemType,
         itemId: typeof plotObj.itemId === "string" ? plotObj.itemId : null,
-        stage: (typeof plotObj.stage === "number" && plotObj.stage >= 1 && plotObj.stage <= 5 ? plotObj.stage : 4) as 1 | 2 | 3 | 4 | 5,
+        stage: (typeof plotObj.stage === "number" && plotObj.stage >= 1 && plotObj.stage <= 5 ? plotObj.stage : defaultStage) as 1 | 2 | 3 | 4 | 5,
         waterCount: typeof plotObj.waterCount === "number" ? Math.max(0, plotObj.waterCount) : 0
       };
     });

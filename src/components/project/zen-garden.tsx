@@ -41,7 +41,7 @@ interface RipplePoint {
   y: number;
 }
 
-export function ZenGarden() {
+export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } = {}) {
   const { isEn } = useLanguage();
   const { toast } = useToast();
 
@@ -81,7 +81,11 @@ export function ZenGarden() {
 
     const handleUpdate = () => void fetchZenData();
     window.addEventListener("coins-updated", handleUpdate);
-    return () => window.removeEventListener("coins-updated", handleUpdate);
+    window.addEventListener("zen-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("coins-updated", handleUpdate);
+      window.removeEventListener("zen-updated", handleUpdate);
+    };
   }, [fetchZenData]);
 
   // Box breathing interval ticker
@@ -222,6 +226,15 @@ export function ZenGarden() {
     setZenState((prev) => ({ ...prev, soundMuted: !prev.soundMuted }));
   };
 
+  const handleOpenSanctuary = () => {
+    if (onOpenSanctuary) {
+      onOpenSanctuary();
+    } else {
+      window.dispatchEvent(new CustomEvent("open-zen-sanctuary"));
+      setIsSanctuaryModalOpen(true);
+    }
+  };
+
   if (!mounted) return null;
 
   const todayStr = new Date().toISOString().split("T")[0];
@@ -321,7 +334,7 @@ export function ZenGarden() {
 
           <button
             type="button"
-            onClick={() => setIsSanctuaryModalOpen(true)}
+            onClick={handleOpenSanctuary}
             aria-label={isEn ? "Open 3x3 Full Sanctuary" : "เปิดสวนเซน 3x3 เต็มจอ"}
             title={isEn ? "Open 3x3 Full Sanctuary" : "เปิดสวนเซน 3x3 เต็มจอ"}
             className="grid h-6 w-6 place-items-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition cursor-pointer"
@@ -477,7 +490,9 @@ export function ZenGarden() {
           <div className="rounded-xl border border-stone-200/90 dark:border-white/10 bg-white/70 dark:bg-white/[0.02] p-2.5 space-y-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 min-w-0">
-                <span className="text-base">{activeGuardian.emoji}</span>
+                <div className="h-5 w-5 shrink-0 grid place-items-center">
+                  <ZenFloraRenderer plantId={activeGuardian.id} stage={4} className="h-5 w-5" />
+                </div>
                 <span className="font-semibold text-[11.5px] text-stone-900 dark:text-stone-100 truncate">
                   {isEn ? activeGuardian.name : activeGuardian.nameTh}
                 </span>
@@ -579,7 +594,11 @@ export function ZenGarden() {
                         boxShadow: isUnlocked ? `0 0 10px ${plant.auraColor}` : undefined
                       }}
                     >
-                      {isUnlocked ? plant.emoji : <Lock className="h-3 w-3 text-stone-400" />}
+                      {isUnlocked ? (
+                        <ZenFloraRenderer plantId={plant.id} stage={3} className="h-6 w-6" />
+                      ) : (
+                        <Lock className="h-3 w-3 text-stone-400" />
+                      )}
                     </div>
 
                     <div className="min-w-0">
@@ -717,14 +736,16 @@ export function ZenGarden() {
         </p>
       </div>
 
-      {/* ─── Full-Screen 3x3 Living Terrarium Modal ─── */}
-      <ZenSanctuaryModal
-        isOpen={isSanctuaryModalOpen}
-        onClose={() => setIsSanctuaryModalOpen(false)}
-        zenState={zenState}
-        globalCoins={globalCoins}
-        onRefreshData={fetchZenData}
-      />
+      {/* ─── Full-Screen 3x3 Living Terrarium Modal (Fallback) ─── */}
+      {!onOpenSanctuary && (
+        <ZenSanctuaryModal
+          isOpen={isSanctuaryModalOpen}
+          onClose={() => setIsSanctuaryModalOpen(false)}
+          zenState={zenState}
+          globalCoins={globalCoins}
+          onRefreshData={fetchZenData}
+        />
+      )}
     </section>
   );
 }
