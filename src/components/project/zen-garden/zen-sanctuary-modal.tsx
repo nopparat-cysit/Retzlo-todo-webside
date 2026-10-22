@@ -369,7 +369,7 @@ export function ZenSanctuaryModal({
                   </span>
                 </div>
                 <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
-                  {seasonLabels}
+                  {isEn ? seasonLabels.en : seasonLabels.th}
                 </p>
               </div>
             </div>

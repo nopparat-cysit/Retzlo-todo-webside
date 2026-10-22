@@ -39,10 +39,19 @@
    - *Bug:* `zen-sanctuary-modal.tsx` attempted to import from `@/components/language-provider` which caused Next.js build failure.
    - *Fix:* Corrected to `@/lib/i18n/language-context`.
 
+9. **React Runtime Crash on Expand (Unable to Load Dashboard):**
+   - *Bug:* In `zen-sanctuary-modal.tsx`, line 372 rendered `{seasonLabels}` directly inside `<p>{seasonLabels}</p>`. Because `seasonLabels` was an object `{ en: string, th: string }`, React threw `Objects are not valid as a React child`, crashing the component tree to `src/app/(dashboard)/error.tsx` which displayed "Unable to load dashboard".
+   - *Fix:* Changed to `{isEn ? seasonLabels.en : seasonLabels.th}`. Added `src/components/project/zen-garden/zen-sanctuary-modal.test.ts` to enforce this rule and prevent regression.
+
 ---
 
 ## Files Created & Modified
 
+- `src/components/project/zen-garden/zen-sanctuary-modal.tsx` [MODIFY]
+  - Fixed `{seasonLabels}` object rendering crash by accessing `{isEn ? seasonLabels.en : seasonLabels.th}`.
+  - Corrected `useLanguage` import path to `@/lib/i18n/language-context`.
+- `src/components/project/zen-garden/zen-sanctuary-modal.test.ts` [NEW]
+  - Regression unit tests verifying ModalPortal usage, bilingual string safety, ConfirmModal guard, and action endpoints.
 - `src/components/project/zen-garden/zen-vector-art.tsx` [MODIFY]
   - Added `ZenSprout`, `ZenAloeSucculent`, `ZenSilverPampas`, `ZenMoonlightFungi`, `ZenSpiritWillow`, `ZenToriiGate`, `ZenMoonBridge`, `ZenTsukubai`.
   - Mapped all 15 identifiers in `ZenFloraRenderer`.
@@ -79,7 +88,7 @@ npm run lint
 npx prisma validate
 npm run build
 ```
-- **Vitest:** 101/101 test files passed, 561 tests passed, 3 skipped.
+- **Vitest:** 102/102 test files passed, 565 tests passed, 3 skipped.
 - **ESLint:** 0 warnings, 0 errors.
 - **Prisma:** Schema valid.
 - **Next.js Build:** 42/42 static and dynamic pages compiled successfully.
