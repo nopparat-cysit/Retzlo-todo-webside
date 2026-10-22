@@ -51,6 +51,11 @@ export const FAQ_ITEMS_EN = [
     a: "Click your avatar in the top right corner and open the Theme selector to choose between Dark Mode (Retro Lofi Indigo), Light Mode (Warm Paper), or System.",
     tag: "Appearance",
   },
+  {
+    q: "How do Morning Dewdrops and the 3×3 Zen Sanctuary work?",
+    a: "Every time you complete a task on your Kanban board, you earn +1 Morning Dewdrop (💧). Open the Solitary Zen Garden on the topbar or the 3×3 Full Sanctuary modal to water your plots, bask them in Pomodoro Sunlight, and cultivate ancient botanical guardians.",
+    tag: "Zen Garden",
+  },
 ];
 
 export const FAQ_ITEMS_TH = [
@@ -83,6 +88,11 @@ export const FAQ_ITEMS_TH = [
     q: "ต้องการเปลี่ยนธีมสีระหว่างมืด (Dark) กับสว่าง (Warm Light) ต้องทำอย่างไร?",
     a: "คลิกที่รูปโปรไฟล์ของคุณที่มุมบนขวา จากนั้นเลือกเมนู Theme เพื่อสลับระหว่าง Dark Mode (Retro Lofi Indigo), Light Mode (Warm Paper) หรือเลือก System เพื่อเปลี่ยนตามการตั้งค่าของอุปกรณ์",
     tag: "Appearance",
+  },
+  {
+    q: "หยดน้ำค้างยามเช้า (Morning Dewdrops) และสวนบงกช Zen Sanctuary ทำงานอย่างไร?",
+    a: "ทุกครั้งที่คุณทำงานเสร็จในบอร์ด Kanban และการ์ดย้ายไปคอลัมน์ DONE ระบบจะมอบ +1 หยดน้ำค้างยามเช้า (💧) ซึ่งสามารถนำไปใช้รดน้ำแปลงดินในสวนเซนจำลอง 3×3 แปลง เพื่อเพาะปลูกพืชพรรณโบราณและฝึกสมาธิลมหายใจได้",
+    tag: "Zen Garden",
   },
 ];
 

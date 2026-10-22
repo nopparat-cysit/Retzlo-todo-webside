@@ -179,23 +179,28 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 
 ### 2.14 Solitary Zen Garden & 3x3 Living Terrarium Sanctuary
 - **Location:** Accessible via the top bar flora pedestal (`ZenGarden`) in any project or workspace.
-- **100% Bespoke Hand-Drawn Vector Art:** Replaced raw emoji icons with rich, layered SVG vector artwork that naturally blends into both Warm Paper and Retro Lofi Indigo palettes:
-  - *Zen Bonsai Pine* (5 progressive stages: Seed $\to$ Sprout $\to$ Sapling $\to$ Blooming $\to$ Ancient Heritage with gold halo).
-  - *Zen Sakura Blossom* (delicate branch, stamens, and falling petal ambient drift).
-  - *Zen Bamboo Grove* (multi-segmented bamboo stalks with wind-swayed leaves).
-  - *Zen Lotus Pond* (stone Tsukubai water basin, blooming lotus, floating lily pad, and swimming koi fish).
-  - *Zen Golden Ginkgo* (radiant fan-shaped autumn leaves with floating particle aura).
-  - *Zen Stone Lantern* (Japanese Toro lantern with animated flickering inner flame).
-  - *Zen Sleepy Cat* (ginger tabby cat curled up with gentle rhythmic breathing animation).
+- **100% Bespoke Hand-Drawn Vector Art:** Pure SVG vector graphics rendered across all 10 Botanical Guardians, 5 Japanese Garden Decors, and the Landscape Backdrop:
+  - *Zen Terrarium Backdrop:* Majestic Mount Fuji silhouette, celestial diurnal sky (Dawn, Day, Dusk, Night), gnarled ancient Matsu black pine bough, concentric raked Karesansui sand waves, and hand-chiseled granite Tsukubai dais.
+  - *Zen Bonsai Pine:* 5 progressive stages: Seed $\to$ Sprout $\to$ Sapling $\to$ Blooming $\to$ Ancient Heritage with gold halo.
+  - *Zen Sakura Blossom:* Delicate branch, stamens, and falling petal ambient drift.
+  - *Zen Bamboo Grove:* Multi-segmented bamboo stalks with wind-swayed leaves.
+  - *Zen Lotus Pond:* Stone Tsukubai water basin, blooming lotus, floating lily pad, and swimming koi fish.
+  - *Zen Golden Ginkgo:* Radiant fan-shaped autumn leaves with floating particle aura.
+  - *Zen Stone Lantern:* Japanese Toro lantern with animated flickering inner flame.
+  - *Zen Sleepy Cat:* Ginger tabby cat curled up with gentle rhythmic breathing animation.
 - **3x3 Living Terrarium Grid:**
   - 9 interactive plots enabling multi-flora botanical arrangement and layout customization.
-  - Interactive plot cultivation: inspect moisture level, growth stage (1–5), and advance growth using harvested Dewdrops.
+  - Interactive plot cultivation: inspect moisture level, growth stage (1–5), next-stage requirement countdown, and advance growth using harvested Dewdrops or Pomodoro Sunlight.
 - **Real-World Seasons & Sky Diurnal Cycles:**
-  - Real-world astronomical seasons (Spring, Summer, Autumn, Winter) dynamically tinting the terrarium atmosphere.
-  - Real-time 24-hour sky gradients (Dawn, Day, Dusk, Night) reflecting user's local solar cycle.
+  - Real-world astronomical seasons (Spring sakura, Summer bamboo, Autumn ginkgo, Winter snow dusting) dynamically tinting the terrarium atmosphere.
+  - Real-time 24-hour sky gradients (Dawn, Day, Dusk, Night) reflecting user's local solar and lunar cycle.
+- **Tibetan Singing Bowl Chime & Solfeggio Harmonics:**
+  - Pure harmonic frequencies (396, 417, 528, 639, 741, 852, 963 Hz) calibrated to each botanical guardian, accompanied by dual concentric sand ripple physics.
+- **Mindful Box Breathing (4-4-4-4):**
+  - Visual Sacred Lotus mandala guiding 4s Inhale $\to$ 4s Hold $\to$ 4s Exhale $\to$ 4s Rest.
 - **Mindful Burn the Worry Ritual (เตาเผาปล่อยวางความกังวล):**
   - Interactive stress-release burner allowing users to write down workplace or life anxieties and symbolically burn them away.
-  - Rewarded with +1 Sacred Dewdrop as a token of mental clarity and emotional release.
+  - Rewarded with +2 Sacred Dewdrops as a token of mental clarity and emotional release.
 - **Deep Productivity Loop:**
   - Every Kanban card moved to `DONE` automatically yields +1 Morning Dewdrop via `processCardDonePayouts`, directly linking everyday productivity to botanical sanctuary growth for long-term year-round engagement.
 

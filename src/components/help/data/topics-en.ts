@@ -5,6 +5,7 @@ import {
   Compass,
   Download,
   Flag,
+  Flower2,
   FolderKanban,
   HelpCircle,
   Keyboard,
@@ -469,6 +470,58 @@ export const TOPICS_EN: GuideTopic[] = [
     tips: "Set up exciting team rewards in the store, such as a coffee shout, snack boxes, or extra flex hours!",
     relatedTopicIds: ["kanban-boards", "calendar-due-dates", "roles-and-security"],
     demoType: "coffee",
+  },
+  {
+    id: "zen-garden-sanctuary",
+    category: "gamification",
+    icon: Flower2,
+    title: "Solitary Zen Garden & 3×3 Living Sanctuary",
+    badge: "Mindfulness",
+    badgeColor: "border-emerald-400/30 bg-emerald-400/10 text-emerald-600 dark:text-emerald-400",
+    scopeBadge: "Mindful Focus & Botanical Growth",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 22, 2026",
+    summary:
+      "A serene Japanese Karesansui terrarium micro-sanctuary designed to restore mental clarity, cultivate 10 botanical guardians, and practice mindful box breathing.",
+    concept:
+      "Workplace productivity thrives on mental recovery. The Solitary Zen Garden unites task achievement with mindful relaxation: tasks completed in Kanban yield Morning Dewdrops, Pomodoro blocks yield Sunlight Energy, and daily visits let you ring the Tibetan Singing Bowl for harmonic serenity.",
+    highlights: [
+      "10 Botanical Guardians: Cultivate Bonsai Pine, Sakura Blossom, Zen Bamboo, Lotus Pond, Golden Ginkgo, and more, each featuring 5 evolutionary growth stages.",
+      "Pure SVG Japanese Woodblock Art: Bespoke vector backdrop depicting Mount Fuji, an overhanging Matsu pine bough, and concentric raked sand waves.",
+      "Real-Time Diurnal Sky Engine: Responsive celestial atmosphere adapting dynamically to Dawn, Day, Dusk, and Night.",
+      "Tibetan Singing Bowl Harmonics: Pure Solfeggio sound therapy (396 Hz to 963 Hz) to clear mental fatigue.",
+      "Mindful Box Breathing (4-4-4-4): Guided 1-minute visual breath mandala to reset focus and calm the nervous system.",
+      "Worry Brazier Ritual: Write down work anxiety and dissolve it into sacred ash to gain +2 Morning Dewdrops.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Harvest Morning Dewdrops",
+        desc: "Complete any Kanban task to earn +1 Morning Dewdrop to nurture your garden plots.",
+      },
+      {
+        step: "02",
+        title: "Daily Singing Bowl Ring",
+        desc: "Ring the Tibetan Singing Bowl once per day to build your mindfulness streak and earn +5 Serenity Coins.",
+      },
+      {
+        step: "03",
+        title: "Cultivate 3×3 Living Terrarium",
+        desc: "Open the full-screen sanctuary to plant seeds, water flora, and watch them bloom into ancient heritage specimens.",
+      },
+      {
+        step: "04",
+        title: "1-Minute Box Breathing Reset",
+        desc: "Engage in 4-4-4-4 rhythmic breath cycles during high-stress moments to regain composure and clarity.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Vector Art Standard", value: "100% Pure SVG (Zero pixelation or browser emojis)" },
+      { label: "Harmonic Frequencies", value: "396 Hz, 417 Hz, 528 Hz, 639 Hz, 741 Hz, 852 Hz, 963 Hz" },
+      { label: "Growth Milestones", value: "Seed (0) → Sprout (2) → Sapling (6) → Blooming (12) → Ancient Heritage (25)" },
+    ],
+    tips: "Set your favorite unlocked plant as Sanctuary Guardian to align the garden aura with its signature harmonic frequency!",
+    relatedTopicIds: ["coffee-cheers-rewards", "kanban-boards", "welcome-overview"],
   },
   {
     id: "calendar-due-dates",

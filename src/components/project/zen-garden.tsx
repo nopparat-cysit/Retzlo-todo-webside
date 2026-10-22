@@ -25,6 +25,7 @@ import {
   type BotanicalPlant,
   calculateZenGrowth,
   calculateSkyTimeOfDay,
+  calculateRealWorldSeason,
   canWaterToday,
   getTodayZenWisdom,
   parseZenGardenState,
@@ -245,6 +246,7 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
     BOTANICAL_PLANTS.find((p) => p.id === zenState.activeGuardianId) || BOTANICAL_PLANTS[0];
   const todayWisdom = getTodayZenWisdom();
   const timeOfDay = calculateSkyTimeOfDay();
+  const season = calculateRealWorldSeason();
 
   // Breathing phase calculation (0-4: Inhale, 4-8: Hold, 8-12: Exhale, 12-16: Hold)
   let breathPhase = "Inhale";
@@ -437,21 +439,32 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
             title={isEn ? "Click to rake sand ripples & ring bowl" : "คลิกเพื่อกวาดระลอกคลื่นทรายและสัมผัสสติ"}
           >
             {/* Bespoke Hand-Drawn Japanese Garden Landscape Backdrop */}
-            <ZenTerrariumBackdrop timeOfDay={timeOfDay} isNourishing={isNourishing} />
+            <ZenTerrariumBackdrop timeOfDay={timeOfDay} season={season} isNourishing={isNourishing} />
 
-            {/* Click ripple animations */}
+            {/* Click ripple animations: Dual Concentric Reverberations */}
             {ripples.map((rip) => (
-              <span
-                key={rip.id}
-                className="absolute pointer-events-none -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-emerald-500/60 dark:border-emerald-400/50 animate-ping"
-                style={{
-                  left: rip.x,
-                  top: rip.y,
-                  width: "48px",
-                  height: "48px",
-                  animationDuration: "1.1s"
-                }}
-              />
+              <span key={rip.id}>
+                <span
+                  className="absolute pointer-events-none -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-emerald-500/60 dark:border-emerald-400/50 animate-ping"
+                  style={{
+                    left: rip.x,
+                    top: rip.y,
+                    width: "48px",
+                    height: "48px",
+                    animationDuration: "1.1s"
+                  }}
+                />
+                <span
+                  className="absolute pointer-events-none -translate-x-1/2 -translate-y-1/2 rounded-full border border-amber-400/60 dark:border-amber-300/60 animate-ping"
+                  style={{
+                    left: rip.x,
+                    top: rip.y,
+                    width: "24px",
+                    height: "24px",
+                    animationDuration: "0.8s"
+                  }}
+                />
+              </span>
             ))}
 
             {/* Central Guardian Flora Positioned on Stone Dais */}

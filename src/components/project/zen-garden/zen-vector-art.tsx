@@ -843,11 +843,15 @@ export function ZenFloraRenderer({
 export function ZenTerrariumBackdrop({
   className = "w-full h-full",
   timeOfDay = "day",
+  season = "spring",
   isNourishing = false,
+  showPedestal = true,
 }: {
   className?: string;
   timeOfDay?: "dawn" | "day" | "dusk" | "night";
+  season?: "spring" | "summer" | "autumn" | "winter";
   isNourishing?: boolean;
+  showPedestal?: boolean;
 }) {
   return (
     <div className={cn("relative w-full h-full overflow-hidden select-none pointer-events-none", className)}>
@@ -1009,7 +1013,11 @@ export function ZenTerrariumBackdrop({
         {/* ── 6. Rolling Foothills in Mid-Ground ── */}
         <path
           d="M 0,105 Q 60,92 120,100 T 250,96 T 345,102 T 400,98 L 400,120 L 0,120 Z"
-          className="fill-emerald-800/20 dark:fill-emerald-950/40"
+          className={cn(
+            season === "autumn"
+              ? "fill-amber-800/25 dark:fill-amber-950/40"
+              : "fill-emerald-800/20 dark:fill-emerald-950/40"
+          )}
         />
 
         {/* ── 7. Overhanging Japanese Black Pine (Matsu 松) ── */}
@@ -1025,28 +1033,24 @@ export function ZenTerrariumBackdrop({
           />
 
           {/* Pine Needle Tufts (Fans of deep forest evergreen needles) */}
-          {/* Cluster 1 (Left bough) */}
           <g transform="translate(32, 14)">
             <ellipse cx="0" cy="0" rx="14" ry="7" className="fill-emerald-800 dark:fill-emerald-900" />
             <ellipse cx="0" cy="-2" rx="12" ry="5.5" className="fill-emerald-600 dark:fill-emerald-700" />
             <ellipse cx="0" cy="-3.5" rx="9" ry="3.5" className="fill-emerald-500 dark:fill-emerald-600" />
           </g>
 
-          {/* Cluster 2 (Center bough) */}
           <g transform="translate(70, 10)">
             <ellipse cx="0" cy="0" rx="16" ry="8" className="fill-emerald-800 dark:fill-emerald-900" />
             <ellipse cx="0" cy="-2" rx="13" ry="6" className="fill-emerald-600 dark:fill-emerald-700" />
             <ellipse cx="0" cy="-4" rx="10" ry="4" className="fill-emerald-500 dark:fill-emerald-600" />
           </g>
 
-          {/* Cluster 3 (Branch tip) */}
           <g transform="translate(116, 22)">
             <ellipse cx="0" cy="0" rx="14" ry="7" className="fill-emerald-800 dark:fill-emerald-900" />
             <ellipse cx="0" cy="-2" rx="11" ry="5" className="fill-emerald-600 dark:fill-emerald-700" />
             <ellipse cx="0" cy="-3.5" rx="8" ry="3.5" className="fill-emerald-500 dark:fill-emerald-600" />
           </g>
 
-          {/* Cluster 4 (Lower twig) */}
           <g transform="translate(94, 34)">
             <ellipse cx="0" cy="0" rx="12" ry="6" className="fill-emerald-800 dark:fill-emerald-900" />
             <ellipse cx="0" cy="-1.5" rx="9" ry="4" className="fill-emerald-600 dark:fill-emerald-700" />
@@ -1095,8 +1099,12 @@ export function ZenTerrariumBackdrop({
             className="fill-stone-400 stroke-stone-500 dark:fill-stone-700 dark:stroke-stone-600"
             strokeWidth="1"
           />
-          {/* Stone highlight ridge */}
           <path d="M 52,136 C 48,146 44,158 45,170" stroke="#f1f5f9" strokeWidth="0.8" strokeLinecap="round" opacity="0.6" />
+
+          {/* Winter snow dusting on rock */}
+          {season === "winter" && (
+            <path d="M 44,135 Q 54,133 60,135 Q 56,138 48,137 Z" fill="#ffffff" opacity="0.9" />
+          )}
 
           {/* Reclining Companion Stone */}
           <path
@@ -1119,55 +1127,101 @@ export function ZenTerrariumBackdrop({
             strokeWidth="1"
           />
           <path d="M 346,152 C 354,156 358,164 358,171" stroke="#f1f5f9" strokeWidth="0.8" strokeLinecap="round" opacity="0.6" />
+
+          {/* Winter snow dusting on boulder */}
+          {season === "winter" && (
+            <path d="M 342,151 Q 354,149 362,153 Q 356,156 346,154 Z" fill="#ffffff" opacity="0.9" />
+          )}
         </g>
 
-        {/* ── 10. Central Stone Pedestal Dais (蹲踞 / 台座) ── */}
-        <g>
-          {/* Dais Grounding Shadow */}
-          <ellipse cx="200" cy="165" rx="38" ry="8" className="fill-stone-900/15 dark:fill-black/50 blur-[1px]" />
+        {/* ── 10. Central Stone Pedestal Dais (蹲踞 / 台座 - Shown when requested) ── */}
+        {showPedestal && (
+          <g>
+            {/* Dais Grounding Shadow */}
+            <ellipse cx="200" cy="165" rx="38" ry="8" className="fill-stone-900/15 dark:fill-black/50 blur-[1px]" />
 
-          {/* Granite Dais Body */}
-          <path
-            d="M 174,155 L 178,164 Q 200,167 222,164 L 226,155 Z"
-            fill="url(#graniteDais)"
-            className="stroke-stone-400/80 dark:stroke-stone-600"
-            strokeWidth="1"
-          />
-          {/* Stone Texture Chisel Grooves */}
-          <line x1="185" y1="157" x2="187" y2="163" stroke="#64748b" strokeWidth="0.7" opacity="0.5" />
-          <line x1="200" y1="158" x2="200" y2="165" stroke="#64748b" strokeWidth="0.7" opacity="0.5" />
-          <line x1="214" y1="157" x2="212" y2="163" stroke="#64748b" strokeWidth="0.7" opacity="0.5" />
+            {/* Granite Dais Body */}
+            <path
+              d="M 174,155 L 178,164 Q 200,167 222,164 L 226,155 Z"
+              fill="url(#graniteDais)"
+              className="stroke-stone-400/80 dark:stroke-stone-600"
+              strokeWidth="1"
+            />
+            {/* Stone Texture Chisel Grooves */}
+            <line x1="185" y1="157" x2="187" y2="163" stroke="#64748b" strokeWidth="0.7" opacity="0.5" />
+            <line x1="200" y1="158" x2="200" y2="165" stroke="#64748b" strokeWidth="0.7" opacity="0.5" />
+            <line x1="214" y1="157" x2="212" y2="163" stroke="#64748b" strokeWidth="0.7" opacity="0.5" />
 
-          {/* Polished Dais Top Surface Ellipse */}
-          <ellipse
-            cx="200"
-            cy="155"
-            rx="28"
-            ry="6"
-            className="fill-stone-100 stroke-stone-300 dark:fill-stone-800 dark:stroke-stone-600"
-            strokeWidth="1"
-          />
-          <ellipse cx="200" cy="155" rx="24" ry="4.5" className="fill-stone-200/50 dark:fill-stone-900/60" />
-        </g>
+            {/* Polished Dais Top Surface Ellipse */}
+            <ellipse
+              cx="200"
+              cy="155"
+              rx="28"
+              ry="6"
+              className="fill-stone-100 stroke-stone-300 dark:fill-stone-800 dark:stroke-stone-600"
+              strokeWidth="1"
+            />
+            <ellipse cx="200" cy="155" rx="24" ry="4.5" className="fill-stone-200/50 dark:fill-stone-900/60" />
+          </g>
+        )}
 
-        {/* ── 11. Pure Vector Sakura Blossom Petals (No Emojis!) ── */}
-        <g className="fill-pink-400/80 dark:fill-pink-300/80 pointer-events-none drop-shadow-2xs">
-          {/* Petal 1 */}
-          <path
-            d="M 120,68 C 117,62 122,57 127,58 C 131,59 130,65 125,67 C 122,68 121,69 120,68 Z"
-            transform="rotate(-15 124 64)"
-          />
-          {/* Petal 2 */}
-          <path
-            d="M 285,82 C 282,77 286,72 291,73 C 295,74 294,80 289,82 C 287,83 286,83 285,82 Z"
-            transform="rotate(25 288 78)"
-          />
-          {/* Petal 3 */}
-          <path
-            d="M 175,98 C 173,94 176,90 180,91 C 183,92 182,96 178,98 C 176,99 175,99 175,98 Z"
-            transform="rotate(-40 178 95)"
-          />
-        </g>
+        {/* ── 11. Seasonal Particles: Spring Sakura, Autumn Ginkgo, Summer Bamboo, Winter Snow ── */}
+        {season === "spring" && (
+          <g className="fill-pink-400/80 dark:fill-pink-300/80 pointer-events-none drop-shadow-2xs">
+            <path
+              d="M 120,68 C 117,62 122,57 127,58 C 131,59 130,65 125,67 C 122,68 121,69 120,68 Z"
+              transform="rotate(-15 124 64)"
+            />
+            <path
+              d="M 285,82 C 282,77 286,72 291,73 C 295,74 294,80 289,82 C 287,83 286,83 285,82 Z"
+              transform="rotate(25 288 78)"
+            />
+            <path
+              d="M 175,98 C 173,94 176,90 180,91 C 183,92 182,96 178,98 C 176,99 175,99 175,98 Z"
+              transform="rotate(-40 178 95)"
+            />
+          </g>
+        )}
+
+        {season === "autumn" && (
+          <g className="fill-amber-400/85 dark:fill-amber-300/85 pointer-events-none drop-shadow-2xs">
+            {/* Ginkgo Fan Leaf 1 */}
+            <path
+              d="M 115,70 C 110,62 118,55 126,58 C 132,60 128,68 120,70 L 118,74 Z"
+              transform="rotate(18 120 65)"
+            />
+            {/* Ginkgo Fan Leaf 2 */}
+            <path
+              d="M 275,85 C 270,78 277,72 284,74 C 290,76 287,83 280,85 L 278,89 Z"
+              transform="rotate(-22 280 80)"
+            />
+            {/* Maple Leaf 3 */}
+            <path
+              d="M 180,92 C 177,88 181,85 185,86 C 188,87 186,91 182,92 Z"
+              className="fill-orange-500/80"
+              transform="rotate(35 182 89)"
+            />
+          </g>
+        )}
+
+        {season === "summer" && (
+          <g className="fill-emerald-500/75 dark:fill-emerald-400/75 pointer-events-none">
+            {/* Bamboo Leaf Blade 1 */}
+            <path d="M 125,60 C 135,58 145,64 150,70 C 142,68 132,66 125,60 Z" />
+            {/* Bamboo Leaf Blade 2 */}
+            <path d="M 265,75 C 275,73 285,78 290,85 C 282,83 272,81 265,75 Z" />
+          </g>
+        )}
+
+        {season === "winter" && (
+          <g className="fill-white/80 pointer-events-none">
+            {/* Gentle Snowflakes */}
+            <circle cx="120" cy="65" r="1.5" className="animate-pulse" />
+            <circle cx="180" cy="90" r="1.2" />
+            <circle cx="280" cy="80" r="1.8" className="animate-pulse" />
+            <circle cx="220" cy="110" r="1" />
+          </g>
+        )}
 
         {/* ── 12. Nourish Mystic Dew Aura (Triggered on Water/Nourish) ── */}
         {isNourishing && (

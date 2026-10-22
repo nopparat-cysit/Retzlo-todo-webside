@@ -26,7 +26,8 @@ import {
   calculateSkyTimeOfDay
 } from "@/lib/zen-garden/zen-state";
 import {
-  ZenFloraRenderer
+  ZenFloraRenderer,
+  ZenTerrariumBackdrop
 } from "./zen-vector-art";
 import {
   playZenWaterDrop,
@@ -61,6 +62,13 @@ const AVAILABLE_DECORS = [
   { id: "bridge", name: "Moon Bridge", nameTh: "สะพานไม้พระจันทร์", desc: "Arched wooden bridge" },
   { id: "basin", name: "Tsukubai Basin", nameTh: "อ่างน้ำหินซึคุบาอิ", desc: "Bamboo water trickle" },
 ];
+
+function getNextStageRequirement(waterCount: number, currentStage: number): { nextThreshold: number; remaining: number } | null {
+  if (currentStage >= 5) return null;
+  const thresholds = [2, 6, 12, 25];
+  const target = thresholds[currentStage - 1] ?? 25;
+  return { nextThreshold: target, remaining: Math.max(1, target - waterCount) };
+}
 
 export function ZenSanctuaryModal({
   isOpen,
@@ -452,15 +460,11 @@ export function ZenSanctuaryModal({
             </div>
 
             {/* 3x3 Grid Landscaping Sand Bed */}
-            <div className="relative p-4 sm:p-6 rounded-3xl border border-stone-300/90 dark:border-white/10 bg-gradient-to-b from-stone-100/95 via-stone-200/85 to-stone-300/95 dark:from-[#0d1024] dark:via-[#0f1228] dark:to-[#090b1c] shadow-2xl max-w-lg w-full">
-              {/* Raked Sand Ripple Texture */}
-              <div
-                className="absolute inset-0 rounded-3xl opacity-30 dark:opacity-20 pointer-events-none"
-                style={{
-                  backgroundImage:
-                    "repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 18px, rgba(120, 113, 108, 0.35) 19px, transparent 20px)"
-                }}
-              />
+            <div className="relative p-4 sm:p-6 rounded-3xl border border-stone-300/90 dark:border-white/10 bg-gradient-to-b from-stone-100/95 via-stone-200/85 to-stone-300/95 dark:from-[#0d1024] dark:via-[#0f1228] dark:to-[#090b1c] shadow-2xl max-w-lg w-full overflow-hidden">
+              {/* Authentic Japanese Garden Panoramic Landscape Backdrop */}
+              <div className="absolute inset-0 opacity-40 dark:opacity-30 pointer-events-none">
+                <ZenTerrariumBackdrop timeOfDay={timeOfDay} season={season} showPedestal={false} />
+              </div>
 
               {/* Raked Wave Chime Rings */}
               {isRingingChime && (
@@ -541,7 +545,7 @@ export function ZenSanctuaryModal({
                       {isEn ? `Plot #${selectedPlot.slotIndex + 1}` : `แปลงปลูก #${selectedPlot.slotIndex + 1}`}
                     </span>
                     {selectedPlot.itemType !== "empty" ? (
-                      <span className="text-[9.5px] font-mono px-2 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold">
                         {selectedPlot.itemType === "flora"
                           ? isEn
                             ? `Stage ${selectedPlot.stage}/5`
@@ -551,20 +555,34 @@ export function ZenSanctuaryModal({
                           : "ของตกแต่ง"}
                       </span>
                     ) : (
-                      <span className="text-[9.5px] font-mono text-stone-400">
+                      <span className="text-[10px] font-mono text-stone-400">
                         {isEn ? "Ready for Cultivation" : "พร้อมเพาะปลูก"}
                       </span>
                     )}
                   </div>
 
-                  <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
-                    {selectedPlot.itemType !== "empty"
-                      ? isEn
-                        ? `Nourished ${selectedPlot.waterCount} times with morning dew drops.`
-                        : `ได้รับการรดน้ำดูแลแล้ว ${selectedPlot.waterCount} ครั้ง`
-                      : isEn
-                      ? "Cultivate a seed to begin its 5-stage mindful growth journey."
-                      : "เลือกเมล็ดพันธุ์เพื่อเริ่มการเติบโต 5 ระยะสู่พฤกษาโบราณ"}
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate leading-snug">
+                    {selectedPlot.itemType === "flora" ? (
+                      (() => {
+                        const req = getNextStageRequirement(selectedPlot.waterCount, selectedPlot.stage);
+                        if (!req) {
+                          return isEn
+                            ? `Fully bloomed into Ancient Heritage (${selectedPlot.waterCount} total waterings).`
+                            : `เจริญเติบโตเต็มที่สู่พฤกษาโบราณแล้ว (รดน้ำรวม ${selectedPlot.waterCount} ครั้ง)`;
+                        }
+                        return isEn
+                          ? `Nourished ${selectedPlot.waterCount} times · ${req.remaining} dewdrop${req.remaining > 1 ? "s" : ""} to Stage ${selectedPlot.stage + 1}`
+                          : `ดูแลแล้ว ${selectedPlot.waterCount} ครั้ง · รดน้ำอีก ${req.remaining} ครั้งเพื่อสู่ขั้นที่ ${selectedPlot.stage + 1}`;
+                      })()
+                    ) : selectedPlot.itemType === "decor" ? (
+                      isEn
+                        ? "Sacred zen garden ornament bringing peace and aesthetic harmony."
+                        : "ของตกแต่งสวนเซน เสริมสร้างความสงบและความงามอันบริสุทธิ์"
+                    ) : (
+                      isEn
+                        ? "Cultivate a seed to begin its 5-stage mindful growth journey."
+                        : "เลือกเมล็ดพันธุ์เพื่อเริ่มการเติบโต 5 ระยะสู่พฤกษาโบราณ"
+                    )}
                   </p>
                 </div>
 
