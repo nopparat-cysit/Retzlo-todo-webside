@@ -231,26 +231,26 @@ export function ZenSanctuaryModal({
       >
         <div
           className={cn(
-            "relative flex flex-col w-full max-w-2xl max-h-[92vh] rounded-3xl border border-stone-200/90 dark:border-white/10 overflow-hidden shadow-2xl transition-all duration-500 bg-gradient-to-b",
+            "relative flex w-full max-w-2xl max-h-[92vh] flex-col overflow-hidden rounded-[28px] border border-theme-border shadow-[0_32px_100px_rgba(15,18,35,0.32)] transition-all duration-500 bg-gradient-to-b",
             skyTheme
           )}
         >
           {/* Top Header Bar */}
-          <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-stone-200/80 dark:border-white/10 bg-white/75 dark:bg-ink-950/70 backdrop-blur-md shrink-0">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-theme-border/80 bg-theme-paper/80 px-4 py-3 backdrop-blur-md sm:px-6">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-xs">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/15 to-dusk-lavender/15 text-emerald-700 shadow-sm dark:text-emerald-300">
                 <Flower2 className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 id="zen-sanctuary-title" className="text-sm font-bold tracking-wide text-stone-900 dark:text-stone-100 uppercase truncate">
-                    {isEn ? "Solitary Zen Sanctuary" : "วิหารคำทำนายแห่งสติ"}
+                <div className="flex min-w-0 items-center gap-2">
+                  <h3 id="zen-sanctuary-title" className="truncate font-serif text-[15px] font-semibold tracking-wide text-theme-foreground">
+                    {isEn ? "The Zen Garden" : "สวนแห่งสติ"}
                   </h3>
-                  <span className="font-mono text-[9.5px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold border border-amber-400/30 shrink-0">
+                  <span className="shrink-0 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 font-mono text-[9px] font-semibold text-amber-800 dark:text-amber-200">
                     {isEn ? "Daily Omikuji" : "เซียมซีประจำวัน"}
                   </span>
                 </div>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
+                <p className="truncate text-[10px] text-theme-muted">
                   {isEn ? seasonLabels.en : seasonLabels.th}
                 </p>
               </div>
@@ -318,8 +318,13 @@ export function ZenSanctuaryModal({
           {/* Main Stage: Terrarium Landscape + Fortune Scroll Reveal */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col items-center justify-start space-y-4">
             {/* Visual Terrarium Canvas */}
-            <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden border border-stone-300/80 dark:border-white/10 shadow-inner group shrink-0">
+            <div className="group relative h-48 w-full shrink-0 overflow-hidden rounded-3xl border border-theme-border shadow-lg sm:h-56">
               <ZenTerrariumBackdrop timeOfDay={timeOfDay} season={season} isNourishing={isWatering} />
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/[0.06] via-transparent to-black/25" />
+
+              <div className="absolute left-3 top-3 rounded-full border border-white/40 bg-white/75 px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-stone-700 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-stone-950/35 dark:text-stone-100">
+                {isEn ? "A quiet place to begin" : "สวนสงบสำหรับการเริ่มต้น"}
+              </div>
 
               {/* Ring Chime Visual Wave */}
               {isRingingChime && (
@@ -349,14 +354,16 @@ export function ZenSanctuaryModal({
                 </div>
               )}
 
-              <div className="absolute bottom-2 left-3 text-[10px] font-mono text-stone-600 dark:text-stone-300 bg-white/80 dark:bg-black/60 px-2 py-0.5 rounded-md backdrop-blur-xs">
+              <div className="absolute bottom-3 left-3 rounded-full border border-white/35 bg-stone-950/35 px-3 py-1 text-[10px] font-medium text-white shadow-sm backdrop-blur-md">
                 {isEn ? activeGuardian.name : activeGuardian.nameTh} · {activeGuardian.solfeggioFreq} Hz
               </div>
             </div>
 
             {/* Daily Watering Action vs Revealed Omikuji Scroll */}
             {!hasWateredToday ? (
-              <div className="w-full max-w-lg rounded-2xl border border-theme-border bg-theme-paper p-4 sm:p-5 shadow-xl text-center space-y-4">
+              <div className="relative isolate w-full max-w-lg overflow-hidden rounded-3xl border border-sky-500/20 bg-gradient-to-br from-sky-500/[0.07] via-theme-paper to-emerald-500/[0.06] p-4 text-center shadow-xl sm:p-6">
+                <div aria-hidden="true" className="pointer-events-none absolute -right-9 -top-12 h-32 w-32 rounded-full bg-dusk-lavender/10 blur-2xl" />
+                <div className="relative space-y-4">
                 <div className="space-y-1">
                   <div className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[10px] font-semibold text-sky-800 dark:text-sky-200">
                     <Droplets className="h-3.5 w-3.5" />
@@ -380,7 +387,7 @@ export function ZenSanctuaryModal({
                   type="button"
                   onClick={() => setIsWaterConfirmOpen(true)}
                   disabled={isWatering}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 text-white font-bold text-sm shadow-lg hover:from-emerald-500 hover:to-sky-500 active:scale-95 transition cursor-pointer disabled:opacity-50"
+                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-emerald-800/70 bg-gradient-to-r from-emerald-700 via-teal-700 to-dusk-lavender px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_26px_rgba(16,100,76,0.22)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(16,100,76,0.28)] active:scale-[0.99] disabled:opacity-50 sm:w-auto dark:border-emerald-400/30 dark:from-emerald-600 dark:via-teal-600 dark:to-dusk-lavender"
                 >
                   <ZenGameToolLadle className="w-5 h-5 shrink-0" />
                   <span>
@@ -393,6 +400,7 @@ export function ZenSanctuaryModal({
                       : "รดน้ำวันนี้ · +5 เหรียญ"}
                   </span>
                 </button>
+                </div>
               </div>
             ) : currentFortune ? (
               /* Revealed Japanese Omikuji Fortune Scroll */

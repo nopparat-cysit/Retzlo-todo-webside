@@ -303,117 +303,107 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
   }
 
   return (
-    <section className="lofi-panel flex flex-col rounded-2xl p-3 sm:p-3.5 space-y-3 select-none text-stone-800 dark:text-stone-200">
-      {/* ─── Header: 2-Tier Balanced Layout ──────────────────────────────────── */}
-      <div className="border-b border-stone-200/80 dark:border-white/10 pb-2.5 space-y-2">
-        {/* Row 1: Brand title & quick actions */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-              <Leaf className="h-4 w-4" />
+    <section className="lofi-panel flex max-h-[calc(100dvh-5rem)] flex-col space-y-3.5 overflow-y-auto overscroll-contain rounded-2xl p-3.5 text-stone-800 scrollbar-thin dark:text-stone-200 sm:p-4">
+      {/* ─── Garden identity ────────────────────────────────────────────────── */}
+      <div className="relative overflow-hidden rounded-2xl border border-theme-border bg-gradient-to-br from-emerald-500/[0.07] via-theme-paper to-dusk-lavender/[0.07] px-3.5 py-3">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-12 h-28 w-28 rounded-full border border-emerald-500/10" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-2 -top-6 h-16 w-16 rounded-full border border-dusk-lavender/10" />
+        <div className="relative flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/15 to-dusk-lavender/15 text-emerald-700 shadow-sm dark:text-emerald-300">
+              <Leaf className="h-[18px] w-[18px]" />
             </div>
-            <div className="flex items-center gap-1.5 min-w-0">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-stone-100 truncate">
-                Solitary Zen Garden
-              </h4>
-              <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded-md bg-stone-200/70 dark:bg-white/10 text-stone-700 dark:text-stone-300 shrink-0">
-                Tier {growth.currentTier}
-              </span>
+            <div className="min-w-0">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-theme-muted">
+                {isEn ? "Retzlo · mindful corner" : "Retzlo · มุมพักใจ"}
+              </p>
+              <div className="mt-0.5 flex items-center gap-2">
+                <h4 className="truncate font-serif text-[15px] font-semibold leading-tight text-theme-foreground">
+                  {isEn ? "Zen Garden" : "สวนแห่งสติ"}
+                </h4>
+                <span className="shrink-0 rounded-full border border-dusk-lavender/20 bg-dusk-lavender/10 px-2 py-0.5 text-[9px] font-semibold text-theme-foreground">
+                  {isEn ? `Lv. ${growth.currentTier}` : `ระดับ ${growth.currentTier}`}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex shrink-0 items-center gap-1.5">
+            {zenState.nurtureStreak > 0 && (
+              <span
+                className="inline-flex h-8 items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 text-[10px] font-semibold text-amber-800 dark:text-amber-200"
+                title={isEn ? "Daily watering streak" : "รดน้ำต่อเนื่อง"}
+              >
+                <Flame className="h-3 w-3 fill-amber-500 text-amber-500" />
+                {zenState.nurtureStreak}
+              </span>
+            )}
+            <span
+              className="inline-flex h-8 items-center gap-1 rounded-full border border-theme-border bg-theme-paper/80 px-2 text-[10px] font-semibold text-theme-foreground"
+              title={isEn ? "Serenity coins" : "เหรียญแห่งสติ"}
+            >
+              <Sparkles className="h-3 w-3 text-amber-600 dark:text-amber-300" />
+              {globalCoins}
+            </span>
             <button
               type="button"
               onClick={toggleSound}
-              aria-label={zenState.soundMuted ? "Unmute sound" : "Mute sound"}
+              aria-label={zenState.soundMuted ? (isEn ? "Unmute sound" : "เปิดเสียง") : (isEn ? "Mute sound" : "ปิดเสียง")}
               title={zenState.soundMuted ? (isEn ? "Unmute ambient sounds" : "เปิดเสียงประกอบ") : (isEn ? "Mute sounds" : "ปิดเสียง")}
               className={cn(
-                "grid h-7 w-7 place-items-center rounded-lg border transition-colors cursor-pointer",
+                "grid h-8 w-8 place-items-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70",
                 zenState.soundMuted
-                  ? "border-stone-200 dark:border-white/10 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
-                  : "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                  ? "border-theme-border bg-theme-paper/70 text-theme-muted hover:text-theme-foreground"
+                  : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/15 dark:text-emerald-300"
               )}
             >
               {zenState.soundMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
             </button>
-
             <button
               type="button"
               onClick={handleOpenSanctuary}
-              aria-label={isEn ? "Open Daily Omikuji Fortune" : "เปิดดูม้วนคำทำนายประจำวัน"}
-              title={isEn ? "Open Daily Omikuji Fortune Scroll" : "เปิดดูม้วนคำทำนายเซียมซีประจำวัน"}
-              className="grid h-7 w-7 place-items-center rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 transition cursor-pointer"
+              aria-label={isEn ? "Open today's full fortune" : "เปิดคำทำนายฉบับเต็ม"}
+              title={isEn ? "Open today's full fortune" : "เปิดคำทำนายฉบับเต็ม"}
+              className="grid h-8 w-8 place-items-center rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/10 text-dusk-lavender transition hover:bg-dusk-lavender/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70"
             >
               <ScrollText className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
-
-        {/* Row 2: Status Subtitle + Streak & Coins Pills */}
-        <div className="flex items-center justify-between gap-2 pt-0.5">
-          <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-normal truncate min-w-0">
+        <div className="relative mt-2.5 flex min-w-0 items-center justify-between gap-3 border-t border-theme-border/70 pt-2">
+          <p className="min-w-0 truncate text-[10px] leading-relaxed text-theme-muted">
             {growth.unlockedCount === BOTANICAL_PLANTS.length
               ? isEn
-                ? "Sanctuary fully bloomed"
-                : "พฤกษาเบ่งบานครบทุกต้นแล้ว"
+                ? "Every little corner is in bloom."
+                : "พฤกษาทุกต้นผลิบานเต็มสวนแล้ว"
               : growth.nextPlant
               ? isEn
-                ? `${growth.nextPlant.cost - globalCoins}c to unlock ${growth.nextPlant.name}`
-                : `ขาดอีก ${growth.nextPlant.cost - globalCoins}c เพื่อปลดล็อก ${growth.nextPlant.nameTh}`
+                ? `${growth.nextPlant.cost - globalCoins} more coins to welcome ${growth.nextPlant.name}.`
+                : `อีก ${growth.nextPlant.cost - globalCoins} เหรียญ เพื่อเชิญ${growth.nextPlant.nameTh}เข้ามาในสวน`
               : isEn
-              ? "Daily Omikuji Sanctuary"
-              : "วิหารคำทำนายแห่งสติ"}
+              ? "A quiet place to grow, one day at a time."
+              : "ค่อย ๆ เติบโตไปทีละวัน ในจังหวะของคุณ"}
           </p>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            {zenState.nurtureStreak > 0 && (
-              <div
-                className="flex items-center gap-1 rounded-full border border-amber-300/80 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10 px-2 py-0.5 text-xs font-mono font-semibold text-amber-700 dark:text-amber-300 shadow-2xs"
-                title={isEn ? "Daily Watering Streak" : "สตรีมรดน้ำต่อเนื่อง"}
-              >
-                <span>🔥</span>
-                <span>{zenState.nurtureStreak}d</span>
-              </div>
-            )}
-
-            <div
-              className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.05] px-2 py-0.5 text-xs font-mono font-semibold text-stone-700 dark:text-stone-300 shadow-2xs"
-              title={isEn ? "Serenity Coins" : "เหรียญแห่งสติ"}
-            >
-              <span>✦</span>
-              <span>{globalCoins}c</span>
-            </div>
-          </div>
+          <span className="shrink-0 font-mono text-[9px] text-theme-muted">{isEn ? "GROW AT YOUR PACE" : "เติบโตในจังหวะของคุณ"}</span>
         </div>
       </div>
 
       {/* ─── Growth Progress Bar ─────────────────────────────────────────────── */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between text-[10px] text-stone-500 dark:text-stone-400 font-mono">
-          <span className="flex items-center gap-1">
-            <span>{isEn ? "Sanctuary Growth" : "ระดับความเจริญเติบโต"}</span>
-            {zenState.nurtureStreak > 0 && (
-              <span className="flex items-center gap-0.5 text-amber-500 font-semibold">
-                <Flame className="h-2.5 w-2.5 fill-amber-500 text-amber-500" />
-                <span>{zenState.nurtureStreak}d</span>
-              </span>
-            )}
-          </span>
-          <span className="text-stone-700 dark:text-stone-300 font-semibold">
-            {growth.unlockedCount}/{growth.totalCount} ({growth.percentage}%)
-          </span>
+      <div className="space-y-1.5 px-0.5">
+        <div className="flex items-center justify-between text-[10px]">
+          <span className="font-medium text-theme-muted">{isEn ? "Garden collection" : "พฤกษาในสวน"}</span>
+          <span className="font-mono font-semibold text-theme-foreground">{growth.unlockedCount}<span className="mx-0.5 text-theme-muted">/</span>{growth.totalCount}<span className="ml-1.5 text-theme-muted">{growth.percentage}%</span></span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200/80 dark:bg-white/10 border border-stone-200 dark:border-white/5">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-theme-background ring-1 ring-inset ring-theme-border/70">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-dusk-lavender transition-all duration-700"
+            className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-dusk-lavender transition-all duration-700"
             style={{ width: `${growth.percentage}%` }}
           />
         </div>
       </div>
 
       {/* ─── Tab Sub-Bar ─────────────────────────────────────────────────────── */}
-      <div role="tablist" aria-label={isEn ? "Zen Garden sections" : "ส่วนต่าง ๆ ของสวนเซน"} className="grid grid-cols-3 gap-1 rounded-xl bg-stone-200/60 dark:bg-white/[0.04] p-1 text-xs font-medium border border-stone-200/80 dark:border-white/5">
+      <div role="tablist" aria-label={isEn ? "Zen Garden sections" : "ส่วนต่าง ๆ ของสวนเซน"} className="grid grid-cols-3 gap-1 rounded-2xl border border-theme-border/80 bg-theme-background/70 p-1 text-xs font-medium shadow-inner">
         <button
           type="button"
           role="tab"
@@ -422,10 +412,10 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
           aria-selected={activeTab === "sanctuary"}
           onClick={() => setActiveTab("sanctuary")}
           className={cn(
-            "flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer",
+            "flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-transparent px-1.5 py-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70",
             activeTab === "sanctuary"
-              ? "bg-white dark:bg-white/10 text-stone-900 dark:text-stone-100 font-semibold shadow-xs"
-              : "text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200"
+              ? "border-theme-border/70 bg-theme-paper text-theme-foreground font-semibold shadow-sm"
+              : "text-theme-muted hover:bg-theme-paper/60 hover:text-theme-foreground"
           )}
         >
           <Flower2 className="h-3.5 w-3.5" />
@@ -440,10 +430,10 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
           aria-selected={activeTab === "botanical"}
           onClick={() => setActiveTab("botanical")}
           className={cn(
-            "flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer",
+            "flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-transparent px-1.5 py-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70",
             activeTab === "botanical"
-              ? "bg-white dark:bg-white/10 text-stone-900 dark:text-stone-100 font-semibold shadow-xs"
-              : "text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200"
+              ? "border-theme-border/70 bg-theme-paper text-theme-foreground font-semibold shadow-sm"
+              : "text-theme-muted hover:bg-theme-paper/60 hover:text-theme-foreground"
           )}
         >
           <Leaf className="h-3.5 w-3.5" />
@@ -458,10 +448,10 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
           aria-selected={activeTab === "breath"}
           onClick={() => setActiveTab("breath")}
           className={cn(
-            "flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all cursor-pointer",
+            "flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-transparent px-1.5 py-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70",
             activeTab === "breath"
-              ? "bg-white dark:bg-white/10 text-stone-900 dark:text-stone-100 font-semibold shadow-xs"
-              : "text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200"
+              ? "border-theme-border/70 bg-theme-paper text-theme-foreground font-semibold shadow-sm"
+              : "text-theme-muted hover:bg-theme-paper/60 hover:text-theme-foreground"
           )}
         >
           <Wind className="h-3.5 w-3.5" />
@@ -472,33 +462,36 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
       {/* ─── TAB 1: Today's garden ritual ────────────────────────────────────── */}
       {activeTab === "sanctuary" && (
         <div id="zen-panel-today" role="tabpanel" aria-labelledby="zen-tab-today" className="space-y-2.5">
-          <div className="rounded-xl border border-theme-border bg-theme-paper p-3 space-y-2.5">
+          <div className="relative isolate overflow-hidden rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/[0.08] via-theme-paper to-emerald-500/[0.07] p-3.5 shadow-sm">
+            <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-sky-400/10 blur-2xl" />
+            <div className="relative space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-2.5 min-w-0">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-300">
-                  <Droplets className="h-4 w-4" />
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-sky-500/20 bg-theme-paper/75 text-sky-700 shadow-sm dark:text-sky-300">
+                  <Droplets className="h-[18px] w-[18px]" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-theme-foreground">
-                    {isEn ? "Today's garden ritual" : "กิจวัตรสวนประจำวัน"}
+                  <p className="font-serif text-[14px] font-semibold leading-tight text-theme-foreground">
+                    {isEn ? "A little care, each day" : "ดูแลสวนวันละนิด"}
                   </p>
-                  <p className="mt-0.5 text-[11px] leading-relaxed text-theme-muted">
+                  <p className="mt-1 text-[11px] leading-relaxed text-theme-muted">
                     {canWater
                       ? isEn
-                        ? "Water once to reveal your fortune and earn 5 coins."
-                        : "รดน้ำวันละครั้งเพื่อเปิดคำทำนายและรับ 5 เหรียญ"
+                        ? "Water your guardian to reveal today's fortune."
+                        : "รดน้ำผู้พิทักษ์ เพื่อเปิดคำทำนายประจำวัน"
                       : isEn
-                      ? "Your garden is cared for. Today's fortune is ready to read."
-                      : "วันนี้ดูแลสวนแล้ว เปิดอ่านคำทำนายของคุณได้เลย"}
+                      ? "Today's care is complete. Your fortune is here when you need it."
+                      : "วันนี้ดูแลสวนแล้ว คำทำนายรอคุณอยู่ตรงนี้"}
                   </p>
                 </div>
               </div>
               <span className={cn(
-                "shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold",
+                "mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-semibold",
                 canWater
                   ? "border-sky-500/25 bg-sky-500/10 text-sky-800 dark:text-sky-200"
                   : "border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200"
               )}>
+                <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full", canWater ? "bg-sky-500" : "bg-emerald-500")} />
                 {canWater ? (isEn ? "Ready" : "พร้อมแล้ว") : (isEn ? "Done today" : "เสร็จแล้ววันนี้")}
               </span>
             </div>
@@ -508,10 +501,10 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
               onClick={() => canWater ? setIsWaterConfirmOpen(true) : handleOpenSanctuary()}
               disabled={isNourishing}
               className={cn(
-                "w-full inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70 disabled:cursor-wait disabled:opacity-70",
+                "w-full inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70 disabled:cursor-wait disabled:opacity-70",
                 canWater
-                  ? "border-emerald-700 bg-emerald-700 text-white shadow-sm hover:bg-emerald-800 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500"
-                  : "border-theme-border bg-theme-background text-theme-foreground hover:bg-theme-paper"
+                  ? "border-emerald-800/80 bg-gradient-to-r from-emerald-700 via-teal-700 to-dusk-lavender text-white shadow-[0_8px_20px_rgba(16,100,76,0.20)] hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(16,100,76,0.26)] dark:border-emerald-400/30 dark:from-emerald-600 dark:via-teal-600 dark:to-dusk-lavender"
+                  : "border-theme-border bg-theme-paper/70 text-theme-foreground hover:border-emerald-500/30 hover:bg-theme-paper"
               )}
             >
               {isNourishing ? (
@@ -533,17 +526,24 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
               )}
             </button>
           </div>
+          </div>
 
           {/* Bespoke SVG garden landscape */}
           <button
             type="button"
             onClick={handleTerrariumClick}
             aria-label={isEn ? "Touch the garden to hear a water chime" : "แตะสวนเพื่อฟังเสียงหยดน้ำ"}
-            className="group relative block h-36 w-full overflow-hidden rounded-xl border border-theme-border shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70"
+            className="group relative block h-40 w-full overflow-hidden rounded-2xl border border-theme-border shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70"
             title={isEn ? "Touch to create a calming ripple" : "แตะเพื่อสร้างระลอกคลื่นแห่งความสงบ"}
           >
             {/* Bespoke Hand-Drawn Japanese Garden Landscape Backdrop */}
             <ZenTerrariumBackdrop timeOfDay={timeOfDay} season={season} isNourishing={isNourishing} />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/[0.08] via-transparent to-black/30" />
+
+            <div className="absolute left-2.5 top-2.5 flex items-center gap-1.5 rounded-full border border-white/50 bg-white/75 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-stone-700 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-stone-950/35 dark:text-stone-100">
+              <Sparkles className="h-3 w-3 text-amber-600 dark:text-amber-300" />
+              {isEn ? "Your quiet corner" : "มุมสงบของคุณ"}
+            </div>
 
             {/* Click ripple animations: Dual Concentric Reverberations */}
             {ripples.map((rip) => (
@@ -591,38 +591,46 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
             </div>
 
             {/* Bottom-right interactive prompt hint */}
-            <div className="absolute bottom-1.5 right-2 text-[9px] font-mono text-stone-500 dark:text-stone-400 bg-white/70 dark:bg-stone-950/70 px-1.5 py-0.5 rounded backdrop-blur-xs pointer-events-none">
-              {isEn ? "Tap for a quiet ripple" : "แตะเพื่อสร้างระลอกคลื่น"}
+            <div className="absolute bottom-2 right-2 rounded-full border border-white/30 bg-stone-950/35 px-2.5 py-1 text-[9px] font-medium text-white shadow-sm backdrop-blur-md pointer-events-none">
+              {isEn ? "Touch to make a ripple" : "แตะเพื่อสร้างระลอกน้ำ"}
             </div>
           </button>
 
-          <div className="flex items-center justify-between gap-2 rounded-xl border border-theme-border bg-theme-paper px-2.5 py-2">
+          <div className="flex items-center justify-between gap-2 rounded-2xl border border-emerald-500/15 bg-gradient-to-r from-emerald-500/[0.055] via-theme-paper to-dusk-lavender/[0.045] px-3 py-2.5 shadow-2xs">
             <div className="flex min-w-0 items-center gap-2">
-              <ZenFloraRenderer plantId={activeGuardian.id} stage={4} className="h-8 w-8 shrink-0" />
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-theme-border/70 bg-theme-paper/75 shadow-inner">
+                <ZenFloraRenderer plantId={activeGuardian.id} stage={4} className="h-8 w-8" />
+              </div>
               <div className="min-w-0">
-                <p className="truncate text-xs font-semibold text-theme-foreground">
+                <p className="mb-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-theme-muted">
+                  {isEn ? "Your garden guardian" : "ผู้พิทักษ์ประจำสวน"}
+                </p>
+                <p className="truncate font-serif text-[13px] font-semibold leading-tight text-theme-foreground">
                   {isEn ? activeGuardian.name : activeGuardian.nameTh}
                 </p>
-                <p className="truncate text-[10px] text-theme-muted">
-                  {isEn ? "Today's garden guardian" : "ผู้พิทักษ์สวนวันนี้"} · {activeGuardian.solfeggioFreq} Hz
+                <p className="mt-0.5 truncate text-[10px] text-theme-muted">
+                  {activeGuardian.solfeggioFreq} Hz · {isEn ? "calming tone" : "เสียงแห่งความสงบ"}
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setActiveTab("botanical")}
-              className="shrink-0 rounded-lg px-2 py-1.5 text-[10px] font-semibold text-dusk-lavender hover:bg-dusk-lavender/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70"
+              className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-xl border border-dusk-lavender/25 bg-dusk-lavender/10 px-3 py-1.5 text-[10px] font-semibold text-dusk-lavender shadow-2xs transition hover:bg-dusk-lavender/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70"
             >
+              <Flower2 className="h-3 w-3" />
               {isEn ? "Change" : "เปลี่ยน"}
             </button>
           </div>
 
           {/* Short daily fortune preview */}
           {zenState.dailyFortune && !canWater && (
-            <article className="rounded-xl border border-rose-300/70 dark:border-rose-500/30 bg-rose-50/70 dark:bg-rose-950/20 p-3 space-y-2 shadow-2xs">
+            <article className="relative isolate overflow-hidden rounded-2xl border border-rose-300/50 bg-gradient-to-br from-rose-50/90 via-amber-50/60 to-indigo-50/65 p-3.5 shadow-sm dark:border-rose-500/20 dark:from-rose-950/25 dark:via-stone-900/50 dark:to-indigo-950/25">
+              <span aria-hidden="true" className="pointer-events-none absolute -right-2 -top-7 select-none font-serif text-[92px] leading-none text-rose-900/[0.045] dark:text-rose-100/[0.06]">縁</span>
+              <div className="relative space-y-2.5">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="font-serif font-black text-rose-700 dark:text-rose-400 text-sm">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-rose-400/30 bg-rose-500/10 font-serif font-black text-rose-700 dark:text-rose-300">
                     {zenState.dailyFortune.grade === "daikichi"
                       ? "大吉"
                       : zenState.dailyFortune.grade === "chukichi"
@@ -633,26 +641,27 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                       ? "小吉"
                       : "末吉"}
                   </span>
-                  <span className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
+                  <span className="truncate font-serif text-[13px] font-semibold text-theme-foreground">
                     {isEn ? zenState.dailyFortune.gradeNameEn : zenState.dailyFortune.gradeName}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handleOpenSanctuary}
-                  className="inline-flex min-h-8 shrink-0 items-center gap-1 rounded-lg px-2 text-[10px] font-semibold text-rose-800 hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/70 dark:text-rose-200 dark:hover:bg-rose-500/10"
+                  className="inline-flex min-h-8 shrink-0 items-center gap-1 rounded-xl border border-rose-400/25 bg-white/45 px-2.5 text-[10px] font-semibold text-rose-800 shadow-2xs transition hover:bg-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/70 dark:border-rose-400/20 dark:bg-white/[0.04] dark:text-rose-200 dark:hover:bg-white/[0.08]"
                 >
                   <ScrollText className="h-3 w-3" />
                   <span>{isEn ? "Full reading" : "อ่านฉบับเต็ม"}</span>
                 </button>
               </div>
 
-              <p className="text-sm font-serif italic text-amber-950 dark:text-amber-100 leading-relaxed">
+              <p className="border-l-2 border-rose-400/40 pl-2.5 text-sm font-serif italic leading-relaxed text-amber-950 dark:text-amber-100">
                 &ldquo;{isEn ? zenState.dailyFortune.verse : zenState.dailyFortune.verseTh}&rdquo;
               </p>
-              <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed line-clamp-2">
+              <p className="text-[11px] leading-relaxed text-theme-muted line-clamp-2">
                 {isEn ? zenState.dailyFortune.workGuidance : zenState.dailyFortune.workGuidanceTh}
               </p>
+              </div>
             </article>
           )}
         </div>
@@ -660,18 +669,20 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
 
       {/* ─── TAB 2: Botanical collection ──────────────────────────────────────── */}
       {activeTab === "botanical" && (
-        <div id="zen-panel-plants" role="tabpanel" aria-labelledby="zen-tab-plants" className="space-y-2">
+        <div id="zen-panel-plants" role="tabpanel" aria-labelledby="zen-tab-plants" className="space-y-2.5">
           <div className="flex items-center justify-between gap-2 px-0.5">
-            <div>
-              <p className="text-xs font-semibold text-theme-foreground">{isEn ? "Botanical collection" : "คลังพฤกษา"}</p>
-              <p className="text-[10px] text-theme-muted">{isEn ? "Choose an unlocked guardian for your garden." : "เลือกพืชที่ปลดล็อกแล้วมาเป็นผู้พิทักษ์สวน"}</p>
+            <div className="min-w-0">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-theme-muted">{isEn ? "A living collection" : "คอลเลกชันมีชีวิต"}</p>
+              <p className="font-serif text-[15px] font-semibold text-theme-foreground">{isEn ? "Choose your guardian" : "เลือกผู้พิทักษ์สวน"}</p>
+              <p className="mt-0.5 text-[10px] text-theme-muted">{isEn ? "Each plant brings its own quiet presence." : "พืชแต่ละต้นมีเสน่ห์และเสียงสงบในแบบของตัวเอง"}</p>
             </div>
-            <span className="shrink-0 rounded-full border border-theme-border bg-theme-paper px-2 py-1 text-[10px] font-mono font-semibold text-theme-foreground">
-              {growth.unlockedCount}/{growth.totalCount} · {globalCoins}c
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-theme-border bg-theme-paper px-2.5 py-1.5 text-[10px] font-mono font-semibold text-theme-foreground shadow-2xs">
+              <Sparkles className="h-3 w-3 text-amber-600 dark:text-amber-300" />
+              {globalCoins}c <span className="text-theme-muted">·</span> {growth.unlockedCount}/{growth.totalCount}
             </span>
           </div>
 
-          <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">
+          <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
             {BOTANICAL_PLANTS.map((plant) => {
               const isUnlocked = globalCoins >= plant.cost;
               const isGuardian = zenState.activeGuardianId === plant.id;
@@ -680,19 +691,19 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                 <article
                   key={plant.id}
                   className={cn(
-                    "flex items-center justify-between gap-2 rounded-xl border p-2.5 transition-colors",
+                    "flex items-center justify-between gap-2 rounded-2xl border p-2.5 shadow-2xs transition-all",
                     isGuardian
-                      ? "border-emerald-500/50 bg-emerald-500/10 dark:bg-emerald-500/[0.08]"
-                      : "border-theme-border bg-theme-paper"
+                      ? "border-emerald-500/35 bg-gradient-to-r from-emerald-500/[0.09] via-theme-paper to-dusk-lavender/[0.07] shadow-sm"
+                      : "border-theme-border bg-theme-paper hover:border-dusk-lavender/30 hover:shadow-xs"
                   )}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div
                       className={cn(
-                        "grid h-9 w-9 shrink-0 place-items-center rounded-lg border transition-transform",
+                        "grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition-transform",
                         isUnlocked
-                          ? "border-stone-200 dark:border-white/10 bg-white dark:bg-white/[0.04]"
-                          : "border-stone-200 dark:border-white/5 bg-stone-100 dark:bg-white/[0.02] opacity-40"
+                          ? "border-theme-border/80 bg-theme-background/70"
+                          : "border-theme-border/60 bg-theme-background/40 opacity-55"
                       )}
                       style={{
                         boxShadow: isUnlocked ? `0 0 10px ${plant.auraColor}` : undefined
@@ -707,14 +718,14 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
 
                     <div className="min-w-0">
                       <div className="flex min-w-0 items-center gap-1.5">
-                        <span className="text-xs font-semibold text-stone-900 dark:text-stone-100 truncate">
+                        <span className="truncate font-serif text-[13px] font-semibold text-theme-foreground">
                           {isEn ? plant.name : plant.nameTh}
                         </span>
                       </div>
                       <p className="text-[10px] text-stone-500 dark:text-stone-400 line-clamp-2 leading-snug">
                         {isEn ? plant.tagline : plant.taglineTh}
                       </p>
-                      <p className={cn("mt-0.5 text-[10px] font-medium", isUnlocked ? "text-emerald-700 dark:text-emerald-300" : "text-theme-muted")}>
+                      <p className={cn("mt-1 text-[10px] font-medium", isGuardian ? "text-emerald-700 dark:text-emerald-300" : "text-theme-muted")}>
                         {isGuardian
                           ? (isEn ? "Current guardian" : "ผู้พิทักษ์ปัจจุบัน")
                           : isUnlocked
@@ -727,8 +738,8 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                   <div className="flex shrink-0 flex-col items-end gap-1.5">
                     <span
                       className={cn(
-                        "text-xs font-mono font-semibold",
-                        isUnlocked ? plant.tone : "text-stone-400"
+                        "rounded-lg border px-2 py-1 text-[10px] font-mono font-semibold",
+                        isUnlocked ? cn("border-theme-border/70 bg-theme-background/60", plant.tone) : "border-theme-border bg-theme-background/50 text-theme-muted"
                       )}
                     >
                       <span aria-label={isEn ? `Requires ${plant.cost} coins` : `ต้องมี ${plant.cost} เหรียญ`}>{plant.cost}c</span>
@@ -741,7 +752,7 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
                           e.stopPropagation();
                           setGuardianToConfirm(plant);
                         }}
-                        className="min-h-8 rounded-lg border border-emerald-600/40 bg-emerald-600/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-800 transition-colors hover:bg-emerald-600/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600/50 dark:text-emerald-200"
+                        className="min-h-8 rounded-xl border border-emerald-700/25 bg-gradient-to-r from-emerald-600/10 to-dusk-lavender/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-900 transition-colors hover:border-emerald-600/40 hover:from-emerald-600/15 hover:to-dusk-lavender/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600/50 dark:text-emerald-200"
                         aria-label={isEn ? `Set ${plant.name} as guardian` : `ตั้ง${plant.nameTh}เป็นผู้พิทักษ์`}
                       >
                         {isEn ? "Set guardian" : "ตั้งผู้พิทักษ์"}
@@ -759,11 +770,17 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
       {activeTab === "breath" && (
         <div id="zen-panel-breathe" role="tabpanel" aria-labelledby="zen-tab-breathe" className="space-y-3 py-1">
           <div className="px-0.5">
-            <p className="text-xs font-semibold text-theme-foreground">{isEn ? "One-minute reset" : "พักใจหนึ่งนาที"}</p>
-            <p className="text-[10px] text-theme-muted">{isEn ? "A small pause to return to your own rhythm." : "หยุดพักสั้น ๆ แล้วกลับมาหาจังหวะของตัวเอง"}</p>
+            <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-theme-muted">{isEn ? "A softer rhythm" : "กลับมาหาจังหวะของตัวเอง"}</p>
+            <p className="font-serif text-[15px] font-semibold text-theme-foreground">{isEn ? "Take a mindful minute" : "พักใจหนึ่งนาที"}</p>
+            <p className="mt-0.5 text-[10px] text-theme-muted">{isEn ? "A small pause to return to your own rhythm." : "หยุดพักสั้น ๆ แล้วกลับมาหาจังหวะของตัวเอง"}</p>
           </div>
           {/* Visual Breathing Mandala Container */}
-          <div className="relative flex flex-col items-center justify-center h-44 rounded-xl border border-stone-200/90 dark:border-white/10 bg-gradient-to-b from-indigo-50/30 via-white to-purple-50/30 dark:from-[#090b1c] dark:via-[#0c0f28] dark:to-[#080a18] p-4 overflow-hidden shadow-inner">
+          <div className="relative flex h-48 flex-col items-center justify-center overflow-hidden rounded-2xl border border-theme-border bg-gradient-to-br from-dusk-lavender/10 via-theme-paper to-rose-400/[0.08] p-4 shadow-inner">
+            <div aria-hidden="true" className="absolute h-40 w-40 rounded-full border border-dusk-lavender/15" />
+            <div aria-hidden="true" className="absolute h-32 w-32 rounded-full border border-rose-400/15" />
+            <span className="absolute right-3 top-3 rounded-full border border-theme-border/70 bg-theme-paper/65 px-2 py-1 font-mono text-[9px] tracking-widest text-theme-muted">
+              4 · 4 · 4 · 4
+            </span>
             {/* Ambient Background Aura */}
             <div
               className="absolute h-36 w-36 rounded-full bg-dusk-lavender/10 dark:bg-dusk-lavender/15 blur-2xl transition-transform duration-1000"
@@ -772,7 +789,7 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
 
             {/* Sacred Lotus Mandala (Pure Vector SVG) */}
             <div
-              className="relative grid place-items-center h-24 w-24 rounded-full border border-dusk-lavender/40 bg-white/90 dark:bg-white/[0.06] shadow-md transition-transform duration-1000 ease-in-out"
+              className="relative grid h-24 w-24 place-items-center rounded-full border border-dusk-lavender/40 bg-theme-paper/90 shadow-[0_12px_34px_rgba(85,75,150,0.16)] transition-transform duration-1000 ease-in-out dark:bg-theme-paper/60"
               style={{
                 transform: `scale(${breathScale})`,
                 boxShadow: isBreathingActive ? "0 0 24px rgba(169, 162, 255, 0.45)" : undefined
@@ -792,10 +809,10 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
 
             {/* Prompt & Phase Subtext */}
             <div className="mt-3 text-center z-10 space-y-0.5">
-              <p className="text-xs font-semibold text-stone-900 dark:text-stone-100 tracking-wide">
+              <p className="text-xs font-semibold tracking-wide text-theme-foreground">
                 {isBreathingActive ? (isEn ? breathPhase : breathPhaseTh) : isEn ? "Box Breathing (4-4-4-4)" : "ฝึกสมาธิลมหายใจ 4 จังหวะ"}
               </p>
-              <p className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-mono text-theme-muted">
                 {isBreathingActive
                   ? `${isEn ? "Phase" : "จังหวะ"}: ${breathProgress.toFixed(0)}% · ${isEn ? "Cycle" : "รอบที่"} ${breathCycle}/4`
                   : isEn
@@ -811,10 +828,10 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
               type="button"
               onClick={() => setIsBreathingActive(!isBreathingActive)}
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 rounded-xl border py-2 px-3 text-xs font-medium transition-all cursor-pointer shadow-xs",
+                "flex-1 flex min-h-10 items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/70",
                 isBreathingActive
-                  ? "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                  : "border-dusk-lavender/40 bg-dusk-lavender/10 hover:bg-dusk-lavender/20 text-dusk-lavender"
+                  ? "border-amber-500/35 bg-amber-500/10 text-amber-800 dark:text-amber-300"
+                  : "border-dusk-lavender/30 bg-gradient-to-r from-dusk-lavender/15 to-emerald-500/10 text-dusk-lavender hover:from-dusk-lavender/20 hover:to-emerald-500/15"
               )}
             >
               {isBreathingActive ? (
@@ -850,9 +867,9 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
       )}
 
       {/* ─── Footer: Daily Zen Wisdom Koan ──────────────────────────────────── */}
-      <div className="border-t border-stone-200/80 dark:border-white/10 pt-2 flex items-start gap-1.5 text-[11px] text-stone-500 dark:text-stone-400">
-        <Sparkles className="h-3.5 w-3.5 shrink-0 text-amber-500/80 mt-0.5" />
-        <p className="line-clamp-2 leading-relaxed">
+      <div className="flex items-start gap-2 rounded-xl border border-dusk-lavender/15 bg-dusk-lavender/[0.045] px-2.5 py-2 text-[11px] text-theme-muted">
+        <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500/80" />
+        <p className="line-clamp-2 leading-relaxed font-serif italic">
           {isEn ? todayWisdom.en : todayWisdom.th}
         </p>
       </div>
