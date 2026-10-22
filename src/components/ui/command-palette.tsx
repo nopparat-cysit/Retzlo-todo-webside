@@ -388,17 +388,17 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
       role="dialog"
       aria-modal="true"
       aria-label="Command palette"
-      className="fixed inset-0 z-[1500] flex items-start justify-center bg-ink-950/75 px-3 pt-[16vh] backdrop-blur-md"
+      className="fixed inset-0 z-[1500] flex items-start justify-center bg-black/40 px-3 pt-[16vh] backdrop-blur-sm dark:bg-ink-950/75 dark:backdrop-blur-md"
       onClick={() => setOpen(false)}
     >
       {/* Panel */}
       <div
-        className="lofi-panel w-full max-w-lg overflow-hidden rounded-2xl p-0 shadow-2xl border border-white/10"
+        className="lofi-panel w-full max-w-lg overflow-hidden rounded-2xl p-0 shadow-2xl border border-stone-200 dark:border-white/10"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search input */}
-        <div className="relative flex items-center border-b border-white/10 px-3">
-          <Search className="h-4 w-4 text-stone-500 shrink-0 ml-1" />
+        <div className="relative flex items-center border-b border-stone-200 dark:border-white/10 px-3">
+          <Search className="h-4 w-4 text-stone-400 dark:text-stone-500 shrink-0 ml-1" />
           <input
             ref={inputRef}
             type="text"
@@ -412,10 +412,10 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full border-0 bg-transparent px-3 py-3.5 text-sm text-stone-100 outline-none placeholder:text-stone-500"
+            className="w-full border-0 bg-transparent px-3 py-3.5 text-sm text-stone-900 outline-none placeholder:text-stone-400 dark:text-stone-100 dark:placeholder:text-stone-500"
           />
           {isSearching && (
-            <span className="text-[10px] text-stone-500 animate-pulse font-mono shrink-0 mr-2">
+            <span className="text-[10px] text-stone-400 dark:text-stone-500 animate-pulse font-mono shrink-0 mr-2">
               searching...
             </span>
           )}
@@ -428,7 +428,7 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
           className="scrollbar-soft max-h-84 overflow-y-auto p-1.5 space-y-1"
         >
           {filteredGroups.length === 0 && (
-            <li className="px-4 py-8 text-center text-xs text-stone-500">
+            <li className="px-4 py-8 text-center text-xs text-stone-500 dark:text-stone-400">
               No matching tasks, notes, or commands found.
             </li>
           )}
@@ -445,7 +445,7 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
                 {/* Group label */}
                 <p
                   role="presentation"
-                  className="px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-stone-500 font-semibold"
+                  className="px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400 font-semibold"
                 >
                   {group.label}
                 </p>
@@ -467,8 +467,8 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
                         className={cn(
                           "flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-xs transition-colors",
                           isSelected
-                            ? "bg-dusk-lavender/15 text-stone-100 border border-dusk-lavender/30"
-                            : "text-stone-300 hover:bg-white/[0.04] border border-transparent"
+                            ? "bg-indigo-50 text-indigo-900 border border-indigo-200 dark:bg-dusk-lavender/15 dark:text-stone-100 dark:border-dusk-lavender/30"
+                            : "text-stone-700 hover:bg-stone-100/70 border border-transparent dark:text-stone-300 dark:hover:bg-white/[0.04]"
                         )}
                       >
                         <span className="flex h-5 w-5 shrink-0 items-center justify-center">
@@ -477,7 +477,7 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
                         <div className="flex flex-col min-w-0 flex-1">
                           <span className="font-medium truncate">{item.label}</span>
                           {item.sublabel && (
-                            <span className="text-[10px] text-stone-400 truncate">
+                            <span className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
                               {item.sublabel}
                             </span>
                           )}
@@ -492,13 +492,13 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
         </ul>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-white/5 px-4 py-2 bg-white/[0.01]">
-          <p className="text-[10px] text-stone-500">
+        <div className="flex items-center justify-between border-t border-stone-200 bg-stone-50/70 px-4 py-2 dark:border-white/5 dark:bg-white/[0.01]">
+          <p className="text-[10px] text-stone-500 dark:text-stone-400">
             <span className="mr-0.5 font-mono">↑↓</span> navigate ·{" "}
             <span className="mr-0.5 font-mono">Enter</span> select ·{" "}
             <span className="mr-0.5 font-mono">Esc</span> close
           </p>
-          <span className="text-[10px] text-stone-600 font-mono">Ctrl + K</span>
+          <span className="text-[10px] text-stone-500 dark:text-stone-400 font-mono">Ctrl + K</span>
         </div>
       </div>
     </div>
@@ -515,10 +515,10 @@ export function CommandPaletteTrigger({ variant = "topbar" }: { variant?: "topba
       <button
         type="button"
         onClick={triggerOpen}
-        className="sidebar-expanded-only flex w-full items-center gap-1.5 rounded-lg px-1 py-1 text-left text-[10px] text-stone-500 transition hover:text-dusk-lavender"
+        className="sidebar-expanded-only flex w-full items-center gap-1.5 rounded-lg px-1 py-1 text-left text-[10px] text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-dusk-lavender transition"
         title="Open Command Palette (Ctrl + K)"
       >
-        <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">Ctrl K</kbd>
+        <kbd className="rounded bg-stone-100 border border-stone-200 px-1.5 py-0.5 font-mono text-[10px] text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">Ctrl K</kbd>
         <span>Command palette</span>
       </button>
     );
@@ -529,10 +529,10 @@ export function CommandPaletteTrigger({ variant = "topbar" }: { variant?: "topba
       type="button"
       onClick={triggerOpen}
       title="Open Command Palette (Ctrl + K)"
-      className="hidden items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs text-stone-500 transition hover:border-dusk-lavender/45 hover:bg-dusk-lavender/10 hover:text-stone-200 2xl:flex cursor-pointer"
+      className="hidden items-center gap-2 rounded-lg border border-stone-200 bg-stone-100/70 px-3 py-2 text-xs text-stone-600 transition hover:border-indigo-300 hover:bg-indigo-50/80 hover:text-indigo-700 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400 dark:hover:border-dusk-lavender/45 dark:hover:bg-dusk-lavender/10 dark:hover:text-stone-200 2xl:flex cursor-pointer"
     >
-      <span className="text-stone-400">Command</span>
-      <kbd className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px]">K</kbd>
+      <span className="text-stone-600 dark:text-stone-400">Command</span>
+      <kbd className="rounded bg-stone-200/60 border border-stone-300/80 px-1.5 py-0.5 font-mono text-[10px] text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">K</kbd>
     </button>
   );
 }

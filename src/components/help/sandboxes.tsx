@@ -131,17 +131,17 @@ export function InteractiveAiDemo({ isEn }: { isEn: boolean }) {
       </div>
 
       {/* Simulated Response Box */}
-      <div className="rounded-xl border border-stone-200/90 bg-stone-900 p-3.5 font-mono text-xs text-stone-100 dark:border-white/10 dark:bg-black/60 min-h-[110px] flex flex-col justify-between">
+      <div className="rounded-xl border border-stone-200/90 bg-stone-100/90 p-3.5 font-mono text-xs text-stone-900 shadow-inner dark:border-white/10 dark:bg-black/60 dark:text-stone-100 min-h-[110px] flex flex-col justify-between">
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-indigo-300 text-[11px]">
-            <span className="text-amber-400">user:</span>
+          <div className="flex items-center gap-2 text-indigo-700 text-[11px] dark:text-indigo-300">
+            <span className="font-bold text-amber-600 dark:text-amber-400">user:</span>
             <span>{selectedPrompt}</span>
           </div>
 
-          <div className="text-[11px] leading-relaxed text-stone-200 whitespace-pre-line">
+          <div className="text-[11px] leading-relaxed text-stone-700 dark:text-stone-200 whitespace-pre-line">
             {isThinking ? (
-              <span className="inline-flex items-center gap-2 text-stone-400">
-                <Sparkles className="h-3.5 w-3.5 animate-spin text-amber-400" />
+              <span className="inline-flex items-center gap-2 text-stone-500 dark:text-stone-400">
+                <Sparkles className="h-3.5 w-3.5 animate-spin text-amber-500 dark:text-amber-400" />
                 {isEn ? "Analyzing board context and computing insights..." : "กำลังวิเคราะห์บริบทของบอร์ดและประมวลผล..."}
               </span>
             ) : (
@@ -150,9 +150,9 @@ export function InteractiveAiDemo({ isEn }: { isEn: boolean }) {
           </div>
         </div>
 
-        <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-stone-400">
+        <div className="mt-2 pt-2 border-t border-stone-200 dark:border-white/10 flex items-center justify-between text-[10px] text-stone-500 dark:text-stone-400">
           <span>{isEn ? "Response: Instant · Context: Live Project Cards" : "การตอบสนอง: รวดเร็ว · บริบท: โครงการ & การ์ดสด"}</span>
-          <span className="text-emerald-400 font-semibold">Built-in Retzlo AI</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Built-in Retzlo AI</span>
         </div>
       </div>
     </div>
@@ -375,7 +375,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
               >
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                  <span className="text-xs font-semibold text-stone-900 dark:text-stone-100 line-through text-stone-500">
+                  <span className="text-xs font-semibold text-stone-500 dark:text-stone-400 line-through">
                     {t.title}
                   </span>
                 </div>

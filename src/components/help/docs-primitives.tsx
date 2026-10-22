@@ -37,7 +37,7 @@ export function MixtapeLogoMark({ className = "h-6 w-6" }: { className?: string 
         width="46"
         height="30"
         rx="4"
-        className="fill-stone-900 stroke-stone-700 dark:fill-stone-950 dark:stroke-white/20"
+        className="fill-stone-100 stroke-stone-300 dark:fill-stone-950 dark:stroke-white/20"
         strokeWidth="1.5"
       />
       {/* Label Area */}
@@ -57,28 +57,28 @@ export function MixtapeLogoMark({ className = "h-6 w-6" }: { className?: string 
         width="22"
         height="10"
         rx="2"
-        className="fill-stone-950/80 stroke-stone-600 dark:fill-black/60 dark:stroke-white/15"
+        className="fill-stone-200/90 stroke-stone-300 dark:fill-black/60 dark:stroke-white/15"
         strokeWidth="0.75"
       />
       {/* Left Reel Spool */}
-      <circle cx="18" cy="13" r="3.2" className="stroke-indigo-400 dark:stroke-dusk-lavender" strokeWidth="1" strokeDasharray="2 1" />
-      <circle cx="18" cy="13" r="1.2" className="fill-indigo-300 dark:fill-dusk-lavender" />
+      <circle cx="18" cy="13" r="3.2" className="stroke-indigo-600 dark:stroke-dusk-lavender" strokeWidth="1" strokeDasharray="2 1" />
+      <circle cx="18" cy="13" r="1.2" className="fill-indigo-500 dark:fill-dusk-lavender" />
       {/* Right Reel Spool */}
-      <circle cx="30" cy="13" r="3.2" className="stroke-indigo-400 dark:stroke-dusk-lavender" strokeWidth="1" strokeDasharray="2 1" />
-      <circle cx="30" cy="13" r="1.2" className="fill-indigo-300 dark:fill-dusk-lavender" />
+      <circle cx="30" cy="13" r="3.2" className="stroke-indigo-600 dark:stroke-dusk-lavender" strokeWidth="1" strokeDasharray="2 1" />
+      <circle cx="30" cy="13" r="1.2" className="fill-indigo-500 dark:fill-dusk-lavender" />
       {/* Tape Bridge */}
       <line x1="18" y1="15" x2="30" y2="15" className="stroke-stone-400 dark:stroke-stone-500" strokeWidth="0.8" />
       {/* Bottom Notch Trapeze */}
       <path
         d="M10 31 L14 24 L34 24 L38 31 Z"
-        className="fill-stone-800 stroke-stone-700 dark:fill-stone-900 dark:stroke-white/15"
+        className="fill-stone-200/90 stroke-stone-300 dark:fill-stone-900 dark:stroke-white/15"
         strokeWidth="1"
       />
       {/* Screw Dots */}
-      <circle cx="3.5" cy="3.5" r="0.75" className="fill-stone-500" />
-      <circle cx="44.5" cy="3.5" r="0.75" className="fill-stone-500" />
-      <circle cx="3.5" cy="28.5" r="0.75" className="fill-stone-500" />
-      <circle cx="44.5" cy="28.5" r="0.75" className="fill-stone-500" />
+      <circle cx="3.5" cy="3.5" r="0.75" className="fill-stone-400 dark:fill-stone-500" />
+      <circle cx="44.5" cy="3.5" r="0.75" className="fill-stone-400 dark:fill-stone-500" />
+      <circle cx="3.5" cy="28.5" r="0.75" className="fill-stone-400 dark:fill-stone-500" />
+      <circle cx="44.5" cy="28.5" r="0.75" className="fill-stone-400 dark:fill-stone-500" />
     </svg>
   );
 }
@@ -103,18 +103,18 @@ export function TapeCounter({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-stone-900 px-2.5 py-1 text-stone-100 shadow-inner dark:border-white/15 dark:bg-black/80",
+        "inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-100/90 px-2.5 py-1 text-stone-800 shadow-2xs dark:border-white/15 dark:bg-black/80 dark:text-stone-100",
         className
       )}
       title={isEn ? `Reading Progress: ${clamped}%` : `ความคืบหน้าการอ่าน: ${clamped}%`}
     >
       <div className="flex items-center gap-1.5">
-        <Disc3 className="h-3.5 w-3.5 animate-[spin_8s_linear_infinite] text-indigo-400 dark:text-dusk-lavender" />
-        <span className="font-mono text-[10px] font-bold tracking-widest text-stone-400 uppercase">
+        <Disc3 className="h-3.5 w-3.5 animate-[spin_8s_linear_infinite] text-indigo-600 dark:text-dusk-lavender" />
+        <span className="font-mono text-[10px] font-bold tracking-widest text-stone-500 uppercase dark:text-stone-400">
           {label}
         </span>
       </div>
-      <div className="flex items-center gap-0.5 rounded border border-stone-800 bg-stone-950 px-1.5 py-0.5 font-mono text-xs font-black tracking-wider text-amber-400 dark:text-dusk-amber shadow-xs">
+      <div className="flex items-center gap-0.5 rounded border border-stone-300/80 bg-stone-900 px-1.5 py-0.5 font-mono text-xs font-black tracking-wider text-amber-300 shadow-inner dark:border-stone-800 dark:bg-stone-950 dark:text-dusk-amber">
         {formatted.split("").map((digit, i) => (
           <span
             key={i}
@@ -711,7 +711,7 @@ export function PromptCookbook({
                 {isEn ? recipe.descEn : recipe.descTh}
               </p>
 
-              <div className="relative mt-2 rounded-xl border border-stone-200 bg-stone-900 p-3 font-mono text-[11px] text-amber-200/90 dark:border-white/10 dark:bg-black/60 shadow-inner">
+              <div className="relative mt-2 rounded-xl border border-stone-200/90 bg-stone-100/90 p-3 font-mono text-[11px] text-stone-800 shadow-inner dark:border-white/10 dark:bg-black/60 dark:text-amber-200/90">
                 <p className="line-clamp-3 select-all leading-relaxed">{recipe.prompt}</p>
               </div>
             </div>

@@ -816,19 +816,19 @@ export function HelpCenterClient() {
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-center text-xs">
                         <div className="p-3.5 rounded-xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-stone-900/80 space-y-1">
                           <span className="font-mono font-bold text-indigo-600 dark:text-dusk-lavender">{isEn ? "01. Workspace" : "01. พื้นที่ทำงาน"}</span>
-                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "Create projects & invite teammates" : "สร้างโปรเจกต์และเชิญเพื่อนร่วมทีม"}</p>
+                          <p className="text-[10px] text-stone-500 dark:text-stone-400 leading-relaxed">{isEn ? "Create projects & invite teammates" : "สร้างโปรเจกต์และเชิญเพื่อนร่วมทีม"}</p>
                         </div>
                         <div className="p-3.5 rounded-xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-stone-900/80 space-y-1">
                           <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{isEn ? "02. Dual Views" : "02. สลับมุมมอง"}</span>
-                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "Switch between Kanban & Table views" : "สลับกระดาน Kanban และตารางสเปรดชีต"}</p>
+                          <p className="text-[10px] text-stone-500 dark:text-stone-400 leading-relaxed">{isEn ? "Switch between Kanban & Table views" : "สลับกระดาน Kanban และตารางสเปรดชีต"}</p>
                         </div>
                         <div className="p-3.5 rounded-xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-stone-900/80 space-y-1">
                           <span className="font-mono font-bold text-amber-600 dark:text-dusk-amber">{isEn ? "03. Retzlo AI" : "03. ผู้ช่วย AI"}</span>
-                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "Auto-breakdown tasks & summaries" : "แตกงานย่อยและสรุปผลโครงการ"}</p>
+                          <p className="text-[10px] text-stone-500 dark:text-stone-400 leading-relaxed">{isEn ? "Auto-breakdown tasks & summaries" : "แตกงานย่อยและสรุปผลโครงการ"}</p>
                         </div>
                         <div className="p-3.5 rounded-xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-stone-900/80 space-y-1">
                           <span className="font-mono font-bold text-indigo-600 dark:text-dusk-lavender">{isEn ? "04. Deliver" : "04. ส่งมอบงาน"}</span>
-                          <p className="text-[10px] text-stone-500 leading-relaxed">{isEn ? "Export PDF/PNG/Excel & Cheers" : "ส่งออกรายงานและส่งแก้วกาแฟ Cheers"}</p>
+                          <p className="text-[10px] text-stone-500 dark:text-stone-400 leading-relaxed">{isEn ? "Export PDF/PNG/Excel & Cheers" : "ส่งออกรายงานและส่งแก้วกาแฟ Cheers"}</p>
                         </div>
                       </div>
                     </DocsSandboxDeck>
@@ -1024,15 +1024,15 @@ export function HelpCenterClient() {
                       isEn={isEn}
                     />
 
-                    <div className="flex items-center justify-between rounded-2xl border border-stone-200/80 bg-stone-900 p-4 text-white dark:border-white/10 dark:bg-ink-950 shadow-inner">
-                      <div className="flex items-center gap-2 font-mono text-xs sm:text-sm text-amber-300">
-                        <Zap className="h-4 w-4 text-amber-400" />
+                    <div className="flex items-center justify-between rounded-2xl border border-stone-200/90 bg-stone-100/90 p-4 text-stone-900 shadow-xs dark:border-white/10 dark:bg-ink-950 dark:text-white dark:shadow-inner">
+                      <div className="flex items-center gap-2 font-mono text-xs sm:text-sm text-indigo-700 font-bold dark:text-amber-300">
+                        <Zap className="h-4 w-4 text-amber-500 dark:text-amber-400" />
                         <span>{activeTopic.codeOrShortcut}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleCopyShortcut(activeTopic.codeOrShortcut!)}
-                        className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-medium text-stone-200 hover:bg-white/20 transition cursor-pointer"
+                        className="flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 py-1 text-xs font-semibold text-stone-700 hover:bg-stone-50 active:scale-95 transition cursor-pointer dark:border-white/20 dark:bg-white/10 dark:text-stone-200 dark:hover:bg-white/20"
                         title={isEn ? "Copy shortcut" : "คัดลอกคีย์ลัด"}
                       >
                         {copiedShortcut === activeTopic.codeOrShortcut ? (
@@ -1512,7 +1512,7 @@ export function HelpCenterClient() {
                     <button
                       type="button"
                       onClick={() => handleCopyShortcut(sc.key)}
-                      className="ml-3 flex items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-2.5 py-1.5 font-mono text-xs font-bold text-indigo-600 hover:bg-indigo-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-dusk-amber transition cursor-pointer"
+                      className="ml-3 flex items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-2.5 py-1.5 font-mono text-xs font-bold text-indigo-600 hover:bg-indigo-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-dusk-amber dark:hover:bg-white/10 transition cursor-pointer"
                       title={isEn ? "Click to copy shortcut" : "คลิกเพื่อคัดลอกคีย์ลัด"}
                     >
                       {copiedShortcut === sc.key ? (

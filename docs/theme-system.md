@@ -946,3 +946,26 @@ Template:
     - Explanatory footnote: "* มินิเกมด้านบนเป็นเพียงเดโมจำลองระบบให้ทดลองเล่นเพื่อความเพลิดเพลิน สิทธิ์ทดลองใช้งานฟรี 7 วันเปิดให้ทุกคนเริ่มต้นได้ทันทีโดยไม่ต้องสะสมเหรียญ".
     - Right vintage pass stub updated to show unconditional "VERIFIED · 7-DAY FULL ACCESS" and "สิทธิ์ทดลองฟรี 7 วันพร้อมเปิดใช้งานทันที".
 - Verification: `npx tsc --noEmit` (0 errors), `npm run lint` (0 warnings/errors), `npm test` (101 test files, 557 passed, 3 skipped), `npx prisma validate` (valid), `npm run build` (42/42 routes compiled successfully).
+
+### 2026-10-22 — แก้ไขสีผิดเพี้ยนตอนเปลี่ยนธีม (Theme Contrast Fix for Manual, Logo, Tape & Command)
+- Coverage:
+  - `src/components/help/docs-primitives.tsx` (`MixtapeLogoMark`, `TapeCounter`, `PromptCookbook`)
+  - `src/components/help/help-center-client.tsx` (Header Mixtape logo, `#shortcuts` section, shortcuts matrix copy button, 4-step workflow text)
+  - `src/components/help/sandboxes.tsx` (`InteractiveAiDemo` simulated terminal response box, task line-through contrast)
+  - `src/components/ui/command-palette.tsx` (Command palette modal backdrop, panel borders, search input, item active/hover states, trigger button)
+- Design Direction & Theme Alignment:
+  - **โลโก้ (Logo - `MixtapeLogoMark`)**:
+    - แก้ไขสีตัวเครื่องคาสเซ็ตต์จากสีดำล้วนคงที่ (`fill-stone-900 stroke-stone-700`) ในโหมดสว่าง เป็นสีตลับเทปวินเทจสว่างกลมกลืนกับ Warm Paper (`fill-stone-100 stroke-stone-300 dark:fill-stone-950 dark:stroke-white/20`)
+    - ปรับกระจกช่องมองเทปตรงกลางเป็น `fill-stone-200/90 stroke-stone-300 dark:fill-black/60 dark:stroke-white/15`
+    - เพิ่มคอนทราสต์แกนหมุนเทป (Reel Spools) ในโหมดสว่างให้คมชัดด้วย `stroke-indigo-600` และ `fill-indigo-500` (แทนสีพาสเทลจาง `indigo-400/300`)
+    - ปรับฐานรอยบากด้านล่าง (Notch) และหมุดสกรู 4 มุมให้สอดคล้องตามธีมทั้ง Light และ Dark
+  - **เทป (Tape - `TapeCounter`)**:
+    - ย้ายกรอบตัวนับเทปด้านนอกที่เคยล็อกสีดำทึบ (`bg-stone-900 border-stone-300 text-stone-100`) ในโหมด Light มาเป็นกรอบหน้าปัดสีอบอุ่นแบบ Retro Hi-Fi (`border-stone-200 bg-stone-100/90 text-stone-800 dark:border-white/15 dark:bg-black/80 dark:text-stone-100`)
+    - ไอคอนหมุนแผ่นเทป `Disc3` คมชัดด้วย `text-indigo-600 dark:text-dusk-lavender` และตัวอักษรป้าย `TAPE` เป็น `text-stone-500 dark:text-stone-400`
+    - ช่องกลิ้งตัวเลขนับเปอร์เซ็นต์ (Roller Bezel) ออกแบบให้เป็นกรอบกลิ้งแบบ mechanical recessed display สวยงามลงตัวทั้งโหมด Light (`border-stone-300/80 bg-stone-900 text-amber-300 shadow-inner`) และ Dark (`dark:border-stone-800 dark:bg-stone-950 dark:text-dusk-amber`)
+  - **ส่วนคอมมานและคีย์ลัด (Command, Shortcuts & Terminal Blocks)**:
+    - ส่วน `#shortcuts` ในหน้าคู่มือ: เปลี่ยนจากบล็อกดำถาวร (`bg-stone-900 text-white`) มาเป็นบล็อก adaptive retro lofi (`bg-stone-100/90 text-stone-900 border-stone-200/90 dark:bg-ink-950 dark:text-white dark:border-white/10`) พร้อมปุ่มคัดลอกที่แสดงผลถูกต้องตามธีม
+    - แผง Prompt Cookbook: ปรับกล่องตัวอย่างพรอมต์จาก `bg-stone-900` คงที่ เป็น `bg-stone-100/90 text-stone-800 dark:bg-black/60 dark:text-amber-200/90`
+    - กล่องตอบกลับจำลองใน AI Interactive Simulator (`sandboxes.tsx`): ปรับจากพื้นดำทึบเป็นสีพื้นผิวปรับตามธีม (`bg-stone-100/90 text-stone-900 dark:bg-black/60 dark:text-stone-100`) พร้อมปรับสี prompt header, reply text, และ status tag ให้มีคอนทราสต์ชัดเจน
+    - กล่องป๊อปอัพ Command Palette ทั่วทั้งระบบ (`src/components/ui/command-palette.tsx`): แก้ปัญหาตัวอักษรสีอ่อน `text-stone-100` กลืนกับพื้นขาวของ `.lofi-panel` ใน Light mode โดยปรับ input, group headers, active/hover items, footer, และ backdrop ให้รองรับทั้งโหมดสว่าง Warm Paper และโหมดมืด Retro Lofi Indigo อย่างสมบูรณ์
+- Verification: `npx vitest run` (101 test files, 558 passed), `npm run lint` (0 errors, 0 warnings), `npx prisma validate` (valid), `npm run build` (42/42 pages compiled successfully).
