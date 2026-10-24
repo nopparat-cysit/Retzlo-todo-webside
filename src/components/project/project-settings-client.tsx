@@ -32,6 +32,7 @@ import type { CustomPriority } from "@/types/kanban";
 import { ProjectBoardsManager } from "@/components/project/project-boards-manager";
 import { SettingsForm } from "@/components/project/settings-form";
 import { SoundToggle } from "@/components/project/sound-toggle";
+import { OmikujiDeskSettings } from "@/components/settings/omikuji-desk-settings";
 import { SettingsRow, SettingsSection } from "@/components/settings/settings-section";
 import { isBoardScopedTab, resolveSettingsTab, type SettingsTabId } from "@/lib/settings/tabs";
 import { cn } from "@/lib/utils";
@@ -755,14 +756,18 @@ export function ProjectSettingsClient({
 
           {/* TAB: Personal preferences */}
           {activeTab === "preferences" && (
-            <SettingsSection title="Appearance & sound" description="Saved locally in this browser">
-              <SettingsRow label="Theme mode" description="Light, Dark, or follow system theme">
-                <div className="w-full sm:w-72">{themeToggleSlot}</div>
-              </SettingsRow>
-              <SettingsRow label="Sound feedback" description="Audio cues when moving cards to Done and volume control" stacked>
-                <SoundToggle />
-              </SettingsRow>
-            </SettingsSection>
+            <div className="space-y-6">
+              <SettingsSection title="Appearance & sound" description="Saved locally in this browser">
+                <SettingsRow label="Theme mode" description="Light, Dark, or follow system theme">
+                  <div className="w-full sm:w-72">{themeToggleSlot}</div>
+                </SettingsRow>
+                <SettingsRow label="Sound feedback" description="Audio cues when moving cards to Done and volume control" stacked>
+                  <SoundToggle />
+                </SettingsRow>
+              </SettingsSection>
+
+              <OmikujiDeskSettings />
+            </div>
           )}
         </main>
       </div>

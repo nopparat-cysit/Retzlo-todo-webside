@@ -817,6 +817,58 @@ export const TOPICS_TH: GuideTopic[] = [
     relatedTopicIds: ["welcome-overview", "faq-credits-offline"],
   },
   {
+    id: "omikuji-creative-desk",
+    category: "gamification",
+    icon: Sparkles,
+    title: "Creative Fortune & Omikuji Desk (เซียมซี 100 ใบสไตล์วัดอาซากุสะ)",
+    badge: "Fortune Desk",
+    badgeColor: "border-amber-400/30 bg-amber-400/10 text-amber-700 dark:text-amber-300",
+    scopeBadge: "เซียมซีและแรงบันดาลใจ",
+    readingTime: "อ่าน 3 นาที",
+    lastUpdated: "24 ต.ค. 2026",
+    summary:
+      "ระบบเซียมซีสไตล์ญี่ปุ่นแท้ Asakusa Kannon 100 ใบ พร้อมการบริหารจัดการหลังบ้าน การสลับภาษา TH/EN และกล่องอัปโหลด CSV ประจำปีใหม่",
+    concept:
+      "Creative Fortune & Omikuji Desk พัฒนาขึ้นเพื่อเติมเต็มแรงบันดาลใจในการทำงานและชีวิตประจำวัน ด้วยชุดคำพยากรณ์และสัจธรรม 100 หมายเลขของวัดเซ็นโซจิ (วัดอาซากุสะ) ที่แปลและเรียบเรียง 2 ภาษาอย่างพิถีพิถัน พร้อมคำแนะนำ 5 มิติ: งาน, เงิน, ความสัมพันธ์, สุขภาพ และการเติบโตของตนเอง",
+    highlights: [
+      "Tactile Wooden Shaker: กระบอกเซียมซีไม้สัมผัสจริงพร้อมแอนิเมชันเขย่าและไม้ติ้วไผ่เด้งแสดงหมายเลข",
+      "Vintage Editorial Slip: ใบเซียมซีหนังสือพิมพ์เรโทรพร้อมตราประทับขี้ผึ้ง (Wax Seal) ประจำระดับโชค (มหาโชค, โชคดี, ควรระวัง)",
+      "คำแนะนำ 5 มิติ: ครอบคลุมงาน เงิน ความรัก สุขภาพ และการเติบโต แสดงผล 2 ภาษา (TH และ EN) ตามต้องการ",
+      "ปุ่มคัดลอกและแนบเป็น Note: คัดลอกข้อความสรุปลงคลิปบอร์ด หรือกดแนบเป็น Note ในโปรเจกต์ได้ในคลิกเดียว",
+      "หน้าจัดการหลังบ้าน (/settings): มี Feature Toggle เปิด/ปิดการแสดงผลหน้าบ้าน, ตัวเลือกภาษา (Auto/TH/EN) และโหมดเสี่ยงทาย (Daily Draw vs Unlimited)",
+      "กล่องอัปโหลด CSV ประจำปีใหม่: รองรับ Drag & Drop ไฟล์ CSV 12 คอลัมน์สำหรับเทศกาลปีใหม่ พร้อมปุ่มดาวน์โหลด Template และตัวตรวจความถูกต้อง",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "เปิดหน้าต่างเซียมซี",
+        desc: "คลิกที่ไอคอนกระบอกเซียมซี 籤 บนแถบเครื่องมือด้านบน (Header)",
+      },
+      {
+        step: "02",
+        title: "เขย่ากระบอกไม้",
+        desc: "ตั้งจิตให้นิ่งแล้วกดเขย่ากระบอกเซียมซีเพื่อสุ่มไม้ติ้วไผ่หมายเลข 1 ถึง 100",
+      },
+      {
+        step: "03",
+        title: "อ่านคำพยากรณ์และคำแนะนำ 5 ด้าน",
+        desc: "รับแรงบันดาลใจจากสัจธรรมหลักและแนวทางด้านงาน เงิน รัก สุขภาพ และการเติบโต สลับภาษา TH/EN ได้ทันที",
+      },
+      {
+        step: "04",
+        title: "บันทึกหรือส่งต่อ",
+        desc: "กดคัดลอกข้อความ หรือแนบเป็น Note เข้าสู่บันทึกของโปรเจกต์โดยตรง",
+      },
+    ],
+    technicalSpecs: [
+      { label: "ชุดข้อมูล", value: "Asakusa Kannon 100 ใบ พร้อมรองรับ CSV ประจำปีใหม่" },
+      { label: "ภาษาที่รองรับ", value: "ภาษาไทย และ English Editorial (ถอดความครบถ้วน)" },
+      { label: "โหมดรอบการสุ่ม", value: "Daily Draw (วันละ 1 ใบ) หรือ Unlimited (สุ่มอิสระ)" },
+    ],
+    tips: "สามารถตั้งค่าปิดปุ่มเซียมซีหน้าบ้าน หรือเปลี่ยนเป็นภาษาอังกฤษได้ที่หน้า Settings & Omikuji Desk (/settings)",
+    relatedTopicIds: ["welcome-overview", "garden-zen-sanctuary", "faq-credits-offline"],
+  },
+  {
     id: "faq-credits-offline",
     category: "faq",
     icon: HelpCircle,

@@ -8,6 +8,7 @@ import { NixiePomodoro } from "@/components/project/nixie-pomodoro";
 import { PixelMoon } from "@/components/project/pixel-moon";
 import { ZenGarden } from "@/components/project/zen-garden";
 import { ZenSanctuaryModal } from "@/components/project/zen-garden/zen-sanctuary-modal";
+import { OmikujiTrigger } from "@/components/omikuji/omikuji-trigger";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -73,7 +74,8 @@ export function ProjectTopbarTools() {
   return (
     <TooltipProvider delayDuration={250}>
       {/* Compact (< 2xl): Single Studio Tools button to avoid topbar overlap on Mac/laptops */}
-      <div className="2xl:hidden">
+      <div className="2xl:hidden flex items-center gap-1.5">
+        <OmikujiTrigger />
         <Popover open={mobileOpen} onOpenChange={setMobileOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -133,6 +135,7 @@ export function ProjectTopbarTools() {
 
       {/* Wide Desktop (2xl+): Expanded separate tool buttons */}
       <div className="relative hidden 2xl:flex items-center gap-1.5">
+        <OmikujiTrigger />
         {toolItems.map((tool) => {
           const Icon = tool.icon;
           const isActive = activeTool === tool.id;

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { HelpCircle, LogOut, ShieldCheck, User } from "lucide-react";
+import { HelpCircle, LogOut, Settings, ShieldCheck, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 import {
@@ -107,6 +107,15 @@ export function UserProfilePopover({
               >
                 <User className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
                 Profile Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link
+                href="/settings"
+                className="flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm text-stone-700 transition hover:bg-stone-100 hover:text-stone-950 focus:bg-stone-100 focus:text-stone-950 dark:text-stone-300 dark:hover:bg-white/5 dark:hover:text-stone-100 dark:focus:bg-white/10 dark:focus:text-stone-100"
+              >
+                <Settings className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
+                Settings & Omikuji Desk
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>

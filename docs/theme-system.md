@@ -1013,3 +1013,21 @@ Template:
 - Added arrow/Home/End tab navigation, centered keyboard-triggered water ripples, dialog focus cycling/return, background scroll locking, and a useful empty fortune fallback. `ZenOmikujiScroll.surfaceClassName` is opt-in; its default art remains unchanged.
 - Browser review: actual components and global styles rendered in a Vite/Chromium fixture with in-memory APIs. Reviewed desktop and 390×844; Thai/English; light/dark/system including both OS color schemes; watering pending/error/success and cancellation, guardian confirmation/cancellation, breathing controls, nested confirmation, focus, Escape, modal scrolling, and actual Studio Tools integration. No runtime or artwork request errors. Authenticated end-to-end API checks remain outside this fixture.
 - Verification: lint, build, Prisma validate, 16 focused tests, and `npm run test:zen-browser` passed. Standalone TypeScript still reports the 10 existing errors in the untouched Zen Garden API route (Prisma JSON assignments and `GardenPlot.moisture`); Next.js build skips type validation.
+
+### 2026-10-24 — Creative Fortune & Omikuji Desk
+- Coverage: Global Settings page (`/settings`), Project Settings preferences tab (`/project/[id]/settings?tab=preferences`), Omikuji Desk settings component (`src/components/settings/omikuji-desk-settings.tsx`), Tactile Shaker and Editorial Slip modal (`src/components/omikuji/omikuji-modal.tsx`), and Header trigger button (`src/components/omikuji/omikuji-trigger.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Shaker mode styled with tactile chestnut/amber woodgrain gradients (`from-[#452718] via-[#784323] to-[#452718]`), brass top rim with inner shadow, and dark backdrop in both light and dark modes to preserve the sacred Japanese temple shrine feel.
+  - Editorial Slip Modal styled in RetzPost vintage newspaper aesthetic with warm washi paper backgrounds (`#faf7f2` light / `#15171e` dark) and double borders (`border-stone-300 dark:border-stone-700`).
+  - Wax seals dynamically themed per blessing rank:
+    - Daikichi (Great Blessing): Terracotta Red (`#b91c1c`)
+    - Kichi (Good Fortune): Antique Gold (`#d97706`)
+    - Hankichi / Chukichi: Warm Bronze (`#c2410c` / `#b45309`)
+    - Shokichi / Suekichi / Sueshokichi: Forest Emerald / Sage (`#059669` / `#0284c7`)
+    - Kyo (Caution Ahead): Slate Obsidian (`#334155`)
+  - 5 Life and Work dimension cards use semantic status tokens (indigo, amber, rose, emerald, teal) with clean contrast in both light and dark modes.
+- Accessibility & UX:
+  - Full keyboard dismissal with Escape key and accessible Close button.
+  - Immediate Toast notifications on all create/update/reset/copy interactions.
+  - ConfirmModal protection before resetting settings or applying new CSV datasets.
+- Verification: 104/104 test files passing (576 tests passed), `npm run lint` clean, `npx prisma validate` valid.

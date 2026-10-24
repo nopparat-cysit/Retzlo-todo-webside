@@ -814,6 +814,58 @@ export const TOPICS_EN: GuideTopic[] = [
     relatedTopicIds: ["welcome-overview", "faq-credits-offline"],
   },
   {
+    id: "omikuji-creative-desk",
+    category: "gamification",
+    icon: Sparkles,
+    title: "Creative Fortune & Omikuji Desk (Asakusa 100 Fortunes)",
+    badge: "Fortune Desk",
+    badgeColor: "border-amber-400/30 bg-amber-400/10 text-amber-700 dark:text-amber-300",
+    scopeBadge: "Fortunes & Inspiration",
+    readingTime: "3 min read",
+    lastUpdated: "Oct 24, 2026",
+    summary:
+      "Authentic Japanese Asakusa Kannon 100-card Omikuji Fortune Desk featuring full bilingual editorial text, backend toggles, and annual CSV uploader.",
+    concept:
+      "Creative Fortune & Omikuji Desk brings daily reflection and creative clarity to your workspace. Featuring all 100 numbered fortunes from Sensoji Temple (Asakusa), rendered with editorial English and Thai across 5 life and work dimensions: Career, Finance, Love, Health, and Personal Growth.",
+    highlights: [
+      "Tactile Wooden Shaker: Beautifully textured wooden cylinder with shake animation and emerging bamboo numbered sticks.",
+      "Vintage Editorial Slip: RetzPost newspaper slip design with realistic wax seals corresponding to blessing ranks (Great Blessing, Good Fortune, Caution Ahead).",
+      "5 Guidance Dimensions: Dedicated counsel for Career & Craft, Wealth, Relationships, Health, and Growth.",
+      "Quick Actions: One-click 'Copy Slip Text' and 'Attach as Project Note' to save insights directly to Note Studio.",
+      "Settings Desk (/settings): Complete control over feature visibility, language mode (Auto / TH / EN), and draw frequency (Daily Draw vs Unlimited).",
+      "Annual CSV Desk: Drag-and-drop CSV importer for custom seasonal themes, built-in schema validator, and template download.",
+    ],
+    workflowSteps: [
+      {
+        step: "01",
+        title: "Open Omikuji Shaker",
+        desc: "Click the 籤 icon on the top header Studio Tools bar.",
+      },
+      {
+        step: "02",
+        title: "Shake the Wooden Shaker",
+        desc: "Focus your intent and tap to shake the cylinder; a numbered bamboo stick will emerge.",
+      },
+      {
+        step: "03",
+        title: "Read 5-Dimension Guidance",
+        desc: "Unfold the vintage editorial slip and review guidance across all 5 life dimensions.",
+      },
+      {
+        step: "04",
+        title: "Save or Attach",
+        desc: "Copy formatted text to clipboard or attach directly as a Project Note.",
+      },
+    ],
+    technicalSpecs: [
+      { label: "Fortune Dataset", value: "100 Asakusa Kannon fortunes + Custom CSV engine" },
+      { label: "Bilingual Support", value: "Authentic Thai + English Editorial text" },
+      { label: "Draw Frequency", value: "Daily Draw (deterministic) or Unlimited" },
+    ],
+    tips: "Access Settings & Omikuji Desk at /settings or under Project Settings > Theme & Sound to customize visibility and language.",
+    relatedTopicIds: ["welcome-overview", "garden-zen-sanctuary", "faq-credits-offline"],
+  },
+  {
     id: "faq-credits-offline",
     category: "faq",
     icon: HelpCircle,
