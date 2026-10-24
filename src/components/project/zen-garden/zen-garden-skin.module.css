@@ -166,7 +166,18 @@
 .skin .readingIntro h3 { margin: 10px 0; color: var(--garden-ink); font-size: 23px; font-weight: 400; letter-spacing: -.04em; }
 .readingIntro .description { max-width: 370px; margin: 0 auto 23px; font-size: 12px; }
 .readingIntro > .primaryButton { max-width: 350px; margin: 0 auto; }
-.skin .scrollSurface { border-color: #d4c6aa; border-width: 1px; background: #f5f0e2; padding: 28px 32px; box-shadow: 0 14px 40px var(--garden-shadow); }
+.skin .scrollSurface {
+  border-color: #d4c6aa;
+  border-width: 1px;
+  background: linear-gradient(180deg, #fffefc 0%, #faf6eb 45%, #f5eee0 100%);
+  padding: 24px 26px;
+  box-shadow: 0 16px 45px var(--garden-shadow);
+  border-radius: 4px;
+}
+:global(.dark) .skin .scrollSurface {
+  border-color: #3d3148;
+  background: linear-gradient(180deg, #1e1828 0%, #171221 45%, #110e19 100%);
+}
 .reading { position: relative; z-index: 1; color: #344234; user-select: text; }
 .readingHeader { display: flex; flex-direction: column; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #d9cdb6; }
 .readingEyebrow { color: #83755c; font-size: 8px; letter-spacing: .18em; }

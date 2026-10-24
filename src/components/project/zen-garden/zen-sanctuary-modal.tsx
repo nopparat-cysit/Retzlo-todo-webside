@@ -41,13 +41,99 @@ import {
 } from "@/lib/zen-garden/zen-state";
 import {
   ZenGameToolLadle,
-  ZenOmikujiScroll
+  ZenOmikujiScroll,
+  OmikujiWaxSeal
 } from "./zen-vector-art";
 import {
   playZenWaterDrop,
   playZenSingingBowlHarmonic
 } from "@/lib/sound";
-import { getRankVisual } from "@/lib/omikuji/omikuji-data";
+import { getRankVisual, getFortuneByNumber } from "@/lib/omikuji/omikuji-data";
+
+
+// Reconciles daily fortune with authentic Asakusa 100 dataset to prevent fallback artifacts
+function resolveFortuneData(currentFortune: DailyFortune | null | undefined) {
+  if (!currentFortune) return null;
+  const num = currentFortune.fortuneNumber || 1;
+  const rawItem = getFortuneByNumber(num);
+
+  const isPlaceholderOrMissing = (val?: string) =>
+    !val || val.includes("Desk Plant") || val.includes("Hourly Hydration") || val.trim().length === 0;
+
+  const rankJp = currentFortune.rankJp || rawItem?.rank_jp || "吉";
+  const rankRomaji = currentFortune.rankRomaji || rawItem?.rank_romaji || "Kichi";
+  const rankTh = currentFortune.rankTh || rawItem?.rank_th || currentFortune.gradeName || "โชคดี";
+  const rankEn = currentFortune.rankEn || rawItem?.rank_en || currentFortune.gradeNameEn || "Good Fortune";
+
+  const titleTh = currentFortune.titleTh || rawItem?.title_th || currentFortune.gradeName || "คำทำนายมงคล";
+  const titleEn = currentFortune.titleEn || rawItem?.title_en || currentFortune.gradeNameEn || "Sacred Fortune";
+
+  const verseTh = !isPlaceholderOrMissing(currentFortune.verseTh)
+    ? currentFortune.verseTh
+    : rawItem?.central_theme_th || "ความสำเร็จที่แท้จริงเริ่มต้นจากความสงบและการลงมือทำอย่างสม่ำเสมอ";
+  const verseEn = !isPlaceholderOrMissing(currentFortune.verse)
+    ? currentFortune.verse
+    : rawItem?.central_theme_en || "True mastery begins with inner calm and steadfast practice.";
+
+  const careerTh = !isPlaceholderOrMissing(currentFortune.careerTh)
+    ? currentFortune.careerTh
+    : rawItem?.career_work_th || currentFortune.oracleTh || "ความชัดเจนและรากฐานที่มั่นคงจะนำไปสู่ความสำเร็จก้าวสำคัญ";
+  const careerEn = !isPlaceholderOrMissing(currentFortune.careerEn)
+    ? currentFortune.careerEn
+    : rawItem?.career_work_en || currentFortune.oracle || "Foundational clarity and steady application yield lasting success.";
+
+  const financeTh = !isPlaceholderOrMissing(currentFortune.financeTh)
+    ? currentFortune.financeTh
+    : rawItem?.finance_wealth_th || "เติบโตอย่างมั่นคง จัดสรรทรัพย์สินด้วยความรอบคอบและมองการณ์ไกล";
+  const financeEn = !isPlaceholderOrMissing(currentFortune.financeEn)
+    ? currentFortune.financeEn
+    : rawItem?.finance_wealth_en || "Steady growth; steward resources with prudence and long-term vision.";
+
+  const loveTh = !isPlaceholderOrMissing(currentFortune.loveTh)
+    ? currentFortune.loveTh
+    : rawItem?.love_relationships_th || "ความสัมพันธ์แน่นแฟ้นยิ่งขึ้นด้วยความไว้วางใจ ความเข้าใจ และความจริงใจ";
+  const loveEn = !isPlaceholderOrMissing(currentFortune.loveEn)
+    ? currentFortune.loveEn
+    : rawItem?.love_relationships_en || "Deepening harmony through mutual respect, trust, and transparent care.";
+
+  const healthTh = !isPlaceholderOrMissing(currentFortune.healthTh)
+    ? currentFortune.healthTh
+    : rawItem?.health_wellness_th || "รักษาสมดุลร่างกาย จิตใจ และจัดเวลาพักผ่อนให้เพียงพอ";
+  const healthEn = !isPlaceholderOrMissing(currentFortune.healthEn)
+    ? currentFortune.healthEn
+    : rawItem?.health_wellness_en || "Sustain vitality through balanced pacing and restorative rest.";
+
+  const growthTh = !isPlaceholderOrMissing(currentFortune.growthTh)
+    ? currentFortune.growthTh
+    : rawItem?.personal_growth_th || currentFortune.workGuidanceTh || "การฝึกฝนตนเองอย่างมีสติจะนำพาปัญญาและความก้าวหน้าที่ยั่งยืน";
+  const growthEn = !isPlaceholderOrMissing(currentFortune.growthEn)
+    ? currentFortune.growthEn
+    : rawItem?.personal_growth_en || currentFortune.workGuidance || "Mindful daily cultivation opens the gateway to profound wisdom and expansion.";
+
+  return {
+    num,
+    rankJp,
+    rankRomaji,
+    rankTh,
+    rankEn,
+    titleTh,
+    titleEn,
+    verseTh,
+    verseEn,
+    careerTh,
+    careerEn,
+    financeTh,
+    financeEn,
+    loveTh,
+    loveEn,
+    healthTh,
+    healthEn,
+    growthTh,
+    growthEn,
+    date: currentFortune.date || new Date().toISOString().split("T")[0],
+    grade: currentFortune.grade
+  };
+}
 
 // Helper to format Japanese kanji numbers (1-100)
 function toKanjiNumber(n: number): string {
@@ -92,6 +178,8 @@ export function ZenSanctuaryModal({
   const [isRingingChime, setIsRingingChime] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isAttachingNote, setIsAttachingNote] = useState(false);
+  const [slipLang, setSlipLang] = useState<"auto" | "th" | "en">("auto");
+  const activeIsEn = slipLang === "auto" ? isEn : slipLang === "en";
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -264,31 +352,27 @@ export function ZenSanctuaryModal({
     setActiveZen((prev) => ({ ...prev, soundMuted: !prev.soundMuted }));
   };
 
-  // Copy Slip Text without Emojis
+  // Copy Slip Text without Emojis (Bilingual aware)
   const handleCopySlipText = async () => {
-    if (!currentFortune) return;
-    const num = currentFortune.fortuneNumber || 1;
-    const rank = isEn ? (currentFortune.rankEn || currentFortune.gradeNameEn) : (currentFortune.rankTh || currentFortune.gradeName);
-    const title = isEn ? (currentFortune.titleEn || currentFortune.gradeNameEn) : (currentFortune.titleTh || currentFortune.gradeName);
-    const theme = isEn ? currentFortune.verse : currentFortune.verseTh;
-    const career = isEn ? (currentFortune.careerEn || currentFortune.oracle) : (currentFortune.careerTh || currentFortune.oracleTh);
-    const finance = isEn ? (currentFortune.financeEn || currentFortune.luckyFocus) : (currentFortune.financeTh || currentFortune.luckyFocusTh);
-    const love = isEn ? (currentFortune.loveEn || "Harmonious balance and mutual understanding.") : (currentFortune.loveTh || "ความสัมพันธ์ราบรื่นจากการเคารพซึ่งกันและกัน");
-    const health = isEn ? (currentFortune.healthEn || "Rest well and balance daily effort.") : (currentFortune.healthTh || "พักผ่อนให้เพียงพอและรักษาสมดุลร่างกาย");
-    const growth = isEn ? (currentFortune.growthEn || currentFortune.workGuidance) : (currentFortune.growthTh || currentFortune.workGuidanceTh);
+    const resolved = resolveFortuneData(currentFortune);
+    if (!resolved) return;
+
+    const rank = activeIsEn ? resolved.rankEn : resolved.rankTh;
+    const title = activeIsEn ? resolved.titleEn : resolved.titleTh;
+    const theme = activeIsEn ? resolved.verseEn : resolved.verseTh;
 
     const formatted = `══════════════════════════════════
-Sensoji Asakusa Kannon Omikuji (No. ${num})
-Rank: ${currentFortune.rankJp || "吉"} (${currentFortune.rankRomaji || "Kichi"} - ${rank})
+Sensoji Asakusa Kannon Omikuji (No. ${resolved.num})
+Rank: ${resolved.rankJp} (${resolved.rankRomaji} - ${rank})
 Title: ${title}
 ══════════════════════════════════
-• Wisdom: ${theme}
+• Sacred Counsel: ${theme}
 
-[1] Career & Craft: ${career}
-[2] Finance & Wealth: ${finance}
-[3] Love & Relationships: ${love}
-[4] Health & Wellness: ${health}
-[5] Personal Growth: ${growth}
+[1] Career & Purpose: ${activeIsEn ? resolved.careerEn : resolved.careerTh}
+[2] Finance & Wealth: ${activeIsEn ? resolved.financeEn : resolved.financeTh}
+[3] Love & Harmony: ${activeIsEn ? resolved.loveEn : resolved.loveTh}
+[4] Health & Vitality: ${activeIsEn ? resolved.healthEn : resolved.healthTh}
+[5] Personal Growth: ${activeIsEn ? resolved.growthEn : resolved.growthTh}
 ══════════════════════════════════
 Drawn from Retzlo Zen Garden Sanctuary`;
 
@@ -297,52 +381,47 @@ Drawn from Retzlo Zen Garden Sanctuary`;
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast({
-        message: isEn ? "Fortune slip copied to clipboard." : "คัดลอกคำทำนายเซียมซีลงคลิปบอร์ดแล้ว",
+        message: activeIsEn ? "Fortune slip copied to clipboard." : "คัดลอกคำทำนายเซียมซีลงคลิปบอร์ดแล้ว",
         type: "success"
       });
     } catch {
       toast({
-        message: isEn ? "Failed to copy text." : "ไม่สามารถคัดลอกข้อความได้",
+        message: activeIsEn ? "Failed to copy text." : "ไม่สามารถคัดลอกข้อความได้",
         type: "error"
       });
     }
   };
 
-  // Attach as Note without Emojis
+  // Attach as Note without Emojis (Bilingual aware)
   const handleAttachAsNote = async () => {
-    if (!currentFortune) return;
+    const resolved = resolveFortuneData(currentFortune);
+    if (!resolved) return;
     setIsAttachingNote(true);
 
-    const num = currentFortune.fortuneNumber || 1;
-    const title = `[Zen Omikuji #${num}] ${currentFortune.rankJp || "吉"} - ${isEn ? (currentFortune.titleEn || currentFortune.gradeNameEn) : (currentFortune.titleTh || currentFortune.gradeName)}`;
-    const rank = isEn ? (currentFortune.rankEn || currentFortune.gradeNameEn) : (currentFortune.rankTh || currentFortune.gradeName);
-    const theme = isEn ? currentFortune.verse : currentFortune.verseTh;
-    const career = isEn ? (currentFortune.careerEn || currentFortune.oracle) : (currentFortune.careerTh || currentFortune.oracleTh);
-    const finance = isEn ? (currentFortune.financeEn || currentFortune.luckyFocus) : (currentFortune.financeTh || currentFortune.luckyFocusTh);
-    const love = isEn ? (currentFortune.loveEn || "Harmonious balance and mutual understanding.") : (currentFortune.loveTh || "ความสัมพันธ์ราบรื่นจากการเคารพซึ่งกันและกัน");
-    const health = isEn ? (currentFortune.healthEn || "Rest well and balance daily effort.") : (currentFortune.healthTh || "พักผ่อนให้เพียงพอและรักษาสมดุลร่างกาย");
-    const growth = isEn ? (currentFortune.growthEn || currentFortune.workGuidance) : (currentFortune.growthTh || currentFortune.workGuidanceTh);
+    const title = `[Zen Omikuji #${resolved.num}] ${resolved.rankJp} - ${activeIsEn ? resolved.titleEn : resolved.titleTh}`;
+    const rank = activeIsEn ? resolved.rankEn : resolved.rankTh;
+    const theme = activeIsEn ? resolved.verseEn : resolved.verseTh;
 
-    const content = `> **${currentFortune.rankJp || "吉"} · ${currentFortune.rankRomaji || "Kichi"} (${rank})**
+    const content = `> **${resolved.rankJp} · ${resolved.rankRomaji} (${rank})**
 > *${theme}*
 
-### Career & Work
-${career}
+### Career & Purpose
+${activeIsEn ? resolved.careerEn : resolved.careerTh}
 
 ### Finance & Wealth
-${finance}
+${activeIsEn ? resolved.financeEn : resolved.financeTh}
 
-### Love & Relationships
-${love}
+### Love & Harmony
+${activeIsEn ? resolved.loveEn : resolved.loveTh}
 
-### Health & Wellness
-${health}
+### Health & Vitality
+${activeIsEn ? resolved.healthEn : resolved.healthTh}
 
 ### Personal Growth
-${growth}
+${activeIsEn ? resolved.growthEn : resolved.growthTh}
 
 ---
-*Drawn from Solitary Zen Garden on ${new Date().toLocaleDateString(isEn ? "en-US" : "th-TH")}*`;
+*Drawn from Solitary Zen Garden on ${new Date().toLocaleDateString(activeIsEn ? "en-US" : "th-TH")}*`;
 
     if (projectId) {
       try {
@@ -359,7 +438,7 @@ ${growth}
 
         if (res.ok) {
           toast({
-            message: isEn
+            message: activeIsEn
               ? `Attached to project notes: "${title}"`
               : `แนบ "${title}" ลงในบันทึกของโปรเจกต์สำเร็จ`,
             type: "success"
@@ -376,22 +455,94 @@ ${growth}
     try {
       await navigator.clipboard.writeText(`# ${title}\n\n${content}`);
       toast({
-        message: isEn
+        message: activeIsEn
           ? "Copied markdown note. Ready to paste into Note Studio."
           : "คัดลอกรูปแบบ Note แล้ว พร้อมนำไปวางใน Note Studio ได้ทันที",
         type: "success"
       });
     } catch {
       toast({
-        message: isEn ? "Unable to attach note." : "ไม่สามารถบันทึก Note ได้",
+        message: activeIsEn ? "Unable to attach note." : "ไม่สามารถบันทึก Note ได้",
         type: "error"
       });
     }
     setIsAttachingNote(false);
   };
 
-  const rankVisual = currentFortune?.rankRomaji ? getRankVisual(currentFortune.rankRomaji) : null;
+  const resolvedFortune = resolveFortuneData(currentFortune);
+  const rankVisual = resolvedFortune ? getRankVisual(resolvedFortune.rankRomaji) : null;
   const sealColor = rankVisual?.sealColor || "#b91c1c";
+
+  const dimensions = resolvedFortune
+    ? [
+        {
+          id: "career",
+          kanji: "仕事 · 功績",
+          enLabel: "Career & Purpose",
+          thLabel: "การงานและวิชาชีพ",
+          content: activeIsEn ? resolvedFortune.careerEn : resolvedFortune.careerTh,
+          icon: Briefcase,
+          accentBorder: "border-[#c7d2fe]/80 dark:border-[#3730a3]/50",
+          accentBg: "bg-[#f5f7ff]/90 dark:bg-[#1a1c35]/40",
+          headerColor: "text-[#3730a3] dark:text-[#a5b4fc]",
+          badgeBg: "bg-[#e0e7ff] dark:bg-[#312e81]/60 text-[#3730a3] dark:text-[#c7d2fe]",
+          iconColor: "text-[#4338ca] dark:text-[#818cf8]"
+        },
+        {
+          id: "finance",
+          kanji: "金運 · 蓄財",
+          enLabel: "Finance & Wealth",
+          thLabel: "การเงินและโชคลาภ",
+          content: activeIsEn ? resolvedFortune.financeEn : resolvedFortune.financeTh,
+          icon: Coins,
+          accentBorder: "border-[#fde68a]/80 dark:border-[#b45309]/50",
+          accentBg: "bg-[#fffbeb]/90 dark:bg-[#352711]/40",
+          headerColor: "text-[#b45309] dark:text-[#fcd34d]",
+          badgeBg: "bg-[#fef3c7] dark:bg-[#78350f]/60 text-[#92400e] dark:text-[#fde68a]",
+          iconColor: "text-[#d97706] dark:text-[#fbbf24]"
+        },
+        {
+          id: "love",
+          kanji: "対人 · 縁結び",
+          enLabel: "Love & Harmony",
+          thLabel: "ความสัมพันธ์และความรัก",
+          content: activeIsEn ? resolvedFortune.loveEn : resolvedFortune.loveTh,
+          icon: Heart,
+          accentBorder: "border-[#fbcfe8]/80 dark:border-[#9d174d]/50",
+          accentBg: "bg-[#fff1f2]/90 dark:bg-[#371321]/40",
+          headerColor: "text-[#be185d] dark:text-[#f472b6]",
+          badgeBg: "bg-[#ffe4e6] dark:bg-[#831843]/60 text-[#9f1239] dark:text-[#fbcfe8]",
+          iconColor: "text-[#e11d48] dark:text-[#fb7185]"
+        },
+        {
+          id: "health",
+          kanji: "息災 · 養生",
+          enLabel: "Health & Vitality",
+          thLabel: "สุขภาพและความผาสุก",
+          content: activeIsEn ? resolvedFortune.healthEn : resolvedFortune.healthTh,
+          icon: Activity,
+          accentBorder: "border-[#a7f3d0]/80 dark:border-[#065f46]/50",
+          accentBg: "bg-[#f0fdf4]/90 dark:bg-[#0c2e21]/40",
+          headerColor: "text-[#047857] dark:text-[#6ee7b7]",
+          badgeBg: "bg-[#d1fae5] dark:bg-[#064e3b]/60 text-[#065f46] dark:text-[#a7f3d0]",
+          iconColor: "text-[#059669] dark:text-[#34d399]"
+        },
+        {
+          id: "growth",
+          kanji: "研鑽 · 大成",
+          enLabel: "Personal Growth & Mastery",
+          thLabel: "การบ่มเพาะปัญญาและการเติบโต",
+          content: activeIsEn ? resolvedFortune.growthEn : resolvedFortune.growthTh,
+          icon: Sprout,
+          fullWidth: true,
+          accentBorder: "border-[#99f6e4]/80 dark:border-[#115e59]/50",
+          accentBg: "bg-[#f0fdfa]/90 dark:bg-[#0c2f2b]/40",
+          headerColor: "text-[#0f766e] dark:text-[#5eead4]",
+          badgeBg: "bg-[#ccfbf1] dark:bg-[#134e4a]/60 text-[#115e59] dark:text-[#99f6e4]",
+          iconColor: "text-[#0d9488] dark:text-[#2dd4bf]"
+        }
+      ]
+    : [];
 
   return (
     <ModalPortal>
@@ -502,7 +653,7 @@ ${growth}
                   <ArrowUpRight size={17} />
                 </button>
               </div>
-            ) : currentFortune ? (
+            ) : currentFortune && resolvedFortune ? (
               <div className={gardenSkin.readingWrap}>
                 <ZenOmikujiScroll
                   grade={currentFortune.grade}
@@ -510,135 +661,158 @@ ${growth}
                   className={gardenSkin.scroll}
                 >
                   <article className={gardenSkin.reading}>
-                    {/* Header */}
-                    <header className={gardenSkin.readingHeader}>
-                      <span className={gardenSkin.readingEyebrow}>
-                        浅草寺 観音百番おみくじ / SENSOJI 100 OMIKUJI
-                      </span>
-                      <div className="flex items-center gap-4 mt-4 mb-2">
-                        {/* Wax Seal Badge (Zero Emojis) */}
-                        <div
-                          className={gardenSkin.waxSealBadge}
-                          style={{
-                            backgroundColor: sealColor
-                          }}
+                    {/* Temple Lot Sub-Header & In-Place Language Switcher */}
+                    <div className="flex items-center justify-between w-full border-b border-[#e5dcce] dark:border-[#3a3045] pb-2.5 mb-3.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-serif tracking-[0.2em] text-[#856b4d] dark:text-[#c4b397] font-semibold">
+                          浅草寺 観音百番神籤
+                        </span>
+                        <span className="text-[9.5px] text-[#a8957c] dark:text-[#8e7e9a] font-mono tracking-wider">
+                          · ASAKUSA 100 LOTS
+                        </span>
+                      </div>
+
+                      {/* Discrete Language Switcher */}
+                      <div className="flex items-center bg-[#f0e7d5] dark:bg-[#282133] p-0.5 rounded-md border border-[#d8cbb5] dark:border-[#423752]">
+                        <button
+                          type="button"
+                          onClick={() => setSlipLang("th")}
+                          className={cn(
+                            "px-2 py-0.5 text-[10px] font-medium rounded transition-colors",
+                            !activeIsEn
+                              ? "bg-[#fffefc] dark:bg-[#3b324a] text-[#2c2214] dark:text-[#f3efe6] shadow-xs font-semibold"
+                              : "text-[#7a6a54] dark:text-[#a595b4] hover:text-[#3e3427]"
+                          )}
+                          aria-label="แสดงภาษาไทย"
                         >
-                          <span className={gardenSkin.waxSealKanji}>
-                            {currentFortune.rankJp || "吉"}
-                          </span>
-                          <span className={gardenSkin.waxSealRomaji}>
-                            {currentFortune.rankRomaji || "Kichi"}
-                          </span>
-                        </div>
+                          ไทย
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSlipLang("en")}
+                          className={cn(
+                            "px-2 py-0.5 text-[10px] font-medium rounded transition-colors",
+                            activeIsEn
+                              ? "bg-[#fffefc] dark:bg-[#3b324a] text-[#2c2214] dark:text-[#f3efe6] shadow-xs font-semibold"
+                              : "text-[#7a6a54] dark:text-[#a595b4] hover:text-[#3e3427]"
+                          )}
+                          aria-label="Show English"
+                        >
+                          EN
+                        </button>
+                      </div>
+                    </div>
 
-                        <div className="text-left">
-                          <h3 className="text-xl font-bold font-serif text-[#344234]">
-                            第 {toKanjiNumber(currentFortune.fortuneNumber || 1)} 番
+                    {/* Main Fortune Header with 3D Wax Seal */}
+                    <div className="flex items-center gap-3.5 sm:gap-4 my-2">
+                      <OmikujiWaxSeal
+                        kanji={resolvedFortune.rankJp}
+                        romaji={resolvedFortune.rankRomaji}
+                        sealColor={sealColor}
+                      />
+
+                      <div className="flex-1 text-left min-w-0">
+                        <div className="flex items-center flex-wrap gap-2">
+                          <h3 className="text-xl sm:text-2xl font-bold font-serif text-[#2f3d2f] dark:text-[#eae6dc] tracking-wide">
+                            第 {toKanjiNumber(resolvedFortune.num)} 番
                           </h3>
-                          <p className="text-xs text-[#775f43] font-medium">
-                            {isEn
-                              ? (currentFortune.titleEn || currentFortune.gradeNameEn)
-                              : (currentFortune.titleTh || currentFortune.gradeName)}
-                          </p>
+                          <span
+                            className={cn(
+                              "px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold tracking-wider uppercase border shadow-xs",
+                              rankVisual?.badgeClass || "bg-amber-50 text-amber-800 border-amber-200"
+                            )}
+                          >
+                            {resolvedFortune.rankJp} · {activeIsEn ? resolvedFortune.rankEn : resolvedFortune.rankTh}
+                          </span>
                         </div>
-                      </div>
-                      <p className="text-[10px] text-[#81785f] font-mono mt-1">
-                        {currentFortune.date} · SLIP #{currentFortune.fortuneNumber || 1}
-                      </p>
-                    </header>
 
-                    {/* Central Wisdom Verse */}
-                    <p className={gardenSkin.readingVerse}>
-                      &ldquo;{isEn ? currentFortune.verse : currentFortune.verseTh}&rdquo;
-                    </p>
-
-                    {/* 5 Guidance Dimensions (With Lucide SVG Icons, Zero Emojis) */}
-                    <div className={gardenSkin.dimensionGrid}>
-                      {/* 1. Career & Work */}
-                      <div className={gardenSkin.dimensionCard}>
-                        <div className={gardenSkin.dimensionHeading}>
-                          <Briefcase size={13} className="text-indigo-700" />
-                          <span>{isEn ? "Career & Craft" : "การงานและการสร้างสรรค์"}</span>
-                        </div>
-                        <p className={gardenSkin.dimensionContent}>
-                          {isEn
-                            ? (currentFortune.careerEn || currentFortune.oracle)
-                            : (currentFortune.careerTh || currentFortune.oracleTh)}
+                        <p className="text-xs sm:text-[13px] font-medium text-[#73583c] dark:text-[#c4b397] mt-1 truncate">
+                          {activeIsEn ? resolvedFortune.titleEn : resolvedFortune.titleTh}
                         </p>
-                      </div>
 
-                      {/* 2. Finance & Wealth */}
-                      <div className={gardenSkin.dimensionCard}>
-                        <div className={gardenSkin.dimensionHeading}>
-                          <Coins size={13} className="text-amber-700" />
-                          <span>{isEn ? "Finance & Wealth" : "การเงินและโชคลาภ"}</span>
-                        </div>
-                        <p className={gardenSkin.dimensionContent}>
-                          {isEn
-                            ? (currentFortune.financeEn || currentFortune.luckyFocus)
-                            : (currentFortune.financeTh || currentFortune.luckyFocusTh)}
-                        </p>
-                      </div>
-
-                      {/* 3. Love & Relationships */}
-                      <div className={gardenSkin.dimensionCard}>
-                        <div className={gardenSkin.dimensionHeading}>
-                          <Heart size={13} className="text-rose-700" />
-                          <span>{isEn ? "Love & Relationships" : "ความสัมพันธ์และความรัก"}</span>
-                        </div>
-                        <p className={gardenSkin.dimensionContent}>
-                          {isEn
-                            ? (currentFortune.loveEn || "Quiet mutual respect builds lasting harmony.")
-                            : (currentFortune.loveTh || "ความสัมพันธ์มั่นคงจากการเคารพและรับฟังซึ่งกันและกัน")}
-                        </p>
-                      </div>
-
-                      {/* 4. Health & Wellness */}
-                      <div className={gardenSkin.dimensionCard}>
-                        <div className={gardenSkin.dimensionHeading}>
-                          <Activity size={13} className="text-emerald-700" />
-                          <span>{isEn ? "Health & Wellness" : "สุขภาพและความเป็นอยู่"}</span>
-                        </div>
-                        <p className={gardenSkin.dimensionContent}>
-                          {isEn
-                            ? (currentFortune.healthEn || "Balance focused energy with restorative rest.")
-                            : (currentFortune.healthTh || "รักษาสมดุลร่างกายและจัดเวลาพักผ่อนอย่างพอเหมาะ")}
-                        </p>
-                      </div>
-
-                      {/* 5. Personal Growth (Full Width) */}
-                      <div className={cn(gardenSkin.dimensionCard, gardenSkin.dimensionCardFull)}>
-                        <div className={gardenSkin.dimensionHeading}>
-                          <Sprout size={13} className="text-teal-700" />
-                          <span>{isEn ? "Personal Growth" : "การเติบโตและการพัฒนาตนเอง"}</span>
-                        </div>
-                        <p className={gardenSkin.dimensionContent}>
-                          {isEn
-                            ? (currentFortune.growthEn || currentFortune.workGuidance)
-                            : (currentFortune.growthTh || currentFortune.workGuidanceTh)}
+                        <p className="text-[9.5px] text-[#93856d] dark:text-[#887b92] font-mono mt-0.5">
+                          {resolvedFortune.date} · SACRED LOT #{resolvedFortune.num}
                         </p>
                       </div>
                     </div>
 
-                    {/* Actions: Copy and Attach as Note */}
-                    <div className={gardenSkin.slipActions}>
+                    {/* Tanzaku Oracle Verse Slip */}
+                    <div className="relative my-3.5 p-3.5 sm:p-4 rounded-xl border border-[#d8ccb5] dark:border-[#3d324c] bg-gradient-to-r from-[#fdfbf7] via-[#faf5e8] to-[#fdfbf7] dark:from-[#211b2d] dark:via-[#1c1626] dark:to-[#211b2d] shadow-xs">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <span className="text-[10px] tracking-widest font-serif font-bold text-[#a14c38] dark:text-[#e57d66]">
+                          『 観音金言 』
+                        </span>
+                        <span className="text-[8.5px] uppercase tracking-wider text-[#8a7b66] dark:text-[#9e8f7d] font-mono">
+                          SACRED COUNSEL
+                        </span>
+                      </div>
+
+                      <p className="font-serif text-sm sm:text-base text-[#273527] dark:text-[#eae6dd] leading-relaxed italic text-center px-2 py-0.5">
+                        &ldquo;{activeIsEn ? resolvedFortune.verseEn : resolvedFortune.verseTh}&rdquo;
+                      </p>
+                    </div>
+
+                    {/* 5 Guidance Dimensions Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 my-3.5">
+                      {dimensions.map((dim) => {
+                        const IconComponent = dim.icon;
+                        return (
+                          <div
+                            key={dim.id}
+                            className={cn(
+                              "rounded-xl border p-3 sm:p-3.5 shadow-xs transition-all",
+                              dim.accentBorder,
+                              dim.accentBg,
+                              dim.fullWidth && "sm:col-span-2"
+                            )}
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-1.5">
+                              <div className="flex items-center gap-1.5">
+                                <IconComponent size={14} className={dim.iconColor} />
+                                <span className={cn("text-xs font-semibold tracking-tight", dim.headerColor)}>
+                                  {activeIsEn ? dim.enLabel : dim.thLabel}
+                                </span>
+                              </div>
+                              <span className={cn("text-[9px] font-mono font-medium px-1.5 py-0.5 rounded", dim.badgeBg)}>
+                                {dim.kanji}
+                              </span>
+                            </div>
+                            <p className="text-xs sm:text-[12.5px] leading-relaxed text-[#2c372b] dark:text-[#dcd6ca] m-0">
+                              {dim.content}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Ornamental Divider */}
+                    <div className="flex items-center justify-center gap-3 my-3.5">
+                      <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#cebe9f] to-transparent dark:via-[#4c3e5c]" />
+                      <span className="text-[9.5px] text-[#9c896e] dark:text-[#8d7c9e] tracking-widest font-mono select-none">
+                        ❖ 観音百籤 ❖
+                      </span>
+                      <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#cebe9f] to-transparent dark:via-[#4c3e5c]" />
+                    </div>
+
+                    {/* Bottom Actions */}
+                    <div className="flex items-center justify-end gap-2.5">
                       <button
                         type="button"
                         onClick={handleCopySlipText}
-                        className={gardenSkin.actionPill}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#c4b59b] dark:border-[#4b3f5c] bg-[#fffdfa] dark:bg-[#251f30] hover:bg-[#f6eee0] dark:hover:bg-[#2e263d] text-[#3e3427] dark:text-[#eae4d5] text-xs font-medium shadow-xs transition-all active:scale-[0.98]"
                       >
-                        {copied ? <Check size={13} /> : <Copy size={13} />}
-                        <span>{copied ? (isEn ? "Copied" : "คัดลอกแล้ว") : (isEn ? "Copy Slip" : "คัดลอกคำทำนาย")}</span>
+                        {copied ? <Check size={13} className="text-emerald-600 dark:text-emerald-400" /> : <Copy size={13} />}
+                        <span>{copied ? (activeIsEn ? "Copied" : "คัดลอกแล้ว") : (activeIsEn ? "Copy Slip Text" : "คัดลอกคำทำนาย")}</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={handleAttachAsNote}
                         disabled={isAttachingNote}
-                        className={cn(gardenSkin.actionPill, gardenSkin.actionPillPrimary)}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-[#2b4432] bg-gradient-to-r from-[#2e4735] to-[#1f3325] hover:from-[#24392a] hover:to-[#17271c] text-[#fbfcf9] text-xs font-medium shadow-md transition-all active:scale-[0.98] disabled:opacity-60"
                       >
-                        <FileText size={13} />
-                        <span>{isAttachingNote ? (isEn ? "Saving…" : "กำลังบันทึก…") : (isEn ? "Attach as Project Note" : "แนบเป็น Note ในโปรเจกต์")}</span>
+                        {isAttachingNote ? <Loader2 size={13} className="animate-spin" /> : <FileText size={13} />}
+                        <span>{isAttachingNote ? (activeIsEn ? "Saving Note…" : "กำลังบันทึก…") : (activeIsEn ? "Attach as Project Note" : "แนบเป็น Note ในโปรเจกต์")}</span>
                       </button>
                     </div>
                   </article>

@@ -1549,7 +1549,7 @@ export function ZenIncenseBrazier({ className = "w-8 h-8" }: { className?: strin
   );
 }
 
-/* ── 23. Hand-Crafted Japanese Omikuji Fortune Scroll (おみくじ巻物) ── */
+/* ── 23. Hand-Crafted Japanese Omikuji Fortune Scroll (おみくじ掛軸) ── */
 export function ZenOmikujiScroll({
   className = "w-full",
   surfaceClassName,
@@ -1562,62 +1562,180 @@ export function ZenOmikujiScroll({
   surfaceClassName?: string;
 }) {
   return (
-    <div className={cn("relative flex flex-col items-center select-none", className)}>
-      {/* Top Hanging Cord & Wooden Roller Rod */}
+    <div className={cn("relative flex flex-col items-center select-text", className)}>
+      {/* Top Hanging Cord & Lacquered Wooden Roller Rod (八双) */}
       <div className="relative w-full flex items-center justify-center">
         <svg viewBox="0 0 400 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-6 drop-shadow-sm">
-          {/* Silk Hanging Cord */}
-          <path d="M 120 20 C 150 2 250 2 280 20" stroke="#b91c1c" strokeWidth="2" strokeLinecap="round" />
-          <circle cx="200" cy="5" r="3.5" fill="#f59e0b" stroke="#b45309" strokeWidth="1" />
-          {/* Left Brass Cap */}
-          <rect x="12" y="10" width="16" height="12" rx="3" fill="#d97706" stroke="#92400e" strokeWidth="1" />
-          <circle cx="20" cy="16" r="2.5" fill="#fef08a" />
-          {/* Main Lacquered Wood Roller Rod */}
-          <rect x="24" y="11" width="352" height="10" rx="2" fill="#292524" stroke="#1c1917" strokeWidth="1" />
-          <line x1="28" y1="13" x2="372" y2="13" stroke="#78716c" strokeWidth="0.8" opacity="0.6" />
-          {/* Right Brass Cap */}
-          <rect x="372" y="10" width="16" height="12" rx="3" fill="#d97706" stroke="#92400e" strokeWidth="1" />
-          <circle cx="380" cy="16" r="2.5" fill="#fef08a" />
+          {/* Braided Silk Hanging Cord (掛け紐) */}
+          <path d="M 110 21 C 145 2 255 2 290 21" stroke="#b91c1c" strokeWidth="2.2" strokeLinecap="round" />
+          <path d="M 112 21 C 146 3 254 3 288 21" stroke="#f59e0b" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
+          <circle cx="200" cy="5" r="4" fill="#d97706" stroke="#78350f" strokeWidth="1" />
+          <circle cx="200" cy="5" r="2" fill="#fef08a" />
+          {/* Left Brass Turned Finial Cap (軸先) */}
+          <rect x="8" y="10" width="18" height="12" rx="3" fill="#d97706" stroke="#78350f" strokeWidth="1" />
+          <rect x="12" y="12" width="10" height="8" rx="1" fill="#fef08a" opacity="0.4" />
+          {/* Main Lacquered Timber Roller Rod */}
+          <rect x="24" y="11" width="352" height="10" rx="2" fill="#1c1917" stroke="#0c0a09" strokeWidth="1" />
+          <line x1="28" y1="13" x2="372" y2="13" stroke="#a8a29e" strokeWidth="0.8" opacity="0.3" />
+          {/* Right Brass Turned Finial Cap (軸先) */}
+          <rect x="374" y="10" width="18" height="12" rx="3" fill="#d97706" stroke="#78350f" strokeWidth="1" />
+          <rect x="378" y="12" width="10" height="8" rx="1" fill="#fef08a" opacity="0.4" />
         </svg>
       </div>
 
-      {/* Main Washi Parchment Scroll Body with Vermilion Border */}
-      <div className="relative w-full px-3 -mt-1 z-10">
-        <div className={cn("relative rounded-sm border-x-4 border-amber-900/40 bg-gradient-to-b from-[#fefbf6] via-[#fbf7ed] to-[#f8f1df] dark:from-[#1b1627] dark:via-[#161222] dark:to-[#110e1c] p-4 sm:p-5 shadow-xl border-t border-b border-amber-800/20", surfaceClassName)}>
-          {/* Inner Traditional Vermilion Line Border (紅枠) */}
-          <div className="absolute inset-1.5 rounded-xs border border-rose-600/30 dark:border-rose-400/20 pointer-events-none" />
-          <div className="absolute inset-2 rounded-xs border border-rose-600/15 dark:border-rose-400/10 pointer-events-none" />
+      {/* Main Washi Parchment Scroll Body with Vermilion & Gold Borders (本紙) */}
+      <div className="relative w-full px-2 sm:px-3 -mt-1 z-10">
+        <div
+          className={cn(
+            "relative rounded-sm border-x-[5px] sm:border-x-[6px] border-[#382b1e] dark:border-[#271d30] bg-gradient-to-b from-[#fffefb] via-[#faf6eb] to-[#f4eee0] dark:from-[#1d1727] dark:via-[#171221] dark:to-[#110e19] p-4 sm:p-6 shadow-2xl border-t border-b border-[#2d2218]/40 dark:border-[#1a1322]/40",
+            surfaceClassName
+          )}
+        >
+          {/* Traditional Double Hairline Border: Shukin Nijūwaku (朱金二重枠) */}
+          <div className="absolute inset-2 sm:inset-2.5 rounded-xs border border-[#b91c1c]/25 dark:border-[#ef4444]/20 pointer-events-none" />
+          <div className="absolute inset-3 sm:inset-3.5 rounded-xs border border-[#d97706]/20 dark:border-[#f59e0b]/15 pointer-events-none" />
 
-          {/* Hanko Stamp Watermark at Bottom Right */}
-          <div className="absolute bottom-3 right-3 pointer-events-none select-none opacity-20 dark:opacity-10">
-            <svg viewBox="0 0 32 32" fill="none" className="w-10 h-10">
-              <rect x="2" y="2" width="28" height="28" rx="4" stroke="#dc2626" strokeWidth="2" fill="none" />
-              <text x="16" y="22" textAnchor="middle" fill="#dc2626" fontSize="16" fontFamily="serif" fontWeight="bold">
-                {grade === "daikichi" ? "吉" : "禅"}
-              </text>
-            </svg>
+          {/* Corner Ornamental Diamonds (四隅菱飾り) */}
+          <div className="absolute top-2.5 left-2.5 w-1.5 h-1.5 rotate-45 bg-[#b91c1c]/40 dark:bg-[#ef4444]/30 pointer-events-none" />
+          <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rotate-45 bg-[#b91c1c]/40 dark:bg-[#ef4444]/30 pointer-events-none" />
+          <div className="absolute bottom-2.5 left-2.5 w-1.5 h-1.5 rotate-45 bg-[#b91c1c]/40 dark:bg-[#ef4444]/30 pointer-events-none" />
+          <div className="absolute bottom-2.5 right-2.5 w-1.5 h-1.5 rotate-45 bg-[#b91c1c]/40 dark:bg-[#ef4444]/30 pointer-events-none" />
+
+          {/* Sacred Temple Shrine Vermilion Seal Watermark at Top Right (朱印) */}
+          <div className="absolute top-3.5 right-4 pointer-events-none select-none opacity-20 dark:opacity-15 rotate-[-3deg]">
+            <div className="w-10 h-10 border-2 border-[#b91c1c] rounded-xs flex flex-col items-center justify-center p-0.5 shadow-xs">
+              <div className="w-full h-full border border-[#b91c1c]/70 flex items-center justify-center">
+                <span className="font-serif font-black text-[12px] leading-none text-[#b91c1c] tracking-tighter">
+                  {grade === "daikichi" ? "大吉" : "神籤"}
+                </span>
+              </div>
+            </div>
           </div>
 
           {children}
         </div>
       </div>
 
-      {/* Bottom Weighted Wooden Roller Rod */}
+      {/* Bottom Weighted Lacquered Wooden Roller Rod (軸木) */}
       <div className="relative w-full flex items-center justify-center -mt-1">
         <svg viewBox="0 0 400 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-5 drop-shadow-md">
           {/* Left Finial */}
-          <rect x="14" y="4" width="14" height="12" rx="2" fill="#d97706" stroke="#92400e" strokeWidth="1" />
-          <circle cx="21" cy="10" r="2" fill="#fef08a" />
+          <rect x="10" y="4" width="16" height="12" rx="2" fill="#d97706" stroke="#78350f" strokeWidth="1" />
+          <circle cx="18" cy="10" r="2.5" fill="#fef08a" />
           {/* Bottom Heavy Roller Rod */}
-          <rect x="24" y="5" width="352" height="10" rx="2" fill="#292524" stroke="#1c1917" strokeWidth="1" />
+          <rect x="24" y="5" width="352" height="10" rx="2" fill="#1c1917" stroke="#0c0a09" strokeWidth="1" />
           {/* Right Finial */}
-          <rect x="372" y="4" width="14" height="12" rx="2" fill="#d97706" stroke="#92400e" strokeWidth="1" />
-          <circle cx="379" cy="10" r="2" fill="#fef08a" />
+          <rect x="374" y="4" width="16" height="12" rx="2" fill="#d97706" stroke="#78350f" strokeWidth="1" />
+          <circle cx="382" cy="10" r="2.5" fill="#fef08a" />
         </svg>
       </div>
     </div>
   );
 }
 
+/* ── 24. Authentic Handcrafted 3D Japanese Wax Seal (御神籤 封蝋) ── */
+export function OmikujiWaxSeal({
+  kanji = "吉",
+  romaji = "Kichi",
+  sealColor = "#b91c1c",
+  className
+}: {
+  kanji?: string;
+  romaji?: string;
+  sealColor?: string;
+  className?: string;
+}) {
+  const sealId = React.useId().replace(/:/g, "");
 
+  return (
+    <div className={cn("relative flex items-center justify-center select-none flex-shrink-0", className)}>
+      <svg
+        viewBox="0 0 76 76"
+        className="w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.25)]"
+      >
+        <defs>
+          {/* Organic 3D Wax Radial Depth Gradient */}
+          <radialGradient id={`waxGrad-${sealId}`} cx="35%" cy="30%" r="68%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.45" />
+            <stop offset="28%" stopColor={sealColor} stopOpacity="1" />
+            <stop offset="78%" stopColor={sealColor} stopOpacity="1" />
+            <stop offset="100%" stopColor="#000000" stopOpacity="0.5" />
+          </radialGradient>
+          {/* Debossed Seal Inner Shadow */}
+          <radialGradient id={`waxBed-${sealId}`} cx="50%" cy="50%" r="50%">
+            <stop offset="68%" stopColor="#000000" stopOpacity="0" />
+            <stop offset="100%" stopColor="#000000" stopOpacity="0.35" />
+          </radialGradient>
+          {/* Gold Metallic Foil Gradient */}
+          <linearGradient id={`goldRing-${sealId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fef08a" stopOpacity="0.85" />
+            <stop offset="45%" stopColor="#d97706" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#78350f" stopOpacity="0.75" />
+          </linearGradient>
+        </defs>
 
+        {/* Melted Organic Wax Perimeter (Natural Hand-Poured Edges) */}
+        <path
+          d="M 38 4.5 C 47 3.5 54 7 60 12 C 67 17.5 72 23.5 73 32.5 C 74 41.5 71 49.5 67 56.5 C 62 64 54 71.5 44 72.5 C 34 73.5 25.5 71 18 66 C 10 60 4.5 52 4 42.5 C 3.5 32.5 6.5 24.5 12 18 C 18 11 27.5 5.5 38 4.5 Z"
+          fill={`url(#waxGrad-${sealId})`}
+        />
+
+        {/* Outer Embossed Lip Highlights */}
+        <circle cx="38" cy="38" r="28" fill="none" stroke="#ffffff" strokeWidth="0.8" opacity="0.35" />
+        <circle cx="38" cy="38" r="27" fill="none" stroke="#000000" strokeWidth="0.8" opacity="0.25" />
+
+        {/* Gold Leaf Inner Accent Ring (Kin-paku 金箔枠) */}
+        <circle
+          cx="38"
+          cy="38"
+          r="24.5"
+          fill="none"
+          stroke={`url(#goldRing-${sealId})`}
+          strokeWidth="1.1"
+          strokeDasharray="4 2"
+          opacity="0.85"
+        />
+
+        {/* Debossed Seal Cavity */}
+        <circle cx="38" cy="38" r="23" fill={`url(#waxBed-${sealId})`} />
+
+        {/* Debossed Sacred Kanji Stamp */}
+        <text
+          x="38"
+          y={kanji.length > 2 ? "37" : "39"}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill="#fefefe"
+          fontSize={kanji.length > 2 ? "16" : "21"}
+          fontFamily="serif"
+          fontWeight="900"
+          letterSpacing="0.04em"
+          style={{
+            filter: "drop-shadow(0 1px 1.5px rgba(0,0,0,0.7)) drop-shadow(0 -0.5px 0.5px rgba(255,255,255,0.4))"
+          }}
+        >
+          {kanji}
+        </text>
+
+        {/* Refined Romaji Subtext */}
+        <text
+          x="38"
+          y="54"
+          textAnchor="middle"
+          fill="#fef08a"
+          fontSize="6.5"
+          fontFamily="sans-serif"
+          fontWeight="800"
+          letterSpacing="0.14em"
+          opacity="0.95"
+          style={{
+            textTransform: "uppercase",
+            filter: "drop-shadow(0 0.5px 1px rgba(0,0,0,0.8))"
+          }}
+        >
+          {romaji}
+        </text>
+      </svg>
+    </div>
+  );
+}
