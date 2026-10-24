@@ -439,7 +439,7 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
 
       <footer className={gardenSkin.wisdom}><span aria-hidden="true">✧</span><p>{isEn ? todayWisdom.en : todayWisdom.th}</p></footer>
       <ConfirmModal open={isWaterConfirmOpen} title={isEn ? "Water the garden today?" : "รดน้ำสวนวันนี้ไหม?"}
-        message={isEn ? "This daily ritual reveals your Omikuji fortune and adds 5 serenity coins." : "กิจวัตรนี้จะเปิดคำทำนายประจำวันและเพิ่มเหรียญแห่งสติ 5 เหรียญ"}
+        message={isEn ? "This daily ritual reveals your 100 Asakusa Omikuji fortune across 5 dimensions and adds 5 serenity coins." : "กิจวัตรนี้จะเปิดคำทำนายเซียมซี 100 ใบของวัดอาซากุสะ พร้อมคำแนะนำ 5 ด้าน และเพิ่มเหรียญแห่งสติ 5 เหรียญ"}
         confirmLabel={isEn ? "Water today" : "รดน้ำวันนี้"} cancelLabel={isEn ? "Cancel" : "ยกเลิก"} loadingLabel={isEn ? "Saving…" : "กำลังบันทึก…"} isLoading={isNourishing} onConfirm={() => void handleNurture()} onClose={() => setIsWaterConfirmOpen(false)} />
       <ConfirmModal open={guardianToConfirm !== null} title={isEn ? "Change garden guardian?" : "เปลี่ยนผู้พิทักษ์สวนไหม?"}
         message={guardianToConfirm ? (isEn ? `Set ${guardianToConfirm.name} as your active guardian?` : `ตั้ง${guardianToConfirm.nameTh}เป็นผู้พิทักษ์หลักไหม?`) : ""}

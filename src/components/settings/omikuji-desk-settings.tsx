@@ -260,7 +260,7 @@ export function OmikujiDeskSettings() {
                   : "text-theme-muted hover:text-theme-foreground"
               )}
             >
-              🇹🇭 ภาษาไทย
+              TH (ภาษาไทย)
             </button>
             <button
               type="button"
@@ -272,7 +272,7 @@ export function OmikujiDeskSettings() {
                   : "text-theme-muted hover:text-theme-foreground"
               )}
             >
-              🇬🇧 English
+              EN (English)
             </button>
           </div>
         </SettingsRow>

@@ -4,6 +4,8 @@
  * and state validation for the Solitary Zen Garden micro-sanctuary.
  */
 
+import { getFortuneByNumber, getRankVisual } from "@/lib/omikuji/omikuji-data";
+
 export interface BotanicalPlant {
   id: string;
   name: string;
@@ -178,7 +180,15 @@ export const BOTANICAL_PLANTS: BotanicalPlant[] = [
   }
 ];
 
-export type FortuneGrade = "daikichi" | "chukichi" | "kichi" | "shokichi" | "suekichi";
+export type FortuneGrade =
+  | "daikichi"
+  | "chukichi"
+  | "kichi"
+  | "shokichi"
+  | "suekichi"
+  | "hankichi"
+  | "sueshokichi"
+  | "kyo";
 
 export interface DailyFortune {
   date: string;
@@ -194,6 +204,25 @@ export interface DailyFortune {
   workGuidanceTh: string;
   luckyFocus: string;
   luckyFocusTh: string;
+
+  // 100 Asakusa Kannon Omikuji Fields
+  fortuneNumber?: number;
+  rankJp?: string;
+  rankRomaji?: string;
+  rankTh?: string;
+  rankEn?: string;
+  titleTh?: string;
+  titleEn?: string;
+  careerTh?: string;
+  careerEn?: string;
+  financeTh?: string;
+  financeEn?: string;
+  loveTh?: string;
+  loveEn?: string;
+  healthTh?: string;
+  healthEn?: string;
+  growthTh?: string;
+  growthEn?: string;
 }
 
 export interface GardenPlot {
@@ -661,9 +690,51 @@ export function generateDailyFortune(dateStr: string, streak: number = 1): Daily
   for (let i = 0; i < dateStr.length; i++) {
     hash = (hash * 31 + dateStr.charCodeAt(i)) >>> 0;
   }
-  hash = (hash + streak * 7) % ZEN_DAILY_FORTUNES.length;
+  hash = (hash + streak * 7) >>> 0;
 
-  const base = ZEN_DAILY_FORTUNES[hash];
+  // Draw authentic 100 Asakusa Kannon fortune
+  const cardNum = (hash % 100) + 1;
+  const omikuji = getFortuneByNumber(cardNum);
+
+  if (omikuji) {
+    const meta = getRankVisual(omikuji.rank_romaji);
+    return {
+      date: dateStr,
+      grade: omikuji.rank_romaji.toLowerCase() as FortuneGrade,
+      gradeName: `${omikuji.rank_jp} · ${omikuji.rank_th}`,
+      gradeNameEn: `${omikuji.rank_romaji} (${omikuji.rank_en})`,
+      badgeTone: meta.badgeClass,
+      verse: omikuji.central_theme_en,
+      verseTh: omikuji.central_theme_th,
+      oracle: omikuji.career_work_en,
+      oracleTh: omikuji.career_work_th,
+      workGuidance: omikuji.personal_growth_en,
+      workGuidanceTh: omikuji.personal_growth_th,
+      luckyFocus: `${omikuji.title_en} · No. ${omikuji.number}`,
+      luckyFocusTh: `${omikuji.title_th} · ใบที่ ${omikuji.number}`,
+
+      fortuneNumber: omikuji.number,
+      rankJp: omikuji.rank_jp,
+      rankRomaji: omikuji.rank_romaji,
+      rankTh: omikuji.rank_th,
+      rankEn: omikuji.rank_en,
+      titleTh: omikuji.title_th,
+      titleEn: omikuji.title_en,
+      careerTh: omikuji.career_work_th,
+      careerEn: omikuji.career_work_en,
+      financeTh: omikuji.finance_wealth_th,
+      financeEn: omikuji.finance_wealth_en,
+      loveTh: omikuji.love_relationships_th,
+      loveEn: omikuji.love_relationships_en,
+      healthTh: omikuji.health_wellness_th,
+      healthEn: omikuji.health_wellness_en,
+      growthTh: omikuji.personal_growth_th,
+      growthEn: omikuji.personal_growth_en
+    };
+  }
+
+  const legacyHash = hash % ZEN_DAILY_FORTUNES.length;
+  const base = ZEN_DAILY_FORTUNES[legacyHash];
   return {
     ...base,
     date: dateStr

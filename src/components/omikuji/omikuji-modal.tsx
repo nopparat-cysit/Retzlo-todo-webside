@@ -10,7 +10,12 @@ import {
   RotateCcw,
   Languages,
   Calendar,
-  Compass
+  Compass,
+  Briefcase,
+  Coins,
+  Heart,
+  Activity,
+  Sprout
 } from "lucide-react";
 import { ModalPortal } from "@/components/ui/modal-portal";
 import { Button } from "@/components/ui/button";
@@ -121,17 +126,17 @@ export function OmikujiModal({ open, onClose, projectId }: OmikujiModalProps) {
     const growth = isEn ? fortune.personal_growth_en : fortune.personal_growth_th;
 
     const textToCopy = `══════════════════════════════════
-🎋 Retzlo Asakusa Kannon Omikuji (第${fortune.number}番)
-ระดับโชค: ${fortune.rank_jp} (${fortune.rank_romaji} - ${rank})
-หัวข้อ: ${title}
+Sensoji Asakusa Kannon Omikuji (No. ${fortune.number})
+Rank: ${fortune.rank_jp} (${fortune.rank_romaji} - ${rank})
+Title: ${title}
 ══════════════════════════════════
-✨ สัจธรรมหลัก: ${theme}
+• Wisdom: ${theme}
 
-💼 การงาน & การสร้างสรรค์: ${career}
-💰 การเงิน & โชคลาภ: ${finance}
-❤️ ความสัมพันธ์ & ความรัก: ${love}
-🌿 สุขภาพ & ความเป็นอยู่: ${health}
-🌱 การเติบโต & การพัฒนาตนเอง: ${growth}
+[1] Career & Craft: ${career}
+[2] Finance & Wealth: ${finance}
+[3] Love & Relationships: ${love}
+[4] Health & Wellness: ${health}
+[5] Personal Growth: ${growth}
 ══════════════════════════════════`;
 
     try {
@@ -168,19 +173,19 @@ export function OmikujiModal({ open, onClose, projectId }: OmikujiModalProps) {
     const content = `> **${fortune.rank_jp} · ${fortune.rank_romaji} (${rank})**
 > *${theme}*
 
-### 💼 Career & Work
+### Career & Work
 ${career}
 
-### 💰 Finance & Wealth
+### Finance & Wealth
 ${finance}
 
-### ❤️ Love & Relationships
+### Love & Relationships
 ${love}
 
-### 🌿 Health & Wellness
+### Health & Wellness
 ${health}
 
-### 🌱 Personal Growth
+### Personal Growth
 ${growth}
 
 ---
@@ -194,7 +199,7 @@ ${growth}
           body: JSON.stringify({
             title,
             content,
-            emoji: "🎋",
+            emoji: "scroll",
             color: "amber"
           })
         });
@@ -450,7 +455,7 @@ ${growth}
                   {/* 1. Career & Work */}
                   <div className="rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/40 p-3">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-400 mb-1">
-                      <span>💼</span>
+                      <Briefcase className="h-3.5 w-3.5" />
                       <span>{activeLanguage === "en" ? "Career & Craft" : "การงานและการสร้างสรรค์"}</span>
                     </div>
                     <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
@@ -461,7 +466,7 @@ ${growth}
                   {/* 2. Finance & Wealth */}
                   <div className="rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/40 p-3">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 mb-1">
-                      <span>💰</span>
+                      <Coins className="h-3.5 w-3.5" />
                       <span>{activeLanguage === "en" ? "Finance & Wealth" : "การเงินและโชคลาภ"}</span>
                     </div>
                     <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
@@ -472,7 +477,7 @@ ${growth}
                   {/* 3. Love & Relationships */}
                   <div className="rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/40 p-3">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-rose-700 dark:text-rose-400 mb-1">
-                      <span>❤️</span>
+                      <Heart className="h-3.5 w-3.5" />
                       <span>{activeLanguage === "en" ? "Love & Relationships" : "ความสัมพันธ์และความรัก"}</span>
                     </div>
                     <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
@@ -483,7 +488,7 @@ ${growth}
                   {/* 4. Health & Wellness */}
                   <div className="rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/40 p-3">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
-                      <span>🌿</span>
+                      <Activity className="h-3.5 w-3.5" />
                       <span>{activeLanguage === "en" ? "Health & Wellness" : "สุขภาพและความเป็นอยู่"}</span>
                     </div>
                     <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
@@ -494,7 +499,7 @@ ${growth}
                   {/* 5. Personal Growth (Full Width on 2-col) */}
                   <div className="sm:col-span-2 rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/40 p-3">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-400 mb-1">
-                      <span>🌱</span>
+                      <Sprout className="h-3.5 w-3.5" />
                       <span>{activeLanguage === "en" ? "Personal Growth" : "การเติบโตและการพัฒนาตนเอง"}</span>
                     </div>
                     <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
