@@ -16,9 +16,10 @@ describe("ZenSanctuaryModal contract & render safety", () => {
     expect(source).toContain("{isEn ? seasonLabels.en : seasonLabels.th}");
   });
 
-  it("renders the authentic Japanese Omikuji Fortune Scroll", () => {
-    expect(source).toContain("<ZenOmikujiScroll");
-    expect(source).toContain("currentFortune.grade");
+  it("renders the resolved bilingual fortune in the dedicated reader", () => {
+    expect(source).toContain("<ZenFortuneReading");
+    expect(source).toContain("resolveFortuneData");
+    expect(source).toContain("dimensions={dimensions}");
   });
 
   it("supports daily watering to reveal omikuji fortune and award bonus coins", () => {

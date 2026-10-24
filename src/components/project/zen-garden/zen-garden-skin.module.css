@@ -154,6 +154,7 @@
 .modalHeader { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 23px 30px; border-bottom: 1px solid var(--garden-line); flex-shrink: 0; }
 .modalHeader .title { font-size: 23px; }
 .modalBody { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 24px 30px 28px; scrollbar-width: thin; scrollbar-color: var(--garden-line) transparent; }
+.modalBody.fortuneBody { display: flex; flex: 1; overflow: hidden; padding: 0; }
 .modalScene { height: 230px; }
 .modalScene .sceneCopy { top: 30px; left: 28px; }
 .modalScene .sceneCopy > p { font-size: 28px; }

@@ -36,12 +36,12 @@ createRoot(document.getElementById("root")).render(<ThemeProvider><LanguageProvi
 `;
 const server = await createServer({
   root, configFile: false, server: { host: "127.0.0.1", port: 0, watch: { ignored: ["**/.next/**"] } },
-  resolve: { alias: [{ find: "@", replacement: `${root}/src` }] },
+  resolve: { alias: [{ find: "next/navigation", replacement: "\0zen-navigation" }, { find: "@", replacement: `${root}/src` }] },
   esbuild: { jsx: "automatic", tsconfigRaw: { compilerOptions: { jsx: "react-jsx" } } },
   plugins: [{
     name: "zen-garden-review",
-    resolveId(id) { if (id === "/zen-fixture.jsx") return fixtureId; },
-    load(id) { if (id === fixtureId) return fixture; },
+    resolveId(id) { if (id === "next/navigation" || id === "\0zen-navigation") return "\0zen-navigation"; if (id === "/zen-fixture.jsx") return fixtureId; },
+    load(id) { if (id === "\0zen-navigation") return 'export function useParams(){return {id:"fixture-project"}}'; if (id === fixtureId) return fixture; },
     async transform(code,id) { if(id===fixtureId) return transformWithEsbuild(code,id,{loader:"jsx",jsx:"automatic"}); },
     configureServer(vite) {
       vite.middlewares.use(async(req,res,next)=>{
@@ -56,6 +56,7 @@ const date = new Date().toISOString().slice(0,10);
 const fortune = { date, grade:"daikichi",gradeName:"โชคดีมาก",gradeNameEn:"Great Fortune",badgeTone:"",verse:"Small roots grow into quiet strength.",verseTh:"รากเล็ก ๆ ที่ได้รับการดูแล จะเติบโตเป็นความเข้มแข็งที่เงียบงาม",oracle:"Let patience guide your progress. Today is a chance to notice the small things that already support you.",oracleTh:"วันนี้เป็นโอกาสที่จะมองเห็นคุณค่าของสิ่งเล็ก ๆ ที่คอยเกื้อหนุนคุณอยู่เสมอ ให้ความอดทนและความอ่อนโยนเป็นผู้นำทาง ไม่จำเป็นต้องรีบร้อน ทุกก้าวเล็ก ๆ ที่ตั้งใจมีความหมาย",workGuidance:"Choose one meaningful task. Give it your attention, then leave room for rest.",workGuidanceTh:"เลือกงานสำคัญหนึ่งอย่าง แล้วให้เวลากับมันอย่างเต็มที่ แบ่งงานเป็นขั้นตอนเล็ก ๆ และเว้นพื้นที่ให้ตัวเองได้พักบ้าง",luckyFocus:"A green notebook",luckyFocusTh:"สมุดบันทึกสีเขียว" };
 let state = {nurtureStreak:4,lastWateredDate:null,activeGuardianId:"bonsai",totalNourished:4,totalZenMinutes:2,soundMuted:true};
 let coins=480, mode="success", mutations=0;
+const notes=[];
 let browser, page;
 const errors=[];
 const checks=[];
@@ -65,6 +66,8 @@ try {
   browser=await chromium.launch({headless:true, ...(process.env.ZEN_CHROMIUM_PATH ? {executablePath:process.env.ZEN_CHROMIUM_PATH}: {})});
   page=await browser.newPage({viewport:{width:1280,height:960},deviceScaleFactor:1});
   page.setDefaultTimeout(12000);
+  await page.context().grantPermissions(["clipboard-read","clipboard-write"]);
+  await page.route("**/api/projects/fixture-project/notes", async route=>{notes.push(route.request().postDataJSON());return route.fulfill({json:{id:"fixture-note",success:true}});});
   page.on("pageerror",e=>{ errors.push(e.message); console.error("Browser runtime:",e.message); });
   page.on("response",response=>{if(response.url().includes("/zen-garden/") && response.status()>=400) errors.push(`Asset ${response.status()}: ${response.url()}`);});
   await page.addInitScript(()=>{localStorage.setItem("retzlo_language","th");localStorage.setItem("retzlo-theme","dark");});
@@ -82,7 +85,7 @@ try {
   });
   const url=`http://127.0.0.1:${server.httpServer.address().port}`;
   console.log("Garden fixture:",url);
-  await page.goto(url,{waitUntil:"domcontentloaded"});
+  await page.goto(url,{waitUntil:"domcontentloaded",timeout:90000});
   await page.getByRole("heading",{name:"สวนแห่งสติ"}).waitFor();
   await page.evaluate(()=>Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,5000))]));
   console.log("Garden component rendered");
@@ -149,6 +152,19 @@ try {
   await page.getByRole("button",{name:/อ่านคำทำนายวันนี้/}).click();
   await page.getByRole("heading",{name:"คำทำนายของวันนี้"}).waitFor();
   await shot("desktop-dark-th-fortune");
+  const reader=page.getByRole("dialog");
+  await reader.getByRole("button",{name:"Show English",exact:true}).click();
+  await reader.getByRole("heading",{name:"Career & Purpose",exact:true}).waitFor();
+  assert.equal(await reader.locator("article section").count(),6);
+  await reader.getByRole("button",{name:"Copy reading",exact:true}).click();
+  assert.match(await page.evaluate(()=>navigator.clipboard.readText()),/Career|career|Purpose/);
+  await reader.getByRole("button",{name:"Add to project notes",exact:true}).click();
+  await page.waitForFunction(()=>!document.querySelector('[class*="saveButton"]')?.disabled);
+  assert.equal(notes.length,1);
+  assert.ok(notes[0].content.length>100);
+  await reader.screenshot({path:join(output,"reading-desktop-dark-en.png")});
+  await reader.getByRole("button",{name:"แสดงภาษาไทย",exact:true}).click();
+  checks.push("Independent reading language, five dimensions, clipboard copy and project-note attachment");
   assert.equal(await page.evaluate(()=>document.body.style.overflow),"hidden");
   const readingButtons=page.getByRole("dialog").getByRole("button");
   await readingButtons.last().focus();
@@ -178,10 +194,15 @@ try {
       await page.getByRole("button",{name:language==="th" ? /อ่านคำทำนายวันนี้/ : /Read today's fortune/}).click();
       const dialog=page.getByRole("dialog");
       await dialog.waitFor();
-      const body=dialog.locator('[class*="modalBody"]');
+      await dialog.getByRole("button",{name:language==="th" ? "แสดงภาษาไทย" : "Show English",exact:true}).click();
+      const body=dialog.getByRole("region",{name:language==="th" ? "เนื้อหาคำทำนาย" : "Fortune reading"});
       assert.equal(await body.evaluate(el=>el.scrollHeight>el.clientHeight),true);
       await body.evaluate(el=>el.scrollTop=el.scrollHeight);
       await shot(`mobile-${theme}-${language}-fortune`);
+      await dialog.screenshot({path:join(output,`reading-${theme}-${language}.png`)});
+      const action=dialog.getByRole("button",{name:language==="th" ? "แนบในโน้ตโปรเจกต์" : "Add to project notes",exact:true});
+      const bounds=await action.boundingBox();
+      assert.ok(bounds.y+bounds.height<=844,"Fortune actions stay visible");
       await page.keyboard.press("Escape");
     }
   }
@@ -210,6 +231,12 @@ try {
   await page.getByLabel("Garden",{exact:true}).click();
   await page.getByRole("heading",{name:"Zen Garden"}).waitFor();
   await shot("desktop-real-studio-tools");
+  await page.keyboard.press("Escape");
+  await page.locator('[data-fixture="reading"]').click();
+  const finalReading=page.getByRole("dialog");
+  await finalReading.getByRole("button",{name:"Show English",exact:true}).click();
+  await finalReading.screenshot({path:join(output,"reading-desktop-light-en.png")});
+  await page.keyboard.press("Escape");
   checks.push("Actual compact/expanded Studio Tools; scoped popover color and breakpoint dismissal");
   assert.deepEqual(errors,[],"browser runtime errors");
   const result={checks,screenshots:output,runtimeErrors:errors};

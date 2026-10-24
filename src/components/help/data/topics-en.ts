@@ -486,7 +486,7 @@ export const TOPICS_EN: GuideTopic[] = [
     concept:
       "The Zen Garden brings short restorative routines together: check today's status, water once to reveal an Omikuji fortune and earn 5 coins, choose an unlocked plant as your guardian, or pause for a four-part breathing exercise.",
     highlights: [
-      "Daily fortune: Read a short preview, then open the full reading with a verse, oracle, work guidance, and lucky focus item.",
+      "Daily fortune: Read the reflection and five life/work sections. Switch Thai/English, copy the reading, or add it to project notes using the visible footer actions.",
       "Botanical collection: Check your coin balance and unlock status, then confirm a plant to set it as your garden guardian.",
       "One-minute reset: Follow 4 seconds in, hold 4, out 4, and rest 4; start, pause, and reset the session.",
       "Hand-drawn SVG landscape: Mount Fuji, raked sand, and botanical artwork adapt to the time of day and season.",
@@ -775,7 +775,7 @@ export const TOPICS_EN: GuideTopic[] = [
     summary:
       "A quiet garden for a daily watering ritual, botanical guardians, a short fortune reading, and guided breathing.",
     concept:
-      "The Garden uses a quiet forest-and-paper identity, with an atmospheric painted garden and matching botanical illustrations. The palette follows Light, Dark, or System while the landscape stays softly moonlit and the fortune reads like a warm paper scroll.",
+      "The Garden uses a quiet forest-and-paper identity, with an atmospheric painted garden and matching botanical illustrations. The palette follows Light, Dark, or System while the landscape stays softly moonlit and the fortune reads like a warm paper journal.",
     highlights: [
       "Today: Confirm one watering ritual each day to reveal your fortune and earn 5 serenity coins. Read the short preview or open the full reading.",
       "Plants: Browse unlocked and locked plants, compare coin costs, and confirm before choosing a new guardian.",
@@ -792,7 +792,7 @@ export const TOPICS_EN: GuideTopic[] = [
       {
         step: "02",
         title: "Water and read your fortune",
-        desc: "Confirm watering once per day to reveal the fortune and earn 5 coins. Open the full reading for guidance and a lucky focus item.",
+        desc: "Confirm watering once per day to reveal the fortune and earn 5 coins. Open the full reading for five life/work sections. Switch Thai/English, copy, or add to project notes; outside a project, copy as a note.",
       },
       {
         step: "03",

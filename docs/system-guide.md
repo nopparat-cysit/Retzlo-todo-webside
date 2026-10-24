@@ -180,11 +180,11 @@ Retzlo is a Modular Life and Work Management Platform designed with a warm, clea
 ### 2.14 Solitary Zen Garden & Daily Fortune
 - **Location:** Open `Garden` from Studio Tools in the project top bar.
 - **Today tab:** Check whether the daily ritual is ready. Confirm watering once per day to reveal an Omikuji fortune and earn 5 serenity coins. After watering, read the fortune preview or open the full reading.
-- **Full daily reading:** The sanctuary shows the fortune grade and verse, followed by separate sections for the oracle, today's work and focus guidance, and a lucky focus item. The page scrolls when the reading exceeds the viewport.
+- **Full daily reading:** Read the fortune title, rank, reflection and five sections: career, finances, relationships, health and personal growth. Switch the reading between Thai and English independently. Copy the reading or add it to project notes; outside a project, copy it as a note. Actions stay visible while the paper scrolls.
 - **Plants tab:** Browse the botanical collection, see each plant's coin requirement and unlock status, and confirm a change to the active garden guardian.
 - **Rest tab:** Start a one-minute 4-4-4-4 breathing session (inhale, hold, exhale, rest). Pause or reset the session at any time.
 - **Garden art & sound:** A painted moonlit landscape and matching botanical illustrations create one quiet visual style. Color tints respond to season and time of day. Sound can be muted; touching the garden creates a water ripple and chime. Native SVG art remains available as a fallback for unlisted plants.
-- The garden uses a dedicated Quiet Garden palette: forest green in dark mode and soft sage paper in light mode. It follows the selected or system-resolved theme. The fortune scroll deliberately keeps warm paper artwork in both modes. Tabs support Left/Right/Home/End; the full reading traps keyboard focus and restores it on close.
+- The garden uses a dedicated Quiet Garden palette: forest green in dark mode and soft sage paper in light mode. It follows the selected or system-resolved theme. The fortune reading deliberately keeps warm paper in both modes. Tabs support Left/Right/Home/End; the full reading traps keyboard focus and restores it on close.
 
 ---
 
@@ -254,11 +254,11 @@ Retzlo คือแพลตฟอร์มบริหารจัดการ�
 #### สวน Zen Garden & คำทำนายประจำวัน (Solitary Zen Garden & Daily Fortune)
 - **ตำแหน่งเข้าใช้งาน:** เปิด `Garden` จากเมนู Studio Tools บนแถบด้านบนของโปรเจกต์
 - **แท็บ วันนี้:** ตรวจสถานะกิจวัตร หากพร้อมให้กดยืนยันรดน้ำวันละครั้งเพื่อเปิดคำทำนายและรับ 5 เหรียญ หลังรดน้ำแล้วอ่านคำทำนายย่อหรือเปิดฉบับเต็มได้
-- **คำทำนายฉบับเต็ม:** แสดงระดับคำทำนายและบทกวี แยกส่วนคำทำนาย แนวทางงานและการโฟกัสวันนี้ และสิ่งนำโชค หน้าจะเลื่อนได้เมื่อเนื้อหายาวกว่าพื้นที่แสดงผล
+- **คำทำนายฉบับเต็ม:** แสดงชื่อ ระดับ และข้อคิด พร้อมคำแนะนำ 5 ด้าน: งาน การเงิน ความสัมพันธ์ สุขภาพ และการเติบโต สลับไทย/อังกฤษเฉพาะใบคำทำนายได้ คัดลอกหรือแนบลงโน้ตโปรเจกต์ได้ (นอกโปรเจกต์จะคัดลอกเป็นโน้ต) ปุ่มอยู่ด้านล่างตลอดขณะเลื่อนอ่าน
 - **แท็บ พืช:** ดูคลังพฤกษา จำนวนเหรียญ เกณฑ์และสถานะปลดล็อกของแต่ละต้น แล้วกดยืนยันก่อนเปลี่ยนผู้พิทักษ์สวน
 - **แท็บ พักใจ:** เริ่มฝึกลมหายใจ 4-4-4-4 เป็นเวลา 1 นาที (เข้า กลั้น ออก พัก) สามารถหยุดชั่วคราวหรือรีเซ็ตได้
 - **ภาพสวนและเสียง:** ฉากสวนใต้แสงจันทร์กับภาพพฤกษาใช้ลายเส้นกลมกลืนกัน ปรับสีบรรยากาศตามฤดูกาลและช่วงเวลา ปิดเสียงได้ และแตะฉากเพื่อสร้างระลอกคลื่นพร้อมเสียงหยดน้ำ โดยเก็บ SVG เดิมไว้เป็น fallback สำหรับพืชที่ยังไม่มีภาพวาด
-- Garden ใช้ Quiet Garden palette เฉพาะพื้นที่สวน: ป่าเขียวในโหมดมืด และกระดาษสีเสจในโหมดสว่าง ตามธีมที่เลือกหรือระบบ ม้วนคำทำนายคงภาพกระดาษอุ่นตาทั้งสองโหมด ใช้ลูกศรซ้าย/ขวา/Home/End เปลี่ยนแท็บได้ หน้าคำทำนายจำกัดโฟกัสไว้ภายในและคืนโฟกัสเมื่อปิด
+- Garden ใช้ Quiet Garden palette เฉพาะพื้นที่สวน: ป่าเขียวในโหมดมืด และกระดาษสีเสจในโหมดสว่าง ตามธีมที่เลือกหรือระบบ ใบคำทำนายคงกระดาษอุ่นตาทั้งสองโหมด ใช้ลูกศรซ้าย/ขวา/Home/End เปลี่ยนแท็บได้ หน้าคำทำนายจำกัดโฟกัสไว้ภายในและคืนโฟกัสเมื่อปิด
 
 #### Creative Fortune & Omikuji Desk (ระบบเซียมซี 100 ใบสไตล์วัดอาซากุสะ)
 - **ตำแหน่งเข้าใช้งานหน้าบ้าน:** ไอคอนกระบอกเซียมซี `籤` บน Header (แถบ Studio Tools ด้านบน) เปิดหน้าต่างสัมผัสกระบอกไม้และคลี่ใบเซียมซีวินเทจ
