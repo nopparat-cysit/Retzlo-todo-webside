@@ -429,7 +429,12 @@ export function ProjectSettingsClient({
 
   return (
     <div className="scrollbar-soft h-full min-h-0 overflow-y-auto px-1 sm:px-2">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 pb-12 pt-2 lg:flex-row lg:items-start lg:gap-8">
+      <div
+        className={cn(
+          "mx-auto flex w-full flex-col gap-4 pb-12 pt-2 lg:flex-row lg:items-start lg:gap-8",
+          activeTab === "attributes" ? "max-w-[1600px] px-2 sm:px-4 lg:px-6" : "max-w-6xl"
+        )}
+      >
         {/* ── Sidebar (desktop) ── */}
         <aside className="hidden w-52 shrink-0 lg:sticky lg:top-2 lg:block">
           <Link
@@ -531,7 +536,13 @@ export function ProjectSettingsClient({
         </div>
 
         {/* ── Detail pane ── */}
-        <main className={cn("w-full min-w-0 flex-1 space-y-5", isNarrow && "lg:max-w-3xl")}>
+        <main
+          className={cn(
+            "w-full min-w-0 flex-1 space-y-5",
+            isNarrow && "lg:max-w-3xl",
+            activeTab === "attributes" && "max-w-none"
+          )}
+        >
           <header className="border-b border-theme-border pb-3">
             <p className="text-xs text-theme-muted">
               {currentTabInfo.group} / {currentTabInfo.shortLabel}

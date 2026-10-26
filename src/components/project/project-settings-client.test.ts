@@ -93,4 +93,9 @@ describe("ProjectSettingsClient scope-grouped settings architecture", () => {
     expect(cardModalSource).toContain('tab: "attributes"');
     expect(cardModalSource).toContain("/settings?");
   });
+
+  it("expands workspace container width when attributes tab is active", () => {
+    expect(source).toContain('activeTab === "attributes" ? "max-w-[1600px]');
+    expect(source).toContain('activeTab === "attributes" && "max-w-none"');
+  });
 });

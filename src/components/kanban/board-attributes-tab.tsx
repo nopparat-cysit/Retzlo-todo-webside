@@ -53,6 +53,8 @@ import {
   saveStoredStoryPoints
 } from "@/lib/kanban/difficulty";
 import { BoardPrioritiesTab } from "./board-priorities-tab";
+import { SpotlightCardModalPreview } from "./spotlight-card-modal-preview";
+import { type PriorityWorkflowTemplate, getPriorityColorConfig } from "@/lib/kanban/priority";
 import type { CustomPriority } from "@/types/kanban";
 import { cn } from "@/lib/utils";
 
@@ -312,6 +314,11 @@ export function BoardAttributesTab({
   const [isSaveCustomPointTemplateOpen, setIsSaveCustomPointTemplateOpen] = useState(false);
   const [customPointTemplateName, setCustomPointTemplateName] = useState("");
   const [customPointTemplateDesc, setCustomPointTemplateDesc] = useState("");
+
+  // Priority Template Live Preview State
+  const [previewPriorityTemplate, setPreviewPriorityTemplate] = useState<PriorityWorkflowTemplate | null>(null);
+
+  const displayedPriorities = previewPriorityTemplate ? previewPriorityTemplate.priorities : priorities;
 
   // Sync when boardId changes or external update occurs
   useEffect(() => {
@@ -720,10 +727,14 @@ export function BoardAttributesTab({
         </button>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────
-          SUB-TAB 1: STATUS & TEMPLATES
-         ───────────────────────────────────────────────────────────── */}
-      {activeSubTab === "status" && (
+      {/* ── 2-Column Responsive Workspace (Left: Controls, Right: Live Spotlight Card Modal Preview) ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start pt-1">
+        {/* LEFT COLUMN: Controls & Management Desk (xl:col-span-7) */}
+        <div className="xl:col-span-7 space-y-4 min-w-0">
+          {/* ─────────────────────────────────────────────────────────────
+              SUB-TAB 1: STATUS & TEMPLATES
+             ───────────────────────────────────────────────────────────── */}
+          {activeSubTab === "status" && (
         <div className="space-y-3.5">
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-0.5">
@@ -1294,6 +1305,8 @@ export function BoardAttributesTab({
           priorities={priorities}
           onChange={onPrioritiesChange}
           canManage={canManage}
+          onPreviewTemplateChange={setPreviewPriorityTemplate}
+          hideDefaultPreview={true}
         />
       )}
 
@@ -1636,6 +1649,173 @@ export function BoardAttributesTab({
           </div>
         </div>
       )}
+        </div>
+
+        {/* RIGHT COLUMN: Interactive Spotlight Card Modal Preview (xl:col-span-5) */}
+        <div className="xl:col-span-5 xl:sticky xl:top-3 space-y-4">
+          <SpotlightCardModalPreview
+            activeSection={activeSubTab}
+            statuses={displayedStatuses}
+            priorities={displayedPriorities}
+            storyPoints={displayedStoryPoints}
+            previewTemplateName={
+              activeSubTab === "status"
+                ? previewStatusTemplate?.name
+                : activeSubTab === "priority"
+                ? previewPriorityTemplate?.name
+                : previewPointTemplate?.name
+            }
+            onSectionClick={(sec) => setActiveSubTab(sec)}
+          />
+
+          {/* Supplementary previews per sub-tab */}
+          {activeSubTab === "story-points" && (
+            <div className="rounded-xl border border-amber-500/25 bg-amber-50/50 p-3 shadow-2xs dark:border-amber-400/20 dark:bg-amber-950/20 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-bold text-stone-700 dark:text-stone-300">
+                <div className="flex items-center gap-1.5">
+                  <Zap className="h-3.5 w-3.5 text-amber-500" />
+                  <span>Scale Badges Preview ({displayedStoryPoints.length} levels)</span>
+                </div>
+                {previewPointTemplate && (
+                  <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                    Scale: {previewPointTemplate.name}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {displayedStoryPoints.map((pt) => {
+                  const config = STORY_POINT_COLOR_CLASSES[pt.color || "cyan"] || STORY_POINT_COLOR_CLASSES.cyan;
+                  return (
+                    <div
+                      key={`${pt.score}-${pt.label}`}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-2xs transition-all",
+                        config.badgeClass,
+                        previewPointTemplate && "scale-102"
+                      )}
+                    >
+                      <span className="font-mono text-[10px] opacity-80">{pt.score} pts</span>
+                      <span>•</span>
+                      <span className="truncate max-w-[120px]">{pt.title || `${pt.score} pts`}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {activeSubTab === "priority" && (
+            <div className="rounded-xl border border-rose-500/25 bg-rose-50/50 p-3 shadow-2xs dark:border-rose-400/20 dark:bg-rose-950/20 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-bold text-stone-700 dark:text-stone-300">
+                <div className="flex items-center gap-1.5">
+                  <Flag className="h-3.5 w-3.5 text-rose-500" />
+                  <span>Kanban Card Mockup Preview (Board &amp; Export View)</span>
+                </div>
+                <span className="rounded-full border border-rose-200/70 bg-white/80 px-2 py-0.5 font-mono text-[9px] font-semibold text-rose-700 dark:border-white/10 dark:bg-white/5 dark:text-rose-300">
+                  Live Mockup
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {displayedPriorities.slice(0, 3).map((p, idx) => {
+                  const config = getPriorityColorConfig(p.color);
+                  const sampleTitles = [
+                    "Resolve critical production API latency",
+                    "Implement user dashboard filter state",
+                    "Polish empty state illustrations"
+                  ];
+                  return (
+                    <div
+                      key={`card-preview-${p.id || idx}`}
+                      className="rounded-xl border border-stone-200/80 bg-white p-2.5 space-y-1.5 shadow-2xs dark:border-white/10 dark:bg-stone-900/90"
+                    >
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                          TSK-{201 + idx}
+                        </span>
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1 rounded-full border px-1.5 py-0.2 text-[9px] font-bold",
+                            config.pillClass
+                          )}
+                        >
+                          <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", config.dotClass)} />
+                          <span>{p.label || "Priority"}</span>
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-medium text-stone-900 dark:text-stone-100 line-clamp-2 leading-snug">
+                        {sampleTitles[idx % sampleTitles.length]}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {activeSubTab === "status" && previewStatusTemplate && (
+            <div className="rounded-xl border border-indigo-200/70 bg-stone-100/60 dark:border-white/10 dark:bg-stone-900/50 p-2 sm:p-2.5 overflow-hidden shadow-2xs relative">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 top-0 h-4 sm:h-5 bg-gradient-to-b from-stone-100/95 via-stone-100/50 to-transparent dark:from-stone-900/95 dark:via-stone-900/50 dark:to-transparent z-10"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-4 sm:h-5 bg-gradient-to-t from-stone-100/95 via-stone-100/50 to-transparent dark:from-stone-900/95 dark:via-stone-900/50 dark:to-transparent z-10"
+              />
+              <div className="text-[11px] font-bold text-indigo-950 dark:text-indigo-200 pb-1.5 flex items-center justify-between">
+                <span>Kanban Columns: {previewStatusTemplate.name}</span>
+                <span className="font-mono text-[10px] text-indigo-600 dark:text-dusk-lavender">
+                  {displayedMockupStatuses.length} columns
+                </span>
+              </div>
+              <div className="flex gap-2 overflow-x-auto scrollbar-soft pb-1">
+                {displayedMockupStatuses.map((st, colIndex) => {
+                  const cfg = STATUS_COLOR_CONFIGS[st.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
+                  const sampleCards = getMockupSampleCards(st, colIndex);
+                  return (
+                    <div
+                      key={st.value}
+                      className="flex flex-col w-44 shrink-0 rounded-xl border border-stone-200/80 bg-white/95 dark:border-white/10 dark:bg-stone-900/95 shadow-2xs overflow-hidden"
+                    >
+                      <div className="flex items-center justify-between px-2 py-1.5 border-b border-stone-100 dark:border-white/5 bg-stone-50/70 dark:bg-white/[0.02]">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className={cn("h-2 w-2 rounded-full shrink-0", cfg.dot)} />
+                          <span className="text-[11px] font-bold text-stone-800 dark:text-stone-100 truncate">
+                            {st.label}
+                          </span>
+                        </div>
+                        <span className="font-mono text-[9px] font-bold text-stone-500 bg-stone-200/60 dark:bg-white/10 dark:text-stone-300 px-1 py-0.2 rounded-full">
+                          {sampleCards.length}
+                        </span>
+                      </div>
+                      <div className="p-1.5 space-y-1 max-h-[140px] overflow-y-auto scrollbar-soft">
+                        {sampleCards.slice(0, 1).map((card) => (
+                          <div
+                            key={card.code}
+                            className="rounded-lg border border-stone-200/80 bg-white dark:border-white/10 dark:bg-stone-800/80 p-1.5 space-y-1 text-left"
+                          >
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="font-mono text-[8px] font-bold px-1 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                                {card.code}
+                              </span>
+                              <span className="text-[8px] font-bold text-red-500">
+                                {card.priorityLabel}
+                              </span>
+                            </div>
+                            <p className="text-[10px] font-medium text-stone-900 dark:text-stone-100 line-clamp-1">
+                              {card.title}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
 
 

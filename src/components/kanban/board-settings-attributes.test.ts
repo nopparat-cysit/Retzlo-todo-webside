@@ -184,4 +184,33 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       expect(tshirt.points.map((p) => p.label)).toEqual(["XS", "S", "M", "L", "XL", "XXL"]);
     });
   });
+
+  describe("Spotlight Card Modal Preview & 2-Column Responsive Layout", () => {
+    it("verifies BoardAttributesTab implements 2-column layout with SpotlightCardModalPreview", () => {
+      const attrPath = resolve(__dirname, "board-attributes-tab.tsx");
+      const attrContent = readFileSync(attrPath, "utf-8");
+
+      expect(attrContent).toContain("SpotlightCardModalPreview");
+      expect(attrContent).toContain("xl:grid-cols-12");
+      expect(attrContent).toContain("xl:col-span-7");
+      expect(attrContent).toContain("xl:col-span-5");
+    });
+
+    it("verifies SpotlightCardModalPreview renders top/bottom fade gradient masks and skeleton spotlights", () => {
+      const previewPath = resolve(__dirname, "spotlight-card-modal-preview.tsx");
+      const previewContent = readFileSync(previewPath, "utf-8");
+
+      // Verify top and bottom fade gradient masks per user request
+      expect(previewContent).toContain("bg-gradient-to-b");
+      expect(previewContent).toContain("bg-gradient-to-t");
+      expect(previewContent).toContain("pointer-events-none absolute inset-x-0");
+
+      // Verify skeleton states for inactive sections and spotlight states for active section
+      expect(previewContent).toContain("animate-pulse");
+      expect(previewContent).toContain("activeSection === \"story-points\"");
+      expect(previewContent).toContain("activeSection === \"priority\"");
+      expect(previewContent).toContain("activeSection === \"status\"");
+      expect(previewContent).toContain("Spotlight");
+    });
+  });
 });
