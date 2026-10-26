@@ -278,11 +278,6 @@ export function BoardMockupPreview({
                     : "border-stone-200/80 dark:border-white/10"
                 )}
               >
-                {/* Top Colored Accent Bar */}
-                <span
-                  aria-hidden="true"
-                  className={cn("h-1 w-full shrink-0", theme.accentBarClass)}
-                />
 
                 {/* Column Header */}
                 <div

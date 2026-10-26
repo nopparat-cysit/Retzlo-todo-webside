@@ -366,8 +366,6 @@ function KanbanColumnComponent({
         onClick={toggleCollapse}
         title={`Click to expand column ${column.name}`}
       >
-        {/* Top Accent Strip */}
-        <div className={cn("absolute top-0 left-0 right-0 h-[3px]", theme.accentBarClass)} />
 
         {/* Top: Expand button & Column Icon */}
         <div className="flex flex-col items-center gap-2">
@@ -437,8 +435,6 @@ function KanbanColumnComponent({
       )}
     >
       <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl">
-        {/* ── Top Color Accent Strip ── */}
-        <div className={cn("h-[3px] w-full shrink-0", theme.accentBarClass)} />
 
       {/* ── Header ── */}
       <header className={cn("flex items-center gap-1.5 border-b px-2.5 py-2 select-none", theme.headerClass)}>

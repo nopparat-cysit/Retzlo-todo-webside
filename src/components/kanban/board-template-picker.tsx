@@ -290,7 +290,6 @@ export function BoardTemplatePicker({
                           color.columnClass
                         )}
                       >
-                        <span aria-hidden="true" className={cn("absolute inset-y-0 left-0 w-1", color.accentBarClass)} />
                         <div className="flex min-w-0 items-center gap-1.5 pl-1">
                           <ColumnIconGlyph icon={column.icon} className={cn("h-3.5 w-3.5 shrink-0", color.iconColorClass)} />
                           <span className="truncate text-[11px] font-medium text-theme-foreground">{column.name}</span>
