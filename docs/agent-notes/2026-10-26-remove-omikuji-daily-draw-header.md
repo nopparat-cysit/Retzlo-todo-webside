@@ -5,6 +5,8 @@
 
 ## Files Modified
 
+- `src/components/project/project-topbar-tools.tsx`:
+  - Removed `<OmikujiTrigger />` from both compact and wide desktop topbar views, completely removing the standalone Omikuji section from the project toolbar.
 - `src/components/omikuji/omikuji-modal.tsx`:
   - Removed the `Sensoji Omikuji · No. {fortune.number}` and `{settings.drawMode === "daily" && "Daily Draw"}` badge from the slip top controls row.
   - Realigned the top controls to keep the Language Switcher (`TH | EN`) neatly positioned at the top-right next to the modal close button.
