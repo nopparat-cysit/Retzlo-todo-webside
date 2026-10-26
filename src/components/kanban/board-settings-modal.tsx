@@ -466,11 +466,11 @@ export function BoardSettingsModal({
         open={open}
         onClose={onClose}
         labelledBy="board-settings-title"
-        contentClassName="max-w-4xl lg:max-w-5xl w-full my-auto overflow-hidden rounded-2xl shadow-2xl p-0 border border-theme-border"
+        contentClassName="w-[96vw] max-w-6xl xl:max-w-7xl 2xl:max-w-[1440px] my-auto overflow-hidden rounded-2xl shadow-2xl p-0 border border-theme-border"
         hasUnsavedChanges={isDirty}
       >
         <form
-          className="lofi-panel flex flex-col w-full h-[88vh] sm:h-[82vh] max-h-[720px] min-h-[500px] rounded-2xl overflow-hidden p-0 border-0 shadow-none bg-theme-panel text-theme-foreground"
+          className="lofi-panel flex flex-col w-full h-[92vh] sm:h-[88vh] max-h-[860px] min-h-[540px] rounded-2xl overflow-hidden p-0 border-0 shadow-none bg-theme-panel text-theme-foreground"
           onSubmit={handleSaveIntent}
         >
           {/* Header */}
@@ -572,7 +572,7 @@ export function BoardSettingsModal({
           {/* Master-Detail Layout */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden w-full">
             {/* Left Sidebar */}
-            <aside className="w-full md:w-52 lg:w-56 shrink-0 border-b md:border-b-0 md:border-r border-stone-200/80 dark:border-white/10 bg-stone-50/50 dark:bg-white/[0.015] p-3 flex flex-col justify-between overflow-y-auto">
+            <aside className="w-full md:w-52 lg:w-56 xl:w-60 shrink-0 border-b md:border-b-0 md:border-r border-stone-200/80 dark:border-white/10 bg-stone-50/50 dark:bg-white/[0.015] p-3 flex flex-col justify-between overflow-y-auto">
               <div className="space-y-2.5">
                 <div className="hidden md:block px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
                   Board Settings

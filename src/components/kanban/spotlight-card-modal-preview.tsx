@@ -161,7 +161,7 @@ export function SpotlightCardModalPreview({
             </div>
 
             {/* Status Options Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
+            <div className="flex flex-wrap gap-2">
               {statuses.map((option) => {
                 const cfg = STATUS_COLOR_CONFIGS[option.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
                 const isSelected = selectedStatus === option.value;
@@ -172,14 +172,14 @@ export function SpotlightCardModalPreview({
                     type="button"
                     onClick={() => setSelectedStatus(option.value)}
                     className={cn(
-                      "h-9 px-2.5 rounded-lg border text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer",
+                      "h-9 px-3 rounded-lg border text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer min-w-fit flex-1 sm:flex-initial",
                       isSelected
                         ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-300 ring-2 ring-emerald-500/30 shadow-xs"
                         : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:text-white"
                     )}
                   >
                     <span className={cn("h-2 w-2 rounded-full shrink-0", cfg.dot)} />
-                    <span className="truncate">{option.label}</span>
+                    <span className="whitespace-nowrap">{option.label}</span>
                   </button>
                 );
               })}
@@ -309,13 +309,13 @@ export function SpotlightCardModalPreview({
             </div>
 
             {/* Buttons Grid matching Image 5 */}
-            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 sm:gap-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {/* '-' No point button */}
               <button
                 type="button"
                 onClick={() => setSelectedScore(null)}
                 className={cn(
-                  "h-9 rounded-lg border text-xs font-semibold transition flex items-center justify-center cursor-pointer",
+                  "h-9 min-w-[36px] px-2.5 rounded-lg border text-xs font-semibold transition flex items-center justify-center cursor-pointer",
                   selectedScore === null
                     ? "border-amber-400/50 bg-amber-500/25 text-amber-200 ring-2 ring-amber-400/30 font-bold"
                     : "border-white/10 bg-white/[0.04] text-stone-400 hover:border-white/20 hover:text-white"
@@ -336,7 +336,7 @@ export function SpotlightCardModalPreview({
                     type="button"
                     onClick={() => setSelectedScore(point.score)}
                     className={cn(
-                      "h-9 rounded-lg border text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer",
+                      "h-9 min-w-[42px] px-2.5 rounded-lg border text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer",
                       isSelected
                         ? "border-cyan-400 bg-cyan-500 text-stone-950 font-black ring-2 ring-cyan-400/50 shadow-md"
                         : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:text-white"

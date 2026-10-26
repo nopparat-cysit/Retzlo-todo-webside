@@ -1126,7 +1126,7 @@ export function BoardAttributesTab({
           </div>
 
           {/* 3. Decorated Status List */}
-          <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[340px] overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
+          <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[420px] overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
             {displayedStatuses.map((st, index) => {
               const cfg = STATUS_COLOR_CONFIGS[st.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
               const isDefault = st.isDefault || ["TODO", "DOING", "WAITING", "DONE"].includes(st.value);
@@ -1566,7 +1566,7 @@ export function BoardAttributesTab({
           </div>
 
           {/* Story Points List */}
-          <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[300px] overflow-y-auto dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
+          <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[420px] overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
             {displayedStoryPoints.map((pt) => {
               const colorConfig = STORY_POINT_COLOR_CLASSES[pt.color || "cyan"] || STORY_POINT_COLOR_CLASSES.cyan;
 
@@ -1641,7 +1641,7 @@ export function BoardAttributesTab({
                   >
                     <span className="font-mono text-[10px] opacity-80">{pt.score} pts</span>
                     <span>•</span>
-                    <span className="truncate max-w-[120px]">{pt.title || `${pt.score} pts`}</span>
+                    <span className="truncate max-w-[180px]">{pt.title || `${pt.score} pts`}</span>
                   </div>
                 );
               })}
@@ -1696,7 +1696,7 @@ export function BoardAttributesTab({
                     >
                       <span className="font-mono text-[10px] opacity-80">{pt.score} pts</span>
                       <span>•</span>
-                      <span className="truncate max-w-[120px]">{pt.title || `${pt.score} pts`}</span>
+                      <span className="truncate max-w-[180px]">{pt.title || `${pt.score} pts`}</span>
                     </div>
                   );
                 })}
