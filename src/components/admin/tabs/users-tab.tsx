@@ -20,10 +20,14 @@ import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 import { Panel } from "@/components/ui/panel";
 import type { AdminUser } from "../types";
+import { AdminPagination } from "../admin-pagination";
 
 interface UsersTabProps {
   users: AdminUser[];
   total: number;
+  page?: number;
+  pageSize?: number;
+  onPageChange?: (newPage: number) => void;
   search: string;
   onSearchChange: (val: string) => void;
   roleFilter: string;
@@ -37,6 +41,9 @@ interface UsersTabProps {
 export function UsersTab({
   users,
   total,
+  page = 1,
+  pageSize = 20,
+  onPageChange,
   search,
   onSearchChange,
   roleFilter,
@@ -231,6 +238,19 @@ export function UsersTab({
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Bar */}
+        {onPageChange && (
+          <AdminPagination
+            currentPage={page}
+            totalPages={Math.ceil(total / pageSize) || 1}
+            totalItems={total}
+            pageSize={pageSize}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+            itemLabel="users"
+          />
+        )}
       </div>
     </div>
   );

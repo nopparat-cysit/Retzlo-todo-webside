@@ -31,6 +31,7 @@ import { EmptyState, LoadingState } from "@/components/ui/state";
 import { useToast } from "@/components/ui/toast";
 import type { AdminAuditLog, AdminAuditMetrics } from "../types";
 import { AuditDetailDrawer } from "../drawers/audit-detail-drawer";
+import { AdminPagination } from "../admin-pagination";
 
 const CATEGORIES = [
   "ALL",
@@ -598,36 +599,15 @@ export function AuditTab() {
         </div>
 
         {/* Pagination Bar */}
-        <div className="flex items-center justify-between border-t border-border/60 px-4 py-3 dark:border-white/10 sm:px-6">
-          <div className="font-mono text-xs text-stone-500 dark:text-stone-400">
-            Page <span className="font-bold text-stone-800 dark:text-stone-200">{page}</span> of{" "}
-            <span className="font-bold text-stone-800 dark:text-stone-200">{totalPages}</span> ({total}{" "}
-            total events)
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fetchLogs(page - 1)}
-              disabled={page <= 1 || isLoading}
-              className="h-8 px-2.5 text-xs"
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              <span>Previous</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fetchLogs(page + 1)}
-              disabled={page >= totalPages || isLoading}
-              className="h-8 px-2.5 text-xs"
-            >
-              <span>Next</span>
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
-        </div>
+        <AdminPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={total}
+          pageSize={25}
+          onPageChange={fetchLogs}
+          isLoading={isLoading}
+          itemLabel="audit records"
+        />
       </Panel>
 
       {/* Legal & Compliance Safeguards Footer Banner */}

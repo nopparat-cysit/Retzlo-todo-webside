@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel } from "@/components/ui/panel";
 import type { AdminProject } from "../types";
+import { AdminPagination } from "../admin-pagination";
 
 interface WorkspacesTabProps {
   projects: AdminProject[];
   total: number;
+  page?: number;
+  pageSize?: number;
+  onPageChange?: (newPage: number) => void;
   search: string;
   onSearchChange: (val: string) => void;
   onInspectProject: (project: AdminProject) => void;
@@ -20,6 +24,9 @@ interface WorkspacesTabProps {
 export function WorkspacesTab({
   projects,
   total,
+  page = 1,
+  pageSize = 20,
+  onPageChange,
   search,
   onSearchChange,
   onInspectProject,
@@ -168,6 +175,19 @@ export function WorkspacesTab({
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Bar */}
+        {onPageChange && (
+          <AdminPagination
+            currentPage={page}
+            totalPages={Math.ceil(total / pageSize) || 1}
+            totalItems={total}
+            pageSize={pageSize}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+            itemLabel="workspaces"
+          />
+        )}
       </div>
     </div>
   );
