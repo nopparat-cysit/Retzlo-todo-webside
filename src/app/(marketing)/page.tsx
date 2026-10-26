@@ -784,10 +784,10 @@ export default function LandingPage() {
           {/* Brand Logo */}
           <Link
             href="/"
-            className="group inline-flex items-center gap-2 shrink-0 select-none"
+            className="group inline-flex items-center gap-2.5 sm:gap-3 shrink-0 select-none"
           >
-            <div className="w-8 h-6 shrink-0 transition-transform group-hover:scale-105">
-              <MixtapeLogoMark />
+            <div className="w-[36px] h-[28px] shrink-0 transition-transform group-hover:scale-105 flex items-center justify-center">
+              <MixtapeLogoMark className="w-full h-full" width={36} height={28} />
             </div>
             <span className="font-display text-xl sm:text-[22px] font-extrabold tracking-tight text-[var(--foreground)]">
               retzlo

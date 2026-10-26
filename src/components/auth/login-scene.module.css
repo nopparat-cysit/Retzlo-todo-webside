@@ -65,7 +65,7 @@
 .brandRow { display: flex; align-items: center; justify-content: space-between; }
 .brandRow > span { font-size: 10px; letter-spacing: 2.2px; color: #e4d2f8; }
 .brand { display: inline-flex; align-items: center; gap: 11px; color: #fff5ff; font-size: 34px; font-weight: 750; line-height: 1; letter-spacing: -1.6px; border-radius: 6px; }
-.brandMark { width: 46px; height: 36px; flex-shrink: 0; filter: drop-shadow(0 2px 0 #39216c30); }
+.brandMark { width: 46px; height: 36px; max-width: 100%; max-height: 100%; flex-shrink: 0; filter: drop-shadow(0 2px 0 #39216c30); }
 .brand:focus-visible { outline: 2px solid #ffecb1; outline-offset: 6px; }
 .headline { margin-top: 52px; }
 .eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 2.2px; color: #e0c8f6; }
