@@ -1685,7 +1685,6 @@ export function ProjectCalendar({
                     : isDiaryChecklist
                       ? (item as CalendarDiaryChecklist).completed
                       : false;
-                  const accentColorClass = getAccentBarColor(item.color);
 
                   return (
                     <div
@@ -1704,9 +1703,6 @@ export function ProjectCalendar({
                         isCompleted && "opacity-65 bg-stone-50/70 dark:bg-white/[0.01]"
                       )}
                     >
-                      {/* Left Color Accent Bar */}
-                      <div className={cn("w-1 self-stretch rounded-full shrink-0 my-0.5", accentColorClass)} />
-
                       {/* Interactive Checkbox / Type Icon */}
                       <div className="shrink-0 pt-0.5">
                         {isDiaryChecklist ? (
@@ -1817,6 +1813,16 @@ export function ProjectCalendar({
                                 )}
                               </span>
                             )}
+
+                            {item.color && item.color !== "DEFAULT" && (() => {
+                              const colorMeta = getCardColorMeta(item.color);
+                              return (
+                                <span className={cn("inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium", colorMeta.softClass)}>
+                                  <span className={cn("h-1.5 w-1.5 rounded-full border", colorMeta.swatchClass)} />
+                                  <span>{colorMeta.label}</span>
+                                </span>
+                              );
+                            })()}
                           </div>
 
                           {/* Time Indicator */}
@@ -2283,16 +2289,16 @@ function CalendarDiaryChecklistButton({
   item: CalendarDiaryChecklist;
   onToggle: (checked: boolean) => void;
 }) {
-  const accentBarColor = getAccentBarColor(item.color);
+  const colorMeta = getCardColorMeta(item.color);
 
   return (
     <div
       className={cn(
-        "flex w-full items-start gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/50 dark:border-white/10 dark:bg-white/[0.03] px-2 py-1.5 text-left text-xs transition hover:border-stone-300 dark:hover:border-white/20",
+        "group/pill flex w-full items-center gap-1.5 rounded-md border px-2 py-1 text-left text-xs transition hover:scale-[1.01] hover:border-stone-300 dark:hover:border-white/25",
+        colorMeta.softClass,
         item.completed && "opacity-60"
       )}
     >
-      <div className={cn("w-1 self-stretch rounded-full shrink-0 my-0.5", accentBarColor)} />
       <button
         type="button"
         role="checkbox"
@@ -2302,7 +2308,7 @@ function CalendarDiaryChecklistButton({
           onToggle(!item.completed);
         }}
         className={cn(
-          "relative mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-all duration-150 cursor-pointer active:scale-90",
+          "relative flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-all duration-150 cursor-pointer active:scale-90",
           item.completed
             ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
             : "border border-stone-400 bg-white hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/25 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
@@ -2310,22 +2316,20 @@ function CalendarDiaryChecklistButton({
       >
         {item.completed ? <Check className="h-2.5 w-2.5 stroke-[2.5]" /> : null}
       </button>
-      <div className="min-w-0 flex-1">
-        <span
-          className={cn(
-            "block truncate font-medium text-stone-900 dark:text-stone-100",
-            item.completed && "line-through text-stone-400 dark:text-stone-500"
-          )}
-          title={item.title}
-        >
-          {item.title}
-        </span>
-        {!item.isOnce && (
-          <span className="mt-0.5 block truncate text-[9px] text-stone-500 dark:text-stone-400" title={`Diary: ${item.diaryTitle}`}>
-            <RetzloUiIcon name="diary" size={12} /> {item.diaryTitle}
-          </span>
+      <span
+        className={cn(
+          "min-w-0 flex-1 truncate font-medium text-stone-900 dark:text-stone-100",
+          item.completed && "line-through text-stone-400 dark:text-stone-500"
         )}
-      </div>
+        title={item.title}
+      >
+        {item.title}
+      </span>
+      {!item.isOnce && (
+        <span className="shrink-0 text-[10px] text-stone-500 dark:text-stone-400 font-mono" title={`Diary: ${item.diaryTitle}`}>
+          {item.diaryTitle}
+        </span>
+      )}
     </div>
   );
 }
@@ -2337,16 +2341,16 @@ function UpcomingDiaryChecklist({
   item: CalendarDiaryChecklist;
   onToggle: (checked: boolean) => void;
 }) {
-  const accentBarColor = getAccentBarColor(item.color);
+  const colorMeta = getCardColorMeta(item.color);
 
   return (
     <div
       className={cn(
-        "w-full rounded-xl border border-stone-200/80 bg-stone-50/50 dark:border-white/10 dark:bg-white/[0.03] p-3 text-left text-sm transition hover:border-indigo-400 dark:hover:border-dusk-lavender/40 hover:bg-stone-100/60 dark:hover:bg-white/[0.06] flex items-start gap-2.5",
+        "w-full rounded-xl border p-3 text-left text-sm transition hover:scale-[1.005] hover:shadow-xs flex items-start gap-2.5",
+        colorMeta.softClass,
         item.completed && "opacity-65"
       )}
     >
-      <div className={cn("w-1 self-stretch rounded-full shrink-0 my-0.5", accentBarColor)} />
       <button
         type="button"
         role="checkbox"
@@ -2365,8 +2369,18 @@ function UpcomingDiaryChecklist({
         {item.completed ? <Check className="h-3 w-3 stroke-[2.5]" /> : null}
       </button>
       <div className="min-w-0 flex-1">
-        <p className={cn("font-medium text-stone-900 dark:text-stone-100", item.completed && "line-through text-stone-400 dark:text-stone-500")}>{item.title}</p>
-        <p className="mt-1 text-xs text-indigo-600 dark:text-dusk-cyan">{formatDue(item)}</p>
+        <p className={cn("font-medium text-stone-900 dark:text-stone-100", item.completed && "line-through text-stone-400 dark:text-stone-500")}>
+          {item.title}
+        </p>
+        <div className="mt-1 flex items-center gap-2">
+          <span className="text-xs text-indigo-600 dark:text-dusk-cyan">{formatDue(item)}</span>
+          {item.color && item.color !== "DEFAULT" && (
+            <span className={cn("inline-flex items-center gap-1 rounded px-1 text-[9px] font-semibold", colorMeta.accentClass)}>
+              <span className={cn("h-1.5 w-1.5 rounded-full", colorMeta.swatchClass)} />
+              {colorMeta.label}
+            </span>
+          )}
+        </div>
         {!item.isOnce && (
           <p className="mt-0.5 flex items-center gap-1 text-xs text-stone-500 dark:text-stone-400">
             <RetzloUiIcon name="diary" size={14} /> {item.diaryTitle}
@@ -2578,31 +2592,5 @@ function formatRangeLabel(days: Array<{ date: Date }>) {
   }
 
   return `${formatShortDate(first)} - ${formatMediumDate(last)}`;
-}
-
-function getAccentBarColor(color: unknown): string {
-  const norm = normalizeCardColor(color);
-  switch (norm) {
-    case "LAVENDER":
-      return "bg-dusk-lavender";
-    case "CYAN":
-      return "bg-dusk-cyan";
-    case "AMBER":
-      return "bg-dusk-amber";
-    case "ROSE":
-      return "bg-dusk-rose";
-    case "EMERALD":
-      return "bg-emerald-400";
-    case "VIOLET":
-      return "bg-violet-400";
-    case "BLUE":
-      return "bg-sky-400";
-    case "WINE":
-      return "bg-pink-400";
-    case "SLATE":
-      return "bg-slate-400";
-    default:
-      return "bg-indigo-400";
-  }
 }
 

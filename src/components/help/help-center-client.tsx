@@ -1191,7 +1191,7 @@ export function HelpCenterClient() {
                           className={cn(
                             "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                             activeHeadingId === "core-pillars"
-                              ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                              ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                               : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                           )}
                         >
@@ -1203,7 +1203,7 @@ export function HelpCenterClient() {
                           className={cn(
                             "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                             activeHeadingId === "architecture-hub"
-                              ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                              ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                               : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                           )}
                         >
@@ -1215,7 +1215,7 @@ export function HelpCenterClient() {
                           className={cn(
                             "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                             activeHeadingId === "live-demo"
-                              ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                              ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                               : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                           )}
                         >
@@ -1230,7 +1230,7 @@ export function HelpCenterClient() {
                         className={cn(
                           "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                           activeHeadingId === "overview"
-                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                             : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                         )}
                       >
@@ -1244,7 +1244,7 @@ export function HelpCenterClient() {
                         className={cn(
                           "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                           activeHeadingId === "live-demo"
-                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                             : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                         )}
                       >
@@ -1257,7 +1257,7 @@ export function HelpCenterClient() {
                       className={cn(
                         "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                         activeHeadingId === "capabilities"
-                          ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                          ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                           : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                       )}
                     >
@@ -1270,7 +1270,7 @@ export function HelpCenterClient() {
                         className={cn(
                           "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                           activeHeadingId === "workflow"
-                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                             : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                         )}
                       >
@@ -1284,7 +1284,7 @@ export function HelpCenterClient() {
                         className={cn(
                           "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                           activeHeadingId === "technical-specs"
-                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                             : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                       )}
                     >
@@ -1298,7 +1298,7 @@ export function HelpCenterClient() {
                         className={cn(
                           "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                           activeHeadingId === "prompt-cookbook"
-                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                             : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                         )}
                       >
@@ -1312,7 +1312,7 @@ export function HelpCenterClient() {
                         className={cn(
                           "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                           activeHeadingId === "view-comparison"
-                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                             : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                         )}
                       >
@@ -1326,7 +1326,7 @@ export function HelpCenterClient() {
                         className={cn(
                           "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                           activeHeadingId === "rbac-matrix"
-                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                             : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                         )}
                       >
@@ -1340,7 +1340,7 @@ export function HelpCenterClient() {
                         className={cn(
                           "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                           activeHeadingId === "tips"
-                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                             : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                         )}
                       >
@@ -1354,7 +1354,7 @@ export function HelpCenterClient() {
                         className={cn(
                           "transition truncate flex items-center gap-1.5 py-1 px-1 rounded-md",
                           activeHeadingId === "shortcuts"
-                            ? "text-indigo-600 dark:text-dusk-lavender font-semibold border-l-2 border-indigo-600 dark:border-dusk-lavender pl-2 bg-indigo-50/50 dark:bg-dusk-lavender/10"
+                            ? "text-indigo-700 dark:text-dusk-lavender font-semibold px-2 py-1 rounded-lg bg-indigo-50/80 dark:bg-dusk-lavender/15"
                             : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
                         )}
                       >

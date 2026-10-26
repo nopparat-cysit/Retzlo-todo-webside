@@ -1138,7 +1138,7 @@ export function BoardAttributesTab({
                 return (
                   <div
                     key={st.value}
-                    className="p-3 bg-indigo-50/30 dark:bg-ink-950/50 space-y-2.5 border-l-4 border-indigo-500"
+                    className="p-3 bg-indigo-50/40 dark:bg-indigo-950/20 space-y-2.5 rounded-xl border border-indigo-500/30 ring-1 ring-indigo-500/15"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
