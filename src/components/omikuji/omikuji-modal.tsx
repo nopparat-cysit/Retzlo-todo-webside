@@ -8,8 +8,6 @@ import {
   Check,
   FileText,
   RotateCcw,
-  Languages,
-  Calendar,
   Compass,
   Briefcase,
   Coins,
@@ -24,6 +22,7 @@ import { useOmikujiSettings, getActiveFortunes } from "@/lib/omikuji/omikuji-set
 import { getRankVisual, getDailyFortune, getRandomFortune } from "@/lib/omikuji/omikuji-data";
 import { OmikujiFortuneItem } from "@/types/omikuji";
 import { cn } from "@/lib/utils";
+import { OmikujiWaxSeal } from "@/components/project/zen-garden/zen-vector-art";
 
 interface OmikujiModalProps {
   open: boolean;
@@ -349,21 +348,9 @@ ${growth}
           {step === "slip" && fortune && (
             <div className="flex flex-col">
               {/* Slip Top Controls */}
-              <div className="flex items-center justify-between border-b border-stone-300/80 dark:border-stone-800 pb-3 mb-6">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400 font-mono">
-                    Sensoji Omikuji · No. {fortune.number}
-                  </span>
-                  {settings.drawMode === "daily" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
-                      <Calendar className="h-2.5 w-2.5" />
-                      Daily Draw
-                    </span>
-                  )}
-                </div>
-
+              <div className="flex items-center justify-end border-b border-stone-300/80 dark:border-stone-800 pb-3 mb-6 pr-8">
                 {/* Language Switcher */}
-                <div className="flex items-center gap-1 bg-stone-200/70 dark:bg-stone-800/80 p-0.5 rounded-lg mr-8">
+                <div className="flex items-center gap-1 bg-stone-200/70 dark:bg-stone-800/80 p-0.5 rounded-lg">
                   <button
                     type="button"
                     onClick={() => setActiveLanguage("th")}
@@ -409,23 +396,12 @@ ${growth}
                 {/* Wax Seal Stamp & Fortunate Rank */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-5 border-b border-stone-200 dark:border-stone-800">
                   <div className="flex items-center gap-4">
-                    {/* Wax Seal */}
-                    <div
-                      className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full shadow-lg border-2 border-amber-300/40 select-none"
-                      style={{
-                        backgroundColor: currentRankMeta?.sealColor || "#b91c1c",
-                        boxShadow: "0 4px 14px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.3)"
-                      }}
-                    >
-                      <div className="flex flex-col items-center justify-center">
-                        <span className="text-lg font-bold text-white drop-shadow-sm font-serif leading-none">
-                          {fortune.rank_jp}
-                        </span>
-                        <span className="text-[9px] uppercase tracking-wider text-amber-200/90 font-mono mt-0.5">
-                          {fortune.rank_romaji}
-                        </span>
-                      </div>
-                    </div>
+                    {/* Handcrafted 3D Wax Seal */}
+                    <OmikujiWaxSeal
+                      kanji={fortune.rank_jp}
+                      romaji={fortune.rank_romaji}
+                      sealColor={currentRankMeta?.sealColor || "#b91c1c"}
+                    />
 
                     <div>
                       <div className="flex items-center gap-2">

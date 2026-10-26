@@ -79,7 +79,7 @@ export function OmikujiTrigger({
           <TooltipContent side="bottom" className="text-xs">
             <p className="font-semibold">Creative Fortune & Omikuji (เซียมซี 100 ใบ)</p>
             <p className="text-[10px] text-theme-muted">
-              {settings.drawMode === "daily" ? "Daily Draw · วันละ 1 ใบ" : "Unlimited Draw · สุ่มอิสระ"}
+              {settings.drawMode === "daily" ? "เซียมซีรายวัน · วันละ 1 ใบ" : "สุ่มอิสระ"}
             </p>
           </TooltipContent>
         </Tooltip>
