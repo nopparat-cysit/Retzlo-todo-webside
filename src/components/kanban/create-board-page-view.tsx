@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, type FormEvent } from "react";
+import { useEffect, useState, useMemo, useRef, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -12,6 +12,7 @@ import {
   GitCommitHorizontal,
   Globe,
   Lock,
+  Search,
   Sparkles,
   Users
 } from "lucide-react";
@@ -106,7 +107,17 @@ export function CreateBoardPageView({
   // Members list
   const [members, setMembers] = useState<CreateBoardMemberOption[]>(projectMembers ?? []);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+  const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const hasFetchedMembers = useRef(false);
+
+  const filteredMembers = useMemo(() => {
+    const q = memberSearchQuery.trim().toLowerCase();
+    if (!q) return members;
+    return members.filter((m) =>
+      (m.name && m.name.toLowerCase().includes(q)) ||
+      (m.email && m.email.toLowerCase().includes(q))
+    );
+  }, [members, memberSearchQuery]);
 
   useEffect(() => {
     if (projectMembers && projectMembers.length > 0) {
@@ -505,15 +516,33 @@ export function CreateBoardPageView({
                       </span>
                     </div>
 
+                    {members.length > 10 && (
+                      <div className="relative">
+                        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-theme-muted" />
+                        <Input
+                          type="text"
+                          value={memberSearchQuery}
+                          onChange={(e) => setMemberSearchQuery(e.target.value)}
+                          placeholder="Search members..."
+                          className="h-8 pl-8 text-xs bg-theme-panel"
+                          disabled={isPending}
+                        />
+                      </div>
+                    )}
+
                     {isLoadingMembers ? (
                       <p className="py-2 text-center text-xs text-theme-muted">Loading members...</p>
                     ) : members.length === 0 ? (
                       <p className="py-2 text-center text-xs text-theme-muted">
                         No other members in this workspace.
                       </p>
+                    ) : filteredMembers.length === 0 ? (
+                      <p className="py-2 text-center text-xs text-theme-muted">
+                        No members found matching &quot;{memberSearchQuery}&quot;
+                      </p>
                     ) : (
                       <div className="max-h-48 space-y-1 overflow-y-auto pr-1 scrollbar-soft">
-                        {members.map((m) => {
+                        {filteredMembers.map((m) => {
                           const isSelected = selectedMemberIds.includes(m.userId);
                           const displayName = m.name || m.email || "Member";
                           return (
@@ -523,13 +552,24 @@ export function CreateBoardPageView({
                               disabled={isPending}
                               onClick={() => toggleMember(m.userId)}
                               className={cn(
-                                "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition cursor-pointer",
+                                "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition cursor-pointer text-left",
                                 isSelected
-                                  ? "bg-theme-paper-strong font-medium text-theme-accent"
+                                  ? "bg-theme-paper-strong font-medium text-theme-foreground"
                                   : "text-theme-muted hover:bg-theme-paper-strong hover:text-theme-foreground"
                               )}
                             >
-                              <div className="flex items-center gap-2 truncate">
+                              <div className="flex items-center gap-2.5 truncate">
+                                <div
+                                  className={cn(
+                                    "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
+                                    isSelected
+                                      ? "border-theme-accent bg-theme-accent text-white"
+                                      : "border-theme-border bg-theme-panel text-transparent"
+                                  )}
+                                  aria-hidden="true"
+                                >
+                                  <Check className="h-3 w-3 stroke-[2.5]" />
+                                </div>
                                 <Avatar
                                   user={{
                                     id: m.userId,
@@ -541,9 +581,9 @@ export function CreateBoardPageView({
                                 />
                                 <span className="truncate">{displayName}</span>
                               </div>
-                              {isSelected ? (
-                                <Check className="h-4 w-4 shrink-0 text-theme-accent" />
-                              ) : null}
+                              <span className="text-[10px] text-theme-muted">
+                                {isSelected ? "Allowed" : "No access"}
+                              </span>
                             </button>
                           );
                         })}

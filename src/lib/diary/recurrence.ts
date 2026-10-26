@@ -1,4 +1,4 @@
-export type DiaryRepeatUnit = "DAY" | "MONTH";
+export type DiaryRepeatUnit = "DAY" | "MONTH" | "ONCE";
 
 interface UtcDateParts {
   time: number;
@@ -43,6 +43,12 @@ export function isDiaryItemDueOnDate(
   intervalDays: number,
   repeatUnit: DiaryRepeatUnit = "DAY"
 ): boolean {
+  if (repeatUnit === "ONCE") {
+    const start = toUtcDayParts(startDate);
+    const selected = toUtcDayParts(selectedDate);
+    return selected.time === start.time;
+  }
+
   if (!Number.isInteger(intervalDays) || intervalDays < 1 || intervalDays > 365) {
     return false;
   }
@@ -101,7 +107,7 @@ export function isWeeklyOrMonthlyDiary(item: {
   repeatUnit?: DiaryRepeatUnit | string | null;
   intervalDays?: number | null;
 }): boolean {
-  if (item.repeatUnit === "MONTH") {
+  if (item.repeatUnit === "MONTH" || item.repeatUnit === "ONCE") {
     return true;
   }
   const interval = typeof item.intervalDays === "number" ? item.intervalDays : 1;
@@ -173,6 +179,11 @@ export function shouldShowDiaryOnCalendarDate(options: {
 
   // Today and past dates always display
   if (itemKey <= todayKey) {
+    return true;
+  }
+
+  // Once-off items (Todo) scheduled for this exact future date should ALWAYS display
+  if (options.checklistItem?.repeatUnit === "ONCE" || options.diary?.repeatUnit === "ONCE") {
     return true;
   }
 

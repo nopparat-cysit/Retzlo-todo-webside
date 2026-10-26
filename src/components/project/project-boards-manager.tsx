@@ -96,7 +96,17 @@ export function ProjectBoardsManager({
   const [accessBoard, setAccessBoard] = useState<BoardSummary | null>(null);
   const [accessIsPrivate, setAccessIsPrivate] = useState(false);
   const [accessMemberIds, setAccessMemberIds] = useState<string[]>([]);
+  const [accessMemberSearchQuery, setAccessMemberSearchQuery] = useState("");
   const [isSavingAccess, setIsSavingAccess] = useState(false);
+
+  const filteredAccessMembers = useMemo(() => {
+    const q = accessMemberSearchQuery.trim().toLowerCase();
+    if (!q) return projectMembers;
+    return projectMembers.filter((m) =>
+      (m.user.name && m.user.name.toLowerCase().includes(q)) ||
+      (m.user.email && m.user.email.toLowerCase().includes(q))
+    );
+  }, [projectMembers, accessMemberSearchQuery]);
 
   // Detailed Settings Modal State
   const [detailedSettingsBoard, setDetailedSettingsBoard] = useState<BoardSummary | null>(null);
@@ -748,38 +758,72 @@ export function ProjectBoardsManager({
                   <span className="font-semibold text-stone-300">Select Allowed Members</span>
                   <span className="text-stone-500">{accessMemberIds.length} allowed</span>
                 </div>
-                <div className="scrollbar-soft max-h-48 overflow-y-auto space-y-1.5 rounded-xl border border-white/10 bg-black/20 p-2">
-                  {projectMembers.map((m) => {
-                    const isSelected = accessMemberIds.includes(m.userId);
-                    return (
-                      <button
-                        key={m.userId}
-                        type="button"
-                        onClick={() => toggleAccessMember(m.userId)}
-                        className={cn(
-                          "flex w-full items-center justify-between rounded-lg p-2 text-xs transition",
-                          isSelected
-                            ? "bg-dusk-amber/15 text-dusk-amber font-medium"
-                            : "text-stone-400 hover:bg-white/5 hover:text-stone-200"
-                        )}
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <Avatar
-                            user={{
-                              id: m.userId,
-                              name: m.user.name,
-                              email: m.user.email,
-                              avatar: m.user.avatar
-                            }}
-                            size={20}
-                          />
-                          <span className="truncate">{m.user.name ?? m.user.email}</span>
-                        </div>
-                        {isSelected && <Check className="h-3.5 w-3.5 text-dusk-amber shrink-0" />}
-                      </button>
-                    );
-                  })}
-                </div>
+
+                {projectMembers.length > 10 && (
+                  <div className="relative">
+                    <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400" />
+                    <Input
+                      type="text"
+                      value={accessMemberSearchQuery}
+                      onChange={(e) => setAccessMemberSearchQuery(e.target.value)}
+                      placeholder="Search members..."
+                      className="h-8 pl-8 text-xs bg-white/5 border-white/10"
+                      disabled={isSavingAccess}
+                    />
+                  </div>
+                )}
+
+                {filteredAccessMembers.length === 0 ? (
+                  <p className="py-2 text-center text-xs text-stone-400">
+                    No members found matching &quot;{accessMemberSearchQuery}&quot;
+                  </p>
+                ) : (
+                  <div className="scrollbar-soft max-h-48 overflow-y-auto space-y-1.5 rounded-xl border border-white/10 bg-black/20 p-2">
+                    {filteredAccessMembers.map((m) => {
+                      const isSelected = accessMemberIds.includes(m.userId);
+                      return (
+                        <button
+                          key={m.userId}
+                          type="button"
+                          onClick={() => toggleAccessMember(m.userId)}
+                          className={cn(
+                            "flex w-full items-center justify-between rounded-lg p-2 text-xs transition cursor-pointer text-left",
+                            isSelected
+                              ? "bg-dusk-amber/15 text-stone-100 font-medium"
+                              : "text-stone-400 hover:bg-white/5 hover:text-stone-200"
+                          )}
+                        >
+                          <div className="flex items-center gap-2.5 truncate">
+                            <div
+                              className={cn(
+                                "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
+                                isSelected
+                                  ? "border-dusk-amber bg-dusk-amber text-stone-900"
+                                  : "border-white/20 bg-white/5 text-transparent"
+                              )}
+                              aria-hidden="true"
+                            >
+                              <Check className="h-3 w-3 stroke-[2.5]" />
+                            </div>
+                            <Avatar
+                              user={{
+                                id: m.userId,
+                                name: m.user.name,
+                                email: m.user.email,
+                                avatar: m.user.avatar
+                              }}
+                              size={20}
+                            />
+                            <span className="truncate">{m.user.name ?? m.user.email}</span>
+                          </div>
+                          <span className="text-[10px] text-stone-500">
+                            {isSelected ? "Allowed" : "No access"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 

@@ -67,7 +67,7 @@ export function normalizeDiaryChecklist(value: unknown, fallbackStartDate?: stri
       label: label.slice(0, 160),
       description: typeof entry.description === "string" ? entry.description.trim().slice(0, 1000) : "",
       intervalDays: sanitizeIntervalDays(entry.intervalDays),
-      repeatUnit: entry.repeatUnit === "MONTH" ? "MONTH" : "DAY",
+      repeatUnit: entry.repeatUnit === "MONTH" ? "MONTH" : entry.repeatUnit === "ONCE" ? "ONCE" : "DAY",
       startDate,
       dueTime: typeof entry.dueTime === "string" && timePattern.test(entry.dueTime) ? entry.dueTime : null,
       completedDates: normalizeCompletedDates(entry.completedDates)

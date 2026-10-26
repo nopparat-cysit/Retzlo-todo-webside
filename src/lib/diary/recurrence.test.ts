@@ -38,6 +38,13 @@ describe("Diary Recurrence Logic", () => {
       expect(isDiaryItemDueOnDate(start, "2026-09-21", 7, "DAY")).toBe(true);
       expect(isDiaryItemDueOnDate(start, "2026-09-08", 7, "DAY")).toBe(false);
     });
+
+    it("handles once-off single occurrence todo (repeatUnit: ONCE)", () => {
+      const start = "2026-10-27";
+      expect(isDiaryItemDueOnDate(start, "2026-10-27", 1, "ONCE")).toBe(true);
+      expect(isDiaryItemDueOnDate(start, "2026-10-26", 1, "ONCE")).toBe(false); // Before start
+      expect(isDiaryItemDueOnDate(start, "2026-10-28", 1, "ONCE")).toBe(false); // After start (never repeats!)
+    });
   });
 
   describe("Monthly Recurrence (User Requirement: 28th of every month)", () => {

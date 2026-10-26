@@ -7,7 +7,7 @@ import {
 } from "@/lib/diary/checklist";
 import { cardColorValues } from "@/lib/theme/card-colors";
 
-const repeatUnitSchema = z.enum(["DAY", "MONTH"]).default("DAY");
+const repeatUnitSchema = z.enum(["DAY", "MONTH", "ONCE"]).default("DAY");
 
 const diaryChecklistSchema = z.array(
   z.object({

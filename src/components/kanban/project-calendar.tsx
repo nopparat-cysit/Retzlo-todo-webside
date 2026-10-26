@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties, FormEvent, ReactNode } from "react";
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { BookOpen, CalendarDays, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, Flag, Plus, RotateCcw, Search, SlidersHorizontal, User, Users, X } from "lucide-react";
+import { BookOpen, CalendarDays, Check, CheckCircle2, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, Clock, ExternalLink, FileText, Flag, Plus, RotateCcw, Search, SlidersHorizontal, Trash2, User, Users, X } from "lucide-react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { CardModal } from "@/components/kanban/card-modal";
@@ -75,6 +75,8 @@ export interface CalendarDiaryChecklist {
   dueDateAllDay: boolean;
   completed: boolean;
   color: string;
+  isOnce?: boolean;
+  description?: string;
 }
 
 export interface CalendarNote {
@@ -206,7 +208,7 @@ export function ProjectCalendar({
 
   // Quick Add Event Modal State
   const [quickAddDate, setQuickAddDate] = useState<string | null>(null);
-  const [quickAddType, setQuickAddType] = useState<"task" | "note">("task");
+  const [quickAddType, setQuickAddType] = useState<"todo" | "task" | "note">("todo");
   const [quickAddTitle, setQuickAddTitle] = useState("");
   const [quickAddContent, setQuickAddContent] = useState("");
   const [quickAddBoardId, setQuickAddBoardId] = useState<string>("");
@@ -231,7 +233,7 @@ export function ProjectCalendar({
     setQuickAddDate(dateKey);
     setQuickAddTitle("");
     setQuickAddContent("");
-    setQuickAddType("task");
+    setQuickAddType("todo");
     setQuickAddColor("DEFAULT");
     setQuickAddPriority("MEDIUM");
     setQuickAddTime("");
@@ -253,7 +255,50 @@ export function ProjectCalendar({
 
     setIsQuickAddSubmitting(true);
     try {
-      if (quickAddType === "task") {
+      if (quickAddType === "todo") {
+        const scheduledTime = quickAddIsAllDay || !quickAddTime ? null : quickAddTime;
+        const response = await fetch(`/api/projects/${projectId}/diary-items`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: quickAddTitle.trim(),
+            description: quickAddContent.trim(),
+            color: quickAddColor,
+            intervalDays: 1,
+            repeatUnit: "ONCE",
+            startDate: quickAddDate,
+            dueTime: scheduledTime,
+            checklist: [
+              {
+                id: crypto.randomUUID(),
+                label: quickAddTitle.trim(),
+                description: quickAddContent.trim(),
+                intervalDays: 1,
+                repeatUnit: "ONCE",
+                startDate: quickAddDate,
+                dueTime: scheduledTime,
+                completedDates: []
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        if (response.ok && data?.diaryItem) {
+          const normalized = {
+            ...data.diaryItem,
+            checklist: normalizeDiaryChecklist(data.diaryItem.checklist, data.diaryItem.startDate)
+          };
+          setDiaryItems((prev) => [normalized, ...prev]);
+          toast({ message: `Todo created for ${formatShortDate(new Date(quickAddDate + "T00:00:00.000Z"))}.`, type: "success" });
+          broadcastChange();
+          setQuickAddDate(null);
+          setQuickAddTitle("");
+          setQuickAddContent("");
+        } else {
+          toast({ message: data?.error || "Failed to create todo.", type: "error" });
+        }
+      } else if (quickAddType === "task") {
         if (!quickAddColumnId) {
           toast({ message: "Please select a target column for the task.", type: "error" });
           setIsQuickAddSubmitting(false);
@@ -370,7 +415,9 @@ export function ProjectCalendar({
               dueDate: day.key + (cli.dueTime ? `T${cli.dueTime}:00` : ""),
               dueDateAllDay: !cli.dueTime,
               completed: isDiaryChecklistItemCompletedOnDate(cli, day.key),
-              color: diary.color
+              color: diary.color,
+              isOnce: diary.repeatUnit === "ONCE" || cli.repeatUnit === "ONCE",
+              description: diary.description || cli.description || ""
             });
           }
         }
@@ -705,6 +752,21 @@ export function ProjectCalendar({
         current.map((c) => (c.id === card.id ? { ...c, status: card.status } : c))
       );
       toast({ message: "Failed to update card status.", type: "error" });
+    }
+  }
+
+  async function handleDeleteDiaryItem(diaryId: string) {
+    try {
+      const res = await fetch(`/api/diary-items/${diaryId}`, { method: "DELETE" });
+      if (res.ok) {
+        setDiaryItems((prev) => prev.filter((d) => d.id !== diaryId));
+        toast({ message: "Todo deleted.", type: "success" });
+        broadcastChange();
+      } else {
+        toast({ message: "Failed to delete todo.", type: "error" });
+      }
+    } catch {
+      toast({ message: "Failed to delete todo.", type: "error" });
     }
   }
 
@@ -1178,8 +1240,12 @@ export function ProjectCalendar({
                     const cardsAndNotes = datedItems.filter((i) => i.type === "card" || i.type === "note");
                     const diaryChecklists = datedItems.filter((i): i is CalendarDiaryChecklist => i.type === "diary_checklist");
 
+                    // Separate standalone once-off Todos from multi-item recurring diary routines
+                    const standaloneTodos = diaryChecklists.filter((d) => d.isOnce);
+                    const recurringDiaries = diaryChecklists.filter((d) => !d.isOnce);
+
                     const groupedDiariesMap = new Map<string, CalendarDiaryChecklist[]>();
-                    for (const d of diaryChecklists) {
+                    for (const d of recurringDiaries) {
                       const existing = groupedDiariesMap.get(d.diaryId) ?? [];
                       existing.push(d);
                       groupedDiariesMap.set(d.diaryId, existing);
@@ -1200,7 +1266,7 @@ export function ProjectCalendar({
                       };
                     });
 
-                    const cellRenderItems = [...cardsAndNotes, ...diarySummaries];
+                    const cellRenderItems = [...standaloneTodos, ...cardsAndNotes, ...diarySummaries];
                     const isWeekend = day.date.getDay() === 0 || day.date.getDay() === 6;
 
                     return (
@@ -1268,6 +1334,14 @@ export function ProjectCalendar({
                               return <CalendarCardButton key={`card-${entry.id}`} card={entry} onClick={() => setSelectedCardId(entry.id)} />;
                             } else if (entry.type === "note") {
                               return <CalendarNoteButton key={`note-${entry.id}`} note={entry} onClick={() => setSelectedNoteId(entry.id)} />;
+                            } else if (entry.type === "diary_checklist") {
+                              return (
+                                <CalendarDiaryChecklistButton
+                                  key={`todo-${entry.id}`}
+                                  item={entry}
+                                  onToggle={(checked) => handleToggleDiaryChecklist(entry.diaryId, entry.checklistItemId, entry.dueDate, checked)}
+                                />
+                              );
                             } else {
                               return (
                                 <CalendarDiarySummaryButton
@@ -1724,8 +1798,23 @@ export function ProjectCalendar({
                             )}
 
                             {isDiaryChecklist && (
-                              <span className="inline-flex items-center gap-1.5 rounded-md border border-purple-500/20 bg-purple-50 px-2 py-0.5 text-[10px] font-semibold text-purple-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender">
-                                <BookOpen className="h-3 w-3" /> Diary Checklist
+                              <span
+                                className={cn(
+                                  "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10px] font-semibold",
+                                  (item as CalendarDiaryChecklist).isOnce
+                                    ? "border border-indigo-500/20 bg-indigo-50 text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300"
+                                    : "border border-purple-500/20 bg-purple-50 text-purple-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender"
+                                )}
+                              >
+                                {(item as CalendarDiaryChecklist).isOnce ? (
+                                  <>
+                                    <CheckSquare className="h-3 w-3" /> Todo
+                                  </>
+                                ) : (
+                                  <>
+                                    <BookOpen className="h-3 w-3" /> Diary Checklist
+                                  </>
+                                )}
                               </span>
                             )}
                           </div>
@@ -1755,18 +1844,46 @@ export function ProjectCalendar({
 
                         {/* Source & Metadata */}
                         {isDiaryChecklist && (
-                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                            <span className="text-stone-500 flex items-center gap-1.5 dark:text-stone-400">
-                              <RetzloUiIcon name="diary" size={14} />
-                              From diary: <span className="font-medium text-stone-800 dark:text-stone-200">{(item as CalendarDiaryChecklist).diaryTitle}</span>
-                            </span>
-                            <Link
-                              href={`/project/${projectId}/diary`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1 rounded-md border border-stone-200/90 bg-stone-100/80 px-2 py-0.5 text-[11px] font-semibold text-purple-700 hover:bg-stone-200/70 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender dark:hover:border-dusk-lavender/40 dark:hover:bg-white/10 hover:underline transition"
-                            >
-                              Open in Diary <ExternalLink className="h-2.5 w-2.5" />
-                            </Link>
+                          <div className="mt-2 space-y-1.5">
+                            {(item as CalendarDiaryChecklist).description && (
+                              <p className="line-clamp-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed whitespace-pre-wrap">
+                                {(item as CalendarDiaryChecklist).description}
+                              </p>
+                            )}
+                            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                              {!(item as CalendarDiaryChecklist).isOnce ? (
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="text-stone-500 flex items-center gap-1.5 dark:text-stone-400">
+                                    <RetzloUiIcon name="diary" size={14} />
+                                    From diary: <span className="font-medium text-stone-800 dark:text-stone-200">{(item as CalendarDiaryChecklist).diaryTitle}</span>
+                                  </span>
+                                  <Link
+                                    href={`/project/${projectId}/diary`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="inline-flex items-center gap-1 rounded-md border border-stone-200/90 bg-stone-100/80 px-2 py-0.5 text-[11px] font-semibold text-purple-700 hover:bg-stone-200/70 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender dark:hover:border-dusk-lavender/40 dark:hover:bg-white/10 hover:underline transition"
+                                  >
+                                    Open in Diary <ExternalLink className="h-2.5 w-2.5" />
+                                  </Link>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-between w-full">
+                                  <span className="text-[11px] text-stone-500 dark:text-stone-400">
+                                    Single-occurrence calendar todo
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteDiaryItem((item as CalendarDiaryChecklist).diaryId);
+                                    }}
+                                    className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition cursor-pointer"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                    Delete
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
 
@@ -1878,7 +1995,7 @@ export function ProjectCalendar({
                 {`Create Item for ${formatMediumDate(new Date(quickAddDate + "T00:00:00.000Z"))}`}
               </h2>
               <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                Quickly schedule a new Task or Note directly from the calendar.
+                Quickly schedule a new Todo, Task, or Note directly from the calendar.
               </p>
             </div>
             <button
@@ -1900,8 +2017,9 @@ export function ProjectCalendar({
               <SegmentedControl
                 className="w-full"
                 value={quickAddType}
-                onValueChange={(val) => setQuickAddType(val as "task" | "note")}
+                onValueChange={(val) => setQuickAddType(val as "todo" | "task" | "note")}
                 items={[
+                  { value: "todo", label: "Todo" },
                   { value: "task", label: "Task / Card" },
                   { value: "note", label: "Quick Note" }
                 ]}
@@ -1919,7 +2037,13 @@ export function ProjectCalendar({
                 type="text"
                 value={quickAddTitle}
                 onChange={(e) => setQuickAddTitle(e.target.value)}
-                placeholder={quickAddType === "task" ? "e.g. Design sprint review..." : "e.g. Meeting notes & ideas..."}
+                placeholder={
+                  quickAddType === "todo"
+                    ? "e.g. Follow up with team, submit review..."
+                    : quickAddType === "task"
+                    ? "e.g. Design sprint review..."
+                    : "e.g. Meeting notes & ideas..."
+                }
                 required
               />
             </div>
@@ -1984,15 +2108,19 @@ export function ProjectCalendar({
                 </div>
               </>
             ) : (
-              /* Note content */
+              /* Content for Todo or Note */
               <div>
                 <label className="mb-1 block text-xs font-semibold text-stone-700 dark:text-stone-300">
-                  Note Content (Optional)
+                  {quickAddType === "todo" ? "Details (Optional)" : "Note Content (Optional)"}
                 </label>
                 <Textarea
                   value={quickAddContent}
                   onChange={(e) => setQuickAddContent(e.target.value)}
-                  placeholder="Add details, bullet points, or thoughts..."
+                  placeholder={
+                    quickAddType === "todo"
+                      ? "Add notes, steps, or context for this todo..."
+                      : "Add details, bullet points, or thoughts..."
+                  }
                   rows={3}
                 />
               </div>
@@ -2054,7 +2182,13 @@ export function ProjectCalendar({
                 type="submit"
                 disabled={isQuickAddSubmitting || !quickAddTitle.trim() || (quickAddType === "task" && !quickAddColumnId)}
               >
-                {isQuickAddSubmitting ? "Saving..." : quickAddType === "task" ? "Create Task" : "Create Note"}
+                {isQuickAddSubmitting
+                  ? "Saving..."
+                  : quickAddType === "todo"
+                  ? "Create Todo"
+                  : quickAddType === "task"
+                  ? "Create Task"
+                  : "Create Note"}
               </Button>
             </div>
           </form>
@@ -2186,9 +2320,11 @@ function CalendarDiaryChecklistButton({
         >
           {item.title}
         </span>
-        <span className="mt-0.5 block truncate text-[9px] text-stone-500 dark:text-stone-400" title={`Diary: ${item.diaryTitle}`}>
-          <RetzloUiIcon name="diary" size={12} /> {item.diaryTitle}
-        </span>
+        {!item.isOnce && (
+          <span className="mt-0.5 block truncate text-[9px] text-stone-500 dark:text-stone-400" title={`Diary: ${item.diaryTitle}`}>
+            <RetzloUiIcon name="diary" size={12} /> {item.diaryTitle}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -2231,9 +2367,11 @@ function UpcomingDiaryChecklist({
       <div className="min-w-0 flex-1">
         <p className={cn("font-medium text-stone-900 dark:text-stone-100", item.completed && "line-through text-stone-400 dark:text-stone-500")}>{item.title}</p>
         <p className="mt-1 text-xs text-indigo-600 dark:text-dusk-cyan">{formatDue(item)}</p>
-        <p className="mt-0.5 flex items-center gap-1 text-xs text-stone-500 dark:text-stone-400">
-          <RetzloUiIcon name="diary" size={14} /> {item.diaryTitle}
-        </p>
+        {!item.isOnce && (
+          <p className="mt-0.5 flex items-center gap-1 text-xs text-stone-500 dark:text-stone-400">
+            <RetzloUiIcon name="diary" size={14} /> {item.diaryTitle}
+          </p>
+        )}
       </div>
     </div>
   );
