@@ -15,6 +15,7 @@ import {
   Edit2,
   FileText,
   ListFilter,
+  Minus,
   MoreVertical,
   Plus,
   Search,
@@ -234,6 +235,9 @@ export function BoardListView({
   // Date editing state
   const [editingDateCardId, setEditingDateCardId] = useState<string | null>(null);
   const [editingDateField, setEditingDateField] = useState<"startDate" | "dueDate" | null>(null);
+
+  // Row selection state for export and bulk operations
+  const [selectedCardIds, setSelectedCardIds] = useState<Set<string>>(new Set());
 
   const toggleGroup = (columnId: string) => {
     setCollapsedGroups((prev) => ({
@@ -652,6 +656,60 @@ export function BoardListView({
   const doneCardsCount = allCards.filter((c) => c.status === "DONE").length;
   const inProgressCount = allCards.filter((c) => c.status === "DOING").length;
 
+  // Selection helpers & derived state for export/bulk actions
+  const allVisibleCardIds = useMemo(() => allCards.map((c) => c.id), [allCards]);
+  const isAllSelected = allVisibleCardIds.length > 0 && allVisibleCardIds.every((id) => selectedCardIds.has(id));
+  const isSomeSelected = allVisibleCardIds.some((id) => selectedCardIds.has(id)) && !isAllSelected;
+
+  const handleToggleSelectCard = (cardId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setSelectedCardIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(cardId)) {
+        next.delete(cardId);
+      } else {
+        next.add(cardId);
+      }
+      return next;
+    });
+  };
+
+  const handleToggleSelectAll = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (isAllSelected) {
+      setSelectedCardIds(new Set());
+    } else {
+      setSelectedCardIds(new Set(allVisibleCardIds));
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedCardIds(new Set());
+  };
+
+  // Filtered columns containing only selected cards (for Export)
+  const selectedExportColumns = useMemo(() => {
+    if (selectedCardIds.size === 0) return columns;
+    return columns
+      .map((col) => ({
+        ...col,
+        cards: col.cards.filter((card) => selectedCardIds.has(card.id))
+      }))
+      .filter((col) => col.cards.length > 0);
+  }, [columns, selectedCardIds]);
+
+  const isExportFiltered =
+    selectedCardIds.size > 0 ||
+    columns.length !== allColumns.length ||
+    Boolean(tableSearch.trim()) ||
+    statusFilter !== "ALL";
+
+  const activeExportColumns = selectedCardIds.size > 0 ? selectedExportColumns : columns;
+  const activeExportTitle =
+    selectedCardIds.size > 0
+      ? `${boardTitle || "Tasks"} (Selected ${selectedCardIds.size})`
+      : (boardTitle || "Tasks Spreadsheet");
+
   if (columns.length === 0) {
     return (
       <div className="lofi-panel mt-4 flex min-h-[320px] flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 p-8 text-center">
@@ -768,25 +826,88 @@ export function BoardListView({
           {/* Export Button in Table Toolbar */}
           <BoardExportButton
             currentView="table"
-            boardTitle={boardTitle || "Tasks Spreadsheet"}
+            boardTitle={activeExportTitle}
             columns={allColumns || columns}
-            filteredColumns={columns}
+            filteredColumns={activeExportColumns}
             members={members}
             boardPriorities={boardPriorities}
             viewportElementId="kanban-table-container"
-            isFiltered={columns.length !== allColumns.length || Boolean(tableSearch.trim()) || statusFilter !== "ALL"}
+            isFiltered={isExportFiltered}
             variant="compact"
           />
         </div>
       </div>
+
+      {/* ── Selection Action Banner (When rows are checked for export/actions) ── */}
+      {selectedCardIds.size > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-200/80 bg-indigo-50/95 px-4 py-2 backdrop-blur-md dark:border-indigo-500/30 dark:bg-indigo-950/80 shadow-xs animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 font-bold text-xs text-indigo-950 dark:text-indigo-200">
+              <CheckSquare className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>{selectedCardIds.size} {selectedCardIds.size === 1 ? "task" : "tasks"} selected</span>
+            </span>
+            <span className="text-stone-300 dark:text-stone-600">•</span>
+            <button
+              type="button"
+              onClick={handleClearSelection}
+              className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 dark:text-indigo-300 dark:hover:text-white underline cursor-pointer transition"
+            >
+              Deselect all
+            </button>
+            {selectedCardIds.size < allVisibleCardIds.length && (
+              <button
+                type="button"
+                onClick={() => setSelectedCardIds(new Set(allVisibleCardIds))}
+                className="text-xs font-medium text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200 cursor-pointer transition"
+              >
+                Select all ({allVisibleCardIds.length})
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-indigo-800/80 dark:text-indigo-300/80 hidden sm:inline">Export selected only:</span>
+            <BoardExportButton
+              currentView="table"
+              boardTitle={`${boardTitle || "Tasks"} (Selected ${selectedCardIds.size})`}
+              columns={allColumns || columns}
+              filteredColumns={selectedExportColumns}
+              members={members}
+              boardPriorities={boardPriorities}
+              viewportElementId="kanban-table-container"
+              isFiltered={true}
+              variant="compact"
+              className="border-indigo-300 bg-white hover:border-indigo-500 text-indigo-700 dark:bg-stone-900 dark:border-indigo-500/40 dark:text-indigo-300 shadow-xs"
+            />
+          </div>
+        </div>
+      )}
 
       {/* ── Scrollable Spreadsheet Grid ── */}
       <div id="kanban-table-container" className="scrollbar-soft flex-1 overflow-x-auto overflow-y-auto pb-16">
         <div className="min-w-[1240px] text-xs">
           {/* ── Table Header (Exact Columns from User Reference Screenshot) ── */}
           <div className="sticky top-0 z-20 flex items-center border-b border-stone-200/80 bg-stone-100/95 font-semibold text-stone-700 backdrop-blur-md dark:border-white/10 dark:bg-stone-900/95 dark:text-stone-300">
-            {/* Index / Checkbox */}
-            <div className="w-12 py-2.5 text-center text-[11px] font-mono text-stone-400">#</div>
+            {/* Index / Selection Checkbox */}
+            <div className="w-12 py-2.5 text-center flex items-center justify-center select-none" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={handleToggleSelectAll}
+                title={isAllSelected ? "Deselect all tasks" : "Select all tasks"}
+                aria-label={isAllSelected ? "Deselect all tasks" : "Select all tasks"}
+                className={cn(
+                  "grid h-4 w-4 place-items-center rounded border transition-all cursor-pointer shadow-2xs active:scale-95",
+                  isAllSelected
+                    ? "border-indigo-600 bg-indigo-600 text-white dark:border-indigo-500 dark:bg-indigo-500"
+                    : isSomeSelected
+                    ? "border-indigo-500 bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:border-indigo-400 dark:text-indigo-300"
+                    : "border-stone-300 bg-white hover:border-indigo-400 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-indigo-400"
+                )}
+              >
+                {isAllSelected && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                {isSomeSelected && <Minus className="h-2.5 w-2.5 stroke-[3]" />}
+              </button>
+            </div>
 
             {/* 1. Task Title */}
             <div
@@ -888,6 +1009,7 @@ export function BoardListView({
                 const cardAssigneeList = (card.assigneeIds && card.assigneeIds.length > 0)
                   ? card.assigneeIds.map((id) => members.find((m) => m.id === id)).filter((m): m is CardAssignee => Boolean(m))
                   : (card.assignees ?? []);
+                const isSelected = selectedCardIds.has(card.id);
 
                 return (
                   <div
@@ -895,19 +1017,22 @@ export function BoardListView({
                     onClick={() => onEditCard(card)}
                     className={cn(
                       "group/row flex cursor-pointer items-center transition-colors",
-                      "hover:bg-indigo-50/50 dark:hover:bg-white/[0.04]",
-                      index % 2 === 1 && "bg-stone-50/30 dark:bg-white/[0.01]",
-                      isCardDone && "bg-stone-50/60 opacity-80 dark:bg-black/20"
+                      isSelected
+                        ? "bg-indigo-50/70 dark:bg-indigo-950/30 ring-1 ring-inset ring-indigo-500/25"
+                        : "hover:bg-indigo-50/50 dark:hover:bg-white/[0.04]",
+                      !isSelected && index % 2 === 1 && "bg-stone-50/30 dark:bg-white/[0.01]",
+                      isCardDone && "opacity-80"
                     )}
                   >
-                    {/* Index & Checkbox Complete (Shows number by default, checkbox on hover) */}
+                    {/* Index & Selection Checkbox (Shows number by default, checkbox on hover/selected) */}
                     <div className="w-12 text-center flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                      {isCardDone ? (
+                      {isSelected ? (
                         <button
                           type="button"
-                          onClick={(e) => handleToggleCardComplete(card, e)}
-                          title="Mark incomplete"
-                          className="grid h-4 w-4 place-items-center rounded border border-emerald-500 bg-emerald-500 text-white transition-all cursor-pointer shadow-2xs hover:bg-emerald-600 active:scale-95"
+                          onClick={(e) => handleToggleSelectCard(card.id, e)}
+                          title="Deselect task"
+                          aria-label={`Deselect ${card.title}`}
+                          className="grid h-4 w-4 place-items-center rounded border border-indigo-600 bg-indigo-600 text-white transition-all cursor-pointer shadow-2xs hover:bg-indigo-700 active:scale-95"
                         >
                           <Check className="h-2.5 w-2.5 stroke-[3]" />
                         </button>
@@ -918,11 +1043,12 @@ export function BoardListView({
                           </span>
                           <button
                             type="button"
-                            onClick={(e) => handleToggleCardComplete(card, e)}
-                            title="Mark as Done"
-                            className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-emerald-500 hover:bg-emerald-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/10 transition-all cursor-pointer shadow-2xs active:scale-95"
+                            onClick={(e) => handleToggleSelectCard(card.id, e)}
+                            title="Select task for export"
+                            aria-label={`Select ${card.title}`}
+                            className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-indigo-500 hover:bg-indigo-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-indigo-400 dark:hover:bg-indigo-500/10 transition-all cursor-pointer shadow-2xs active:scale-95"
                           >
-                            <span className="sr-only">Mark as done</span>
+                            <span className="sr-only">Select task</span>
                           </button>
                         </>
                       )}
@@ -1392,24 +1518,29 @@ export function BoardListView({
                           const cardAssigneeList = (card.assigneeIds && card.assigneeIds.length > 0)
                             ? card.assigneeIds.map((id) => members.find((m) => m.id === id)).filter((m): m is CardAssignee => Boolean(m))
                             : (card.assignees ?? []);
+                          const isSelected = selectedCardIds.has(card.id);
 
                           return (
                             <div
                               key={card.id}
                               onClick={() => onEditCard(card)}
                               className={cn(
-                                "group/row flex cursor-pointer items-center transition-colors hover:bg-stone-50 dark:hover:bg-white/[0.04]",
-                                isCardDone && "bg-stone-50/40 opacity-75 dark:bg-black/20"
+                                "group/row flex cursor-pointer items-center transition-colors",
+                                isSelected
+                                  ? "bg-indigo-50/70 dark:bg-indigo-950/30 ring-1 ring-inset ring-indigo-500/25"
+                                  : "hover:bg-stone-50 dark:hover:bg-white/[0.04]",
+                                isCardDone && "opacity-75"
                               )}
                             >
-                              {/* Index & Checkbox Complete (Shows number by default, checkbox on hover) */}
+                              {/* Index & Selection Checkbox (Shows number by default, checkbox on hover/selected) */}
                               <div className="w-12 text-center flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-                                {isCardDone ? (
+                                {isSelected ? (
                                   <button
                                     type="button"
-                                    onClick={(e) => handleToggleCardComplete(card, e)}
-                                    title="Mark incomplete"
-                                    className="grid h-4 w-4 place-items-center rounded border border-emerald-500 bg-emerald-500 text-white transition-all cursor-pointer shadow-2xs hover:bg-emerald-600 active:scale-95"
+                                    onClick={(e) => handleToggleSelectCard(card.id, e)}
+                                    title="Deselect task"
+                                    aria-label={`Deselect ${card.title}`}
+                                    className="grid h-4 w-4 place-items-center rounded border border-indigo-600 bg-indigo-600 text-white transition-all cursor-pointer shadow-2xs hover:bg-indigo-700 active:scale-95"
                                   >
                                     <Check className="h-2.5 w-2.5 stroke-[3]" />
                                   </button>
@@ -1420,11 +1551,12 @@ export function BoardListView({
                                     </span>
                                     <button
                                       type="button"
-                                      onClick={(e) => handleToggleCardComplete(card, e)}
-                                      title="Mark as Done"
-                                      className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-emerald-500 hover:bg-emerald-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/10 transition-all cursor-pointer shadow-2xs active:scale-95"
+                                      onClick={(e) => handleToggleSelectCard(card.id, e)}
+                                      title="Select task for export"
+                                      aria-label={`Select ${card.title}`}
+                                      className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-indigo-500 hover:bg-indigo-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-indigo-400 dark:hover:bg-indigo-500/10 transition-all cursor-pointer shadow-2xs active:scale-95"
                                     >
-                                      <span className="sr-only">Mark as done</span>
+                                      <span className="sr-only">Select task</span>
                                     </button>
                                   </>
                                 )}

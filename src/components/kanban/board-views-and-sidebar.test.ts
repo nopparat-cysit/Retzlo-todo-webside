@@ -169,13 +169,15 @@ describe("Board views switcher, sidebar sub-menu, and settings UX contracts", ()
     expect(settingsManagerSource).toContain("<Avatar");
   });
 
-  it("displays row index number by default and swaps to completion checkbox on hover in table view", () => {
+  it("displays row index number by default and swaps to selection checkbox on hover in table view", () => {
     // Both flat and grouped views hide the row number on hover
     expect(listViewSource).toContain("group-hover/row:hidden select-none");
     // Both flat and grouped views show the checkbox on hover
     expect(listViewSource).toContain("hidden group-hover/row:grid h-4 w-4");
-    // Completed state renders checked button immediately
-    expect(listViewSource).toContain("border-emerald-500 bg-emerald-500 text-white");
+    // Selected state renders checked button immediately for export/bulk selection
+    expect(listViewSource).toContain("border-indigo-600 bg-indigo-600 text-white");
+    expect(listViewSource).toContain("selectedCardIds");
+    expect(listViewSource).toContain("selectedExportColumns");
   });
 
   it("enables sorting by story points and displays checklist column with subtask counts instead of files", () => {
