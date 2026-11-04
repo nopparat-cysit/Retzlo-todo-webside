@@ -1038,3 +1038,13 @@ Template:
 - Revealed readings open directly on the paper. Language/bowl controls and copy/note actions remain outside the internal scroll. Mobile stacks the five dimensions; desktop uses two columns. Copy-as-note is labeled explicitly when no project context exists.
 - Review: Chromium fixture with actual components and mocked APIs covers Thai/English, light/dark/system, desktop and 390×844, focus/Escape, watering states, guardians, breathing, clipboard and note creation. Authenticated production API review remains outside this fixture.
 - Verification: lint, 26 focused tests, Prisma validate and production build passed; Next.js configuration skips type validation.
+
+
+### 2026-11-04 — Marketing Landing Hero Redesign (Product-First)
+- Coverage: Marketing landing page hero section (`src/app/(marketing)/page.tsx` `#cp-hero`) and static Kanban preview component (`src/app/(marketing)/hero-board-preview.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Replaced decorative AI-cliché hero layout (washi tape badge, highlighter gradient, 2x2 pastel feature grid, trust badge row, 5-pillar dock strip, purple-to-pink gradient panel, blooming blobs, twinkle stars, fake window dots, and redundant cassette player) with a clean, product-first layout.
+  - New sample Kanban board preview leverages semantic theme tokens: `var(--paper)` for board canvas and cards, `var(--panel)` for column backdrops, `var(--panel-strong)` for outer container, `var(--border)` for subtle borders, `var(--foreground)` for primary copy, and `var(--muted)` for meta timestamps.
+  - Priority pills use standard semantic status tokens with dual-theme contrast: urgent (rose), medium (amber), normal (blue), done (emerald).
+  - Responsive behavior: 3 columns display side-by-side on desktop and scroll horizontally with snap on mobile viewports.
+- Verification: `npm run lint` (0 errors), `npx vitest run` (105 test files, 584 tests passed), `npx prisma validate` (valid), `npm run build` (Next.js production build succeeded).

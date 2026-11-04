@@ -6,7 +6,6 @@ import {
   useState,
   useEffect,
   useRef,
-  type PointerEvent,
   type MouseEvent,
   type CSSProperties
 } from "react";
@@ -42,18 +41,10 @@ import {
 import { MixtapeLogoMark } from "@/components/auth/mixtape-logo-mark";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
-  RetroKanbanIcon,
-  RetroCalendarIcon,
-  RetroNotebookIcon,
-  RetroAiRewardIcon,
   RetroTicketIcon,
-  RetroMiniGameIcon,
-  RetroAudioDeckIcon,
-  RetroStudioTourIcon,
-  RetroCozyStudioMascot,
-  RetroCozyStudioIllustration,
-  RetroWashiTapeBadge
+  RetroMiniGameIcon
 } from "@/components/marketing/retro-hero-icons";
+import { HeroBoardPreview } from "./hero-board-preview";
 import {
   PAIN_POINT_TABS,
   WALKTHROUGH_SLIDES,
@@ -127,9 +118,6 @@ export default function LandingPage() {
   const [mobileBarDismissed, setMobileBarDismissed] = useState(false);
 
   // Interactive Hero state
-  const artRef = useRef<HTMLDivElement>(null);
-  const artPointerRaf = useRef<number | null>(null);
-  const artBoundsRef = useRef<DOMRect | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Interactive Playground & Live Coin Wallet state
@@ -375,41 +363,7 @@ export default function LandingPage() {
     });
   };
 
-  function moveArtwork(event: PointerEvent<HTMLDivElement>) {
-    if (
-      event.pointerType !== "mouse" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    )
-      return;
 
-    const target = event.currentTarget;
-    const clientX = event.clientX;
-    const clientY = event.clientY;
-
-    if (artPointerRaf.current !== null) return;
-
-    artPointerRaf.current = window.requestAnimationFrame(() => {
-      artPointerRaf.current = null;
-      if (!artBoundsRef.current) {
-        artBoundsRef.current = target.getBoundingClientRect();
-      }
-      const bounds = artBoundsRef.current;
-      const x = (clientX - bounds.left) / bounds.width - 0.5;
-      const y = (clientY - bounds.top) / bounds.height - 0.5;
-      target.style.setProperty("--scene-x", `${x * 8}px`);
-      target.style.setProperty("--scene-y", `${y * 8}px`);
-    });
-  }
-
-  function resetArtwork() {
-    if (artPointerRaf.current !== null) {
-      window.cancelAnimationFrame(artPointerRaf.current);
-      artPointerRaf.current = null;
-    }
-    artBoundsRef.current = null;
-    artRef.current?.style.setProperty("--scene-x", "0px");
-    artRef.current?.style.setProperty("--scene-y", "0px");
-  }
 
   const MOOD_CONFIGS = [
     {
@@ -1036,380 +990,31 @@ export default function LandingPage() {
         )}
       </header>
 
-      {/* ── Section 1: All-in-One Cozy Workspace Hero (#cp-hero) ──────────── */}
-      <section id="cp-hero" className="w-full max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-12 sm:py-8">
-        <div
-          className="w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden"
-          style={{
-            border: "1.5px solid var(--border)",
-            borderRadius: "28px",
-            boxShadow: "0 24px 50px -12px rgba(84, 53, 107, 0.16), var(--shadow-floating)",
-            background: "var(--panel-strong)"
-          }}
-        >
-          {/* Left 6 Cols: Clear Product Value Proposition + Interactive Mode Switcher */}
-          <div className="lg:col-span-6 p-6 sm:p-8 lg:p-9 xl:p-10 flex flex-col justify-between gap-5 sm:gap-6">
-            <div className="space-y-4 sm:space-y-5">
-              {/* Authentic Hand-Drawn Washi Tape Badge */}
-              <div className="inline-flex flex-wrap items-center gap-2">
-                <RetroWashiTapeBadge
-                  tag="ALL-IN-ONE WORKSPACE"
-                  subtext="จัดการงานและชีวิตในที่เดียว"
-                />
-              </div>
+      {/* ── Section 1: Product-First Hero (#cp-hero) ──────────── */}
+      <section id="cp-hero" className="w-full max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-14 sm:pt-12 sm:pb-20">
+        <h1 className="lp-font-display font-thai text-3xl sm:text-5xl lg:text-[52px] font-extrabold text-[var(--foreground)] leading-[1.22] tracking-tight text-center max-w-[860px] mx-auto">
+          บอร์ด ปฏิทิน และโน้ตของโปรเจกต์ อยู่ในหน้าเดียว
+        </h1>
 
-              <h1
-                className="lp-font-display font-thai text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[var(--foreground)] leading-[1.35] tracking-normal"
-              >
-                จัดการโปรเจกต์ บอร์ดงาน ปฏิทิน และสมุดโน้ต
-                <br className="hidden sm:inline" />
-                ในพื้นที่เดียวที่{" "}
-                <span
-                  style={{
-                    background:
-                      "linear-gradient(180deg, transparent 55%, rgba(255, 180, 213, 0.65) 55%)",
-                    padding: "0 6px",
-                    borderRadius: "6px"
-                  }}
-                >
-                  เคลียร์งานสนุกขึ้น
-                </span>{" "}
-                ทุกวัน
-              </h1>
+        <p className="font-thai text-base sm:text-lg text-[var(--muted)] text-center max-w-[640px] mx-auto mt-4 sm:mt-5 leading-relaxed tracking-normal">
+          ลากการ์ด ตั้งวันส่ง แล้วงานจะขึ้นปฏิทินให้เอง เหมาะกับทีมเล็กและงานส่วนตัว
+        </p>
 
-              <p className="font-thai text-sm sm:text-[15px] leading-relaxed text-[var(--muted)] max-w-[50ch] tracking-normal">
-                ไม่ต้องสลับหลายแอปให้วุ่นวาย — <strong>Retzlo</strong> คือแพลตฟอร์มจัดการงานสไตล์ Retro Lofi ที่รวม{" "}
-                <strong className="text-[var(--foreground)]">บอร์ด Kanban, ปฏิทินซิงก์วันส่ง, สมุดโน้ตคู่บอร์ด, ไดอารี่ และ AI แตกงานย่อย</strong>{" "}
-                ไว้ในห้องเดียว ให้คุณโฟกัสกับงานได้อย่างสบายใจ พร้อมเสียงเพลง Lofi คลอเบาๆ ช่วยให้การทำงานไหลลื่นและไม่หมดไฟ
-              </p>
+        <div className="flex flex-wrap items-center justify-center gap-4 mt-7 sm:mt-8 font-thai">
+          <Link href={defaultDestination}>
+            <button className="lp-press-btn inline-flex items-center gap-2 h-12 px-7 rounded-xl font-bold text-sm sm:text-base text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[3px_3px_0_#54356b] transition-all tracking-normal">
+              <span>เริ่มใช้งานฟรี</span>
+              <ArrowRight size={16} />
+            </button>
+          </Link>
+          <a href="#walkthrough" className="inline-flex items-center gap-1.5 text-sm sm:text-base font-bold text-[var(--muted)] hover:text-[var(--foreground)] transition-colors py-2 px-3 tracking-normal">
+            <span>ดูตัวอย่างบอร์ด</span>
+            <ArrowRight size={15} />
+          </a>
+        </div>
 
-              {/* 2x2 Scannable Core Pillars with Bespoke Retro Vector Icons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
-                {[
-                  {
-                    Icon: RetroKanbanIcon,
-                    title: "บอร์ดงาน Kanban & ตาราง",
-                    desc: "แยกโปรเจกต์ทีมหรือส่วนตัว ลากการ์ดง่าย",
-                    badgeBg: "bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/50"
-                  },
-                  {
-                    Icon: RetroCalendarIcon,
-                    title: "ปฏิทินซิงก์วันส่งอัตโนมัติ",
-                    desc: "ตั้งวันในการ์ดปุ๊บ ขึ้นปฏิทินรวมทันที",
-                    badgeBg: "bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-800/50"
-                  },
-                  {
-                    Icon: RetroNotebookIcon,
-                    title: "สมุดโน้ตคู่บอร์ด & ไดอารี่",
-                    desc: "เปิดดูบรีฟข้างบอร์ดงาน + เช็กลิสต์รายวัน",
-                    badgeBg: "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50"
-                  },
-                  {
-                    Icon: RetroAiRewardIcon,
-                    title: "AI ผู้ช่วยแตกงานย่อยอัจฉริยะ",
-                    desc: "วิเคราะห์และแตกงานใหญ่เป็นการ์ดย่อยพร้อมลงมือทำในคลิกเดียว",
-                    badgeBg: "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50"
-                  }
-                ].map((pillar) => (
-                  <div
-                    key={pillar.title}
-                    className="flex items-start gap-2.5 p-2.5 rounded-xl border border-[var(--border)] transition-colors hover:border-[var(--accent)]/40"
-                    style={{
-                      background: "var(--paper)"
-                    }}
-                  >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${pillar.badgeBg} shadow-sm`}>
-                      <pillar.Icon className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-thai text-xs font-extrabold text-[var(--foreground)] tracking-normal">
-                        {pillar.title}
-                      </div>
-                      <div className="font-thai text-[11px] leading-snug mt-0.5 text-[var(--muted)] tracking-normal">
-                        {pillar.desc}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Tactile CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-0.5 font-thai">
-                <Link href={defaultDestination}>
-                  <button
-                    className="lp-press-btn inline-flex items-center gap-2 h-11 px-6 rounded-xl font-bold text-sm text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[3px_3px_0_#54356b] transition-all tracking-normal"
-                  >
-                    <span>เริ่มต้นใช้งานฟรี 7 วัน</span>
-                    <ArrowRight size={15} />
-                  </button>
-                </Link>
-
-                <a
-                  href="#walkthrough"
-                  className="lp-press-btn inline-flex items-center gap-2 h-11 px-5 rounded-xl font-bold text-sm text-[var(--foreground)] bg-[var(--paper)] border border-[var(--border)] shadow-[2px_2px_0_rgba(84,53,107,0.12)] hover:border-[var(--accent)] transition-all tracking-normal"
-                >
-                  <RetroStudioTourIcon className="w-4 h-4 text-[var(--foreground)] shrink-0" />
-                  <span>ดูทัวร์ 6 ห้องทำงานจริง</span>
-                </a>
-              </div>
-
-              {/* Zero-Risk Trust Reassurance Micro-Copy */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[var(--muted)] font-thai tracking-normal">
-                <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                  <Check size={14} className="shrink-0" />
-                  <span>ใช้งานฟรีเต็มระบบ ไม่จำกัดบอร์ด</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <ShieldCheck size={14} className="shrink-0 text-amber-500" />
-                  <span>ไม่ต้องกรอกบัตรเครดิต</span>
-                </span>
-                <a
-                  href="#playground"
-                  className="inline-flex items-center gap-1.5 text-[#7858d4] dark:text-purple-300 hover:underline font-semibold"
-                >
-                  <RetroMiniGameIcon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span>ลองเล่นมินิเกมจำลองระบบ</span>
-                  <ArrowRight size={12} />
-                </a>
-              </div>
-            </div>
-
-            {/* Hand-Drawn Feature Strip Dock */}
-            <div
-              style={{
-                borderTop: "1px dashed var(--border)",
-                paddingTop: "14px"
-              }}
-              className="font-thai"
-            >
-              <div className="text-[11px] font-bold uppercase mb-2.5 flex items-center justify-between tracking-normal" style={{ color: "var(--muted)" }}>
-                <span>✨ 5 มุมทำงานครบในโต๊ะเดียว (ไม่ต้องสลับหลายแอป):</span>
-                <a href="#walkthrough" className="text-[10px] text-[#7858d4] dark:text-purple-300 font-extrabold hover:underline">
-                  ดู 6 ห้องทำงานจริง ↓
-                </a>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {[
-                  {
-                    label: "บอร์ดงาน Kanban",
-                    Icon: RetroKanbanIcon,
-                    href: "#walkthrough"
-                  },
-                  {
-                    label: "ปฏิทินซิงก์วันส่ง",
-                    Icon: RetroCalendarIcon,
-                    href: "#walkthrough"
-                  },
-                  {
-                    label: "สมุดโน้ต & ไดอารี่",
-                    Icon: RetroNotebookIcon,
-                    href: "#walkthrough"
-                  },
-                  {
-                    label: "AI ช่วยแตกงานย่อย",
-                    Icon: RetroAiRewardIcon,
-                    href: "#walkthrough"
-                  },
-                  {
-                    label: "วิทยุ Lofi ในตัว",
-                    Icon: RetroAudioDeckIcon,
-                    href: "#walkthrough"
-                  }
-                ].map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className="lp-press-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all tracking-normal"
-                    style={{
-                      background: "var(--paper)",
-                      color: "var(--foreground)",
-                      border: "1px solid var(--border)",
-                      boxShadow: "1px 1px 0 rgba(84, 53, 107, 0.08)"
-                    }}
-                  >
-                    <item.Icon className="w-3.5 h-3.5 shrink-0" />
-                    <span>{item.label}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right 6 Cols: Interactive Retzlo Mini-Workspace App Window */}
-          <div
-            ref={artRef}
-            onPointerMove={moveArtwork}
-            onPointerLeave={resetArtwork}
-            className="lg:col-span-6 relative overflow-hidden flex flex-col justify-between p-5 sm:p-7 lg:p-8 min-h-[520px] lg:min-h-[580px]"
-            style={{
-              background:
-                "linear-gradient(180deg, #4c3298 0%, #6848c4 40%, #9969d3 70%, #f4a5c9 100%)",
-              color: "#fff5ff",
-              isolation: "isolate"
-            }}
-          >
-            {/* Crisp Vector Ambient Backdrop (Replacing blurry raster cassette cutout) */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-              {/* Retro graph drafting grid */}
-              <div
-                className="absolute inset-0 opacity-15"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px)",
-                  backgroundSize: "32px 32px"
-                }}
-              />
-              {/* Soft radiant ambient blooms */}
-              <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-pink-400/20 blur-3xl pointer-events-none" />
-              <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-purple-500/25 blur-3xl pointer-events-none" />
-              {/* Crisp Vector Twinkle Stars */}
-              <svg className="absolute top-5 right-8 w-6 h-6 text-amber-200/80 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L14 8L20 10L14 12L12 18L10 12L4 10L10 8Z" />
-              </svg>
-              <svg className="absolute bottom-16 left-6 w-5 h-5 text-pink-200/70" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L14 8L20 10L14 12L12 18L10 12L4 10L10 8Z" />
-              </svg>
-            </div>
-
-            {/* Top Workspace Status Bar */}
-            <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-[#f3e8ff] mb-3">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-thai tracking-normal uppercase">SIDE A · RETZLO COZY STUDIO (VECTOR ARTWORK)</span>
-              </div>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/35 border border-white/25 text-[10px] font-extrabold shadow-sm font-mono tracking-wider text-purple-200">
-                <span>RETZLO V2.4 · FOCUS WORKSPACE</span>
-              </span>
-            </div>
-
-            {/* Center: Hand-Drawn Retro Cozy Studio Artwork Showcase */}
-            <div
-              className="relative z-10 my-auto rounded-2xl overflow-hidden flex flex-col transition-transform duration-200"
-              style={{
-                border: "2px solid rgba(255, 240, 255, 0.85)",
-                boxShadow: "0 22px 50px rgba(24, 10, 56, 0.52), 6px 6px 0 rgba(67, 35, 105, 0.35)",
-                background: "#2B1748"
-              }}
-            >
-              {/* Studio Canvas Titlebar with tactile window dots and title */}
-              <div
-                className="px-3.5 py-2 flex items-center justify-between gap-2"
-                style={{
-                  background: "rgba(24, 12, 48, 0.85)",
-                  borderBottom: "1.5px solid rgba(255, 255, 255, 0.16)"
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#fb7185] inline-block shadow-sm" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#fbbf24] inline-block shadow-sm" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#34d399] inline-block shadow-sm" />
-                  </div>
-                  <span className="text-white/30 text-xs">|</span>
-                  <span className="font-thai text-xs font-bold text-white flex items-center gap-1.5 tracking-normal">
-                    <span>สตูดิโอโต๊ะทำงาน Cozy Lofi · 100% Vector Canvas</span>
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] text-purple-200/90 font-extrabold uppercase tracking-wider">
-                    {isPlaying ? "♪ LOFI PLAYING" : "COZY ROOM"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Hand-Drawn Vector Art Canvas (Infinite Sharpness, Zero Pixelation) */}
-              <div className="relative w-full aspect-[640/440] bg-[#2B1748] flex items-center justify-center">
-                <RetroCozyStudioIllustration
-                  isPlaying={isPlaying}
-                  className="w-full h-full block"
-                />
-              </div>
-            </div>
-
-            {/* Bottom Audio Cassette Bar (Compact Studio Companion) */}
-            <div
-              className="relative z-10 mt-3 flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl"
-              style={{
-                background: "rgba(255, 245, 255, 0.42)",
-                border: "1px solid rgba(84, 53, 107, 0.3)",
-                backdropFilter: "blur(12px)"
-              }}
-            >
-              <div className="flex items-center gap-2.5">
-                <RetroCozyStudioMascot className="w-9 h-9 shrink-0 shadow-sm" isPlaying={isPlaying} />
-                <div>
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      fontSize: "9px",
-                      letterSpacing: "1.4px",
-                      color: "#3b1d61",
-                      fontWeight: 800
-                    }}
-                  >
-                    <Headphones size={11} className="shrink-0 text-[#54356b]" />
-                    <span className="font-thai tracking-normal">BUILT-IN FOCUS RADIO · วิทยุ Lofi ประจำห้องทำงาน</span>
-                  </span>
-                  <span
-                    className="flex items-center gap-1.5 mt-0.5 text-xs font-bold font-thai tracking-normal"
-                    style={{ color: "#3b1d61" }}
-                  >
-                    <Disc3
-                      size={14}
-                      className={isPlaying ? "animate-spin" : undefined}
-                    />
-                    {isPlaying
-                      ? `กำลังบรรเลง: ${["Rainy Cafe ☕", "Midnight Study 🌙", "Sunday Vinyl ☀️"][cassetteMood]}`
-                      : "กด Play เพื่อเปิดเพลง Lofi คลอเบาๆ ตอนทำงาน"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-1 font-thai tracking-normal">
-                  {["☕ Rainy", "🌙 Midnight", "☀️ Sunday"].map((label, idx) => (
-                    <button
-                      key={label}
-                      type="button"
-                      onClick={() => handleSelectMood(idx)}
-                      className="px-2 py-1 rounded-lg text-[10px] font-extrabold transition-all"
-                      style={{
-                        background: cassetteMood === idx ? "#432369" : "rgba(255, 255, 255, 0.55)",
-                        color: cassetteMood === idx ? "#ffecb1" : "#432369",
-                        border: "1px solid rgba(67, 35, 105, 0.25)"
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handlePlayToggle}
-                  aria-label={isPlaying ? "Pause Lofi audio" : "Play Lofi audio"}
-                  className="lp-press-btn"
-                  style={{
-                    display: "grid",
-                    placeItems: "center",
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    border: "2px solid #432369",
-                    background: "#ffecb1",
-                    color: "#432369",
-                    boxShadow: "2px 2px 0 rgba(67, 35, 105, 0.3)",
-                    cursor: "pointer"
-                  }}
-                >
-                  {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                </button>
-              </div>
-            </div>
-          </div>
+        <div className="mt-10 sm:mt-12 w-full">
+          <HeroBoardPreview />
         </div>
       </section>
 
