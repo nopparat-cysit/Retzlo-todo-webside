@@ -1,5 +1,14 @@
 "use client";
 
+function getSafeInitials(name?: string | null, email?: string | null): string {
+  const raw = (name || email || "U").trim();
+  const parts = raw.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "U";
+  const letters = parts.map((w) => w[0] || "").join("");
+  return letters.toUpperCase().slice(0, 2) || "U";
+}
+
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useRef, useState, useCallback, type CSSProperties, type MouseEvent } from "react";
@@ -500,9 +509,9 @@ export function ProjectsDashboard({
     const merged = [...cardItems, ...diariesList];
 
     merged.sort((a, b) => {
-      const dateA = new Date(a.dueDate ?? "");
-      const dateB = new Date(b.dueDate ?? "");
-      return dateA.getTime() - dateB.getTime();
+      const timeA = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+      const timeB = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+      return (Number.isNaN(timeA) ? 0 : timeA) - (Number.isNaN(timeB) ? 0 : timeB);
     });
 
     merged.sort((a, b) => {
@@ -609,12 +618,7 @@ export function ProjectsDashboard({
                   <UserProfilePopover
                     avatar={userProfile.avatar}
                     email={userProfile.email}
-                    initials={(userProfile.name ?? userProfile.email)
-                      .split(" ")
-                      .map((w) => w[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)}
+                    initials={getSafeInitials(userProfile.name, userProfile.email)}
                     name={userProfile.name ?? userProfile.email}
                     status={userProfile.status}
                     statusColor={
@@ -1561,7 +1565,7 @@ function ProjectSupportColumn({
         <div className="flex items-center gap-2 pl-2 min-w-0">
           <div className="h-2 w-2 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
           <span className="truncate text-xs font-semibold text-stone-700 dark:text-stone-300">
-            {userProfile?.name?.split(" ")[0] ?? "Studio"}
+            {(userProfile?.name?.trim().split(/\s+/)[0]) || "Studio"}
           </span>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
@@ -1571,12 +1575,7 @@ function ProjectSupportColumn({
             <UserProfilePopover
               avatar={userProfile.avatar}
               email={userProfile.email}
-              initials={(userProfile.name ?? userProfile.email)
-                .split(" ")
-                .map((w) => w[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2)}
+              initials={getSafeInitials(userProfile.name, userProfile.email)}
               name={userProfile.name ?? userProfile.email}
               status={userProfile.status}
               statusColor={
@@ -2974,11 +2973,11 @@ function formatDue(card: GlobalCalendarCard) {
 }
 
 function getDiaryHighlightStatus(item: {
-  checklistSummary: { dueCount: number; completedCount: number };
+  checklistSummary?: { dueCount: number; completedCount: number };
   dueTime: string | null;
   dueDate: string;
 }) {
-  if (item.checklistSummary.dueCount === 0) {
+  if (!item.checklistSummary || item.checklistSummary.dueCount === 0) {
     return "default";
   }
   const isCompleted = item.checklistSummary.completedCount === item.checklistSummary.dueCount;
@@ -2986,19 +2985,21 @@ function getDiaryHighlightStatus(item: {
     return "completed";
   }
 
-  if (item.dueTime) {
+  if (item.dueTime && item.dueDate) {
     const now = new Date();
-    const dateParts = item.dueDate.split("-").map(Number); // [YYYY, MM, DD]
-    const [hours, minutes] = item.dueTime.split(":").map(Number);
-    const dueDateTime = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], hours, minutes);
-
-    if (now > dueDateTime) {
-      return "warn-red";
-    }
-
-    const diffMs = dueDateTime.getTime() - now.getTime();
-    if (diffMs > 0 && diffMs <= 60 * 60 * 1000) {
-      return "warn-red";
+    const dateParts = item.dueDate.split("-").map(Number);
+    const timeParts = item.dueTime.split(":").map(Number);
+    if (dateParts.length >= 3 && timeParts.length >= 2 && !dateParts.some(Number.isNaN) && !timeParts.some(Number.isNaN)) {
+      const dueDateTime = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1]);
+      if (!Number.isNaN(dueDateTime.getTime())) {
+        if (now > dueDateTime) {
+          return "warn-red";
+        }
+        const diffMs = dueDateTime.getTime() - now.getTime();
+        if (diffMs > 0 && diffMs <= 60 * 60 * 1000) {
+          return "warn-red";
+        }
+      }
     }
   }
 

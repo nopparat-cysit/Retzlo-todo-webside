@@ -160,8 +160,8 @@ export default async function ProjectsPage() {
   return (
     <>
       <ProjectsDashboard
-        projects={projects.map((p) => toProjectDashboardItem(p, session.user.id))}
-        calendarCards={calendarCards.map(toGlobalCalendarCard)}
+        projects={(projects ?? []).map((p) => toProjectDashboardItem(p, session.user.id))}
+        calendarCards={(calendarCards ?? []).map(toGlobalCalendarCard)}
         calendarDiaries={(diaryItems ?? []).map(toGlobalCalendarDiary)}
         userProfile={userProfile}
         databaseWarning={databaseWarning}
@@ -207,7 +207,7 @@ function toProjectDashboardItem(
   const userRole = project.members?.[0]?.role;
   const isOwner = userRole === "OWNER" || userRole === "ADMIN";
 
-  const visibleBoards = project.boards.filter((b) => {
+  const visibleBoards = (project.boards ?? []).filter((b) => {
     if (!b.isPrivate) return true;
     if (isOwner) return true;
     return b.members?.some((m) => m.userId === currentUserId);
@@ -216,21 +216,22 @@ function toProjectDashboardItem(
   const board = visibleBoards[0] ?? null;
 
   const boardsList = visibleBoards.map((b) => {
-    const cards = b.columns.flatMap((c) => c.cards);
+    const columns = Array.isArray(b.columns) ? b.columns : [];
+    const cards = columns.flatMap((c) => (Array.isArray(c.cards) ? c.cards : []));
     const totalCards = cards.length;
     const doneCards = cards.filter((c) => c.status === "DONE").length;
 
     return {
       id: b.id,
       name: b.name,
-      isPrivate: b.isPrivate,
-      columnCount: b.columns.length,
+      isPrivate: Boolean(b.isPrivate),
+      columnCount: columns.length,
       totalCards,
       doneCards,
-      columnsPreview: b.columns.map((c) => ({
+      columnsPreview: columns.map((c) => ({
         id: c.id,
         name: c.name,
-        cardCount: c.cards.length
+        cardCount: Array.isArray(c.cards) ? c.cards.length : 0
       }))
     };
   });
@@ -245,18 +246,18 @@ function toProjectDashboardItem(
     sticker: project.sticker,
     isOwner,
     counts: {
-      boards: project._count.boards,
-      members: project._count.members,
-      notes: project._count.notes
+      boards: project._count?.boards ?? 0,
+      members: project._count?.members ?? 0,
+      notes: project._count?.notes ?? 0
     },
     boardsList,
     board: board
       ? {
           id: board.id,
-          columns: board.columns.map((column) => ({
+          columns: (board.columns ?? []).map((column) => ({
             id: column.id,
             name: column.name,
-            cards: column.cards.map((card) => ({
+            cards: (column.cards ?? []).map((card) => ({
               id: card.id,
               title: card.title,
               status: card.status as CardStatus
@@ -282,13 +283,22 @@ function toGlobalCalendarCard(card: {
     };
   };
 }): GlobalCalendarCard {
+  const dateStr = card.dueDate instanceof Date
+    ? card.dueDate.toISOString()
+    : typeof card.dueDate === "string"
+    ? card.dueDate
+    : new Date().toISOString();
+
   return {
     id: card.id,
-    title: card.title,
-    status: card.status as CardStatus,
-    dueDate: card.dueDate?.toISOString() ?? new Date().toISOString(),
-    dueDateAllDay: card.dueDateAllDay,
-    project: card.column.board.project
+    title: card.title || "Untitled Card",
+    status: (card.status || "TODO") as CardStatus,
+    dueDate: dateStr,
+    dueDateAllDay: Boolean(card.dueDateAllDay),
+    project: {
+      id: card.column?.board?.project?.id ?? "",
+      name: card.column?.board?.project?.name ?? "Workspace"
+    }
   };
 }
 
@@ -304,22 +314,28 @@ type DiaryWithProject = Prisma.DiaryItemGetPayload<{
 }>;
 
 function toGlobalCalendarDiary(diary: DiaryWithProject): GlobalCalendarDiaryRaw {
+  const startDateStr = diary.startDate instanceof Date
+    ? diary.startDate.toISOString()
+    : typeof diary.startDate === "string"
+    ? diary.startDate
+    : new Date().toISOString();
+
   return {
     id: diary.id,
     title: diary.title,
     description: diary.description ?? "",
-    color: diary.color,
-    intervalDays: diary.intervalDays,
+    color: diary.color ?? "DEFAULT",
+    intervalDays: diary.intervalDays || 1,
     repeatUnit: (diary.repeatUnit === "MONTH" ? "MONTH" : "DAY") as "DAY" | "MONTH",
-    startDate: diary.startDate.toISOString(),
+    startDate: startDateStr,
     checklist: normalizeDiaryChecklist(diary.checklist, diary.startDate),
-    rewardCoins: diary.rewardCoins,
-    rewardCoinType: diary.rewardCoinType as DiaryRewardCoinType,
+    rewardCoins: diary.rewardCoins ?? 0,
+    rewardCoinType: (diary.rewardCoinType || "PROJECT") as DiaryRewardCoinType,
     rewardClaimedDates: Array.isArray(diary.rewardClaimedDates) ? (diary.rewardClaimedDates as string[]) : [],
-    isStarred: diary.isStarred,
-    isHidden: diary.isHidden,
-    dueTime: diary.dueTime,
-    projectId: diary.projectId,
+    isStarred: Boolean(diary.isStarred),
+    isHidden: Boolean(diary.isHidden),
+    dueTime: diary.dueTime ?? null,
+    projectId: diary.projectId ?? null,
     project: diary.project
       ? {
           id: diary.project.id,
