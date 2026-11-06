@@ -516,9 +516,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     return () => {
-      if (artPointerRaf.current !== null) {
-        window.cancelAnimationFrame(artPointerRaf.current);
-      }
+      
       if (audioCtxRef.current) {
         const ctxWithTimer = audioCtxRef.current as AudioContext & {
           _chordScheduler?: ReturnType<typeof setInterval>;
