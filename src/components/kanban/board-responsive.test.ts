@@ -46,6 +46,22 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(boardSource).toContain("flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap");
   });
 
+  it("provides collapsible mobile filter toggle and defaults filter strip to collapsed unless active", () => {
+    expect(boardSource).toContain("isMobileFiltersOpen");
+    expect(boardSource).toContain("setIsMobileFiltersOpen");
+    expect(boardSource).toContain("isMobileFiltersOpen || activeFilterCount > 0");
+  });
+
+  it("guarantees minimum height on KanbanColumn for mobile viewport protection", () => {
+    expect(columnSource).toContain("min-h-[360px] sm:min-h-0");
+  });
+
+  it("mounts mobile bottom navigation bar and allows smooth vertical overflow on mobile shell", () => {
+    expect(shellSource).toContain("overflow-x-hidden lg:overflow-hidden");
+    expect(shellSource).toContain("pb-14 lg:pb-0");
+    expect(shellSource).toContain("<ProjectMobileBottomNav");
+  });
+
   it("adds mobile-only utility header for profile and tools access in ProjectsDashboard", () => {
     expect(dashboardSource).toContain("Mobile-only Utility Header for Instant Profile & Tool Access");
     expect(dashboardSource).toContain("flex lg:hidden items-center justify-between pb-3 border-b");

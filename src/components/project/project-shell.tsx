@@ -19,6 +19,7 @@ import { AiChatTrigger } from "@/components/ai/ai-chat-trigger";
 import { HelpButton } from "@/components/ui/help-button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { CommandPaletteTrigger } from "@/components/ui/command-palette";
+import { ProjectMobileBottomNav } from "@/components/project/project-mobile-bottom-nav";
 import { ErrorState } from "@/components/ui/state";
 import { canAccessBoard } from "@/lib/project-auth";
 import { isDatabaseConnectionError } from "@/lib/safe-db";
@@ -155,7 +156,7 @@ export async function ProjectShell({
     .slice(0, 2);
 
   return (
-    <main className="soft-grid-bg min-h-[100dvh] w-full overflow-hidden p-2 sm:p-3">
+    <main className="soft-grid-bg min-h-[100dvh] w-full overflow-x-hidden lg:overflow-hidden p-2 sm:p-3">
       <input id="project-sidebar-toggle" className="peer sr-only" type="checkbox" />
       <label
         htmlFor="project-sidebar-toggle"
@@ -268,9 +269,10 @@ export async function ProjectShell({
               <div className="hidden sm:inline-flex"><HelpButton /></div>
             </div>
           </header>
-          <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 overflow-hidden">{children}</div>
+          <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 overflow-hidden pb-14 lg:pb-0">{children}</div>
         </section>
       </div>
+      <ProjectMobileBottomNav projectId={projectId} />
     </main>
   );
 }

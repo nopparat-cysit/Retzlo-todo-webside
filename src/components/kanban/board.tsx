@@ -240,6 +240,7 @@ export function KanbanBoard({
   const isCreatingColumnRef = useRef(false);
   const mutationLockUntilRef = useRef<number>(0);
   const isPointerInteractingRef = useRef<boolean>(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
   const mouseSensor = useSensor(MouseSensor, {
@@ -1251,6 +1252,28 @@ export function KanbanBoard({
 
           {/* ── Action Toolbar: AI Summary, Notes, Export & More Actions ── */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Mobile Filter Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setIsMobileFiltersOpen((prev) => !prev)}
+              aria-expanded={isMobileFiltersOpen}
+              aria-label="Toggle search and filters"
+              className={cn(
+                "sm:hidden flex h-8 items-center gap-1.5 rounded-lg border px-2 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
+                isMobileFiltersOpen || activeFilterCount > 0
+                  ? "border-indigo-400/60 bg-indigo-500/15 text-indigo-700 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-bold"
+                  : "border-stone-300 bg-white text-stone-700 hover:border-indigo-400 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300"
+              )}
+            >
+              <ListFilter className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+              <span>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="grid h-4 min-w-4 place-items-center rounded-full bg-indigo-600 px-1 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
             {/* AI Project Summary Button */}
             {board.projectId && (
               <button
@@ -1372,7 +1395,14 @@ export function KanbanBoard({
         </div>
 
         {/* Bottom Row: Filters, Search, Sort & Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 pt-1 border-t border-stone-200/60 dark:border-white/5">
+        <div
+          className={cn(
+            "pt-1 border-t border-stone-200/60 dark:border-white/5",
+            isMobileFiltersOpen || activeFilterCount > 0
+              ? "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2"
+              : "hidden sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-2"
+          )}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
             {/* Mobile Row 1: Search & Add Column */}
             <div className="flex items-center gap-2">
