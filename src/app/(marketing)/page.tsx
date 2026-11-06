@@ -137,7 +137,16 @@ export default function LandingPage() {
       const saved = localStorage.getItem("retzlo:landing-pass");
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (typeof parsed.walletCoins === "number") setWalletCoins(parsed.walletCoins);
+        if (typeof parsed.walletCoins === "number") {
+          const capped = Math.min(100, Math.max(0, parsed.walletCoins));
+          setWalletCoins(capped);
+          if (parsed.walletCoins > 100) {
+            localStorage.setItem(
+              "retzlo:landing-pass",
+              JSON.stringify({ ...parsed, walletCoins: capped })
+            );
+          }
+        }
       }
     } catch {
       // Ignore localStorage read errors
@@ -149,7 +158,7 @@ export default function LandingPage() {
     try {
       localStorage.setItem(
         "retzlo:landing-pass",
-        JSON.stringify({ walletCoins })
+        JSON.stringify({ walletCoins: Math.min(100, Math.max(0, walletCoins)) })
       );
     } catch {
       // Ignore localStorage write errors
@@ -296,7 +305,7 @@ export default function LandingPage() {
 
   const triggerEarnCoin = (amount: number, message: string) => {
     const burstId = Date.now() + Math.random();
-    setWalletCoins((prev) => Math.max(0, prev + amount));
+    setWalletCoins((prev) => Math.min(100, Math.max(0, prev + amount)));
     setCoinBursts((prev) => [...prev.slice(-3), { id: burstId, amount }]);
     if (amount > 0) {
       setToastBanner(`+${amount} Coins · ${message}`);

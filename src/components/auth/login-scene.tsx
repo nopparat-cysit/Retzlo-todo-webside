@@ -58,8 +58,19 @@ export function MixtapeAuthScene({ children, mode = "login" }: { children: React
       const saved = localStorage.getItem("retzlo:landing-pass");
       if (saved) {
         const parsed = JSON.parse(saved) as LandingBonus;
-        if (parsed.ticketClaimed || (parsed.walletCoins && parsed.walletCoins >= 45)) {
-          setBonusInfo(parsed);
+        const rawCoins = typeof parsed.walletCoins === "number" ? parsed.walletCoins : 0;
+        const cappedCoins = Math.min(100, Math.max(0, rawCoins));
+        if (parsed.ticketClaimed || (cappedCoins && cappedCoins >= 45)) {
+          setBonusInfo({
+            ...parsed,
+            walletCoins: cappedCoins
+          });
+          if (rawCoins > 100) {
+            localStorage.setItem(
+              "retzlo:landing-pass",
+              JSON.stringify({ ...parsed, walletCoins: cappedCoins })
+            );
+          }
         }
       }
     } catch {
@@ -195,7 +206,7 @@ export function MixtapeAuthScene({ children, mode = "login" }: { children: React
                 <span>
                   {bonusInfo.ticketClaimed
                     ? "🎉 ปลดล็อกสิทธิ์ทดลองใช้ฟรี 7 วันแล้ว! เข้าสู่ระบบเพื่อเริ่มใช้งานได้ทันที"
-                    : `🎁 มี ${bonusInfo.walletCoins} Coins สะสมจากหน้าแรก พร้อมโอนเข้าสู่บัญชีของคุณ`}
+                    : `🎁 มี ${Math.min(100, bonusInfo.walletCoins)} Coins สะสมจากหน้าแรก พร้อมโอนเข้าสู่บัญชีของคุณ`}
                 </span>
               </div>
             )}
