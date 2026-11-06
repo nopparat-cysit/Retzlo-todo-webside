@@ -6,7 +6,9 @@ import {
   DragOverlay,
   DragStartEvent,
   MeasuringStrategy,
+  MouseSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors
 } from "@dnd-kit/core";
@@ -240,7 +242,13 @@ export function KanbanBoard({
   const isPointerInteractingRef = useRef<boolean>(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: { distance: 5 }
+  });
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: { delay: 250, tolerance: 6 }
+  });
+  const sensors = useSensors(mouseSensor, touchSensor);
 
   const collisionDetection = useMemo(
     () => createKanbanCollisionDetection(() => columnsRef.current),
@@ -1933,7 +1941,28 @@ export function KanbanBoard({
                 </Button>
               </div>
             ) : (
-              <div className="relative flex min-h-0 flex-1">
+              <div className="relative flex min-h-0 flex-1 flex-col">
+                {/* Mobile Quick Column Jump Navigation */}
+                {filteredColumns.length > 1 && (
+                  <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none snap-x">
+                    {filteredColumns.map((col) => (
+                      <button
+                        key={`jump-${col.id}`}
+                        type="button"
+                        onClick={() => {
+                          const el = document.getElementById(`column-${col.id}`);
+                          el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                        }}
+                        className="inline-flex items-center gap-1.5 shrink-0 rounded-lg border border-stone-200/90 bg-white/90 px-2.5 py-1 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 active:scale-95 transition dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
+                      >
+                        <span className="truncate max-w-[100px]">{col.name}</span>
+                        <span className="rounded-full bg-stone-100 dark:bg-white/10 px-1 text-[10px] font-mono text-stone-500 dark:text-stone-400">
+                          {col.cards.length}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1 snap-x snap-mandatory">
                   <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
                     {filteredColumns.map((column, index) => (

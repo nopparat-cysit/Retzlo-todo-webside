@@ -858,6 +858,38 @@ export function ProjectsDashboard({
 
           {/* Unified Studio Command Header */}
           <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col gap-3.5 rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-stone-200/90 bg-white/80 shadow-sm dark:border-white/10 dark:bg-ink-950/75 dark:shadow-lg">
+            {/* Mobile-only Utility Header for Instant Profile & Tool Access */}
+            <div className="flex lg:hidden items-center justify-between pb-3 border-b border-stone-200/80 dark:border-white/10">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-xs">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate">Workspaces</span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <LanguageSwitcher />
+                <NotificationsPopover />
+                <AiChatTrigger className="h-8 w-8 rounded-lg border border-stone-200/90 bg-white/80 dark:border-white/10 dark:bg-white/[0.04]" />
+                {userProfile && (
+                  <UserProfilePopover
+                    avatar={userProfile.avatar}
+                    email={userProfile.email}
+                    initials={getSafeInitials(userProfile.name, userProfile.email)}
+                    name={userProfile.name ?? userProfile.email}
+                    status={userProfile.status}
+                    statusColor={
+                      userProfile.status === "ONLINE"
+                        ? "bg-emerald-400"
+                        : userProfile.status === "BUSY"
+                        ? "bg-dusk-amber"
+                        : "bg-stone-500"
+                    }
+                    variant="avatar"
+                    isAdmin={userProfile.isAdmin}
+                  />
+                )}
+              </div>
+            </div>
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div className="flex min-w-0 items-center gap-3">
                 {viewMode === "boards" && activeProject ? (

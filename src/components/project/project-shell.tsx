@@ -250,8 +250,8 @@ export async function ProjectShell({
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <ProjectTopbarTools />
-              <FocusModeToggle />
-              <CommandPaletteTrigger variant="topbar" />
+              <div className="hidden sm:inline-flex"><FocusModeToggle /></div>
+              <div className="hidden sm:inline-flex"><CommandPaletteTrigger variant="topbar" /></div>
               <LanguageSwitcher />
               <NotificationsPopover />
               <AiChatTrigger />
@@ -265,7 +265,7 @@ export async function ProjectShell({
                 variant="avatar"
                 isAdmin={isGlobalAdmin}
               />
-              <HelpButton />
+              <div className="hidden sm:inline-flex"><HelpButton /></div>
             </div>
           </header>
           <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 overflow-hidden">{children}</div>

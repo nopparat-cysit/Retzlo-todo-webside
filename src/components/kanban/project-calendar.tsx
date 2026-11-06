@@ -1217,7 +1217,8 @@ export function ProjectCalendar({
                 />
               </Panel>
             ) : (
-              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/60 dark:border-white/10 shadow-xl">
+              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden overflow-x-auto rounded-2xl border border-border/60 dark:border-white/10 shadow-xl">
+                <div className={cn("flex min-h-0 flex-1 flex-col", viewMode === "month" && "min-w-[560px] sm:min-w-0")}>
                 {/* Weekday Header */}
                 <div
                   className="grid border-b border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/[0.035] text-center text-[10px] sm:text-xs font-semibold uppercase tracking-normal sm:tracking-[0.2em] text-muted-foreground dark:text-stone-400"
@@ -1363,6 +1364,7 @@ export function ProjectCalendar({
                       </section>
                     );
                   })}
+                </div>
                 </div>
               </div>
             )}

@@ -356,6 +356,7 @@ function KanbanColumnComponent({
   if (isCollapsed) {
     return (
       <div
+        id={`column-${column.id}`}
         ref={node => { setNodeRef(node); setCardZoneRef(node); }}
         style={style}
         data-card-zone={column.id}
@@ -417,6 +418,7 @@ function KanbanColumnComponent({
 
   return (
     <section
+      id={`column-${column.id}`}
       ref={setNodeRef}
       style={{
         ...style,
