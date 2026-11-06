@@ -203,7 +203,11 @@ export function ProjectsDashboard({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [projectList, setProjectList] = useState<ProjectDashboardItem[]>(projects);
   const [selectedDiary, setSelectedDiary] = useState<HubDiaryItem | null>(null);
-  const [calendarStatusFilters, setCalendarStatusFilters] = useState(defaultCalendarFilters.statuses);
+  const [calendarStatusFilters, setCalendarStatusFilters] = useState<Record<"TODO" | "DOING" | "WAITING", boolean>>({
+    TODO: true,
+    DOING: true,
+    WAITING: true
+  });
   const [calendarTimeScope, setCalendarTimeScope] = useState(defaultCalendarFilters.timeScope);
   const [calendarRange, setCalendarRange] = useState<"7" | "30" | "all">("30");
   const [starredProjectIds, setStarredProjectIds] = useState<Set<string>>(new Set());
@@ -449,7 +453,12 @@ export function ProjectsDashboard({
       calendarCards.map((card) => ({ ...card, type: "card" as const })),
       {
         ...defaultCalendarFilters,
-        statuses: calendarStatusFilters,
+        statuses: {
+          TODO: calendarStatusFilters.TODO ?? true,
+          DOING: calendarStatusFilters.DOING ?? true,
+          WAITING: calendarStatusFilters.WAITING ?? true,
+          DONE: false
+        },
         timeScope: calendarTimeScope
       }
     );
@@ -726,8 +735,8 @@ export function ProjectsDashboard({
                   ))}
                 </div>
 
-                <div className="mb-2.5 grid grid-cols-2 gap-1">
-                  {(["TODO", "DOING", "WAITING", "DONE"] as const).map((status) => {
+                <div className="mb-2.5 grid grid-cols-3 gap-1">
+                  {(["TODO", "DOING", "WAITING"] as const).map((status) => {
                     const meta = getStatusMeta(status);
                     const isChecked = calendarStatusFilters[status];
                     return (

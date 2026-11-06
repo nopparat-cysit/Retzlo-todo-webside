@@ -442,6 +442,13 @@ export function ProjectCalendar({
     [cards, notes, diaryChecklistEntries]
   );
   const filteredItems = useMemo(() => filterCalendarItems(allItems, filters), [allItems, filters]);
+  const upcomingItems = useMemo(() => {
+    return filteredItems.filter((item) => {
+      if (item.type === "card") return item.status !== "DONE";
+      if (item.type === "diary_checklist") return !item.completed;
+      return true;
+    });
+  }, [filteredItems]);
   const draftFilteredItems = useMemo(
     () => (isFiltersOpen ? filterCalendarItems(allItems, draftFilters) : filteredItems),
     [allItems, draftFilters, isFiltersOpen, filteredItems]
@@ -1190,7 +1197,7 @@ export function ProjectCalendar({
                 <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
                 <span>Upcoming</span>
                 <span className="rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 dark:bg-white/10 dark:text-stone-300">
-                  {filteredItems.length}
+                  {upcomingItems.length}
                 </span>
               </button>
             </div>
@@ -1376,7 +1383,7 @@ export function ProjectCalendar({
                   <Clock className="h-4 w-4 text-amber-600 dark:text-dusk-amber" />
                   <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">Upcoming</h3>
                   <span className="rounded-full bg-stone-100 dark:bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-stone-600 dark:text-stone-400">
-                    {filteredItems.length}
+                    {upcomingItems.length}
                   </span>
                 </div>
                 <button
@@ -1390,7 +1397,7 @@ export function ProjectCalendar({
               </div>
 
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
-                {filteredItems.slice(0, 15).map((item) => {
+                {upcomingItems.slice(0, 15).map((item) => {
                   if (item.type === "card") {
                     return <UpcomingCard key={`upcoming-card-${item.id}`} card={item} members={members} onClick={() => setSelectedCardId(item.id)} />;
                   } else if (item.type === "note") {
@@ -1405,7 +1412,7 @@ export function ProjectCalendar({
                     );
                   }
                 })}
-                {filteredItems.length === 0 ? (
+                {upcomingItems.length === 0 ? (
                   <EmptyState
                     className="border-dashed bg-white/[0.015] p-4 text-left"
                     title="No upcoming matches"

@@ -8,6 +8,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BackButton } from "@/components/ui/back-button";
 import { ProjectSidebarGreeting } from "@/components/project/project-sidebar-greeting";
+import { CompanyProfileModal } from "@/components/project/company-profile-modal";
 import { ProjectNavLink } from "@/components/project/project-nav-link";
 import { ProjectSortableNav, type ProjectNavItem } from "@/components/project/project-sortable-nav";
 import { ProjectTopbarTools } from "@/components/project/project-topbar-tools";
@@ -188,9 +189,10 @@ export async function ProjectShell({
               </h1>
             </div>
 
-            <p className="sidebar-expanded-only mt-1 text-sm text-stone-400">
-              {project.description ?? "No description yet."}
-            </p>
+            <CompanyProfileModal
+              projectName={project.name}
+              description={project.description}
+            />
 
             <div className="sidebar-expanded-only mt-3">
               <ProjectSidebarGreeting userName={userName} />

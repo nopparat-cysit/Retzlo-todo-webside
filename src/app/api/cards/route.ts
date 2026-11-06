@@ -66,7 +66,29 @@ const createCardSchema = z.object({
   stickers: retroStickersSchema,
   difficulty: difficultySchema,
   assigneeIds: z.array(z.string().trim().min(1)).default([]).optional(),
-});
+}).refine(
+  (data) => {
+    if (data.startDate) {
+      return Boolean(data.dueDate);
+    }
+    return true;
+  },
+  {
+    message: "หากต้องการกำหนดเวลาเริ่มต้น (Start Date) จะต้องกำหนดเวลาสิ้นสุด (Due Date) ด้วยเสมอ",
+    path: ["dueDate"]
+  }
+).refine(
+  (data) => {
+    if (data.startDate && data.dueDate) {
+      return new Date(data.startDate).getTime() <= new Date(data.dueDate).getTime();
+    }
+    return true;
+  },
+  {
+    message: "เวลาเริ่มต้นต้องไม่เกินเวลาสิ้นสุด",
+    path: ["startDate"]
+  }
+);
 
 const updateCardSchema = z.object({
   cardId: z.string().uuid(),

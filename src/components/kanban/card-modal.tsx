@@ -737,11 +737,27 @@ export function CardModal({
       return;
     }
 
+    if (startDate && !date) {
+      toast({
+        message: "หากต้องการกำหนดเวลาเริ่มต้น (Start Date) จะต้องกำหนดเวลาสิ้นสุด (Due Date) ด้วยเสมอ",
+        type: "error"
+      });
+      return;
+    }
+
+    if (startDate && date && startDate > date) {
+      toast({
+        message: "เวลาเริ่มต้นต้องไม่เกินเวลาสิ้นสุด",
+        type: "error"
+      });
+      return;
+    }
+
     isSubmittingRef.current = true;
     setIsSaving(true);
     const formData = new FormData(event.currentTarget);
-    const start = composeStartDate(startDate, startTime);
     const due = composeDueDate(date, time);
+    const start = due.dueDate ? composeStartDate(startDate, startTime) : { startDate: null, startDateAllDay: false };
     const rewardPayload = resolveCardRewardPayload({
       activeUserId,
       enabled: showCoinRewards,
@@ -1183,27 +1199,42 @@ export function CardModal({
             disabled={isSaving}
           />
 
-          {/* Start Date & Due Date */}
+          {/* Due Date & Start Date */}
           <div className="space-y-3">
             <DateTimeField
-              label="Start Date"
-              description="Start date of the task (No time = all day)"
+              label="Due Date (เวลาสิ้นสุด)"
+              description="Deadline or completion date (No time = all day)"
+              value={{ date, time }}
+              disabled={isSaving}
+              onChange={(nextValue) => {
+                setDate(nextValue.date);
+                setTime(nextValue.time);
+                if (!nextValue.date) {
+                  setStartDate("");
+                  setStartTime("");
+                }
+              }}
+            />
+
+            <DateTimeField
+              label="Start Date (เวลาเริ่มต้น - ทางเลือก)"
+              description={
+                !date
+                  ? "กำหนดเวลาสิ้นสุด (Due Date) ด้านบนก่อน จึงจะสามารถใส่เวลาเริ่มต้นได้"
+                  : "Start date of the task (No time = all day)"
+              }
               value={{ date: startDate, time: startTime }}
+              disabled={!date || isSaving}
               onChange={(nextValue) => {
                 setStartDate(nextValue.date);
                 setStartTime(nextValue.time);
               }}
             />
-
-            <DateTimeField
-              label="Due Date"
-              description="Deadline or completion date (No time = all day)"
-              value={{ date, time }}
-              onChange={(nextValue) => {
-                setDate(nextValue.date);
-                setTime(nextValue.time);
-              }}
-            />
+            {!date ? (
+              <p className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs font-medium text-stone-400">
+                💡 กำหนดเวลาสิ้นสุด (Due Date) ด้านบนก่อน จึงจะสามารถใส่เวลาเริ่มต้นได้
+              </p>
+            ) : null}
             {startDate && date && startDate > date ? (
               <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-300">
                 ⚠️ Notice: Start date ({startDate}) is after due date ({date})
