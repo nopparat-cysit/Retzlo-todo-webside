@@ -243,7 +243,7 @@ export function KanbanBoard({
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
   const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: { distance: 5 }
+    activationConstraint: { distance: 4 }
   });
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: { delay: 250, tolerance: 6 }
@@ -1372,28 +1372,46 @@ export function KanbanBoard({
         </div>
 
         {/* Bottom Row: Filters, Search, Sort & Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 pt-1 border-t border-stone-200/60 dark:border-white/5">
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
-            {/* Live Search */}
-          <div className="group/search relative flex items-center flex-1 min-w-[130px] sm:flex-initial">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search cards..."
-              className="h-9 w-full sm:w-44 rounded-xl border border-stone-200/90 bg-white pl-8.5 pr-7 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/5 dark:focus:ring-dusk-lavender/20"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
-                aria-label="Clear card search"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
-          </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 pt-1 border-t border-stone-200/60 dark:border-white/5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+            {/* Mobile Row 1: Search & Add Column */}
+            <div className="flex items-center gap-2">
+              {/* Live Search */}
+              <div className="group/search relative flex items-center flex-1 min-w-[130px] sm:flex-initial">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search cards..."
+                  className="h-9 w-full sm:w-44 rounded-xl border border-stone-200/90 bg-white pl-8.5 pr-7 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/5 dark:focus:ring-dusk-lavender/20"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+                    aria-label="Clear card search"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+              {/* Add Column Button (Mobile only) */}
+              <div className="sm:hidden shrink-0">
+                <Button
+                  className="h-9 shrink-0 rounded-xl px-2.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs hover:shadow-sm"
+                  type="button"
+                  aria-label="Add column"
+                  onClick={openCreateColumnModal}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="hidden min-[360px]:inline">Column</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Filter Strip: horizontal scroll on mobile, flex-wrap on desktop */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap">
 
           {/* Today Quick Filter */}
           <button
@@ -1703,10 +1721,11 @@ export function KanbanBoard({
               <RotateCcw className={cn("h-3.5 w-3.5", moveHistory.length > 0 ? "text-teal-600 dark:text-dusk-cyan" : "text-stone-400/80")} />
               <span className="hidden sm:inline">Undo</span>
             </button>
+            </div>
           </div>
 
-          {/* Add Column Form */}
-          <div className="shrink-0 ml-auto sm:ml-0">
+          {/* Add Column Form (Desktop only) */}
+          <div className="hidden sm:block shrink-0">
             <Button
               className="h-9 shrink-0 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs hover:shadow-sm"
               type="button"

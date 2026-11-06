@@ -830,9 +830,9 @@ export function ProjectCalendar({
             </div>
 
             {/* Right: Search, Presets, View Switcher, Filter Popover, Upcoming */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 sm:overflow-visible sm:flex-wrap">
               {/* Search Bar */}
-              <div className="relative min-w-[140px] sm:min-w-[180px] max-w-[220px]">
+              <div className="relative min-w-[140px] sm:min-w-[180px] max-w-[220px] shrink-0">
                 <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
                 <input
                   type="text"

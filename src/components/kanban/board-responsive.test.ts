@@ -14,7 +14,7 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(boardSource).toContain("TouchSensor");
     expect(boardSource).toContain("useSensor(MouseSensor");
     expect(boardSource).toContain("useSensor(TouchSensor");
-    expect(boardSource).toContain("distance: 5");
+    expect(boardSource).toContain("distance: 4");
     expect(boardSource).toContain("delay: 250");
     expect(boardSource).toContain("tolerance: 6");
     expect(boardSource).toContain("useSensors(mouseSensor, touchSensor)");
@@ -29,11 +29,21 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(columnSource).toContain("id={`column-${column.id}`}");
   });
 
-  it("hides desktop-only triggers on mobile topbar while keeping FocusModeToggle mounted", () => {
+  it("hides desktop-only triggers and secondary tools on mobile topbar while keeping primary actions visible", () => {
+    expect(shellSource).toContain('<div className="hidden sm:inline-flex"><ProjectTopbarTools /></div>');
     expect(shellSource).toContain('<div className="hidden sm:inline-flex"><FocusModeToggle /></div>');
     expect(shellSource).toContain('<div className="hidden sm:inline-flex"><CommandPaletteTrigger variant="topbar" /></div>');
+    expect(shellSource).toContain('<div className="hidden sm:inline-flex"><LanguageSwitcher /></div>');
     expect(shellSource).toContain('<div className="hidden sm:inline-flex"><HelpButton /></div>');
     expect(shellSource).toContain("<FocusModeToggle />");
+    expect(shellSource).toContain("<NotificationsPopover />");
+    expect(shellSource).toContain("<AiChatTrigger />");
+    expect(shellSource).toContain("<UserProfilePopover");
+  });
+
+  it("organizes board search, add column, and filter strip cleanly for mobile viewports", () => {
+    expect(boardSource).toContain("flex items-center gap-2");
+    expect(boardSource).toContain("flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap");
   });
 
   it("adds mobile-only utility header for profile and tools access in ProjectsDashboard", () => {
@@ -45,7 +55,8 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(dashboardSource).toContain("<UserProfilePopover");
   });
 
-  it("ensures month calendar view is horizontally scrollable and legible on mobile screens", () => {
+  it("ensures calendar top controls and month grid are horizontally scrollable on mobile", () => {
+    expect(calendarSource).toContain("flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 sm:overflow-visible sm:flex-wrap");
     expect(calendarSource).toContain("overflow-x-auto");
     expect(calendarSource).toContain('viewMode === "month" && "min-w-[560px] sm:min-w-0"');
   });

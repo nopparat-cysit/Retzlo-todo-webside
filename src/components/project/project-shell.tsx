@@ -249,10 +249,10 @@ export async function ProjectShell({
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-              <ProjectTopbarTools />
+              <div className="hidden sm:inline-flex"><ProjectTopbarTools /></div>
               <div className="hidden sm:inline-flex"><FocusModeToggle /></div>
               <div className="hidden sm:inline-flex"><CommandPaletteTrigger variant="topbar" /></div>
-              <LanguageSwitcher />
+              <div className="hidden sm:inline-flex"><LanguageSwitcher /></div>
               <NotificationsPopover />
               <AiChatTrigger />
               <UserProfilePopover
