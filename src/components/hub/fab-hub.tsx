@@ -242,12 +242,12 @@ export function FabHub() {
         className={cn(
           "fixed bottom-safe z-[120] pointer-events-none flex flex-col items-end gap-3 transition-all duration-300 ease-in-out",
           isOpen
-            ? "bottom-4 right-4 sm:bottom-6 sm:right-6"
+            ? "bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] right-3.5 sm:bottom-6 sm:right-6"
             : isAiChatOpenAndFloat
-              ? "bottom-[calc(min(560px,85vh)+1.5rem)] right-4 sm:bottom-[calc(min(560px,85vh)+2rem)] sm:right-6"
+              ? "bottom-[calc(min(560px,85vh)+1.5rem)] right-3.5 sm:bottom-[calc(min(560px,85vh)+2rem)] sm:right-6"
               : isAiChatOpenAndSidebar
-                ? "max-lg:bottom-[calc(min(560px,85vh)+1.5rem)] max-lg:right-4 max-lg:sm:bottom-[calc(min(560px,85vh)+2rem)] max-lg:sm:right-6 lg:bottom-6 lg:right-[calc(450px+1.5rem)]"
-                : "bottom-4 right-4 sm:bottom-6 sm:right-6"
+                ? "max-lg:bottom-[calc(min(560px,85vh)+1.5rem)] max-lg:right-3.5 max-lg:sm:bottom-[calc(min(560px,85vh)+2rem)] max-lg:sm:right-6 lg:bottom-6 lg:right-[calc(450px+1.5rem)]"
+                : "bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] right-3.5 sm:bottom-6 sm:right-6"
         )}
       >
         {/* Action buttons */}

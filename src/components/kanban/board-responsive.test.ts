@@ -8,6 +8,7 @@ describe("Kanban responsive and touch optimizations", () => {
   const shellSource = readFileSync(join(process.cwd(), "src/components/project/project-shell.tsx"), "utf8");
   const dashboardSource = readFileSync(join(process.cwd(), "src/components/project/projects-dashboard.tsx"), "utf8");
   const calendarSource = readFileSync(join(process.cwd(), "src/components/kanban/project-calendar.tsx"), "utf8");
+  const fabSource = readFileSync(join(process.cwd(), "src/components/hub/fab-hub.tsx"), "utf8");
 
   it("configures MouseSensor and TouchSensor with activation constraints to prevent mobile scroll conflicts", () => {
     expect(boardSource).toContain("MouseSensor");
@@ -41,14 +42,17 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(shellSource).toContain("<UserProfilePopover");
   });
 
-  it("organizes board search, add column, and filter strip cleanly for mobile viewports", () => {
-    expect(boardSource).toContain("flex items-center gap-2");
-    expect(boardSource).toContain("flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap");
+  it("removes redundant topbar menu button in favor of bottom navigation bar trigger", () => {
+    const headerStart = shellSource.indexOf("<header");
+    const headerEnd = shellSource.indexOf("</header>");
+    const headerSource = shellSource.slice(headerStart, headerEnd);
+    expect(headerSource).not.toContain('htmlFor="project-sidebar-toggle"');
   });
 
-  it("provides collapsible mobile filter toggle and defaults filter strip to collapsed unless active", () => {
-    expect(boardSource).toContain("isMobileFiltersOpen");
-    expect(boardSource).toContain("setIsMobileFiltersOpen");
+  it("organizes board search, add column, and filter strip cleanly for mobile viewports without emptiness", () => {
+    expect(boardSource).toContain("flex items-center gap-2");
+    expect(boardSource).toContain("pt-1.5 border-t border-stone-200/60 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2");
+    expect(boardSource).toContain("overflow-x-auto scrollbar-none py-1 -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap");
     expect(boardSource).toContain("isMobileFiltersOpen || activeFilterCount > 0");
   });
 
@@ -62,13 +66,14 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(shellSource).toContain("<ProjectMobileBottomNav");
   });
 
-  it("adds mobile-only utility header for profile and tools access in ProjectsDashboard", () => {
-    expect(dashboardSource).toContain("Mobile-only Utility Header for Instant Profile & Tool Access");
-    expect(dashboardSource).toContain("flex lg:hidden items-center justify-between pb-3 border-b");
-    expect(dashboardSource).toContain("<LanguageSwitcher />");
-    expect(dashboardSource).toContain("<NotificationsPopover />");
-    expect(dashboardSource).toContain("<AiChatTrigger");
-    expect(dashboardSource).toContain("<UserProfilePopover");
+  it("positions star FAB elevated above mobile bottom nav to prevent overlapping Menu button", () => {
+    expect(fabSource).toContain("bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] right-3.5 sm:bottom-6 sm:right-6");
+  });
+
+  it("prevents button wrapping and layout breaks in projects dashboard", () => {
+    expect(dashboardSource).toContain("flex items-center justify-between gap-2.5 sm:gap-3");
+    expect(dashboardSource).toContain("overflow-x-auto scrollbar-none flex-nowrap");
+    expect(dashboardSource).toContain("mt-auto pt-2.5 border-t border-stone-200/80 flex items-center gap-1.5 flex-nowrap dark:border-white/10");
   });
 
   it("ensures calendar top controls and month grid are horizontally scrollable on mobile", () => {

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
-import { Building2, Menu, PanelLeftClose } from "lucide-react";
+import { Building2, PanelLeftClose } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -223,14 +223,6 @@ export async function ProjectShell({
         <section className="row-start-1 flex min-h-0 min-w-0 flex-col rounded-2xl lg:row-start-auto">
           <header className="lofi-panel relative z-40 mb-3 flex min-h-14 flex-nowrap items-center justify-between gap-2 sm:gap-3 overflow-visible rounded-2xl px-2.5 sm:px-4">
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
-              <label
-                htmlFor="project-sidebar-toggle"
-                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender lg:hidden"
-                title="Open navigation"
-                aria-label="Open navigation"
-              >
-                <Menu className="h-4 w-4" />
-              </label>
               <BackButton />
               <Link
                 href="/projects"

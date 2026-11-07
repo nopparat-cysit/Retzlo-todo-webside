@@ -240,7 +240,7 @@ export function KanbanBoard({
   const isCreatingColumnRef = useRef(false);
   const mutationLockUntilRef = useRef<number>(0);
   const isPointerInteractingRef = useRef<boolean>(false);
-  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(true);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
   const mouseSensor = useSensor(MouseSensor, {
@@ -1395,14 +1395,7 @@ export function KanbanBoard({
         </div>
 
         {/* Bottom Row: Filters, Search, Sort & Actions */}
-        <div
-          className={cn(
-            "pt-1 border-t border-stone-200/60 dark:border-white/5",
-            isMobileFiltersOpen || activeFilterCount > 0
-              ? "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2"
-              : "hidden sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-2"
-          )}
-        >
+        <div className="pt-1.5 border-t border-stone-200/60 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2">
           <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
             {/* Mobile Row 1: Search & Add Column */}
             <div className="flex items-center gap-2">
@@ -1441,7 +1434,12 @@ export function KanbanBoard({
             </div>
 
             {/* Filter Strip: horizontal scroll on mobile, flex-wrap on desktop */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap">
+            <div
+              className={cn(
+                "flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap",
+                !(isMobileFiltersOpen || activeFilterCount > 0) && "hidden sm:flex"
+              )}
+            >
 
           {/* Today Quick Filter */}
           <button

@@ -890,7 +890,7 @@ export function ProjectsDashboard({
                 )}
               </div>
             </div>
-            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center justify-between gap-2.5 sm:gap-3">
               <div className="flex min-w-0 items-center gap-3">
                 {viewMode === "boards" && activeProject ? (
                   <>
@@ -2488,7 +2488,7 @@ function ProjectCard({
 
           {/* Boards Quick-Jump Chips (Direct 1-Click Launch) */}
           {!isDiaryProject && project.boardsList && project.boardsList.length > 0 ? (
-            <div className="mt-2.5 flex flex-wrap items-center gap-1 pt-2 border-t border-stone-200/70 dark:border-white/5">
+            <div className="mt-2.5 flex items-center gap-1 pt-2 border-t border-stone-200/70 dark:border-white/5 overflow-x-auto scrollbar-none flex-nowrap">
               <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 mr-0.5">
                 <KanbanSquare className="h-2.5 w-2.5 text-indigo-500 dark:text-dusk-lavender" />
                 Boards
@@ -2497,7 +2497,7 @@ function ProjectCard({
                 <Link
                   key={b.id}
                   href={`/project/${project.id}/board?boardId=${b.id}`}
-                  className="inline-flex items-center gap-1 rounded-md border border-stone-200/80 bg-stone-50/90 px-2 py-0.5 text-[10px] font-medium text-stone-700 transition hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-dusk-lavender/40 dark:hover:bg-dusk-lavender/10 dark:hover:text-dusk-lavender"
+                  className="inline-flex shrink-0 items-center gap-1 rounded-md border border-stone-200/80 bg-stone-50/90 px-2 py-0.5 text-[10px] font-medium text-stone-700 transition hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-300 dark:hover:border-dusk-lavender/40 dark:hover:bg-dusk-lavender/10 dark:hover:text-dusk-lavender"
                   title={`Launch ${b.name}`}
                 >
                   <span className="truncate max-w-[80px]">{b.name}</span>
@@ -2509,7 +2509,7 @@ function ProjectCard({
               {project.boardsList.length > 3 ? (
                 <Link
                   href={`/project/${project.id}/board`}
-                  className="rounded-md border border-stone-200/80 bg-stone-50 px-1.5 py-0.5 text-[9px] font-mono font-medium text-stone-500 hover:border-indigo-300 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-lavender/40 dark:hover:text-dusk-lavender"
+                  className="shrink-0 rounded-md border border-stone-200/80 bg-stone-50 px-1.5 py-0.5 text-[9px] font-mono font-medium text-stone-500 hover:border-indigo-300 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-dusk-lavender/40 dark:hover:text-dusk-lavender"
                   title="View all boards in this project"
                 >
                   +{project.boardsList.length - 3}
@@ -2519,19 +2519,19 @@ function ProjectCard({
           ) : null}
 
           {/* Quick-Launch Action Hub */}
-          <div className="mt-auto pt-2.5 border-t border-stone-200/80 flex items-center gap-1.5 dark:border-white/10">
+          <div className="mt-auto pt-2.5 border-t border-stone-200/80 flex items-center gap-1.5 flex-nowrap dark:border-white/10">
             <Link
               href={`/project/${project.id}/${isDiaryProject ? "diary" : "board"}`}
-              className="group/btn flex-1 inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold text-xs shadow-2xs transition hover:from-indigo-500 hover:to-indigo-600 active:scale-95 dark:from-dusk-lavender dark:to-indigo-400 dark:text-ink-950 dark:font-bold dark:shadow-[0_4px_14px_rgba(169,162,255,0.2)] dark:hover:from-dusk-amber dark:hover:to-amber-300"
+              className="group/btn flex-1 min-w-0 inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold text-xs shadow-2xs transition hover:from-indigo-500 hover:to-indigo-600 active:scale-95 dark:from-dusk-lavender dark:to-indigo-400 dark:text-ink-950 dark:font-bold dark:shadow-[0_4px_14px_rgba(169,162,255,0.2)] dark:hover:from-dusk-amber dark:hover:to-amber-300"
             >
-              <span>{isDiaryProject ? "Open Diary" : "Launch Board"}</span>
-              <ArrowRight className="h-3 w-3 transition-transform group-hover/btn:translate-x-0.5" />
+              <span className="truncate">{isDiaryProject ? "Open Diary" : "Launch Board"}</span>
+              <ArrowRight className="h-3 w-3 shrink-0 transition-transform group-hover/btn:translate-x-0.5" />
             </Link>
 
             <Link
               href={`/project/${project.id}/calendar`}
               title="Calendar View"
-              className="grid h-8.5 w-8.5 place-items-center rounded-lg border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-cyan/50 dark:hover:bg-dusk-cyan/15 dark:hover:text-dusk-cyan"
+              className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-lg border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-cyan/50 dark:hover:bg-dusk-cyan/15 dark:hover:text-dusk-cyan"
             >
               <CalendarDays className="h-3.5 w-3.5" />
             </Link>
@@ -2539,7 +2539,7 @@ function ProjectCard({
             <Link
               href={`/project/${project.id}/notes`}
               title="Project Notes"
-              className="grid h-8.5 w-8.5 place-items-center rounded-lg border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-rose/50 dark:hover:bg-dusk-rose/15 dark:hover:text-dusk-rose"
+              className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-lg border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-rose/50 dark:hover:bg-dusk-rose/15 dark:hover:text-dusk-rose"
             >
               <FileText className="h-3.5 w-3.5" />
             </Link>
@@ -2547,7 +2547,7 @@ function ProjectCard({
             <Link
               href={`/project/${project.id}/rewards`}
               title="Rewards Store"
-              className="grid h-8.5 w-8.5 place-items-center rounded-lg border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-amber/50 dark:hover:bg-dusk-amber/15 dark:hover:text-dusk-amber"
+              className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-lg border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-dusk-amber/50 dark:hover:bg-dusk-amber/15 dark:hover:text-dusk-amber"
             >
               <Gift className="h-3.5 w-3.5" />
             </Link>
