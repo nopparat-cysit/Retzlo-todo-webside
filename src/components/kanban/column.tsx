@@ -117,6 +117,14 @@ function KanbanColumnComponent({
   const [isSaveConfirmOpen, setIsSaveConfirmOpen] = useState(false);
   const quickInputRef = useRef<HTMLTextAreaElement>(null);
   const theme = getColumnThemeOption(column.color);
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobileScreen(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const collapsed = localStorage.getItem(`column-collapsed-${column.id}`) === "true";
@@ -422,12 +430,12 @@ function KanbanColumnComponent({
       ref={setNodeRef}
       style={{
         ...style,
-        width: isCollapsed ? undefined : `${columnWidth}px`,
-        maxWidth: isCollapsed ? undefined : `${columnWidth}px`,
-        minWidth: isCollapsed ? undefined : `${MIN_COLUMN_WIDTH}px`
+        width: isCollapsed || isMobileScreen ? undefined : `${columnWidth}px`,
+        maxWidth: isCollapsed || isMobileScreen ? undefined : `${columnWidth}px`,
+        minWidth: isCollapsed || isMobileScreen ? undefined : `${MIN_COLUMN_WIDTH}px`
       }}
       className={cn(
-        "group relative flex h-full min-h-[360px] sm:min-h-0 w-[84vw] sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 snap-center flex-col rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
+        "group relative flex h-full min-h-[360px] sm:min-h-0 w-[calc(100vw-2.5rem)] max-w-[360px] sm:max-w-none sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 snap-center flex-col rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
         isResizing ? "transition-none select-none" : "transition duration-200",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",

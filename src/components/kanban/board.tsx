@@ -240,7 +240,7 @@ export function KanbanBoard({
   const isCreatingColumnRef = useRef(false);
   const mutationLockUntilRef = useRef<number>(0);
   const isPointerInteractingRef = useRef<boolean>(false);
-  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(true);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
   const mouseSensor = useSensor(MouseSensor, {
@@ -1433,11 +1433,11 @@ export function KanbanBoard({
               </div>
             </div>
 
-            {/* Filter Strip: horizontal scroll on mobile, flex-wrap on desktop */}
+            {/* Filter Strip: collapsible panel on mobile, inline on desktop (no overflow-x-auto) */}
             <div
               className={cn(
-                "flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap",
-                !(isMobileFiltersOpen || activeFilterCount > 0) && "hidden sm:flex"
+                "items-center gap-1.5 pt-1.5 sm:pt-0 border-t border-stone-200/50 sm:border-0 dark:border-white/5 flex-wrap sm:flex-nowrap",
+                isMobileFiltersOpen || activeFilterCount > 0 ? "flex" : "hidden sm:flex"
               )}
             >
 

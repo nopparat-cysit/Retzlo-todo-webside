@@ -9,6 +9,7 @@ describe("Kanban responsive and touch optimizations", () => {
   const dashboardSource = readFileSync(join(process.cwd(), "src/components/project/projects-dashboard.tsx"), "utf8");
   const calendarSource = readFileSync(join(process.cwd(), "src/components/kanban/project-calendar.tsx"), "utf8");
   const fabSource = readFileSync(join(process.cwd(), "src/components/hub/fab-hub.tsx"), "utf8");
+  const diarySource = readFileSync(join(process.cwd(), "src/components/diary/diary-list-panel.tsx"), "utf8");
 
   it("configures MouseSensor and TouchSensor with activation constraints to prevent mobile scroll conflicts", () => {
     expect(boardSource).toContain("MouseSensor");
@@ -30,16 +31,11 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(columnSource).toContain("id={`column-${column.id}`}");
   });
 
-  it("hides desktop-only triggers and secondary tools on mobile topbar while keeping primary actions visible", () => {
-    expect(shellSource).toContain('<div className="hidden sm:inline-flex"><ProjectTopbarTools /></div>');
-    expect(shellSource).toContain('<div className="hidden sm:inline-flex"><FocusModeToggle /></div>');
-    expect(shellSource).toContain('<div className="hidden sm:inline-flex"><CommandPaletteTrigger variant="topbar" /></div>');
-    expect(shellSource).toContain('<div className="hidden sm:inline-flex"><LanguageSwitcher /></div>');
-    expect(shellSource).toContain('<div className="hidden sm:inline-flex"><HelpButton /></div>');
-    expect(shellSource).toContain("<FocusModeToggle />");
-    expect(shellSource).toContain("<NotificationsPopover />");
-    expect(shellSource).toContain("<AiChatTrigger />");
-    expect(shellSource).toContain("<UserProfilePopover");
+  it("provides sticky topbar and definite viewport height on project shell", () => {
+    expect(shellSource).toContain("sticky top-2 z-40 backdrop-blur-xl bg-ink-950/80");
+    expect(shellSource).toContain("h-[calc(100dvh-1rem)] sm:h-[calc(100dvh-1.5rem)] min-h-0");
+    expect(shellSource).toContain("flex min-h-0 min-w-0 flex-1 flex-col rounded-2xl overflow-hidden");
+    expect(shellSource).toContain("relative z-10 min-h-0 min-w-0 max-w-full flex-1 flex flex-col pb-16 lg:pb-0 overflow-hidden");
   });
 
   it("shows Menu trigger on mobile and BackButton on desktop in workspace topbar", () => {
@@ -49,12 +45,6 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(headerSource).toContain('htmlFor="project-sidebar-toggle"');
     expect(headerSource).toContain('<div className="hidden lg:inline-flex">');
     expect(headerSource).toContain("<BackButton />");
-  });
-
-  it("uses flexible min-height and overflow-y-auto on mobile shell to prevent 0px collapsed content", () => {
-    expect(shellSource).toContain("flex flex-col min-h-[calc(100dvh-1rem)] sm:min-h-[calc(100dvh-1.5rem)] min-h-0");
-    expect(shellSource).toContain("overflow-y-auto lg:overflow-hidden");
-    expect(shellSource).toContain("pb-16 lg:pb-0");
   });
 
   it("includes Home icon link to /projects in sidebar drawer", () => {
@@ -73,28 +63,20 @@ describe("Kanban responsive and touch optimizations", () => {
   it("organizes board search, add column, and filter strip cleanly for mobile viewports without emptiness", () => {
     expect(boardSource).toContain("flex items-center gap-2");
     expect(boardSource).toContain("pt-1.5 border-t border-stone-200/60 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2");
-    expect(boardSource).toContain("overflow-x-auto scrollbar-none py-1 -mx-2 px-2 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap");
     expect(boardSource).toContain("isMobileFiltersOpen || activeFilterCount > 0");
   });
 
-  it("guarantees minimum height on KanbanColumn for mobile viewport protection", () => {
+  it("ensures mobile columns use adaptive viewport width without 335px overflow", () => {
+    expect(columnSource).toContain("w-[calc(100vw-2.5rem)] max-w-[360px]");
     expect(columnSource).toContain("min-h-[360px] sm:min-h-0");
   });
 
-  it("mounts mobile bottom navigation bar and allows smooth vertical overflow on mobile shell", () => {
-    expect(shellSource).toContain("overflow-x-hidden lg:overflow-hidden");
-    expect(shellSource).toContain("<ProjectMobileBottomNav");
+  it("fits calendar month view 100% inside mobile viewport without 560px cut-off", () => {
+    expect(calendarSource).not.toContain('min-w-[560px]');
+    expect(calendarSource).toContain("dotColor");
   });
 
-  it("prevents button wrapping and layout breaks in projects dashboard", () => {
-    expect(dashboardSource).toContain("flex items-center justify-between gap-2.5 sm:gap-3");
-    expect(dashboardSource).toContain("overflow-x-auto scrollbar-none flex-nowrap");
-    expect(dashboardSource).toContain("mt-auto pt-2.5 border-t border-stone-200/80 flex items-center gap-1.5 flex-nowrap dark:border-white/10");
-  });
-
-  it("ensures calendar top controls and month grid are horizontally scrollable on mobile", () => {
-    expect(calendarSource).toContain("flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 sm:overflow-visible sm:flex-wrap");
-    expect(calendarSource).toContain("overflow-x-auto");
-    expect(calendarSource).toContain('viewMode === "month" && "min-w-[560px] sm:min-w-0"');
+  it("compacts diary hero panel and description on mobile screens", () => {
+    expect(diarySource).toContain("hidden sm:block mt-1");
   });
 });

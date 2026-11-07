@@ -1217,8 +1217,8 @@ export function ProjectCalendar({
                 />
               </Panel>
             ) : (
-              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden overflow-x-auto rounded-2xl border border-border/60 dark:border-white/10 shadow-xl">
-                <div className={cn("flex min-h-0 flex-1 flex-col", viewMode === "month" && "min-w-[560px] sm:min-w-0")}>
+              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/60 dark:border-white/10 shadow-xl">
+                <div className="flex min-h-0 flex-1 flex-col w-full min-w-0">
                 {/* Weekday Header */}
                 <div
                   className="grid border-b border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/[0.035] text-center text-[10px] sm:text-xs font-semibold uppercase tracking-normal sm:tracking-[0.2em] text-muted-foreground dark:text-stone-400"
@@ -1282,7 +1282,7 @@ export function ProjectCalendar({
                         key={key}
                         onClick={() => setSelectedDayKey(key)}
                         className={cn(
-                          "group relative flex min-h-[80px] sm:min-h-[135px] flex-col p-1.5 sm:p-2.5 transition cursor-pointer",
+                          "group relative flex min-h-[52px] sm:min-h-[135px] flex-col p-1 sm:p-2.5 transition cursor-pointer",
                           current
                             ? "bg-amber-500/10 dark:bg-dusk-amber/[0.08] ring-1 ring-inset ring-amber-500/30 dark:ring-dusk-amber/30"
                             : muted
@@ -1336,7 +1336,26 @@ export function ProjectCalendar({
                           </div>
                         </div>
 
-                        <div className="space-y-1.5 flex-1 min-h-0">
+                        {/* Mobile Compact Dot Indicators (< sm) */}
+                        <div className="flex sm:hidden items-center justify-center gap-1 mt-auto pt-1 flex-wrap">
+                          {cellRenderItems.slice(0, 3).map((entry, idx) => {
+                            const dotColor =
+                              entry.type === "card"
+                                ? "bg-indigo-500 dark:bg-dusk-lavender"
+                                : entry.type === "note"
+                                ? "bg-amber-500 dark:bg-dusk-amber"
+                                : "bg-emerald-500 dark:bg-emerald-400";
+                            return <span key={`dot-${entry.id || idx}`} className={cn("h-1.5 w-1.5 rounded-full shrink-0", dotColor)} />;
+                          })}
+                          {cellRenderItems.length > 3 && (
+                            <span className="text-[8px] font-mono font-bold text-stone-500 dark:text-stone-400">
+                              +{cellRenderItems.length - 3}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Desktop Full Card / Note / Checklist items (sm+) */}
+                        <div className="hidden sm:block space-y-1.5 flex-1 min-h-0">
                           {cellRenderItems.slice(0, 3).map((entry) => {
                             if (entry.type === "card") {
                               return <CalendarCardButton key={`card-${entry.id}`} card={entry} onClick={() => setSelectedCardId(entry.id)} />;
