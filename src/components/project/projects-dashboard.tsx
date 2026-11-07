@@ -616,7 +616,7 @@ export function ProjectsDashboard({
           </div>
 
           {/* Quick Actions & System Tools Bar */}
-          <div className="mt-3 flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-100/70 p-1.5 dark:border-white/10 dark:bg-white/[0.03] shadow-inner">
+          <div className="mt-3 hidden lg:flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-100/70 p-1.5 dark:border-white/10 dark:bg-white/[0.03] shadow-inner">
             <LanguageSwitcher />
             <div className="flex items-center gap-1.5 shrink-0">
               <NotificationsPopover />

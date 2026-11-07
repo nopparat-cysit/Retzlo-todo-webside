@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
-import { Building2, PanelLeftClose } from "lucide-react";
+import { Building2, Home, Menu, PanelLeftClose } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -163,15 +163,17 @@ export async function ProjectShell({
         className="pointer-events-none fixed inset-0 z-[240] bg-ink-950/60 opacity-0 backdrop-blur-sm transition-opacity duration-300 peer-checked:pointer-events-auto peer-checked:opacity-100 lg:hidden"
         aria-hidden="true"
       />
-      <div className="project-shell-grid grid grid-rows-[minmax(0,1fr)] h-[calc(100dvh-1rem)] sm:h-[calc(100dvh-1.5rem)] min-h-0 gap-2.5 sm:gap-3 transition-[grid-template-columns] duration-200 lg:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="project-shell-grid flex flex-col min-h-[calc(100dvh-1rem)] sm:min-h-[calc(100dvh-1.5rem)] min-h-0 gap-2.5 sm:gap-3 transition-[grid-template-columns] duration-200 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:h-[calc(100dvh-1.5rem)]">
         <aside className="project-sidebar lofi-panel fixed bottom-2 left-2 top-2 z-[250] flex min-h-0 w-[min(280px,calc(100vw-2.5rem))] -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
           <div>
             <div className="flex items-center justify-between gap-2">
               <Link
                 href="/projects"
-                className="sidebar-expanded-only text-xs uppercase tracking-[0.3em] text-dusk-amber transition-opacity hover:opacity-70"
+                className="sidebar-expanded-only inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.25em] text-dusk-amber transition-opacity hover:opacity-70 font-semibold"
+                title="Go to Workspaces & Companies"
               >
-                Projects
+                <Home className="h-3.5 w-3.5" />
+                <span>Projects</span>
               </Link>
               <label
                 htmlFor="project-sidebar-toggle"
@@ -220,10 +222,20 @@ export async function ProjectShell({
           </div>
         </aside>
 
-        <section className="row-start-1 flex min-h-0 min-w-0 flex-col rounded-2xl lg:row-start-auto">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-2xl">
           <header className="lofi-panel relative z-40 mb-3 flex min-h-14 flex-nowrap items-center justify-between gap-2 sm:gap-3 overflow-visible rounded-2xl px-2.5 sm:px-4">
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
-              <BackButton />
+              <label
+                htmlFor="project-sidebar-toggle"
+                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender lg:hidden"
+                title="Open workspace menu"
+                aria-label="Open workspace menu"
+              >
+                <Menu className="h-4 w-4" />
+              </label>
+              <div className="hidden lg:inline-flex">
+                <BackButton />
+              </div>
               <Link
                 href="/projects"
                 title="Workspaces"
@@ -261,7 +273,7 @@ export async function ProjectShell({
               <div className="hidden sm:inline-flex"><HelpButton /></div>
             </div>
           </header>
-          <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 overflow-hidden pb-14 lg:pb-0">{children}</div>
+          <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 pb-16 lg:pb-0 overflow-y-auto lg:overflow-hidden">{children}</div>
         </section>
       </div>
       <ProjectMobileBottomNav projectId={projectId} />

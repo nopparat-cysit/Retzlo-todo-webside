@@ -42,11 +42,32 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(shellSource).toContain("<UserProfilePopover");
   });
 
-  it("removes redundant topbar menu button in favor of bottom navigation bar trigger", () => {
+  it("shows Menu trigger on mobile and BackButton on desktop in workspace topbar", () => {
     const headerStart = shellSource.indexOf("<header");
     const headerEnd = shellSource.indexOf("</header>");
     const headerSource = shellSource.slice(headerStart, headerEnd);
-    expect(headerSource).not.toContain('htmlFor="project-sidebar-toggle"');
+    expect(headerSource).toContain('htmlFor="project-sidebar-toggle"');
+    expect(headerSource).toContain('<div className="hidden lg:inline-flex">');
+    expect(headerSource).toContain("<BackButton />");
+  });
+
+  it("uses flexible min-height and overflow-y-auto on mobile shell to prevent 0px collapsed content", () => {
+    expect(shellSource).toContain("flex flex-col min-h-[calc(100dvh-1rem)] sm:min-h-[calc(100dvh-1.5rem)] min-h-0");
+    expect(shellSource).toContain("overflow-y-auto lg:overflow-hidden");
+    expect(shellSource).toContain("pb-16 lg:pb-0");
+  });
+
+  it("includes Home icon link to /projects in sidebar drawer", () => {
+    expect(shellSource).toContain('<Home className="h-3.5 w-3.5" />');
+    expect(shellSource).toContain("<span>Projects</span>");
+  });
+
+  it("completely hides Star FAB on mobile to keep bottom nav unobstructed", () => {
+    expect(fabSource).toContain("hidden lg:flex");
+  });
+
+  it("hides duplicate profile toolbar on mobile in projects dashboard", () => {
+    expect(dashboardSource).toContain("mt-3 hidden lg:flex items-center justify-between rounded-xl");
   });
 
   it("organizes board search, add column, and filter strip cleanly for mobile viewports without emptiness", () => {
@@ -62,12 +83,7 @@ describe("Kanban responsive and touch optimizations", () => {
 
   it("mounts mobile bottom navigation bar and allows smooth vertical overflow on mobile shell", () => {
     expect(shellSource).toContain("overflow-x-hidden lg:overflow-hidden");
-    expect(shellSource).toContain("pb-14 lg:pb-0");
     expect(shellSource).toContain("<ProjectMobileBottomNav");
-  });
-
-  it("positions star FAB elevated above mobile bottom nav to prevent overlapping Menu button", () => {
-    expect(fabSource).toContain("bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] right-3.5 sm:bottom-6 sm:right-6");
   });
 
   it("prevents button wrapping and layout breaks in projects dashboard", () => {
