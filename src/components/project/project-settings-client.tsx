@@ -511,7 +511,7 @@ export function ProjectSettingsClient({
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Back to board</span>
           </Link>
-          <div className="scrollbar-none -mx-1 flex gap-1 overflow-x-auto border-b border-theme-border px-1 pb-2">
+          <div className="flex flex-wrap gap-1 border-b border-theme-border pb-2">
             {allTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;

@@ -270,33 +270,6 @@ export function KanbanBoard({
     });
   }, [board.id]);
 
-  useEffect(() => {
-    if (filteredColumns.length > 0 && (!activeMobileColumnId || !filteredColumns.some((c) => c.id === activeMobileColumnId))) {
-      setActiveMobileColumnId(filteredColumns[0].id);
-    }
-  }, [filteredColumns, activeMobileColumnId]);
-
-  const handleColumnsScroll = useCallback(() => {
-    const container = columnsContainerRef.current;
-    if (!container) return;
-    const scrollCenter = container.scrollLeft + container.clientWidth / 2;
-    let closestColId: string | null = null;
-    let minDistance = Infinity;
-
-    for (const col of filteredColumns) {
-      const el = document.getElementById(`column-${col.id}`);
-      if (!el) continue;
-      const colCenter = el.offsetLeft + el.offsetWidth / 2;
-      const dist = Math.abs(scrollCenter - colCenter);
-      if (dist < minDistance) {
-        minDistance = dist;
-        closestColId = col.id;
-      }
-    }
-    if (closestColId && closestColId !== activeMobileColumnId) {
-      setActiveMobileColumnId(closestColId);
-    }
-  }, [filteredColumns, activeMobileColumnId]);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
   const mouseSensor = useSensor(MouseSensor, {
@@ -998,6 +971,34 @@ export function KanbanBoard({
           cards: sortCards(assigneeFiltered, cardSort, boardPriorities)
         };
       });
+
+  useEffect(() => {
+    if (filteredColumns.length > 0 && (!activeMobileColumnId || !filteredColumns.some((c) => c.id === activeMobileColumnId))) {
+      setActiveMobileColumnId(filteredColumns[0].id);
+    }
+  }, [filteredColumns, activeMobileColumnId]);
+
+  const handleColumnsScroll = useCallback(() => {
+    const container = columnsContainerRef.current;
+    if (!container) return;
+    const scrollCenter = container.scrollLeft + container.clientWidth / 2;
+    let closestColId: string | null = null;
+    let minDistance = Infinity;
+
+    for (const col of filteredColumns) {
+      const el = document.getElementById(`column-${col.id}`);
+      if (!el) continue;
+      const colCenter = el.offsetLeft + el.offsetWidth / 2;
+      const dist = Math.abs(scrollCenter - colCenter);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestColId = col.id;
+      }
+    }
+    if (closestColId && closestColId !== activeMobileColumnId) {
+      setActiveMobileColumnId(closestColId);
+    }
+  }, [filteredColumns, activeMobileColumnId]);
 
   // Active filter count & reset helper
   const activeFilterCount =
@@ -2157,7 +2158,7 @@ export function KanbanBoard({
               <div className="relative flex min-h-0 flex-1 flex-col">
                 {/* Mobile Quick Column Jump Navigation */}
                 {filteredColumns.length > 1 && (
-                  <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none snap-x">
+                  <div className="sm:hidden flex flex-wrap items-center gap-1.5 pb-2">
                     {filteredColumns.map((col) => {
                       const isActive = (activeMobileColumnId ?? filteredColumns[0]?.id) === col.id;
                       return (

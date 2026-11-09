@@ -461,7 +461,7 @@ export function ProjectMembersView({
         <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-6 shadow-xs dark:border-white/10 dark:bg-white/[0.035]">
           {/* Top-Level Tabs Bar */}
           <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-4 flex-wrap gap-3">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => setActiveTab("members")}

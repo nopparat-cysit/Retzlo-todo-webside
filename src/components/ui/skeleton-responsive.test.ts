@@ -16,8 +16,7 @@ describe("Skeleton Responsive Layout & Mobile Shift Contracts", () => {
 
   it("renders mobile quick-jump column skeleton pills in BoardSkeleton", () => {
     expect(skeletonSource).toContain("Mobile quick column jump navigation skeleton");
-    expect(skeletonSource).toContain("sm:hidden flex items-center gap-1.5 overflow-x-auto");
-    expect(skeletonSource).toContain("snap-x snap-mandatory");
+    expect(skeletonSource).toContain("sm:hidden flex flex-wrap items-center gap-1.5 pb-1 mb-2 shrink-0");
   });
 
   it("updates ProjectCardSkeleton with responsive cover and launch action bar matching ProjectCard", () => {

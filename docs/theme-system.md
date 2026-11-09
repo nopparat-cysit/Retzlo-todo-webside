@@ -1074,5 +1074,14 @@ Template:
   - Removed all `overflow-x-auto` instances from `projects-dashboard.tsx`.
 - Verification: Vitest 42/42 passed, Prisma validate passed, ESLint passed (0 errors), Next.js build passed (43/43 pages).
 
+### 2026-11-09 — Fix Board TDZ ReferenceError and Eliminate App-Wide Horizontal Scrolling
+- Coverage: Kanban Board (`src/components/kanban/board.tsx`), Notes (`src/components/notes/notes-panel.tsx`), Members (`src/components/project/project-members-view.tsx`), Settings (`src/components/project/project-settings-client.tsx`), Activity Drawer (`src/components/kanban/board-activity-drawer.tsx`), and Skeletons (`src/components/ui/skeleton.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Fixed production TDZ runtime error (`ReferenceError: Cannot access 'oE' before initialization`) by relocating `useEffect` and `handleColumnsScroll` below the `filteredColumns` initialization.
+  - Replaced horizontal scrollbars (`overflow-x-auto`) with responsive flex wrapping (`flex-wrap items-center gap-1.5`) across mobile quick column jump pills, notes filter chips, members top-level tabs, settings navigation tabs, and activity drawer filter chips.
+  - Skeletons updated in parallel (`BoardSkeleton`, `MembersSkeleton`) to eliminate layout shift upon hydration.
+- Verification: Vitest 113/113 passed (644 tests passed, 3 skipped), `npm run lint` clean (0 errors), `npx prisma validate` valid, `npm run build` passed (43/43 pages).
+
+
 
 

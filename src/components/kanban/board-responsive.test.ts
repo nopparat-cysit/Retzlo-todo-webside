@@ -25,7 +25,7 @@ describe("Kanban responsive and touch optimizations", () => {
 
   it("renders mobile quick-jump column navigation strip and assigns matching column anchors", () => {
     expect(boardSource).toContain("Mobile Quick Column Jump Navigation");
-    expect(boardSource).toContain("sm:hidden flex items-center gap-1.5 overflow-x-auto");
+    expect(boardSource).toContain("sm:hidden flex flex-wrap items-center gap-1.5 pb-2");
     expect(boardSource).toContain('scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })');
     expect(boardSource).toContain("column-${col.id}");
 

@@ -192,7 +192,7 @@ export function BoardActivityDrawer({
         </div>
 
         {/* Filter Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto border-b border-stone-200/60 px-5 py-2.5 scrollbar-none dark:border-white/5">
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-stone-200/60 px-5 py-2.5 dark:border-white/5">
           {(
             [
               { id: "ALL", label: "All" },

@@ -58,7 +58,7 @@ export function BoardSkeleton() {
       aria-label="Loading board…"
     >
       {/* Mobile quick column jump navigation skeleton */}
-      <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto pb-1 mb-2 shrink-0">
+      <div className="sm:hidden flex flex-wrap items-center gap-1.5 pb-1 mb-2 shrink-0">
         <Skeleton className="h-7 w-20 rounded-lg shrink-0" />
         <Skeleton className="h-7 w-24 rounded-lg shrink-0" />
         <Skeleton className="h-7 w-16 rounded-lg shrink-0" />
@@ -312,7 +312,7 @@ export function MembersSkeleton() {
         {/* Tabs and Content Skeleton */}
         <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.035] space-y-4">
           <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-4">
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 sm:pb-0">
+            <div className="flex flex-wrap items-center gap-1.5 pb-1 sm:pb-0">
               <Skeleton className="h-9 w-28 shrink-0 rounded-xl" />
               <Skeleton className="h-9 w-32 shrink-0 rounded-xl" />
               <Skeleton className="h-9 w-36 shrink-0 rounded-xl" />

@@ -844,7 +844,7 @@ export function NotesPanel({
 
               {/* Mobile Filter Controls (< md) */}
               <div className="md:hidden space-y-2 pt-1 border-t border-white/5">
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                <div className="flex flex-wrap items-center gap-1.5 pb-1">
                   <button
                     type="button"
                     onClick={() => {
