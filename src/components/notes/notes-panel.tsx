@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState, useCallback } from "react";
+import { FormEvent, useMemo, useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useLiveSync } from "@/hooks/use-live-sync";
 import {

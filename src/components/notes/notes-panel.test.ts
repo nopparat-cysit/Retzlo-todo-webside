@@ -64,5 +64,6 @@ describe("NotesPanel reward-style layout", () => {
     expect(source).toContain("retzlo_notes_");
     expect(source).toContain("grid-rows-[0fr]");
     expect(source).toContain("grid-rows-[1fr]");
+    expect(source).toMatch(/import\s*\{[^}]*useEffect[^}]*\}\s*from\s*["']react["']/);
   });
 });
