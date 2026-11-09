@@ -1096,7 +1096,7 @@ export function ProjectsDashboard({
             {/* Sub-navigation bar when viewing active workspace boards */}
             {viewMode === "boards" && activeProject ? (
               <div className="flex items-center justify-between gap-2 border-t border-stone-200/90 dark:border-white/10 pt-2 pb-0.5">
-                <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto scrollbar-none">
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => setViewMode("boards")}
@@ -1201,65 +1201,65 @@ export function ProjectsDashboard({
                   ) : null}
                 </div>
 
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                <div className="grid grid-cols-4 gap-1.5 sm:flex sm:flex-wrap sm:items-center">
                   <button
                     type="button"
                     onClick={() => setActiveFilterTab("all")}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
+                      "inline-flex items-center justify-center gap-1 rounded-lg border px-1.5 py-1.5 text-xs font-medium transition sm:px-2.5 sm:py-1",
                       activeFilterTab === "all"
                         ? "border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
                         : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
                     )}
                   >
-                    <LayoutGrid className="h-3 w-3" />
+                    <LayoutGrid className="h-3 w-3 shrink-0" />
                     <span>All</span>
-                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{projectList.length}</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{projectList.length}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setActiveFilterTab("starred")}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
+                      "inline-flex items-center justify-center gap-1 rounded-lg border px-1.5 py-1.5 text-xs font-medium transition sm:px-2.5 sm:py-1",
                       activeFilterTab === "starred"
                         ? "border-amber-500 bg-amber-50 text-amber-700 font-semibold shadow-xs dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber"
                         : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
                     )}
                   >
-                    <Star className="h-3 w-3 fill-current" />
+                    <Star className="h-3 w-3 shrink-0 fill-current" />
                     <span>Starred</span>
-                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{starredCount}</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{starredCount}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setActiveFilterTab("work")}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
+                      "inline-flex items-center justify-center gap-1 rounded-lg border px-1.5 py-1.5 text-xs font-medium transition sm:px-2.5 sm:py-1",
                       activeFilterTab === "work"
                         ? "border-teal-500 bg-teal-50 text-teal-700 font-semibold shadow-xs dark:border-dusk-cyan/40 dark:bg-dusk-cyan/15 dark:text-dusk-cyan"
                         : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
                     )}
                   >
-                    <KanbanSquare className="h-3 w-3" />
+                    <KanbanSquare className="h-3 w-3 shrink-0" />
                     <span>Work</span>
-                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{workCount}</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{workCount}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setActiveFilterTab("diary")}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition",
+                      "inline-flex items-center justify-center gap-1 rounded-lg border px-1.5 py-1.5 text-xs font-medium transition sm:px-2.5 sm:py-1",
                       activeFilterTab === "diary"
                         ? "border-rose-400 bg-rose-50 text-rose-700 font-semibold shadow-xs dark:border-dusk-rose/40 dark:bg-dusk-rose/15 dark:text-dusk-rose"
                         : "border-stone-200/80 bg-stone-50/80 text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-white/[0.06]"
                     )}
                   >
-                    <BookOpenCheck className="h-3 w-3" />
+                    <BookOpenCheck className="h-3 w-3 shrink-0" />
                     <span>Diary</span>
-                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{diaryCount}</span>
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{diaryCount}</span>
                   </button>
                 </div>
               </div>
@@ -2488,7 +2488,7 @@ function ProjectCard({
 
           {/* Boards Quick-Jump Chips (Direct 1-Click Launch) */}
           {!isDiaryProject && project.boardsList && project.boardsList.length > 0 ? (
-            <div className="mt-2.5 flex items-center gap-1 pt-2 border-t border-stone-200/70 dark:border-white/5 overflow-x-auto scrollbar-none flex-nowrap">
+            <div className="mt-2.5 flex flex-wrap items-center gap-1 pt-2 border-t border-stone-200/70 dark:border-white/5">
               <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 mr-0.5">
                 <KanbanSquare className="h-2.5 w-2.5 text-indigo-500 dark:text-dusk-lavender" />
                 Boards

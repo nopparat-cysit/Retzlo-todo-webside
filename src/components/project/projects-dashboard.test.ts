@@ -38,3 +38,20 @@ describe("ProjectsDashboard project editing contract", () => {
   });
 });
 
+describe("ProjectsDashboard non-overflowing mobile layout", () => {
+  it("uses grid/flex-wrap layout for category filters without horizontal scrolling", () => {
+    expect(source).toContain("grid grid-cols-4 gap-1.5 sm:flex sm:flex-wrap sm:items-center");
+    expect(source).not.toContain("flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none");
+  });
+
+  it("wraps board quick-jump chips inside ProjectCard without overflow-x-auto", () => {
+    expect(source).toContain("flex flex-wrap items-center gap-1 pt-2 border-t border-stone-200/70 dark:border-white/5");
+    expect(source).not.toContain("overflow-x-auto scrollbar-none flex-nowrap");
+  });
+
+  it("does not contain any overflow-x-auto containers in projects dashboard", () => {
+    expect(source).not.toContain("overflow-x-auto");
+  });
+});
+
+

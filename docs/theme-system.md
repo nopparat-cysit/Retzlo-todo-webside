@@ -1066,4 +1066,13 @@ Template:
   - Active tab state includes icon elevation (`scale-110`), bold title, glowing dot indicator, and optimistic click feedback.
 - Verification: Vitest 33/33 passed, Prisma validate passed, ESLint passed (0 errors), Next.js build passed (43/43 pages).
 
+### 2026-11-09 — Elimination of Horizontal Scrolling on Projects Dashboard
+- Coverage: Workspaces index page (`src/components/project/projects-dashboard.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Converted category filter toolbar from an overflowing horizontal strip (`overflow-x-auto`) to an adaptive 4-column full-width grid on mobile (`grid grid-cols-4 gap-1.5 sm:flex sm:flex-wrap`), keeping All, Starred, Work, Diary filters 100% visible with zero horizontal scrollbars.
+  - Converted board quick-jump chips inside `ProjectCard` from horizontal overflowing row to natural wrapping layout (`flex flex-wrap items-center gap-1`).
+  - Removed all `overflow-x-auto` instances from `projects-dashboard.tsx`.
+- Verification: Vitest 42/42 passed, Prisma validate passed, ESLint passed (0 errors), Next.js build passed (43/43 pages).
+
+
 
