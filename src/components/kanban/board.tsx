@@ -1131,7 +1131,7 @@ export function KanbanBoard({
               <button
                 type="button"
                 onClick={toggleFocusMode}
-                title="Click to exit Focus Mode (or press F)"
+                title="Focus mode active: Click to exit Focus Mode (or press F)"
                 aria-label="Exit focus mode"
                 className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2.5 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer shrink-0"
               >

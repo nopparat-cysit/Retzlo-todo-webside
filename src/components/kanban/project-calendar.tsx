@@ -95,6 +95,286 @@ export interface CalendarProjectBoard {
   columns: Array<{ id: string; name: string }>;
 }
 
+function DayItemRow({
+  item,
+  onCardClick,
+  onNoteClick,
+  onToggleDiary,
+  onToggleCardStatus,
+  onDeleteDiaryItem,
+  members,
+  projectId
+}: {
+  item: any;
+  onCardClick: (cardId: string) => void;
+  onNoteClick: (noteId: string) => void;
+  onToggleDiary: (diaryId: string, checklistItemId: string, dueDate: string, checked: boolean) => void;
+  onToggleCardStatus: (card: CalendarCard) => void;
+  onDeleteDiaryItem: (diaryId: string) => void;
+  members: CardAssignee[];
+  projectId: string;
+}) {
+  const isCard = item.type === "card";
+  const isNote = item.type === "note";
+  const isDiaryChecklist = item.type === "diary_checklist";
+  const isCompleted = isCard
+    ? (item as CalendarCard).status === "DONE"
+    : isDiaryChecklist
+      ? (item as CalendarDiaryChecklist).completed
+      : false;
+
+  return (
+    <div
+      key={`${item.type}-${item.id}`}
+      onClick={() => {
+        if (isCard) onCardClick(item.id);
+        else if (isNote) onNoteClick(item.id);
+      }}
+      className={cn(
+        "group relative flex items-start gap-3 rounded-xl sm:rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs transition-all duration-200",
+        "hover:border-stone-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-white/20 dark:hover:bg-white/[0.05] dark:hover:shadow-black/20",
+        isCard || isNote ? "cursor-pointer" : "cursor-default",
+        isCompleted && "opacity-65 bg-stone-50/70 dark:bg-white/[0.01]"
+      )}
+    >
+      {/* Interactive Checkbox / Type Icon */}
+      <div className="shrink-0 pt-0.5">
+        {isDiaryChecklist ? (
+          <button
+            type="button"
+            role="checkbox"
+            aria-checked={isCompleted}
+            onClick={(e) => {
+              e.stopPropagation();
+              const dc = item as CalendarDiaryChecklist;
+              onToggleDiary(dc.diaryId, dc.checklistItemId, dc.dueDate, !isCompleted);
+            }}
+            className={cn(
+              "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
+              isCompleted
+                ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+                : "border-2 border-stone-400 bg-white shadow-2xs hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
+            )}
+            title={isCompleted ? "Mark incomplete" : "Mark complete"}
+          >
+            {isCompleted ? <Check className="h-3.5 w-3.5 stroke-[2.5]" /> : null}
+          </button>
+        ) : isCard ? (
+          <button
+            type="button"
+            role="checkbox"
+            aria-checked={isCompleted}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleCardStatus(item as CalendarCard);
+            }}
+            className={cn(
+              "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
+              isCompleted
+                ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+                : "border-2 border-stone-400 bg-white shadow-2xs hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
+            )}
+            title={isCompleted ? "Mark incomplete" : "Mark as done"}
+          >
+            {isCompleted ? <Check className="h-3.5 w-3.5 stroke-[2.5]" /> : null}
+          </button>
+        ) : (
+          <div className="flex h-5 w-5 items-center justify-center rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber">
+            <FileText className="h-3 w-3" />
+          </div>
+        )}
+      </div>
+
+      {/* Main Item Content */}
+      <div className="min-w-0 flex-1">
+        {/* Header Badges & Time Row */}
+        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
+            {isCard && (
+              <>
+                <span className="inline-flex items-center gap-1 rounded-md border border-indigo-500/20 bg-indigo-50 px-1.5 sm:px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
+                  <CheckCircle2 className="h-3 w-3" /> Task
+                </span>
+                <span className={cn("rounded-md border px-1.5 sm:px-2 py-0.5 text-[10px] uppercase font-semibold", getStatusMeta((item as CalendarCard).status).badgeClass)}>
+                  {getStatusMeta((item as CalendarCard).status).label}
+                </span>
+                {(item as CalendarCard).priority && (() => {
+                  const meta = getPriorityMeta((item as CalendarCard).priority);
+                  return (
+                    <span className={cn("rounded-md border px-1.5 sm:px-2 py-0.5 text-[10px] uppercase font-semibold", meta.pillClass)}>
+                      {meta.label}
+                    </span>
+                  );
+                })()}
+              </>
+            )}
+
+            {isNote && (
+              <>
+                <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-50 px-1.5 sm:px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber">
+                  <FileText className="h-3 w-3" /> Note
+                </span>
+                {(item as CalendarNote).isStarred && (
+                  <span className="inline-flex items-center rounded-md border border-amber-400/30 bg-amber-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
+                    * Starred
+                  </span>
+                )}
+              </>
+            )}
+
+            {isDiaryChecklist && (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1 sm:gap-1.5 rounded-md px-1.5 sm:px-2 py-0.5 text-[10px] font-semibold",
+                  (item as CalendarDiaryChecklist).isOnce
+                    ? "border border-indigo-500/20 bg-indigo-50 text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300"
+                    : "border border-purple-500/20 bg-purple-50 text-purple-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender"
+                )}
+              >
+                {(item as CalendarDiaryChecklist).isOnce ? (
+                  <>
+                    <CheckSquare className="h-3 w-3" /> Todo
+                  </>
+                ) : (
+                  <>
+                    <BookOpen className="h-3 w-3" /> Diary Checklist
+                  </>
+                )}
+              </span>
+            )}
+
+            {item.color && item.color !== "DEFAULT" && (() => {
+              const colorMeta = getCardColorMeta(item.color);
+              return (
+                <span className={cn("inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium", colorMeta.softClass)}>
+                  <span className={cn("h-1.5 w-1.5 rounded-full border", colorMeta.swatchClass)} />
+                  <span>{colorMeta.label}</span>
+                </span>
+              );
+            })()}
+          </div>
+
+          {/* Time Indicator */}
+          <div className="flex items-center gap-1.5">
+            {item.dueDate && !item.dueDateAllDay ? (
+              <span className="inline-flex items-center gap-1 rounded-md border border-sky-500/20 bg-sky-50 px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-sky-700 dark:border-dusk-cyan/30 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
+                <Clock className="h-3 w-3" />
+                {formatTime(item.dueDate)}
+              </span>
+            ) : item.dueDateAllDay ? (
+              <span className="inline-flex items-center rounded-md border border-stone-200 bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                All day
+              </span>
+            ) : null}
+          </div>
+        </div>
+
+        {/* Title */}
+        <h3 className={cn(
+          "mt-1.5 sm:mt-2 text-sm sm:text-base font-semibold leading-snug tracking-tight text-stone-900 transition-colors dark:text-stone-100",
+          isCompleted ? "line-through text-stone-400 dark:text-stone-500" : "group-hover:text-indigo-600 dark:group-hover:text-white"
+        )}>
+          {item.title}
+        </h3>
+
+        {/* Metadata */}
+        {isDiaryChecklist && (
+          <div className="mt-1.5 space-y-1">
+            {(item as CalendarDiaryChecklist).description && (
+              <p className="line-clamp-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed whitespace-pre-wrap">
+                {(item as CalendarDiaryChecklist).description}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs">
+              {!(item as CalendarDiaryChecklist).isOnce ? (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-stone-500 flex items-center gap-1 dark:text-stone-400 text-[11px]">
+                    <RetzloUiIcon name="diary" size={13} />
+                    From diary: <span className="font-medium text-stone-800 dark:text-stone-200">{(item as CalendarDiaryChecklist).diaryTitle}</span>
+                  </span>
+                  <Link
+                    href={`/project/${projectId}/diary`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1 rounded-md border border-stone-200/90 bg-stone-100/80 px-1.5 py-0.5 text-[10px] font-semibold text-purple-700 hover:bg-stone-200/70 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender hover:underline transition"
+                  >
+                    Open in Diary <ExternalLink className="h-2.5 w-2.5" />
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400">
+                    Single-occurrence calendar todo
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteDiaryItem((item as CalendarDiaryChecklist).diaryId);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition cursor-pointer"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {isCard && (
+          <div className="mt-1.5 space-y-1">
+            {(item as CalendarCard).description && (
+              <p className="line-clamp-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+                {(item as CalendarCard).description}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center justify-between gap-1.5 pt-0.5">
+              <span className="text-[11px] text-stone-500 dark:text-stone-400">
+                Column: <span className="text-stone-800 dark:text-stone-200 font-medium">{(item as CalendarCard).column.name}</span>
+              </span>
+              {((item as CalendarCard).assignees?.length || (item as CalendarCard).assigneeIds?.length) ? (
+                <div className="flex items-center gap-1">
+                  <AssigneeStack
+                    assignees={
+                      (item as CalendarCard).assignees && (item as CalendarCard).assignees!.length > 0
+                        ? (item as CalendarCard).assignees!
+                        : resolveAssignees((item as CalendarCard).assigneeIds, members)
+                    }
+                    size={16}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
+        )}
+
+        {isNote && (
+          <div className="mt-1.5 space-y-1">
+            {(item as CalendarNote).content && (
+              <p className="line-clamp-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed whitespace-pre-wrap">
+                {(item as CalendarNote).content}
+              </p>
+            )}
+            <div className="pt-0.5">
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 hover:underline dark:text-dusk-amber/80 dark:group-hover:text-dusk-amber transition">
+                View note details <ExternalLink className="h-2.5 w-2.5" />
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Right Chevron for Clickable Items */}
+      {(isCard || isNote) && (
+        <div className="self-center pl-1 text-stone-400 transition-all group-hover:text-stone-700 group-hover:translate-x-0.5 dark:text-stone-600 dark:group-hover:text-stone-300">
+          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ProjectCalendar({
   projectId,
   initialCards,
@@ -199,7 +479,8 @@ export function ProjectCalendar({
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const { toast } = useToast();
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
+  const [selectedDayKey, setSelectedDayKey] = useState<string>(() => toDateKey(new Date()));
+  const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [dayTypeFilter, setDayTypeFilter] = useState<"all" | "tasks" | "notes" | "diaries">("all");
   const [dayStatusFilter, setDayStatusFilter] = useState<"all" | "pending" | "done">("all");
   const [daySortBy, setDaySortBy] = useState<"time" | "title" | "priority">("time");
@@ -476,6 +757,30 @@ export function ProjectCalendar({
       return selectedDateLabel;
     }
   }, [selectedDayKey, selectedDateLabel]);
+
+  const selectedDayHeader = useMemo(() => {
+    if (!selectedDayKey) return "";
+    try {
+      const parts = selectedDayKey.split("-");
+      if (parts.length >= 3) {
+        const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        const weekday = d.toLocaleDateString("en-US", { weekday: "long" });
+        const monthDay = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        const isToday = selectedDayKey === todayKey;
+        const count = selectedDayItems.length;
+        const taskLabel = count === 1 ? "1 task" : `${count} tasks`;
+        return `${weekday}, ${monthDay}${isToday ? " • Today" : ""} (${taskLabel})`;
+      }
+      return selectedDateLabel;
+    } catch {
+      return selectedDateLabel;
+    }
+  }, [selectedDayKey, todayKey, selectedDayItems.length, selectedDateLabel]);
+
+  const agendaDates = useMemo(() => {
+    const keys = Object.keys(groups).filter((key) => (groups[key] ?? []).length > 0);
+    return keys.sort();
+  }, [groups]);
 
   const dayStats = useMemo(() => {
     if (!selectedDayKey) return { total: 0, completed: 0, pending: 0, percent: 0, tasks: 0, notes: 0, diaries: 0 };
@@ -781,18 +1086,20 @@ export function ProjectCalendar({
     <>
       <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
         {/* Top Control Bar Panel */}
-        <Panel className="p-4 shrink-0 shadow-lg">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Left: Month/Year, Range & Navigation */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="grid h-9 w-9 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-sm">
+        <Panel className="p-3 sm:p-4 shrink-0 shadow-lg space-y-2.5 sm:space-y-3">
+          {/* Row 1: Month title & Navigation arrows + Upcoming chip */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-xs shrink-0">
                   <CalendarDays className="h-4 w-4" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base sm:text-xl font-bold tracking-tight text-foreground dark:text-stone-100">{currentMonthLabel}</h2>
-                    <span className="rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold text-dusk-amber truncate">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <h2 className="text-sm sm:text-lg font-bold tracking-tight text-foreground dark:text-stone-100">
+                      {currentMonthLabel}
+                    </h2>
+                    <span className="hidden xs:inline rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-dusk-amber truncate">
                       {rangeLabel}
                     </span>
                   </div>
@@ -803,8 +1110,8 @@ export function ProjectCalendar({
               <div className="flex items-center rounded-xl border border-border/50 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner">
                 <button
                   type="button"
-                  onClick={() => setAnchorDate((value) => viewMode === "month" ? shiftMonthKey(value, -1) : shiftDateKey(value, -calendarDays.length))}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
+                  onClick={() => setAnchorDate((value) => viewMode === "month" || viewMode === "list" ? shiftMonthKey(value, -1) : shiftDateKey(value, -calendarDays.length))}
+                  className="grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
                   aria-label="Previous month or week"
                   title="Previous"
                 >
@@ -813,14 +1120,14 @@ export function ProjectCalendar({
                 <button
                   type="button"
                   onClick={() => setAnchorDate(todayKey)}
-                  className="px-2.5 h-8 rounded-lg text-xs font-semibold text-stone-700 hover:bg-black/5 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer active:scale-95"
+                  className="px-2 sm:px-2.5 h-7 sm:h-8 rounded-lg text-xs font-semibold text-stone-700 hover:bg-black/5 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer active:scale-95"
                 >
                   Today
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAnchorDate((value) => viewMode === "month" ? shiftMonthKey(value, 1) : shiftDateKey(value, calendarDays.length))}
-                  className="grid h-8 w-8 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer active:scale-95"
+                  onClick={() => setAnchorDate((value) => viewMode === "month" || viewMode === "list" ? shiftMonthKey(value, 1) : shiftDateKey(value, calendarDays.length))}
+                  className="grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer active:scale-95"
                   aria-label="Next month or week"
                   title="Next"
                 >
@@ -829,120 +1136,93 @@ export function ProjectCalendar({
               </div>
             </div>
 
-            {/* Right: Search, Presets, View Switcher, Filter Popover, Upcoming */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 sm:overflow-visible sm:flex-wrap">
-              {/* Search Bar */}
-              <div className="relative min-w-[140px] sm:min-w-[180px] max-w-[220px] shrink-0">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
-                <input
-                  type="text"
-                  value={filters.searchQuery || ""}
-                  onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
-                  placeholder="Search items..."
-                  className="h-9 w-full rounded-xl border border-stone-300 dark:border-white/15 bg-white/90 dark:bg-white/[0.05] pl-8 pr-7 text-xs text-foreground placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
-                />
-                {filters.searchQuery ? (
-                  <button
-                    type="button"
-                    onClick={() => setFilters((prev) => ({ ...prev, searchQuery: "" }))}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center rounded-full text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
-                    aria-label="Clear search"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                ) : null}
-              </div>
+            {/* Upcoming chip */}
+            <button
+              type="button"
+              onClick={() => setIsUpcomingOpen((v) => !v)}
+              className={cn(
+                "inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95 shrink-0",
+                isUpcomingOpen
+                  ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
+                  : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+              )}
+              aria-expanded={isUpcomingOpen}
+            >
+              <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
+              <span>Upcoming</span>
+              <span className="rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 dark:bg-white/10 dark:text-stone-300">
+                {upcomingItems.length}
+              </span>
+            </button>
+          </div>
 
-              {/* Quick Preset: My Tasks */}
-              {currentUserId && (
+          {/* Row 2: Search input + View switcher + Filter button */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Search Bar */}
+            <div className="relative flex-1 min-w-[130px] sm:min-w-[180px]">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
+              <input
+                type="text"
+                value={filters.searchQuery || ""}
+                onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
+                placeholder="Search items..."
+                className="h-8 sm:h-9 w-full rounded-xl border border-stone-300 dark:border-white/15 bg-white/90 dark:bg-white/[0.05] pl-8 pr-7 text-xs text-foreground placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+              />
+              {filters.searchQuery ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    const isMyTasksActive = filters.assigneeIds?.length === 1 && filters.assigneeIds[0] === currentUserId;
-                    setFilters((prev) => ({
-                      ...prev,
-                      assigneeIds: isMyTasksActive ? [] : [currentUserId]
-                    }));
-                  }}
+                  onClick={() => setFilters((prev) => ({ ...prev, searchQuery: "" }))}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center rounded-full text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                  aria-label="Clear search"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              ) : null}
+            </div>
+
+            <SegmentedControl
+              aria-label="Calendar view"
+              value={viewMode}
+              items={[
+                { value: "month", label: "Month" },
+                { value: "week", label: "Week" },
+                { value: "day3", label: "3 Days" },
+                { value: "list", label: "Schedule" }
+              ]}
+              onValueChange={(val) => setViewMode(val as CalendarViewMode)}
+              className="shrink-0"
+            />
+
+            {/* Filter Radix Popover */}
+            <Popover
+              open={isFiltersOpen}
+              onOpenChange={(open) => {
+                if (open) {
+                  setDraftFilters(filters);
+                }
+                setIsFiltersOpen(open);
+              }}
+            >
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
                   className={cn(
-                    "inline-flex h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
-                    filters.assigneeIds?.length === 1 && filters.assigneeIds[0] === currentUserId
+                    "inline-flex h-8 sm:h-9 items-center gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95 shrink-0",
+                    isFiltersOpen || activeFilterCount > 0
                       ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
                       : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                   )}
-                  title="Filter cards assigned to me"
+                  aria-expanded={isFiltersOpen}
                 >
-                  <User className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-                  <span>My Tasks</span>
+                  <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                  <span>Filters</span>
+                  {activeFilterCount > 0 && (
+                    <span className="grid h-4 w-4 place-items-center rounded-full bg-indigo-600 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
+                      {activeFilterCount}
+                    </span>
+                  )}
                 </button>
-              )}
-
-              {/* Quick Preset: Pending Only */}
-              <button
-                type="button"
-                onClick={() => {
-                  const isPendingOnly = filters.statuses.DONE === false && filters.statuses.TODO && filters.statuses.DOING && filters.statuses.WAITING;
-                  setFilters((prev) => ({
-                    ...prev,
-                    statuses: {
-                      ...prev.statuses,
-                      DONE: isPendingOnly ? true : false
-                    }
-                  }));
-                }}
-                className={cn(
-                  "inline-flex h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
-                  filters.statuses.DONE === false && filters.statuses.TODO && filters.statuses.DOING && filters.statuses.WAITING
-                    ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
-                    : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
-                )}
-                title="Hide completed cards"
-              >
-                <CheckSquare className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
-                <span>Pending</span>
-              </button>
-
-              <SegmentedControl
-                aria-label="Calendar view"
-                value={viewMode}
-                items={[
-                  { value: "month", label: "Month" },
-                  { value: "week", label: "Week" },
-                  { value: "day3", label: "3 Days" }
-                ]}
-                onValueChange={(val) => setViewMode(val as CalendarViewMode)}
-              />
-
-              {/* Filter Radix Popover */}
-              <Popover
-                open={isFiltersOpen}
-                onOpenChange={(open) => {
-                  if (open) {
-                    setDraftFilters(filters);
-                  }
-                  setIsFiltersOpen(open);
-                }}
-              >
-                <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    className={cn(
-                      "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
-                      isFiltersOpen || activeFilterCount > 0
-                        ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
-                        : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
-                    )}
-                    aria-expanded={isFiltersOpen}
-                  >
-                    <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-                    <span>Filters</span>
-                    {activeFilterCount > 0 && (
-                      <span className="grid h-4 w-4 place-items-center rounded-full bg-indigo-600 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
-                        {activeFilterCount}
-                      </span>
-                    )}
-                  </button>
-                </PopoverTrigger>
+              </PopoverTrigger>
                 <PopoverContent
                   align="end"
                   sideOffset={8}
@@ -1181,26 +1461,59 @@ export function ProjectCalendar({
                     </Button>
                   </div>
                 </PopoverContent>
-              </Popover>
+            </Popover>
+          </div>
 
+          {/* Row 3: Quick filter chips (flex-wrap and NO overflow-x-auto) */}
+          <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+            {/* Quick Preset: My Tasks */}
+            {currentUserId && (
               <button
                 type="button"
-                onClick={() => setIsUpcomingOpen((v) => !v)}
+                onClick={() => {
+                  const isMyTasksActive = filters.assigneeIds?.length === 1 && filters.assigneeIds[0] === currentUserId;
+                  setFilters((prev) => ({
+                    ...prev,
+                    assigneeIds: isMyTasksActive ? [] : [currentUserId]
+                  }));
+                }}
                 className={cn(
-                  "inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95",
-                  isUpcomingOpen
-                    ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
-                    : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                  "inline-flex h-7 sm:h-8 items-center gap-1.5 rounded-lg sm:rounded-xl border px-2 sm:px-2.5 text-xs font-semibold shadow-2xs transition-all duration-150 cursor-pointer active:scale-95",
+                  filters.assigneeIds?.length === 1 && filters.assigneeIds[0] === currentUserId
+                    ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                    : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                 )}
-                aria-expanded={isUpcomingOpen}
+                title="Filter cards assigned to me"
               >
-                <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
-                <span>Upcoming</span>
-                <span className="rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 dark:bg-white/10 dark:text-stone-300">
-                  {upcomingItems.length}
-                </span>
+                <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                <span>My Tasks</span>
               </button>
-            </div>
+            )}
+
+            {/* Quick Preset: Pending Only */}
+            <button
+              type="button"
+              onClick={() => {
+                const isPendingOnly = filters.statuses.DONE === false && filters.statuses.TODO && filters.statuses.DOING && filters.statuses.WAITING;
+                setFilters((prev) => ({
+                  ...prev,
+                  statuses: {
+                    ...prev.statuses,
+                    DONE: isPendingOnly ? true : false
+                  }
+                }));
+              }}
+              className={cn(
+                "inline-flex h-7 sm:h-8 items-center gap-1.5 rounded-lg sm:rounded-xl border px-2 sm:px-2.5 text-xs font-semibold shadow-2xs transition-all duration-150 cursor-pointer active:scale-95",
+                filters.statuses.DONE === false && filters.statuses.TODO && filters.statuses.DOING && filters.statuses.WAITING
+                  ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
+                  : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+              )}
+              title="Hide completed cards"
+            >
+              <CheckSquare className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-600 dark:text-dusk-amber" />
+              <span>Pending</span>
+            </button>
           </div>
         </Panel>
 
@@ -1216,6 +1529,89 @@ export function ProjectCalendar({
                   message="Try widening your filters or adding due dates to tasks, notes, or diary checklists."
                 />
               </Panel>
+            ) : viewMode === "list" ? (
+              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-y-auto rounded-2xl border border-border/60 dark:border-white/10 p-3 sm:p-5 shadow-xl scrollbar-soft">
+                {agendaDates.length === 0 ? (
+                  <EmptyState
+                    className="max-w-md border-dashed bg-white/[0.015] p-8 mx-auto my-auto"
+                    title="No scheduled items"
+                    message="No tasks, notes, or diary checklists found matching your filters. Try widening your filters or add a new task."
+                    action={
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => handleOpenQuickAdd(anchorDate || todayKey)}
+                        className="mt-2"
+                      >
+                        <Plus className="h-4 w-4 mr-1" /> Add Task
+                      </Button>
+                    }
+                  />
+                ) : (
+                  <div className="space-y-5">
+                    {agendaDates.map((dateKey) => {
+                      const items = groups[dateKey] ?? [];
+                      const isToday = dateKey === todayKey;
+                      const dateObj = new Date(dateKey + "T00:00:00");
+                      return (
+                        <div key={`agenda-${dateKey}`} className="space-y-2">
+                          {/* Sticky Date Strip */}
+                          <div className="sticky top-0 z-10 flex items-center justify-between rounded-xl bg-stone-100/95 dark:bg-ink-900/95 px-3 py-2 backdrop-blur-md border border-stone-200/80 dark:border-white/10">
+                            <div className="flex items-center gap-2">
+                              <div className={cn(
+                                "grid h-6 w-6 place-items-center rounded-full text-xs font-bold",
+                                isToday
+                                  ? "bg-dusk-amber text-ink-950 shadow-xs"
+                                  : "bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender"
+                              )}>
+                                {dateObj.getDate()}
+                              </div>
+                              <span className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100">
+                                {formatMediumDate(dateObj)}
+                              </span>
+                              {isToday && (
+                                <span className="rounded-full bg-dusk-amber/20 border border-dusk-amber/40 px-2 py-0.5 text-[10px] font-bold text-dusk-amber">
+                                  Today
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
+                                {items.length} {items.length === 1 ? "item" : "items"}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenQuickAdd(dateKey)}
+                                className="grid h-6 w-6 place-items-center rounded-md border border-stone-300/80 bg-white text-stone-600 hover:border-indigo-500 hover:text-indigo-700 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:text-white"
+                                title={`Add task for ${dateKey}`}
+                              >
+                                <Plus className="h-3 w-3 stroke-[2.5]" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Items for this date */}
+                          <div className="space-y-2">
+                            {items.map((item) => (
+                              <DayItemRow
+                                key={`agenda-item-${item.type}-${item.id}`}
+                                item={item}
+                                onCardClick={(id) => setSelectedCardId(id)}
+                                onNoteClick={(id) => setSelectedNoteId(id)}
+                                onToggleDiary={handleToggleDiaryChecklist}
+                                onToggleCardStatus={handleToggleCardStatus}
+                                onDeleteDiaryItem={handleDeleteDiaryItem}
+                                members={members}
+                                projectId={projectId}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/60 dark:border-white/10 shadow-xl">
                 <div className="flex min-h-0 flex-1 flex-col w-full min-w-0">
@@ -1244,6 +1640,7 @@ export function ProjectCalendar({
                     const datedItems = groups[key] ?? [];
                     const muted = !day.isCurrentMonth && viewMode === "month";
                     const current = key === todayKey;
+                    const isSelectedDay = key === selectedDayKey;
 
                     const cardsAndNotes = datedItems.filter((i) => i.type === "card" || i.type === "note");
                     const diaryChecklists = datedItems.filter((i): i is CalendarDiaryChecklist => i.type === "diary_checklist");
@@ -1280,16 +1677,24 @@ export function ProjectCalendar({
                     return (
                       <section
                         key={key}
-                        onClick={() => setSelectedDayKey(key)}
+                        onClick={() => {
+                          setSelectedDayKey(key);
+                          if (typeof window !== "undefined" && window.innerWidth >= 768) {
+                            setIsDayModalOpen(true);
+                          }
+                        }}
                         className={cn(
-                          "group relative flex min-h-[52px] sm:min-h-[135px] flex-col p-1 sm:p-2.5 transition cursor-pointer",
-                          current
+                          "group relative flex min-h-[44px] md:min-h-[135px] flex-col p-1 sm:p-2.5 transition cursor-pointer rounded-lg sm:rounded-none",
+                          isSelectedDay && "ring-2 ring-indigo-500 bg-indigo-50/70 dark:ring-dusk-lavender dark:bg-dusk-lavender/20 z-10",
+                          current && !isSelectedDay
                             ? "bg-amber-500/10 dark:bg-dusk-amber/[0.08] ring-1 ring-inset ring-amber-500/30 dark:ring-dusk-amber/30"
-                            : muted
+                            : muted && !isSelectedDay
                               ? "opacity-40 bg-stone-100/60 dark:bg-ink-950/70"
-                              : isWeekend
+                              : isWeekend && !isSelectedDay
                                 ? "bg-stone-50/70 dark:bg-ink-950/30"
-                                : "bg-white dark:bg-ink-950/50",
+                                : !isSelectedDay
+                                  ? "bg-white dark:bg-ink-950/50"
+                                  : "",
                           muted ? "" : "hover:bg-indigo-50/50 dark:hover:bg-white/[0.04]"
                         )}
                       >
@@ -1298,11 +1703,13 @@ export function ProjectCalendar({
                             <span
                               className={cn(
                                 "text-xs font-semibold transition",
-                                current
-                                  ? "grid h-6 w-6 place-items-center rounded-full bg-dusk-amber text-ink-950 font-bold shadow-sm shadow-dusk-amber/30"
-                                  : muted
-                                    ? "text-muted-foreground/50 dark:text-stone-600"
-                                    : "text-stone-800 dark:text-stone-300 group-hover:text-stone-950 dark:group-hover:text-stone-100"
+                                isSelectedDay
+                                  ? "grid h-6 w-6 place-items-center rounded-full bg-indigo-600 text-white font-bold shadow-xs dark:bg-dusk-lavender dark:text-ink-950"
+                                  : current
+                                    ? "grid h-6 w-6 place-items-center rounded-full bg-dusk-amber text-ink-950 font-bold shadow-sm shadow-dusk-amber/30"
+                                    : muted
+                                      ? "text-muted-foreground/50 dark:text-stone-600"
+                                      : "text-stone-800 dark:text-stone-300 group-hover:text-stone-950 dark:group-hover:text-stone-100"
                               )}
                             >
                               {day.date.getDate()}
@@ -1336,8 +1743,8 @@ export function ProjectCalendar({
                           </div>
                         </div>
 
-                        {/* Mobile Compact Dot Indicators (< sm) */}
-                        <div className="flex sm:hidden items-center justify-center gap-1 mt-auto pt-1 flex-wrap">
+                        {/* Mobile Compact Dot Indicators (< md) */}
+                        <div className="flex md:hidden items-center justify-center gap-1 mt-auto pt-0.5 flex-wrap">
                           {cellRenderItems.slice(0, 3).map((entry, idx) => {
                             const dotColor =
                               entry.type === "card"
@@ -1354,8 +1761,8 @@ export function ProjectCalendar({
                           )}
                         </div>
 
-                        {/* Desktop Full Card / Note / Checklist items (sm+) */}
-                        <div className="hidden sm:block space-y-1.5 flex-1 min-h-0">
+                        {/* Desktop Full Card / Note / Checklist items (md+) */}
+                        <div className="hidden md:block space-y-1.5 flex-1 min-h-0">
                           {cellRenderItems.slice(0, 3).map((entry) => {
                             if (entry.type === "card") {
                               return <CalendarCardButton key={`card-${entry.id}`} card={entry} onClick={() => setSelectedCardId(entry.id)} />;
@@ -1384,6 +1791,64 @@ export function ProjectCalendar({
                     );
                   })}
                 </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile Inline Selected Day Task List (< md) */}
+            {viewMode === "month" && (
+              <div className="md:hidden mt-3 rounded-2xl border border-border/70 dark:border-white/10 bg-white/95 dark:bg-ink-950/95 p-3.5 shadow-md">
+                {/* Header */}
+                <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-stone-200/80 dark:border-white/10">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
+                        {selectedDayHeader}
+                      </h3>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenQuickAdd(selectedDayKey)}
+                    className="inline-flex h-7 items-center gap-1 rounded-lg border border-indigo-500/30 bg-indigo-50 px-2 text-[11px] font-semibold text-indigo-700 transition hover:bg-indigo-100 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender shrink-0 cursor-pointer active:scale-95"
+                  >
+                    <Plus className="h-3 w-3 stroke-[2.5]" />
+                    <span>Add</span>
+                  </button>
+                </div>
+
+                {/* Task List */}
+                <div className="mt-2.5 space-y-2">
+                  {selectedDayItems.length === 0 ? (
+                    <div className="text-center py-6 px-3">
+                      <p className="text-xs text-stone-500 dark:text-stone-400">No tasks on this day</p>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenQuickAdd(selectedDayKey)}
+                        className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 dark:text-dusk-lavender dark:hover:text-white"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Add task</span>
+                      </button>
+                    </div>
+                  ) : (
+                    selectedDayItems.map((item) => (
+                      <DayItemRow
+                        key={`mobile-day-${item.type}-${item.id}`}
+                        item={item}
+                        onCardClick={(id) => setSelectedCardId(id)}
+                        onNoteClick={(id) => setSelectedNoteId(id)}
+                        onToggleDiary={handleToggleDiaryChecklist}
+                        onToggleCardStatus={handleToggleCardStatus}
+                        onDeleteDiaryItem={handleDeleteDiaryItem}
+                        members={members}
+                        projectId={projectId}
+                      />
+                    ))
+                  )}
                 </div>
               </div>
             )}
@@ -1521,10 +1986,10 @@ export function ProjectCalendar({
         </AppModal>
       ) : null}
 
-      {selectedDayKey && (
+      {isDayModalOpen && selectedDayKey && (
         <AppModal
           open
-          onClose={() => setSelectedDayKey(null)}
+          onClose={() => setIsDayModalOpen(false)}
           labelledBy="calendar-day-title"
           contentClassName="lofi-panel flex max-h-[calc(100vh-2.5rem)] max-w-2xl w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xl dark:border-white/10 dark:bg-ink-950"
         >
@@ -1562,7 +2027,7 @@ export function ProjectCalendar({
               <button
                 className="rounded-xl border border-stone-200/80 bg-stone-100/60 p-2 text-stone-500 transition hover:border-stone-300 hover:bg-stone-200/60 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer"
                 type="button"
-                onClick={() => setSelectedDayKey(null)}
+                onClick={() => setIsDayModalOpen(false)}
                 aria-label="Close day view"
               >
                 <X className="h-5 w-5" />
@@ -1591,7 +2056,7 @@ export function ProjectCalendar({
                 ) : (
                   <>
                     <span className="text-stone-600">•</span>
-                    <span className="text-emerald-400 font-medium">All done! 🎉</span>
+                    <span className="text-emerald-400 font-medium">All done!</span>
                   </>
                 )}
               </div>
@@ -1704,275 +2169,19 @@ export function ProjectCalendar({
               />
             ) : (
               <div className="space-y-3">
-                {selectedDayItems.map((item) => {
-                  const isCard = item.type === "card";
-                  const isNote = item.type === "note";
-                  const isDiaryChecklist = item.type === "diary_checklist";
-                  const isCompleted = isCard
-                    ? (item as CalendarCard).status === "DONE"
-                    : isDiaryChecklist
-                      ? (item as CalendarDiaryChecklist).completed
-                      : false;
-
-                  return (
-                    <div
-                      key={`${item.type}-${item.id}`}
-                      onClick={() => {
-                        if (isCard) {
-                          setSelectedCardId(item.id);
-                        } else if (isNote) {
-                          setSelectedNoteId(item.id);
-                        }
-                      }}
-                      className={cn(
-                        "group relative flex items-start gap-3.5 rounded-2xl border border-stone-200/90 bg-white p-4 shadow-2xs transition-all duration-200",
-                        "hover:border-stone-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-white/20 dark:hover:bg-white/[0.05] dark:hover:shadow-black/20",
-                        (isCard || isNote) ? "cursor-pointer" : "cursor-default",
-                        isCompleted && "opacity-65 bg-stone-50/70 dark:bg-white/[0.01]"
-                      )}
-                    >
-                      {/* Interactive Checkbox / Type Icon */}
-                      <div className="shrink-0 pt-0.5">
-                        {isDiaryChecklist ? (
-                          <button
-                            type="button"
-                            role="checkbox"
-                            aria-checked={isCompleted}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const dc = item as CalendarDiaryChecklist;
-                              handleToggleDiaryChecklist(dc.diaryId, dc.checklistItemId, dc.dueDate, !isCompleted);
-                            }}
-                            className={cn(
-                              "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
-                              isCompleted
-                                ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
-                                : "border-2 border-stone-400 bg-white shadow-2xs hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
-                            )}
-                            title={isCompleted ? "Mark incomplete" : "Mark complete"}
-                          >
-                            {isCompleted ? <Check className="h-3.5 w-3.5 stroke-[2.5]" /> : null}
-                          </button>
-                        ) : isCard ? (
-                          <button
-                            type="button"
-                            role="checkbox"
-                            aria-checked={isCompleted}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleCardStatus(item as CalendarCard);
-                            }}
-                            className={cn(
-                              "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
-                              isCompleted
-                                ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
-                                : "border-2 border-stone-400 bg-white shadow-2xs hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
-                            )}
-                            title={isCompleted ? "Mark incomplete" : "Mark as done"}
-                          >
-                            {isCompleted ? <Check className="h-3.5 w-3.5 stroke-[2.5]" /> : null}
-                          </button>
-                        ) : (
-                          <div className="flex h-5 w-5 items-center justify-center rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber">
-                            <FileText className="h-3 w-3" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Main Item Content */}
-                      <div className="min-w-0 flex-1">
-                        {/* Header Badges & Time Row */}
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            {isCard && (
-                              <>
-                                <span className="inline-flex items-center gap-1 rounded-md border border-indigo-500/20 bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
-                                  <CheckCircle2 className="h-3 w-3" /> Task
-                                </span>
-                                <span className={cn("rounded-md border px-2 py-0.5 text-[10px] uppercase font-semibold", getStatusMeta((item as CalendarCard).status).badgeClass)}>
-                                  {getStatusMeta((item as CalendarCard).status).label}
-                                </span>
-                                {(item as CalendarCard).priority && (() => {
-                                  const meta = getPriorityMeta((item as CalendarCard).priority);
-                                  return (
-                                    <span
-                                      className={cn(
-                                        "rounded-md border px-2 py-0.5 text-[10px] uppercase font-semibold",
-                                        meta.pillClass
-                                      )}
-                                    >
-                                      {meta.label}
-                                    </span>
-                                  );
-                                })()}
-                              </>
-                            )}
-
-                            {isNote && (
-                              <>
-                                <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber">
-                                  <FileText className="h-3 w-3" /> Note
-                                </span>
-                                {(item as CalendarNote).isStarred && (
-                                  <span className="inline-flex items-center rounded-md border border-amber-400/30 bg-amber-400/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
-                                    ★ Starred
-                                  </span>
-                                )}
-                              </>
-                            )}
-
-                            {isDiaryChecklist && (
-                              <span
-                                className={cn(
-                                  "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10px] font-semibold",
-                                  (item as CalendarDiaryChecklist).isOnce
-                                    ? "border border-indigo-500/20 bg-indigo-50 text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300"
-                                    : "border border-purple-500/20 bg-purple-50 text-purple-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender"
-                                )}
-                              >
-                                {(item as CalendarDiaryChecklist).isOnce ? (
-                                  <>
-                                    <CheckSquare className="h-3 w-3" /> Todo
-                                  </>
-                                ) : (
-                                  <>
-                                    <BookOpen className="h-3 w-3" /> Diary Checklist
-                                  </>
-                                )}
-                              </span>
-                            )}
-
-                            {item.color && item.color !== "DEFAULT" && (() => {
-                              const colorMeta = getCardColorMeta(item.color);
-                              return (
-                                <span className={cn("inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium", colorMeta.softClass)}>
-                                  <span className={cn("h-1.5 w-1.5 rounded-full border", colorMeta.swatchClass)} />
-                                  <span>{colorMeta.label}</span>
-                                </span>
-                              );
-                            })()}
-                          </div>
-
-                          {/* Time Indicator */}
-                          <div className="flex items-center gap-1.5">
-                            {item.dueDate && !item.dueDateAllDay ? (
-                              <span className="inline-flex items-center gap-1.5 rounded-md border border-sky-500/20 bg-sky-50 px-2.5 py-0.5 text-[11px] font-semibold text-sky-700 dark:border-dusk-cyan/30 dark:bg-dusk-cyan/10 dark:text-dusk-cyan">
-                                <Clock className="h-3 w-3" />
-                                {formatTime(item.dueDate)}
-                              </span>
-                            ) : item.dueDateAllDay ? (
-                              <span className="inline-flex items-center rounded-md border border-stone-200 bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
-                                All day
-                              </span>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        {/* Title */}
-                        <h3 className={cn(
-                          "mt-2 text-base font-semibold leading-snug tracking-tight text-stone-900 transition-colors dark:text-stone-100",
-                          isCompleted ? "line-through text-stone-400 dark:text-stone-500" : "group-hover:text-indigo-600 dark:group-hover:text-white"
-                        )}>
-                          {item.title}
-                        </h3>
-
-                        {/* Source & Metadata */}
-                        {isDiaryChecklist && (
-                          <div className="mt-2 space-y-1.5">
-                            {(item as CalendarDiaryChecklist).description && (
-                              <p className="line-clamp-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed whitespace-pre-wrap">
-                                {(item as CalendarDiaryChecklist).description}
-                              </p>
-                            )}
-                            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                              {!(item as CalendarDiaryChecklist).isOnce ? (
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span className="text-stone-500 flex items-center gap-1.5 dark:text-stone-400">
-                                    <RetzloUiIcon name="diary" size={14} />
-                                    From diary: <span className="font-medium text-stone-800 dark:text-stone-200">{(item as CalendarDiaryChecklist).diaryTitle}</span>
-                                  </span>
-                                  <Link
-                                    href={`/project/${projectId}/diary`}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="inline-flex items-center gap-1 rounded-md border border-stone-200/90 bg-stone-100/80 px-2 py-0.5 text-[11px] font-semibold text-purple-700 hover:bg-stone-200/70 dark:border-white/10 dark:bg-white/5 dark:text-dusk-lavender dark:hover:border-dusk-lavender/40 dark:hover:bg-white/10 hover:underline transition"
-                                  >
-                                    Open in Diary <ExternalLink className="h-2.5 w-2.5" />
-                                  </Link>
-                                </div>
-                              ) : (
-                                <div className="flex items-center justify-between w-full">
-                                  <span className="text-[11px] text-stone-500 dark:text-stone-400">
-                                    Single-occurrence calendar todo
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteDiaryItem((item as CalendarDiaryChecklist).diaryId);
-                                    }}
-                                    className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition cursor-pointer"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                    Delete
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        {isCard && (
-                          <div className="mt-2 space-y-1.5">
-                            {(item as CalendarCard).description && (
-                              <p className="line-clamp-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                                {(item as CalendarCard).description}
-                              </p>
-                            )}
-                            <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-                              <span className="text-xs text-stone-500 dark:text-stone-400">
-                                Column: <span className="text-stone-800 dark:text-stone-200 font-medium">{(item as CalendarCard).column.name}</span>
-                              </span>
-                              {((item as CalendarCard).assignees?.length || (item as CalendarCard).assigneeIds?.length) ? (
-                                <div className="flex items-center gap-1.5">
-                                  <AssigneeStack
-                                    assignees={
-                                      (item as CalendarCard).assignees && (item as CalendarCard).assignees!.length > 0
-                                        ? (item as CalendarCard).assignees!
-                                        : resolveAssignees((item as CalendarCard).assigneeIds, members)
-                                    }
-                                    size={18}
-                                  />
-                                </div>
-                              ) : null}
-                            </div>
-                          </div>
-                        )}
-
-                        {isNote && (
-                          <div className="mt-2 space-y-1">
-                            {(item as CalendarNote).content && (
-                              <p className="line-clamp-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed whitespace-pre-wrap">
-                                {(item as CalendarNote).content}
-                              </p>
-                            )}
-                            <div className="pt-0.5">
-                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 hover:underline dark:text-dusk-amber/80 dark:group-hover:text-dusk-amber transition">
-                                View note details <ExternalLink className="h-2.5 w-2.5" />
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Right Chevron for Clickable Items */}
-                      {(isCard || isNote) && (
-                        <div className="self-center pl-1 text-stone-400 transition-all group-hover:text-stone-700 group-hover:translate-x-0.5 dark:text-stone-600 dark:group-hover:text-stone-300">
-                          <ChevronRight className="h-5 w-5" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                {selectedDayItems.map((item) => (
+                  <DayItemRow
+                    key={modal-day--}
+                    item={item}
+                    onCardClick={(id) => setSelectedCardId(id)}
+                    onNoteClick={(id) => setSelectedNoteId(id)}
+                    onToggleDiary={handleToggleDiaryChecklist}
+                    onToggleCardStatus={handleToggleCardStatus}
+                    onDeleteDiaryItem={handleDeleteDiaryItem}
+                    members={members}
+                    projectId={projectId}
+                  />
+                ))}
               </div>
             )}
           </div>

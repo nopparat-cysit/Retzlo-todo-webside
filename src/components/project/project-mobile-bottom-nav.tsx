@@ -42,7 +42,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
   return (
     <nav
       aria-label="Mobile workspace navigation"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-white/10 bg-ink-950/95 backdrop-blur-md px-2 py-1.5 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.35)]"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-stone-200/80 bg-white/95 dark:border-white/10 dark:bg-ink-950/95 backdrop-blur-md px-2 py-1.5 pb-safe shadow-none"
     >
       {navItems.map((item) => {
         const isActive = pathname.includes(`/project/${projectId}/${item.segment}`);
@@ -57,13 +57,13 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
               "flex flex-col items-center justify-center min-w-[56px] py-1 px-2 rounded-xl text-[10px] font-medium transition active:scale-95",
               isActive
                 ? "text-dusk-lavender font-bold"
-                : "text-stone-400 hover:text-stone-200"
+                : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
             )}
           >
             <div
               className={cn(
                 "grid h-7 w-7 place-items-center rounded-lg transition-colors",
-                isActive ? "bg-dusk-lavender/20 text-dusk-lavender" : "text-stone-400"
+                isActive ? "bg-dusk-lavender/20 text-dusk-lavender" : "text-stone-500 dark:text-stone-400"
               )}
             >
               <Icon className="h-4 w-4" />

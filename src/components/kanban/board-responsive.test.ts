@@ -104,4 +104,26 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(boardSource).toContain("handleColumnsScroll");
     expect(boardSource).toContain("border-indigo-500 bg-indigo-100 text-indigo-900 font-bold");
   });
+
+  it("removes shadow from mobile bottom navigation and applies clean border with shadow-none", () => {
+    expect(bottomNavSource).toContain("shadow-none");
+    expect(bottomNavSource).not.toContain("shadow-[0_-4px_20px_rgba(0,0,0,0.35)]");
+  });
+
+  it("organizes calendar header into non-overflowing responsive rows and removes horizontal overflow strip", () => {
+    expect(calendarSource).not.toContain("overflow-x-auto scrollbar-none py-1 sm:overflow-visible sm:flex-wrap");
+    expect(calendarSource).toContain("Row 1: Month title & Navigation");
+    expect(calendarSource).toContain("Row 2: Search input + View switcher + Filter button");
+    expect(calendarSource).toContain("Row 3: Quick filter chips");
+  });
+
+  it("supports agenda schedule view mode in segmented control and view types", () => {
+    expect(calendarSource).toContain('value: "list", label: "Schedule"');
+  });
+
+  it("provides inline mobile task list under compact month grid without requiring modal", () => {
+    expect(calendarSource).toContain("Mobile Inline Selected Day Task List (< md)");
+    expect(calendarSource).toContain("min-h-[44px] md:min-h-[135px]");
+    expect(calendarSource).toContain("selectedDayHeader");
+  });
 });

@@ -1,6 +1,6 @@
 import type { CardStatus } from "@/types/kanban";
 
-export type CalendarViewMode = "month" | "day3" | "day5" | "week" | "custom";
+export type CalendarViewMode = "month" | "day3" | "day5" | "week" | "custom" | "list";
 export type CalendarNoteScope = "all" | "starred" | "plain";
 export type CalendarTimeScope = "all" | "allDay" | "timed";
 
@@ -86,7 +86,7 @@ export function buildCalendarDays({
 }): CalendarDay[] {
   const anchor = parseDateKey(anchorDate);
 
-  if (mode === "month") {
+  if (mode === "month" || mode === "list") {
     const monthStart = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
     const gridStart = new Date(monthStart);
     gridStart.setDate(monthStart.getDate() - monthStart.getDay());
