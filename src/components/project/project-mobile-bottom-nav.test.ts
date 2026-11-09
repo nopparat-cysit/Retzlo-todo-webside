@@ -9,10 +9,10 @@ describe("ProjectMobileBottomNav floating detached and transfer animation", () =
   );
 
   it("renders floating detached pill container with responsive centered positioning and safe area offset", () => {
-    expect(source).toContain("fixed bottom-3 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[380px] max-w-[420px]");
-    expect(source).toContain("rounded-full border border-stone-200/80 bg-white/92");
+    expect(source).toContain("fixed bottom-2 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[340px] max-w-[360px]");
+    expect(source).toContain("rounded-full border border-stone-200/80 bg-white/92 p-1");
     expect(source).toContain("backdrop-blur-xl dark:border-white/10 dark:bg-ink-950/90");
-    expect(source).toContain("bottom: \"calc(0.75rem + env(safe-area-inset-bottom, 0px))\"");
+    expect(source).toContain("bottom: \"calc(0.4rem + env(safe-area-inset-bottom, 0px))\"");
   });
 
   it("implements sliding transfer animation with cubic-bezier spring easing", () => {
@@ -29,7 +29,7 @@ describe("ProjectMobileBottomNav floating detached and transfer animation", () =
   });
 
   it("renders active dot indicator under the selected tab label", () => {
-    expect(source).toContain("h-1 w-1 rounded-full bg-dusk-lavender");
+    expect(source).toContain("h-0.5 w-0.5 rounded-full bg-dusk-lavender");
     expect(source).toContain("isActive ? \"scale-100 opacity-100\" : \"scale-0 opacity-0\"");
   });
 

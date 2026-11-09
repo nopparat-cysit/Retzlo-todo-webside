@@ -1099,6 +1099,17 @@ Template:
   - Enhanced sticky command header on `/projects` with solid glassmorphic backdrop (`bg-white/95 dark:bg-ink-950/92`) and added `pb-24 lg:pb-4` clearance for mobile navigation.
 - Verification: Vitest 38/38 passed across targeted test files, Vitest 128/128 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid.
 
+### 2026-11-09 — Mobile UX Polish: Sleek Bottom Navigation, Viewport Scroll Lock, Single-Line Chips, and Filter Badges
+- Coverage: Workspace mobile bottom navigation (`src/components/project/project-mobile-bottom-nav.tsx`) and Projects dashboard (`src/components/project/projects-dashboard.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Compacted mobile bottom navigation capsule to `sm:w-[340px] max-w-[360px]` with `p-1`, `bottom-2`, `h-5 w-5` icon containers (`h-3.5 w-3.5` icons), `text-[9px]` typography, and scaled active dot indicator `h-0.5 w-0.5`.
+  - Locked main viewport on `/projects` to `h-[100dvh] max-h-[100dvh] overflow-hidden` and hid desktop sidebar on mobile (`hidden lg:flex`), preventing vertical overscroll into empty space.
+  - Confined scrolling strictly inside project section with reduced clearance `pb-14 lg:pb-4`.
+  - Replaced multi-line wrapping board chips in `ProjectCard` with single-line row (`flex-nowrap overflow-hidden`), showing up to 2 primary board chips (`max-w-[75px] sm:max-w-[90px]`) and an overflow counter `+{length - 2}`.
+  - Refined 4 category filter tabs below search input to `grid grid-cols-4 gap-1` with `px-1 py-1 text-[11px]`, truncated text labels, and compact count badges (`px-1 py-0.2 text-[9px]`) to ensure comfortable spacing without horizontal overflow on mobile viewports.
+- Verification: Vitest 48/48 passed across `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, `npm run build` succeeded (43/43 routes).
+
+
 
 
 

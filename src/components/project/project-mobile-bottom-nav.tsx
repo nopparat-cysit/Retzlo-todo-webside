@@ -98,9 +98,9 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
   return (
     <nav
       aria-label="Mobile workspace navigation"
-      className="lg:hidden fixed bottom-3 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[380px] max-w-[420px] mx-auto z-40 rounded-full border border-stone-200/80 bg-white/92 p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-white/10 dark:bg-ink-950/90 dark:shadow-[0_14px_36px_rgba(0,0,0,0.55)] transition-all duration-300"
+      className="lg:hidden fixed bottom-2 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[340px] max-w-[360px] mx-auto z-40 rounded-full border border-stone-200/80 bg-white/92 p-1 shadow-[0_8px_24px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-white/10 dark:bg-ink-950/90 dark:shadow-[0_12px_28px_rgba(0,0,0,0.55)] transition-all duration-300"
       style={{
-        bottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))",
+        bottom: "calc(0.4rem + env(safe-area-inset-bottom, 0px))",
       }}
     >
       <div className="relative grid grid-cols-5 items-center">
@@ -128,21 +128,21 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
               href={item.href}
               onClick={() => setOptimisticSegment(item.segment)}
               aria-current={isActive ? "page" : undefined}
-              className="relative z-10 flex flex-col items-center justify-center py-1 px-1 rounded-full select-none transition-transform duration-150 active:scale-90 cursor-pointer"
+              className="relative z-10 flex flex-col items-center justify-center py-0.5 px-0.5 rounded-full select-none transition-transform duration-150 active:scale-90 cursor-pointer"
             >
               <div
                 className={cn(
-                  "grid h-6 w-6 place-items-center transition-all duration-300",
+                  "grid h-5 w-5 place-items-center transition-all duration-300",
                   isActive
                     ? "text-dusk-lavender scale-110"
                     : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
               >
-                <Icon className="h-4 w-4 transition-transform duration-300" />
+                <Icon className="h-3.5 w-3.5 transition-transform duration-300" />
               </div>
               <span
                 className={cn(
-                  "text-[10px] tracking-tight leading-none transition-all duration-300 truncate max-w-[64px]",
+                  "text-[9px] tracking-tight leading-none transition-all duration-300 truncate max-w-[56px]",
                   isActive
                     ? "font-bold text-stone-900 dark:text-stone-100"
                     : "font-medium text-stone-500 dark:text-stone-400"
@@ -152,7 +152,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
               </span>
               <span
                 className={cn(
-                  "mt-1 h-1 w-1 rounded-full bg-dusk-lavender transition-all duration-300",
+                  "mt-0.5 h-0.5 w-0.5 rounded-full bg-dusk-lavender transition-all duration-300",
                   isActive ? "scale-100 opacity-100" : "scale-0 opacity-0"
                 )}
               />
