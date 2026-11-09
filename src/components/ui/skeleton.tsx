@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-// ─── Base Skeleton ────────────────────────────────────────────────────────────
+// Base Skeleton
 
 interface SkeletonProps {
   className?: string;
@@ -17,11 +17,11 @@ export function Skeleton({ className }: SkeletonProps) {
   );
 }
 
-// ─── Board Skeleton ───────────────────────────────────────────────────────────
+// Board Skeleton
 
 function ColumnSkeleton() {
   return (
-    <div className="flex w-72 shrink-0 flex-col gap-3 rounded-xl border border-stone-200/90 bg-stone-100/70 p-3 dark:border-white/[0.07] dark:bg-ink-900/40">
+    <div className="flex w-[calc(100vw-2.5rem)] max-w-[360px] sm:w-80 shrink-0 flex-col gap-3 rounded-xl border border-stone-200/90 bg-stone-100/70 p-3 dark:border-white/[0.07] dark:bg-ink-900/40">
       {/* Column header */}
       <div className="flex items-center gap-2 px-1 pb-1">
         <Skeleton className="h-2.5 w-2.5 rounded-full" />
@@ -53,28 +53,37 @@ function ColumnSkeleton() {
 export function BoardSkeleton() {
   return (
     <div
-      className="flex gap-4 overflow-x-auto pb-4"
+      className="flex flex-col min-h-0 flex-1 overflow-hidden"
       role="status"
       aria-label="Loading board…"
     >
-      {Array.from({ length: 3 }).map((_, i) => (
-        <ColumnSkeleton key={i} />
-      ))}
+      {/* Mobile quick column jump navigation skeleton */}
+      <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto pb-1 mb-2 shrink-0">
+        <Skeleton className="h-7 w-20 rounded-lg shrink-0" />
+        <Skeleton className="h-7 w-24 rounded-lg shrink-0" />
+        <Skeleton className="h-7 w-16 rounded-lg shrink-0" />
+      </div>
+
+      <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory flex-1 min-h-0">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <ColumnSkeleton key={i} />
+        ))}
+      </div>
     </div>
   );
 }
 
-// ─── Project Card Skeleton ────────────────────────────────────────────────────
+// Project Card Skeleton
 
 export function ProjectCardSkeleton() {
   return (
     <div
-      className="flex min-h-[420px] flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-ink-900/60"
+      className="flex flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-ink-900/60"
       role="status"
       aria-label="Loading project…"
     >
       {/* Top cover skeleton */}
-      <div className="relative h-44 sm:h-48 w-full bg-stone-100 dark:bg-white/[0.04]">
+      <div className="relative h-28 sm:h-32 w-full overflow-hidden border-b border-white/10 bg-stone-100 dark:bg-white/[0.04]">
         <div className="absolute left-3.5 top-3">
           <Skeleton className="h-5 w-24 rounded-full" />
         </div>
@@ -114,18 +123,18 @@ export function ProjectCardSkeleton() {
         </div>
 
         {/* Launch action bar */}
-        <div className="mt-auto pt-3 border-t border-stone-200/80 dark:border-white/10 flex items-center gap-2">
-          <Skeleton className="h-10 flex-1 rounded-xl" />
-          <Skeleton className="h-10 w-10 rounded-xl" />
-          <Skeleton className="h-10 w-10 rounded-xl" />
-          <Skeleton className="h-10 w-10 rounded-xl" />
+        <div className="mt-auto pt-2.5 border-t border-stone-200/80 dark:border-white/10 flex items-center gap-1.5 flex-nowrap">
+          <Skeleton className="h-8.5 flex-1 rounded-lg" />
+          <Skeleton className="h-8.5 w-8.5 shrink-0 rounded-lg" />
+          <Skeleton className="h-8.5 w-8.5 shrink-0 rounded-lg" />
+          <Skeleton className="h-8.5 w-8.5 shrink-0 rounded-lg" />
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Projects Dashboard Skeleton ──────────────────────────────────────────────
+// Projects Dashboard Skeleton
 
 export function ProjectsDashboardSkeleton() {
   return (
@@ -141,7 +150,7 @@ export function ProjectsDashboardSkeleton() {
   );
 }
 
-// ─── Calendar Skeleton ────────────────────────────────────────────────────────
+// Calendar Skeleton
 
 export function CalendarSkeleton() {
   return (
@@ -151,7 +160,7 @@ export function CalendarSkeleton() {
       aria-label="Loading calendar…"
     >
       {/* Calendar Header Toolbar */}
-      <div className="lofi-panel flex flex-wrap items-center justify-between gap-3 rounded-2xl p-3 sm:px-4 shrink-0">
+      <div className="lofi-panel flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between rounded-2xl p-3 sm:p-4 shrink-0">
         <div className="flex items-center gap-3">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/70 dark:border-white/10 dark:bg-white/[0.04]">
             <Skeleton className="h-4 w-4 rounded" />
@@ -167,10 +176,10 @@ export function CalendarSkeleton() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-8 w-24 rounded-lg" />
-          <Skeleton className="hidden h-8 w-20 rounded-lg sm:block" />
-          <Skeleton className="h-8 w-28 rounded-lg" />
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 sm:overflow-visible sm:flex-wrap">
+          <Skeleton className="h-8 w-24 rounded-lg shrink-0" />
+          <Skeleton className="hidden h-8 w-20 rounded-lg sm:block shrink-0" />
+          <Skeleton className="h-8 w-28 rounded-lg shrink-0" />
         </div>
       </div>
 
@@ -180,7 +189,7 @@ export function CalendarSkeleton() {
         <div className="grid grid-cols-7 border-b border-stone-200/80 bg-stone-50/80 dark:border-white/10 dark:bg-white/[0.02] py-2.5 text-center shrink-0">
           {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((day) => (
             <div key={day} className="flex justify-center">
-              <span className="text-[11px] font-semibold tracking-wider text-stone-400 dark:text-stone-500">
+              <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider text-stone-400 dark:text-stone-500">
                 {day}
               </span>
             </div>
@@ -199,7 +208,7 @@ export function CalendarSkeleton() {
               <div
                 key={i}
                 className={cn(
-                  "flex flex-col p-2 min-h-0 gap-1.5 transition-colors overflow-hidden",
+                  "flex flex-col p-1 sm:p-2 min-h-[52px] sm:min-h-[120px] overflow-hidden transition-colors",
                   i < 4 ? "bg-stone-50/40 dark:bg-white/[0.01]" : "bg-white/40 dark:bg-transparent"
                 )}
               >
@@ -216,8 +225,14 @@ export function CalendarSkeleton() {
                   </div>
                 </div>
 
-                {/* Shimmering Item Bars */}
-                <div className="flex flex-col gap-1 overflow-hidden mt-0.5">
+                {/* Mobile compact dot indicator strip (< sm) */}
+                <div className="flex sm:hidden items-center justify-center gap-1 mt-auto pt-1">
+                  {(hasTask1 || hasDiary) && <Skeleton className="h-1.5 w-1.5 rounded-full shrink-0" />}
+                  {hasTask2 && <Skeleton className="h-1.5 w-1.5 rounded-full shrink-0" />}
+                </div>
+
+                {/* Desktop task bars (sm+) */}
+                <div className="hidden sm:flex flex-col gap-1 overflow-hidden mt-0.5">
                   {hasTask1 && (
                     <div className="flex h-5 w-full items-center gap-1.5 rounded-md border border-stone-200/80 bg-stone-100/80 px-1.5 dark:border-white/10 dark:bg-white/[0.04]">
                       <Skeleton className="h-2 w-2 rounded-full" />
@@ -234,7 +249,7 @@ export function CalendarSkeleton() {
                     </div>
                   )}
                   {hasTask2 && (
-                    <div className="hidden sm:flex h-5 w-full items-center gap-1.5 rounded-md border border-stone-200/80 bg-stone-100/80 px-1.5 dark:border-white/10 dark:bg-white/[0.04]">
+                    <div className="flex h-5 w-full items-center gap-1.5 rounded-md border border-stone-200/80 bg-stone-100/80 px-1.5 dark:border-white/10 dark:bg-white/[0.04]">
                       <Skeleton className="h-2 w-2 rounded-full" />
                       <Skeleton className="h-2.5 w-1/2 rounded" />
                     </div>
@@ -249,7 +264,7 @@ export function CalendarSkeleton() {
   );
 }
 
-// ─── Project Members Skeleton ─────────────────────────────────────────────────
+// Project Members Skeleton
 
 export function MembersSkeleton() {
   return (
@@ -258,9 +273,9 @@ export function MembersSkeleton() {
       role="status"
       aria-label="Loading members…"
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 pb-12">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 sm:gap-5 pb-12">
         {/* Header Banner Skeleton */}
-        <div className="lofi-panel rounded-2xl p-5 border border-stone-200/90 dark:border-white/10">
+        <div className="lofi-panel rounded-2xl p-4 sm:p-5 border border-stone-200/90 dark:border-white/10">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
               <Skeleton className="h-3 w-32 rounded" />
@@ -268,21 +283,21 @@ export function MembersSkeleton() {
                 <Skeleton className="h-7 w-48 rounded-md" />
                 <Skeleton className="h-5 w-20 rounded-full" />
               </div>
-              <Skeleton className="h-4 w-72 rounded" />
+              <Skeleton className="h-4 w-72 max-w-full rounded" />
             </div>
-            <div className="flex gap-2">
-              <Skeleton className="h-9 w-28 rounded-xl" />
-              <Skeleton className="h-9 w-32 rounded-xl" />
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Skeleton className="h-9 w-full sm:w-28 rounded-xl" />
+              <Skeleton className="h-9 w-full sm:w-32 rounded-xl" />
             </div>
           </div>
         </div>
 
         {/* 5 Metric Cards Skeleton */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-stone-200/90 bg-white/80 p-4 dark:border-white/10 dark:bg-white/[0.03]"
+              className="rounded-2xl border border-stone-200/90 bg-white/80 p-3.5 sm:p-4 dark:border-white/10 dark:bg-white/[0.03]"
             >
               <div className="flex items-center justify-between">
                 <Skeleton className="h-3 w-20 rounded" />
@@ -295,14 +310,14 @@ export function MembersSkeleton() {
         </div>
 
         {/* Tabs and Content Skeleton */}
-        <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-5 dark:border-white/10 dark:bg-white/[0.035] space-y-4">
+        <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.035] space-y-4">
           <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-4">
-            <div className="flex gap-2">
-              <Skeleton className="h-9 w-28 rounded-xl" />
-              <Skeleton className="h-9 w-32 rounded-xl" />
-              <Skeleton className="h-9 w-36 rounded-xl" />
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 sm:pb-0">
+              <Skeleton className="h-9 w-28 shrink-0 rounded-xl" />
+              <Skeleton className="h-9 w-32 shrink-0 rounded-xl" />
+              <Skeleton className="h-9 w-36 shrink-0 rounded-xl" />
             </div>
-            <Skeleton className="h-9 w-32 rounded-xl hidden sm:block" />
+            <Skeleton className="h-9 w-32 shrink-0 rounded-xl hidden sm:block" />
           </div>
 
           <Skeleton className="h-10 w-full rounded-xl" />
@@ -312,16 +327,16 @@ export function MembersSkeleton() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between rounded-xl border border-stone-200/80 p-3.5 dark:border-white/10 dark:bg-white/[0.02]"
+                className="flex items-center justify-between rounded-xl border border-stone-200/80 p-3 sm:p-3.5 dark:border-white/10 dark:bg-white/[0.02]"
               >
                 <div className="flex items-center gap-3">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="space-y-1.5">
+                  <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                  <div className="space-y-1.5 min-w-0">
                     <Skeleton className="h-4 w-32 rounded" />
-                    <Skeleton className="h-3 w-48 rounded" />
+                    <Skeleton className="h-3 w-48 max-w-full rounded" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <Skeleton className="h-6 w-14 rounded-full" />
                   <Skeleton className="h-7 w-20 rounded-full" />
                 </div>
@@ -334,4 +349,187 @@ export function MembersSkeleton() {
   );
 }
 
+// Diary Skeleton
 
+export function DiarySkeleton() {
+  return (
+    <div
+      className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] gap-2.5 sm:gap-3"
+      role="status"
+      aria-label="Loading diary…"
+    >
+      {/* Hero panel */}
+      <div className="lofi-panel rounded-2xl p-2.5 sm:p-5">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-3.5 w-3.5 rounded" />
+              <Skeleton className="h-3 w-20 rounded" />
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2.5">
+              <Skeleton className="h-7 w-36 rounded-md" />
+              {/* Date nav controls */}
+              <div className="flex items-center gap-1 rounded-xl border border-stone-200/80 p-0.5 dark:border-white/10">
+                <Skeleton className="h-7 w-7 rounded-lg" />
+                <Skeleton className="h-7 w-14 rounded-lg" />
+                <Skeleton className="h-7 w-7 rounded-lg" />
+              </div>
+              <Skeleton className="h-7 w-32 rounded-lg" />
+            </div>
+          </div>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-2 sm:gap-3">
+            {/* Metrics pills (Due, Done, Starred) */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Skeleton className="h-8 w-16 rounded-xl" />
+              <Skeleton className="h-8 w-16 rounded-xl" />
+              <Skeleton className="h-8 w-20 rounded-xl" />
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Skeleton className="h-9 w-24 rounded-xl" />
+              <Skeleton className="h-9 w-28 rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Tab Switcher */}
+      <div className="flex lg:hidden rounded-xl border border-white/10 bg-ink-950/40 p-1 gap-1 shrink-0">
+        <Skeleton className="h-8 flex-1 rounded-lg" />
+        <Skeleton className="h-8 flex-1 rounded-lg" />
+      </div>
+
+      {/* Main split: Sidebar Shelf + Checklist */}
+      <div className="grid min-h-0 flex-1 gap-2.5 sm:gap-3 lg:grid-cols-[20rem_minmax(0,1fr)]">
+        {/* Shelf (desktop only) */}
+        <div className="lofi-panel hidden lg:flex min-h-0 flex-1 flex-col rounded-2xl p-3 sm:p-4 space-y-3">
+          <div className="flex items-center justify-between border-b border-stone-200/80 pb-2.5 dark:border-white/10">
+            <Skeleton className="h-4 w-24 rounded" />
+            <Skeleton className="h-5 w-8 rounded-full" />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Skeleton className="h-8 rounded-lg" />
+            <Skeleton className="h-8 rounded-lg" />
+          </div>
+          <div className="space-y-2 flex-1">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-2.5 rounded-xl border border-stone-200/70 p-2.5 dark:border-white/5">
+                <Skeleton className="h-7 w-7 rounded-lg shrink-0" />
+                <div className="space-y-1 flex-1">
+                  <Skeleton className="h-3.5 w-3/4 rounded" />
+                  <Skeleton className="h-2.5 w-1/2 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Checklist Container */}
+        <div className="lofi-panel flex min-h-0 flex-1 flex-col rounded-2xl p-3 sm:p-5 space-y-3">
+          <div className="flex items-center justify-between border-b border-stone-200/80 pb-3 dark:border-white/10">
+            <div className="space-y-1">
+              <Skeleton className="h-5 w-44 rounded" />
+              <Skeleton className="h-3 w-28 rounded" />
+            </div>
+            <Skeleton className="h-8 w-20 rounded-lg" />
+          </div>
+
+          <div className="space-y-2.5 flex-1 pt-1">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between rounded-xl border border-stone-200/70 p-3 dark:border-white/5">
+                <div className="flex items-center gap-2.5 flex-1">
+                  <Skeleton className="h-5 w-5 rounded-full shrink-0" />
+                  <Skeleton className="h-3.5 w-3/5 rounded" />
+                </div>
+                <Skeleton className="h-5 w-16 rounded-full shrink-0" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Notes Skeleton
+
+export function NotesSkeleton() {
+  return (
+    <div
+      className="grid h-full min-h-0 grid-rows-[max-content_minmax(0,1fr)] gap-3"
+      role="status"
+      aria-label="Loading notes…"
+    >
+      {/* Header banner */}
+      <div className="lofi-panel rounded-2xl px-4 py-3 border border-stone-200/90 dark:border-white/10">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-3.5 w-3.5 rounded" />
+              <Skeleton className="h-3 w-24 rounded" />
+            </div>
+            <Skeleton className="h-6 w-52 rounded-md" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-9 w-36 sm:w-48 rounded-xl" />
+            <Skeleton className="h-9 w-28 rounded-xl" />
+          </div>
+        </div>
+      </div>
+
+      {/* Main notes layout: Sidebar (desktop) + Notes cards grid */}
+      <div className="grid min-h-0 gap-3 grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]">
+        {/* Sidebar Folders: hidden on mobile, visible on desktop */}
+        <div className="lofi-panel hidden lg:flex min-h-0 flex-col rounded-2xl p-3.5 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200/80 dark:border-white/10">
+            <Skeleton className="h-4 w-20 rounded" />
+            <Skeleton className="h-7 w-7 rounded-lg" />
+          </div>
+          <div className="space-y-2 flex-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-2.5 rounded-xl border border-stone-200/60 p-2.5 dark:border-white/5">
+                <Skeleton className="h-4 w-4 rounded shrink-0" />
+                <Skeleton className="h-3.5 flex-1 rounded" />
+                <Skeleton className="h-4 w-6 rounded-full shrink-0" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Notes Grid / Cards */}
+        <div className="lofi-panel flex min-h-0 flex-1 flex-col rounded-2xl p-3.5 sm:p-5 space-y-3">
+          <div className="flex items-center justify-between pb-3 border-b border-stone-200/80 dark:border-white/10">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-8 w-24 rounded-lg" />
+              <Skeleton className="h-8 w-24 rounded-lg" />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Skeleton className="h-8 w-8 rounded-lg" />
+              <Skeleton className="h-8 w-8 rounded-lg" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 flex-1 overflow-hidden pt-1">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex flex-col rounded-2xl border border-stone-200/80 p-4 space-y-2.5 dark:border-white/5 bg-stone-50/50 dark:bg-white/[0.02]">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-5 rounded" />
+                  <Skeleton className="h-4 w-16 rounded-full" />
+                </div>
+                <Skeleton className="h-4 w-4/5 rounded" />
+                <Skeleton className="h-3 w-full rounded" />
+                <Skeleton className="h-3 w-3/4 rounded" />
+                <div className="mt-auto pt-2 flex items-center justify-between">
+                  <Skeleton className="h-2.5 w-16 rounded" />
+                  <Skeleton className="h-4 w-4 rounded-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
