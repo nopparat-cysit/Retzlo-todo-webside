@@ -1048,3 +1048,12 @@ Template:
   - Priority pills use standard semantic status tokens with dual-theme contrast: urgent (rose), medium (amber), normal (blue), done (emerald).
   - Responsive behavior: 3 columns display side-by-side on desktop and scroll horizontally with snap on mobile viewports.
 - Verification: `npm run lint` (0 errors), `npx vitest run` (105 test files, 584 tests passed), `npx prisma validate` (valid), `npm run build` (Next.js production build succeeded).
+
+### 2026-11-09 — Mobile Menu Drawer Full Width & Border Polish
+- Coverage: Workspace project sidebar drawer (`src/components/project/project-shell.tsx`, `src/app/globals.css`).
+- Theme Alignment & Visual Tokens:
+  - Mobile drawer (< 640px) expanded to full viewport width with 8px margins (`w-[calc(100vw-1rem)] sm:w-80 lg:w-auto`), eliminating the awkward right-side empty gap on mobile devices.
+  - Added subtle 4-sided card borders on mobile viewports (`rgba(214, 207, 196, 0.8)` in light mode, `rgba(255, 255, 255, 0.1)` in dark mode) to ensure clean definition against dimmed backdrop.
+  - All navigation buttons inside the drawer (Boards, Calendar, Diary, Notes, Members, Rewards Store, Settings, Command palette trigger) stretch smoothly across `w-full` for optimal tap target ergonomics.
+- Verification: Vitest 10/10 passed in `project-shell.test.ts`, Prisma validate passed, ESLint passed (0 errors), Next.js production build passed (43/43 pages).
+
