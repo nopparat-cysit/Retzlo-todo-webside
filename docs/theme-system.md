@@ -1082,6 +1082,15 @@ Template:
   - Skeletons updated in parallel (`BoardSkeleton`, `MembersSkeleton`) to eliminate layout shift upon hydration.
 - Verification: Vitest 113/113 passed (644 tests passed, 3 skipped), `npm run lint` clean (0 errors), `npx prisma validate` valid, `npm run build` passed (43/43 pages).
 
+### 2026-11-09 — Mobile Kanban Board Single Column View & Title Rename Guard
+- Coverage: Kanban Board (`src/components/kanban/board.tsx`), Kanban Column (`src/components/kanban/column.tsx`), and Skeletons (`src/components/ui/skeleton.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Disabled inline title renaming on mobile viewports (< 640px) to prevent accidental taps from expanding text inputs and distorting the compact header.
+  - Replaced horizontal scrolling columns on mobile with a full-width segmented tab switcher (`sm:hidden flex items-center gap-1 p-1 rounded-xl bg-stone-100/90 dark:bg-white/[0.04]`), showing only the active column full-width (`w-full`) with zero horizontal scrolling (`overflow-x-hidden`).
+  - Preserved desktop multi-column side-by-side grid with horizontal scrolling and cross-column drag-and-drop.
+- Verification: Vitest 113/113 passed (645 passed, 3 skipped), `npm run lint` clean (0 errors), Next.js build passed (43/43 pages).
+
+
 
 
 

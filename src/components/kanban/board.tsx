@@ -1072,7 +1072,7 @@ export function KanbanBoard({
                     e.stopPropagation();
                   }}
                   maxLength={80}
-                  className="h-8 rounded-lg border border-indigo-400 bg-white px-2.5 text-base sm:text-lg font-semibold text-stone-900 shadow-xs outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-dusk-lavender/50 dark:bg-white/[0.08] dark:text-stone-100 select-text"
+                  className="h-8 max-w-[160px] sm:max-w-xs rounded-lg border border-indigo-400 bg-white px-2.5 text-base sm:text-lg font-semibold text-stone-900 shadow-xs outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-dusk-lavender/50 dark:bg-white/[0.08] dark:text-stone-100 select-text"
                   placeholder="Board name..."
                   autoFocus
                   disabled={isSavingBoardName}
@@ -1102,8 +1102,9 @@ export function KanbanBoard({
             ) : (
               <div className="group/title flex items-center gap-1.5 min-w-0">
                 <h2
-                  className="truncate text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition select-text"
+                  className="truncate text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 sm:cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition select-text"
                   onClick={() => {
+                    if (typeof window !== "undefined" && window.innerWidth < 640) return;
                     const selection = typeof window !== "undefined" ? window.getSelection()?.toString() : "";
                     if (selection && selection.trim().length > 0) return;
                     setEditingBoardNameValue(boardName);
@@ -1116,10 +1117,11 @@ export function KanbanBoard({
                 <button
                   type="button"
                   onClick={() => {
+                    if (typeof window !== "undefined" && window.innerWidth < 640) return;
                     setEditingBoardNameValue(boardName);
                     setIsEditingBoardName(true);
                   }}
-                  className="opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition grid h-6 w-6 place-items-center rounded text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer shrink-0"
+                  className="hidden sm:grid opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition h-6 w-6 place-items-center rounded text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer shrink-0"
                   title="Rename board"
                   aria-label="Rename board"
                 >
@@ -2156,34 +2158,32 @@ export function KanbanBoard({
               </div>
             ) : (
               <div className="relative flex min-h-0 flex-1 flex-col">
-                {/* Mobile Quick Column Jump Navigation */}
+                {/* Mobile Segmented Column Tab Bar */}
                 {filteredColumns.length > 1 && (
-                  <div className="sm:hidden flex flex-wrap items-center gap-1.5 pb-2">
+                  <div className="sm:hidden flex items-center gap-1 p-1 rounded-xl bg-stone-100/90 dark:bg-white/[0.04] border border-stone-200/80 dark:border-white/10 mb-2.5 w-full shrink-0">
                     {filteredColumns.map((col) => {
                       const isActive = (activeMobileColumnId ?? filteredColumns[0]?.id) === col.id;
                       return (
                         <button
-                          key={`jump-${col.id}`}
+                          key={`tab-${col.id}`}
                           type="button"
                           onClick={() => {
                             setActiveMobileColumnId(col.id);
-                            const el = document.getElementById(`column-${col.id}`);
-                            el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
                           }}
                           className={cn(
-                            "inline-flex items-center gap-1.5 shrink-0 rounded-lg px-2.5 py-1 text-xs transition cursor-pointer active:scale-95",
+                            "flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer select-none min-w-0",
                             isActive
-                              ? "border border-indigo-500 bg-indigo-100 text-indigo-900 font-bold shadow-xs dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
-                              : "border border-stone-200/90 bg-white/90 text-stone-700 shadow-2xs hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 font-semibold"
+                              ? "bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs font-bold border border-stone-200/70 dark:border-white/10"
+                              : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
                           )}
                         >
-                          <span className="truncate max-w-[100px]">{col.name}</span>
+                          <span className="truncate">{col.name}</span>
                           <span
                             className={cn(
-                              "rounded-full px-1 text-[10px] font-mono",
+                              "rounded-full px-1.5 py-0.2 text-[10px] font-mono shrink-0",
                               isActive
-                                ? "bg-indigo-200/80 text-indigo-900 dark:bg-dusk-lavender/30 dark:text-dusk-lavender font-bold"
-                                : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                                ? "bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender font-bold"
+                                : "bg-stone-200/70 text-stone-600 dark:bg-white/10 dark:text-stone-400"
                             )}
                           >
                             {col.cards.length}
@@ -2196,30 +2196,41 @@ export function KanbanBoard({
                 <div
                   ref={columnsContainerRef}
                   onScroll={handleColumnsScroll}
-                  className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1 snap-x snap-mandatory">
+                  className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 sm:gap-4 overflow-x-hidden sm:overflow-x-auto pb-1 sm:snap-x sm:snap-mandatory">
                   <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
-                    {filteredColumns.map((column, index) => (
-                      <KanbanColumn
-                        key={column.id}
-                        column={column}
-                        density={density}
-                        activeCardId={activeCardId}
-                        isDragDisabled={isSavingReorder}
-                        isDropTarget={activeDropColumnId === column.id}
-                        onEditCard={setEditingCard}
-                        onCreateCard={createCard}
-                        onCardDeleted={deleteCard}
-                        onCardSaved={saveCard}
-                        onColumnDeleted={deleteColumn}
-                        onColumnSaved={updateColumn}
-                        isFirst={index === 0}
-                        members={members}
-                        currentUserId={currentUserId}
-                        hasActiveFilters={activeFilterCount > 0}
-                        boardId={board.id}
-                        priorities={boardPriorities}
-                      />
-                    ))}
+                    {filteredColumns.map((column, index) => {
+                      const isMobileActive = (activeMobileColumnId ?? filteredColumns[0]?.id) === column.id;
+                      return (
+                        <div
+                          key={column.id}
+                          id={`column-${column.id}`}
+                          className={cn(
+                            "h-full min-h-0",
+                            isMobileActive ? "flex flex-col flex-1 w-full" : "hidden sm:flex sm:flex-col sm:shrink-0"
+                          )}
+                        >
+                          <KanbanColumn
+                            column={column}
+                            density={density}
+                            activeCardId={activeCardId}
+                            isDragDisabled={isSavingReorder}
+                            isDropTarget={activeDropColumnId === column.id}
+                            onEditCard={setEditingCard}
+                            onCreateCard={createCard}
+                            onCardDeleted={deleteCard}
+                            onCardSaved={saveCard}
+                            onColumnDeleted={deleteColumn}
+                            onColumnSaved={updateColumn}
+                            isFirst={index === 0}
+                            members={members}
+                            currentUserId={currentUserId}
+                            hasActiveFilters={activeFilterCount > 0}
+                            boardId={board.id}
+                            priorities={boardPriorities}
+                          />
+                        </div>
+                      );
+                    })}
                   </SortableContext>
                 </div>
               </div>

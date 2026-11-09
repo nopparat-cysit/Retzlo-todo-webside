@@ -21,7 +21,7 @@ export function Skeleton({ className }: SkeletonProps) {
 
 function ColumnSkeleton() {
   return (
-    <div className="flex w-[calc(100vw-2.5rem)] max-w-[360px] sm:w-80 shrink-0 flex-col gap-3 rounded-xl border border-stone-200/90 bg-stone-100/70 p-3 dark:border-white/[0.07] dark:bg-ink-900/40">
+    <div className="flex w-full sm:w-80 shrink-0 flex-col gap-3 rounded-xl border border-stone-200/90 bg-stone-100/70 p-3 dark:border-white/[0.07] dark:bg-ink-900/40">
       {/* Column header */}
       <div className="flex items-center gap-2 px-1 pb-1">
         <Skeleton className="h-2.5 w-2.5 rounded-full" />
@@ -57,16 +57,18 @@ export function BoardSkeleton() {
       role="status"
       aria-label="Loading board…"
     >
-      {/* Mobile quick column jump navigation skeleton */}
-      <div className="sm:hidden flex flex-wrap items-center gap-1.5 pb-1 mb-2 shrink-0">
-        <Skeleton className="h-7 w-20 rounded-lg shrink-0" />
-        <Skeleton className="h-7 w-24 rounded-lg shrink-0" />
-        <Skeleton className="h-7 w-16 rounded-lg shrink-0" />
+      {/* Mobile segmented column tabs skeleton */}
+      <div className="sm:hidden flex items-center gap-1 p-1 rounded-xl bg-stone-100/90 dark:bg-white/[0.04] border border-stone-200/80 dark:border-white/10 mb-2.5 w-full shrink-0">
+        <Skeleton className="h-6 flex-1 rounded-lg" />
+        <Skeleton className="h-6 flex-1 rounded-lg" />
+        <Skeleton className="h-6 flex-1 rounded-lg" />
       </div>
 
-      <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory flex-1 min-h-0">
+      <div className="flex sm:gap-4 overflow-x-hidden sm:overflow-x-auto pb-4 sm:snap-x sm:snap-mandatory flex-1 min-h-0">
         {Array.from({ length: 3 }).map((_, i) => (
-          <ColumnSkeleton key={i} />
+          <div key={i} className={cn("h-full min-h-0", i === 0 ? "flex flex-col flex-1 w-full" : "hidden sm:flex sm:flex-col sm:shrink-0")}>
+            <ColumnSkeleton />
+          </div>
         ))}
       </div>
     </div>

@@ -11,12 +11,12 @@ describe("Skeleton Responsive Layout & Mobile Shift Contracts", () => {
   const notesLoadingPath = join(process.cwd(), "src/app/(dashboard)/project/[id]/notes/loading.tsx");
 
   it("ensures ColumnSkeleton uses adaptive mobile width matching column.tsx", () => {
-    expect(skeletonSource).toContain("w-[calc(100vw-2.5rem)] max-w-[360px] sm:w-80 shrink-0");
+    expect(skeletonSource).toContain("w-full sm:w-80 shrink-0");
   });
 
   it("renders mobile quick-jump column skeleton pills in BoardSkeleton", () => {
-    expect(skeletonSource).toContain("Mobile quick column jump navigation skeleton");
-    expect(skeletonSource).toContain("sm:hidden flex flex-wrap items-center gap-1.5 pb-1 mb-2 shrink-0");
+    expect(skeletonSource).toContain("Mobile segmented column tabs skeleton");
+    expect(skeletonSource).toContain("sm:hidden flex items-center gap-1 p-1 rounded-xl");
   });
 
   it("updates ProjectCardSkeleton with responsive cover and launch action bar matching ProjectCard", () => {

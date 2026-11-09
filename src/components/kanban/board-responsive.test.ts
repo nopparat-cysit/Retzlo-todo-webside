@@ -23,11 +23,12 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(boardSource).toContain("useSensors(mouseSensor, touchSensor)");
   });
 
-  it("renders mobile quick-jump column navigation strip and assigns matching column anchors", () => {
-    expect(boardSource).toContain("Mobile Quick Column Jump Navigation");
-    expect(boardSource).toContain("sm:hidden flex flex-wrap items-center gap-1.5 pb-2");
-    expect(boardSource).toContain('scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })');
-    expect(boardSource).toContain("column-${col.id}");
+  it("renders mobile segmented column tab bar and assigns matching column anchors", () => {
+    expect(boardSource).toContain("Mobile Segmented Column Tab Bar");
+    expect(boardSource).toContain("sm:hidden flex items-center gap-1 p-1 rounded-xl");
+    expect(boardSource).toContain("key={`tab-${col.id}`}");
+    expect(boardSource).toContain("setActiveMobileColumnId(col.id)");
+    expect(boardSource).toContain("id={`column-${column.id}`}");
 
     expect(columnSource).toContain("id={`column-${column.id}`}");
   });
@@ -68,8 +69,13 @@ describe("Kanban responsive and touch optimizations", () => {
   });
 
   it("ensures mobile columns use adaptive viewport width without 335px overflow", () => {
-    expect(columnSource).toContain("w-[calc(100vw-2.5rem)] max-w-[360px]");
-    expect(columnSource).toContain("min-h-[360px] sm:min-h-0");
+    expect(columnSource).toContain("w-full sm:w-[320px]");
+    expect(columnSource).toContain("min-h-0 sm:min-h-0");
+  });
+
+  it("disables board name renaming on mobile screens to prevent header blowout", () => {
+    expect(boardSource).toContain('if (typeof window !== "undefined" && window.innerWidth < 640) return;');
+    expect(boardSource).toContain("hidden sm:grid opacity-0 group-hover/title:opacity-100");
   });
 
   it("fits calendar month view 100% inside mobile viewport without 560px cut-off", () => {
@@ -99,10 +105,10 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(boardSource).toContain("Active filters applied. Click to expand tools.");
   });
 
-  it("tracks and highlights active column in mobile quick-jump navigation", () => {
+  it("tracks and highlights active column in mobile navigation", () => {
     expect(boardSource).toContain("activeMobileColumnId");
     expect(boardSource).toContain("handleColumnsScroll");
-    expect(boardSource).toContain("border-indigo-500 bg-indigo-100 text-indigo-900 font-bold");
+    expect(boardSource).toContain("bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100");
   });
 
   it("styles mobile bottom navigation as floating detached pill with transfer animation", () => {

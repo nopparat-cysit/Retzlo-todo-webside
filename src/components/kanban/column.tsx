@@ -435,7 +435,7 @@ function KanbanColumnComponent({
         minWidth: isCollapsed || isMobileScreen ? undefined : `${MIN_COLUMN_WIDTH}px`
       }}
       className={cn(
-        "group relative flex h-full min-h-[360px] sm:min-h-0 w-[calc(100vw-2.5rem)] max-w-[360px] sm:max-w-none sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 snap-center flex-col rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
+        "group relative flex h-full min-h-0 sm:min-h-0 w-full sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 sm:snap-center flex-col rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
         isResizing ? "transition-none select-none" : "transition duration-200",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
