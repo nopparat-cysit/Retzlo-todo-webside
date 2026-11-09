@@ -10,6 +10,7 @@ describe("Kanban responsive and touch optimizations", () => {
   const calendarSource = readFileSync(join(process.cwd(), "src/components/kanban/project-calendar.tsx"), "utf8");
   const fabSource = readFileSync(join(process.cwd(), "src/components/hub/fab-hub.tsx"), "utf8");
   const diarySource = readFileSync(join(process.cwd(), "src/components/diary/diary-list-panel.tsx"), "utf8");
+  const bottomNavSource = readFileSync(join(process.cwd(), "src/components/project/project-mobile-bottom-nav.tsx"), "utf8");
 
   it("configures MouseSensor and TouchSensor with activation constraints to prevent mobile scroll conflicts", () => {
     expect(boardSource).toContain("MouseSensor");
@@ -78,5 +79,14 @@ describe("Kanban responsive and touch optimizations", () => {
 
   it("compacts diary hero panel and description on mobile screens", () => {
     expect(diarySource).toContain("hidden sm:block mt-1");
+  });
+
+  it("keeps bottom nav dedicated to tabs and removes redundant bottom menu button", () => {
+    expect(bottomNavSource).not.toContain('htmlFor="project-sidebar-toggle"');
+    expect(bottomNavSource).not.toContain("<span>Menu</span>");
+    expect(bottomNavSource).toContain("Board");
+    expect(bottomNavSource).toContain("Calendar");
+    expect(bottomNavSource).toContain("Diary");
+    expect(bottomNavSource).toContain("Notes");
   });
 });

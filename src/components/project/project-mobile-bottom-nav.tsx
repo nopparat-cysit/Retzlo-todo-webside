@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { KanbanSquare, CalendarDays, BookOpenCheck, FileText, Menu } from "lucide-react";
+import { KanbanSquare, CalendarDays, BookOpenCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProjectMobileBottomNavProps {
@@ -72,19 +72,6 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
           </Link>
         );
       })}
-
-      {/* Menu / Sidebar Drawer Toggle */}
-      <label
-        htmlFor="project-sidebar-toggle"
-        className="flex flex-col items-center justify-center min-w-[56px] py-1 px-2 rounded-xl text-[10px] font-medium text-stone-400 hover:text-stone-200 cursor-pointer transition active:scale-95"
-        title="Open workspace menu"
-        aria-label="Open workspace menu"
-      >
-        <div className="grid h-7 w-7 place-items-center rounded-lg text-stone-400">
-          <Menu className="h-4 w-4" />
-        </div>
-        <span className="mt-0.5">Menu</span>
-      </label>
     </nav>
   );
 }
