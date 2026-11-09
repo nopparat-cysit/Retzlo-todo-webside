@@ -1182,8 +1182,8 @@ export function KanbanBoard({
                       aria-label={`${overdueCards} overdue cards`}
                     >
                       <Clock className="h-3.5 w-3.5 shrink-0" />
-                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center pointer-events-none">
-                        <span className="relative flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-600 px-0.5 font-mono text-[7px] font-bold text-white shadow-xs">
+                      <span className="absolute -top-1.5 -right-1.5 z-10 flex pointer-events-none">
+                        <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[9px] font-bold leading-none text-white shadow-sm ring-2 ring-white dark:ring-ink-950 select-none">
                           {overdueCards > 99 ? "99+" : overdueCards}
                         </span>
                       </span>
@@ -1403,8 +1403,8 @@ export function KanbanBoard({
                           aria-label={`${overdueCards} overdue cards`}
                         >
                           <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
-                          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
-                            <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[8px] font-bold text-white shadow-xs">
+                          <span className="absolute -top-1.5 -right-1.5 z-10 flex pointer-events-none">
+                            <span className="inline-flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[10px] font-bold leading-none text-white shadow-sm ring-2 ring-white dark:ring-ink-950 select-none">
                               {overdueCards > 99 ? "99+" : overdueCards}
                             </span>
                           </span>

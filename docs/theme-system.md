@@ -1109,6 +1109,15 @@ Template:
   - Refined 4 category filter tabs below search input to `grid grid-cols-4 gap-1` with `px-1 py-1 text-[11px]`, truncated text labels, and compact count badges (`px-1 py-0.2 text-[9px]`) to ensure comfortable spacing without horizontal overflow on mobile viewports.
 - Verification: Vitest 48/48 passed across `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, `npm run build` succeeded (43/43 routes).
 
+### 2026-11-09 — Kanban Board Overdue Filter Badge Centering & Ring Separation
+- Coverage: Kanban Board (`src/components/kanban/board.tsx`, `src/components/kanban/board-switch-skeleton.test.ts`).
+- Theme Alignment & Visual Tokens:
+  - Fixed sunken appearance of task count number on Overdue filter button (`overdueCards`) by elevating the badge position to `-top-1.5 -right-1.5 z-10`.
+  - Added `ring-2 ring-white dark:ring-ink-950` to clearly define and separate the red badge from the red button background and borders across both light and dark themes.
+  - Implemented `inline-flex items-center justify-center leading-none select-none` with explicit typography (`text-[10px]` on 18px badge, `text-[9px]` on 16px badge), perfectly centering the monospace number glyphs vertically and horizontally.
+- Verification: Vitest 128/128 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+
+
 
 
 

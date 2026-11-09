@@ -28,6 +28,10 @@ describe("Board Switch Skeleton and Overdue Alignment Contracts", () => {
     expect(boardSource).toMatch(/Premium Control Bar[\s\S]*Total[\s\S]*Prog[\s\S]*Done[\s\S]*Overdue Indicator Icon/);
     // Ensure matching height and rounded corners
     expect(boardSource).toMatch(/flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border/);
+    // Ensure overdue count badge is elevated with contrast ring and vertically centered
+    expect(boardSource).toContain("-top-1.5 -right-1.5 z-10");
+    expect(boardSource).toContain("ring-2 ring-white dark:ring-ink-950");
+    expect(boardSource).toContain("leading-none");
   });
 
   it("ensures dark mode dropdowns in SelectContent use midnight background to avoid white-on-white", () => {
