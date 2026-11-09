@@ -1290,27 +1290,40 @@ export function CardModal({
         </div>
         </div>
 
-        <div className="flex shrink-0 flex-wrap sm:flex-nowrap justify-end gap-2 border-t border-white/10 p-3.5 sm:p-5 pb-safe">
-          {footerAction}
-          {mode === "edit" && onArchive ? (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onArchive}
-              className="gap-1.5 text-xs"
-            >
-              <Archive className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-              Archive
-            </Button>
+        <div className="flex shrink-0 flex-col gap-2 border-t border-white/10 p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-5 pb-safe">
+          {Boolean(footerAction) || (mode === "edit" && (Boolean(onArchive) || Boolean(onDelete))) ? (
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center">
+              {footerAction}
+              {mode === "edit" && onArchive ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={onArchive}
+                  className="h-10 sm:h-9 w-full sm:w-auto gap-1.5 text-xs touch-manipulation"
+                >
+                  <Archive className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  Archive
+                </Button>
+              ) : null}
+              {mode === "edit" && onDelete ? (
+                <Button
+                  type="button"
+                  variant="danger"
+                  onClick={onDelete}
+                  className="h-10 sm:h-9 w-full sm:w-auto touch-manipulation"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete card
+                </Button>
+              ) : null}
+            </div>
           ) : null}
-          {mode === "edit" && onDelete ? (
-            <Button type="button" variant="danger" onClick={onDelete}>
-              <Trash2 className="h-4 w-4" />
-              Delete card
+          <div className={cn("grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:justify-end", !(Boolean(footerAction) || (mode === "edit" && (Boolean(onArchive) || Boolean(onDelete)))) && "sm:ml-auto")}>
+            <CardModalCancelButton className="h-10 sm:h-9 w-full sm:w-auto touch-manipulation" />
+            <Button disabled={isSaving} className="h-10 sm:h-9 w-full sm:w-auto touch-manipulation">
+              {isSaving ? "Saving..." : "Save card"}
             </Button>
-          ) : null}
-          <CardModalCancelButton />
-          <Button disabled={isSaving}>{isSaving ? "Saving..." : "Save card"}</Button>
+          </div>
         </div>
       </form>
     </AppModal>
@@ -1357,10 +1370,10 @@ function CardModalCloseButton({ className, children, ...props }: React.Component
   );
 }
 
-function CardModalCancelButton() {
+function CardModalCancelButton({ className }: { className?: string } = {}) {
   const { requestClose } = useAppModal();
   return (
-    <Button type="button" variant="ghost" onClick={requestClose}>
+    <Button type="button" variant="ghost" onClick={requestClose} className={className}>
       Cancel
     </Button>
   );

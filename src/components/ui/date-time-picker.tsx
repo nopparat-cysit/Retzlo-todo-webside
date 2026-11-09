@@ -123,7 +123,8 @@ export function DateTimePicker({
           ref={contentRef}
           align={align}
           sideOffset={6}
-          className="w-auto p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
+          collisionPadding={12}
+          className="w-auto max-w-[calc(100vw-1.5rem)] p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
         >
           {/* ── Switcher Tabs: Date vs Time ── */}
           <div className="mb-2.5 flex items-center gap-1 rounded-xl border border-stone-200/80 bg-stone-100/80 p-0.5 dark:border-white/10 dark:bg-white/[0.03]">
@@ -131,7 +132,7 @@ export function DateTimePicker({
               type="button"
               onClick={() => setActiveTab("date")}
               className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1 text-xs font-semibold transition cursor-pointer",
+                "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 sm:py-1 text-xs font-semibold transition cursor-pointer touch-manipulation",
                 activeTab === "date"
                   ? "bg-white text-stone-900 shadow-2xs dark:bg-stone-800 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
@@ -144,7 +145,7 @@ export function DateTimePicker({
               type="button"
               onClick={() => setActiveTab("time")}
               className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1 text-xs font-semibold transition cursor-pointer",
+                "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 sm:py-1 text-xs font-semibold transition cursor-pointer touch-manipulation",
                 activeTab === "time"
                   ? "bg-white text-stone-900 shadow-2xs dark:bg-stone-800 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"

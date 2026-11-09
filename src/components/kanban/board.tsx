@@ -19,6 +19,7 @@ import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "re
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CardModal } from "@/components/kanban/card-modal";
+import { CardMoveModal } from "@/components/kanban/card-move-modal";
 import { BoardListView } from "@/components/kanban/board-list-view";
 import { BoardSettingsModal } from "@/components/kanban/board-settings-modal";
 import { AiProjectSummaryModal } from "@/components/ai/ai-project-summary-modal";
@@ -243,6 +244,7 @@ export function KanbanBoard({
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [isToolsCollapsed, setIsToolsCollapsed] = useState(false);
   const [activeMobileColumnId, setActiveMobileColumnId] = useState<string | null>(null);
+  const [movingCard, setMovingCard] = useState<{ card: Card; columnId: string } | null>(null);
   const columnsContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -826,6 +828,94 @@ export function KanbanBoard({
     );
     broadcastChange("CARD_DELETED");
   }, [broadcastChange]);
+
+  const handleMoveCardToColumn = useCallback(
+    async (card: Card, targetColumnId: string) => {
+      if (movingCard?.columnId === targetColumnId) return;
+
+      const previous = columnsRef.current;
+      const targetColumn = previous.find((col) => col.id === targetColumnId);
+      if (!targetColumn) return;
+
+      const nextStatus = targetColumn.defaultCardStatus || card.status;
+      const sourceColId = movingCard?.columnId || card.columnId;
+
+      const movedCard: Card = normalizeCard(
+        {
+          ...card,
+          columnId: targetColumnId,
+          status: nextStatus
+        },
+        members
+      );
+
+      const nextColumns = previous.map((col) => {
+        if (col.id === sourceColId) {
+          return {
+            ...col,
+            cards: col.cards.filter((c) => c.id !== card.id)
+          };
+        }
+        if (col.id === targetColumnId) {
+          return {
+            ...col,
+            cards: [...col.cards.filter((c) => c.id !== card.id), movedCard]
+          };
+        }
+        return col;
+      });
+
+      applyColumns(nextColumns);
+      setMovingCard(null);
+
+      if (typeof window !== "undefined" && window.innerWidth < 640) {
+        setActiveMobileColumnId(targetColumnId);
+      }
+
+      try {
+        const response = await fetch("/api/cards", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cardId: card.id,
+            columnId: targetColumnId,
+            status: nextStatus
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || "Failed to move card");
+        }
+
+        if (targetColumn.defaultCardStatus === "DONE") {
+          const cardEl = document.getElementById(`card-${card.id}`);
+          const rect = cardEl?.getBoundingClientRect();
+          triggerCelebration(
+            rect ? rect.left + rect.width / 2 : window.innerWidth / 2,
+            rect ? rect.top + rect.height / 2 : window.innerHeight / 2
+          );
+          playCardDoneSound();
+          toast({ message: "Task complete! ✦", type: "success" });
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("zen-updated"));
+            window.dispatchEvent(new Event("coins-updated"));
+          }
+        } else {
+          toast({ message: "Card moved.", type: "success" });
+        }
+
+        broadcastChange("CARD_MOVED");
+      } catch (err) {
+        applyColumns(previous);
+        toast({
+          message: err instanceof Error ? err.message : "Failed to move card",
+          type: "error"
+        });
+      }
+    },
+    [movingCard, members, applyColumns, broadcastChange, toast]
+  );
 
   function handleDragStart(event: DragStartEvent) {
     if (syncGuard.isSaving()) return;
@@ -2219,6 +2309,7 @@ export function KanbanBoard({
                             onCreateCard={createCard}
                             onCardDeleted={deleteCard}
                             onCardSaved={saveCard}
+                            onMoveCard={(card, colId) => setMovingCard({ card, columnId: colId })}
                             onColumnDeleted={deleteColumn}
                             onColumnSaved={updateColumn}
                             isFirst={index === 0}
@@ -2432,6 +2523,15 @@ export function KanbanBoard({
           }}
         />
       )}
+
+      <CardMoveModal
+        open={Boolean(movingCard)}
+        onClose={() => setMovingCard(null)}
+        card={movingCard?.card ?? null}
+        currentColumnId={movingCard?.columnId ?? ""}
+        columns={columns}
+        onMove={handleMoveCardToColumn}
+      />
     </div>
   );
 }

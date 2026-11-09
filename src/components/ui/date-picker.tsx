@@ -258,7 +258,7 @@ export function CalendarView({
   };
 
   return (
-    <div className={cn("w-[280px] select-none p-1 text-xs", className)}>
+    <div className={cn("w-full max-w-[280px] min-w-[260px] select-none p-1 text-xs", className)}>
       {/* ── Calendar Navigation Header ── */}
       <div className="flex items-center justify-between pb-2.5 pt-1">
         <button
@@ -308,7 +308,7 @@ export function CalendarView({
               disabled={d.disabled}
               onClick={() => selectDay(d.iso, d.disabled)}
               className={cn(
-                "group relative grid h-8 w-8 place-items-center rounded-lg text-center font-mono text-xs transition cursor-pointer",
+                "group relative grid aspect-square h-8 max-w-full place-items-center rounded-lg text-center font-mono text-xs select-none touch-manipulation transition cursor-pointer",
                 !d.isCurrentMonth && "text-stone-400 opacity-40 hover:opacity-80 dark:text-stone-600",
                 d.isCurrentMonth && "text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-white/10",
                 d.isToday &&
@@ -331,25 +331,25 @@ export function CalendarView({
       {/* ── Shortcuts Row ── */}
       {showShortcuts && (
         <div className="mt-3 flex flex-wrap items-center justify-between gap-1 border-t border-stone-200/80 pt-2.5 dark:border-white/10">
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1">
             <button
               type="button"
               onClick={() => handleApplyShortcut("today")}
-              className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10 cursor-pointer"
+              className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10 cursor-pointer touch-manipulation"
             >
               {isEn ? "Today" : "วันนี้"}
             </button>
             <button
               type="button"
               onClick={() => handleApplyShortcut("tomorrow")}
-              className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10 cursor-pointer"
+              className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10 cursor-pointer touch-manipulation"
             >
               {isEn ? "Tomorrow" : "พรุ่งนี้"}
             </button>
             <button
               type="button"
               onClick={() => handleApplyShortcut("next-week")}
-              className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10 cursor-pointer"
+              className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10 cursor-pointer touch-manipulation"
             >
               {isEn ? "Next Week" : "สัปดาห์หน้า"}
             </button>
@@ -358,7 +358,7 @@ export function CalendarView({
           <button
             type="button"
             onClick={() => handleApplyShortcut("clear")}
-            className="rounded-md px-1.5 py-0.5 text-[10px] font-medium text-stone-400 hover:text-red-500 dark:hover:text-red-400 cursor-pointer"
+            className="rounded-md px-1.5 py-0.5 text-[10px] font-medium text-stone-400 hover:text-red-500 dark:hover:text-red-400 cursor-pointer touch-manipulation"
           >
             {isEn ? "Clear" : "ล้าง"}
           </button>
@@ -457,7 +457,8 @@ export function DatePicker({
           ref={contentRef}
           align={align}
           sideOffset={6}
-          className="w-auto p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
+          collisionPadding={12}
+          className="w-auto max-w-[calc(100vw-1.5rem)] p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
         >
           <CalendarView
             value={value}

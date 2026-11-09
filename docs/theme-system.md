@@ -1117,6 +1117,16 @@ Template:
   - Implemented `inline-flex items-center justify-center leading-none select-none` with explicit typography (`text-[10px]` on 18px badge, `text-[9px]` on 16px badge), perfectly centering the monospace number glyphs vertically and horizontally.
 - Verification: Vitest 128/128 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
+### 2026-11-09 — Card Long-Press Column Move Modal, Responsive Pickers, and Card Modal Footer Actions
+- Coverage: Kanban Board & Cards (`src/components/kanban/card-move-modal.tsx`, `card.tsx`, `column.tsx`, `board.tsx`, `card-modal.tsx`), UI Pickers & Popover (`src/components/ui/popover.tsx`, `date-picker.tsx`, `time-picker.tsx`, `date-time-picker.tsx`, `date-time-field.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Created `CardMoveModal` with retro lofi modal architecture using `AppModal`, responsive column cards with theme color dots, glyph icons, badge counters, and active destination highlight rings.
+  - Configured `PopoverContent` with default `collisionPadding = 12` to prevent floating date/time overlays from exceeding viewport boundaries on mobile screens (320px–375px).
+  - Refined DatePicker and TimePicker containers to fluid widths (`max-w-[280px] min-w-[260px]` / `max-w-[260px] min-w-[240px]`) with `touch-manipulation` and touch targets >= 32px (`h-8 sm:h-7.5`).
+  - Redesigned `CardModal` bottom action buttons into a symmetrical 2x2 grid on mobile viewports (`grid grid-cols-2 gap-2 w-full`) with 40px touch targets (`h-10 sm:h-9`), separating destructive/archive actions from cancel/save actions while maintaining desktop split layout.
+- Verification: Vitest 186/186 passed across `src/components/kanban/` and `src/components/ui/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js build succeeded.
+
+
 
 
 

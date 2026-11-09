@@ -233,7 +233,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
   };
 
   return (
-    <div className={cn("w-[270px] select-none p-1 text-xs", className)}>
+    <div className={cn("w-full max-w-[260px] min-w-[240px] select-none p-1 text-xs", className)}>
       {/* ── Typeable Digital Time Header ── */}
       <div className="flex items-center justify-center gap-2 rounded-xl border border-stone-200/90 bg-stone-100/80 p-2 shadow-inner dark:border-white/10 dark:bg-white/[0.04]">
         {/* Hour Input + Steppers */}
@@ -249,13 +249,13 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
             onKeyDown={(e) => handleKeyDown(e, true)}
             onFocus={(e) => e.target.select()}
             title="Type or press arrow keys to change hour"
-            className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-2xs transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
+            className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-2xs transition touch-manipulation focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
           />
           <div className="flex flex-col gap-0.5">
             <button
               type="button"
               onClick={() => stepHour(1)}
-              className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
+              className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer touch-manipulation"
               title="Increase hour (+1)"
             >
               <ChevronUp className="h-3 w-3" />
@@ -263,7 +263,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
             <button
               type="button"
               onClick={() => stepHour(-1)}
-              className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
+              className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer touch-manipulation"
               title="Decrease hour (-1)"
             >
               <ChevronDown className="h-3 w-3" />
@@ -286,13 +286,13 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
             onKeyDown={(e) => handleKeyDown(e, false)}
             onFocus={(e) => e.target.select()}
             title="Type or press arrow keys to change minute"
-            className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-2xs transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
+            className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-2xs transition touch-manipulation focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
           />
           <div className="flex flex-col gap-0.5">
             <button
               type="button"
               onClick={() => stepMinute(5)}
-              className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
+              className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer touch-manipulation"
               title="Increase minute (+5)"
             >
               <ChevronUp className="h-3 w-3" />
@@ -300,7 +300,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
             <button
               type="button"
               onClick={() => stepMinute(-5)}
-              className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
+              className="rounded p-0.5 text-stone-400 hover:bg-stone-200/70 hover:text-stone-800 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer touch-manipulation"
               title="Decrease minute (-5)"
             >
               <ChevronDown className="h-3 w-3" />
@@ -334,7 +334,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
                     data-hour={h}
                     onClick={() => handleSelectHour(h)}
                     className={cn(
-                      "h-7 w-full rounded-lg font-mono text-xs font-medium transition cursor-pointer flex items-center justify-center",
+                      "h-8 sm:h-7.5 w-full rounded-lg font-mono text-xs font-medium touch-manipulation transition cursor-pointer flex items-center justify-center",
                       isSelected
                         ? "bg-indigo-600 text-white font-bold shadow-xs dark:bg-dusk-lavender dark:text-ink-950"
                         : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100"
@@ -367,7 +367,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
                     data-minute={m}
                     onClick={() => handleSelectMinute(m)}
                     className={cn(
-                      "h-7 w-full rounded-lg font-mono text-xs font-medium transition cursor-pointer flex items-center justify-center",
+                      "h-8 sm:h-7.5 w-full rounded-lg font-mono text-xs font-medium touch-manipulation transition cursor-pointer flex items-center justify-center",
                       isSelected
                         ? "bg-indigo-600 text-white font-bold shadow-xs dark:bg-dusk-lavender dark:text-ink-950"
                         : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100"
@@ -396,7 +396,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
                 type="button"
                 onClick={() => handleSelectPreset(preset.time)}
                 className={cn(
-                  "flex items-center justify-center gap-1 rounded-lg border px-1 py-1 text-[10px] font-medium transition cursor-pointer",
+                  "flex items-center justify-center gap-1 rounded-lg border px-1 py-1 text-[10px] font-medium transition cursor-pointer touch-manipulation",
                   isSelected
                     ? "border-indigo-400 bg-indigo-50 text-indigo-700 font-semibold dark:border-dusk-lavender/50 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
                     : "border-stone-200/80 bg-white text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10"
@@ -415,7 +415,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
         <button
           type="button"
           onClick={handleClear}
-          className="rounded-lg px-2 py-1 text-[11px] font-medium text-stone-400 hover:text-red-500 hover:bg-red-500/10 dark:hover:text-red-400 transition cursor-pointer"
+          className="rounded-lg px-2 py-1 text-[11px] font-medium text-stone-400 hover:text-red-500 hover:bg-red-500/10 dark:hover:text-red-400 transition cursor-pointer touch-manipulation"
         >
           All Day / Clear
         </button>
@@ -423,7 +423,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
         <button
           type="button"
           onClick={() => onConfirm?.()}
-          className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 transition cursor-pointer"
+          className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 transition cursor-pointer touch-manipulation"
         >
           <Check className="h-3.5 w-3.5" />
           <span>Confirm</span>
@@ -508,7 +508,7 @@ export function TimePicker({
             {value && !disabled ? (
               <span
                 onClick={handleClear}
-                className="grid h-4 w-4 place-items-center rounded text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
+                className="grid h-4 w-4 place-items-center rounded text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer touch-manipulation"
                 title="Clear time"
               >
                 <X className="h-3 w-3" />
@@ -521,7 +521,8 @@ export function TimePicker({
           ref={contentRef}
           align={align}
           sideOffset={6}
-          className="w-auto p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
+          collisionPadding={12}
+          className="w-auto max-w-[calc(100vw-1.5rem)] p-3 shadow-xl backdrop-blur-xl border border-stone-200/90 bg-[#faf7f2]/95 dark:border-white/12 dark:bg-[#0e1025]/95 rounded-2xl z-[1200]"
         >
           <TimeView value={value} onChange={handleSelectTime} onConfirm={handleConfirm} />
         </PopoverContent>

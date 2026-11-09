@@ -52,10 +52,10 @@ export function DateTimeField({
         {label}
       </div>
       {shortcuts.length > 0 ? (
-        <div className="mb-3 flex flex-wrap gap-2">
+        <div className="mb-3 flex flex-wrap gap-1.5">
           {shortcuts.map((shortcut) => (
             <Button
-              className="h-8 px-3"
+              className="h-7.5 sm:h-8 px-2.5 sm:px-3 text-xs touch-manipulation"
               key={shortcut}
               type="button"
               variant="ghost"

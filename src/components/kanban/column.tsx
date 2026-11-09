@@ -76,6 +76,7 @@ export interface KanbanColumnProps {
   ) => Promise<void>;
   isFirst?: boolean;
   hasActiveFilters?: boolean;
+  onMoveCard?: (card: Card, columnId: string) => void;
 }
 
 function KanbanColumnComponent({
@@ -95,7 +96,8 @@ function KanbanColumnComponent({
   onColumnDeleted,
   onColumnSaved,
   isFirst = false,
-  hasActiveFilters = false
+  hasActiveFilters = false,
+  onMoveCard
 }: KanbanColumnProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -559,6 +561,7 @@ function KanbanColumnComponent({
               onEdit={onEditCard}
               onDeleted={onCardDeleted}
               onSaved={onCardSaved}
+              onMoveRequest={onMoveCard}
             />
           ))}
         </SortableContext>

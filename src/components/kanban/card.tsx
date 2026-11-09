@@ -3,7 +3,7 @@
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { CalendarClock, CheckSquare, Clock, Paperclip, Star, Zap } from "lucide-react";
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
 import { AssigneeStack } from "@/components/kanban/assignee-avatar";
 import { CoffeeCheersButton } from "@/components/kanban/coffee-cheers-button";
@@ -32,6 +32,7 @@ export interface KanbanCardProps {
   onEdit?: (card: Card) => void;
   onSaved?: (card: Card) => void;
   onDeleted?: (cardId: string) => void;
+  onMoveRequest?: (card: Card, columnId: string) => void;
 }
 
 function areCardPropsEqual(prev: KanbanCardProps, next: KanbanCardProps) {
@@ -44,6 +45,7 @@ function areCardPropsEqual(prev: KanbanCardProps, next: KanbanCardProps) {
   if (prev.onSaved !== next.onSaved) return false;
   if (prev.members !== next.members) return false;
   if (prev.priorities !== next.priorities) return false;
+  if (prev.onMoveRequest !== next.onMoveRequest) return false;
   if (prev.card === next.card) return true;
   return (
     prev.card.id === next.card.id &&
@@ -79,12 +81,68 @@ function KanbanCardComponent({
   priorities,
   density = "comfortable",
   onEdit,
-  onSaved
+  onSaved,
+  onDeleted,
+  onMoveRequest
 }: KanbanCardProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startPointerPosRef = useRef<{ x: number; y: number } | null>(null);
+  const isLongPressTriggeredRef = useRef<boolean>(false);
+
+  const clearLongPressTimer = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    startPointerPosRef.current = null;
+  };
+
+  useEffect(() => {
+    return () => {
+      clearLongPressTimer();
+    };
+  }, []);
+
+  const handlePointerDown = (event: React.PointerEvent) => {
+    if (event.button !== 0) return;
+    startPointerPosRef.current = { x: event.clientX, y: event.clientY };
+    isLongPressTriggeredRef.current = false;
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+    longPressTimerRef.current = setTimeout(() => {
+      try {
+        navigator.vibrate?.(40);
+      } catch {
+        // ignore
+      }
+      isLongPressTriggeredRef.current = true;
+      onMoveRequest?.(card, columnId);
+      clearLongPressTimer();
+    }, 450);
+  };
+
+  const handlePointerMove = (event: React.PointerEvent) => {
+    if (!startPointerPosRef.current || !longPressTimerRef.current) return;
+    const dx = Math.abs(event.clientX - startPointerPosRef.current.x);
+    const dy = Math.abs(event.clientY - startPointerPosRef.current.y);
+    if (Math.hypot(dx, dy) > 8 || dx > 8 || dy > 8) {
+      clearLongPressTimer();
+    }
+  };
+
+  const handlePointerUp = () => {
+    clearLongPressTimer();
+  };
+
+  const handlePointerCancel = () => {
+    clearLongPressTimer();
+  };
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: `card:${card.id}`,
@@ -126,9 +184,33 @@ function KanbanCardComponent({
       suppressHydrationWarning
       {...attributes}
       {...listeners}
+      onPointerDown={(event) => {
+        listeners?.onPointerDown?.(event);
+        handlePointerDown(event);
+      }}
+      onPointerMove={(event) => {
+        listeners?.onPointerMove?.(event);
+        handlePointerMove(event);
+      }}
+      onPointerUp={(event) => {
+        listeners?.onPointerUp?.(event);
+        handlePointerUp();
+      }}
+      onPointerCancel={(event) => {
+        listeners?.onPointerCancel?.(event);
+        handlePointerCancel();
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onMoveRequest?.(card, columnId);
+      }}
       role="button"
       tabIndex={0}
       onClick={(event) => {
+        if (isLongPressTriggeredRef.current) {
+          isLongPressTriggeredRef.current = false;
+          return;
+        }
         if (event.button === 0 && !isDragging) {
           const selection = typeof window !== "undefined" ? window.getSelection()?.toString() : "";
           if (selection && selection.trim().length > 0) return;
