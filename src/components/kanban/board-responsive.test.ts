@@ -89,4 +89,19 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(bottomNavSource).toContain("Diary");
     expect(bottomNavSource).toContain("Notes");
   });
+
+  it("supports collapsible tools in board header with persistence and quick indicators", () => {
+    expect(boardSource).toContain("isToolsCollapsed");
+    expect(boardSource).toContain("toggleToolsCollapse");
+    expect(boardSource).toContain("retzlo_board_");
+    expect(boardSource).toContain("grid-rows-[0fr]");
+    expect(boardSource).toContain("grid-rows-[1fr]");
+    expect(boardSource).toContain("Active filters applied. Click to expand tools.");
+  });
+
+  it("tracks and highlights active column in mobile quick-jump navigation", () => {
+    expect(boardSource).toContain("activeMobileColumnId");
+    expect(boardSource).toContain("handleColumnsScroll");
+    expect(boardSource).toContain("border-indigo-500 bg-indigo-100 text-indigo-900 font-bold");
+  });
 });

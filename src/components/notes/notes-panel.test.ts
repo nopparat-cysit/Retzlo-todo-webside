@@ -19,7 +19,7 @@ describe("NotesPanel reward-style layout", () => {
   });
 
   it("keeps the note studio hero compact", () => {
-    expect(source).toContain("grid-rows-[max-content_minmax(0,1fr)]");
+    expect(source).toContain("md:grid-rows-[max-content_minmax(0,1fr)]");
     expect(source).toContain("px-4 py-2.5");
     expect(source).not.toContain("min-h-[76px]");
     expect(source).not.toContain("min-h-[116px]");
@@ -50,5 +50,19 @@ describe("NotesPanel reward-style layout", () => {
     expect(source).toContain('type NoteViewMode = "grid-2" | "grid-3" | "grid-4" | "list"');
     expect(source).toContain('viewMode === "grid-2" && "grid md:grid-cols-2"');
     expect(source).toContain('viewMode === "grid-4" && "grid sm:grid-cols-2 xl:grid-cols-4"');
+  });
+
+  it("hides the note studio hero on mobile (< md) and adapts layout", () => {
+    expect(source).toContain('data-notes-hero-layout="single-row"');
+    expect(source).toContain("hidden md:block");
+    expect(source).toContain("grid-rows-[1fr] md:grid-rows-[max-content_minmax(0,1fr)]");
+  });
+
+  it("supports collapsible tools with persistence in note board", () => {
+    expect(source).toContain("isToolsCollapsed");
+    expect(source).toContain("toggleToolsCollapse");
+    expect(source).toContain("retzlo_notes_");
+    expect(source).toContain("grid-rows-[0fr]");
+    expect(source).toContain("grid-rows-[1fr]");
   });
 });

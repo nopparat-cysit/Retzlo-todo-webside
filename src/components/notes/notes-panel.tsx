@@ -23,6 +23,7 @@ import {
   Plus,
   RotateCcw,
   Save,
+  SlidersHorizontal,
   Search,
   Star,
   Trash2,
@@ -122,6 +123,32 @@ export function NotesPanel({
   const [editingFolder, setEditingFolder] = useState<NoteFolderItem | null>(null);
   const [deletingFolder, setDeletingFolder] = useState<NoteFolderItem | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isToolsCollapsed, setIsToolsCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`retzlo_notes_${projectId}_tools_collapsed`);
+      if (stored !== null) {
+        setIsToolsCollapsed(stored === "true");
+      } else if (typeof window !== "undefined" && window.innerWidth < 768) {
+        setIsToolsCollapsed(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, [projectId]);
+
+  const toggleToolsCollapse = useCallback(() => {
+    setIsToolsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(`retzlo_notes_${projectId}_tools_collapsed`, String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, [projectId]);
   const { toast } = useToast();
   const visibleNotes = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -405,8 +432,8 @@ export function NotesPanel({
   }
 
   return (
-    <section className="grid h-full min-h-0 grid-rows-[max-content_minmax(0,1fr)] gap-3" data-notes-layout="reward-style">
-      <div className="lofi-panel relative isolate overflow-hidden rounded-lg px-4 py-2.5" data-notes-hero-layout="single-row">
+    <section className="grid h-full min-h-0 grid-rows-[1fr] md:grid-rows-[max-content_minmax(0,1fr)] gap-3" data-notes-layout="reward-style">
+      <div className="lofi-panel relative isolate overflow-hidden rounded-lg px-4 py-2.5 hidden md:block" data-notes-hero-layout="single-row">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-dusk-amber">
@@ -690,234 +717,285 @@ export function NotesPanel({
         </aside>
 
         <main className="lofi-panel flex min-h-0 flex-col rounded-lg p-3" data-notes-board="note-cards">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber flex items-center gap-1.5">
+          {/* Always-Visible Compact Note Board Header */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber flex items-center gap-1.5 shrink-0">
                 <NotesNavIconView icon={activeViewMeta.icon} size={20} />
-                <span>{activeViewMeta.label}</span>
+                <span className="font-semibold">{activeViewMeta.label}</span>
               </p>
-              <h3 className="mt-1 text-xl font-semibold text-stone-100">Note board</h3>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative flex items-center">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search notes..."
-                  aria-label="Search notes"
-                  className="h-9 w-40 sm:w-52 rounded-lg border border-stone-200/80 bg-white/90 pl-8 pr-7 text-xs text-stone-800 placeholder:text-stone-400 focus:border-dusk-lavender focus:outline-none dark:border-white/10 dark:bg-ink-950/60 dark:text-stone-200"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    aria-label="Clear note search"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 cursor-pointer"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-              <div
-                className="flex rounded-lg border border-white/10 bg-ink-950/45 p-1"
-                data-notes-view-mode-toggle="grid-list"
-              >
-                {NOTE_VIEW_MODES.map((mode) => {
-                  const Icon = mode.icon;
+              <h3 className="hidden sm:inline text-lg font-semibold text-stone-100 truncate">Note board</h3>
 
-                  return (
-                    <button
-                      key={mode.value}
-                      className={cn(
-                        "inline-flex h-8 min-w-8 items-center justify-center gap-1 rounded-md px-2 text-xs font-semibold text-stone-400 transition hover:text-stone-100",
-                        viewMode === mode.value && "bg-dusk-lavender text-ink-950 shadow-[0_8px_20px_rgba(167,151,255,0.18)] hover:text-ink-950"
-                      )}
-                      title={`${mode.label} view`}
-                      type="button"
-                      onClick={() => setViewMode(mode.value)}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                      <span>{mode.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <Button className="h-9 rounded-lg px-3.5 text-xs font-semibold" type="button" onClick={() => setIsCreateOpen(true)}>
+              {/* Active filter pill when tools are collapsed */}
+              {isToolsCollapsed && (searchQuery.trim().length > 0 || filter !== "all" || folderFilter !== "all" || boardFilter !== "all") && (
+                <button
+                  type="button"
+                  onClick={toggleToolsCollapse}
+                  className="inline-flex items-center gap-1 rounded-lg border border-amber-400/60 bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber cursor-pointer hover:bg-amber-500/25 transition select-none shrink-0"
+                  title="Filters active. Click to expand tools."
+                >
+                  <List className="h-3 w-3" />
+                  <span>Filtered</span>
+                  {searchQuery.trim().length > 0 && (
+                    <span className="truncate max-w-[70px] font-mono text-[10px] opacity-80">
+                      &quot;{searchQuery.trim()}&quot;
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <Button className="h-8 sm:h-9 rounded-lg px-2.5 sm:px-3 text-xs font-semibold" type="button" onClick={() => setIsCreateOpen(true)}>
                 <Plus className="h-3.5 w-3.5" />
-                Add note
+                <span className="hidden min-[380px]:inline">Add note</span>
               </Button>
+
+              {/* Collapse / Expand Toggle Button */}
+              <button
+                type="button"
+                onClick={toggleToolsCollapse}
+                aria-expanded={!isToolsCollapsed}
+                aria-label={isToolsCollapsed ? "Expand note tools" : "Collapse note tools"}
+                className={cn(
+                  "flex h-8 sm:h-9 items-center gap-1.5 rounded-lg border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer select-none active:scale-95",
+                  isToolsCollapsed
+                    ? "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:text-stone-100"
+                    : "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-bold"
+                )}
+                title={isToolsCollapsed ? "Show note search, view modes, and filters" : "Hide note tools to maximize reading space"}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" />
+                <span className="sm:hidden">
+                  {isToolsCollapsed ? "Tools" : "Hide"}
+                </span>
+                <span className="hidden sm:inline">
+                  {isToolsCollapsed ? "Show Tools" : "Hide Tools"}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
+                    !isToolsCollapsed && "rotate-180"
+                  )}
+                />
+              </button>
             </div>
           </div>
-          {/* Mobile Filter Controls (< md) */}
-          <div className="md:hidden mb-3 space-y-2">
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              <button
-                type="button"
-                onClick={() => {
-                  setFilter("all");
-                  setFolderFilter("all");
-                }}
-                className={cn(
-                  "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                  filter === "all" && folderFilter === "all"
-                    ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
-                    : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
-                )}
-              >
-                <RetzloUiIcon name="folder" size={18} />
-                <span>All</span>
-                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
-                  {activeNotes.length}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setFilter("starred");
-                  setFolderFilter("all");
-                }}
-                className={cn(
-                  "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                  filter === "starred" && folderFilter === "all"
-                    ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
-                    : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
-                )}
-              >
-                <RetzloUiIcon name="star" size={18} />
-                <span>Starred</span>
-                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
-                  {filterCounts.starred}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setFilter("all");
-                  setFolderFilter("unfiled");
-                }}
-                className={cn(
-                  "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                  filter === "all" && folderFilter === "unfiled"
-                    ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
-                    : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
-                )}
-              >
-                <RetzloUiIcon name="note" size={18} />
-                <span>Unfiled</span>
-                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
-                  {unfiledCount}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setFilter("completed");
-                  setFolderFilter("all");
-                }}
-                className={cn(
-                  "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                  filter === "completed"
-                    ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
-                    : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
-                )}
-              >
-                <RetzloUiIcon name="completed" size={18} />
-                <span>Completed</span>
-                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
-                  {completedNotes.length}
-                </span>
-              </button>
-              {folders.map((folder) => {
-                const count = notes.filter((n) => n.folderId === folder.id && !n.completedAt).length;
-                const isSelected = filter === "all" && folderFilter === folder.id;
-                return (
+
+          {/* Collapsible Tool Panel */}
+          <div
+            className={cn(
+              "grid transition-all duration-300 ease-in-out",
+              isToolsCollapsed
+                ? "grid-rows-[0fr] opacity-0 pointer-events-none mt-0"
+                : "grid-rows-[1fr] opacity-100 mt-2.5 mb-3 pt-2.5 border-t border-white/10"
+            )}
+          >
+            <div className="overflow-hidden min-h-0 space-y-2.5">
+              {/* Row 1: Search & View Modes */}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="relative flex items-center flex-1 min-w-[140px] sm:max-w-xs">
+                  <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search notes..."
+                    aria-label="Search notes"
+                    className="h-9 w-full rounded-lg border border-stone-200/80 bg-white/90 pl-8 pr-7 text-xs text-stone-800 placeholder:text-stone-400 focus:border-dusk-lavender focus:outline-none dark:border-white/10 dark:bg-ink-950/60 dark:text-stone-200"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      aria-label="Clear note search"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 cursor-pointer"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <div
+                  className="flex rounded-lg border border-white/10 bg-ink-950/45 p-1"
+                  data-notes-view-mode-toggle="grid-list"
+                >
+                  {NOTE_VIEW_MODES.map((mode) => {
+                    const Icon = mode.icon;
+
+                    return (
+                      <button
+                        key={mode.value}
+                        className={cn(
+                          "inline-flex h-8 min-w-8 items-center justify-center gap-1 rounded-md px-2 text-xs font-semibold text-stone-400 transition hover:text-stone-100",
+                          viewMode === mode.value && "bg-dusk-lavender text-ink-950 shadow-[0_8px_20px_rgba(167,151,255,0.18)] hover:text-ink-950"
+                        )}
+                        title={`${mode.label} view`}
+                        type="button"
+                        onClick={() => setViewMode(mode.value)}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        <span>{mode.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Mobile Filter Controls (< md) */}
+              <div className="md:hidden space-y-2 pt-1 border-t border-white/5">
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                   <button
-                    key={folder.id}
                     type="button"
                     onClick={() => {
                       setFilter("all");
-                      setFolderFilter(folder.id);
+                      setFolderFilter("all");
                     }}
                     className={cn(
                       "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
-                      isSelected
+                      filter === "all" && folderFilter === "all"
                         ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
                         : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
                     )}
                   >
-                    <span>{folder.icon || "📁"}</span>
-                    <span>{folder.name}</span>
+                    <RetzloUiIcon name="folder" size={18} />
+                    <span>All</span>
                     <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
-                      {count}
+                      {activeNotes.length}
                     </span>
                   </button>
-                );
-              })}
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingFolder(null);
-                  setIsFolderModalOpen(true);
-                }}
-                className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-dashed border-white/15 px-2 py-1 text-xs text-dusk-lavender hover:bg-white/10 hover:text-stone-100 transition"
-                title="Create folder"
-              >
-                <FolderPlus className="h-3 w-3" />
-                <span>New</span>
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <div className="flex-1 min-w-[120px] rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
-                <FilterSelect
-                  label="Sort"
-                  value={sortBy}
-                  options={[
-                    { value: "updated", label: "Updated" },
-                    { value: "created", label: "Created" },
-                    { value: "due", label: "Due date" },
-                    { value: "title", label: "Title" }
-                  ]}
-                  onValueChange={setSortBy}
-                />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilter("starred");
+                      setFolderFilter("all");
+                    }}
+                    className={cn(
+                      "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      filter === "starred" && folderFilter === "all"
+                        ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                    )}
+                  >
+                    <RetzloUiIcon name="star" size={18} />
+                    <span>Starred</span>
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                      {filterCounts.starred}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilter("all");
+                      setFolderFilter("unfiled");
+                    }}
+                    className={cn(
+                      "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      filter === "all" && folderFilter === "unfiled"
+                        ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                    )}
+                  >
+                    <RetzloUiIcon name="note" size={18} />
+                    <span>Unfiled</span>
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                      {unfiledCount}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilter("completed");
+                      setFolderFilter("all");
+                    }}
+                    className={cn(
+                      "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                      filter === "completed"
+                        ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                        : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                    )}
+                  >
+                    <RetzloUiIcon name="completed" size={18} />
+                    <span>Completed</span>
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                      {completedNotes.length}
+                    </span>
+                  </button>
+                  {folders.map((folder) => {
+                    const count = notes.filter((n) => n.folderId === folder.id && !n.completedAt).length;
+                    const isSelected = filter === "all" && folderFilter === folder.id;
+                    return (
+                      <button
+                        key={folder.id}
+                        type="button"
+                        onClick={() => {
+                          setFilter("all");
+                          setFolderFilter(folder.id);
+                        }}
+                        className={cn(
+                          "inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition",
+                          isSelected
+                            ? "border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-semibold shadow-sm"
+                            : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
+                        )}
+                      >
+                        <span>{folder.icon || "📁"}</span>
+                        <span>{folder.name}</span>
+                        <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingFolder(null);
+                      setIsFolderModalOpen(true);
+                    }}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-dashed border-white/15 px-2 py-1 text-xs text-dusk-lavender hover:bg-white/10 hover:text-stone-100 transition"
+                    title="Create folder"
+                  >
+                    <FolderPlus className="h-3 w-3" />
+                    <span>New</span>
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex-1 min-w-[120px] rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
+                    <FilterSelect
+                      label="Sort"
+                      value={sortBy}
+                      options={[
+                        { value: "updated", label: "Updated" },
+                        { value: "created", label: "Created" },
+                        { value: "due", label: "Due date" },
+                        { value: "title", label: "Title" }
+                      ]}
+                      onValueChange={setSortBy}
+                    />
+                  </div>
+                  {availableBoards.length > 0 && (
+                    <div className="flex-1 min-w-[120px] rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
+                      <FilterSelect
+                        label="Board Scope"
+                        value={boardFilter}
+                        options={[
+                          { value: "all", label: "All boards & notes" },
+                          { value: "general", label: "Project-wide only" },
+                          ...availableBoards.map((b) => ({
+                            value: b.id,
+                            label: `${b.name}${b.isPrivate ? " (Private)" : ""}`
+                          }))
+                        ]}
+                        onValueChange={setBoardFilter}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-              {availableBoards.length > 0 && (
-                <div className="flex-1 min-w-[120px] rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
-                  <FilterSelect
-                    label="Board Scope"
-                    value={boardFilter}
-                    options={[
-                      { value: "all", label: "All boards & notes" },
-                      { value: "general", label: "Project-wide only" },
-                      ...availableBoards.map((b) => ({
-                        value: b.id,
-                        label: `${b.name}${b.isPrivate ? " (Private)" : ""}`
-                      }))
-                    ]}
-                    onValueChange={setBoardFilter}
-                  />
-                </div>
-              )}
-              {folders.length > 0 && (
-                <div className="flex-1 min-w-[120px] rounded-lg border border-white/10 bg-ink-950/35 p-1.5">
-                  <FilterSelect
-                    label="Folder"
-                    value={folderFilter}
-                    options={[
-                      { value: "all", label: "All folders" },
-                      { value: "unfiled", label: "Unfiled only" },
-                      ...folders.map((f) => ({
-                        value: f.id,
-                        label: `${f.icon || "📁"} ${f.name}`
-                      }))
-                    ]}
-                    onValueChange={setFolderFilter}
-                  />
-                </div>
-              )}
             </div>
           </div>
+
           {error ? <p className="mb-3 rounded-md border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">{error}</p> : null}
           {visibleNotes.length === 0 ? (
             <EmptyState

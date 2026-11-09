@@ -241,6 +241,62 @@ export function KanbanBoard({
   const mutationLockUntilRef = useRef<number>(0);
   const isPointerInteractingRef = useRef<boolean>(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [isToolsCollapsed, setIsToolsCollapsed] = useState(false);
+  const [activeMobileColumnId, setActiveMobileColumnId] = useState<string | null>(null);
+  const columnsContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`retzlo_board_${board.id}_tools_collapsed`);
+      if (stored !== null) {
+        setIsToolsCollapsed(stored === "true");
+      } else if (typeof window !== "undefined" && window.innerWidth < 768) {
+        setIsToolsCollapsed(true);
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  }, [board.id]);
+
+  const toggleToolsCollapse = useCallback(() => {
+    setIsToolsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(`retzlo_board_${board.id}_tools_collapsed`, String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, [board.id]);
+
+  useEffect(() => {
+    if (filteredColumns.length > 0 && (!activeMobileColumnId || !filteredColumns.some((c) => c.id === activeMobileColumnId))) {
+      setActiveMobileColumnId(filteredColumns[0].id);
+    }
+  }, [filteredColumns, activeMobileColumnId]);
+
+  const handleColumnsScroll = useCallback(() => {
+    const container = columnsContainerRef.current;
+    if (!container) return;
+    const scrollCenter = container.scrollLeft + container.clientWidth / 2;
+    let closestColId: string | null = null;
+    let minDistance = Infinity;
+
+    for (const col of filteredColumns) {
+      const el = document.getElementById(`column-${col.id}`);
+      if (!el) continue;
+      const colCenter = el.offsetLeft + el.offsetWidth / 2;
+      const dist = Math.abs(scrollCenter - colCenter);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestColId = col.id;
+      }
+    }
+    if (closestColId && closestColId !== activeMobileColumnId) {
+      setActiveMobileColumnId(closestColId);
+    }
+  }, [filteredColumns, activeMobileColumnId]);
   const [syncError, setSyncError] = useState<string | null>(null);
   const { toast } = useToast();
   const mouseSensor = useSensor(MouseSensor, {
@@ -989,15 +1045,17 @@ export function KanbanBoard({
       }}
     >
       {/* ── Header ── */}
-      <div className="lofi-panel relative grid gap-2.5 rounded-2xl p-3 sm:p-3.5 max-w-full">
-        {/* Top Row: Title, Renaming, Focus & Controls (Stats pills, View Density, Notes toggle) */}
-        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0 flex-1 flex flex-wrap items-center gap-2">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-dusk-amber font-semibold select-none rounded bg-dusk-amber/10 px-1.5 py-0.5 border border-dusk-amber/20">
+      <div className="lofi-panel relative rounded-2xl p-2.5 sm:p-3.5 max-w-full transition-all duration-300">
+        {/* Always-Visible Compact Header Row */}
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          {/* Left: Channel, Board Name, Inline Renaming, Focus mode, Active Filters indicator when collapsed */}
+          <div className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-dusk-amber font-semibold select-none rounded bg-dusk-amber/10 px-1.5 py-0.5 border border-dusk-amber/20 shrink-0">
               Channel
             </span>
+
             {isEditingBoardName ? (
-              <form onSubmit={requestRenameBoard} className="flex items-center gap-1.5">
+              <form onSubmit={requestRenameBoard} className="flex items-center gap-1.5 min-w-0">
                 <input
                   ref={boardNameInputRef}
                   type="text"
@@ -1021,7 +1079,7 @@ export function KanbanBoard({
                 <button
                   type="submit"
                   disabled={isSavingBoardName || !editingBoardNameValue.trim()}
-                  className="grid h-8 w-8 place-items-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300 transition cursor-pointer"
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300 transition cursor-pointer shrink-0"
                   title="Save board name"
                   aria-label="Save board name"
                 >
@@ -1033,7 +1091,7 @@ export function KanbanBoard({
                     setIsEditingBoardName(false);
                     setEditingBoardNameValue(boardName);
                   }}
-                  className="grid h-8 w-8 place-items-center rounded-lg border border-stone-200 bg-stone-100 text-stone-600 hover:bg-stone-200 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 transition cursor-pointer"
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-stone-200 bg-stone-100 text-stone-600 hover:bg-stone-200 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 transition cursor-pointer shrink-0"
                   title="Cancel (Esc)"
                   aria-label="Cancel renaming"
                 >
@@ -1041,9 +1099,9 @@ export function KanbanBoard({
                 </button>
               </form>
             ) : (
-              <div className="group/title flex items-center gap-1.5">
+              <div className="group/title flex items-center gap-1.5 min-w-0">
                 <h2
-                  className="text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition select-text"
+                  className="truncate text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition select-text"
                   onClick={() => {
                     const selection = typeof window !== "undefined" ? window.getSelection()?.toString() : "";
                     if (selection && selection.trim().length > 0) return;
@@ -1060,7 +1118,7 @@ export function KanbanBoard({
                     setEditingBoardNameValue(boardName);
                     setIsEditingBoardName(true);
                   }}
-                  className="opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition grid h-6 w-6 place-items-center rounded text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer"
+                  className="opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition grid h-6 w-6 place-items-center rounded text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 cursor-pointer shrink-0"
                   title="Rename board"
                   aria-label="Rename board"
                 >
@@ -1068,174 +1126,61 @@ export function KanbanBoard({
                 </button>
               </div>
             )}
+
             {isFocusMode && (
               <button
                 type="button"
                 onClick={toggleFocusMode}
                 title="Click to exit Focus Mode (or press F)"
                 aria-label="Exit focus mode"
-                className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2.5 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer"
+                className="group/focus inline-flex items-center gap-1.5 rounded-full border border-dusk-amber/40 bg-dusk-amber/15 px-2.5 py-0.5 text-[10px] text-dusk-amber font-mono font-medium hover:bg-dusk-amber/25 hover:border-dusk-amber/60 transition cursor-pointer shrink-0"
               >
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-dusk-amber animate-pulse" />
                 <span>FOCUS ACTIVE</span>
                 <X className="h-3 w-3 opacity-70 group-hover/focus:opacity-100 transition-opacity" />
               </button>
             )}
-            {isFocusMode && (
-              <span className="hidden sm:inline text-[11px] text-stone-500 dark:text-stone-400 font-normal">
-                Focus mode active. Press <kbd className="rounded bg-stone-100 px-1 py-0.5 font-mono text-[10px] text-stone-600 dark:bg-white/10 dark:text-stone-300">F</kbd> or click badge to exit.
-              </span>
-            )}
 
-            {/* ── View Switcher: Board vs List ── */}
-            <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/80 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04]">
+            {/* Active Filters / Search Pill (when collapsed) */}
+            {isToolsCollapsed && (activeFilterCount > 0 || searchQuery.trim().length > 0) && (
               <button
                 type="button"
-                onClick={() => handleSwitchViewMode("board")}
-                aria-label="Switch to Board view"
-                className={cn(
-                  "flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-all cursor-pointer",
-                  viewMode === "board"
-                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
-                    : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
-                )}
+                onClick={toggleToolsCollapse}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/60 bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber cursor-pointer hover:bg-amber-500/25 transition select-none shrink-0"
+                title="Active filters applied. Click to expand tools."
               >
-                <KanbanSquare className="h-3.5 w-3.5 text-dusk-lavender" />
-                <span>Board</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSwitchViewMode("list")}
-                aria-label="Switch to List view"
-                className={cn(
-                  "flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-all cursor-pointer",
-                  viewMode === "list"
-                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
-                    : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                <ListFilter className="h-3 w-3" />
+                <span>Filtered</span>
+                {activeFilterCount > 0 && (
+                  <span className="grid h-3.5 min-w-3.5 place-items-center rounded-full bg-amber-600 px-1 text-[9px] font-bold text-white dark:bg-dusk-amber dark:text-ink-950">
+                    {activeFilterCount}
+                  </span>
                 )}
-              >
-                <Table2 className="h-3.5 w-3.5 text-dusk-amber" />
-                <ListFilter className="hidden" />
-                <span>Table</span>
+                {searchQuery.trim().length > 0 && (
+                  <span className="truncate max-w-[80px] font-mono text-[10px] opacity-80">
+                    &quot;{searchQuery.trim()}&quot;
+                  </span>
+                )}
               </button>
-            </div>
-
-            {/* ── Card Size / Density Companion Toggle (Board View) ── */}
-            {viewMode === "board" && onToggleDensity && (
-              <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/80 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04] animate-in fade-in zoom-in-95 duration-150">
-                <TooltipProvider delayDuration={150}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => onToggleDensity("comfortable")}
-                        aria-label="Normal card view"
-                        className={cn(
-                          "flex h-7 items-center gap-1 rounded-lg px-2 text-xs font-semibold transition-all cursor-pointer select-none",
-                          density === "comfortable"
-                            ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
-                            : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
-                        )}
-                      >
-                        <LayoutGrid className={cn("h-3.5 w-3.5", density === "comfortable" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
-                        <span className="hidden xl:inline text-[11px]">Normal</span>
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
-                      <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <LayoutGrid className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                        <span>Normal View</span>
-                      </p>
-                      <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-1 leading-relaxed">
-                        Full details view with checklists, due dates, assignees, and labels.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider delayDuration={150}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => onToggleDensity("compact")}
-                        aria-label="Compact card view (see 2x more tasks)"
-                        className={cn(
-                          "flex h-7 items-center gap-1 rounded-lg px-2 text-xs font-semibold transition-all cursor-pointer select-none",
-                          density === "compact"
-                            ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
-                            : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
-                        )}
-                      >
-                        <Rows3 className={cn("h-3.5 w-3.5", density === "compact" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
-                        <span className="hidden xl:inline text-[11px]">Compact</span>
-                        <span className={cn(
-                          "rounded px-1 py-0.2 text-[9px] font-mono font-bold transition",
-                          density === "compact"
-                            ? "bg-indigo-500/15 text-indigo-600 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
-                            : "bg-stone-200/80 text-stone-500 dark:bg-white/10 dark:text-stone-400"
-                        )}>
-                          2x
-                        </span>
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
-                      <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <Rows3 className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                        <span>Compact View</span>
-                      </p>
-                      <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-1 leading-relaxed">
-                        Compact card density to fit more tasks on screen without excessive scrolling.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
             )}
+          </div>
 
-            {/* ── Premium Control Bar: Unified Stats & Overdue ── */}
-            <div className="hidden lg:flex items-center rounded-xl border border-stone-200/80 bg-stone-100/70 p-0.5 text-xs dark:border-white/10 dark:bg-white/[0.03] select-none">
-              <div className="flex h-7 items-center gap-1.5 px-2.5 rounded-lg">
-                <span className="text-[10px] uppercase text-stone-500 font-mono">Total</span>
-                <span className="text-xs font-bold text-stone-900 dark:text-stone-200">{totalCards}</span>
-              </div>
-              <div className="h-3.5 w-[1px] bg-stone-200 dark:bg-white/10" />
-              <div className="flex h-7 items-center gap-1.5 px-2 rounded-lg">
-                <span className="flex items-center text-[10px] uppercase text-indigo-600 dark:text-dusk-lavender font-mono">
-                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-indigo-500 dark:bg-dusk-lavender shrink-0" />
-                  Prog
-                </span>
-                <span className="text-xs font-bold text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
-              </div>
-              <div className="h-3.5 w-[1px] bg-stone-200 dark:bg-white/10" />
-              <div className="flex h-7 items-center gap-1.5 px-2 rounded-lg">
-                <span className="flex items-center text-[10px] uppercase text-amber-600 dark:text-dusk-amber font-mono">
-                  <span className="mr-1 h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-dusk-amber shrink-0" />
-                  Done
-                </span>
-                <span className="text-xs font-bold text-amber-600 dark:text-dusk-amber">{doneCards}</span>
-              </div>
-            </div>
-
-            {/* Overdue Indicator Icon */}
-            {overdueCards > 0 && (
+          {/* Right: Quick actions when collapsed & Toggle Tools button */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Overdue indicator when tools are collapsed */}
+            {isToolsCollapsed && overdueCards > 0 && (
               <TooltipProvider delayDuration={150}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       type="button"
                       onClick={() => setIsTodayFilterActive((prev) => !prev)}
-                      className={cn(
-                        "group relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
-                        isTodayFilterActive
-                          ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
-                          : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
-                      )}
+                      className="group relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25 transition cursor-pointer select-none active:scale-95 shadow-xs"
                       aria-label={`${overdueCards} overdue cards`}
                     >
-                      <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
-                      <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
-                        <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[8px] font-bold text-white shadow-xs">
+                      <Clock className="h-3.5 w-3.5 shrink-0" />
+                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center pointer-events-none">
+                        <span className="relative flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-red-600 px-0.5 font-mono text-[7px] font-bold text-white shadow-xs">
                           {overdueCards > 99 ? "99+" : overdueCards}
                         </span>
                       </span>
@@ -1248,181 +1193,732 @@ export function KanbanBoard({
                 </Tooltip>
               </TooltipProvider>
             )}
-          </div>
 
-          {/* ── Action Toolbar: AI Summary, Notes, Export & More Actions ── */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Mobile Filter Toggle Button */}
+            {/* Quick Add Column on mobile when tools are collapsed */}
+            {isToolsCollapsed && (
+              <div className="sm:hidden shrink-0">
+                <Button
+                  className="h-8 shrink-0 rounded-xl px-2.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs"
+                  type="button"
+                  aria-label="Add column"
+                  onClick={openCreateColumnModal}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="hidden min-[380px]:inline">Column</span>
+                </Button>
+              </div>
+            )}
+
+            {/* Collapse / Expand Toggle Button */}
             <button
               type="button"
-              onClick={() => setIsMobileFiltersOpen((prev) => !prev)}
-              aria-expanded={isMobileFiltersOpen}
-              aria-label="Toggle search and filters"
+              onClick={toggleToolsCollapse}
+              aria-expanded={!isToolsCollapsed}
+              aria-label={isToolsCollapsed ? "Expand board tools" : "Collapse board tools"}
               className={cn(
-                "sm:hidden flex h-8 items-center gap-1.5 rounded-lg border px-2 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
-                isMobileFiltersOpen || activeFilterCount > 0
-                  ? "border-indigo-400/60 bg-indigo-500/15 text-indigo-700 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-bold"
-                  : "border-stone-300 bg-white text-stone-700 hover:border-indigo-400 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300"
+                "flex h-8 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer select-none active:scale-95",
+                isToolsCollapsed
+                  ? "border-stone-300 bg-white text-stone-700 hover:border-indigo-400 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
+                  : "border-indigo-500/40 bg-indigo-50/70 text-indigo-900 font-bold dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
               )}
+              title={isToolsCollapsed ? "Show board controls and filters" : "Hide board controls to maximize workspace"}
             >
-              <ListFilter className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
-              <span>Filters</span>
-              {activeFilterCount > 0 && (
-                <span className="grid h-4 min-w-4 place-items-center rounded-full bg-indigo-600 px-1 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
-
-            {/* AI Project Summary Button */}
-            {board.projectId && (
-              <button
-                type="button"
-                onClick={() => setIsAiSummaryOpen(true)}
-                className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-indigo-400/40 bg-indigo-500/10 px-2.5 text-xs font-semibold text-indigo-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:bg-indigo-500/20 active:scale-95 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
-                title="Analyze and summarize board progress with AI"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
-                <span className="hidden sm:inline">AI Summary</span>
-                <span className="rounded bg-indigo-500/20 px-1 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
-                  2 cr
-                </span>
-              </button>
-            )}
-
-            {/* Notes Toggle */}
-            {notesEnabled && (
-              <button
-                type="button"
-                onClick={onToggleNotes}
+              <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" />
+              <span className="sm:hidden">
+                {isToolsCollapsed ? "Tools" : "Hide"}
+              </span>
+              <span className="hidden sm:inline">
+                {isToolsCollapsed ? "Show Tools" : "Hide Tools"}
+              </span>
+              <ChevronDown
                 className={cn(
-                  "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
-                  isNotesOpen
-                    ? "border-dusk-lavender/50 bg-dusk-lavender/20 text-dusk-lavender font-bold"
-                    : "border-stone-300 bg-white text-stone-700 hover:border-dusk-lavender/40 hover:text-dusk-lavender dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20"
+                  "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
+                  !isToolsCollapsed && "rotate-180"
                 )}
-                title={isNotesOpen ? "Collapse notes panel" : "Open notes panel"}
-                aria-label={isNotesOpen ? "Collapse notes" : "Open notes"}
-              >
-                <FileText className="h-3.5 w-3.5 text-dusk-lavender" />
-                <span className="hidden sm:inline">Notes</span>
-                {notesCount > 0 && (
-                  <span className="inline-grid min-w-[16px] place-items-center rounded-full bg-dusk-lavender/20 px-1 text-[10px] font-mono text-dusk-lavender">
-                    {notesCount}
-                  </span>
-                )}
-              </button>
-            )}
-
-            {/* Export Board Button (Excel, CSV, PDF, PNG) */}
-            <BoardExportButton
-              currentView={currentView}
-              boardTitle={board.name}
-              columns={columns}
-              filteredColumns={filteredColumns}
-              members={members}
-              boardPriorities={boardPriorities}
-              viewportElementId={viewMode === "list" ? "kanban-table-container" : "kanban-main-viewport"}
-              isFiltered={activeFilterCount > 0}
-            />
-
-            {/* Consolidated More Board Actions Menu (Activity, Archive, Attributes) */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-300 bg-white text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
-                  title="More board actions"
-                  aria-label="More board actions"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 z-[1100]">
-                {/* Activity Log */}
-                <DropdownMenuItem
-                  onClick={() => setIsActivityDrawerOpen(true)}
-                  className="flex items-center gap-2.5 cursor-pointer py-2"
-                >
-                  <History className="h-4 w-4 text-indigo-500 dark:text-dusk-lavender shrink-0" />
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Activity Log</span>
-                    <span className="text-[10px] text-stone-400">View real-time audit trail</span>
-                  </div>
-                </DropdownMenuItem>
-
-                {/* Archived Cards */}
-                <DropdownMenuItem
-                  onClick={() => setIsArchiveModalOpen(true)}
-                  className="flex items-center gap-2.5 cursor-pointer py-2"
-                >
-                  <Archive className="h-4 w-4 text-indigo-500 dark:text-dusk-lavender shrink-0" />
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Archived Cards</span>
-                    <span className="text-[10px] text-stone-400">Restore or delete from trash</span>
-                  </div>
-                </DropdownMenuItem>
-
-                {board.projectId && <DropdownMenuSeparator />}
-
-                {/* Board Attributes & Settings */}
-                {board.projectId && (
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setSettingsDefaultTab("attributes");
-                      setIsBoardSettingsOpen(true);
-                    }}
-                    title="Configure custom status, priorities, and story points for this board"
-                    className="flex items-center gap-2.5 cursor-pointer py-2"
-                  >
-                    <SlidersHorizontal className="h-4 w-4 text-indigo-500 dark:text-dusk-lavender shrink-0" />
-                    <div className="flex flex-col min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Board Attributes</span>
-                        {boardPriorities && boardPriorities.length > 0 && (
-                          <span className="rounded bg-indigo-500/10 px-1 py-0.2 text-[9px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
-                            {boardPriorities.length}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[10px] text-stone-400">Status, priorities & points</span>
-                    </div>
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              />
+            </button>
           </div>
         </div>
 
-        {/* Bottom Row: Filters, Search, Sort & Actions */}
-        <div className="pt-1.5 border-t border-stone-200/60 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
-            {/* Mobile Row 1: Search & Add Column */}
-            <div className="flex items-center gap-2">
-              {/* Live Search */}
-              <div className="group/search relative flex items-center flex-1 min-w-[130px] sm:flex-initial">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search cards..."
-                  className="h-9 w-full sm:w-44 rounded-xl border border-stone-200/90 bg-white pl-8.5 pr-7 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/5 dark:focus:ring-dusk-lavender/20"
-                />
-                {searchQuery && (
+        {/* Collapsible Tools Panel */}
+        <div
+          className={cn(
+            "grid transition-all duration-300 ease-in-out",
+            isToolsCollapsed
+              ? "grid-rows-[0fr] opacity-0 pointer-events-none mt-0"
+              : "grid-rows-[1fr] opacity-100 mt-2.5 pt-2.5 border-t border-stone-200/60 dark:border-white/5"
+          )}
+        >
+          <div className="overflow-hidden min-h-0 space-y-2.5">
+            {/* Top Row: Controls (Stats pills, View Density, Notes toggle) */}
+            <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0 flex-1 flex flex-wrap items-center gap-2">
+                {/* View Switcher: Board vs List */}
+                <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/80 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04]">
                   <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
-                    aria-label="Clear card search"
+                    type="button"
+                    onClick={() => handleSwitchViewMode("board")}
+                    aria-label="Switch to Board view"
+                    className={cn(
+                      "flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-all cursor-pointer",
+                      viewMode === "board"
+                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                        : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                    )}
                   >
-                    <X className="h-3 w-3" />
+                    <KanbanSquare className="h-3.5 w-3.5 text-dusk-lavender" />
+                    <span>Board</span>
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchViewMode("list")}
+                    aria-label="Switch to List view"
+                    className={cn(
+                      "flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-all cursor-pointer",
+                      viewMode === "list"
+                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                        : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                    )}
+                  >
+                    <Table2 className="h-3.5 w-3.5 text-dusk-amber" />
+                    <ListFilter className="hidden" />
+                    <span>Table</span>
+                  </button>
+                </div>
+
+                {/* Card Size / Density Companion Toggle (Board View) */}
+                {viewMode === "board" && onToggleDensity && (
+                  <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/80 p-0.5 shadow-2xs dark:border-white/10 dark:bg-white/[0.04] animate-in fade-in zoom-in-95 duration-150">
+                    <TooltipProvider delayDuration={150}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            onClick={() => onToggleDensity("comfortable")}
+                            aria-label="Normal card view"
+                            className={cn(
+                              "flex h-7 items-center gap-1 rounded-lg px-2 text-xs font-semibold transition-all cursor-pointer select-none",
+                              density === "comfortable"
+                                ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                                : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                            )}
+                          >
+                            <LayoutGrid className={cn("h-3.5 w-3.5", density === "comfortable" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
+                            <span className="hidden xl:inline text-[11px]">Normal</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
+                          <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                            <LayoutGrid className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                            <span>Normal View</span>
+                          </p>
+                          <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-1 leading-relaxed">
+                            Full details view with checklists, due dates, assignees, and labels.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    <TooltipProvider delayDuration={150}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            onClick={() => onToggleDensity("compact")}
+                            aria-label="Compact card view (see 2x more tasks)"
+                            className={cn(
+                              "flex h-7 items-center gap-1 rounded-lg px-2 text-xs font-semibold transition-all cursor-pointer select-none",
+                              density === "compact"
+                                ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                                : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
+                            )}
+                          >
+                            <Rows3 className={cn("h-3.5 w-3.5", density === "compact" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
+                            <span className="hidden xl:inline text-[11px]">Compact</span>
+                            <span className={cn(
+                              "rounded px-1 py-0.2 text-[9px] font-mono font-bold transition",
+                              density === "compact"
+                                ? "bg-indigo-500/15 text-indigo-600 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                                : "bg-stone-200/80 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                            )}>
+                              2x
+                            </span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" align="start" className="text-xs max-w-xs p-2.5">
+                          <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                            <Rows3 className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
+                            <span>Compact View</span>
+                          </p>
+                          <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-1 leading-relaxed">
+                            Compact card density to fit more tasks on screen without excessive scrolling.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
+
+                {/* Premium Control Bar: Unified Stats & Overdue */}
+                <div className="hidden lg:flex items-center rounded-xl border border-stone-200/80 bg-stone-100/70 p-0.5 text-xs dark:border-white/10 dark:bg-white/[0.03] select-none">
+                  <div className="flex h-7 items-center gap-1.5 px-2.5 rounded-lg">
+                    <span className="text-[10px] uppercase text-stone-500 font-mono">Total</span>
+                    <span className="text-xs font-bold text-stone-900 dark:text-stone-200">{totalCards}</span>
+                  </div>
+                  <div className="h-3.5 w-[1px] bg-stone-200 dark:bg-white/10" />
+                  <div className="flex h-7 items-center gap-1.5 px-2 rounded-lg">
+                    <span className="flex items-center text-[10px] uppercase text-indigo-600 dark:text-dusk-lavender font-mono">
+                      <span className="mr-1 h-1.5 w-1.5 rounded-full bg-indigo-500 dark:bg-dusk-lavender shrink-0" />
+                      Prog
+                    </span>
+                    <span className="text-xs font-bold text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
+                  </div>
+                  <div className="h-3.5 w-[1px] bg-stone-200 dark:bg-white/10" />
+                  <div className="flex h-7 items-center gap-1.5 px-2 rounded-lg">
+                    <span className="flex items-center text-[10px] uppercase text-amber-600 dark:text-dusk-amber font-mono">
+                      <span className="mr-1 h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-dusk-amber shrink-0" />
+                      Done
+                    </span>
+                    <span className="text-xs font-bold text-amber-600 dark:text-dusk-amber">{doneCards}</span>
+                  </div>
+                </div>
+
+                {/* Overdue Indicator Icon */}
+                {overdueCards > 0 && (
+                  <TooltipProvider delayDuration={150}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => setIsTodayFilterActive((prev) => !prev)}
+                          className={cn(
+                            "group relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
+                            isTodayFilterActive
+                              ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
+                              : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
+                          )}
+                          aria-label={`${overdueCards} overdue cards`}
+                        >
+                          <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
+                          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center pointer-events-none">
+                            <span className="relative flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[8px] font-bold text-white shadow-xs">
+                              {overdueCards > 99 ? "99+" : overdueCards}
+                            </span>
+                          </span>
+                          <span className="sr-only">{overdueCards} overdue</span>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" align="end" className="text-xs">
+                        {overdueCards} overdue task(s)
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
               </div>
-              {/* Add Column Button (Mobile only) */}
-              <div className="sm:hidden shrink-0">
+
+              {/* Action Toolbar: AI Summary, Notes, Export & More Actions */}
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                {/* Mobile Filter Toggle Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsMobileFiltersOpen((prev) => !prev)}
+                  aria-expanded={isMobileFiltersOpen}
+                  aria-label="Toggle search and filters"
+                  className={cn(
+                    "sm:hidden flex h-8 items-center gap-1.5 rounded-lg border px-2 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
+                    isMobileFiltersOpen || activeFilterCount > 0
+                      ? "border-indigo-400/60 bg-indigo-500/15 text-indigo-700 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-bold"
+                      : "border-stone-300 bg-white text-stone-700 hover:border-indigo-400 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300"
+                  )}
+                >
+                  <ListFilter className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
+                  <span>Filters</span>
+                  {activeFilterCount > 0 && (
+                    <span className="grid h-4 min-w-4 place-items-center rounded-full bg-indigo-600 px-1 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* AI Project Summary Button */}
+                {board.projectId && (
+                  <button
+                    type="button"
+                    onClick={() => setIsAiSummaryOpen(true)}
+                    className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-indigo-400/40 bg-indigo-500/10 px-2.5 text-xs font-semibold text-indigo-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:bg-indigo-500/20 active:scale-95 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
+                    title="Analyze and summarize board progress with AI"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
+                    <span className="hidden sm:inline">AI Summary</span>
+                    <span className="rounded bg-indigo-500/20 px-1 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                      2 cr
+                    </span>
+                  </button>
+                )}
+
+                {/* Notes Toggle */}
+                {notesEnabled && (
+                  <button
+                    type="button"
+                    onClick={onToggleNotes}
+                    className={cn(
+                      "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
+                      isNotesOpen
+                        ? "border-dusk-lavender/50 bg-dusk-lavender/20 text-dusk-lavender font-bold"
+                        : "border-stone-300 bg-white text-stone-700 hover:border-dusk-lavender/40 hover:text-dusk-lavender dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20"
+                    )}
+                    title={isNotesOpen ? "Collapse notes panel" : "Open notes panel"}
+                    aria-label={isNotesOpen ? "Collapse notes" : "Open notes"}
+                  >
+                    <FileText className="h-3.5 w-3.5 text-dusk-lavender" />
+                    <span className="hidden sm:inline">Notes</span>
+                    {notesCount > 0 && (
+                      <span className="inline-grid min-w-[16px] place-items-center rounded-full bg-dusk-lavender/20 px-1 text-[10px] font-mono text-dusk-lavender">
+                        {notesCount}
+                      </span>
+                    )}
+                  </button>
+                )}
+
+                {/* Export Board Button (Excel, CSV, PDF, PNG) */}
+                <BoardExportButton
+                  currentView={currentView}
+                  boardTitle={board.name}
+                  columns={columns}
+                  filteredColumns={filteredColumns}
+                  members={members}
+                  boardPriorities={boardPriorities}
+                  viewportElementId={viewMode === "list" ? "kanban-table-container" : "kanban-main-viewport"}
+                  isFiltered={activeFilterCount > 0}
+                />
+
+                {/* Consolidated More Board Actions Menu (Activity, Archive, Attributes) */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-300 bg-white text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none hover:border-indigo-400 hover:text-indigo-600 active:scale-95 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
+                      title="More board actions"
+                      aria-label="More board actions"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 z-[1100]">
+                    {/* Activity Log */}
+                    <DropdownMenuItem
+                      onClick={() => setIsActivityDrawerOpen(true)}
+                      className="flex items-center gap-2.5 cursor-pointer py-2"
+                    >
+                      <History className="h-4 w-4 text-indigo-500 dark:text-dusk-lavender shrink-0" />
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Activity Log</span>
+                        <span className="text-[10px] text-stone-400">View real-time audit trail</span>
+                      </div>
+                    </DropdownMenuItem>
+
+                    {/* Archived Cards */}
+                    <DropdownMenuItem
+                      onClick={() => setIsArchiveModalOpen(true)}
+                      className="flex items-center gap-2.5 cursor-pointer py-2"
+                    >
+                      <Archive className="h-4 w-4 text-indigo-500 dark:text-dusk-lavender shrink-0" />
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Archived Cards</span>
+                        <span className="text-[10px] text-stone-400">Restore or delete from trash</span>
+                      </div>
+                    </DropdownMenuItem>
+
+                    {board.projectId && <DropdownMenuSeparator />}
+
+                    {/* Board Attributes & Settings */}
+                    {board.projectId && (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSettingsDefaultTab("attributes");
+                          setIsBoardSettingsOpen(true);
+                        }}
+                        title="Configure custom status, priorities, and story points for this board"
+                        className="flex items-center gap-2.5 cursor-pointer py-2"
+                      >
+                        <SlidersHorizontal className="h-4 w-4 text-indigo-500 dark:text-dusk-lavender shrink-0" />
+                        <div className="flex flex-col min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Board Attributes</span>
+                            {boardPriorities && boardPriorities.length > 0 && (
+                              <span className="rounded bg-indigo-500/10 px-1 py-0.2 text-[9px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                                {boardPriorities.length}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-stone-400">Status, priorities & points</span>
+                        </div>
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            {/* Bottom Row: Filters, Search, Sort & Actions */}
+            <div className="pt-1.5 border-t border-stone-200/60 dark:border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                {/* Mobile Row 1: Search & Add Column */}
+                <div className="flex items-center gap-2">
+                  {/* Live Search */}
+                  <div className="group/search relative flex items-center flex-1 min-w-[130px] sm:flex-initial">
+                    <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400 transition-colors group-focus-within/search:text-indigo-600 dark:text-stone-500 dark:group-focus-within/search:text-dusk-lavender" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search cards..."
+                      className="h-9 w-full sm:w-44 rounded-xl border border-stone-200/90 bg-white pl-8.5 pr-7 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/5 dark:focus:ring-dusk-lavender/20"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center rounded-full text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200"
+                        aria-label="Clear card search"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                  {/* Add Column Button (Mobile only) */}
+                  <div className="sm:hidden shrink-0">
+                    <Button
+                      className="h-9 shrink-0 rounded-xl px-2.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs hover:shadow-sm"
+                      type="button"
+                      aria-label="Add column"
+                      onClick={openCreateColumnModal}
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span className="hidden min-[360px]:inline">Column</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Filter Strip: collapsible panel on mobile, inline on desktop */}
+                <div
+                  className={cn(
+                    "items-center gap-1.5 pt-1.5 sm:pt-0 border-t border-stone-200/50 sm:border-0 dark:border-white/5 flex-wrap sm:flex-nowrap",
+                    isMobileFiltersOpen || activeFilterCount > 0 ? "flex" : "hidden sm:flex"
+                  )}
+                >
+                  {/* Today Quick Filter */}
+                  <button
+                    type="button"
+                    onClick={() => setIsTodayFilterActive(!isTodayFilterActive)}
+                    className={cn(
+                      "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
+                      isTodayFilterActive
+                        ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 shadow-xs dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
+                        : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                    )}
+                  >
+                    <CalendarClock className={cn("h-3.5 w-3.5 transition-colors", isTodayFilterActive ? "text-amber-700 dark:text-dusk-amber" : "text-amber-600 dark:text-dusk-amber")} />
+                    <span>Today</span>
+                  </button>
+
+                  {/* My Tasks Quick Filter */}
+                  {currentUserId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedAssigneeIds((prev) =>
+                          prev.length === 1 && prev[0] === currentUserId ? [] : [currentUserId]
+                        );
+                      }}
+                      className={cn(
+                        "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
+                        selectedAssigneeIds.length === 1 && selectedAssigneeIds[0] === currentUserId
+                          ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 shadow-xs dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                          : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                      )}
+                    >
+                      <User className={cn("h-3.5 w-3.5 transition-colors", selectedAssigneeIds.length === 1 && selectedAssigneeIds[0] === currentUserId ? "text-indigo-700 dark:text-dusk-lavender" : "text-indigo-600 dark:text-dusk-lavender")} />
+                      <span>My Tasks</span>
+                    </button>
+                  )}
+
+                  {/* Assignee Filter (Multi-select Checkbox) */}
+                  <div className="flex items-center gap-1.5">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label="Filter cards by assignee"
+                          className={cn(
+                            "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[210px] sm:max-w-[260px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 flex items-center justify-between",
+                            selectedAssigneeIds.length > 0
+                              ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                              : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                          )}
+                        >
+                          <span className="flex items-center gap-1.5 min-w-0">
+                            {selectedAssigneeIds.length === 0 ? (
+                              <>
+                                <Users className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
+                                <span className="truncate">All Assignees</span>
+                              </>
+                            ) : selectedAssigneeIds.length === 1 && isUnassignedSelected ? (
+                              <>
+                                <UserX className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
+                                <span className="truncate">Unassigned</span>
+                              </>
+                            ) : selectedMembers.length === 1 && !isUnassignedSelected ? (
+                              <>
+                                <AssigneeAvatar user={selectedMembers[0]} size={16} />
+                                <span className="truncate">
+                                  {selectedMembers[0].name ? `${selectedMembers[0].name} (${selectedMembers[0].email})` : selectedMembers[0].email}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex -space-x-1.5 shrink-0 items-center">
+                                  {selectedMembers.slice(0, 3).map((m) => (
+                                    <AssigneeAvatar key={m.id} user={m} size={16} />
+                                  ))}
+                                  {isUnassignedSelected && (
+                                    <div className="grid h-4 w-4 place-items-center rounded-full bg-stone-200 dark:bg-white/10 text-[9px] text-stone-600 dark:text-stone-300">
+                                      <UserX className="h-2.5 w-2.5" />
+                                    </div>
+                                  )}
+                                </div>
+                                <span className="truncate font-semibold">
+                                  {selectedAssigneeIds.length} assignees
+                                </span>
+                              </>
+                            )}
+                          </span>
+                          <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60 ml-0.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="min-w-[17rem] max-w-[24rem] p-1.5 z-[1100]">
+                        <DropdownMenuItem
+                          onClick={() => setSelectedAssigneeIds([])}
+                          className="flex items-center gap-2.5 cursor-pointer py-1.5 px-2.5 rounded-lg"
+                        >
+                          <div
+                            className={cn(
+                              "grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors",
+                              selectedAssigneeIds.length === 0
+                                ? "border-indigo-600 bg-indigo-600 dark:border-dusk-lavender dark:bg-dusk-lavender text-white dark:text-[#0e1025]"
+                                : "border-stone-300 dark:border-white/20 bg-transparent"
+                            )}
+                          >
+                            {selectedAssigneeIds.length === 0 && <Check className="h-3 w-3 stroke-[3]" />}
+                          </div>
+                          <Users className="h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
+                          <span className="font-medium text-xs text-stone-900 dark:text-stone-100 flex-1">All Assignees</span>
+                          {selectedAssigneeIds.length === 0 && (
+                            <span className="text-[10px] text-stone-400 font-mono">Active</span>
+                          )}
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleAssignee("UNASSIGNED");
+                          }}
+                          className="flex items-center gap-2.5 cursor-pointer py-1.5 px-2.5 rounded-lg"
+                        >
+                          <div
+                            className={cn(
+                              "grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors",
+                              selectedAssigneeIds.includes("UNASSIGNED")
+                                ? "border-indigo-600 bg-indigo-600 dark:border-dusk-lavender dark:bg-dusk-lavender text-white dark:text-[#0e1025]"
+                                : "border-stone-300 dark:border-white/20 bg-transparent"
+                            )}
+                          >
+                            {selectedAssigneeIds.includes("UNASSIGNED") && <Check className="h-3 w-3 stroke-[3]" />}
+                          </div>
+                          <UserX className="h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
+                          <span className="font-medium text-xs text-stone-900 dark:text-stone-100 flex-1">Unassigned</span>
+                        </DropdownMenuItem>
+
+                        {members.length > 0 && (
+                          <>
+                            <DropdownMenuSeparator className="my-1" />
+                            <div className="flex items-center justify-between px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">
+                              <span>Members ({members.length})</span>
+                              {selectedAssigneeIds.length > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setSelectedAssigneeIds([]);
+                                  }}
+                                  className="text-[10px] lowercase tracking-normal text-indigo-600 dark:text-dusk-lavender hover:underline cursor-pointer"
+                                >
+                                  Reset
+                                </button>
+                              )}
+                            </div>
+                            <div className="max-h-56 overflow-y-auto space-y-0.5 scrollbar-soft">
+                              {members.map((member) => {
+                                const isChecked = selectedAssigneeIds.includes(member.id);
+                                return (
+                                  <DropdownMenuItem
+                                    key={member.id}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      toggleAssignee(member.id);
+                                    }}
+                                    className="flex items-center gap-2.5 cursor-pointer py-1.5 px-2.5 rounded-lg"
+                                  >
+                                    <div
+                                      className={cn(
+                                        "grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors",
+                                        isChecked
+                                          ? "border-indigo-600 bg-indigo-600 dark:border-dusk-lavender dark:bg-dusk-lavender text-white dark:text-[#0e1025]"
+                                          : "border-stone-300 dark:border-white/20 bg-transparent"
+                                      )}
+                                    >
+                                      {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
+                                    </div>
+                                    <AssigneeAvatar user={member} size={18} />
+                                    <div className="min-w-0 flex-1 flex flex-col text-left">
+                                      <span className="truncate text-xs font-medium text-stone-900 dark:text-stone-100">
+                                        {member.name || member.email}
+                                      </span>
+                                      {member.name && (
+                                        <span className="truncate text-[10px] text-stone-500 dark:text-stone-400">
+                                          {member.email}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </DropdownMenuItem>
+                                );
+                              })}
+                            </div>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    {selectedAssigneeIds.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedAssigneeIds([])}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-300/80 bg-white text-stone-600 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white"
+                        title="Clear assignee filter"
+                        aria-label="Clear assignee filter"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Sort Filter Dropdown */}
+                  <div className="flex items-center gap-1.5">
+                    <Select value={cardSort} onValueChange={(val) => setCardSort(val as CardSortOption)}>
+                      <SelectTrigger
+                        aria-label="Sort cards"
+                        className={cn(
+                          "h-9 w-auto min-w-[105px] sm:min-w-[120px] max-w-[185px] gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
+                          cardSort !== "manual"
+                            ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 [&>svg]:text-amber-700 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber dark:[&>svg]:text-dusk-amber"
+                            : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                        )}
+                      >
+                        <span className="flex items-center gap-1.5 min-w-0">
+                          <ArrowUpDown className={cn("h-3.5 w-3.5 shrink-0", cardSort !== "manual" ? "text-amber-700 dark:text-dusk-amber" : "text-stone-500 dark:text-stone-400")} />
+                          <span className="truncate">
+                            {cardSort === "manual" && "Sort"}
+                            {cardSort === "difficulty_desc" && "Points: 8→1"}
+                            {cardSort === "difficulty_asc" && "Points: 1→8"}
+                            {cardSort === "priority_desc" && "Priority: High"}
+                            {cardSort === "priority_asc" && "Priority: Low"}
+                            {cardSort === "due_date" && "Due: Soonest"}
+                          </span>
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent align="start" className="min-w-[15rem]">
+                        <SelectGroup>
+                          <SelectLabel>Card Sorting</SelectLabel>
+                          <SelectItem value="manual" className="cursor-pointer">
+                            📌 Default (Manual Order)
+                          </SelectItem>
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel>Story Points (Difficulty)</SelectLabel>
+                          <SelectItem value="difficulty_desc" className="cursor-pointer">
+                            <span className="inline-flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" />Story Points: High → Low (8, 5, 3, 1)</span>
+                          </SelectItem>
+                          <SelectItem value="difficulty_asc" className="cursor-pointer">
+                            <span className="inline-flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" />Story Points: Low → High (1, 3, 5, 8)</span>
+                          </SelectItem>
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel>Priority</SelectLabel>
+                          <SelectItem value="priority_desc" className="cursor-pointer">
+                            🎯 Priority: High → Low (Urgent first)
+                          </SelectItem>
+                          <SelectItem value="priority_asc" className="cursor-pointer">
+                            🎯 Priority: Low → High
+                          </SelectItem>
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel>Timeline</SelectLabel>
+                          <SelectItem value="due_date" className="cursor-pointer">
+                            📅 Due Date: Earliest / Overdue first
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {cardSort !== "manual" && (
+                      <button
+                        type="button"
+                        onClick={() => setCardSort("manual")}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-300/80 bg-white text-stone-600 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white"
+                        title="Reset sort to manual"
+                        aria-label="Reset sort to manual"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Clear All Filters Button */}
+                  {activeFilterCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={resetAllFilters}
+                      className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-2.5 sm:px-3 text-xs font-semibold text-amber-800 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:bg-amber-100 hover:border-amber-400 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber dark:hover:border-dusk-amber/60 dark:hover:bg-dusk-amber/25 select-none"
+                      title="Reset all active filters"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                      <span>Clear filters ({activeFilterCount})</span>
+                    </button>
+                  )}
+
+                  {/* Undo */}
+                  <button
+                    type="button"
+                    disabled={moveHistory.length === 0 || isSavingReorder || Boolean(activeCardId)}
+                    onClick={undoLastMove}
+                    className={cn(
+                      "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 select-none",
+                      moveHistory.length > 0
+                        ? "cursor-pointer border-teal-400 bg-teal-50 text-teal-800 hover:bg-teal-100 hover:border-teal-500 hover:shadow-xs active:scale-95 dark:border-dusk-cyan/50 dark:bg-dusk-cyan/15 dark:text-dusk-cyan dark:hover:bg-dusk-cyan/25"
+                        : "cursor-not-allowed border-stone-200/50 bg-stone-100/60 text-stone-400/80 opacity-50 dark:border-white/5 dark:bg-white/[0.01] dark:text-stone-600"
+                    )}
+                    title="Undo last card move (Ctrl+Z)"
+                  >
+                    <RotateCcw className={cn("h-3.5 w-3.5", moveHistory.length > 0 ? "text-teal-600 dark:text-dusk-cyan" : "text-stone-400/80")} />
+                    <span className="hidden sm:inline">Undo</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Add Column Button (Desktop only) */}
+              <div className="hidden sm:block shrink-0">
                 <Button
-                  className="h-9 shrink-0 rounded-xl px-2.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs hover:shadow-sm"
+                  className="h-9 shrink-0 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs hover:shadow-sm"
                   type="button"
                   aria-label="Add column"
                   onClick={openCreateColumnModal}
@@ -1432,340 +1928,10 @@ export function KanbanBoard({
                 </Button>
               </div>
             </div>
-
-            {/* Filter Strip: collapsible panel on mobile, inline on desktop (no overflow-x-auto) */}
-            <div
-              className={cn(
-                "items-center gap-1.5 pt-1.5 sm:pt-0 border-t border-stone-200/50 sm:border-0 dark:border-white/5 flex-wrap sm:flex-nowrap",
-                isMobileFiltersOpen || activeFilterCount > 0 ? "flex" : "hidden sm:flex"
-              )}
-            >
-
-          {/* Today Quick Filter */}
-          <button
-            type="button"
-            onClick={() => setIsTodayFilterActive(!isTodayFilterActive)}
-            className={cn(
-              "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
-              isTodayFilterActive
-                ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 shadow-xs dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
-                : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
-            )}
-          >
-            <CalendarClock className={cn("h-3.5 w-3.5 transition-colors", isTodayFilterActive ? "text-amber-700 dark:text-dusk-amber" : "text-amber-600 dark:text-dusk-amber")} />
-            <span>Today</span>
-          </button>
-
-          {/* My Tasks Quick Filter */}
-          {currentUserId && (
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedAssigneeIds((prev) =>
-                  prev.length === 1 && prev[0] === currentUserId ? [] : [currentUserId]
-                );
-              }}
-              className={cn(
-                "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95",
-                selectedAssigneeIds.length === 1 && selectedAssigneeIds[0] === currentUserId
-                  ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 shadow-xs dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
-                  : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
-              )}
-            >
-              <User className={cn("h-3.5 w-3.5 transition-colors", selectedAssigneeIds.length === 1 && selectedAssigneeIds[0] === currentUserId ? "text-indigo-700 dark:text-dusk-lavender" : "text-indigo-600 dark:text-dusk-lavender")} />
-              <span>My Tasks</span>
-            </button>
-          )}
-
-          {/* Assignee Filter (Multi-select Checkbox) */}
-          <div className="flex items-center gap-1.5">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Filter cards by assignee"
-                  className={cn(
-                    "h-9 w-auto min-w-[120px] sm:min-w-[135px] max-w-[210px] sm:max-w-[260px] gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 flex items-center justify-between",
-                    selectedAssigneeIds.length > 0
-                      ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
-                      : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
-                  )}
-                >
-                  <span className="flex items-center gap-1.5 min-w-0">
-                    {selectedAssigneeIds.length === 0 ? (
-                      <>
-                        <Users className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
-                        <span className="truncate">All Assignees</span>
-                      </>
-                    ) : selectedAssigneeIds.length === 1 && isUnassignedSelected ? (
-                      <>
-                        <UserX className="h-3.5 w-3.5 shrink-0 text-indigo-600 dark:text-dusk-lavender" />
-                        <span className="truncate">Unassigned</span>
-                      </>
-                    ) : selectedMembers.length === 1 && !isUnassignedSelected ? (
-                      <>
-                        <AssigneeAvatar user={selectedMembers[0]} size={16} />
-                        <span className="truncate">
-                          {selectedMembers[0].name ? `${selectedMembers[0].name} (${selectedMembers[0].email})` : selectedMembers[0].email}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex -space-x-1.5 shrink-0 items-center">
-                          {selectedMembers.slice(0, 3).map((m) => (
-                            <AssigneeAvatar key={m.id} user={m} size={16} />
-                          ))}
-                          {isUnassignedSelected && (
-                            <div className="grid h-4 w-4 place-items-center rounded-full bg-stone-200 dark:bg-white/10 text-[9px] text-stone-600 dark:text-stone-300">
-                              <UserX className="h-2.5 w-2.5" />
-                            </div>
-                          )}
-                        </div>
-                        <span className="truncate font-semibold">
-                          {selectedAssigneeIds.length} assignees
-                        </span>
-                      </>
-                    )}
-                  </span>
-                  <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60 ml-0.5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-[17rem] max-w-[24rem] p-1.5 z-[1100]">
-                {/* All Assignees */}
-                <DropdownMenuItem
-                  onClick={() => setSelectedAssigneeIds([])}
-                  className="flex items-center gap-2.5 cursor-pointer py-1.5 px-2.5 rounded-lg"
-                >
-                  <div
-                    className={cn(
-                      "grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors",
-                      selectedAssigneeIds.length === 0
-                        ? "border-indigo-600 bg-indigo-600 dark:border-dusk-lavender dark:bg-dusk-lavender text-white dark:text-[#0e1025]"
-                        : "border-stone-300 dark:border-white/20 bg-transparent"
-                    )}
-                  >
-                    {selectedAssigneeIds.length === 0 && <Check className="h-3 w-3 stroke-[3]" />}
-                  </div>
-                  <Users className="h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
-                  <span className="font-medium text-xs text-stone-900 dark:text-stone-100 flex-1">All Assignees</span>
-                  {selectedAssigneeIds.length === 0 && (
-                    <span className="text-[10px] text-stone-400 font-mono">Active</span>
-                  )}
-                </DropdownMenuItem>
-
-                {/* Unassigned */}
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleAssignee("UNASSIGNED");
-                  }}
-                  className="flex items-center gap-2.5 cursor-pointer py-1.5 px-2.5 rounded-lg"
-                >
-                  <div
-                    className={cn(
-                      "grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors",
-                      selectedAssigneeIds.includes("UNASSIGNED")
-                        ? "border-indigo-600 bg-indigo-600 dark:border-dusk-lavender dark:bg-dusk-lavender text-white dark:text-[#0e1025]"
-                        : "border-stone-300 dark:border-white/20 bg-transparent"
-                    )}
-                  >
-                    {selectedAssigneeIds.includes("UNASSIGNED") && <Check className="h-3 w-3 stroke-[3]" />}
-                  </div>
-                  <UserX className="h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
-                  <span className="font-medium text-xs text-stone-900 dark:text-stone-100 flex-1">Unassigned</span>
-                </DropdownMenuItem>
-
-                {members.length > 0 && (
-                  <>
-                    <DropdownMenuSeparator className="my-1" />
-                    <div className="flex items-center justify-between px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">
-                      <span>Members ({members.length})</span>
-                      {selectedAssigneeIds.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setSelectedAssigneeIds([]);
-                          }}
-                          className="text-[10px] lowercase tracking-normal text-indigo-600 dark:text-dusk-lavender hover:underline cursor-pointer"
-                        >
-                          Reset
-                        </button>
-                      )}
-                    </div>
-                    <div className="max-h-56 overflow-y-auto space-y-0.5 scrollbar-soft">
-                      {members.map((member) => {
-                        const isChecked = selectedAssigneeIds.includes(member.id);
-                        return (
-                          <DropdownMenuItem
-                            key={member.id}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              toggleAssignee(member.id);
-                            }}
-                            className="flex items-center gap-2.5 cursor-pointer py-1.5 px-2.5 rounded-lg"
-                          >
-                            <div
-                              className={cn(
-                                "grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors",
-                                isChecked
-                                  ? "border-indigo-600 bg-indigo-600 dark:border-dusk-lavender dark:bg-dusk-lavender text-white dark:text-[#0e1025]"
-                                  : "border-stone-300 dark:border-white/20 bg-transparent"
-                              )}
-                            >
-                              {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
-                            </div>
-                            <AssigneeAvatar user={member} size={18} />
-                            <div className="min-w-0 flex-1 flex flex-col text-left">
-                              <span className="truncate text-xs font-medium text-stone-900 dark:text-stone-100">
-                                {member.name || member.email}
-                              </span>
-                              {member.name && (
-                                <span className="truncate text-[10px] text-stone-500 dark:text-stone-400">
-                                  {member.email}
-                                </span>
-                              )}
-                            </div>
-                          </DropdownMenuItem>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {selectedAssigneeIds.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setSelectedAssigneeIds([])}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-300/80 bg-white text-stone-600 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white"
-                title="Clear assignee filter"
-                aria-label="Clear assignee filter"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Sort Filter Dropdown */}
-          <div className="flex items-center gap-1.5">
-            <Select value={cardSort} onValueChange={(val) => setCardSort(val as CardSortOption)}>
-              <SelectTrigger
-                aria-label="Sort cards"
-                className={cn(
-                  "h-9 w-auto min-w-[105px] sm:min-w-[120px] max-w-[185px] gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold transition-all duration-150 cursor-pointer select-none shadow-xs active:scale-95 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:shrink-0",
-                  cardSort !== "manual"
-                    ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 [&>svg]:text-amber-700 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber dark:[&>svg]:text-dusk-amber"
-                    : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
-                )}
-              >
-                <span className="flex items-center gap-1.5 min-w-0">
-                  <ArrowUpDown className={cn("h-3.5 w-3.5 shrink-0", cardSort !== "manual" ? "text-amber-700 dark:text-dusk-amber" : "text-stone-500 dark:text-stone-400")} />
-                  <span className="truncate">
-                    {cardSort === "manual" && "Sort"}
-                    {cardSort === "difficulty_desc" && "Points: 8→1"}
-                    {cardSort === "difficulty_asc" && "Points: 1→8"}
-                    {cardSort === "priority_desc" && "Priority: High"}
-                    {cardSort === "priority_asc" && "Priority: Low"}
-                    {cardSort === "due_date" && "Due: Soonest"}
-                  </span>
-                </span>
-              </SelectTrigger>
-              <SelectContent align="start" className="min-w-[15rem]">
-                <SelectGroup>
-                  <SelectLabel>Card Sorting</SelectLabel>
-                  <SelectItem value="manual" className="cursor-pointer">
-                    📌 Default (Manual Order)
-                  </SelectItem>
-                </SelectGroup>
-                <SelectSeparator />
-                <SelectGroup>
-                  <SelectLabel>Story Points (Difficulty)</SelectLabel>
-                  <SelectItem value="difficulty_desc" className="cursor-pointer">
-                    <span className="inline-flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" />Story Points: High → Low (8, 5, 3, 1)</span>
-                  </SelectItem>
-                  <SelectItem value="difficulty_asc" className="cursor-pointer">
-                    <span className="inline-flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" />Story Points: Low → High (1, 3, 5, 8)</span>
-                  </SelectItem>
-                </SelectGroup>
-                <SelectSeparator />
-                <SelectGroup>
-                  <SelectLabel>Priority</SelectLabel>
-                  <SelectItem value="priority_desc" className="cursor-pointer">
-                    🎯 Priority: High → Low (Urgent first)
-                  </SelectItem>
-                  <SelectItem value="priority_asc" className="cursor-pointer">
-                    🎯 Priority: Low → High
-                  </SelectItem>
-                </SelectGroup>
-                <SelectSeparator />
-                <SelectGroup>
-                  <SelectLabel>Timeline</SelectLabel>
-                  <SelectItem value="due_date" className="cursor-pointer">
-                    📅 Due Date: Earliest / Overdue first
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            {cardSort !== "manual" && (
-              <button
-                type="button"
-                onClick={() => setCardSort("manual")}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-stone-300/80 bg-white text-stone-600 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-400 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white"
-                title="Reset sort to manual"
-                aria-label="Reset sort to manual"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Clear All Filters Button */}
-          {activeFilterCount > 0 && (
-            <button
-              type="button"
-              onClick={resetAllFilters}
-              className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-2.5 sm:px-3 text-xs font-semibold text-amber-800 shadow-xs transition-all duration-150 cursor-pointer active:scale-95 hover:bg-amber-100 hover:border-amber-400 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber dark:hover:border-dusk-amber/60 dark:hover:bg-dusk-amber/25 select-none"
-              title="Reset all active filters"
-            >
-              <X className="h-3.5 w-3.5" />
-              <span>Clear filters ({activeFilterCount})</span>
-            </button>
-          )}
-
-            {/* Undo */}
-            <button
-              type="button"
-              disabled={moveHistory.length === 0 || isSavingReorder || Boolean(activeCardId)}
-              onClick={undoLastMove}
-              className={cn(
-                "flex h-9 shrink-0 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 select-none",
-                moveHistory.length > 0
-                  ? "cursor-pointer border-teal-400 bg-teal-50 text-teal-800 hover:bg-teal-100 hover:border-teal-500 hover:shadow-xs active:scale-95 dark:border-dusk-cyan/50 dark:bg-dusk-cyan/15 dark:text-dusk-cyan dark:hover:bg-dusk-cyan/25"
-                  : "cursor-not-allowed border-stone-200/50 bg-stone-100/60 text-stone-400/80 opacity-50 dark:border-white/5 dark:bg-white/[0.01] dark:text-stone-600"
-              )}
-              title="Undo last card move (Ctrl+Z)"
-            >
-              <RotateCcw className={cn("h-3.5 w-3.5", moveHistory.length > 0 ? "text-teal-600 dark:text-dusk-cyan" : "text-stone-400/80")} />
-              <span className="hidden sm:inline">Undo</span>
-            </button>
-            </div>
-          </div>
-
-          {/* Add Column Form (Desktop only) */}
-          <div className="hidden sm:block shrink-0">
-            <Button
-              className="h-9 shrink-0 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs hover:shadow-sm"
-              type="button"
-              aria-label="Add column"
-              onClick={openCreateColumnModal}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span className="hidden min-[360px]:inline">Column</span>
-            </Button>
           </div>
         </div>
       </div>
+
 
       {/* ── Stats Bar Panel ── */}
       {isColumnModalOpen ? (
@@ -1992,25 +2158,44 @@ export function KanbanBoard({
                 {/* Mobile Quick Column Jump Navigation */}
                 {filteredColumns.length > 1 && (
                   <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none snap-x">
-                    {filteredColumns.map((col) => (
-                      <button
-                        key={`jump-${col.id}`}
-                        type="button"
-                        onClick={() => {
-                          const el = document.getElementById(`column-${col.id}`);
-                          el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-                        }}
-                        className="inline-flex items-center gap-1.5 shrink-0 rounded-lg border border-stone-200/90 bg-white/90 px-2.5 py-1 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 active:scale-95 transition dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 cursor-pointer"
-                      >
-                        <span className="truncate max-w-[100px]">{col.name}</span>
-                        <span className="rounded-full bg-stone-100 dark:bg-white/10 px-1 text-[10px] font-mono text-stone-500 dark:text-stone-400">
-                          {col.cards.length}
-                        </span>
-                      </button>
-                    ))}
+                    {filteredColumns.map((col) => {
+                      const isActive = (activeMobileColumnId ?? filteredColumns[0]?.id) === col.id;
+                      return (
+                        <button
+                          key={`jump-${col.id}`}
+                          type="button"
+                          onClick={() => {
+                            setActiveMobileColumnId(col.id);
+                            const el = document.getElementById(`column-${col.id}`);
+                            el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                          }}
+                          className={cn(
+                            "inline-flex items-center gap-1.5 shrink-0 rounded-lg px-2.5 py-1 text-xs transition cursor-pointer active:scale-95",
+                            isActive
+                              ? "border border-indigo-500 bg-indigo-100 text-indigo-900 font-bold shadow-xs dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                              : "border border-stone-200/90 bg-white/90 text-stone-700 shadow-2xs hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 font-semibold"
+                          )}
+                        >
+                          <span className="truncate max-w-[100px]">{col.name}</span>
+                          <span
+                            className={cn(
+                              "rounded-full px-1 text-[10px] font-mono",
+                              isActive
+                                ? "bg-indigo-200/80 text-indigo-900 dark:bg-dusk-lavender/30 dark:text-dusk-lavender font-bold"
+                                : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
+                            )}
+                          >
+                            {col.cards.length}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
-                <div className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1 snap-x snap-mandatory">
+                <div
+                  ref={columnsContainerRef}
+                  onScroll={handleColumnsScroll}
+                  className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 gap-4 overflow-x-auto pb-1 snap-x snap-mandatory">
                   <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
                     {filteredColumns.map((column, index) => (
                       <KanbanColumn
