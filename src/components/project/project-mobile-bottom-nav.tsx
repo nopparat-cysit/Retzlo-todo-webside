@@ -3,33 +3,61 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { KanbanSquare, CalendarDays, BookOpenCheck, FileText } from "lucide-react";
+import { LayoutGrid, KanbanSquare, CalendarDays, BookOpenCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProjectMobileBottomNavProps {
-  projectId: string;
+  projectId?: string;
 }
 
 export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProps) {
   const pathname = usePathname();
   const [optimisticSegment, setOptimisticSegment] = useState<string | null>(null);
+  const [resolvedProjectId, setResolvedProjectId] = useState<string>(projectId ?? "");
+
+  useEffect(() => {
+    if (projectId) {
+      setResolvedProjectId(projectId);
+      try {
+        localStorage.setItem("retzlo_last_project_id", projectId);
+      } catch {}
+    } else {
+      try {
+        const saved = localStorage.getItem("retzlo_last_project_id");
+        if (saved) {
+          setResolvedProjectId(saved);
+        }
+      } catch {}
+    }
+  }, [projectId]);
 
   useEffect(() => {
     setOptimisticSegment(null);
   }, [pathname]);
 
   const navItems = useMemo(() => {
-    let boardHref = `/project/${projectId}/board`;
-    if (typeof window !== "undefined") {
+    const targetId = projectId || resolvedProjectId;
+    let boardHref = targetId ? `/project/${targetId}/board` : "/projects";
+    if (targetId && typeof window !== "undefined") {
       try {
-        const savedBoard = localStorage.getItem(`project_${projectId}_last_board`);
+        const savedBoard = localStorage.getItem(`project_${projectId}_last_board`) || localStorage.getItem(`project_${targetId}_last_board`);
         if (savedBoard) {
-          boardHref = `/project/${projectId}/board?boardId=${encodeURIComponent(savedBoard)}`;
+          boardHref = `/project/${targetId}/board?boardId=${encodeURIComponent(savedBoard)}`;
         }
       } catch {}
     }
 
+    const calendarHref = targetId ? `/project/${targetId}/calendar` : "/projects";
+    const diaryHref = targetId ? `/project/${targetId}/diary` : "/projects";
+    const notesHref = targetId ? `/project/${targetId}/notes` : "/projects";
+
     return [
+      {
+        label: "Spaces",
+        href: "/projects",
+        segment: "projects",
+        icon: LayoutGrid,
+      },
       {
         label: "Board",
         href: boardHref,
@@ -38,29 +66,31 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
       },
       {
         label: "Calendar",
-        href: `/project/${projectId}/calendar`,
+        href: calendarHref,
         segment: "calendar",
         icon: CalendarDays,
       },
       {
         label: "Diary",
-        href: `/project/${projectId}/diary`,
+        href: diaryHref,
         segment: "diary",
         icon: BookOpenCheck,
       },
       {
         label: "Notes",
-        href: `/project/${projectId}/notes`,
+        href: notesHref,
         segment: "notes",
         icon: FileText,
       },
     ];
-  }, [projectId]);
+  }, [projectId, resolvedProjectId]);
 
   // Determine active segment from optimistic state or current pathname
   const activeSegment =
     optimisticSegment ??
-    (navItems.find((item) => pathname?.includes(`/project/${projectId}/${item.segment}`))?.segment ?? null);
+    (pathname === "/projects" || pathname?.startsWith("/projects")
+      ? "projects"
+      : navItems.find((item) => item.segment !== "projects" && pathname?.includes(`/${item.segment}`))?.segment ?? null);
 
   const activeIndex = activeSegment ? navItems.findIndex((item) => item.segment === activeSegment) : -1;
   const hasActiveTab = activeIndex >= 0;
@@ -73,11 +103,11 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
         bottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))",
       }}
     >
-      <div className="relative grid grid-cols-4 items-center">
+      <div className="relative grid grid-cols-5 items-center">
         {/* Animated Sliding Highlight Pill (Transfer Animation) */}
         <div
           className={cn(
-            "absolute inset-y-0.5 w-1/4 p-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
+            "absolute inset-y-0.5 w-1/5 p-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
             hasActiveTab ? "opacity-100 scale-100" : "opacity-0 scale-95"
           )}
           style={{

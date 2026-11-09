@@ -76,6 +76,7 @@ import { isDiaryItemDueOnDate, shouldShowDiaryOnCalendarDate, normalizeDateKey }
 import { getCardColorMeta, normalizeCardColor, type CardColor } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import type { CardStatus } from "@/types/kanban";
+import { ProjectMobileBottomNav } from "@/components/project/project-mobile-bottom-nav";
 
 export interface ProjectBoardSummary {
   id: string;
@@ -857,7 +858,7 @@ export function ProjectsDashboard({
           ) : null}
 
           {/* Unified Studio Command Header */}
-          <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col gap-3.5 rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-stone-200/90 bg-white/80 shadow-sm dark:border-white/10 dark:bg-ink-950/75 dark:shadow-lg">
+          <div className="lofi-panel sticky top-0 sm:top-2 z-30 mb-4 flex shrink-0 flex-col gap-3.5 rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-stone-200/90 bg-white/95 shadow-sm dark:border-white/10 dark:bg-ink-950/92 dark:shadow-lg">
             {/* Mobile-only Utility Header for Instant Profile & Tool Access */}
             <div className="flex lg:hidden items-center justify-between pb-3 border-b border-stone-200/80 dark:border-white/10">
               <div className="flex items-center gap-2 min-w-0">
@@ -1394,7 +1395,7 @@ export function ProjectsDashboard({
                 </div>
               ) : boardViewMode === "list" ? (
                 /* LIST VIEW */
-                <div className="flex flex-col gap-3 pb-4">
+                <div className="flex flex-col gap-3 pb-24 lg:pb-4">
                   {activeProjectBoards.map((board) => (
                     <WorkspaceBoardRow
                       key={board.id}
@@ -1412,7 +1413,7 @@ export function ProjectsDashboard({
                 </div>
               ) : (
                 /* GRID VIEW */
-                <div className="grid min-w-0 items-stretch gap-4 pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                <div className="grid min-w-0 items-stretch gap-4 pb-24 lg:pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                   {activeProjectBoards.map((board) => (
                     <WorkspaceBoardCard
                       key={board.id}
@@ -1454,7 +1455,7 @@ export function ProjectsDashboard({
               </div>
             ) : (
               <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-soft">
-                <div className="grid min-w-0 content-start gap-3.5 pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                <div className="grid min-w-0 content-start gap-3.5 pb-24 lg:pb-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                   {displayedProjects.map((project) => (
                     <ProjectCard
                       key={project.id}
@@ -1566,6 +1567,7 @@ export function ProjectsDashboard({
           }}
         />
       ) : null}
+      <ProjectMobileBottomNav projectId={activeProjectId || projectList[0]?.id} />
     </main>
   );
 }

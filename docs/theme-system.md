@@ -1090,6 +1090,15 @@ Template:
   - Preserved desktop multi-column side-by-side grid with horizontal scrolling and cross-column drag-and-drop.
 - Verification: Vitest 113/113 passed (645 passed, 3 skipped), `npm run lint` clean (0 errors), Next.js build passed (43/43 pages).
 
+### 2026-11-09 — Fix Calendar TDZ Runtime Crash and Universal Mobile Bottom Nav on Projects
+- Coverage: Calendar (`src/components/kanban/project-calendar.tsx`), Projects Dashboard (`src/components/project/projects-dashboard.tsx`), and Mobile Bottom Nav (`src/components/project/project-mobile-bottom-nav.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Fixed production minification crash on Calendar page (`ReferenceError: Cannot access 'iT' before initialization`) by moving `selectedDayItems` declaration before `selectedDayHeader`, `dayStats`, and `fullDateTitle`, and declaring `useLiveSync` after `useState` hooks.
+  - Elevated `ProjectMobileBottomNav` to 5 universal tabs (`Spaces`, `Board`, `Calendar`, `Diary`, `Notes`) in a responsive `grid-cols-5` capsule with smooth cubic-bezier spring transfer animation and `w-1/5` highlight pill.
+  - Mounted `ProjectMobileBottomNav` on `/projects` with optional `projectId` handling and automatic localStorage persistence.
+  - Enhanced sticky command header on `/projects` with solid glassmorphic backdrop (`bg-white/95 dark:bg-ink-950/92`) and added `pb-24 lg:pb-4` clearance for mobile navigation.
+- Verification: Vitest 38/38 passed across targeted test files, Vitest 128/128 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid.
+
 
 
 

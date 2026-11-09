@@ -18,4 +18,20 @@ describe("calendar modal layering", () => {
     expect(calendarSource).toContain("meta.pillClass");
     expect(calendarSource).not.toContain('priority === "HIGH"');
   });
+
+  it("declares selectedDayItems before selectedDayHeader to prevent TDZ runtime crash", () => {
+    const selectedDayItemsIndex = calendarSource.indexOf("const selectedDayItems = useMemo");
+    const selectedDayHeaderIndex = calendarSource.indexOf("const selectedDayHeader = useMemo");
+    expect(selectedDayItemsIndex).toBeGreaterThan(-1);
+    expect(selectedDayHeaderIndex).toBeGreaterThan(-1);
+    expect(selectedDayItemsIndex).toBeLessThan(selectedDayHeaderIndex);
+  });
+
+  it("initializes live sync after calendar filter and dialog state declarations", () => {
+    const useLiveSyncIndex = calendarSource.indexOf("useLiveSync({");
+    const useStateIndex = calendarSource.indexOf("const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState");
+    expect(useLiveSyncIndex).toBeGreaterThan(-1);
+    expect(useStateIndex).toBeGreaterThan(-1);
+    expect(useLiveSyncIndex).toBeGreaterThan(useStateIndex);
+  });
 });

@@ -456,18 +456,6 @@ export function ProjectCalendar({
     }
   }, [projectId, members]);
 
-  const { broadcastChange } = useLiveSync({
-    channelKey: [`project:${projectId}`, `calendar:${projectId}`],
-    intervalMs: 8000,
-    canSync: () => {
-      if (selectedCardId || selectedNoteId) return false;
-      if (isFiltersOpen || isUpcomingOpen) return false;
-      if (isUpdateConfirmOpen || isDeleteConfirmOpen) return false;
-      if (typeof document !== "undefined" && document.querySelector("[role='dialog']")) return false;
-      return true;
-    },
-    onSync: refreshCalendar
-  });
   const [filters, setFilters] = useState<CalendarFilterState>(defaultCalendarFilters);
   const [draftFilters, setDraftFilters] = useState<CalendarFilterState>(defaultCalendarFilters);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -499,6 +487,19 @@ export function ProjectCalendar({
   const [quickAddTime, setQuickAddTime] = useState("");
   const [quickAddIsAllDay, setQuickAddIsAllDay] = useState(true);
   const [isQuickAddSubmitting, setIsQuickAddSubmitting] = useState(false);
+
+  const { broadcastChange } = useLiveSync({
+    channelKey: [`project:${projectId}`, `calendar:${projectId}`],
+    intervalMs: 8000,
+    canSync: () => {
+      if (selectedCardId || selectedNoteId) return false;
+      if (isFiltersOpen || isUpcomingOpen) return false;
+      if (isUpdateConfirmOpen || isDeleteConfirmOpen) return false;
+      if (typeof document !== "undefined" && document.querySelector("[role='dialog']")) return false;
+      return true;
+    },
+    onSync: refreshCalendar
+  });
 
   const currentBoard = useMemo(() => {
     return projectBoards?.find((b) => b.id === quickAddBoardId) ?? projectBoards?.[0];
@@ -735,6 +736,64 @@ export function ProjectCalendar({
     [allItems, draftFilters, isFiltersOpen, filteredItems]
   );
   const groups = useMemo(() => groupCalendarItems(filteredItems), [filteredItems]);
+
+  const selectedDayItems = useMemo(() => {
+    if (!selectedDayKey) return [];
+    const items = groups[selectedDayKey] ?? [];
+    return [...items]
+      .filter((item) => {
+        if (dayTypeFilter === "tasks" && item.type !== "card") return false;
+        if (dayTypeFilter === "notes" && item.type !== "note") return false;
+        if (dayTypeFilter === "diaries" && item.type !== "diary_checklist") return false;
+        if (dayStatusFilter === "pending") {
+          if (item.type === "card" && item.status === "DONE") return false;
+          if (item.type === "note" && (item as any).completedAt) return false;
+          if (item.type === "diary_checklist" && (item as any).completed) return false;
+        }
+        if (dayStatusFilter === "done") {
+          if (item.type === "card" && item.status !== "DONE") return false;
+          if (item.type === "note" && !(item as any).completedAt) return false;
+          if (item.type === "diary_checklist" && !(item as any).completed) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        const aCompleted = a.type === "card"
+          ? a.status === "DONE"
+          : a.type === "diary_checklist"
+            ? a.completed
+            : Boolean((a as any).completedAt);
+
+        const bCompleted = b.type === "card"
+          ? b.status === "DONE"
+          : b.type === "diary_checklist"
+            ? b.completed
+            : Boolean((b as any).completedAt);
+
+        if (aCompleted !== bCompleted) {
+          return aCompleted ? 1 : -1;
+        }
+
+        if (daySortBy === "title") {
+          return a.title.localeCompare(b.title);
+        }
+        if (daySortBy === "priority") {
+          const getPriorityRank = (item: any) => {
+            if (item.type === "card") {
+              return getPriorityMeta(item.priority).level;
+            }
+            return 999;
+          };
+          return getPriorityRank(a) - getPriorityRank(b);
+        }
+        const getAmPmTime = (item: any) => {
+          if (item.dueDateAllDay) return -1;
+          return item.dueDate ? new Date(item.dueDate).getTime() : 0;
+        };
+        return getAmPmTime(a) - getAmPmTime(b);
+      });
+  }, [selectedDayKey, groups, dayTypeFilter, dayStatusFilter, daySortBy]);
+
   const selectedDateLabel = selectedDayKey
     ? formatMediumDate(new Date(selectedDayKey + "T00:00:00.000Z"))
     : "";
@@ -808,62 +867,6 @@ export function ProjectCalendar({
     return { total, completed, pending, percent, tasks, notes, diaries };
   }, [selectedDayKey, groups]);
 
-  const selectedDayItems = useMemo(() => {
-    if (!selectedDayKey) return [];
-    const items = groups[selectedDayKey] ?? [];
-    return [...items]
-      .filter((item) => {
-        if (dayTypeFilter === "tasks" && item.type !== "card") return false;
-        if (dayTypeFilter === "notes" && item.type !== "note") return false;
-        if (dayTypeFilter === "diaries" && item.type !== "diary_checklist") return false;
-        if (dayStatusFilter === "pending") {
-          if (item.type === "card" && item.status === "DONE") return false;
-          if (item.type === "note" && (item as any).completedAt) return false;
-          if (item.type === "diary_checklist" && (item as any).completed) return false;
-        }
-        if (dayStatusFilter === "done") {
-          if (item.type === "card" && item.status !== "DONE") return false;
-          if (item.type === "note" && !(item as any).completedAt) return false;
-          if (item.type === "diary_checklist" && !(item as any).completed) return false;
-        }
-        return true;
-      })
-      .sort((a, b) => {
-        const aCompleted = a.type === "card"
-          ? a.status === "DONE"
-          : a.type === "diary_checklist"
-            ? a.completed
-            : Boolean((a as any).completedAt);
-
-        const bCompleted = b.type === "card"
-          ? b.status === "DONE"
-          : b.type === "diary_checklist"
-            ? b.completed
-            : Boolean((b as any).completedAt);
-
-        if (aCompleted !== bCompleted) {
-          return aCompleted ? 1 : -1;
-        }
-
-        if (daySortBy === "title") {
-          return a.title.localeCompare(b.title);
-        }
-        if (daySortBy === "priority") {
-          const getPriorityRank = (item: any) => {
-            if (item.type === "card") {
-              return getPriorityMeta(item.priority).level;
-            }
-            return 999;
-          };
-          return getPriorityRank(a) - getPriorityRank(b);
-        }
-        const getAmPmTime = (item: any) => {
-          if (item.dueDateAllDay) return -1;
-          return item.dueDate ? new Date(item.dueDate).getTime() : 0;
-        };
-        return getAmPmTime(a) - getAmPmTime(b);
-      });
-  }, [selectedDayKey, groups, dayTypeFilter, dayStatusFilter, daySortBy]);
   const rangeLabel = formatRangeLabel(calendarDays);
   const dayColumnCount = viewMode === "month" ? 7 : calendarDays.length;
 

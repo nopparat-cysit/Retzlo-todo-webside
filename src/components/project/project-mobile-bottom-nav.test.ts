@@ -40,4 +40,13 @@ describe("ProjectMobileBottomNav floating detached and transfer animation", () =
     expect(source).toContain('label: "Notes"');
     expect(source).toContain("project_${projectId}_last_board");
   });
+
+  it("includes Spaces tab in 5-column layout with optional projectId and persistence", () => {
+    expect(source).toContain('label: "Spaces"');
+    expect(source).toContain('href: "/projects"');
+    expect(source).toContain("grid-cols-5");
+    expect(source).toContain("w-1/5");
+    expect(source).toContain("projectId?: string");
+    expect(source).toContain("retzlo_last_project_id");
+  });
 });
