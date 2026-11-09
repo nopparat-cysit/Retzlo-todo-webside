@@ -355,6 +355,15 @@ textarea {
 }
 
 /* The sidebar is nested inside the grid, so the peer utility cannot reach it. */
+@media (max-width: 1023px) {
+  aside.project-sidebar {
+    position: fixed !important;
+  }
+}
+header.lofi-panel {
+  position: sticky !important;
+  overflow: visible !important;
+}
 #project-sidebar-toggle:checked ~ .project-shell-grid .project-sidebar {
   transform: translateX(0);
 }
