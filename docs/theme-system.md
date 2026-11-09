@@ -1057,3 +1057,13 @@ Template:
   - All navigation buttons inside the drawer (Boards, Calendar, Diary, Notes, Members, Rewards Store, Settings, Command palette trigger) stretch smoothly across `w-full` for optimal tap target ergonomics.
 - Verification: Vitest 10/10 passed in `project-shell.test.ts`, Prisma validate passed, ESLint passed (0 errors), Next.js production build passed (43/43 pages).
 
+### 2026-11-09 — Floating Mobile Bottom Navigation with Transfer Animation
+- Coverage: Workspace mobile bottom navigation (`src/components/project/project-mobile-bottom-nav.tsx`, `src/components/project/project-shell.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Replaced edge-to-edge pinned bottom bar with a modern "Floating (Detached)" capsule container (`rounded-full`) floating 12px above screen bottom with iOS safe area compensation.
+  - Elevated glassmorphic aesthetic using `bg-white/92 backdrop-blur-xl border border-stone-200/80` (light mode) and `dark:bg-ink-950/90 dark:border-white/10` (dark mode) with soft ambient drop shadow.
+  - Implemented physical spring transfer animation (`cubic-bezier(0.34, 1.4, 0.64, 1)`) via a sliding highlight pill that glides smoothly across the active tabs.
+  - Active tab state includes icon elevation (`scale-110`), bold title, glowing dot indicator, and optimistic click feedback.
+- Verification: Vitest 33/33 passed, Prisma validate passed, ESLint passed (0 errors), Next.js build passed (43/43 pages).
+
+

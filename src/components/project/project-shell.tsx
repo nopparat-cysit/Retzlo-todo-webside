@@ -273,7 +273,7 @@ export async function ProjectShell({
               <div className="hidden sm:inline-flex"><HelpButton /></div>
             </div>
           </header>
-          <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 flex flex-col pb-16 lg:pb-0 overflow-hidden">{children}</div>
+          <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 flex flex-col pb-20 lg:pb-0 overflow-hidden">{children}</div>
         </section>
       </div>
       <ProjectMobileBottomNav projectId={projectId} />
