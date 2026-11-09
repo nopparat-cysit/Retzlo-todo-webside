@@ -26,4 +26,14 @@ describe("DiaryListPanel layout", () => {
     expect(source).toContain("FilterSelect");
     expect(source).toContain("Sort: Due status");
   });
+
+  it("supports collapsible tools in diary hero header with persistence and quick indicators", () => {
+    const source = readFileSync(new URL("./diary-list-panel.tsx", import.meta.url), "utf8");
+
+    expect(source).toContain("isToolsCollapsed");
+    expect(source).toContain("toggleToolsCollapse");
+    expect(source).toContain("retzlo_diary_");
+    expect(source).toContain("grid-rows-[0fr]");
+    expect(source).toContain("grid-rows-[1fr]");
+  });
 });

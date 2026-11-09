@@ -9,6 +9,7 @@ import {
   Calendar,
   CalendarDays,
   CheckCircle2,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -114,6 +115,32 @@ export function DiaryListPanel({
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isUpdateConfirmOpen, setIsUpdateConfirmOpen] = useState(false);
   const [pendingUpdatePayload, setPendingUpdatePayload] = useState<any>(null);
+  const [isToolsCollapsed, setIsToolsCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`retzlo_diary_${projectId}_tools_collapsed`);
+      if (stored !== null) {
+        setIsToolsCollapsed(stored === "true");
+      } else if (typeof window !== "undefined" && window.innerWidth < 768) {
+        setIsToolsCollapsed(true);
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  }, [projectId]);
+
+  const toggleToolsCollapse = useCallback(() => {
+    setIsToolsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(`retzlo_diary_${projectId}_tools_collapsed`, String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, [projectId]);
 
   const itemsWithSummary = useMemo<DiaryItemWithSummary[]>(() => {
     const list = [...items].map((item) => {
@@ -261,19 +288,22 @@ export function DiaryListPanel({
   return (
     <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] gap-2.5 sm:gap-3">
       <div className="lofi-panel rounded-2xl p-2.5 sm:p-5">
-        <div data-diary-hero-layout="single-row" className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-dusk-amber font-semibold">
-              <BookOpenCheck className="h-3.5 w-3.5" />
-              Diary List
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-2.5">
-              <h2 className="text-xl font-bold leading-tight text-foreground dark:text-stone-100 sm:text-2xl">
+        <div data-diary-hero-layout="single-row" className="flex flex-col gap-2.5">
+          {/* Top Row: Title, Date navigation, Quick Pill when collapsed, Actions & Collapse toggle */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5 min-w-0">
+            {/* Left: Badge, Title, Day navigation [< Today >], inline DatePicker */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 min-w-0">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.24em] text-dusk-amber font-semibold shrink-0">
+                <BookOpenCheck className="h-3.5 w-3.5" />
+                <span className="hidden xs:inline">Diary List</span>
+              </div>
+
+              <h2 className="text-lg font-bold leading-tight text-foreground dark:text-stone-100 sm:text-2xl truncate">
                 {selectedDate === new Date().toISOString().slice(0, 10) ? "Today rhythm" : "Diary rhythm"}
               </h2>
 
               {/* Day Navigation Controls: [<] [Today] [>] */}
-              <div className="flex items-center rounded-xl border border-border/60 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner">
+              <div className="flex items-center rounded-xl border border-border/60 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner shrink-0">
                 <button
                   type="button"
                   onClick={() => router.push(`/project/${projectId}/diary?date=${shiftDateStr(selectedDate, -1)}`)}
@@ -302,7 +332,7 @@ export function DiaryListPanel({
               </div>
 
               {/* Inline Date Picker */}
-              <div className="w-36">
+              <div className="w-32 sm:w-36 shrink-0">
                 <DatePicker
                   value={selectedDate}
                   onChange={(val) => {
@@ -311,43 +341,107 @@ export function DiaryListPanel({
                   triggerClassName="h-7 text-xs font-mono py-0 px-2"
                 />
               </div>
-            </div>
-            <p className="hidden sm:block mt-1 max-w-xl text-xs text-stone-400 leading-relaxed">
-              Recurring checklists for the routines that matter today. Upcoming items stay calm and lower in priority.
-            </p>
-          </div>
 
-          <div className="flex shrink-0 flex-wrap items-center gap-2.5 sm:gap-3 xl:ml-auto">
-            {/* Metrics Pill Control Bar */}
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <DiaryMetric label="Due" value={dueTodayCount} tone="lavender" />
-              <DiaryMetric label="Done" value={completedTodayCount} tone="cyan" />
-              <DiaryMetric label="Starred" value={itemsWithSummary.filter((item) => item.isStarred).length} tone="amber" />
+              {/* Compact Clickable Quick Pill when tools are collapsed */}
+              {isToolsCollapsed && (
+                <button
+                  type="button"
+                  onClick={toggleToolsCollapse}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 px-2 py-0.5 text-xs font-semibold text-dusk-lavender hover:bg-dusk-lavender/20 transition cursor-pointer select-none shrink-0"
+                  title="Click to view details and metrics"
+                >
+                  <span>Due {dueTodayCount}</span>
+                  <span className="text-stone-500">•</span>
+                  <span>Done {completedTodayCount}</span>
+                </button>
+              )}
             </div>
 
-            {/* Action Buttons Cluster */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <Link
-                href={`/project/${projectId}/calendar`}
-                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-xs font-medium text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/[0.08]"
-              >
-                <CalendarDays className="h-3.5 w-3.5 text-dusk-lavender" />
-                <span>Calendar</span>
-              </Link>
-              <Button className="h-9 rounded-xl px-3.5 text-xs font-medium" type="button" onClick={() => setIsCreateOpen(true)}>
+            {/* Right: + Add diary & Toggle Tools button */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+              <Button className="h-8 sm:h-9 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs" type="button" onClick={() => setIsCreateOpen(true)}>
                 <Plus className="h-3.5 w-3.5" />
                 <span>Add diary</span>
               </Button>
-            </div>
 
-            <Image
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_4px_8px_rgba(8,8,23,0.5)] md:block"
-              height={64}
-              src="/stickers/retro/retro-sticker-02-diary-notebook.png"
-              width={64}
-            />
+              {/* Collapse / Expand Toggle Button */}
+              <button
+                type="button"
+                onClick={toggleToolsCollapse}
+                aria-expanded={!isToolsCollapsed}
+                aria-label={isToolsCollapsed ? "Expand diary tools" : "Collapse diary tools"}
+                className={cn(
+                  "flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer select-none active:scale-95",
+                  isToolsCollapsed
+                    ? "border-stone-300 bg-white text-stone-700 hover:border-dusk-lavender/40 hover:text-dusk-lavender dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
+                    : "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-bold"
+                )}
+                title={isToolsCollapsed ? "Show metrics and calendar link" : "Hide diary tools to maximize checklist space"}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" />
+                <span className="sm:hidden">
+                  {isToolsCollapsed ? "Tools" : "Hide"}
+                </span>
+                <span className="hidden sm:inline">
+                  {isToolsCollapsed ? "Show Tools" : "Hide Tools"}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
+                    !isToolsCollapsed && "rotate-180"
+                  )}
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Collapsible Section */}
+          <div
+            className={cn(
+              "grid transition-all duration-300 ease-in-out",
+              isToolsCollapsed
+                ? "grid-rows-[0fr] opacity-0 pointer-events-none mt-0"
+                : "grid-rows-[1fr] opacity-100 mt-2 pt-2.5 border-t border-stone-200/60 dark:border-white/10"
+            )}
+          >
+            <div className="overflow-hidden min-h-0">
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <div>
+                  <p className="hidden sm:block mt-1 max-w-xl text-xs text-stone-400 leading-relaxed">
+                    Recurring checklists for the routines that matter today. Upcoming items stay calm and lower in priority.
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 flex-wrap items-center gap-2.5 sm:gap-3 xl:ml-auto">
+                  {/* Metrics Pill Control Bar */}
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <DiaryMetric label="Due" value={dueTodayCount} tone="lavender" />
+                    <DiaryMetric label="Done" value={completedTodayCount} tone="cyan" />
+                    <DiaryMetric label="Starred" value={itemsWithSummary.filter((item) => item.isStarred).length} tone="amber" />
+                  </div>
+
+                  {/* Calendar Action Button */}
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Link
+                      href={`/project/${projectId}/calendar`}
+                      className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-xs font-medium text-stone-200 transition hover:border-dusk-lavender/50 hover:bg-white/[0.08]"
+                    >
+                      <CalendarDays className="h-3.5 w-3.5 text-dusk-lavender" />
+                      <span>Calendar</span>
+                    </Link>
+                  </div>
+
+                  <Image
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none hidden h-16 w-16 shrink-0 object-contain drop-shadow-[0_4px_8px_rgba(8,8,23,0.5)] md:block"
+                    height={64}
+                    src="/stickers/retro/retro-sticker-02-diary-notebook.png"
+                    width={64}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
