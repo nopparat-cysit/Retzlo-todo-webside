@@ -292,18 +292,29 @@ export function DiaryListPanel({
 
   return (
     <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] gap-2 sm:gap-3">
-      <div className="lofi-panel rounded-2xl p-2 sm:p-4">
-        <div data-diary-hero-layout="single-row" className="flex flex-col gap-2.5">
+      <div
+        className={cn(
+          "lofi-panel rounded-2xl h-fit transition-all duration-300",
+          isToolsCollapsed ? "p-2 sm:px-4 sm:py-2.5" : "p-2 sm:p-4"
+        )}
+      >
+        <div
+          data-diary-hero-layout="single-row"
+          className={cn(
+            "flex flex-col transition-all duration-300",
+            isToolsCollapsed ? "gap-0" : "gap-2.5"
+          )}
+        >
           {/* Top Row: Title, Date navigation, Quick Pill when collapsed, Actions & Collapse toggle */}
           <div className="flex items-center justify-between gap-1.5 sm:gap-2.5 min-w-0">
             {/* Left: Badge, Title, Day navigation [< Today >], inline DatePicker */}
             <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1">
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.24em] text-dusk-amber font-semibold shrink-0">
                 <BookOpenCheck className="h-3.5 w-3.5" />
-                <span className="hidden xs:inline">Diary List</span>
+                <span className="hidden xs:inline">Diary</span>
               </div>
 
-              <h2 className="text-lg font-bold leading-tight text-foreground dark:text-stone-100 sm:text-2xl truncate">
+              <h2 className="hidden min-[520px]:inline text-base sm:text-lg font-bold leading-tight text-foreground dark:text-stone-100 truncate">
                 {selectedDate === new Date().toISOString().slice(0, 10) ? "Today rhythm" : "Diary rhythm"}
               </h2>
 
@@ -312,7 +323,7 @@ export function DiaryListPanel({
                 <button
                   type="button"
                   onClick={() => router.push(`/project/${projectId}/diary?date=${shiftDateStr(selectedDate, -1)}`)}
-                  className="grid h-7 w-7 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
+                  className="grid h-7 w-7 place-items-center rounded-lg text-stone-600 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer"
                   aria-label="Previous day"
                   title="Previous day"
                 >
@@ -336,8 +347,8 @@ export function DiaryListPanel({
                 </button>
               </div>
 
-              {/* Inline Date Picker */}
-              <div className="w-32 sm:w-36 shrink-0">
+              {/* Inline Date Picker (desktop / tablet) */}
+              <div className="hidden sm:block w-32 sm:w-36 shrink-0">
                 <DatePicker
                   value={selectedDate}
                   onChange={(val) => {
@@ -347,12 +358,12 @@ export function DiaryListPanel({
                 />
               </div>
 
-              {/* Compact Clickable Quick Pill when tools are collapsed */}
+              {/* Compact Clickable Quick Pill when tools are collapsed (larger screens) */}
               {isToolsCollapsed && (
                 <button
                   type="button"
                   onClick={toggleToolsCollapse}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 px-2 py-0.5 text-xs font-semibold text-dusk-lavender hover:bg-dusk-lavender/20 transition cursor-pointer select-none shrink-0"
+                  className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/30 bg-dusk-lavender/10 px-2 py-0.5 text-xs font-semibold text-dusk-lavender hover:bg-dusk-lavender/20 transition cursor-pointer select-none shrink-0"
                   title="Click to view details and metrics"
                 >
                   <span>Due {dueTodayCount}</span>
@@ -364,9 +375,14 @@ export function DiaryListPanel({
 
             {/* Right: + Add diary & Toggle Tools button */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
-              <Button className="h-8 sm:h-9 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs" type="button" onClick={() => setIsCreateOpen(true)}>
+              <Button
+                className="h-8 sm:h-9 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs"
+                type="button"
+                onClick={() => setIsCreateOpen(true)}
+                title="Create new diary checklist"
+              >
                 <Plus className="h-3.5 w-3.5" />
-                <span>Add diary</span>
+                <span className="hidden sm:inline">Add diary</span>
               </Button>
 
               {/* Collapse / Expand Toggle Button */}

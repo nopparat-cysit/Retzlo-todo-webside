@@ -22,7 +22,11 @@
 
 ## Important Behavior Changes
 
-1. **Mobile Calendar Month Grid Visibility & Touch Targets:**
+1. **Diary Hero Card Height Fit (`h-fit`) and Clean Mobile Single-Row Layout:**
+   - In `src/components/diary/diary-list-panel.tsx`, added `h-fit` to the `lofi-panel` hero card container and dynamically eliminated the flexbox gap (`isToolsCollapsed ? "gap-0" : "gap-2.5"`) and adjusted vertical padding (`isToolsCollapsed ? "p-2 sm:px-4 sm:py-2.5" : "p-2 sm:p-4"`), eliminating dead space at the bottom of the card when collapsed.
+   - Fixed mobile (< sm) horizontal crowding where multiple fixed-width elements (DatePicker, Quick Status Pill, Add button text, Day Nav) collided and overlapped into each other. Made DatePicker `hidden sm:block`, quick status pill `hidden md:inline-flex`, and Add diary button text `hidden sm:inline`, leaving clean, balanced touch targets with zero clipping or collision on all viewports.
+
+2. **Mobile Calendar Month Grid Visibility & Touch Targets:**
    - In `src/components/kanban/project-calendar.tsx`, fixed an issue on mobile (< md) where `flex-1 min-h-0` inside the scroll container caused the entire 35-day month calendar grid to collapse to 0px height when paired with the mobile selected day task list, showing only the weekday header (`SUN MON TUE...`).
    - Changed the calendar card to `shrink-0 md:shrink md:min-h-0 md:flex-1` and the days grid to `overflow-y-visible md:overflow-y-auto`, ensuring all 30 days of the month with their dates (1-30), weekend shading, today indicators, and task event dots render fully and responsively above the daily task agenda.
 
