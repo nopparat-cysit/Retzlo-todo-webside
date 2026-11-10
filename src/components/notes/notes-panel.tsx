@@ -433,7 +433,7 @@ export function NotesPanel({
   }
 
   return (
-    <section className="grid h-full min-h-0 grid-rows-[1fr] md:grid-rows-[max-content_minmax(0,1fr)] gap-3" data-notes-layout="reward-style">
+    <section className="grid h-full min-h-0 grid-rows-[1fr] md:grid-rows-[max-content_minmax(0,1fr)] gap-2 sm:gap-3" data-notes-layout="reward-style">
       <div className="lofi-panel relative isolate overflow-hidden rounded-lg px-4 py-2.5 hidden md:block" data-notes-hero-layout="single-row">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
@@ -463,7 +463,7 @@ export function NotesPanel({
         </div>
       </div>
 
-      <div className="grid min-h-0 gap-3 grid-cols-1 md:grid-cols-[14rem_minmax(0,1fr)] xl:grid-cols-[14rem_minmax(0,1fr)_16rem] 2xl:grid-cols-[17rem_minmax(0,1fr)_20rem]">
+      <div className="grid min-h-0 gap-2 sm:gap-3 grid-cols-1 md:grid-cols-[14rem_minmax(0,1fr)] xl:grid-cols-[14rem_minmax(0,1fr)_16rem] 2xl:grid-cols-[17rem_minmax(0,1fr)_20rem]">
         <aside className="lofi-panel hidden md:flex min-h-0 flex-col rounded-lg p-3" data-notes-collection-rail="note-shelves">
           <div className="mb-3 flex items-center justify-between gap-2 shrink-0">
             <div>
@@ -717,7 +717,7 @@ export function NotesPanel({
           ) : null}
         </aside>
 
-        <main className="lofi-panel flex min-h-0 flex-col rounded-lg p-3" data-notes-board="note-cards">
+        <main className="lofi-panel flex min-h-0 flex-col rounded-lg p-2 sm:p-3" data-notes-board="note-cards">
           {/* Always-Visible Compact Note Board Header */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">

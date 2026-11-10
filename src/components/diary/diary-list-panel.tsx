@@ -286,13 +286,13 @@ export function DiaryListPanel({
   }
 
   return (
-    <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] gap-2.5 sm:gap-3">
-      <div className="lofi-panel rounded-2xl p-2.5 sm:p-5">
+    <section data-diary-layout="reward-style" className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] lg:grid-rows-[auto_minmax(0,1fr)] gap-2 sm:gap-3">
+      <div className="lofi-panel rounded-2xl p-2 sm:p-4">
         <div data-diary-hero-layout="single-row" className="flex flex-col gap-2.5">
           {/* Top Row: Title, Date navigation, Quick Pill when collapsed, Actions & Collapse toggle */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 min-w-0">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-2.5 min-w-0">
             {/* Left: Badge, Title, Day navigation [< Today >], inline DatePicker */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1">
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.24em] text-dusk-amber font-semibold shrink-0">
                 <BookOpenCheck className="h-3.5 w-3.5" />
                 <span className="hidden xs:inline">Diary List</span>

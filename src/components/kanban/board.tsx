@@ -1136,12 +1136,12 @@ export function KanbanBoard({
       }}
     >
       {/* ── Header ── */}
-      <div className="lofi-panel relative rounded-2xl p-2.5 sm:p-3.5 max-w-full transition-all duration-300">
+      <div className="lofi-panel relative rounded-2xl p-2 sm:p-3.5 max-w-full transition-all duration-300">
         {/* Always-Visible Compact Header Row */}
         <div className="flex items-center justify-between gap-2 min-w-0">
           {/* Left: Channel, Board Name, Inline Renaming, Focus mode, Active Filters indicator when collapsed */}
-          <div className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2 flex-wrap">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-dusk-amber font-semibold select-none rounded bg-dusk-amber/10 px-1.5 py-0.5 border border-dusk-amber/20 shrink-0">
+          <div className="min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2">
+            <span className="hidden min-[360px]:inline-block text-[10px] uppercase tracking-[0.2em] text-dusk-amber font-semibold select-none rounded bg-dusk-amber/10 px-1.5 py-0.5 border border-dusk-amber/20 shrink-0">
               Channel
             </span>
 
@@ -1192,7 +1192,7 @@ export function KanbanBoard({
             ) : (
               <div className="group/title flex items-center gap-1.5 min-w-0">
                 <h2
-                  className="truncate text-base sm:text-lg font-semibold text-stone-900 dark:text-stone-100 sm:cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition select-text"
+                  className="truncate text-sm sm:text-lg font-semibold text-stone-900 dark:text-stone-100 sm:cursor-pointer rounded-md hover:text-indigo-600 dark:hover:text-dusk-lavender transition select-text"
                   onClick={() => {
                     if (typeof window !== "undefined" && window.innerWidth < 640) return;
                     const selection = typeof window !== "undefined" ? window.getSelection()?.toString() : "";
@@ -2190,7 +2190,7 @@ export function KanbanBoard({
 
       {/* ── Board Columns Grid / List View ── */}
       {syncError ? <p className="mt-4 rounded-md border border-theme-danger-border bg-theme-danger-surface p-3 text-sm text-theme-danger">{syncError}</p> : null}
-      <div id="kanban-main-viewport" className="relative mt-4 flex min-h-0 flex-1 flex-col">
+      <div id="kanban-main-viewport" className="relative mt-2.5 sm:mt-4 flex min-h-0 flex-1 flex-col">
         {isSwitchingBoard ? (
           <div className="relative flex min-h-0 flex-1 overflow-x-auto pb-4">
             <BoardSkeleton />

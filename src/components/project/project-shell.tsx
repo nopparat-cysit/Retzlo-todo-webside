@@ -156,14 +156,14 @@ export async function ProjectShell({
     .slice(0, 2);
 
   return (
-    <main className="soft-grid-bg min-h-[100dvh] w-full overflow-x-hidden lg:overflow-hidden p-2 sm:p-3">
+    <main className="soft-grid-bg min-h-[100dvh] w-full overflow-x-hidden lg:overflow-hidden p-1.5 sm:p-3">
       <input id="project-sidebar-toggle" className="peer sr-only" type="checkbox" />
       <label
         htmlFor="project-sidebar-toggle"
         className="pointer-events-none fixed inset-0 z-[240] bg-ink-950/60 opacity-0 backdrop-blur-sm transition-opacity duration-300 peer-checked:pointer-events-auto peer-checked:opacity-100 lg:hidden"
         aria-hidden="true"
       />
-      <div className="project-shell-grid flex flex-col h-[calc(100dvh-1rem)] sm:h-[calc(100dvh-1.5rem)] min-h-0 gap-2.5 sm:gap-3 transition-[grid-template-columns] duration-200 lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="project-shell-grid flex flex-col h-[calc(100dvh-1rem)] sm:h-[calc(100dvh-1.5rem)] min-h-0 gap-2 sm:gap-3 transition-[grid-template-columns] duration-200 lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="project-sidebar fixed bottom-2 left-2 top-2 z-[250] flex min-h-0 w-[calc(100vw-1rem)] sm:w-80 -translate-x-[calc(100%+1rem)] flex-col overflow-hidden rounded-2xl bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl transition-all duration-300 lg:relative lg:bottom-0 lg:left-0 lg:top-0 lg:z-10 lg:w-auto lg:translate-x-0 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
           <div>
             <div className="flex items-center justify-between gap-2">
@@ -223,7 +223,7 @@ export async function ProjectShell({
         </aside>
 
         <section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-2xl overflow-hidden">
-          <header className="lofi-panel sticky top-2 z-40 backdrop-blur-xl bg-ink-950/80 mb-3 flex min-h-14 flex-nowrap items-center justify-between gap-2 sm:gap-3 overflow-visible rounded-2xl px-2.5 sm:px-4">
+          <header className="lofi-panel sticky top-1.5 sm:top-2 z-40 backdrop-blur-xl bg-ink-950/80 mb-2 sm:mb-3 flex min-h-12 sm:min-h-14 flex-nowrap items-center justify-between gap-2 sm:gap-3 overflow-visible rounded-2xl px-2 sm:px-4">
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
               <label
                 htmlFor="project-sidebar-toggle"
@@ -273,7 +273,7 @@ export async function ProjectShell({
               <div className="hidden sm:inline-flex"><HelpButton /></div>
             </div>
           </header>
-          <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 flex flex-col pb-20 lg:pb-0 overflow-hidden">{children}</div>
+          <div className="relative z-10 min-h-0 min-w-0 max-w-full flex-1 flex flex-col pb-16 sm:pb-20 lg:pb-0 overflow-hidden">{children}</div>
         </section>
       </div>
       <ProjectMobileBottomNav projectId={projectId} />

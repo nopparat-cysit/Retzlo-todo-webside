@@ -1113,12 +1113,12 @@ export function ProjectCalendar({
 
   return (
     <>
-      <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
+      <div className="flex h-full min-h-0 flex-col gap-2 sm:gap-3 overflow-hidden">
         {/* Top Control Bar Panel */}
-        <Panel className="p-3 sm:p-4 shrink-0 shadow-lg">
+        <Panel className="p-2 sm:p-4 shrink-0 shadow-lg">
           {/* Row 1: Month title & Navigation arrows + Upcoming chip */}
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <div className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-xs shrink-0">
                   <CalendarDays className="h-4 w-4" />

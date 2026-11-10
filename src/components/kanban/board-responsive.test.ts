@@ -35,10 +35,10 @@ describe("Kanban responsive and touch optimizations", () => {
   });
 
   it("provides sticky topbar and definite viewport height on project shell", () => {
-    expect(shellSource).toContain("sticky top-2 z-40 backdrop-blur-xl bg-ink-950/80");
+    expect(shellSource).toContain("sticky top-1.5 sm:top-2 z-40 backdrop-blur-xl bg-ink-950/80");
     expect(shellSource).toContain("h-[calc(100dvh-1rem)] sm:h-[calc(100dvh-1.5rem)] min-h-0");
     expect(shellSource).toContain("flex min-h-0 min-w-0 flex-1 flex-col rounded-2xl overflow-hidden");
-    expect(shellSource).toContain("relative z-10 min-h-0 min-w-0 max-w-full flex-1 flex flex-col pb-20 lg:pb-0 overflow-hidden");
+    expect(shellSource).toContain("relative z-10 min-h-0 min-w-0 max-w-full flex-1 flex flex-col pb-16 sm:pb-20 lg:pb-0 overflow-hidden");
   });
 
   it("shows Menu trigger on mobile and BackButton on desktop in workspace topbar", () => {

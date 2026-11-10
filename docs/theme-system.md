@@ -1170,6 +1170,16 @@ Template:
   - Polished touch ergonomics and typography: `py-1.5 px-1 rounded-full gap-0.5`, `h-4 w-4` icons with active lavender glow (`text-indigo-600 dark:text-dusk-lavender scale-110 drop-shadow-xs`), and crisp `text-[10px]` labels (`font-bold text-stone-900 dark:text-white drop-shadow-xs`).
 - Verification: Vitest 48/48 passed in `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
+### 2026-11-10 — Tighten Responsive Vertical Spacing Across Key Pages ("แก้ไขจุนนี้ในหลายๆหน้าหน่อย resposive มันพื่นที่เยอะไป")
+- Coverage: Responsive Layout & Headers across `src/components/kanban/board.tsx`, `src/components/project/project-shell.tsx`, `src/components/kanban/project-calendar.tsx`, `src/components/diary/diary-list-panel.tsx`, and `src/components/notes/notes-panel.tsx`.
+- Layout Optimization & Vertical Space Recovery:
+  - Eliminated multi-line text wrapping on the Kanban board header card by replacing `flex-wrap` with single-row layout (`min-w-0 flex-1 flex items-center gap-1.5 sm:gap-2`), setting `truncate text-sm sm:text-lg` on the board name, and displaying the Channel badge as `hidden min-[360px]:inline-block`.
+  - Tightened Kanban main viewport margin from `mt-4` to `mt-2.5 sm:mt-4` and card padding from `p-2.5` to `p-2 sm:p-3.5`.
+  - Streamlined Project Shell topbar (`min-h-12 sm:min-h-14`, `mb-2 sm:mb-3`, `px-2 sm:px-4`, `top-1.5 sm:top-2`), root padding (`p-1.5 sm:p-3`), grid gaps (`gap-2 sm:gap-3`), and bottom clearance (`pb-16 sm:pb-20 lg:pb-0`).
+  - Tightened Calendar, Diary, and Notes panel headers and grid spacing to prevent redundant row breaks on mobile screens.
+- Verification: Vitest 32/32 in responsive suites passed, 193/193 across kanban/project components passed, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded.
+
+
 
 
 
