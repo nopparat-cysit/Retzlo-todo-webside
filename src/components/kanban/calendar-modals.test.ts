@@ -34,4 +34,11 @@ describe("calendar modal layering", () => {
     expect(useStateIndex).toBeGreaterThan(-1);
     expect(useLiveSyncIndex).toBeGreaterThan(useStateIndex);
   });
+
+  it("synchronizes selectedDayKey on task click and preserves selection when day modal is closed", () => {
+    expect(calendarSource).toContain("setSelectedDayKey(key);\n                                    setSelectedCardId(entry.id);");
+    expect(calendarSource).toContain("setSelectedDayKey(key);\n                                    setSelectedNoteId(entry.id);");
+    expect(calendarSource).toContain("setSelectedDayKey(dateKey);\n    setQuickAddDate(dateKey);");
+    expect(calendarSource).not.toContain("onClick={() => setSelectedDayKey(null)}");
+  });
 });

@@ -538,6 +538,7 @@ export function ProjectCalendar({
   }, [currentBoard, quickAddColumnId]);
 
   const handleOpenQuickAdd = useCallback((dateKey: string) => {
+    setSelectedDayKey(dateKey);
     setQuickAddDate(dateKey);
     setQuickAddTitle("");
     setQuickAddContent("");
@@ -1690,9 +1691,18 @@ export function ProjectCalendar({
                               <DayItemRow
                                 key={`agenda-item-${item.type}-${item.id}`}
                                 item={item}
-                                onCardClick={(id) => setSelectedCardId(id)}
-                                onNoteClick={(id) => setSelectedNoteId(id)}
-                                onToggleDiary={handleToggleDiaryChecklist}
+                                onCardClick={(id) => {
+                                  setSelectedDayKey(dateKey);
+                                  setSelectedCardId(id);
+                                }}
+                                onNoteClick={(id) => {
+                                  setSelectedDayKey(dateKey);
+                                  setSelectedNoteId(id);
+                                }}
+                                onToggleDiary={(diaryId, checklistItemId, dueDate, checked) => {
+                                  setSelectedDayKey(dateKey);
+                                  handleToggleDiaryChecklist(diaryId, checklistItemId, dueDate, checked);
+                                }}
                                 onToggleCardStatus={handleToggleCardStatus}
                                 onDeleteDiaryItem={handleDeleteDiaryItem}
                                 members={members}
@@ -1838,7 +1848,7 @@ export function ProjectCalendar({
                         </div>
 
                         {/* Mobile Compact Dot Indicators (< md) */}
-                        <div className="flex md:hidden items-center justify-center gap-1 mt-auto pt-0.5 flex-wrap">
+                        <div className="pointer-events-none flex md:hidden items-center justify-center gap-1 mt-auto pt-0.5 flex-wrap">
                           {cellRenderItems.slice(0, 3).map((entry, idx) => {
                             const dotColor =
                               entry.type === "card"
@@ -1859,15 +1869,37 @@ export function ProjectCalendar({
                         <div className="hidden md:block space-y-1.5 flex-1 min-h-0">
                           {cellRenderItems.slice(0, 3).map((entry) => {
                             if (entry.type === "card") {
-                              return <CalendarCardButton key={`card-${entry.id}`} card={entry} onClick={() => setSelectedCardId(entry.id)} />;
+                              return (
+                                <CalendarCardButton
+                                  key={`card-${entry.id}`}
+                                  card={entry}
+                                  onClick={() => {
+                                    setSelectedDayKey(key);
+                                    setSelectedCardId(entry.id);
+                                  }}
+                                />
+                              );
                             } else if (entry.type === "note") {
-                              return <CalendarNoteButton key={`note-${entry.id}`} note={entry} onClick={() => setSelectedNoteId(entry.id)} />;
+                              return (
+                                <CalendarNoteButton
+                                  key={`note-${entry.id}`}
+                                  note={entry}
+                                  onClick={() => {
+                                    setSelectedDayKey(key);
+                                    setSelectedNoteId(entry.id);
+                                  }}
+                                />
+                              );
                             } else if (entry.type === "diary_checklist") {
                               return (
                                 <CalendarDiaryChecklistButton
                                   key={`todo-${entry.id}`}
                                   item={entry}
-                                  onToggle={(checked) => handleToggleDiaryChecklist(entry.diaryId, entry.checklistItemId, entry.dueDate, checked)}
+                                  onClick={() => setSelectedDayKey(key)}
+                                  onToggle={(checked) => {
+                                    setSelectedDayKey(key);
+                                    handleToggleDiaryChecklist(entry.diaryId, entry.checklistItemId, entry.dueDate, checked);
+                                  }}
                                 />
                               );
                             } else {
@@ -1875,7 +1907,12 @@ export function ProjectCalendar({
                                 <CalendarDiarySummaryButton
                                   key={`diary-summary-${entry.id}`}
                                   item={entry}
-                                  onClick={() => setSelectedDayKey(key)}
+                                  onClick={() => {
+                                    setSelectedDayKey(key);
+                                    if (typeof window !== "undefined" && window.innerWidth >= 768) {
+                                      setIsDayModalOpen(true);
+                                    }
+                                  }}
                                 />
                               );
                             }
@@ -1933,8 +1970,20 @@ export function ProjectCalendar({
                       <DayItemRow
                         key={`mobile-day-${item.type}-${item.id}`}
                         item={item}
-                        onCardClick={(id) => setSelectedCardId(id)}
-                        onNoteClick={(id) => setSelectedNoteId(id)}
+                        onCardClick={(id) => {
+                          if (item.dueDate) {
+                            const dKey = toDateKey(new Date(item.dueDate));
+                            setSelectedDayKey(dKey);
+                          }
+                          setSelectedCardId(id);
+                        }}
+                        onNoteClick={(id) => {
+                          if (item.dueDate) {
+                            const dKey = toDateKey(new Date(item.dueDate));
+                            setSelectedDayKey(dKey);
+                          }
+                          setSelectedNoteId(id);
+                        }}
                         onToggleDiary={handleToggleDiaryChecklist}
                         onToggleCardStatus={handleToggleCardStatus}
                         onDeleteDiaryItem={handleDeleteDiaryItem}
@@ -1979,15 +2028,48 @@ export function ProjectCalendar({
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
                 {upcomingItems.slice(0, 15).map((item) => {
                   if (item.type === "card") {
-                    return <UpcomingCard key={`upcoming-card-${item.id}`} card={item} members={members} onClick={() => setSelectedCardId(item.id)} />;
+                    return (
+                      <UpcomingCard
+                        key={`upcoming-card-${item.id}`}
+                        card={item}
+                        members={members}
+                        onClick={() => {
+                          if (item.dueDate) {
+                            const dKey = toDateKey(new Date(item.dueDate));
+                            setSelectedDayKey(dKey);
+                            setAnchorDate(dKey);
+                          }
+                          setSelectedCardId(item.id);
+                        }}
+                      />
+                    );
                   } else if (item.type === "note") {
-                    return <UpcomingNote key={`upcoming-note-${item.id}`} note={item} onClick={() => setSelectedNoteId(item.id)} />;
+                    return (
+                      <UpcomingNote
+                        key={`upcoming-note-${item.id}`}
+                        note={item}
+                        onClick={() => {
+                          if (item.dueDate) {
+                            const dKey = toDateKey(new Date(item.dueDate));
+                            setSelectedDayKey(dKey);
+                            setAnchorDate(dKey);
+                          }
+                          setSelectedNoteId(item.id);
+                        }}
+                      />
+                    );
                   } else {
                     return (
                       <UpcomingDiaryChecklist
                         key={`upcoming-diary-${item.id}`}
                         item={item}
-                        onToggle={(checked) => handleToggleDiaryChecklist(item.diaryId, item.checklistItemId, item.dueDate, checked)}
+                        onToggle={(checked) => {
+                          if (item.dueDate) {
+                            setSelectedDayKey(item.dueDate);
+                            setAnchorDate(item.dueDate);
+                          }
+                          handleToggleDiaryChecklist(item.diaryId, item.checklistItemId, item.dueDate, checked);
+                        }}
                       />
                     );
                   }
@@ -2265,10 +2347,22 @@ export function ProjectCalendar({
               <div className="space-y-3">
                 {selectedDayItems.map((item) => (
                   <DayItemRow
-                    key={modal-day--}
+                    key={`modal-day-${item.type}-${item.id}`}
                     item={item}
-                    onCardClick={(id) => setSelectedCardId(id)}
-                    onNoteClick={(id) => setSelectedNoteId(id)}
+                    onCardClick={(id) => {
+                      if (item.dueDate) {
+                        const dKey = toDateKey(new Date(item.dueDate));
+                        setSelectedDayKey(dKey);
+                      }
+                      setSelectedCardId(id);
+                    }}
+                    onNoteClick={(id) => {
+                      if (item.dueDate) {
+                        const dKey = toDateKey(new Date(item.dueDate));
+                        setSelectedDayKey(dKey);
+                      }
+                      setSelectedNoteId(id);
+                    }}
                     onToggleDiary={handleToggleDiaryChecklist}
                     onToggleCardStatus={handleToggleCardStatus}
                     onDeleteDiaryItem={handleDeleteDiaryItem}
@@ -2309,7 +2403,7 @@ export function ProjectCalendar({
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setSelectedDayKey(null)}
+                onClick={() => setIsDayModalOpen(false)}
                 className="h-9 px-4 rounded-xl text-xs font-semibold border-stone-200/90 bg-white hover:bg-stone-50 text-stone-700 dark:border-white/10 dark:bg-white/5 dark:text-stone-200"
               >
                 Close
@@ -2615,17 +2709,25 @@ function CalendarDiarySummaryButton({
 
 function CalendarDiaryChecklistButton({
   item,
+  onClick,
   onToggle
 }: {
   item: CalendarDiaryChecklist;
+  onClick?: () => void;
   onToggle: (checked: boolean) => void;
 }) {
   const colorMeta = getCardColorMeta(item.color);
 
   return (
     <div
+      onClick={(e) => {
+        if (onClick) {
+          e.stopPropagation();
+          onClick();
+        }
+      }}
       className={cn(
-        "group/pill flex w-full items-center gap-1.5 rounded-md border px-2 py-1 text-left text-xs transition hover:scale-[1.01] hover:border-stone-300 dark:hover:border-white/25",
+        "group/pill flex w-full items-center gap-1.5 rounded-md border px-2 py-1 text-left text-xs transition hover:scale-[1.01] hover:border-stone-300 dark:hover:border-white/25 cursor-pointer",
         colorMeta.softClass,
         item.completed && "opacity-60"
       )}
