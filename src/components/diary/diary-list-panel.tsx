@@ -995,60 +995,13 @@ function DiaryFocusCard({
   return (
     <article className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       {/* Header Banner - Compact & Low-Profile */}
-      <div className={cn("border-b border-white/10 bg-white/[0.015] px-4 py-3 sm:px-5 sm:py-3.5", colorMeta.softClass)}>
+      <div className={cn("border-b border-white/10 bg-white/[0.015] px-4 py-2.5 sm:px-5 sm:py-3", colorMeta.softClass)}>
         <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            {onBack && (
-              <button
-                type="button"
-                onClick={onBack}
-                className="mb-1 inline-flex items-center gap-1 text-xs font-semibold text-dusk-amber hover:underline lg:hidden cursor-pointer"
-              >
-                ← Back to rituals
-              </button>
-            )}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={cn("h-3 w-3 shrink-0 rounded-full border", colorMeta.swatchClass)} />
-              <h2 className="truncate text-base sm:text-lg font-bold tracking-tight text-stone-100">
-                {item.title}
-              </h2>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <DiaryStatusBadges item={item} />
-                {hasReward ? (
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold select-none shadow-sm",
-                      rewardClaimed
-                        ? "border-theme-success-border bg-theme-success-surface text-theme-success"
-                        : rewardReady
-                          ? "border-dusk-amber/40 bg-dusk-amber/20 text-dusk-amber animate-pulse"
-                          : "border-dusk-amber/25 bg-dusk-amber/10 text-dusk-amber"
-                    )}
-                    title={rewardClaimed ? "Reward claimed today" : `Reward: +${item.rewardCoins} coins upon 100% completion`}
-                  >
-                    <Coins className="h-3.5 w-3.5" />
-                    +{item.rewardCoins} {item.rewardCoinType === "GLOBAL" ? "Global" : "Project"} Coins
-                  </span>
-                ) : null}
-              </div>
-            </div>
-
-            {/* Description & metadata row */}
-            {!isBannerCollapsed && (
-              <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-stone-400">
-                {item.description ? (
-                  <p className="max-w-xl truncate text-xs italic text-stone-300/80">
-                    &ldquo;{item.description}&rdquo;
-                  </p>
-                ) : null}
-                <div className="flex items-center gap-1.5 text-[11px] text-stone-500">
-                  {item.description ? <span>•</span> : null}
-                  <span>Created by {item.author.name ?? item.author.email}</span>
-                  <span>•</span>
-                  <span>Started {formatMediumDate(item.startDate)}</span>
-                </div>
-              </div>
-            )}
+          <div className="flex min-w-0 items-center gap-2">
+            <span className={cn("h-3 w-3 shrink-0 rounded-full border", colorMeta.swatchClass)} />
+            <h2 className="truncate text-base sm:text-lg font-bold tracking-tight text-stone-100">
+              {item.title}
+            </h2>
           </div>
 
           {/* Action Bar */}
@@ -1110,6 +1063,47 @@ function DiaryFocusCard({
             ) : null}
           </div>
         </div>
+
+        {/* Collapsible Details: Badges, Coins reward, Description & Metadata */}
+        {!isBannerCollapsed && (
+          <div className="mt-2.5 pt-2 border-t border-white/5 space-y-2">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <DiaryStatusBadges item={item} />
+              {hasReward ? (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold select-none shadow-sm",
+                    rewardClaimed
+                      ? "border-theme-success-border bg-theme-success-surface text-theme-success"
+                      : rewardReady
+                        ? "border-dusk-amber/40 bg-dusk-amber/20 text-dusk-amber animate-pulse"
+                        : "border-dusk-amber/25 bg-dusk-amber/10 text-dusk-amber"
+                  )}
+                  title={rewardClaimed ? "Reward claimed today" : `Reward: +${item.rewardCoins} coins upon 100% completion`}
+                >
+                  <Coins className="h-3.5 w-3.5" />
+                  +{item.rewardCoins} {item.rewardCoinType === "GLOBAL" ? "Global" : "Project"} Coins
+                </span>
+              ) : null}
+            </div>
+
+            {(item.description || item.author || item.startDate) && (
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-stone-400">
+                {item.description ? (
+                  <p className="max-w-xl truncate text-xs italic text-stone-300/80">
+                    &ldquo;{item.description}&rdquo;
+                  </p>
+                ) : null}
+                <div className="flex items-center gap-1.5 text-[11px] text-stone-500">
+                  {item.description ? <span>•</span> : null}
+                  <span>Created by {item.author.name ?? item.author.email}</span>
+                  <span>•</span>
+                  <span>Started {formatMediumDate(item.startDate)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 2-Column Ritual Studio Content */}

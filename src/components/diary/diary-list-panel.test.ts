@@ -63,4 +63,12 @@ describe("DiaryListPanel layout", () => {
     expect(source).toContain("onSelectDiary");
     expect(source).toContain("ChevronUp");
   });
+
+  it("collapses all status badges and reward coins into details and omits back to rituals button", () => {
+    const source = readFileSync(new URL("./diary-list-panel.tsx", import.meta.url), "utf8");
+
+    expect(source).not.toContain("Back to rituals");
+    expect(source).toContain("{/* Collapsible Details: Badges, Coins reward, Description & Metadata */}\n        {!isBannerCollapsed && (");
+    expect(source).toContain("<DiaryStatusBadges item={item} />");
+  });
 });
