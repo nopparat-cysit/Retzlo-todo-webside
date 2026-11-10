@@ -1268,20 +1268,24 @@ export function KanbanBoard({
                     <button
                       type="button"
                       onClick={() => setIsTodayFilterActive((prev) => !prev)}
-                      className="group relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25 transition cursor-pointer select-none active:scale-95 shadow-xs"
+                      className={cn(
+                        "inline-flex h-8 items-center gap-1.5 rounded-xl border px-2 sm:px-2.5 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95 shrink-0",
+                        isTodayFilterActive
+                          ? "border-rose-500 bg-rose-100 text-rose-800 ring-2 ring-rose-400/50 shadow-xs dark:border-rose-500/80 dark:bg-rose-950/60 dark:text-rose-200"
+                          : "border-rose-300/80 bg-rose-50/70 text-rose-700 hover:border-rose-400 hover:bg-rose-100/80 hover:text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:border-rose-500/50 dark:hover:bg-rose-500/20"
+                      )}
                       aria-label={`${overdueCards} overdue cards`}
                     >
-                      <Clock className="h-3.5 w-3.5 shrink-0" />
-                      <span className="absolute -top-1.5 -right-1.5 z-10 flex pointer-events-none">
-                        <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[9px] font-bold leading-none text-white shadow-sm ring-2 ring-white dark:ring-ink-950 select-none">
-                          {overdueCards > 99 ? "99+" : overdueCards}
-                        </span>
+                      <Clock className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                      <span className="hidden sm:inline">Overdue</span>
+                      <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-1 font-mono text-[9px] font-bold leading-none text-white shadow-2xs">
+                        {overdueCards > 99 ? "99+" : overdueCards}
                       </span>
                       <span className="sr-only">{overdueCards} overdue</span>
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" align="end" className="text-xs">
-                    {overdueCards} overdue task(s)
+                    {overdueCards} overdue task(s) — click to filter
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -1476,7 +1480,7 @@ export function KanbanBoard({
                   </div>
                 </div>
 
-                {/* Overdue Indicator Icon */}
+                {/* Overdue Indicator Pill */}
                 {overdueCards > 0 && (
                   <TooltipProvider delayDuration={150}>
                     <Tooltip>
@@ -1485,24 +1489,23 @@ export function KanbanBoard({
                           type="button"
                           onClick={() => setIsTodayFilterActive((prev) => !prev)}
                           className={cn(
-                            "group relative flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none active:scale-95 shadow-xs",
+                            "inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer select-none active:scale-95 shrink-0",
                             isTodayFilterActive
-                              ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-400/50 shadow-sm dark:border-red-500 dark:bg-red-500/30 dark:text-red-200"
-                              : "border-red-300/90 bg-red-50/90 text-red-600 hover:border-red-400 hover:bg-red-100/90 hover:text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 dark:hover:border-red-400 dark:hover:bg-red-500/25"
+                              ? "border-rose-500 bg-rose-100 text-rose-800 ring-2 ring-rose-400/50 shadow-xs dark:border-rose-500/80 dark:bg-rose-950/60 dark:text-rose-200"
+                              : "border-rose-300/80 bg-rose-50/70 text-rose-700 hover:border-rose-400 hover:bg-rose-100/80 hover:text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:border-rose-500/50 dark:hover:bg-rose-500/20"
                           )}
                           aria-label={`${overdueCards} overdue cards`}
                         >
-                          <Clock className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
-                          <span className="absolute -top-1.5 -right-1.5 z-10 flex pointer-events-none">
-                            <span className="inline-flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1 font-mono text-[10px] font-bold leading-none text-white shadow-sm ring-2 ring-white dark:ring-ink-950 select-none">
-                              {overdueCards > 99 ? "99+" : overdueCards}
-                            </span>
+                          <Clock className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                          <span className="hidden min-[480px]:inline">Overdue</span>
+                          <span className="inline-flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-rose-600 px-1.5 font-mono text-[10px] font-bold leading-none text-white shadow-2xs">
+                            {overdueCards > 99 ? "99+" : overdueCards}
                           </span>
                           <span className="sr-only">{overdueCards} overdue</span>
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" align="end" className="text-xs">
-                        {overdueCards} overdue task(s)
+                        {overdueCards} overdue task(s) — click to filter
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

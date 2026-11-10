@@ -25,12 +25,10 @@ describe("Board Switch Skeleton and Overdue Alignment Contracts", () => {
     // Ensure absolute positioning is removed from overdue button
     expect(boardSource).not.toContain("!absolute !top-2.5 !right-2.5");
     // Ensure overdue button is inside the Premium Control Bar alongside Total, Prog, and Done
-    expect(boardSource).toMatch(/Premium Control Bar[\s\S]*Total[\s\S]*Prog[\s\S]*Done[\s\S]*Overdue Indicator Icon/);
-    // Ensure matching height and rounded corners
-    expect(boardSource).toMatch(/flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border/);
-    // Ensure overdue count badge is elevated with contrast ring and vertically centered
-    expect(boardSource).toContain("-top-1.5 -right-1.5 z-10");
-    expect(boardSource).toContain("ring-2 ring-white dark:ring-ink-950");
+    expect(boardSource).toMatch(/Premium Control Bar[\s\S]*Total[\s\S]*Prog[\s\S]*Done[\s\S]*Overdue Indicator Pill/);
+    // Ensure matching height and rounded corners as a self-contained pill chip
+    expect(boardSource).toMatch(/inline-flex h-8 sm:h-9 items-center gap-1\.5 rounded-xl border/);
+    expect(boardSource).toContain("Overdue");
     expect(boardSource).toContain("leading-none");
     // Ensure inner collapsible tools panel has headroom so elevated badges are never clipped by overflow-hidden
     expect(boardSource).toContain("overflow-hidden min-h-0 pt-3 pr-2.5");

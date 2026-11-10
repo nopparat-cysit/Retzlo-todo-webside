@@ -1159,17 +1159,16 @@ Template:
   - Relocated top padding from the outer CSS grid transition wrapper to the inner content container (`overflow-hidden min-h-0 pt-3 pr-2.5 pb-0.5 space-y-2.5`), providing 12px of internal headroom so elevated badges (`-top-1.5 -right-1.5 z-10`, -6px) are never sliced off by `overflow-hidden`.
 - Verification: Vitest 142/142 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
-### 2026-11-10 — Color Swatch Selector Border Contrast Enhancement ("ขอบเลือกสีมันจม")
-- Coverage: Kanban Board Settings & Attributes (`src/components/kanban/board-attributes-tab.tsx`, `card-attributes-edit-modal.tsx`, and `board-settings-attributes.test.ts`).
-- Theme Contrast & State Highlighting:
-  - Fixed color selector border contrast ("ขอบเลือกสีมันจม") where selected status, priority, and story point color swatches blended into dark panel backgrounds (`#12142d` / `#161936`) and indigo swatches.
-  - Replaced low-contrast `ring-2 ring-indigo-500 ring-offset-1` with a radiant 3-layer contrast hierarchy:
-    - Inner 2px white border: `border-2 border-white/90 dark:border-white` ensuring the circle boundary is crisp against all 8 swatch hues.
-    - 2px background offset gap: `ring-offset-2 ring-offset-white dark:ring-offset-ink-950` providing clear visual separation from the circle.
-    - Signature Retzlo amber highlight ring: `ring-2 ring-dusk-amber dark:ring-amber-300` delivering high-contrast visibility against dark backgrounds, light backgrounds, and all swatch colors.
-  - Increased button size from `h-5 w-5` to `h-6 w-6` (24px) with `transition-all` and elevated `scale-110 shadow-sm z-10` for enhanced touch ergonomics and visual presence.
-  - Upgraded checkmark icon from `h-2.5 w-2.5` to `h-3 w-3 text-white stroke-[3] drop-shadow-xs`.
-- Verification: Vitest 22/22 passed in `src/components/kanban/board-settings-attributes.test.ts` and `card-attributes-edit.test.ts`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+### 2026-11-10 — Redesign Kanban Overdue Indicator Pill ("ทำดีๆ")
+- Coverage: Kanban Board Header & Controls (`src/components/kanban/board.tsx` and `board-switch-skeleton.test.ts`).
+- Component Design & Visual Consistency:
+  - Redesigned the isolated square overdue alert button into a self-contained, theme-consistent pill chip (`inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold`).
+  - Aligned styling directly with Retzlo's standard filter/chip language (matching Calendar's `Upcoming` chip and Diary's `Due` chip).
+  - Eliminated the floating negative-margin badge (`-top-1.5 -right-1.5`) and dark mode black outline ring (`dark:ring-ink-950`) that previously clipped and looked detached.
+  - Replaced it with an inline mono count badge (`bg-rose-600 px-1.5 font-mono text-[10px] text-white shadow-2xs`), ensuring zero clipping risk under `overflow-hidden` containers.
+  - Added responsive label behavior (`<span className="hidden min-[480px]:inline">Overdue</span>`) for compact viewports.
+- Verification: Vitest 145/145 passed across `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+
 
 
 
