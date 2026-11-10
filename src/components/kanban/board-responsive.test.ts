@@ -154,4 +154,12 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(calendarSource).toContain("Hide Tools");
     expect(calendarSource).toContain("Active filters applied. Click to expand tools.");
   });
+
+  it("declares handleMobileColumnSwipe after filteredColumns to prevent TDZ ReferenceError", () => {
+    const filteredColumnsIdx = boardSource.indexOf("const filteredColumns =");
+    const swipeHandlerIdx = boardSource.indexOf("const handleMobileColumnSwipe =");
+    expect(filteredColumnsIdx).toBeGreaterThan(0);
+    expect(swipeHandlerIdx).toBeGreaterThan(0);
+    expect(swipeHandlerIdx).toBeGreaterThan(filteredColumnsIdx);
+  });
 });

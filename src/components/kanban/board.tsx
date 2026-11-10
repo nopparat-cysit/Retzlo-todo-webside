@@ -285,25 +285,6 @@ export function KanbanBoard({
   const touchStartXRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
 
-  const handleMobileColumnSwipe = useCallback((deltaX: number, deltaY: number) => {
-    if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
-      const currentIdx = filteredColumns.findIndex(
-        (c) => c.id === (activeMobileColumnId ?? filteredColumns[0]?.id)
-      );
-      if (currentIdx !== -1) {
-        if (deltaX < 0 && currentIdx < filteredColumns.length - 1) {
-          const nextId = filteredColumns[currentIdx + 1].id;
-          setActiveMobileColumnId(nextId);
-          document.getElementById(`tab-${nextId}`)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-        } else if (deltaX > 0 && currentIdx > 0) {
-          const prevId = filteredColumns[currentIdx - 1].id;
-          setActiveMobileColumnId(prevId);
-          document.getElementById(`tab-${prevId}`)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-        }
-      }
-    }
-  }, [filteredColumns, activeMobileColumnId]);
-
   const collisionDetection = useMemo(
     () => createKanbanCollisionDetection(() => columnsRef.current),
     []
@@ -1115,6 +1096,25 @@ export function KanbanBoard({
     }
   }, [filteredColumns, activeMobileColumnId]);
 
+  const handleMobileColumnSwipe = useCallback((deltaX: number, deltaY: number) => {
+    if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
+      const currentIdx = filteredColumns.findIndex(
+        (c) => c.id === (activeMobileColumnId ?? filteredColumns[0]?.id)
+      );
+      if (currentIdx !== -1) {
+        if (deltaX < 0 && currentIdx < filteredColumns.length - 1) {
+          const nextId = filteredColumns[currentIdx + 1].id;
+          setActiveMobileColumnId(nextId);
+          document.getElementById(`tab-${nextId}`)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        } else if (deltaX > 0 && currentIdx > 0) {
+          const prevId = filteredColumns[currentIdx - 1].id;
+          setActiveMobileColumnId(prevId);
+          document.getElementById(`tab-${prevId}`)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        }
+      }
+    }
+  }, [filteredColumns, activeMobileColumnId]);
+
   // Active filter count & reset helper
   const activeFilterCount =
     (searchQuery.trim() ? 1 : 0) +
@@ -1378,8 +1378,8 @@ export function KanbanBoard({
         >
           <div
             className={cn(
-              "overflow-hidden min-h-0 pr-2.5 space-y-2.5 transition-all duration-300",
-              isToolsCollapsed ? "pt-0 pb-0" : "pt-3 pb-0.5"
+              "overflow-hidden min-h-0 pt-3 pr-2.5 space-y-2.5 transition-all duration-300",
+              isToolsCollapsed ? "!pt-0 !pb-0" : "pb-0.5"
             )}
           >
             {/* Top Row: Controls (Stats pills, View Density, Notes toggle) */}
