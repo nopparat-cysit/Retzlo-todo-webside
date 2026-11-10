@@ -474,6 +474,32 @@ export function ProjectCalendar({
   const [daySortBy, setDaySortBy] = useState<"time" | "title" | "priority">("time");
   const [isUpdateConfirmOpen, setIsUpdateConfirmOpen] = useState(false);
   const [pendingUpdatePayload, setPendingUpdatePayload] = useState<any>(null);
+  const [isToolsCollapsed, setIsToolsCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`retzlo_calendar_${projectId}_tools_collapsed`);
+      if (stored !== null) {
+        setIsToolsCollapsed(stored === "true");
+      } else if (typeof window !== "undefined" && window.innerWidth < 768) {
+        setIsToolsCollapsed(true);
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  }, [projectId]);
+
+  const toggleToolsCollapse = useCallback(() => {
+    setIsToolsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(`retzlo_calendar_${projectId}_tools_collapsed`, String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, [projectId]);
 
   // Quick Add Event Modal State
   const [quickAddDate, setQuickAddDate] = useState<string | null>(null);
@@ -1089,7 +1115,7 @@ export function ProjectCalendar({
     <>
       <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden">
         {/* Top Control Bar Panel */}
-        <Panel className="p-3 sm:p-4 shrink-0 shadow-lg space-y-2.5 sm:space-y-3">
+        <Panel className="p-3 sm:p-4 shrink-0 shadow-lg">
           {/* Row 1: Month title & Navigation arrows + Upcoming chip */}
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
@@ -1139,25 +1165,88 @@ export function ProjectCalendar({
               </div>
             </div>
 
-            {/* Upcoming chip */}
-            <button
-              type="button"
-              onClick={() => setIsUpcomingOpen((v) => !v)}
-              className={cn(
-                "inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95 shrink-0",
-                isUpcomingOpen
-                  ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
-                  : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Active Filters Pill when tools are collapsed */}
+              {isToolsCollapsed && activeFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={toggleToolsCollapse}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/60 bg-amber-500/15 px-2 py-1 sm:py-0.5 text-xs font-semibold text-amber-700 dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber cursor-pointer hover:bg-amber-500/25 transition select-none shrink-0"
+                  title="Active filters applied. Click to expand tools."
+                >
+                  <SlidersHorizontal className="h-3 w-3" />
+                  <span>Filtered</span>
+                  <span className="grid h-3.5 min-w-3.5 place-items-center rounded-full bg-amber-600 px-1 text-[9px] font-bold text-white dark:bg-dusk-amber dark:text-ink-950">
+                    {activeFilterCount}
+                  </span>
+                  {filters.searchQuery && filters.searchQuery.trim().length > 0 && (
+                    <span className="truncate max-w-[80px] font-mono text-[10px] opacity-80">
+                      &quot;{filters.searchQuery.trim()}&quot;
+                    </span>
+                  )}
+                </button>
               )}
-              aria-expanded={isUpcomingOpen}
-            >
-              <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
-              <span>Upcoming</span>
-              <span className="rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 dark:bg-white/10 dark:text-stone-300">
-                {upcomingItems.length}
-              </span>
-            </button>
+
+              {/* Upcoming chip */}
+              <button
+                type="button"
+                onClick={() => setIsUpcomingOpen((v) => !v)}
+                className={cn(
+                  "inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95 shrink-0",
+                  isUpcomingOpen
+                    ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
+                    : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                )}
+                aria-expanded={isUpcomingOpen}
+              >
+                <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
+                <span>Upcoming</span>
+                <span className="rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 dark:bg-white/10 dark:text-stone-300">
+                  {upcomingItems.length}
+                </span>
+              </button>
+
+              {/* Collapse / Expand Toggle Button */}
+              <button
+                type="button"
+                onClick={toggleToolsCollapse}
+                aria-expanded={!isToolsCollapsed}
+                aria-label={isToolsCollapsed ? "Expand calendar tools" : "Collapse calendar tools"}
+                className={cn(
+                  "flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer select-none active:scale-95",
+                  isToolsCollapsed
+                    ? "border-stone-300 bg-white text-stone-700 hover:border-indigo-400 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
+                    : "border-indigo-500/40 bg-indigo-50/70 text-indigo-900 font-bold dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                )}
+                title={isToolsCollapsed ? "Show calendar controls and filters" : "Hide calendar controls to maximize workspace"}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" />
+                <span className="sm:hidden">
+                  {isToolsCollapsed ? "Tools" : "Hide"}
+                </span>
+                <span className="hidden sm:inline">
+                  {isToolsCollapsed ? "Show Tools" : "Hide Tools"}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
+                    !isToolsCollapsed && "rotate-180"
+                  )}
+                />
+              </button>
+            </div>
           </div>
+
+          {/* Collapsible Tools Container */}
+          <div
+            className={cn(
+              "grid transition-all duration-300 ease-in-out",
+              isToolsCollapsed
+                ? "grid-rows-[0fr] opacity-0 pointer-events-none mt-0"
+                : "grid-rows-[1fr] opacity-100 mt-2.5 pt-2.5 border-t border-stone-200/60 dark:border-white/5"
+            )}
+          >
+            <div className="overflow-hidden min-h-0 space-y-2.5 sm:space-y-3">
 
           {/* Row 2: Search input + View switcher + Filter button */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -1518,7 +1607,9 @@ export function ProjectCalendar({
               <span>Pending</span>
             </button>
           </div>
-        </Panel>
+        </div>
+      </div>
+    </Panel>
 
         {/* Main Body: Full-width Calendar Grid + Collapsible Upcoming Panel */}
         <div className="flex min-h-0 flex-1 gap-4 overflow-hidden">

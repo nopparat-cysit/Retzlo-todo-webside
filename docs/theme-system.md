@@ -1143,6 +1143,14 @@ Template:
   - Preserved mobile single-column segmented tabbed view (< 640px) where active column smoothly spans full viewport width (`flex-1 w-full`) and inactive columns remain hidden.
 - Verification: Vitest 189/189 passed across `src/components/kanban/` and `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
+### 2026-11-10 — Collapsible Calendar Tools Header & Hide Diary Checklist Details
+- Coverage: Calendar Page (`src/components/kanban/project-calendar.tsx`), Diary Studio (`src/components/diary/diary-list-panel.tsx`), and Pinned Diary Preview (`src/components/diary/diary-checklist.tsx`).
+- Layout & Token Alignment:
+  - Implemented collapsible header tools on Project Calendar matching Board and Diary UX patterns (`isToolsCollapsed`), using smooth CSS grid height transition (`grid-rows-[0fr]` to `grid-rows-[1fr]`), quick active filter badge indicator, and `localStorage` persistence.
+  - Added "Hide Details" (Compact Mode) toggle (`Eye`/`EyeOff` buttons) to Diary Checklist headers across both Diary Studio and the floating Pinned Diary widget.
+  - When details are hidden, lengthy URL descriptions and multi-item repeat/start date tags are cleanly collapsed into compact single-line checklist rows, preventing checklist cards from consuming excessive vertical space while providing per-item chevron expansion for on-demand details inspection.
+- Verification: Vitest 196/196 passed across `src/components/kanban/`, `src/components/diary/`, and `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js build succeeded (43/43 routes).
+
 
 
 

@@ -36,4 +36,20 @@ describe("DiaryListPanel layout", () => {
     expect(source).toContain("grid-rows-[0fr]");
     expect(source).toContain("grid-rows-[1fr]");
   });
+
+  it("supports hiding checklist details with persistence and per-item toggle", () => {
+    const source = readFileSync(new URL("./diary-list-panel.tsx", import.meta.url), "utf8");
+
+    expect(source).toContain("isChecklistDetailsHidden");
+    expect(source).toContain("toggleChecklistDetailsHidden");
+    expect(source).toContain("retzlo_diary_hide_checklist_details");
+    expect(source).toContain("expandedItemIds");
+  });
+
+  it("supports compact details mode in DiaryChecklistPreview with localStorage persistence", () => {
+    const source = readFileSync(new URL("./diary-checklist.tsx", import.meta.url), "utf8");
+
+    expect(source).toContain("isDetailsHidden");
+    expect(source).toContain("retzlo_diary_hide_checklist_details");
+  });
 });

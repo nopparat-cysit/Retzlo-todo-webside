@@ -1,6 +1,7 @@
 "use client";
 
-import { Calendar, CheckCircle2, Circle, Coins, Minus, Plus, Repeat, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Calendar, CheckCircle2, Circle, ChevronDown, Coins, Eye, EyeOff, Minus, Plus, Repeat, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -463,6 +464,19 @@ export function DiaryChecklistPreview({
   selectedDate,
   value
 }: DiaryChecklistPreviewProps) {
+  const [isDetailsHidden, setIsDetailsHidden] = useState(false);
+  const [expandedItemIds, setExpandedItemIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("retzlo_diary_hide_checklist_details");
+      if (stored === "true") {
+        setIsDetailsHidden(true);
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  }, []);
   const normalized = normalizeDiaryChecklist(value, selectedDate);
   const sorted = [...normalized].sort((a, b) => {
     const aDue = isDiaryChecklistItemDueOnDate(a, selectedDate);
@@ -496,7 +510,30 @@ export function DiaryChecklistPreview({
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-700 dark:text-stone-300">Checklist</p>
             <p className="mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">Tap due rows to finish the daily routine.</p>
           </div>
-          <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setIsDetailsHidden((prev) => {
+                  const next = !prev;
+                  try {
+                    localStorage.setItem("retzlo_diary_hide_checklist_details", String(next));
+                  } catch {}
+                  return next;
+                });
+              }}
+              className={cn(
+                "inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition cursor-pointer select-none active:scale-95",
+                isDetailsHidden
+                  ? "border-amber-400/50 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                  : "border-stone-200 bg-white/70 text-stone-600 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
+              )}
+              title={isDetailsHidden ? "Show details" : "Hide details"}
+              aria-label={isDetailsHidden ? "Show details" : "Hide details"}
+            >
+              {isDetailsHidden ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+              <span>{isDetailsHidden ? "Details" : "Hide"}</span>
+            </button>
             {hasReward ? (
               <span
                 className={cn(
@@ -531,7 +568,8 @@ export function DiaryChecklistPreview({
             <label
               key={item.id}
               className={cn(
-                "group flex w-full items-start gap-3 rounded-xl border border-stone-200/80 bg-white/80 p-3 text-sm transition hover:border-indigo-300 hover:bg-white dark:border-white/8 dark:bg-white/[0.03] dark:hover:border-dusk-lavender/22 dark:hover:bg-white/[0.055]",
+                "group flex w-full items-start gap-3 rounded-xl border border-stone-200/80 bg-white/80 text-sm transition hover:border-indigo-300 hover:bg-white dark:border-white/8 dark:bg-white/[0.03] dark:hover:border-dusk-lavender/22 dark:hover:bg-white/[0.055]",
+                isDetailsHidden && !expandedItemIds.includes(item.id) ? "p-2 sm:p-2.5" : "p-3",
                 isDue && "border-indigo-300/60 bg-indigo-50/50 shadow-[0_4px_16px_rgba(99,102,241,0.06)] dark:border-dusk-lavender/20 dark:bg-dusk-lavender/[0.05] dark:shadow-[0_14px_32px_rgba(169,162,255,0.07)]",
                 isCompleted && "border-emerald-300/40 bg-emerald-50/50 dark:border-emerald-300/20 dark:bg-emerald-300/[0.035]",
                 !isDue && "opacity-55"
@@ -555,8 +593,26 @@ export function DiaryChecklistPreview({
               </button>
               <span className="min-w-0 flex-1">
                 <span className="flex min-w-0 items-start justify-between gap-2">
-                  <span className={cn("block truncate font-semibold text-stone-900 dark:text-stone-100", isCompleted && "line-through opacity-70")}>
-                    {item.label || "Untitled checklist item"}
+                  <span className="flex items-center min-w-0">
+                    <span className={cn("block truncate font-semibold text-stone-900 dark:text-stone-100", isCompleted && "line-through opacity-70")}>
+                      {item.label || "Untitled checklist item"}
+                    </span>
+                    {isDetailsHidden && (item.description || item.startDate || item.dueTime) ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setExpandedItemIds((prev) =>
+                            prev.includes(item.id) ? prev.filter((id) => id !== item.id) : [...prev, item.id]
+                          );
+                        }}
+                        className="ml-1.5 inline-flex items-center text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 transition cursor-pointer"
+                        title="Toggle step details"
+                      >
+                        <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", expandedItemIds.includes(item.id) && "rotate-180")} />
+                      </button>
+                    ) : null}
                   </span>
                   <span
                     className={cn(
@@ -569,27 +625,31 @@ export function DiaryChecklistPreview({
                     {isDue ? "Today" : "Later"}
                   </span>
                 </span>
-                {item.description ? <span className="mt-1 line-clamp-2 block text-xs leading-5 text-stone-600 dark:text-stone-400">{item.description}</span> : null}
-                <span className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-stone-600 dark:text-stone-400">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]">
-                    <Repeat className="h-3 w-3" />
-                    {item.repeatUnit === "MONTH"
-                      ? (item.intervalDays || 1) > 1
-                        ? `Every ${item.intervalDays} mo (${getStartDayOfMonth(item.startDate)}th)`
-                        : `Monthly (${getStartDayOfMonth(item.startDate)}th)`
-                      : item.intervalDays === 1
-                        ? "Daily"
-                        : `Every ${item.intervalDays}d`}
-                  </span>
-                  {item.startDate ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]" title={`Start date: ${item.startDate}`}>
-                      <Calendar className="h-3 w-3" />
-                      Starts {item.startDate}
+                {(!isDetailsHidden || expandedItemIds.includes(item.id)) && item.description ? (
+                  <span className="mt-1 line-clamp-2 block text-xs leading-5 text-stone-600 dark:text-stone-400">{item.description}</span>
+                ) : null}
+                {(!isDetailsHidden || expandedItemIds.includes(item.id)) ? (
+                  <span className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-stone-600 dark:text-stone-400">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]">
+                      <Repeat className="h-3 w-3" />
+                      {item.repeatUnit === "MONTH"
+                        ? (item.intervalDays || 1) > 1
+                          ? `Every ${item.intervalDays} mo (${getStartDayOfMonth(item.startDate)}th)`
+                          : `Monthly (${getStartDayOfMonth(item.startDate)}th)`
+                        : item.intervalDays === 1
+                          ? "Daily"
+                          : `Every ${item.intervalDays}d`}
                     </span>
-                  ) : null}
-                  {item.dueTime ? <span className="rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]">{item.dueTime}</span> : null}
-                  {!isDue ? <span className="rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]">Not due today</span> : null}
-                </span>
+                    {item.startDate ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]" title={`Start date: ${item.startDate}`}>
+                        <Calendar className="h-3 w-3" />
+                        Starts {item.startDate}
+                      </span>
+                    ) : null}
+                    {item.dueTime ? <span className="rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]">{item.dueTime}</span> : null}
+                    {!isDue ? <span className="rounded-full bg-stone-200/70 px-2 py-0.5 dark:bg-white/[0.055]">Not due today</span> : null}
+                  </span>
+                ) : null}
               </span>
             </label>
           );

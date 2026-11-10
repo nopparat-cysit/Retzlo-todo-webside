@@ -841,8 +841,31 @@ function DiaryFocusCard({
 }) {
   const { toast } = useToast();
   const [newStepLabel, setNewStepLabel] = useState("");
+  const [isChecklistDetailsHidden, setIsChecklistDetailsHidden] = useState(false);
+  const [expandedItemIds, setExpandedItemIds] = useState<string[]>([]);
   const colorMeta = getCardColorMeta(item.color);
   const lofiSticker = getDiaryLofiSticker(item.color);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("retzlo_diary_hide_checklist_details");
+      if (stored === "true") {
+        setIsChecklistDetailsHidden(true);
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  }, []);
+
+  const toggleChecklistDetailsHidden = useCallback(() => {
+    setIsChecklistDetailsHidden((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("retzlo_diary_hide_checklist_details", String(next));
+      } catch {}
+      return next;
+    });
+  }, []);
 
   const normalizedChecklist = useMemo(
     () => normalizeDiaryChecklist(item.checklist, selectedDate),
@@ -1033,6 +1056,21 @@ function DiaryFocusCard({
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={toggleChecklistDetailsHidden}
+                    className={cn(
+                      "inline-flex h-7 items-center gap-1.5 rounded-lg border px-2 text-xs font-medium transition cursor-pointer select-none active:scale-95",
+                      isChecklistDetailsHidden
+                        ? "border-amber-400/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+                        : "border-white/10 bg-white/[0.04] text-stone-300 hover:bg-white/[0.08] hover:text-stone-100"
+                    )}
+                    title={isChecklistDetailsHidden ? "Show step descriptions and tags" : "Hide step descriptions and tags"}
+                    aria-label={isChecklistDetailsHidden ? "Show details" : "Hide details"}
+                  >
+                    {isChecklistDetailsHidden ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                    <span className="hidden sm:inline">{isChecklistDetailsHidden ? "Show details" : "Hide details"}</span>
+                  </button>
                   {dueItems.length > 0 ? (
                     <span className="rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2.5 py-0.5 text-xs font-medium text-dusk-cyan">
                       {completedDueCount}/{dueItems.length} completed ({progressPercent}%)
@@ -1088,7 +1126,8 @@ function DiaryFocusCard({
                     <div
                       key={chk.id}
                       className={cn(
-                        "group flex items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.025] p-3 transition hover:border-dusk-lavender/30 hover:bg-white/[0.045]",
+                        "group flex items-start justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.025] transition hover:border-dusk-lavender/30 hover:bg-white/[0.045]",
+                        isChecklistDetailsHidden && !expandedItemIds.includes(chk.id) ? "p-2 sm:p-2.5" : "p-3",
                         isDue && "border-dusk-lavender/20 bg-dusk-lavender/[0.04]",
                         isCompleted && "opacity-60",
                         !isDue && "opacity-45"
@@ -1112,40 +1151,59 @@ function DiaryFocusCard({
                         </button>
 
                         <div className="min-w-0 flex-1">
-                          <span
-                            className={cn(
-                              "block text-sm font-medium text-stone-100 break-words",
-                              isCompleted && "line-through text-stone-400/80"
-                            )}
-                          >
-                            {chk.label}
-                          </span>
-                          {chk.description ? (
-                            <p className="mt-0.5 text-xs text-stone-400 line-clamp-2">{chk.description}</p>
-                          ) : null}
-                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-stone-400">
-                            <span className="inline-flex items-center gap-1 rounded bg-white/[0.05] px-1.5 py-0.5">
-                              <Repeat className="h-2.5 w-2.5" />
-                              Every {chk.intervalDays}d
-                            </span>
-                            {chk.startDate ? (
-                              <span className="inline-flex items-center gap-1 rounded bg-white/[0.05] px-1.5 py-0.5" title={`Start date: ${chk.startDate}`}>
-                                <Calendar className="h-2.5 w-2.5" />
-                                Starts {chk.startDate}
-                              </span>
-                            ) : null}
-                            {chk.dueTime ? (
-                              <span className="rounded bg-white/[0.05] px-1.5 py-0.5 font-mono">{chk.dueTime}</span>
-                            ) : null}
+                          <div className="flex items-center">
                             <span
                               className={cn(
-                                "rounded px-1.5 py-0.5",
-                                isDue ? "bg-dusk-cyan/15 text-dusk-cyan" : "bg-white/[0.05] text-stone-500"
+                                "block text-sm font-medium text-stone-100 break-words",
+                                isCompleted && "line-through text-stone-400/80"
                               )}
                             >
-                              {isDue ? "Due today" : "Upcoming"}
+                              {chk.label}
                             </span>
+                            {isChecklistDetailsHidden && (chk.description || chk.startDate || chk.dueTime) ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedItemIds((prev) =>
+                                    prev.includes(chk.id) ? prev.filter((id) => id !== chk.id) : [...prev, chk.id]
+                                  );
+                                }}
+                                className="ml-1.5 inline-flex items-center text-stone-500 hover:text-stone-300 transition cursor-pointer"
+                                title="Toggle step details"
+                              >
+                                <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", expandedItemIds.includes(chk.id) && "rotate-180")} />
+                              </button>
+                            ) : null}
                           </div>
+                          {(!isChecklistDetailsHidden || expandedItemIds.includes(chk.id)) && chk.description ? (
+                            <p className="mt-0.5 text-xs text-stone-400 line-clamp-2">{chk.description}</p>
+                          ) : null}
+                          {(!isChecklistDetailsHidden || expandedItemIds.includes(chk.id)) ? (
+                            <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-stone-400">
+                              <span className="inline-flex items-center gap-1 rounded bg-white/[0.05] px-1.5 py-0.5">
+                                <Repeat className="h-2.5 w-2.5" />
+                                Every {chk.intervalDays}d
+                              </span>
+                              {chk.startDate ? (
+                                <span className="inline-flex items-center gap-1 rounded bg-white/[0.05] px-1.5 py-0.5" title={`Start date: ${chk.startDate}`}>
+                                  <Calendar className="h-2.5 w-2.5" />
+                                  Starts {chk.startDate}
+                                </span>
+                              ) : null}
+                              {chk.dueTime ? (
+                                <span className="rounded bg-white/[0.05] px-1.5 py-0.5 font-mono">{chk.dueTime}</span>
+                              ) : null}
+                              <span
+                                className={cn(
+                                  "rounded px-1.5 py-0.5",
+                                  isDue ? "bg-dusk-cyan/15 text-dusk-cyan" : "bg-white/[0.05] text-stone-500"
+                                )}
+                              >
+                                {isDue ? "Due today" : "Upcoming"}
+                              </span>
+                            </div>
+                          ) : null}
                         </div>
                       </div>
 

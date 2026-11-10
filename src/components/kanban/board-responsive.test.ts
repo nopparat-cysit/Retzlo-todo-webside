@@ -143,4 +143,15 @@ describe("Kanban responsive and touch optimizations", () => {
   it("applies sm:flex-none sm:w-auto to column skeleton wrapper to prevent horizontal expansion on desktop", () => {
     expect(skeletonSource).toContain("sm:flex-none sm:w-auto sm:shrink-0");
   });
+
+  it("supports collapsible tools in calendar header with persistence and quick indicators", () => {
+    expect(calendarSource).toContain("isToolsCollapsed");
+    expect(calendarSource).toContain("toggleToolsCollapse");
+    expect(calendarSource).toContain("retzlo_calendar_");
+    expect(calendarSource).toContain("grid-rows-[0fr]");
+    expect(calendarSource).toContain("grid-rows-[1fr]");
+    expect(calendarSource).toContain("Show Tools");
+    expect(calendarSource).toContain("Hide Tools");
+    expect(calendarSource).toContain("Active filters applied. Click to expand tools.");
+  });
 });
