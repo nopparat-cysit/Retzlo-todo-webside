@@ -1179,6 +1179,15 @@ Template:
   - Tightened Calendar, Diary, and Notes panel headers and grid spacing to prevent redundant row breaks on mobile screens.
 - Verification: Vitest 32/32 in responsive suites passed, 193/193 across kanban/project components passed, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded.
 
+### 2026-11-10 — Mobile Kanban Column Full-Screen Height & Snap Carousel ("ให้column มะน screen สิ")
+- Coverage: Kanban Board & Column Layout (`src/components/kanban/board.tsx` and `src/components/kanban/column.tsx`).
+- Full-Screen Height & Touch Carousel:
+  - Fixed empty column vertical height collapse by assigning `flex-1 flex flex-col` to `<section>`, inner container `<div>`, card zone (`[data-card-zone]`), and empty drop zone (`min-h-[160px]`), stretching the column card to fill the viewport down to the mobile bottom navigation bar.
+  - Enabled native horizontal swipe/scroll snap carousel (`w-[calc(100vw-1.5rem)] sm:flex-none sm:w-auto shrink-0 snap-center`, `overflow-x-auto pb-1 snap-x snap-mandatory`), allowing 1 full column per screen width.
+  - Upgraded segmented tab strip to be horizontally scrollable without text truncation (`overflow-x-auto scrollbar-none px-2.5 py-1.5 shrink-0 whitespace-nowrap`), automatically synchronizing active tab focus as columns are swiped.
+- Verification: Vitest 145/145 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+
+
 
 
 

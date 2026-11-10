@@ -870,6 +870,7 @@ export function KanbanBoard({
 
       if (typeof window !== "undefined" && window.innerWidth < 640) {
         setActiveMobileColumnId(targetColumnId);
+        document.getElementById(`column-${targetColumnId}`)?.scrollIntoView({ behavior: "smooth", inline: "center" });
       }
 
       try {
@@ -1087,6 +1088,8 @@ export function KanbanBoard({
     }
     if (closestColId && closestColId !== activeMobileColumnId) {
       setActiveMobileColumnId(closestColId);
+      const tabEl = document.getElementById(`tab-${closestColId}`);
+      tabEl?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
     }
   }, [filteredColumns, activeMobileColumnId]);
 
@@ -2253,24 +2256,26 @@ export function KanbanBoard({
               <div className="relative flex min-h-0 flex-1 flex-col">
                 {/* Mobile Segmented Column Tab Bar */}
                 {filteredColumns.length > 1 && (
-                  <div className="sm:hidden flex items-center gap-1 p-1 rounded-xl bg-stone-100/90 dark:bg-white/[0.04] border border-stone-200/80 dark:border-white/10 mb-2.5 w-full shrink-0">
+                  <div className="sm:hidden flex items-center gap-1 p-1 rounded-xl overflow-x-auto scrollbar-none bg-stone-100/90 dark:bg-white/[0.04] border border-stone-200/80 dark:border-white/10 mb-2.5 w-full shrink-0">
                     {filteredColumns.map((col) => {
                       const isActive = (activeMobileColumnId ?? filteredColumns[0]?.id) === col.id;
                       return (
                         <button
                           key={`tab-${col.id}`}
+                          id={`tab-${col.id}`}
                           type="button"
                           onClick={() => {
+                            document.getElementById(`column-${col.id}`)?.scrollIntoView({ behavior: "smooth", inline: "center" });
                             setActiveMobileColumnId(col.id);
                           }}
                           className={cn(
-                            "flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-all cursor-pointer select-none min-w-0",
+                            "flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer select-none",
                             isActive
                               ? "bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs font-bold border border-stone-200/70 dark:border-white/10"
                               : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
                           )}
                         >
-                          <span className="truncate">{col.name}</span>
+                          <span>{col.name}</span>
                           <span
                             className={cn(
                               "rounded-full px-1.5 py-0.2 text-[10px] font-mono shrink-0",
@@ -2289,44 +2294,36 @@ export function KanbanBoard({
                 <div
                   ref={columnsContainerRef}
                   onScroll={handleColumnsScroll}
-                  className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 sm:gap-4 overflow-x-hidden sm:overflow-x-auto pb-1 sm:snap-x sm:snap-mandatory">
+                  className="relative scrollbar-soft scroll-touch-x flex min-h-0 flex-1 gap-3 sm:gap-4 overflow-x-auto pb-1 snap-x snap-mandatory">
                   <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
-                    {filteredColumns.map((column, index) => {
-                      const isMobileActive = (activeMobileColumnId ?? filteredColumns[0]?.id) === column.id;
-                      return (
-                        <div
-                          key={column.id}
-                          id={`column-${column.id}`}
-                          className={cn(
-                            "h-full min-h-0",
-                            isMobileActive
-                              ? "flex flex-col flex-1 w-full sm:flex-none sm:w-auto sm:shrink-0"
-                              : "hidden sm:flex sm:flex-col sm:shrink-0"
-                          )}
-                        >
-                          <KanbanColumn
-                            column={column}
-                            density={density}
-                            activeCardId={activeCardId}
-                            isDragDisabled={isSavingReorder}
-                            isDropTarget={activeDropColumnId === column.id}
-                            onEditCard={setEditingCard}
-                            onCreateCard={createCard}
-                            onCardDeleted={deleteCard}
-                            onCardSaved={saveCard}
-                            onMoveCard={(card, colId) => setMovingCard({ card, columnId: colId })}
-                            onColumnDeleted={deleteColumn}
-                            onColumnSaved={updateColumn}
-                            isFirst={index === 0}
-                            members={members}
-                            currentUserId={currentUserId}
-                            hasActiveFilters={activeFilterCount > 0}
-                            boardId={board.id}
-                            priorities={boardPriorities}
-                          />
-                        </div>
-                      );
-                    })}
+                    {filteredColumns.map((column, index) => (
+                      <div
+                        key={column.id}
+                        id={`column-${column.id}`}
+                        className="flex flex-col flex-1 h-full min-h-0 w-[calc(100vw-1.5rem)] sm:flex-none sm:w-auto sm:shrink-0 shrink-0 snap-center"
+                      >
+                        <KanbanColumn
+                          column={column}
+                          density={density}
+                          activeCardId={activeCardId}
+                          isDragDisabled={isSavingReorder}
+                          isDropTarget={activeDropColumnId === column.id}
+                          onEditCard={setEditingCard}
+                          onCreateCard={createCard}
+                          onCardDeleted={deleteCard}
+                          onCardSaved={saveCard}
+                          onMoveCard={(card, colId) => setMovingCard({ card, columnId: colId })}
+                          onColumnDeleted={deleteColumn}
+                          onColumnSaved={updateColumn}
+                          isFirst={index === 0}
+                          members={members}
+                          currentUserId={currentUserId}
+                          hasActiveFilters={activeFilterCount > 0}
+                          boardId={board.id}
+                          priorities={boardPriorities}
+                        />
+                      </div>
+                    ))}
                   </SortableContext>
                 </div>
               </div>

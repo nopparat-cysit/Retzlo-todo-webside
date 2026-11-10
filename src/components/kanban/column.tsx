@@ -437,7 +437,7 @@ function KanbanColumnComponent({
         minWidth: isCollapsed || isMobileScreen ? undefined : `${MIN_COLUMN_WIDTH}px`
       }}
       className={cn(
-        "group relative flex h-full min-h-0 sm:min-h-0 w-full sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 sm:snap-center flex-col rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
+        "group relative flex flex-1 h-full min-h-0 sm:min-h-0 w-full sm:w-[320px] md:w-[335px] xl:w-[345px] shrink-0 sm:snap-center flex-col rounded-2xl border shadow-[0_14px_34px_rgba(0,0,0,0.16)]",
         isResizing ? "transition-none select-none" : "transition duration-200",
         theme.columnClass,
         isWipExceeded && "wip-exceeded border-dusk-amber/30",
@@ -446,7 +446,7 @@ function KanbanColumnComponent({
         isDragging && "opacity-70"
       )}
     >
-      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl">
+      <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl">
 
       {/* ── Header ── */}
       <header className={cn("flex items-center gap-1.5 border-b px-2.5 py-2 select-none", theme.headerClass)}>
@@ -545,7 +545,7 @@ function KanbanColumnComponent({
       </div>
 
       {/* ── Cards List ── */}
-      <div ref={setCardZoneRef} data-card-zone={column.id} className={cn("scrollbar-soft scroll-touch touch-pan-y overscroll-contain min-h-20 flex-1 overflow-y-auto p-2.5 sm:p-3 pb-8 sm:pb-3", density === "compact" ? "space-y-1.5" : "space-y-2.5", isDropTarget && "bg-white/[0.025]")}>
+      <div ref={setCardZoneRef} data-card-zone={column.id} className={cn("scrollbar-soft scroll-touch touch-pan-y overscroll-contain min-h-20 flex-1 flex flex-col overflow-y-auto p-2.5 sm:p-3 pb-8 sm:pb-3", density === "compact" ? "space-y-1.5" : "space-y-2.5", isDropTarget && "bg-white/[0.025]")}>
         <SortableContext items={column.cards.map((card) => `card:${card.id}`)} strategy={verticalListSortingStrategy}>
           {column.cards.map((card) => (
             <KanbanCard
@@ -570,7 +570,7 @@ function KanbanColumnComponent({
         {totalCards === 0 && (
           <div
             className={cn(
-              "rounded-2xl border border-dashed border-white/10 p-4 text-center text-sm text-stone-500 transition-all duration-300",
+              "flex-1 flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 p-4 text-center text-sm text-stone-500 transition-all duration-300 min-h-[160px]",
               isDropTarget &&
                 "animate-pulse border-dusk-lavender/60 bg-dusk-lavender/10 text-dusk-lavender shadow-[0_0_18px_2px_rgba(169,162,255,0.15)]"
             )}
@@ -590,7 +590,7 @@ function KanbanColumnComponent({
       </div>
 
       {/* ── Quick-Add Form ── */}
-      <div className={cn("border-t px-3 pb-3 pt-2", theme.headerClass)}>
+      <div className={cn("border-t px-3 pb-3 pt-2 shrink-0", theme.headerClass)}>
         {isQuickAddOpen ? (
           <div className="rounded-xl border border-indigo-400/80 bg-white p-2.5 shadow-md transition-all duration-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/15 dark:border-dusk-lavender/50 dark:bg-ink-900/95 dark:focus-within:border-dusk-lavender dark:focus-within:ring-dusk-lavender/15">
             <textarea
@@ -931,7 +931,7 @@ function KanbanColumnComponent({
         onMouseEnter={() => setIsHandleHovered(true)}
         onMouseLeave={() => setIsHandleHovered(false)}
         className={cn(
-          "group/resize absolute top-0 -right-2 bottom-0 z-40 flex w-4 cursor-col-resize items-center justify-center select-none touch-none",
+          "group/resize absolute top-0 -right-2 bottom-0 z-40 hidden sm:flex w-4 cursor-col-resize items-center justify-center select-none touch-none",
           isResizing ? "pointer-events-auto" : ""
         )}
       >
