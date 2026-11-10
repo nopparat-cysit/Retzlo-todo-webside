@@ -1339,10 +1339,10 @@ export function KanbanBoard({
             "grid transition-all duration-300 ease-in-out",
             isToolsCollapsed
               ? "grid-rows-[0fr] opacity-0 pointer-events-none mt-0"
-              : "grid-rows-[1fr] opacity-100 mt-2.5 pt-2.5 border-t border-stone-200/60 dark:border-white/5"
+              : "grid-rows-[1fr] opacity-100 mt-2.5 border-t border-stone-200/60 dark:border-white/5"
           )}
         >
-          <div className="overflow-hidden min-h-0 space-y-2.5">
+          <div className="overflow-hidden min-h-0 pt-3 pr-2.5 pb-0.5 space-y-2.5">
             {/* Top Row: Controls (Stats pills, View Density, Notes toggle) */}
             <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0 flex-1 flex flex-wrap items-center gap-2">

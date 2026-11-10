@@ -32,6 +32,8 @@ describe("Board Switch Skeleton and Overdue Alignment Contracts", () => {
     expect(boardSource).toContain("-top-1.5 -right-1.5 z-10");
     expect(boardSource).toContain("ring-2 ring-white dark:ring-ink-950");
     expect(boardSource).toContain("leading-none");
+    // Ensure inner collapsible tools panel has headroom so elevated badges are never clipped by overflow-hidden
+    expect(boardSource).toContain("overflow-hidden min-h-0 pt-3 pr-2.5");
   });
 
   it("ensures dark mode dropdowns in SelectContent use midnight background to avoid white-on-white", () => {

@@ -1152,6 +1152,14 @@ Template:
   - Upgraded `FolderModal` icon picker grid to tactile retro buttons with active ring indicators (`ring-2 ring-dusk-lavender/40`), Live Mockup Preview glyphs, and updated all folder rendering sites across sidebar navigation, folder filter pills, note card badges, and note editor selectors.
 - Verification: Vitest 27/27 passed in `src/components/notes/`, 674/674 passed across entire project suite (115 files), `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
+### 2026-11-10 — Fix Overdue Count Badge Clipping in Collapsible Board Tools
+- Coverage: Kanban Board Header (`src/components/kanban/board.tsx` and `board-switch-skeleton.test.ts`).
+- Layout & Token Alignment:
+  - Fixed horizontal clipping of the red overdue task count badge (`overdueCards`) on the Kanban board header when the tools panel is expanded.
+  - Relocated top padding from the outer CSS grid transition wrapper to the inner content container (`overflow-hidden min-h-0 pt-3 pr-2.5 pb-0.5 space-y-2.5`), providing 12px of internal headroom so elevated badges (`-top-1.5 -right-1.5 z-10`, -6px) are never sliced off by `overflow-hidden`.
+- Verification: Vitest 142/142 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+
+
 
 
 
