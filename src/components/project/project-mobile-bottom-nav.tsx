@@ -90,16 +90,16 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
   return (
     <nav
       aria-label="Mobile workspace navigation"
-      className="lg:hidden fixed bottom-2 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[340px] max-w-[360px] mx-auto z-40 rounded-full border border-stone-300 bg-white p-1 shadow-[0_8px_24px_rgba(0,0,0,0.15)] dark:border-white/15 dark:bg-[#0e1025] dark:shadow-[0_12px_28px_rgba(0,0,0,0.6)] transition-all duration-300"
+      className="lg:hidden fixed bottom-2.5 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[350px] max-w-[368px] mx-auto z-40 rounded-full border border-stone-200/90 bg-white/92 backdrop-blur-xl p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.12)] dark:border-white/15 dark:bg-[#0c0e24]/92 dark:shadow-[0_16px_36px_rgba(0,0,0,0.65)] transition-all duration-300"
       style={{
-        bottom: "calc(0.4rem + env(safe-area-inset-bottom, 0px))",
+        bottom: "calc(0.5rem + env(safe-area-inset-bottom, 0px))",
       }}
     >
       <div className="relative grid grid-cols-4 items-center">
         {/* Animated Sliding Highlight Pill (Transfer Animation) */}
         <div
           className={cn(
-            "absolute inset-y-0.5 w-1/4 p-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
+            "absolute inset-y-1 w-1/4 p-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
             hasActiveTab ? "opacity-100 scale-100" : "opacity-0 scale-95"
           )}
           style={{
@@ -107,7 +107,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
           }}
           aria-hidden="true"
         >
-          <div className="w-full h-full rounded-full bg-indigo-50 border border-indigo-200/90 dark:bg-dusk-lavender/20 dark:border-dusk-lavender/40 shadow-xs" />
+          <div className="w-full h-full rounded-full bg-gradient-to-b from-indigo-50 to-indigo-100/80 border border-indigo-200/90 shadow-2xs dark:from-dusk-lavender/25 dark:to-dusk-lavender/15 dark:border-dusk-lavender/40 dark:shadow-[0_0_12px_rgba(167,139,250,0.2)]" />
         </div>
 
         {navItems.map((item, index) => {
@@ -120,34 +120,28 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
               href={item.href}
               onClick={() => setOptimisticSegment(item.segment)}
               aria-current={isActive ? "page" : undefined}
-              className="relative z-10 flex flex-col items-center justify-center py-0.5 px-0.5 rounded-full select-none transition-transform duration-150 active:scale-90 cursor-pointer"
+              className="relative z-10 flex flex-col items-center justify-center py-1.5 px-1 rounded-full select-none transition-transform duration-150 active:scale-95 cursor-pointer gap-0.5"
             >
-              <div
-                className={cn(
-                  "grid h-5 w-5 place-items-center transition-all duration-300",
-                  isActive
-                    ? "text-indigo-600 dark:text-dusk-lavender scale-110 font-bold"
-                    : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
-                )}
-              >
-                <Icon className="h-3.5 w-3.5 transition-transform duration-300" />
+              <div className="grid h-5 w-5 place-items-center transition-all duration-300">
+                <Icon
+                  className={cn(
+                    "h-4 w-4 transition-transform duration-300",
+                    isActive
+                      ? "text-indigo-600 dark:text-dusk-lavender scale-110 drop-shadow-xs font-bold"
+                      : "text-stone-400 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
+                  )}
+                />
               </div>
               <span
                 className={cn(
-                  "text-[9px] tracking-tight leading-none transition-all duration-300 truncate max-w-[56px]",
+                  "text-[10px] tracking-tight leading-tight transition-all duration-300 truncate max-w-[62px]",
                   isActive
-                    ? "font-bold text-stone-900 dark:text-stone-100"
+                    ? "font-bold text-stone-900 dark:text-white drop-shadow-xs"
                     : "font-medium text-stone-500 dark:text-stone-400"
                 )}
               >
                 {item.label}
               </span>
-              <span
-                className={cn(
-                  "mt-0.5 h-0.5 w-0.5 rounded-full transition-all duration-300",
-                  isActive ? "scale-100 opacity-100 bg-indigo-600 dark:bg-dusk-lavender" : "scale-0 opacity-0"
-                )}
-              />
             </Link>
           );
         })}

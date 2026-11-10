@@ -1159,15 +1159,17 @@ Template:
   - Relocated top padding from the outer CSS grid transition wrapper to the inner content container (`overflow-hidden min-h-0 pt-3 pr-2.5 pb-0.5 space-y-2.5`), providing 12px of internal headroom so elevated badges (`-top-1.5 -right-1.5 z-10`, -6px) are never sliced off by `overflow-hidden`.
 - Verification: Vitest 142/142 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
-### 2026-11-10 — Redesign Kanban Overdue Indicator Pill ("ทำดีๆ")
-- Coverage: Kanban Board Header & Controls (`src/components/kanban/board.tsx` and `board-switch-skeleton.test.ts`).
-- Component Design & Visual Consistency:
-  - Redesigned the isolated square overdue alert button into a self-contained, theme-consistent pill chip (`inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold`).
-  - Aligned styling directly with Retzlo's standard filter/chip language (matching Calendar's `Upcoming` chip and Diary's `Due` chip).
-  - Eliminated the floating negative-margin badge (`-top-1.5 -right-1.5`) and dark mode black outline ring (`dark:ring-ink-950`) that previously clipped and looked detached.
-  - Replaced it with an inline mono count badge (`bg-rose-600 px-1.5 font-mono text-[10px] text-white shadow-2xs`), ensuring zero clipping risk under `overflow-hidden` containers.
-  - Added responsive label behavior (`<span className="hidden min-[480px]:inline">Overdue</span>`) for compact viewports.
-- Verification: Vitest 145/145 passed across `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+### 2026-11-10 — Mobile Bottom Navigation Bar Polish & Redesign ("แก้ทำสวยๆ")
+- Coverage: Mobile Navigation Dock (`src/components/project/project-mobile-bottom-nav.tsx` and `project-mobile-bottom-nav.test.ts`).
+- Visual Refinement & Token Polish:
+  - Eliminated the awkward 0.5px active dot protrusion (`mt-0.5 h-0.5 w-0.5 rounded-full`) that intersected the bottom border of the active highlight capsule pill.
+  - Upgraded dock container to a frosted glass floating pill (`bg-white/92 backdrop-blur-xl border border-stone-200/90 shadow-[0_10px_30px_rgba(0,0,0,0.12)] dark:border-white/15 dark:bg-[#0c0e24]/92 dark:shadow-[0_16px_36px_rgba(0,0,0,0.65)]`) with generous `p-1.5` padding.
+  - Redesigned the sliding transfer highlight pill with balanced vertical geometry (`inset-y-1 w-1/4 p-0.5`) and a subtle luminous gradient:
+    - Light: `from-indigo-50 to-indigo-100/80 border-indigo-200/90 shadow-2xs`
+    - Dark: `from-dusk-lavender/25 to-dusk-lavender/15 border-dusk-lavender/40 shadow-[0_0_12px_rgba(167,139,250,0.2)]`
+  - Polished touch ergonomics and typography: `py-1.5 px-1 rounded-full gap-0.5`, `h-4 w-4` icons with active lavender glow (`text-indigo-600 dark:text-dusk-lavender scale-110 drop-shadow-xs`), and crisp `text-[10px]` labels (`font-bold text-stone-900 dark:text-white drop-shadow-xs`).
+- Verification: Vitest 48/48 passed in `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+
 
 
 
