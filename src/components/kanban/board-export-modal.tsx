@@ -78,7 +78,6 @@ const EXPORT_ROW_PREVIEW_COLUMNS: Array<{ key: keyof ExportCardRow; label: strin
   { key: "index", label: "No." },
   { key: "title", label: "Task title" },
   { key: "status", label: "Status" },
-  { key: "columnName", label: "Column" },
   { key: "priority", label: "Priority" },
   { key: "assignees", label: "Assignees" },
   { key: "difficulty", label: "Story points" },

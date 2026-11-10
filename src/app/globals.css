@@ -3145,3 +3145,46 @@ textarea.quick-add-textarea:focus,
 .animate-omikuji-shake {
   animation: omikuji-shake 0.18s ease-in-out infinite;
 }
+
+
+/* ── Kanban Export Document Dark Theme Isolation ── */
+[data-theme="light"] [data-export-theme="dark"] .text-stone-100,
+.light [data-export-theme="dark"] .text-stone-100 {
+  color: #f5f5f4 !important;
+}
+[data-theme="light"] [data-export-theme="dark"] .text-stone-200,
+.light [data-export-theme="dark"] .text-stone-200 {
+  color: #e7e5e4 !important;
+}
+[data-theme="light"] [data-export-theme="dark"] .text-stone-300,
+.light [data-export-theme="dark"] .text-stone-300 {
+  color: #d6d3d1 !important;
+}
+[data-theme="light"] [data-export-theme="dark"] .text-stone-400,
+.light [data-export-theme="dark"] .text-stone-400 {
+  color: #a8a29e !important;
+}
+[data-theme="light"] [data-export-theme="dark"] .bg-white\/\[0\.015\],
+.light [data-export-theme="dark"] .bg-white\/\[0\.015\],
+[data-theme="light"] [data-export-theme="dark"] .bg-white\/\[0\.02\],
+.light [data-export-theme="dark"] .bg-white\/\[0\.02\],
+[data-theme="light"] [data-export-theme="dark"] .bg-white\/\[0\.03\],
+.light [data-export-theme="dark"] .bg-white\/\[0\.03\],
+[data-theme="light"] [data-export-theme="dark"] .bg-white\/\[0\.04\],
+.light [data-export-theme="dark"] .bg-white\/\[0\.04\],
+[data-theme="light"] [data-export-theme="dark"] .bg-white\/5,
+.light [data-export-theme="dark"] .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.035) !important;
+}
+[data-theme="light"] [data-export-theme="dark"] .bg-white\/10,
+.light [data-export-theme="dark"] .bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme="light"] [data-export-theme="dark"] .border-white\/5,
+.light [data-export-theme="dark"] .border-white\/5 {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+[data-theme="light"] [data-export-theme="dark"] .border-white\/10,
+.light [data-export-theme="dark"] .border-white\/10 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}

@@ -138,9 +138,11 @@ export function BoardExportDocument({
 
   return (
     <div
+      data-export-theme={isDark ? "dark" : "light"}
+      data-theme={isDark ? "dark" : "light"}
       className={cn(
         "font-sans antialiased text-left p-8 transition-colors select-none",
-        isDark ? "bg-[#0b0c1b] text-stone-100" : "bg-[#fcfbf9] text-stone-900"
+        isDark ? "dark bg-[#0b0c1b] text-stone-100" : "bg-[#fcfbf9] text-stone-900"
       )}
       style={{
         width: layout === "kanban" ? `${kanbanWidth}px` : "1240px",
@@ -159,7 +161,12 @@ export function BoardExportDocument({
             : "border-stone-200/90 bg-white"
         )}
       >
-        <div className="flex items-start justify-between gap-6 pb-6 border-b border-stone-200/60 dark:border-white/10">
+        <div
+          className={cn(
+            "flex items-start justify-between gap-6 pb-6 border-b",
+            isDark ? "border-white/10" : "border-stone-200/60"
+          )}
+        >
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span
@@ -185,7 +192,12 @@ export function BoardExportDocument({
               )}
             </div>
 
-            <h1 className="text-3xl font-extrabold tracking-tight">
+            <h1
+              className={cn(
+                "text-3xl font-extrabold tracking-tight",
+                isDark ? "text-stone-100" : "text-stone-900"
+              )}
+            >
               {boardTitle || "Kanban Board"}
             </h1>
 
@@ -208,7 +220,12 @@ export function BoardExportDocument({
               >
                 <KanbanSquare className="h-3.5 w-3.5 opacity-70" />
                 Scope:{" "}
-                <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                <span
+                  className={cn(
+                    "font-semibold",
+                    isDark ? "text-indigo-400" : "text-indigo-600"
+                  )}
+                >
                   {scope === "filtered" ? "Current Filter" : "All Tasks in Board"}
                 </span>
               </span>
@@ -252,16 +269,28 @@ export function BoardExportDocument({
           <div
             className={cn(
               "p-3 rounded-xl border flex flex-col justify-between",
-              isDark ? "border-white/5 bg-white/[0.03]" : "border-stone-200/80 bg-stone-50/80"
+              isDark
+                ? "border-white/10 bg-white/[0.04] text-stone-100"
+                : "border-stone-200/80 bg-stone-50/80 text-stone-900"
             )}
           >
-            <span className="text-[11px] font-medium text-stone-500 dark:text-stone-400">
+            <span
+              className={cn(
+                "text-[11px] font-medium",
+                isDark ? "text-stone-400" : "text-stone-500"
+              )}
+            >
               Total Tasks
             </span>
             <div className="flex items-baseline justify-between mt-1">
               <span className="text-xl font-bold">{stats.totalCards}</span>
               {stats.totalPoints > 0 && (
-                <span className="text-[10px] font-mono text-stone-400">
+                <span
+                  className={cn(
+                    "text-[10px] font-mono",
+                    isDark ? "text-stone-400" : "text-stone-500"
+                  )}
+                >
                   {stats.totalPoints} pts
                 </span>
               )}
@@ -275,11 +304,21 @@ export function BoardExportDocument({
               isDark ? "border-indigo-500/20 bg-indigo-500/5" : "border-indigo-100 bg-indigo-50/40"
             )}
           >
-            <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400">
+            <span
+              className={cn(
+                "text-[11px] font-medium",
+                isDark ? "text-indigo-400" : "text-indigo-600"
+              )}
+            >
               To Do
             </span>
             <div className="flex items-baseline justify-between mt-1">
-              <span className="text-xl font-bold text-indigo-700 dark:text-indigo-300">
+              <span
+                className={cn(
+                  "text-xl font-bold",
+                  isDark ? "text-indigo-300" : "text-indigo-700"
+                )}
+              >
                 {stats.todoCount}
               </span>
             </div>
@@ -292,11 +331,21 @@ export function BoardExportDocument({
               isDark ? "border-teal-500/20 bg-teal-500/5" : "border-teal-100 bg-teal-50/40"
             )}
           >
-            <span className="text-[11px] font-medium text-teal-600 dark:text-teal-400">
+            <span
+              className={cn(
+                "text-[11px] font-medium",
+                isDark ? "text-teal-400" : "text-teal-600"
+              )}
+            >
               In Progress
             </span>
             <div className="flex items-baseline justify-between mt-1">
-              <span className="text-xl font-bold text-teal-700 dark:text-teal-300">
+              <span
+                className={cn(
+                  "text-xl font-bold",
+                  isDark ? "text-teal-300" : "text-teal-700"
+                )}
+              >
                 {stats.doingCount}
               </span>
             </div>
@@ -309,11 +358,21 @@ export function BoardExportDocument({
               isDark ? "border-amber-500/20 bg-amber-500/5" : "border-amber-100 bg-amber-50/40"
             )}
           >
-            <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
+            <span
+              className={cn(
+                "text-[11px] font-medium",
+                isDark ? "text-amber-400" : "text-amber-600"
+              )}
+            >
               Waiting
             </span>
             <div className="flex items-baseline justify-between mt-1">
-              <span className="text-xl font-bold text-amber-700 dark:text-amber-300">
+              <span
+                className={cn(
+                  "text-xl font-bold",
+                  isDark ? "text-amber-300" : "text-amber-700"
+                )}
+              >
                 {stats.waitingCount}
               </span>
             </div>
@@ -326,14 +385,29 @@ export function BoardExportDocument({
               isDark ? "border-emerald-500/20 bg-emerald-500/5" : "border-emerald-100 bg-emerald-50/40"
             )}
           >
-            <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+            <span
+              className={cn(
+                "text-[11px] font-medium",
+                isDark ? "text-emerald-400" : "text-emerald-600"
+              )}
+            >
               Done
             </span>
             <div className="flex items-baseline justify-between mt-1">
-              <span className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
+              <span
+                className={cn(
+                  "text-xl font-bold",
+                  isDark ? "text-emerald-300" : "text-emerald-700"
+                )}
+              >
                 {stats.doneCount}
               </span>
-              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+              <span
+                className={cn(
+                  "text-[10px] font-bold",
+                  isDark ? "text-emerald-400" : "text-emerald-600"
+                )}
+              >
                 {stats.completionRate}%
               </span>
             </div>
@@ -386,7 +460,9 @@ export function BoardExportDocument({
                 <div
                   className={cn(
                     "flex items-center justify-between border-b px-3.5 py-3 rounded-t-2xl",
-                    isDark ? "border-white/10 bg-white/[0.02]" : "border-stone-200/80 bg-stone-100/80"
+                    isDark
+                      ? "border-white/10 bg-white/[0.04] text-stone-100"
+                      : "border-stone-200/80 bg-stone-100/80 text-stone-900"
                   )}
                 >
                   <div className="flex items-center gap-2 min-w-0">
@@ -405,13 +481,18 @@ export function BoardExportDocument({
                     <span
                       className={cn(
                         "px-2 py-0.5 rounded-full text-xs font-bold",
-                        isDark ? "bg-white/10 text-stone-300" : "bg-white text-stone-700 shadow-2xs"
+                        isDark ? "bg-white/10 text-stone-200" : "bg-white text-stone-700 shadow-2xs"
                       )}
                     >
                       {column.cards.length}
                     </span>
                     {typeof column.wipLimit === "number" && (
-                      <span className="text-[10px] font-mono text-stone-400">
+                      <span
+                        className={cn(
+                          "text-[10px] font-mono",
+                          isDark ? "text-stone-400" : "text-stone-500"
+                        )}
+                      >
                         /{column.wipLimit}
                       </span>
                     )}
@@ -464,12 +545,11 @@ export function BoardExportDocument({
                   className={cn(
                     "border-b font-bold tracking-wider uppercase text-[11px]",
                     isDark
-                      ? "border-white/10 bg-white/[0.04] text-stone-400"
+                      ? "border-white/10 bg-white/[0.04] text-stone-300"
                       : "border-stone-200 bg-stone-100/80 text-stone-600"
                   )}
                 >
                   <th className="py-3 px-3 w-12 text-center">#</th>
-                  <th className="py-3 px-3 w-32">Column</th>
                   <th className="py-3 px-4 min-w-[220px]">Task Title</th>
                   <th className="py-3 px-3 w-28 text-center">Status</th>
                   <th className="py-3 px-3 w-28 text-center">Priority</th>
@@ -479,10 +559,21 @@ export function BoardExportDocument({
                   <th className="py-3 px-3 w-16 text-center">Points</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-200/60 dark:divide-white/5">
+              <tbody
+                className={cn(
+                  "divide-y",
+                  isDark ? "divide-white/5" : "divide-stone-200/60"
+                )}
+              >
                 {columns.flatMap((col) => col.cards.map((card, idx) => ({ card, col, idx }))).length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="py-12 text-center text-stone-400">
+                    <td
+                      colSpan={8}
+                      className={cn(
+                        "py-12 text-center",
+                        isDark ? "text-stone-500" : "text-stone-400"
+                      )}
+                    >
                       No task data found for export
                     </td>
                   </tr>
@@ -524,18 +615,25 @@ export function BoardExportDocument({
                             "transition-colors",
                             idx % 2 === 1
                               ? isDark
-                                ? "bg-white/[0.015]"
-                                : "bg-stone-50/50"
+                                ? "bg-white/[0.03]"
+                                : "bg-stone-50/70"
                               : "bg-transparent"
                           )}
                         >
-                          <td className="py-2.5 px-3 text-center font-mono opacity-60">
+                          <td
+                            className={cn(
+                              "py-2.5 px-3 text-center font-mono opacity-60",
+                              isDark ? "text-stone-400" : "text-stone-600"
+                            )}
+                          >
                             {idx + 1}
                           </td>
-                          <td className="py-2.5 px-3 font-semibold text-stone-700 dark:text-stone-300">
-                            {col.name}
-                          </td>
-                          <td className="py-2.5 px-4 font-bold text-stone-900 dark:text-stone-100">
+                          <td
+                            className={cn(
+                              "py-2.5 px-4 font-bold",
+                              isDark ? "text-stone-100" : "text-stone-900"
+                            )}
+                          >
                             <div className="flex items-center gap-1.5">
                               {card.isStarred && (
                                 <Star className="h-3 w-3 fill-amber-400 text-amber-500 shrink-0" />
@@ -543,7 +641,12 @@ export function BoardExportDocument({
                               <span>{card.title}</span>
                             </div>
                             {card.description && (
-                              <p className="text-[11px] font-normal text-stone-500 dark:text-stone-400 line-clamp-1 mt-0.5">
+                              <p
+                                className={cn(
+                                  "text-[11px] font-normal line-clamp-1 mt-0.5",
+                                  isDark ? "text-stone-400" : "text-stone-500"
+                                )}
+                              >
                                 {card.description}
                               </p>
                             )}
@@ -568,24 +671,39 @@ export function BoardExportDocument({
                               {priorityMeta.label}
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 text-stone-600 dark:text-stone-300 truncate max-w-[150px]">
+                          <td
+                            className={cn(
+                              "py-2.5 px-3 truncate max-w-[150px]",
+                              isDark ? "text-stone-300" : "text-stone-600"
+                            )}
+                          >
                             {assignees}
                           </td>
                           <td
                             className={cn(
                               "py-2.5 px-3 text-center font-mono text-[11px]",
                               isOverdue
-                                ? "font-bold text-rose-600 dark:text-rose-400"
-                                : "text-stone-600 dark:text-stone-400"
+                                ? (isDark ? "font-bold text-rose-400" : "font-bold text-rose-600")
+                                : (isDark ? "text-stone-300" : "text-stone-600")
                             )}
                           >
                             {formatExportDate(card.dueDate)}
                             {isOverdue && <span className="block text-[9px]">⚠️ Overdue</span>}
                           </td>
-                          <td className="py-2.5 px-3 text-center font-mono text-[11px] text-stone-600 dark:text-stone-400">
+                          <td
+                            className={cn(
+                              "py-2.5 px-3 text-center font-mono text-[11px]",
+                              isDark ? "text-stone-300" : "text-stone-600"
+                            )}
+                          >
                             {checklistProgress}
                           </td>
-                          <td className="py-2.5 px-3 text-center font-mono font-bold text-stone-700 dark:text-stone-300">
+                          <td
+                            className={cn(
+                              "py-2.5 px-3 text-center font-mono font-bold",
+                              isDark ? "text-stone-300" : "text-stone-700"
+                            )}
+                          >
                             {card.difficulty ?? "-"}
                           </td>
                         </tr>
@@ -600,7 +718,12 @@ export function BoardExportDocument({
       )}
 
       {/* ── Document Footer ── */}
-      <footer className="mt-8 pt-4 border-t border-stone-200/80 dark:border-white/10 flex items-center justify-between text-[11px] text-stone-400">
+      <footer
+        className={cn(
+          "mt-8 pt-4 border-t flex items-center justify-between text-[11px]",
+          isDark ? "border-white/10 text-stone-400" : "border-stone-200/80 text-stone-500"
+        )}
+      >
         <span>
           Retzlo Work &amp; Life Management • Formatted specifically for export documents
         </span>
@@ -684,7 +807,7 @@ function ExportCardItem({
             <span
               className={cn(
                 "px-1.5 py-0.2 rounded text-[10px] font-mono font-bold",
-                isDark ? "bg-white/10 text-stone-300" : "bg-stone-100 text-stone-700"
+                isDark ? "bg-white/10 text-stone-200" : "bg-stone-100 text-stone-700"
               )}
             >
               {card.difficulty} pts
@@ -697,7 +820,12 @@ function ExportCardItem({
       </div>
 
       {/* Card Title */}
-      <h3 className="font-bold text-sm leading-snug break-words">
+      <h3
+        className={cn(
+          "font-bold text-sm leading-snug break-words",
+          isDark ? "text-stone-100" : "text-stone-900"
+        )}
+      >
         {card.title}
       </h3>
 
@@ -714,17 +842,20 @@ function ExportCardItem({
       )}
 
       {/* Card Meta Footer (Due Date, Checklists, Assignees) */}
-      <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-stone-200/60 dark:border-white/5 text-[11px]">
+      <div
+        className={cn(
+          "flex items-center justify-between gap-2 mt-3 pt-2 border-t text-[11px]",
+          isDark ? "border-white/5" : "border-stone-200/60"
+        )}
+      >
         <div className="flex items-center gap-2 flex-wrap">
           {card.dueDate && (
             <span
               className={cn(
                 "inline-flex items-center gap-1 font-mono font-medium",
                 isOverdue
-                  ? "text-rose-600 dark:text-rose-400 font-bold"
-                  : isDark
-                    ? "text-stone-400"
-                    : "text-stone-500"
+                  ? (isDark ? "text-rose-400 font-bold" : "text-rose-600 font-bold")
+                  : (isDark ? "text-stone-300" : "text-stone-600")
               )}
             >
               <Clock3 className="h-3 w-3" />
@@ -737,10 +868,8 @@ function ExportCardItem({
               className={cn(
                 "inline-flex items-center gap-1 font-mono",
                 checklistDone === checklistCount
-                  ? "text-emerald-600 dark:text-emerald-400 font-bold"
-                  : isDark
-                    ? "text-stone-400"
-                    : "text-stone-500"
+                  ? (isDark ? "text-emerald-400 font-bold" : "text-emerald-600 font-bold")
+                  : (isDark ? "text-stone-300" : "text-stone-600")
               )}
             >
               <ListChecks className="h-3 w-3" />
@@ -755,7 +884,7 @@ function ExportCardItem({
             <span
               className={cn(
                 "px-1.5 py-0.5 rounded text-[10px] font-medium max-w-[120px] truncate",
-                isDark ? "bg-white/10 text-stone-300" : "bg-stone-100 text-stone-700"
+                isDark ? "bg-white/10 text-stone-200" : "bg-stone-100 text-stone-700"
               )}
               title={assigneeNames.join(", ")}
             >

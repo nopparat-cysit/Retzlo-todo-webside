@@ -151,5 +151,26 @@ describe("Board Export System (Excel, CSV, PDF, PNG)", () => {
     expect(modalSrc).toContain('overflow-auto overscroll-contain');
     expect(modalSrc.match(/<AppModal\s/g) ?? []).toHaveLength(1);
   });
+
+  it("omits redundant Column column from EXPORT_ROW_PREVIEW_COLUMNS", () => {
+    const modalSrc = readFileSync(
+      join(process.cwd(), "src/components/kanban/board-export-modal.tsx"),
+      "utf8"
+    );
+    expect(modalSrc).not.toContain('{ key: "columnName", label: "Column" }');
+    expect(modalSrc).toContain('{ key: "status", label: "Status" }');
+    expect(modalSrc).toContain('{ key: "priority", label: "Priority" }');
+  });
+
+  it("applies data-export-theme and data-theme to BoardExportDocument and removes Column from table layout", () => {
+    const docSrc = readFileSync(
+      join(process.cwd(), "src/components/kanban/board-export-document.tsx"),
+      "utf8"
+    );
+    expect(docSrc).toContain('data-export-theme={isDark ? "dark" : "light"}');
+    expect(docSrc).toContain('data-theme={isDark ? "dark" : "light"}');
+    expect(docSrc).not.toContain('<th className="py-3 px-3 w-32">Column</th>');
+    expect(docSrc).toContain("colSpan={8}");
+  });
 });
 

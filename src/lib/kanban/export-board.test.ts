@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
+import * as XLSX from "xlsx";
 import {
+  buildExcelWorksheet,
+  downloadExcel,
   generateCsvContent,
   prepareExportRows,
   type ExportCardRow
@@ -105,11 +108,13 @@ describe("Export Board Utilities (CSV, Excel, PDF, PNG)", () => {
     // Must start with UTF-8 BOM so Excel opens UTF-8 correctly
     expect(csv.startsWith("\uFEFF")).toBe(true);
 
-    // Headers must exist
+    // Headers must exist and omit Column
     expect(csv).toContain("Task Title");
     expect(csv).toContain("Status");
     expect(csv).toContain("Priority");
     expect(csv).toContain("Assignees");
+    const headerLine = csv.split("\r\n")[0];
+    expect(headerLine).not.toContain('"Column"');
 
     // Commas and quotes must be escaped
     expect(csv).toContain('"Setup Discord Nitro Theme, with commas"');
@@ -117,6 +122,17 @@ describe("Export Board Utilities (CSV, Excel, PDF, PNG)", () => {
 
     // Values match
     expect(csv).toContain('"Alice, Bob"');
+  });
+
+  it("buildExcelWorksheet omits the Column field and sets 13 column widths", () => {
+    const rows = prepareExportRows(mockColumns, mockMembers);
+    const worksheet = buildExcelWorksheet(rows);
+
+    expect(worksheet["!cols"]).toHaveLength(13);
+    const sheetData = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
+    expect(sheetData[0]).toHaveProperty("Task Title");
+    expect(sheetData[0]).toHaveProperty("Status");
+    expect(sheetData[0]).not.toHaveProperty("Column");
   });
 
   it("supports custom board priorities in export", () => {

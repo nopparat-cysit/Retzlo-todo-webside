@@ -1159,6 +1159,17 @@ Template:
   - Relocated top padding from the outer CSS grid transition wrapper to the inner content container (`overflow-hidden min-h-0 pt-3 pr-2.5 pb-0.5 space-y-2.5`), providing 12px of internal headroom so elevated badges (`-top-1.5 -right-1.5 z-10`, -6px) are never sliced off by `overflow-hidden`.
 - Verification: Vitest 142/142 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
+### 2026-11-10 — Board Export Dark Theme Isolation & Redundant Column Removal
+- Coverage: Kanban Board Export System (`src/components/kanban/board-export-document.tsx`, `board-export-modal.tsx`, `src/lib/kanban/export-board.ts`, and `src/app/globals.css`).
+- Theme Isolation & Contrast Hardening:
+  - Added dedicated CSS isolation scope under `[data-theme="light"] [data-export-theme="dark"]` in `src/app/globals.css` to protect dark-themed export documents against global light-mode `!important` text and background overrides.
+  - Added `data-export-theme` and `data-theme` attributes to `BoardExportDocument` container alongside `isDark ? "dark bg-[#0b0c1b] text-stone-100" : "bg-[#fcfbf9] text-stone-900"`.
+  - Replaced all ambient `dark:` Tailwind classes in `board-export-document.tsx` with explicit `isDark ? "..." : "..."` conditional styling so exported visuals never depend on ambient outer theme classes.
+  - Fixed dark text on dark background in headings (`h1`), card titles (`h3`), KPI metrics, and table cells, providing crisp contrast in both themes.
+  - Removed redundant "Column" column from the Table export layout, spreadsheet live preview (`EXPORT_ROW_PREVIEW_COLUMNS`), Excel workbook export, and CSV export.
+- Verification: Vitest 155/155 passed across `src/components/kanban/` and `src/lib/kanban/export-board.test.ts`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+
+
 
 
 

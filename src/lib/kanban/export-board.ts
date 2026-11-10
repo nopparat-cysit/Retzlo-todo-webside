@@ -143,7 +143,6 @@ export function generateCsvContent(rows: ExportCardRow[]): string {
     "No.",
     "Task Title",
     "Status",
-    "Column",
     "Priority",
     "Assignees",
     "Story Points",
@@ -163,7 +162,6 @@ export function generateCsvContent(rows: ExportCardRow[]): string {
       escapeCsv(r.index),
       escapeCsv(r.title),
       escapeCsv(r.status),
-      escapeCsv(r.columnName),
       escapeCsv(r.priority),
       escapeCsv(r.assignees),
       escapeCsv(r.difficulty),
@@ -191,14 +189,13 @@ export function downloadCsv(rows: ExportCardRow[], filename: string) {
 }
 
 /**
- * Generates and downloads an Excel workbook (.xlsx)
+ * Builds an Excel worksheet (.xlsx) from export card rows
  */
-export function downloadExcel(rows: ExportCardRow[], filename: string, sheetTitle = "Tasks") {
+export function buildExcelWorksheet(rows: ExportCardRow[]): XLSX.WorkSheet {
   const sheetData = rows.map((r) => ({
     "No.": r.index,
     "Task Title": r.title,
     "Status": r.status,
-    "Column": r.columnName,
     "Priority": r.priority,
     "Assignees": r.assignees,
     "Story Points": r.difficulty,
@@ -218,7 +215,6 @@ export function downloadExcel(rows: ExportCardRow[], filename: string, sheetTitl
     { wch: 8 },  // No.
     { wch: 35 }, // Task Title
     { wch: 20 }, // Status
-    { wch: 20 }, // Column
     { wch: 22 }, // Priority
     { wch: 25 }, // Assignees
     { wch: 14 }, // Story Points
@@ -231,6 +227,14 @@ export function downloadExcel(rows: ExportCardRow[], filename: string, sheetTitl
     { wch: 30 }  // Note
   ];
 
+  return worksheet;
+}
+
+/**
+ * Generates and downloads an Excel workbook (.xlsx)
+ */
+export function downloadExcel(rows: ExportCardRow[], filename: string, sheetTitle = "Tasks") {
+  const worksheet = buildExcelWorksheet(rows);
   const workbook = XLSX.utils.book_new();
   const safeSheetName = sheetTitle.replace(/[\\/?*[\]]/g, "").slice(0, 31) || "Tasks";
   XLSX.utils.book_append_sheet(workbook, worksheet, safeSheetName);
