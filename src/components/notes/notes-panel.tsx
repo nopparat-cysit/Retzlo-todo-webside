@@ -791,7 +791,7 @@ export function NotesPanel({
           {/* Collapsible Tool Panel */}
           <div
             className={cn(
-              "grid transition-all duration-300 ease-in-out",
+              "grid overflow-hidden transition-all duration-300 ease-in-out",
               isToolsCollapsed
                 ? "grid-rows-[0fr] opacity-0 pointer-events-none mt-0"
                 : "grid-rows-[1fr] opacity-100 mt-2.5 mb-3 pt-2.5 border-t border-stone-200/80 dark:border-white/10"

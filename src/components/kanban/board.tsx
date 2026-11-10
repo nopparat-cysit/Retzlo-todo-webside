@@ -1161,7 +1161,12 @@ export function KanbanBoard({
       }}
     >
       {/* ── Header ── */}
-      <div className="lofi-panel relative rounded-2xl p-2 sm:p-3.5 max-w-full transition-all duration-300">
+      <div
+        className={cn(
+          "lofi-panel relative rounded-2xl max-w-full transition-all duration-300",
+          isToolsCollapsed ? "p-2 sm:px-3.5 sm:py-2.5" : "p-2 sm:p-3.5"
+        )}
+      >
         {/* Always-Visible Compact Header Row */}
         <div className="flex items-center justify-between gap-2 min-w-0">
           {/* Left: Channel, Board Name, Inline Renaming, Focus mode, Active Filters indicator when collapsed */}
@@ -1365,13 +1370,18 @@ export function KanbanBoard({
         {/* Collapsible Tools Panel */}
         <div
           className={cn(
-            "grid transition-all duration-300 ease-in-out",
+            "grid overflow-hidden transition-all duration-300 ease-in-out",
             isToolsCollapsed
               ? "grid-rows-[0fr] opacity-0 pointer-events-none mt-0"
               : "grid-rows-[1fr] opacity-100 mt-2.5 border-t border-stone-200/60 dark:border-white/5"
           )}
         >
-          <div className="overflow-hidden min-h-0 pt-3 pr-2.5 pb-0.5 space-y-2.5">
+          <div
+            className={cn(
+              "overflow-hidden min-h-0 pr-2.5 space-y-2.5 transition-all duration-300",
+              isToolsCollapsed ? "pt-0 pb-0" : "pt-3 pb-0.5"
+            )}
+          >
             {/* Top Row: Controls (Stats pills, View Density, Notes toggle) */}
             <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0 flex-1 flex flex-wrap items-center gap-2">

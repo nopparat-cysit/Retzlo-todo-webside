@@ -1240,7 +1240,7 @@ export function ProjectCalendar({
           {/* Collapsible Tools Container */}
           <div
             className={cn(
-              "grid transition-all duration-300 ease-in-out",
+              "grid overflow-hidden transition-all duration-300 ease-in-out",
               isToolsCollapsed
                 ? "grid-rows-[0fr] opacity-0 pointer-events-none mt-0"
                 : "grid-rows-[1fr] opacity-100 mt-2.5 pt-2.5 border-t border-stone-200/60 dark:border-white/5"

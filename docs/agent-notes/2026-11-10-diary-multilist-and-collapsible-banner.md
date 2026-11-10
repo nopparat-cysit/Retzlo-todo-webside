@@ -15,13 +15,19 @@
   - `src/components/diary/diary-list-panel.tsx`
   - `src/components/diary/diary-list-panel.test.ts`
   - `src/components/kanban/board.tsx`
+  - `src/components/kanban/project-calendar.tsx`
   - `src/components/notes/notes-panel.tsx`
   - `docs/theme-system.md`
   - `docs/agent-notes/2026-11-10-diary-multilist-and-collapsible-banner.md`
 
 ## Important Behavior Changes
 
-1. **Notes Board Collapsed Tools Header Spacing & Divider:**
+1. **Kanban Header Fit & Zero Dead Space When Tools Collapsed:**
+   - In `src/components/kanban/board.tsx`, added `overflow-hidden` to the collapsible tools grid container and dynamically set inner padding to `pt-0 pb-0` when collapsed (previously `pt-3 pb-0.5` leaked out 14px of empty space below the header buttons).
+   - In `lofi-panel` header container, dynamically adjusted padding when collapsed (`isToolsCollapsed ? "p-2 sm:px-3.5 sm:py-2.5" : "p-2 sm:p-3.5"`), eliminating the dead white space and making the card fit symmetrically around the header controls.
+   - Also added `overflow-hidden` to collapsible containers in `project-calendar.tsx`, `diary-list-panel.tsx`, and `notes-panel.tsx` to guard against padding leakage.
+
+2. **Notes Board Collapsed Tools Header Spacing & Divider:**
    - In `src/components/notes/notes-panel.tsx`, added bottom padding, margin, and a theme-aware border divider (`pb-2.5 sm:pb-3 mb-2.5 sm:mb-3 border-b border-stone-200/80 dark:border-white/10`) to the note board header when tools are collapsed (`isToolsCollapsed`).
    - Replaced invisible `border-white/10` with `border-stone-200/80 dark:border-white/10` on the collapsible tools divider so it renders crisply in both light and dark modes.
    - Eliminates the zero-gap crowding where the first note card touched directly against the header buttons when tools were collapsed.
