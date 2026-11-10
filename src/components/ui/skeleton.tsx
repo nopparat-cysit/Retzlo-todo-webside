@@ -66,7 +66,15 @@ export function BoardSkeleton() {
 
       <div className="flex sm:gap-4 overflow-x-hidden sm:overflow-x-auto pb-4 sm:snap-x sm:snap-mandatory flex-1 min-h-0">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className={cn("h-full min-h-0", i === 0 ? "flex flex-col flex-1 w-full" : "hidden sm:flex sm:flex-col sm:shrink-0")}>
+          <div
+            key={i}
+            className={cn(
+              "h-full min-h-0",
+              i === 0
+                ? "flex flex-col flex-1 w-full sm:flex-none sm:w-auto sm:shrink-0"
+                : "hidden sm:flex sm:flex-col sm:shrink-0"
+            )}
+          >
             <ColumnSkeleton />
           </div>
         ))}

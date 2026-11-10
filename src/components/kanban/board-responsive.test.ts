@@ -11,6 +11,7 @@ describe("Kanban responsive and touch optimizations", () => {
   const fabSource = readFileSync(join(process.cwd(), "src/components/hub/fab-hub.tsx"), "utf8");
   const diarySource = readFileSync(join(process.cwd(), "src/components/diary/diary-list-panel.tsx"), "utf8");
   const bottomNavSource = readFileSync(join(process.cwd(), "src/components/project/project-mobile-bottom-nav.tsx"), "utf8");
+  const skeletonSource = readFileSync(join(process.cwd(), "src/components/ui/skeleton.tsx"), "utf8");
 
   it("configures MouseSensor and TouchSensor with activation constraints to prevent mobile scroll conflicts", () => {
     expect(boardSource).toContain("MouseSensor");
@@ -133,5 +134,13 @@ describe("Kanban responsive and touch optimizations", () => {
     expect(calendarSource).toContain("Mobile Inline Selected Day Task List (< md)");
     expect(calendarSource).toContain("min-h-[44px] md:min-h-[135px]");
     expect(calendarSource).toContain("selectedDayHeader");
+  });
+
+  it("applies sm:flex-none sm:w-auto to active column wrapper in board to prevent horizontal expansion on desktop", () => {
+    expect(boardSource).toContain("sm:flex-none sm:w-auto sm:shrink-0");
+  });
+
+  it("applies sm:flex-none sm:w-auto to column skeleton wrapper to prevent horizontal expansion on desktop", () => {
+    expect(skeletonSource).toContain("sm:flex-none sm:w-auto sm:shrink-0");
   });
 });

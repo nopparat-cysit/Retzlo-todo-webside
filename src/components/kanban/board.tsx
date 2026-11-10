@@ -2296,7 +2296,9 @@ export function KanbanBoard({
                           id={`column-${column.id}`}
                           className={cn(
                             "h-full min-h-0",
-                            isMobileActive ? "flex flex-col flex-1 w-full" : "hidden sm:flex sm:flex-col sm:shrink-0"
+                            isMobileActive
+                              ? "flex flex-col flex-1 w-full sm:flex-none sm:w-auto sm:shrink-0"
+                              : "hidden sm:flex sm:flex-col sm:shrink-0"
                           )}
                         >
                           <KanbanColumn

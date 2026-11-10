@@ -1135,6 +1135,15 @@ Template:
   - Upgraded `CardMoveModal` to solid opaque container and solid destination column buttons with high contrast hover and current states.
 - Verification: Vitest 187/187 passed across `src/components/kanban/` and `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js build succeeded.
 
+### 2026-11-10 — Fix Desktop Kanban Board Column Wrapper Expansion
+- Coverage: Kanban Board (`src/components/kanban/board.tsx`) and Skeletons (`src/components/ui/skeleton.tsx`).
+- Layout & Token Alignment:
+  - Fixed unintended center empty gap on desktop screens (>= 640px) caused by mobile active column wrapper class (`flex-1 w-full`) lacking desktop overrides.
+  - Added `sm:flex-none sm:w-auto sm:shrink-0` to active column wrappers in `KanbanBoard` and `BoardSkeleton`, preventing Column 0 from expanding across remaining horizontal container width and pushing subsequent columns to the right margin.
+  - Preserved mobile single-column segmented tabbed view (< 640px) where active column smoothly spans full viewport width (`flex-1 w-full`) and inactive columns remain hidden.
+- Verification: Vitest 189/189 passed across `src/components/kanban/` and `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+
+
 
 
 
