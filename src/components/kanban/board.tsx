@@ -282,6 +282,28 @@ export function KanbanBoard({
   });
   const sensors = useSensors(mouseSensor, touchSensor);
 
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
+
+  const handleMobileColumnSwipe = useCallback((deltaX: number, deltaY: number) => {
+    if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
+      const currentIdx = filteredColumns.findIndex(
+        (c) => c.id === (activeMobileColumnId ?? filteredColumns[0]?.id)
+      );
+      if (currentIdx !== -1) {
+        if (deltaX < 0 && currentIdx < filteredColumns.length - 1) {
+          const nextId = filteredColumns[currentIdx + 1].id;
+          setActiveMobileColumnId(nextId);
+          document.getElementById(`tab-${nextId}`)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        } else if (deltaX > 0 && currentIdx > 0) {
+          const prevId = filteredColumns[currentIdx - 1].id;
+          setActiveMobileColumnId(prevId);
+          document.getElementById(`tab-${prevId}`)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        }
+      }
+    }
+  }, [filteredColumns, activeMobileColumnId]);
+
   const collisionDetection = useMemo(
     () => createKanbanCollisionDetection(() => columnsRef.current),
     []
@@ -2256,74 +2278,97 @@ export function KanbanBoard({
               <div className="relative flex min-h-0 flex-1 flex-col">
                 {/* Mobile Segmented Column Tab Bar */}
                 {filteredColumns.length > 1 && (
-                  <div className="sm:hidden flex items-center gap-1 p-1 rounded-xl overflow-x-auto scrollbar-none bg-stone-100/90 dark:bg-white/[0.04] border border-stone-200/80 dark:border-white/10 mb-2.5 w-full shrink-0">
-                    {filteredColumns.map((col) => {
-                      const isActive = (activeMobileColumnId ?? filteredColumns[0]?.id) === col.id;
-                      return (
-                        <button
-                          key={`tab-${col.id}`}
-                          id={`tab-${col.id}`}
-                          type="button"
-                          onClick={() => {
-                            document.getElementById(`column-${col.id}`)?.scrollIntoView({ behavior: "smooth", inline: "center" });
-                            setActiveMobileColumnId(col.id);
-                          }}
-                          className={cn(
-                            "flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer select-none",
-                            isActive
-                              ? "bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs font-bold border border-stone-200/70 dark:border-white/10"
-                              : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
-                          )}
-                        >
-                          <span>{col.name}</span>
-                          <span
+                  <div className="sm:hidden relative w-full mb-2 shrink-0">
+                    <div className="sm:hidden flex items-center gap-1 p-1 rounded-xl overflow-x-auto no-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-stone-100/90 dark:bg-white/[0.04] border border-stone-200/80 dark:border-white/10 w-full">
+                      {filteredColumns.map((col) => {
+                        const isActive = (activeMobileColumnId ?? filteredColumns[0]?.id) === col.id;
+                        return (
+                          <button
+                            key={`tab-${col.id}`}
+                            id={`tab-${col.id}`}
+                            type="button"
+                            onClick={() => {
+                              setActiveMobileColumnId(col.id);
+                              document.getElementById(`tab-${col.id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+                            }}
                             className={cn(
-                              "rounded-full px-1.5 py-0.2 text-[10px] font-mono shrink-0",
+                              "flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap transition-all cursor-pointer select-none",
                               isActive
-                                ? "bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender font-bold"
-                                : "bg-stone-200/70 text-stone-600 dark:bg-white/10 dark:text-stone-400"
+                                ? "bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs font-bold border border-stone-200/70 dark:border-white/10"
+                                : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
                             )}
                           >
-                            {col.cards.length}
-                          </span>
-                        </button>
-                      );
-                    })}
+                            <span>{col.name}</span>
+                            <span
+                              className={cn(
+                                "rounded-full px-1.5 py-0.2 text-[10px] font-mono shrink-0",
+                                isActive
+                                  ? "bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender font-bold"
+                                  : "bg-stone-200/70 text-stone-600 dark:bg-white/10 dark:text-stone-400"
+                              )}
+                            >
+                              {col.cards.length}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {/* Subtle right-edge fade indicator to visually signal scrollable tabs */}
+                    <div className="pointer-events-none absolute right-0 top-1 bottom-1 w-6 rounded-r-xl bg-gradient-to-l from-stone-200/80 dark:from-[#0d1026] to-transparent opacity-80" />
                   </div>
                 )}
                 <div
                   ref={columnsContainerRef}
                   onScroll={handleColumnsScroll}
-                  className="relative scrollbar-soft scroll-touch-x flex min-h-0 flex-1 gap-3 sm:gap-4 overflow-x-auto pb-1 snap-x snap-mandatory">
+                  className="scrollbar-soft scroll-touch-x flex min-h-0 flex-1 sm:gap-4 overflow-x-hidden sm:overflow-x-auto pb-1 sm:snap-x sm:snap-mandatory">
                   <SortableContext items={columns.map((column) => `column:${column.id}`)} strategy={horizontalListSortingStrategy}>
-                    {filteredColumns.map((column, index) => (
-                      <div
-                        key={column.id}
-                        id={`column-${column.id}`}
-                        className="flex flex-col flex-1 h-full min-h-0 w-[calc(100vw-1.5rem)] sm:flex-none sm:w-auto sm:shrink-0 shrink-0 snap-center"
-                      >
-                        <KanbanColumn
-                          column={column}
-                          density={density}
-                          activeCardId={activeCardId}
-                          isDragDisabled={isSavingReorder}
-                          isDropTarget={activeDropColumnId === column.id}
-                          onEditCard={setEditingCard}
-                          onCreateCard={createCard}
-                          onCardDeleted={deleteCard}
-                          onCardSaved={saveCard}
-                          onMoveCard={(card, colId) => setMovingCard({ card, columnId: colId })}
-                          onColumnDeleted={deleteColumn}
-                          onColumnSaved={updateColumn}
-                          isFirst={index === 0}
-                          members={members}
-                          currentUserId={currentUserId}
-                          hasActiveFilters={activeFilterCount > 0}
-                          boardId={board.id}
-                          priorities={boardPriorities}
-                        />
-                      </div>
-                    ))}
+                    {filteredColumns.map((column, index) => {
+                      const isMobileActive = (activeMobileColumnId ?? filteredColumns[0]?.id) === column.id;
+                      return (
+                        <div
+                          key={column.id}
+                          id={`column-${column.id}`}
+                          onTouchStart={(e) => {
+                            touchStartXRef.current = e.touches[0].clientX;
+                            touchStartYRef.current = e.touches[0].clientY;
+                          }}
+                          onTouchEnd={(e) => {
+                            if (touchStartXRef.current !== null && touchStartYRef.current !== null) {
+                              const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+                              const deltaY = e.changedTouches[0].clientY - touchStartYRef.current;
+                              handleMobileColumnSwipe(deltaX, deltaY);
+                            }
+                            touchStartXRef.current = null;
+                            touchStartYRef.current = null;
+                          }}
+                          className={cn(
+                            "flex flex-col flex-1 h-full min-h-0 w-full sm:flex-none sm:w-auto sm:shrink-0",
+                            isMobileActive ? "flex" : "hidden sm:flex"
+                          )}
+                        >
+                          <KanbanColumn
+                            column={column}
+                            density={density}
+                            activeCardId={activeCardId}
+                            isDragDisabled={isSavingReorder}
+                            isDropTarget={activeDropColumnId === column.id}
+                            onEditCard={setEditingCard}
+                            onCreateCard={createCard}
+                            onCardDeleted={deleteCard}
+                            onCardSaved={saveCard}
+                            onMoveCard={(card, colId) => setMovingCard({ card, columnId: colId })}
+                            onColumnDeleted={deleteColumn}
+                            onColumnSaved={updateColumn}
+                            isFirst={index === 0}
+                            members={members}
+                            currentUserId={currentUserId}
+                            hasActiveFilters={activeFilterCount > 0}
+                            boardId={board.id}
+                            priorities={boardPriorities}
+                          />
+                        </div>
+                      );
+                    })}
                   </SortableContext>
                 </div>
               </div>

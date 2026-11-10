@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Clock,
   Coins,
   Eye,
@@ -107,7 +108,7 @@ export function DiaryListPanel({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProjectDiaryItem | null>(null);
   const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
-  const [mobileTab, setMobileTab] = useState<"shelf" | "checklist">("shelf");
+  const [mobileTab, setMobileTab] = useState<"shelf" | "checklist">("checklist");
   const [filter, setFilter] = useState<DiaryFilter>("all");
   const [sortBy, setSortBy] = useState<DiarySort>("due");
   const [error, setError] = useState<string | null>(null);
@@ -180,7 +181,11 @@ export function DiaryListPanel({
     });
   }, [filter, itemsWithSummary]);
 
-  const focusedItem = visibleItems.find((item) => item.id === focusedItemId) ?? visibleItems[0] ?? null;
+  const focusedItem =
+    visibleItems.find((item) => item.id === focusedItemId) ??
+    visibleItems.find((item) => item.isStarred) ??
+    visibleItems[0] ??
+    null;
   const todayDueItems = itemsWithSummary.filter((item) => item.isDueToday);
   const completedTodayCount = todayDueItems.reduce((total, item) => total + item.checklistSummary.completedCount, 0);
   const dueTodayCount = todayDueItems.reduce((total, item) => {
@@ -604,6 +609,9 @@ export function DiaryListPanel({
           {focusedItem ? (
             <DiaryFocusCard
               item={focusedItem}
+              allDiaries={visibleItems}
+              onSelectDiary={(id) => setFocusedItemId(id)}
+              onCreateNewDiary={() => setIsCreateOpen(true)}
               selectedDate={selectedDate}
               onEdit={() => setSelectedItem(focusedItem)}
               onStar={() => updateItem(focusedItem.id, { isStarred: !focusedItem.isStarred })}
@@ -822,6 +830,9 @@ function getDiaryLofiSticker(color: CardColor) {
 
 function DiaryFocusCard({
   item,
+  allDiaries,
+  onSelectDiary,
+  onCreateNewDiary,
   onChecklistChange,
   onEdit,
   onStar,
@@ -831,6 +842,9 @@ function DiaryFocusCard({
   onBack
 }: {
   item: DiaryItemWithSummary;
+  allDiaries?: DiaryItemWithSummary[];
+  onSelectDiary?: (id: string) => void;
+  onCreateNewDiary?: () => void;
   onChecklistChange: (checklist: DiaryChecklistItem[]) => void;
   onEdit: () => void;
   onStar: () => void;
@@ -843,8 +857,32 @@ function DiaryFocusCard({
   const [newStepLabel, setNewStepLabel] = useState("");
   const [isChecklistDetailsHidden, setIsChecklistDetailsHidden] = useState(false);
   const [expandedItemIds, setExpandedItemIds] = useState<string[]>([]);
+  const [isBannerCollapsed, setIsBannerCollapsed] = useState(false);
   const colorMeta = getCardColorMeta(item.color);
   const lofiSticker = getDiaryLofiSticker(item.color);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("retzlo_diary_focus_banner_collapsed");
+      if (saved !== null) {
+        setIsBannerCollapsed(saved === "true");
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }, []);
+
+  const toggleBannerCollapsed = () => {
+    setIsBannerCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("retzlo_diary_focus_banner_collapsed", String(next));
+      } catch {
+        // Ignore
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     try {
@@ -980,23 +1018,44 @@ function DiaryFocusCard({
             </div>
 
             {/* Description & metadata row */}
-            <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-stone-400">
-              {item.description ? (
-                <p className="max-w-xl truncate text-xs italic text-stone-300/80">
-                  &ldquo;{item.description}&rdquo;
-                </p>
-              ) : null}
-              <div className="flex items-center gap-1.5 text-[11px] text-stone-500">
-                {item.description ? <span>•</span> : null}
-                <span>Created by {item.author.name ?? item.author.email}</span>
-                <span>•</span>
-                <span>Started {formatMediumDate(item.startDate)}</span>
+            {!isBannerCollapsed && (
+              <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs text-stone-400">
+                {item.description ? (
+                  <p className="max-w-xl truncate text-xs italic text-stone-300/80">
+                    &ldquo;{item.description}&rdquo;
+                  </p>
+                ) : null}
+                <div className="flex items-center gap-1.5 text-[11px] text-stone-500">
+                  {item.description ? <span>•</span> : null}
+                  <span>Created by {item.author.name ?? item.author.email}</span>
+                  <span>•</span>
+                  <span>Started {formatMediumDate(item.startDate)}</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Action Bar */}
           <div className="flex shrink-0 items-center gap-1.5">
+            <button
+              type="button"
+              onClick={toggleBannerCollapsed}
+              className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-stone-300 hover:bg-white/[0.08] hover:text-stone-100 transition cursor-pointer select-none"
+              aria-label={isBannerCollapsed ? "Expand ritual details" : "Collapse ritual details"}
+            >
+              {isBannerCollapsed ? (
+                <>
+                  <ChevronDown className="h-3 w-3" />
+                  <span>Details</span>
+                </>
+              ) : (
+                <>
+                  <ChevronUp className="h-3 w-3" />
+                  <span>Hide</span>
+                </>
+              )}
+            </button>
+
             <button
               aria-label={item.isStarred ? "Unstar diary checklist" : "Star diary checklist"}
               className={cn(
@@ -1039,6 +1098,60 @@ function DiaryFocusCard({
 
       {/* 2-Column Ritual Studio Content */}
       <div className="min-h-0 flex-1 overflow-y-auto p-5 scrollbar-soft lg:p-6">
+        {allDiaries && allDiaries.length > 1 && (
+          <div className="mb-4 flex items-center gap-2 overflow-x-auto no-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pb-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-400 select-none shrink-0 mr-1">
+              Rituals:
+            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {allDiaries.map((diary) => {
+                const isCurrent = diary.id === item.id;
+                const color = getCardColorMeta(diary.color);
+                return (
+                  <button
+                    key={diary.id}
+                    type="button"
+                    onClick={() => onSelectDiary?.(diary.id)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition cursor-pointer select-none shrink-0",
+                      isCurrent
+                        ? "border-dusk-lavender/50 bg-dusk-lavender/20 text-stone-100 shadow-sm ring-1 ring-dusk-lavender/40 font-semibold"
+                        : "border-white/10 bg-white/[0.03] text-stone-400 hover:border-white/20 hover:bg-white/[0.06] hover:text-stone-200"
+                    )}
+                  >
+                    <span className={cn("h-2 w-2 rounded-full", color.swatchClass)} />
+                    <span className="max-w-[140px] truncate">{diary.title}</span>
+                    {diary.checklistSummary.dueCount > 0 && (
+                      <span
+                        className={cn(
+                          "rounded-full px-1.5 py-0.2 text-[10px] font-mono",
+                          diary.checklistSummary.completedCount === diary.checklistSummary.dueCount
+                            ? "bg-theme-success-surface text-theme-success"
+                            : "bg-white/10 text-stone-300"
+                        )}
+                      >
+                        {diary.checklistSummary.completedCount}/{diary.checklistSummary.dueCount}
+                      </span>
+                    )}
+                    {diary.isStarred && <Star className="h-3 w-3 fill-dusk-amber text-dusk-amber" />}
+                  </button>
+                );
+              })}
+            </div>
+            {onCreateNewDiary && (
+              <button
+                type="button"
+                onClick={onCreateNewDiary}
+                className="inline-flex items-center gap-1 rounded-full border border-dashed border-white/15 px-2.5 py-1 text-xs font-medium text-stone-400 hover:border-white/30 hover:text-stone-200 transition cursor-pointer select-none shrink-0"
+                title="Create new ritual"
+              >
+                <Plus className="h-3 w-3" />
+                <span>New</span>
+              </button>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           {/* Left Column (Desktop): Checklist Studio */}
           <div className="order-1 flex min-h-0 flex-col gap-4 rounded-2xl border border-white/10 bg-ink-950/40 p-4 sm:p-5 xl:order-1">
@@ -1060,7 +1173,7 @@ function DiaryFocusCard({
                     type="button"
                     onClick={toggleChecklistDetailsHidden}
                     className={cn(
-                      "inline-flex h-7 items-center gap-1.5 rounded-lg border px-2 text-xs font-medium transition cursor-pointer select-none active:scale-95",
+                      "inline-flex h-7.5 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition cursor-pointer select-none active:scale-95",
                       isChecklistDetailsHidden
                         ? "border-amber-400/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
                         : "border-white/10 bg-white/[0.04] text-stone-300 hover:bg-white/[0.08] hover:text-stone-100"
@@ -1072,11 +1185,11 @@ function DiaryFocusCard({
                     <span className="hidden sm:inline">{isChecklistDetailsHidden ? "Show details" : "Hide details"}</span>
                   </button>
                   {dueItems.length > 0 ? (
-                    <span className="rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-2.5 py-0.5 text-xs font-medium text-dusk-cyan">
+                    <span className="inline-flex h-7.5 items-center rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-3 text-xs font-medium text-dusk-cyan">
                       {completedDueCount}/{dueItems.length} completed ({progressPercent}%)
                     </span>
                   ) : (
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-stone-400">
+                    <span className="inline-flex h-7.5 items-center rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-stone-400">
                       {sortedChecklist.length} steps
                     </span>
                   )}
@@ -1089,23 +1202,6 @@ function DiaryFocusCard({
                     className="h-full rounded-full bg-gradient-to-r from-dusk-cyan via-dusk-lavender to-emerald-400 transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                   />
-                </div>
-              ) : null}
-
-              {/* Progress Coin Reward Callout */}
-              {hasReward ? (
-                <div className="mt-3 flex items-center justify-between rounded-lg border border-dusk-amber/20 bg-dusk-amber/[0.06] px-3 py-1.5 text-xs text-dusk-amber">
-                  <span className="flex items-center gap-1.5 font-medium">
-                    <Coins className="h-3.5 w-3.5" />
-                    {rewardClaimed
-                      ? "Daily reward coins claimed!"
-                      : rewardReady
-                        ? "All items complete! Ready to claim reward"
-                        : `Complete all items today to get +${item.rewardCoins} Coins`}
-                  </span>
-                  <span className="font-mono text-[11px] opacity-80">
-                    {completedDueCount}/{dueItems.length}
-                  </span>
                 </div>
               ) : null}
             </div>

@@ -52,4 +52,15 @@ describe("DiaryListPanel layout", () => {
     expect(source).toContain("isDetailsHidden");
     expect(source).toContain("retzlo_diary_hide_checklist_details");
   });
+
+  it("supports collapsible focus banner and multi-diary switcher rail", () => {
+    const source = readFileSync(new URL("./diary-list-panel.tsx", import.meta.url), "utf8");
+
+    expect(source).toContain("isBannerCollapsed");
+    expect(source).toContain("toggleBannerCollapsed");
+    expect(source).toContain("retzlo_diary_focus_banner_collapsed");
+    expect(source).toContain("allDiaries");
+    expect(source).toContain("onSelectDiary");
+    expect(source).toContain("ChevronUp");
+  });
 });

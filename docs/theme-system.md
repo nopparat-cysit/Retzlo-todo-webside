@@ -233,6 +233,12 @@ Template:
 
 ## Change Log
 
+### 2026-11-10 — Diary Multi-List Switcher, Collapsible Focus Banner & Symmetrical Checklist Header
+- Added/changed: `src/components/diary/diary-list-panel.tsx`, `src/components/diary/diary-list-panel.test.ts`.
+- Tokens/variants: Semantic tokens for multi-diary rail, pill buttons, and responsive theme states; preserved retro lofi swatches and theme success/amber variants.
+- Reviewed: source, automated vitest suite (7/7 tests passed), next lint, prisma validate, full Next.js production build.
+- Follow-ups: None.
+
 ### 2026-10-01 — ตรวจระบบธีมและวางแผนการย้าย
 - Added: inventory ของหน้าและ component ที่ต้องตามธีม; บันทึกแนวทางแก้ first paint ของ `system`, token coverage, contrast feedback states และ global override debt.
 - Visual review: หน้า marketing home ใน dark mode เท่านั้น. หน้า workspace ที่ต้อง sign in ยังตรวจจาก source; ต้องกลับมาตรวจภาพ light/dark เมื่อมี session ทดสอบ.
