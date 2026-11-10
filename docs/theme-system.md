@@ -1143,13 +1143,15 @@ Template:
   - Preserved mobile single-column segmented tabbed view (< 640px) where active column smoothly spans full viewport width (`flex-1 w-full`) and inactive columns remain hidden.
 - Verification: Vitest 189/189 passed across `src/components/kanban/` and `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
-### 2026-11-10 — Collapsible Calendar Tools Header & Hide Diary Checklist Details
-- Coverage: Calendar Page (`src/components/kanban/project-calendar.tsx`), Diary Studio (`src/components/diary/diary-list-panel.tsx`), and Pinned Diary Preview (`src/components/diary/diary-checklist.tsx`).
-- Layout & Token Alignment:
-  - Implemented collapsible header tools on Project Calendar matching Board and Diary UX patterns (`isToolsCollapsed`), using smooth CSS grid height transition (`grid-rows-[0fr]` to `grid-rows-[1fr]`), quick active filter badge indicator, and `localStorage` persistence.
-  - Added "Hide Details" (Compact Mode) toggle (`Eye`/`EyeOff` buttons) to Diary Checklist headers across both Diary Studio and the floating Pinned Diary widget.
-  - When details are hidden, lengthy URL descriptions and multi-item repeat/start date tags are cleanly collapsed into compact single-line checklist rows, preventing checklist cards from consuming excessive vertical space while providing per-item chevron expansion for on-demand details inspection.
-- Verification: Vitest 196/196 passed across `src/components/kanban/`, `src/components/diary/`, and `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js build succeeded (43/43 routes).
+### 2026-11-10 — Custom Retro Lofi Vector Folder Icons for Notes
+- Coverage: Notes Folder System (`src/components/notes/folder-icon.tsx`, `folder-modal.tsx`, `notes-panel.tsx`, and `board-notes-rail.tsx`).
+- Visual Tokens & Icon Architecture:
+  - Replaced legacy OS emoji set (`📁`, `📂`, `💼`, `🚀`, `💡`, `📚`, `🎯`, `🏷️`, `🎨`, `📝`, `☕`, `⭐`) with 16 bespoke retro vector SVG glyphs (`FolderIconGlyph`) designed exclusively in Retzlo's retro lofi aesthetic.
+  - Utilized Retzlo theme tokens: warm manila/amber (`#fbbf24`, `#f59e0b`, `#fef3c7`), retro dusk lavender (`#a78bfa`, `#818cf8`, `#c4b5fd`), retro cyan/mint (`#2dd4bf`, `#0d9488`), retro rose/coral (`#fb7185`, `#e11d48`), and dark ink contour strokes (`#1e1b4b`, `#0f172a`, `#78350f`).
+  - Implemented 100% backward-compatible emoji and string normalization via `normalizeFolderIcon()` and `LEGACY_EMOJI_TO_ID`, automatically translating existing database folders without schema migrations.
+  - Upgraded `FolderModal` icon picker grid to tactile retro buttons with active ring indicators (`ring-2 ring-dusk-lavender/40`), Live Mockup Preview glyphs, and updated all folder rendering sites across sidebar navigation, folder filter pills, note card badges, and note editor selectors.
+- Verification: Vitest 27/27 passed in `src/components/notes/`, 674/674 passed across entire project suite (115 files), `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+
 
 
 

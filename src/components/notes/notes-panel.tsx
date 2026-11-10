@@ -52,6 +52,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { FolderModal } from "@/components/notes/folder-modal";
+import { FolderIconGlyph } from "@/components/notes/folder-icon";
 import { RetroStickerImage } from "@/components/stickers/retro-sticker-picker";
 import { formatMediumDate, formatMediumDateTime } from "@/lib/date-format";
 import { applyDueShortcut, composeDueDate } from "@/lib/kanban/due-date";
@@ -625,7 +626,7 @@ export function NotesPanel({
                           }}
                           className="flex min-w-0 flex-1 items-center gap-2 text-left"
                         >
-                          <span className="shrink-0 text-base">{folder.icon || "📁"}</span>
+                          <FolderIconGlyph icon={folder.icon} className="h-4 w-4 shrink-0" />
                           <span className="truncate text-sm font-semibold">{folder.name}</span>
                         </button>
                         <div className="flex items-center gap-1 shrink-0">
@@ -939,7 +940,7 @@ export function NotesPanel({
                             : "border border-white/10 bg-white/[0.03] text-stone-400 hover:text-stone-200"
                         )}
                       >
-                        <span>{folder.icon || "📁"}</span>
+                        <FolderIconGlyph icon={folder.icon} className="h-3.5 w-3.5 shrink-0" />
                         <span>{folder.name}</span>
                         <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
                           {count}
@@ -1220,7 +1221,7 @@ function NoteCard({
             )}
             {note.folder ? (
               <span className="inline-flex items-center gap-1 rounded-full border border-dusk-lavender/30 bg-dusk-lavender/10 px-2 py-1 text-[11px] font-medium text-dusk-lavender">
-                <span>{note.folder.icon || "📁"}</span>
+                <FolderIconGlyph icon={note.folder.icon} className="h-3 w-3 shrink-0" />
                 <span className="truncate max-w-[120px]">{note.folder.name}</span>
               </span>
             ) : null}
@@ -1570,8 +1571,15 @@ function NoteEditorModalContent({
                         <p className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
                           {titleValue.trim() || "Untitled Note"}
                         </p>
-                        <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
-                          {currentFolder ? `${currentFolder.icon || "📁"} ${currentFolder.name}` : "Unfiled Note"}
+                        <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate flex items-center gap-1">
+                          {currentFolder ? (
+                            <>
+                              <FolderIconGlyph icon={currentFolder.icon} className="h-3 w-3 shrink-0" />
+                              <span>{currentFolder.name}</span>
+                            </>
+                          ) : (
+                            "Unfiled Note"
+                          )}
                         </p>
                       </div>
                     </div>
@@ -1601,7 +1609,7 @@ function NoteEditorModalContent({
                 className="h-10 w-full rounded-lg border border-stone-300/80 bg-white px-3 text-xs font-semibold text-stone-800 focus:border-indigo-500 focus:outline-none dark:border-white/15 dark:bg-ink-950 dark:text-stone-200 dark:focus:border-dusk-lavender cursor-pointer"
               >
                 <div className="flex items-center gap-2 truncate">
-                  <span className="shrink-0 text-base">{currentFolder?.icon || "📁"}</span>
+                  <FolderIconGlyph icon={currentFolder?.icon} className="h-4 w-4 shrink-0" />
                   <span className="truncate font-medium">
                     {currentFolder ? currentFolder.name : "No folder (Unfiled)"}
                   </span>
@@ -1611,7 +1619,7 @@ function NoteEditorModalContent({
                 <SelectGroup>
                   <SelectItem value="UNFILED" className="cursor-pointer text-xs">
                     <span className="flex items-center gap-2">
-                      <span className="text-base">📁</span>
+                      <FolderIconGlyph icon="folder" className="h-4 w-4 shrink-0" />
                       <span>No folder (Unfiled)</span>
                     </span>
                   </SelectItem>
@@ -1624,7 +1632,7 @@ function NoteEditorModalContent({
                       {folders.map((f) => (
                         <SelectItem key={f.id} value={f.id} className="cursor-pointer text-xs">
                           <span className="flex items-center gap-2">
-                            <span className="text-base">{f.icon || "📁"}</span>
+                            <FolderIconGlyph icon={f.icon} className="h-4 w-4 shrink-0" />
                             <span>{f.name}</span>
                           </span>
                         </SelectItem>

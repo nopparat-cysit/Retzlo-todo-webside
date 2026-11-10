@@ -1,17 +1,20 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Eye, Folder, X } from "lucide-react";
+import { Eye, X } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { Input } from "@/components/ui/input";
-import { cardColorOptions, getCardColorMeta } from "@/lib/theme/card-colors";
+import {
+  FOLDER_ICON_OPTIONS,
+  FolderIconGlyph,
+  normalizeFolderIcon
+} from "@/components/notes/folder-icon";
+import { getCardColorMeta } from "@/lib/theme/card-colors";
 import { cn } from "@/lib/utils";
 import type { NoteFolderItem } from "@/types/note";
-
-const FOLDER_ICONS = ["📁", "📂", "💼", "🚀", "💡", "📚", "🎯", "🏷️", "🎨", "📝", "☕", "⭐"];
 
 interface FolderModalProps {
   folder?: NoteFolderItem | null;
@@ -23,7 +26,7 @@ interface FolderModalProps {
 export function FolderModal({ folder, open, onClose, onSave }: FolderModalProps) {
   const [name, setName] = useState(folder?.name ?? "");
   const [color, setColor] = useState(folder?.color ?? "DEFAULT");
-  const [icon, setIcon] = useState(folder?.icon ?? "📁");
+  const [icon, setIcon] = useState(folder?.icon ?? "folder");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,7 +63,7 @@ export function FolderModal({ folder, open, onClose, onSave }: FolderModalProps)
       <form onSubmit={handleSubmit} className="flex flex-col">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div className="flex items-center gap-2">
-            <span className="text-xl">{icon}</span>
+            <FolderIconGlyph icon={icon} className="h-6 w-6 shrink-0" />
             <h2 id="folder-modal-title" className="text-lg font-semibold text-stone-100">
               {folder ? "Edit Folder" : "New Folder"}
             </h2>
@@ -101,7 +104,7 @@ export function FolderModal({ folder, open, onClose, onSave }: FolderModalProps)
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-stone-200/70 bg-white/80 text-base dark:border-white/10 dark:bg-white/5">
-                  {icon}
+                  <FolderIconGlyph icon={icon} className="h-5 w-5 shrink-0" />
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
@@ -136,20 +139,22 @@ export function FolderModal({ folder, open, onClose, onSave }: FolderModalProps)
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-stone-400">
               Icon
             </label>
-            <div className="flex flex-wrap gap-1.5">
-              {FOLDER_ICONS.map((emoji) => (
+            <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-8">
+              {FOLDER_ICON_OPTIONS.map((opt) => (
                 <button
-                  key={emoji}
+                  key={opt.id}
                   type="button"
-                  onClick={() => setIcon(emoji)}
+                  onClick={() => setIcon(opt.id)}
+                  title={opt.label}
+                  aria-label={`Select ${opt.label} icon`}
                   className={cn(
-                    "grid h-9 w-9 place-items-center rounded-lg border text-base transition",
-                    icon === emoji
-                      ? "border-dusk-lavender bg-dusk-lavender/25 shadow-sm scale-105"
-                      : "border-white/10 bg-white/[0.04] hover:border-white/25 hover:bg-white/10"
+                    "grid h-9 w-9 place-items-center rounded-lg border p-1.5 transition cursor-pointer select-none",
+                    normalizeFolderIcon(icon) === opt.id
+                      ? "border-dusk-lavender bg-dusk-lavender/25 shadow-sm scale-105 ring-2 ring-dusk-lavender/40"
+                      : "border-white/10 bg-white/[0.04] hover:border-white/25 hover:bg-white/10 text-stone-300"
                   )}
                 >
-                  {emoji}
+                  <FolderIconGlyph icon={opt.id} className="h-5 w-5 shrink-0" />
                 </button>
               ))}
             </div>
