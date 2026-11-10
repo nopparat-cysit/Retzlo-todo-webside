@@ -1707,8 +1707,8 @@ export function ProjectCalendar({
                 )}
               </div>
             ) : (
-              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/60 dark:border-white/10 shadow-xl">
-                <div className="flex min-h-0 flex-1 flex-col w-full min-w-0">
+              <div className="lofi-panel flex shrink-0 md:shrink md:min-h-0 md:flex-1 flex-col overflow-hidden rounded-2xl border border-border/60 dark:border-white/10 shadow-xl">
+                <div className="flex min-h-0 md:flex-1 flex-col w-full min-w-0">
                 {/* Weekday Header */}
                 <div
                   className="grid border-b border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/[0.035] text-center text-[10px] sm:text-xs font-semibold uppercase tracking-normal sm:tracking-[0.2em] text-muted-foreground dark:text-stone-400"
@@ -1726,7 +1726,7 @@ export function ProjectCalendar({
 
                 {/* Days Grid */}
                 <div
-                  className="grid min-h-0 flex-1 gap-px bg-border/60 dark:bg-white/10 overflow-y-auto scrollbar-soft"
+                  className="grid min-h-0 md:flex-1 gap-px bg-border/60 dark:bg-white/10 overflow-y-visible md:overflow-y-auto scrollbar-soft"
                   style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}
                 >
                   {calendarDays.map((day) => {

@@ -22,7 +22,11 @@
 
 ## Important Behavior Changes
 
-1. **Kanban Header Fit & Zero Dead Space When Tools Collapsed:**
+1. **Mobile Calendar Month Grid Visibility & Touch Targets:**
+   - In `src/components/kanban/project-calendar.tsx`, fixed an issue on mobile (< md) where `flex-1 min-h-0` inside the scroll container caused the entire 35-day month calendar grid to collapse to 0px height when paired with the mobile selected day task list, showing only the weekday header (`SUN MON TUE...`).
+   - Changed the calendar card to `shrink-0 md:shrink md:min-h-0 md:flex-1` and the days grid to `overflow-y-visible md:overflow-y-auto`, ensuring all 30 days of the month with their dates (1-30), weekend shading, today indicators, and task event dots render fully and responsively above the daily task agenda.
+
+2. **Kanban Header Fit & Zero Dead Space When Tools Collapsed:**
    - In `src/components/kanban/board.tsx`, added `overflow-hidden` to the collapsible tools grid container and dynamically set inner padding to `pt-0 pb-0` when collapsed (previously `pt-3 pb-0.5` leaked out 14px of empty space below the header buttons).
    - In `lofi-panel` header container, dynamically adjusted padding when collapsed (`isToolsCollapsed ? "p-2 sm:px-3.5 sm:py-2.5" : "p-2 sm:p-3.5"`), eliminating the dead white space and making the card fit symmetrically around the header controls.
    - Also added `overflow-hidden` to collapsible containers in `project-calendar.tsx`, `diary-list-panel.tsx`, and `notes-panel.tsx` to guard against padding leakage.
