@@ -41,4 +41,9 @@ describe("calendar modal layering", () => {
     expect(calendarSource).toContain("setSelectedDayKey(dateKey);\n    setQuickAddDate(dateKey);");
     expect(calendarSource).not.toContain("onClick={() => setSelectedDayKey(null)}");
   });
+
+  it("uses inset ring for selected day and omits cramped add button from calendar month cells", () => {
+    expect(calendarSource).toContain('isSelectedDay && "ring-2 ring-inset ring-indigo-500');
+    expect(calendarSource).not.toContain('title={`Add task for ${key}`}');
+  });
 });

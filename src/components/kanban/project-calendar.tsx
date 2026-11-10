@@ -1788,8 +1788,8 @@ export function ProjectCalendar({
                           }
                         }}
                         className={cn(
-                          "group relative flex min-h-[44px] md:min-h-[135px] flex-col p-1 sm:p-2.5 transition cursor-pointer rounded-lg sm:rounded-none",
-                          isSelectedDay && "ring-2 ring-indigo-500 bg-indigo-50/70 dark:ring-dusk-lavender dark:bg-dusk-lavender/20 z-10",
+                          "group relative flex min-h-[44px] md:min-h-[135px] flex-col p-1.5 sm:p-2.5 transition cursor-pointer rounded-lg sm:rounded-none",
+                          isSelectedDay && "ring-2 ring-inset ring-indigo-500 bg-indigo-50/70 dark:ring-dusk-lavender dark:bg-dusk-lavender/20 z-10",
                           current && !isSelectedDay
                             ? "bg-amber-500/10 dark:bg-dusk-amber/[0.08] ring-1 ring-inset ring-amber-500/30 dark:ring-dusk-amber/30"
                             : muted && !isSelectedDay
@@ -1825,26 +1825,11 @@ export function ProjectCalendar({
                             )}
                           </div>
 
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenQuickAdd(key);
-                              }}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 grid h-5 w-5 place-items-center rounded-md border border-stone-300/80 bg-white text-stone-600 hover:border-indigo-500 hover:bg-indigo-50 hover:text-indigo-700 dark:border-white/20 dark:bg-white/10 dark:text-stone-300 dark:hover:border-dusk-lavender dark:hover:bg-white/20 dark:hover:text-white shadow-2xs cursor-pointer active:scale-90"
-                              title={`Add task for ${key}`}
-                              aria-label={`Add task for ${key}`}
-                            >
-                              <Plus className="h-3 w-3 stroke-[2.5]" />
-                            </button>
-
-                            {cellRenderItems.length > 3 ? (
-                              <span className="rounded-full bg-indigo-100/80 text-indigo-700 dark:bg-dusk-lavender/10 dark:text-dusk-lavender px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold transition">
-                                +{cellRenderItems.length - 3}<span className="hidden min-[480px]:inline"> more</span>
-                              </span>
-                            ) : null}
-                          </div>
+                          {cellRenderItems.length > 3 ? (
+                            <span className="shrink-0 rounded-full bg-indigo-100/80 text-indigo-700 dark:bg-dusk-lavender/10 dark:text-dusk-lavender px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold transition">
+                              +{cellRenderItems.length - 3}<span className="hidden min-[480px]:inline"> more</span>
+                            </span>
+                          ) : null}
                         </div>
 
                         {/* Mobile Compact Dot Indicators (< md) */}
