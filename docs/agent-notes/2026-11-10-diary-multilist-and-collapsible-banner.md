@@ -15,12 +15,18 @@
   - `src/components/diary/diary-list-panel.tsx`
   - `src/components/diary/diary-list-panel.test.ts`
   - `src/components/kanban/board.tsx`
+  - `src/components/notes/notes-panel.tsx`
   - `docs/theme-system.md`
   - `docs/agent-notes/2026-11-10-diary-multilist-and-collapsible-banner.md`
 
 ## Important Behavior Changes
 
-1. **Initial Checklist View & Starred Priority:**
+1. **Notes Board Collapsed Tools Header Spacing & Divider:**
+   - In `src/components/notes/notes-panel.tsx`, added bottom padding, margin, and a theme-aware border divider (`pb-2.5 sm:pb-3 mb-2.5 sm:mb-3 border-b border-stone-200/80 dark:border-white/10`) to the note board header when tools are collapsed (`isToolsCollapsed`).
+   - Replaced invisible `border-white/10` with `border-stone-200/80 dark:border-white/10` on the collapsible tools divider so it renders crisply in both light and dark modes.
+   - Eliminates the zero-gap crowding where the first note card touched directly against the header buttons when tools were collapsed.
+
+2. **Initial Checklist View & Starred Priority:**
    - `mobileTab` state in `DiaryListPanel` now defaults to `"checklist"` instead of `"shelf"`, allowing users on mobile devices to view their active checklist immediately upon opening the Diary module.
    - Initial focused diary resolution now prioritizes starred items (`visibleItems.find(item => item.isStarred) ?? visibleItems[0] ?? null`) when no specific diary item ID has been selected.
 

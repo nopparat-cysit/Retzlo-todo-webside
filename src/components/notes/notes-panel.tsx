@@ -717,9 +717,14 @@ export function NotesPanel({
           ) : null}
         </aside>
 
-        <main className="lofi-panel flex min-h-0 flex-col rounded-lg p-2 sm:p-3" data-notes-board="note-cards">
+        <main className="lofi-panel flex min-h-0 flex-1 flex-col rounded-lg p-2 sm:p-3" data-notes-board="note-cards">
           {/* Always-Visible Compact Note Board Header */}
-          <div className="flex items-center justify-between gap-2">
+          <div
+            className={cn(
+              "flex items-center justify-between gap-2 transition-all duration-200",
+              isToolsCollapsed && "pb-2.5 sm:pb-3 mb-2.5 sm:mb-3 border-b border-stone-200/80 dark:border-white/10"
+            )}
+          >
             <div className="flex items-center gap-2 min-w-0">
               <p className="text-xs uppercase tracking-[0.26em] text-dusk-amber flex items-center gap-1.5 shrink-0">
                 <NotesNavIconView icon={activeViewMeta.icon} size={20} />
@@ -789,7 +794,7 @@ export function NotesPanel({
               "grid transition-all duration-300 ease-in-out",
               isToolsCollapsed
                 ? "grid-rows-[0fr] opacity-0 pointer-events-none mt-0"
-                : "grid-rows-[1fr] opacity-100 mt-2.5 mb-3 pt-2.5 border-t border-white/10"
+                : "grid-rows-[1fr] opacity-100 mt-2.5 mb-3 pt-2.5 border-t border-stone-200/80 dark:border-white/10"
             )}
           >
             <div className="overflow-hidden min-h-0 space-y-2.5">
