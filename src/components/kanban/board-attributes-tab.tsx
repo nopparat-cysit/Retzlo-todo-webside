@@ -1094,10 +1094,10 @@ export function BoardAttributesTab({
                   disabled={!canManage || !!previewStatusTemplate}
                   onClick={() => setNewStatusColor(colKey)}
                   className={cn(
-                    "h-5 w-5 rounded-full border transition cursor-pointer flex items-center justify-center shrink-0",
+                    "h-6 w-6 rounded-full transition-all cursor-pointer flex items-center justify-center shrink-0",
                     newStatusColor === colKey
-                      ? "ring-2 ring-indigo-500 ring-offset-1 scale-110 shadow-xs"
-                      : "opacity-70 hover:opacity-100",
+                      ? "ring-2 ring-dusk-amber dark:ring-amber-300 ring-offset-2 ring-offset-white dark:ring-offset-ink-950 scale-110 shadow-sm z-10 border-2 border-white/90 dark:border-white"
+                      : "opacity-75 hover:opacity-100 hover:scale-105 border border-black/10 dark:border-white/20 transition-all duration-150",
                     colKey === "indigo" && "bg-indigo-500 border-indigo-600",
                     colKey === "teal" && "bg-teal-500 border-teal-600",
                     colKey === "cyan" && "bg-cyan-500 border-cyan-600",
@@ -1109,7 +1109,7 @@ export function BoardAttributesTab({
                   )}
                   title={colKey}
                 >
-                  {newStatusColor === colKey && <Check className="h-2.5 w-2.5 text-white stroke-[3]" />}
+                  {newStatusColor === colKey && <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-xs" />}
                 </button>
               ))}
             </div>
@@ -1169,10 +1169,10 @@ export function BoardAttributesTab({
                             type="button"
                             onClick={() => setEditingStatusColor(colKey)}
                             className={cn(
-                              "h-5 w-5 rounded-full border transition cursor-pointer flex items-center justify-center shrink-0",
+                              "h-6 w-6 rounded-full transition-all cursor-pointer flex items-center justify-center shrink-0",
                               editingStatusColor === colKey
-                                ? "ring-2 ring-indigo-500 ring-offset-1 scale-110 shadow-xs"
-                                : "opacity-70 hover:opacity-100",
+                                ? "ring-2 ring-dusk-amber dark:ring-amber-300 ring-offset-2 ring-offset-white dark:ring-offset-ink-950 scale-110 shadow-sm z-10 border-2 border-white/90 dark:border-white"
+                                : "opacity-75 hover:opacity-100 hover:scale-105 border border-black/10 dark:border-white/20 transition-all duration-150",
                               colKey === "indigo" && "bg-indigo-500 border-indigo-600",
                               colKey === "teal" && "bg-teal-500 border-teal-600",
                               colKey === "cyan" && "bg-cyan-500 border-cyan-600",
@@ -1185,7 +1185,7 @@ export function BoardAttributesTab({
                             title={colKey}
                           >
                             {editingStatusColor === colKey && (
-                              <Check className="h-2.5 w-2.5 text-white stroke-[3]" />
+                              <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-xs" />
                             )}
                           </button>
                         ))}

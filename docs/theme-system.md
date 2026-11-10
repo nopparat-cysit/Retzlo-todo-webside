@@ -1159,15 +1159,18 @@ Template:
   - Relocated top padding from the outer CSS grid transition wrapper to the inner content container (`overflow-hidden min-h-0 pt-3 pr-2.5 pb-0.5 space-y-2.5`), providing 12px of internal headroom so elevated badges (`-top-1.5 -right-1.5 z-10`, -6px) are never sliced off by `overflow-hidden`.
 - Verification: Vitest 142/142 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
-### 2026-11-10 — Board Export Dark Theme Isolation & Redundant Column Removal
-- Coverage: Kanban Board Export System (`src/components/kanban/board-export-document.tsx`, `board-export-modal.tsx`, `src/lib/kanban/export-board.ts`, and `src/app/globals.css`).
-- Theme Isolation & Contrast Hardening:
-  - Added dedicated CSS isolation scope under `[data-theme="light"] [data-export-theme="dark"]` in `src/app/globals.css` to protect dark-themed export documents against global light-mode `!important` text and background overrides.
-  - Added `data-export-theme` and `data-theme` attributes to `BoardExportDocument` container alongside `isDark ? "dark bg-[#0b0c1b] text-stone-100" : "bg-[#fcfbf9] text-stone-900"`.
-  - Replaced all ambient `dark:` Tailwind classes in `board-export-document.tsx` with explicit `isDark ? "..." : "..."` conditional styling so exported visuals never depend on ambient outer theme classes.
-  - Fixed dark text on dark background in headings (`h1`), card titles (`h3`), KPI metrics, and table cells, providing crisp contrast in both themes.
-  - Removed redundant "Column" column from the Table export layout, spreadsheet live preview (`EXPORT_ROW_PREVIEW_COLUMNS`), Excel workbook export, and CSV export.
-- Verification: Vitest 155/155 passed across `src/components/kanban/` and `src/lib/kanban/export-board.test.ts`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+### 2026-11-10 — Color Swatch Selector Border Contrast Enhancement ("ขอบเลือกสีมันจม")
+- Coverage: Kanban Board Settings & Attributes (`src/components/kanban/board-attributes-tab.tsx`, `card-attributes-edit-modal.tsx`, and `board-settings-attributes.test.ts`).
+- Theme Contrast & State Highlighting:
+  - Fixed color selector border contrast ("ขอบเลือกสีมันจม") where selected status, priority, and story point color swatches blended into dark panel backgrounds (`#12142d` / `#161936`) and indigo swatches.
+  - Replaced low-contrast `ring-2 ring-indigo-500 ring-offset-1` with a radiant 3-layer contrast hierarchy:
+    - Inner 2px white border: `border-2 border-white/90 dark:border-white` ensuring the circle boundary is crisp against all 8 swatch hues.
+    - 2px background offset gap: `ring-offset-2 ring-offset-white dark:ring-offset-ink-950` providing clear visual separation from the circle.
+    - Signature Retzlo amber highlight ring: `ring-2 ring-dusk-amber dark:ring-amber-300` delivering high-contrast visibility against dark backgrounds, light backgrounds, and all swatch colors.
+  - Increased button size from `h-5 w-5` to `h-6 w-6` (24px) with `transition-all` and elevated `scale-110 shadow-sm z-10` for enhanced touch ergonomics and visual presence.
+  - Upgraded checkmark icon from `h-2.5 w-2.5` to `h-3 w-3 text-white stroke-[3] drop-shadow-xs`.
+- Verification: Vitest 22/22 passed in `src/components/kanban/board-settings-attributes.test.ts` and `card-attributes-edit.test.ts`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
+
 
 
 

@@ -61,6 +61,24 @@ describe("Board Settings and Attributes Synchronization Integration", () => {
       expect(attrContent).toContain("useToast");
     });
 
+    it("verifies board-attributes-tab.tsx and card-attributes-edit-modal.tsx use ring-dusk-amber and ring-offset-2 for color swatch selection", () => {
+      const attrPath = resolve(__dirname, "board-attributes-tab.tsx");
+      const attrContent = readFileSync(attrPath, "utf-8");
+
+      expect(attrContent).toContain("ring-dusk-amber");
+      expect(attrContent).toContain("ring-offset-2");
+      expect(attrContent).toContain("dark:ring-amber-300");
+      expect(attrContent).toContain("dark:ring-offset-ink-950");
+
+      const editModalPath = resolve(__dirname, "card-attributes-edit-modal.tsx");
+      const editModalContent = readFileSync(editModalPath, "utf-8");
+
+      expect(editModalContent).toContain("ring-dusk-amber");
+      expect(editModalContent).toContain("ring-offset-2");
+      expect(editModalContent).toContain("dark:ring-amber-300");
+      expect(editModalContent).toContain("dark:ring-offset-ink-950");
+    });
+
     it("verifies BoardPrioritiesTab implements ConfirmModal protection, workflow templates, and toast notifications", () => {
       const prioPath = resolve(__dirname, "board-priorities-tab.tsx");
       const prioContent = readFileSync(prioPath, "utf-8");
