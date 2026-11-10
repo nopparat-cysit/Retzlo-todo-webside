@@ -77,9 +77,12 @@ describe("Task 3: Long-Press Column Move Menu on Kanban Board", () => {
     expect(cardMoveModalSource).toContain("min-h-[44px] w-full flex items-center justify-between p-2.5 rounded-xl border transition");
     expect(cardMoveModalSource).toContain("ArrowRightLeft");
     expect(cardMoveModalSource).toContain("Current");
+    expect(cardMoveModalSource).not.toContain("backdrop-blur-xl");
+    expect(cardMoveModalSource).toContain("border-stone-300 bg-white");
+    expect(cardMoveModalSource).toContain("dark:bg-[#0e1025]");
   });
 
-  it("implements long-press and right-click trigger in KanbanCard", () => {
+  it("implements long-press and right-click trigger in KanbanCard with touch-pan-y scrolling", () => {
     expect(cardSource).toContain("onMoveRequest?: (card: Card, columnId: string) => void");
     expect(cardSource).toContain("longPressTimerRef");
     expect(cardSource).toContain("startPointerPosRef");
@@ -91,11 +94,14 @@ describe("Task 3: Long-Press Column Move Menu on Kanban Board", () => {
     expect(cardSource).toContain("onPointerMove");
     expect(cardSource).toContain("onPointerUp");
     expect(cardSource).toContain("onPointerCancel");
+    expect(cardSource).toContain("touch-pan-y");
+    expect(cardSource).not.toContain("touch-none");
   });
 
-  it("forwards onMoveCard from KanbanColumn to KanbanCard as onMoveRequest", () => {
+  it("forwards onMoveCard from KanbanColumn to KanbanCard as onMoveRequest and supports touch scrolling", () => {
     expect(columnSource).toContain("onMoveCard?: (card: Card, columnId: string) => void");
     expect(columnSource).toContain("onMoveRequest={onMoveCard}");
+    expect(columnSource).toContain("scroll-touch touch-pan-y overscroll-contain");
   });
 
   it("wires card move modal, optimistic update, sound, celebration, and api sync in KanbanBoard", () => {

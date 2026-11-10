@@ -82,7 +82,7 @@ export function BoardViewContainer({
           : "board-page-grid flex flex-1 min-h-0 min-w-0 max-w-full"
       }
     >
-      <div className="flex-1 min-h-0 min-w-0 max-w-full overflow-hidden">
+      <div className="flex-1 min-h-0 min-w-0 max-w-full overflow-hidden flex flex-col h-full">
         <KanbanBoard
           key={`board-${board.id}`}
           board={board}

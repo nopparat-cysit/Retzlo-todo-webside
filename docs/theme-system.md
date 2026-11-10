@@ -1126,6 +1126,16 @@ Template:
   - Redesigned `CardModal` bottom action buttons into a symmetrical 2x2 grid on mobile viewports (`grid grid-cols-2 gap-2 w-full`) with 40px touch targets (`h-10 sm:h-9`), separating destructive/archive actions from cancel/save actions while maintaining desktop split layout.
 - Verification: Vitest 186/186 passed across `src/components/kanban/` and `src/components/ui/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js build succeeded.
 
+### 2026-11-09 — Fix Column Card Scroll and Solid Opaque Mobile Navigation
+- Coverage: Kanban Cards & Column (`src/components/kanban/card.tsx`, `column.tsx`, `board-view-container.tsx`), Mobile Bottom Nav (`src/components/project/project-mobile-bottom-nav.tsx`), and Column Move Modal (`src/components/kanban/card-move-modal.tsx`).
+- Theme Alignment & Visual Tokens:
+  - Replaced `touch-none` with `touch-pan-y` on Kanban cards and added `scroll-touch touch-pan-y overscroll-contain` to column card zones, enabling native vertical swipe scrolling across cards.
+  - Removed translucent glassmorphism (`backdrop-blur-xl`, opacity fractions) from `ProjectMobileBottomNav` and `CardMoveModal`.
+  - Upgraded mobile bottom navigation capsule to solid opaque styling (`bg-white dark:bg-[#0e1025]`, `border-stone-300 dark:border-white/15`, deep grounding shadow `shadow-[0_8px_24px_rgba(0,0,0,0.15)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.6)]`), with solid active highlight pill (`bg-indigo-50 border border-indigo-200/90 dark:bg-dusk-lavender/20 dark:border-dusk-lavender/40`).
+  - Upgraded `CardMoveModal` to solid opaque container and solid destination column buttons with high contrast hover and current states.
+- Verification: Vitest 187/187 passed across `src/components/kanban/` and `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js build succeeded.
+
+
 
 
 

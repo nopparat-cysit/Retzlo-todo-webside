@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, KanbanSquare, CalendarDays, BookOpenCheck, FileText } from "lucide-react";
+import { KanbanSquare, CalendarDays, BookOpenCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProjectMobileBottomNavProps {
@@ -53,12 +53,6 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
 
     return [
       {
-        label: "Spaces",
-        href: "/projects",
-        segment: "projects",
-        icon: LayoutGrid,
-      },
-      {
         label: "Board",
         href: boardHref,
         segment: "board",
@@ -88,9 +82,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
   // Determine active segment from optimistic state or current pathname
   const activeSegment =
     optimisticSegment ??
-    (pathname === "/projects" || pathname?.startsWith("/projects")
-      ? "projects"
-      : navItems.find((item) => item.segment !== "projects" && pathname?.includes(`/${item.segment}`))?.segment ?? null);
+    navItems.find((item) => pathname?.includes(`/${item.segment}`))?.segment ?? null;
 
   const activeIndex = activeSegment ? navItems.findIndex((item) => item.segment === activeSegment) : -1;
   const hasActiveTab = activeIndex >= 0;
@@ -98,16 +90,16 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
   return (
     <nav
       aria-label="Mobile workspace navigation"
-      className="lg:hidden fixed bottom-2 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[340px] max-w-[360px] mx-auto z-40 rounded-full border border-stone-200/80 bg-white/92 p-1 shadow-[0_8px_24px_rgba(0,0,0,0.1)] backdrop-blur-xl dark:border-white/10 dark:bg-ink-950/90 dark:shadow-[0_12px_28px_rgba(0,0,0,0.55)] transition-all duration-300"
+      className="lg:hidden fixed bottom-2 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[340px] max-w-[360px] mx-auto z-40 rounded-full border border-stone-300 bg-white p-1 shadow-[0_8px_24px_rgba(0,0,0,0.15)] dark:border-white/15 dark:bg-[#0e1025] dark:shadow-[0_12px_28px_rgba(0,0,0,0.6)] transition-all duration-300"
       style={{
         bottom: "calc(0.4rem + env(safe-area-inset-bottom, 0px))",
       }}
     >
-      <div className="relative grid grid-cols-5 items-center">
+      <div className="relative grid grid-cols-4 items-center">
         {/* Animated Sliding Highlight Pill (Transfer Animation) */}
         <div
           className={cn(
-            "absolute inset-y-0.5 w-1/5 p-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
+            "absolute inset-y-0.5 w-1/4 p-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
             hasActiveTab ? "opacity-100 scale-100" : "opacity-0 scale-95"
           )}
           style={{
@@ -115,7 +107,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
           }}
           aria-hidden="true"
         >
-          <div className="w-full h-full rounded-full bg-dusk-lavender/15 border border-dusk-lavender/35 dark:bg-dusk-lavender/25 dark:border-dusk-lavender/45 shadow-xs" />
+          <div className="w-full h-full rounded-full bg-indigo-50 border border-indigo-200/90 dark:bg-dusk-lavender/20 dark:border-dusk-lavender/40 shadow-xs" />
         </div>
 
         {navItems.map((item, index) => {
@@ -134,7 +126,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
                 className={cn(
                   "grid h-5 w-5 place-items-center transition-all duration-300",
                   isActive
-                    ? "text-dusk-lavender scale-110"
+                    ? "text-indigo-600 dark:text-dusk-lavender scale-110 font-bold"
                     : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
               >
@@ -152,8 +144,8 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
               </span>
               <span
                 className={cn(
-                  "mt-0.5 h-0.5 w-0.5 rounded-full bg-dusk-lavender transition-all duration-300",
-                  isActive ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                  "mt-0.5 h-0.5 w-0.5 rounded-full transition-all duration-300",
+                  isActive ? "scale-100 opacity-100 bg-indigo-600 dark:bg-dusk-lavender" : "scale-0 opacity-0"
                 )}
               />
             </Link>

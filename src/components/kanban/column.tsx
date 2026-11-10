@@ -545,7 +545,7 @@ function KanbanColumnComponent({
       </div>
 
       {/* ── Cards List ── */}
-      <div ref={setCardZoneRef} data-card-zone={column.id} className={cn("scrollbar-soft min-h-20 flex-1 overflow-y-auto p-2.5 sm:p-3", density === "compact" ? "space-y-1.5" : "space-y-2.5", isDropTarget && "bg-white/[0.025]")}>
+      <div ref={setCardZoneRef} data-card-zone={column.id} className={cn("scrollbar-soft scroll-touch touch-pan-y overscroll-contain min-h-20 flex-1 overflow-y-auto p-2.5 sm:p-3 pb-8 sm:pb-3", density === "compact" ? "space-y-1.5" : "space-y-2.5", isDropTarget && "bg-white/[0.025]")}>
         <SortableContext items={column.cards.map((card) => `card:${card.id}`)} strategy={verticalListSortingStrategy}>
           {column.cards.map((card) => (
             <KanbanCard

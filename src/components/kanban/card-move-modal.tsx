@@ -42,12 +42,12 @@ export function CardMoveModal({
     <AppModal
       open={open}
       onClose={onClose}
-      contentClassName="max-w-md w-full mx-auto overflow-hidden rounded-2xl border border-stone-200/80 bg-white/98 text-stone-900 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[#0e1025] dark:text-stone-100"
+      contentClassName="max-w-md w-full mx-auto overflow-hidden rounded-2xl border border-stone-300 bg-white text-stone-900 shadow-2xl dark:border-white/15 dark:bg-[#0e1025] dark:text-stone-100"
       labelledBy="card-move-modal-title"
     >
       <div className="flex h-full max-h-[85vh] flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-stone-200/70 p-4 sm:p-5 dark:border-white/10">
+        <div className="flex items-center justify-between border-b border-stone-200 bg-stone-50/80 p-4 sm:p-5 dark:border-white/10 dark:bg-white/[0.02]">
           <div className="flex items-center gap-3 min-w-0">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
               <ArrowRightLeft className="h-5 w-5" />
@@ -100,8 +100,8 @@ export function CardMoveModal({
                 className={cn(
                   "min-h-[44px] w-full flex items-center justify-between p-2.5 rounded-xl border transition text-left cursor-pointer touch-manipulation",
                   isCurrent
-                    ? "border-indigo-400/50 bg-indigo-50/50 cursor-default opacity-85 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/10"
-                    : "border-stone-200/80 bg-stone-50/50 hover:bg-stone-100/80 hover:border-stone-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.07] dark:hover:border-white/20"
+                    ? "border-indigo-500 bg-indigo-50 text-indigo-900 font-semibold ring-1 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:ring-dusk-lavender/30 cursor-default"
+                    : "border-stone-200 bg-stone-100/70 hover:bg-stone-100 hover:border-indigo-300 text-stone-800 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:hover:border-white/20 dark:text-stone-200"
                 )}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -114,12 +114,12 @@ export function CardMoveModal({
 
                 <div className="flex items-center gap-2 shrink-0 ml-2">
                   {isCurrent ? (
-                    <span className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-2 py-0.5 text-xs font-semibold text-indigo-600 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                    <span className="inline-flex items-center gap-1 rounded-md bg-indigo-600 text-white dark:bg-dusk-lavender dark:text-ink-950 px-2 py-0.5 text-xs font-bold shadow-xs">
                       <Check className="h-3.5 w-3.5" />
                       <span>{isEn ? "Current" : "ปัจจุบัน"}</span>
                     </span>
                   ) : (
-                    <span className="rounded-md border border-stone-200/70 bg-stone-100/80 px-2 py-0.5 text-xs font-medium text-stone-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400">
+                    <span className="rounded-md border border-stone-200/80 bg-white px-2 py-0.5 text-xs font-semibold text-stone-600 dark:border-white/15 dark:bg-white/10 dark:text-stone-300">
                       {column.cards.length} {column.cards.length === 1 ? (isEn ? "card" : "การ์ด") : (isEn ? "cards" : "การ์ด")}
                     </span>
                   )}
