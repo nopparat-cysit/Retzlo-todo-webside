@@ -6,6 +6,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { assertProjectMember, canAccessBoard, getProjectIdForCard, requireUserId } from "@/lib/project-auth";
 import { prisma } from "@/lib/prisma";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { isR2Configured, uploadToR2 } from "@/lib/r2";
 import { triggerPusherEvent } from "@/lib/pusher/server";
 import { logBoardActivity } from "@/lib/kanban/activity-logger";
 
@@ -147,8 +148,15 @@ export async function POST(
       fileType = file.type || "file";
 
       const buffer = await file.arrayBuffer();
-      const publicId = `${params.cardId}_${Date.now()}_${randomUUID().slice(0, 8)}`;
-      url = await uploadToCloudinary(buffer, "retzlo/card-attachments", publicId);
+
+      if (isR2Configured()) {
+        const sanitizedFilename = (file.name || "attachment").replace(/[^a-zA-Z0-9._-]/g, "_");
+        const key = `cards/${params.cardId}/${Date.now()}_${sanitizedFilename}`;
+        url = await uploadToR2(buffer, key, file.type || undefined);
+      } else {
+        const publicId = `${params.cardId}_${Date.now()}_${randomUUID().slice(0, 8)}`;
+        url = await uploadToCloudinary(buffer, "retzlo/card-attachments", publicId);
+      }
     } else {
       const body = await request.json();
       const payload = linkAttachmentSchema.parse(body);

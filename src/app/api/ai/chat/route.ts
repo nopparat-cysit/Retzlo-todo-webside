@@ -2,12 +2,17 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
 
-import { jsonError, parseError } from "@/lib/api";
+import { jsonError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { canAccessBoard, requireUserId, assertProjectMember } from "@/lib/project-auth";
 import { AI_CREDIT_COSTS, deductUserAiCredit, getUserAiQuota } from "@/lib/ai/credits";
 import { chatWithAssistant, AiChatMessage } from "@/lib/ai/engine";
 import { extractAiCreateCardProposal } from "@/lib/ai/chat-actions";
+import {
+  checkPublicRateLimit,
+  validatePublicInput,
+  prunePublicMessageHistory
+} from "@/lib/ai/guardrails";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -21,32 +26,106 @@ const chatMessageSchema = z.object({
 const chatRequestSchema = z.object({
   messages: z.array(chatMessageSchema).min(1, "At least one message is required"),
   projectId: z.string().min(1).max(191).optional(),
-  boardId: z.string().uuid().optional()
+  boardId: z.string().uuid().optional(),
+  tier: z.enum(["public", "workspace"]).optional()
 });
+
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) {
+    const first = forwarded.split(",")[0].trim();
+    if (first) return first;
+  }
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp && realIp.trim()) {
+    return realIp.trim();
+  }
+  return "127.0.0.1";
+}
 
 export async function POST(request: Request) {
   try {
-    const userId = await requireUserId();
-    if (!userId) {
-      return jsonError("Please sign in before using AI Assistant", 401);
-    }
-
     const body = await request.json().catch(() => ({}));
     const payload = chatRequestSchema.parse(body);
 
-    // 1. Quota check
-    const quota = await getUserAiQuota(userId);
-    if (!quota.unlimited && quota.credits < AI_CREDIT_COSTS.CHAT) {
-      return jsonError(
-        `Insufficient AI credits (${quota.credits} remaining)`,
-        402
-      );
+    const clientApiKey =
+      request.headers.get("x-ai-api-key")?.trim() ||
+      request.headers.get("x-deepseek-api-key")?.trim() ||
+      undefined;
+    const clientModel = request.headers.get("x-ai-model")?.trim() || undefined;
+
+    const userId = await requireUserId();
+
+    // 1. Unauthenticated Visitor Flow (Strict Public Tier)
+    if (!userId) {
+      if (payload.tier === "workspace" || payload.projectId) {
+        return jsonError("Please sign in before using Workspace AI Assistant", 401);
+      }
+
+      const ip = getClientIp(request);
+      const rateCheck = checkPublicRateLimit(ip);
+      if (!rateCheck.allowed) {
+        return jsonError(rateCheck.error || "Rate limit reached", 429);
+      }
+
+      const lastUserMsg = [...payload.messages].reverse().find((m) => m.role === "user");
+      const contentToValidate = lastUserMsg?.content || payload.messages[payload.messages.length - 1].content;
+      const validation = validatePublicInput(contentToValidate);
+      if (!validation.isValid) {
+        return jsonError(validation.error || "Invalid message content", 400);
+      }
+
+      const prunedMessages = prunePublicMessageHistory(payload.messages as AiChatMessage[]);
+
+      const reply = await chatWithAssistant({
+        messages: prunedMessages,
+        tier: "public",
+        apiKey: clientApiKey,
+        model: clientModel
+      });
+
+      return NextResponse.json({
+        ok: true,
+        reply,
+        tier: "public"
+      });
     }
 
-    // 2. Fetch project context if available
-    let projectContext: string | undefined;
-    let proposalContext: Parameters<typeof extractAiCreateCardProposal>[1] = null;
+    // 2. Authenticated User without Project (Public Guide with generous limits)
+    if (!payload.projectId && payload.tier === "public") {
+      const lastUserMsg = [...payload.messages].reverse().find((m) => m.role === "user");
+      const contentToValidate = lastUserMsg?.content || payload.messages[payload.messages.length - 1].content;
+      const validation = validatePublicInput(contentToValidate, 1200);
+      if (!validation.isValid) {
+        return jsonError(validation.error || "Invalid message content", 400);
+      }
+
+      const prunedMessages = prunePublicMessageHistory(payload.messages as AiChatMessage[], 8);
+
+      const reply = await chatWithAssistant({
+        messages: prunedMessages,
+        tier: "public",
+        apiKey: clientApiKey,
+        model: clientModel
+      });
+
+      return NextResponse.json({
+        ok: true,
+        reply,
+        tier: "public"
+      });
+    }
+
+    // 3. Authenticated User with Workspace / Project Context
     if (payload.projectId) {
+      const quota = await getUserAiQuota(userId);
+      if (!quota.unlimited && quota.credits < AI_CREDIT_COSTS.CHAT) {
+        return jsonError(
+          `Insufficient AI credits (${quota.credits} remaining)`,
+          402
+        );
+      }
+
       const membership = await assertProjectMember(payload.projectId, userId);
       if (!membership) {
         return jsonError("You do not have permission to access this project", 403);
@@ -75,6 +154,9 @@ export async function POST(request: Request) {
       if (!project) {
         return jsonError("Project not found", 404);
       }
+
+      let projectContext: string | undefined;
+      let proposalContext: Parameters<typeof extractAiCreateCardProposal>[1] = null;
 
       const accessibleBoards = project.boards.filter((board) =>
         canAccessBoard(board, userId, membership.role)
@@ -129,38 +211,45 @@ ${sampleCards || "No cards created yet"}`;
           columns: activeBoard.columns
         };
       }
+
+      const reply = await chatWithAssistant({
+        messages: payload.messages as AiChatMessage[],
+        projectContext,
+        tier: "workspace",
+        apiKey: clientApiKey,
+        model: clientModel
+      });
+
+      const chatResult = extractAiCreateCardProposal(reply, proposalContext);
+
+      const creditResult = await deductUserAiCredit(
+        userId,
+        AI_CREDIT_COSTS.CHAT,
+        "CHAT"
+      );
+
+      return NextResponse.json({
+        ok: true,
+        reply: chatResult.reply,
+        createProposal: chatResult.proposal,
+        remainingCredits: creditResult.remainingCredits,
+        tier: "workspace"
+      });
     }
 
-    // 3. Client override key & model
-    const clientApiKey =
-      request.headers.get("x-ai-api-key")?.trim() ||
-      request.headers.get("x-deepseek-api-key")?.trim() ||
-      undefined;
-
-    const clientModel = request.headers.get("x-ai-model")?.trim() || undefined;
-
-    // 4. Call chat engine
+    // 4. Default fallback for signed-in users on non-project pages
+    const prunedMessages = prunePublicMessageHistory(payload.messages as AiChatMessage[], 8);
     const reply = await chatWithAssistant({
-      messages: payload.messages as AiChatMessage[],
-      projectContext,
+      messages: prunedMessages,
+      tier: "public",
       apiKey: clientApiKey,
       model: clientModel
     });
 
-    const chatResult = extractAiCreateCardProposal(reply, proposalContext);
-
-    // 5. Deduct 1 credit on success
-    const creditResult = await deductUserAiCredit(
-      userId,
-      AI_CREDIT_COSTS.CHAT,
-      "CHAT"
-    );
-
     return NextResponse.json({
       ok: true,
-      reply: chatResult.reply,
-      createProposal: chatResult.proposal,
-      remainingCredits: creditResult.remainingCredits
+      reply,
+      tier: "public"
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

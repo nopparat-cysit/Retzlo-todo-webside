@@ -6,6 +6,7 @@ import {
   PROJECT_SUMMARY_SYSTEM_PROMPT,
   AI_CHATBOT_SYSTEM_PROMPT
 } from "./prompts";
+import { AiTier, getTierConfig } from "./tiers";
 
 export interface AiChatMessage {
   role: "system" | "user" | "assistant";
@@ -22,6 +23,7 @@ export interface AiChatOptions {
   maxTokens?: number;
   jsonMode?: boolean;
   timeoutMs?: number;
+  tier?: AiTier;
 }
 
 export interface TaskBreakdownResult {
@@ -79,7 +81,7 @@ function safeParseJson<T>(text: string, fallback: T): T {
  * Resolves the AI API key.
  * Priority:
  * 1. Explicit override passed in call options (e.g. client BYOK)
- * 2. Environment variables (AI_API_KEY, DEEPSEEK_API_KEY, etc.)
+ * 2. Environment variables (OPENROUTER_API_KEY, AI_API_KEY, DEEPSEEK_API_KEY)
  * 3. Local .env / .env.local file inspection on disk
  */
 export function getAiApiKey(overrideKey?: string): string {
@@ -89,14 +91,24 @@ export function getAiApiKey(overrideKey?: string): string {
 
   // In vitest automated runs without RUN_LIVE_AI_TESTS, respect test env or fallback cleanly
   if (process.env.VITEST && process.env.RUN_LIVE_AI_TESTS !== "true") {
-    if (process.env.AI_API_KEY !== undefined || process.env.DEEPSEEK_API_KEY !== undefined) {
-      return (process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY || "").trim();
+    if (
+      process.env.OPENROUTER_API_KEY !== undefined ||
+      process.env.AI_API_KEY !== undefined ||
+      process.env.DEEPSEEK_API_KEY !== undefined
+    ) {
+      return (
+        process.env.OPENROUTER_API_KEY ||
+        process.env.AI_API_KEY ||
+        process.env.DEEPSEEK_API_KEY ||
+        ""
+      ).trim();
     }
     return "";
   }
 
   // 1. Process.env (standard production & dev runtime)
   const envKey = (
+    process.env.OPENROUTER_API_KEY ||
     process.env.AI_API_KEY ||
     process.env.DEEPSEEK_API_KEY ||
     process.env.NEXT_PUBLIC_AI_API_KEY ||
@@ -114,10 +126,12 @@ export function getAiApiKey(overrideKey?: string): string {
         const envPath = path.resolve(currentDir, filename);
         if (fs.existsSync(envPath)) {
           const content = fs.readFileSync(envPath, "utf-8");
-          const matchAi = content.match(/^(?:AI_API_KEY|DEEPSEEK_API_KEY)=["']?([^"'\r\n#]+)["']?/m);
+          const matchAi = content.match(
+            /^(?:OPENROUTER_API_KEY|AI_API_KEY|DEEPSEEK_API_KEY)=["']?([^"'\r\n#]+)["']?/m
+          );
           if (matchAi && matchAi[1] && matchAi[1].trim()) {
             const diskKey = matchAi[1].trim();
-            process.env.AI_API_KEY = diskKey;
+            process.env.OPENROUTER_API_KEY = diskKey;
             return diskKey;
           }
         }
@@ -145,33 +159,43 @@ export function getAiApiKey(overrideKey?: string): string {
 }
 
 export function getAiBaseUrl(): string {
+  if (process.env.AI_BASE_URL) {
+    return process.env.AI_BASE_URL.replace(/\/+$/, "");
+  }
+  if (process.env.OPENROUTER_API_KEY) {
+    return "https://openrouter.ai/api/v1";
+  }
   return (
-    process.env.AI_BASE_URL ||
     process.env.DEEPSEEK_BASE_URL ||
     "https://api.deepseek.com"
   ).replace(/\/+$/, "");
 }
 
-export function getAiModel(overrideModel?: string): string {
+export function getAiModel(overrideModel?: string, tier?: AiTier): string {
   if (overrideModel && overrideModel.trim()) {
     return overrideModel.trim();
   }
+  if (tier) {
+    return getTierConfig(tier).model;
+  }
   return (
+    process.env.AI_WORKSPACE_MODEL ||
     process.env.AI_MODEL ||
     process.env.DEEPSEEK_MODEL ||
-    "deepseek-v4-pro"
+    "openai/gpt-6-luna-medium"
   );
 }
 
 /**
- * Executes a call to any OpenAI-compatible Chat Completions API (DeepSeek, OpenAI, Groq, Mistral, etc.)
+ * Executes a call to any OpenAI-compatible Chat Completions API (OpenRouter, DeepSeek, OpenAI, Groq)
  */
 export async function callAiChat(
   options: AiChatOptions
 ): Promise<string> {
+  const tierConfig = options.tier ? getTierConfig(options.tier) : undefined;
   let apiKey = getAiApiKey(options.apiKey);
   const baseUrl = getAiBaseUrl();
-  const model = getAiModel(options.model);
+  const model = getAiModel(options.model || tierConfig?.model);
 
   // Transparent error when API key is missing in production/dev
   if (!apiKey || apiKey === "" || apiKey === "undefined") {
@@ -183,38 +207,48 @@ export async function callAiChat(
     );
   }
 
-  // Reasoning models (deepseek-v4-pro, etc.) need longer timeouts
   const timeoutMs = options.timeoutMs ?? 60000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
+  const systemPrompt = options.systemPrompt || tierConfig?.systemPrompt;
+  const temperature = options.temperature ?? tierConfig?.temperature ?? 0.3;
+  const maxTokens = options.maxTokens ?? tierConfig?.maxTokens ?? 4096;
+
   const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [];
   if (options.messages && options.messages.length > 0) {
-    if (options.systemPrompt && !options.messages.some((m) => m.role === "system")) {
-      messages.push({ role: "system", content: options.systemPrompt });
+    if (systemPrompt && !options.messages.some((m) => m.role === "system")) {
+      messages.push({ role: "system", content: systemPrompt });
     }
     messages.push(...options.messages);
   } else {
-    if (options.systemPrompt) {
-      messages.push({ role: "system", content: options.systemPrompt });
+    if (systemPrompt) {
+      messages.push({ role: "system", content: systemPrompt });
     }
     if (options.userPrompt) {
       messages.push({ role: "user", content: options.userPrompt });
     }
   }
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${apiKey}`
+  };
+
+  if (baseUrl.includes("openrouter.ai")) {
+    headers["HTTP-Referer"] = "https://retzlo.com";
+    headers["X-Title"] = "Retzlo Todo";
+  }
+
   try {
     let response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`
-      },
+      headers,
       body: JSON.stringify({
         model,
         messages,
-        temperature: options.temperature ?? 0.3,
-        max_tokens: options.maxTokens ?? 4096,
+        temperature,
+        max_tokens: maxTokens,
         response_format: options.jsonMode ? { type: "json_object" } : undefined
       }),
       signal: controller.signal
@@ -225,17 +259,15 @@ export async function callAiChat(
       const freshKey = getAiApiKey();
       if (freshKey && freshKey !== apiKey) {
         apiKey = freshKey;
+        headers.Authorization = `Bearer ${apiKey}`;
         response = await fetch(`${baseUrl}/chat/completions`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`
-          },
+          headers,
           body: JSON.stringify({
             model,
             messages,
-            temperature: options.temperature ?? 0.3,
-            max_tokens: options.maxTokens ?? 4096,
+            temperature,
+            max_tokens: maxTokens,
             response_format: options.jsonMode ? { type: "json_object" } : undefined
           }),
           signal: controller.signal
@@ -326,7 +358,8 @@ Generate high-quality, practical, sequential checklist todos starting with actio
     jsonMode: true,
     temperature: 0.35,
     apiKey,
-    model
+    model,
+    tier: "workspace"
   });
 
   const parsed = safeParseJson<Partial<TaskBreakdownResult>>(rawJson, {});
@@ -341,7 +374,7 @@ Generate high-quality, practical, sequential checklist todos starting with actio
 
   const validDifficulties: Array<1 | 3 | 5 | 8> = [1, 3, 5, 8];
   const suggestedDifficulty = validDifficulties.includes(
-    parsed.suggestedDifficulty as any
+    parsed.suggestedDifficulty as 1 | 3 | 5 | 8
   )
     ? (parsed.suggestedDifficulty as 1 | 3 | 5 | 8)
     : rawItems.length > 6
@@ -350,7 +383,7 @@ Generate high-quality, practical, sequential checklist todos starting with actio
 
   const validPriorities = ["LOW", "MEDIUM", "HIGH"] as const;
   const suggestedPriority = validPriorities.includes(
-    parsed.suggestedPriority as any
+    parsed.suggestedPriority as "LOW" | "MEDIUM" | "HIGH"
   )
     ? (parsed.suggestedPriority as "LOW" | "MEDIUM" | "HIGH")
     : "MEDIUM";
@@ -405,7 +438,8 @@ Generate an insightful executive summary in JSON format.`;
     jsonMode: true,
     temperature: 0.3,
     apiKey: params.apiKey,
-    model: params.model
+    model: params.model,
+    tier: "workspace"
   });
 
   const parsed = safeParseJson<Partial<ProjectSummaryResult>>(rawJson, {});
@@ -433,25 +467,37 @@ Generate an insightful executive summary in JSON format.`;
 }
 
 /**
- * Conversational Chat Assistant supporting multi-turn dialogues with project context.
+ * Conversational Chat Assistant supporting multi-turn dialogues with dual-tier routing.
  */
 export async function chatWithAssistant(params: {
   messages: AiChatMessage[];
   projectContext?: string;
   apiKey?: string;
   model?: string;
+  tier?: AiTier;
+  temperature?: number;
+  maxTokens?: number;
 }): Promise<string> {
-  const systemPrompt = params.projectContext
-    ? `${AI_CHATBOT_SYSTEM_PROMPT}\n\n[Current Project & Board Context]:\n${params.projectContext}`
-    : AI_CHATBOT_SYSTEM_PROMPT;
+  const tier: AiTier = params.tier || (params.projectContext ? "workspace" : "public");
+  const tierConfig = getTierConfig(tier);
+
+  let systemPrompt: string;
+  if (tier === "public") {
+    systemPrompt = tierConfig.systemPrompt;
+  } else {
+    systemPrompt = params.projectContext
+      ? `${AI_CHATBOT_SYSTEM_PROMPT}\n\n[Current Project & Board Context]:\n${params.projectContext}`
+      : AI_CHATBOT_SYSTEM_PROMPT;
+  }
 
   return callAiChat({
     systemPrompt,
     messages: params.messages,
-    temperature: 0.6,
-    maxTokens: 4096,
+    temperature: params.temperature ?? tierConfig.temperature,
+    maxTokens: params.maxTokens ?? tierConfig.maxTokens,
     apiKey: params.apiKey,
-    model: params.model
+    model: params.model ?? tierConfig.model,
+    tier
   });
 }
 
