@@ -129,3 +129,30 @@ export async function deleteFromR2(key: string): Promise<boolean> {
     return false;
   }
 }
+
+function sanitizeFilename(name: string): string {
+  return name.replace(/[^a-zA-Z0-9._-]/g, "_");
+}
+
+/**
+ * Standardized folder path generators for Cloudflare R2 object hierarchy.
+ */
+export const R2_STORAGE_PATHS = {
+  userAvatar: (userId: string, ext = "webp") =>
+    `users/${userId}/avatar/avatar_${Date.now()}.${ext.replace(/^\./, "")}`,
+
+  projectCover: (projectId: string, ext = "jpg") =>
+    `projects/${projectId}/covers/cover_${Date.now()}.${ext.replace(/^\./, "")}`,
+
+  cardAttachment: (projectId: string, cardId: string, filename: string) =>
+    `projects/${projectId}/cards/${cardId}/attachments/${Date.now()}_${sanitizeFilename(filename)}`,
+
+  diaryMedia: (projectId: string, diaryId: string, filename: string) =>
+    `projects/${projectId}/diary/${diaryId}/media/${Date.now()}_${sanitizeFilename(filename)}`,
+
+  noteAttachment: (projectId: string, noteId: string, filename: string) =>
+    `projects/${projectId}/notes/${noteId}/attachments/${Date.now()}_${sanitizeFilename(filename)}`,
+
+  exportReport: (userId: string, filename: string) =>
+    `exports/${userId}/${Date.now()}_${sanitizeFilename(filename)}`,
+} as const;

@@ -4,7 +4,8 @@ import {
   getR2Client,
   resetR2Client,
   uploadToR2,
-  deleteFromR2
+  deleteFromR2,
+  R2_STORAGE_PATHS
 } from "./r2";
 
 const mockSend = vi.fn();
@@ -168,6 +169,38 @@ describe("Cloudflare R2 Storage Integration", () => {
       const result = await deleteFromR2("cards/card-1/test.txt");
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("R2_STORAGE_PATHS Folder Structure", () => {
+    it("generates structured user avatar path", () => {
+      const path = R2_STORAGE_PATHS.userAvatar("usr-123", "png");
+      expect(path).toMatch(/^users\/usr-123\/avatar\/avatar_\d+\.png$/);
+    });
+
+    it("generates structured project cover path", () => {
+      const path = R2_STORAGE_PATHS.projectCover("prj-456", "jpg");
+      expect(path).toMatch(/^projects\/prj-456\/covers\/cover_\d+\.jpg$/);
+    });
+
+    it("generates structured card attachment path and sanitizes filename", () => {
+      const path = R2_STORAGE_PATHS.cardAttachment("prj-456", "crd-789", "my document (1) #final.pdf");
+      expect(path).toMatch(/^projects\/prj-456\/cards\/crd-789\/attachments\/\d+_my_document__1___final\.pdf$/);
+    });
+
+    it("generates structured diary media path", () => {
+      const path = R2_STORAGE_PATHS.diaryMedia("prj-456", "dry-101", "photo.jpg");
+      expect(path).toMatch(/^projects\/prj-456\/diary\/dry-101\/media\/\d+_photo\.jpg$/);
+    });
+
+    it("generates structured note attachment path", () => {
+      const path = R2_STORAGE_PATHS.noteAttachment("prj-456", "not-202", "schema.png");
+      expect(path).toMatch(/^projects\/prj-456\/notes\/not-202\/attachments\/\d+_schema\.png$/);
+    });
+
+    it("generates structured export report path", () => {
+      const path = R2_STORAGE_PATHS.exportReport("usr-123", "financial-summary.xlsx");
+      expect(path).toMatch(/^exports\/usr-123\/\d+_financial-summary\.xlsx$/);
     });
   });
 });

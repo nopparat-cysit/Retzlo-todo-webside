@@ -1,42 +1,37 @@
-# Cloudflare R2 Storage Integration
+# Cloudflare R2 Storage Integration & Structured Folder Hierarchy
 
 Date: 2026-11-11
 Author: Cloud Storage Integration Specialist
 Status: Completed
 
 ## Summary
-Integrated Cloudflare R2 object storage into Retzlo using `@aws-sdk/client-s3`. Card attachments uploaded as multipart form data route directly to Cloudflare R2 when credentials and bucket configuration exist in environment variables, with automated fallback to Cloudinary when R2 is unconfigured.
+Integrated Cloudflare R2 object storage into Retzlo using `@aws-sdk/client-s3`. Established a standardized folder hierarchy (`R2_STORAGE_PATHS`) to ensure clean separation of user avatars, project covers, card attachments, diary media, note files, and report exports.
 
-## Architecture & Design
-- S3 Client Initialization:
-  - Region: `auto`
-  - Endpoint: Derived from `R2_ENDPOINT` or constructed as `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`.
-  - Credentials: `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`.
-  - Public URL resolution: Prefers `R2_PUBLIC_URL` when provided (e.g. custom domain or r2.dev URL), falling back to `${endpoint}/${bucketName}/${key}`.
-- Object Storage Layout:
-  - Object Key format: `cards/${cardId}/${timestamp}_${sanitizedFilename}`
-- Error Handling and Fallbacks:
-  - `isR2Configured()` validates that credentials, endpoint/account, and bucket name are set.
-  - If R2 is not configured, attachment upload gracefully falls back to `uploadToCloudinary`.
-  - `deleteFromR2` handles deletion errors gracefully and returns a boolean.
+## Structured Object Storage Layout (`R2_STORAGE_PATHS`)
+- User Avatars: `users/{userId}/avatar/avatar_{timestamp}.{ext}`
+- Project Covers: `projects/{projectId}/covers/cover_{timestamp}.{ext}`
+- Card Attachments: `projects/{projectId}/cards/{cardId}/attachments/{timestamp}_{sanitizedFilename}`
+- Diary Media: `projects/{projectId}/diary/{diaryId}/media/{timestamp}_{sanitizedFilename}`
+- Note Attachments: `projects/{projectId}/notes/{noteId}/attachments/{timestamp}_{sanitizedFilename}`
+- Export Reports: `exports/{userId}/{timestamp}_{sanitizedFilename}`
 
-## Configuration Keys
-- `R2_ACCOUNT_ID`
-- `R2_ACCESS_KEY_ID`
-- `R2_SECRET_ACCESS_KEY`
-- `R2_BUCKET_NAME`
-- `R2_ENDPOINT`
-- `R2_PUBLIC_URL`
+## Upload Routes Integrated
+- `src/app/api/cards/[cardId]/attachments/route.ts`: Card attachments stored under project/card folder.
+- `src/app/api/profile/avatar/route.ts`: Profile avatars stored under user avatar folder.
+- `src/app/api/projects/[id]/cover/route.ts`: Project covers stored under project cover folder.
+- All routes feature automated fallback to Cloudinary when R2 is unconfigured.
 
 ## Files Created & Modified
-- `src/lib/r2.ts`: Core S3 client initialization, configuration checks, upload, and deletion utilities.
-- `src/lib/r2.test.ts`: Vitest unit tests verifying configuration checks, URL formatting, command dispatch, and deletion resilience.
-- `src/app/api/cards/[cardId]/attachments/route.ts`: Upload handler integration routing to R2 with Cloudinary fallback.
+- `src/lib/r2.ts`: Core S3 client initialization, configuration checks, upload/delete utilities, and `R2_STORAGE_PATHS`.
+- `src/lib/r2.test.ts`: Vitest unit tests verifying configuration checks, URL formatting, command dispatch, and folder path generation.
+- `src/app/api/cards/[cardId]/attachments/route.ts`: Upload handler integration.
+- `src/app/api/profile/avatar/route.ts`: Profile avatar upload handler.
+- `src/app/api/projects/[id]/cover/route.ts`: Project cover upload handler.
 - `.env.example`: Added R2 environment variable templates.
 - `docs/agent-notes/2026-11-11-cloudflare-r2-integration.md`: Technical documentation.
 
 ## Verification
-- Unit tests: `npx vitest run src/lib/r2.test.ts`
-- Linter: `npm run lint`
-- Schema validation: `npx prisma validate`
-- Build: `cmd.exe /c "npm run build"`
+- Unit tests: `npx vitest run src/lib/r2.test.ts` (18/18 passed)
+- Linter: `npm run lint` (0 errors, 0 warnings)
+- Schema validation: `npx prisma validate` (Valid)
+- Build: `cmd.exe /c "npm run build"` (43/43 routes compiled successfully)

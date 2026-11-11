@@ -4,6 +4,7 @@ import { jsonError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/project-auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { isR2Configured, uploadToR2, R2_STORAGE_PATHS } from "@/lib/r2";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE = 4 * 1024 * 1024; // 4 MB
@@ -24,12 +25,19 @@ export async function POST(request: Request) {
 
     const bytes = await file.arrayBuffer();
 
-    // Upload to Cloudinary — overwrite same publicId per user
-    const avatar = await uploadToCloudinary(
-      bytes,
-      "retrod/avatars",
-      userId // publicId = userId so re-upload replaces the same image
-    );
+    let avatar = "";
+    if (isR2Configured()) {
+      const ext = file.type.split("/")[1] || "webp";
+      const key = R2_STORAGE_PATHS.userAvatar(userId, ext);
+      avatar = await uploadToR2(bytes, key, file.type);
+    } else {
+      // Upload to Cloudinary — overwrite same publicId per user
+      avatar = await uploadToCloudinary(
+        bytes,
+        "retrod/avatars",
+        userId // publicId = userId so re-upload replaces the same image
+      );
+    }
 
     await prisma.user.update({
       where: { id: userId },

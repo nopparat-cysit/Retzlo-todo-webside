@@ -4,6 +4,7 @@ import { jsonError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, requireUserId } from "@/lib/project-auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { isR2Configured, uploadToR2, R2_STORAGE_PATHS } from "@/lib/r2";
 import { triggerPusherEvent } from "@/lib/pusher/server";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -31,12 +32,19 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     const bytes = await file.arrayBuffer();
 
-    // Upload to Cloudinary — overwrite same publicId per project
-    const coverImage = await uploadToCloudinary(
-      bytes,
-      "retrod/covers",
-      `project-${params.id}`
-    );
+    let coverImage = "";
+    if (isR2Configured()) {
+      const ext = file.type.split("/")[1] || "jpg";
+      const key = R2_STORAGE_PATHS.projectCover(params.id, ext);
+      coverImage = await uploadToR2(bytes, key, file.type);
+    } else {
+      // Upload to Cloudinary — overwrite same publicId per project
+      coverImage = await uploadToCloudinary(
+        bytes,
+        "retrod/covers",
+        `project-${params.id}`
+      );
+    }
 
     await prisma.project.update({
       where: { id: params.id },
