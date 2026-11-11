@@ -167,7 +167,13 @@ export function getAiApiKey(overrideKey?: string): string {
   return "";
 }
 
-export function getAiBaseUrl(): string {
+export function getAiBaseUrl(apiKey?: string): string {
+  if (apiKey?.startsWith("sk-or-") || process.env.OPENROUTER_API_KEY?.startsWith("sk-or-")) {
+    return (
+      (process.env.AI_BASE_URL?.includes("openrouter.ai") ? process.env.AI_BASE_URL : null) ||
+      "https://openrouter.ai/api/v1"
+    ).replace(/\/+$/, "");
+  }
   if (process.env.OPENROUTER_API_KEY) {
     return (process.env.AI_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/+$/, "");
   }
@@ -203,7 +209,7 @@ export async function callAiChat(
 ): Promise<string> {
   const tierConfig = options.tier ? getTierConfig(options.tier) : undefined;
   let apiKey = getAiApiKey(options.apiKey);
-  const baseUrl = getAiBaseUrl();
+  const baseUrl = getAiBaseUrl(apiKey);
   const model = getAiModel(options.model || tierConfig?.model);
 
   // Transparent error when API key is missing in production/dev
@@ -279,8 +285,9 @@ export async function callAiChat(
       const freshKey = getAiApiKey();
       if (freshKey && freshKey !== apiKey) {
         apiKey = freshKey;
+        const freshBaseUrl = getAiBaseUrl(apiKey);
         headers.Authorization = `Bearer ${apiKey}`;
-        response = await fetch(`${baseUrl}/chat/completions`, {
+        response = await fetch(`${freshBaseUrl}/chat/completions`, {
           method: "POST",
           headers,
           body: buildPayload(),
