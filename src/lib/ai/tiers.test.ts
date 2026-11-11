@@ -27,7 +27,7 @@ describe("AI Tiers Domain Model", () => {
     const config = getTierConfig("public");
     expect(config.tier).toBe("public");
     expect(config.model).toBe("openai/gpt-oss-120b");
-    expect(config.maxTokens).toBe(350);
+    expect(config.maxTokens).toBe(1000);
     expect(config.temperature).toBe(0.3);
     expect(config.maxInputChars).toBe(600);
     expect(config.historyLimit).toBe(4);
@@ -38,7 +38,7 @@ describe("AI Tiers Domain Model", () => {
   it("resolves default configuration for workspace tier", () => {
     const config = getTierConfig("workspace");
     expect(config.tier).toBe("workspace");
-    expect(config.model).toBe("openai/gpt-6-luna-medium");
+    expect(config.model).toBe("openai/gpt-6-luna");
     expect(config.maxTokens).toBe(1200);
     expect(config.temperature).toBe(0.7);
     expect(config.maxInputChars).toBe(4000);

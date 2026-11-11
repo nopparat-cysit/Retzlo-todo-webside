@@ -28,7 +28,7 @@ export function getTierConfig(tier: AiTier): AiTierConfig {
     return {
       tier: "public",
       model: process.env.AI_PUBLIC_MODEL || "openai/gpt-oss-120b",
-      maxTokens: 350,
+      maxTokens: 1000,
       temperature: 0.3,
       maxInputChars: 600,
       historyLimit: 4,
@@ -38,7 +38,7 @@ export function getTierConfig(tier: AiTier): AiTierConfig {
 
   return {
     tier: "workspace",
-    model: process.env.AI_WORKSPACE_MODEL || "openai/gpt-6-luna-medium",
+    model: process.env.AI_WORKSPACE_MODEL || "openai/gpt-6-luna",
     maxTokens: 1200,
     temperature: 0.7,
     maxInputChars: 4000,

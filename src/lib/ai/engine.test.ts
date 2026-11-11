@@ -38,8 +38,10 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
   });
 
   it("handles fallback properly when API key is empty or missing", async () => {
+    const originalOpenrouterKey = process.env.OPENROUTER_API_KEY;
     const originalAiKey = process.env.AI_API_KEY;
     const originalDeepseekKey = process.env.DEEPSEEK_API_KEY;
+    delete process.env.OPENROUTER_API_KEY;
     delete process.env.AI_API_KEY;
     delete process.env.DEEPSEEK_API_KEY;
     try {
@@ -49,14 +51,17 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
       expect(result.items.length).toBeGreaterThan(0);
       expect([1, 3, 5, 8]).toContain(result.suggestedDifficulty);
     } finally {
+      if (originalOpenrouterKey) process.env.OPENROUTER_API_KEY = originalOpenrouterKey;
       if (originalAiKey) process.env.AI_API_KEY = originalAiKey;
       if (originalDeepseekKey) process.env.DEEPSEEK_API_KEY = originalDeepseekKey;
     }
   });
 
   it("respects itemCount parameter when generating breakdown", async () => {
+    const originalOpenrouterKey = process.env.OPENROUTER_API_KEY;
     const originalAiKey = process.env.AI_API_KEY;
     const originalDeepseekKey = process.env.DEEPSEEK_API_KEY;
+    delete process.env.OPENROUTER_API_KEY;
     delete process.env.AI_API_KEY;
     delete process.env.DEEPSEEK_API_KEY;
     try {
@@ -66,6 +71,7 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
       });
       expect(result.items.length).toBe(3);
     } finally {
+      if (originalOpenrouterKey) process.env.OPENROUTER_API_KEY = originalOpenrouterKey;
       if (originalAiKey) process.env.AI_API_KEY = originalAiKey;
       if (originalDeepseekKey) process.env.DEEPSEEK_API_KEY = originalDeepseekKey;
     }
@@ -93,8 +99,10 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
   });
 
   it("chatWithAssistant generates conversational response successfully", async () => {
+    const originalOpenrouterKey = process.env.OPENROUTER_API_KEY;
     const originalAiKey = process.env.AI_API_KEY;
     const originalDeepseekKey = process.env.DEEPSEEK_API_KEY;
+    delete process.env.OPENROUTER_API_KEY;
     delete process.env.AI_API_KEY;
     delete process.env.DEEPSEEK_API_KEY;
     try {
@@ -104,6 +112,7 @@ describe("AI Assistant Engine", { timeout: 60000 }, () => {
       expect(typeof reply).toBe("string");
       expect(reply.length).toBeGreaterThan(0);
     } finally {
+      if (originalOpenrouterKey) process.env.OPENROUTER_API_KEY = originalOpenrouterKey;
       if (originalAiKey) process.env.AI_API_KEY = originalAiKey;
       if (originalDeepseekKey) process.env.DEEPSEEK_API_KEY = originalDeepseekKey;
     }

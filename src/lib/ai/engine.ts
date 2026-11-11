@@ -126,8 +126,17 @@ export function getAiApiKey(overrideKey?: string): string {
         const envPath = path.resolve(currentDir, filename);
         if (fs.existsSync(envPath)) {
           const content = fs.readFileSync(envPath, "utf-8");
+          const matchOpenRouter = content.match(
+            /^OPENROUTER_API_KEY=["']?([^"'\r\n#]+)["']?/m
+          );
+          if (matchOpenRouter && matchOpenRouter[1] && matchOpenRouter[1].trim()) {
+            const diskKey = matchOpenRouter[1].trim();
+            process.env.OPENROUTER_API_KEY = diskKey;
+            return diskKey;
+          }
+
           const matchAi = content.match(
-            /^(?:OPENROUTER_API_KEY|AI_API_KEY|DEEPSEEK_API_KEY)=["']?([^"'\r\n#]+)["']?/m
+            /^(?:AI_API_KEY|DEEPSEEK_API_KEY)=["']?([^"'\r\n#]+)["']?/m
           );
           if (matchAi && matchAi[1] && matchAi[1].trim()) {
             const diskKey = matchAi[1].trim();
@@ -159,11 +168,11 @@ export function getAiApiKey(overrideKey?: string): string {
 }
 
 export function getAiBaseUrl(): string {
+  if (process.env.OPENROUTER_API_KEY) {
+    return (process.env.AI_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/+$/, "");
+  }
   if (process.env.AI_BASE_URL) {
     return process.env.AI_BASE_URL.replace(/\/+$/, "");
-  }
-  if (process.env.OPENROUTER_API_KEY) {
-    return "https://openrouter.ai/api/v1";
   }
   return (
     process.env.DEEPSEEK_BASE_URL ||
@@ -182,7 +191,7 @@ export function getAiModel(overrideModel?: string, tier?: AiTier): string {
     process.env.AI_WORKSPACE_MODEL ||
     process.env.AI_MODEL ||
     process.env.DEEPSEEK_MODEL ||
-    "openai/gpt-6-luna-medium"
+    "openai/gpt-6-luna"
   );
 }
 
@@ -241,16 +250,27 @@ export async function callAiChat(
   }
 
   try {
-    let response = await fetch(`${baseUrl}/chat/completions`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
+    const isOssModel = model.toLowerCase().includes("oss");
+    const isOpenRouter = baseUrl.includes("openrouter.ai");
+
+    const buildPayload = () => {
+      const body: Record<string, unknown> = {
         model,
         messages,
         temperature,
         max_tokens: maxTokens,
         response_format: options.jsonMode ? { type: "json_object" } : undefined
-      }),
+      };
+      if (isOpenRouter && isOssModel) {
+        body.reasoning = { effort: "low" };
+      }
+      return JSON.stringify(body);
+    };
+
+    let response = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers,
+      body: buildPayload(),
       signal: controller.signal
     });
 
@@ -263,13 +283,7 @@ export async function callAiChat(
         response = await fetch(`${baseUrl}/chat/completions`, {
           method: "POST",
           headers,
-          body: JSON.stringify({
-            model,
-            messages,
-            temperature,
-            max_tokens: maxTokens,
-            response_format: options.jsonMode ? { type: "json_object" } : undefined
-          }),
+          body: buildPayload(),
           signal: controller.signal
         });
       }
@@ -298,11 +312,20 @@ export async function callAiChat(
     }
 
     const data = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string; reasoning_content?: string } }>;
+      choices?: Array<{
+        message?: {
+          content?: string;
+          reasoning_content?: string;
+          reasoning?: string;
+        };
+      }>;
     };
 
     const choice = data.choices?.[0];
-    const content = choice?.message?.content || choice?.message?.reasoning_content;
+    const content =
+      choice?.message?.content ||
+      choice?.message?.reasoning_content ||
+      (choice?.message as { reasoning?: string })?.reasoning;
     if (!content) {
       throw new Error("AI returned an empty response. Please try again.");
     }
