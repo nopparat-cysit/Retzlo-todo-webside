@@ -15,17 +15,20 @@ describe("ProjectMobileBottomNav floating detached and transfer animation", () =
     expect(source).toContain("bottom: \"calc(0.5rem + env(safe-area-inset-bottom, 0px))\"");
   });
 
-  it("implements sliding transfer animation with cubic-bezier spring easing and frosted capsule highlight", () => {
+  it("implements sliding transfer animation with cubic-bezier spring easing and vibrant squircle highlight", () => {
     expect(source).toContain("transform: `translateX(${Math.max(0, activeIndex) * 100}%)`");
     expect(source).toContain("transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]");
-    expect(source).toContain("bg-gradient-to-b from-indigo-50 to-indigo-100/80 border border-indigo-200/90");
+    expect(source).toContain("bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-400/30");
+    expect(source).toContain("rounded-2xl");
+    expect(source).toContain("inset-y-1.5 w-1/4 px-1 py-0.5");
   });
 
-  it("provides optimistic active state updates and tactile click feedback", () => {
+  it("provides optimistic active state updates and tactile click feedback with high-contrast tokens", () => {
     expect(source).toContain("optimisticSegment");
     expect(source).toContain("setOptimisticSegment(item.segment)");
     expect(source).toContain("active:scale-95");
-    expect(source).toContain("scale-110");
+    expect(source).toContain("scale-105");
+    expect(source).toContain("text-white dark:text-ink-950");
   });
 
   it("does not render awkward dot protrusion under tab label", () => {

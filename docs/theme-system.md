@@ -1193,6 +1193,23 @@ Template:
   - Upgraded segmented tab strip to be horizontally scrollable without text truncation (`overflow-x-auto scrollbar-none px-2.5 py-1.5 shrink-0 whitespace-nowrap`), automatically synchronizing active tab focus as columns are swiped.
 - Verification: Vitest 145/145 passed in `src/components/kanban/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded (43/43 routes).
 
+### 2026-11-11 — Mobile Bottom Navigation Select State Polish ("ทำ select ให้สวยๆ")
+- Coverage: Mobile Floating Navigation Dock (`src/components/project/project-mobile-bottom-nav.tsx` and `project-mobile-bottom-nav.test.ts`).
+- Visual Refinement & Token Polish:
+  - Redesigned active indicator capsule from a washed-out, stretched pale oval (`from-indigo-50 to-indigo-100/80 rounded-full`) into a tactile, high-contrast modern squircle capsule (`rounded-2xl`).
+  - Container Geometry: Tightened outer transfer sliding container to `inset-y-1.5 w-1/4 px-1 py-0.5` for balanced margins within the floating dock.
+  - Highlight Pill Tokens:
+    - Light: `rounded-2xl bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-400/30 shadow-[0_4px_12px_rgba(79,70,229,0.28)]`
+    - Dark: `dark:from-dusk-lavender dark:to-[#9f85f8] dark:border-white/20 dark:shadow-[0_4px_14px_rgba(167,139,250,0.35)]`
+  - Active Content Contrast Compliance:
+    - Active icon: `text-white dark:text-ink-950 scale-105 drop-shadow-xs font-bold`
+    - Active label: `font-bold text-white dark:text-ink-950 drop-shadow-xs`
+    - Eliminates prior dark stone text clash on pale purple, delivering crisp WCAG AAA contrast in both light (pure white on indigo) and dark (crisp dark ink on lavender) modes.
+  - Inactive Item Alignment:
+    - Item link container updated to `rounded-2xl` with smooth click feedback (`active:scale-95`).
+    - Icons and labels use muted neutral stones (`text-stone-400 dark:text-stone-400` and `text-stone-500 dark:text-stone-400`).
+- Verification: Vitest 48/48 passed in `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded.
+
 
 
 

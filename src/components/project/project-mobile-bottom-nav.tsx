@@ -99,7 +99,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
         {/* Animated Sliding Highlight Pill (Transfer Animation) */}
         <div
           className={cn(
-            "absolute inset-y-1 w-1/4 p-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
+            "absolute inset-y-1.5 w-1/4 px-1 py-0.5 pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]",
             hasActiveTab ? "opacity-100 scale-100" : "opacity-0 scale-95"
           )}
           style={{
@@ -107,7 +107,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
           }}
           aria-hidden="true"
         >
-          <div className="w-full h-full rounded-full bg-gradient-to-b from-indigo-50 to-indigo-100/80 border border-indigo-200/90 shadow-2xs dark:from-dusk-lavender/25 dark:to-dusk-lavender/15 dark:border-dusk-lavender/40 dark:shadow-[0_0_12px_rgba(167,139,250,0.2)]" />
+          <div className="w-full h-full rounded-2xl bg-gradient-to-b from-indigo-500 to-indigo-600 border border-indigo-400/30 shadow-[0_4px_12px_rgba(79,70,229,0.28)] dark:from-dusk-lavender dark:to-[#9f85f8] dark:border-white/20 dark:shadow-[0_4px_14px_rgba(167,139,250,0.35)]" />
         </div>
 
         {navItems.map((item, index) => {
@@ -120,14 +120,14 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
               href={item.href}
               onClick={() => setOptimisticSegment(item.segment)}
               aria-current={isActive ? "page" : undefined}
-              className="relative z-10 flex flex-col items-center justify-center py-1.5 px-1 rounded-full select-none transition-transform duration-150 active:scale-95 cursor-pointer gap-0.5"
+              className="relative z-10 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl select-none transition-transform duration-150 active:scale-95 cursor-pointer gap-0.5"
             >
               <div className="grid h-5 w-5 place-items-center transition-all duration-300">
                 <Icon
                   className={cn(
                     "h-4 w-4 transition-transform duration-300",
                     isActive
-                      ? "text-indigo-600 dark:text-dusk-lavender scale-110 drop-shadow-xs font-bold"
+                      ? "text-white dark:text-ink-950 scale-105 drop-shadow-xs font-bold"
                       : "text-stone-400 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
                   )}
                 />
@@ -136,7 +136,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
                 className={cn(
                   "text-[10px] tracking-tight leading-tight transition-all duration-300 truncate max-w-[62px]",
                   isActive
-                    ? "font-bold text-stone-900 dark:text-white drop-shadow-xs"
+                    ? "font-bold text-white dark:text-ink-950 drop-shadow-xs"
                     : "font-medium text-stone-500 dark:text-stone-400"
                 )}
               >
