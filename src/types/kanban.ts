@@ -115,6 +115,14 @@ export interface BoardSummary {
   cardCount?: number;
 }
 
+export interface ChatAttachment {
+  name: string;
+  url: string;
+  size?: number;
+  type?: string;
+  isImage?: boolean;
+}
+
 export interface CardCommentAuthor {
   id: string;
   name: string | null;
@@ -129,7 +137,11 @@ export interface CardCommentItem {
   author: CardCommentAuthor;
   content: string;
   type: "COMMENT" | "SYSTEM";
-  metadata?: Record<string, unknown> | null;
+  metadata?: {
+    action?: string;
+    attachments?: ChatAttachment[];
+    [key: string]: unknown;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }

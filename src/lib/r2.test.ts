@@ -5,6 +5,7 @@ import {
   resetR2Client,
   uploadToR2,
   deleteFromR2,
+  extractR2Key,
   R2_STORAGE_PATHS
 } from "./r2";
 
@@ -172,6 +173,20 @@ describe("Cloudflare R2 Storage Integration", () => {
     });
   });
 
+  describe("extractR2Key", () => {
+    it("extracts key from R2 public url", () => {
+      process.env.R2_PUBLIC_URL = "https://pub-retzlo.r2.dev";
+      const key = extractR2Key("https://pub-retzlo.r2.dev/chats/usr-123/1234_file.png");
+      expect(key).toBe("chats/usr-123/1234_file.png");
+    });
+
+    it("extracts key from S3 endpoint url with bucket name", () => {
+      process.env.R2_BUCKET_NAME = "retzlo-storage";
+      const key = extractR2Key("https://account.r2.cloudflarestorage.com/retzlo-storage/chats/usr-123/1234_file.png");
+      expect(key).toBe("chats/usr-123/1234_file.png");
+    });
+  });
+
   describe("R2_STORAGE_PATHS Folder Structure", () => {
     it("generates structured user avatar path", () => {
       const path = R2_STORAGE_PATHS.userAvatar("usr-123", "png");
@@ -201,6 +216,11 @@ describe("Cloudflare R2 Storage Integration", () => {
     it("generates structured export report path", () => {
       const path = R2_STORAGE_PATHS.exportReport("usr-123", "financial-summary.xlsx");
       expect(path).toMatch(/^exports\/usr-123\/\d+_financial-summary\.xlsx$/);
+    });
+
+    it("generates structured chat attachment path and sanitizes filename", () => {
+      const path = R2_STORAGE_PATHS.chatAttachment("usr-123", "screenshot (1).png");
+      expect(path).toMatch(/^chats\/usr-123\/\d+_screenshot__1_\.png$/);
     });
   });
 });

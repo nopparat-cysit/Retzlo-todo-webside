@@ -18,10 +18,35 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const maxDuration = 60;
 
-const chatMessageSchema = z.object({
-  role: z.enum(["system", "user", "assistant"]),
-  content: z.string().trim().min(1, "Message content must not be empty")
+const chatAttachmentSchema = z.object({
+  name: z.string(),
+  url: z.string().url(),
+  size: z.number().optional(),
+  type: z.string().optional(),
+  isImage: z.boolean().optional()
 });
+
+const chatMessageSchema = z
+  .object({
+    role: z.enum(["system", "user", "assistant"]),
+    content: z.string().trim().default(""),
+    attachments: z.array(chatAttachmentSchema).optional()
+  })
+  .refine(
+    (data) => (data.content && data.content.length > 0) || (data.attachments && data.attachments.length > 0),
+    { message: "Message content or attachments must be provided" }
+  );
+
+function formatMessageForAi(m: z.infer<typeof chatMessageSchema>): AiChatMessage {
+  if (!m.attachments || m.attachments.length === 0) {
+    return { role: m.role, content: m.content || "" };
+  }
+  const attachmentSummary = m.attachments
+    .map((att) => `[Attached ${att.isImage ? "Image" : "File"}: ${att.name} (${att.url})]`)
+    .join("\n");
+  const fullContent = m.content ? `${m.content}\n\n${attachmentSummary}` : attachmentSummary;
+  return { role: m.role, content: fullContent };
+}
 
 const chatRequestSchema = z.object({
   messages: z.array(chatMessageSchema).min(1, "At least one message is required"),
@@ -47,6 +72,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
     const payload = chatRequestSchema.parse(body);
+    const formattedMessages = payload.messages.map(formatMessageForAi);
 
     const clientApiKey =
       request.headers.get("x-ai-api-key")?.trim() ||
@@ -75,7 +101,7 @@ export async function POST(request: Request) {
         return jsonError(validation.error || "Invalid message content", 400);
       }
 
-      const prunedMessages = prunePublicMessageHistory(payload.messages as AiChatMessage[]);
+      const prunedMessages = prunePublicMessageHistory(formattedMessages);
 
       const reply = await chatWithAssistant({
         messages: prunedMessages,
@@ -100,7 +126,7 @@ export async function POST(request: Request) {
         return jsonError(validation.error || "Invalid message content", 400);
       }
 
-      const prunedMessages = prunePublicMessageHistory(payload.messages as AiChatMessage[], 8);
+      const prunedMessages = prunePublicMessageHistory(formattedMessages, 8);
 
       const reply = await chatWithAssistant({
         messages: prunedMessages,
@@ -213,7 +239,7 @@ ${sampleCards || "No cards created yet"}`;
       }
 
       const reply = await chatWithAssistant({
-        messages: payload.messages as AiChatMessage[],
+        messages: formattedMessages,
         projectContext,
         tier: "workspace",
         apiKey: clientApiKey,
@@ -238,7 +264,7 @@ ${sampleCards || "No cards created yet"}`;
     }
 
     // 4. Default fallback for signed-in users on non-project pages
-    const prunedMessages = prunePublicMessageHistory(payload.messages as AiChatMessage[], 8);
+    const prunedMessages = prunePublicMessageHistory(formattedMessages, 8);
     const reply = await chatWithAssistant({
       messages: prunedMessages,
       tier: "public",

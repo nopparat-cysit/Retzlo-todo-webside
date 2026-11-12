@@ -130,6 +130,57 @@ export async function deleteFromR2(key: string): Promise<boolean> {
   }
 }
 
+/**
+ * Extracts the R2 key from an R2 object URL.
+ */
+export function extractR2Key(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const pathname = parsed.pathname.replace(/^\/+/, "");
+    const bucketName = process.env.R2_BUCKET_NAME || "retzlo-storage";
+
+    if (pathname.startsWith(`${bucketName}/`)) {
+      return pathname.slice(bucketName.length + 1);
+    }
+
+    const publicUrl = process.env.R2_PUBLIC_URL;
+    if (publicUrl) {
+      try {
+        const publicParsed = new URL(publicUrl);
+        if (parsed.origin === publicParsed.origin) {
+          const basePath = publicParsed.pathname.replace(/^\/+|\/+$/g, "");
+          if (basePath && pathname.startsWith(`${basePath}/`)) {
+            return pathname.slice(basePath.length + 1);
+          }
+          return pathname;
+        }
+      } catch {
+        // ignore invalid public url env
+      }
+    }
+
+    const chatsIndex = pathname.indexOf("chats/");
+    if (chatsIndex !== -1) {
+      return pathname.slice(chatsIndex);
+    }
+
+    if (
+      pathname.startsWith("projects/") ||
+      pathname.startsWith("users/") ||
+      pathname.startsWith("exports/")
+    ) {
+      return pathname;
+    }
+
+    return null;
+  } catch {
+    if (url.includes("chats/")) {
+      return url.slice(url.indexOf("chats/"));
+    }
+    return null;
+  }
+}
+
 function sanitizeFilename(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_");
 }
@@ -155,4 +206,7 @@ export const R2_STORAGE_PATHS = {
 
   exportReport: (userId: string, filename: string) =>
     `exports/${userId}/${Date.now()}_${sanitizeFilename(filename)}`,
+
+  chatAttachment: (userId: string, filename: string) =>
+    `chats/${userId}/${Date.now()}_${sanitizeFilename(filename)}`
 } as const;

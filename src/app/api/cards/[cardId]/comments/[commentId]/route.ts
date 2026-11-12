@@ -4,6 +4,7 @@ import { jsonError, parseError } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { assertProjectMember, isOwnerRole, requireUserId } from "@/lib/project-auth";
 import { triggerPusherEvent } from "@/lib/pusher/server";
+import { deleteFromR2, extractR2Key } from "@/lib/r2";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -50,6 +51,20 @@ export async function DELETE(
     const canDelete = isOwnerRole(membership.role) || comment.authorId === userId;
     if (!canDelete) {
       return jsonError("You are not authorized to delete this comment.", 403);
+    }
+
+    if (comment.metadata && typeof comment.metadata === "object") {
+      const meta = comment.metadata as { attachments?: Array<{ url: string }> };
+      if (Array.isArray(meta.attachments)) {
+        for (const att of meta.attachments) {
+          if (att && att.url) {
+            const key = extractR2Key(att.url);
+            if (key) {
+              await deleteFromR2(key);
+            }
+          }
+        }
+      }
     }
 
     await prisma.cardComment.delete({

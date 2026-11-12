@@ -11,9 +11,30 @@ import { triggerPusherEvent } from "@/lib/pusher/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const createCommentSchema = z.object({
-  content: z.string().trim().min(1, "Comment cannot be empty.").max(2000, "Comment is too long (max 2000 characters).")
+const chatAttachmentSchema = z.object({
+  name: z.string(),
+  url: z.string().url(),
+  size: z.number().optional(),
+  type: z.string().optional(),
+  isImage: z.boolean().optional()
 });
+
+const createCommentSchema = z
+  .object({
+    content: z
+      .string()
+      .trim()
+      .max(2000, "Comment is too long (max 2000 characters).")
+      .optional()
+      .default(""),
+    attachments: z.array(chatAttachmentSchema).optional()
+  })
+  .refine(
+    (data) => (data.content && data.content.length > 0) || (data.attachments && data.attachments.length > 0),
+    {
+      message: "Comment must have either content or attachments."
+    }
+  );
 
 async function getCardWithAccess(cardId: string, userId: string) {
   const card = await prisma.card.findUnique({
@@ -98,12 +119,18 @@ export async function POST(request: Request, { params }: { params: { cardId: str
 
     const payload = createCommentSchema.parse(await request.json());
 
+    const metadata =
+      payload.attachments && payload.attachments.length > 0
+        ? { attachments: payload.attachments }
+        : undefined;
+
     const comment = await prisma.cardComment.create({
       data: {
         cardId: params.cardId,
         authorId: userId,
         content: payload.content,
-        type: "COMMENT"
+        type: "COMMENT",
+        ...(metadata ? { metadata } : {})
       },
       include: {
         author: {
@@ -123,6 +150,12 @@ export async function POST(request: Request, { params }: { params: { cardId: str
 
     if (notificationRecipients.length > 0) {
       try {
+        const notifContent = payload.content.trim()
+          ? payload.content.slice(0, 120)
+          : payload.attachments && payload.attachments.length > 0
+            ? `Attached ${payload.attachments.length} file(s)`
+            : "New message";
+
         await prisma.notification.createMany({
           data: notificationRecipients.map((recipientId) => ({
             id: randomUUID(),
@@ -130,8 +163,8 @@ export async function POST(request: Request, { params }: { params: { cardId: str
             projectId: access.projectId,
             cardId: params.cardId,
             type: "CARD_COMMENT",
-            title: `💬 New message on "${access.card.title}"`,
-            message: `${authorName}: ${payload.content.slice(0, 120)}`,
+            title: `New message on "${access.card.title}"`,
+            message: `${authorName}: ${notifContent}`,
             link: `/project/${access.projectId}/board?cardId=${params.cardId}`
           }))
         });

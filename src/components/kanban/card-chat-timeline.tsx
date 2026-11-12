@@ -1,13 +1,26 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MessageSquare, Send, Trash2, ArrowRightLeft, CheckCircle2, AlertCircle, Clock, Sparkles } from "lucide-react";
+import {
+  MessageSquare,
+  Send,
+  Trash2,
+  ArrowRightLeft,
+  CheckCircle2,
+  AlertCircle,
+  Sparkles,
+  Paperclip,
+  FileText,
+  Loader2,
+  X,
+  Download
+} from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { cn } from "@/lib/utils";
-import type { CardCommentItem } from "@/types/kanban";
+import type { CardCommentItem, ChatAttachment } from "@/types/kanban";
 
 interface CardChatTimelineProps {
   cardId: string;
@@ -50,6 +63,13 @@ function formatCommentDate(isoDate: string): string {
   }
 }
 
+function formatFileSize(bytes?: number): string {
+  if (!bytes || bytes <= 0) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+}
+
 export function CardChatTimeline({
   cardId,
   currentUserId,
@@ -59,6 +79,8 @@ export function CardChatTimeline({
   const [comments, setComments] = useState<CardCommentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [inputText, setInputText] = useState("");
+  const [stagedAttachments, setStagedAttachments] = useState<ChatAttachment[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filter, setFilter] = useState<"ALL" | "COMMENTS" | "ACTIVITY">("ALL");
 
@@ -66,6 +88,7 @@ export function CardChatTimeline({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const streamContainerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isInitialLoadRef = useRef(true);
   const { toast } = useToast();
 
@@ -95,12 +118,10 @@ export function CardChatTimeline({
     onSync: fetchComments
   });
 
-  // Initial fetch
   useEffect(() => {
     fetchComments();
   }, [fetchComments]);
 
-  // Scroll only the chat stream container to bottom, NEVER scrolling the parent modal
   useEffect(() => {
     if (comments.length > 0 && streamContainerRef.current) {
       if (isInitialLoadRef.current) {
@@ -134,14 +155,60 @@ export function CardChatTimeline({
     [comments]
   );
 
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > 10 * 1024 * 1024) {
+          toast({ message: `File "${file.name}" exceeds 10MB limit.`, type: "error" });
+          continue;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `Failed to upload ${file.name}`);
+        }
+
+        const data = await res.json();
+        if (data.file) {
+          setStagedAttachments((prev) => [...prev, data.file]);
+        }
+      }
+    } catch (err: any) {
+      toast({ message: err.message || "Failed to upload file.", type: "error" });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }
+
+  function handleRemoveStaged(index: number) {
+    setStagedAttachments((prev) => prev.filter((_, idx) => idx !== index));
+  }
+
   async function handleSendMessage(e?: React.SyntheticEvent) {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     const trimmed = inputText.trim();
-    if (!trimmed || isSubmitting) return;
+    if ((!trimmed && stagedAttachments.length === 0) || isSubmitting || isUploading) return;
 
+    const currentStaged = [...stagedAttachments];
     const tempId = `temp-${Date.now()}`;
     const optimisticComment: CardCommentItem = {
       id: tempId,
@@ -155,19 +222,24 @@ export function CardChatTimeline({
       },
       content: trimmed,
       type: "COMMENT",
+      metadata: currentStaged.length > 0 ? { attachments: currentStaged } : undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
     setComments((prev) => [...prev, optimisticComment]);
     setInputText("");
+    setStagedAttachments([]);
     setIsSubmitting(true);
 
     try {
       const res = await fetch(`/api/cards/${cardId}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: trimmed })
+        body: JSON.stringify({
+          content: trimmed,
+          attachments: currentStaged.length > 0 ? currentStaged : undefined
+        })
       });
 
       if (!res.ok) {
@@ -182,9 +254,9 @@ export function CardChatTimeline({
         toast({ message: "Comment sent.", type: "success" });
       }
     } catch (err: any) {
-      // Revert optimistic comment
       setComments((prev) => prev.filter((c) => c.id !== tempId));
       setInputText(trimmed);
+      setStagedAttachments(currentStaged);
       toast({ message: err.message || "Could not send comment.", type: "error" });
     } finally {
       setIsSubmitting(false);
@@ -235,7 +307,7 @@ export function CardChatTimeline({
 
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.025] p-3.5 space-y-3">
-      {/* Header with Title and Filter Tabs */}
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2.5">
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-dusk-lavender" />
@@ -307,6 +379,7 @@ export function CardChatTimeline({
             const isMe = Boolean(item.authorId === "me" || (currentUserId && item.authorId === currentUserId));
             const canDelete = isMe || isProjectOwner;
             const isOptimistic = item.id.startsWith("temp-");
+            const attachments = (item.metadata as any)?.attachments as ChatAttachment[] | undefined;
 
             if (item.type === "SYSTEM") {
               const action = item.metadata && typeof item.metadata === "object" ? (item.metadata as any).action : undefined;
@@ -361,7 +434,56 @@ export function CardChatTimeline({
                       isOptimistic && "opacity-60 italic"
                     )}
                   >
-                    {item.content}
+                    {item.content && <div>{item.content}</div>}
+
+                    {/* Attachments rendering */}
+                    {attachments && attachments.length > 0 && (
+                      <div className={cn("space-y-1.5", item.content ? "mt-2" : "")}>
+                        {attachments.map((att, idx) => {
+                          if (att.isImage) {
+                            return (
+                              <a
+                                key={idx}
+                                href={att.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block overflow-hidden rounded-xl border border-white/10 hover:opacity-90 transition"
+                              >
+                                <img
+                                  src={att.url}
+                                  alt={att.name || "Attachment"}
+                                  className="max-h-[160px] w-auto max-w-full rounded-xl object-contain bg-black/20"
+                                  loading="lazy"
+                                />
+                              </a>
+                            );
+                          }
+                          return (
+                            <a
+                              key={idx}
+                              href={att.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download={att.name}
+                              className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.04] p-2 text-stone-200 hover:bg-white/[0.08] transition"
+                            >
+                              <FileText className="h-4 w-4 shrink-0 text-dusk-lavender" />
+                              <div className="min-w-0 flex-1">
+                                <div className="truncate text-xs font-medium text-stone-200">
+                                  {att.name}
+                                </div>
+                                {att.size ? (
+                                  <div className="text-[10px] text-stone-400">
+                                    {formatFileSize(att.size)}
+                                  </div>
+                                ) : null}
+                              </div>
+                              <Download className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
 
                     {/* Delete action button on hover */}
                     {canDelete && !isOptimistic && (
@@ -385,8 +507,65 @@ export function CardChatTimeline({
         )}
       </div>
 
+      {/* Staged attachments preview */}
+      {stagedAttachments.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {stagedAttachments.map((att, idx) => (
+            <div
+              key={idx}
+              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.05] px-2 py-1 text-xs text-stone-200"
+            >
+              {att.isImage ? (
+                <img
+                  src={att.url}
+                  alt={att.name}
+                  className="h-4 w-4 rounded object-cover"
+                />
+              ) : (
+                <FileText className="h-3.5 w-3.5 text-dusk-lavender" />
+              )}
+              <span className="max-w-[140px] truncate text-[11px] text-stone-300">
+                {att.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleRemoveStaged(idx)}
+                className="ml-0.5 rounded p-0.5 text-stone-400 hover:bg-white/10 hover:text-stone-100 transition cursor-pointer"
+                title="Remove attachment"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Input Bar */}
       <div className="relative flex items-center gap-2 pt-1">
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading || isSubmitting}
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-stone-400 hover:text-stone-100 hover:bg-white/[0.08] transition cursor-pointer",
+            isUploading && "animate-pulse"
+          )}
+          title="Attach files or images"
+        >
+          {isUploading ? (
+            <Loader2 className="h-4 w-4 animate-spin text-dusk-lavender" />
+          ) : (
+            <Paperclip className="h-4 w-4" />
+          )}
+        </button>
+
         <textarea
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
@@ -398,10 +577,10 @@ export function CardChatTimeline({
         <button
           type="button"
           onClick={() => void handleSendMessage()}
-          disabled={!inputText.trim() || isSubmitting}
+          disabled={(!inputText.trim() && stagedAttachments.length === 0) || isSubmitting || isUploading}
           className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition",
-            inputText.trim() && !isSubmitting
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition cursor-pointer",
+            (inputText.trim() || stagedAttachments.length > 0) && !isSubmitting && !isUploading
               ? "border-dusk-lavender/60 bg-dusk-lavender/25 text-dusk-lavender hover:bg-dusk-lavender/35 hover:scale-105"
               : "border-white/10 bg-white/[0.02] text-stone-600 cursor-not-allowed"
           )}

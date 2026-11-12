@@ -9,10 +9,14 @@ import {
   Check,
   CircleAlert,
   Copy,
+  Download,
+  FileText,
   FolderKanban,
   ListChecks,
+  Loader2,
   PanelRight,
   PanelRightClose,
+  Paperclip,
   PenLine,
   RotateCcw,
   X
@@ -29,6 +33,7 @@ import { GeminiSparkleIcon } from "@/components/ai/gemini-sparkle-icon";
 import { getPriorityMeta } from "@/lib/kanban/priority";
 import { useLanguage } from "@/lib/i18n/language-context";
 import { cn } from "@/lib/utils";
+import type { ChatAttachment } from "@/types/kanban";
 
 interface ChatMessage {
   id: string;
@@ -39,6 +44,7 @@ interface ChatMessage {
   createProposal?: AiCreateCardProposal;
   proposalStatus?: "created" | "cancelled";
   createdCardCount?: number;
+  attachments?: ChatAttachment[];
 }
 
 interface AiChatResponse {
@@ -127,6 +133,8 @@ export function AiChatWidget() {
   const { isOpen, setIsOpen, viewMode, setViewMode, isSmallScreen, isFabOpen } = useAiChat();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const [stagedAttachments, setStagedAttachments] = useState<ChatAttachment[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [credits, setCredits] = useState<number | null>(null);
   const [activeModel, setActiveModel] = useState<string>("deepseek-v4-pro");
@@ -137,6 +145,7 @@ export function AiChatWidget() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Extract projectId if currently inside a project route: /project/[id]/...
   const projectMatch = pathname?.match(/\/project\/([a-zA-Z0-9_-]+)/);
@@ -221,20 +230,71 @@ export function AiChatWidget() {
     ]);
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > 10 * 1024 * 1024) {
+          toast({
+            message: tr(`ไฟล์ "${file.name}" มีขนาดเกิน 10MB`, `File "${file.name}" exceeds 10MB limit`),
+            type: "error"
+          });
+          continue;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || tr(`อัปโหลด ${file.name} ล้มเหลว`, `Failed to upload ${file.name}`));
+        }
+
+        const data = await res.json();
+        if (data.file) {
+          setStagedAttachments((prev) => [...prev, data.file]);
+        }
+      }
+    } catch (err: any) {
+      toast({ message: err.message || tr("เกิดข้อผิดพลาดในการอัปโหลดไฟล์", "Failed to upload file"), type: "error" });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleRemoveStaged = (index: number) => {
+    setStagedAttachments((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
   const handleSend = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
-    if (!query || isLoading) return;
+    if ((!query && stagedAttachments.length === 0) || isLoading || isUploading) return;
 
+    const currentStaged = [...stagedAttachments];
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
       role: "user",
       content: query,
-      timestamp: nowTime()
+      timestamp: nowTime(),
+      attachments: currentStaged.length > 0 ? currentStaged : undefined
     };
 
     const nextMessages = [...messages, userMessage];
     setMessages(nextMessages);
     setInput("");
+    setStagedAttachments([]);
     setIsLoading(true);
 
     try {
@@ -242,7 +302,8 @@ export function AiChatWidget() {
         .filter((m) => m.id !== WELCOME_ID && !m.isError)
         .map((m) => ({
           role: m.role,
-          content: m.content
+          content: m.content,
+          attachments: m.attachments
         }));
       const boardId = new URLSearchParams(window.location.search).get("boardId") || undefined;
 
@@ -578,7 +639,45 @@ export function AiChatWidget() {
                     return (
                       <div key={msg.id} className="flex justify-end">
                         <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md border border-theme-border bg-theme-paper px-3.5 py-2 text-theme-foreground">
-                          {msg.content}
+                          {msg.content && <div>{msg.content}</div>}
+                          {msg.attachments && msg.attachments.length > 0 && (
+                            <div className={cn("space-y-1.5", msg.content ? "mt-2" : "")}>
+                              {msg.attachments.map((att, idx) => {
+                                if (att.isImage) {
+                                  return (
+                                    <a
+                                      key={idx}
+                                      href={att.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="block overflow-hidden rounded-xl border border-theme-border hover:opacity-90 transition"
+                                    >
+                                      <img
+                                        src={att.url}
+                                        alt={att.name || "Attachment"}
+                                        className="max-h-[140px] w-auto max-w-full rounded-xl object-contain bg-black/10"
+                                        loading="lazy"
+                                      />
+                                    </a>
+                                  );
+                                }
+                                return (
+                                  <a
+                                    key={idx}
+                                    href={att.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download={att.name}
+                                    className="flex items-center gap-2 rounded-lg border border-theme-border bg-theme-background p-2 text-theme-foreground hover:bg-theme-panel transition text-xs"
+                                  >
+                                    <FileText className="h-3.5 w-3.5 shrink-0 text-theme-accent" />
+                                    <div className="min-w-0 flex-1 truncate">{att.name}</div>
+                                    <Download className="h-3.5 w-3.5 shrink-0 text-theme-muted" />
+                                  </a>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -714,6 +813,39 @@ export function AiChatWidget() {
           {/* Composer */}
           <div className="shrink-0 px-3 pb-3 pt-2">
             <div className="rounded-xl border border-theme-border bg-theme-background transition-colors focus-within:border-theme-accent/70 focus-within:ring-2 focus-within:ring-theme-accent/15">
+              {/* Staged attachments preview */}
+              {stagedAttachments.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 p-2 border-b border-theme-border/60">
+                  {stagedAttachments.map((att, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-1.5 rounded-lg border border-theme-border bg-theme-panel px-2 py-1 text-xs text-theme-foreground"
+                    >
+                      {att.isImage ? (
+                        <img
+                          src={att.url}
+                          alt={att.name}
+                          className="h-4 w-4 rounded object-cover"
+                        />
+                      ) : (
+                        <FileText className="h-3.5 w-3.5 text-theme-accent" />
+                      )}
+                      <span className="max-w-[120px] truncate text-[11px] text-theme-foreground/80">
+                        {att.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveStaged(idx)}
+                        className="ml-0.5 rounded p-0.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
+                        title={tr("ลบไฟล์แนบ", "Remove attachment")}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <textarea
                 ref={inputRef}
                 rows={1}
@@ -723,13 +855,35 @@ export function AiChatWidget() {
                 placeholder={tr("ถาม Retzlo AI เกี่ยวกับงานของคุณ…", "Ask Retzlo AI about your work…")}
                 className="block max-h-40 w-full resize-none bg-transparent px-3.5 pt-3 text-[13px] leading-relaxed text-theme-foreground placeholder:text-theme-muted focus:outline-none"
               />
-              <div className="flex items-center justify-between gap-2 px-2 pb-2 pl-3.5">
-                <span className="truncate text-[10px] text-theme-muted">
-                  {tr("Enter ส่ง · Shift+Enter ขึ้นบรรทัด · 1 เครดิต/ข้อความ", "Enter to send · Shift+Enter for newline · 1 credit/msg")}
-                </span>
+              <div className="flex items-center justify-between gap-2 px-2 pb-2 pl-2.5">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading || isLoading}
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer disabled:cursor-not-allowed"
+                    title={tr("แนบรูปภาพหรือเอกสาร", "Attach image or document")}
+                  >
+                    {isUploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-theme-accent" />
+                    ) : (
+                      <Paperclip className="h-4 w-4" />
+                    )}
+                  </button>
+                  <span className="truncate text-[10px] text-theme-muted">
+                    {tr("Enter ส่ง · Shift+Enter ขึ้นบรรทัด", "Enter to send · Shift+Enter for newline")}
+                  </span>
+                </div>
                 <button
                   type="button"
-                  disabled={!input.trim() || isLoading}
+                  disabled={(!input.trim() && stagedAttachments.length === 0) || isLoading || isUploading}
                   onClick={() => handleSend()}
                   className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-theme-accent text-theme-background transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:bg-theme-paper disabled:text-theme-muted cursor-pointer"
                   title={tr("ส่งข้อความ", "Send message")}
