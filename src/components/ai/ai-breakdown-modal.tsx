@@ -23,6 +23,7 @@ import { AppModal } from "@/components/ui/app-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { safeRandomId } from "@/lib/browser-compat";
 import { playCardCreateSound } from "@/lib/sound";
 import { cn } from "@/lib/utils";
 import { getAiAuthHeaders } from "@/lib/ai/client-key";
@@ -186,7 +187,7 @@ export function AiBreakdownModal({
 
       if (data.items && Array.isArray(data.items) && data.items.length > 0) {
         const itemsWithState: GeneratedItem[] = data.items.map((label: string) => ({
-          id: crypto.randomUUID(),
+          id: safeRandomId(),
           label,
           selected: true
         }));

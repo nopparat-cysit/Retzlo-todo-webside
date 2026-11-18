@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BookOpenCheck, CalendarDays, FileText, KanbanSquare, Settings, Users, Gift } from "lucide-react";
 
+import { safeLocalStorageGet } from "@/lib/browser-compat";
 import { cn } from "@/lib/utils";
 
 const ICON_MAP = {
@@ -42,22 +43,26 @@ export function ProjectNavLink({ href, label, iconName, segment, dragHandle }: P
   const isActive = pathname === cleanHref || pathname.startsWith(`${cleanHref}/`);
   const Icon = ICON_MAP[iconName];
 
+  const currentProjectId = segment === "board" ? pathname?.match(/^\/project\/([^/]+)/)?.[1] : undefined;
+  const [savedBoard, setSavedBoard] = useState<{ projectId: string; boardId: string } | null>(null);
+
   useEffect(() => {
     closeMobileSidebarIfNeeded();
   }, [pathname]);
 
-  const targetHref = useMemo(() => {
-    if (segment === "board" && typeof window !== "undefined") {
-      const match = pathname?.match(/^\/project\/([^/]+)/);
-      if (match && match[1]) {
-        const savedBoard = localStorage.getItem(`project_${match[1]}_last_board`);
-        if (savedBoard) {
-          return `/project/${match[1]}/board?boardId=${encodeURIComponent(savedBoard)}`;
-        }
-      }
+  useEffect(() => {
+    if (!currentProjectId) {
+      setSavedBoard(null);
+      return;
     }
-    return href;
-  }, [segment, href, pathname]);
+    const boardId = safeLocalStorageGet(`project_${currentProjectId}_last_board`);
+    setSavedBoard(boardId ? { projectId: currentProjectId, boardId } : null);
+  }, [currentProjectId, pathname]);
+
+  const targetHref =
+    currentProjectId && savedBoard?.projectId === currentProjectId
+      ? `/project/${currentProjectId}/board?boardId=${encodeURIComponent(savedBoard.boardId)}`
+      : href;
 
   return (
     <Link

@@ -582,7 +582,7 @@ export function ProjectCalendar({
             dueTime: scheduledTime,
             checklist: [
               {
-                id: crypto.randomUUID(),
+                id: createChecklistStepId(),
                 label: quickAddTitle.trim(),
                 description: quickAddContent.trim(),
                 intervalDays: 1,
@@ -2079,11 +2079,11 @@ export function ProjectCalendar({
           {/* Optional Upcoming Panel */}
           {isUpcomingOpen && (
             <>
-              <Panel className="hidden lg:flex w-80 shrink-0 flex-col overflow-hidden p-4 shadow-xl">
+              <Panel className="hidden xl:flex w-80 shrink-0 flex-col overflow-hidden p-4 shadow-xl">
                 {upcomingPanelContent}
               </Panel>
               <ModalPortal>
-                <div className="fixed inset-0 z-[900] flex justify-end p-2 lg:hidden">
+                <div className="fixed inset-0 z-[900] flex justify-end p-2 xl:hidden">
                   <div
                     className="fixed inset-0 bg-ink-950/70 backdrop-blur-sm"
                     onClick={() => setIsUpcomingOpen(false)}
@@ -3040,9 +3040,16 @@ function formatDue(item: { dueDate: string | null; dueDateAllDay: boolean }) {
   return formatShortDue(item.dueDate, item.dueDateAllDay);
 }
 
+function createChecklistStepId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `id-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 function formatRangeLabel(days: Array<{ date: Date }>) {
   const first = days[0]?.date;
-  const last = days.at(-1)?.date;
+  const last = days.length > 0 ? days[days.length - 1]?.date : undefined;
 
   if (!first || !last) return "";
   if (toDateKey(first) === toDateKey(last)) {

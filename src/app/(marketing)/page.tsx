@@ -493,7 +493,7 @@ export default function LandingPage() {
       if (ctxWithTimer._chordScheduler) {
         clearInterval(ctxWithTimer._chordScheduler);
       }
-      audioCtxRef.current.close();
+      audioCtxRef.current.close().catch(() => {});
       audioCtxRef.current = null;
     }
   };
@@ -759,7 +759,7 @@ export default function LandingPage() {
           </Link>
 
           {/* Clean Airy Desktop Navigation (Ordered matching page flow) */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-semibold text-[var(--muted)]">
+          <nav className="hidden xl:flex items-center gap-1 xl:gap-2 whitespace-nowrap text-[13px] font-semibold text-[var(--muted)]">
             <a
               href="#playground"
               className="px-2.5 py-1.5 rounded-lg hover:text-[var(--foreground)] hover:bg-[var(--paper)] transition-colors flex items-center gap-1.5"
@@ -806,89 +806,93 @@ export default function LandingPage() {
             </a>
           </nav>
 
-          {/* Right Actions: Compact, Spacious, Elegant */}
-          <div className="hidden md:flex items-center gap-2.5 shrink-0">
-            {/* Compact Lofi Audio Synthesizer Icon Button */}
-            <button
-              type="button"
-              onClick={handlePlayToggle}
-              title={isPlaying ? "พักเสียงดนตรี Lofi" : "เปิดฟังเสียงคอร์ด Lofi สดจากเบราว์เซอร์"}
-              className="lp-press-btn inline-flex items-center justify-center w-8.5 h-8.5 rounded-full border border-[var(--border)] bg-[var(--paper)] text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-colors"
-              style={{
-                borderColor: isPlaying ? "#7858d4" : undefined,
-                background: isPlaying ? "rgba(120, 88, 212, 0.15)" : undefined,
-                color: isPlaying ? "#7858d4" : undefined
-              }}
-            >
-              {isPlaying ? (
-                <span className="flex items-center gap-0.5 h-3 text-[#7858d4]">
-                  <span className="lp-eq-bar" />
-                  <span className="lp-eq-bar" />
-                  <span className="lp-eq-bar" />
-                </span>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Right Actions: Compact, Spacious, Elegant */}
+            <div className="hidden md:flex items-center gap-2.5 shrink-0">
+              {/* Compact Lofi Audio Synthesizer Icon Button */}
+              <button
+                type="button"
+                onClick={handlePlayToggle}
+                title={isPlaying ? "พักเสียงดนตรี Lofi" : "เปิดฟังเสียงคอร์ด Lofi สดจากเบราว์เซอร์"}
+                className="lp-press-btn inline-flex items-center justify-center w-8.5 h-8.5 rounded-full border border-[var(--border)] bg-[var(--paper)] text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-colors"
+                style={{
+                  borderColor: isPlaying ? "#7858d4" : undefined,
+                  background: isPlaying ? "rgba(120, 88, 212, 0.15)" : undefined,
+                  color: isPlaying ? "#7858d4" : undefined
+                }}
+              >
+                {isPlaying ? (
+                  <span className="flex items-center gap-0.5 h-3 text-[#7858d4]">
+                    <span className="lp-eq-bar" />
+                    <span className="lp-eq-bar" />
+                    <span className="lp-eq-bar" />
+                  </span>
+                ) : (
+                  <Disc3 size={15} />
+                )}
+              </button>
+
+              <ThemeToggle variant="icon" />
+
+              {/* Auth Buttons */}
+              {currentUser ? (
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/profile"
+                    className="px-2 py-1 text-xs font-semibold text-[var(--muted)] hover:text-[var(--foreground)] truncate max-w-[130px] transition-colors"
+                  >
+                    {currentUser.name || currentUser.email || "Workspace user"}
+                  </Link>
+                  <Link href={defaultDestination}>
+                    <button className="lp-press-btn inline-flex items-center justify-center h-8.5 px-3.5 rounded-xl text-xs font-extrabold text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[2px_2px_0_rgba(84,53,107,0.25)] transition-all">
+                      Enter Workspace
+                    </button>
+                  </Link>
+                </div>
               ) : (
-                <Disc3 size={15} />
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/login"
+                    className="px-2.5 py-1 text-xs font-semibold text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link href={defaultDestination}>
+                    <button className="lp-press-btn inline-flex items-center justify-center h-8.5 px-3.5 rounded-xl text-xs font-extrabold text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[2px_2px_0_rgba(84,53,107,0.25)] transition-all">
+                      Enter Workspace
+                    </button>
+                  </Link>
+                </div>
               )}
-            </button>
+            </div>
 
-            <ThemeToggle variant="icon" />
-
-            {/* Auth Buttons */}
-            {currentUser ? (
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/profile"
-                  className="px-2 py-1 text-xs font-semibold text-[var(--muted)] hover:text-[var(--foreground)] truncate max-w-[130px] transition-colors"
-                >
-                  {currentUser.name || currentUser.email || "Workspace user"}
-                </Link>
-                <Link href={defaultDestination}>
-                  <button className="lp-press-btn inline-flex items-center justify-center h-8.5 px-3.5 rounded-xl text-xs font-extrabold text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[2px_2px_0_rgba(84,53,107,0.25)] transition-all">
-                    Enter Workspace
-                  </button>
-                </Link>
+            {/* Mobile & Tablet Actions */}
+            <div className="flex xl:hidden items-center gap-2">
+              <Link
+                href={defaultDestination}
+                className="inline-flex md:hidden items-center gap-1 px-3 py-1 rounded-full text-xs font-black text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-sm font-thai"
+              >
+                <span>ทดลองฟรี</span>
+              </Link>
+              <div className="md:hidden">
+                <ThemeToggle variant="icon" />
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/login"
-                  className="px-2.5 py-1 text-xs font-semibold text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link href={defaultDestination}>
-                  <button className="lp-press-btn inline-flex items-center justify-center h-8.5 px-3.5 rounded-xl text-xs font-extrabold text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-[2px_2px_0_rgba(84,53,107,0.25)] transition-all">
-                    Enter Workspace
-                  </button>
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Actions */}
-          <div className="flex md:hidden items-center gap-2">
-            <Link
-              href={defaultDestination}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black text-white bg-[#7858d4] hover:bg-[#6848c4] border border-[#54356b] shadow-sm font-thai"
-            >
-              <span>ทดลองฟรี</span>
-            </Link>
-            <ThemeToggle variant="icon" />
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              style={{ padding: "8px", color: "var(--foreground)" }}
-              aria-label="Toggle Menu"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                style={{ padding: "8px", color: "var(--foreground)" }}
+                aria-label="Toggle Menu"
+              >
+                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
           <div
-            className="md:hidden px-6 py-5 space-y-3"
+            className="xl:hidden px-6 py-5 space-y-3"
             style={{
               borderTop: "1px solid var(--border)",
               background: "var(--panel-strong)"

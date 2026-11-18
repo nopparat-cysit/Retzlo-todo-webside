@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { KanbanSquare, CalendarDays, BookOpenCheck, FileText } from "lucide-react";
+import { safeLocalStorageGet, safeLocalStorageSet } from "@/lib/browser-compat";
 import { cn } from "@/lib/utils";
 
 interface ProjectMobileBottomNavProps {
@@ -14,37 +15,41 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
   const pathname = usePathname();
   const [optimisticSegment, setOptimisticSegment] = useState<string | null>(null);
   const [resolvedProjectId, setResolvedProjectId] = useState<string>(projectId ?? "");
+  const [savedBoardId, setSavedBoardId] = useState<string | null>(null);
 
   useEffect(() => {
     if (projectId) {
       setResolvedProjectId(projectId);
-      try {
-        localStorage.setItem("retzlo_last_project_id", projectId);
-      } catch {}
+      safeLocalStorageSet("retzlo_last_project_id", projectId);
     } else {
-      try {
-        const saved = localStorage.getItem("retzlo_last_project_id");
-        if (saved) {
-          setResolvedProjectId(saved);
-        }
-      } catch {}
+      const saved = safeLocalStorageGet("retzlo_last_project_id");
+      if (saved) {
+        setResolvedProjectId(saved);
+      }
     }
   }, [projectId]);
+
+  const targetId = projectId || resolvedProjectId;
+
+  useEffect(() => {
+    if (!targetId) {
+      setSavedBoardId(null);
+      return;
+    }
+    const savedBoard =
+      (projectId ? safeLocalStorageGet(`project_${projectId}_last_board`) : null) ||
+      safeLocalStorageGet(`project_${targetId}_last_board`);
+    setSavedBoardId(savedBoard);
+  }, [projectId, targetId, pathname]);
 
   useEffect(() => {
     setOptimisticSegment(null);
   }, [pathname]);
 
   const navItems = useMemo(() => {
-    const targetId = projectId || resolvedProjectId;
     let boardHref = targetId ? `/project/${targetId}/board` : "/projects";
-    if (targetId && typeof window !== "undefined") {
-      try {
-        const savedBoard = localStorage.getItem(`project_${projectId}_last_board`) || localStorage.getItem(`project_${targetId}_last_board`);
-        if (savedBoard) {
-          boardHref = `/project/${targetId}/board?boardId=${encodeURIComponent(savedBoard)}`;
-        }
-      } catch {}
+    if (targetId && savedBoardId) {
+      boardHref = `/project/${targetId}/board?boardId=${encodeURIComponent(savedBoardId)}`;
     }
 
     const calendarHref = targetId ? `/project/${targetId}/calendar` : "/projects";
@@ -77,7 +82,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
         icon: FileText,
       },
     ];
-  }, [projectId, resolvedProjectId]);
+  }, [targetId, savedBoardId]);
 
   // Determine active segment from optimistic state or current pathname
   const activeSegment =

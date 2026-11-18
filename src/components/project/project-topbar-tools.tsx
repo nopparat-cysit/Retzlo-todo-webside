@@ -11,6 +11,7 @@ import { ZenSanctuaryModal } from "@/components/project/zen-garden/zen-sanctuary
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { subscribeMediaQuery } from "@/lib/browser-compat";
 import { cn } from "@/lib/utils";
 import gardenSkin from "./zen-garden/zen-garden-skin.module.css";
 
@@ -53,8 +54,7 @@ export function ProjectTopbarTools() {
       setActiveTool(null);
       setMobileOpen(false);
     };
-    wideScreen.addEventListener("change", closeTools);
-    return () => wideScreen.removeEventListener("change", closeTools);
+    return subscribeMediaQuery(wideScreen, closeTools);
   }, []);
 
   const renderToolPanel = (id: ToolId) => {

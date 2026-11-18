@@ -27,12 +27,14 @@ export function FilterSelect<TValue extends string>({
   className,
   triggerClassName
 }: FilterSelectProps<TValue>) {
+  const selectedOption = options.find((opt) => opt.value === value);
+
   return (
     <label className={cn("block min-w-0 space-y-1.5", className)}>
       {label ? <span className="block text-xs uppercase tracking-[0.16em] text-stone-500">{label}</span> : null}
       <Select value={value} onValueChange={(nextValue) => onValueChange(nextValue as TValue)}>
         <SelectTrigger className={cn("h-9 rounded-lg text-xs", triggerClassName)}>
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder}>{selectedOption?.label}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (

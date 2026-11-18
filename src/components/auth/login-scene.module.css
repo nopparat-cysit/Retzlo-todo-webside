@@ -183,7 +183,7 @@
   .brandRow > span { font-size: 8px; letter-spacing: 1.5px; }
   .equalizer { display: none; }
 }
-@media (max-width: 760px) {
+@media (max-width: 960px) {
   .page { padding: 14px; place-items: start center; }
   .shell { height: auto; grid-template-columns: 1fr; border-radius: 24px; max-width: 520px; }
   .art { min-height: 295px; padding: 24px; }
@@ -216,6 +216,7 @@
 
 /* Shared auth form details: login, registration and password recovery. */
 .fieldRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.fieldRow .input { padding-right: 14px; }
 .fieldHint { color: var(--muted); font-size: 12px; line-height: 1.6; margin-top: -8px; }
 .formPanel[data-mode='register'] .formContent { padding: 28px 0; }
 .formPanel[data-mode='register'] .form { gap: 17px; }
@@ -243,7 +244,7 @@
 @keyframes ambience-breathe { 0%, 100% { opacity: .3; } 50% { opacity: .7; } }
 @keyframes note-drift { 0% { opacity: 0; transform: translateY(8px) rotate(-6deg); } 35% { opacity: .55; } 100% { opacity: 0; transform: translateY(-22px) rotate(6deg); } }
 @keyframes player-glow { 0%, 100% { box-shadow: 0 0 0 0 #fff0fc00; } 50% { box-shadow: 0 0 0 5px #fff0fc20, 0 0 18px #ead4ff33; } }
-@media (max-width: 760px) { .musicAmbience span { display: none; } }
+@media (max-width: 960px) { .musicAmbience span { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .art[data-playing='true'] .musicAmbience { animation: none; opacity: .35; }
   .art[data-playing='true'] .musicAmbience span { animation: none; opacity: 0; }
@@ -286,7 +287,7 @@
 @keyframes cassette-float { 0%, 100% { transform: translateY(0) rotate(-.7deg); } 50% { transform: translateY(-8px) rotate(.7deg); } }
 @keyframes cloud-drift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(7px, -5px); } }
 @keyframes star-sway { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-4px) rotate(5deg); } }
-@media (max-width: 760px) {
+@media (max-width: 960px) {
   .cassetteLayer { width: 83%; left: 38%; bottom: -130px; }
   .cloudOne { display: none; }
   .cloudTwo, .cloudThree, .starOne, .starTwo { display: none; }

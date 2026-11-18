@@ -19,6 +19,7 @@
   --accent: #d59ab3;
   --accent-2: #e5bd72;
   --primary: #a9a2ff;
+  --primary-rgb: 169 162 255;
   --primary-foreground: #080817;
   --primary-hover: #e5bd72;
   --popover: #0e1025;
@@ -66,6 +67,7 @@
   --accent: #7c3aed;
   --accent-2: #c48b28;
   --primary: #5b52e5;
+  --primary-rgb: 91 82 229;
   --primary-foreground: #ffffff;
   --primary-hover: #4940cf;
   --popover: #faf7f2;

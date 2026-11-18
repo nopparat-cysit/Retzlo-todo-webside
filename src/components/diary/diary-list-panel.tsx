@@ -1316,7 +1316,7 @@ function DiaryFocusCard({
                       {item.canManage ? (
                         <button
                           aria-label={`Remove step ${chk.label}`}
-                          className="opacity-0 group-hover:opacity-100 grid h-6 w-6 shrink-0 place-items-center rounded text-stone-500 transition hover:bg-theme-danger-surface hover:text-theme-danger"
+                          className="opacity-100 xl:opacity-0 xl:group-hover:opacity-100 grid h-6 w-6 shrink-0 place-items-center rounded text-stone-500 transition hover:bg-theme-danger-surface hover:text-theme-danger"
                           title="Remove step"
                           type="button"
                           onClick={() => handleDeleteStep(chk.id, chk.label)}

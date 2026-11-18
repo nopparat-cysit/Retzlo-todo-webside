@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { safeLocalStorageGet, subscribeMediaQuery } from "@/lib/browser-compat";
+
 export function CursorAura() {
   const [enabled, setEnabled] = useState(false);
   const auraRef = useRef<HTMLDivElement>(null);
@@ -11,7 +13,7 @@ export function CursorAura() {
 
     function readEnabledPreference() {
       if (reducedMotionQuery.matches) return false;
-      return window.localStorage.getItem("retrod:cursor-effects") !== "off";
+      return safeLocalStorageGet("retrod:cursor-effects") !== "off";
     }
 
     function syncPreference() {
@@ -19,11 +21,11 @@ export function CursorAura() {
     }
 
     syncPreference();
-    reducedMotionQuery.addEventListener("change", syncPreference);
+    const unsubscribeMedia = subscribeMediaQuery(reducedMotionQuery, syncPreference);
     window.addEventListener("storage", syncPreference);
 
     return () => {
-      reducedMotionQuery.removeEventListener("change", syncPreference);
+      unsubscribeMedia();
       window.removeEventListener("storage", syncPreference);
     };
   }, []);

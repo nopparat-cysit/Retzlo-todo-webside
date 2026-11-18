@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { BookOpen, CheckCircle2, ExternalLink, FileText, Pin, Plus, Save, SlidersHorizontal, Star, X } from "lucide-react";
 import { DiaryChecklistEditor, DiaryChecklistPreview, getStartDayOfMonth } from "@/components/diary/diary-checklist";
+import { safeLocalStorageGet, safeLocalStorageRemove, safeLocalStorageSet } from "@/lib/browser-compat";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input, Textarea } from "@/components/ui/input";
@@ -61,7 +62,7 @@ type ActiveDisplayItem =
 
 function getRedStar(): RedStar | null {
   try {
-    const raw = localStorage.getItem(RED_STAR_KEY);
+    const raw = safeLocalStorageGet(RED_STAR_KEY);
     return raw ? (JSON.parse(raw) as RedStar) : null;
   } catch {
     return null;
@@ -1124,10 +1125,17 @@ function ColorPicker({ selectedColor, onChange }: { selectedColor: CardColor; on
 }
 
 export function setRedStarItem(item: RedStar | null) {
-  if (item) {
-    localStorage.setItem(RED_STAR_KEY, JSON.stringify(item));
+  const serialized = item ? JSON.stringify(item) : null;
+  if (serialized !== null) {
+    safeLocalStorageSet(RED_STAR_KEY, serialized);
   } else {
-    localStorage.removeItem(RED_STAR_KEY);
+    safeLocalStorageRemove(RED_STAR_KEY);
   }
-  window.dispatchEvent(new StorageEvent("storage", { key: RED_STAR_KEY, newValue: item ? JSON.stringify(item) : null }));
+  if (typeof window !== "undefined") {
+    try {
+      window.dispatchEvent(new StorageEvent("storage", { key: RED_STAR_KEY, newValue: serialized }));
+    } catch {
+      // Ignore StorageEvent constructor errors in older WebKit/Safari
+    }
+  }
 }

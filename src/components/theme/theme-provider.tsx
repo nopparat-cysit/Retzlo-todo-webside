@@ -8,6 +8,7 @@ import {
   type ReactNode
 } from "react";
 
+import { subscribeMediaQuery } from "@/lib/browser-compat";
 import { isThemePreference, resolveTheme } from "@/lib/theme/resolve-theme";
 
 export type Theme = "light" | "dark" | "system";
@@ -62,8 +63,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    mediaQuery.addEventListener("change", handleSystemChange);
-    return () => mediaQuery.removeEventListener("change", handleSystemChange);
+    return subscribeMediaQuery(mediaQuery, handleSystemChange);
   }, [mounted, theme]);
 
   function applyTheme(targetTheme: Theme) {

@@ -303,7 +303,7 @@ export function BoardSidebarDropdown({
                   </Link>
 
                   {/* ── More Action Menu (...) ── */}
-                  <div className="flex items-center pr-1 opacity-0 group-hover/board-row:opacity-100 transition-opacity">
+                  <div className="flex items-center pr-1 opacity-100 xl:opacity-0 xl:group-hover/board-row:opacity-100 transition-opacity">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button

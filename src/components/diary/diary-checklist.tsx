@@ -17,6 +17,7 @@ import {
   type DiaryChecklistItem,
   type DiaryRewardCoinType
 } from "@/lib/diary/checklist";
+import { safeRandomId } from "@/lib/browser-compat";
 import { cn } from "@/lib/utils";
 
 interface DiaryChecklistEditorProps {
@@ -105,7 +106,7 @@ export function DiaryChecklistEditor({
     onChange([
       ...items,
       {
-        id: crypto.randomUUID(),
+        id: safeRandomId(),
         label: "",
         description: "",
         intervalDays: defaultRepeatDays,

@@ -31,6 +31,7 @@ import { getAiAuthHeaders, getClientAiModel } from "@/lib/ai/client-key";
 import type { AiCreateCardProposal } from "@/lib/ai/chat-actions";
 import { GeminiSparkleIcon } from "@/components/ai/gemini-sparkle-icon";
 import { getPriorityMeta } from "@/lib/kanban/priority";
+import { safeRandomId } from "@/lib/browser-compat";
 import { useLanguage } from "@/lib/i18n/language-context";
 import { cn } from "@/lib/utils";
 import type { ChatAttachment } from "@/types/kanban";
@@ -226,7 +227,7 @@ export function AiChatWidget() {
   const pushAssistantError = (content: string) => {
     setMessages((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), role: "assistant", content, timestamp: nowTime(), isError: true }
+      { id: safeRandomId(), role: "assistant", content, timestamp: nowTime(), isError: true }
     ]);
   };
 
@@ -284,7 +285,7 @@ export function AiChatWidget() {
 
     const currentStaged = [...stagedAttachments];
     const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: safeRandomId(),
       role: "user",
       content: query,
       timestamp: nowTime(),
@@ -348,7 +349,7 @@ export function AiChatWidget() {
       }
 
       const botReply: ChatMessage = {
-        id: crypto.randomUUID(),
+        id: safeRandomId(),
         role: "assistant",
         content: data.reply || tr("ขออภัย ไม่พบคำตอบจากระบบ AI", "Sorry, the AI returned an empty response."),
         timestamp: nowTime(),

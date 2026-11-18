@@ -15,6 +15,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { BoardSidebarDropdown } from "@/components/kanban/board-sidebar-dropdown";
 import { ProjectNavLink, type NavIconName } from "@/components/project/project-nav-link";
+import { safeLocalStorageGet, safeLocalStorageSet } from "@/lib/browser-compat";
 import { cn } from "@/lib/utils";
 
 export interface ProjectNavItem {
@@ -53,7 +54,7 @@ export function ProjectSortableNav({
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   useEffect(() => {
-    const savedOrder = window.localStorage.getItem(storageKey);
+    const savedOrder = safeLocalStorageGet(storageKey);
     if (!savedOrder) return;
 
     try {
@@ -85,7 +86,7 @@ export function ProjectSortableNav({
 
     const next = arrayMove(current, oldIndex, newIndex);
     setOrderedSegments(next);
-    window.localStorage.setItem(storageKey, JSON.stringify(next));
+    safeLocalStorageSet(storageKey, JSON.stringify(next));
   }
 
   if (!canSort) {

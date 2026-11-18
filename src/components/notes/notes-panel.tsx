@@ -640,7 +640,7 @@ export function NotesPanel({
                               setEditingFolder(folder);
                               setIsFolderModalOpen(true);
                             }}
-                            className="hidden group-hover:inline-flex p-1 rounded hover:bg-white/10 text-stone-400 hover:text-stone-200"
+                            className="inline-flex xl:opacity-0 xl:group-hover:opacity-100 xl:focus-within:opacity-100 transition-opacity p-1 rounded hover:bg-white/10 text-stone-400 hover:text-stone-200"
                             title="Edit folder"
                           >
                             <Pencil className="h-3.5 w-3.5" />
@@ -651,7 +651,7 @@ export function NotesPanel({
                               e.stopPropagation();
                               setDeletingFolder(folder);
                             }}
-                            className="hidden group-hover:inline-flex p-1 rounded text-theme-muted hover:bg-theme-danger-surface hover:text-theme-danger"
+                            className="inline-flex xl:opacity-0 xl:group-hover:opacity-100 xl:focus-within:opacity-100 transition-opacity p-1 rounded text-theme-muted hover:bg-theme-danger-surface hover:text-theme-danger"
                             title="Delete folder"
                           >
                             <Trash2 className="h-3.5 w-3.5" />

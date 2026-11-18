@@ -18,7 +18,7 @@ const config: Config = {
           muted: "var(--muted)",
           border: "var(--border)",
           accent: "var(--accent)",
-          primary: "color-mix(in srgb, var(--primary) calc(<alpha-value> * 100%), transparent)",
+          primary: "rgb(var(--primary-rgb) / <alpha-value>)",
           "primary-foreground": "var(--primary-foreground)",
           "primary-hover": "var(--primary-hover)",
           popover: "var(--popover)",

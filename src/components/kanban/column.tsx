@@ -24,6 +24,7 @@ import {
   type ColumnThemeId
 } from "@/lib/kanban/column-settings";
 import { calculateColumnPoints, type DifficultyScore } from "@/lib/kanban/difficulty";
+import { safeLocalStorageGet, safeLocalStorageRemove, safeLocalStorageSet } from "@/lib/browser-compat";
 import { cn } from "@/lib/utils";
 import type { Card, CardAssignee, CardPriority, CardStatus, ChecklistItem, ColumnWithCards, CustomPriority } from "@/types/kanban";
 
@@ -129,7 +130,7 @@ function KanbanColumnComponent({
   }, []);
 
   useEffect(() => {
-    const collapsed = localStorage.getItem(`column-collapsed-${column.id}`) === "true";
+    const collapsed = safeLocalStorageGet(`column-collapsed-${column.id}`) === "true";
     setIsCollapsed(collapsed);
   }, [column.id]);
 
@@ -144,7 +145,7 @@ function KanbanColumnComponent({
   const toggleCollapse = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
-    localStorage.setItem(`column-collapsed-${column.id}`, String(newState));
+    safeLocalStorageSet(`column-collapsed-${column.id}`, String(newState));
   };
 
   const [columnWidth, setColumnWidth] = useState<number>(DEFAULT_COLUMN_WIDTH);
@@ -155,16 +156,12 @@ function KanbanColumnComponent({
   const resizeStartWidthRef = useRef(DEFAULT_COLUMN_WIDTH);
 
   useEffect(() => {
-    try {
-      const savedWidth = localStorage.getItem(`column-width-${column.id}`);
-      if (savedWidth) {
-        const parsed = parseInt(savedWidth, 10);
-        if (!isNaN(parsed) && parsed >= MIN_COLUMN_WIDTH && parsed <= MAX_COLUMN_WIDTH) {
-          setColumnWidth(parsed);
-        }
+    const savedWidth = safeLocalStorageGet(`column-width-${column.id}`);
+    if (savedWidth) {
+      const parsed = parseInt(savedWidth, 10);
+      if (!isNaN(parsed) && parsed >= MIN_COLUMN_WIDTH && parsed <= MAX_COLUMN_WIDTH) {
+        setColumnWidth(parsed);
       }
-    } catch {
-      // ignore
     }
   }, [column.id]);
 
@@ -200,11 +197,7 @@ function KanbanColumnComponent({
       );
       setColumnWidth(finalWidth);
       setIsResizing(false);
-      try {
-        localStorage.setItem(`column-width-${column.id}`, String(finalWidth));
-      } catch {
-        // ignore
-      }
+      safeLocalStorageSet(`column-width-${column.id}`, String(finalWidth));
     };
 
     document.body.style.cursor = "col-resize";
@@ -218,11 +211,7 @@ function KanbanColumnComponent({
     e.preventDefault();
     e.stopPropagation();
     setColumnWidth(DEFAULT_COLUMN_WIDTH);
-    try {
-      localStorage.removeItem(`column-width-${column.id}`);
-    } catch {
-      // ignore
-    }
+    safeLocalStorageRemove(`column-width-${column.id}`);
   };
 
   useEffect(() => {

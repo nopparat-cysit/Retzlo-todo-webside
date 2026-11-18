@@ -4,32 +4,30 @@
  * All functions are browser-safe and respect user opt-in preference.
  */
 
+import { safeLocalStorageGet, safeLocalStorageSet } from "@/lib/browser-compat";
+
 const STORAGE_KEY = "retrod-sound";
 const VOLUME_STORAGE_KEY = "retrod-sound-volume";
 
 // ─── Preference helpers ───────────────────────────────────────────────────────
 
 export function isSoundEnabled(): boolean {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem(STORAGE_KEY) === "true";
+  return safeLocalStorageGet(STORAGE_KEY) === "true";
 }
 
 export function setSoundEnabled(enabled: boolean): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, String(enabled));
+  safeLocalStorageSet(STORAGE_KEY, String(enabled));
 }
 
 export function getSoundVolume(): number {
-  if (typeof window === "undefined") return 0.5;
-  const val = localStorage.getItem(VOLUME_STORAGE_KEY);
+  const val = safeLocalStorageGet(VOLUME_STORAGE_KEY);
   if (val === null) return 0.5;
   const parsed = parseFloat(val);
   return isNaN(parsed) ? 0.5 : Math.max(0, Math.min(1, parsed));
 }
 
 export function setSoundVolume(volume: number): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(VOLUME_STORAGE_KEY, String(Math.max(0, Math.min(1, volume))));
+  safeLocalStorageSet(VOLUME_STORAGE_KEY, String(Math.max(0, Math.min(1, volume))));
 }
 
 // ─── AudioContext singleton ───────────────────────────────────────────────────

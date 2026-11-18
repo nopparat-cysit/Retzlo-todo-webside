@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { KanbanBoard } from "@/components/kanban/board";
 import { BoardNotesRail } from "@/components/notes/board-notes-rail";
 import { ModalPortal } from "@/components/ui/modal-portal";
+import { safeLocalStorageGet, safeLocalStorageSet } from "@/lib/browser-compat";
 import type { CardAssignee, ColumnWithCards } from "@/types/kanban";
 import type { ProjectNote } from "@/types/note";
 
@@ -37,12 +38,12 @@ export function BoardViewContainer({
 
   useEffect(() => {
     setMounted(true);
-    const savedNotesState = localStorage.getItem("kanban_notes_open");
+    const savedNotesState = safeLocalStorageGet("kanban_notes_open");
     if (savedNotesState !== null) {
       setIsNotesOpen(savedNotesState === "true");
     }
 
-    const savedDensity = localStorage.getItem("kanban_card_density");
+    const savedDensity = safeLocalStorageGet("kanban_card_density");
     if (savedDensity === "compact" || savedDensity === "comfortable") {
       setDensity(savedDensity);
     }
@@ -51,24 +52,27 @@ export function BoardViewContainer({
   useEffect(() => {
     if (typeof document !== "undefined" && board.id) {
       document.cookie = `project_${projectId}_last_board=${board.id}; path=/; max-age=31536000; SameSite=Lax`;
-      try {
-        localStorage.setItem(`project_${projectId}_last_board`, board.id);
-      } catch {}
+      safeLocalStorageSet(`project_${projectId}_last_board`, board.id);
     }
   }, [projectId, board.id]);
 
   const handleToggleNotes = () => {
     setIsNotesOpen((prev) => {
       const next = !prev;
-      localStorage.setItem("kanban_notes_open", String(next));
+      safeLocalStorageSet("kanban_notes_open", String(next));
       return next;
     });
+  };
+
+  const handleCloseNotes = () => {
+    setIsNotesOpen(false);
+    safeLocalStorageSet("kanban_notes_open", "false");
   };
 
   const handleToggleDensity = (target?: "comfortable" | "compact") => {
     setDensity((prev) => {
       const next = target ?? (prev === "comfortable" ? "compact" : "comfortable");
-      localStorage.setItem("kanban_card_density", next);
+      safeLocalStorageSet("kanban_card_density", next);
       return next;
     });
   };
@@ -109,10 +113,7 @@ export function BoardViewContainer({
               activeBoardName={board.name}
               availableBoards={availableBoards}
               initialNotes={initialNotes}
-              onClose={() => {
-                setIsNotesOpen(false);
-                localStorage.setItem("kanban_notes_open", "false");
-              }}
+              onClose={handleCloseNotes}
             />
           </aside>
 
@@ -121,10 +122,7 @@ export function BoardViewContainer({
             <div className="fixed inset-0 z-[900] flex justify-end xl:hidden">
               <div
                 className="fixed inset-0 bg-black/55 backdrop-blur-sm transition-opacity"
-                onClick={() => {
-                  setIsNotesOpen(false);
-                  localStorage.setItem("kanban_notes_open", "false");
-                }}
+                onClick={handleCloseNotes}
               />
               <aside className="relative z-10 flex h-full w-full max-w-[360px] flex-col overflow-hidden p-2 animate-in slide-in-from-right duration-200">
                 <BoardNotesRail
@@ -134,10 +132,7 @@ export function BoardViewContainer({
                   activeBoardName={board.name}
                   availableBoards={availableBoards}
                   initialNotes={initialNotes}
-                  onClose={() => {
-                    setIsNotesOpen(false);
-                    localStorage.setItem("kanban_notes_open", "false");
-                  }}
+                  onClose={handleCloseNotes}
                 />
               </aside>
             </div>

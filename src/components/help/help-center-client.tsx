@@ -254,19 +254,19 @@ export function HelpCenterClient() {
   const ActiveIcon = activeTopic.icon;
 
   return (
-    <main className="soft-grid-bg min-h-screen w-full text-stone-900 dark:text-stone-100 flex flex-col">
+    <main className="soft-grid-bg min-h-screen w-full overflow-x-clip text-stone-900 dark:text-stone-100 flex flex-col">
       {/* ── Top Header / Navbar ── */}
       <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/95 backdrop-blur-md dark:border-white/10 dark:bg-ink-950/95 transition-colors shadow-sm">
-        <div className="mx-auto flex h-16 max-w-[1600px] w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-[1600px] w-full items-center justify-between gap-2 sm:gap-3 px-3 sm:px-5 lg:px-6 xl:px-8">
           {/* Left: Back & Title */}
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 md:max-w-[255px] lg:max-w-none items-center gap-2 lg:gap-2.5 xl:gap-3">
             <BackButton />
 
             {/* Mobile Sidebar Toggle Button */}
             <button
               type="button"
               onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-              className="lg:hidden flex items-center justify-center h-9 w-9 rounded-xl border border-stone-200/80 bg-stone-100/80 text-stone-700 hover:bg-stone-200 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300 dark:hover:bg-white/10 transition cursor-pointer"
+              className="lg:hidden flex shrink-0 items-center justify-center h-9 w-9 rounded-xl border border-stone-200/80 bg-stone-100/80 text-stone-700 hover:bg-stone-200 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300 dark:hover:bg-white/10 transition cursor-pointer"
               aria-label="Toggle docs navigation"
               title="Toggle docs navigation"
             >
@@ -277,25 +277,25 @@ export function HelpCenterClient() {
             <button
               type="button"
               onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-              className="hidden lg:flex items-center justify-center h-9 w-9 rounded-xl border border-stone-200/80 bg-stone-100/80 text-stone-700 hover:bg-stone-200 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300 dark:hover:bg-white/10 transition cursor-pointer"
+              className="hidden lg:flex shrink-0 items-center justify-center h-9 w-9 rounded-xl border border-stone-200/80 bg-stone-100/80 text-stone-700 hover:bg-stone-200 dark:border-white/10 dark:bg-white/[0.05] dark:text-stone-300 dark:hover:bg-white/10 transition cursor-pointer"
               aria-label={isEn ? "Toggle sidebar ([)" : "ย่อ/ขยายแถบข้าง ([)"}
               title={isEn ? "Toggle sidebar ([)" : "ย่อ/ขยายแถบข้าง ([)"}
             >
               {isSidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
             </button>
 
-            <div className="flex items-center gap-3">
-              <MixtapeLogoMark className="h-8 w-auto drop-shadow-sm" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-dusk-amber">
+            <div className="flex min-w-0 items-center gap-2 xl:gap-3">
+              <MixtapeLogoMark className="h-7 sm:h-8 w-auto shrink-0 drop-shadow-sm" />
+              <div className="min-w-0">
+                <div className="hidden lg:flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] leading-none text-indigo-600 dark:text-dusk-amber">
                     Retzlo Field Manual
                   </span>
-                  <span className="hidden sm:inline-flex rounded-full bg-indigo-50 border border-indigo-200/80 dark:bg-white/10 dark:border-white/10 px-2 py-0.5 font-mono text-[9px] font-bold text-indigo-700 dark:text-stone-300">
+                  <span className="inline-flex rounded-full bg-indigo-50 border border-indigo-200/80 dark:bg-white/10 dark:border-white/10 px-1.5 py-0.5 font-mono text-[9px] font-bold leading-none text-indigo-700 dark:text-stone-300">
                     REV 2026.10
                   </span>
                 </div>
-                <h1 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 leading-tight">
+                <h1 className="truncate text-sm xl:text-base font-bold text-stone-900 dark:text-stone-100 leading-tight">
                   {isEn ? "System Guide & Knowledge Base" : "ข้อมูลระบบ & คู่มือการใช้งาน"}
                 </h1>
               </div>
@@ -303,8 +303,8 @@ export function HelpCenterClient() {
           </div>
 
           {/* Center: Global Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-6">
-            <div className="relative w-full">
+          <div className="hidden md:flex min-w-0 flex-1 max-w-[210px] lg:max-w-xs xl:max-w-md mx-1 lg:mx-3 xl:mx-6">
+            <div className="relative w-full min-w-0">
               <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
               <input
                 ref={searchInputRef}
@@ -316,7 +316,7 @@ export function HelpCenterClient() {
                     ? "Search docs, AI, Spreadsheet, 10 Priorities, shortcuts..."
                     : "ค้นหา เช่น AI, Spreadsheet, 10 Priorities, คีย์ลัด..."
                 }
-                className="w-full h-9 rounded-xl border border-stone-200/90 bg-stone-100/70 pl-10 pr-14 text-xs text-stone-900 placeholder:text-stone-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-black/30 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-dusk-lavender/60 dark:focus:ring-dusk-lavender/30 transition"
+                className="w-full h-9 rounded-xl border border-stone-200/90 bg-stone-100/70 pl-9 pr-8 lg:pr-14 text-xs text-stone-900 placeholder:text-stone-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-black/30 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-dusk-lavender/60 dark:focus:ring-dusk-lavender/30 transition"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                 {searchQuery ? (
@@ -338,75 +338,79 @@ export function HelpCenterClient() {
           </div>
 
           {/* Right: View Switcher, Language Switcher & AI Launcher */}
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 xl:gap-2">
             {/* View Mode Switcher */}
             <div className="hidden sm:flex items-center rounded-xl border border-stone-200/90 bg-stone-100/70 p-0.5 dark:border-white/10 dark:bg-white/[0.04]">
               <button
                 type="button"
                 onClick={() => setViewMode("docs")}
                 className={cn(
-                  "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
+                  "flex items-center gap-1 rounded-lg px-2 xl:px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "docs"
                     ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="Documentation mode"
+                aria-label="Documentation mode"
               >
                 <BookOpen className="h-3.5 w-3.5" />
-                <span>{isEn ? "Docs" : "คู่มือ"}</span>
+                <span className="hidden xl:inline">{isEn ? "Docs" : "คู่มือ"}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode("interactive")}
                 className={cn(
-                  "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
+                  "flex items-center gap-1 rounded-lg px-2 xl:px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "interactive"
                     ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="Live Playground mode"
+                aria-label="Live Playground mode"
               >
                 <Play className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
-                <span>{isEn ? "Playground" : "จำลองสด"}</span>
+                <span className="hidden xl:inline">{isEn ? "Playground" : "จำลองสด"}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode("shortcuts")}
                 className={cn(
-                  "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
+                  "flex items-center gap-1 rounded-lg px-2 xl:px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "shortcuts"
                     ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="Keyboard Shortcuts matrix"
+                aria-label="Keyboard Shortcuts matrix"
               >
                 <Keyboard className="h-3.5 w-3.5" />
-                <span>{isEn ? "Shortcuts" : "คีย์ลัด"}</span>
+                <span className="hidden xl:inline">{isEn ? "Shortcuts" : "คีย์ลัด"}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode("faq")}
                 className={cn(
-                  "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
+                  "flex items-center gap-1 rounded-lg px-2 xl:px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "faq"
                     ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="Frequently Asked Questions"
+                aria-label="Frequently Asked Questions"
               >
                 <HelpCircle className="h-3.5 w-3.5" />
-                <span>FAQ</span>
+                <span className="hidden xl:inline">FAQ</span>
               </button>
             </div>
 
             {/* Language Switcher */}
-            <LanguageSwitcher />
+            <LanguageSwitcher className="shrink-0" />
 
             {/* Quick AI Trigger Button */}
             <button
               type="button"
               onClick={openAiChat}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:hover:bg-dusk-lavender dark:hover:text-ink-950 transition cursor-pointer shadow-sm"
+              className="inline-flex shrink-0 whitespace-nowrap items-center gap-1 sm:gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-2.5 xl:px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:hover:bg-dusk-lavender dark:hover:text-ink-950 transition cursor-pointer shadow-sm"
               title="Open Retzlo AI"
             >
               <Bot className="h-3.5 w-3.5" />
@@ -417,11 +421,12 @@ export function HelpCenterClient() {
             {/* Link to Workspaces */}
             <Link
               href="/projects"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/[0.08] transition shadow-sm"
+              className="inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-2.5 xl:px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/[0.08] transition shadow-sm"
               title="Return to Workspaces"
+              aria-label="Return to Workspaces"
             >
               <FolderKanban className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
-              <span className="hidden md:inline">Workspace</span>
+              <span className="hidden lg:inline">Workspace</span>
             </Link>
           </div>
         </div>
@@ -442,7 +447,9 @@ export function HelpCenterClient() {
           <aside
             className={cn(
               "fixed inset-y-0 left-0 z-40 w-72 transform bg-white/95 p-5 border-r border-stone-200/80 backdrop-blur-xl transition-all duration-200 ease-in-out dark:bg-ink-950/95 dark:border-white/10 lg:sticky lg:top-20 lg:z-20 lg:border-none lg:bg-transparent lg:p-0 lg:backdrop-blur-none lg:h-[calc(100vh-5.5rem)] lg:flex lg:flex-col lg:self-start",
-              isMobileSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
+              isMobileSidebarOpen
+                ? "translate-x-0 shadow-2xl visible pointer-events-auto"
+                : "-translate-x-full invisible pointer-events-none lg:translate-x-0 lg:visible lg:pointer-events-auto",
               isSidebarCollapsed ? "lg:hidden" : "lg:w-72 lg:shrink-0"
             )}
           >

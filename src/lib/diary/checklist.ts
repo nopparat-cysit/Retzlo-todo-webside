@@ -1,3 +1,4 @@
+import { safeRandomId } from "@/lib/browser-compat";
 import {
   isDiaryItemDueOnDate,
   isWeeklyOrMonthlyDiary,
@@ -63,7 +64,7 @@ export function normalizeDiaryChecklist(value: unknown, fallbackStartDate?: stri
     }
 
     items.push({
-      id: typeof entry.id === "string" && entry.id.trim() ? entry.id : crypto.randomUUID(),
+      id: typeof entry.id === "string" && entry.id.trim() ? entry.id : safeRandomId(),
       label: label.slice(0, 160),
       description: typeof entry.description === "string" ? entry.description.trim().slice(0, 1000) : "",
       intervalDays: sanitizeIntervalDays(entry.intervalDays),

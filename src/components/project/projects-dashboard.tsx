@@ -73,6 +73,7 @@ import { UserProfilePopover } from "@/components/project/user-profile-popover";
 import { NotificationsPopover } from "@/components/notifications/notifications-popover";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { HelpButton } from "@/components/ui/help-button";
+import { safeLocalStorageSet } from "@/lib/browser-compat";
 import { defaultCalendarFilters, filterCalendarItems } from "@/lib/calendar/view";
 import { formatShortDue } from "@/lib/date-format";
 import { getStatusMeta } from "@/lib/kanban/status";
@@ -451,7 +452,7 @@ export function ProjectsDashboard({
         next.add(projectId);
       }
 
-      window.localStorage.setItem("retrod:starred-projects", JSON.stringify([...next]));
+      safeLocalStorageSet("retrod:starred-projects", JSON.stringify([...next]));
       return next;
     });
   }

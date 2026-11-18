@@ -15,6 +15,7 @@ import { useParams, useRouter } from "next/navigation";
 import { AlertCircle, AlertTriangle, Archive, CheckSquare, Coins, GripVertical, Lightbulb, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { safeRandomId } from "@/lib/browser-compat";
 import { playCardCreateSound } from "@/lib/sound";
 import { AppModal } from "@/components/ui/app-modal";
 import { useAppModal } from "@/components/ui/app-modal";
@@ -675,7 +676,7 @@ export function CardModal({
     setChecklist((current) => [
       ...current,
       {
-        id: crypto.randomUUID(),
+        id: safeRandomId(),
         label: newChecklistItem.trim(),
         checked: false
       }
@@ -709,7 +710,7 @@ export function CardModal({
     suggestedPriority?: "LOW" | "MEDIUM" | "HIGH";
   }) {
     const newItems: ChecklistItem[] = params.items.map((label) => ({
-      id: crypto.randomUUID(),
+      id: safeRandomId(),
       label,
       checked: false
     }));
