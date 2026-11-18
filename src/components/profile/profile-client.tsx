@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
 
+import { SettingsRow, SettingsSection } from "@/components/settings/settings-section";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { BackButton } from "@/components/ui/back-button";
-import { Panel } from "@/components/ui/panel";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { ChangePasswordForm } from "@/components/profile/change-password-form";
@@ -28,71 +28,73 @@ export function ProfileClient({ user }: ProfileClientProps) {
   const displayName = user.name ?? user.username ?? user.email.split("@")[0];
 
   return (
-    <main className="min-h-screen w-screen overflow-x-hidden px-4 py-6 sm:px-6">
-      <div className="mx-auto max-w-2xl space-y-6">
-        {/* Header */}
+    <div className="min-h-screen w-full overflow-x-hidden bg-theme-background text-theme-foreground">
+      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-theme-border bg-theme-panel/85 px-4 backdrop-blur-md sm:px-8">
         <div className="flex items-center gap-3">
-          <BackButton />
-          <div className="grid h-10 w-10 place-items-center rounded-md border border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender">
-            <User className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-dusk-amber">Account</p>
-            <h1 className="text-2xl font-semibold text-theme-foreground">Profile Settings</h1>
+          <BackButton className="border-theme-border bg-theme-paper text-theme-muted hover:border-theme-primary/45 hover:bg-theme-paper-strong hover:text-theme-foreground" />
+          <div className="h-4 w-px bg-theme-border" />
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-theme-primary" />
+            <h1 className="text-sm font-semibold text-theme-foreground">Profile Settings</h1>
           </div>
         </div>
 
-        {/* Avatar + Info */}
-        <Panel className="p-6">
-          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-            {/* Avatar column */}
-            <div className="shrink-0">
-              <AvatarUpload
-                currentAvatar={user.avatar}
-                userName={displayName}
-                onUploaded={() => router.refresh()}
-              />
+        <div className="flex items-center gap-2">
+          <ThemeToggle variant="icon" />
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
+        <SettingsSection
+          title="Account"
+          description="Your profile photo, verified email, and membership details"
+        >
+          <SettingsRow
+            label="Profile photo"
+            description="JPG, PNG, WebP or GIF · Max 4 MB"
+          >
+            <AvatarUpload
+              currentAvatar={user.avatar}
+              userName={displayName}
+              onUploaded={() => router.refresh()}
+            />
+          </SettingsRow>
+
+          <SettingsRow
+            label="Email address"
+            description="Primary account email used for sign-in and notifications"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-md border border-theme-border bg-theme-paper px-3 py-1.5 text-xs text-theme-muted">
+                {user.email}
+              </span>
+              <span className="rounded-full border border-theme-success-border bg-theme-success-surface px-2 py-0.5 text-[10px] font-medium text-theme-success">
+                verified
+              </span>
             </div>
+          </SettingsRow>
 
-            {/* Info column */}
-            <div className="w-full min-w-0">
-              {/* Email read-only badge */}
-              <div className="mb-4 flex items-center gap-2">
-                <span className="rounded-md border border-theme-border bg-theme-paper px-3 py-1.5 text-xs text-theme-muted">
-                  {user.email}
-                </span>
-                <span className="rounded-full border border-theme-success-border bg-theme-success-surface px-2 py-0.5 text-[10px] font-medium text-theme-success">
-                  verified
-                </span>
-              </div>
-
-              <ProfileForm
-                user={{
-                  name: user.name,
-                  username: user.username,
-                  bio: user.bio,
-                  status: user.status,
-                }}
-              />
-            </div>
-          </div>
-        </Panel>
-
-        {/* Change password */}
-        <Panel className="p-6">
-          <ChangePasswordForm />
-        </Panel>
-
-        {/* Account info */}
-        <Panel className="p-4">
-          <p className="text-xs text-theme-muted">
-            Member since{" "}
-            <span className="font-medium text-theme-foreground">
+          <SettingsRow
+            label="Member since"
+            description="Date your workspace account was created"
+          >
+            <span className="text-sm font-medium text-theme-foreground">
               {formatMediumDate(user.createdAt)}
             </span>
-          </p>
-        </Panel>
-      </div>
-    </main>
+          </SettingsRow>
+        </SettingsSection>
+
+        <ProfileForm
+          user={{
+            name: user.name,
+            username: user.username,
+            bio: user.bio,
+            status: user.status,
+          }}
+        />
+
+        <ChangePasswordForm />
+      </main>
+    </div>
   );
 }

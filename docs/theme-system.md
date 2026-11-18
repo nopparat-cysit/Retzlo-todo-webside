@@ -1210,6 +1210,25 @@ Template:
     - Icons and labels use muted neutral stones (`text-stone-400 dark:text-stone-400` and `text-stone-500 dark:text-stone-400`).
 - Verification: Vitest 48/48 passed in `src/components/project/`, `npm run lint` clean (0 errors), `npx prisma validate` valid, Next.js production build succeeded.
 
+### 2026-11-18 - Design System Tokens, Phantom Utility Cleanup, Radix Override Removal, and Cross-Page Consistency
+- Coverage: Shared UI primitives (`src/components/ui/button.tsx`, `input.tsx`, `select.tsx`, `popover.tsx`, `dropdown-menu.tsx`, `tooltip.tsx`, `badge.tsx`, `tabs.tsx`, `toolbar.tsx`, `separator.tsx`, `label.tsx`, `lofi-panel.tsx`, `avatar.tsx`, `color-swatch-picker.tsx`), `src/app/globals.css`, `tailwind.config.ts`, `/profile`, `/settings`, `/project/[id]/rewards`, `/projects`, `/design-system`, Kanban modals, and structural CI guard (`src/lib/theme/design-system-guard.test.ts`).
+- Semantic Token Additions:
+  - Added `--primary`, `--primary-foreground`, `--primary-hover`, `--popover`, `--popover-hover`, `--input-surface`, and `--input-border` for both dark (`:root`) and light (`:root[data-theme="light"]`, `.light`) modes in `src/app/globals.css` and exposed them under `theme.*` in `tailwind.config.ts` (using `color-mix` for `theme.primary` alpha modifiers in Tailwind v3.4).
+  - Wired `Button` (`primary`), `Input`, `Textarea`, `Select`, `Popover`, `DropdownMenu`, `Tooltip`, `Badge`, `Tabs`, `Toolbar`, `Separator`, and `Label` directly to `theme-*` tokens.
+- Global CSS & Shape Fixes:
+  - Removed 13 global Radix `!important` override lines (`[data-radix-popper-content-wrapper]`, `[data-radix-menu-content]`, `[data-radix-select-content]`, `[role="menuitem"]`, `[role="option"]`, `[data-radix-collection-item]`) from `src/app/globals.css` (reducing `!important` count from 183 to 170) and simplified `.skin.toolsPopover` in `zen-garden-skin.module.css`.
+  - Replaced 414 invalid Tailwind v4 utility classes (`shadow-xs`, `shadow-2xs`, `drop-shadow-xs`, `drop-shadow-2xs`, `rounded-xs`, `ring-1.5`, `ring-3`, `h-4.5`/`w-4.5`, `h-5.5`/`w-5.5`) and 27+ broken unprefixed tokens (`bg-panel`, `border-border`, `text-foreground`, `text-muted-foreground`, `bg-muted`, `bg-border`, `divide-border`).
+  - Added `shrink-0` to equal-dimension `rounded-full` circles inside flex containers, removed conflicting fixed heights on `aspect-square` tiles in `ColorSwatchPicker` with a static `GRID_COLS_CLASSES` map, forwarded `ringClass` from `AssigneeStack` to `AvatarStack`, and removed ring-clipping `overflow-hidden` on avatar stacks in `board-list-view.tsx`.
+  - Deleted unused `src/components/ui/dialog.tsx` and dead `statusToneVariants` in `src/lib/theme/ui-variants.ts`.
+- Cross-Page Unification:
+  - Unified `/profile` (`profile-client.tsx`, `profile-form.tsx`, `change-password-form.tsx`) onto `SettingsSection`/`SettingsRow`, `ThemeToggle variant="icon"`, `ConfirmModal`, and `useToast()`.
+  - Restored search input inside project-scoped `/project/[id]/rewards` (`rewards-store.tsx`).
+  - Replaced 3 hand-rolled `fixed inset-0` context menus in `projects-dashboard.tsx` with shared `DropdownMenu`, synced `/design-system` to real `ui/badge.tsx`, and removed hardcoded `bg-indigo-600`/`dark:bg-dusk-lavender` `<Button>` overrides across 6 modal/board components.
+- Structural Guard:
+  - Added `src/lib/theme/design-system-guard.test.ts` enforcing zero Tailwind v4 phantom classes, zero unprefixed semantic tokens, and capping `globals.css` `!important` count at `<= 170`.
+- Remaining visual follow-up: Manual light/dark desktop and 390px mobile visual review recommended across `/profile`, `/projects`, `/project/[id]/rewards`, and Radix popovers/dropdowns after removing the global Radix `!important` rules.
+
+
 
 
 

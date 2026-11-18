@@ -426,13 +426,14 @@ export function BoardColumnsTab({
           {canManage && boardId && (
             <Button
               type="button"
+              variant="primary"
               size="sm"
               onClick={() => {
                 setIsAddingColumn(true);
                 setEditingColumnId(null);
               }}
               disabled={isAddingColumn}
-              className="inline-flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm h-7 px-3 cursor-pointer"
+              className="gap-1.5 text-xs font-medium shadow-sm h-7 px-3"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add New Column</span>
@@ -586,9 +587,10 @@ export function BoardColumnsTab({
             </Button>
             <Button
               type="submit"
+              variant="primary"
               size="sm"
               disabled={!newColumnName.trim() || isCreating}
-              className="inline-flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium h-8 px-4 cursor-pointer"
+              className="gap-1.5 text-xs font-medium h-8 px-4"
             >
               {isCreating && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               <span>{isCreating ? "Creating..." : "Create Column"}</span>
@@ -607,9 +609,10 @@ export function BoardColumnsTab({
             {canManage && boardId && !isAddingColumn && (
               <Button
                 type="button"
+                variant="primary"
                 size="sm"
                 onClick={() => setIsAddingColumn(true)}
-                className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+                className="text-xs"
               >
                 <Plus className="h-3.5 w-3.5 mr-1" />
                 <span>Add the first column</span>
@@ -747,10 +750,11 @@ export function BoardColumnsTab({
                     </Button>
                     <Button
                       type="button"
+                      variant="primary"
                       size="sm"
                       onClick={() => setConfirmEditOpen(true)}
                       disabled={!editName.trim()}
-                      className="inline-flex items-center gap-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white h-7 px-3 cursor-pointer"
+                      className="gap-1 text-xs h-7 px-3"
                     >
                       <Check className="h-3 w-3" />
                       <span>Save Changes</span>

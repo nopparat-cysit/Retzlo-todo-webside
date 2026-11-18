@@ -11,7 +11,7 @@ function getSafeInitials(name?: string | null, email?: string | null): string {
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useRef, useState, useCallback, type CSSProperties, type MouseEvent } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState, useCallback, type MouseEvent } from "react";
 import { useLiveSync } from "@/hooks/use-live-sync";
 import {
   ArrowRight,
@@ -51,6 +51,13 @@ import { BackButton } from "@/components/ui/back-button";
 import { AiChatTrigger } from "@/components/ai/ai-chat-trigger";
 import { AppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { EntityCard } from "@/components/ui/entity-card";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
@@ -1767,6 +1774,62 @@ function ProjectStatusMetric({
   );
 }
 
+function BoardActionsMenu({
+  board,
+  onEdit,
+  onDelete,
+  triggerClassName,
+  iconClassName
+}: {
+  board: ProjectBoardSummary;
+  onEdit: (board: ProjectBoardSummary) => void;
+  onDelete: (board: ProjectBoardSummary) => void;
+  triggerClassName: string;
+  iconClassName: string;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          onClick={(e) => e.stopPropagation()}
+          className={triggerClassName}
+          aria-label="Board options"
+        >
+          <MoreHorizontal className={iconClassName} />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-44"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <DropdownMenuItem
+          className="text-xs font-medium"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(board);
+          }}
+        >
+          <Settings className="h-3.5 w-3.5 text-theme-muted" />
+          <span>Board settings</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="text-xs font-medium text-theme-danger focus:bg-theme-danger-surface focus:text-theme-danger"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(board);
+          }}
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          <span>Delete board</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 function WorkspaceBoardCard({
   board,
   projectId,
@@ -1781,8 +1844,6 @@ function WorkspaceBoardCard({
   canManage?: boolean;
 }) {
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const boardUrl = `/project/${projectId}/board?boardId=${board.id}`;
 
   function handleCardClick(e: MouseEvent<HTMLDivElement>) {
@@ -1791,16 +1852,6 @@ function WorkspaceBoardCard({
       return;
     }
     router.push(boardUrl);
-  }
-
-  function toggleMenu(e: MouseEvent<HTMLButtonElement>) {
-    e.stopPropagation();
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMenuPosition({
-      top: rect.bottom + 8,
-      left: Math.max(16, rect.right - 170)
-    });
-    setMenuOpen((prev) => !prev);
   }
 
   const progressPercent = board.totalCards > 0 ? Math.round((board.doneCards / board.totalCards) * 100) : 0;
@@ -1848,14 +1899,13 @@ function WorkspaceBoardCard({
 
           {canManage ? (
             <div className="relative shrink-0">
-              <button
-                type="button"
-                onClick={toggleMenu}
-                className="grid h-8 w-8 place-items-center rounded-xl border border-transparent text-stone-400 hover:border-stone-200 hover:bg-stone-100 hover:text-stone-800 transition dark:hover:border-white/10 dark:hover:bg-white/[0.06] dark:hover:text-stone-200"
-                aria-label="Board options"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
+              <BoardActionsMenu
+                board={board}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                triggerClassName="grid h-8 w-8 place-items-center rounded-xl border border-transparent text-stone-400 hover:border-stone-200 hover:bg-stone-100 hover:text-stone-800 transition dark:hover:border-white/10 dark:hover:bg-white/[0.06] dark:hover:text-stone-200"
+                iconClassName="h-4 w-4"
+              />
             </div>
           ) : null}
         </div>
@@ -1940,46 +1990,6 @@ function WorkspaceBoardCard({
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
         </Link>
       </div>
-
-      {menuOpen && (
-        <>
-          <button
-            aria-label="Close board options"
-            className="fixed inset-0 z-[150] cursor-default"
-            type="button"
-            onClick={() => setMenuOpen(false)}
-          />
-          <div
-            className="fixed z-[151] w-44 overflow-hidden rounded-xl border border-stone-200 bg-white p-1.5 shadow-xl backdrop-blur-xl dark:border-dusk-lavender/18 dark:bg-[#080714]/95 dark:shadow-[0_24px_70px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)]"
-            style={
-              menuPosition
-                ? { top: menuPosition.top, left: menuPosition.left }
-                : { top: 16, right: 16 }
-            }
-          >
-            <button
-              type="button"
-              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-stone-700 transition hover:bg-indigo-50 hover:text-indigo-600 dark:text-stone-200 dark:hover:bg-dusk-lavender/12 dark:hover:text-dusk-lavender"
-              onClick={() => {
-                setMenuOpen(false);
-                onEdit(board);
-              }}
-            >
-              <Settings className="h-3.5 w-3.5" /> Board settings
-            </button>
-            <button
-              type="button"
-              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:text-dusk-rose dark:hover:bg-dusk-rose/12"
-              onClick={() => {
-                setMenuOpen(false);
-                onDelete(board);
-              }}
-            >
-              <Trash2 className="h-3.5 w-3.5" /> Delete board
-            </button>
-          </div>
-        </>
-      )}
     </div>
   );
 }
@@ -1998,8 +2008,6 @@ function WorkspaceBoardRow({
   canManage?: boolean;
 }) {
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const boardUrl = `/project/${projectId}/board?boardId=${board.id}`;
 
   function handleRowClick(e: MouseEvent<HTMLDivElement>) {
@@ -2008,16 +2016,6 @@ function WorkspaceBoardRow({
       return;
     }
     router.push(boardUrl);
-  }
-
-  function toggleMenu(e: MouseEvent<HTMLButtonElement>) {
-    e.stopPropagation();
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMenuPosition({
-      top: rect.bottom + 8,
-      left: Math.max(16, rect.right - 170)
-    });
-    setMenuOpen((prev) => !prev);
   }
 
   const progressPercent = board.totalCards > 0 ? Math.round((board.doneCards / board.totalCards) * 100) : 0;
@@ -2120,57 +2118,16 @@ function WorkspaceBoardRow({
 
         {canManage ? (
           <div className="relative">
-            <button
-              type="button"
-              onClick={toggleMenu}
-              className="grid h-8.5 w-8.5 place-items-center rounded-xl border border-stone-200/90 bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/20 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
-              aria-label="Board options"
-            >
-              <MoreHorizontal className="h-3.5 w-3.5" />
-            </button>
+            <BoardActionsMenu
+              board={board}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              triggerClassName="grid h-8.5 w-8.5 place-items-center rounded-xl border border-stone-200/90 bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-900 transition dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-400 dark:hover:border-white/20 dark:hover:bg-white/[0.08] dark:hover:text-stone-200"
+              iconClassName="h-3.5 w-3.5"
+            />
           </div>
         ) : null}
       </div>
-
-      {menuOpen && (
-        <>
-          <button
-            aria-label="Close board options"
-            className="fixed inset-0 z-[150] cursor-default"
-            type="button"
-            onClick={() => setMenuOpen(false)}
-          />
-          <div
-            className="fixed z-[151] w-44 overflow-hidden rounded-xl border border-stone-200 bg-white p-1.5 shadow-xl backdrop-blur-xl dark:border-dusk-lavender/18 dark:bg-[#080714]/95 dark:shadow-[0_24px_70px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)]"
-            style={
-              menuPosition
-                ? { top: menuPosition.top, left: menuPosition.left }
-                : { top: 16, right: 16 }
-            }
-          >
-            <button
-              type="button"
-              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-stone-700 transition hover:bg-indigo-50 hover:text-indigo-600 dark:text-stone-200 dark:hover:bg-dusk-lavender/12 dark:hover:text-dusk-lavender"
-              onClick={() => {
-                setMenuOpen(false);
-                onEdit(board);
-              }}
-            >
-              <Settings className="h-3.5 w-3.5" /> Board settings
-            </button>
-            <button
-              type="button"
-              className="flex h-9 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:text-dusk-rose dark:hover:bg-dusk-rose/12"
-              onClick={() => {
-                setMenuOpen(false);
-                onDelete(board);
-              }}
-            >
-              <Trash2 className="h-3.5 w-3.5" /> Delete board
-            </button>
-          </div>
-        </>
-      )}
     </div>
   );
 }
@@ -2306,20 +2263,8 @@ function ProjectCard({
   const totalCards = cards.length;
   const progressPercent = totalCards > 0 ? Math.round((doneCards / totalCards) * 100) : 0;
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-
-  function toggleProjectMenu(event: MouseEvent<HTMLButtonElement>) {
-    const rect = event.currentTarget.getBoundingClientRect();
-
-    setMenuPosition({
-      top: rect.bottom + 8,
-      left: Math.max(16, rect.right - 184)
-    });
-    setMenuOpen((value) => !value);
-  }
 
   const targetUrl = `/project/${project.id}/${isDiaryProject ? "diary" : "board"}`;
 
@@ -2383,20 +2328,54 @@ function ProjectCard({
               <Star className={cn("h-3 w-3 transition-transform", isStarred && "fill-dusk-amber scale-110")} />
             </button>
 
-            <button
-              type="button"
-              onClick={toggleProjectMenu}
-              className={cn(
-                "grid h-7 w-7 place-items-center rounded-lg border backdrop-blur-md transition",
-                menuOpen
-                  ? "border-dusk-amber/60 bg-ink-950/90 text-dusk-amber shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
-                  : "border-white/20 bg-ink-950/65 text-stone-200 hover:border-dusk-lavender/60 hover:bg-ink-950/85 hover:text-dusk-lavender"
-              )}
-              aria-label="Project options"
-              aria-expanded={menuOpen}
-            >
-              <MoreHorizontal className="h-3 w-3" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  onClick={(e) => e.stopPropagation()}
+                  className="grid h-7 w-7 place-items-center rounded-lg border border-white/20 bg-ink-950/65 text-stone-200 backdrop-blur-md transition hover:border-dusk-lavender/60 hover:bg-ink-950/85 hover:text-dusk-lavender data-[state=open]:border-dusk-amber/60 data-[state=open]:bg-ink-950/90 data-[state=open]:text-dusk-amber data-[state=open]:shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
+                  aria-label="Project options"
+                >
+                  <MoreHorizontal className="h-3 w-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-48"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <DropdownMenuItem asChild className="text-xs font-medium">
+                  <Link
+                    href={`/project/${project.id}/settings`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Settings className="h-3.5 w-3.5 text-theme-muted" />
+                    <span>Full workspace settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs font-medium"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditOpen(true);
+                  }}
+                >
+                  <Pencil className="h-3.5 w-3.5 text-theme-muted" />
+                  <span>Quick edit (Cover/Color)</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-xs font-medium text-theme-danger focus:bg-theme-danger-surface focus:text-theme-danger"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteOpen(true);
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>Delete project</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Bottom Right Floating Sticker Emblem */}
@@ -2556,46 +2535,6 @@ function ProjectCard({
           </div>
         </div>
       </EntityCard>
-
-      {menuOpen && (
-        <>
-          <button
-            aria-label="Close project options"
-            className="fixed inset-0 z-[150] cursor-default"
-            type="button"
-            onClick={() => setMenuOpen(false)}
-          />
-          <div
-            className="fixed z-[151] w-48 overflow-hidden rounded-xl border border-stone-200 bg-white p-1.5 shadow-xl backdrop-blur-xl dark:border-dusk-lavender/18 dark:bg-[#080714]/95 dark:shadow-[0_24px_70px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)]"
-            style={(menuPosition
-              ? { top: menuPosition.top, left: menuPosition.left }
-              : { top: 16, right: 16 }) as CSSProperties}
-          >
-            <Link
-              href={`/project/${project.id}/settings`}
-              className="flex h-9.5 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-stone-700 transition hover:bg-indigo-50 hover:text-indigo-600 dark:text-stone-200 dark:hover:bg-dusk-lavender/12 dark:hover:text-dusk-lavender"
-              onClick={() => setMenuOpen(false)}
-            >
-              <Settings className="h-3.5 w-3.5" /> Full workspace settings
-            </Link>
-            <button
-              type="button"
-              className="flex h-9.5 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-stone-700 transition hover:bg-indigo-50 hover:text-indigo-600 dark:text-stone-200 dark:hover:bg-dusk-lavender/12 dark:hover:text-dusk-lavender"
-              onClick={() => { setMenuOpen(false); setEditOpen(true); }}
-            >
-              <Pencil className="h-3.5 w-3.5" /> Quick edit (Cover/Color)
-            </button>
-            <div className="my-1 border-t border-stone-100 dark:border-white/5" />
-            <button
-              type="button"
-              className="flex h-9.5 w-full items-center gap-2 rounded-lg px-3 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:text-dusk-rose dark:hover:bg-dusk-rose/12"
-              onClick={() => { setMenuOpen(false); setDeleteOpen(true); }}
-            >
-              <Trash2 className="h-3.5 w-3.5" /> Delete project
-            </button>
-          </div>
-        </>
-      )}
 
       {/* Edit modal */}
       {editOpen && (

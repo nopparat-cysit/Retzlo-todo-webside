@@ -941,12 +941,13 @@ export function BoardAttributesTab({
                   {/* Apply button */}
                   <Button
                     type="button"
+                    variant="primary"
                     size="sm"
                     onClick={() => {
                       setSelectedTemplate(previewStatusTemplate);
                       setIsApplyTemplateConfirmOpen(true);
                     }}
-                    className="h-7 text-xs px-2.5 gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm cursor-pointer"
+                    className="h-7 text-xs px-2.5 gap-1 font-semibold shadow-sm"
                   >
                     <Check className="h-3.5 w-3.5 stroke-[2.5]" />
                     <span>Apply Template</span>
@@ -1203,10 +1204,11 @@ export function BoardAttributesTab({
                         </Button>
                         <Button
                           type="button"
+                          variant="primary"
                           size="sm"
                           disabled={!editingStatusLabel.trim()}
                           onClick={() => setIsEditStatusConfirmOpen(true)}
-                          className="h-8 text-xs gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 cursor-pointer"
+                          className="h-8 text-xs gap-1 px-3"
                         >
                           <Check className="h-3 w-3" />
                           <span>Save</span>
@@ -1896,9 +1898,10 @@ export function BoardAttributesTab({
                 </Button>
                 <Button
                   type="submit"
+                  variant="primary"
                   size="sm"
                   disabled={!customTemplateName.trim()}
-                  className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium"
+                  className="text-xs font-medium"
                 >
                   Save Template
                 </Button>

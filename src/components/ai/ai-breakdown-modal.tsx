@@ -636,10 +636,11 @@ export function AiBreakdownModal({
 
                 <Button
                   type="button"
+                  variant="primary"
                   size="sm"
                   disabled={isGenerating || !cardTitle.trim()}
                   onClick={handleGenerate}
-                  className="h-9 px-4 gap-1.5 bg-indigo-600 hover:bg-indigo-700 dark:bg-dusk-lavender dark:hover:bg-dusk-lavender/90 text-white dark:text-ink-950 font-bold shadow-md shadow-indigo-500/20 dark:shadow-dusk-lavender/20 transition-all cursor-pointer active:scale-95 rounded-xl"
+                  className="h-9 px-4 gap-1.5 font-semibold shadow-sm rounded-xl"
                 >
                   {isGenerating ? (
                     <>
@@ -648,7 +649,7 @@ export function AiBreakdownModal({
                     </>
                   ) : (
                     <>
-                      <Sparkles className="h-4 w-4 text-amber-300 dark:text-ink-950" />
+                      <Sparkles className="h-4 w-4" />
                       <span>Generate Checklist ({itemCount} steps)</span>
                     </>
                   )}

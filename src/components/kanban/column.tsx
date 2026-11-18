@@ -609,13 +609,9 @@ function KanbanColumnComponent({
               <div className="flex items-center gap-1.5">
                 <Button
                   type="button"
+                  variant={quickTitle.trim() ? "primary" : "secondary"}
                   size="sm"
-                  className={cn(
-                    "h-7 px-3 text-xs font-semibold rounded-lg transition-all shadow-sm",
-                    quickTitle.trim()
-                      ? "bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90"
-                      : "bg-stone-200 text-stone-400 dark:bg-white/10 dark:text-stone-500 cursor-not-allowed"
-                  )}
+                  className="h-7 px-3 text-xs font-semibold shadow-sm"
                   disabled={!quickTitle.trim() || isSubmitting}
                   onClick={() => void handleQuickSubmit()}
                 >

@@ -380,10 +380,11 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
 
                 <Button
                   type="button"
+                  variant="primary"
                   size="sm"
                   disabled={isLoading}
                   onClick={handleCopyMarkdown}
-                  className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium"
+                  className="gap-1.5 text-xs font-medium"
                 >
                   <ClipboardCopy className="h-3.5 w-3.5" />
                   <span>Copy Markdown</span>

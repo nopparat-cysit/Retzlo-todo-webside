@@ -52,6 +52,14 @@ describe("ProjectsDashboard non-overflowing mobile layout", () => {
   it("does not contain any overflow-x-auto containers in projects dashboard", () => {
     expect(source).not.toContain("overflow-x-auto");
   });
+
+  it("uses shared DropdownMenu instead of hand-rolled fixed inset-0 context menus and stops click propagation", () => {
+    expect(source).toContain('from "@/components/ui/dropdown-menu"');
+    expect(source).not.toContain("z-[150]");
+    expect(source).not.toContain("z-[151]");
+    expect(source).toMatch(/function BoardActionsMenu[\s\S]*<DropdownMenu>[\s\S]*stopPropagation\(\)/);
+    expect(source).toMatch(/function ProjectCard[\s\S]*<DropdownMenu>[\s\S]*stopPropagation\(\)/);
+  });
 });
 
 

@@ -607,25 +607,11 @@ export function RewardsStore({
           </div>
 
           {/* Quick Search */}
-          <div className="relative flex-1 max-w-md mx-0 sm:mx-4">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
-            <input
-              type="text"
-              placeholder="Search rewards, treats, perks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-stone-200/80 bg-stone-100/70 pl-9 pr-8 py-2 text-xs text-stone-800 placeholder-stone-400 focus:border-amber-400 focus:bg-white focus:outline-none dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder-stone-500 dark:focus:border-dusk-amber/50 dark:focus:bg-white/[0.07] transition shadow-inner"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 cursor-pointer"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
+          <RewardsSearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            className="flex-1 max-w-md mx-0 sm:mx-4"
+          />
 
           {/* Desktop Right Utilities Bar */}
           <div className="flex items-center gap-2 shrink-0 justify-end">
@@ -782,38 +768,50 @@ export function RewardsStore({
       <div className="grid gap-5 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px]">
         {/* Main Catalog Shelf */}
         <section className="lofi-panel rounded-2xl p-4 sm:p-5 border border-stone-200/80 dark:border-white/10 bg-white/70 dark:bg-ink-950/70 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-stone-200/80 dark:border-white/10 pb-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-dusk-lavender font-semibold">
-                <Store className="h-4 w-4" />
-                <span>Catalog Shelf</span>
+          <div className="flex flex-col gap-3 border-b border-theme-border pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-dusk-lavender font-semibold">
+                  <Store className="h-4 w-4" />
+                  <span>Catalog Shelf</span>
+                </div>
+                <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">Reward Catalog</h3>
               </div>
-              <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">Reward Catalog</h3>
+
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap gap-1.5">
+                {([
+                  ["all", `All (${rewards.length})`],
+                  ["affordable", `Can Redeem (${affordableCount})`],
+                  ["team", "Team"],
+                  ["global", "Global"]
+                ] as const).map(([value, label]) => (
+                  <button
+                    key={value}
+                    className={cn(
+                      "rounded-xl border px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none",
+                      catalogFilter === value
+                        ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber shadow-sm"
+                        : "border-stone-200/80 bg-stone-100/50 text-stone-600 hover:border-stone-300 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
+                    )}
+                    onClick={() => setCatalogFilter(value)}
+                    type="button"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Filter Tabs */}
-            <div className="flex flex-wrap gap-1.5">
-              {([
-                ["all", `All (${rewards.length})`],
-                ["affordable", `Can Redeem (${affordableCount})`],
-                ["team", "Team"],
-                ["global", "Global"]
-              ] as const).map(([value, label]) => (
-                <button
-                  key={value}
-                  className={cn(
-                    "rounded-xl border px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none",
-                    catalogFilter === value
-                      ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber shadow-sm"
-                      : "border-stone-200/80 bg-stone-100/50 text-stone-600 hover:border-stone-300 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
-                  )}
-                  onClick={() => setCatalogFilter(value)}
-                  type="button"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            {projectId ? (
+              <div className="flex items-center justify-between gap-3">
+                <RewardsSearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  className="w-full sm:max-w-sm"
+                />
+              </div>
+            ) : null}
           </div>
 
           {loading ? (
@@ -823,6 +821,24 @@ export function RewardsStore({
                 <span>Syncing catalog...</span>
               </div>
             </div>
+          ) : rewards.length > 0 && filteredRewards.length === 0 ? (
+            <EmptyState
+              title="No matching rewards"
+              message="Try another search keyword or reset your active filter."
+              action={
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setCatalogFilter("all");
+                  }}
+                >
+                  Reset filters
+                </Button>
+              }
+            />
           ) : filteredRewards.length === 0 ? (
             /* Starter Presets Showcase when Catalog is Empty */
             <div className="space-y-4 py-3">
@@ -1703,5 +1719,39 @@ function RejectRewardModal({
         </div>
       </form>
     </AppModal>
+  );
+}
+
+function RewardsSearchInput({
+  value,
+  onChange,
+  className
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+}) {
+  return (
+    <div className={cn("relative", className)}>
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-theme-muted" />
+      <Input
+        type="text"
+        aria-label="Search rewards"
+        placeholder="Search rewards, treats, perks..."
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-9 rounded-xl pl-9 pr-8 text-xs"
+      />
+      {value ? (
+        <button
+          type="button"
+          aria-label="Clear reward search"
+          onClick={() => onChange("")}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-theme-muted transition hover:text-theme-foreground cursor-pointer"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      ) : null}
+    </div>
   );
 }

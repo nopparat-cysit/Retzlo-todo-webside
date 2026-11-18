@@ -360,9 +360,10 @@ export function ProjectMembersView({
               </Button>
               <Button
                 type="button"
+                variant="primary"
                 size="sm"
                 onClick={openInviteModal}
-                className="gap-1.5 text-xs shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium cursor-pointer"
+                className="gap-1.5 text-xs shadow-sm font-medium"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 <span>Invite Teammate</span>
@@ -515,9 +516,10 @@ export function ProjectMembersView({
 
             <Button
               type="button"
+              variant="primary"
               size="sm"
               onClick={openInviteModal}
-              className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium cursor-pointer shrink-0 ml-auto"
+              className="ml-auto shrink-0 gap-1.5 text-xs font-medium"
             >
               <UserPlus className="h-3.5 w-3.5" />
               <span>+ Invite Teammate</span>
@@ -1114,8 +1116,9 @@ export function ProjectMembersView({
               </Button>
               <Button
                 type="submit"
+                variant="primary"
                 disabled={isInviting || !inviteEmail.trim()}
-                className="gap-2 text-xs bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 font-medium cursor-pointer"
+                className="gap-2 text-xs font-medium"
               >
                 {isInviting ? (
                   <span>Sending...</span>
