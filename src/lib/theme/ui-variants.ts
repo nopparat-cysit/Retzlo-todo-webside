@@ -1,5 +1,3 @@
-import type { CardStatus } from "@/types/kanban";
-
 export type CardTone =
   | "DEFAULT"
   | "LAVENDER"
@@ -104,40 +102,6 @@ export const cardToneVariants: Record<CardTone, CardToneVariant> = {
   }
 };
 
-export interface StatusToneVariant {
-  label: string;
-  badge: string;
-  button: string;
-  selectedButton: string;
-}
-
-export const statusToneVariants: Record<CardStatus, StatusToneVariant> = {
-  TODO: {
-    label: "Todo",
-    badge: "border-dusk-lavender/25 bg-dusk-lavender/10 text-theme-foreground",
-    button: "border-white/10 bg-white/[0.035] text-theme-muted hover:border-dusk-lavender/40",
-    selectedButton: "border-dusk-lavender bg-dusk-lavender/20 text-theme-foreground"
-  },
-  DOING: {
-    label: "Doing",
-    badge: "border-dusk-cyan/25 bg-dusk-cyan/10 text-theme-foreground",
-    button: "border-white/10 bg-white/[0.035] text-theme-muted hover:border-dusk-cyan/40",
-    selectedButton: "border-dusk-cyan bg-dusk-cyan/20 text-theme-foreground"
-  },
-  WAITING: {
-    label: "Waiting",
-    badge: "border-dusk-amber/25 bg-dusk-amber/10 text-theme-foreground",
-    button: "border-white/10 bg-white/[0.035] text-theme-muted hover:border-dusk-amber/40",
-    selectedButton: "border-dusk-amber bg-dusk-amber/20 text-theme-foreground"
-  },
-  DONE: {
-    label: "Done",
-    badge: "border-theme-success-border bg-theme-success-surface text-theme-success",
-    button: "border-white/10 bg-white/[0.035] text-theme-muted hover:border-theme-success-border",
-    selectedButton: "border-theme-success-border bg-theme-success-surface text-theme-success"
-  }
-};
-
 export interface StateToneVariant {
   icon: string;
   panel: string;
@@ -181,11 +145,6 @@ export const stateToneVariants: Record<"empty" | "error" | "warning" | "success"
 export function getCardTone(value: string | null | undefined): CardToneVariant {
   const key = String(value ?? "DEFAULT").toUpperCase() as CardTone;
   return cardToneVariants[key] ?? cardToneVariants.DEFAULT;
-}
-
-export function getStatusTone(value: string | null | undefined): StatusToneVariant {
-  const key = String(value ?? "TODO").toUpperCase() as CardStatus;
-  return statusToneVariants[key] ?? statusToneVariants.TODO;
 }
 
 export function getStateTone(value: string | null | undefined): StateToneVariant {

@@ -1003,7 +1003,7 @@ export function ZenTerrariumBackdrop({
           <path
             d="M 144,48 L 156,48 C 159,57 161,64 163,68 C 160,65 158,68 156,64 C 154,67 152,65 150,68 C 148,64 146,67 144,63 C 142,66 140,65 137,68 C 139,64 141,57 144,48 Z"
             fill="#ffffff"
-            className="drop-shadow-xs"
+            className="drop-shadow-sm"
           />
           {/* Snow crevices / striations */}
           <line x1="148" y1="52" x2="147" y2="60" stroke="#cbd5e1" strokeWidth="0.6" strokeLinecap="round" />
@@ -1167,7 +1167,7 @@ export function ZenTerrariumBackdrop({
 
         {/* ── 11. Seasonal Particles: Spring Sakura, Autumn Ginkgo, Summer Bamboo, Winter Snow ── */}
         {season === "spring" && (
-          <g className="fill-pink-400/80 dark:fill-pink-300/80 pointer-events-none drop-shadow-2xs">
+          <g className="fill-pink-400/80 dark:fill-pink-300/80 pointer-events-none drop-shadow-sm">
             <path
               d="M 120,68 C 117,62 122,57 127,58 C 131,59 130,65 125,67 C 122,68 121,69 120,68 Z"
               transform="rotate(-15 124 64)"
@@ -1184,7 +1184,7 @@ export function ZenTerrariumBackdrop({
         )}
 
         {season === "autumn" && (
-          <g className="fill-amber-400/85 dark:fill-amber-300/85 pointer-events-none drop-shadow-2xs">
+          <g className="fill-amber-400/85 dark:fill-amber-300/85 pointer-events-none drop-shadow-sm">
             {/* Ginkgo Fan Leaf 1 */}
             <path
               d="M 115,70 C 110,62 118,55 126,58 C 132,60 128,68 120,70 L 118,74 Z"
@@ -1401,7 +1401,7 @@ export function ZenGardenPlotBasin({
             width="16"
             height="14"
             rx="3"
-            className="fill-amber-100/90 stroke-amber-800/60 dark:fill-stone-900/90 dark:stroke-stone-600 shadow-2xs"
+            className="fill-amber-100/90 stroke-amber-800/60 dark:fill-stone-900/90 dark:stroke-stone-600 shadow-sm"
             strokeWidth="0.8"
           />
           <text
@@ -1592,8 +1592,8 @@ export function ZenOmikujiScroll({
           )}
         >
           {/* Traditional Double Hairline Border: Shukin Nijūwaku (朱金二重枠) */}
-          <div className="absolute inset-2 sm:inset-2.5 rounded-xs border border-[#b91c1c]/25 dark:border-[#ef4444]/20 pointer-events-none" />
-          <div className="absolute inset-3 sm:inset-3.5 rounded-xs border border-[#d97706]/20 dark:border-[#f59e0b]/15 pointer-events-none" />
+          <div className="absolute inset-2 sm:inset-2.5 rounded-sm border border-[#b91c1c]/25 dark:border-[#ef4444]/20 pointer-events-none" />
+          <div className="absolute inset-3 sm:inset-3.5 rounded-sm border border-[#d97706]/20 dark:border-[#f59e0b]/15 pointer-events-none" />
 
           {/* Corner Ornamental Diamonds (四隅菱飾り) */}
           <div className="absolute top-2.5 left-2.5 w-1.5 h-1.5 rotate-45 bg-[#b91c1c]/40 dark:bg-[#ef4444]/30 pointer-events-none" />
@@ -1603,7 +1603,7 @@ export function ZenOmikujiScroll({
 
           {/* Sacred Temple Shrine Vermilion Seal Watermark at Top Right (朱印) */}
           <div className="absolute top-3.5 right-4 pointer-events-none select-none opacity-20 dark:opacity-15 rotate-[-3deg]">
-            <div className="w-10 h-10 border-2 border-[#b91c1c] rounded-xs flex flex-col items-center justify-center p-0.5 shadow-xs">
+            <div className="w-10 h-10 border-2 border-[#b91c1c] rounded-sm flex flex-col items-center justify-center p-0.5 shadow-sm">
               <div className="w-full h-full border border-[#b91c1c]/70 flex items-center justify-center">
                 <span className="font-serif font-black text-[12px] leading-none text-[#b91c1c] tracking-tighter">
                   {grade === "daikichi" ? "大吉" : "神籤"}

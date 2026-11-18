@@ -21,6 +21,18 @@ export interface ColorSwatchPickerProps<T extends string = string>
   columns?: number;
 }
 
+const GRID_COLS_CLASSES: Record<number, string> = {
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+  5: "grid-cols-5",
+  6: "grid-cols-6",
+  7: "grid-cols-7",
+  8: "grid-cols-8",
+  9: "grid-cols-9",
+  10: "grid-cols-10"
+};
+
 export function ColorSwatchPicker<T extends string = string>({
   value,
   onChange,
@@ -34,6 +46,7 @@ export function ColorSwatchPicker<T extends string = string>({
   ...props
 }: ColorSwatchPickerProps<T>) {
   const currentOption = options.find((opt) => opt.value === value);
+  const gridColsClass = columns ? (GRID_COLS_CLASSES[columns] ?? "grid-cols-5") : null;
 
   return (
     <div className={cn("space-y-2.5", className)} {...props}>
@@ -47,7 +60,7 @@ export function ColorSwatchPicker<T extends string = string>({
           </div>
           {currentOption && (
             <span className="flex items-center gap-1.5 rounded-full border border-stone-200/80 bg-stone-100/80 px-2.5 py-0.5 text-[11px] font-medium text-stone-700 dark:border-white/10 dark:bg-ink-950/40 dark:text-stone-300">
-              <span className={cn("h-2 w-2 rounded-full border shadow-2xs shrink-0", currentOption.swatchClass)} />
+              <span className={cn("h-2 w-2 rounded-full border shadow-sm shrink-0", currentOption.swatchClass)} />
               <span>{currentOption.label}</span>
             </span>
           )}
@@ -58,8 +71,8 @@ export function ColorSwatchPicker<T extends string = string>({
         className={cn(
           layout === "wrap"
             ? "flex flex-wrap items-center gap-2"
-            : columns
-            ? `grid grid-cols-${columns} gap-2`
+            : gridColsClass
+            ? cn("grid gap-2", gridColsClass)
             : cn(
                 "grid gap-2",
                 options.length <= 6
@@ -83,10 +96,10 @@ export function ColorSwatchPicker<T extends string = string>({
               className={cn(
                 "group relative flex aspect-square w-full items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer select-none",
                 size === "sm"
-                  ? "h-8 max-w-[34px]"
+                  ? "max-w-[36px]"
                   : size === "lg"
-                  ? "h-11 max-w-[48px]"
-                  : "h-9 sm:h-10 max-w-[44px]",
+                  ? "max-w-[48px]"
+                  : "max-w-[44px]",
                 "mx-auto",
                 isSelected
                   ? "border-dusk-amber bg-dusk-amber/10 shadow-[0_0_0_2px_rgba(249,199,132,0.16)] ring-2 ring-dusk-amber ring-offset-2 ring-offset-white dark:ring-offset-ink-950 scale-105 z-10"
@@ -98,12 +111,12 @@ export function ColorSwatchPicker<T extends string = string>({
             >
               <span
                 className={cn(
-                  "rounded-full border shadow-xs transition-transform duration-150 flex items-center justify-center shrink-0",
+                  "rounded-full border shadow-sm transition-transform duration-150 flex items-center justify-center shrink-0",
                   size === "sm"
                     ? "h-4 w-4"
                     : size === "lg"
                     ? "h-6 w-6"
-                    : "h-5 w-5 sm:h-5.5 sm:w-5.5",
+                    : "h-5 w-5 sm:h-[22px] sm:w-[22px]",
                   option.swatchClass,
                   isSelected && "scale-105"
                 )}
@@ -111,7 +124,7 @@ export function ColorSwatchPicker<T extends string = string>({
                 {isSelected && (
                   <Check
                     className={cn(
-                      "stroke-[3] drop-shadow-xs",
+                      "stroke-[3] drop-shadow-sm",
                       size === "sm" ? "h-2.5 w-2.5" : "h-3 w-3",
                       isDefaultOrLight
                         ? "text-stone-700 dark:text-stone-200"

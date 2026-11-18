@@ -100,7 +100,7 @@ export function CompanyProfileModal({
             {/* Header */}
             <div className="flex items-start justify-between gap-3 border-b border-stone-200/80 dark:border-white/10 p-4 sm:p-5">
               <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber shadow-xs">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber shadow-sm">
                   <Building2 className="h-5 w-5" />
                 </div>
                 <div>

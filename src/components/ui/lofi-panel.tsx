@@ -11,10 +11,10 @@ const LofiPanel = React.forwardRef<HTMLDivElement, LofiPanelProps>(
       <div
         ref={ref}
         className={cn(
-          "lofi-panel motion-panel-in relative rounded-xl border border-border/60 bg-panel p-6 shadow-panel backdrop-blur-xl transition-all",
+          "lofi-panel motion-panel-in relative rounded-xl border border-theme-border/60 bg-theme-panel p-6 shadow-panel backdrop-blur-xl transition-all",
           {
-            "bg-panel-strong border-border/80 shadow-lg": variant === "strong",
-            "bg-paper border-paper-strong/60 shadow-sm": variant === "paper",
+            "bg-theme-panel-strong border-theme-border/80 shadow-lg": variant === "strong",
+            "bg-theme-paper border-theme-paper-strong/60 shadow-sm": variant === "paper",
           },
           className
         )}

@@ -85,7 +85,7 @@ export function FolderModal({ folder, open, onClose, onSave }: FolderModalProps)
           )}
 
           {/* Live Folder Card & Sidebar Mockup Preview */}
-          <div className="rounded-xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2">
+          <div className="rounded-xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-sm space-y-2">
             <div className="flex items-center justify-between gap-2">
               <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
                 <Eye className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
@@ -98,7 +98,7 @@ export function FolderModal({ folder, open, onClose, onSave }: FolderModalProps)
 
             <div
               className={cn(
-                "flex items-center justify-between gap-2.5 rounded-xl border p-2.5 shadow-2xs transition-all",
+                "flex items-center justify-between gap-2.5 rounded-xl border p-2.5 shadow-sm transition-all",
                 colorMeta.cardClass
               )}
             >

@@ -4,9 +4,7 @@ import {
   cardToneVariants,
   getCardTone,
   getStateTone,
-  getStatusTone,
-  stateToneVariants,
-  statusToneVariants
+  stateToneVariants
 } from "@/lib/theme/ui-variants";
 
 describe("shared UI tone variants", () => {
@@ -24,12 +22,6 @@ describe("shared UI tone variants", () => {
       "WINE"
     ]);
     expect(getCardTone("missing")).toBe(cardToneVariants.DEFAULT);
-  });
-
-  it("maps card statuses to stable button and badge tones", () => {
-    expect(Object.keys(statusToneVariants)).toEqual(["TODO", "DOING", "WAITING", "DONE"]);
-    expect(getStatusTone("DONE").badge).toContain("theme-success");
-    expect(getStatusTone("UNKNOWN").label).toBe("Todo");
   });
 
   it("maps app state tones for shared empty and error states", () => {

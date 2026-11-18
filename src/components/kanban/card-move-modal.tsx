@@ -114,7 +114,7 @@ export function CardMoveModal({
 
                 <div className="flex items-center gap-2 shrink-0 ml-2">
                   {isCurrent ? (
-                    <span className="inline-flex items-center gap-1 rounded-md bg-indigo-600 text-white dark:bg-dusk-lavender dark:text-ink-950 px-2 py-0.5 text-xs font-bold shadow-xs">
+                    <span className="inline-flex items-center gap-1 rounded-md bg-indigo-600 text-white dark:bg-dusk-lavender dark:text-ink-950 px-2 py-0.5 text-xs font-bold shadow-sm">
                       <Check className="h-3.5 w-3.5" />
                       <span>{isEn ? "Current" : "ปัจจุบัน"}</span>
                     </span>

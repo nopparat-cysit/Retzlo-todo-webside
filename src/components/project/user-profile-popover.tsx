@@ -53,7 +53,7 @@ export function UserProfilePopover({
           className={cn(
             "group transition cursor-pointer shrink-0 focus:outline-none",
             variant === "avatar" &&
-              "relative block h-8 w-8 rounded-full ring-2 ring-stone-200/90 hover:ring-indigo-400 dark:ring-white/15 dark:hover:ring-dusk-lavender hover:scale-105 transition-all shadow-xs focus-visible:ring-2 focus-visible:ring-indigo-400 dark:focus-visible:ring-dusk-lavender",
+              "relative block h-8 w-8 rounded-full ring-2 ring-stone-200/90 hover:ring-indigo-400 dark:ring-white/15 dark:hover:ring-dusk-lavender hover:scale-105 transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-400 dark:focus-visible:ring-dusk-lavender",
             variant === "card" &&
               "flex w-full items-center gap-2.5 rounded-xl border border-stone-200/80 bg-white/80 p-2.5 text-left hover:border-indigo-300 hover:bg-white dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-dusk-lavender/35 dark:hover:bg-dusk-lavender/5 data-[state=open]:border-indigo-400 data-[state=open]:bg-white dark:data-[state=open]:border-dusk-lavender/40 dark:data-[state=open]:bg-dusk-lavender/10"
           )}
@@ -81,7 +81,7 @@ export function UserProfilePopover({
         <div className="px-4 pb-4">
           <div className="-mt-7 flex items-end justify-between gap-3">
             <div className="relative">
-              <Avatar src={avatar} initials={initials} name={name} statusColor={statusColor} size={56} className="ring-3 ring-white dark:ring-ink-950 shadow-md" />
+              <Avatar src={avatar} initials={initials} name={name} statusColor={statusColor} size={56} className="ring-2 ring-white dark:ring-ink-950 shadow-md" />
             </div>
             <span className="mb-1 rounded-full border border-stone-200/90 bg-stone-100/90 px-2.5 py-0.5 text-[11px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-300">
               {statusLabel(status)}

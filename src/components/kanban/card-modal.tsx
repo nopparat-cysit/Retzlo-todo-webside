@@ -981,7 +981,7 @@ export function CardModal({
                 <button
                   type="button"
                   onClick={() => setAiBreakdownOpen(true)}
-                  className="group inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/10 px-2.5 py-1 text-xs font-semibold text-dusk-lavender shadow-xs transition-all hover:border-dusk-lavender hover:bg-dusk-lavender/20 hover:scale-102 active:scale-98 cursor-pointer"
+                  className="group inline-flex items-center gap-1.5 rounded-lg border border-dusk-lavender/40 bg-dusk-lavender/10 px-2.5 py-1 text-xs font-semibold text-dusk-lavender shadow-sm transition-all hover:border-dusk-lavender hover:bg-dusk-lavender/20 hover:scale-102 active:scale-98 cursor-pointer"
                   title="Breakdown checklist with AI, configure count, and confirm before adding"
                 >
                   <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
@@ -1100,7 +1100,7 @@ export function CardModal({
                     className={cn(
                       "h-9 px-3 rounded-md border text-xs font-medium transition flex items-center gap-1.5",
                       isSelected
-                        ? cn(colorConfig.pillClass, "ring-2 ring-indigo-500/30 font-semibold shadow-xs")
+                        ? cn(colorConfig.pillClass, "ring-2 ring-indigo-500/30 font-semibold shadow-sm")
                         : "border-stone-200 bg-stone-50 text-stone-700 hover:border-indigo-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                     type="button"
@@ -1148,7 +1148,7 @@ export function CardModal({
                 className={cn(
                   "h-9 rounded-md border text-xs font-semibold transition flex items-center justify-center",
                   difficulty === null
-                    ? "border-white/30 bg-white/10 text-stone-200 shadow-xs font-bold"
+                    ? "border-white/30 bg-white/10 text-stone-200 shadow-sm font-bold"
                     : "border-white/10 text-stone-500 hover:text-stone-300 hover:border-white/20"
                 )}
                 onClick={() => setDifficulty(null)}

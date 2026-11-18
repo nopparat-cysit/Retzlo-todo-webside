@@ -56,6 +56,7 @@ export function AssigneeStack({
         max={max}
         size={size}
         className={className}
+        ringClass={ringClass}
       />
       {showName && assignees.length === 1 && (
         <span className="max-w-[100px] truncate text-xs font-medium text-stone-700 dark:text-stone-400">

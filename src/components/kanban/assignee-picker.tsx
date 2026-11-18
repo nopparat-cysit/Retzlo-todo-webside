@@ -94,7 +94,7 @@ export function AssigneePicker({
         {selectedMembers.map((member) => (
           <span
             key={member.id}
-            className="inline-flex items-center gap-1.5 rounded-full border border-dusk-lavender/30 bg-dusk-lavender/15 pl-1.5 pr-2 py-0.5 text-xs text-stone-200 shadow-xs transition hover:border-dusk-lavender/50"
+            className="inline-flex items-center gap-1.5 rounded-full border border-dusk-lavender/30 bg-dusk-lavender/15 pl-1.5 pr-2 py-0.5 text-xs text-stone-200 shadow-sm transition hover:border-dusk-lavender/50"
           >
             <AssigneeAvatar user={member} size={18} />
             <span className="max-w-[120px] truncate font-medium">
@@ -215,7 +215,7 @@ export function AssigneePicker({
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="rounded-md border border-stone-300/80 bg-white px-3 py-1 text-xs text-stone-800 hover:bg-stone-100 hover:text-stone-950 transition font-medium shadow-xs dark:border-transparent dark:bg-white/10 dark:text-stone-200 dark:hover:bg-white/15 cursor-pointer"
+                className="rounded-md border border-stone-300/80 bg-white px-3 py-1 text-xs text-stone-800 hover:bg-stone-100 hover:text-stone-950 transition font-medium shadow-sm dark:border-transparent dark:bg-white/10 dark:text-stone-200 dark:hover:bg-white/15 cursor-pointer"
               >
                 Done
               </button>

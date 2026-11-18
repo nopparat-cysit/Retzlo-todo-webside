@@ -334,7 +334,7 @@ export function BoardPrioritiesTab({
       </div>
 
       {/* Quick Priority Workflow Templates Bar */}
-      <div className="rounded-xl border border-rose-200/60 bg-rose-50/20 p-3 dark:border-rose-400/20 dark:bg-ink-950/40 shadow-xs space-y-2">
+      <div className="rounded-xl border border-rose-200/60 bg-rose-50/20 p-3 dark:border-rose-400/20 dark:bg-ink-950/40 shadow-sm space-y-2">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-1.5 flex-wrap">
             <Wand2 className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
@@ -371,7 +371,7 @@ export function BoardPrioritiesTab({
                   setSelectedTemplate(null);
                 }
               }}
-              triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-rose-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
+              triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-rose-200/80 bg-white/95 px-2 text-stone-700 shadow-sm dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
             />
 
             {canManage && (
@@ -396,9 +396,9 @@ export function BoardPrioritiesTab({
                 type="button"
                 onClick={() => handleSelectTemplate(tpl)}
                 className={cn(
-                  "group shrink-0 inline-flex items-center h-8 rounded-full border shadow-2xs transition-all duration-300 ease-out cursor-pointer overflow-hidden p-1",
+                  "group shrink-0 inline-flex items-center h-8 rounded-full border shadow-sm transition-all duration-300 ease-out cursor-pointer overflow-hidden p-1",
                   isSelected
-                    ? "border-rose-500 bg-rose-500 text-white shadow-xs ring-2 ring-rose-400/40 dark:bg-rose-600 dark:border-rose-600"
+                    ? "border-rose-500 bg-rose-500 text-white shadow-sm ring-2 ring-rose-400/40 dark:bg-rose-600 dark:border-rose-600"
                     : "border-stone-200/90 bg-white text-stone-700 hover:border-rose-400 hover:bg-rose-50/40 hover:text-rose-950 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:hover:border-rose-400/50 dark:hover:bg-rose-500/10"
                 )}
                 title={tpl.description ? `${tpl.name} - ${tpl.description}` : tpl.name}
@@ -443,9 +443,9 @@ export function BoardPrioritiesTab({
 
       {/* Interactive Live Preview Action Banner */}
       {previewTemplate && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-rose-300/80 bg-rose-50/70 p-3 shadow-2xs dark:border-rose-500/30 dark:bg-rose-950/20 animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-rose-300/80 bg-rose-50/70 p-3 shadow-sm dark:border-rose-500/30 dark:bg-rose-950/20 animate-in fade-in slide-in-from-top-1 duration-200">
           <div className="flex items-start sm:items-center gap-2.5 min-w-0">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-rose-500 text-white shrink-0 shadow-xs">
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-rose-500 text-white shrink-0 shadow-sm">
               <Eye className="h-4 w-4" />
             </div>
             <div className="min-w-0">
@@ -503,7 +503,7 @@ export function BoardPrioritiesTab({
                 setSelectedTemplate(previewTemplate);
                 setIsApplyTemplateConfirmOpen(true);
               }}
-              className="h-7 text-xs px-2.5 gap-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs cursor-pointer"
+              className="h-7 text-xs px-2.5 gap-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-sm cursor-pointer"
             >
               <Check className="h-3.5 w-3.5 stroke-[2.5]" />
               <span>Apply Template</span>
@@ -528,7 +528,7 @@ export function BoardPrioritiesTab({
       )}
 
       {/* Priority Levels List */}
-      <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[320px] overflow-y-auto dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
+      <div className="rounded-xl border border-stone-200/70 bg-white shadow-sm divide-y divide-stone-100 max-h-[320px] overflow-y-auto dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
         {displayedPriorities.map((priority, index) => {
           const colorConfig = getPriorityColorConfig(priority.color);
           const isHighest = index === 0;
@@ -573,7 +573,7 @@ export function BoardPrioritiesTab({
                       disabled={!canManage}
                       placeholder="Priority label..."
                       maxLength={30}
-                      className="h-7 w-full rounded-lg border border-stone-200/80 bg-white px-2 text-xs font-semibold text-stone-900 shadow-2xs placeholder:text-stone-400 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 dark:focus:border-dusk-lavender"
+                      className="h-7 w-full rounded-lg border border-stone-200/80 bg-white px-2 text-xs font-semibold text-stone-900 shadow-sm placeholder:text-stone-400 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 dark:focus:border-dusk-lavender"
                     />
                   )}
                 </div>
@@ -582,7 +582,7 @@ export function BoardPrioritiesTab({
                 <div className="shrink-0 hidden xs:block">
                   <span
                     className={cn(
-                      "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs",
+                      "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-sm",
                       colorConfig.pillClass
                     )}
                   >
@@ -609,7 +609,7 @@ export function BoardPrioritiesTab({
                           className="flex h-7 items-center gap-1.5 rounded-lg border border-stone-200/80 bg-stone-50/70 px-2 text-xs font-medium text-stone-700 hover:border-stone-300 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 cursor-pointer"
                           title="Select priority color"
                         >
-                          <span className={cn("h-3 w-3 rounded-full shrink-0 shadow-2xs", colorConfig.swatchClass)} />
+                          <span className={cn("h-3 w-3 rounded-full shrink-0 shadow-sm", colorConfig.swatchClass)} />
                           <span className="text-[11px] font-semibold">{colorConfig.name}</span>
                           <ChevronDown className="h-3 w-3 opacity-60" />
                         </button>
@@ -629,7 +629,7 @@ export function BoardPrioritiesTab({
                               )}
                             >
                               <div className="flex items-center gap-2">
-                                <span className={cn("h-3 w-3 rounded-full shrink-0 shadow-2xs", option.swatchClass)} />
+                                <span className={cn("h-3 w-3 rounded-full shrink-0 shadow-sm", option.swatchClass)} />
                                 <span>{option.name}</span>
                               </div>
                               {priority.color === option.id && <Check className="h-3.5 w-3.5" />}
@@ -708,7 +708,7 @@ export function BoardPrioritiesTab({
 
       {/* Live Preview Section: Pills + Sample Kanban Cards (rendered if not hidden by parent layout) */}
       {!hideDefaultPreview && (
-        <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-3.5 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2.5">
+        <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-3.5 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-sm space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <div className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
               <Palette className="h-3.5 w-3.5 text-dusk-amber" />
@@ -730,7 +730,7 @@ export function BoardPrioritiesTab({
                 <div
                   key={p.id || idx}
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold shadow-2xs",
+                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold shadow-sm",
                     config.pillClass
                   )}
                 >
@@ -753,7 +753,7 @@ export function BoardPrioritiesTab({
               return (
                 <div
                   key={`card-preview-${p.id || idx}`}
-                  className="rounded-xl border border-stone-200/80 bg-white p-2.5 space-y-1.5 shadow-2xs dark:border-white/10 dark:bg-stone-900/90"
+                  className="rounded-xl border border-stone-200/80 bg-white p-2.5 space-y-1.5 shadow-sm dark:border-white/10 dark:bg-stone-900/90"
                 >
                   <div className="flex items-center justify-between gap-1.5">
                     <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">

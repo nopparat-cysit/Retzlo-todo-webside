@@ -580,10 +580,10 @@ export function RewardsStore({
     <div className="space-y-5">
       {/* Standalone Topbar Header (Only on /projects/rewards when not embedded in project shell) */}
       {!projectId && (
-        <header className="lofi-panel flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl p-3.5 sm:px-5 sm:py-3.5 backdrop-blur-xl border border-stone-200/80 dark:border-white/10 bg-white/80 dark:bg-ink-950/75 shadow-xs">
+        <header className="lofi-panel flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl p-3.5 sm:px-5 sm:py-3.5 backdrop-blur-xl border border-stone-200/80 dark:border-white/10 bg-white/80 dark:bg-ink-950/75 shadow-sm">
           <div className="flex items-center justify-between sm:justify-start gap-3">
             <Link href="/projects" className="flex items-center gap-2.5 group">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber shadow-xs group-hover:scale-105 transition-transform">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber shadow-sm group-hover:scale-105 transition-transform">
                 <Gift className="h-5 w-5" />
               </div>
               <div className="min-w-0">
@@ -726,9 +726,9 @@ export function RewardsStore({
           </div>
 
           {/* Coin Vault Card */}
-          <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3.5 bg-stone-50/70 dark:bg-white/[0.03] p-4 sm:p-5 rounded-2xl border border-stone-200/70 dark:border-white/10 shadow-xs">
+          <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3.5 bg-stone-50/70 dark:bg-white/[0.03] p-4 sm:p-5 rounded-2xl border border-stone-200/70 dark:border-white/10 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="grid h-12 w-12 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 shadow-xs">
+              <div className="grid h-12 w-12 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 shadow-sm">
                 <RewardIcon src={coinRewardIcon.src} label="Coins" size="sm" />
               </div>
               <div>
@@ -804,7 +804,7 @@ export function RewardsStore({
                   className={cn(
                     "rounded-xl border px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none",
                     catalogFilter === value
-                      ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber shadow-2xs"
+                      ? "border-dusk-amber bg-dusk-amber/15 text-dusk-amber shadow-sm"
                       : "border-stone-200/80 bg-stone-100/50 text-stone-600 hover:border-stone-300 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
                   )}
                   onClick={() => setCatalogFilter(value)}
@@ -827,7 +827,7 @@ export function RewardsStore({
             /* Starter Presets Showcase when Catalog is Empty */
             <div className="space-y-4 py-3">
               <div className="rounded-2xl border border-dashed border-stone-300 dark:border-white/15 bg-stone-50/60 dark:bg-white/[0.02] p-6 sm:p-8 text-center space-y-3">
-                <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-dusk-amber/25 bg-dusk-amber/10 shadow-xs">
+                <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-dusk-amber/25 bg-dusk-amber/10 shadow-sm">
                   <RewardIcon src={emptyRewardIcon.src} label="Empty Catalog" size="lg" />
                 </div>
                 <h4 className="text-lg font-bold text-stone-900 dark:text-stone-100">
@@ -863,7 +863,7 @@ export function RewardsStore({
                     {REWARD_PRESETS.map((preset) => (
                       <div
                         key={preset.name}
-                        className="flex flex-col justify-between rounded-xl border border-stone-200/80 bg-white/60 p-4 shadow-xs transition hover:border-dusk-amber/40 hover:bg-white dark:border-white/10 dark:bg-white/[0.035] dark:hover:bg-white/[0.06]"
+                        className="flex flex-col justify-between rounded-xl border border-stone-200/80 bg-white/60 p-4 shadow-sm transition hover:border-dusk-amber/40 hover:bg-white dark:border-white/10 dark:bg-white/[0.035] dark:hover:bg-white/[0.06]"
                       >
                         <div>
                           <div className="flex items-start justify-between gap-2">
@@ -952,7 +952,7 @@ export function RewardsStore({
                   className={cn(
                     "flex-1 rounded-lg py-1 text-xs font-semibold transition cursor-pointer text-center",
                     ledgerTab === "pending"
-                      ? "bg-white text-stone-900 shadow-xs dark:bg-white/10 dark:text-stone-100"
+                      ? "bg-white text-stone-900 shadow-sm dark:bg-white/10 dark:text-stone-100"
                       : "text-stone-500 hover:text-stone-900 dark:hover:text-stone-300"
                   )}
                 >
@@ -964,7 +964,7 @@ export function RewardsStore({
                   className={cn(
                     "flex-1 rounded-lg py-1 text-xs font-semibold transition cursor-pointer text-center",
                     ledgerTab === "history"
-                      ? "bg-white text-stone-900 shadow-xs dark:bg-white/10 dark:text-stone-100"
+                      ? "bg-white text-stone-900 shadow-sm dark:bg-white/10 dark:text-stone-100"
                       : "text-stone-500 hover:text-stone-900 dark:hover:text-stone-300"
                   )}
                 >
@@ -1187,7 +1187,7 @@ function ScopeButton({ active, label, onClick }: { active: boolean; label: strin
       className={cn(
         "rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none",
         active
-          ? "bg-dusk-amber text-ink-950 font-bold shadow-xs"
+          ? "bg-dusk-amber text-ink-950 font-bold shadow-sm"
           : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
       )}
       onClick={onClick}
@@ -1224,11 +1224,11 @@ function RewardCard({
     <article className="group flex min-h-[14rem] flex-col justify-between rounded-2xl border border-stone-200/80 bg-white/70 p-4 transition-all hover:-translate-y-0.5 hover:border-dusk-amber/40 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-dusk-amber/30 dark:hover:bg-white/[0.055]">
       <div>
         <div className="flex items-start justify-between gap-3">
-          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/35 shadow-2xs">
+          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/35 shadow-sm">
             <RewardIcon label={icon.label} src={iconSrc} />
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-1 text-xs font-bold text-dusk-amber shadow-2xs">
+            <span className="inline-flex items-center gap-1 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-1 text-xs font-bold text-dusk-amber shadow-sm">
               <Coins className="h-3 w-3" />
               {reward.price} Coins
             </span>
@@ -1505,7 +1505,7 @@ function CreateRewardModal({
 
           <div className="space-y-4">
             {/* Live Reward Store Card Mockup Preview */}
-            <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2">
+            <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-sm space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-dusk-amber" />
@@ -1516,7 +1516,7 @@ function CreateRewardModal({
                 </span>
               </div>
 
-              <div className="rounded-xl border border-stone-200/80 bg-white/95 p-3 shadow-2xs dark:border-white/10 dark:bg-stone-900/90 space-y-2.5">
+              <div className="rounded-xl border border-stone-200/80 bg-white/95 p-3 shadow-sm dark:border-white/10 dark:bg-stone-900/90 space-y-2.5">
                 <div className="flex items-start justify-between gap-2.5">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/40">
@@ -1552,7 +1552,7 @@ function CreateRewardModal({
                       {activeProjectId ? "Team" : "Global"}
                     </span>
                   </div>
-                  <span className="rounded-lg bg-indigo-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-2xs">
+                  <span className="rounded-lg bg-indigo-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm">
                     Redeem ({rewardPrice}c)
                   </span>
                 </div>

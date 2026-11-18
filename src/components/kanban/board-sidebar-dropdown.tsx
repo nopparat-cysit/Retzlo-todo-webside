@@ -262,7 +262,7 @@ export function BoardSidebarDropdown({
                   className={cn(
                     "group/board-row relative flex items-center justify-between rounded-lg text-xs transition duration-150",
                     isActive
-                      ? "border border-dusk-lavender/40 bg-dusk-lavender/15 font-semibold text-stone-900 shadow-xs dark:text-stone-100"
+                      ? "border border-dusk-lavender/40 bg-dusk-lavender/15 font-semibold text-stone-900 shadow-sm dark:text-stone-100"
                       : "text-stone-500 hover:bg-white/[0.06] hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200",
                     isSwitching && "animate-pulse"
                   )}

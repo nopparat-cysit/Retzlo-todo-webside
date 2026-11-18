@@ -349,7 +349,7 @@ export function CardAttributesEditModal({
 
           <div className="scrollbar-soft min-h-0 flex-1 overflow-y-auto p-5 space-y-4">
             {/* Live Task Card Mockup Preview */}
-            <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2">
+            <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-sm space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
                   <Palette className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
@@ -364,7 +364,7 @@ export function CardAttributesEditModal({
                 </span>
               </div>
 
-              <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-2xs dark:border-white/10 dark:bg-stone-900/90 space-y-2">
+              <div className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-stone-900/90 space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
@@ -461,7 +461,7 @@ export function CardAttributesEditModal({
                         )}
                         title={colKey}
                       >
-                        {newStatusColor === colKey && <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-xs" />}
+                        {newStatusColor === colKey && <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-sm" />}
                       </button>
                     ))}
                   </div>
@@ -552,7 +552,7 @@ export function CardAttributesEditModal({
                         )}
                         title={cfg.name}
                       >
-                        {newPriorityColor === colorKey && <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-xs" />}
+                        {newPriorityColor === colorKey && <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-sm" />}
                       </button>
                     ))}
                   </div>
@@ -735,7 +735,7 @@ export function CardAttributesEditModal({
                         )}
                         title={colKey}
                       >
-                        {newPointColor === colKey && <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-xs" />}
+                        {newPointColor === colKey && <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-sm" />}
                       </button>
                     ))}
                   </div>

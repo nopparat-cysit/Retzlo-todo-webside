@@ -127,7 +127,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
                   className={cn(
                     "h-4 w-4 transition-transform duration-300",
                     isActive
-                      ? "text-white dark:text-ink-950 scale-105 drop-shadow-xs font-bold"
+                      ? "text-white dark:text-ink-950 scale-105 drop-shadow-sm font-bold"
                       : "text-stone-400 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
                   )}
                 />
@@ -136,7 +136,7 @@ export function ProjectMobileBottomNav({ projectId }: ProjectMobileBottomNavProp
                 className={cn(
                   "text-[10px] tracking-tight leading-tight transition-all duration-300 truncate max-w-[62px]",
                   isActive
-                    ? "font-bold text-white dark:text-ink-950 drop-shadow-xs"
+                    ? "font-bold text-white dark:text-ink-950 drop-shadow-sm"
                     : "font-medium text-stone-500 dark:text-stone-400"
                 )}
               >

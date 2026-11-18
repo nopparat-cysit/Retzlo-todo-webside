@@ -124,7 +124,7 @@ export function AdminPagination({
               onChange={handleInputChange}
               onBlur={() => handleJumpSubmit()}
               disabled={isLoading || safeTotalPages <= 1}
-              className="h-8 w-14 rounded-lg border border-stone-200 bg-white px-2 text-center font-mono text-xs font-bold text-stone-900 shadow-2xs transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50 dark:border-white/15 dark:bg-white/5 dark:text-stone-100"
+              className="h-8 w-14 rounded-lg border border-stone-200 bg-white px-2 text-center font-mono text-xs font-bold text-stone-900 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-50 dark:border-white/15 dark:bg-white/5 dark:text-stone-100"
               title={`Enter page number (1-${safeTotalPages}) and press Enter`}
               aria-label="Go to page number"
             />

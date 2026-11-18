@@ -275,7 +275,7 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
                           className={cn(
                             "rounded-lg px-2.5 py-1 text-[11px] font-medium transition cursor-pointer border",
                             isSelected
-                              ? "border-indigo-500 bg-indigo-600 text-white dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950 font-semibold shadow-xs"
+                              ? "border-indigo-500 bg-indigo-600 text-white dark:border-dusk-lavender dark:bg-dusk-lavender dark:text-ink-950 font-semibold shadow-sm"
                               : "border-stone-200 bg-white/80 text-stone-600 hover:bg-white hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/[0.08]"
                           )}
                         >

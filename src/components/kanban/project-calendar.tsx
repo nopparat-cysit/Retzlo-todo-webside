@@ -131,7 +131,7 @@ function DayItemRow({
         else if (isNote) onNoteClick(item.id);
       }}
       className={cn(
-        "group relative flex items-start gap-3 rounded-xl sm:rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs transition-all duration-200",
+        "group relative flex items-start gap-3 rounded-xl sm:rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-sm transition-all duration-200",
         "hover:border-stone-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-white/20 dark:hover:bg-white/[0.05] dark:hover:shadow-black/20",
         isCard || isNote ? "cursor-pointer" : "cursor-default",
         isCompleted && "opacity-65 bg-stone-50/70 dark:bg-white/[0.01]"
@@ -152,8 +152,8 @@ function DayItemRow({
             className={cn(
               "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
               isCompleted
-                ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
-                : "border-2 border-stone-400 bg-white shadow-2xs hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
+                ? "border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+                : "border-2 border-stone-400 bg-white shadow-sm hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
             )}
             title={isCompleted ? "Mark incomplete" : "Mark complete"}
           >
@@ -171,8 +171,8 @@ function DayItemRow({
             className={cn(
               "relative flex h-5 w-5 items-center justify-center rounded-lg border transition-all duration-150 cursor-pointer active:scale-90",
               isCompleted
-                ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
-                : "border-2 border-stone-400 bg-white shadow-2xs hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
+                ? "border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+                : "border-2 border-stone-400 bg-white shadow-sm hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/35 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
             )}
             title={isCompleted ? "Mark incomplete" : "Mark as done"}
           >
@@ -247,7 +247,7 @@ function DayItemRow({
               const colorMeta = getCardColorMeta(item.color);
               return (
                 <span className={cn("inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium", colorMeta.softClass)}>
-                  <span className={cn("h-1.5 w-1.5 rounded-full border", colorMeta.swatchClass)} />
+                  <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full border", colorMeta.swatchClass)} />
                   <span>{colorMeta.label}</span>
                 </span>
               );
@@ -1121,12 +1121,12 @@ export function ProjectCalendar({
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <div className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-xs shrink-0">
+                <div className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl border border-dusk-lavender/30 bg-dusk-lavender/10 text-dusk-lavender shadow-sm shrink-0">
                   <CalendarDays className="h-4 w-4" />
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5 sm:gap-2">
-                    <h2 className="text-sm sm:text-lg font-bold tracking-tight text-foreground dark:text-stone-100">
+                    <h2 className="text-sm sm:text-lg font-bold tracking-tight text-theme-foreground dark:text-stone-100">
                       {currentMonthLabel}
                     </h2>
                     <span className="hidden xs:inline rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-dusk-amber truncate">
@@ -1137,7 +1137,7 @@ export function ProjectCalendar({
               </div>
 
               {/* Navigation Controls: [<] [Today] [>] */}
-              <div className="flex items-center rounded-xl border border-border/50 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner">
+              <div className="flex items-center rounded-xl border border-theme-border/50 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner">
                 <button
                   type="button"
                   onClick={() => setAnchorDate((value) => viewMode === "month" || viewMode === "list" ? shiftMonthKey(value, -1) : shiftDateKey(value, -calendarDays.length))}
@@ -1193,10 +1193,10 @@ export function ProjectCalendar({
                 type="button"
                 onClick={() => setIsUpcomingOpen((v) => !v)}
                 className={cn(
-                  "inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95 shrink-0",
+                  "inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer active:scale-95 shrink-0",
                   isUpcomingOpen
                     ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
-                    : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                    : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 hover:shadow-sm dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                 )}
                 aria-expanded={isUpcomingOpen}
               >
@@ -1214,7 +1214,7 @@ export function ProjectCalendar({
                 aria-expanded={!isToolsCollapsed}
                 aria-label={isToolsCollapsed ? "Expand calendar tools" : "Collapse calendar tools"}
                 className={cn(
-                  "flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer select-none active:scale-95",
+                  "flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-sm transition-all duration-200 cursor-pointer select-none active:scale-95",
                   isToolsCollapsed
                     ? "border-stone-300 bg-white text-stone-700 hover:border-indigo-400 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
                     : "border-indigo-500/40 bg-indigo-50/70 text-indigo-900 font-bold dark:border-dusk-lavender/40 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
@@ -1259,7 +1259,7 @@ export function ProjectCalendar({
                 value={filters.searchQuery || ""}
                 onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
                 placeholder="Search items..."
-                className="h-8 sm:h-9 w-full rounded-xl border border-stone-300 dark:border-white/15 bg-white/90 dark:bg-white/[0.05] pl-8 pr-7 text-xs text-foreground placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+                className="h-8 sm:h-9 w-full rounded-xl border border-stone-300 dark:border-white/15 bg-white/90 dark:bg-white/[0.05] pl-8 pr-7 text-xs text-theme-foreground placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
               />
               {filters.searchQuery ? (
                 <button
@@ -1300,17 +1300,17 @@ export function ProjectCalendar({
                 <button
                   type="button"
                   className={cn(
-                    "inline-flex h-8 sm:h-9 items-center gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer active:scale-95 shrink-0",
+                    "inline-flex h-8 sm:h-9 items-center gap-1.5 sm:gap-2 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer active:scale-95 shrink-0",
                     isFiltersOpen || activeFilterCount > 0
                       ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
-                      : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-xs dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
+                      : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 hover:shadow-sm dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
                   )}
                   aria-expanded={isFiltersOpen}
                 >
                   <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
                   <span>Filters</span>
                   {activeFilterCount > 0 && (
-                    <span className="grid h-4 w-4 place-items-center rounded-full bg-indigo-600 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-indigo-600 text-[9px] font-bold text-white dark:bg-dusk-lavender dark:text-ink-950">
                       {activeFilterCount}
                     </span>
                   )}
@@ -1392,12 +1392,12 @@ export function ProjectCalendar({
                               className={cn(
                                 "flex items-center justify-between rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                                 active
-                                  ? "border-indigo-400/60 bg-white dark:bg-white/10 text-stone-900 dark:text-white shadow-xs"
+                                  ? "border-indigo-400/60 bg-white dark:bg-white/10 text-stone-900 dark:text-white shadow-sm"
                                   : "border-stone-200/80 dark:border-white/5 bg-stone-100/50 dark:bg-white/[0.02] text-stone-400 dark:text-stone-500 line-through"
                               )}
                             >
                               <div className="flex items-center gap-2">
-                                <span className={cn("h-2.5 w-2.5 rounded-full", meta.badgeClass)} />
+                                <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", meta.badgeClass)} />
                                 <span>{meta.label}</span>
                               </div>
                               {active && <Check className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />}
@@ -1436,12 +1436,12 @@ export function ProjectCalendar({
                               className={cn(
                                 "flex items-center justify-between rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                                 active
-                                  ? "border-indigo-400/60 bg-white dark:bg-white/10 text-stone-900 dark:text-white shadow-xs"
+                                  ? "border-indigo-400/60 bg-white dark:bg-white/10 text-stone-900 dark:text-white shadow-sm"
                                   : "border-stone-200/80 dark:border-white/5 bg-stone-100/50 dark:bg-white/[0.02] text-stone-400 dark:text-stone-500 line-through"
                               )}
                             >
                               <div className="flex items-center gap-2">
-                                <span className={cn("h-2 w-2 rounded-full", dotClass)} />
+                                <span className={cn("h-2 w-2 shrink-0 rounded-full", dotClass)} />
                                 <span>{label}</span>
                               </div>
                               {active && <Check className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />}
@@ -1489,7 +1489,7 @@ export function ProjectCalendar({
                                     : "border-stone-300 dark:border-white/10 bg-white dark:bg-white/[0.04] text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-white/[0.07]"
                                 )}
                               >
-                                <span className="grid h-4 w-4 place-items-center rounded-full bg-stone-200 dark:bg-white/20 text-[9px] font-bold uppercase">
+                                <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-stone-200 dark:bg-white/20 text-[9px] font-bold uppercase">
                                   {(member.name || member.email)[0]}
                                 </span>
                                 <span className="truncate max-w-[120px]">{member.name || member.email}</span>
@@ -1571,7 +1571,7 @@ export function ProjectCalendar({
                   }));
                 }}
                 className={cn(
-                  "inline-flex h-7 sm:h-8 items-center gap-1.5 rounded-lg sm:rounded-xl border px-2 sm:px-2.5 text-xs font-semibold shadow-2xs transition-all duration-150 cursor-pointer active:scale-95",
+                  "inline-flex h-7 sm:h-8 items-center gap-1.5 rounded-lg sm:rounded-xl border px-2 sm:px-2.5 text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer active:scale-95",
                   filters.assigneeIds?.length === 1 && filters.assigneeIds[0] === currentUserId
                     ? "border-indigo-500 bg-indigo-100/80 text-indigo-950 font-bold ring-2 ring-indigo-400/50 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
                     : "border-stone-300 bg-white text-stone-900 hover:border-indigo-400 hover:bg-indigo-50/60 hover:text-indigo-950 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
@@ -1597,7 +1597,7 @@ export function ProjectCalendar({
                 }));
               }}
               className={cn(
-                "inline-flex h-7 sm:h-8 items-center gap-1.5 rounded-lg sm:rounded-xl border px-2 sm:px-2.5 text-xs font-semibold shadow-2xs transition-all duration-150 cursor-pointer active:scale-95",
+                "inline-flex h-7 sm:h-8 items-center gap-1.5 rounded-lg sm:rounded-xl border px-2 sm:px-2.5 text-xs font-semibold shadow-sm transition-all duration-150 cursor-pointer active:scale-95",
                 filters.statuses.DONE === false && filters.statuses.TODO && filters.statuses.DOING && filters.statuses.WAITING
                   ? "border-amber-500 bg-amber-100/80 text-amber-950 font-bold ring-2 ring-amber-400/50 dark:border-dusk-amber/60 dark:bg-dusk-amber/25 dark:text-dusk-amber"
                   : "border-stone-300 bg-white text-stone-900 hover:border-amber-400 hover:bg-amber-50/60 hover:text-amber-950 dark:border-white/15 dark:bg-white/[0.05] dark:text-stone-100 dark:hover:border-white/30 dark:hover:bg-white/[0.09] dark:hover:text-white"
@@ -1625,7 +1625,7 @@ export function ProjectCalendar({
                 />
               </Panel>
             ) : viewMode === "list" ? (
-              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-y-auto rounded-2xl border border-border/60 dark:border-white/10 p-3 sm:p-5 shadow-xl scrollbar-soft">
+              <div className="lofi-panel flex min-h-0 flex-1 flex-col overflow-y-auto rounded-2xl border border-theme-border/60 dark:border-white/10 p-3 sm:p-5 shadow-xl scrollbar-soft">
                 {agendaDates.length === 0 ? (
                   <EmptyState
                     className="max-w-md border-dashed bg-white/[0.015] p-8 mx-auto my-auto"
@@ -1654,9 +1654,9 @@ export function ProjectCalendar({
                           <div className="sticky top-0 z-10 flex items-center justify-between rounded-xl bg-stone-100/95 dark:bg-ink-900/95 px-3 py-2 backdrop-blur-md border border-stone-200/80 dark:border-white/10">
                             <div className="flex items-center gap-2">
                               <div className={cn(
-                                "grid h-6 w-6 place-items-center rounded-full text-xs font-bold",
+                                "grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold",
                                 isToday
-                                  ? "bg-dusk-amber text-ink-950 shadow-xs"
+                                  ? "bg-dusk-amber text-ink-950 shadow-sm"
                                   : "bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender"
                               )}>
                                 {dateObj.getDate()}
@@ -1717,17 +1717,17 @@ export function ProjectCalendar({
                 )}
               </div>
             ) : (
-              <div className="lofi-panel flex shrink-0 md:shrink md:min-h-0 md:flex-1 flex-col overflow-hidden rounded-2xl border border-border/60 dark:border-white/10 shadow-xl">
+              <div className="lofi-panel flex shrink-0 md:shrink md:min-h-0 md:flex-1 flex-col overflow-hidden rounded-2xl border border-theme-border/60 dark:border-white/10 shadow-xl">
                 <div className="flex min-h-0 md:flex-1 flex-col w-full min-w-0">
                 {/* Weekday Header */}
                 <div
-                  className="grid border-b border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/[0.035] text-center text-[10px] sm:text-xs font-semibold uppercase tracking-normal sm:tracking-[0.2em] text-muted-foreground dark:text-stone-400"
+                  className="grid border-b border-theme-border/60 dark:border-white/10 bg-theme-paper/60 dark:bg-white/[0.035] text-center text-[10px] sm:text-xs font-semibold uppercase tracking-normal sm:tracking-[0.2em] text-theme-muted dark:text-stone-400"
                   style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}
                 >
                   {calendarDays.slice(0, dayColumnCount).map((day) => {
                     const isWeekend = day.date.getDay() === 0 || day.date.getDay() === 6;
                     return (
-                      <div key={`label-${day.key}`} className={cn("py-2.5", isWeekend ? "text-stone-400 dark:text-stone-500" : "text-foreground/80 dark:text-stone-300")}>
+                      <div key={`label-${day.key}`} className={cn("py-2.5", isWeekend ? "text-stone-400 dark:text-stone-500" : "text-theme-foreground/80 dark:text-stone-300")}>
                         {formatWeekday(day.date)}
                       </div>
                     );
@@ -1736,7 +1736,7 @@ export function ProjectCalendar({
 
                 {/* Days Grid */}
                 <div
-                  className="grid min-h-0 md:flex-1 gap-px bg-border/60 dark:bg-white/10 overflow-y-visible md:overflow-y-auto scrollbar-soft"
+                  className="grid min-h-0 md:flex-1 gap-px bg-theme-border/60 dark:bg-white/10 overflow-y-visible md:overflow-y-auto scrollbar-soft"
                   style={{ gridTemplateColumns: `repeat(${dayColumnCount}, minmax(0, 1fr))` }}
                 >
                   {calendarDays.map((day) => {
@@ -1808,11 +1808,11 @@ export function ProjectCalendar({
                               className={cn(
                                 "text-xs font-semibold transition",
                                 isSelectedDay
-                                  ? "grid h-6 w-6 place-items-center rounded-full bg-indigo-600 text-white font-bold shadow-xs dark:bg-dusk-lavender dark:text-ink-950"
+                                  ? "grid h-6 w-6 shrink-0 place-items-center rounded-full bg-indigo-600 text-white font-bold shadow-sm dark:bg-dusk-lavender dark:text-ink-950"
                                   : current
-                                    ? "grid h-6 w-6 place-items-center rounded-full bg-dusk-amber text-ink-950 font-bold shadow-sm shadow-dusk-amber/30"
+                                    ? "grid h-6 w-6 shrink-0 place-items-center rounded-full bg-dusk-amber text-ink-950 font-bold shadow-sm shadow-dusk-amber/30"
                                     : muted
-                                      ? "text-muted-foreground/50 dark:text-stone-600"
+                                      ? "text-theme-muted/50 dark:text-stone-600"
                                       : "text-stone-800 dark:text-stone-300 group-hover:text-stone-950 dark:group-hover:text-stone-100"
                               )}
                             >
@@ -1913,7 +1913,7 @@ export function ProjectCalendar({
 
             {/* Mobile Inline Selected Day Task List (< md) */}
             {viewMode === "month" && (
-              <div className="md:hidden mt-3 rounded-2xl border border-border/70 dark:border-white/10 bg-white/95 dark:bg-ink-950/95 p-3.5 shadow-md">
+              <div className="md:hidden mt-3 rounded-2xl border border-theme-border/70 dark:border-white/10 bg-white/95 dark:bg-ink-950/95 p-3.5 shadow-md">
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-stone-200/80 dark:border-white/10">
                   <div className="flex items-center gap-2 min-w-0">
@@ -2242,7 +2242,7 @@ export function ProjectCalendar({
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider dark:text-stone-400">Type:</span>
                 <FilterSelect
-                  triggerClassName="h-8 text-xs rounded-lg border-stone-200/90 bg-white text-stone-800 shadow-2xs hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-200 dark:hover:border-white/20 dark:hover:bg-white/10"
+                  triggerClassName="h-8 text-xs rounded-lg border-stone-200/90 bg-white text-stone-800 shadow-sm hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-200 dark:hover:border-white/20 dark:hover:bg-white/10"
                   value={dayTypeFilter}
                   options={[
                     { value: "all", label: "All Types" },
@@ -2258,7 +2258,7 @@ export function ProjectCalendar({
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider dark:text-stone-400">Status:</span>
                 <FilterSelect
-                  triggerClassName="h-8 text-xs rounded-lg border-stone-200/90 bg-white text-stone-800 shadow-2xs hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-200 dark:hover:border-white/20 dark:hover:bg-white/10"
+                  triggerClassName="h-8 text-xs rounded-lg border-stone-200/90 bg-white text-stone-800 shadow-sm hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-200 dark:hover:border-white/20 dark:hover:bg-white/10"
                   value={dayStatusFilter}
                   options={[
                     { value: "all", label: "All Statuses" },
@@ -2275,7 +2275,7 @@ export function ProjectCalendar({
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider dark:text-stone-400">Sort:</span>
                 <FilterSelect
-                  triggerClassName="h-8 text-xs rounded-lg border-stone-200/90 bg-white text-stone-800 shadow-2xs hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-200 dark:hover:border-white/20 dark:hover:bg-white/10"
+                  triggerClassName="h-8 text-xs rounded-lg border-stone-200/90 bg-white text-stone-800 shadow-sm hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/5 dark:text-stone-200 dark:hover:border-white/20 dark:hover:bg-white/10"
                   value={daySortBy}
                   options={[
                     { value: "time", label: "Time" },
@@ -2380,7 +2380,7 @@ export function ProjectCalendar({
               </button>
               <Link
                 href={`/project/${projectId}/board`}
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 text-xs font-semibold text-stone-700 shadow-2xs transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 text-xs font-semibold text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 Go to Board
@@ -2728,7 +2728,7 @@ function CalendarDiaryChecklistButton({
         className={cn(
           "relative flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-all duration-150 cursor-pointer active:scale-90",
           item.completed
-            ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+            ? "border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
             : "border border-stone-400 bg-white hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/25 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
         )}
       >
@@ -2764,7 +2764,7 @@ function UpcomingDiaryChecklist({
   return (
     <div
       className={cn(
-        "w-full rounded-xl border p-3 text-left text-sm transition hover:scale-[1.005] hover:shadow-xs flex items-start gap-2.5",
+        "w-full rounded-xl border p-3 text-left text-sm transition hover:scale-[1.005] hover:shadow-sm flex items-start gap-2.5",
         colorMeta.softClass,
         item.completed && "opacity-65"
       )}
@@ -2780,7 +2780,7 @@ function UpcomingDiaryChecklist({
         className={cn(
           "relative mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all duration-150 cursor-pointer active:scale-90",
           item.completed
-            ? "border-emerald-600 bg-emerald-600 text-white shadow-xs shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
+            ? "border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 dark:border-emerald-500 dark:bg-emerald-500"
             : "border-2 border-stone-400 bg-white hover:border-indigo-600 hover:bg-indigo-50/50 dark:border-white/25 dark:bg-white/5 dark:hover:border-dusk-lavender dark:hover:bg-white/10"
         )}
       >
@@ -2794,7 +2794,7 @@ function UpcomingDiaryChecklist({
           <span className="text-xs text-indigo-600 dark:text-dusk-cyan">{formatDue(item)}</span>
           {item.color && item.color !== "DEFAULT" && (
             <span className={cn("inline-flex items-center gap-1 rounded px-1 text-[9px] font-semibold", colorMeta.accentClass)}>
-              <span className={cn("h-1.5 w-1.5 rounded-full", colorMeta.swatchClass)} />
+              <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", colorMeta.swatchClass)} />
               {colorMeta.label}
             </span>
           )}
@@ -2902,7 +2902,7 @@ function FilterPill({
       className={cn(
         "flex items-center justify-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-all cursor-pointer active:scale-95 select-none",
         active
-          ? "border-indigo-400/80 bg-white dark:bg-white/10 text-stone-900 dark:text-white shadow-xs font-bold ring-1 ring-indigo-400/30"
+          ? "border-indigo-400/80 bg-white dark:bg-white/10 text-stone-900 dark:text-white shadow-sm font-bold ring-1 ring-indigo-400/30"
           : "border-stone-200/80 dark:border-white/5 bg-stone-100/50 dark:bg-white/[0.02] text-stone-400 dark:text-stone-500 hover:bg-stone-100 dark:hover:bg-white/[0.05]"
       )}
     >
@@ -2932,7 +2932,7 @@ function FilterCheckbox({
         type="checkbox"
         onChange={(event) => onChange(event.target.checked)}
       />
-      {swatchClassName ? <span className={cn("h-2.5 w-2.5 rounded-full", swatchClassName)} /> : null}
+      {swatchClassName ? <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", swatchClassName)} /> : null}
       <span>{label}</span>
     </label>
   );

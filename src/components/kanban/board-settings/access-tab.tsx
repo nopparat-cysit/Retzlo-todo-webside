@@ -97,7 +97,7 @@ export function BoardAccessTab({
           value={memberSearchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search workspace members..."
-          className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-10 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
+          className="h-9.5 w-full rounded-xl border border-stone-200/90 bg-white pl-10 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-sm outline-none transition hover:border-stone-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
         />
         {memberSearchQuery ? (
           <button

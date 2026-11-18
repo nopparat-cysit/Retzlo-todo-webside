@@ -256,7 +256,7 @@ export function HelpCenterClient() {
   return (
     <main className="soft-grid-bg min-h-screen w-full text-stone-900 dark:text-stone-100 flex flex-col">
       {/* ── Top Header / Navbar ── */}
-      <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/95 backdrop-blur-md dark:border-white/10 dark:bg-ink-950/95 transition-colors shadow-xs">
+      <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/95 backdrop-blur-md dark:border-white/10 dark:bg-ink-950/95 transition-colors shadow-sm">
         <div className="mx-auto flex h-16 max-w-[1600px] w-full items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Left: Back & Title */}
           <div className="flex items-center gap-3">
@@ -285,7 +285,7 @@ export function HelpCenterClient() {
             </button>
 
             <div className="flex items-center gap-3">
-              <MixtapeLogoMark className="h-8 w-auto drop-shadow-xs" />
+              <MixtapeLogoMark className="h-8 w-auto drop-shadow-sm" />
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-dusk-amber">
@@ -347,7 +347,7 @@ export function HelpCenterClient() {
                 className={cn(
                   "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "docs"
-                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="Documentation mode"
@@ -361,7 +361,7 @@ export function HelpCenterClient() {
                 className={cn(
                   "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "interactive"
-                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="Live Playground mode"
@@ -375,7 +375,7 @@ export function HelpCenterClient() {
                 className={cn(
                   "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "shortcuts"
-                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="Keyboard Shortcuts matrix"
@@ -389,7 +389,7 @@ export function HelpCenterClient() {
                 className={cn(
                   "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
                   viewMode === "faq"
-                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title="Frequently Asked Questions"
@@ -531,7 +531,7 @@ export function HelpCenterClient() {
                                     className={cn(
                                       "group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs transition-colors cursor-pointer text-left",
                                       isActive
-                                        ? "bg-indigo-50/90 text-indigo-700 font-semibold dark:bg-dusk-lavender/15 dark:text-dusk-lavender shadow-2xs"
+                                        ? "bg-indigo-50/90 text-indigo-700 font-semibold dark:bg-dusk-lavender/15 dark:text-dusk-lavender shadow-sm"
                                         : "text-stone-600 hover:bg-stone-100/80 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/[0.04] dark:hover:text-stone-200"
                                     )}
                                   >
@@ -586,7 +586,7 @@ export function HelpCenterClient() {
                             className={cn(
                               "group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs transition-colors cursor-pointer text-left",
                               isActive
-                                ? "bg-indigo-50/90 text-indigo-700 font-semibold dark:bg-dusk-lavender/15 dark:text-dusk-lavender shadow-2xs"
+                                ? "bg-indigo-50/90 text-indigo-700 font-semibold dark:bg-dusk-lavender/15 dark:text-dusk-lavender shadow-sm"
                                 : "text-stone-600 hover:bg-stone-100/80 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/[0.04] dark:hover:text-stone-200"
                             )}
                           >
@@ -676,7 +676,7 @@ export function HelpCenterClient() {
                   <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
                     <span
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-2xs",
+                        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm",
                         categoryTheme.eyebrowBadge
                       )}
                     >
@@ -713,11 +713,11 @@ export function HelpCenterClient() {
                   <div className="flex items-start gap-3.5 sm:gap-4 pt-1">
                     <div
                       className={cn(
-                        "grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-xl border shadow-2xs transition-all duration-200",
+                        "grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-xl border shadow-sm transition-all duration-200",
                         categoryTheme.iconBox
                       )}
                     >
-                      <ActiveIcon className="h-5 w-5 sm:h-5.5 sm:w-5.5" />
+                      <ActiveIcon className="h-5 w-5 sm:h-[22px] sm:w-[22px]" />
                     </div>
                     <div className="space-y-1 flex-1 min-w-0">
                       <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-100 leading-tight">
@@ -729,14 +729,14 @@ export function HelpCenterClient() {
                   {/* Lead Summary Callout Banner with Category Theme */}
                   <div
                     className={cn(
-                      "rounded-2xl border p-4 sm:p-5 text-xs sm:text-sm text-stone-700 leading-relaxed dark:text-stone-200 shadow-xs transition-all",
+                      "rounded-2xl border p-4 sm:p-5 text-xs sm:text-sm text-stone-700 leading-relaxed dark:text-stone-200 shadow-sm transition-all",
                       categoryTheme.summaryCard
                     )}
                   >
                     <div className="flex items-start gap-3.5">
                       <div
                         className={cn(
-                          "grid h-7 w-7 place-items-center rounded-xl shrink-0 mt-0.5 shadow-2xs",
+                          "grid h-7 w-7 place-items-center rounded-xl shrink-0 mt-0.5 shadow-sm",
                           categoryTheme.summaryIconBox
                         )}
                       >
@@ -772,7 +772,7 @@ export function HelpCenterClient() {
                             key={pillar.id}
                             type="button"
                             onClick={() => selectTopic(pillar.id)}
-                            className="group relative flex flex-col justify-between p-4 rounded-2xl border border-stone-200/80 bg-stone-50/50 hover:border-indigo-300 hover:bg-white hover:shadow-xs dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.06] text-left transition cursor-pointer min-h-[115px] shadow-2xs"
+                            className="group relative flex flex-col justify-between p-4 rounded-2xl border border-stone-200/80 bg-stone-50/50 hover:border-indigo-300 hover:bg-white hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-dusk-lavender/40 dark:hover:bg-white/[0.06] text-left transition cursor-pointer min-h-[115px] shadow-sm"
                           >
                             <div className="flex items-center justify-between mb-2">
                               <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", pillar.color)}>
@@ -1024,7 +1024,7 @@ export function HelpCenterClient() {
                       isEn={isEn}
                     />
 
-                    <div className="flex items-center justify-between rounded-2xl border border-stone-200/90 bg-stone-100/90 p-4 text-stone-900 shadow-xs dark:border-white/10 dark:bg-ink-950 dark:text-white dark:shadow-inner">
+                    <div className="flex items-center justify-between rounded-2xl border border-stone-200/90 bg-stone-100/90 p-4 text-stone-900 shadow-sm dark:border-white/10 dark:bg-ink-950 dark:text-white dark:shadow-inner">
                       <div className="flex items-center gap-2 font-mono text-xs sm:text-sm text-indigo-700 font-bold dark:text-amber-300">
                         <Zap className="h-4 w-4 text-amber-500 dark:text-amber-400" />
                         <span>{activeTopic.codeOrShortcut}</span>
@@ -1071,7 +1071,7 @@ export function HelpCenterClient() {
                             key={relId}
                             type="button"
                             onClick={() => selectTopic(relId)}
-                            className="group flex items-center gap-3 p-3.5 rounded-2xl border border-stone-200/80 bg-stone-50/50 hover:bg-white hover:border-indigo-300 hover:shadow-xs dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.04] transition cursor-pointer text-left"
+                            className="group flex items-center gap-3 p-3.5 rounded-2xl border border-stone-200/80 bg-stone-50/50 hover:bg-white hover:border-indigo-300 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.04] transition cursor-pointer text-left"
                           >
                             <div className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-xl border", relTheme.sectionBadge)}>
                               <RelIcon className="h-4 w-4" />
@@ -1175,7 +1175,7 @@ export function HelpCenterClient() {
               {/* ── Right Column: Table of Contents & Support (Desktop Only) ── */}
               <aside className="hidden xl:block w-64 shrink-0 sticky top-20 self-start space-y-5">
                 {/* On This Page Widget */}
-                <div className="lofi-panel rounded-2xl border border-stone-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-ink-950/40 space-y-3 shadow-2xs">
+                <div className="lofi-panel rounded-2xl border border-stone-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-ink-950/40 space-y-3 shadow-sm">
                   <div className="flex items-center justify-between pb-2 border-b border-stone-200/80 dark:border-white/10">
                     <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
                       {isEn ? "On This Page" : "ในบทความนี้"}
@@ -1493,7 +1493,7 @@ export function HelpCenterClient() {
                 {shortcutsList.map((sc, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 rounded-2xl border border-stone-200/80 bg-white dark:border-white/10 dark:bg-ink-950/70 shadow-xs"
+                    className="flex items-center justify-between p-4 rounded-2xl border border-stone-200/80 bg-white dark:border-white/10 dark:bg-ink-950/70 shadow-sm"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -1557,7 +1557,7 @@ export function HelpCenterClient() {
                   return (
                     <div
                       key={idx}
-                      className="rounded-2xl border border-stone-200/80 bg-white dark:border-white/10 dark:bg-ink-950/70 overflow-hidden shadow-xs transition"
+                      className="rounded-2xl border border-stone-200/80 bg-white dark:border-white/10 dark:bg-ink-950/70 overflow-hidden shadow-sm transition"
                     >
                       <button
                         type="button"

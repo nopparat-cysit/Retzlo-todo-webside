@@ -174,7 +174,7 @@ export function SpotlightCardModalPreview({
                     className={cn(
                       "h-9 px-3 rounded-lg border text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer min-w-fit flex-1 sm:flex-initial",
                       isSelected
-                        ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-300 ring-2 ring-emerald-500/30 shadow-xs"
+                        ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-300 ring-2 ring-emerald-500/30 shadow-sm"
                         : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:text-white"
                     )}
                   >
@@ -246,7 +246,7 @@ export function SpotlightCardModalPreview({
                     className={cn(
                       "h-9 px-3 rounded-lg border text-xs font-medium transition flex items-center gap-1.5 cursor-pointer",
                       isSelected
-                        ? cn(colorConfig.pillClass, "ring-2 ring-rose-400/40 font-bold shadow-xs")
+                        ? cn(colorConfig.pillClass, "ring-2 ring-rose-400/40 font-bold shadow-sm")
                         : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:text-white"
                     )}
                   >

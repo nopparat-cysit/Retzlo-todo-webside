@@ -21,7 +21,7 @@ const BASE_THEME: CategoryTheme = {
   summarySparkleColor: "text-indigo-600 dark:text-dusk-lavender",
   sectionBadge: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:border-dusk-lavender/30",
   stepBadge: "bg-indigo-50 text-indigo-700 border-indigo-200/80 dark:bg-dusk-lavender/15 dark:text-dusk-lavender dark:border-dusk-lavender/30",
-  activeSidebar: "bg-indigo-50 text-indigo-700 border-indigo-200/90 shadow-2xs dark:bg-dusk-lavender/15 dark:border-dusk-lavender/30 dark:text-dusk-lavender",
+  activeSidebar: "bg-indigo-50 text-indigo-700 border-indigo-200/90 shadow-sm dark:bg-dusk-lavender/15 dark:border-dusk-lavender/30 dark:text-dusk-lavender",
   activeSidebarBar: "bg-indigo-600 dark:bg-dusk-lavender",
   activeSidebarIcon: "text-indigo-600 dark:text-dusk-lavender",
 };

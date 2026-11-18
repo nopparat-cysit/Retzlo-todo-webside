@@ -70,7 +70,7 @@ export function BoardTemplatePicker({
                 className={cn(
                   "inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-semibold transition cursor-pointer",
                 previewMode === "kanban"
-                  ? "bg-indigo-600 text-white shadow-2xs"
+                  ? "bg-indigo-600 text-white shadow-sm"
                   : "text-theme-muted hover:text-theme-foreground"
               )}
             >
@@ -83,7 +83,7 @@ export function BoardTemplatePicker({
               className={cn(
                 "inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-semibold transition cursor-pointer",
                 previewMode === "pipeline"
-                  ? "bg-indigo-600 text-white shadow-2xs"
+                  ? "bg-indigo-600 text-white shadow-sm"
                   : "text-theme-muted hover:text-theme-foreground"
               )}
             >
@@ -115,7 +115,7 @@ export function BoardTemplatePicker({
                 className={cn(
                   "group relative flex items-center justify-between gap-3.5 rounded-xl border p-3 sm:p-3.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer",
                   isSelected
-                    ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-xs ring-1 ring-theme-accent/40"
+                    ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-sm ring-1 ring-theme-accent/40"
                     : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/60 hover:text-theme-foreground hover:bg-theme-paper-strong/40"
                 )}
               >
@@ -159,7 +159,7 @@ export function BoardTemplatePicker({
                     className={cn(
                       "grid h-5 w-5 place-items-center rounded-full border transition-all",
                       isSelected
-                        ? "border-theme-accent bg-theme-accent text-white dark:text-stone-900 shadow-2xs"
+                        ? "border-theme-accent bg-theme-accent text-white dark:text-stone-900 shadow-sm"
                         : "border-theme-border bg-theme-panel text-transparent group-hover:border-theme-accent/50"
                     )}
                   >
@@ -188,7 +188,7 @@ export function BoardTemplatePicker({
                   "group relative flex flex-col justify-between rounded-xl border p-2.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/60 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer",
                   isLastOdd && "sm:col-span-2 lg:col-span-1",
                   isSelected
-                    ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-xs ring-1 ring-theme-accent/40"
+                    ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-sm ring-1 ring-theme-accent/40"
                     : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/60 hover:text-theme-foreground"
                 )}
               >
@@ -222,7 +222,7 @@ export function BoardTemplatePicker({
                         {template.name}
                       </span>
                       {isSelected && (
-                        <span className="grid h-3.5 w-3.5 shrink-0 place-items-center rounded-full bg-theme-accent text-white dark:text-stone-900 shadow-2xs">
+                        <span className="grid h-3.5 w-3.5 shrink-0 place-items-center rounded-full bg-theme-accent text-white dark:text-stone-900 shadow-sm">
                           <Check aria-hidden="true" className="h-2 w-2 stroke-[3]" />
                         </span>
                       )}

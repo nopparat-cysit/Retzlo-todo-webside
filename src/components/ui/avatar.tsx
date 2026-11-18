@@ -30,6 +30,7 @@ export interface AvatarStackProps {
   max?: number;
   size?: number;
   className?: string;
+  ringClass?: string;
   showTooltips?: boolean;
 }
 
@@ -121,6 +122,7 @@ export function AvatarStack({
   max = 3,
   size = 20,
   className,
+  ringClass = "ring-2 ring-white dark:ring-ink-950",
   showTooltips = true
 }: AvatarStackProps) {
   const items = users ?? assignees ?? [];
@@ -137,14 +139,14 @@ export function AvatarStack({
             user={item}
             size={size}
             showTooltip={showTooltips}
-            className={cn("rounded-full", visible.length > 1 && "ring-1.5 ring-white dark:ring-ink-950")}
+            className={cn("rounded-full", visible.length > 1 && ringClass)}
           />
         </div>
       ))}
       {remaining > 0 && (
         <div
           style={{ width: size, height: size }}
-          className="grid shrink-0 place-items-center rounded-full border border-stone-200 bg-stone-100 text-[10px] font-bold text-stone-700 shadow-xs ring-1 ring-white dark:border-white/20 dark:bg-ink-900 dark:text-stone-300 dark:ring-ink-950"
+          className="grid shrink-0 place-items-center rounded-full border border-stone-200 bg-stone-100 text-[10px] font-bold text-stone-700 shadow-sm ring-1 ring-white dark:border-white/20 dark:bg-ink-900 dark:text-stone-300 dark:ring-ink-950"
           title={`${remaining} more`}
         >
           +{remaining}

@@ -269,7 +269,7 @@ export function DiaryChecklistEditor({
                               className={cn(
                                 "rounded px-2 py-0.5 text-[11px] font-medium transition",
                                 isSelected
-                                  ? "border border-dusk-amber/45 bg-dusk-amber/20 text-dusk-amber font-semibold shadow-xs"
+                                  ? "border border-dusk-amber/45 bg-dusk-amber/20 text-dusk-amber font-semibold shadow-sm"
                                   : "border border-white/10 bg-white/5 text-stone-400 hover:border-white/20 hover:bg-white/10 hover:text-stone-200"
                               )}
                             >
@@ -315,7 +315,7 @@ export function DiaryChecklistEditor({
                               className={cn(
                                 "rounded px-2 py-0.5 text-[11px] font-medium transition",
                                 isSelected
-                                  ? "border border-dusk-lavender/45 bg-dusk-lavender/20 text-dusk-lavender font-semibold shadow-xs"
+                                  ? "border border-dusk-lavender/45 bg-dusk-lavender/20 text-dusk-lavender font-semibold shadow-sm"
                                   : "border border-white/10 bg-white/5 text-stone-400 hover:border-white/20 hover:bg-white/10 hover:text-stone-200"
                               )}
                             >
@@ -342,7 +342,7 @@ export function DiaryChecklistEditor({
                           className={cn(
                             "rounded-md px-2.5 py-1 text-xs font-medium transition",
                             (item.repeatUnit ?? "DAY") === "DAY"
-                              ? "border border-dusk-cyan/35 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-xs"
+                              ? "border border-dusk-cyan/35 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-sm"
                               : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
                           )}
                         >
@@ -354,7 +354,7 @@ export function DiaryChecklistEditor({
                           className={cn(
                             "rounded-md px-2.5 py-1 text-xs font-medium transition",
                             item.repeatUnit === "MONTH"
-                              ? "border border-dusk-cyan/35 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-xs"
+                              ? "border border-dusk-cyan/35 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-sm"
                               : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
                           )}
                         >
@@ -414,7 +414,7 @@ export function DiaryChecklistEditor({
                               className={cn(
                                 "rounded px-2.5 py-1 text-xs font-medium transition",
                                 isSelected
-                                  ? "border border-dusk-cyan/45 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-xs"
+                                  ? "border border-dusk-cyan/45 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-sm"
                                   : "border border-white/10 bg-white/5 text-stone-400 hover:border-white/20 hover:bg-white/10 hover:text-stone-200"
                               )}
                             >

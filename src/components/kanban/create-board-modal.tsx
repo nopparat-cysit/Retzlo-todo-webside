@@ -304,7 +304,7 @@ export function CreateBoardModal({
               className={cn(
                 "flex flex-col items-start rounded-xl border p-3 text-left transition",
                 !isPrivate
-                  ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-xs"
+                  ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-sm"
                   : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
               )}
             >
@@ -324,7 +324,7 @@ export function CreateBoardModal({
               className={cn(
                 "flex flex-col items-start rounded-xl border p-3 text-left transition",
                 isPrivate
-                  ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-xs"
+                  ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-sm"
                   : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
               )}
             >

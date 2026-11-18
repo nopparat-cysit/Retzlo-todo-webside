@@ -32,14 +32,14 @@ export default function GlobalSettingsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle variant="header" />
+          <ThemeToggle variant="icon" />
         </div>
       </header>
 
       {/* Main Container */}
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         {/* Hero Banner */}
-        <div className="mb-8 rounded-2xl border border-theme-border bg-gradient-to-br from-indigo-500/10 via-theme-panel to-amber-500/10 p-6 sm:p-8 shadow-xs">
+        <div className="mb-8 rounded-2xl border border-theme-border bg-gradient-to-br from-indigo-500/10 via-theme-panel to-amber-500/10 p-6 sm:p-8 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-300 mb-2">

@@ -161,14 +161,14 @@ export function BoardMockupPreview({
   return (
     <div
       className={cn(
-        "rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-3.5 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2.5",
+        "rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-3.5 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-sm space-y-2.5",
         className
       )}
     >
       {/* Top Preview Banner */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="grid h-7 w-7 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-2xs">
+          <span className="grid h-7 w-7 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-sm">
             <Eye className="h-3.5 w-3.5" />
           </span>
           <div className="min-w-0">
@@ -200,7 +200,7 @@ export function BoardMockupPreview({
 
       {/* Simulated Board Topbar Header (when creating/editing a board) */}
       {showBoardHeader && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-stone-200/80 bg-white/95 px-3 py-2 shadow-2xs dark:border-white/10 dark:bg-stone-900/90">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-stone-200/80 bg-white/95 px-3 py-2 shadow-sm dark:border-white/10 dark:bg-stone-900/90">
           <div className="flex items-center gap-2 min-w-0">
             <div className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-indigo-500/15 text-indigo-600 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
               <FolderKanban className="h-3.5 w-3.5" />
@@ -235,7 +235,7 @@ export function BoardMockupPreview({
               {displayInitials.slice(0, 4).map((initials, idx) => (
                 <div
                   key={`${initials}-${idx}`}
-                  className="grid h-5 w-5 place-items-center rounded-full border border-white bg-indigo-100 text-[8px] font-bold text-indigo-700 shadow-2xs dark:border-stone-900 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
+                  className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white bg-indigo-100 text-[8px] font-bold text-indigo-700 shadow-sm dark:border-stone-900 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
                 >
                   {initials}
                 </div>
@@ -251,7 +251,7 @@ export function BoardMockupPreview({
       )}
 
       {/* Kanban Board Columns Track */}
-      <div className="relative rounded-xl border border-indigo-200/70 bg-stone-100/65 dark:border-white/10 dark:bg-stone-900/55 p-2 sm:p-2.5 overflow-hidden shadow-2xs">
+      <div className="relative rounded-xl border border-indigo-200/70 bg-stone-100/65 dark:border-white/10 dark:bg-stone-900/55 p-2 sm:p-2.5 overflow-hidden shadow-sm">
         <div className="flex gap-2.5 overflow-x-auto scrollbar-soft pb-1 pt-0.5">
           {columns.map((col, colIndex) => {
             const theme = getColumnThemeOption(col.color);
@@ -271,7 +271,7 @@ export function BoardMockupPreview({
               <div
                 key={col.id ?? `${col.name}-${colIndex}`}
                 className={cn(
-                  "relative flex flex-col rounded-xl border bg-white/95 dark:bg-stone-900/95 shadow-2xs overflow-hidden transition-all",
+                  "relative flex flex-col rounded-xl border bg-white/95 dark:bg-stone-900/95 shadow-sm overflow-hidden transition-all",
                   columns.length === 1 ? "w-full" : "w-48 sm:w-52 shrink-0",
                   col.isHighlighted
                     ? "border-2 border-indigo-500 ring-2 ring-indigo-500/20 dark:border-dusk-lavender dark:ring-dusk-lavender/25"
@@ -329,7 +329,7 @@ export function BoardMockupPreview({
                   </span>
                   <span className="inline-flex items-center gap-1 text-stone-500 dark:text-stone-400">
                     <span
-                      className={cn("h-1.5 w-1.5 rounded-full", theme.swatchClass)}
+                      className={cn("h-1.5 w-1.5 shrink-0 rounded-full", theme.swatchClass)}
                     />
                     <span>{theme.label}</span>
                   </span>
@@ -340,7 +340,7 @@ export function BoardMockupPreview({
                   {visibleCards.map((card) => (
                     <div
                       key={card.code}
-                      className="rounded-lg border border-stone-200/80 bg-white dark:border-white/10 dark:bg-stone-800/80 p-2 space-y-1.5 shadow-2xs text-left"
+                      className="rounded-lg border border-stone-200/80 bg-white dark:border-white/10 dark:bg-stone-800/80 p-2 space-y-1.5 shadow-sm text-left"
                     >
                       <div className="flex items-center justify-between gap-1">
                         <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">

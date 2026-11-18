@@ -432,7 +432,7 @@ export function BoardColumnsTab({
                 setEditingColumnId(null);
               }}
               disabled={isAddingColumn}
-              className="inline-flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-xs h-7 px-3 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm h-7 px-3 cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add New Column</span>

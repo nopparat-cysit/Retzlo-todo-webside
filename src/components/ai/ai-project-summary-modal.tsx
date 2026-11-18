@@ -180,7 +180,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 p-4 sm:p-5">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl border border-indigo-400/40 bg-indigo-500/15 text-indigo-400 shadow-xs">
+            <div className="grid h-9 w-9 place-items-center rounded-xl border border-indigo-400/40 bg-indigo-500/15 text-indigo-400 shadow-sm">
               <Sparkles className="h-5 w-5 animate-pulse text-dusk-amber" />
             </div>
             <div>

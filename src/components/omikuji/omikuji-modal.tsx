@@ -357,7 +357,7 @@ ${growth}
                     className={cn(
                       "px-2 py-0.5 text-[11px] font-medium rounded-md transition",
                       activeLanguage === "th"
-                        ? "bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-xs"
+                        ? "bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-sm"
                         : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
                     )}
                   >
@@ -369,7 +369,7 @@ ${growth}
                     className={cn(
                       "px-2 py-0.5 text-[11px] font-medium rounded-md transition",
                       activeLanguage === "en"
-                        ? "bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-xs"
+                        ? "bg-white dark:bg-stone-700 text-stone-900 dark:text-stone-100 shadow-sm"
                         : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
                     )}
                   >

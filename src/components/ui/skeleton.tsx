@@ -24,9 +24,9 @@ function ColumnSkeleton() {
     <div className="flex w-full sm:w-80 shrink-0 flex-col gap-3 rounded-xl border border-stone-200/90 bg-stone-100/70 p-3 dark:border-white/[0.07] dark:bg-ink-900/40">
       {/* Column header */}
       <div className="flex items-center gap-2 px-1 pb-1">
-        <Skeleton className="h-2.5 w-2.5 rounded-full" />
+        <Skeleton className="h-2.5 w-2.5 rounded-full shrink-0" />
         <Skeleton className="h-3 w-28" />
-        <Skeleton className="ml-auto h-5 w-5 rounded-full" />
+        <Skeleton className="ml-auto h-5 w-5 rounded-full shrink-0" />
       </div>
 
       {/* Card skeletons */}
@@ -39,7 +39,7 @@ function ColumnSkeleton() {
           <Skeleton className="h-3 w-4/5" />
           <div className="mt-1 flex items-center gap-2">
             <Skeleton className="h-4 w-16 rounded-full" />
-            <Skeleton className="ml-auto h-4 w-4 rounded-full" />
+            <Skeleton className="ml-auto h-4 w-4 rounded-full shrink-0" />
           </div>
         </div>
       ))}
@@ -245,14 +245,14 @@ export function CalendarSkeleton() {
                 <div className="hidden sm:flex flex-col gap-1 overflow-hidden mt-0.5">
                   {hasTask1 && (
                     <div className="flex h-5 w-full items-center gap-1.5 rounded-md border border-stone-200/80 bg-stone-100/80 px-1.5 dark:border-white/10 dark:bg-white/[0.04]">
-                      <Skeleton className="h-2 w-2 rounded-full" />
+                      <Skeleton className="h-2 w-2 rounded-full shrink-0" />
                       <Skeleton className="h-2.5 w-3/4 rounded" />
                     </div>
                   )}
                   {hasDiary && (
                     <div className="flex h-5 w-full items-center justify-between rounded-md border border-stone-200/60 bg-stone-50/90 px-1.5 dark:border-white/5 dark:bg-white/[0.03]">
                       <div className="flex items-center gap-1">
-                        <Skeleton className="h-2 w-2 rounded-sm" />
+                        <Skeleton className="h-2 w-2 rounded-sm shrink-0" />
                         <Skeleton className="h-2.5 w-14 rounded" />
                       </div>
                       <Skeleton className="h-2 w-5 rounded" />
@@ -260,7 +260,7 @@ export function CalendarSkeleton() {
                   )}
                   {hasTask2 && (
                     <div className="flex h-5 w-full items-center gap-1.5 rounded-md border border-stone-200/80 bg-stone-100/80 px-1.5 dark:border-white/10 dark:bg-white/[0.04]">
-                      <Skeleton className="h-2 w-2 rounded-full" />
+                      <Skeleton className="h-2 w-2 rounded-full shrink-0" />
                       <Skeleton className="h-2.5 w-1/2 rounded" />
                     </div>
                   )}
@@ -533,7 +533,7 @@ export function NotesSkeleton() {
                 <Skeleton className="h-3 w-3/4 rounded" />
                 <div className="mt-auto pt-2 flex items-center justify-between">
                   <Skeleton className="h-2.5 w-16 rounded" />
-                  <Skeleton className="h-4 w-4 rounded-full" />
+                  <Skeleton className="h-4 w-4 rounded-full shrink-0" />
                 </div>
               </div>
             ))}

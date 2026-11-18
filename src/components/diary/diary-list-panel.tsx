@@ -314,12 +314,12 @@ export function DiaryListPanel({
                 <span className="hidden xs:inline">Diary</span>
               </div>
 
-              <h2 className="hidden min-[520px]:inline text-base sm:text-lg font-bold leading-tight text-foreground dark:text-stone-100 truncate">
+              <h2 className="hidden min-[520px]:inline text-base sm:text-lg font-bold leading-tight text-theme-foreground dark:text-stone-100 truncate">
                 {selectedDate === new Date().toISOString().slice(0, 10) ? "Today rhythm" : "Diary rhythm"}
               </h2>
 
               {/* Day Navigation Controls: [<] [Today] [>] */}
-              <div className="flex items-center rounded-xl border border-border/60 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner shrink-0">
+              <div className="flex items-center rounded-xl border border-theme-border/60 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] p-0.5 shadow-inner shrink-0">
                 <button
                   type="button"
                   onClick={() => router.push(`/project/${projectId}/diary?date=${shiftDateStr(selectedDate, -1)}`)}
@@ -376,7 +376,7 @@ export function DiaryListPanel({
             {/* Right: + Add diary & Toggle Tools button */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
               <Button
-                className="h-8 sm:h-9 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-xs"
+                className="h-8 sm:h-9 rounded-xl px-2.5 sm:px-3.5 text-xs font-semibold cursor-pointer active:scale-95 shadow-sm"
                 type="button"
                 onClick={() => setIsCreateOpen(true)}
                 title="Create new diary checklist"
@@ -392,7 +392,7 @@ export function DiaryListPanel({
                 aria-expanded={!isToolsCollapsed}
                 aria-label={isToolsCollapsed ? "Expand diary tools" : "Collapse diary tools"}
                 className={cn(
-                  "flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer select-none active:scale-95",
+                  "flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border px-2.5 sm:px-3 text-xs font-semibold shadow-sm transition-all duration-200 cursor-pointer select-none active:scale-95",
                   isToolsCollapsed
                     ? "border-stone-300 bg-white text-stone-700 hover:border-dusk-lavender/40 hover:text-dusk-lavender dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100"
                     : "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-bold"
@@ -1721,7 +1721,7 @@ function DiaryItemModal({
               {(() => {
                 const colorMeta = getCardColorMeta(color);
                 return (
-                  <div className="rounded-xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2">
+                  <div className="rounded-xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-sm space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
                         <Eye className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
@@ -1734,7 +1734,7 @@ function DiaryItemModal({
 
                     <div
                       className={cn(
-                        "rounded-xl border p-3 shadow-2xs space-y-2 transition-all",
+                        "rounded-xl border p-3 shadow-sm space-y-2 transition-all",
                         colorMeta.cardClass
                       )}
                     >

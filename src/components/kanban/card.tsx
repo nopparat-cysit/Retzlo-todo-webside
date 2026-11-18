@@ -248,7 +248,7 @@ function KanbanCardComponent({
             </div>
             <div className="flex items-center gap-1 shrink-0 pt-0.5">
               {isOverdue && (
-                <span className="relative flex h-4 w-4 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-500/20 dark:text-red-400" title="Overdue">
+                <span className="relative flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-500/20 dark:text-red-400" title="Overdue">
                   <Clock className="h-2.5 w-2.5 animate-pulse" />
                 </span>
               )}
@@ -371,7 +371,7 @@ function KanbanCardComponent({
                         onClick={(e) => e.stopPropagation()}
                       >
                         <span
-                          className="relative flex h-5 w-5 items-center justify-center rounded-full border border-red-300 bg-red-50 text-red-600 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 hover:border-red-400 hover:bg-red-100 dark:hover:bg-red-500/25 transition shadow-xs"
+                          className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-red-300 bg-red-50 text-red-600 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-400 hover:border-red-400 hover:bg-red-100 dark:hover:bg-red-500/25 transition shadow-sm"
                           aria-label="Overdue task indicator"
                         >
                           <Clock className="h-3 w-3 animate-pulse text-red-600 dark:text-red-400" />

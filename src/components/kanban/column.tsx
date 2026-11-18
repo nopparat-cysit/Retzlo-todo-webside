@@ -611,7 +611,7 @@ function KanbanColumnComponent({
                   type="button"
                   size="sm"
                   className={cn(
-                    "h-7 px-3 text-xs font-semibold rounded-lg transition-all shadow-xs",
+                    "h-7 px-3 text-xs font-semibold rounded-lg transition-all shadow-sm",
                     quickTitle.trim()
                       ? "bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90"
                       : "bg-stone-200 text-stone-400 dark:bg-white/10 dark:text-stone-500 cursor-not-allowed"
@@ -650,7 +650,7 @@ function KanbanColumnComponent({
               onClick={() => setIsModalOpen(true)}
               title="Add card with details"
               aria-label="Add card with full details"
-              className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200 shadow-xs"
+              className="grid h-8 w-8 place-items-center rounded-xl border border-stone-200 bg-white text-stone-500 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-200 shadow-sm"
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -740,7 +740,7 @@ function KanbanColumnComponent({
 
               {/* Right Column: Live Mockup Preview (5 of 12 columns) */}
               <div className="md:col-span-5 md:sticky md:top-0 space-y-3">
-                <div className="rounded-xl border border-theme-border bg-theme-paper p-3 shadow-xs">
+                <div className="rounded-xl border border-theme-border bg-theme-paper p-3 shadow-sm">
                   <BoardMockupPreview
                     title="Live Column Mockup Preview"
                     badgeText="Editing Stage"

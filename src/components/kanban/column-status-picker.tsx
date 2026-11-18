@@ -143,7 +143,7 @@ export function ColumnStatusPicker({
             className={cn(
               "inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-semibold border transition cursor-pointer",
               isAddingStatus
-                ? "border-theme-accent/40 bg-theme-accent/15 text-theme-accent shadow-2xs"
+                ? "border-theme-accent/40 bg-theme-accent/15 text-theme-accent shadow-sm"
                 : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/50 hover:text-theme-foreground"
             )}
             title="Create Custom Status"
@@ -159,7 +159,7 @@ export function ColumnStatusPicker({
           </span>
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold shadow-2xs",
+              "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold shadow-sm",
               selectedMeta.badgeClass
             )}
           >
@@ -219,7 +219,7 @@ export function ColumnStatusPicker({
                 </span>
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold shadow-2xs transition-all",
+                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold shadow-sm transition-all",
                     previewColorConfig.badgeClass
                   )}
                 >
@@ -277,17 +277,17 @@ export function ColumnStatusPicker({
                     aria-checked={isSelected}
                     onClick={() => setNewStatusColor(swatch.key)}
                     className={cn(
-                      "group relative h-7 w-7 rounded-full border transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-2xs hover:scale-110",
+                      "group relative h-7 w-7 rounded-full border transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm hover:scale-110",
                       swatch.bgClass,
                       swatch.borderClass,
                       isSelected
-                        ? "ring-2 ring-theme-accent ring-offset-2 ring-offset-theme-paper scale-110 shadow-xs"
+                        ? "ring-2 ring-theme-accent ring-offset-2 ring-offset-theme-paper scale-110 shadow-sm"
                         : "opacity-75 hover:opacity-100"
                     )}
                     title={swatch.label}
                   >
                     {isSelected && (
-                      <Check className="h-3.5 w-3.5 text-white stroke-[3] drop-shadow-xs" />
+                      <Check className="h-3.5 w-3.5 text-white stroke-[3] drop-shadow-sm" />
                     )}
                   </button>
                 );
@@ -338,7 +338,7 @@ export function ColumnStatusPicker({
               className={cn(
                 "group relative flex items-center justify-between gap-1.5 rounded-xl border p-2 text-xs font-medium transition cursor-pointer text-left",
                 selected
-                  ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-xs ring-1 ring-theme-accent/40"
+                  ? "border-theme-accent bg-theme-paper-strong text-theme-foreground shadow-sm ring-1 ring-theme-accent/40"
                   : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/60 hover:text-theme-foreground hover:bg-theme-paper-strong/30"
               )}
               title={meta.label}
@@ -365,7 +365,7 @@ export function ColumnStatusPicker({
           className={cn(
             "flex items-center justify-center gap-1.5 rounded-xl border border-dashed p-2 text-xs font-semibold transition cursor-pointer text-center",
             isAddingStatus
-              ? "border-theme-accent bg-theme-accent/10 text-theme-accent shadow-xs"
+              ? "border-theme-accent bg-theme-accent/10 text-theme-accent shadow-sm"
               : "border-theme-border bg-theme-paper/40 text-theme-muted hover:border-theme-accent/60 hover:text-theme-foreground hover:bg-theme-paper"
           )}
           title="Add Status"

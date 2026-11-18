@@ -49,7 +49,7 @@ export function OmikujiTrigger({
                 onClick={() => setOpen(true)}
                 aria-label="Asakusa Omikuji Fortune"
                 className={cn(
-                  "relative flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-600 transition hover:bg-amber-500/20 hover:text-amber-700 hover:border-amber-500/40 dark:text-amber-400 dark:hover:text-amber-300 dark:border-amber-400/20 shadow-xs",
+                  "relative flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-600 transition hover:bg-amber-500/20 hover:text-amber-700 hover:border-amber-500/40 dark:text-amber-400 dark:hover:text-amber-300 dark:border-amber-400/20 shadow-sm",
                   className
                 )}
               >

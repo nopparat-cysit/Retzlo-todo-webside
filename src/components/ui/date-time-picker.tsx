@@ -87,7 +87,7 @@ export function DateTimePicker({
             type="button"
             disabled={disabled}
             className={cn(
-              "flex h-9 w-full items-center justify-between rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-left text-xs font-medium text-stone-900 shadow-2xs transition",
+              "flex h-9 w-full items-center justify-between rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-left text-xs font-medium text-stone-900 shadow-sm transition",
               "hover:border-stone-300 hover:bg-stone-50/50",
               "focus-visible:border-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20",
               "dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:hover:border-white/20 dark:hover:bg-white/[0.08]",
@@ -134,7 +134,7 @@ export function DateTimePicker({
               className={cn(
                 "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 sm:py-1 text-xs font-semibold transition cursor-pointer touch-manipulation",
                 activeTab === "date"
-                  ? "bg-white text-stone-900 shadow-2xs dark:bg-stone-800 dark:text-stone-100"
+                  ? "bg-white text-stone-900 shadow-sm dark:bg-stone-800 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >
@@ -147,7 +147,7 @@ export function DateTimePicker({
               className={cn(
                 "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 sm:py-1 text-xs font-semibold transition cursor-pointer touch-manipulation",
                 activeTab === "time"
-                  ? "bg-white text-stone-900 shadow-2xs dark:bg-stone-800 dark:text-stone-100"
+                  ? "bg-white text-stone-900 shadow-sm dark:bg-stone-800 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >

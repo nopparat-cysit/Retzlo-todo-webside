@@ -380,7 +380,7 @@ export function ProjectMembersView({
               setActiveTab("members");
               setRoleFilter("ALL");
             }}
-            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-indigo-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
+            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-sm transition hover:border-indigo-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Total Members</span>
@@ -399,7 +399,7 @@ export function ProjectMembersView({
               setActiveTab("members");
               setRoleFilter("OWNER");
             }}
-            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-amber-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
+            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-sm transition hover:border-amber-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Workspace Owners</span>
@@ -418,7 +418,7 @@ export function ProjectMembersView({
               setActiveTab("members");
               setRoleFilter("MEMBER");
             }}
-            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-teal-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
+            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-sm transition hover:border-teal-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Project Members</span>
@@ -434,7 +434,7 @@ export function ProjectMembersView({
           <button
             type="button"
             onClick={() => setActiveTab("invitations")}
-            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-purple-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
+            className="group text-left rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-sm transition hover:border-purple-400 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20 cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Pending Invites</span>
@@ -447,7 +447,7 @@ export function ProjectMembersView({
           </button>
 
           {/* Metric 5: Total Coffees */}
-          <div className="col-span-2 sm:col-span-1 group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-xs transition hover:border-amber-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
+          <div className="col-span-2 sm:col-span-1 group rounded-2xl border border-stone-200/90 bg-white/80 p-4 shadow-sm transition hover:border-amber-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20">
             <span className="text-xs font-medium text-stone-500 dark:text-stone-400">Total Coffees</span>
             <p className="mt-2 text-2xl font-bold font-mono text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
               <RetzloUiIcon name="coffee" size={28} />
@@ -458,7 +458,7 @@ export function ProjectMembersView({
         </section>
 
         {/* ── Main Tabbed Content Panel ── */}
-        <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-6 shadow-xs dark:border-white/10 dark:bg-white/[0.035]">
+        <div className="rounded-2xl border border-stone-200/90 bg-white/95 p-4 sm:p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.035]">
           {/* Top-Level Tabs Bar */}
           <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-4 flex-wrap gap-3">
             <div className="flex flex-wrap items-center gap-2">
@@ -468,7 +468,7 @@ export function ProjectMembersView({
                 className={cn(
                   "flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition cursor-pointer shrink-0",
                   activeTab === "members"
-                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs font-semibold dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:border-dusk-lavender/40"
+                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-sm font-semibold dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:border-dusk-lavender/40"
                     : "text-stone-500 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-400 dark:hover:text-white dark:hover:bg-white/5"
                 )}
               >
@@ -485,7 +485,7 @@ export function ProjectMembersView({
                 className={cn(
                   "flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition cursor-pointer shrink-0",
                   activeTab === "invitations"
-                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs font-semibold dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:border-dusk-lavender/40"
+                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-sm font-semibold dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:border-dusk-lavender/40"
                     : "text-stone-500 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-400 dark:hover:text-white dark:hover:bg-white/5"
                 )}
               >
@@ -504,7 +504,7 @@ export function ProjectMembersView({
                 className={cn(
                   "flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition cursor-pointer shrink-0",
                   activeTab === "roles"
-                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs font-semibold dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:border-dusk-lavender/40"
+                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-sm font-semibold dark:bg-dusk-lavender/20 dark:text-dusk-lavender dark:border-dusk-lavender/40"
                     : "text-stone-500 hover:text-stone-900 hover:bg-stone-100/70 dark:text-stone-400 dark:hover:text-white dark:hover:bg-white/5"
                 )}
               >
@@ -537,7 +537,7 @@ export function ProjectMembersView({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search members by name or email..."
-                    className="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 pl-10 pr-9 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-2xs outline-none transition hover:border-stone-300 hover:bg-white focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
+                    className="h-10 w-full rounded-xl border border-stone-200/90 bg-stone-50/70 pl-10 pr-9 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-sm outline-none transition hover:border-stone-300 hover:bg-white focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:hover:border-white/20 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/[0.07] dark:focus:ring-dusk-lavender/20"
                   />
                   {searchQuery ? (
                     <button
@@ -559,7 +559,7 @@ export function ProjectMembersView({
                     className={cn(
                       "px-2.5 py-1 rounded-lg font-medium transition cursor-pointer",
                       roleFilter === "ALL"
-                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 font-semibold"
+                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 font-semibold"
                         : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                   >
@@ -571,7 +571,7 @@ export function ProjectMembersView({
                     className={cn(
                       "px-2.5 py-1 rounded-lg font-medium transition cursor-pointer",
                       roleFilter === "OWNER"
-                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 font-semibold"
+                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 font-semibold"
                         : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                   >
@@ -583,7 +583,7 @@ export function ProjectMembersView({
                     className={cn(
                       "px-2.5 py-1 rounded-lg font-medium transition cursor-pointer",
                       roleFilter === "MEMBER"
-                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 font-semibold"
+                        ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100 font-semibold"
                         : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                   >
@@ -624,7 +624,7 @@ export function ProjectMembersView({
                     return (
                       <div
                         key={member.id}
-                        className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-stone-200/80 bg-white/70 p-3.5 sm:p-4 transition hover:border-indigo-300 hover:bg-white hover:shadow-xs dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-white/20 dark:hover:bg-white/[0.05]"
+                        className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-stone-200/80 bg-white/70 p-3.5 sm:p-4 transition hover:border-indigo-300 hover:bg-white hover:shadow-sm dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-white/20 dark:hover:bg-white/[0.05]"
                       >
                         <div className="flex items-center gap-3.5 min-w-0">
                           {/* Member Avatar with Presence Indicator */}
@@ -679,7 +679,7 @@ export function ProjectMembersView({
                           {/* Coffee Cheers Earned Badge */}
                           <span
                             className={cn(
-                              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold shadow-2xs select-none",
+                              "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold shadow-sm select-none",
                               (member.totalCoffees ?? 0) > 0
                                 ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-200"
                                 : "border-stone-200/80 bg-stone-50/80 text-stone-400 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-500"
@@ -702,7 +702,7 @@ export function ProjectMembersView({
                                   })
                                 }
                                 className={cn(
-                                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-2xs transition cursor-pointer",
+                                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm transition cursor-pointer",
                                   member.role === "OWNER"
                                     ? "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-dusk-amber/35 dark:bg-dusk-amber/15 dark:text-dusk-amber dark:hover:bg-dusk-amber/25"
                                     : "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender dark:hover:bg-dusk-lavender/20"
@@ -726,12 +726,12 @@ export function ProjectMembersView({
                           ) : (
                             <div>
                               {member.role === "OWNER" ? (
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/80 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-dusk-amber/35 dark:bg-dusk-amber/15 dark:text-dusk-amber shadow-2xs">
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/80 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-dusk-amber/35 dark:bg-dusk-amber/15 dark:text-dusk-amber shadow-sm">
                                   <Crown className="h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber" />
                                   <span>Owner</span>
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender shadow-2xs">
+                                <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender shadow-sm">
                                   <UserCheck className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
                                   <span>Member</span>
                                 </span>

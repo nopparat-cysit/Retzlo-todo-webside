@@ -244,7 +244,7 @@ export function OmikujiDeskSettings() {
               className={cn(
                 "rounded-md px-3 py-1 text-xs font-medium transition-colors",
                 settings.languageMode === "auto"
-                  ? "bg-theme-primary text-theme-primary-foreground shadow-xs"
+                  ? "bg-theme-primary text-theme-primary-foreground shadow-sm"
                   : "text-theme-muted hover:text-theme-foreground"
               )}
             >
@@ -256,7 +256,7 @@ export function OmikujiDeskSettings() {
               className={cn(
                 "rounded-md px-3 py-1 text-xs font-medium transition-colors",
                 settings.languageMode === "th"
-                  ? "bg-theme-primary text-theme-primary-foreground shadow-xs"
+                  ? "bg-theme-primary text-theme-primary-foreground shadow-sm"
                   : "text-theme-muted hover:text-theme-foreground"
               )}
             >
@@ -268,7 +268,7 @@ export function OmikujiDeskSettings() {
               className={cn(
                 "rounded-md px-3 py-1 text-xs font-medium transition-colors",
                 settings.languageMode === "en"
-                  ? "bg-theme-primary text-theme-primary-foreground shadow-xs"
+                  ? "bg-theme-primary text-theme-primary-foreground shadow-sm"
                   : "text-theme-muted hover:text-theme-foreground"
               )}
             >
@@ -289,7 +289,7 @@ export function OmikujiDeskSettings() {
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors",
                 settings.drawMode === "daily"
-                  ? "bg-theme-primary text-theme-primary-foreground shadow-xs"
+                  ? "bg-theme-primary text-theme-primary-foreground shadow-sm"
                   : "text-theme-muted hover:text-theme-foreground"
               )}
             >
@@ -302,7 +302,7 @@ export function OmikujiDeskSettings() {
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors",
                 settings.drawMode === "unlimited"
-                  ? "bg-theme-primary text-theme-primary-foreground shadow-xs"
+                  ? "bg-theme-primary text-theme-primary-foreground shadow-sm"
                   : "text-theme-muted hover:text-theme-foreground"
               )}
             >

@@ -12,7 +12,7 @@ export interface CoinBadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles = {
-  pill: "rounded-full border border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber shadow-xs",
+  pill: "rounded-full border border-dusk-amber/30 bg-dusk-amber/15 text-dusk-amber shadow-sm",
   chip: "rounded-md border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber",
   subtle: "rounded border border-dusk-amber/20 bg-dusk-amber/5 text-dusk-amber/90"
 };

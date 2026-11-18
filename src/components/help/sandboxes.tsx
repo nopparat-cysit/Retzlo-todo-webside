@@ -94,7 +94,7 @@ export function InteractiveAiDemo({ isEn }: { isEn: boolean }) {
     <div className="rounded-2xl border border-indigo-200/80 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-4 sm:p-5 dark:border-dusk-lavender/30 dark:from-dusk-lavender/10 dark:via-ink-950/70 dark:to-ink-950/90 shadow-sm space-y-3.5">
       <div className="flex items-center justify-between border-b border-indigo-100 dark:border-white/10 pb-3">
         <div className="flex items-center gap-2">
-          <div className="grid h-7 w-7 place-items-center rounded-lg bg-indigo-600 text-white dark:bg-dusk-lavender dark:text-ink-950 shadow-xs">
+          <div className="grid h-7 w-7 place-items-center rounded-lg bg-indigo-600 text-white dark:bg-dusk-lavender dark:text-ink-950 shadow-sm">
             <Bot className="h-4 w-4" />
           </div>
           <div>
@@ -195,7 +195,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
               className={cn(
                 "rounded px-2.5 py-1 text-xs font-medium transition cursor-pointer",
                 view === "kanban"
-                  ? "bg-white text-stone-900 shadow-xs dark:bg-stone-800 dark:text-stone-100"
+                  ? "bg-white text-stone-900 shadow-sm dark:bg-stone-800 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400"
               )}
             >
@@ -207,7 +207,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
               className={cn(
                 "rounded px-2.5 py-1 text-xs font-medium transition cursor-pointer",
                 view === "table"
-                  ? "bg-white text-stone-900 shadow-xs dark:bg-stone-800 dark:text-stone-100"
+                  ? "bg-white text-stone-900 shadow-sm dark:bg-stone-800 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400"
               )}
             >
@@ -301,7 +301,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
                         {t.assignees.map((a, i) => (
                           <div
                             key={i}
-                            className="grid h-5 w-5 place-items-center rounded-full border border-white bg-indigo-200 text-[9px] font-bold text-indigo-800 dark:border-ink-950 dark:bg-dusk-lavender/30 dark:text-dusk-lavender"
+                            className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-white bg-indigo-200 text-[9px] font-bold text-indigo-800 dark:border-ink-950 dark:bg-dusk-lavender/30 dark:text-dusk-lavender"
                           >
                             {a}
                           </div>
@@ -327,7 +327,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
               <div
                 key={t.id}
                 className={cn(
-                  "rounded-lg border border-stone-200 bg-white shadow-xs dark:border-white/10 dark:bg-stone-800/80 transition",
+                  "rounded-lg border border-stone-200 bg-white shadow-sm dark:border-white/10 dark:bg-stone-800/80 transition",
                   density === "compact" ? "p-2 space-y-1" : "p-3 space-y-2"
                 )}
               >
@@ -342,7 +342,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
                 <div className="flex items-center justify-between pt-1">
                   <div className="flex items-center -space-x-1">
                     {t.assignees.map((a, i) => (
-                      <span key={i} className="h-4 w-4 rounded-full bg-indigo-200 text-[8px] flex items-center justify-center font-bold text-indigo-800 dark:bg-dusk-lavender/40 dark:text-dusk-lavender">
+                      <span key={i} className="h-4 w-4 shrink-0 rounded-full bg-indigo-200 text-[8px] flex items-center justify-center font-bold text-indigo-800 dark:bg-dusk-lavender/40 dark:text-dusk-lavender">
                         {a}
                       </span>
                     ))}
@@ -370,7 +370,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
               <div
                 key={t.id}
                 className={cn(
-                  "rounded-lg border border-emerald-200 bg-white p-2.5 shadow-xs dark:border-emerald-500/20 dark:bg-stone-800/80 space-y-1.5"
+                  "rounded-lg border border-emerald-200 bg-white p-2.5 shadow-sm dark:border-emerald-500/20 dark:bg-stone-800/80 space-y-1.5"
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -476,7 +476,7 @@ export function InteractivePrioritiesDemo({ isEn }: { isEn: boolean }) {
                   : "border-stone-200 bg-white hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.02]"
               )}
             >
-              <span className={cn("h-2.5 w-2.5 rounded-full", c.bg)} />
+              <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", c.bg)} />
               <span>{c.label}</span>
             </button>
           ))}
@@ -487,7 +487,7 @@ export function InteractivePrioritiesDemo({ isEn }: { isEn: boolean }) {
           <div className="flex items-center gap-2.5 min-w-0">
             <span
               className={cn(
-                "px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-2xs shrink-0",
+                "px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-sm shrink-0",
                 activeColorObj.bg
               )}
             >
@@ -527,7 +527,7 @@ export function InteractiveCoffeeDemo({ isEn }: { isEn: boolean }) {
     <div className="rounded-2xl border border-rose-200/80 bg-rose-50/30 p-4 sm:p-5 dark:border-dusk-rose/30 dark:bg-dusk-rose/5 shadow-sm space-y-3.5">
       <div className="flex items-center justify-between border-b border-rose-100 dark:border-white/10 pb-3">
         <div className="flex items-center gap-2">
-          <div className="grid h-7 w-7 place-items-center rounded-lg bg-rose-500 text-white shadow-xs">
+          <div className="grid h-7 w-7 place-items-center rounded-lg bg-rose-500 text-white shadow-sm">
             <Coffee className="h-4 w-4" />
           </div>
           <div>

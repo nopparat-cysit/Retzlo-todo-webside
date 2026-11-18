@@ -102,7 +102,7 @@ export function AuditDetailDrawer({ log, isOpen, onClose }: AuditDetailDrawerPro
       {/* Slide-over Drawer Panel */}
       <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white shadow-2xl transition-all dark:bg-[#0c0d18] dark:border-l dark:border-white/10 sm:max-w-2xl">
         {/* Drawer Header */}
-        <div className="flex items-start justify-between border-b border-border/60 px-6 py-4 dark:border-white/10">
+        <div className="flex items-start justify-between border-b border-theme-border/60 px-6 py-4 dark:border-white/10">
           <div className="space-y-1.5 pr-4">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="muted" className="font-mono text-[11px] font-bold">
@@ -316,7 +316,7 @@ export function AuditDetailDrawer({ log, isOpen, onClose }: AuditDetailDrawerPro
                       {Object.entries(changedFields).map(([key, change]) => (
                         <div
                           key={key}
-                          className="rounded-lg border border-border/70 bg-stone-50/70 p-2.5 dark:border-white/5 dark:bg-white/5 text-xs"
+                          className="rounded-lg border border-theme-border/70 bg-stone-50/70 p-2.5 dark:border-white/5 dark:bg-white/5 text-xs"
                         >
                           <div className="font-mono font-bold text-stone-700 dark:text-stone-300 mb-1">
                             {key}
@@ -413,7 +413,7 @@ export function AuditDetailDrawer({ log, isOpen, onClose }: AuditDetailDrawerPro
         </div>
 
         {/* Drawer Footer Actions with Separator & Global Buttons */}
-        <div className="border-t border-border/60 px-6 py-4 dark:border-white/10 bg-stone-50/50 dark:bg-[#07070e]">
+        <div className="border-t border-theme-border/60 px-6 py-4 dark:border-white/10 bg-stone-50/50 dark:bg-[#07070e]">
           <div className="flex items-center justify-between">
             <Button
               variant="outline"

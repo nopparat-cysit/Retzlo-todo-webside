@@ -906,7 +906,7 @@ export function BoardExportButton({
             ref={exportTriggerRef}
             type="button"
             className={cn(
-              "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-xs transition-all duration-150 cursor-pointer select-none",
+              "flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-sm transition-all duration-150 cursor-pointer select-none",
               "hover:border-indigo-400 hover:text-indigo-600 active:scale-95",
               "dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:border-white/20 dark:hover:text-stone-100",
               className

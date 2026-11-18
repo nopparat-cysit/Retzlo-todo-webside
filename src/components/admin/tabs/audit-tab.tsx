@@ -469,7 +469,7 @@ export function AuditTab() {
       <Panel className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-border/60 bg-stone-50/80 font-mono text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+            <thead className="border-b border-theme-border/60 bg-stone-50/80 font-mono text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
               <tr>
                 <th className="px-4 py-3 font-semibold">Timestamp</th>
                 <th className="px-4 py-3 font-semibold">Status & Severity</th>
@@ -480,7 +480,7 @@ export function AuditTab() {
                 <th className="px-4 py-3 font-semibold text-right">Inspect</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/40 dark:divide-white/5 font-sans">
+            <tbody className="divide-y divide-theme-border/40 dark:divide-white/5 font-sans">
               {isLoading ? (
                 <tr>
                   <td colSpan={7} className="p-10">

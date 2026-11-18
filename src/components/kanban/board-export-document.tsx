@@ -481,7 +481,7 @@ export function BoardExportDocument({
                     <span
                       className={cn(
                         "px-2 py-0.5 rounded-full text-xs font-bold",
-                        isDark ? "bg-white/10 text-stone-200" : "bg-white text-stone-700 shadow-2xs"
+                        isDark ? "bg-white/10 text-stone-200" : "bg-white text-stone-700 shadow-sm"
                       )}
                     >
                       {column.cards.length}
@@ -775,7 +775,7 @@ function ExportCardItem({
   return (
     <article
       className={cn(
-        "rounded-xl border p-3 shadow-xs transition-colors",
+        "rounded-xl border p-3 shadow-sm transition-colors",
         isDark
           ? "border-white/10 bg-[#161836] text-stone-100"
           : "border-stone-200/90 bg-white text-stone-900"

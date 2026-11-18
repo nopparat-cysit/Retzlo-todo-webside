@@ -269,7 +269,7 @@ export function CardAttachmentsSection({
             return (
               <div
                 key={item.id}
-                className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-stone-200/90 bg-white p-2.5 shadow-xs transition hover:border-indigo-400/50 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
+                className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-stone-200/90 bg-white p-2.5 shadow-sm transition hover:border-indigo-400/50 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
               >
                 {/* Thumbnail or File Type Icon */}
                 <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-lg border border-stone-200/60 bg-stone-100 dark:border-white/10 dark:bg-white/[0.05]">

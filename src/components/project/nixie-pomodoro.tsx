@@ -210,7 +210,7 @@ export function NixiePomodoro() {
           className={cn(
             "flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition active:scale-[0.98]",
             mode === "focus"
-              ? "border border-amber-300/80 bg-white text-amber-900 shadow-2xs dark:border-dusk-amber/40 dark:bg-dusk-amber/20 dark:text-dusk-amber"
+              ? "border border-amber-300/80 bg-white text-amber-900 shadow-sm dark:border-dusk-amber/40 dark:bg-dusk-amber/20 dark:text-dusk-amber"
               : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
           )}
           type="button"
@@ -223,7 +223,7 @@ export function NixiePomodoro() {
           className={cn(
             "flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition active:scale-[0.98]",
             mode === "break"
-              ? "border border-teal-300/80 bg-white text-teal-900 shadow-2xs dark:border-dusk-cyan/40 dark:bg-dusk-cyan/20 dark:text-dusk-cyan"
+              ? "border border-teal-300/80 bg-white text-teal-900 shadow-sm dark:border-dusk-cyan/40 dark:bg-dusk-cyan/20 dark:text-dusk-cyan"
               : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-200"
           )}
           type="button"
@@ -251,7 +251,7 @@ export function NixiePomodoro() {
                 className={cn(
                   "h-8 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
                   selectedFocusPreset === preset.id
-                    ? "border-amber-400/80 bg-amber-100/70 text-amber-900 font-semibold shadow-2xs dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber"
+                    ? "border-amber-400/80 bg-amber-100/70 text-amber-900 font-semibold shadow-sm dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber"
                     : "border-stone-200/90 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
                 )}
                 disabled={isRunning}
@@ -265,7 +265,7 @@ export function NixiePomodoro() {
               className={cn(
                 "h-8 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
                 selectedFocusPreset === "custom"
-                  ? "border-amber-400/80 bg-amber-100/70 text-amber-900 font-semibold shadow-2xs dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber"
+                  ? "border-amber-400/80 bg-amber-100/70 text-amber-900 font-semibold shadow-sm dark:border-dusk-amber/50 dark:bg-dusk-amber/20 dark:text-dusk-amber"
                   : "border-stone-200/90 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
               )}
               disabled={isRunning}
@@ -283,7 +283,7 @@ export function NixiePomodoro() {
                 className={cn(
                   "h-8 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
                   selectedRestPreset === preset.id
-                    ? "border-teal-400/80 bg-teal-100/70 text-teal-900 font-semibold shadow-2xs dark:border-dusk-cyan/50 dark:bg-dusk-cyan/20 dark:text-dusk-cyan"
+                    ? "border-teal-400/80 bg-teal-100/70 text-teal-900 font-semibold shadow-sm dark:border-dusk-cyan/50 dark:bg-dusk-cyan/20 dark:text-dusk-cyan"
                     : "border-stone-200/90 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
                 )}
                 disabled={isRunning}
@@ -297,7 +297,7 @@ export function NixiePomodoro() {
               className={cn(
                 "h-8 rounded-lg border text-xs font-medium transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45",
                 selectedRestPreset === "custom"
-                  ? "border-teal-400/80 bg-teal-100/70 text-teal-900 font-semibold shadow-2xs dark:border-dusk-cyan/50 dark:bg-dusk-cyan/20 dark:text-dusk-cyan"
+                  ? "border-teal-400/80 bg-teal-100/70 text-teal-900 font-semibold shadow-sm dark:border-dusk-cyan/50 dark:bg-dusk-cyan/20 dark:text-dusk-cyan"
                   : "border-stone-200/90 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
               )}
               disabled={isRunning}
@@ -412,7 +412,7 @@ export function NixiePomodoro() {
       <div className="flex items-center justify-center gap-2 select-none pt-0.5">
         <button
           className={cn(
-            "flex flex-1 items-center justify-center gap-2 h-10 rounded-xl border text-xs font-bold shadow-xs transition-all active:scale-[0.98]",
+            "flex flex-1 items-center justify-center gap-2 h-10 rounded-xl border text-xs font-bold shadow-sm transition-all active:scale-[0.98]",
             isRunning
               ? "border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/15 dark:text-rose-300"
               : mode === "focus"
@@ -436,7 +436,7 @@ export function NixiePomodoro() {
         </button>
 
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition-all hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 active:scale-[0.98] dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200/90 bg-white text-stone-600 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 active:scale-[0.98] dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
           title={mode === "focus" ? "Skip to Rest Break" : "Skip to Focus Session"}
           type="button"
           onClick={skipToNextMode}
@@ -445,7 +445,7 @@ export function NixiePomodoro() {
         </button>
 
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200/90 bg-white text-stone-600 shadow-2xs transition-all hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 active:scale-[0.98] dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200/90 bg-white text-stone-600 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900 active:scale-[0.98] dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:border-white/20 dark:hover:text-stone-200"
           title="Reset Timer"
           type="button"
           onClick={handleReset}

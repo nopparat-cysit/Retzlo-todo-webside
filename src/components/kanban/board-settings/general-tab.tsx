@@ -53,10 +53,10 @@ export function BoardGeneralTab({
   return (
     <div className="space-y-4 pt-1 mt-0">
       {/* Live Board Header & Switcher Mockup Preview */}
-      <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-3.5 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2.5">
+      <div className="rounded-2xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-3.5 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-sm space-y-2.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="grid h-7 w-7 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-2xs">
+            <span className="grid h-7 w-7 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-sm">
               <Eye className="h-3.5 w-3.5" />
             </span>
             <div className="min-w-0">
@@ -73,7 +73,7 @@ export function BoardGeneralTab({
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-stone-200/80 bg-white/95 px-3 py-2.5 shadow-2xs dark:border-white/10 dark:bg-stone-900/90">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-stone-200/80 bg-white/95 px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-stone-900/90">
           <div className="flex items-center gap-2 min-w-0">
             <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-indigo-500/15 text-indigo-600 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
               <FolderKanban className="h-4 w-4" />

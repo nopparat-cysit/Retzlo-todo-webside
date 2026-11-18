@@ -156,7 +156,7 @@ export function ArchivedCardsModal({
                 placeholder="Search archived cards..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 w-full rounded-xl border border-stone-200/90 bg-stone-50 pl-9 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-xs outline-none transition focus:border-indigo-500 focus:bg-white dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/10"
+                className="h-9 w-full rounded-xl border border-stone-200/90 bg-stone-50 pl-9 pr-8 text-xs font-medium text-stone-900 placeholder:text-stone-400 shadow-sm outline-none transition focus:border-indigo-500 focus:bg-white dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-dusk-lavender/50 dark:focus:bg-white/10"
               />
               {searchQuery && (
                 <button
@@ -206,7 +206,7 @@ export function ArchivedCardsModal({
                 return (
                   <div
                     key={card.id}
-                    className="group flex items-center justify-between gap-3 rounded-xl border border-stone-200/80 bg-white p-3.5 shadow-xs transition hover:border-indigo-300/70 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
+                    className="group flex items-center justify-between gap-3 rounded-xl border border-stone-200/80 bg-white p-3.5 shadow-sm transition hover:border-indigo-300/70 hover:shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">

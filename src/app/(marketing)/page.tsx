@@ -1429,12 +1429,12 @@ export default function LandingPage() {
 
                   {/* Top Status Bar inside Terrarium */}
                   <div className="relative z-10 flex items-center justify-between w-full">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase backdrop-blur-md bg-white/85 dark:bg-stone-900/85 border border-purple-300/40 text-purple-900 dark:text-purple-200 shadow-xs">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase backdrop-blur-md bg-white/85 dark:bg-stone-900/85 border border-purple-300/40 text-purple-900 dark:text-purple-200 shadow-sm">
                       <Flower2 size={11} className="text-pink-500 animate-spin" style={{ animationDuration: "14s" }} />
                       <span>Stage {currentSakura.level}/4</span>
                     </span>
 
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-200 shadow-xs group-hover:bg-amber-500/25 transition-colors">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-200 shadow-sm group-hover:bg-amber-500/25 transition-colors">
                       <Waves size={10} className="text-amber-600 dark:text-amber-300" />
                       <span>แตะสร้างคลื่นน้ำ</span>
                     </span>
@@ -1520,7 +1520,7 @@ export default function LandingPage() {
                       return nextStage;
                     });
                   }}
-                  className="lp-press-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-black text-xs transition-all duration-200 cursor-pointer shadow-xs hover:-translate-y-0.5 active:translate-y-0.5"
+                  className="lp-press-btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-black text-xs transition-all duration-200 cursor-pointer shadow-sm hover:-translate-y-0.5 active:translate-y-0.5"
                   style={{
                     background: "#10b981",
                     color: "#ffffff",

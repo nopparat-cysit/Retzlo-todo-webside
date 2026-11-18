@@ -279,7 +279,7 @@ export function AiBreakdownModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 px-5 py-4 bg-stone-100/40 dark:bg-white/[0.02]">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl border border-indigo-200 dark:border-dusk-lavender/40 bg-indigo-50 dark:bg-dusk-lavender/15 text-indigo-600 dark:text-dusk-lavender shadow-xs">
+            <div className="grid h-10 w-10 place-items-center rounded-2xl border border-indigo-200 dark:border-dusk-lavender/40 bg-indigo-50 dark:bg-dusk-lavender/15 text-indigo-600 dark:text-dusk-lavender shadow-sm">
               <Sparkles className="h-5 w-5 animate-pulse text-indigo-600 dark:text-dusk-amber" />
             </div>
             <div>
@@ -287,7 +287,7 @@ export function AiBreakdownModal({
                 <h2
                   id="ai-breakdown-title"
                   aria-label="AI Auto-Breakdown Task"
-                  className="text-base sm:text-lg font-bold tracking-tight text-foreground"
+                  className="text-base sm:text-lg font-bold tracking-tight text-theme-foreground"
                 >
                   AI Checklist Breakdown
                 </h2>
@@ -308,7 +308,7 @@ export function AiBreakdownModal({
           <div className="flex items-center gap-2">
             {credits !== null && (
               <span
-                className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 dark:border-amber-400/30 bg-amber-50 dark:bg-amber-400/10 px-2.5 py-1 text-xs font-mono font-bold text-amber-800 dark:text-amber-300 shadow-2xs"
+                className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 dark:border-amber-400/30 bg-amber-50 dark:bg-amber-400/10 px-2.5 py-1 text-xs font-mono font-bold text-amber-800 dark:text-amber-300 shadow-sm"
                 title={`AI Credits Quota (${tier} Tier)`}
               >
                 <Coins className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
@@ -330,13 +330,13 @@ export function AiBreakdownModal({
         {step === "configure" && (
           <div className="p-5 space-y-4 text-sm max-h-[75vh] overflow-y-auto scrollbar-soft">
             {/* Task Goal Context Card */}
-            <div className="relative overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white dark:bg-white/[0.025] p-3.5 pl-4 shadow-2xs">
+            <div className="relative overflow-hidden rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white dark:bg-white/[0.025] p-3.5 pl-4 shadow-sm">
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-indigo-600 dark:from-dusk-lavender dark:to-dusk-lavender/60" />
               <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-1">
                 <Target className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
                 <span>Target Task</span>
               </div>
-              <p className="font-bold text-foreground text-sm leading-snug break-words">
+              <p className="font-bold text-theme-foreground text-sm leading-snug break-words">
                 {cardTitle || "No task title specified"}
               </p>
               {cardDescription && (
@@ -365,7 +365,7 @@ export function AiBreakdownModal({
                     >
                       <Minus className="h-3 w-3" />
                     </button>
-                    <span className="w-7 text-center font-mono text-xs font-bold text-foreground">
+                    <span className="w-7 text-center font-mono text-xs font-bold text-theme-foreground">
                       {itemCount}
                     </span>
                     <button
@@ -393,7 +393,7 @@ export function AiBreakdownModal({
                       disabled={isGenerating}
                       onClick={() => setItemCount(preset.count)}
                       className={cn(
-                        "group relative flex flex-col items-start rounded-2xl border p-3 text-left transition-all duration-150 cursor-pointer active:scale-98 select-none shadow-2xs",
+                        "group relative flex flex-col items-start rounded-2xl border p-3 text-left transition-all duration-150 cursor-pointer active:scale-98 select-none shadow-sm",
                         isSelected
                           ? "border-indigo-500 bg-indigo-50/80 dark:border-dusk-lavender dark:bg-dusk-lavender/15 text-indigo-950 dark:text-white shadow-sm ring-2 ring-indigo-400/40 dark:ring-dusk-lavender/30"
                           : "border-stone-200/80 dark:border-white/10 bg-white dark:bg-white/[0.03] text-stone-700 dark:text-stone-300 hover:border-indigo-300 dark:hover:border-white/20 hover:bg-indigo-50/20 dark:hover:bg-white/[0.05]"
@@ -422,7 +422,7 @@ export function AiBreakdownModal({
                         )}
                       </div>
 
-                      <div className="font-bold text-sm tracking-tight text-foreground">
+                      <div className="font-bold text-sm tracking-tight text-theme-foreground">
                         {preset.title}
                       </div>
                       <div className="text-[11px] text-stone-500 dark:text-stone-400 line-clamp-1 mt-0.5">
@@ -465,7 +465,7 @@ export function AiBreakdownModal({
                   disabled={isGenerating}
                   onClick={() => setInsertMode("append")}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition cursor-pointer select-none shadow-2xs",
+                    "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition cursor-pointer select-none shadow-sm",
                     insertMode === "append"
                       ? "border-indigo-500 bg-indigo-50/80 dark:border-dusk-lavender/60 dark:bg-dusk-lavender/15 text-indigo-950 dark:text-white ring-1 ring-indigo-400/40 dark:ring-dusk-lavender/30"
                       : "border-stone-200/80 dark:border-white/10 bg-white dark:bg-white/[0.02] text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-white/[0.05]"
@@ -482,7 +482,7 @@ export function AiBreakdownModal({
                     <PlusCircle className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-foreground">Append</div>
+                    <div className="text-xs font-bold text-theme-foreground">Append</div>
                     <div className="text-[10px] text-stone-500 dark:text-stone-400">Add to existing checklist</div>
                   </div>
                 </button>
@@ -492,7 +492,7 @@ export function AiBreakdownModal({
                   disabled={isGenerating}
                   onClick={() => setInsertMode("replace")}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition cursor-pointer select-none shadow-2xs",
+                    "flex items-center gap-2.5 rounded-2xl border p-2.5 text-left transition cursor-pointer select-none shadow-sm",
                     insertMode === "replace"
                       ? "border-amber-500 bg-amber-50/80 dark:border-dusk-amber/60 dark:bg-dusk-amber/15 text-amber-950 dark:text-white ring-1 ring-amber-400/40 dark:ring-dusk-amber/30"
                       : "border-stone-200/80 dark:border-white/10 bg-white dark:bg-white/[0.02] text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-white/[0.05]"
@@ -509,7 +509,7 @@ export function AiBreakdownModal({
                     <RefreshCw className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-foreground">Replace</div>
+                    <div className="text-xs font-bold text-theme-foreground">Replace</div>
                     <div className="text-[10px] text-stone-500 dark:text-stone-400">Overwrite current items</div>
                   </div>
                 </button>
@@ -531,8 +531,8 @@ export function AiBreakdownModal({
           <div className="p-5 space-y-4 text-sm max-h-[75vh] overflow-y-auto scrollbar-soft">
             {/* AI Summary Banner */}
             {summary && (
-              <div className="rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white dark:bg-white/[0.035] p-3.5 text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between gap-2 shadow-2xs">
-                <span className="font-semibold text-foreground">{summary}</span>
+              <div className="rounded-2xl border border-stone-200/90 dark:border-white/10 bg-white dark:bg-white/[0.035] p-3.5 text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between gap-2 shadow-sm">
+                <span className="font-semibold text-theme-foreground">{summary}</span>
                 {suggestedDifficulty && (
                   <span className="shrink-0 rounded-full border border-amber-300 dark:border-dusk-amber/35 bg-amber-50 dark:bg-dusk-amber/15 px-2.5 py-0.5 text-[11px] font-bold text-amber-800 dark:text-dusk-amber">
                     Difficulty: {suggestedDifficulty}
@@ -572,9 +572,9 @@ export function AiBreakdownModal({
                   key={item.id}
                   onClick={() => toggleItemSelection(item.id)}
                   className={cn(
-                    "flex items-start gap-3 rounded-2xl border p-3 transition cursor-pointer select-none shadow-2xs",
+                    "flex items-start gap-3 rounded-2xl border p-3 transition cursor-pointer select-none shadow-sm",
                     item.selected
-                      ? "border-indigo-300 dark:border-dusk-lavender/40 bg-indigo-50/50 dark:bg-dusk-lavender/10 text-foreground"
+                      ? "border-indigo-300 dark:border-dusk-lavender/40 bg-indigo-50/50 dark:bg-dusk-lavender/10 text-theme-foreground"
                       : "border-stone-200/70 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] text-stone-400 opacity-60 hover:opacity-85"
                   )}
                 >
@@ -604,7 +604,7 @@ export function AiBreakdownModal({
                       value={item.label}
                       onClick={(e) => e.stopPropagation()}
                       onChange={(e) => updateItemLabel(item.id, e.target.value)}
-                      className="w-full bg-transparent text-xs font-semibold text-foreground focus:outline-none focus:border-b focus:border-indigo-500 dark:focus:border-dusk-lavender"
+                      className="w-full bg-transparent text-xs font-semibold text-theme-foreground focus:outline-none focus:border-b focus:border-indigo-500 dark:focus:border-dusk-lavender"
                     />
                   </div>
                 </div>

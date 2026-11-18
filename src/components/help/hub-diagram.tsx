@@ -184,7 +184,7 @@ export function RetzloHubDiagram({ isEn }: { isEn: boolean }) {
             </span>
           </div>
           <h3 className="mt-1 text-base sm:text-lg font-extrabold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-            <Workflow className="h-4.5 w-4.5 text-indigo-600 dark:text-dusk-lavender" />
+            <Workflow className="h-[18px] w-[18px] text-indigo-600 dark:text-dusk-lavender" />
             <span>{isEn ? "Retzlo Workspace Workflow Ecosystem" : "ระบบนิเวศพื้นที่ทำงาน Retzlo Workspace"}</span>
           </h3>
           <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5">
@@ -221,7 +221,7 @@ export function RetzloHubDiagram({ isEn }: { isEn: boolean }) {
                   className={cn(
                     "flex items-center justify-between p-2.5 rounded-xl border text-left transition-all cursor-pointer text-xs",
                     isSelected
-                      ? "ring-2 ring-indigo-500/30 border-indigo-400 bg-indigo-50/90 dark:bg-dusk-lavender/20 shadow-xs font-semibold"
+                      ? "ring-2 ring-indigo-500/30 border-indigo-400 bg-indigo-50/90 dark:bg-dusk-lavender/20 shadow-sm font-semibold"
                       : "border-stone-200/90 bg-white hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
                   )}
                 >
@@ -300,7 +300,7 @@ export function RetzloHubDiagram({ isEn }: { isEn: boolean }) {
                   className={cn(
                     "flex items-center justify-between p-2.5 rounded-xl border text-left transition-all cursor-pointer text-xs",
                     isSelected
-                      ? "ring-2 ring-indigo-500/30 border-indigo-400 bg-indigo-50/90 dark:bg-dusk-lavender/20 shadow-xs font-semibold"
+                      ? "ring-2 ring-indigo-500/30 border-indigo-400 bg-indigo-50/90 dark:bg-dusk-lavender/20 shadow-sm font-semibold"
                       : "border-stone-200/90 bg-white hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
                   )}
                 >
@@ -326,7 +326,7 @@ export function RetzloHubDiagram({ isEn }: { isEn: boolean }) {
       </div>
 
       {/* Node Inspector Card */}
-      <div className="rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-white/10 dark:bg-ink-950/70 shadow-xs space-y-2">
+      <div className="rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-white/10 dark:bg-ink-950/70 shadow-sm space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 dark:border-white/10 pb-2.5">
           <div className="flex items-center gap-2">
             <div className={cn("grid h-7 w-7 place-items-center rounded-lg border", activeNodeInfo.color)}>

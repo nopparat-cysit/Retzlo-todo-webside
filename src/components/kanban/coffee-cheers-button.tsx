@@ -195,10 +195,10 @@ export function CoffeeCheersButton({
                   : "gap-1.5 rounded-full px-2 py-0.5 text-xs",
                 // Can cheer (active interactive button)
                 canCheer &&
-                  "cursor-pointer border border-amber-300 bg-amber-50 text-amber-900 shadow-xs hover:border-amber-400 hover:bg-amber-100 hover:scale-105 active:scale-95 dark:border-amber-700/60 dark:bg-amber-950/50 dark:text-amber-200 dark:hover:bg-amber-900/60",
+                  "cursor-pointer border border-amber-300 bg-amber-50 text-amber-900 shadow-sm hover:border-amber-400 hover:bg-amber-100 hover:scale-105 active:scale-95 dark:border-amber-700/60 dark:bg-amber-950/50 dark:text-amber-200 dark:hover:bg-amber-900/60",
                 // Already cheered by current user
                 hasCheered &&
-                  "cursor-default border border-amber-500/40 bg-amber-500/15 text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-300 shadow-xs font-semibold",
+                  "cursor-default border border-amber-500/40 bg-amber-500/15 text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-300 shadow-sm font-semibold",
                 // Self-task (assignee cannot self-farm)
                 isSelf &&
                   "cursor-default border border-amber-400/30 bg-amber-50/70 text-amber-800/80 dark:border-amber-600/25 dark:bg-amber-950/30 dark:text-amber-300/80 opacity-90",

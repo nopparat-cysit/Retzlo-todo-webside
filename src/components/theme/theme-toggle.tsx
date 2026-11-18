@@ -55,7 +55,7 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
               className={cn(
                 "flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition select-none cursor-pointer",
                 isSelected
-                  ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                  ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                   : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
               )}
             >
@@ -97,7 +97,7 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
                 className={cn(
                   "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition select-none cursor-pointer",
                   isSelected
-                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+                    ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
                     : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                 )}
                 title={`Switch to ${opt.label} theme`}
@@ -122,7 +122,7 @@ export function ThemeToggle({ variant = "icon", className }: ThemeToggleProps) {
         "relative grid h-9 w-9 place-items-center rounded-xl border transition-all duration-300 select-none cursor-pointer",
         isDark
           ? "border-white/10 bg-white/[0.045] text-stone-300 hover:border-dusk-amber/50 hover:bg-dusk-amber/15 hover:text-dusk-amber"
-          : "border-stone-300/80 bg-white text-stone-700 hover:border-dusk-lavender hover:bg-dusk-lavender/10 hover:text-dusk-lavender shadow-xs",
+          : "border-stone-300/80 bg-white text-stone-700 hover:border-dusk-lavender hover:bg-dusk-lavender/10 hover:text-dusk-lavender shadow-sm",
         className
       )}
       title={isDark ? "Switch to Light mode (Warm Paper)" : "Switch to Dark mode (Retro Lofi)"}

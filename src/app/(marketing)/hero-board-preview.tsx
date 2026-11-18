@@ -123,7 +123,7 @@ function CardItem({ card }: { card: MockCard }) {
         <p className={`font-semibold text-xs sm:text-[13px] leading-snug break-words ${card.completed ? "text-[var(--muted)] line-through" : "text-[var(--foreground)]"}`}>
           {card.title}
         </p>
-        <div className="relative w-7 h-7 shrink-0 drop-shadow-xs">
+        <div className="relative w-7 h-7 shrink-0 drop-shadow-sm">
           <Image
             src={card.sticker}
             alt=""
@@ -175,7 +175,7 @@ function CardItem({ card }: { card: MockCard }) {
         </span>
         {card.assignee ? (
           <span
-            className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white shadow-xs ${card.assignee.bgClass}`}
+            className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white shadow-sm ${card.assignee.bgClass}`}
           >
             {card.assignee.initials}
           </span>
@@ -207,7 +207,7 @@ export function HeroBoardPreview() {
           </div>
 
           <div className="flex items-center rounded-lg border border-[var(--border)] bg-[var(--paper)] p-0.5 text-xs">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--accent)] text-white font-bold shadow-xs">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--accent)] text-white font-bold shadow-sm">
               <Kanban className="w-3 h-3" />
               <span>บอร์ด</span>
             </span>
@@ -230,18 +230,18 @@ export function HeroBoardPreview() {
           </div>
 
           <div className="flex -space-x-1.5 overflow-hidden">
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#7858d4] text-[10px] font-bold text-white ring-2 ring-[var(--panel-strong)]">
+            <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#7858d4] text-[10px] font-bold text-white ring-2 ring-[var(--panel-strong)]">
               NP
             </span>
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-[10px] font-bold text-white ring-2 ring-[var(--panel-strong)]">
+            <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-600 text-[10px] font-bold text-white ring-2 ring-[var(--panel-strong)]">
               TK
             </span>
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white ring-2 ring-[var(--panel-strong)]">
+            <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white ring-2 ring-[var(--panel-strong)]">
               AI
             </span>
           </div>
 
-          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--accent)] text-white text-xs font-bold shadow-xs">
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--accent)] text-white text-xs font-bold shadow-sm">
             <Plus className="w-3.5 h-3.5" />
             <span>การ์ดใหม่</span>
           </div>
@@ -254,7 +254,7 @@ export function HeroBoardPreview() {
         <div className="w-[280px] sm:w-auto shrink-0 snap-start flex flex-col gap-2.5 rounded-xl sm:rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-3 sm:p-3.5">
           <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]/60">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+              <span className="w-2.5 h-2.5 shrink-0 rounded-full bg-purple-500" />
               <span className="text-xs sm:text-sm font-bold text-[var(--foreground)]">
                 ต้องทำ
               </span>
@@ -274,7 +274,7 @@ export function HeroBoardPreview() {
         <div className="w-[280px] sm:w-auto shrink-0 snap-start flex flex-col gap-2.5 rounded-xl sm:rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-3 sm:p-3.5">
           <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]/60">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+              <span className="w-2.5 h-2.5 shrink-0 rounded-full bg-amber-500" />
               <span className="text-xs sm:text-sm font-bold text-[var(--foreground)]">
                 กำลังทำ
               </span>
@@ -294,7 +294,7 @@ export function HeroBoardPreview() {
         <div className="w-[280px] sm:w-auto shrink-0 snap-start flex flex-col gap-2.5 rounded-xl sm:rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-3 sm:p-3.5">
           <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]/60">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <span className="w-2.5 h-2.5 shrink-0 rounded-full bg-emerald-500" />
               <span className="text-xs sm:text-sm font-bold text-[var(--foreground)]">
                 เสร็จแล้ว
               </span>

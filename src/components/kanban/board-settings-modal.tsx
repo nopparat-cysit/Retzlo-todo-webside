@@ -477,7 +477,7 @@ export function BoardSettingsModal({
           <div className="px-5 py-3.5 border-b border-theme-border shrink-0 flex items-center justify-between gap-3 bg-theme-panel/90 backdrop-blur-sm">
             <div className="flex items-center gap-3 min-w-0">
               <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 text-dusk-amber">
-                <Settings className="h-4.5 w-4.5" />
+                <Settings className="h-[18px] w-[18px]" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">

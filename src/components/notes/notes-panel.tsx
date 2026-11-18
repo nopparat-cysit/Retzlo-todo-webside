@@ -764,7 +764,7 @@ export function NotesPanel({
                 aria-expanded={!isToolsCollapsed}
                 aria-label={isToolsCollapsed ? "Expand note tools" : "Collapse note tools"}
                 className={cn(
-                  "flex h-8 sm:h-9 items-center gap-1.5 rounded-lg border px-2.5 sm:px-3 text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer select-none active:scale-95",
+                  "flex h-8 sm:h-9 items-center gap-1.5 rounded-lg border px-2.5 sm:px-3 text-xs font-semibold shadow-sm transition-all duration-200 cursor-pointer select-none active:scale-95",
                   isToolsCollapsed
                     ? "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:text-stone-100"
                     : "border-dusk-lavender/40 bg-dusk-lavender/15 text-dusk-lavender font-bold"
@@ -1550,7 +1550,7 @@ function NoteEditorModalContent({
           {(() => {
             const noteColorMeta = getCardColorMeta(color);
             return (
-              <div className="rounded-xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-xs space-y-2">
+              <div className="rounded-xl border-2 border-indigo-500/35 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 dark:border-dusk-lavender/35 dark:from-ink-950/70 dark:via-ink-950/50 dark:to-stone-900/60 shadow-sm space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-1.5">
                     <Eye className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
@@ -1563,7 +1563,7 @@ function NoteEditorModalContent({
 
                 <div
                   className={cn(
-                    "rounded-xl border p-3 shadow-2xs space-y-2 transition-all",
+                    "rounded-xl border p-3 shadow-sm space-y-2 transition-all",
                     noteColorMeta.cardClass
                   )}
                 >

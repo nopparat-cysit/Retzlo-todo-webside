@@ -312,7 +312,7 @@ export function AdminDashboardClient({
       {/* Sidebar Header & Brand */}
       <div className="flex items-center justify-between border-b border-stone-200/80 px-5 py-4 dark:border-white/10">
         <div className="flex items-center gap-3">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-600 text-white shadow-xs">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-600 text-white shadow-sm">
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
@@ -378,7 +378,7 @@ export function AdminDashboardClient({
                     className={cn(
                       "group flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition cursor-pointer text-left",
                       isActive
-                        ? "bg-indigo-600 text-white font-semibold shadow-xs shadow-indigo-500/20"
+                        ? "bg-indigo-600 text-white font-semibold shadow-sm shadow-indigo-500/20"
                         : "text-stone-700 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-white/5 dark:hover:text-stone-100"
                     )}
                     title={item.description}
@@ -423,7 +423,7 @@ export function AdminDashboardClient({
 
       {/* Sidebar Footer: Admin Identity & Exit Link */}
       <div className="border-t border-stone-200/80 bg-stone-50/80 p-3.5 dark:border-white/10 dark:bg-white/[0.02] space-y-2.5">
-        <div className="flex items-center gap-2.5 rounded-xl border border-stone-200/90 bg-white p-2.5 shadow-2xs dark:border-white/10 dark:bg-white/5">
+        <div className="flex items-center gap-2.5 rounded-xl border border-stone-200/90 bg-white p-2.5 shadow-sm dark:border-white/10 dark:bg-white/5">
           <Avatar name={currentAdminName || "Admin"} size={32} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-semibold text-stone-900 dark:text-stone-100">
@@ -465,7 +465,7 @@ export function AdminDashboardClient({
   return (
     <div className="flex min-h-screen bg-stone-100 text-stone-900 selection:bg-indigo-500/20 selection:text-indigo-400 dark:bg-[#07070e] dark:text-stone-100 font-sans">
       {/* Desktop Permanent Left Sidebar */}
-      <aside className="hidden md:flex md:w-64 lg:w-72 md:flex-col md:fixed md:inset-y-0 z-30 border-r border-stone-200/80 bg-white/95 dark:border-white/10 dark:bg-[#090a12]/95 backdrop-blur-xl shadow-xs">
+      <aside className="hidden md:flex md:w-64 lg:w-72 md:flex-col md:fixed md:inset-y-0 z-30 border-r border-stone-200/80 bg-white/95 dark:border-white/10 dark:bg-[#090a12]/95 backdrop-blur-xl shadow-sm">
         {renderSidebarContent()}
       </aside>
 
@@ -532,7 +532,7 @@ export function AdminDashboardClient({
 
             <Link
               href="/projects"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-stone-700 shadow-2xs hover:bg-stone-50 hover:text-stone-950 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:bg-white/10 transition"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-stone-700 shadow-sm hover:bg-stone-50 hover:text-stone-950 dark:border-white/10 dark:bg-white/5 dark:text-stone-300 dark:hover:bg-white/10 transition"
               title="Return to user workspace"
             >
               <ExternalLink className="h-3.5 w-3.5" />

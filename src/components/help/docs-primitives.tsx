@@ -103,7 +103,7 @@ export function TapeCounter({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-100/90 px-2.5 py-1 text-stone-800 shadow-2xs dark:border-white/15 dark:bg-black/80 dark:text-stone-100",
+        "inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-100/90 px-2.5 py-1 text-stone-800 shadow-sm dark:border-white/15 dark:bg-black/80 dark:text-stone-100",
         className
       )}
       title={isEn ? `Reading Progress: ${clamped}%` : `ความคืบหน้าการอ่าน: ${clamped}%`}
@@ -289,7 +289,7 @@ export function DocsCallout({
   return (
     <div
       className={cn(
-        "relative my-4 flex gap-3.5 rounded-xl border p-4 text-xs sm:text-sm shadow-xs transition-all",
+        "relative my-4 flex gap-3.5 rounded-xl border p-4 text-xs sm:text-sm shadow-sm transition-all",
         config.card,
         className
       )}
@@ -414,7 +414,7 @@ export function FeatureTakeaways({
         return (
           <div
             key={idx}
-            className="group relative flex items-start gap-3 rounded-2xl border border-stone-200/80 bg-white/70 p-4 transition-all hover:border-indigo-300/80 hover:bg-white hover:shadow-xs dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.05]"
+            className="group relative flex items-start gap-3 rounded-2xl border border-stone-200/80 bg-white/70 p-4 transition-all hover:border-indigo-300/80 hover:bg-white hover:shadow-sm dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-dusk-lavender/30 dark:hover:bg-white/[0.05]"
           >
             <div className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-transparent group-hover:bg-indigo-500/80 dark:group-hover:bg-dusk-lavender/80 transition-all" />
 
@@ -471,7 +471,7 @@ export function WorkflowTimeline({
               />
             )}
 
-            <div className="relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white font-mono text-xs font-bold text-indigo-700 shadow-xs transition group-hover:border-indigo-400 group-hover:shadow-sm dark:border-dusk-lavender/30 dark:bg-stone-900 dark:text-dusk-lavender dark:group-hover:border-dusk-lavender">
+            <div className="relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-indigo-200 bg-white font-mono text-xs font-bold text-indigo-700 shadow-sm transition group-hover:border-indigo-400 group-hover:shadow-sm dark:border-dusk-lavender/30 dark:bg-stone-900 dark:text-dusk-lavender dark:group-hover:border-dusk-lavender">
               <span>{step.step}</span>
             </div>
 
@@ -525,7 +525,7 @@ export function SpecsLedger({
   return (
     <div
       className={cn(
-        "my-4 overflow-hidden rounded-2xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-ink-950/80 shadow-xs",
+        "my-4 overflow-hidden rounded-2xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-ink-950/80 shadow-sm",
         className
       )}
     >
@@ -597,7 +597,7 @@ export function ComparisonMatrix({
   return (
     <div
       className={cn(
-        "my-5 overflow-hidden rounded-2xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-ink-950/80 shadow-xs",
+        "my-5 overflow-hidden rounded-2xl border border-stone-200/90 bg-white dark:border-white/10 dark:bg-ink-950/80 shadow-sm",
         className
       )}
     >
@@ -691,7 +691,7 @@ export function PromptCookbook({
         {recipes.map((recipe, idx) => (
           <div
             key={idx}
-            className="group flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-4 transition-all hover:border-indigo-300 hover:shadow-xs dark:border-white/10 dark:bg-ink-950/80 dark:hover:border-dusk-lavender/30"
+            className="group flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-4 transition-all hover:border-indigo-300 hover:shadow-sm dark:border-white/10 dark:bg-ink-950/80 dark:hover:border-dusk-lavender/30"
           >
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">

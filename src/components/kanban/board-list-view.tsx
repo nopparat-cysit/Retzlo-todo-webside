@@ -71,7 +71,7 @@ function toInputDate(dateString: string | null | undefined): string {
 
 function StoryPointsBadge({ points }: { points: number }) {
   return (
-    <span className="inline-flex min-w-[3.5rem] items-center justify-center gap-1.5 rounded-md border border-amber-200/90 bg-amber-50/90 px-2 py-1 font-mono text-xs font-bold leading-none text-amber-800 shadow-xs dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-300">
+    <span className="inline-flex min-w-[3.5rem] items-center justify-center gap-1.5 rounded-md border border-amber-200/90 bg-amber-50/90 px-2 py-1 font-mono text-xs font-bold leading-none text-amber-800 shadow-sm dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-300">
       <Zap className="h-3.5 w-3.5" />
       <span>{points}</span>
     </span>
@@ -725,7 +725,7 @@ export function BoardListView({
       <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-stone-200/80 bg-stone-50/90 px-3.5 py-2 dark:border-white/10 dark:bg-stone-900/80">
         <div className="flex items-center gap-2">
           {/* Active sheet tab pill */}
-          <div className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300/80 bg-white px-3 py-1 text-xs font-bold text-stone-800 shadow-2xs dark:border-white/15 dark:bg-stone-800 dark:text-stone-100">
+          <div className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300/80 bg-white px-3 py-1 text-xs font-bold text-stone-800 shadow-sm dark:border-white/15 dark:bg-stone-800 dark:text-stone-100">
             <Table2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Table</span>
           </div>
@@ -780,7 +780,7 @@ export function BoardListView({
                   className={cn(
                     "rounded px-2.5 py-0.5 transition cursor-pointer flex items-center gap-1",
                     isSelected
-                      ? cn("font-bold shadow-2xs", meta.badgeClass)
+                      ? cn("font-bold shadow-sm", meta.badgeClass)
                       : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
                   )}
                 >
@@ -840,7 +840,7 @@ export function BoardListView({
 
       {/* ── Selection Action Banner (When rows are checked for export/actions) ── */}
       {selectedCardIds.size > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-200/80 bg-indigo-50/95 px-4 py-2 backdrop-blur-md dark:border-indigo-500/30 dark:bg-indigo-950/80 shadow-xs animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-200/80 bg-indigo-50/95 px-4 py-2 backdrop-blur-md dark:border-indigo-500/30 dark:bg-indigo-950/80 shadow-sm animate-in fade-in slide-in-from-top-1 duration-200">
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 font-bold text-xs text-indigo-950 dark:text-indigo-200">
               <CheckSquare className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
@@ -877,7 +877,7 @@ export function BoardListView({
               viewportElementId="kanban-table-container"
               isFiltered={true}
               variant="compact"
-              className="border-indigo-300 bg-white hover:border-indigo-500 text-indigo-700 dark:bg-stone-900 dark:border-indigo-500/40 dark:text-indigo-300 shadow-xs"
+              className="border-indigo-300 bg-white hover:border-indigo-500 text-indigo-700 dark:bg-stone-900 dark:border-indigo-500/40 dark:text-indigo-300 shadow-sm"
             />
           </div>
         </div>
@@ -896,7 +896,7 @@ export function BoardListView({
                 title={isAllSelected ? "Deselect all tasks" : "Select all tasks"}
                 aria-label={isAllSelected ? "Deselect all tasks" : "Select all tasks"}
                 className={cn(
-                  "grid h-4 w-4 place-items-center rounded border transition-all cursor-pointer shadow-2xs active:scale-95",
+                  "grid h-4 w-4 place-items-center rounded border transition-all cursor-pointer shadow-sm active:scale-95",
                   isAllSelected
                     ? "border-indigo-600 bg-indigo-600 text-white dark:border-indigo-500 dark:bg-indigo-500"
                     : isSomeSelected
@@ -1032,7 +1032,7 @@ export function BoardListView({
                           onClick={(e) => handleToggleSelectCard(card.id, e)}
                           title="Deselect task"
                           aria-label={`Deselect ${card.title}`}
-                          className="grid h-4 w-4 place-items-center rounded border border-indigo-600 bg-indigo-600 text-white transition-all cursor-pointer shadow-2xs hover:bg-indigo-700 active:scale-95"
+                          className="grid h-4 w-4 place-items-center rounded border border-indigo-600 bg-indigo-600 text-white transition-all cursor-pointer shadow-sm hover:bg-indigo-700 active:scale-95"
                         >
                           <Check className="h-2.5 w-2.5 stroke-[3]" />
                         </button>
@@ -1046,7 +1046,7 @@ export function BoardListView({
                             onClick={(e) => handleToggleSelectCard(card.id, e)}
                             title="Select task for export"
                             aria-label={`Select ${card.title}`}
-                            className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-indigo-500 hover:bg-indigo-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-indigo-400 dark:hover:bg-indigo-500/10 transition-all cursor-pointer shadow-2xs active:scale-95"
+                            className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-indigo-500 hover:bg-indigo-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-indigo-400 dark:hover:bg-indigo-500/10 transition-all cursor-pointer shadow-sm active:scale-95"
                           >
                             <span className="sr-only">Select task</span>
                           </button>
@@ -1084,7 +1084,7 @@ export function BoardListView({
                             }}
                             onBlur={() => void handleSaveTitle(card)}
                             autoFocus
-                            className="h-6 w-full rounded border border-indigo-400 bg-white px-2 text-xs font-semibold text-stone-900 shadow-2xs outline-none dark:bg-stone-800 dark:text-stone-100"
+                            className="h-6 w-full rounded border border-indigo-400 bg-white px-2 text-xs font-semibold text-stone-900 shadow-sm outline-none dark:bg-stone-800 dark:text-stone-100"
                           />
                         </div>
                       ) : (
@@ -1120,7 +1120,7 @@ export function BoardListView({
                           <button
                             type="button"
                             className={cn(
-                              "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer max-w-[120px] truncate",
+                              "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-sm transition hover:brightness-105 cursor-pointer max-w-[120px] truncate",
                               priorityMeta.pillClass
                             )}
                           >
@@ -1180,13 +1180,13 @@ export function BoardListView({
                               </>
                             ) : (
                               <div className="flex items-center gap-1.5 min-w-0">
-                                <div className="flex -space-x-1.5 overflow-hidden shrink-0">
+                                <div className="flex -space-x-1.5 shrink-0">
                                   {cardAssigneeList.slice(0, 3).map((assignee) => (
                                     <AssigneeAvatar
                                       key={assignee.id}
                                       user={assignee}
                                       size={20}
-                                      className="ring-1.5 ring-white dark:ring-stone-900"
+                                      className="ring-2 ring-white dark:ring-stone-900"
                                     />
                                   ))}
                                 </div>
@@ -1252,7 +1252,7 @@ export function BoardListView({
                           <button
                             type="button"
                             className={cn(
-                              "inline-flex h-6 w-full items-center justify-between rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer",
+                              "inline-flex h-6 w-full items-center justify-between rounded-full border px-2.5 text-[11px] font-bold shadow-sm transition hover:brightness-105 cursor-pointer",
                               statusPill.pillClass
                             )}
                           >
@@ -1483,7 +1483,7 @@ export function BoardListView({
                         >
                           {isCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                         </button>
-                        <span className={cn("h-2.5 w-2.5 rounded-full shrink-0 shadow-xs", themeOption.swatchClass)} />
+                        <span className={cn("h-2.5 w-2.5 rounded-full shrink-0 shadow-sm", themeOption.swatchClass)} />
                         <span className="font-bold text-stone-800 dark:text-stone-200">{column.name}</span>
                         <span className="rounded-full bg-stone-200/70 px-2 py-0.5 font-mono text-[10px] font-semibold text-stone-600 dark:bg-white/10 dark:text-stone-400">
                           {cardCount}
@@ -1540,7 +1540,7 @@ export function BoardListView({
                                     onClick={(e) => handleToggleSelectCard(card.id, e)}
                                     title="Deselect task"
                                     aria-label={`Deselect ${card.title}`}
-                                    className="grid h-4 w-4 place-items-center rounded border border-indigo-600 bg-indigo-600 text-white transition-all cursor-pointer shadow-2xs hover:bg-indigo-700 active:scale-95"
+                                    className="grid h-4 w-4 place-items-center rounded border border-indigo-600 bg-indigo-600 text-white transition-all cursor-pointer shadow-sm hover:bg-indigo-700 active:scale-95"
                                   >
                                     <Check className="h-2.5 w-2.5 stroke-[3]" />
                                   </button>
@@ -1554,7 +1554,7 @@ export function BoardListView({
                                       onClick={(e) => handleToggleSelectCard(card.id, e)}
                                       title="Select task for export"
                                       aria-label={`Select ${card.title}`}
-                                      className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-indigo-500 hover:bg-indigo-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-indigo-400 dark:hover:bg-indigo-500/10 transition-all cursor-pointer shadow-2xs active:scale-95"
+                                      className="hidden group-hover/row:grid h-4 w-4 place-items-center rounded border border-stone-300 bg-white hover:border-indigo-500 hover:bg-indigo-50/50 dark:border-stone-600 dark:bg-stone-800 dark:hover:border-indigo-400 dark:hover:bg-indigo-500/10 transition-all cursor-pointer shadow-sm active:scale-95"
                                     >
                                       <span className="sr-only">Select task</span>
                                     </button>
@@ -1580,7 +1580,7 @@ export function BoardListView({
                                     <button
                                       type="button"
                                       className={cn(
-                                        "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-2xs transition hover:brightness-105 cursor-pointer max-w-[120px] truncate",
+                                        "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-bold shadow-sm transition hover:brightness-105 cursor-pointer max-w-[120px] truncate",
                                         priorityMeta.pillClass
                                       )}
                                     >
@@ -1640,13 +1640,13 @@ export function BoardListView({
                                         </>
                                       ) : (
                                         <div className="flex items-center gap-1.5 min-w-0">
-                                          <div className="flex -space-x-1.5 overflow-hidden shrink-0">
+                                          <div className="flex -space-x-1.5 shrink-0">
                                             {cardAssigneeList.slice(0, 3).map((assignee) => (
                                               <AssigneeAvatar
                                                 key={assignee.id}
                                                 user={assignee}
                                                 size={20}
-                                                className="ring-1.5 ring-white dark:ring-stone-900"
+                                                className="ring-2 ring-white dark:ring-stone-900"
                                               />
                                             ))}
                                           </div>

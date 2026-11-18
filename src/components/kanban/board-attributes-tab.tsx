@@ -755,7 +755,7 @@ export function BoardAttributesTab({
           </div>
 
           {/* 1. Quick Status Workflow Templates Bar */}
-          <div className="rounded-xl border border-indigo-200/60 bg-indigo-50/20 p-3 dark:border-dusk-lavender/20 dark:bg-ink-950/40 shadow-xs space-y-2">
+          <div className="rounded-xl border border-indigo-200/60 bg-indigo-50/20 p-3 dark:border-dusk-lavender/20 dark:bg-ink-950/40 shadow-sm space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Wand2 className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
@@ -794,7 +794,7 @@ export function BoardAttributesTab({
                       setMockupColumnFilter("all");
                     }
                   }}
-                  triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
+                  triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-sm dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
                 />
 
                 {canManage && (
@@ -819,9 +819,9 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectStatusTemplate(tpl)}
                     className={cn(
-                      "group shrink-0 inline-flex items-center h-8 rounded-full border shadow-2xs transition-all duration-300 ease-out cursor-pointer overflow-hidden p-1",
+                      "group shrink-0 inline-flex items-center h-8 rounded-full border shadow-sm transition-all duration-300 ease-out cursor-pointer overflow-hidden p-1",
                       isSelected
-                        ? "border-indigo-500 bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-400/40"
+                        ? "border-indigo-500 bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-400/40"
                         : "border-stone-200/90 bg-white text-stone-700 hover:border-indigo-400 hover:bg-indigo-50/40 hover:text-indigo-950 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:hover:border-dusk-lavender/50 dark:hover:bg-dusk-lavender/10"
                     )}
                     title={tpl.description ? `${tpl.name} - ${tpl.description}` : tpl.name}
@@ -866,10 +866,10 @@ export function BoardAttributesTab({
 
           {/* Active Live Preview Action Banner & Kanban Mockup for Status */}
           {previewStatusTemplate && (
-            <div className="rounded-2xl border-2 border-indigo-500/40 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-4 dark:border-dusk-lavender/40 dark:from-ink-950/60 dark:via-ink-950/40 dark:to-stone-900/60 shadow-xs space-y-3 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="rounded-2xl border-2 border-indigo-500/40 bg-gradient-to-b from-indigo-50/50 via-white to-indigo-50/30 p-3 sm:p-4 dark:border-dusk-lavender/40 dark:from-ink-950/60 dark:via-ink-950/40 dark:to-stone-900/60 shadow-sm space-y-3 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start sm:items-center gap-2.5 min-w-0">
-                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-xs">
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-indigo-600 text-white shrink-0 shadow-sm">
                     <Eye className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">
@@ -905,7 +905,7 @@ export function BoardAttributesTab({
                           }))
                         ]}
                         onValueChange={setMockupColumnFilter}
-                        triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
+                        triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-indigo-200/80 bg-white/95 px-2 text-stone-700 shadow-sm dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
                       />
                     </div>
                   )}
@@ -946,7 +946,7 @@ export function BoardAttributesTab({
                       setSelectedTemplate(previewStatusTemplate);
                       setIsApplyTemplateConfirmOpen(true);
                     }}
-                    className="h-7 text-xs px-2.5 gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-xs cursor-pointer"
+                    className="h-7 text-xs px-2.5 gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm cursor-pointer"
                   >
                     <Check className="h-3.5 w-3.5 stroke-[2.5]" />
                     <span>Apply Template</span>
@@ -970,7 +970,7 @@ export function BoardAttributesTab({
               </div>
 
               {/* Kanban Board Mockup with Top & Bottom Subtle Fade Gradient Masks */}
-              <div className="relative rounded-xl border border-indigo-200/70 bg-stone-100/60 dark:border-white/10 dark:bg-stone-900/50 p-2 sm:p-2.5 overflow-hidden shadow-2xs">
+              <div className="relative rounded-xl border border-indigo-200/70 bg-stone-100/60 dark:border-white/10 dark:bg-stone-900/50 p-2 sm:p-2.5 overflow-hidden shadow-sm">
                 {/* Top Fade Gradient Mask */}
                 <div
                   aria-hidden="true"
@@ -991,7 +991,7 @@ export function BoardAttributesTab({
                     return (
                       <div
                         key={st.value}
-                        className="flex flex-col w-52 sm:w-56 shrink-0 rounded-xl border border-stone-200/80 bg-white/95 dark:border-white/10 dark:bg-stone-900/95 shadow-2xs overflow-hidden"
+                        className="flex flex-col w-52 sm:w-56 shrink-0 rounded-xl border border-stone-200/80 bg-white/95 dark:border-white/10 dark:bg-stone-900/95 shadow-sm overflow-hidden"
                       >
                         {/* Column Header */}
                         <div className="flex items-center justify-between px-2.5 py-2 border-b border-stone-100 dark:border-white/5 bg-stone-50/70 dark:bg-white/[0.02]">
@@ -1011,7 +1011,7 @@ export function BoardAttributesTab({
                           {sampleCards.map((card) => (
                             <div
                               key={card.code}
-                              className="rounded-lg border border-stone-200/80 bg-white dark:border-white/10 dark:bg-stone-800/80 p-2.5 space-y-2 shadow-2xs hover:shadow-xs hover:border-indigo-300 dark:hover:border-dusk-lavender/40 transition-all text-left"
+                              className="rounded-lg border border-stone-200/80 bg-white dark:border-white/10 dark:bg-stone-800/80 p-2.5 space-y-2 shadow-sm hover:shadow-sm hover:border-indigo-300 dark:hover:border-dusk-lavender/40 transition-all text-left"
                             >
                               {/* Top: Code & Priority */}
                               <div className="flex items-center justify-between gap-1.5">
@@ -1059,7 +1059,7 @@ export function BoardAttributesTab({
                                   </span>
                                 </div>
                                 <div
-                                  className="h-5 w-5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-bold text-[9px] grid place-items-center shrink-0 shadow-2xs"
+                                  className="h-5 w-5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-bold text-[9px] grid place-items-center shrink-0 shadow-sm"
                                   title={`Assignee: ${card.assignee}`}
                                 >
                                   {card.assignee}
@@ -1109,7 +1109,7 @@ export function BoardAttributesTab({
                   )}
                   title={colKey}
                 >
-                  {newStatusColor === colKey && <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-xs" />}
+                  {newStatusColor === colKey && <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-sm" />}
                 </button>
               ))}
             </div>
@@ -1126,7 +1126,7 @@ export function BoardAttributesTab({
           </div>
 
           {/* 3. Decorated Status List */}
-          <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[420px] overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
+          <div className="rounded-xl border border-stone-200/70 bg-white shadow-sm divide-y divide-stone-100 max-h-[420px] overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
             {displayedStatuses.map((st, index) => {
               const cfg = STATUS_COLOR_CONFIGS[st.color || "indigo"] || STATUS_COLOR_CONFIGS.indigo;
               const isDefault = st.isDefault || ["TODO", "DOING", "WAITING", "DONE"].includes(st.value);
@@ -1185,7 +1185,7 @@ export function BoardAttributesTab({
                             title={colKey}
                           >
                             {editingStatusColor === colKey && (
-                              <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-xs" />
+                              <Check className="h-3 w-3 text-white stroke-[3] drop-shadow-sm" />
                             )}
                           </button>
                         ))}
@@ -1334,7 +1334,7 @@ export function BoardAttributesTab({
           </div>
 
           {/* Quick Story Points Workflow Templates Bar */}
-          <div className="rounded-xl border border-amber-200/60 bg-amber-50/20 p-3 dark:border-amber-400/20 dark:bg-ink-950/40 shadow-xs space-y-2">
+          <div className="rounded-xl border border-amber-200/60 bg-amber-50/20 p-3 dark:border-amber-400/20 dark:bg-ink-950/40 shadow-sm space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Wand2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -1371,7 +1371,7 @@ export function BoardAttributesTab({
                       setSelectedPointTemplate(null);
                     }
                   }}
-                  triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-amber-200/80 bg-white/95 px-2 text-stone-700 shadow-2xs dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
+                  triggerClassName="h-7 text-[11px] font-medium rounded-lg border border-amber-200/80 bg-white/95 px-2 text-stone-700 shadow-sm dark:border-white/10 dark:bg-stone-900 dark:text-stone-200"
                 />
 
                 {canManage && (
@@ -1396,9 +1396,9 @@ export function BoardAttributesTab({
                     type="button"
                     onClick={() => handleSelectPointTemplate(tpl)}
                     className={cn(
-                      "group shrink-0 inline-flex items-center h-8 rounded-full border shadow-2xs transition-all duration-300 ease-out cursor-pointer overflow-hidden p-1",
+                      "group shrink-0 inline-flex items-center h-8 rounded-full border shadow-sm transition-all duration-300 ease-out cursor-pointer overflow-hidden p-1",
                       isSelected
-                        ? "border-amber-500 bg-amber-600 text-white shadow-xs ring-2 ring-amber-400/40"
+                        ? "border-amber-500 bg-amber-600 text-white shadow-sm ring-2 ring-amber-400/40"
                         : "border-stone-200/90 bg-white text-stone-700 hover:border-amber-400 hover:bg-amber-50/40 hover:text-amber-950 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-200 dark:hover:border-amber-400/50 dark:hover:bg-amber-500/10"
                     )}
                     title={tpl.description ? `${tpl.name} - ${tpl.description}` : tpl.name}
@@ -1445,7 +1445,7 @@ export function BoardAttributesTab({
           {previewPointTemplate && (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border-2 border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-3.5 dark:border-amber-400/40 dark:from-amber-500/15 dark:via-amber-500/5 dark:to-transparent animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="flex items-start sm:items-center gap-2.5 min-w-0">
-                <span className="grid h-8 w-8 place-items-center rounded-xl bg-amber-600 text-white shrink-0 shadow-xs">
+                <span className="grid h-8 w-8 place-items-center rounded-xl bg-amber-600 text-white shrink-0 shadow-sm">
                   <Eye className="h-4 w-4" />
                 </span>
                 <div className="min-w-0">
@@ -1503,7 +1503,7 @@ export function BoardAttributesTab({
                     setSelectedPointTemplate(previewPointTemplate);
                     setIsApplyPointTemplateConfirmOpen(true);
                   }}
-                  className="h-7 text-xs px-2.5 gap-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold shadow-xs cursor-pointer"
+                  className="h-7 text-xs px-2.5 gap-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold shadow-sm cursor-pointer"
                 >
                   <Check className="h-3.5 w-3.5 stroke-[2.5]" />
                   <span>Apply Scale</span>
@@ -1566,7 +1566,7 @@ export function BoardAttributesTab({
           </div>
 
           {/* Story Points List */}
-          <div className="rounded-xl border border-stone-200/70 bg-white shadow-2xs divide-y divide-stone-100 max-h-[420px] overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
+          <div className="rounded-xl border border-stone-200/70 bg-white shadow-sm divide-y divide-stone-100 max-h-[420px] overflow-y-auto scrollbar-soft dark:border-white/10 dark:bg-stone-900/40 dark:divide-white/5">
             {displayedStoryPoints.map((pt) => {
               const colorConfig = STORY_POINT_COLOR_CLASSES[pt.color || "cyan"] || STORY_POINT_COLOR_CLASSES.cyan;
 
@@ -1634,7 +1634,7 @@ export function BoardAttributesTab({
                   <div
                     key={`${pt.score}-${pt.label}`}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-2xs transition-all",
+                      "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-sm transition-all",
                       config.badgeClass,
                       previewPointTemplate && "scale-102"
                     )}
@@ -1670,7 +1670,7 @@ export function BoardAttributesTab({
 
           {/* Supplementary previews per sub-tab */}
           {activeSubTab === "story-points" && (
-            <div className="rounded-xl border border-amber-500/25 bg-amber-50/50 p-3 shadow-2xs dark:border-amber-400/20 dark:bg-amber-950/20 space-y-2">
+            <div className="rounded-xl border border-amber-500/25 bg-amber-50/50 p-3 shadow-sm dark:border-amber-400/20 dark:bg-amber-950/20 space-y-2">
               <div className="flex items-center justify-between text-[11px] font-bold text-stone-700 dark:text-stone-300">
                 <div className="flex items-center gap-1.5">
                   <Zap className="h-3.5 w-3.5 text-amber-500" />
@@ -1689,7 +1689,7 @@ export function BoardAttributesTab({
                     <div
                       key={`${pt.score}-${pt.label}`}
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-2xs transition-all",
+                        "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-sm transition-all",
                         config.badgeClass,
                         previewPointTemplate && "scale-102"
                       )}
@@ -1705,7 +1705,7 @@ export function BoardAttributesTab({
           )}
 
           {activeSubTab === "priority" && (
-            <div className="rounded-xl border border-rose-500/25 bg-rose-50/50 p-3 shadow-2xs dark:border-rose-400/20 dark:bg-rose-950/20 space-y-2">
+            <div className="rounded-xl border border-rose-500/25 bg-rose-50/50 p-3 shadow-sm dark:border-rose-400/20 dark:bg-rose-950/20 space-y-2">
               <div className="flex items-center justify-between text-[11px] font-bold text-stone-700 dark:text-stone-300">
                 <div className="flex items-center gap-1.5">
                   <Flag className="h-3.5 w-3.5 text-rose-500" />
@@ -1726,7 +1726,7 @@ export function BoardAttributesTab({
                   return (
                     <div
                       key={`card-preview-${p.id || idx}`}
-                      className="rounded-xl border border-stone-200/80 bg-white p-2.5 space-y-1.5 shadow-2xs dark:border-white/10 dark:bg-stone-900/90"
+                      className="rounded-xl border border-stone-200/80 bg-white p-2.5 space-y-1.5 shadow-sm dark:border-white/10 dark:bg-stone-900/90"
                     >
                       <div className="flex items-center justify-between gap-1.5">
                         <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
@@ -1753,7 +1753,7 @@ export function BoardAttributesTab({
           )}
 
           {activeSubTab === "status" && previewStatusTemplate && (
-            <div className="rounded-xl border border-indigo-200/70 bg-stone-100/60 dark:border-white/10 dark:bg-stone-900/50 p-2 sm:p-2.5 overflow-hidden shadow-2xs relative">
+            <div className="rounded-xl border border-indigo-200/70 bg-stone-100/60 dark:border-white/10 dark:bg-stone-900/50 p-2 sm:p-2.5 overflow-hidden shadow-sm relative">
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-x-0 top-0 h-4 sm:h-5 bg-gradient-to-b from-stone-100/95 via-stone-100/50 to-transparent dark:from-stone-900/95 dark:via-stone-900/50 dark:to-transparent z-10"
@@ -1775,7 +1775,7 @@ export function BoardAttributesTab({
                   return (
                     <div
                       key={st.value}
-                      className="flex flex-col w-44 shrink-0 rounded-xl border border-stone-200/80 bg-white/95 dark:border-white/10 dark:bg-stone-900/95 shadow-2xs overflow-hidden"
+                      className="flex flex-col w-44 shrink-0 rounded-xl border border-stone-200/80 bg-white/95 dark:border-white/10 dark:bg-stone-900/95 shadow-sm overflow-hidden"
                     >
                       <div className="flex items-center justify-between px-2 py-1.5 border-b border-stone-100 dark:border-white/5 bg-stone-50/70 dark:bg-white/[0.02]">
                         <div className="flex items-center gap-1.5 min-w-0">

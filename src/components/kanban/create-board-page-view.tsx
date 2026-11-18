@@ -227,7 +227,7 @@ export function CreateBoardPageView({
         <div className="flex items-center gap-3">
           <Link
             href={`/project/${projectId}/board`}
-            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-theme-border bg-theme-panel px-3 text-xs font-semibold text-theme-muted transition hover:border-theme-border-strong hover:bg-theme-paper hover:text-theme-foreground active:scale-95 shadow-2xs"
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-theme-border bg-theme-panel px-3 text-xs font-semibold text-theme-muted transition hover:border-theme-border-strong hover:bg-theme-paper hover:text-theme-foreground active:scale-95 shadow-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Board</span>
@@ -468,7 +468,7 @@ export function CreateBoardPageView({
                       className={cn(
                         "flex flex-col items-start rounded-xl border p-3.5 text-left transition cursor-pointer",
                         !isPrivate
-                          ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-xs ring-1 ring-theme-accent/30"
+                          ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-sm ring-1 ring-theme-accent/30"
                           : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
                       )}
                     >
@@ -488,7 +488,7 @@ export function CreateBoardPageView({
                       className={cn(
                         "flex flex-col items-start rounded-xl border p-3.5 text-left transition cursor-pointer",
                         isPrivate
-                          ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-xs ring-1 ring-theme-accent/30"
+                          ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-sm ring-1 ring-theme-accent/30"
                           : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
                       )}
                     >
@@ -633,7 +633,7 @@ export function CreateBoardPageView({
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-semibold transition cursor-pointer",
                     previewMode === "kanban"
-                      ? "bg-indigo-600 text-white shadow-2xs dark:bg-dusk-lavender dark:text-ink-950"
+                      ? "bg-indigo-600 text-white shadow-sm dark:bg-dusk-lavender dark:text-ink-950"
                       : "text-theme-muted hover:text-theme-foreground"
                   )}
                 >
@@ -646,7 +646,7 @@ export function CreateBoardPageView({
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-semibold transition cursor-pointer",
                     previewMode === "pipeline"
-                      ? "bg-indigo-600 text-white shadow-2xs dark:bg-dusk-lavender dark:text-ink-950"
+                      ? "bg-indigo-600 text-white shadow-sm dark:bg-dusk-lavender dark:text-ink-950"
                       : "text-theme-muted hover:text-theme-foreground"
                   )}
                 >

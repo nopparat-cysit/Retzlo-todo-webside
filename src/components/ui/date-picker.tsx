@@ -315,7 +315,7 @@ export function CalendarView({
                   !d.isSelected &&
                   "border border-dusk-amber/70 font-bold text-dusk-amber dark:border-dusk-amber/70 dark:text-dusk-amber",
                 d.isSelected &&
-                  "border border-indigo-500/40 bg-dusk-lavender font-bold text-stone-950 shadow-xs hover:bg-dusk-lavender/90 dark:border-indigo-400/40 dark:bg-dusk-lavender dark:text-ink-950",
+                  "border border-indigo-500/40 bg-dusk-lavender font-bold text-stone-950 shadow-sm hover:bg-dusk-lavender/90 dark:border-indigo-400/40 dark:bg-dusk-lavender dark:text-ink-950",
                 d.disabled && "cursor-not-allowed opacity-20 hover:bg-transparent"
               )}
             >
@@ -421,7 +421,7 @@ export function DatePicker({
             type="button"
             disabled={disabled}
             className={cn(
-              "flex h-9 w-full items-center justify-between rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-left text-xs font-medium text-stone-900 shadow-2xs transition",
+              "flex h-9 w-full items-center justify-between rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-left text-xs font-medium text-stone-900 shadow-sm transition",
               "hover:border-stone-300 hover:bg-stone-50/50",
               "focus-visible:border-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20",
               "dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:hover:border-white/20 dark:hover:bg-white/[0.08]",

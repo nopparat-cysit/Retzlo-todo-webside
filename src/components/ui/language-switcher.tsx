@@ -32,7 +32,7 @@ export function LanguageSwitcher({ variant = "button", className }: LanguageSwit
             className={cn(
               "flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition cursor-pointer border",
               language === "en"
-                ? "border-indigo-400 bg-indigo-50 text-indigo-700 shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/20 dark:text-dusk-lavender"
+                ? "border-indigo-400 bg-indigo-50 text-indigo-700 shadow-sm dark:border-dusk-lavender/40 dark:bg-dusk-lavender/20 dark:text-dusk-lavender"
                 : "border-stone-200/80 bg-white/60 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:bg-white/10"
             )}
           >
@@ -45,7 +45,7 @@ export function LanguageSwitcher({ variant = "button", className }: LanguageSwit
             className={cn(
               "flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition cursor-pointer border",
               language === "th"
-                ? "border-indigo-400 bg-indigo-50 text-indigo-700 shadow-xs dark:border-dusk-lavender/40 dark:bg-dusk-lavender/20 dark:text-dusk-lavender"
+                ? "border-indigo-400 bg-indigo-50 text-indigo-700 shadow-sm dark:border-dusk-lavender/40 dark:bg-dusk-lavender/20 dark:text-dusk-lavender"
                 : "border-stone-200/80 bg-white/60 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:bg-white/10"
             )}
           >
@@ -66,7 +66,7 @@ export function LanguageSwitcher({ variant = "button", className }: LanguageSwit
           className={cn(
             "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
             language === "en"
-              ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+              ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
               : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
           )}
         >
@@ -78,7 +78,7 @@ export function LanguageSwitcher({ variant = "button", className }: LanguageSwit
           className={cn(
             "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition cursor-pointer",
             language === "th"
-              ? "border border-stone-200/80 bg-white text-stone-900 shadow-xs dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
+              ? "border border-stone-200/80 bg-white text-stone-900 shadow-sm dark:border-white/10 dark:bg-stone-800 dark:text-stone-100"
               : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200"
           )}
         >
@@ -93,7 +93,7 @@ export function LanguageSwitcher({ variant = "button", className }: LanguageSwit
       type="button"
       onClick={toggleLanguage}
       className={cn(
-        "inline-flex h-9 items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white/90 px-2.5 text-xs font-semibold text-stone-700 hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-300 dark:hover:border-dusk-lavender/40 dark:hover:bg-white/10 transition cursor-pointer shadow-2xs",
+        "inline-flex h-9 items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white/90 px-2.5 text-xs font-semibold text-stone-700 hover:border-indigo-300 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.045] dark:text-stone-300 dark:hover:border-dusk-lavender/40 dark:hover:bg-white/10 transition cursor-pointer shadow-sm",
         className
       )}
       title={language === "en" ? "Switch to Thai (ภาษาไทย)" : "Switch to English"}

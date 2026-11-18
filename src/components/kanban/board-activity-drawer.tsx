@@ -172,7 +172,7 @@ export function BoardActivityDrawer({
                   Activity Log
                 </h3>
                 <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500 animate-pulse" />
                   Live
                 </span>
               </div>
@@ -209,7 +209,7 @@ export function BoardActivityDrawer({
               className={cn(
                 "rounded-lg px-2.5 py-1 text-xs font-semibold whitespace-nowrap transition cursor-pointer",
                 filter === tab.id
-                  ? "bg-indigo-600 text-white shadow-xs dark:bg-dusk-lavender dark:text-ink-950"
+                  ? "bg-indigo-600 text-white shadow-sm dark:bg-dusk-lavender dark:text-ink-950"
                   : "bg-stone-200/60 text-stone-600 hover:bg-stone-200 hover:text-stone-900 dark:bg-white/[0.05] dark:text-stone-400 dark:hover:bg-white/[0.09] dark:hover:text-stone-200"
               )}
             >
@@ -227,7 +227,7 @@ export function BoardActivityDrawer({
             </div>
           ) : filteredActivities.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-stone-200/80 py-16 text-center dark:border-white/10">
-              <div className="grid h-12 w-12 place-items-center rounded-full bg-stone-100 text-stone-400 dark:bg-white/[0.04] dark:text-stone-500">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-stone-100 text-stone-400 dark:bg-white/[0.04] dark:text-stone-500">
                 <Activity className="h-6 w-6" />
               </div>
               <h4 className="mt-3 text-sm font-semibold text-stone-700 dark:text-stone-300">

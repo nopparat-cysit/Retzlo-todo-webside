@@ -249,7 +249,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
             onKeyDown={(e) => handleKeyDown(e, true)}
             onFocus={(e) => e.target.select()}
             title="Type or press arrow keys to change hour"
-            className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-2xs transition touch-manipulation focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
+            className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-sm transition touch-manipulation focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
           />
           <div className="flex flex-col gap-0.5">
             <button
@@ -286,7 +286,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
             onKeyDown={(e) => handleKeyDown(e, false)}
             onFocus={(e) => e.target.select()}
             title="Type or press arrow keys to change minute"
-            className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-2xs transition touch-manipulation focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
+            className="h-10 w-12 rounded-lg border border-stone-300/80 bg-white text-center font-mono text-xl font-bold text-stone-900 shadow-sm transition touch-manipulation focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-stone-900 dark:text-stone-100 dark:focus:border-indigo-400"
           />
           <div className="flex flex-col gap-0.5">
             <button
@@ -336,7 +336,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
                     className={cn(
                       "h-8 sm:h-7.5 w-full rounded-lg font-mono text-xs font-medium touch-manipulation transition cursor-pointer flex items-center justify-center",
                       isSelected
-                        ? "bg-indigo-600 text-white font-bold shadow-xs dark:bg-dusk-lavender dark:text-ink-950"
+                        ? "bg-indigo-600 text-white font-bold shadow-sm dark:bg-dusk-lavender dark:text-ink-950"
                         : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100"
                     )}
                   >
@@ -369,7 +369,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
                     className={cn(
                       "h-8 sm:h-7.5 w-full rounded-lg font-mono text-xs font-medium touch-manipulation transition cursor-pointer flex items-center justify-center",
                       isSelected
-                        ? "bg-indigo-600 text-white font-bold shadow-xs dark:bg-dusk-lavender dark:text-ink-950"
+                        ? "bg-indigo-600 text-white font-bold shadow-sm dark:bg-dusk-lavender dark:text-ink-950"
                         : "text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100"
                     )}
                   >
@@ -423,7 +423,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
         <button
           type="button"
           onClick={() => onConfirm?.()}
-          className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 transition cursor-pointer touch-manipulation"
+          className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow-sm hover:bg-indigo-700 active:scale-95 dark:bg-dusk-lavender dark:text-ink-950 dark:hover:bg-dusk-lavender/90 transition cursor-pointer touch-manipulation"
         >
           <Check className="h-3.5 w-3.5" />
           <span>Confirm</span>
@@ -485,7 +485,7 @@ export function TimePicker({
             type="button"
             disabled={disabled}
             className={cn(
-              "flex h-9 w-full items-center justify-between rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-left text-xs font-medium text-stone-900 shadow-2xs transition",
+              "flex h-9 w-full items-center justify-between rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-left text-xs font-medium text-stone-900 shadow-sm transition",
               "hover:border-stone-300 hover:bg-stone-50/50",
               "focus-visible:border-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20",
               "dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:hover:border-white/20 dark:hover:bg-white/[0.08]",
