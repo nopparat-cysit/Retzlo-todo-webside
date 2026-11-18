@@ -323,7 +323,7 @@ export function BoardListView({
           onCardSaved(data.card);
         }
         toast({
-          message: isDone ? "Marked as incomplete" : "Completed task! 🌟",
+          message: isDone ? "Marked as incomplete" : "Completed task!",
           type: "success"
         });
         if (!isDone) {
@@ -398,7 +398,7 @@ export function BoardListView({
         }
         const meta = getStatusMeta(nextStatus, statuses);
         toast({
-          message: isDone ? "Completed task! 🌟" : `Status set to ${meta.label}`,
+          message: isDone ? "Completed task!" : `Status set to ${meta.label}`,
           type: "success"
         });
         if (isDone) {
@@ -515,7 +515,7 @@ export function BoardListView({
         if (data.card && onCardSaved) {
           onCardSaved(data.card);
         }
-        toast({ message: nextStar ? "Starred task ⭐" : "Unstarred task", type: "success" });
+        toast({ message: nextStar ? "Starred task" : "Unstarred task", type: "success" });
       }
     } catch {}
   };

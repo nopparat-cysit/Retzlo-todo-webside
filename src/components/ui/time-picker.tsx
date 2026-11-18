@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, ChevronUp, Clock, X } from "lucide-react";
+import { Briefcase, Check, ChevronDown, ChevronUp, Clock, Coffee, Moon, Sun, Sunrise, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useOutsideClickDismiss } from "@/hooks/use-outside-click";
@@ -27,12 +27,12 @@ export interface TimeViewProps {
   className?: string;
 }
 
-export const PRESET_TIMES = [
-  { label: "09:00 Morning", time: "09:00", value: "09:00", icon: "🌅" },
-  { label: "12:00 Noon", time: "12:00", value: "12:00", icon: "☀️" },
-  { label: "13:30 Afternoon", time: "13:30", value: "13:30", icon: "☕" },
-  { label: "17:00 End of Day", time: "17:00", value: "17:00", icon: "💼" },
-  { label: "20:00 Evening", time: "20:00", value: "20:00", icon: "🌙" }
+export const PRESET_TIMES: Array<{ label: string; time: string; value: string; icon: LucideIcon }> = [
+  { label: "09:00 Morning", time: "09:00", value: "09:00", icon: Sunrise },
+  { label: "12:00 Noon", time: "12:00", value: "12:00", icon: Sun },
+  { label: "13:30 Afternoon", time: "13:30", value: "13:30", icon: Coffee },
+  { label: "17:00 End of Day", time: "17:00", value: "17:00", icon: Briefcase },
+  { label: "20:00 Evening", time: "20:00", value: "20:00", icon: Moon }
 ];
 
 export const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
@@ -389,6 +389,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
         </div>
         <div className="grid grid-cols-3 gap-1">
           {PRESET_TIMES.map((preset) => {
+            const PresetIcon = preset.icon;
             const isSelected = `${selectedHour}:${selectedMinute}` === preset.time;
             return (
               <button
@@ -402,7 +403,7 @@ export function TimeView({ value, onChange, onConfirm, className }: TimeViewProp
                     : "border-stone-200/80 bg-white text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/10"
                 )}
               >
-                <span>{preset.icon}</span>
+                <PresetIcon className="h-3 w-3 shrink-0" />
                 <span>{preset.time}</span>
               </button>
             );

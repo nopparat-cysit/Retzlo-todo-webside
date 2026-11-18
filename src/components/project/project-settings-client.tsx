@@ -261,7 +261,7 @@ export function ProjectSettingsClient({
             : b
         )
       );
-      toast({ message: `Board settings saved for "${data.board.name}" ✦`, type: "success" });
+      toast({ message: `Board settings saved for "${data.board.name}"`, type: "success" });
       window.dispatchEvent(
         new CustomEvent("board-renamed", {
           detail: { id: selectedBoardId, name: data.board.name }

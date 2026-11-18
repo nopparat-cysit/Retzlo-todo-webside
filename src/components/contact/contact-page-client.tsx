@@ -13,6 +13,9 @@ import {
   FileText,
   FolderKanban,
   HelpCircle,
+  Lightbulb,
+  Loader2,
+  Lock,
   Mail,
   MessageSquare,
   Send,
@@ -373,8 +376,9 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
                     placeholder="Enter your message details..."
                     className="w-full rounded-xl border border-stone-200/90 bg-stone-50/70 p-3.5 font-mono text-xs text-stone-900 placeholder:text-stone-400 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-dusk-lavender"
                   />
-                  <p className="text-[10px] text-stone-500 dark:text-stone-400">
-                    💡 Template drafts help our team diagnose issues faster. You can edit any part of the text as needed.
+                  <p className="flex items-start gap-1.5 text-[10px] text-stone-500 dark:text-stone-400">
+                    <Lightbulb className="mt-px h-3.5 w-3.5 shrink-0 text-amber-500 dark:text-dusk-amber" />
+                    <span>Template drafts help our team diagnose issues faster. You can edit any part of the text as needed.</span>
                   </p>
                 </div>
 
@@ -388,8 +392,9 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
 
                 {/* Submit Button */}
                 <div className="flex items-center justify-between pt-2 border-t border-stone-200/80 dark:border-white/10">
-                  <span className="text-[11px] text-stone-500 dark:text-stone-400">
-                    🔒 Your information is protected under our Privacy Policy
+                  <span className="inline-flex items-center gap-1.5 text-[11px] text-stone-500 dark:text-stone-400">
+                    <Lock className="h-3.5 w-3.5 shrink-0" />
+                    <span>Your information is protected under our Privacy Policy</span>
                   </span>
 
                   <button
@@ -399,7 +404,7 @@ export function ContactPageClient({ initialUser }: ContactPageClientProps) {
                   >
                     {isSubmitting ? (
                       <>
-                        <span className="animate-spin">⏳</span>
+                        <Loader2 className="h-4 w-4 animate-spin" />
                         <span>Sending...</span>
                       </>
                     ) : (

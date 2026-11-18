@@ -180,8 +180,8 @@ export function ZenGarden({ onOpenSanctuary }: { onOpenSanctuary?: () => void } 
       if (data.success) {
         toast({
           message: isEn
-            ? `✨ Daily watering complete! +${data.awardedCoins ?? 5}c gained. Today's fortune revealed!`
-            : `✨ รดน้ำประจำวันแล้ว! ได้รับ +${data.awardedCoins ?? 5}c เปิดม้วนคำทำนายแล้ว`,
+            ? `Daily watering complete! +${data.awardedCoins ?? 5}c gained. Today's fortune revealed!`
+            : `รดน้ำประจำวันแล้ว! ได้รับ +${data.awardedCoins ?? 5}c เปิดม้วนคำทำนายแล้ว`,
           type: "success"
         });
         if (data.globalCoins !== undefined) setGlobalCoins(data.globalCoins);

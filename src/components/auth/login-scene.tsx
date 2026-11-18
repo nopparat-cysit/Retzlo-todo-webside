@@ -205,8 +205,8 @@ export function MixtapeAuthScene({ children, mode = "login" }: { children: React
                 <Sparkles size={14} className={styles.trialBonusIcon} />
                 <span>
                   {bonusInfo.ticketClaimed
-                    ? "🎉 ปลดล็อกสิทธิ์ทดลองใช้ฟรี 7 วันแล้ว! เข้าสู่ระบบเพื่อเริ่มใช้งานได้ทันที"
-                    : `🎁 มี ${Math.min(100, bonusInfo.walletCoins)} Coins สะสมจากหน้าแรก พร้อมโอนเข้าสู่บัญชีของคุณ`}
+                    ? "ปลดล็อกสิทธิ์ทดลองใช้ฟรี 7 วันแล้ว! เข้าสู่ระบบเพื่อเริ่มใช้งานได้ทันที"
+                    : `มี ${Math.min(100, bonusInfo.walletCoins)} Coins สะสมจากหน้าแรก พร้อมโอนเข้าสู่บัญชีของคุณ`}
                 </span>
               </div>
             )}

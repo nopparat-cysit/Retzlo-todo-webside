@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, CalendarClock, Check, Coffee, MessageSquare, Sparkles, UserPlus } from "lucide-react";
+import { ArrowRight, Bell, CalendarClock, Check, Coffee, MessageSquare, Sparkles, UserPlus } from "lucide-react";
 import { formatShortDate } from "@/lib/date-format";
 import { useToast } from "@/components/ui/toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -222,9 +222,10 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
                               setOpen(false);
                               router.push(n.link!);
                             }}
-                            className="rounded-lg bg-white/10 hover:bg-white/15 px-3 py-1 text-xs font-medium text-stone-200 transition cursor-pointer"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/15 px-3 py-1 text-xs font-medium text-stone-200 transition cursor-pointer"
                           >
-                            👉 Go to task card
+                            <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+                            <span>Go to task card</span>
                           </button>
                           {!n.isRead && (
                             <button
@@ -249,9 +250,10 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
                                 markAsRead(n.id);
                                 setSelectedInvite(n.invitation!);
                               }}
-                              className="rounded-lg bg-gradient-to-r from-dusk-lavender to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:from-dusk-lavender/90 hover:to-indigo-500/90 transition cursor-pointer"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-dusk-lavender to-indigo-500 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:from-dusk-lavender/90 hover:to-indigo-500/90 transition cursor-pointer"
                             >
-                              👉 View invitation / Join
+                              <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+                              <span>View invitation / Join</span>
                             </button>
                           ) : (
                             <span className="text-[11px] text-stone-500 italic">

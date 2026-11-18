@@ -157,7 +157,7 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
       items: searchResults.boards.map((b) => ({
         id: `board-${b.id}`,
         label: b.name,
-        sublabel: b.isPrivate ? "🔒 Private board" : "🌐 Public board",
+        sublabel: b.isPrivate ? "Private board" : "Public board",
         group: "Boards",
         icon: <LayoutGrid className="h-4 w-4 text-dusk-amber" />,
         action: () => {

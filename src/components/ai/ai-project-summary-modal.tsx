@@ -3,6 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  Bot,
   CheckCircle2,
   ClipboardCopy,
   Coins,
@@ -97,25 +100,31 @@ export function AiProjectSummaryModal({
   const handleCopyMarkdown = () => {
     if (!summary) return;
 
-    const md = `📊 **Progress Summary: ${projectName} (${boardName})**
-Status: ${summary.healthStatus === "HEALTHY" ? "🟢 Healthy" : summary.healthStatus === "ATTENTION" ? "🟡 Attention Needed" : "🔴 Critical"} (${summary.completionRatePercent}% complete)
+    const statusLabel =
+      summary.healthStatus === "HEALTHY"
+        ? "Healthy"
+        : summary.healthStatus === "ATTENTION"
+          ? "Attention Needed"
+          : "Critical";
+    const md = `**Progress Summary: ${projectName} (${boardName})**
+Status: ${statusLabel} (${summary.completionRatePercent}% complete)
 
-📝 **Overview:**
+**Overview:**
 ${summary.overview}
 
-🚀 **Current Focus (DOING):**
+**Current Focus (DOING):**
 ${summary.currentFocus.map((f) => `- ${f}`).join("\n") || "- No active tasks in progress"}
 
-⚠️ **Bottlenecks & Overdue:**
+**Bottlenecks & Overdue:**
 ${summary.bottlenecks.map((b) => `- ${b}`).join("\n") || "- No major bottlenecks"}
 
-💡 **Next Action Recommendations:**
+**Next Action Recommendations:**
 ${summary.recommendations.map((r) => `- ${r}`).join("\n") || "- Continue as planned"}
 `;
 
     navigator.clipboard.writeText(md);
     toast({
-      message: "📋 Copied Markdown summary to clipboard!",
+      message: "Copied Markdown summary to clipboard!",
       type: "success"
     });
   };
@@ -125,7 +134,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n") || "- Continue as plan
 
     setIsSavingNote(true);
     try {
-      const title = `🤖 AI Summary — ${boardName} (${new Date().toLocaleDateString("en-US")})`;
+      const title = `AI Summary — ${boardName} (${new Date().toLocaleDateString("en-US")})`;
       const content = `### Project Health: ${summary.healthStatus} (${summary.completionRatePercent}%)
 
 ${summary.overview}
@@ -156,7 +165,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
       }
 
       toast({
-        message: "💾 Saved summary report to project Notes!",
+        message: "Saved summary report to project Notes!",
         type: "success"
       });
     } catch {
@@ -188,7 +197,8 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                 id="ai-summary-title"
                 className="text-base sm:text-lg font-bold tracking-tight text-stone-100 flex items-center gap-2"
               >
-                <span>🤖 Project Progress Summary (AI Summary)</span>
+                <Bot className="h-4 w-4 shrink-0 text-dusk-lavender" />
+                <span>Project Progress Summary (AI Summary)</span>
               </h2>
               <p className="text-xs text-stone-400">
                 Analyze sprint status and progress on board {boardName}
@@ -219,8 +229,9 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 space-y-3">
               <Loader2 className="h-8 w-8 animate-spin text-dusk-lavender" />
-              <p className="text-sm font-medium text-stone-300 animate-pulse">
-                🐱 AI is scanning board and analyzing progress...
+              <p className="inline-flex items-center gap-2 text-sm font-medium text-stone-300 animate-pulse">
+                <Sparkles className="h-4 w-4 shrink-0 text-dusk-amber" />
+                <span>AI is scanning board and analyzing progress...</span>
               </p>
             </div>
           ) : summary ? (
@@ -258,8 +269,9 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
 
               {/* Executive Overview */}
               <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3.5 space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-dusk-amber flex items-center gap-1">
-                  <span>📊 Project Overview</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-dusk-amber flex items-center gap-1.5">
+                  <BarChart3 className="h-3.5 w-3.5 text-dusk-amber" />
+                  <span>Project Overview</span>
                 </span>
                 <p className="text-stone-200 leading-relaxed break-words">
                   {summary.overview}
@@ -312,7 +324,7 @@ ${summary.recommendations.map((r) => `- ${r}`).join("\n")}
                   <ul className="space-y-1 text-stone-300">
                     {summary.recommendations.map((rec, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <span className="text-teal-400 shrink-0">👉</span>
+                        <ArrowRight className="mt-0.5 h-3.5 w-3.5 text-teal-400 shrink-0" />
                         <span>{rec}</span>
                       </li>
                     ))}

@@ -270,7 +270,7 @@ export async function POST(request: Request) {
             projectId,
             cardId: card.id,
             type: "TASK_ASSIGNED",
-            title: `📋 Assigned to task: "${card.title}"`,
+            title: `Assigned to task: "${card.title}"`,
             message: `${creatorName} assigned you to this task.`,
             link: `/project/${projectId}/board?cardId=${card.id}`
           }))
@@ -490,7 +490,7 @@ export async function PATCH(request: Request) {
             projectId,
             cardId: card.id,
             type: "TASK_ASSIGNED",
-            title: `📋 Assigned to task: "${card.title}"`,
+            title: `Assigned to task: "${card.title}"`,
             message: `${updaterName} assigned you to this task.`,
             link: `/project/${projectId}/board?cardId=${card.id}`
           }))

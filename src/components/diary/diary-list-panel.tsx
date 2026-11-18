@@ -1374,7 +1374,7 @@ function DiaryFocusCard({
                           : "border-stone-200 bg-stone-100/90 text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400"
                     )}
                   >
-                    {rewardClaimed ? "Claimed ✓" : rewardReady ? "Ready to Claim!" : "In Progress"}
+                    {rewardClaimed ? "Claimed" : rewardReady ? "Ready to Claim!" : "In Progress"}
                   </span>
                 ) : null}
               </div>
@@ -1842,7 +1842,7 @@ function DiaryItemModal({
                         : "border-stone-200 bg-stone-100 text-stone-600 hover:text-stone-900 dark:border-white/10 dark:bg-white/5 dark:text-stone-400 dark:hover:text-stone-200"
                     )}
                   >
-                    {isRewardOpen ? "Enabled ✓" : "Off"}
+                    {isRewardOpen ? "Enabled" : "Off"}
                   </button>
                 </div>
 

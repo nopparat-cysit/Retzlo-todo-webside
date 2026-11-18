@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
-import { AlertTriangle, Check, ChevronDown, ExternalLink, KanbanSquare, Layers, Lock, Settings, Sparkles, X, Zap } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Check, ChevronDown, Columns3, ExternalLink, KanbanSquare, Layers, Lock, Settings, Sparkles, Tag, X, Zap } from "lucide-react";
 
 import { AppModal } from "@/components/ui/app-modal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -555,7 +555,8 @@ export function BoardSettingsModal({
                   onClick={onClose}
                   className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:underline dark:text-dusk-lavender mr-1"
                 >
-                  <span>Open Full Settings ↗</span>
+                  <span>Open Full Settings</span>
+                  <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
               )}
               <button
@@ -583,7 +584,7 @@ export function BoardSettingsModal({
                     className="w-full justify-start text-xs py-2 px-2.5 font-medium transition cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
-                      <span>⚙️</span>
+                      <Settings className="h-3.5 w-3.5" />
                       <span>General &amp; Access</span>
                     </span>
                     {isPrivate && (
@@ -598,7 +599,7 @@ export function BoardSettingsModal({
                     className="w-full justify-start text-xs py-2 px-2.5 font-medium transition cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
-                      <span>📋</span>
+                      <Columns3 className="h-3.5 w-3.5" />
                       <span>Columns</span>
                     </span>
                     <span className="ml-auto rounded-full bg-stone-200/80 px-1.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-stone-300 font-semibold">
@@ -611,7 +612,7 @@ export function BoardSettingsModal({
                     className="w-full justify-start text-xs py-2 px-2.5 font-medium transition cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
-                      <span>🏷️</span>
+                      <Tag className="h-3.5 w-3.5" />
                       <span>Card Attributes</span>
                     </span>
                     <span className="ml-auto rounded-full bg-indigo-500/15 px-1.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender font-semibold">
@@ -624,7 +625,7 @@ export function BoardSettingsModal({
                     className="w-full justify-start text-xs py-2 px-2.5 font-medium text-red-500 hover:text-red-600 data-[state=active]:text-red-700 data-[state=active]:bg-red-50 dark:text-red-400 dark:data-[state=active]:text-red-300 dark:data-[state=active]:bg-red-400/15 transition cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
-                      <span>⚠️</span>
+                      <AlertTriangle className="h-3.5 w-3.5" />
                       <span>Danger Zone</span>
                     </span>
                   </TabsTrigger>

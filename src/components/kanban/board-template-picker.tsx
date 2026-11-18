@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { Check, ChevronRight, Columns3, GitCommitHorizontal } from "lucide-react";
+import { Check, ChevronRight, Columns3, GitCommitHorizontal, Lightbulb } from "lucide-react";
 import Image from "next/image";
 
 import { BoardMockupPreview } from "@/components/kanban/board-mockup-preview";
@@ -313,8 +313,9 @@ export function BoardTemplatePicker({
               </div>
             </div>
           )}
-          <p className="text-[10px] leading-relaxed text-theme-muted">
-            💡 This board will be created with the workflow columns shown above. You can add, remove, or customize columns at any time.
+          <p className="flex items-start gap-1.5 text-[10px] leading-relaxed text-theme-muted">
+            <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500 dark:text-dusk-amber" />
+            <span>This board will be created with the workflow columns shown above. You can add, remove, or customize columns at any time.</span>
           </p>
         </>
       )}

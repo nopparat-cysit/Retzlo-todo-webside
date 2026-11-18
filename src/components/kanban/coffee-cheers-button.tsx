@@ -76,15 +76,15 @@ export function CoffeeCheersButton({
 
   const getTooltipText = (reason?: CheerDenialReason): string => {
     if (isSelf) {
-      return "🎉 You completed this task! Teammates can send you coffee cheers (Anti-cheat: Cannot cheer yourself)";
+      return "You completed this task! Teammates can send you coffee cheers (Anti-cheat: Cannot cheer yourself)";
     }
     if (hasCheered || reason === "ALREADY_CHEERED") {
-      return "☕ You've already cheered this task with coffee. Thank you for supporting your team!";
+      return "You've already cheered this task with coffee. Thank you for supporting your team!";
     }
     if (canCheer) {
-      return `☕ Cheer your teammate with coffee to celebrate completing "${cardTitle}" (Click to cheer)`;
+      return `Cheer your teammate with coffee to celebrate completing "${cardTitle}" (Click to cheer)`;
     }
-    return "Coffee cheers for completed tasks ☕";
+    return "Coffee cheers for completed tasks";
   };
 
   const handleCheer = async (e: React.MouseEvent) => {
@@ -119,7 +119,7 @@ export function CoffeeCheersButton({
         });
       } else {
         toast({
-          message: `☕ Coffee cheer sent! Celebrated completing "${cardTitle}" 🎉`,
+          message: `Coffee cheer sent! Celebrated completing "${cardTitle}"`,
           type: "success"
         });
         startTransition(() => {
@@ -165,21 +165,15 @@ export function CoffeeCheersButton({
               }
             `}</style>
 
-            {/* Micro-interaction: Steam Particles (~ ♨ ~) */}
+            {/* Micro-interaction: Steam Particles */}
             {steamActive && (
               <div
-                className="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 flex items-center gap-1 select-none z-30"
+                className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1 select-none z-30"
                 aria-hidden="true"
               >
-                <span className="text-[12px] font-bold text-amber-500 animate-coffee-steam delay-75">
-                  ~
-                </span>
-                <span className="text-[14px] font-bold text-amber-600 animate-coffee-steam">
-                  ♨
-                </span>
-                <span className="text-[12px] font-bold text-amber-500 animate-coffee-steam delay-150">
-                  ~
-                </span>
+                <span className="h-1 w-1 rounded-full bg-amber-400 animate-coffee-steam delay-75" />
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-coffee-steam" />
+                <span className="h-1 w-1 rounded-full bg-amber-400 animate-coffee-steam delay-150" />
               </div>
             )}
 
@@ -207,15 +201,14 @@ export function CoffeeCheersButton({
                   "cursor-default border border-stone-200 bg-stone-100 text-stone-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400"
               )}
             >
-              <span
+              <Coffee
                 className={cn(
-                  "inline-block transition-transform duration-200",
+                  "shrink-0 transition-transform duration-200",
+                  compact ? "h-3 w-3" : "h-3.5 w-3.5",
                   canCheer && "group-hover:rotate-12 group-hover:scale-110",
                   steamActive && "scale-125 rotate-6 text-amber-600"
                 )}
-              >
-                ☕
-              </span>
+              />
 
               {count > 0 ? (
                 <span

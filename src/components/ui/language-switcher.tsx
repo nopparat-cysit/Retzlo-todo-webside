@@ -36,7 +36,8 @@ export function LanguageSwitcher({ variant = "button", className }: LanguageSwit
                 : "border-stone-200/80 bg-white/60 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:bg-white/10"
             )}
           >
-            <span>🇬🇧 English</span>
+            <span className="font-mono text-[10px] font-bold uppercase opacity-75">EN</span>
+            <span>English</span>
             {language === "en" && <Check className="h-3 w-3" />}
           </button>
           <button
@@ -49,7 +50,8 @@ export function LanguageSwitcher({ variant = "button", className }: LanguageSwit
                 : "border-stone-200/80 bg-white/60 text-stone-600 hover:bg-stone-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-stone-300 dark:hover:bg-white/10"
             )}
           >
-            <span>🇹🇭 ภาษาไทย</span>
+            <span className="font-mono text-[10px] font-bold uppercase opacity-75">TH</span>
+            <span>ภาษาไทย</span>
             {language === "th" && <Check className="h-3 w-3" />}
           </button>
         </div>

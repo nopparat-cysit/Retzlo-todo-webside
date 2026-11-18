@@ -7,10 +7,12 @@ import {
   Check,
   ChevronDown,
   Clock,
+  Coffee,
   Copy,
   Crown,
   ExternalLink,
   FolderKanban,
+  Lightbulb,
   Mail,
   Search,
   Send,
@@ -18,6 +20,7 @@ import {
   ShieldAlert,
   Sparkles,
   Trash2,
+  User,
   UserCheck,
   UserPlus,
   Users,
@@ -936,7 +939,11 @@ export function ProjectMembersView({
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                      <span>Send coffee cheers (☕) and redeem coins in the Rewards Store</span>
+                      <span>
+                        Send coffee cheers{" "}
+                        <Coffee className="inline h-3.5 w-3.5 text-amber-600 dark:text-dusk-amber align-text-bottom" aria-hidden="true" />{" "}
+                        and redeem coins in the Rewards Store
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -948,59 +955,104 @@ export function ProjectMembersView({
                   <thead className="bg-stone-50 border-b border-stone-200/80 dark:bg-white/[0.03] dark:border-white/10 text-[11px] uppercase font-semibold text-stone-500">
                     <tr>
                       <th className="py-3 px-4">Feature / Action</th>
-                      <th className="py-3 px-4 text-center">Owner (👑)</th>
-                      <th className="py-3 px-4 text-center">Member (👤)</th>
+                      <th className="py-3 px-4 text-center">
+                        <span className="inline-flex items-center justify-center gap-1.5">
+                          <Crown className="h-3.5 w-3.5 text-amber-500 dark:text-dusk-amber" />
+                          <span>Owner</span>
+                        </span>
+                      </th>
+                      <th className="py-3 px-4 text-center">
+                        <span className="inline-flex items-center justify-center gap-1.5">
+                          <User className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
+                          <span>Member</span>
+                        </span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-200/70 dark:divide-white/5">
-                    <tr>
-                      <td className="py-2.5 px-4 font-medium">Workspace Identity & Settings</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Full Control</td>
-                      <td className="py-2.5 px-4 text-center text-stone-400">View Only</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-4 font-medium">Invite Members & Assign Roles</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                      <td className="py-2.5 px-4 text-center text-stone-400">✗ No</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-4 font-medium">Remove Members from Workspace</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                      <td className="py-2.5 px-4 text-center text-stone-400">✗ No</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-4 font-medium">Create & Manage Private Boards</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ All Boards</td>
-                      <td className="py-2.5 px-4 text-center text-amber-600">Assigned Only</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-4 font-medium">Kanban Cards & Spreadsheet View</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-4 font-medium">Calendar & Due Date Scheduling</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-4 font-medium">Shared Notes & Daily Diary</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-4 font-medium">Coffee Cheers & Gamification Rewards</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                      <td className="py-2.5 px-4 text-center text-emerald-600 font-bold">✓ Yes</td>
-                    </tr>
+                    {[
+                      {
+                        feature: "Workspace Identity & Settings",
+                        owner: { state: "yes", label: "Full Control" },
+                        member: { state: "muted", label: "View Only" }
+                      },
+                      {
+                        feature: "Invite Members & Assign Roles",
+                        owner: { state: "yes", label: "Yes" },
+                        member: { state: "no", label: "No" }
+                      },
+                      {
+                        feature: "Remove Members from Workspace",
+                        owner: { state: "yes", label: "Yes" },
+                        member: { state: "no", label: "No" }
+                      },
+                      {
+                        feature: "Create & Manage Private Boards",
+                        owner: { state: "yes", label: "All Boards" },
+                        member: { state: "amber", label: "Assigned Only" }
+                      },
+                      {
+                        feature: "Kanban Cards & Spreadsheet View",
+                        owner: { state: "yes", label: "Yes" },
+                        member: { state: "yes", label: "Yes" }
+                      },
+                      {
+                        feature: "Calendar & Due Date Scheduling",
+                        owner: { state: "yes", label: "Yes" },
+                        member: { state: "yes", label: "Yes" }
+                      },
+                      {
+                        feature: "Shared Notes & Daily Diary",
+                        owner: { state: "yes", label: "Yes" },
+                        member: { state: "yes", label: "Yes" }
+                      },
+                      {
+                        feature: "Coffee Cheers & Gamification Rewards",
+                        owner: { state: "yes", label: "Yes" },
+                        member: { state: "yes", label: "Yes" }
+                      }
+                    ].map((row) => (
+                      <tr key={row.feature}>
+                        <td className="py-2.5 px-4 font-medium">{row.feature}</td>
+                        {[row.owner, row.member].map((cell, index) => (
+                          <td
+                            key={index}
+                            className={cn(
+                              "py-2.5 px-4 text-center",
+                              cell.state === "yes" && "text-emerald-600 font-bold",
+                              cell.state === "no" && "text-stone-400",
+                              cell.state === "muted" && "text-stone-400",
+                              cell.state === "amber" && "text-amber-600"
+                            )}
+                          >
+                            {cell.state === "yes" ? (
+                              <span className="inline-flex items-center justify-center gap-1">
+                                <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                                <span>{cell.label}</span>
+                              </span>
+                            ) : cell.state === "no" ? (
+                              <span className="inline-flex items-center justify-center gap-1">
+                                <X className="h-3.5 w-3.5" />
+                                <span>{cell.label}</span>
+                              </span>
+                            ) : (
+                              cell.label
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
 
               {/* Tip Banner */}
-              <div className="rounded-2xl border border-stone-200/80 bg-stone-50/80 p-4 text-xs text-stone-600 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400">
-                <span className="font-semibold text-stone-800 dark:text-stone-200">💡 Pro Tip: </span>
-                If you have confidential sub-projects, you can make specific boards Private via Board Settings in the sidebar or Project Settings. Only the members you assign will be able to see or interact with that board.
+              <div className="flex items-start gap-2 rounded-2xl border border-stone-200/80 bg-stone-50/80 p-4 text-xs text-stone-600 dark:border-white/10 dark:bg-white/[0.02] dark:text-stone-400">
+                <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-500 dark:text-dusk-amber" />
+                <div>
+                  <span className="font-semibold text-stone-800 dark:text-stone-200">Pro Tip: </span>
+                  If you have confidential sub-projects, you can make specific boards Private via Board Settings in the sidebar or Project Settings. Only the members you assign will be able to see or interact with that board.
+                </div>
               </div>
             </div>
           )}

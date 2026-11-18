@@ -142,8 +142,8 @@ export async function POST(_request: Request, { params }: { params: { cardId: st
             projectId: access.projectId,
             cardId: params.cardId,
             type: "COFFEE_CHEER",
-            title: `☕ Coffee from ${cheererName}!`,
-            message: `${cheererName} treated you to a coffee for completing "${access.card.title}"! 🎉`,
+            title: `Coffee from ${cheererName}!`,
+            message: `${cheererName} treated you to a coffee for completing "${access.card.title}"!`,
             link: `/project/${access.projectId}/board?cardId=${params.cardId}`
           }))
         });

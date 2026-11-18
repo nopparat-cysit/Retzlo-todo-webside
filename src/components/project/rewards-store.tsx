@@ -489,7 +489,7 @@ export function RewardsStore({
 
       if (res.ok) {
         playBell();
-        toast({ message: `🎉 You redeemed "${rewardName}"!`, type: "success" });
+        toast({ message: `You redeemed "${rewardName}"!`, type: "success" });
         await loadData();
         router.refresh();
       } else {

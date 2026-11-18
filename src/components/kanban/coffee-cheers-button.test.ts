@@ -23,7 +23,8 @@ describe("CoffeeCheersButton Component & Integration", () => {
   it("contains steam particle animation styles", () => {
     expect(buttonSource).toContain("@keyframes coffeeSteamUp");
     expect(buttonSource).toContain("animate-coffee-steam");
-    expect(buttonSource).toContain("♨");
+    expect(buttonSource).toContain("<Coffee");
+    expect(buttonSource).not.toMatch(/[☕🎉♨]/u);
   });
 
   it("renders coffee metrics in Project Members View", () => {

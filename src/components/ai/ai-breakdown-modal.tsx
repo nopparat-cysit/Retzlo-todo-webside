@@ -199,7 +199,7 @@ export function AiBreakdownModal({
         setStep("preview");
 
         toast({
-          message: `✨ AI generated ${data.items.length} steps! Please review before applying.`,
+          message: `AI generated ${data.items.length} steps! Please review before applying.`,
           type: "success"
         });
       } else {
@@ -259,7 +259,7 @@ export function AiBreakdownModal({
     });
 
     toast({
-      message: `✨ Added ${selected.length} steps to card successfully!`,
+      message: `Added ${selected.length} steps to card successfully!`,
       type: "success"
     });
 

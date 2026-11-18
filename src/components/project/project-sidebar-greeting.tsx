@@ -22,7 +22,7 @@ export function ProjectSidebarGreeting({ userName }: ProjectSidebarGreetingProps
 
   return (
     <p className="text-xs text-stone-500" suppressHydrationWarning>
-      {greeting}, {userName} ✦
+      {greeting}, {userName}
     </p>
   );
 }

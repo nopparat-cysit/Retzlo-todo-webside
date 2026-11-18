@@ -148,7 +148,7 @@ export function BoardSidebarDropdown({
       toast({
         message: isStarred
           ? `Unstarred "${targetBoard?.name ?? "Board"}"`
-          : `⭐ Starred "${targetBoard?.name ?? "Board"}"!`,
+          : `Starred "${targetBoard?.name ?? "Board"}"!`,
         type: "success"
       });
       return next;
@@ -168,9 +168,9 @@ export function BoardSidebarDropdown({
       };
       templates.push(newTemplate);
       localStorage.setItem("retrod:saved-board-templates", JSON.stringify(templates));
-      toast({ message: `Saved "${board.name}" as template! 📋`, type: "success" });
+      toast({ message: `Saved "${board.name}" as template!`, type: "success" });
     } catch {
-      toast({ message: "Saved template locally! 📋", type: "success" });
+      toast({ message: "Saved template locally!", type: "success" });
     }
   };
 

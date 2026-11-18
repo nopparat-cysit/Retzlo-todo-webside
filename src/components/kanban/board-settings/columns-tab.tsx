@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ExternalLink,
   Layers,
+  Lightbulb,
   Plus,
   Pencil,
   Trash2,
@@ -849,8 +850,9 @@ export function BoardColumnsTab({
 
       {/* Footer hint & Link to Kanban */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1">
-        <p className="text-[11px] text-stone-500 italic">
-          💡 You can add, edit names, and configure WIP limits here, or visit the Kanban board to drag and reorder.
+        <p className="flex items-start gap-1.5 text-[11px] text-stone-500 italic">
+          <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500 dark:text-dusk-amber not-italic" />
+          <span>You can add, edit names, and configure WIP limits here, or visit the Kanban board to drag and reorder.</span>
         </p>
         {projectId ? (
           <Link

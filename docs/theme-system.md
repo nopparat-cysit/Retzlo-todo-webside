@@ -1226,7 +1226,11 @@ Template:
   - Replaced 3 hand-rolled `fixed inset-0` context menus in `projects-dashboard.tsx` with shared `DropdownMenu`, synced `/design-system` to real `ui/badge.tsx`, and removed hardcoded `bg-indigo-600`/`dark:bg-dusk-lavender` `<Button>` overrides across 6 modal/board components.
 - Structural Guard:
   - Added `src/lib/theme/design-system-guard.test.ts` enforcing zero Tailwind v4 phantom classes, zero unprefixed semantic tokens, and capping `globals.css` `!important` count at `<= 170`.
-- Remaining visual follow-up: Manual light/dark desktop and 390px mobile visual review recommended across `/profile`, `/projects`, `/project/[id]/rewards`, and Radix popovers/dropdowns after removing the global Radix `!important` rules.
+- Follow-Up Pass (2026-11-18, Set A & Set B):
+  - Fixed Light-mode `Toast`, `/privacy`, `/terms`, `ProgressBar`, `SoundToggle`, `Column` resize badge, `AuditDetailDrawer` JSON viewer, `SpotlightCardModalPreview`, and `OmikujiModal` contrast traps, plus `.fixed` scrim rules in `globals.css` (`:not(.fixed)` on solid white/cream light remaps).
+  - Fixed `/login` responsive cassette spacing and Light-mode corner watermark contrast in `login-scene.module.css`, and migrated `/design-system` header chips to `theme-*` tokens.
+  - Fixed `ProjectShell` `z-10` mobile drawer traps via `ModalPortal`, raised `OmikujiModal` (`z-[1000]`) and `AppModal` discard confirm (`above-modal`), fixed `EditProjectModal` 2-column grid, fixed `showToast` runtime crashes, removed `/hub/*` 404 pins, expanded `design-system-guard.test.ts` (`backdrop-blur-xs`, `py-0.2`, `bg-theme-base`, `border-theme-border-strong`), and replaced UI-chrome emojis across 34 source files with Lucide icons.
+- Remaining visual follow-up: Manual light/dark desktop and 390px mobile visual review recommended across authenticated routes (`/projects`, `/project/[id]/board`, `/profile`, `/project/[id]/rewards`).
 
 
 

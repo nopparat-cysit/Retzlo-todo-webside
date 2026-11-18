@@ -13,7 +13,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { Archive, ArrowUpDown, CalendarClock, Check, CheckSquare, ChevronDown, Edit3, FileText, Flag, History, KanbanSquare, LayoutGrid, ListFilter, MoreHorizontal, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X, Zap } from "lucide-react";
+import { Archive, ArrowUpDown, Calendar, CalendarClock, Check, CheckSquare, ChevronDown, Edit3, FileText, Flag, History, KanbanSquare, LayoutGrid, Lightbulb, ListFilter, MoreHorizontal, Pin, Plus, Search, RotateCcw, Rows3, SlidersHorizontal, Table2, Clock, Sparkles, User, Users, UserX, X, Zap } from "lucide-react";
 import { FormEvent, useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import { useLiveSync } from "@/hooks/use-live-sync";
@@ -609,7 +609,7 @@ export function KanbanBoard({
       body: JSON.stringify(move.payload)
     }), session.snapshot, () => {
       setMoveHistory(current => current.slice(0, -1));
-      toast({ message: `Undo card move: "${lastMove.title}" ↩️`, type: "success" });
+      toast({ message: `Undo card move: "${lastMove.title}"`, type: "success" });
       broadcastChange("CARD_UNDO");
     });
   };
@@ -900,7 +900,7 @@ export function KanbanBoard({
             rect ? rect.top + rect.height / 2 : window.innerHeight / 2
           );
           playCardDoneSound();
-          toast({ message: "Task complete! ✦", type: "success" });
+          toast({ message: "Task complete!", type: "success" });
           if (typeof window !== "undefined") {
             window.dispatchEvent(new Event("zen-updated"));
             window.dispatchEvent(new Event("coins-updated"));
@@ -1019,7 +1019,7 @@ export function KanbanBoard({
         const rect = cardEl?.getBoundingClientRect();
         triggerCelebration(rect ? rect.left + rect.width / 2 : window.innerWidth / 2, rect ? rect.top + rect.height / 2 : window.innerHeight / 2);
         playCardDoneSound();
-        toast({ message: "Task complete! ✦", type: "success" });
+        toast({ message: "Task complete!", type: "success" });
         window.dispatchEvent(new Event("zen-updated"));
         window.dispatchEvent(new Event("coins-updated"));
       } else {
@@ -1969,7 +1969,7 @@ export function KanbanBoard({
                         <SelectGroup>
                           <SelectLabel>Card Sorting</SelectLabel>
                           <SelectItem value="manual" className="cursor-pointer">
-                            📌 Default (Manual Order)
+                            <span className="inline-flex items-center gap-1.5"><Pin className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />Default (Manual Order)</span>
                           </SelectItem>
                         </SelectGroup>
                         <SelectSeparator />
@@ -1986,17 +1986,17 @@ export function KanbanBoard({
                         <SelectGroup>
                           <SelectLabel>Priority</SelectLabel>
                           <SelectItem value="priority_desc" className="cursor-pointer">
-                            🎯 Priority: High → Low (Urgent first)
+                            <span className="inline-flex items-center gap-1.5"><Flag className="h-3.5 w-3.5 text-rose-500" />Priority: High → Low (Urgent first)</span>
                           </SelectItem>
                           <SelectItem value="priority_asc" className="cursor-pointer">
-                            🎯 Priority: Low → High
+                            <span className="inline-flex items-center gap-1.5"><Flag className="h-3.5 w-3.5 text-stone-400" />Priority: Low → High</span>
                           </SelectItem>
                         </SelectGroup>
                         <SelectSeparator />
                         <SelectGroup>
                           <SelectLabel>Timeline</SelectLabel>
                           <SelectItem value="due_date" className="cursor-pointer">
-                            📅 Due Date: Earliest / Overdue first
+                            <span className="inline-flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />Due Date: Earliest / Overdue first</span>
                           </SelectItem>
                         </SelectGroup>
                       </SelectContent>
@@ -2183,8 +2183,9 @@ export function KanbanBoard({
                   />
                 </div>
 
-                <div className="rounded-xl border border-theme-border/60 bg-theme-paper/50 p-3 text-[11px] text-theme-muted leading-relaxed">
-                  💡 <strong>Stage preview:</strong> Cards moved into this column will default to the selected status. You can customize limits and automation rules at any time.
+                <div className="flex items-start gap-2 rounded-xl border border-theme-border/60 bg-theme-paper/50 p-3 text-[11px] text-theme-muted leading-relaxed">
+                  <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500 dark:text-dusk-amber" />
+                  <span><strong>Stage preview:</strong> Cards moved into this column will default to the selected status. You can customize limits and automation rules at any time.</span>
                 </div>
               </div>
             </div>

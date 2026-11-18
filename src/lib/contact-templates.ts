@@ -13,7 +13,7 @@ export interface ContactTemplate {
 export const CONTACT_TEMPLATES: ContactTemplate[] = [
   {
     id: "bug-report",
-    label: "🐛 Bug Report",
+    label: "Bug Report",
     shortName: "Bug Report",
     badge: "Bug",
     badgeColor: "border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400",
@@ -36,7 +36,7 @@ export const CONTACT_TEMPLATES: ContactTemplate[] = [
   },
   {
     id: "feature-request",
-    label: "💡 Feature Request",
+    label: "Feature Request",
     shortName: "Feature Request",
     badge: "Idea",
     badgeColor: "border-amber-300 bg-amber-50 text-amber-700 dark:border-dusk-amber/30 dark:bg-dusk-amber/10 dark:text-dusk-amber",
@@ -55,7 +55,7 @@ export const CONTACT_TEMPLATES: ContactTemplate[] = [
   },
   {
     id: "general-inquiry",
-    label: "💬 General Inquiry",
+    label: "General Inquiry",
     shortName: "General",
     badge: "Inquiry",
     badgeColor: "border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/10 dark:text-dusk-lavender",
@@ -73,7 +73,7 @@ export const CONTACT_TEMPLATES: ContactTemplate[] = [
   },
   {
     id: "partnership-feedback",
-    label: "🤝 Partnership & Feedback",
+    label: "Partnership & Feedback",
     shortName: "Partnership",
     badge: "Partner",
     badgeColor: "border-teal-300 bg-teal-50 text-teal-700 dark:border-dusk-cyan/30 dark:bg-dusk-cyan/10 dark:text-dusk-cyan",
@@ -91,7 +91,7 @@ export const CONTACT_TEMPLATES: ContactTemplate[] = [
   },
   {
     id: "gamification-rewards",
-    label: "☕ Gamification & Rewards",
+    label: "Gamification & Rewards",
     shortName: "Rewards",
     badge: "Rewards",
     badgeColor: "border-pink-300 bg-pink-50 text-pink-700 dark:border-pink-500/30 dark:bg-pink-500/10 dark:text-pink-400",
@@ -107,7 +107,7 @@ export const CONTACT_TEMPLATES: ContactTemplate[] = [
   },
   {
     id: "security-privacy",
-    label: "🔒 Security & Privacy",
+    label: "Security & Privacy",
     shortName: "Security",
     badge: "Security",
     badgeColor: "border-stone-300 bg-stone-100 text-stone-700 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300",
@@ -122,7 +122,7 @@ export const CONTACT_TEMPLATES: ContactTemplate[] = [
   },
   {
     id: "custom",
-    label: "✏️ Custom Freeform",
+    label: "Custom Freeform",
     shortName: "Custom",
     badge: "Freeform",
     badgeColor: "border-stone-200 bg-stone-50 text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400",

@@ -252,13 +252,13 @@ export function BoardExportModal({
       if (selection.kind === "data" && selection.format === "excel") {
         downloadExcel(exportRows, filename, boardTitle);
         toast({
-          message: `Exported Excel (.xlsx) successfully! (${exportRows.length} items) 📊`,
+          message: `Exported Excel (.xlsx) successfully! (${exportRows.length} items)`,
           type: "success"
         });
       } else if (selection.kind === "data" && selection.format === "csv") {
         downloadCsv(exportRows, filename);
         toast({
-          message: `Exported CSV (.csv) successfully! (${exportRows.length} items) 📄`,
+          message: `Exported CSV (.csv) successfully! (${exportRows.length} items)`,
           type: "success"
         });
       } else if (selection.kind === "visual") {
@@ -277,7 +277,7 @@ export function BoardExportModal({
             pixelRatio: 2.2
           });
           toast({
-            message: "Exported high-resolution PNG (.png) successfully! 🖼️",
+            message: "Exported high-resolution PNG (.png) successfully!",
             type: "success"
           });
         } else {
@@ -286,7 +286,7 @@ export function BoardExportModal({
             orientation: "landscape"
           });
           toast({
-            message: "Exported formatted PDF (.pdf) successfully! 📑",
+            message: "Exported formatted PDF (.pdf) successfully!",
             type: "success"
           });
         }
@@ -817,14 +817,14 @@ export function BoardExportButton({
         const rows = prepareExportRows(activeColumns, members, boardPriorities);
         downloadExcel(rows, filename, boardTitle);
         toast({
-          message: `Exported Excel (.xlsx) successfully (${rows.length} items) 📊`,
+          message: `Exported Excel (.xlsx) successfully (${rows.length} items)`,
           type: "success"
         });
       } else if (format === "csv") {
         const rows = prepareExportRows(activeColumns, members, boardPriorities);
         downloadCsv(rows, filename);
         toast({
-          message: `Exported CSV (.csv) successfully (${rows.length} items) 📄`,
+          message: `Exported CSV (.csv) successfully (${rows.length} items)`,
           type: "success"
         });
       } else if (format === "png") {
@@ -836,7 +836,7 @@ export function BoardExportButton({
           pixelRatio: 2.2
         });
         toast({
-          message: "Exported high quality PNG (.png) successfully 🖼️",
+          message: "Exported high quality PNG (.png) successfully",
           type: "success"
         });
       } else if (format === "pdf") {
@@ -848,7 +848,7 @@ export function BoardExportButton({
           orientation: "landscape"
         });
         toast({
-          message: "Exported formatted PDF (.pdf) successfully 📑",
+          message: "Exported formatted PDF (.pdf) successfully",
           type: "success"
         });
       }

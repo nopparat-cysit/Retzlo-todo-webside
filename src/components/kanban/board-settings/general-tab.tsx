@@ -381,7 +381,10 @@ export function BoardGeneralTab({
               </div>
             ) : onGoToAccessTab ? (
               <div className="flex items-center justify-between rounded-lg border border-dusk-amber/30 bg-dusk-amber/10 px-3 py-2 text-xs text-dusk-amber">
-                <span>🔒 {selectedMemberCount} of {totalProjectMembersCount} members authorized</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Lock className="h-3.5 w-3.5 shrink-0" />
+                  <span>{selectedMemberCount} of {totalProjectMembersCount} members authorized</span>
+                </span>
                 <button
                   type="button"
                   onClick={onGoToAccessTab}

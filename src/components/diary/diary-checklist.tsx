@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Calendar, CheckCircle2, Circle, ChevronDown, Coins, Eye, EyeOff, Minus, Plus, Repeat, Trash2, X } from "lucide-react";
+import { Calendar, CheckCircle2, Circle, ChevronDown, Clock, Coins, Eye, EyeOff, Minus, Plus, Repeat, Sun, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -239,12 +239,20 @@ export function DiaryChecklistEditor({
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-medium text-stone-300">Start date</span>
                         {item.startDate ? (
-                          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-mono text-stone-400">
-                            {item.startDate.slice(0, 10) === toLocalDateString()
-                              ? "🟢 Today"
-                              : item.startDate.slice(0, 10) > toLocalDateString()
-                                ? "⏳ Upcoming"
-                                : "Started"}
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-mono text-stone-400">
+                            {item.startDate.slice(0, 10) === toLocalDateString() ? (
+                              <>
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+                                <span>Today</span>
+                              </>
+                            ) : item.startDate.slice(0, 10) > toLocalDateString() ? (
+                              <>
+                                <Clock className="h-3 w-3 text-dusk-amber" />
+                                <span>Upcoming</span>
+                              </>
+                            ) : (
+                              <span>Started</span>
+                            )}
                           </span>
                         ) : null}
                       </div>
@@ -340,25 +348,27 @@ export function DiaryChecklistEditor({
                           type="button"
                           onClick={() => updateItem(item.id, { repeatUnit: "DAY" })}
                           className={cn(
-                            "rounded-md px-2.5 py-1 text-xs font-medium transition",
+                            "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition",
                             (item.repeatUnit ?? "DAY") === "DAY"
                               ? "border border-dusk-cyan/35 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-sm"
                               : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
                           )}
                         >
-                          ☀️ Daily (Days)
+                          <Sun className="h-3.5 w-3.5" />
+                          <span>Daily (Days)</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => updateItem(item.id, { repeatUnit: "MONTH", intervalDays: 1 })}
                           className={cn(
-                            "rounded-md px-2.5 py-1 text-xs font-medium transition",
+                            "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition",
                             item.repeatUnit === "MONTH"
                               ? "border border-dusk-cyan/35 bg-dusk-cyan/20 text-dusk-cyan font-semibold shadow-sm"
                               : "text-stone-400 hover:text-stone-200 hover:bg-white/5"
                           )}
                         >
-                          🗓️ Monthly
+                          <Calendar className="h-3.5 w-3.5" />
+                          <span>Monthly</span>
                         </button>
                       </div>
                     </div>

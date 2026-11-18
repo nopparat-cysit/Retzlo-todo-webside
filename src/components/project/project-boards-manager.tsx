@@ -186,7 +186,7 @@ export function ProjectBoardsManager({
         )
       );
       setAccessBoard(null);
-      toast({ message: "Board access permissions saved! 🔒", type: "success" });
+      toast({ message: "Board access permissions saved!", type: "success" });
     } catch (err) {
       toast({ message: err instanceof Error ? err.message : "Failed to save access", type: "error" });
     } finally {

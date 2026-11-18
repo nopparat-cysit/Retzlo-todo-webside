@@ -13,6 +13,7 @@ import {
   Sparkles,
   Star,
   Table,
+  User,
   Zap
 } from "lucide-react";
 import type { Card, CardAssignee, ColumnWithCards, CustomPriority } from "@/types/kanban";
@@ -688,7 +689,12 @@ export function BoardExportDocument({
                             )}
                           >
                             {formatExportDate(card.dueDate)}
-                            {isOverdue && <span className="block text-[9px]">⚠️ Overdue</span>}
+                            {isOverdue && (
+                              <span className="mt-0.5 inline-flex items-center justify-center gap-0.5 text-[9px]">
+                                <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+                                <span>Overdue</span>
+                              </span>
+                            )}
                           </td>
                           <td
                             className={cn(
@@ -883,13 +889,16 @@ function ExportCardItem({
           <div className="flex items-center gap-1 shrink-0">
             <span
               className={cn(
-                "px-1.5 py-0.5 rounded text-[10px] font-medium max-w-[120px] truncate",
+                "inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium max-w-[120px]",
                 isDark ? "bg-white/10 text-stone-200" : "bg-stone-100 text-stone-700"
               )}
               title={assigneeNames.join(", ")}
             >
-              👤 {assigneeNames[0]}
-              {assigneeNames.length > 1 ? ` +${assigneeNames.length - 1}` : ""}
+              <User className="h-2.5 w-2.5 shrink-0" />
+              <span className="truncate">
+                {assigneeNames[0]}
+                {assigneeNames.length > 1 ? ` +${assigneeNames.length - 1}` : ""}
+              </span>
             </span>
           </div>
         )}

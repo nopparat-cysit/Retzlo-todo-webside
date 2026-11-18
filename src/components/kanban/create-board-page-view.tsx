@@ -11,6 +11,7 @@ import {
   FolderKanban,
   GitCommitHorizontal,
   Globe,
+  Lightbulb,
   Lock,
   Search,
   Sparkles,
@@ -731,8 +732,9 @@ export function CreateBoardPageView({
             )}
 
             {/* Explanatory Footer Tip */}
-            <div className="rounded-xl border border-theme-border/60 bg-theme-paper/40 p-3 text-[11px] text-theme-muted leading-relaxed">
-              💡 <strong>Instant Customization:</strong> This board will be initialized with the columns and workflow rules previewed above. Once created, you can customize column names, WIP limits, colors, and automation rules in Board Settings at any time.
+            <div className="flex items-start gap-2 rounded-xl border border-theme-border/60 bg-theme-paper/40 p-3 text-[11px] text-theme-muted leading-relaxed">
+              <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500 dark:text-dusk-amber" />
+              <span><strong>Instant Customization:</strong> This board will be initialized with the columns and workflow rules previewed above. Once created, you can customize column names, WIP limits, colors, and automation rules in Board Settings at any time.</span>
             </div>
           </div>
         </div>

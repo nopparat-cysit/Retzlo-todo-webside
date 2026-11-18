@@ -9,6 +9,14 @@ import {
   useState,
 } from "react";
 
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Info,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -50,33 +58,33 @@ const TOAST_DURATION = 3500;
 
 const typeStyles: Record<
   ToastType,
-  { bar: string; icon: string; text: string; glow: string; bg: string }
+  { bar: string; Icon: LucideIcon; text: string; glow: string; bg: string }
 > = {
   success: {
     bg: "bg-theme-panel-strong",
     bar: "bg-theme-success",
-    icon: "✦",
+    Icon: CheckCircle2,
     text: "text-theme-success",
     glow: "shadow-[0_0_24px_rgba(229,189,114,0.18)]",
   },
   error: {
     bg: "bg-theme-panel-strong",
     bar: "bg-theme-danger",
-    icon: "✕",
+    Icon: XCircle,
     text: "text-theme-danger",
     glow: "shadow-[0_0_24px_rgba(248,113,113,0.14)]",
   },
   info: {
     bg: "bg-theme-panel-strong",
     bar: "bg-theme-info",
-    icon: "◈",
+    Icon: Info,
     text: "text-theme-info",
     glow: "shadow-[0_0_24px_rgba(169,162,255,0.18)]",
   },
   warning: {
     bg: "bg-theme-panel-strong",
     bar: "bg-theme-warning",
-    icon: "⚠",
+    Icon: AlertTriangle,
     text: "text-theme-warning",
     glow: "shadow-[0_0_24px_rgba(213,154,179,0.18)]",
   },
@@ -122,6 +130,7 @@ export function Toast({ item, onDismiss }: ToastProps) {
   }, []);
 
   const styles = typeStyles[item.type];
+  const ToastIcon = styles.Icon;
 
   return (
     <div
@@ -167,9 +176,9 @@ export function Toast({ item, onDismiss }: ToastProps) {
       {/* Icon */}
       <span
         aria-hidden="true"
-        className={cn("mt-px shrink-0 text-sm font-bold leading-none", styles.text)}
+        className={cn("mt-0.5 shrink-0", styles.text)}
       >
-        {styles.icon}
+        <ToastIcon className="h-4 w-4" />
       </span>
 
       {/* Message */}

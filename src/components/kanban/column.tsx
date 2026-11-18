@@ -3,7 +3,7 @@
 import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { AlertTriangle, GripVertical, Minus, Plus, Settings, Trash2, X, Zap } from "lucide-react";
+import { AlertTriangle, GripVertical, Lightbulb, Minus, Plus, Settings, Trash2, X, Zap } from "lucide-react";
 import { useEffect, useRef, useState, memo } from "react";
 
 import { CardModal } from "@/components/kanban/card-modal";
@@ -761,8 +761,9 @@ function KanbanColumnComponent({
                   />
                 </div>
 
-                <div className="rounded-xl border border-theme-border/60 bg-theme-paper/50 p-3 text-[11px] text-theme-muted leading-relaxed">
-                  💡 <strong>Stage preview:</strong> Live updates will be synced immediately to all team members currently viewing this board.
+                <div className="flex items-start gap-2 rounded-xl border border-theme-border/60 bg-theme-paper/50 p-3 text-[11px] text-theme-muted leading-relaxed">
+                  <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500 dark:text-dusk-amber" />
+                  <span><strong>Stage preview:</strong> Live updates will be synced immediately to all team members currently viewing this board.</span>
                 </div>
               </div>
             </div>

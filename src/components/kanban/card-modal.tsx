@@ -12,7 +12,7 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 import { FormEvent, ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { AlertCircle, Archive, CheckSquare, Coins, GripVertical, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
+import { AlertCircle, AlertTriangle, Archive, CheckSquare, Coins, GripVertical, Lightbulb, Plus, Sparkles, Star, Trash2, X, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { playCardCreateSound } from "@/lib/sound";
@@ -1231,13 +1231,15 @@ export function CardModal({
               }}
             />
             {!date ? (
-              <p className="rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs font-medium text-stone-400">
-                💡 กำหนดเวลาสิ้นสุด (Due Date) ด้านบนก่อน จึงจะสามารถใส่เวลาเริ่มต้นได้
+              <p className="flex items-start gap-2 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs font-medium text-stone-400">
+                <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+                <span>กำหนดเวลาสิ้นสุด (Due Date) ด้านบนก่อน จึงจะสามารถใส่เวลาเริ่มต้นได้</span>
               </p>
             ) : null}
             {startDate && date && startDate > date ? (
-              <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-300">
-                ⚠️ Notice: Start date ({startDate}) is after due date ({date})
+              <p className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-300">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+                <span>Notice: Start date ({startDate}) is after due date ({date})</span>
               </p>
             ) : null}
           </div>
@@ -1255,7 +1257,12 @@ export function CardModal({
               </div>
               <div className="space-y-3">
                 <label className="block space-y-1 text-xs text-stone-400">
-                  <span className="text-stone-700 dark:text-stone-300 font-medium">Project Coins (🪙 Team)</span>
+                  <span className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 font-medium">
+                    <span>Project Coins</span>
+                    <span className="inline-flex items-center gap-1 text-stone-500 dark:text-stone-400 font-normal">
+                      (<Coins className="h-3 w-3 text-dusk-amber" /> Team)
+                    </span>
+                  </span>
                   <input
                     type="number"
                     min="0"
@@ -1268,7 +1275,12 @@ export function CardModal({
                 </label>
 
                 <label className="block space-y-1 text-xs text-stone-400">
-                  <span className="text-stone-700 dark:text-stone-300 font-medium">My Private Coins (🪙 Personal)</span>
+                  <span className="inline-flex items-center gap-1.5 text-stone-700 dark:text-stone-300 font-medium">
+                    <span>My Private Coins</span>
+                    <span className="inline-flex items-center gap-1 text-stone-500 dark:text-stone-400 font-normal">
+                      (<Coins className="h-3 w-3 text-dusk-amber" /> Personal)
+                    </span>
+                  </span>
                   <input
                     type="number"
                     min="0"
