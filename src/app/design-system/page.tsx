@@ -23,17 +23,17 @@ export default function DesignSystemPage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-8 text-stone-100 sm:px-6 lg:px-8">
+    <main className="min-h-screen px-4 py-8 text-theme-foreground sm:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-        <header className="rounded-2xl border border-white/10 bg-white/[0.035] p-6 shadow-[0_18px_54px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+        <header className="rounded-2xl border border-theme-border bg-theme-panel p-6 shadow-[shadow:var(--shadow-panel)] backdrop-blur-xl">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-dusk-amber">RETROD Product UI</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-stone-100 sm:text-4xl">Design System</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-400">
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-theme-foreground sm:text-4xl">Design System</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-theme-muted">
             Shared primitives, states, cards, filters, modal layers, and Toast feedback for keeping every module in one visual language.
           </p>
-          <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-stone-500">
+          <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-theme-muted">
             {primitiveReference.map((item) => (
-              <span key={item} className="rounded-full border border-white/10 bg-white/[0.035] px-2.5 py-1">
+              <span key={item} className="rounded-full border border-theme-border bg-theme-paper px-2.5 py-1">
                 {item.replace("@/components/ui/", "")}
               </span>
             ))}

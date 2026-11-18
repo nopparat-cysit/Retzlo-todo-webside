@@ -31,7 +31,7 @@ export function ProgressBar({
   return (
     <div className={cn("space-y-1.5", className)} {...props}>
       {showLabel && (
-        <div className="flex items-center justify-between text-[11px] text-stone-500">
+        <div className="flex items-center justify-between text-[11px] text-theme-muted">
           <span>{label}</span>
           <span className="font-mono">{clampedValue}%</span>
         </div>
@@ -42,7 +42,7 @@ export function ProgressBar({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={label}
-        className={cn("overflow-hidden rounded-full bg-white/10", sizeClasses[size])}
+        className={cn("overflow-hidden rounded-full bg-theme-paper-strong", sizeClasses[size])}
       >
         <div
           className={cn(
