@@ -2519,8 +2519,8 @@ select {
 
 [data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
 .light input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
-[data-theme="light"] textarea:not(.quick-add-textarea),
-.light textarea:not(.quick-add-textarea),
+[data-theme="light"] textarea:not(.quick-add-textarea):not([data-seamless-textarea="true"]),
+.light textarea:not(.quick-add-textarea):not([data-seamless-textarea="true"]),
 [data-theme="light"] select,
 .light select {
   background-color: #ffffff !important;
@@ -2538,8 +2538,8 @@ select {
 
 [data-theme="light"] input:focus,
 .light input:focus,
-[data-theme="light"] textarea:not(.quick-add-textarea):focus,
-.light textarea:not(.quick-add-textarea):focus,
+[data-theme="light"] textarea:not(.quick-add-textarea):not([data-seamless-textarea="true"]):focus,
+.light textarea:not(.quick-add-textarea):not([data-seamless-textarea="true"]):focus,
 [data-theme="light"] select:focus,
 .light select:focus {
   border-color: #a9a2ff !important;
@@ -2549,7 +2549,10 @@ select {
 /* Quick-add seamless inline card textarea */
 textarea.quick-add-textarea,
 [data-theme="light"] textarea.quick-add-textarea,
-.light textarea.quick-add-textarea {
+.light textarea.quick-add-textarea,
+textarea[data-seamless-textarea="true"],
+[data-theme="light"] textarea[data-seamless-textarea="true"],
+.light textarea[data-seamless-textarea="true"] {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
@@ -2560,7 +2563,10 @@ textarea.quick-add-textarea,
 
 textarea.quick-add-textarea:focus,
 [data-theme="light"] textarea.quick-add-textarea:focus,
-.light textarea.quick-add-textarea:focus {
+.light textarea.quick-add-textarea:focus,
+textarea[data-seamless-textarea="true"]:focus,
+[data-theme="light"] textarea[data-seamless-textarea="true"]:focus,
+.light textarea[data-seamless-textarea="true"]:focus {
   border: none !important;
   border-color: transparent !important;
   box-shadow: none !important;

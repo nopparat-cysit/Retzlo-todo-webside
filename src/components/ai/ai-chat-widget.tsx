@@ -221,8 +221,8 @@ export function AiChatWidget() {
     const el = inputRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
-  }, [input]);
+    el.style.height = `${Math.min(el.scrollHeight, 144)}px`;
+  }, [input, isOpen]);
 
   const pushAssistantError = (content: string) => {
     setMessages((prev) => [
@@ -812,33 +812,34 @@ export function AiChatWidget() {
           </div>
 
           {/* Composer */}
-          <div className="shrink-0 px-3 pb-3 pt-2">
-            <div className="rounded-xl border border-theme-border bg-theme-background transition-colors focus-within:border-theme-accent/70 focus-within:ring-2 focus-within:ring-theme-accent/15">
+          <div className="shrink-0 border-t border-theme-border bg-theme-panel px-3.5 pb-3.5 pt-2.5">
+            <div className="overflow-hidden rounded-2xl border border-theme-border bg-theme-input-surface shadow-sm transition-all focus-within:border-theme-primary focus-within:ring-2 focus-within:ring-theme-primary/20">
               {/* Staged attachments preview */}
               {stagedAttachments.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 p-2 border-b border-theme-border/60">
+                <div className="flex flex-wrap gap-1.5 border-b border-theme-border bg-theme-paper px-3 py-2">
                   {stagedAttachments.map((att, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center gap-1.5 rounded-lg border border-theme-border bg-theme-panel px-2 py-1 text-xs text-theme-foreground"
+                      className="flex items-center gap-2 rounded-xl border border-theme-border bg-theme-panel px-2 py-1 text-xs text-theme-foreground shadow-sm"
                     >
                       {att.isImage ? (
                         <img
                           src={att.url}
                           alt={att.name}
-                          className="h-4 w-4 rounded object-cover"
+                          className="h-6 w-6 shrink-0 rounded-md object-cover"
                         />
                       ) : (
-                        <FileText className="h-3.5 w-3.5 text-theme-accent" />
+                        <FileText className="h-3.5 w-3.5 shrink-0 text-theme-primary" />
                       )}
-                      <span className="max-w-[120px] truncate text-[11px] text-theme-foreground/80">
+                      <span className="max-w-[130px] truncate text-[11px] font-medium text-theme-foreground">
                         {att.name}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleRemoveStaged(idx)}
-                        className="ml-0.5 rounded p-0.5 text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
+                        className="grid h-5 w-5 shrink-0 place-items-center rounded-md text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer"
                         title={tr("ลบไฟล์แนบ", "Remove attachment")}
+                        aria-label={tr("ลบไฟล์แนบ", "Remove attachment")}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -849,14 +850,15 @@ export function AiChatWidget() {
 
               <textarea
                 ref={inputRef}
+                data-seamless-textarea="true"
                 rows={1}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={tr("ถาม Retzlo AI เกี่ยวกับงานของคุณ…", "Ask Retzlo AI about your work…")}
-                className="block max-h-40 w-full resize-none bg-transparent px-3.5 pt-3 text-[13px] leading-relaxed text-theme-foreground placeholder:text-theme-muted focus:outline-none"
+                className="scrollbar-soft block min-h-[44px] max-h-36 w-full resize-none border-0 bg-transparent px-3.5 pb-1.5 pt-3 text-[13.5px] leading-relaxed text-theme-foreground placeholder:text-theme-muted focus:outline-none focus:ring-0"
               />
-              <div className="flex items-center justify-between gap-2 px-2 pb-2 pl-2.5">
+              <div className="flex items-center justify-between gap-2 px-2.5 pb-2 pt-1">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -869,16 +871,17 @@ export function AiChatWidget() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading || isLoading}
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-theme-muted hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer disabled:cursor-not-allowed"
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-transparent text-theme-muted hover:border-theme-border hover:bg-theme-paper hover:text-theme-foreground transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                     title={tr("แนบรูปภาพหรือเอกสาร", "Attach image or document")}
+                    aria-label={tr("แนบรูปภาพหรือเอกสาร", "Attach image or document")}
                   >
                     {isUploading ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-theme-accent" />
+                      <Loader2 className="h-4 w-4 animate-spin text-theme-primary" />
                     ) : (
                       <Paperclip className="h-4 w-4" />
                     )}
                   </button>
-                  <span className="truncate text-[10px] text-theme-muted">
+                  <span className="hidden sm:inline truncate text-[11px] text-theme-muted opacity-80">
                     {tr("Enter ส่ง · Shift+Enter ขึ้นบรรทัด", "Enter to send · Shift+Enter for newline")}
                   </span>
                 </div>
@@ -886,11 +889,11 @@ export function AiChatWidget() {
                   type="button"
                   disabled={(!input.trim() && stagedAttachments.length === 0) || isLoading || isUploading}
                   onClick={() => handleSend()}
-                  className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-theme-accent text-theme-background transition hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:bg-theme-paper disabled:text-theme-muted cursor-pointer"
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-theme-primary text-theme-primary-foreground shadow-sm transition enabled:hover:bg-theme-primary-hover enabled:active:scale-95 disabled:cursor-not-allowed disabled:bg-theme-paper disabled:text-theme-muted disabled:shadow-none cursor-pointer"
                   title={tr("ส่งข้อความ", "Send message")}
                   aria-label={tr("ส่งข้อความ", "Send message")}
                 >
-                  <ArrowUp className="h-4 w-4" />
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
                 </button>
               </div>
             </div>
