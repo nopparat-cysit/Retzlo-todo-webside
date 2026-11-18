@@ -18,6 +18,13 @@ const config: Config = {
           muted: "var(--muted)",
           border: "var(--border)",
           accent: "var(--accent)",
+          primary: "color-mix(in srgb, var(--primary) calc(<alpha-value> * 100%), transparent)",
+          "primary-foreground": "var(--primary-foreground)",
+          "primary-hover": "var(--primary-hover)",
+          popover: "var(--popover)",
+          "popover-hover": "var(--popover-hover)",
+          "input-surface": "var(--input-surface)",
+          "input-border": "var(--input-border)",
           danger: {
             DEFAULT: "var(--danger)",
             foreground: "var(--danger-foreground)",

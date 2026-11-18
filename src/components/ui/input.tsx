@@ -57,8 +57,8 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
       ref={(node) => assignInputRef(node, [inputRef, forwardedRef])}
       type={type}
       className={cn(
-        "h-10 w-full rounded-lg border border-stone-200/90 bg-white px-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-55 dark:border-white/10 dark:bg-white/[0.065] dark:text-stone-100 dark:placeholder:text-stone-400 dark:focus:border-dusk-lavender/70 dark:focus:bg-white/[0.09] dark:focus:ring-dusk-lavender/25",
-        Icon && "pr-10 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0",
+        "h-10 w-full rounded-lg border border-theme-input-border bg-theme-input-surface px-3 text-sm text-theme-foreground outline-none transition placeholder:text-theme-muted focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20 disabled:cursor-not-allowed disabled:opacity-55",
+        Icon && "pr-10 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0",
         className
       )}
       onClick={handleClick}
@@ -93,7 +93,7 @@ export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTex
   return (
     <textarea
       className={cn(
-        "min-h-24 w-full rounded-lg border border-stone-200/90 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-55 dark:border-white/10 dark:bg-white/[0.065] dark:text-stone-100 dark:placeholder:text-stone-400 dark:focus:border-dusk-lavender/70 dark:focus:bg-white/[0.09] dark:focus:ring-dusk-lavender/25",
+        "min-h-24 w-full rounded-lg border border-theme-input-border bg-theme-input-surface px-3 py-2 text-sm text-theme-foreground outline-none transition placeholder:text-theme-muted focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20 disabled:cursor-not-allowed disabled:opacity-55",
         className
       )}
       {...props}

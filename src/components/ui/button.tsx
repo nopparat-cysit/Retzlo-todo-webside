@@ -4,18 +4,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 export const buttonVariants = cva(
-  "motion-interactive inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/55 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-background disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]",
+  "motion-interactive inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/55 focus-visible:ring-offset-2 focus-visible:ring-offset-theme-background disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]",
   {
     variants: {
       variant: {
         primary:
-          "border border-dusk-lavender/25 bg-dusk-lavender text-ink-950 hover:bg-dusk-amber",
+          "border border-theme-primary/25 bg-theme-primary text-theme-primary-foreground hover:bg-theme-primary-hover",
         secondary:
-          "border border-theme-border bg-theme-paper text-theme-foreground hover:border-dusk-lavender/35 hover:bg-theme-paper-strong",
+          "border border-theme-border bg-theme-paper text-theme-foreground hover:border-theme-primary/35 hover:bg-theme-paper-strong",
         ghost:
           "border border-transparent bg-transparent text-theme-foreground hover:bg-theme-paper hover:text-theme-foreground",
         outline:
-          "border border-theme-border bg-transparent text-theme-foreground hover:border-dusk-lavender/45 hover:bg-theme-paper",
+          "border border-theme-border bg-transparent text-theme-foreground hover:border-theme-primary/45 hover:bg-theme-paper",
         danger:
           "border border-theme-danger bg-theme-danger text-theme-danger-foreground hover:brightness-95",
         subtle:

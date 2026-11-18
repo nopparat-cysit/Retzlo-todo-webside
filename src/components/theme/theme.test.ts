@@ -123,18 +123,22 @@ describe("Theme system and Warm Paper Light Mode", () => {
     expect(skeleton).toContain("border-stone-200/90 bg-stone-100/70");
   });
 
-  it("ensures floating dropdown menus and selects use warm paper and high-contrast typography in Light Mode", () => {
+  it("wires semantic action and popover tokens in globals.css, select.tsx, and button.tsx for Light Mode", () => {
     const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
-    expect(css).toContain('[data-theme="light"] [data-radix-select-content]');
-    expect(css).toContain("background-color: #faf7f2 !important;");
-    expect(css).toContain('[data-theme="light"] [role="option"]:hover');
-    expect(css).toContain("background-color: #ede7da !important;");
+    expect(css).toContain("--primary: #5b52e5;");
+    expect(css).toContain("--primary-foreground: #ffffff;");
+    expect(css).toContain("--popover: #faf7f2;");
+    expect(css).toContain("--popover-hover: #ede7da;");
     expect(css).toContain('[data-theme="light"] .text-stone-700');
     expect(css).toContain("color: #292524 !important;");
 
     const selectComponent = readFileSync(join(process.cwd(), "src/components/ui/select.tsx"), "utf8");
-    expect(selectComponent).toContain("bg-[#faf7f2]");
-    expect(selectComponent).toContain("hover:bg-[#ede7da]");
+    expect(selectComponent).toContain("bg-theme-popover");
+    expect(selectComponent).toContain("hover:bg-theme-popover-hover");
+
+    const buttonComponent = readFileSync(join(process.cwd(), "src/components/ui/button.tsx"), "utf8");
+    expect(buttonComponent).toContain("bg-theme-primary");
+    expect(buttonComponent).toContain("text-theme-primary-foreground");
   });
 
   it("normalizes native select appearance to avoid Mac Aqua system white styling", () => {
@@ -147,16 +151,19 @@ describe("Theme system and Warm Paper Light Mode", () => {
     expect(notesPanel).toContain("SelectTrigger");
   });
 
-  it("ensures floating dropdown menus and selects use deep midnight background and high contrast typography in Dark Mode", () => {
+  it("wires semantic popover and primary tokens for Dark Mode without global Radix !important hijacks", () => {
     const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
-    expect(css).toContain('[data-theme="dark"] [data-radix-select-content]');
-    expect(css).toContain(".dark [data-radix-select-content]");
-    expect(css).toContain("background-color: #0e1025 !important;");
-    expect(css).toContain(".dark [role=\"option\"]");
-    expect(css).toContain("color: #e7e5e4 !important;");
+    expect(css).toContain("--primary: #a9a2ff;");
+    expect(css).toContain("--primary-foreground: #080817;");
+    expect(css).toContain("--popover: #0e1025;");
+    expect(css).toContain("--popover-hover: rgba(255, 255, 255, 0.08);");
+    expect(css).not.toContain("[data-radix-select-content]");
+    expect(css).not.toContain("[data-radix-popper-content-wrapper]");
+    expect(css).not.toContain("[data-radix-menu-content]");
 
     const selectComponent = readFileSync(join(process.cwd(), "src/components/ui/select.tsx"), "utf8");
-    expect(selectComponent).toContain("dark:bg-[#0e1025]");
+    expect(selectComponent).toContain("bg-theme-popover");
+    expect(selectComponent).toContain("text-theme-foreground");
   });
 });
 

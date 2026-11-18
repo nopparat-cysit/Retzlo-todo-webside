@@ -18,6 +18,13 @@
   --muted: #aaa5c7;
   --accent: #d59ab3;
   --accent-2: #e5bd72;
+  --primary: #a9a2ff;
+  --primary-foreground: #080817;
+  --primary-hover: #e5bd72;
+  --popover: #0e1025;
+  --popover-hover: rgba(255, 255, 255, 0.08);
+  --input-surface: rgba(255, 255, 255, 0.065);
+  --input-border: rgba(255, 255, 255, 0.12);
   --danger: #fda4af;
   --danger-foreground: #090817;
   --danger-surface: rgba(136, 19, 55, 0.26);
@@ -58,6 +65,13 @@
   --muted: #78716c;
   --accent: #7c3aed;
   --accent-2: #c48b28;
+  --primary: #5b52e5;
+  --primary-foreground: #ffffff;
+  --primary-hover: #4940cf;
+  --popover: #faf7f2;
+  --popover-hover: #ede7da;
+  --input-surface: #ffffff;
+  --input-border: #d6d3d1;
   --danger: #e11d48;
   --danger-foreground: #ffffff;
   --danger-surface: #fff1f2;
@@ -2671,72 +2685,6 @@ textarea.quick-add-textarea:focus,
   border: 1px solid #e7e2d9 !important;
   box-shadow: 0 16px 40px -4px rgba(41, 37, 36, 0.12), 0 4px 12px rgba(41, 37, 36, 0.06) !important;
   color: #1c1917 !important;
-}
-
-[data-theme="light"] [data-radix-popper-content-wrapper] > div,
-.light [data-radix-popper-content-wrapper] > div,
-[data-theme="light"] [data-radix-menu-content],
-.light [data-radix-menu-content],
-[data-theme="light"] [data-radix-select-content],
-.light [data-radix-select-content] {
-  background-color: #faf7f2 !important;
-  border: 1px solid #e2dcd2 !important;
-  box-shadow: 0 18px 48px -6px rgba(41, 37, 36, 0.16), 0 0 0 1px rgba(41, 37, 36, 0.05) !important;
-  color: #1c1917 !important;
-}
-
-[data-theme="light"] [role="menuitem"]:hover,
-.light [role="menuitem"]:hover,
-[data-theme="light"] [role="menuitem"]:focus,
-.light [role="menuitem"]:focus,
-[data-theme="light"] [role="option"]:hover,
-.light [role="option"]:hover,
-[data-theme="light"] [role="option"]:focus,
-.light [role="option"]:focus,
-[data-theme="light"] [data-radix-collection-item]:hover,
-.light [data-radix-collection-item]:hover,
-[data-theme="light"] [data-radix-collection-item]:focus,
-.light [data-radix-collection-item]:focus {
-  background-color: #ede7da !important;
-  color: #0c0a09 !important;
-}
-
-/* ── Dark Mode Floating Menus & Radix Popovers ── */
-[data-theme="dark"] [data-radix-popper-content-wrapper] > div,
-.dark [data-radix-popper-content-wrapper] > div,
-[data-theme="dark"] [data-radix-menu-content],
-.dark [data-radix-menu-content],
-[data-theme="dark"] [data-radix-select-content],
-.dark [data-radix-select-content] {
-  background-color: #0e1025 !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45) !important;
-  color: #f5f5f4 !important;
-}
-
-[data-theme="dark"] [role="menuitem"],
-.dark [role="menuitem"],
-[data-theme="dark"] [role="option"],
-.dark [role="option"],
-[data-theme="dark"] [data-radix-collection-item],
-.dark [data-radix-collection-item] {
-  color: #e7e5e4 !important;
-}
-
-[data-theme="dark"] [role="menuitem"]:hover,
-.dark [role="menuitem"]:hover,
-[data-theme="dark"] [role="menuitem"]:focus,
-.dark [role="menuitem"]:focus,
-[data-theme="dark"] [role="option"]:hover,
-.dark [role="option"]:hover,
-[data-theme="dark"] [role="option"]:focus,
-.dark [role="option"]:focus,
-[data-theme="dark"] [data-radix-collection-item]:hover,
-.dark [data-radix-collection-item]:hover,
-[data-theme="dark"] [data-radix-collection-item]:focus,
-.dark [data-radix-collection-item]:focus {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  color: #ffffff !important;
 }
 
 /* ── 11. Retro Lofi Toggle Switch in Light Mode ── */

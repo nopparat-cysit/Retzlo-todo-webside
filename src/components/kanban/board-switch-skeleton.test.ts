@@ -34,10 +34,9 @@ describe("Board Switch Skeleton and Overdue Alignment Contracts", () => {
     expect(boardSource).toContain("overflow-hidden min-h-0 pt-3 pr-2.5");
   });
 
-  it("ensures dark mode dropdowns in SelectContent use midnight background to avoid white-on-white", () => {
-    expect(selectSource).toContain("dark:bg-[#0e1025]");
-    expect(cssSource).toContain('[data-theme="dark"] [data-radix-select-content]');
-    expect(cssSource).toContain(".dark [data-radix-select-content]");
-    expect(cssSource).toMatch(/\.dark \[data-radix-select-content\]\s*\{[\s\S]*background-color: #0e1025 !important;/);
+  it("ensures dark mode dropdowns in SelectContent use semantic popover tokens to avoid white-on-white", () => {
+    expect(selectSource).toContain("bg-theme-popover");
+    expect(selectSource).toContain("text-theme-foreground");
+    expect(cssSource).toContain("--popover: #0e1025;");
   });
 });

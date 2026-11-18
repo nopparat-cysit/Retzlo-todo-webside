@@ -12,7 +12,7 @@ const badgeVariants = cva(
         amber: "border-dusk-amber/25 bg-dusk-amber/12 text-dusk-amber",
         rose: "border-dusk-rose/25 bg-dusk-rose/12 text-dusk-rose",
         cyan: "border-dusk-cyan/25 bg-dusk-cyan/12 text-dusk-cyan",
-        muted: "border-white/10 bg-white/[0.045] text-stone-300",
+        muted: "border-theme-border bg-theme-paper text-theme-muted",
         danger: "border-theme-danger-border bg-theme-danger-surface text-theme-danger"
       }
     },

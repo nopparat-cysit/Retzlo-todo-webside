@@ -12,11 +12,11 @@ interface ToolbarProps {
 
 export function Toolbar({ title, description, actions, children, className }: ToolbarProps) {
   return (
-    <div className={cn("flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.025] p-3 sm:flex-row sm:items-end sm:justify-between", className)}>
+    <div className={cn("flex flex-col gap-3 rounded-xl border border-theme-border bg-theme-paper p-3 sm:flex-row sm:items-end sm:justify-between", className)}>
       {(title || description) ? (
         <div className="min-w-0">
-          {title ? <h2 className="truncate text-xl font-semibold text-stone-100">{title}</h2> : null}
-          {description ? <p className="mt-1 text-sm leading-6 text-stone-400">{description}</p> : null}
+          {title ? <h2 className="truncate text-xl font-semibold text-theme-foreground">{title}</h2> : null}
+          {description ? <p className="mt-1 text-sm leading-6 text-theme-muted">{description}</p> : null}
         </div>
       ) : null}
       <div className="flex min-w-0 flex-wrap items-center gap-2">

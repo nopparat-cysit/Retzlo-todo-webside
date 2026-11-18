@@ -4,7 +4,11 @@ import { Activity, CalendarClock, CheckCircle2, CircleDot, Coins, FileText, Fold
 import { useState } from "react";
 
 import { AppModal, AppModalFooter } from "@/components/ui/app-modal";
+import { Avatar, AvatarStack } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CoinBadge } from "@/components/ui/coin-badge";
+import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
 import { DateTimeField, type DateTimeFieldValue } from "@/components/ui/date-time-field";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
@@ -12,6 +16,7 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { EntityCard } from "@/components/ui/entity-card";
 import { FilterSelect } from "@/components/ui/filter-select";
 import { Input, Textarea } from "@/components/ui/input";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/state";
@@ -29,22 +34,6 @@ const viewOptions = [
   { value: "calendar", label: "Calendar" },
   { value: "notes", label: "Notes" }
 ] as const;
-
-import { ProgressBar } from "@/components/ui/progress-bar";
-import { CoinBadge } from "@/components/ui/coin-badge";
-import { ColorSwatchPicker } from "@/components/ui/color-swatch-picker";
-import { Avatar, AvatarStack } from "@/components/ui/avatar";
-
-function Badge({ children, tone = "lavender" }: { children: React.ReactNode; tone?: "lavender" | "amber" | "cyan" | "rose" }) {
-  const tones = {
-    lavender: "border-dusk-lavender/25 bg-dusk-lavender/10 text-dusk-lavender",
-    amber: "border-dusk-amber/25 bg-dusk-amber/10 text-dusk-amber",
-    cyan: "border-dusk-cyan/25 bg-dusk-cyan/10 text-dusk-cyan",
-    rose: "border-dusk-rose/25 bg-dusk-rose/10 text-dusk-rose"
-  };
-
-  return <span className={`rounded-full border px-2 py-1 text-[11px] font-semibold ${tones[tone]}`}>{children}</span>;
-}
 
 export function DesignSystemPreview() {
   const [filter, setFilter] = useState<(typeof filterOptions)[number]["value"]>("all");
@@ -148,7 +137,7 @@ export function DesignSystemPreview() {
           tone="LAVENDER"
           title="Board card"
           description="Status, due date, and checklist progress stay scannable."
-          badges={<><Badge>Todo</Badge><Badge tone="amber">High</Badge></>}
+          badges={<><Badge>Todo</Badge><Badge variant="amber">High</Badge></>}
           progress={<ProgressBar value={64} />}
           meta={<><span className="inline-flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" /> Tomorrow</span><span>4/7 checks</span></>}
         />
@@ -156,14 +145,14 @@ export function DesignSystemPreview() {
           tone="CYAN"
           title="Note card"
           description="Starred notes should feel like saved context, not loose text."
-          badges={<Badge tone="cyan">Starred</Badge>}
+          badges={<Badge variant="cyan">Starred</Badge>}
           meta={<span className="inline-flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> Project note</span>}
         />
         <EntityCard
           tone="ROSE"
           title="Diary card"
           description="Daily task rows and mood signals share the same card language."
-          badges={<Badge tone="rose">Today</Badge>}
+          badges={<Badge variant="rose">Today</Badge>}
           progress={<ProgressBar value={40} showLabel />}
           meta={<span className="inline-flex items-center gap-1"><CircleDot className="h-3.5 w-3.5" /> 3 items</span>}
         />
@@ -183,14 +172,14 @@ export function DesignSystemPreview() {
           title="Project card"
           description="Workspace cards keep members, notes, board state, and next action in one compact hierarchy."
           media={<div className="grid h-20 place-items-center rounded-lg border border-dusk-lavender/20 bg-gradient-to-br from-dusk-lavender/20 to-white/[0.03]"><FolderKanban className="h-7 w-7 text-dusk-lavender" /></div>}
-          badges={<><Badge>Workspace</Badge><Badge tone="cyan">Board ready</Badge></>}
+          badges={<><Badge>Workspace</Badge><Badge variant="cyan">Board ready</Badge></>}
           meta={<><span>3 members</span><span>12 cards</span></>}
         />
         <EntityCard
           tone="CYAN"
           title="Calendar event"
           description="Due cards, notes, and diary tasks share the same date-card treatment."
-          badges={<Badge tone="cyan">Today</Badge>}
+          badges={<Badge variant="cyan">Today</Badge>}
           meta={<span className="inline-flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" /> All day</span>}
         />
         <EntityCard
@@ -198,7 +187,7 @@ export function DesignSystemPreview() {
           title="Finance panel"
           description="Money surfaces use the same empty, card, badge, and action rhythm as work modules."
           media={<div className="grid h-20 place-items-center rounded-lg bg-gradient-to-br from-dusk-amber/25 to-dusk-rose/10"><WalletCards className="h-7 w-7 text-dusk-amber" /></div>}
-          badges={<Badge tone="amber">Ledger</Badge>}
+          badges={<Badge variant="amber">Ledger</Badge>}
           footer={<span className="inline-flex items-center gap-1 text-xs text-stone-400"><Activity className="h-3.5 w-3.5" /> Recent activity ready</span>}
         />
         <EntityCard
@@ -206,7 +195,7 @@ export function DesignSystemPreview() {
           title="Vital panel"
           description="Health and routine widgets stay calm, readable, and aligned with the dashboard shell."
           media={<div className="grid h-20 place-items-center rounded-lg bg-gradient-to-br from-dusk-rose/22 to-dusk-lavender/12"><HeartPulse className="h-7 w-7 text-dusk-rose" /></div>}
-          badges={<Badge tone="rose">Vital</Badge>}
+          badges={<Badge variant="rose">Vital</Badge>}
           progress={<ProgressBar value={72} showLabel />}
         />
       </section>

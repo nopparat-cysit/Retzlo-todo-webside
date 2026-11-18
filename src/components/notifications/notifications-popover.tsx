@@ -133,7 +133,7 @@ export function NotificationsPopover({ className }: NotificationsPopoverProps = 
         <PopoverContent
           align="end"
           sideOffset={8}
-          className="z-[1000] w-80 sm:w-96 rounded-2xl border border-white/10 bg-ink-950/95 p-4 shadow-2xl backdrop-blur-xl"
+          className="z-[1000] w-80 sm:w-96 rounded-2xl border-theme-border bg-theme-popover p-4 text-theme-foreground shadow-2xl backdrop-blur-xl"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">

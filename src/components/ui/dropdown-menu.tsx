@@ -21,7 +21,7 @@ const DropdownMenuSubTrigger = forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-md px-2 py-2 text-sm text-stone-200 outline-none transition focus:bg-white/[0.07] data-[state=open]:bg-white/[0.07]",
+      "flex cursor-default select-none items-center rounded-md px-2 py-2 text-sm text-theme-foreground outline-none transition hover:bg-theme-popover-hover focus:bg-theme-popover-hover data-[state=open]:bg-theme-popover-hover",
       inset && "pl-8",
       className
     )}
@@ -40,7 +40,7 @@ const DropdownMenuSubContent = forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "motion-floating-in z-[760] min-w-40 overflow-hidden rounded-xl border border-[#e2dcd2] bg-[#faf7f2] p-1.5 text-stone-900 shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0e1025] dark:text-stone-100 dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
+      "motion-floating-in z-[760] min-w-40 overflow-hidden rounded-xl border border-theme-border bg-theme-popover p-1.5 text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
       className
     )}
     {...props}
@@ -57,7 +57,7 @@ const DropdownMenuContent = forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "motion-floating-in z-[750] min-w-44 overflow-hidden rounded-xl border border-[#e2dcd2] bg-[#faf7f2] p-1.5 text-stone-900 shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:border-white/12 dark:bg-[#0e1025] dark:text-stone-100 dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
+        "motion-floating-in z-[750] min-w-44 overflow-hidden rounded-xl border border-theme-border bg-theme-popover p-1.5 text-theme-foreground shadow-[0_18px_48px_-6px_rgba(41,37,36,0.16),0_0_0_1px_rgba(41,37,36,0.05)] backdrop-blur-xl dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]",
         className
       )}
       {...props}
@@ -73,7 +73,7 @@ const DropdownMenuItem = forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-stone-800 outline-none transition hover:bg-[#ede7da] hover:text-stone-950 focus:bg-[#ede7da] focus:text-stone-950 dark:text-stone-200 dark:hover:bg-white/[0.08] dark:focus:bg-white/[0.08] dark:hover:text-stone-100 dark:focus:text-stone-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-theme-foreground outline-none transition hover:bg-theme-popover-hover focus:bg-theme-popover-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className
     )}
@@ -89,7 +89,7 @@ const DropdownMenuCheckboxItem = forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-2.5 text-sm text-stone-800 outline-none transition hover:bg-[#ede7da] hover:text-stone-950 focus:bg-[#ede7da] focus:text-stone-950 dark:text-stone-200 dark:hover:bg-white/[0.08] dark:focus:bg-white/[0.08] dark:hover:text-stone-100 dark:focus:text-stone-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-2.5 text-sm text-theme-foreground outline-none transition hover:bg-theme-popover-hover focus:bg-theme-popover-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     checked={checked}
@@ -97,7 +97,7 @@ const DropdownMenuCheckboxItem = forwardRef<
   >
     <span className="absolute left-2 grid h-4 w-4 place-items-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Check className="h-4 w-4 text-indigo-600 dark:text-dusk-lavender" />
+        <Check className="h-4 w-4 text-theme-primary" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -112,14 +112,14 @@ const DropdownMenuRadioItem = forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-2.5 text-sm text-stone-800 outline-none transition hover:bg-[#ede7da] hover:text-stone-950 focus:bg-[#ede7da] focus:text-stone-950 dark:text-stone-200 dark:hover:bg-white/[0.08] dark:focus:bg-white/[0.08] dark:hover:text-stone-100 dark:focus:text-stone-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-pointer select-none items-center rounded-lg py-2 pl-8 pr-2.5 text-sm text-theme-foreground outline-none transition hover:bg-theme-popover-hover focus:bg-theme-popover-hover data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
   >
     <span className="absolute left-2 grid h-4 w-4 place-items-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Circle className="h-2 w-2 fill-indigo-600 text-indigo-600 dark:fill-dusk-lavender dark:text-dusk-lavender" />
+        <Circle className="h-2 w-2 fill-theme-primary text-theme-primary" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -133,7 +133,7 @@ const DropdownMenuLabel = forwardRef<
 >(({ className, inset, ...props }, ref) => (
   <DropdownMenuPrimitive.Label
     ref={ref}
-    className={cn("px-2 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400", inset && "pl-8", className)}
+    className={cn("px-2 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-theme-muted", inset && "pl-8", className)}
     {...props}
   />
 ));
@@ -143,12 +143,12 @@ const DropdownMenuSeparator = forwardRef<
   ElementRef<typeof DropdownMenuPrimitive.Separator>,
   ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>
 >(({ className, ...props }, ref) => (
-  <DropdownMenuPrimitive.Separator ref={ref} className={cn("-mx-1 my-1 h-px bg-[#e8e2d6] dark:bg-white/10", className)} {...props} />
+  <DropdownMenuPrimitive.Separator ref={ref} className={cn("-mx-1 my-1 h-px bg-theme-border", className)} {...props} />
 ));
 DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName;
 
 const DropdownMenuShortcut = ({ className, ...props }: ComponentPropsWithoutRef<"span">) => (
-  <span className={cn("ml-auto text-xs tracking-widest text-stone-500", className)} {...props} />
+  <span className={cn("ml-auto text-xs tracking-widest text-theme-muted", className)} {...props} />
 );
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
 

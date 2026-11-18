@@ -29,7 +29,7 @@ const BROKEN_UNPREFIXED_TOKENS = [
   "text-muted-foreground"
 ] as const;
 
-const MAX_GLOBALS_IMPORTANT_COUNT = 183;
+const MAX_GLOBALS_IMPORTANT_COUNT = 170;
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

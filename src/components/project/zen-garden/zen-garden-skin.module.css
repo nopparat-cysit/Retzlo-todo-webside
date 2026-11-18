@@ -199,8 +199,8 @@
 .readingFooter { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 10px 0; }
 .readingFooter > span { display: flex; align-items: center; gap: 6px; color: var(--garden-muted); font-size: 10px; }
 .wateringOverlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(13,34,23,.3); color: #d8e6cb; }
-/* These scoped selectors outrank the existing global Radix compatibility rules. */
-.skin.toolsPopover.toolsPopover.toolsPopover { max-width: calc(100vw - 20px); padding: 0 !important; overflow: hidden; border: 0 !important; border-radius: 24px !important; background: var(--garden-canvas) !important; box-shadow: 0 24px 80px rgba(0,0,0,.25) !important; color: var(--garden-ink) !important; }
+/* Outranks the shared popover utility classes when Zen Garden renders inside the tools popover. */
+.skin.toolsPopover { max-width: calc(100vw - 20px); padding: 0 !important; overflow: hidden; border: 0 !important; border-radius: 24px !important; background: var(--garden-canvas) !important; box-shadow: 0 24px 80px rgba(0,0,0,.25) !important; color: var(--garden-ink) !important; }
 .compactPopover .panel { max-height: min(calc(100dvh - 11rem), calc(var(--radix-popover-content-available-height, 100dvh) - 72px)); border-top-left-radius: 14px; border-top-right-radius: 14px; border: 0; }
 .studioNavigation { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); padding: 8px 10px; gap: 4px; color: var(--garden-muted); border-color: var(--garden-line); }
 .skin .studioNavigation > button { color: var(--garden-muted) !important; background: transparent !important; border-color: transparent !important; }
