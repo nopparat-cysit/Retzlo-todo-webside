@@ -227,7 +227,7 @@ export function CreateBoardPageView({
         <div className="flex items-center gap-3">
           <Link
             href={`/project/${projectId}/board`}
-            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-theme-border bg-theme-panel px-3 text-xs font-semibold text-theme-muted transition hover:border-theme-border-strong hover:bg-theme-paper hover:text-theme-foreground active:scale-95 shadow-sm"
+            className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-theme-border bg-theme-panel px-3 text-xs font-semibold text-theme-muted transition hover:border-theme-border hover:bg-theme-paper hover:text-theme-foreground active:scale-95 shadow-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Board</span>
@@ -469,7 +469,7 @@ export function CreateBoardPageView({
                         "flex flex-col items-start rounded-xl border p-3.5 text-left transition cursor-pointer",
                         !isPrivate
                           ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-sm ring-1 ring-theme-accent/30"
-                          : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
+                          : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border hover:text-theme-foreground"
                       )}
                     >
                       <div className="flex items-center gap-1.5 font-bold text-xs">
@@ -489,7 +489,7 @@ export function CreateBoardPageView({
                         "flex flex-col items-start rounded-xl border p-3.5 text-left transition cursor-pointer",
                         isPrivate
                           ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-sm ring-1 ring-theme-accent/30"
-                          : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
+                          : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border hover:text-theme-foreground"
                       )}
                     >
                       <div className="flex items-center gap-1.5 font-bold text-xs">
@@ -682,7 +682,7 @@ export function CreateBoardPageView({
                     <span className="text-xs font-semibold text-theme-foreground truncate">
                       {selectedTemplate.name}
                     </span>
-                    <span className="rounded-md border border-theme-border bg-theme-panel px-1.5 py-0.2 font-mono text-[10px] text-theme-muted shrink-0">
+                    <span className="rounded-md border border-theme-border bg-theme-panel px-1.5 py-0.5 font-mono text-[10px] text-theme-muted shrink-0">
                       {selectedTemplate.columns.length} Columns
                     </span>
                   </div>
@@ -711,7 +711,7 @@ export function CreateBoardPageView({
                             <span className="truncate text-xs font-medium text-theme-foreground">{column.name}</span>
                           </div>
                           <div className="mt-2 flex flex-wrap items-center gap-1.5 pl-1 text-[10px]">
-                            <span className={cn("rounded-full border px-1.5 py-0.2", statusMeta.badgeClass)}>
+                            <span className={cn("rounded-full border px-1.5 py-0.5", statusMeta.badgeClass)}>
                               {status?.label ?? column.defaultCardStatus}
                             </span>
                             <span className="inline-flex items-center gap-0.5 text-theme-muted" title={`Column color: ${color.label}; icon: ${icon?.label ?? column.icon}`}>

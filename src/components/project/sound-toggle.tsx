@@ -92,7 +92,7 @@ export function SoundToggle() {
           onClick={handleToggle}
           className={cn(
             "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-dusk-lavender",
-            enabled ? "bg-dusk-amber" : "bg-white/10"
+            enabled ? "bg-dusk-amber" : "bg-theme-paper-strong"
           )}
         >
           <span
@@ -121,7 +121,7 @@ export function SoundToggle() {
               onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
               onMouseUp={playPreview}
               onTouchEnd={playPreview}
-              className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-white/10 accent-dusk-amber outline-none transition hover:bg-white/15 [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dusk-amber [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-150 hover:[&::-webkit-slider-thumb]:scale-125 hover:[&::-webkit-slider-thumb]:bg-dusk-amber/90 active:[&::-webkit-slider-thumb]:scale-110 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-dusk-amber [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-150 hover:[&::-moz-range-thumb]:scale-125 hover:[&::-moz-range-thumb]:bg-dusk-amber/90 active:[&::-moz-range-thumb]:scale-110"
+              className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-theme-paper-strong accent-dusk-amber outline-none transition hover:bg-theme-paper-strong [&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dusk-amber [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:duration-150 hover:[&::-webkit-slider-thumb]:scale-125 hover:[&::-webkit-slider-thumb]:bg-dusk-amber/90 active:[&::-webkit-slider-thumb]:scale-110 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-dusk-amber [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:duration-150 hover:[&::-moz-range-thumb]:scale-125 hover:[&::-moz-range-thumb]:bg-dusk-amber/90 active:[&::-moz-range-thumb]:scale-110"
             />
             <Volume2 className="h-3.5 w-3.5 text-dusk-amber shrink-0" />
           </div>

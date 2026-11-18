@@ -4,9 +4,10 @@ import { describe, expect, it } from "vitest";
 const calendarSource = readFileSync(new URL("./project-calendar.tsx", import.meta.url), "utf8");
 
 describe("calendar modal layering", () => {
-  it("uses AppModal for calendar note and day detail overlays", () => {
+  it("uses AppModal for calendar note and day detail overlays and ModalPortal at z-[900] for mobile upcoming drawer", () => {
     expect(calendarSource).toContain('import { AppModal } from "@/components/ui/app-modal"');
-    expect(calendarSource).not.toContain('import { ModalPortal } from "@/components/ui/modal-portal"');
+    expect(calendarSource).toContain('import { ModalPortal } from "@/components/ui/modal-portal"');
+    expect(calendarSource).toMatch(/<ModalPortal>[\s\S]*z-\[900\][\s\S]*<\/ModalPortal>/);
     expect((calendarSource.match(/<AppModal/g) ?? []).length).toBeGreaterThanOrEqual(2);
     expect(calendarSource).toContain("calendar-note-title");
     expect(calendarSource).toContain("calendar-day-title");
@@ -45,5 +46,11 @@ describe("calendar modal layering", () => {
   it("uses inset ring for selected day and omits cramped add button from calendar month cells", () => {
     expect(calendarSource).toContain('isSelectedDay && "ring-2 ring-inset ring-indigo-500');
     expect(calendarSource).not.toContain('title={`Add task for ${key}`}');
+  });
+
+  it("caps filter popover width on narrow screens and guards diary deletion with ConfirmModal", () => {
+    expect(calendarSource).toContain("max-w-[calc(100vw-1.5rem)]");
+    expect(calendarSource).toContain("deletingDiaryTarget");
+    expect(calendarSource).toMatch(/<ConfirmModal[\s\S]*open=\{Boolean\(deletingDiaryTarget\)\}[\s\S]*variant="danger"/);
   });
 });

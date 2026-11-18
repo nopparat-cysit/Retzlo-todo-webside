@@ -485,12 +485,12 @@ export function BoardSettingsModal({
                     Board Settings
                   </span>
                   {isPrivate ? (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.2 text-[9px] font-semibold text-dusk-amber">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-2 py-0.5 text-[9px] font-semibold text-dusk-amber">
                       <Lock className="h-2.5 w-2.5" />
                       Private
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-stone-200/80 bg-stone-100/80 px-2 py-0.2 text-[9px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-stone-200/80 bg-stone-100/80 px-2 py-0.5 text-[9px] font-medium text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400">
                       Public
                     </span>
                   )}

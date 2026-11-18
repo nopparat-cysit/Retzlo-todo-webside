@@ -866,7 +866,7 @@ export function NotesPanel({
                   >
                     <RetzloUiIcon name="folder" size={18} />
                     <span>All</span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-mono">
                       {activeNotes.length}
                     </span>
                   </button>
@@ -885,7 +885,7 @@ export function NotesPanel({
                   >
                     <RetzloUiIcon name="star" size={18} />
                     <span>Starred</span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-mono">
                       {filterCounts.starred}
                     </span>
                   </button>
@@ -904,7 +904,7 @@ export function NotesPanel({
                   >
                     <RetzloUiIcon name="note" size={18} />
                     <span>Unfiled</span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-mono">
                       {unfiledCount}
                     </span>
                   </button>
@@ -923,7 +923,7 @@ export function NotesPanel({
                   >
                     <RetzloUiIcon name="completed" size={18} />
                     <span>Completed</span>
-                    <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-mono">
                       {completedNotes.length}
                     </span>
                   </button>
@@ -947,7 +947,7 @@ export function NotesPanel({
                       >
                         <FolderIconGlyph icon={folder.icon} className="h-3.5 w-3.5 shrink-0" />
                         <span>{folder.name}</span>
-                        <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] font-mono">
+                        <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-mono">
                           {count}
                         </span>
                       </button>
@@ -1665,7 +1665,7 @@ function NoteEditorModalContent({
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span>Private Note</span>
-                      <span className="rounded bg-dusk-amber/20 px-1 py-0.2 text-[9px] font-mono text-dusk-amber uppercase">Default</span>
+                      <span className="rounded bg-dusk-amber/20 px-1 py-0.5 text-[9px] font-mono text-dusk-amber uppercase">Default</span>
                     </div>
                     <p className="text-[10px] text-stone-500 font-normal">Only you can see this (Private note)</p>
                   </div>

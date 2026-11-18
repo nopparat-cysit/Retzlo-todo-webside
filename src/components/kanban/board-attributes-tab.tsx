@@ -762,7 +762,7 @@ export function BoardAttributesTab({
                 <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
                   Preset Status Templates
                 </span>
-                <span className="rounded-full bg-indigo-100/70 border border-indigo-200/60 px-2 py-0.2 text-[9px] font-semibold text-indigo-700 dark:bg-dusk-lavender/15 dark:border-dusk-lavender/30 dark:text-dusk-lavender">
+                <span className="rounded-full bg-indigo-100/70 border border-indigo-200/60 px-2 py-0.5 text-[9px] font-semibold text-indigo-700 dark:bg-dusk-lavender/15 dark:border-dusk-lavender/30 dark:text-dusk-lavender">
                   Preview &amp; Apply
                 </span>
               </div>
@@ -848,7 +848,7 @@ export function BoardAttributesTab({
                       <span className="text-xs font-semibold">{tpl.name}</span>
                       <span
                         className={cn(
-                          "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors shrink-0",
+                          "rounded-full px-1.5 py-0.5 font-mono text-[10px] transition-colors shrink-0",
                           isSelected
                             ? "bg-white/20 text-white font-bold"
                             : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
@@ -877,10 +877,10 @@ export function BoardAttributesTab({
                       <span className="text-xs font-bold text-indigo-950 dark:text-indigo-100">
                         Kanban Mockup Preview: {previewStatusTemplate.name}
                       </span>
-                      <span className="rounded-md border border-indigo-200/80 bg-white/90 px-1.5 py-0.2 text-[9px] font-bold text-indigo-700 dark:border-white/10 dark:bg-white/10 dark:text-dusk-lavender">
+                      <span className="rounded-md border border-indigo-200/80 bg-white/90 px-1.5 py-0.5 text-[9px] font-bold text-indigo-700 dark:border-white/10 dark:bg-white/10 dark:text-dusk-lavender">
                         {previewStatusTemplate.category}
                       </span>
-                      <span className="rounded-md bg-indigo-500/15 px-1.5 py-0.2 font-mono text-[10px] font-bold text-indigo-700 dark:text-dusk-lavender">
+                      <span className="rounded-md bg-indigo-500/15 px-1.5 py-0.5 font-mono text-[10px] font-bold text-indigo-700 dark:text-dusk-lavender">
                         {previewStatusTemplate.statuses.length} columns
                       </span>
                     </div>
@@ -1002,7 +1002,7 @@ export function BoardAttributesTab({
                               {st.label}
                             </span>
                           </div>
-                          <span className="font-mono text-[10px] font-bold text-stone-500 bg-stone-200/60 dark:bg-white/10 dark:text-stone-300 px-1.5 py-0.2 rounded-full shrink-0">
+                          <span className="font-mono text-[10px] font-bold text-stone-500 bg-stone-200/60 dark:bg-white/10 dark:text-stone-300 px-1.5 py-0.5 rounded-full shrink-0">
                             {sampleCards.length}
                           </span>
                         </div>
@@ -1016,12 +1016,12 @@ export function BoardAttributesTab({
                             >
                               {/* Top: Code & Priority */}
                               <div className="flex items-center justify-between gap-1.5">
-                                <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                                <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
                                   {card.code}
                                 </span>
                                 <span
                                   className={cn(
-                                    "inline-flex items-center gap-1 rounded-full px-1.5 py-0.2 text-[9px] font-bold border",
+                                    "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold border",
                                     card.priority === "HIGH" &&
                                       "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-400",
                                     card.priority === "MEDIUM" &&
@@ -1343,7 +1343,7 @@ export function BoardAttributesTab({
                 <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
                   Preset Story Point Scales
                 </span>
-                <span className="rounded-full bg-amber-100/70 border border-amber-200/60 px-2 py-0.2 text-[9px] font-semibold text-amber-700 dark:bg-amber-500/15 dark:border-amber-400/30 dark:text-amber-300">
+                <span className="rounded-full bg-amber-100/70 border border-amber-200/60 px-2 py-0.5 text-[9px] font-semibold text-amber-700 dark:bg-amber-500/15 dark:border-amber-400/30 dark:text-amber-300">
                   Preview &amp; Apply
                 </span>
               </div>
@@ -1427,7 +1427,7 @@ export function BoardAttributesTab({
                       <span className="text-xs font-semibold">{tpl.name}</span>
                       <span
                         className={cn(
-                          "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors shrink-0",
+                          "rounded-full px-1.5 py-0.5 font-mono text-[10px] transition-colors shrink-0",
                           isSelected
                             ? "bg-white/20 text-white font-bold"
                             : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
@@ -1455,10 +1455,10 @@ export function BoardAttributesTab({
                     <span className="text-xs font-bold text-amber-950 dark:text-amber-100">
                       Previewing: {previewPointTemplate.name}
                     </span>
-                    <span className="rounded-md border border-amber-200/80 bg-white/90 px-1.5 py-0.2 text-[9px] font-bold text-amber-700 dark:border-white/10 dark:bg-white/10 dark:text-amber-300">
+                    <span className="rounded-md border border-amber-200/80 bg-white/90 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 dark:border-white/10 dark:bg-white/10 dark:text-amber-300">
                       {previewPointTemplate.category}
                     </span>
-                    <span className="rounded-md bg-amber-500/15 px-1.5 py-0.2 font-mono text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                    <span className="rounded-md bg-amber-500/15 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-700 dark:text-amber-300">
                       {previewPointTemplate.points.length} levels
                     </span>
                   </div>
@@ -1731,12 +1731,12 @@ export function BoardAttributesTab({
                       className="rounded-xl border border-stone-200/80 bg-white p-2.5 space-y-1.5 shadow-sm dark:border-white/10 dark:bg-stone-900/90"
                     >
                       <div className="flex items-center justify-between gap-1.5">
-                        <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                        <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
                           TSK-{201 + idx}
                         </span>
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-full border px-1.5 py-0.2 text-[9px] font-bold",
+                            "inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-bold",
                             config.pillClass
                           )}
                         >
@@ -1786,7 +1786,7 @@ export function BoardAttributesTab({
                             {st.label}
                           </span>
                         </div>
-                        <span className="font-mono text-[9px] font-bold text-stone-500 bg-stone-200/60 dark:bg-white/10 dark:text-stone-300 px-1 py-0.2 rounded-full">
+                        <span className="font-mono text-[9px] font-bold text-stone-500 bg-stone-200/60 dark:bg-white/10 dark:text-stone-300 px-1 py-0.5 rounded-full">
                           {sampleCards.length}
                         </span>
                       </div>
@@ -1828,7 +1828,7 @@ export function BoardAttributesTab({
         <ModalPortal>
           <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4">
             <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
               onClick={() => setIsSaveCustomTemplateOpen(false)}
             />
             <form
@@ -1920,7 +1920,7 @@ export function BoardAttributesTab({
         <ModalPortal>
           <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4">
             <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
               onClick={() => setIsSaveCustomPointTemplateOpen(false)}
             />
             <form

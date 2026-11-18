@@ -165,6 +165,15 @@ describe("Theme system and Warm Paper Light Mode", () => {
     expect(selectComponent).toContain("bg-theme-popover");
     expect(selectComponent).toContain("text-theme-foreground");
   });
+
+  it("keeps fixed modal and drawer scrims translucent in Light Mode while mapping surface panels to paper", () => {
+    const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+    expect(css).toContain('[data-theme="light"] .fixed.inset-0.bg-ink-950\\/60');
+    expect(css).toContain('[data-theme="light"] .fixed.inset-0.bg-ink-950\\/85');
+    expect(css).toContain('[data-theme="light"] .bg-ink-950\\/60:not(.fixed)');
+    expect(css).toContain('[data-theme="light"] .bg-ink-950\\/85:not(.fixed)');
+    expect(css).toContain('[data-theme="light"] .bg-ink-950\\/95:not(.fixed)');
+  });
 });
 
 

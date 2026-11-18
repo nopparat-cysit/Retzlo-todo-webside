@@ -475,7 +475,7 @@ export function ProjectMembersView({
               >
                 <Users className="h-4 w-4" />
                 <span>Team Members</span>
-                <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-bold dark:bg-white/10">
+                <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] font-bold dark:bg-white/10">
                   {totalCount}
                 </span>
               </button>
@@ -493,7 +493,7 @@ export function ProjectMembersView({
                 <Mail className="h-4 w-4" />
                 <span>Pending Invitations</span>
                 {pendingCount > 0 && (
-                  <span className="rounded-full bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 px-1.5 py-0.2 text-[10px] font-bold">
+                  <span className="rounded-full bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 px-1.5 py-0.5 text-[10px] font-bold">
                     {pendingCount}
                   </span>
                 )}
@@ -770,7 +770,7 @@ export function ProjectMembersView({
                   <h3 className="text-base font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <Mail className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                     <span>Invitations Sent</span>
-                    <span className="rounded-full bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 px-2 py-0.2 text-[11px] font-bold">
+                    <span className="rounded-full bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 px-2 py-0.5 text-[11px] font-bold">
                       {pendingCount}
                     </span>
                   </h3>

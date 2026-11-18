@@ -206,7 +206,7 @@ export function BoardTemplatePicker({
                     </div>
                     <span
                       className={cn(
-                        "rounded-full px-1.5 py-0.2 font-mono text-[9px] font-semibold border transition-colors",
+                        "rounded-full px-1.5 py-0.5 font-mono text-[9px] font-semibold border transition-colors",
                         isSelected
                           ? "border-theme-accent/40 bg-theme-accent/15 text-theme-foreground"
                           : "border-theme-border bg-theme-panel text-theme-muted"
@@ -266,7 +266,7 @@ export function BoardTemplatePicker({
                   <span className="text-xs font-semibold text-theme-foreground truncate">
                     {selectedTemplate.name}
                   </span>
-                  <span className="rounded-md border border-theme-border bg-theme-paper px-1.5 py-0.2 font-mono text-[10px] text-theme-muted shrink-0">
+                  <span className="rounded-md border border-theme-border bg-theme-paper px-1.5 py-0.5 font-mono text-[10px] text-theme-muted shrink-0">
                     {selectedTemplate.columns.length} Columns
                   </span>
                 </div>
@@ -295,7 +295,7 @@ export function BoardTemplatePicker({
                           <span className="truncate text-[11px] font-medium text-theme-foreground">{column.name}</span>
                         </div>
                         <div className="mt-1.5 flex flex-wrap items-center gap-1 pl-1 text-[9px]">
-                          <span className={cn("rounded-full border px-1.5 py-0.2", statusMeta.badgeClass)}>
+                          <span className={cn("rounded-full border px-1.5 py-0.5", statusMeta.badgeClass)}>
                             {status?.label ?? column.defaultCardStatus}
                           </span>
                           <span className="inline-flex items-center gap-0.5 text-theme-muted" title={`Column color: ${color.label}; icon: ${icon?.label ?? column.icon}`}>

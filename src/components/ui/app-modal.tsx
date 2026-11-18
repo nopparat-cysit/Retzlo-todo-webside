@@ -196,6 +196,7 @@ export function AppModal({
 
       <ConfirmModal
         open={isDiscardConfirmOpen}
+        layer="above-modal"
         title={discardTitle}
         message={discardMessage}
         confirmLabel={discardConfirmLabel}

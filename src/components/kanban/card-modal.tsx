@@ -986,7 +986,7 @@ export function CardModal({
                 >
                   <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
                   <span>AI Breakdown</span>
-                  <span className="rounded bg-dusk-lavender/20 px-1 py-0.2 text-[10px] font-mono text-dusk-lavender/90">
+                  <span className="rounded bg-dusk-lavender/20 px-1 py-0.5 text-[10px] font-mono text-dusk-lavender/90">
                     1 cr
                   </span>
                 </button>

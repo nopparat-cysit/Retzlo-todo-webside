@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { KanbanBoard } from "@/components/kanban/board";
 import { BoardNotesRail } from "@/components/notes/board-notes-rail";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import type { CardAssignee, ColumnWithCards } from "@/types/kanban";
 import type { ProjectNote } from "@/types/note";
 
@@ -116,29 +117,31 @@ export function BoardViewContainer({
           </aside>
 
           {/* Slide-over drawer for screens < 1280px (xl:hidden) */}
-          <div className="fixed inset-0 z-[1050] flex justify-end xl:hidden">
-            <div
-              className="fixed inset-0 bg-black/55 backdrop-blur-xs transition-opacity"
-              onClick={() => {
-                setIsNotesOpen(false);
-                localStorage.setItem("kanban_notes_open", "false");
-              }}
-            />
-            <aside className="relative z-10 flex h-full w-full max-w-[360px] flex-col overflow-hidden p-2 animate-in slide-in-from-right duration-200">
-              <BoardNotesRail
-                key={`notes-mobile-${board.id}`}
-                projectId={projectId}
-                activeBoardId={board.id}
-                activeBoardName={board.name}
-                availableBoards={availableBoards}
-                initialNotes={initialNotes}
-                onClose={() => {
+          <ModalPortal>
+            <div className="fixed inset-0 z-[900] flex justify-end xl:hidden">
+              <div
+                className="fixed inset-0 bg-black/55 backdrop-blur-sm transition-opacity"
+                onClick={() => {
                   setIsNotesOpen(false);
                   localStorage.setItem("kanban_notes_open", "false");
                 }}
               />
-            </aside>
-          </div>
+              <aside className="relative z-10 flex h-full w-full max-w-[360px] flex-col overflow-hidden p-2 animate-in slide-in-from-right duration-200">
+                <BoardNotesRail
+                  key={`notes-mobile-${board.id}`}
+                  projectId={projectId}
+                  activeBoardId={board.id}
+                  activeBoardName={board.name}
+                  availableBoards={availableBoards}
+                  initialNotes={initialNotes}
+                  onClose={() => {
+                    setIsNotesOpen(false);
+                    localStorage.setItem("kanban_notes_open", "false");
+                  }}
+                />
+              </aside>
+            </div>
+          </ModalPortal>
         </>
       ) : null}
     </div>

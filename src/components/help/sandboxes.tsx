@@ -100,7 +100,7 @@ export function InteractiveAiDemo({ isEn }: { isEn: boolean }) {
           <div>
             <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
               <span>Retzlo AI Interactive Simulator</span>
-              <span className="rounded-full bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.2 text-[9px] font-semibold text-emerald-700 dark:text-emerald-400">
+              <span className="rounded-full bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700 dark:text-emerald-400">
                 Live Mock
               </span>
             </h4>
@@ -319,7 +319,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
           <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3 dark:border-white/10 dark:bg-white/[0.02] space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-stone-700 dark:text-stone-300">
               <span>{isEn ? "In Progress" : "In Progress (กำลังทำ)"}</span>
-              <span className="rounded bg-indigo-100 dark:bg-white/10 px-1.5 py-0.2 text-[10px] text-indigo-700 dark:text-stone-300">
+              <span className="rounded bg-indigo-100 dark:bg-white/10 px-1.5 py-0.5 text-[10px] text-indigo-700 dark:text-stone-300">
                 WIP 2/3
               </span>
             </div>
@@ -335,7 +335,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
                   <span className="text-xs font-semibold text-stone-900 dark:text-stone-100 line-clamp-2">
                     {t.title}
                   </span>
-                  <span className={cn("rounded px-1.5 py-0.2 text-[9px] font-bold shrink-0", t.pColor)}>
+                  <span className={cn("rounded px-1.5 py-0.5 text-[9px] font-bold shrink-0", t.pColor)}>
                     {t.priority}
                   </span>
                 </div>
@@ -362,7 +362,7 @@ export function InteractiveKanbanTableDemo({ isEn }: { isEn: boolean }) {
           <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/40 p-3 dark:border-emerald-500/20 dark:bg-emerald-500/5 space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-emerald-800 dark:text-emerald-400">
               <span>{isEn ? "Done" : "Done (เสร็จสิ้น)"}</span>
-              <span className="rounded bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.2 text-[10px] text-emerald-700 dark:text-emerald-400">
+              <span className="rounded bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-400">
                 1
               </span>
             </div>

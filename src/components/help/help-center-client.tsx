@@ -291,7 +291,7 @@ export function HelpCenterClient() {
                   <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-dusk-amber">
                     Retzlo Field Manual
                   </span>
-                  <span className="hidden sm:inline-flex rounded-full bg-indigo-50 border border-indigo-200/80 dark:bg-white/10 dark:border-white/10 px-2 py-0.2 font-mono text-[9px] font-bold text-indigo-700 dark:text-stone-300">
+                  <span className="hidden sm:inline-flex rounded-full bg-indigo-50 border border-indigo-200/80 dark:bg-white/10 dark:border-white/10 px-2 py-0.5 font-mono text-[9px] font-bold text-indigo-700 dark:text-stone-300">
                     REV 2026.10
                   </span>
                 </div>
@@ -511,7 +511,7 @@ export function HelpCenterClient() {
                               )}
                               <span className="uppercase tracking-wider">{cat.label.replace(/^[\p{Emoji}\s]+/u, "")}</span>
                             </span>
-                            <span className="rounded-full bg-stone-100 px-1.5 py-0.2 text-[9px] font-mono text-stone-500 dark:bg-white/10 dark:text-stone-400">
+                            <span className="rounded-full bg-stone-100 px-1.5 py-0.5 text-[9px] font-mono text-stone-500 dark:bg-white/10 dark:text-stone-400">
                               {catTopics.length}
                             </span>
                           </button>
@@ -548,7 +548,7 @@ export function HelpCenterClient() {
                                     />
                                     <span className="flex-1 truncate">{topic.title}</span>
                                     {topic.badge && (
-                                      <span className={cn("rounded px-1.5 py-0.2 text-[9px] font-medium shrink-0", topic.badgeColor)}>
+                                      <span className={cn("rounded px-1.5 py-0.5 text-[9px] font-medium shrink-0", topic.badgeColor)}>
                                         {topic.badge}
                                       </span>
                                     )}
@@ -603,7 +603,7 @@ export function HelpCenterClient() {
                             />
                             <span className="flex-1 truncate">{topic.title}</span>
                             {topic.badge && (
-                              <span className={cn("rounded px-1.5 py-0.2 text-[9px] font-medium shrink-0", topic.badgeColor)}>
+                              <span className={cn("rounded px-1.5 py-0.5 text-[9px] font-medium shrink-0", topic.badgeColor)}>
                                 {topic.badge}
                               </span>
                             )}
@@ -628,7 +628,7 @@ export function HelpCenterClient() {
                   <FileText className="h-3.5 w-3.5 text-indigo-500 dark:text-dusk-lavender" />
                   <span>{isEn ? "Retzlo User Guide" : "คู่มือการใช้งาน Retzlo"}</span>
                 </span>
-                <span className="rounded bg-stone-200/60 dark:bg-white/10 px-1.5 py-0.2 text-[9px] font-semibold text-stone-600 dark:text-stone-300">
+                <span className="rounded bg-stone-200/60 dark:bg-white/10 px-1.5 py-0.5 text-[9px] font-semibold text-stone-600 dark:text-stone-300">
                   v2.4
                 </span>
               </div>
@@ -1500,7 +1500,7 @@ export function HelpCenterClient() {
                         <span className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
                           {sc.title}
                         </span>
-                        <span className="rounded-full bg-stone-100 dark:bg-white/10 px-2 py-0.2 text-[9px] font-semibold text-stone-600 dark:text-stone-400">
+                        <span className="rounded-full bg-stone-100 dark:bg-white/10 px-2 py-0.5 text-[9px] font-semibold text-stone-600 dark:text-stone-400">
                           {sc.cat}
                         </span>
                       </div>

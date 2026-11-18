@@ -256,7 +256,7 @@ export function RetzloHubDiagram({ isEn }: { isEn: boolean }) {
               <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500" />
             </div>
 
-            <div className="grid h-12 w-12 mx-auto place-items-center rounded-2xl bg-white/20 text-white backdrop-blur-xs mb-3 shadow-inner">
+            <div className="grid h-12 w-12 mx-auto place-items-center rounded-2xl bg-white/20 text-white backdrop-blur-sm mb-3 shadow-inner">
               <Layers className="h-6 w-6" />
             </div>
 

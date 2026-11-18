@@ -47,7 +47,7 @@ function toKanjiNumber(n: number): string {
 
 export function OmikujiModal({ open, onClose, projectId }: OmikujiModalProps) {
   const { settings } = useOmikujiSettings();
-  const { showToast } = useToast();
+  const { toast } = useToast();
 
   const [step, setStep] = useState<ModalStep>("shaker");
   const [isShaking, setIsShaking] = useState(false);
@@ -142,15 +142,14 @@ Title: ${title}
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      showToast({
-        title: "คัดลอกคำทำนายเรียบร้อย",
-        description: `ใบที่ ${fortune.number} (${fortune.rank_jp}) ถูกคัดลอกลงคลิปบอร์ดแล้ว`,
-        variant: "success"
+      toast({
+        message: `คัดลอกคำทำนายเรียบร้อย: ใบที่ ${fortune.number} (${fortune.rank_jp}) ถูกคัดลอกลงคลิปบอร์ดแล้ว`,
+        type: "success"
       });
     } catch {
-      showToast({
-        title: "เกิดข้อผิดพลาดในการคัดลอก",
-        variant: "error"
+      toast({
+        message: "เกิดข้อผิดพลาดในการคัดลอก",
+        type: "error"
       });
     }
   };
@@ -204,10 +203,9 @@ ${growth}
         });
 
         if (res.ok) {
-          showToast({
-            title: "แนบเป็น Note ในโปรเจกต์สำเร็จ",
-            description: `บันทึก "${title}" ลงในบันทึกของโปรเจกต์แล้ว`,
-            variant: "success"
+          toast({
+            message: `แนบเป็น Note ในโปรเจกต์สำเร็จ: บันทึก "${title}" ลงในบันทึกของโปรเจกต์แล้ว`,
+            type: "success"
           });
           setIsSavingNote(false);
           return;
@@ -220,15 +218,14 @@ ${growth}
     // Fallback: Copy as markdown note
     try {
       await navigator.clipboard.writeText(`# ${title}\n\n${content}`);
-      showToast({
-        title: "คัดลอกรูปแบบ Note แล้ว",
-        description: "คัดลอกเนื้อหา Markdown พร้อมนำไปวางใน Note Studio ได้ทันที",
-        variant: "success"
+      toast({
+        message: "คัดลอกรูปแบบ Note แล้ว: คัดลอกเนื้อหา Markdown พร้อมนำไปวางใน Note Studio ได้ทันที",
+        type: "success"
       });
     } catch {
-      showToast({
-        title: "ไม่สามารถบันทึกได้",
-        variant: "error"
+      toast({
+        message: "ไม่สามารถบันทึกได้",
+        type: "error"
       });
     }
     setIsSavingNote(false);
@@ -236,7 +233,7 @@ ${growth}
 
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
         {/* Backdrop */}
         <div
           className="fixed inset-0 bg-stone-950/60 backdrop-blur-sm transition-opacity"
@@ -247,7 +244,9 @@ ${growth}
         <div
           className={cn(
             "relative w-full max-h-[92vh] overflow-y-auto rounded-2xl shadow-2xl transition-all duration-300",
-            step === "shaker" ? "max-w-md bg-stone-900 border border-stone-800 p-8 text-stone-100" : "max-w-2xl bg-[#faf7f2] dark:bg-[#15171e] text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-800 p-6 sm:p-8"
+            step === "shaker"
+              ? "max-w-md bg-theme-panel-strong border border-theme-border p-8 text-theme-foreground"
+              : "max-w-2xl bg-[#faf7f2] dark:bg-[#15171e] text-stone-900 dark:text-stone-100 border border-stone-300 dark:border-stone-800 p-6 sm:p-8"
           )}
         >
           {/* Close button */}
@@ -267,10 +266,10 @@ ${growth}
                 <span>Asakusa Kannon Sacred Shaker</span>
               </div>
 
-              <h2 className="text-xl font-bold tracking-tight text-amber-100 mb-1">
+              <h2 className="text-xl font-bold tracking-tight text-theme-foreground mb-1">
                 กระบอกเซียมซีร้อยใบวัดอาซากุสะ
               </h2>
-              <p className="text-xs text-stone-400 max-w-xs mb-8">
+              <p className="text-xs text-theme-muted max-w-xs mb-8">
                 ตั้งจิตให้นิ่ง นึกถึงเป้าหมายหรือคำถามในใจ แล้วเขย่ากระบอกไม้เพื่อรับคำชี้แนะ 5 มิติ
               </p>
 

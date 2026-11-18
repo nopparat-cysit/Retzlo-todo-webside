@@ -13,7 +13,9 @@ const PHANTOM_TAILWIND_V4_CLASSES = [
   "h-4.5",
   "w-4.5",
   "h-5.5",
-  "w-5.5"
+  "w-5.5",
+  "backdrop-blur-xs",
+  "py-0.2"
 ] as const;
 
 const BROKEN_UNPREFIXED_TOKENS = [
@@ -26,7 +28,9 @@ const BROKEN_UNPREFIXED_TOKENS = [
   "border-paper-strong",
   "divide-border",
   "text-foreground",
-  "text-muted-foreground"
+  "text-muted-foreground",
+  "bg-theme-base",
+  "border-theme-border-strong"
 ] as const;
 
 const MAX_GLOBALS_IMPORTANT_COUNT = 170;

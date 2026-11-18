@@ -1134,7 +1134,7 @@ function DiaryFocusCard({
                     {diary.checklistSummary.dueCount > 0 && (
                       <span
                         className={cn(
-                          "rounded-full px-1.5 py-0.2 text-[10px] font-mono",
+                          "rounded-full px-1.5 py-0.5 text-[10px] font-mono",
                           diary.checklistSummary.completedCount === diary.checklistSummary.dueCount
                             ? "bg-theme-success-surface text-theme-success"
                             : "bg-white/10 text-stone-300"

@@ -80,20 +80,20 @@ export function SpotlightCardModalPreview({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-stone-200/90 bg-stone-900/95 text-stone-100 shadow-xl overflow-hidden backdrop-blur-md dark:border-white/10 dark:bg-ink-950/95 flex flex-col",
+        "rounded-2xl border border-theme-border bg-theme-panel-strong text-theme-foreground shadow-xl overflow-hidden backdrop-blur-md flex flex-col",
         className
       )}
     >
       {/* ── Mockup Card Modal Header Bar ── */}
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-white/[0.03]">
+      <div className="flex items-center justify-between border-b border-theme-border px-4 py-3 bg-theme-paper">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="grid h-6 w-6 place-items-center rounded-lg bg-indigo-500/20 text-indigo-400">
+          <span className="grid h-6 w-6 place-items-center rounded-lg bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
             <Layers className="h-3.5 w-3.5" />
           </span>
           <div className="flex items-center gap-2 truncate">
-            <span className="font-mono text-[11px] font-bold text-stone-400">TSK-108</span>
-            <span className="text-stone-600 dark:text-stone-600">•</span>
-            <span className="text-xs font-semibold text-stone-300 truncate">
+            <span className="font-mono text-[11px] font-bold text-theme-muted">TSK-108</span>
+            <span className="text-theme-muted/60">•</span>
+            <span className="text-xs font-semibold text-theme-muted truncate">
               Card Details Modal Preview
             </span>
           </div>
@@ -101,15 +101,15 @@ export function SpotlightCardModalPreview({
 
         <div className="flex items-center gap-1.5 shrink-0">
           {previewTemplateName && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+            <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-300">
               <Eye className="h-3 w-3" />
               <span className="hidden sm:inline">Preview:</span> {previewTemplateName}
             </span>
           )}
-          <span className="grid h-6 w-6 place-items-center rounded-md text-stone-400 hover:text-stone-200 hover:bg-white/5 transition">
+          <span className="grid h-6 w-6 place-items-center rounded-md text-theme-muted hover:text-theme-foreground hover:bg-theme-paper-strong transition">
             <MoreHorizontal className="h-3.5 w-3.5" />
           </span>
-          <span className="grid h-6 w-6 place-items-center rounded-md text-stone-400 hover:text-stone-200 hover:bg-white/5 transition">
+          <span className="grid h-6 w-6 place-items-center rounded-md text-theme-muted hover:text-theme-foreground hover:bg-theme-paper-strong transition">
             <X className="h-3.5 w-3.5" />
           </span>
         </div>
@@ -120,23 +120,23 @@ export function SpotlightCardModalPreview({
         {/* Top Fade Gradient Mask */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-6 sm:h-8 bg-gradient-to-b from-stone-900 via-stone-900/60 to-transparent dark:from-ink-950 dark:via-ink-950/60 dark:to-transparent z-10"
+          className="pointer-events-none absolute inset-x-0 top-0 h-6 sm:h-8 bg-gradient-to-b from-theme-panel-strong via-theme-panel-strong/60 to-transparent z-10"
         />
         {/* Bottom Fade Gradient Mask */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-6 sm:h-8 bg-gradient-to-t from-stone-900 via-stone-900/60 to-transparent dark:from-ink-950 dark:via-ink-950/60 dark:to-transparent z-10"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-6 sm:h-8 bg-gradient-to-t from-theme-panel-strong via-theme-panel-strong/60 to-transparent z-10"
         />
 
         {/* Mock Card Title */}
         <div className="space-y-1 pt-1">
           <div className="flex items-center gap-2">
-            <span className="rounded bg-indigo-500/20 px-1.5 py-0.2 font-mono text-[9px] font-bold text-indigo-300">
+            <span className="rounded bg-indigo-500/20 px-1.5 py-0.5 font-mono text-[9px] font-bold text-indigo-700 dark:text-indigo-300">
               FEATURE
             </span>
-            <span className="text-[11px] text-stone-500">Updated 10m ago</span>
+            <span className="text-[11px] text-theme-muted">Updated 10m ago</span>
           </div>
-          <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
+          <h3 className="text-sm sm:text-base font-bold text-theme-foreground tracking-tight">
             Refine responsive card attributes &amp; live interactive mockup preview
           </h3>
         </div>
@@ -147,15 +147,15 @@ export function SpotlightCardModalPreview({
           <div className="rounded-xl border border-indigo-500/40 bg-indigo-500/10 p-3 sm:p-3.5 space-y-2.5 ring-2 ring-indigo-500/25 transition-all">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1.5 text-xs font-bold text-white">
-                  <CheckSquare className="h-3.5 w-3.5 text-indigo-400" />
+                <span className="flex items-center gap-1.5 text-xs font-bold text-theme-foreground">
+                  <CheckSquare className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                   <span>Status</span>
                 </span>
-                <span className="rounded-md border border-indigo-400/40 bg-indigo-500/20 px-1.5 py-0.2 text-[10px] font-bold text-indigo-300">
+                <span className="rounded-md border border-indigo-400/40 bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300">
                   Spotlight
                 </span>
               </div>
-              <span className="grid h-5 w-5 place-items-center rounded text-stone-400 hover:text-white hover:bg-white/10 transition">
+              <span className="grid h-5 w-5 place-items-center rounded text-theme-muted hover:text-theme-foreground hover:bg-theme-paper-strong transition">
                 <Plus className="h-3 w-3" />
               </span>
             </div>
@@ -174,8 +174,8 @@ export function SpotlightCardModalPreview({
                     className={cn(
                       "h-9 px-3 rounded-lg border text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer min-w-fit flex-1 sm:flex-initial",
                       isSelected
-                        ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-300 ring-2 ring-emerald-500/30 shadow-sm"
-                        : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:text-white"
+                        ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500/30 shadow-sm"
+                        : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/40 hover:text-theme-foreground"
                     )}
                   >
                     <span className={cn("h-2 w-2 rounded-full shrink-0", cfg.dot)} />
@@ -184,31 +184,31 @@ export function SpotlightCardModalPreview({
                 );
               })}
             </div>
-            <p className="text-[10px] text-stone-400">
-              Selected status: <span className="font-semibold text-stone-200">{activeStatusMeta.label}</span>
+            <p className="text-[10px] text-theme-muted">
+              Selected status: <span className="font-semibold text-theme-foreground">{activeStatusMeta.label}</span>
             </p>
           </div>
         ) : (
           /* Skeleton Status Section (when inactive) */
           <div
-            className="group/sec rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-2.5 space-y-1.5 hover:border-indigo-400/40 transition cursor-pointer"
+            className="group/sec rounded-xl border border-dashed border-theme-border bg-theme-paper/60 p-2.5 space-y-1.5 hover:border-indigo-400/40 transition cursor-pointer"
             onClick={() => onSectionClick?.("status")}
             title="Click to edit Statuses"
           >
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-xs font-medium text-stone-400">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-theme-muted">
                 <CheckSquare className="h-3 w-3 opacity-50" />
                 <span>Status</span>
               </span>
-              <span className="text-[10px] text-indigo-400 opacity-0 group-hover/sec:opacity-100 transition">
+              <span className="text-[10px] text-indigo-600 dark:text-indigo-400 opacity-0 group-hover/sec:opacity-100 transition">
                 Switch to Status tab
               </span>
             </div>
             <div className="grid grid-cols-4 gap-1.5">
-              <div className="h-7 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 rounded-md bg-white/[0.08] border border-white/10 animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
             </div>
           </div>
         )}
@@ -219,15 +219,15 @@ export function SpotlightCardModalPreview({
           <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 sm:p-3.5 space-y-2.5 ring-2 ring-rose-500/25 transition-all">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1.5 text-xs font-bold text-white">
-                  <Flag className="h-3.5 w-3.5 text-rose-400" />
+                <span className="flex items-center gap-1.5 text-xs font-bold text-theme-foreground">
+                  <Flag className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
                   <span>Priority</span>
                 </span>
-                <span className="rounded-md border border-rose-400/40 bg-rose-500/20 px-1.5 py-0.2 text-[10px] font-bold text-rose-300">
+                <span className="rounded-md border border-rose-400/40 bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-bold text-rose-700 dark:text-rose-300">
                   Spotlight
                 </span>
               </div>
-              <span className="grid h-5 w-5 place-items-center rounded text-stone-400 hover:text-white hover:bg-white/10 transition">
+              <span className="grid h-5 w-5 place-items-center rounded text-theme-muted hover:text-theme-foreground hover:bg-theme-paper-strong transition">
                 <Plus className="h-3 w-3" />
               </span>
             </div>
@@ -247,7 +247,7 @@ export function SpotlightCardModalPreview({
                       "h-9 px-3 rounded-lg border text-xs font-medium transition flex items-center gap-1.5 cursor-pointer",
                       isSelected
                         ? cn(colorConfig.pillClass, "ring-2 ring-rose-400/40 font-bold shadow-sm")
-                        : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:text-white"
+                        : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/40 hover:text-theme-foreground"
                     )}
                   >
                     <span className={cn("w-2 h-2 rounded-full shrink-0", colorConfig.dotClass)} />
@@ -256,30 +256,30 @@ export function SpotlightCardModalPreview({
                 );
               })}
             </div>
-            <p className="text-[10px] text-stone-400">
-              Selected priority: <span className="font-semibold text-stone-200">{activePriorityMeta.label}</span>
+            <p className="text-[10px] text-theme-muted">
+              Selected priority: <span className="font-semibold text-theme-foreground">{activePriorityMeta.label}</span>
             </p>
           </div>
         ) : (
           /* Skeleton Priority Section (when inactive) */
           <div
-            className="group/sec rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-2.5 space-y-1.5 hover:border-rose-400/40 transition cursor-pointer"
+            className="group/sec rounded-xl border border-dashed border-theme-border bg-theme-paper/60 p-2.5 space-y-1.5 hover:border-rose-400/40 transition cursor-pointer"
             onClick={() => onSectionClick?.("priority")}
             title="Click to edit Priorities"
           >
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-xs font-medium text-stone-400">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-theme-muted">
                 <Flag className="h-3 w-3 opacity-50" />
                 <span>Priority</span>
               </span>
-              <span className="text-[10px] text-rose-400 opacity-0 group-hover/sec:opacity-100 transition">
+              <span className="text-[10px] text-rose-600 dark:text-rose-400 opacity-0 group-hover/sec:opacity-100 transition">
                 Switch to Priority tab
               </span>
             </div>
             <div className="flex gap-2">
-              <div className="h-7 w-20 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 w-20 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 w-20 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
+              <div className="h-7 w-20 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 w-20 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 w-20 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
             </div>
           </div>
         )}
@@ -290,20 +290,20 @@ export function SpotlightCardModalPreview({
           <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 sm:p-3.5 space-y-2.5 ring-2 ring-amber-500/25 transition-all">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1.5 text-xs font-bold text-white">
-                  <Zap className="h-3.5 w-3.5 text-amber-400" />
+                <span className="flex items-center gap-1.5 text-xs font-bold text-theme-foreground">
+                  <Zap className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                   <span>Story Points</span>
                 </span>
                 {activePointMeta && (
-                  <span className="text-xs font-semibold text-amber-300">
+                  <span className="text-xs font-semibold text-amber-800 dark:text-amber-300">
                     {activePointMeta.title || `${activePointMeta.score} pts`}
                   </span>
                 )}
-                <span className="rounded-md border border-amber-400/40 bg-amber-500/20 px-1.5 py-0.2 text-[10px] font-bold text-amber-300">
+                <span className="rounded-md border border-amber-400/40 bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
                   Spotlight
                 </span>
               </div>
-              <span className="grid h-5 w-5 place-items-center rounded text-stone-400 hover:text-white hover:bg-white/10 transition">
+              <span className="grid h-5 w-5 place-items-center rounded text-theme-muted hover:text-theme-foreground hover:bg-theme-paper-strong transition">
                 <Plus className="h-3 w-3" />
               </span>
             </div>
@@ -317,8 +317,8 @@ export function SpotlightCardModalPreview({
                 className={cn(
                   "h-9 min-w-[36px] px-2.5 rounded-lg border text-xs font-semibold transition flex items-center justify-center cursor-pointer",
                   selectedScore === null
-                    ? "border-amber-400/50 bg-amber-500/25 text-amber-200 ring-2 ring-amber-400/30 font-bold"
-                    : "border-white/10 bg-white/[0.04] text-stone-400 hover:border-white/20 hover:text-white"
+                    ? "border-amber-400/50 bg-amber-500/25 text-amber-900 dark:text-amber-200 ring-2 ring-amber-400/30 font-bold"
+                    : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/40 hover:text-theme-foreground"
                 )}
                 title="No points assigned"
               >
@@ -339,11 +339,11 @@ export function SpotlightCardModalPreview({
                       "h-9 min-w-[42px] px-2.5 rounded-lg border text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer",
                       isSelected
                         ? "border-cyan-400 bg-cyan-500 text-stone-950 font-black ring-2 ring-cyan-400/50 shadow-md"
-                        : "border-white/10 bg-white/[0.04] text-stone-300 hover:border-white/20 hover:text-white"
+                        : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-accent/40 hover:text-theme-foreground"
                     )}
                     title={`${point.title || point.score} — ${point.description || ""}`}
                   >
-                    <Zap className={cn("h-3 w-3", isSelected ? "text-stone-950 fill-stone-950" : "text-amber-400")} />
+                    <Zap className={cn("h-3 w-3", isSelected ? "text-stone-950 fill-stone-950" : "text-amber-500 dark:text-amber-400")} />
                     <span>{point.label || point.score}</span>
                   </button>
                 );
@@ -353,11 +353,11 @@ export function SpotlightCardModalPreview({
             {/* Description row matching Image 5 */}
             <div className="pt-0.5">
               {activePointMeta ? (
-                <p className="text-[11px] font-medium text-stone-300 leading-snug">
+                <p className="text-[11px] font-medium text-theme-foreground leading-snug">
                   {activePointMeta.description || "งานพื้นฐานทั่วไป 1–2 ชั่วโมง"}
                 </p>
               ) : (
-                <p className="text-[11px] text-stone-500">
+                <p className="text-[11px] text-theme-muted">
                   Available points: {storyPoints.map((p) => p.label || p.score).join(", ")} pts
                 </p>
               )}
@@ -366,44 +366,44 @@ export function SpotlightCardModalPreview({
         ) : (
           /* Skeleton Story Points Section (when inactive) */
           <div
-            className="group/sec rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-2.5 space-y-1.5 hover:border-amber-400/40 transition cursor-pointer"
+            className="group/sec rounded-xl border border-dashed border-theme-border bg-theme-paper/60 p-2.5 space-y-1.5 hover:border-amber-400/40 transition cursor-pointer"
             onClick={() => onSectionClick?.("story-points")}
             title="Click to edit Story Points"
           >
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-xs font-medium text-stone-400">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-theme-muted">
                 <Zap className="h-3 w-3 opacity-50" />
                 <span>Story Points</span>
               </span>
-              <span className="text-[10px] text-amber-400 opacity-0 group-hover/sec:opacity-100 transition">
+              <span className="text-[10px] text-amber-600 dark:text-amber-400 opacity-0 group-hover/sec:opacity-100 transition">
                 Switch to Story Points tab
               </span>
             </div>
             <div className="grid grid-cols-7 gap-1.5">
-              <div className="h-7 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 rounded-md bg-white/[0.08] border border-white/10 animate-pulse" />
-              <div className="h-7 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
-              <div className="h-7 rounded-md bg-white/[0.05] border border-white/5 animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
+              <div className="h-7 rounded-md bg-theme-paper-strong border border-theme-border animate-pulse" />
             </div>
-            <div className="h-2.5 w-40 rounded bg-white/[0.04] animate-pulse" />
+            <div className="h-2.5 w-40 rounded bg-theme-paper-strong animate-pulse" />
           </div>
         )}
 
         {/* ── SECTION 4: ASSIGNEES (SKELETONIZED MOCKUP ROW) ── */}
         <div className="space-y-1.5 opacity-65 pt-0.5">
-          <div className="flex items-center justify-between text-xs text-stone-400">
+          <div className="flex items-center justify-between text-xs text-theme-muted">
             <span className="flex items-center gap-1.5 font-medium">
               <User className="h-3.5 w-3.5" />
               <span>Assignees</span>
             </span>
-            <span className="text-[11px] text-stone-500 font-normal">No assignees</span>
+            <span className="text-[11px] text-theme-muted font-normal">No assignees</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-full bg-white/[0.06] border border-white/5 animate-pulse" />
-            <div className="h-7 rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-2.5 flex items-center text-[11px] text-stone-400 font-medium">
+            <div className="h-7 w-7 rounded-full bg-theme-paper-strong border border-theme-border animate-pulse" />
+            <div className="h-7 rounded-lg border border-dashed border-theme-border bg-theme-paper px-2.5 flex items-center text-[11px] text-theme-muted font-medium">
               + Select assignees
             </div>
           </div>
@@ -411,9 +411,9 @@ export function SpotlightCardModalPreview({
 
         {/* ── SECTION 5: CHECKLIST / ACTIVITY (SKELETONIZED SUBTLE ROWS) ── */}
         <div className="space-y-2 opacity-40 pt-1 pb-1">
-          <div className="h-2.5 w-24 rounded bg-white/[0.06] animate-pulse" />
-          <div className="h-3 w-full rounded bg-white/[0.04] animate-pulse" />
-          <div className="h-3 w-4/5 rounded bg-white/[0.03] animate-pulse" />
+          <div className="h-2.5 w-24 rounded bg-theme-paper-strong animate-pulse" />
+          <div className="h-3 w-full rounded bg-theme-paper-strong animate-pulse" />
+          <div className="h-3 w-4/5 rounded bg-theme-paper-strong animate-pulse" />
         </div>
       </div>
     </div>

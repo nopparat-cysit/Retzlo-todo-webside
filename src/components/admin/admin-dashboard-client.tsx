@@ -320,7 +320,7 @@ export function AdminDashboardClient({
               <span className="font-mono text-sm font-black tracking-wider text-stone-900 dark:text-stone-100">
                 RETZLO
               </span>
-              <span className="rounded bg-rose-500/15 px-1.5 py-0.2 font-mono text-[9px] font-bold text-rose-600 dark:text-rose-400">
+              <span className="rounded bg-rose-500/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-rose-600 dark:text-rose-400">
                 VAULT
               </span>
             </div>
@@ -398,7 +398,7 @@ export function AdminDashboardClient({
                     {item.badge ? (
                       <span
                         className={cn(
-                          "ml-1.5 shrink-0 rounded px-1.5 py-0.2 font-mono text-[10px] font-bold",
+                          "ml-1.5 shrink-0 rounded px-1.5 py-0.5 font-mono text-[10px] font-bold",
                           isActive
                             ? "bg-white/20 text-white"
                             : item.badgeVariant === "amber"
@@ -474,7 +474,7 @@ export function AdminDashboardClient({
         <div className="fixed inset-0 z-50 md:hidden flex">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in"
             onClick={() => setIsMobileSidebarOpen(false)}
             aria-hidden="true"
           />

@@ -204,7 +204,7 @@ export function PixelMoon() {
               {activePhase.label}
             </h5>
             {isCurrentActive && (
-              <span className="rounded bg-dusk-lavender/15 border border-dusk-lavender/30 px-1.5 py-0.2 text-[9px] font-mono text-dusk-lavender shrink-0">
+              <span className="rounded bg-dusk-lavender/15 border border-dusk-lavender/30 px-1.5 py-0.5 text-[9px] font-mono text-dusk-lavender shrink-0">
                 Today
               </span>
             )}

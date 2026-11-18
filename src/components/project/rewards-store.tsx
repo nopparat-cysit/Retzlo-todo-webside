@@ -1556,15 +1556,15 @@ function CreateRewardModal({
                 <div className="flex items-center justify-between gap-2 border-t border-stone-100 dark:border-white/5 pt-2">
                   <div className="flex flex-wrap gap-1">
                     {rewardDuration.trim() && (
-                      <span className="inline-flex items-center gap-1 rounded-md border border-stone-200/80 bg-stone-100/50 px-1.5 py-0.2 text-[9px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                      <span className="inline-flex items-center gap-1 rounded-md border border-stone-200/80 bg-stone-100/50 px-1.5 py-0.5 text-[9px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
                         <Clock className="h-2.5 w-2.5" />
                         {rewardDuration.trim()}
                       </span>
                     )}
-                    <span className="rounded-md border border-stone-200/80 bg-stone-100/50 px-1.5 py-0.2 text-[9px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                    <span className="rounded-md border border-stone-200/80 bg-stone-100/50 px-1.5 py-0.5 text-[9px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
                       {rewardHasQuantity ? `Stock: ${rewardQuantity}` : "Unlimited"}
                     </span>
-                    <span className="rounded-md border border-stone-200/80 bg-stone-100/50 px-1.5 py-0.2 text-[9px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                    <span className="rounded-md border border-stone-200/80 bg-stone-100/50 px-1.5 py-0.5 text-[9px] font-medium text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
                       {activeProjectId ? "Team" : "Global"}
                     </span>
                   </div>

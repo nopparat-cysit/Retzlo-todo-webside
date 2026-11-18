@@ -631,7 +631,7 @@ export function ComparisonMatrix({
                   <div className="flex items-center gap-1.5">
                     <span>{row.dimension}</span>
                     {row.badge && (
-                      <span className="rounded bg-stone-100 dark:bg-white/10 px-1.5 py-0.2 text-[9px] font-mono text-stone-500 dark:text-stone-400">
+                      <span className="rounded bg-stone-100 dark:bg-white/10 px-1.5 py-0.5 text-[9px] font-mono text-stone-500 dark:text-stone-400">
                         {row.badge}
                       </span>
                     )}

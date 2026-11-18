@@ -2259,10 +2259,14 @@ input:checked + .lofi-slider:before {
 }
 
 /* Keep modal backdrops translucent dark so modals focus attention properly */
+[data-theme="light"] .fixed.inset-0.bg-ink-950\/85,
+.light .fixed.inset-0.bg-ink-950\/85,
 [data-theme="light"] .fixed.inset-0.bg-ink-950\/80,
 .light .fixed.inset-0.bg-ink-950\/80,
 [data-theme="light"] .fixed.inset-0.bg-ink-950\/70,
-.light .fixed.inset-0.bg-ink-950\/70 {
+.light .fixed.inset-0.bg-ink-950\/70,
+[data-theme="light"] .fixed.inset-0.bg-ink-950\/60,
+.light .fixed.inset-0.bg-ink-950\/60 {
   background-color: rgba(28, 25, 23, 0.42) !important;
 }
 
@@ -2282,20 +2286,20 @@ input:checked + .lofi-slider:before {
 /* 5.1a High-opacity containers & floating panels -> Pure White */
 [data-theme="light"] .bg-ink-950\/98,
 .light .bg-ink-950\/98,
-[data-theme="light"] .bg-ink-950\/95,
-.light .bg-ink-950\/95,
+[data-theme="light"] .bg-ink-950\/95:not(.fixed),
+.light .bg-ink-950\/95:not(.fixed),
 [data-theme="light"] .bg-ink-950\/92,
 .light .bg-ink-950\/92,
-[data-theme="light"] .bg-ink-950\/90,
-.light .bg-ink-950\/90,
-[data-theme="light"] .bg-ink-950\/85,
-.light .bg-ink-950\/85,
+[data-theme="light"] .bg-ink-950\/90:not(.fixed),
+.light .bg-ink-950\/90:not(.fixed),
+[data-theme="light"] .bg-ink-950\/85:not(.fixed),
+.light .bg-ink-950\/85:not(.fixed),
 [data-theme="light"] .bg-ink-950\/80:not(.fixed),
 .light .bg-ink-950\/80:not(.fixed),
-[data-theme="light"] .bg-ink-950\/75,
-.light .bg-ink-950\/75,
-[data-theme="light"] .bg-ink-950\/70,
-.light .bg-ink-950\/70,
+[data-theme="light"] .bg-ink-950\/75:not(.fixed),
+.light .bg-ink-950\/75:not(.fixed),
+[data-theme="light"] .bg-ink-950\/70:not(.fixed),
+.light .bg-ink-950\/70:not(.fixed),
 [data-theme="light"] .bg-ink-900\/98,
 .light .bg-ink-900\/98,
 [data-theme="light"] .bg-ink-900\/96,
@@ -2310,8 +2314,8 @@ input:checked + .lofi-slider:before {
 /* 5.1b Mid & low opacity boxes, sticker backgrounds, and recessed subpanels -> Soft Warm Paper */
 [data-theme="light"] .bg-ink-950\/65,
 .light .bg-ink-950\/65,
-[data-theme="light"] .bg-ink-950\/60,
-.light .bg-ink-950\/60,
+[data-theme="light"] .bg-ink-950\/60:not(.fixed),
+.light .bg-ink-950\/60:not(.fixed),
 [data-theme="light"] .bg-ink-950\/50,
 .light .bg-ink-950\/50,
 [data-theme="light"] .bg-ink-950\/45,

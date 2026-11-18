@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function GlobalSettingsPage() {
   return (
-    <div className="min-h-screen bg-theme-base text-theme-foreground">
+    <div className="min-h-screen bg-theme-background text-theme-foreground">
       {/* Top sticky navigation bar */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-theme-border bg-theme-panel/85 px-4 backdrop-blur-md sm:px-8">
         <div className="flex items-center gap-3">

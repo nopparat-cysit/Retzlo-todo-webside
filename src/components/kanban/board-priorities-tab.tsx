@@ -341,7 +341,7 @@ export function BoardPrioritiesTab({
             <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
               Preset Priority Templates
             </span>
-            <span className="rounded-full bg-rose-100/70 border border-rose-200/60 px-2 py-0.2 text-[9px] font-semibold text-rose-700 dark:bg-rose-500/15 dark:border-rose-400/30 dark:text-rose-300">
+            <span className="rounded-full bg-rose-100/70 border border-rose-200/60 px-2 py-0.5 text-[9px] font-semibold text-rose-700 dark:bg-rose-500/15 dark:border-rose-400/30 dark:text-rose-300">
               Click to preview instantly
             </span>
           </div>
@@ -425,7 +425,7 @@ export function BoardPrioritiesTab({
                   <span className="text-xs font-semibold">{tpl.name}</span>
                   <span
                     className={cn(
-                      "rounded-full px-1.5 py-0.2 font-mono text-[10px] transition-colors shrink-0",
+                      "rounded-full px-1.5 py-0.5 font-mono text-[10px] transition-colors shrink-0",
                       isSelected
                         ? "bg-white/20 text-white font-bold"
                         : "bg-stone-100 text-stone-500 dark:bg-white/10 dark:text-stone-400"
@@ -453,7 +453,7 @@ export function BoardPrioritiesTab({
                 <span className="text-xs font-bold text-rose-950 dark:text-rose-200">
                   Previewing: {previewTemplate.name}
                 </span>
-                <span className="rounded-md border border-rose-300 bg-rose-100/80 px-2 py-0.2 font-mono text-[10px] font-bold text-rose-800 dark:border-rose-500/40 dark:bg-rose-500/20 dark:text-rose-300">
+                <span className="rounded-md border border-rose-300 bg-rose-100/80 px-2 py-0.5 font-mono text-[10px] font-bold text-rose-800 dark:border-rose-500/40 dark:bg-rose-500/20 dark:text-rose-300">
                   {previewTemplate.priorities.length} levels
                 </span>
                 <span className="text-[10px] text-rose-700 dark:text-rose-400">
@@ -561,7 +561,7 @@ export function BoardPrioritiesTab({
                       <span className="text-xs font-semibold text-stone-900 dark:text-stone-100">
                         {priority.label}
                       </span>
-                      <span className="rounded-md border border-rose-300/60 bg-rose-100/60 px-1.5 py-0.2 text-[9px] font-semibold text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+                      <span className="rounded-md border border-rose-300/60 bg-rose-100/60 px-1.5 py-0.5 text-[9px] font-semibold text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
                         Preview
                       </span>
                     </div>
@@ -756,12 +756,12 @@ export function BoardPrioritiesTab({
                   className="rounded-xl border border-stone-200/80 bg-white p-2.5 space-y-1.5 shadow-sm dark:border-white/10 dark:bg-stone-900/90"
                 >
                   <div className="flex items-center justify-between gap-1.5">
-                    <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                    <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
                       TSK-{201 + idx}
                     </span>
                     <span
                       className={cn(
-                        "inline-flex items-center gap-1 rounded-full border px-1.5 py-0.2 text-[9px] font-bold",
+                        "inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-bold",
                         config.pillClass
                       )}
                     >
@@ -784,7 +784,7 @@ export function BoardPrioritiesTab({
         <ModalPortal>
           <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4">
             <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
               onClick={() => setIsSaveCustomTemplateOpen(false)}
             />
             <form

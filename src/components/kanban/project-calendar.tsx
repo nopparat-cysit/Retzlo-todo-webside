@@ -8,6 +8,7 @@ import { BookOpen, CalendarDays, Check, CheckCircle2, CheckSquare, ChevronDown, 
 import { useLiveSync } from "@/hooks/use-live-sync";
 import { CardModal } from "@/components/kanban/card-modal";
 import { AppModal } from "@/components/ui/app-modal";
+import { ModalPortal } from "@/components/ui/modal-portal";
 import { Panel } from "@/components/ui/panel";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useToast } from "@/components/ui/toast";
@@ -110,7 +111,7 @@ function DayItemRow({
   onNoteClick: (noteId: string) => void;
   onToggleDiary: (diaryId: string, checklistItemId: string, dueDate: string, checked: boolean) => void;
   onToggleCardStatus: (card: CalendarCard) => void;
-  onDeleteDiaryItem: (diaryId: string) => void;
+  onDeleteDiaryItem: (diaryId: string, title?: string) => void;
   members: CardAssignee[];
   projectId: string;
 }) {
@@ -309,7 +310,7 @@ function DayItemRow({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDeleteDiaryItem((item as CalendarDiaryChecklist).diaryId);
+                      onDeleteDiaryItem((item as CalendarDiaryChecklist).diaryId, item.title);
                     }}
                     className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition cursor-pointer"
                   >
@@ -467,6 +468,8 @@ export function ProjectCalendar({
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const { toast } = useToast();
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [deletingDiaryTarget, setDeletingDiaryTarget] = useState<{ id: string; title: string } | null>(null);
+  const [isDeletingDiary, setIsDeletingDiary] = useState(false);
   const [selectedDayKey, setSelectedDayKey] = useState<string>(() => toDateKey(new Date()));
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [dayTypeFilter, setDayTypeFilter] = useState<"all" | "tasks" | "notes" | "diaries">("all");
@@ -520,7 +523,7 @@ export function ProjectCalendar({
     canSync: () => {
       if (selectedCardId || selectedNoteId) return false;
       if (isFiltersOpen || isUpcomingOpen) return false;
-      if (isUpdateConfirmOpen || isDeleteConfirmOpen) return false;
+      if (isUpdateConfirmOpen || isDeleteConfirmOpen || Boolean(deletingDiaryTarget)) return false;
       if (typeof document !== "undefined" && document.querySelector("[role='dialog']")) return false;
       return true;
     },
@@ -1097,11 +1100,20 @@ export function ProjectCalendar({
     }
   }
 
-  async function handleDeleteDiaryItem(diaryId: string) {
+  function requestDeleteDiaryItem(diaryId: string, title?: string) {
+    const resolvedTitle = title || diaryItems.find((d) => d.id === diaryId)?.title || "this todo";
+    setDeletingDiaryTarget({ id: diaryId, title: resolvedTitle });
+  }
+
+  async function executeDeleteDiaryItem() {
+    if (!deletingDiaryTarget || isDeletingDiary) return;
+    const targetId = deletingDiaryTarget.id;
+    setIsDeletingDiary(true);
     try {
-      const res = await fetch(`/api/diary-items/${diaryId}`, { method: "DELETE" });
+      const res = await fetch(`/api/diary-items/${targetId}`, { method: "DELETE" });
       if (res.ok) {
-        setDiaryItems((prev) => prev.filter((d) => d.id !== diaryId));
+        setDiaryItems((prev) => prev.filter((d) => d.id !== targetId));
+        setDeletingDiaryTarget(null);
         toast({ message: "Todo deleted.", type: "success" });
         broadcastChange();
       } else {
@@ -1109,8 +1121,90 @@ export function ProjectCalendar({
       }
     } catch {
       toast({ message: "Failed to delete todo.", type: "error" });
+    } finally {
+      setIsDeletingDiary(false);
     }
   }
+
+  const upcomingPanelContent = (
+    <>
+      <div className="mb-3 flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-3">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-amber-600 dark:text-dusk-amber" />
+          <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">Upcoming</h3>
+          <span className="rounded-full bg-stone-100 dark:bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-stone-600 dark:text-stone-400">
+            {upcomingItems.length}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsUpcomingOpen(false)}
+          className="rounded-lg p-1 text-stone-500 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
+          aria-label="Close upcoming panel"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
+        {upcomingItems.slice(0, 15).map((item) => {
+          if (item.type === "card") {
+            return (
+              <UpcomingCard
+                key={`upcoming-card-${item.id}`}
+                card={item}
+                members={members}
+                onClick={() => {
+                  if (item.dueDate) {
+                    const dKey = toDateKey(new Date(item.dueDate));
+                    setSelectedDayKey(dKey);
+                    setAnchorDate(dKey);
+                  }
+                  setSelectedCardId(item.id);
+                }}
+              />
+            );
+          } else if (item.type === "note") {
+            return (
+              <UpcomingNote
+                key={`upcoming-note-${item.id}`}
+                note={item}
+                onClick={() => {
+                  if (item.dueDate) {
+                    const dKey = toDateKey(new Date(item.dueDate));
+                    setSelectedDayKey(dKey);
+                    setAnchorDate(dKey);
+                  }
+                  setSelectedNoteId(item.id);
+                }}
+              />
+            );
+          } else {
+            return (
+              <UpcomingDiaryChecklist
+                key={`upcoming-diary-${item.id}`}
+                item={item}
+                onToggle={(checked) => {
+                  if (item.dueDate) {
+                    setSelectedDayKey(item.dueDate);
+                    setAnchorDate(item.dueDate);
+                  }
+                  handleToggleDiaryChecklist(item.diaryId, item.checklistItemId, item.dueDate, checked);
+                }}
+              />
+            );
+          }
+        })}
+        {upcomingItems.length === 0 ? (
+          <EmptyState
+            className="border-dashed bg-white/[0.015] p-4 text-left"
+            title="No upcoming matches"
+            message="Adjust the filters or add due dates to cards, notes, and diary items."
+          />
+        ) : null}
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -1319,7 +1413,7 @@ export function ProjectCalendar({
                 <PopoverContent
                   align="end"
                   sideOffset={8}
-                  className="w-[340px] sm:w-[380px] p-0 rounded-2xl border border-stone-200/90 dark:border-white/12 bg-[#faf7f2] dark:bg-[#0e1025] shadow-2xl backdrop-blur-xl overflow-hidden"
+                  className="w-[340px] max-w-[calc(100vw-1.5rem)] sm:w-[380px] p-0 rounded-2xl border border-stone-200/90 dark:border-white/12 bg-[#faf7f2] dark:bg-[#0e1025] shadow-2xl backdrop-blur-xl overflow-hidden"
                 >
                   {/* Popover Header */}
                   <div className="flex items-center justify-between border-b border-stone-200/70 dark:border-white/10 px-4 py-3 bg-stone-100/40 dark:bg-white/[0.02]">
@@ -1704,7 +1798,7 @@ export function ProjectCalendar({
                                   handleToggleDiaryChecklist(diaryId, checklistItemId, dueDate, checked);
                                 }}
                                 onToggleCardStatus={handleToggleCardStatus}
-                                onDeleteDiaryItem={handleDeleteDiaryItem}
+                                onDeleteDiaryItem={requestDeleteDiaryItem}
                                 members={members}
                                 projectId={projectId}
                               />
@@ -1971,7 +2065,7 @@ export function ProjectCalendar({
                         }}
                         onToggleDiary={handleToggleDiaryChecklist}
                         onToggleCardStatus={handleToggleCardStatus}
-                        onDeleteDiaryItem={handleDeleteDiaryItem}
+                        onDeleteDiaryItem={requestDeleteDiaryItem}
                         members={members}
                         projectId={projectId}
                       />
@@ -1985,89 +2079,21 @@ export function ProjectCalendar({
           {/* Optional Upcoming Panel */}
           {isUpcomingOpen && (
             <>
-              {/* Mobile overlay backdrop */}
-              <div
-                className="fixed inset-0 z-40 bg-ink-950/70 backdrop-blur-sm lg:hidden"
-                onClick={() => setIsUpcomingOpen(false)}
-                aria-hidden="true"
-              />
-              <Panel className="fixed inset-y-2 right-2 z-50 flex w-[min(340px,calc(100vw-1rem))] shrink-0 flex-col overflow-hidden p-4 shadow-2xl lg:static lg:inset-auto lg:z-auto lg:w-80 lg:shadow-xl">
-              <div className="mb-3 flex items-center justify-between border-b border-stone-200/80 dark:border-white/10 pb-3">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-amber-600 dark:text-dusk-amber" />
-                  <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">Upcoming</h3>
-                  <span className="rounded-full bg-stone-100 dark:bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-stone-600 dark:text-stone-400">
-                    {upcomingItems.length}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsUpcomingOpen(false)}
-                  className="rounded-lg p-1 text-stone-500 hover:bg-black/5 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-stone-100 transition"
-                  aria-label="Close upcoming panel"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-soft">
-                {upcomingItems.slice(0, 15).map((item) => {
-                  if (item.type === "card") {
-                    return (
-                      <UpcomingCard
-                        key={`upcoming-card-${item.id}`}
-                        card={item}
-                        members={members}
-                        onClick={() => {
-                          if (item.dueDate) {
-                            const dKey = toDateKey(new Date(item.dueDate));
-                            setSelectedDayKey(dKey);
-                            setAnchorDate(dKey);
-                          }
-                          setSelectedCardId(item.id);
-                        }}
-                      />
-                    );
-                  } else if (item.type === "note") {
-                    return (
-                      <UpcomingNote
-                        key={`upcoming-note-${item.id}`}
-                        note={item}
-                        onClick={() => {
-                          if (item.dueDate) {
-                            const dKey = toDateKey(new Date(item.dueDate));
-                            setSelectedDayKey(dKey);
-                            setAnchorDate(dKey);
-                          }
-                          setSelectedNoteId(item.id);
-                        }}
-                      />
-                    );
-                  } else {
-                    return (
-                      <UpcomingDiaryChecklist
-                        key={`upcoming-diary-${item.id}`}
-                        item={item}
-                        onToggle={(checked) => {
-                          if (item.dueDate) {
-                            setSelectedDayKey(item.dueDate);
-                            setAnchorDate(item.dueDate);
-                          }
-                          handleToggleDiaryChecklist(item.diaryId, item.checklistItemId, item.dueDate, checked);
-                        }}
-                      />
-                    );
-                  }
-                })}
-                {upcomingItems.length === 0 ? (
-                  <EmptyState
-                    className="border-dashed bg-white/[0.015] p-4 text-left"
-                    title="No upcoming matches"
-                    message="Adjust the filters or add due dates to cards, notes, and diary items."
+              <Panel className="hidden lg:flex w-80 shrink-0 flex-col overflow-hidden p-4 shadow-xl">
+                {upcomingPanelContent}
+              </Panel>
+              <ModalPortal>
+                <div className="fixed inset-0 z-[900] flex justify-end p-2 lg:hidden">
+                  <div
+                    className="fixed inset-0 bg-ink-950/70 backdrop-blur-sm"
+                    onClick={() => setIsUpcomingOpen(false)}
+                    aria-hidden="true"
                   />
-                ) : null}
-              </div>
-            </Panel>
+                  <Panel className="relative z-10 flex h-full w-[min(340px,calc(100vw-1rem))] shrink-0 flex-col overflow-hidden p-4 shadow-2xl">
+                    {upcomingPanelContent}
+                  </Panel>
+                </div>
+              </ModalPortal>
             </>
           )}
         </div>
@@ -2117,6 +2143,20 @@ export function ProjectCalendar({
         isLoading={false}
         onConfirm={executeSaveCard}
         onClose={() => setIsUpdateConfirmOpen(false)}
+      />
+
+      <ConfirmModal
+        open={Boolean(deletingDiaryTarget)}
+        layer="above-modal"
+        title="Delete todo?"
+        message={`Are you sure you want to delete "${deletingDiaryTarget?.title ?? "this todo"}"? This action cannot be undone.`}
+        confirmLabel="Delete todo"
+        variant="danger"
+        isLoading={isDeletingDiary}
+        onConfirm={executeDeleteDiaryItem}
+        onClose={() => {
+          if (!isDeletingDiary) setDeletingDiaryTarget(null);
+        }}
       />
       {selectedNote ? (
         <AppModal
@@ -2350,7 +2390,7 @@ export function ProjectCalendar({
                     }}
                     onToggleDiary={handleToggleDiaryChecklist}
                     onToggleCardStatus={handleToggleCardStatus}
-                    onDeleteDiaryItem={handleDeleteDiaryItem}
+                    onDeleteDiaryItem={requestDeleteDiaryItem}
                     members={members}
                     projectId={projectId}
                   />

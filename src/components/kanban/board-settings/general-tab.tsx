@@ -195,7 +195,7 @@ export function BoardGeneralTab({
               <div className="flex items-center gap-1.5">
                 <p className="text-xs font-bold text-stone-900 dark:text-stone-100">Public Workspace Board</p>
                 {!isPrivate && (
-                  <span className="rounded-full bg-dusk-lavender/20 px-1.5 py-0.2 text-[9px] font-bold text-dusk-lavender">
+                  <span className="rounded-full bg-dusk-lavender/20 px-1.5 py-0.5 text-[9px] font-bold text-dusk-lavender">
                     Selected
                   </span>
                 )}
@@ -231,7 +231,7 @@ export function BoardGeneralTab({
               <div className="flex items-center gap-1.5">
                 <p className="text-xs font-bold text-stone-900 dark:text-stone-100">Private Sub-Board</p>
                 {isPrivate && (
-                  <span className="rounded-full bg-dusk-amber/20 px-1.5 py-0.2 text-[9px] font-bold text-dusk-amber">
+                  <span className="rounded-full bg-dusk-amber/20 px-1.5 py-0.5 text-[9px] font-bold text-dusk-amber">
                     Selected
                   </span>
                 )}

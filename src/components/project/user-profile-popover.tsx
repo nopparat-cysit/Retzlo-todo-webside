@@ -137,7 +137,7 @@ export function UserProfilePopover({
                     <ShieldCheck className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                     Admin Portal
                   </span>
-                  <span className="rounded-full bg-purple-500/20 px-1.5 py-0.2 text-[9px] font-mono uppercase tracking-wider text-purple-700 dark:text-purple-300">
+                  <span className="rounded-full bg-purple-500/20 px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wider text-purple-700 dark:text-purple-300">
                     Vault
                   </span>
                 </Link>

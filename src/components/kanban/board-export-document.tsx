@@ -806,7 +806,7 @@ function ExportCardItem({
           {card.difficulty && (
             <span
               className={cn(
-                "px-1.5 py-0.2 rounded text-[10px] font-mono font-bold",
+                "px-1.5 py-0.5 rounded text-[10px] font-mono font-bold",
                 isDark ? "bg-white/10 text-stone-200" : "bg-stone-100 text-stone-700"
               )}
             >

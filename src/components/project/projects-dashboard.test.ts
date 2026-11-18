@@ -30,6 +30,14 @@ describe("ProjectsDashboard project editing contract", () => {
     expect(source).toMatch(/function ProjectCard[\s\S]*<ConfirmModal[\s\S]*open=\{deleteOpen\}[\s\S]*onConfirm=\{async/);
   });
 
+  it("groups EditProjectModal fields into two explicit grid columns", () => {
+    const editMatch = source.match(/function EditProjectModal[\s\S]*?<section className="grid gap-6 lg:grid-cols-\[1\.2fr_1fr\]">([\s\S]*?)<\/section>/);
+    expect(editMatch).toBeTruthy();
+    const sectionBody = editMatch?.[1] ?? "";
+    expect(sectionBody).toContain('<div className="space-y-4">');
+    expect(sectionBody).toContain('<div className="space-y-5">');
+  });
+
   it("safely handles projects and boards with missing or null columns and cards", () => {
     expect(source).toContain("projects = []");
     expect(source).toContain("calendarCards = []");

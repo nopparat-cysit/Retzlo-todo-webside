@@ -305,7 +305,7 @@ export function CreateBoardModal({
                 "flex flex-col items-start rounded-xl border p-3 text-left transition",
                 !isPrivate
                   ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-sm"
-                  : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
+                  : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border hover:text-theme-foreground"
               )}
             >
               <div className="flex items-center gap-1.5 font-bold text-xs">
@@ -325,7 +325,7 @@ export function CreateBoardModal({
                 "flex flex-col items-start rounded-xl border p-3 text-left transition",
                 isPrivate
                   ? "border-theme-accent bg-theme-paper-strong text-theme-accent shadow-sm"
-                  : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border-strong hover:text-theme-foreground"
+                  : "border-theme-border bg-theme-paper text-theme-muted hover:border-theme-border hover:text-theme-foreground"
               )}
             >
               <div className="flex items-center gap-1.5 font-bold text-xs">

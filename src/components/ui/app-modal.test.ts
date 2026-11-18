@@ -16,9 +16,10 @@ describe("AppModal layering contract", () => {
     expect(source).toMatch(/function handleModalContentKeyDown[\s\S]*event\.stopPropagation\(\)/);
   });
 
-  it("routes dirty closes through the shared discard confirmation", () => {
+  it("routes dirty closes through the shared discard confirmation above modals", () => {
     expect(source).toContain("hasUnsavedChanges");
     expect(source).toContain("<ConfirmModal");
+    expect(source).toMatch(/<ConfirmModal[\s\S]*layer="above-modal"/);
     expect(source).toMatch(/event\.key === "Escape"[\s\S]*requestClose\(\)/);
   });
 

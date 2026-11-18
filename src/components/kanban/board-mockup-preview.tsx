@@ -177,11 +177,11 @@ export function BoardMockupPreview({
                 {title}
               </span>
               {badgeText && (
-                <span className="rounded-md border border-indigo-200/80 bg-white/90 px-1.5 py-0.2 text-[9px] font-bold text-indigo-700 dark:border-white/10 dark:bg-white/10 dark:text-dusk-lavender">
+                <span className="rounded-md border border-indigo-200/80 bg-white/90 px-1.5 py-0.5 text-[9px] font-bold text-indigo-700 dark:border-white/10 dark:bg-white/10 dark:text-dusk-lavender">
                   {badgeText}
                 </span>
               )}
-              <span className="rounded-md bg-indigo-500/15 px-1.5 py-0.2 font-mono text-[10px] font-bold text-indigo-700 dark:text-dusk-lavender">
+              <span className="rounded-md bg-indigo-500/15 px-1.5 py-0.5 font-mono text-[10px] font-bold text-indigo-700 dark:text-dusk-lavender">
                 {columns.length} {columns.length === 1 ? "column" : "columns"}
               </span>
             </div>
@@ -298,19 +298,19 @@ export function BoardMockupPreview({
 
                   <div className="flex items-center gap-1 shrink-0">
                     {col.highlightBadge && (
-                      <span className="rounded bg-indigo-600 px-1 py-0.2 text-[8px] font-bold uppercase text-white">
+                      <span className="rounded bg-indigo-600 px-1 py-0.5 text-[8px] font-bold uppercase text-white">
                         {col.highlightBadge}
                       </span>
                     )}
                     {col.wipLimit ? (
                       <span
-                        className="rounded-full border border-amber-300/80 bg-amber-500/15 px-1.5 py-0.2 font-mono text-[9px] font-bold text-amber-800 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber"
+                        className="rounded-full border border-amber-300/80 bg-amber-500/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-800 dark:border-dusk-amber/40 dark:bg-dusk-amber/15 dark:text-dusk-amber"
                         title={`WIP Limit: ${col.wipLimit}`}
                       >
                         {displayCount}/{col.wipLimit}
                       </span>
                     ) : (
-                      <span className="font-mono text-[10px] font-bold text-stone-500 bg-stone-200/60 dark:bg-white/10 dark:text-stone-300 px-1.5 py-0.2 rounded-full">
+                      <span className="font-mono text-[10px] font-bold text-stone-500 bg-stone-200/60 dark:bg-white/10 dark:text-stone-300 px-1.5 py-0.5 rounded-full">
                         {displayCount}
                       </span>
                     )}
@@ -321,7 +321,7 @@ export function BoardMockupPreview({
                 <div className="flex items-center justify-between gap-1 px-2.5 py-1 bg-stone-50/70 dark:bg-white/[0.02] border-b border-stone-100 dark:border-white/5 text-[9px]">
                   <span
                     className={cn(
-                      "rounded-full border px-1.5 py-0.2 font-semibold",
+                      "rounded-full border px-1.5 py-0.5 font-semibold",
                       statusMeta.badgeClass
                     )}
                   >
@@ -343,12 +343,12 @@ export function BoardMockupPreview({
                       className="rounded-lg border border-stone-200/80 bg-white dark:border-white/10 dark:bg-stone-800/80 p-2 space-y-1.5 shadow-sm text-left"
                     >
                       <div className="flex items-center justify-between gap-1">
-                        <span className="font-mono text-[9px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+                        <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-600 dark:bg-white/10 dark:text-stone-300">
                           {card.code}
                         </span>
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-full px-1.5 py-0.2 text-[9px] font-bold border",
+                            "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold border",
                             card.priority === "HIGH" &&
                               "border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-400",
                             card.priority === "MEDIUM" &&

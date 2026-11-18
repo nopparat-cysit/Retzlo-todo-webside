@@ -405,7 +405,7 @@ export function AuditDetailDrawer({ log, isOpen, onClose }: AuditDetailDrawerPro
             </Button>
 
             {showRawJson && (
-              <pre className="font-mono text-[11px] text-stone-700 dark:text-stone-300 bg-stone-900 text-stone-100 p-4 rounded-xl overflow-x-auto whitespace-pre-wrap border border-stone-800 max-h-60 overflow-y-auto">
+              <pre className="font-mono text-[11px] bg-theme-paper text-theme-foreground p-4 rounded-xl overflow-x-auto whitespace-pre-wrap border border-theme-border max-h-60 overflow-y-auto">
                 {JSON.stringify(log, null, 2)}
               </pre>
             )}

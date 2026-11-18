@@ -397,7 +397,7 @@ export function ProjectBoardsManager({
                         {b.name}
                       </h3>
                       {isHighlighted && (
-                        <span className="inline-block mt-0.5 rounded bg-dusk-lavender/20 px-1.5 py-0.2 text-[9px] font-bold text-dusk-lavender">
+                        <span className="inline-block mt-0.5 rounded bg-dusk-lavender/20 px-1.5 py-0.5 text-[9px] font-bold text-dusk-lavender">
                           Current Selection
                         </span>
                       )}
@@ -559,7 +559,7 @@ export function ProjectBoardsManager({
                         <FolderKanban className="h-3.5 w-3.5 text-dusk-lavender shrink-0" />
                         <span className="font-semibold text-stone-100">{b.name}</span>
                         {isHighlighted && (
-                          <span className="rounded bg-dusk-lavender/20 px-1.5 py-0.2 text-[9px] font-bold text-dusk-lavender">
+                          <span className="rounded bg-dusk-lavender/20 px-1.5 py-0.5 text-[9px] font-bold text-dusk-lavender">
                             Current
                           </span>
                         )}

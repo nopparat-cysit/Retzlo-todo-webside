@@ -175,7 +175,7 @@ export function DiaryHubPanel({ initialItems, projects }: DiaryHubPanelProps) {
 
   function toggleRedStar(item: HubDiaryItem) {
     setRedStarIdState(item.id);
-    setRedStarItem({ type: "diary", id: item.id, title: item.title, href: "/hub/diary" });
+    setRedStarItem({ type: "diary", id: item.id, title: item.title, href: "/projects" });
   }
 
   const FILTER_TABS: { value: DiaryFilter; label: string }[] = [
@@ -423,6 +423,7 @@ export function DiaryItemModal({
   const [titleVal, setTitleVal] = useState(item?.title ?? "");
   const [descriptionVal, setDescriptionVal] = useState(item?.description ?? "");
   const [showConfirmClose, setShowConfirmClose] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const hasChanges = useMemo(() => {
     const isNew = !item;
@@ -733,7 +734,7 @@ export function DiaryItemModal({
 
         <div className="mt-5 flex flex-wrap justify-end gap-2">
           {onDelete && (
-            <Button type="button" variant="danger" onClick={onDelete}>
+            <Button type="button" variant="danger" onClick={() => setShowConfirmDelete(true)}>
               <Trash2 className="h-4 w-4" />
               Delete
             </Button>
@@ -749,6 +750,7 @@ export function DiaryItemModal({
       </form>
       <ConfirmModal
         open={showConfirmClose}
+        layer="above-modal"
         title="Discard changes?"
         message="You have unsaved changes. Are you sure you want to discard them?"
         confirmLabel="Discard changes"
@@ -759,6 +761,21 @@ export function DiaryItemModal({
         }}
         onClose={() => setShowConfirmClose(false)}
       />
+      {onDelete && (
+        <ConfirmModal
+          open={showConfirmDelete}
+          layer="above-modal"
+          title="Delete diary?"
+          message={`Are you sure you want to delete "${titleVal.trim() || item?.title || "this diary"}"? This action cannot be undone.`}
+          confirmLabel="Delete"
+          variant="danger"
+          onConfirm={() => {
+            setShowConfirmDelete(false);
+            onDelete();
+          }}
+          onClose={() => setShowConfirmDelete(false)}
+        />
+      )}
     </AppModal>
   );
 }

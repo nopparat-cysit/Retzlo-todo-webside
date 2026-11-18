@@ -789,7 +789,7 @@ export function BoardColumnsTab({
                       </p>
                       {currentStatusPreset && (
                         <span
-                          className={`rounded-md border px-1.5 py-0.2 text-[9px] font-bold ${currentStatusPreset.badgeClass}`}
+                          className={`rounded-md border px-1.5 py-0.5 text-[9px] font-bold ${currentStatusPreset.badgeClass}`}
                         >
                           {currentStatusPreset.label}
                         </span>

@@ -148,7 +148,7 @@ export function BoardAccessTab({
 
                 <div className="flex items-center gap-2 shrink-0">
                   {m.role && (
-                    <span className="rounded-full border border-stone-200 bg-stone-100 px-2 py-0.2 text-[9px] font-mono text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                    <span className="rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-[9px] font-mono text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
                       {m.role}
                     </span>
                   )}

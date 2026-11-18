@@ -1468,7 +1468,7 @@ export function KanbanBoard({
                             <Rows3 className={cn("h-3.5 w-3.5", density === "compact" ? "text-indigo-600 dark:text-dusk-lavender" : "text-stone-400")} />
                             <span className="hidden xl:inline text-[11px]">Compact</span>
                             <span className={cn(
-                              "rounded px-1 py-0.2 text-[9px] font-mono font-bold transition",
+                              "rounded px-1 py-0.5 text-[9px] font-mono font-bold transition",
                               density === "compact"
                                 ? "bg-indigo-500/15 text-indigo-600 dark:bg-dusk-lavender/25 dark:text-dusk-lavender"
                                 : "bg-stone-200/80 text-stone-500 dark:bg-white/10 dark:text-stone-400"
@@ -1581,7 +1581,7 @@ export function KanbanBoard({
                   >
                     <Sparkles className="h-3.5 w-3.5 text-dusk-amber animate-pulse" />
                     <span className="hidden sm:inline">AI Summary</span>
-                    <span className="rounded bg-indigo-500/20 px-1 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                    <span className="rounded bg-indigo-500/20 px-1 py-0.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
                       2 cr
                     </span>
                   </button>
@@ -1677,7 +1677,7 @@ export function KanbanBoard({
                           <div className="flex items-center gap-1.5">
                             <span className="font-semibold text-xs text-stone-800 dark:text-stone-200">Board Attributes</span>
                             {boardPriorities && boardPriorities.length > 0 && (
-                              <span className="rounded bg-indigo-500/10 px-1 py-0.2 text-[9px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+                              <span className="rounded bg-indigo-500/10 px-1 py-0.5 text-[9px] font-mono text-indigo-700 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
                                 {boardPriorities.length}
                               </span>
                             )}
@@ -2311,7 +2311,7 @@ export function KanbanBoard({
                             <span>{col.name}</span>
                             <span
                               className={cn(
-                                "rounded-full px-1.5 py-0.2 text-[10px] font-mono shrink-0",
+                                "rounded-full px-1.5 py-0.5 text-[10px] font-mono shrink-0",
                                 isActive
                                   ? "bg-indigo-100 text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender font-bold"
                                   : "bg-stone-200/70 text-stone-600 dark:bg-white/10 dark:text-stone-400"

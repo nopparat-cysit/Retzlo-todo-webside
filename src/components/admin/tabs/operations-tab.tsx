@@ -176,7 +176,7 @@ export function OperationsTab() {
             ) : (
               <Info className="h-4 w-4 text-indigo-400 shrink-0" />
             )}
-            <span className="font-mono uppercase text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/10">
+            <span className="font-mono uppercase text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/25 text-white">
               {broadcastType}
             </span>
             <p className="truncate">

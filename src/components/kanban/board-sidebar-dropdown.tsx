@@ -201,7 +201,7 @@ export function BoardSidebarDropdown({
             )}
           />
           <span className="sidebar-expanded-only truncate font-medium">Boards</span>
-          <span className="sidebar-expanded-only rounded-full bg-white/10 px-1.5 py-0.2 font-mono text-[10px] text-stone-400">
+          <span className="sidebar-expanded-only rounded-full bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-stone-400">
             {boardsList.length}
           </span>
         </div>

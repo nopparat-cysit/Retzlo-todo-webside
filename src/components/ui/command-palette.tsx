@@ -137,7 +137,10 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
       label: `Notes (${searchResults.notes.length})`,
       items: searchResults.notes.map((n) => ({
         id: `note-${n.id}`,
-        label: `${n.emoji || "📝"} ${n.title}`,
+        label:
+          n.emoji && !n.emoji.startsWith("/") && !n.emoji.startsWith("http")
+            ? `${n.emoji} ${n.title}`
+            : n.title,
         group: "Notes",
         icon: <FileText className="h-4 w-4 text-dusk-cyan" />,
         action: () => {

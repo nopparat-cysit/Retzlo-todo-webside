@@ -112,7 +112,7 @@ export function NotesHubPanel({ initialNotes, projects }: NotesHubPanelProps) {
 
   function toggleRedStar(note: HubNote) {
     setRedStarIdState(note.id);
-    setRedStarItem({ type: "note", id: note.id, title: note.title, href: "/hub/notes" });
+    setRedStarItem({ type: "note", id: note.id, title: note.title, href: "/projects" });
   }
 
   const FILTER_TABS: { value: NoteFilter; label: string }[] = [

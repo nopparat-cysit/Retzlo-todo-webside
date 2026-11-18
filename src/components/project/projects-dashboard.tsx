@@ -1112,7 +1112,7 @@ export function ProjectsDashboard({
                   >
                     <KanbanSquare className="h-3.5 w-3.5 text-indigo-600 dark:text-dusk-lavender" />
                     <span>Boards Hub</span>
-                    <span className="rounded-full bg-indigo-100 px-1.5 py-0.2 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender">
+                    <span className="rounded-full bg-indigo-100 px-1.5 py-0.5 text-[10px] font-mono text-indigo-700 dark:bg-dusk-lavender/25 dark:text-dusk-lavender">
                       {activeProject.boardsList?.length ?? activeProject.counts.boards}
                     </span>
                   </button>
@@ -1139,7 +1139,7 @@ export function ProjectsDashboard({
                   >
                     <FileText className="h-3.5 w-3.5 text-rose-500 dark:text-dusk-rose" />
                     <span>Notes</span>
-                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
                       {activeProject.counts.notes}
                     </span>
                   </Link>
@@ -1150,7 +1150,7 @@ export function ProjectsDashboard({
                   >
                     <Users className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
                     <span>Members</span>
-                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.2 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
+                    <span className="rounded-full bg-stone-200/80 px-1.5 py-0.5 text-[10px] font-mono text-stone-700 dark:bg-white/10 dark:text-inherit">
                       {activeProject.counts.members}
                     </span>
                   </Link>
@@ -1222,7 +1222,7 @@ export function ProjectsDashboard({
                   >
                     <LayoutGrid className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
                     <span className="truncate">All</span>
-                    <span className="shrink-0 rounded-full bg-stone-200/80 px-1 py-0.2 text-[9px] sm:text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{projectList.length}</span>
+                    <span className="shrink-0 rounded-full bg-stone-200/80 px-1 py-0.5 text-[9px] sm:text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{projectList.length}</span>
                   </button>
 
                   <button
@@ -1237,7 +1237,7 @@ export function ProjectsDashboard({
                   >
                     <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0 fill-current" />
                     <span className="truncate">Starred</span>
-                    <span className="shrink-0 rounded-full bg-stone-200/80 px-1 py-0.2 text-[9px] sm:text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{starredCount}</span>
+                    <span className="shrink-0 rounded-full bg-stone-200/80 px-1 py-0.5 text-[9px] sm:text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{starredCount}</span>
                   </button>
 
                   <button
@@ -1252,7 +1252,7 @@ export function ProjectsDashboard({
                   >
                     <KanbanSquare className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
                     <span className="truncate">Work</span>
-                    <span className="shrink-0 rounded-full bg-stone-200/80 px-1 py-0.2 text-[9px] sm:text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{workCount}</span>
+                    <span className="shrink-0 rounded-full bg-stone-200/80 px-1 py-0.5 text-[9px] sm:text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{workCount}</span>
                   </button>
 
                   <button
@@ -1267,7 +1267,7 @@ export function ProjectsDashboard({
                   >
                     <BookOpenCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
                     <span className="truncate">Diary</span>
-                    <span className="shrink-0 rounded-full bg-stone-200/80 px-1 py-0.2 text-[9px] sm:text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{diaryCount}</span>
+                    <span className="shrink-0 rounded-full bg-stone-200/80 px-1 py-0.5 text-[9px] sm:text-[10px] text-stone-700 dark:bg-white/10 dark:text-inherit">{diaryCount}</span>
                   </button>
                 </div>
               </div>
@@ -2414,11 +2414,11 @@ function ProjectCard({
                   Tasks
                 </span>
                 {totalCards > 0 ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-teal-500/25 bg-teal-50 px-1.5 py-0.2 font-mono text-[9px] font-bold text-teal-700 dark:border-dusk-cyan/30 dark:bg-dusk-cyan/15 dark:text-dusk-cyan">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-teal-500/25 bg-teal-50 px-1.5 py-0.5 font-mono text-[9px] font-bold text-teal-700 dark:border-dusk-cyan/30 dark:bg-dusk-cyan/15 dark:text-dusk-cyan">
                     {doneCards}/{totalCards} ({progressPercent}%)
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-stone-200/90 bg-stone-100/60 px-1.5 py-0.2 font-mono text-[9px] text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-stone-200/90 bg-stone-100/60 px-1.5 py-0.5 font-mono text-[9px] text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">
                     {columnCount} cols ready
                   </span>
                 )}
@@ -2482,7 +2482,7 @@ function ProjectCard({
                   title={`Launch ${b.name}`}
                 >
                   <span className="truncate max-w-[75px] sm:max-w-[90px]">{b.name}</span>
-                  <span className="rounded-full bg-stone-200/80 px-1 py-0.2 text-[8.5px] font-mono text-stone-600 dark:bg-white/10 dark:text-stone-400">
+                  <span className="rounded-full bg-stone-200/80 px-1 py-0.5 text-[8.5px] font-mono text-stone-600 dark:bg-white/10 dark:text-stone-400">
                     {b.totalCards}
                   </span>
                 </Link>
@@ -2723,73 +2723,76 @@ function EditProjectModal({
                     maxLength={500}
                   />
                 </label>
-                <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Project media</p>
-                <h3 className="mt-1 text-xl font-semibold text-stone-100">Cover image</h3>
-                <p className="mt-1 text-sm leading-6 text-stone-500">Use the same cover style that appears on the project card.</p>
-              </div>
 
-              <button
-                className="group relative mt-5 block aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-ink-950/45 text-left"
-                title="Upload project cover"
-                type="button"
-                onClick={() => coverInputRef.current?.click()}
-              >
-                {coverPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={coverPreview} alt="Project cover" className="h-full w-full object-cover" />
-                ) : (
-                  <div className="h-full w-full bg-[radial-gradient(circle_at_20%_15%,rgba(249,199,132,0.18),transparent_32%),linear-gradient(135deg,rgba(169,162,255,0.2),rgba(103,232,249,0.1),rgba(244,114,182,0.1))]" />
-                )}
-                <div className="absolute inset-0 grid place-items-center bg-ink-950/45 opacity-0 transition group-hover:opacity-100">
-                  <span className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-ink-950/70 px-3 py-2 text-sm font-medium text-white">
-                    {isUploadingCover ? (
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                <div className="pt-2">
+                  <p className="text-xs uppercase tracking-[0.24em] text-dusk-amber">Project media</p>
+                  <h3 className="mt-1 text-xl font-semibold text-stone-100">Cover image</h3>
+                  <p className="mt-1 text-sm leading-6 text-stone-500">Use the same cover style that appears on the project card.</p>
+
+                  <button
+                    className="group relative mt-4 block aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-ink-950/45 text-left"
+                    title="Upload project cover"
+                    type="button"
+                    onClick={() => coverInputRef.current?.click()}
+                  >
+                    {coverPreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={coverPreview} alt="Project cover" className="h-full w-full object-cover" />
                     ) : (
-                      <Upload className="h-4 w-4" />
+                      <div className="h-full w-full bg-[radial-gradient(circle_at_20%_15%,rgba(249,199,132,0.18),transparent_32%),linear-gradient(135deg,rgba(169,162,255,0.2),rgba(103,232,249,0.1),rgba(244,114,182,0.1))]" />
                     )}
-                    {coverPreview ? "Change cover" : "Upload cover"}
-                  </span>
-                </div>
-              </button>
-              <input
-                ref={coverInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
-                className="hidden"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleCoverUpload(f); }}
-              />
-              <p className="mt-2 flex items-center gap-2 text-xs text-stone-600">
-                <ImageIcon className="h-3.5 w-3.5" />
-                JPG, PNG, WebP, or GIF. Max 5 MB.
-              </p>
-
-              <div className="mt-5 rounded-xl border border-white/10 bg-ink-950/25 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-stone-500">Quick summary</p>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <ProjectStatusMetric label="Boards" value={project.counts.boards} tone="amber" compact />
-                  <ProjectStatusMetric label="Notes" value={project.counts.notes} tone="rose" compact />
-                  <ProjectStatusMetric label="Cards" value={project.board?.columns.reduce((sum, column) => sum + column.cards.length, 0) ?? 0} compact />
+                    <div className="absolute inset-0 grid place-items-center bg-ink-950/45 opacity-0 transition group-hover:opacity-100">
+                      <span className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-ink-950/70 px-3 py-2 text-sm font-medium text-white">
+                        {isUploadingCover ? (
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                        ) : (
+                          <Upload className="h-4 w-4" />
+                        )}
+                        {coverPreview ? "Change cover" : "Upload cover"}
+                      </span>
+                    </div>
+                  </button>
+                  <input
+                    ref={coverInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleCoverUpload(f); }}
+                  />
+                  <p className="mt-2 flex items-center gap-2 text-xs text-stone-600">
+                    <ImageIcon className="h-3.5 w-3.5" />
+                    JPG, PNG, WebP, or GIF. Max 5 MB.
+                  </p>
                 </div>
               </div>
 
-              <div className="mt-5">
+              <div className="space-y-5">
                 <ProjectAppearanceControls
                   color={themeColor}
                   sticker={sticker}
                   onColorChange={setThemeColor}
                   onStickerChange={setSticker}
                 />
-              </div>
 
-              <div className="mt-4 flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 text-xs dark:border-white/10 dark:bg-white/[0.02]">
-                <span className="text-stone-600 dark:text-stone-400">Looking for team members, coins, or custom workflows?</span>
-                <Link
-                  href={`/project/${project.id}/settings`}
-                  className="font-semibold text-indigo-600 hover:underline dark:text-dusk-lavender inline-flex items-center gap-1 shrink-0 ml-2"
-                >
-                  <span>Full Settings</span>
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
+                <div className="rounded-xl border border-white/10 bg-ink-950/25 p-4">
+                  <p className="text-xs uppercase tracking-[0.2em] text-stone-500">Quick summary</p>
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    <ProjectStatusMetric label="Boards" value={project.counts.boards} tone="amber" compact />
+                    <ProjectStatusMetric label="Notes" value={project.counts.notes} tone="rose" compact />
+                    <ProjectStatusMetric label="Cards" value={project.board?.columns.reduce((sum, column) => sum + column.cards.length, 0) ?? 0} compact />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl border border-stone-200/80 bg-stone-50/60 p-3 text-xs dark:border-white/10 dark:bg-white/[0.02]">
+                  <span className="text-stone-600 dark:text-stone-400">Looking for team members, coins, or custom workflows?</span>
+                  <Link
+                    href={`/project/${project.id}/settings`}
+                    className="font-semibold text-indigo-600 hover:underline dark:text-dusk-lavender inline-flex items-center gap-1 shrink-0 ml-2"
+                  >
+                    <span>Full Settings</span>
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </div>
               </div>
             </section>
           </div>

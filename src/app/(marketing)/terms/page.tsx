@@ -8,28 +8,28 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#080714] text-stone-200 antialiased selection:bg-dusk-lavender/30 selection:text-dusk-lavender">
+    <div className="min-h-screen bg-theme-background text-theme-foreground antialiased selection:bg-dusk-lavender/30 selection:text-dusk-lavender">
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-stone-400 transition hover:text-dusk-lavender mb-8"
+          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-theme-muted transition hover:text-dusk-lavender mb-8"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Retzlo</span>
         </Link>
 
-        <header className="border-b border-white/10 pb-8 mb-10">
+        <header className="border-b border-theme-border pb-8 mb-10">
           <div className="inline-flex items-center gap-2 rounded-full border border-dusk-amber/30 bg-dusk-amber/10 px-3 py-1 text-xs font-mono font-medium text-dusk-amber mb-3">
             <FileText className="h-3.5 w-3.5" />
             <span>Legal & Agreements</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">Terms of Service</h1>
-          <p className="mt-2 text-sm text-stone-400">Terms of Service and Acceptable Use Policy (Effective as of September 20, 2026)</p>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-theme-foreground">Terms of Service</h1>
+          <p className="mt-2 text-sm text-theme-muted">Terms of Service and Acceptable Use Policy (Effective as of September 20, 2026)</p>
         </header>
 
-        <article className="prose prose-invert max-w-none space-y-8 text-sm leading-relaxed text-stone-300">
-          <section className="lofi-panel rounded-2xl border border-white/10 p-6">
-            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+        <article className="prose dark:prose-invert max-w-none space-y-8 text-sm leading-relaxed text-theme-muted [&_strong]:text-theme-foreground">
+          <section className="lofi-panel rounded-2xl border border-theme-border p-6">
+            <h2 className="text-lg font-bold text-theme-foreground mb-3 flex items-center gap-2">
               <span className="text-dusk-lavender">1.</span> Acceptance of Terms
             </h2>
             <p>
@@ -37,8 +37,8 @@ export default function TermsPage() {
             </p>
           </section>
 
-          <section className="lofi-panel rounded-2xl border border-white/10 p-6">
-            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <section className="lofi-panel rounded-2xl border border-theme-border p-6">
+            <h2 className="text-lg font-bold text-theme-foreground mb-3 flex items-center gap-2">
               <span className="text-dusk-lavender">2.</span> User Account & Security
             </h2>
             <ul className="list-disc pl-5 space-y-2">
@@ -49,8 +49,8 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          <section className="lofi-panel rounded-2xl border border-white/10 p-6">
-            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <section className="lofi-panel rounded-2xl border border-theme-border p-6">
+            <h2 className="text-lg font-bold text-theme-foreground mb-3 flex items-center gap-2">
               <span className="text-dusk-lavender">3.</span> Acceptable Use Policy
             </h2>
             <p className="mb-2">You agree not to engage in any of the following prohibited activities:</p>
@@ -62,8 +62,8 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          <section className="lofi-panel rounded-2xl border border-white/10 p-6">
-            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <section className="lofi-panel rounded-2xl border border-theme-border p-6">
+            <h2 className="text-lg font-bold text-theme-foreground mb-3 flex items-center gap-2">
               <span className="text-dusk-lavender">4.</span> User Content & Ownership
             </h2>
             <p>
@@ -71,8 +71,8 @@ export default function TermsPage() {
             </p>
           </section>
 
-          <section className="lofi-panel rounded-2xl border border-white/10 p-6">
-            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <section className="lofi-panel rounded-2xl border border-theme-border p-6">
+            <h2 className="text-lg font-bold text-theme-foreground mb-3 flex items-center gap-2">
               <span className="text-dusk-lavender">5.</span> Limitation of Liability
             </h2>
             <p>
@@ -80,8 +80,8 @@ export default function TermsPage() {
             </p>
           </section>
 
-          <section className="lofi-panel rounded-2xl border border-white/10 p-6">
-            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+          <section className="lofi-panel rounded-2xl border border-theme-border p-6">
+            <h2 className="text-lg font-bold text-theme-foreground mb-3 flex items-center gap-2">
               <span className="text-dusk-lavender">6.</span> Contact & Inquiries
             </h2>
             <p>
@@ -90,11 +90,11 @@ export default function TermsPage() {
           </section>
         </article>
 
-        <footer className="mt-12 border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
+        <footer className="mt-12 border-t border-theme-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-theme-muted">
           <p>© {new Date().getFullYear()} Retzlo. All rights reserved.</p>
           <div className="flex items-center gap-4">
-            <Link href="/privacy" className="hover:text-stone-300 underline">Privacy Policy</Link>
-            <Link href="/register" className="hover:text-stone-300 underline">Register</Link>
+            <Link href="/privacy" className="hover:text-theme-foreground underline">Privacy Policy</Link>
+            <Link href="/register" className="hover:text-theme-foreground underline">Register</Link>
           </div>
         </footer>
       </div>

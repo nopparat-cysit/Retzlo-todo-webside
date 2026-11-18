@@ -531,7 +531,7 @@ function FabDisplayPicker({
       type: "diary",
       id: item.id,
       title: item.title,
-      href: item.projectId ? `/project/${item.projectId}/diary` : "/hub/diary"
+      href: item.projectId ? `/project/${item.projectId}/diary` : "/projects"
     });
     onClose();
   }
@@ -875,7 +875,7 @@ function FabCreateModal({
             type: "diary",
             id: data.diaryItem.id,
             title: data.diaryItem.title,
-            href: data.diaryItem.projectId ? `/project/${data.diaryItem.projectId}/diary` : "/hub/diary"
+            href: data.diaryItem.projectId ? `/project/${data.diaryItem.projectId}/diary` : "/projects"
           });
         }
       }

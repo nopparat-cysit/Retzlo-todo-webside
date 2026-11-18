@@ -138,7 +138,7 @@ export function Toast({ item, onDismiss }: ToastProps) {
       }}
       className={cn(
         // base
-        "relative flex w-80 max-w-[calc(100vw-2rem)] items-start gap-3 overflow-hidden rounded-lg border border-white/10 px-4 py-3 backdrop-blur-md transition-all duration-300",
+        "relative flex w-80 max-w-[calc(100vw-2rem)] items-start gap-3 overflow-hidden rounded-lg border border-theme-border px-4 py-3 backdrop-blur-md transition-all duration-300",
         styles.bg,
         styles.glow,
         // enter
@@ -173,16 +173,13 @@ export function Toast({ item, onDismiss }: ToastProps) {
       </span>
 
       {/* Message */}
-      <p className="flex-1 text-sm leading-snug text-stone-100">{item.message}</p>
+      <p className="flex-1 text-sm leading-snug text-theme-foreground">{item.message}</p>
 
       {/* Dismiss */}
       <button
         onClick={dismiss}
         aria-label="Dismiss notification"
-        className={cn(
-          "ml-1 shrink-0 rounded p-0.5 opacity-60 transition hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-dusk-lavender",
-          styles.text
-        )}
+        className="ml-1 shrink-0 rounded p-0.5 text-theme-muted transition hover:text-theme-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-dusk-lavender"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

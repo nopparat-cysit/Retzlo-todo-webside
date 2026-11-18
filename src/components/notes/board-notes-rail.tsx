@@ -658,7 +658,7 @@ function NoteModal({
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="truncate block font-medium">Sub-project Board</span>
-                          <span className="rounded bg-dusk-lavender/20 px-1 py-0.2 text-[9px] font-mono text-dusk-lavender uppercase">
+                          <span className="rounded bg-dusk-lavender/20 px-1 py-0.5 text-[9px] font-mono text-dusk-lavender uppercase">
                             Default
                           </span>
                         </div>

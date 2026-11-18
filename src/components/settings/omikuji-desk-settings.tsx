@@ -29,7 +29,7 @@ import { cn } from "@/lib/utils";
 
 export function OmikujiDeskSettings() {
   const { settings, mounted, update, reset } = useOmikujiSettings();
-  const { showToast } = useToast();
+  const { toast } = useToast();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -52,39 +52,35 @@ export function OmikujiDeskSettings() {
   const handleToggle = () => {
     const next = !settings.enabled;
     update({ enabled: next });
-    showToast({
-      title: next ? "เปิดใช้งาน Omikuji เรียบร้อย" : "ปิดใช้งาน Omikuji เรียบร้อย",
-      description: next
-        ? "ปุ่มเซียมซีจะปรากฏบน Header และแถบเครื่องมือ"
-        : "ซ่อนปุ่มเซียมซีหน้าบ้านทั้งหมดแล้ว",
-      variant: "success"
+    toast({
+      message: next
+        ? "เปิดใช้งาน Omikuji เรียบร้อย: ปุ่มเซียมซีจะปรากฏบน Header และแถบเครื่องมือ"
+        : "ปิดใช้งาน Omikuji เรียบร้อย: ซ่อนปุ่มเซียมซีหน้าบ้านทั้งหมดแล้ว",
+      type: "success"
     });
   };
 
   const handleLanguageChange = (lang: OmikujiLanguageMode) => {
     update({ languageMode: lang });
-    showToast({
-      title: "เปลี่ยนภาษาการแสดงผลแล้ว",
-      description: `ตั้งค่าภาษาเป็น: ${lang === "auto" ? "ตามระบบ (Auto)" : lang === "th" ? "ภาษาไทย (TH)" : "English (EN)"}`,
-      variant: "success"
+    toast({
+      message: `เปลี่ยนภาษาการแสดงผลแล้ว: ตั้งค่าภาษาเป็น ${lang === "auto" ? "ตามระบบ (Auto)" : lang === "th" ? "ภาษาไทย (TH)" : "English (EN)"}`,
+      type: "success"
     });
   };
 
   const handleDrawModeChange = (mode: OmikujiDrawMode) => {
     update({ drawMode: mode });
-    showToast({
-      title: "เปลี่ยนโหมดการเสี่ยงทายแล้ว",
-      description: mode === "daily" ? "จำกัดวันละ 1 ใบ (Daily Draw)" : "สุ่มได้ไม่จำกัดครั้ง (Unlimited)",
-      variant: "success"
+    toast({
+      message: `เปลี่ยนโหมดการเสี่ยงทายแล้ว: ${mode === "daily" ? "จำกัดวันละ 1 ใบ (Daily Draw)" : "สุ่มได้ไม่จำกัดครั้ง (Unlimited)"}`,
+      type: "success"
     });
   };
 
   const handleFileProcess = (file: File) => {
     if (!file.name.endsWith(".csv")) {
-      showToast({
-        title: "ไฟล์ไม่ถูกต้อง",
-        description: "กรุณาอัปโหลดไฟล์นามสกุล .csv เท่านั้น",
-        variant: "error"
+      toast({
+        message: "ไฟล์ไม่ถูกต้อง: กรุณาอัปโหลดไฟล์นามสกุล .csv เท่านั้น",
+        type: "error"
       });
       return;
     }
@@ -98,17 +94,15 @@ export function OmikujiDeskSettings() {
       setValidationResult(result);
       if (result.valid) {
         setPendingFile({ name: file.name, content });
-        showToast({
-          title: "ตรวจสอบไฟล์ CSV สำเร็จ",
-          description: `พบชุดข้อมูลเซียมซีทั้งหมด ${result.count} ใบ`,
-          variant: "success"
+        toast({
+          message: `ตรวจสอบไฟล์ CSV สำเร็จ: พบชุดข้อมูลเซียมซีทั้งหมด ${result.count} ใบ`,
+          type: "success"
         });
       } else {
         setPendingFile(null);
-        showToast({
-          title: "ไฟล์ CSV ไม่ตรงตามรูปแบบ",
-          description: result.errors[0] || "กรุณาตรวจสอบโครงสร้างหัวตาราง CSV",
-          variant: "error"
+        toast({
+          message: `ไฟล์ CSV ไม่ตรงตามรูปแบบ: ${result.errors[0] || "กรุณาตรวจสอบโครงสร้างหัวตาราง CSV"}`,
+          type: "error"
         });
       }
     };
@@ -146,10 +140,9 @@ export function OmikujiDeskSettings() {
     setPendingFile(null);
     setValidationResult(null);
 
-    showToast({
-      title: "ปรับใช้ชุดข้อมูล CSV สำเร็จ",
-      description: `นำเข้า ${validationResult.count} ใบเซียมซีเรียบร้อยแล้ว`,
-      variant: "success"
+    toast({
+      message: `ปรับใช้ชุดข้อมูล CSV สำเร็จ: นำเข้า ${validationResult.count} ใบเซียมซีเรียบร้อยแล้ว`,
+      type: "success"
     });
   };
 
@@ -159,10 +152,9 @@ export function OmikujiDeskSettings() {
     setValidationResult(null);
     setPendingFile(null);
 
-    showToast({
-      title: "รีเซ็ตการตั้งค่าเป็นค่าเริ่มต้นแล้ว",
-      description: "กลับสู่ชุดข้อมูล 100 ใบมาตรฐานของวัดอาซากุสะ (Asakusa Kannon)",
-      variant: "success"
+    toast({
+      message: "รีเซ็ตการตั้งค่าเป็นค่าเริ่มต้นแล้ว: กลับสู่ชุดข้อมูล 100 ใบมาตรฐานของวัดอาซากุสะ (Asakusa Kannon)",
+      type: "success"
     });
   };
 
@@ -174,10 +166,9 @@ export function OmikujiDeskSettings() {
     link.click();
     document.body.removeChild(link);
 
-    showToast({
-      title: "ดาวน์โหลด Template แล้ว",
-      description: "ไฟล์ตัวอย่างพร้อมใช้งาน retzlo_omikuji_template_100.csv",
-      variant: "success"
+    toast({
+      message: "ดาวน์โหลด Template แล้ว: ไฟล์ตัวอย่างพร้อมใช้งาน retzlo_omikuji_template_100.csv",
+      type: "success"
     });
   };
 

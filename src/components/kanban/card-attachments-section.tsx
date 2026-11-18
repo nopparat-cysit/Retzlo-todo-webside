@@ -152,7 +152,7 @@ export function CardAttachmentsSection({
             Attachments
           </span>
           {attachments.length > 0 && (
-            <span className="rounded-full bg-indigo-500/10 px-2 py-0.2 text-[10px] font-mono text-indigo-600 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
+            <span className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-mono text-indigo-600 dark:bg-dusk-lavender/20 dark:text-dusk-lavender">
               {attachments.length}
             </span>
           )}

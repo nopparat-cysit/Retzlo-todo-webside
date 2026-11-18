@@ -22,5 +22,13 @@ describe("FAB display red star persistence", () => {
     expect(toggleBody).not.toContain("setRedStarItem(null)");
     expect(source).toContain('"Pinned to FAB"');
     expect(source).not.toContain('"Unpin from FAB"');
+    expect(source).not.toContain('"/hub/notes"');
+  });
+
+  it("avoids dead /hub/diary routes and confirms diary deletion via ConfirmModal", () => {
+    const diarySource = readFileSync(new URL("./diary-hub-panel.tsx", import.meta.url), "utf8");
+    expect(diarySource).not.toContain('"/hub/diary"');
+    expect(diarySource).toContain("showConfirmDelete");
+    expect(diarySource).toMatch(/<ConfirmModal[\s\S]*open=\{showConfirmDelete\}[\s\S]*layer="above-modal"[\s\S]*variant="danger"/);
   });
 });
