@@ -23,6 +23,15 @@ const nextConfig = {
   async headers() {
     return [
       {
+        source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
+      {
         source: "/(.*)",
         headers: [
           {
@@ -51,19 +60,6 @@ const nextConfig = {
   },
   poweredByHeader: false,
   reactStrictMode: true,
-  // Optimizations for faster builds
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          minSize: 20000,
-        },
-      };
-    }
-    return config;
-  },
 };
 
 export default nextConfig;

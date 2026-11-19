@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, RotateCcw, Home } from "lucide-react";
+import { AlertTriangle, RotateCcw, Home, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { isChunkLoadError, triggerChunkReload } from "@/lib/chunk-recovery";
 
 export default function GlobalError({
   error,
@@ -12,9 +13,82 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [clearing, setClearing] = useState(false);
+  const isChunk = isChunkLoadError(error);
+
   useEffect(() => {
-    console.error("Global application error:", error);
-  }, [error]);
+    if (isChunk) {
+      triggerChunkReload();
+    } else {
+      console.error("Global application error:", error);
+    }
+  }, [error, isChunk]);
+
+  const handleReload = () => {
+    triggerChunkReload(true);
+  };
+
+  const handleClearCacheAndReload = () => {
+    try {
+      setClearing(true);
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith("retzlo") || key.startsWith("retrod"))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+      sessionStorage.clear();
+    } catch {
+      // ignore
+    } finally {
+      window.location.reload();
+    }
+  };
+
+  if (isChunk) {
+    return (
+      <div className="flex min-h-[70vh] w-full flex-col items-center justify-center p-6 text-center">
+        <div className="lofi-panel mx-auto max-w-md rounded-2xl border border-white/10 p-6 shadow-2xl backdrop-blur-xl">
+          <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl border border-theme-primary/40 bg-theme-primary/15 text-theme-primary">
+            <RefreshCw className="h-6 w-6" />
+          </div>
+
+          <h2 className="text-lg font-bold text-stone-100">
+            A new version of Retzlo is available / มีการอัปเดตเวอร์ชันใหม่
+          </h2>
+          <p className="mt-2 text-xs leading-relaxed text-stone-300">
+            Please reload the page to load the latest version / กรุณารีโหลดหน้าเว็บเพื่อใช้งานเวอร์ชันล่าสุด
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed text-stone-400">
+            A newer release was published. Reloading will sync your browser with the updated files.
+          </p>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Button
+              type="button"
+              onClick={handleReload}
+              className="flex items-center gap-2 text-xs font-semibold"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Reload page / รีโหลดหน้าเว็บ
+            </Button>
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleClearCacheAndReload}
+              disabled={clearing}
+              className="text-xs"
+            >
+              {clearing ? "Clearing..." : "Clear cache & reload / ล้างแคชแล้วรีโหลด"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[70vh] w-full flex-col items-center justify-center p-6 text-center">

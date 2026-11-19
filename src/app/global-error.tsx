@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isChunkLoadError, triggerChunkReload } from "@/lib/chunk-recovery";
 
 export default function GlobalError({
   error,
@@ -10,15 +11,23 @@ export default function GlobalError({
   reset: () => void;
 }) {
   const [clearing, setClearing] = useState(false);
+  const isChunk = isChunkLoadError(error);
 
   useEffect(() => {
-    console.error("Global root client-side exception caught:", error);
-  }, [error]);
+    if (isChunk) {
+      triggerChunkReload();
+    } else {
+      console.error("Global root client-side exception caught:", error);
+    }
+  }, [error, isChunk]);
+
+  const handleReload = () => {
+    triggerChunkReload(true);
+  };
 
   const handleClearCacheAndReload = () => {
     try {
       setClearing(true);
-      // Clear app-specific caches that might have become corrupted
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -31,14 +40,14 @@ export default function GlobalError({
     } catch {
       // ignore
     } finally {
-      window.location.href = "/projects";
+      window.location.reload();
     }
   };
 
   return (
     <html lang="en">
       <head>
-        <title>Application Error | Retzlo</title>
+        <title>{isChunk ? "Update Available | Retzlo" : "Application Error | Retzlo"}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <style
           dangerouslySetInnerHTML={{
@@ -76,6 +85,11 @@ export default function GlobalError({
                 letter-spacing: 0.05em;
                 text-transform: uppercase;
                 margin-bottom: 12px;
+              }
+              .badge-update {
+                background: rgba(99, 102, 241, 0.15);
+                color: #a5b4fc;
+                border-color: rgba(99, 102, 241, 0.35);
               }
               h1 {
                 font-size: 18px;
@@ -144,35 +158,60 @@ export default function GlobalError({
       </head>
       <body>
         <div className="card">
-          <span className="badge">Client Exception</span>
-          <h1>Something went wrong</h1>
-          <p>
-            An unexpected error occurred while loading this page. You can try refreshing or resetting the application cache.
-          </p>
+          {isChunk ? (
+            <>
+              <span className="badge badge-update">Update Available</span>
+              <h1>A new version of Retzlo is available / มีการอัปเดตเวอร์ชันใหม่</h1>
+              <p>
+                Please reload the page to load the latest version / กรุณารีโหลดหน้าเว็บเพื่อใช้งานเวอร์ชันล่าสุด
+              </p>
+              <div className="btn-row">
+                <button type="button" className="btn-primary" onClick={handleReload}>
+                  Reload page / รีโหลดหน้าเว็บ
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={handleClearCacheAndReload}
+                  disabled={clearing}
+                >
+                  {clearing ? "Clearing..." : "Clear Cache & Reload / ล้างแคชแล้วรีโหลด"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="badge">Client Exception</span>
+              <h1>Something went wrong</h1>
+              <p>
+                An unexpected error occurred while loading this page. You can try refreshing or resetting the application cache.
+              </p>
 
-          {error?.message ? (
-            <div className="error-box">
-              <strong>{error.name || "Error"}:</strong> {error.message}
-              {error.digest ? <div><small>Digest: {error.digest}</small></div> : null}
-            </div>
-          ) : null}
+              {error?.message ? (
+                <div className="error-box">
+                  <strong>{error.name || "Error"}:</strong> {error.message}
+                  {error.digest ? <div><small>Digest: {error.digest}</small></div> : null}
+                </div>
+              ) : null}
 
-          <div className="btn-row">
-            <button type="button" className="btn-primary" onClick={() => reset()}>
-              Try again
-            </button>
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={handleClearCacheAndReload}
-              disabled={clearing}
-            >
-              {clearing ? "Clearing..." : "Clear Cache & Reload"}
-            </button>
-            <a href="/login" className="btn-secondary">
-              Back to Login
-            </a>
-          </div>
+              <div className="btn-row">
+                <button type="button" className="btn-primary" onClick={() => reset()}>
+                  Try again
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={handleClearCacheAndReload}
+                  disabled={clearing}
+                >
+                  {clearing ? "Clearing..." : "Clear Cache & Reload"}
+                </button>
+                <a href="/login" className="btn-secondary">
+                  Back to Login
+                </a>
+              </div>
+            </>
+          )}
         </div>
       </body>
     </html>
