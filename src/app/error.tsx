@@ -6,9 +6,9 @@ import { AlertTriangle, RotateCcw, Home, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isChunkLoadError, triggerChunkReload } from "@/lib/chunk-recovery";
 
-export default function GlobalError({
+export default function ErrorBoundary({
   error,
-  reset
+  reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
@@ -17,12 +17,8 @@ export default function GlobalError({
   const isChunk = isChunkLoadError(error);
 
   useEffect(() => {
-    if (isChunk) {
-      triggerChunkReload();
-    } else {
-      console.error("Global application error:", error);
-    }
-  }, [error, isChunk]);
+    console.error("Application error:", error);
+  }, [error]);
 
   const handleReload = () => {
     triggerChunkReload(true);
@@ -41,7 +37,7 @@ export default function GlobalError({
       keysToRemove.forEach((k) => localStorage.removeItem(k));
       sessionStorage.clear();
     } catch {
-      // ignore
+      // ignore storage access errors
     } finally {
       window.location.reload();
     }
@@ -64,6 +60,20 @@ export default function GlobalError({
           <p className="mt-1 text-[11px] leading-relaxed text-stone-400">
             A newer release was published. Reloading will sync your browser with the updated files.
           </p>
+
+          {error?.message ? (
+            <div className="mt-3 rounded-xl border border-white/10 bg-ink-950/80 p-3 text-left font-mono text-[11px] text-stone-300 break-all max-h-36 overflow-y-auto">
+              <div className="font-bold text-theme-primary mb-1">{error.name || "Error"}:</div>
+              <div>{error.message}</div>
+              {error.digest ? (
+                <div className="mt-1 text-[10px] text-stone-500">Digest: {error.digest}</div>
+              ) : null}
+            </div>
+          ) : error?.digest ? (
+            <p className="mt-2 font-mono text-[10px] text-stone-500">
+              Error Digest: {error.digest}
+            </p>
+          ) : null}
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Button
@@ -102,10 +112,13 @@ export default function GlobalError({
           An unexpected error occurred while loading this page. You can try again or return to the home page.
         </p>
 
-        {process.env.NODE_ENV !== "production" && error.message ? (
+        {error?.message ? (
           <div className="mt-3 rounded-xl border border-dusk-rose/30 bg-ink-950/80 p-3 text-left font-mono text-[11px] text-stone-200 break-all max-h-48 overflow-y-auto">
             <div className="font-bold text-dusk-rose mb-1">{error.name || "Error"}:</div>
             <div className="text-stone-300">{error.message}</div>
+            {error.digest ? (
+              <p className="mt-1 text-[10px] text-stone-400">Digest: {error.digest}</p>
+            ) : null}
             {error.stack && (
               <details className="mt-2 text-[10px] text-stone-400">
                 <summary className="cursor-pointer text-stone-500 hover:text-stone-300">Stack trace</summary>
@@ -113,13 +126,11 @@ export default function GlobalError({
               </details>
             )}
           </div>
-        ) : null}
-
-        {error.digest && (
+        ) : error?.digest ? (
           <p className="mt-2 font-mono text-[10px] text-stone-500">
             Error Digest: {error.digest}
           </p>
-        )}
+        ) : null}
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Button

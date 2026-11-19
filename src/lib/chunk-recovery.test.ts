@@ -24,10 +24,37 @@ describe("chunk-recovery utility", () => {
       expect(isChunkLoadError({ message: "Network timeout" })).toBe(false);
     });
 
-    it("detects error with name ChunkLoadError", () => {
+    it("does not match chunk errors based on stack traces alone", () => {
+      const runtimeError = new Error("Cannot read property of undefined");
+      runtimeError.stack = "TypeError: Cannot read property of undefined\n    at webpack/runtime/loading chunk 123";
+      expect(isChunkLoadError(runtimeError)).toBe(false);
+    });
+
+    it("does not match DOM target elements", () => {
+      const scriptEvent = {
+        target: {
+          tagName: "SCRIPT",
+          src: "https://retzlo.vercel.app/_next/static/chunks/main-app.js",
+        },
+      };
+      expect(isChunkLoadError(scriptEvent)).toBe(false);
+
+      const linkEvent = {
+        target: {
+          tagName: "LINK",
+          href: "https://retzlo.vercel.app/_next/static/css/global.css",
+        },
+      };
+      expect(isChunkLoadError(linkEvent)).toBe(false);
+    });
+
+    it("detects error with name ChunkLoadError (case-insensitive)", () => {
       const err = new Error("Something failed");
       err.name = "ChunkLoadError";
       expect(isChunkLoadError(err)).toBe(true);
+
+      const lowerErr = { name: "chunkloaderror", message: "general issue" };
+      expect(isChunkLoadError(lowerErr)).toBe(true);
     });
 
     it("detects errors with loading chunk message", () => {
@@ -56,46 +83,22 @@ describe("chunk-recovery utility", () => {
       expect(isChunkLoadError("failed to fetch dynamically imported module")).toBe(true);
     });
 
-    it("detects nested error in PromiseRejectionEvent reason", () => {
+    it("detects nested error in reason or error property", () => {
       const rejectionEvent = {
         reason: new Error("Loading chunk 111 failed."),
       };
       expect(isChunkLoadError(rejectionEvent)).toBe(true);
-    });
 
-    it("detects nested error in ErrorEvent error property", () => {
       const errorEvent = {
         error: new Error("Failed to fetch dynamically imported module"),
       };
       expect(isChunkLoadError(errorEvent)).toBe(true);
     });
 
-    it("detects script or link failure targeting Next.js static chunks", () => {
-      const scriptEvent = {
-        target: {
-          tagName: "SCRIPT",
-          src: "https://retzlo.vercel.app/_next/static/chunks/main-app.js",
-        },
-      };
-      expect(isChunkLoadError(scriptEvent)).toBe(true);
-
-      const linkEvent = {
-        target: {
-          tagName: "LINK",
-          href: "https://retzlo.vercel.app/_next/static/css/global.css",
-        },
-      };
-      expect(isChunkLoadError(linkEvent)).toBe(true);
-    });
-
-    it("ignores script failure targeting external sources", () => {
-      const externalScript = {
-        target: {
-          tagName: "SCRIPT",
-          src: "https://www.google-analytics.com/analytics.js",
-        },
-      };
-      expect(isChunkLoadError(externalScript)).toBe(false);
+    it("handles circular references safely without infinite recursion", () => {
+      const circular: { message: string; reason?: unknown } = { message: "Normal error" };
+      circular.reason = circular;
+      expect(isChunkLoadError(circular)).toBe(false);
     });
   });
 

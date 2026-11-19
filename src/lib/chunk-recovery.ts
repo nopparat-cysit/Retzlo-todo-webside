@@ -4,18 +4,15 @@ export const CHUNK_RELOAD_COOLDOWN_MS = 20000;
 interface ErrorLike {
   name?: string;
   message?: string;
-  stack?: string;
   reason?: unknown;
   error?: unknown;
-  target?: unknown;
-  type?: string;
 }
 
 /**
- * Checks whether an error, rejection, or event represents a ChunkLoadError
- * or dynamic script/chunk import failure.
+ * Checks whether an error represents a ChunkLoadError or dynamic import failure.
+ * Strictly avoids inspecting stack traces or DOM target elements to prevent false positives.
  */
-export function isChunkLoadError(err: unknown): boolean {
+export function isChunkLoadError(err: unknown, seen = new Set<unknown>()): boolean {
   if (err == null) {
     return false;
   }
@@ -25,6 +22,11 @@ export function isChunkLoadError(err: unknown): boolean {
   }
 
   if (typeof err === "object") {
+    if (seen.has(err)) {
+      return false;
+    }
+    seen.add(err);
+
     const candidate = err as ErrorLike;
 
     if (typeof candidate.name === "string" && candidate.name.toLowerCase() === "chunkloaderror") {
@@ -35,29 +37,12 @@ export function isChunkLoadError(err: unknown): boolean {
       return true;
     }
 
-    if (typeof candidate.stack === "string" && matchesChunkPattern(candidate.stack)) {
+    if (candidate.reason !== undefined && isChunkLoadError(candidate.reason, seen)) {
       return true;
     }
 
-    if (candidate.reason !== undefined && candidate.reason !== err) {
-      if (isChunkLoadError(candidate.reason)) {
-        return true;
-      }
-    }
-
-    if (candidate.error !== undefined && candidate.error !== err) {
-      if (isChunkLoadError(candidate.error)) {
-        return true;
-      }
-    }
-
-    const target = candidate.target as { tagName?: string; src?: string; href?: string } | undefined;
-    if (target && typeof target === "object") {
-      const src = typeof target.src === "string" ? target.src : "";
-      const href = typeof target.href === "string" ? target.href : "";
-      if (src.includes("/_next/static/") || href.includes("/_next/static/")) {
-        return true;
-      }
+    if (candidate.error !== undefined && isChunkLoadError(candidate.error, seen)) {
+      return true;
     }
   }
 
@@ -76,7 +61,8 @@ function matchesChunkPattern(text: string): boolean {
 }
 
 /**
- * Safely triggers a window reload if within acceptable rate-limit bounds (20s).
+ * Safely triggers a window reload if within acceptable rate-limit bounds (20s)
+ * or when explicitly forced by user action.
  * Returns true if reload was dispatched, false if throttled or unavailable.
  */
 export function triggerChunkReload(force: boolean = false): boolean {
@@ -97,7 +83,7 @@ export function triggerChunkReload(force: boolean = false): boolean {
       }
     }
   } catch {
-    // SessionStorage may be restricted in private browsing; proceed with reload if forced or best-effort
+    // SessionStorage may be restricted in private browsing
   }
 
   try {

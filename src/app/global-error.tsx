@@ -14,12 +14,8 @@ export default function GlobalError({
   const isChunk = isChunkLoadError(error);
 
   useEffect(() => {
-    if (isChunk) {
-      triggerChunkReload();
-    } else {
-      console.error("Global root client-side exception caught:", error);
-    }
-  }, [error, isChunk]);
+    console.error("Global root client-side exception caught:", error);
+  }, [error]);
 
   const handleReload = () => {
     triggerChunkReload(true);
@@ -38,7 +34,7 @@ export default function GlobalError({
       keysToRemove.forEach((k) => localStorage.removeItem(k));
       sessionStorage.clear();
     } catch {
-      // ignore
+      // ignore storage access errors
     } finally {
       window.location.reload();
     }
@@ -165,6 +161,18 @@ export default function GlobalError({
               <p>
                 Please reload the page to load the latest version / กรุณารีโหลดหน้าเว็บเพื่อใช้งานเวอร์ชันล่าสุด
               </p>
+
+              {error?.message ? (
+                <div className="error-box">
+                  <strong>{error.name || "Error"}:</strong> {error.message}
+                  {error.digest ? <div><small>Digest: {error.digest}</small></div> : null}
+                </div>
+              ) : error?.digest ? (
+                <p style={{ fontSize: "11px", color: "#64748b", margin: "0 0 16px 0" }}>
+                  Digest: {error.digest}
+                </p>
+              ) : null}
+
               <div className="btn-row">
                 <button type="button" className="btn-primary" onClick={handleReload}>
                   Reload page / รีโหลดหน้าเว็บ
@@ -192,6 +200,10 @@ export default function GlobalError({
                   <strong>{error.name || "Error"}:</strong> {error.message}
                   {error.digest ? <div><small>Digest: {error.digest}</small></div> : null}
                 </div>
+              ) : error?.digest ? (
+                <p style={{ fontSize: "11px", color: "#64748b", margin: "0 0 16px 0" }}>
+                  Digest: {error.digest}
+                </p>
               ) : null}
 
               <div className="btn-row">
