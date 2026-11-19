@@ -24,9 +24,15 @@ export default function ErrorBoundary({
     triggerChunkReload(true);
   };
 
-  const handleClearCacheAndReload = () => {
+  const handleClearCacheAndReload = async () => {
     try {
       setClearing(true);
+      if (typeof window !== "undefined" && "caches" in window) {
+        try {
+          const keys = await window.caches.keys();
+          await Promise.all(keys.map((k) => window.caches.delete(k)));
+        } catch {}
+      }
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -39,7 +45,13 @@ export default function ErrorBoundary({
     } catch {
       // ignore storage access errors
     } finally {
-      window.location.reload();
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("_r", String(Date.now()));
+        window.location.replace(url.toString());
+      } catch {
+        window.location.reload();
+      }
     }
   };
 

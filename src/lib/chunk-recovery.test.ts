@@ -105,12 +105,14 @@ describe("chunk-recovery utility", () => {
   describe("triggerChunkReload and clearChunkReloadFlag", () => {
     let mockSessionStorage: Record<string, string>;
     let reloadMock: ReturnType<typeof vi.fn>;
+    let replaceMock: ReturnType<typeof vi.fn>;
     const originalWindow = global.window;
 
     beforeEach(() => {
       vi.useFakeTimers();
       mockSessionStorage = {};
       reloadMock = vi.fn();
+      replaceMock = vi.fn();
 
       const fakeStorage = {
         getItem: (key: string) => mockSessionStorage[key] ?? null,
@@ -128,7 +130,9 @@ describe("chunk-recovery utility", () => {
       // @ts-expect-error Mocking partial window for Node testing
       global.window = {
         location: {
+          href: "http://localhost:3000/projects",
           reload: reloadMock,
+          replace: replaceMock,
         },
         sessionStorage: fakeStorage,
       };
@@ -145,7 +149,7 @@ describe("chunk-recovery utility", () => {
 
       const result = triggerChunkReload();
       expect(result).toBe(true);
-      expect(reloadMock).toHaveBeenCalledTimes(1);
+      expect(replaceMock).toHaveBeenCalledWith("http://localhost:3000/projects?_r=1000000");
       expect(mockSessionStorage[CHUNK_RELOAD_STORAGE_KEY]).toBe(String(now));
     });
 
@@ -155,13 +159,13 @@ describe("chunk-recovery utility", () => {
 
       const firstCall = triggerChunkReload();
       expect(firstCall).toBe(true);
-      expect(reloadMock).toHaveBeenCalledTimes(1);
+      expect(replaceMock).toHaveBeenCalledTimes(1);
 
       // Advance by 10 seconds (cooldown is 20s)
       vi.setSystemTime(now + 10000);
       const secondCall = triggerChunkReload();
       expect(secondCall).toBe(false);
-      expect(reloadMock).toHaveBeenCalledTimes(1);
+      expect(replaceMock).toHaveBeenCalledTimes(1);
     });
 
     it("bypasses rate limit when force is true", () => {
@@ -169,13 +173,13 @@ describe("chunk-recovery utility", () => {
       vi.setSystemTime(now);
 
       triggerChunkReload();
-      expect(reloadMock).toHaveBeenCalledTimes(1);
+      expect(replaceMock).toHaveBeenCalledTimes(1);
 
       // Immediately force reload
       vi.setSystemTime(now + 1000);
       const forcedCall = triggerChunkReload(true);
       expect(forcedCall).toBe(true);
-      expect(reloadMock).toHaveBeenCalledTimes(2);
+      expect(replaceMock).toHaveBeenCalledTimes(2);
       expect(mockSessionStorage[CHUNK_RELOAD_STORAGE_KEY]).toBe(String(now + 1000));
     });
 
@@ -184,13 +188,13 @@ describe("chunk-recovery utility", () => {
       vi.setSystemTime(now);
 
       triggerChunkReload();
-      expect(reloadMock).toHaveBeenCalledTimes(1);
+      expect(replaceMock).toHaveBeenCalledTimes(1);
 
       // Advance past cooldown (20,001 ms)
       vi.setSystemTime(now + CHUNK_RELOAD_COOLDOWN_MS + 1);
       const thirdCall = triggerChunkReload();
       expect(thirdCall).toBe(true);
-      expect(reloadMock).toHaveBeenCalledTimes(2);
+      expect(replaceMock).toHaveBeenCalledTimes(2);
     });
 
     it("clears reload flag safely", () => {

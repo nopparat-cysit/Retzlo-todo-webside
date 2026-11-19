@@ -95,10 +95,17 @@ export function triggerChunkReload(force: boolean = false): boolean {
   }
 
   try {
-    window.location.reload();
+    const url = new URL(window.location.href);
+    url.searchParams.set("_r", String(now));
+    window.location.replace(url.toString());
     return true;
   } catch {
-    return false;
+    try {
+      window.location.reload();
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 
