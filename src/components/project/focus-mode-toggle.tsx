@@ -85,7 +85,7 @@ export function FocusModeToggle() {
             onClick={toggleFocusMode}
             aria-label={isFocusMode ? "Exit focus mode" : "Focus mode"}
             className={cn(
-              "h-9 w-9 shrink-0 rounded-lg border text-stone-400 transition cursor-pointer select-none",
+              "h-9 w-9 shrink-0 rounded-xl border text-stone-400 transition cursor-pointer select-none",
               isFocusMode
                 ? "border-dusk-lavender/45 bg-dusk-lavender/15 text-dusk-lavender shadow-[0_0_12px_rgba(169,162,255,0.2)]"
                 : "border-white/10 bg-white/[0.045] hover:border-dusk-lavender/45 hover:bg-dusk-lavender/10 hover:text-dusk-lavender"

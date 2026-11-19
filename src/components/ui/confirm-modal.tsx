@@ -115,7 +115,7 @@ export function ConfirmModal({
             </p>
           </div>
           <button
-            className="shrink-0 rounded-md p-1.5 text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-theme-muted transition hover:bg-theme-paper hover:text-theme-foreground"
             type="button"
             aria-label="Close"
             disabled={isLoading}
@@ -154,7 +154,7 @@ export function ConfirmModal({
         )}
 
         {/* Actions */}
-        <div className="flex justify-end gap-2">
+        <div className="mt-6 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
             {cancelLabel}
           </Button>

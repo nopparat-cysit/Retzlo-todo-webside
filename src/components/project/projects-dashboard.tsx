@@ -906,7 +906,7 @@ export function ProjectsDashboard({
                     <button
                       type="button"
                       onClick={() => setViewMode("workspaces")}
-                      className="inline-flex h-8.5 items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-sm hover:bg-stone-50 hover:text-indigo-600 transition dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08]"
+                      className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-2.5 text-xs font-semibold text-stone-700 shadow-sm hover:bg-stone-50 hover:text-indigo-600 transition dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300 dark:hover:bg-white/[0.08]"
                       title="Back to all workspaces"
                     >
                       <ArrowRight className="h-3.5 w-3.5 rotate-180" />
@@ -1342,12 +1342,12 @@ export function ProjectsDashboard({
                   </div>
 
                   {/* View Mode Toggle: Grid vs List */}
-                  <div className="flex items-center rounded-xl border border-stone-200/90 bg-stone-100/90 p-0.5 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+                  <div className="flex h-9.5 items-center rounded-xl border border-stone-200/90 bg-stone-100/90 p-1 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
                     <button
                       type="button"
                       onClick={() => handleSetBoardViewMode("grid")}
                       className={cn(
-                        "grid h-8.5 w-8.5 place-items-center rounded-lg transition-all",
+                        "grid aspect-square h-full place-items-center rounded-lg transition-all",
                         boardViewMode === "grid"
                           ? "bg-white text-indigo-600 shadow-sm dark:bg-white/10 dark:text-dusk-lavender font-bold"
                           : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
@@ -1361,7 +1361,7 @@ export function ProjectsDashboard({
                       type="button"
                       onClick={() => handleSetBoardViewMode("list")}
                       className={cn(
-                        "grid h-8.5 w-8.5 place-items-center rounded-lg transition-all",
+                        "grid aspect-square h-full place-items-center rounded-lg transition-all",
                         boardViewMode === "list"
                           ? "bg-white text-indigo-600 shadow-sm dark:bg-white/10 dark:text-dusk-lavender font-bold"
                           : "text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
@@ -2876,17 +2876,17 @@ function CreateProjectModal({ onClose, onCreated }: { onClose: () => void; onCre
       labelledBy="create-project-title"
       contentClassName="max-w-lg"
     >
-      <form className="lofi-panel w-full max-w-lg rounded-lg p-5" onSubmit={handleSubmit}>
-        <div className="mb-5 flex items-center justify-between gap-3">
+      <form className="lofi-panel flex max-h-[calc(100vh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-2xl" onSubmit={handleSubmit}>
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-dusk-amber">Workspace</p>
             <h2 id="create-project-title" className="mt-1 text-2xl font-semibold">New Project</h2>
           </div>
-          <button className="rounded-md p-2 text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
+          <button className="grid h-8 w-8 place-items-center rounded-md text-stone-400 hover:bg-white/10 hover:text-stone-100" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="space-y-3">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
           <Input name="name" placeholder="Project name" required />
           <Textarea name="description" placeholder="Description" />
           <div className="grid gap-2 sm:grid-cols-2">
@@ -2923,7 +2923,7 @@ function CreateProjectModal({ onClose, onCreated }: { onClose: () => void; onCre
           />
           {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
         </div>
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-4">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>

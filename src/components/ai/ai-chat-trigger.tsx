@@ -16,7 +16,7 @@ export function AiChatTrigger({ className }: AiChatTriggerProps) {
       type="button"
       onClick={toggleAiChat}
       className={cn(
-        "relative grid h-8 w-8 shrink-0 place-items-center rounded-full text-indigo-600 dark:text-dusk-lavender transition-all hover:bg-stone-200/60 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 active:scale-95 cursor-pointer",
+        "relative grid h-9 w-9 shrink-0 place-items-center rounded-xl text-indigo-600 dark:text-dusk-lavender transition-all hover:bg-stone-200/60 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-dusk-lavender/50 active:scale-95 cursor-pointer",
         isOpen && "bg-indigo-50 dark:bg-white/[0.08] shadow-[0_0_12px_rgba(192,132,252,0.25)]",
         className
       )}

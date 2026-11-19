@@ -1183,7 +1183,7 @@ function DiaryFocusCard({
                     type="button"
                     onClick={toggleChecklistDetailsHidden}
                     className={cn(
-                      "inline-flex h-7.5 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition cursor-pointer select-none active:scale-95",
+                      "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition cursor-pointer select-none active:scale-95",
                       isChecklistDetailsHidden
                         ? "border-amber-400/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
                         : "border-white/10 bg-white/[0.04] text-stone-300 hover:bg-white/[0.08] hover:text-stone-100"
@@ -1195,11 +1195,11 @@ function DiaryFocusCard({
                     <span className="hidden sm:inline">{isChecklistDetailsHidden ? "Show details" : "Hide details"}</span>
                   </button>
                   {dueItems.length > 0 ? (
-                    <span className="inline-flex h-7.5 items-center rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-3 text-xs font-medium text-dusk-cyan">
+                    <span className="inline-flex h-8 items-center rounded-full border border-dusk-cyan/25 bg-dusk-cyan/10 px-3 text-xs font-medium text-dusk-cyan">
                       {completedDueCount}/{dueItems.length} completed ({progressPercent}%)
                     </span>
                   ) : (
-                    <span className="inline-flex h-7.5 items-center rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-stone-400">
+                    <span className="inline-flex h-8 items-center rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-stone-400">
                       {sortedChecklist.length} steps
                     </span>
                   )}

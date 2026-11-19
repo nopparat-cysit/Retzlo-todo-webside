@@ -1183,7 +1183,7 @@ export function HelpCenterClient() {
               <aside className="hidden xl:block w-64 shrink-0 sticky top-20 self-start space-y-5">
                 {/* On This Page Widget */}
                 <div className="lofi-panel rounded-2xl border border-stone-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-ink-950/40 space-y-3 shadow-sm">
-                  <div className="flex items-center justify-between pb-2 border-b border-stone-200/80 dark:border-white/10">
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b border-stone-200/80 dark:border-white/10">
                     <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
                       {isEn ? "On This Page" : "ในบทความนี้"}
                     </p>
@@ -1500,9 +1500,9 @@ export function HelpCenterClient() {
                 {shortcutsList.map((sc, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 rounded-2xl border border-stone-200/80 bg-white dark:border-white/10 dark:bg-ink-950/70 shadow-sm"
+                    className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-stone-200/80 bg-white dark:border-white/10 dark:bg-ink-950/70 shadow-sm"
                   >
-                    <div className="space-y-1">
+                    <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100">
                           {sc.title}
@@ -1519,7 +1519,7 @@ export function HelpCenterClient() {
                     <button
                       type="button"
                       onClick={() => handleCopyShortcut(sc.key)}
-                      className="ml-3 flex items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-2.5 py-1.5 font-mono text-xs font-bold text-indigo-600 hover:bg-indigo-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-dusk-amber dark:hover:bg-white/10 transition cursor-pointer"
+                      className="ml-3 flex shrink-0 items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-50 px-2.5 py-1.5 font-mono text-xs font-bold text-indigo-600 hover:bg-indigo-50 dark:border-white/10 dark:bg-white/[0.05] dark:text-dusk-amber dark:hover:bg-white/10 transition cursor-pointer"
                       title={isEn ? "Click to copy shortcut" : "คลิกเพื่อคัดลอกคีย์ลัด"}
                     >
                       {copiedShortcut === sc.key ? (

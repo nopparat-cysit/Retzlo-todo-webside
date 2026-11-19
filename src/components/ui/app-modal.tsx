@@ -209,5 +209,5 @@ export function AppModal({
 }
 
 export function AppModalFooter({ className, ...props }: ComponentPropsWithoutRef<"div">) {
-  return <div className={cn("flex justify-end gap-2 border-t border-white/10 p-3.5 sm:p-5 pb-safe", className)} {...props} />;
+  return <div className={cn("flex justify-end gap-2 border-t border-theme-border p-3.5 sm:p-5 pb-safe", className)} {...props} />;
 }

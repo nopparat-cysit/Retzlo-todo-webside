@@ -905,7 +905,7 @@ export function CardModal({
                     setEditAttributesTab("status");
                     handleOpenAttributesSetting("status");
                   }}
-                  className="h-5 w-5 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
+                  className="grid h-7 w-7 place-items-center rounded-lg text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer touch-manipulation"
                   title="Add or Edit Statuses"
                   aria-label="Add or Edit Statuses"
                 >
@@ -933,7 +933,7 @@ export function CardModal({
                     setEditAttributesTab("priority");
                     handleOpenAttributesSetting("priority");
                   }}
-                  className="h-5 w-5 rounded-md grid place-items-center text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer"
+                  className="grid h-7 w-7 place-items-center rounded-lg text-stone-400 hover:text-stone-100 hover:bg-white/10 transition cursor-pointer touch-manipulation"
                   title="Add or Edit Priorities"
                   aria-label="Add or Edit Priorities"
                 >

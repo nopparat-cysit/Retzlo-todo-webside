@@ -180,7 +180,7 @@ function CardItem({ card }: { card: MockCard }) {
             {card.assignee.initials}
           </span>
         ) : (
-          <span className="h-5" />
+          <span className="h-5 w-5 shrink-0" aria-hidden="true" />
         )}
       </div>
     </div>

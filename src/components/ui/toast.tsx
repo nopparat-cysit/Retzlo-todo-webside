@@ -188,7 +188,7 @@ export function Toast({ item, onDismiss }: ToastProps) {
       <button
         onClick={dismiss}
         aria-label="Dismiss notification"
-        className="ml-1 shrink-0 rounded p-0.5 text-theme-muted transition hover:text-theme-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-dusk-lavender"
+        className="ml-1 grid h-6 w-6 shrink-0 place-items-center rounded-md p-0 text-theme-muted transition hover:text-theme-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-dusk-lavender"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

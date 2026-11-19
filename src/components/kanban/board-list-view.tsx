@@ -912,7 +912,7 @@ export function BoardListView({
             {/* 1. Task Title */}
             <div
               onClick={() => handleSort("title")}
-              className="flex-1 min-w-[280px] px-3 py-2.5 flex items-center gap-1.5 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
+              className="flex-1 min-w-[280px] px-3 py-2.5 flex items-center gap-2 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-dusk-lavender transition"
             >
               <span className="font-bold text-stone-500 dark:text-stone-400 text-[10px] font-mono">Tt</span>
               <span className="font-bold">Task Title</span>
@@ -1055,7 +1055,7 @@ export function BoardListView({
                     </div>
 
                     {/* 1. Work (Task Title) */}
-                    <div className="flex-1 min-w-[260px] px-3 py-2 flex items-center gap-2">
+                    <div className="flex-1 min-w-[280px] px-3 py-2 flex items-center gap-2">
                       <button
                         type="button"
                         onClick={(e) => handleToggleStar(card, e)}
@@ -1415,7 +1415,7 @@ export function BoardListView({
                 <div className="w-12 text-center text-stone-400">
                   <Plus className="mx-auto h-4 w-4 text-dusk-lavender" />
                 </div>
-                <div className="flex-1 min-w-[280px] px-2 flex items-center gap-2">
+                <div className="flex-1 min-w-[280px] px-3 flex items-center gap-2">
                   <input
                     type="text"
                     value={bottomNewTitle}

@@ -428,7 +428,7 @@ export function CommandPalette({ projectId: explicitProjectId, projectName }: Co
         <ul
           id="command-palette-results"
           role="listbox"
-          className="scrollbar-soft max-h-84 overflow-y-auto p-1.5 space-y-1"
+          className="scrollbar-soft max-h-80 overflow-y-auto p-1.5 space-y-1"
         >
           {filteredGroups.length === 0 && (
             <li className="px-4 py-8 text-center text-xs text-stone-500 dark:text-stone-400">
@@ -518,7 +518,7 @@ export function CommandPaletteTrigger({ variant = "topbar" }: { variant?: "topba
       <button
         type="button"
         onClick={triggerOpen}
-        className="sidebar-expanded-only flex w-full items-center gap-1.5 rounded-lg px-1 py-1 text-left text-[10px] text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-dusk-lavender transition"
+        className="sidebar-expanded-only flex h-9 w-full items-center gap-2 rounded-lg px-3 text-left text-xs text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-dusk-lavender transition"
         title="Open Command Palette (Ctrl + K)"
       >
         <kbd className="rounded bg-stone-100 border border-stone-200 px-1.5 py-0.5 font-mono text-[10px] text-stone-600 dark:border-white/10 dark:bg-white/5 dark:text-stone-400">Ctrl K</kbd>

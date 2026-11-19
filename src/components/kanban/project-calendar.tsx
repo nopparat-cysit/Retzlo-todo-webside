@@ -1353,13 +1353,13 @@ export function ProjectCalendar({
                 value={filters.searchQuery || ""}
                 onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
                 placeholder="Search items..."
-                className="h-8 sm:h-9 w-full rounded-xl border border-stone-300 dark:border-white/15 bg-white/90 dark:bg-white/[0.05] pl-8 pr-7 text-xs text-theme-foreground placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+                className="h-8 sm:h-9 w-full rounded-xl border border-stone-300 dark:border-white/15 bg-white/90 dark:bg-white/[0.05] pl-8 pr-8 text-xs text-theme-foreground placeholder:text-stone-400 dark:placeholder:text-stone-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
               />
               {filters.searchQuery ? (
                 <button
                   type="button"
                   onClick={() => setFilters((prev) => ({ ...prev, searchQuery: "" }))}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 grid h-4 w-4 place-items-center rounded-full text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 grid h-6 w-6 place-items-center rounded-full text-stone-400 hover:bg-stone-100 hover:text-stone-600 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
                   aria-label="Clear search"
                 >
                   <X className="h-3 w-3" />

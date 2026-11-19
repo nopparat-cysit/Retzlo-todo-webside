@@ -421,6 +421,15 @@ function KanbanCardComponent({
                 {completedChecklist}/{card.checklist.length}
               </span>
             ) : null}
+            {card.attachments && card.attachments.length > 0 ? (
+              <span
+                className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:border-dusk-lavender/30 dark:bg-dusk-lavender/15 dark:text-dusk-lavender"
+                title={`${card.attachments.length} attachment${card.attachments.length === 1 ? "" : "s"}`}
+              >
+                <Paperclip className="h-3 w-3" />
+                {card.attachments.length}
+              </span>
+            ) : null}
             {card.status === "DONE" && (
               <CoffeeCheersButton
                 cardId={card.id}

@@ -1243,7 +1243,7 @@ function RewardCard({
           <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-stone-200/80 bg-stone-100/60 dark:border-white/10 dark:bg-ink-950/35 shadow-sm">
             <RewardIcon label={icon.label} src={iconSrc} />
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center justify-end gap-1.5 shrink-0">
             <span className="inline-flex items-center gap-1 rounded-xl border border-dusk-amber/30 bg-dusk-amber/10 px-2.5 py-1 text-xs font-bold text-dusk-amber shadow-sm">
               <Coins className="h-3 w-3" />
               {reward.price} Coins
@@ -1459,7 +1459,7 @@ function CreateRewardModal({
               {isEditing ? "Edit Reward" : "Create New Reward"}
             </h2>
           </div>
-          <button className="rounded-lg p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer" type="button" onClick={onClose}>
+          <button className="grid h-9 w-9 place-items-center rounded-lg text-stone-400 hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -1692,7 +1692,7 @@ function RejectRewardModal({
               Provide Reason
             </h2>
           </div>
-          <button className="rounded-lg p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-white/10 dark:hover:text-stone-100 cursor-pointer" type="button" onClick={onClose}>
+          <button className="grid h-9 w-9 place-items-center rounded-lg text-stone-400 hover:bg-stone-100 hover:text-stone-900 dark:hover:bg-white/10 dark:hover:text-stone-100 transition cursor-pointer" type="button" onClick={onClose}>
             <X className="h-5 w-5" />
           </button>
         </div>

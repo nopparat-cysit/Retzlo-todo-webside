@@ -376,7 +376,7 @@ export function DocsHeading({
             <button
               type="button"
               onClick={copyAnchor}
-              className="opacity-0 group-hover/heading:opacity-100 transition-opacity p-1 text-stone-400 hover:text-indigo-600 dark:hover:text-dusk-lavender rounded cursor-pointer"
+              className="opacity-0 group-hover/heading:opacity-100 transition-opacity inline-flex h-6 w-6 shrink-0 items-center justify-center p-0 text-stone-400 hover:text-indigo-600 dark:hover:text-dusk-lavender rounded-md cursor-pointer"
               title={isEn ? "Copy anchor link" : "คัดลอกลิงก์ส่วนนี้"}
               aria-label={isEn ? "Copy anchor link" : "คัดลอกลิงก์ส่วนนี้"}
             >

@@ -1638,7 +1638,7 @@ export function BoardAttributesTab({
                     className={cn(
                       "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-sm transition-all",
                       config.badgeClass,
-                      previewPointTemplate && "scale-102"
+                      previewPointTemplate && "scale-[1.02]"
                     )}
                   >
                     <span className="font-mono text-[10px] opacity-80">{pt.score} pts</span>
@@ -1693,7 +1693,7 @@ export function BoardAttributesTab({
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-sm transition-all",
                         config.badgeClass,
-                        previewPointTemplate && "scale-102"
+                        previewPointTemplate && "scale-[1.02]"
                       )}
                     >
                       <span className="font-mono text-[10px] opacity-80">{pt.score} pts</span>

@@ -413,7 +413,7 @@ export function AiBreakdownModal({
                         </div>
 
                         {preset.isRecommended ? (
-                          <span className="rounded-full bg-amber-400/20 border border-amber-400/40 px-1.5 py-0.5 text-[9px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                          <span className="rounded-full bg-amber-400/20 border border-amber-400/40 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
                             Best
                           </span>
                         ) : (

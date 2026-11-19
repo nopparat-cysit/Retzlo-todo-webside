@@ -228,7 +228,7 @@ export function OmikujiDeskSettings() {
           label="ภาษาการแสดงผลคำทำนาย (Editorial Language)"
           description="เลือกว่าจะให้คำทำนาย 5 ด้านแสดงเป็นภาษาไทย หรือถอดความเรียบเรียงภาษาอังกฤษ"
         >
-          <div className="flex items-center gap-1.5 rounded-lg border border-theme-border bg-theme-paper p-1">
+          <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-theme-border bg-theme-paper p-1">
             <button
               type="button"
               onClick={() => handleLanguageChange("auto")}
@@ -273,7 +273,7 @@ export function OmikujiDeskSettings() {
           label="โหมดรอบการเสี่ยงทาย (Draw Frequency Mode)"
           description="วันละ 1 ใบเพื่อสร้างจังหวะชีวิตอย่างสงบ (Daily) หรือเปิดให้สุ่มได้ตลอดเวลา (Unlimited)"
         >
-          <div className="flex items-center gap-1.5 rounded-lg border border-theme-border bg-theme-paper p-1">
+          <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-theme-border bg-theme-paper p-1">
             <button
               type="button"
               onClick={() => handleDrawModeChange("daily")}

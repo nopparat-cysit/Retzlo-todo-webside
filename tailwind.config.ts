@@ -71,6 +71,7 @@ const config: Config = {
         panel: "0 8px 32px rgba(8, 8, 23, 0.4), inset 0 1px 0 rgba(245, 239, 230, 0.1)"
       },
       spacing: {
+        "7.5": "1.875rem",
         "8.5": "2.125rem",
         "9.5": "2.375rem"
       },

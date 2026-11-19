@@ -82,7 +82,7 @@ export function ProjectTopbarTools() {
               size="icon"
               aria-label="Studio tools"
               className={cn(
-                "h-9 w-9 rounded-lg border text-stone-400 transition",
+                "h-9 w-9 rounded-xl border text-stone-400 transition",
                 mobileOpen
                   ? "border-dusk-lavender/45 bg-dusk-lavender/12 text-dusk-lavender"
                   : "border-white/10 bg-white/[0.045] hover:border-dusk-lavender/45 hover:bg-dusk-lavender/10 hover:text-dusk-lavender"
@@ -152,7 +152,7 @@ export function ProjectTopbarTools() {
                       size="icon"
                       aria-label={tool.label}
                       className={cn(
-                        "h-9 w-9 rounded-lg border text-stone-400 transition",
+                        "h-9 w-9 rounded-xl border text-stone-400 transition",
                         isActive
                           ? "border-dusk-lavender/45 bg-dusk-lavender/12 text-dusk-lavender"
                           : "border-white/10 bg-white/[0.045] hover:border-dusk-lavender/45 hover:bg-dusk-lavender/10 hover:text-dusk-lavender"

@@ -880,7 +880,7 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                style={{ padding: "8px", color: "var(--foreground)" }}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-theme-foreground transition hover:bg-theme-paper active:scale-95"
                 aria-label="Toggle Menu"
               >
                 {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -978,7 +978,9 @@ export default function LandingPage() {
               ) : (
                 <>
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <button className="w-full py-2 text-sm">Sign In</button>
+                    <button className="w-full py-2.5 rounded-lg text-sm font-semibold border border-stone-200 dark:border-white/10 text-theme-foreground hover:bg-theme-paper transition">
+                      Sign In
+                    </button>
                   </Link>
                   <Link
                     href={defaultDestination}
@@ -2485,11 +2487,11 @@ export default function LandingPage() {
                     >
                       {t.avatarText}
                     </div>
-                    <div>
-                      <h3 className="font-bold text-sm sm:text-base text-[var(--foreground)] leading-tight">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate font-bold text-sm sm:text-base text-[var(--foreground)] leading-tight">
                         {t.name}
                       </h3>
-                      <p className="text-xs text-[var(--muted)] line-clamp-1">{t.role}</p>
+                      <p className="truncate text-xs text-[var(--muted)]">{t.role}</p>
                       <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-purple-500/10 text-[#7858d4] dark:text-purple-300 border border-purple-400/20">
                         {t.badge}
                       </span>
@@ -2811,10 +2813,10 @@ export default function LandingPage() {
                     </button>
                   </Link>
 
-                  <Link href="/help">
+                  <Link href="/help" className="w-full sm:w-auto">
                     <button
                       type="button"
-                      className="lp-free-ghost-btn inline-flex items-center gap-2 h-14 sm:h-16 px-6 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer font-thai"
+                      className="lp-free-ghost-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 h-14 sm:h-16 px-6 rounded-2xl font-bold text-xs sm:text-sm cursor-pointer font-thai"
                     >
                       <span>ดูคู่มือระบบ & ฟีเจอร์ทั้งหมด</span>
                     </button>

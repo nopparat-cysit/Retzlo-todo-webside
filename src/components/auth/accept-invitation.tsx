@@ -342,7 +342,7 @@ export function AcceptInvitation() {
           <p className="text-theme-muted">Please sign in or create an account with this email address to accept the invitation.</p>
         </div>
 
-        <div className="space-y-2 pt-1">
+        <div className="space-y-2 pt-3">
           <Link href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="block w-full">
             <Button className="w-full flex items-center justify-center gap-2 bg-dusk-lavender text-ink-950 font-semibold hover:bg-dusk-amber transition-all">
               <LogIn className="h-4 w-4" />
@@ -375,7 +375,7 @@ export function AcceptInvitation() {
           </p>
         </div>
 
-        <div className="space-y-2 pt-1">
+        <div className="space-y-2 pt-3">
           <Link href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="block w-full">
             <Button className="w-full bg-dusk-lavender text-ink-950 font-semibold hover:bg-dusk-amber transition-all">
               Switch Account
@@ -404,7 +404,7 @@ export function AcceptInvitation() {
         </span>
       </div>
 
-      <div className="space-y-2 pt-1">
+      <div className="space-y-2 pt-3">
         <Button
           onClick={handleAccept}
           disabled={isSubmitting || isDeclining}

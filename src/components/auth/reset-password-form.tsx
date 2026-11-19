@@ -93,8 +93,18 @@ export function ResetPasswordForm({ email }: { email: string }) {
         <div className="rounded-md border border-theme-info-border bg-theme-info-surface p-3 text-sm text-theme-info">
           OTP verified for {emailValue}
         </div>
-        <Input name="password" type="password" minLength={8} placeholder="New password" required />
-        <Input name="confirmPassword" type="password" minLength={8} placeholder="Confirm new password" required />
+        <div className="space-y-1.5">
+          <label htmlFor="password" className="text-xs font-medium text-theme-foreground">
+            New Password
+          </label>
+          <Input id="password" name="password" type="password" minLength={8} placeholder="New password" required />
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="confirmPassword" className="text-xs font-medium text-theme-foreground">
+            Confirm Password
+          </label>
+          <Input id="confirmPassword" name="confirmPassword" type="password" minLength={8} placeholder="Confirm new password" required />
+        </div>
         {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
         {message ? <p className="text-sm text-theme-info">{message}</p> : null}
         <Button className="w-full" disabled={isPending}>
@@ -106,23 +116,35 @@ export function ResetPasswordForm({ email }: { email: string }) {
 
   return (
     <form className="space-y-4" onSubmit={verifyOtp}>
-      <Input
-        name="email"
-        type="email"
-        value={emailValue}
-        onChange={(event) => setEmailValue(event.target.value)}
-        placeholder="you@example.com"
-        required
-      />
-      <Input
-        name="otp"
-        inputMode="numeric"
-        maxLength={6}
-        value={otpValue}
-        onChange={(event) => setOtpValue(event.target.value.replace(/\D/g, "").slice(0, 6))}
-        placeholder="6-digit OTP"
-        required
-      />
+      <div className="space-y-1.5">
+        <label htmlFor="email" className="text-xs font-medium text-theme-foreground">
+          Email Address
+        </label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          value={emailValue}
+          onChange={(event) => setEmailValue(event.target.value)}
+          placeholder="you@example.com"
+          required
+        />
+      </div>
+      <div className="space-y-1.5">
+        <label htmlFor="otp" className="text-xs font-medium text-theme-foreground">
+          6-digit OTP
+        </label>
+        <Input
+          id="otp"
+          name="otp"
+          inputMode="numeric"
+          maxLength={6}
+          value={otpValue}
+          onChange={(event) => setOtpValue(event.target.value.replace(/\D/g, "").slice(0, 6))}
+          placeholder="6-digit OTP"
+          required
+        />
+      </div>
       {error ? <p className="text-sm text-theme-danger">{error}</p> : null}
       <Button className="w-full" disabled={isPending || otpValue.length !== 6}>
         {isPending ? "Verifying..." : "Verify OTP"}

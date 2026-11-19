@@ -618,7 +618,7 @@ export function DiaryChecklistPreview({
                             prev.includes(item.id) ? prev.filter((id) => id !== item.id) : [...prev, item.id]
                           );
                         }}
-                        className="ml-1.5 inline-flex items-center text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 transition cursor-pointer"
+                        className="ml-1.5 grid h-6 w-6 place-items-center rounded text-stone-500 hover:bg-white/10 hover:text-stone-700 dark:hover:text-stone-300 transition cursor-pointer"
                         title="Toggle step details"
                       >
                         <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", expandedItemIds.includes(item.id) && "rotate-180")} />

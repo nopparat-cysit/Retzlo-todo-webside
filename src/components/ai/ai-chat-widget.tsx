@@ -639,7 +639,7 @@ export function AiChatWidget() {
                   if (msg.role === "user") {
                     return (
                       <div key={msg.id} className="flex justify-end">
-                        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md border border-theme-border bg-theme-paper px-3.5 py-2 text-theme-foreground">
+                        <div className="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md border border-theme-border bg-theme-paper px-4 py-2.5 text-theme-foreground">
                           {msg.content && <div>{msg.content}</div>}
                           {msg.attachments && msg.attachments.length > 0 && (
                             <div className={cn("space-y-1.5", msg.content ? "mt-2" : "")}>
@@ -726,11 +726,11 @@ export function AiChatWidget() {
                                         {card.description}
                                       </p>
                                     )}
-                                    <p className="mt-1 flex flex-wrap gap-x-2 text-[10px] uppercase tracking-wide text-theme-muted">
+                                    <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[10px] uppercase tracking-wide text-theme-muted">
                                       <span>{card.columnName}</span>
-                                      <span>·</span>
+                                      <span className="select-none text-theme-muted/50">/</span>
                                       <span>{getPriorityMeta(card.priority).label}</span>
-                                      <span>·</span>
+                                      <span className="select-none text-theme-muted/50">/</span>
                                       <span className="normal-case tracking-normal">
                                         {formatProposalDueDate(card.dueDate, card.dueDateAllDay, isEn)}
                                       </span>

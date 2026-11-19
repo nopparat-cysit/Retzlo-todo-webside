@@ -1498,7 +1498,7 @@ export function KanbanBoard({
                     <span className="text-xs font-bold text-stone-900 dark:text-stone-200">{totalCards}</span>
                   </div>
                   <div className="h-3.5 w-[1px] bg-stone-200 dark:bg-white/10" />
-                  <div className="flex h-7 items-center gap-1.5 px-2 rounded-lg">
+                  <div className="flex h-7 items-center gap-1.5 px-2.5 rounded-lg">
                     <span className="flex items-center text-[10px] uppercase text-indigo-600 dark:text-dusk-lavender font-mono">
                       <span className="mr-1 h-1.5 w-1.5 rounded-full bg-indigo-500 dark:bg-dusk-lavender shrink-0" />
                       Prog
@@ -1506,7 +1506,7 @@ export function KanbanBoard({
                     <span className="text-xs font-bold text-indigo-600 dark:text-dusk-lavender">{doingCards}</span>
                   </div>
                   <div className="h-3.5 w-[1px] bg-stone-200 dark:bg-white/10" />
-                  <div className="flex h-7 items-center gap-1.5 px-2 rounded-lg">
+                  <div className="flex h-7 items-center gap-1.5 px-2.5 rounded-lg">
                     <span className="flex items-center text-[10px] uppercase text-amber-600 dark:text-dusk-amber font-mono">
                       <span className="mr-1 h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-dusk-amber shrink-0" />
                       Done

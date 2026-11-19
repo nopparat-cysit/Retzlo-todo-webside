@@ -1199,7 +1199,7 @@ function NoteCard({
         <Star className="h-4 w-4" />
       </button>
 
-      <div className={cn("flex items-start pr-8", list && "items-center")}>
+      <div className={cn("flex items-start pr-12", list && "items-center")}>
         <button className="min-w-0 flex-1 text-left" type="button" onClick={onEdit}>
           <div className="mb-2 flex flex-wrap items-center gap-2">
             {note.completedAt ? (
@@ -1850,7 +1850,7 @@ function NoteStickerPicker({
             onClick={() => onChange(option.src)}
             title={option.label}
           >
-            <RetroStickerImage alt={option.label} size={44} src={option.src} />
+            <RetroStickerImage alt={option.label} size={34} src={option.src} />
           </button>
         ))}
       </div>

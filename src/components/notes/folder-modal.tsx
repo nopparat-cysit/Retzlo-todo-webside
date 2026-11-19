@@ -139,7 +139,7 @@ export function FolderModal({ folder, open, onClose, onSave }: FolderModalProps)
             <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-stone-400">
               Icon
             </label>
-            <div className="grid grid-cols-8 gap-1.5 sm:grid-cols-8">
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
               {FOLDER_ICON_OPTIONS.map((opt) => (
                 <button
                   key={opt.id}

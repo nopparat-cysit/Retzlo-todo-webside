@@ -347,7 +347,7 @@ ${growth}
           {step === "slip" && fortune && (
             <div className="flex flex-col">
               {/* Slip Top Controls */}
-              <div className="flex items-center justify-end border-b border-stone-300/80 dark:border-stone-800 pb-3 mb-6 pr-8">
+              <div className="flex items-center justify-end border-b border-stone-300/80 dark:border-stone-800 pb-3 mb-6 pr-10 sm:pr-12">
                 {/* Language Switcher */}
                 <div className="flex items-center gap-1 bg-stone-200/70 dark:bg-stone-800/80 p-0.5 rounded-lg">
                   <button
@@ -485,20 +485,18 @@ ${growth}
               </div>
 
               {/* Bottom Actions Bar */}
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 pt-2">
-                <div className="flex items-center gap-2">
-                  {settings.drawMode === "unlimited" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setStep("shaker")}
-                      className="text-xs gap-1.5"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5" />
-                      <span>เขย่าใหม่อีกครั้ง (Draw Again)</span>
-                    </Button>
-                  )}
-                </div>
+              <div className={cn("mt-6 flex flex-wrap items-center gap-3 pt-2", settings.drawMode === "unlimited" ? "justify-between" : "justify-end")}>
+                {settings.drawMode === "unlimited" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setStep("shaker")}
+                    className="text-xs gap-1.5"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span>เขย่าใหม่อีกครั้ง (Draw Again)</span>
+                  </Button>
+                )}
 
                 <div className="flex items-center gap-2">
                   {/* Copy Button */}

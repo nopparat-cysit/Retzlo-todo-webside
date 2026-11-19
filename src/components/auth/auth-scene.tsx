@@ -144,7 +144,7 @@ export function AuthScene({
               </h1>
             ) : null}
             {description ? (
-              <p className="mt-2 text-sm text-theme-muted max-w-[280px] mx-auto">
+              <p className="mt-2 text-sm text-theme-muted max-w-xs sm:max-w-sm mx-auto">
                 {description}
               </p>
             ) : null}

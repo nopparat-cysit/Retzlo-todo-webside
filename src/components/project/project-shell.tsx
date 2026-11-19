@@ -177,7 +177,7 @@ export async function ProjectShell({
               </Link>
               <label
                 htmlFor="project-sidebar-toggle"
-                className="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.055] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender"
+                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.055] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender"
                 title="Toggle sidebar"
                 aria-label="Toggle sidebar"
               >
@@ -227,7 +227,7 @@ export async function ProjectShell({
             <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
               <label
                 htmlFor="project-sidebar-toggle"
-                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender lg:hidden"
+                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.045] text-stone-300 transition hover:border-dusk-lavender/45 hover:bg-white/10 hover:text-dusk-lavender lg:hidden"
                 title="Open workspace menu"
                 aria-label="Open workspace menu"
               >
@@ -256,7 +256,7 @@ export async function ProjectShell({
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <div className="hidden sm:inline-flex"><ProjectTopbarTools /></div>
               <div className="hidden sm:inline-flex"><FocusModeToggle /></div>
-              <div className="hidden sm:inline-flex"><CommandPaletteTrigger variant="topbar" /></div>
+              <div className="hidden 2xl:inline-flex"><CommandPaletteTrigger variant="topbar" /></div>
               <div className="hidden sm:inline-flex"><LanguageSwitcher /></div>
               <NotificationsPopover />
               <AiChatTrigger />

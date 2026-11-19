@@ -307,7 +307,8 @@ export function BoardGeneralTab({
                   <button
                     type="button"
                     onClick={() => onSearchChange("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 grid h-6 w-6 place-items-center rounded-md text-stone-400 hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-white/10 dark:hover:text-stone-200 transition cursor-pointer"
+                    aria-label="Clear member search"
                   >
                     <X className="h-3 w-3" />
                   </button>
