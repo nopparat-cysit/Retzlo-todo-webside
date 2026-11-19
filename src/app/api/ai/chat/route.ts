@@ -222,8 +222,13 @@ export async function POST(request: Request) {
           .map((card) => `- [${card.column.name} | ${card.status} | ${card.priority}] ${card.title}`)
           .join("\n");
 
+        const now = new Date();
+        const currentDateStr = now.toISOString().slice(0, 10);
+        const dayOfWeek = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(now);
+
         projectContext = `Project Name: "${project.name}"
 Current Board: "${activeBoard.name}"
+Current Reference Date: ${currentDateStr} (${dayOfWeek})
 Available columns for creating cards (exact column names):
 ${activeBoard.columns.map((column) => `- ${column.name} (default status: ${column.defaultCardStatus})`).join("\n") || "No columns"}
 Board cards overview (${cards.length} cards): TODO: ${todoCount}, DOING: ${doingCount}, WAITING: ${waitingCount}, DONE: ${doneCount}

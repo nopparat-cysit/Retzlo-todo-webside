@@ -416,6 +416,7 @@ export function AiChatWidget() {
       }
 
       const createdCount = data.createdCount ?? proposal.cards.length;
+      const hasCalendarItems = proposal.cards.some((c) => Boolean(c.dueDate));
       setMessages((current) => current.map((item) =>
         item.id === message.id
           ? {
@@ -428,7 +429,9 @@ export function AiChatWidget() {
       ));
       setConfirmProposalId(null);
       toast({
-        message: tr(`เพิ่มการ์ด ${createdCount} ใบลงบอร์ดแล้ว`, `Added ${createdCount} card(s) to the board`),
+        message: hasCalendarItems
+          ? tr(`เพิ่มการ์ด ${createdCount} ใบลงบอร์ดและปฏิทินแล้ว`, `Added ${createdCount} card(s) to board & calendar`)
+          : tr(`เพิ่มการ์ด ${createdCount} ใบลงบอร์ดแล้ว`, `Added ${createdCount} card(s) to the board`),
         type: "success"
       });
     } catch (error) {
@@ -706,10 +709,10 @@ export function AiChatWidget() {
                         {msg.createProposal && (
                           <div className="mt-3 overflow-hidden rounded-xl border border-theme-border bg-theme-panel-strong">
                             <div className="flex items-baseline justify-between gap-2 border-b border-theme-border px-3.5 py-2.5">
-                              <p className="text-[12px] font-semibold text-theme-foreground">
-                                {tr("ร่างการ์ด", "Draft cards")} · {msg.createProposal.boardName}
+                              <p className="text-[12px] font-semibold text-theme-foreground truncate">
+                                {tr("ร่างการ์ดและกำหนดการ", "Draft cards & schedule")} · {msg.createProposal.boardName}
                               </p>
-                              <span className="font-mono text-[11px] text-theme-muted">
+                              <span className="font-mono text-[11px] text-theme-muted shrink-0">
                                 {msg.createProposal.cards.length} {tr("ใบ", "items")}
                               </span>
                             </div>
@@ -762,7 +765,7 @@ export function AiChatWidget() {
                         {msg.proposalStatus === "created" && (
                           <p className="mt-3 flex items-center gap-1.5 text-[12px] text-theme-success">
                             <Check className="h-3.5 w-3.5" />
-                            {tr(`สร้างการ์ด ${msg.createdCardCount ?? 0} ใบลงบอร์ดแล้ว`, `Created ${msg.createdCardCount ?? 0} card(s) on the board`)}
+                            {tr(`บันทึกลงบอร์ดและปฏิทินเรียบร้อย (${msg.createdCardCount ?? 0} รายการ)`, `Saved ${msg.createdCardCount ?? 0} item(s) to board & calendar`)}
                           </p>
                         )}
                         {msg.proposalStatus === "cancelled" && (

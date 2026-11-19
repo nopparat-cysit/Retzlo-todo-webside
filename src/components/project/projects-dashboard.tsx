@@ -866,7 +866,7 @@ export function ProjectsDashboard({
           ) : null}
 
           {/* Unified Studio Command Header */}
-          <div className="lofi-panel sticky top-0 sm:top-2 z-30 mb-4 flex shrink-0 flex-col gap-3.5 rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-stone-200/90 bg-white/95 shadow-sm dark:border-white/10 dark:bg-ink-950/92 dark:shadow-lg">
+          <div className="lofi-panel sticky top-0 z-30 mb-4 flex shrink-0 flex-col gap-3.5 rounded-2xl p-4 sm:p-5 backdrop-blur-xl border border-stone-200/90 bg-white/95 shadow-sm dark:border-white/10 dark:bg-ink-950/92 dark:shadow-lg">
             {/* Mobile-only Utility Header for Instant Profile & Tool Access */}
             <div className="flex lg:hidden items-center justify-between pb-3 border-b border-stone-200/80 dark:border-white/10">
               <div className="flex items-center gap-2 min-w-0">
